@@ -34,6 +34,7 @@ from main.models import Transfer
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
+
 def extract(target, destinationDirectory):
     filename, file_extension = os.path.splitext(target)
 
@@ -63,13 +64,13 @@ if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.extractBagTransfer")
 
     target = sys.argv[1]
-    transferUUID =  sys.argv[2]
+    transferUUID = sys.argv[2]
     processingDirectory = sys.argv[3]
     sharedPath = sys.argv[4]
-    
+
     basename = os.path.basename(target)
     basename = basename[:basename.rfind(".")]
-    
+
     destinationDirectory = os.path.join(processingDirectory, basename)
 
     # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
@@ -80,27 +81,27 @@ if __name__ == '__main__':
         pass
 
     zipLocation = os.path.join(processingDirectory, os.path.basename(target))
-    
-    #move to processing directory
+
+    # move to processing directory
     shutil.move(target, zipLocation)
-    
-    #extract
+
+    # extract
     extract(zipLocation, destinationDirectory)
-    
-    #checkForTopLevelBag
+
+    # checkForTopLevelBag
     listdir = os.listdir(destinationDirectory)
     if len(listdir) == 1:
         internalBagName = listdir[0]
-        #print "ignoring BagIt internal name: ", internalBagName  
+        # print "ignoring BagIt internal name: ", internalBagName
         temp = destinationDirectory + "-tmp"
         shutil.move(destinationDirectory, temp)
-        #destinationDirectory = os.path.join(processingDirectory, internalBagName)
+        # destinationDirectory = os.path.join(processingDirectory, internalBagName)
         shutil.move(os.path.join(temp, internalBagName), destinationDirectory)
         os.rmdir(temp)
-    
-    #update transfer
+
+    # update transfer
     destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
     t = Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
-    
-    #remove bag
+
+    # remove bag
     os.remove(zipLocation)

@@ -79,7 +79,7 @@
           </div>
         </div>
 
-        {% if item.stdout|length > 0 or item.stderr|length > 0 %}
+        {% if item.stdout|length > 0 or item.stderror|length > 0 %}
           <h4>{% trans "Standard streams" %}</h4>
         {% endif %}
 
@@ -94,13 +94,13 @@
           </div>
         {% endif %}
 
-        {% if item.stderr|length > 0 %}
+        {% if item.stderror|length > 0 %}
           <div class="panel panel-danger">
             <div class="panel-heading">
               <h3 class="panel-title">{% trans "Standard error (stderr)" %}</h3>
             </div>
             <div class="panel-body shell-output">
-              <pre>{{ item.stderr }}</pre>
+              <pre>{{ item.stderror }}</pre>
             </div>
           </div>
         {% endif %}

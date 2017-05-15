@@ -37,47 +37,60 @@ LOGGER = logging.getLogger('archivematica.dashboard')
       Rights-related
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def transfer_rights_list(request, uuid):
     return rights_list(request, uuid, 'transfer')
+
 
 def transfer_rights_edit(request, uuid, id=None):
     return rights_edit(request, uuid, id, 'transfer')
 
+
 def transfer_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'transfer')
+
 
 def transfer_grant_delete_context(request, uuid, id):
     prompt = 'Delete rights grant?'
     cancel_url = reverse("components.rights.views.transfer_rights_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
+
 @decorators.confirm_required('simple_confirm.html', transfer_grant_delete_context)
 def transfer_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'transfer')
 
+
 def transfer_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'transfer')
+
 
 def ingest_rights_list(request, uuid):
     return rights_list(request, uuid, 'ingest')
 
+
 def ingest_rights_edit(request, uuid, id=None):
     return rights_edit(request, uuid, id, 'ingest')
 
+
 def ingest_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'ingest')
+
 
 def ingest_grant_delete_context(request, uuid, id):
     prompt = 'Delete rights grant?'
     cancel_url = reverse("components.rights.views.ingest_rights_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
+
 @decorators.confirm_required('simple_confirm.html', ingest_grant_delete_context)
 def ingest_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'ingest')
 
+
 def ingest_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'ingest')
+
 
 def rights_parse_agent_id(input):
     return 0
@@ -96,6 +109,7 @@ def rights_parse_agent_id(input):
             else:
                 agentId = 0
     return agentId
+
 
 def rights_edit(request, uuid, id=None, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
@@ -145,10 +159,10 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             viewRights = models.RightsStatement()
 
         extra_copyright_forms = max_notes
-        extra_statute_forms   = max_notes
-        extra_license_forms   = max_notes
-        extra_license_notes   = max_notes
-        extra_other_forms     = max_notes
+        extra_statute_forms = max_notes
+        extra_license_forms = max_notes
+        extra_license_notes = max_notes
+        extra_other_forms = max_notes
 
     # create inline formsets for child elements
     CopyrightFormSet = inlineformset_factory(
@@ -238,9 +252,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdCopyright.save()
 
             copyrightDocIdentifier = models.RightsStatementCopyrightDocumentationIdentifier(rightscopyright=createdCopyright)
-            copyrightDocIdentifier.copyrightdocumentationidentifiertype  = request.POST.get('copyright_documentation_identifier_type', '')
+            copyrightDocIdentifier.copyrightdocumentationidentifiertype = request.POST.get('copyright_documentation_identifier_type', '')
             copyrightDocIdentifier.copyrightdocumentationidentifiervalue = request.POST.get('copyright_documentation_identifier_value', '')
-            copyrightDocIdentifier.copyrightdocumentationidentifierrole  = request.POST.get('copyright_documentation_identifier_role', '')
+            copyrightDocIdentifier.copyrightdocumentationidentifierrole = request.POST.get('copyright_documentation_identifier_role', '')
             copyrightDocIdentifier.save()
 
             new_content_type_created = _('copyright')
@@ -284,9 +298,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdLicense.save()
 
             licenseDocIdentifier = models.RightsStatementLicenseDocumentationIdentifier(rightsstatementlicense=createdLicense)
-            licenseDocIdentifier.licensedocumentationidentifiertype  = request.POST.get('license_documentation_identifier_type', '')
+            licenseDocIdentifier.licensedocumentationidentifiertype = request.POST.get('license_documentation_identifier_type', '')
             licenseDocIdentifier.licensedocumentationidentifiervalue = request.POST.get('license_documentation_identifier_value', '')
-            licenseDocIdentifier.licensedocumentationidentifierrole  = request.POST.get('license_documentation_identifier_role', '')
+            licenseDocIdentifier.licensedocumentationidentifierrole = request.POST.get('license_documentation_identifier_role', '')
             licenseDocIdentifier.save()
 
             new_content_type_created = _('license')
@@ -322,9 +336,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 # handle documentation identifier creation for a parent statute that already exists
                 if request.POST.get('statute_documentation_identifier_type_' + str(form.instance.pk), '') != '' or request.POST.get('statute_documentation_identifier_value_' + str(form.instance.pk), '') or request.POST.get('statute_documentation_identifier_role_' + str(form.instance.pk), ''):
                     statuteDocIdentifier = models.RightsStatementStatuteDocumentationIdentifier(rightsstatementstatute=form.instance)
-                    statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get('statute_documentation_identifier_type_' +  str(form.instance.pk), '')
-                    statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_' +  str(form.instance.pk), '')
-                    statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_' +  str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get('statute_documentation_identifier_type_' + str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_' + str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_' + str(form.instance.pk), '')
                     statuteDocIdentifier.save()
                     new_content_type_created = _('statute')
 
@@ -393,14 +407,14 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdOther.save()
 
             otherDocIdentifier = models.RightsStatementOtherRightsDocumentationIdentifier(rightsstatementotherrights=createdOther)
-            otherDocIdentifier.otherrightsdocumentationidentifiertype  = request.POST.get('other_documentation_identifier_type', '')
+            otherDocIdentifier.otherrightsdocumentationidentifiertype = request.POST.get('other_documentation_identifier_type', '')
             otherDocIdentifier.otherrightsdocumentationidentifiervalue = request.POST.get('other_documentation_identifier_value', '')
-            otherDocIdentifier.otherrightsdocumentationidentifierrole  = request.POST.get('other_documentation_identifier_role', '')
+            otherDocIdentifier.otherrightsdocumentationidentifierrole = request.POST.get('other_documentation_identifier_role', '')
             otherDocIdentifier.save()
 
             new_content_type_created = 'other'
 
-        if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
+        if request.POST.get('next_button', '') is not None and request.POST.get('next_button', '') != '':
             return redirect('components.rights.views.%s_rights_grants_edit' % section, uuid, createdRights.pk)
         else:
             url = reverse('components.rights.views.%s_rights_edit' % section, args=[uuid, createdRights.pk])
@@ -421,6 +435,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
     return render(request, 'rights/rights_edit.html', locals())
 
+
 def rights_grants_edit(request, uuid, id, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name_from_job(jobs)
@@ -432,11 +447,11 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
 
     # create inline formsets for child elements
     GrantFormSet = inlineformset_factory(
-      models.RightsStatement,
-      models.RightsStatementRightsGranted,
-      extra=extra_grant_forms,
-      can_delete=False,
-      form=forms.RightsGrantedForm
+        models.RightsStatement,
+        models.RightsStatementRightsGranted,
+        extra=extra_grant_forms,
+        can_delete=False,
+        form=forms.RightsGrantedForm
     )
 
     # handle form creation/saving
@@ -493,7 +508,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
     grantFormset = GrantFormSet(instance=viewRights)
 
     if request.method == 'POST':
-        if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
+        if request.POST.get('next_button', '') is not None and request.POST.get('next_button', '') != '':
             return redirect('components.rights.views.%s_rights_list' % section, uuid)
         else:
             url = reverse('components.rights.views.%s_rights_grants_edit' % section, args=[uuid, viewRights.pk])
@@ -501,13 +516,16 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
     else:
         return render(request, 'rights/rights_grants_edit.html', locals())
 
+
 def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
     return redirect('components.rights.views.%s_rights_list' % section, uuid)
 
+
 def rights_grant_delete(request, uuid, id, section):
     models.RightsStatementRightsGranted.objects.get(pk=id).delete()
     return redirect('components.rights.views.%s_rights_list' % section, uuid)
+
 
 def rights_holders_lookup(request, id):
     try:
@@ -517,13 +535,15 @@ def rights_holders_lookup(request, id):
         result = ''
     return HttpResponse(result)
 
+
 def rights_holders_autocomplete(request):
 
     search_text = ''
 
     try:
         search_text = request.REQUEST['text']
-    except Exception: pass
+    except Exception:
+        pass
 
     response = {}
 
@@ -533,6 +553,7 @@ def rights_holders_autocomplete(request):
         response[value] = value
 
     return helpers.json_response(response)
+
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')

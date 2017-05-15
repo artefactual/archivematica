@@ -13,12 +13,14 @@ import time
 from optparse import OptionParser
 from fido import fido
 
+
 class FiwalkFido(fido.Fido):
     """docstring for FiwalkFido"""
+
     def __init__(self, **kwargs):
         fido.Fido.__init__(self, kwargs)
         self.handle_matches = self.parse_matches
-    
+
     def identify_file(self, filename):
         """Identify the type of @param filename.
 """
@@ -45,9 +47,9 @@ class FiwalkFido(fido.Fido):
             if self.zip:
                 self.identify_contents(filename, type=self.container_type(matches))
         except IOError:
-            #print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
+            # print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
             sys.stderr.write("FIDO: Error in identify_file: Path is {0}\n".format(filename))
-    
+
     def parse_matches(self, fullname, matches, delta_t, matchtype=''):
         out = {}
         out['pronomSoftware'] = 'fido ' + fido.version
@@ -63,25 +65,27 @@ class FiwalkFido(fido.Fido):
                 out['pronomFormatName'] = f.find('name').text
                 out['pronomSignatureName'] = s.find('name').text
                 mime = f.find('mime')
-                out['pronomFormatMimeType'] = mime.text if mime != None else None
+                out['pronomFormatMimeType'] = mime.text if mime is not None else None
                 version = f.find('version')
-                out['pronomFormatVersion'] = version.text if version != None else None
+                out['pronomFormatVersion'] = version.text if version is not None else None
                 alias = f.find('alias')
-                out['pronomFormatAlias'] = alias.text if alias != None else None
+                out['pronomFormatAlias'] = alias.text if alias is not None else None
         return out
+
 
 def pronom_ident(fn):
     f = FiwalkFido(quiet=True)
     return f.identify_file(fn)
-    
+
+
 def main():
     parser = OptionParser()
     opts, args = parser.parse_args()
-    
+
     if len(args) < 1:
         parser.print_help()
         exit(-1)
-    
+
     filename = args[0]
     out = pronom_ident(filename)
 
@@ -89,6 +93,6 @@ def main():
         if v is not None:
             print(k + ': ' + str(v))
 
+
 if __name__ == "__main__":
     sys.exit(main())
-

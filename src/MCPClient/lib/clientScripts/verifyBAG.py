@@ -68,6 +68,7 @@ def verify_bag(bag):
             print("Passed test: %s", command)
     return exit_code
 
+
 if __name__ == '__main__':
     bag = sys.argv[1]
     sys.exit(verify_bag(bag))

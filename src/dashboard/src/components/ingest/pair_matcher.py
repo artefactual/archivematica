@@ -11,6 +11,7 @@ from lazy_paged_sequence import LazyPagedSequence
 
 PAGE_SIZE = 30
 
+
 def _determine_reverse_sort_direction(sort):
     if sort is None or sort == "asc":
         return "desc"
@@ -19,6 +20,8 @@ def _determine_reverse_sort_direction(sort):
 
 # TODO: move into helpers module at some point
 # From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
+
+
 def getDictArray(post, name):
     dic = {}
     for k in post.keys():

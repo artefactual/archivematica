@@ -34,14 +34,14 @@ import namespaces as ns
 
 
 def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
-    #containerMetadata
-    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    # containerMetadata
+    ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
 
     dublincore = etree.SubElement(xmlData, ns.dctermsBNS + "dublincore", attrib=None, nsmap={"dc": ns.dctermsNS})
-    dublincore.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+    dublincore.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     tree = etree.parse(os.path.join(baseDirectoryPath, "objects", "ContainerMetadata.xml"))
     root = tree.getroot()
 
@@ -55,32 +55,32 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
                                 sip_id=fileGroupIdentifier,
                                 filegrpuse="original")
     etree.SubElement(dublincore, ns.dctermsBNS + "extent").text = "%d digital objects".format(files.count())
-    
+
     files = File.objects.filter(removedtime__isnull=True,
                                 sip_id=fileGroupIdentifier,
                                 filegrpuse="TRIM file metadata")
 
-    minDateMod =  None
-    maxDateMod =  None
+    minDateMod = None
+    maxDateMod = None
     for f in files:
         fileMetadataXmlPath = f.currentlocation.replace('%SIPDirectory%', baseDirectoryPath, 1)
         if os.path.isfile(fileMetadataXmlPath):
             tree2 = etree.parse(fileMetadataXmlPath)
             root2 = tree2.getroot()
             dateMod = root2.find("Document/DateModified").text
-            if minDateMod ==  None or dateMod < minDateMod:
-               minDateMod = dateMod
-            if maxDateMod ==  None or dateMod > maxDateMod:
-               maxDateMod = dateMod
+            if minDateMod is None or dateMod < minDateMod:
+                minDateMod = dateMod
+            if maxDateMod is None or dateMod > maxDateMod:
+                maxDateMod = dateMod
 
     etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "%s/%s" % (minDateMod, maxDateMod)
 
-    #print etree.tostring(dublincore, pretty_print = True)
+    # print etree.tostring(dublincore, pretty_print = True)
     return ret
 
 
 def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
-    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
@@ -105,6 +105,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
 
     return ret
 
+
 def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
@@ -122,6 +123,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         etree.SubElement(ret, ns.metsBNS + "mdRef", attrib=attrib)
     return ret
 
+
 def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
@@ -129,6 +131,6 @@ def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
                                 sip_id=fileGroupIdentifier,
                                 filegrpuse="TRIM container metadata")
     for f in files:
-        attrib = {"LABEL":"ContainerMetadata.xml", ns.xlinkBNS + "href":f.currentlocation.replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
+        attrib = {"LABEL": "ContainerMetadata.xml", ns.xlinkBNS + "href": f.currentlocation.replace("%SIPDirectory%", "", 1), "MDTYPE": "OTHER", "OTHERMDTYPE": "CUSTOM", 'LOCTYPE': "OTHER", 'OTHERLOCTYPE': "SYSTEM"}
         etree.SubElement(ret, ns.metsBNS + "mdRef", attrib=attrib)
     return ret

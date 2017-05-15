@@ -14,6 +14,7 @@ import parse_mets_to_db
 
 logger = get_script_logger('archivematica.mcp.client.parse_external_mets')
 
+
 def parse_reingest_mets(transfer_uuid, transfer_path):
     # Parse METS to extract information needed by later microservices
     mets_path = find_mets_file(transfer_path)
@@ -30,11 +31,13 @@ def parse_reingest_mets(transfer_uuid, transfer_path):
     parse_mets_to_db.parse_dc(sip_uuid, root)
     parse_mets_to_db.parse_rights(sip_uuid, root)
 
+
 def main(transfer_uuid, transfer_path):
     # Parse all external METS files if they exist
     parse_reingest_mets(transfer_uuid, transfer_path)
 
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

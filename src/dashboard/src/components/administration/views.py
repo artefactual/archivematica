@@ -25,15 +25,13 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
-from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from main import forms
 from main import models
-from components.administration.forms import AgentForm, SettingsForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
+from components.administration.forms import AgentForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers
@@ -54,7 +52,7 @@ def administration(request):
 
 
 def failure_report(request, report_id=None):
-    if report_id != None:
+    if report_id is not None:
         report = models.Report.objects.get(pk=report_id)
         return render(request, 'administration/reports/failure_detail.html', locals())
     else:
@@ -208,7 +206,7 @@ def _usage_dirs(calculate_usage=True):
     dirs = collections.OrderedDict(dir_defs)
 
     # Resolve location paths and make relative paths absolute
-    for _, dir_spec in dirs.items():
+    for __, dir_spec in dirs.items():
         if 'contained_by' in dir_spec:
             # If contained, make path absolute
             space = dir_spec['contained_by']
@@ -396,7 +394,7 @@ def term_detail(request, term_uuid):
         form = TaxonomyTermForm(request.POST, instance=term)
         if form.is_valid():
             form.save()
-            messages = [{'text': _('Saved.')}]
+            messages.info(request, _('Saved.'))
     else:
         form = TaxonomyTermForm(instance=term)
 

@@ -151,6 +151,7 @@ def each_record(resource, url="https://fpr.archivematica.org/fpr/api/v2/", start
         for object in response["objects"]:
             yield object
 
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-u", "--url", action="store", dest="url", default="https://fpr.archivematica.org/fpr/api/v2/")

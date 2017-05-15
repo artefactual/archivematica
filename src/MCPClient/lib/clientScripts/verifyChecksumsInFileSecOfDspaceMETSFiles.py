@@ -29,6 +29,7 @@ import lxml.etree as etree
 
 from archivematicaFunctions import get_file_checksum
 
+
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
     print(metsFile)
     exitCode = 0
@@ -46,7 +47,7 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
 
         if checksumType and checksumType in hashlib.algorithms:
             checksum2 = get_file_checksum(fileFullPath, checksumType)
-            eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
+            # eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
         else:
             print("Unsupported checksum type: %s" % (checksumType.__str__()), file=sys.stderr)
             exit(300)

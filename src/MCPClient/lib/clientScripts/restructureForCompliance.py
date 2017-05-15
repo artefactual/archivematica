@@ -90,7 +90,7 @@ def restructure_transfer_aip(unit_path):
     for item in os.listdir(src):
         m = p.match(item)
         if m:
-            break # Stop trying after the first match
+            break  # Stop trying after the first match
     src = os.path.join(src, m.group())
     dst = os.path.join(unit_path, 'metadata')
     _move_file(src, dst)
@@ -127,6 +127,7 @@ def restructure_transfer_aip(unit_path):
 
     # Get rid of old_bag
     shutil.rmtree(old_bag)
+
 
 if __name__ == '__main__':
     sip_path = sys.argv[1]

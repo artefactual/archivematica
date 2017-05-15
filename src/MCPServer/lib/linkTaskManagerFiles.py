@@ -26,20 +26,18 @@ import logging
 import os
 import threading
 import time
-import sys
 import uuid
 
 import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -150,7 +148,7 @@ class linkTaskManagerFiles(LinkTaskManager):
             LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
             exit(1)
 
-        if self.clearToNextLink is True and self.tasks == {} :
+        if self.clearToNextLink is True and self.tasks == {}:
             LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
         self.tasksLock.release()

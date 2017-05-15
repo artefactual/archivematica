@@ -23,7 +23,6 @@
 from __future__ import print_function
 import os
 import sys
-import lxml.etree as etree
 
 # fileOperations requires Django to be set up
 import django
@@ -32,6 +31,7 @@ django.setup()
 from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import rename
+
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print(metsFile)
@@ -60,10 +60,9 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
     dst = dest.replace(transferDirectory, "%transferDirectory%")
     eventDetail = ""
     eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-    updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote = eventOutcomeDetailNote)
+    updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
 
     return exitCode
-
 
 
 if __name__ == '__main__':
@@ -74,7 +73,6 @@ if __name__ == '__main__':
     taskUUID = sys.argv[3]
     transferDirectory = sys.argv[4]
     transferUUID = sys.argv[5]
-
 
     ret = verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
     quit(ret)

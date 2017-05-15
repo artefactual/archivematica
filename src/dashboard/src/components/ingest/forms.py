@@ -19,6 +19,7 @@ from django import forms
 from main import models
 from django.conf import settings
 
+
 class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
@@ -62,8 +63,9 @@ class DublinCoreMetadataForm(forms.ModelForm):
     def clean_is_part_of(self):
         data = self.cleaned_data['is_part_of']
         if data and not data.startswith(self.aic_prefix):
-            data = self.aic_prefix+data
+            data = self.aic_prefix + data
         return data
+
 
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
@@ -78,6 +80,5 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     def clean_identifier(self):
         data = self.cleaned_data['identifier']
         if data and not data.startswith(self.aic_prefix):
-            data = self.aic_prefix+data
+            data = self.aic_prefix + data
         return data
-

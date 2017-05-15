@@ -33,6 +33,7 @@ from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import rename
 
+
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print(metsFile)
     DspaceLicenses = "metadata/submissionDocumentation/DspaceLicenses"
@@ -46,8 +47,8 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
     tree = etree.parse(metsFile)
     root = tree.getroot()
     for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp"):
-        #print etree.tostring(item)
-        #print item
+        # print etree.tostring(item)
+        # print item
 
         USE = item.get("USE")
         if USE == "LICENSE":
@@ -64,9 +65,8 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
                             dst = dest.replace(transferDirectory, "%transferDirectory%")
                             eventDetail = ""
                             eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-                            updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote = eventOutcomeDetailNote)
+                            updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
     return exitCode
-
 
 
 if __name__ == '__main__':
@@ -77,7 +77,6 @@ if __name__ == '__main__':
     taskUUID = sys.argv[3]
     transferDirectory = sys.argv[4]
     transferUUID = sys.argv[5]
-
 
     ret = verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
     quit(ret)

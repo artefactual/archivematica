@@ -26,13 +26,13 @@ import gearman
 import logging
 import lxml.etree as etree
 from socket import gethostname
-import sys
 import time
 
 from linkTaskManagerChoice import choicesAvailableForUnits
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server.rpcserver")
+
 
 def rpcError(code="", details=""):
     ret = etree.Element("Error")
@@ -54,6 +54,7 @@ def approveJob(jobUUID, chain, user_id):
         choicesAvailableForUnits[jobUUID].proceedWithChoice(chain, user_id)
     return "approving: ", jobUUID, chain
 
+
 def gearmanApproveJob(gearman_worker, gearman_job):
     try:
         data = cPickle.loads(gearman_job.data)
@@ -65,6 +66,7 @@ def gearmanApproveJob(gearman_worker, gearman_job):
     except Exception:
         LOGGER.exception('Error approving job')
         raise
+
 
 def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
     try:

@@ -28,7 +28,7 @@ import fileOperations
 
 logger = get_script_logger("archivematica.mcp.client.manualNormalizationCreateMetadataAndRestructure")
 
-#"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
+# "%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
 SIPName = sys.argv[2]
 SIPDirectory = sys.argv[3]
@@ -41,7 +41,7 @@ filePathLike = filePath.replace(os.path.join(SIPDirectory, "objects", "manualNor
 i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
-    filePathLike = filePathLike[:i+1]
+    filePathLike = filePathLike[:i + 1]
     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
     filePathLike1 = filePathLike
     # Matches the exact filename.  For files with no extension.
@@ -50,15 +50,15 @@ if i != -1 and k != -1:
 try:
     path_condition = Q(currentlocation__startswith=filePathLike1) | Q(currentlocation=filePathLike2)
     original_file = File.objects.get(path_condition,
-                         removedtime__isnull=True,
-                         filegrpuse="original",
-                         sip_id=SIPUUID)
+                                     removedtime__isnull=True,
+                                     filegrpuse="original",
+                                     sip_id=SIPUUID)
 except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
     # Original file was not found, or there is more than one original file with
     # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
     csv_path = os.path.join(SIPDirectory, "objects", "manualNormalization",
-        "normalization.csv")
+                            "normalization.csv")
     if os.path.isfile(csv_path):
         try:
             preservation_file = filePath[filePath.index('manualNormalization/preservation/'):]
@@ -66,7 +66,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
             print("{0} not in manualNormalization directory".format(filePath), file=sys.stderr)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
-            "preservation", preservation_file, SIPUUID)
+                                                            "preservation", preservation_file, SIPUUID)
         if original is None:
             if isinstance(e, File.DoesNotExist):
                 print("No matching file for: {0}".format(
@@ -74,13 +74,13 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
                 exit(3)
             else:
                 print("Could not find {preservation_file} in {filename}".format(
-                        preservation_file=preservation_file, filename=csv_path), file=sys.stderr)
+                    preservation_file=preservation_file, filename=csv_path), file=sys.stderr)
                 exit(2)
         # If we found the original file, retrieve it from the DB
         original_file = File.objects.get(removedtime__isnull=True,
-                             filegrpuse="original",
-                             originallocation__endswith=original,
-                             sip_id=SIPUUID)
+                                         filegrpuse="original",
+                                         originallocation__endswith=original,
+                                         sip_id=SIPUUID)
     else:
         if isinstance(e, File.DoesNotExist):
             print("No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)

@@ -24,6 +24,7 @@ NSMAP = {
     'premis': 'info:lc/xmlns/premis-v2',
 }
 
+
 class TestDublinCore(TestCase):
     """Test creation of dmdSecs containing Dublin Core."""
     fixture_files = ['dublincore.json']
@@ -121,7 +122,7 @@ class TestDublinCore(TestCase):
     @unittest.expectedFailure
     def test_create_dc_dmdsec_no_dc_transfer_dc_xml(self):
         # FIXME What is the expected behaviour of this? What should the fixture have?
-        transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
+        # transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
         raise NotImplementedError()
 
     def test_dmdsec_from_csv_parsed_metadata_dc_only(self):
@@ -339,6 +340,7 @@ class TestDublinCore(TestCase):
 
 class TestCSVMetadata(TestCase):
     """Test parsing the metadata.csv."""
+
     def tearDown(self):
         if os.path.exists('metadata.csv'):
             os.remove('metadata.csv')
@@ -441,6 +443,7 @@ class TestCSVMetadata(TestCase):
         assert len(dc) == 1
         assert 'objects/foo.jpg' in dc
 
+
 class TestCreateDigiprovMD(TestCase):
     """ Test creating PREMIS:EVENTS and PREMIS:AGENTS """
 
@@ -491,6 +494,7 @@ class TestCreateDigiprovMD(TestCase):
         assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentIdentifierValue').text == '1'
         assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentName').text == 'username="kmindelan", first_name="Keladry", last_name="Mindelan"'
         assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentType').text == 'Archivematica user'
+
 
 class TestRights(TestCase):
     """ Test archivematicaCreateMETSRights creating rightsMD. """

@@ -21,7 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-#/src/dashboard/src/main/models.py
+# /src/dashboard/src/main/models.py
 
 from __future__ import print_function
 import sys
@@ -170,6 +170,7 @@ def createRightsStatement(statement, fileUUID):
     etree.SubElement(linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierValue").text = fileUUID
     return rightsStatement
 
+
 def getDocumentationIdentifier(copyright, parent):
     for identifier in copyright.rightsstatementcopyrightdocumentationidentifier_set.all():
         statuteInformation = etree.SubElement(parent, ns.premisBNS + "copyrightDocumentationIdentifier")
@@ -212,15 +213,15 @@ def getrightsGranted(statement, parent):
     for granted in statement.rightsstatementrightsgranted_set.all():
         rightsGranted = etree.SubElement(parent, ns.premisBNS + "rightsGranted")
         etree.SubElement(rightsGranted, ns.premisBNS + "act").text = granted.act
-        
+
         restriction = "Undefined"
         for restriction in granted.restrictions.all():
             restriction = restriction.restriction
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
                 print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction, file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount +=1
+                sharedVariablesAcrossModules.globalErrorCount += 1
             etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
-        
+
         if granted.startdate or granted.enddate or granted.enddateopen:
             if restriction.lower() in ["allow"]:
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfGrant")
@@ -228,7 +229,7 @@ def getrightsGranted(statement, parent):
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfRestriction")
             else:
                 print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount +=1
+                sharedVariablesAcrossModules.globalErrorCount += 1
                 continue
 
             if granted.startdate:

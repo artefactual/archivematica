@@ -4,6 +4,7 @@ import os
 import sys
 import shutil
 
+
 def main(src, dst):
     """
     Moves a file/directory to a new location, or moves two directories.
@@ -20,6 +21,7 @@ def main(src, dst):
         shutil.move(src, dst)
 
     return 0
+
 
 if __name__ == '__main__':
     src = sys.argv[1]

@@ -25,11 +25,12 @@ import os
 import sys
 from verifySIPCompliance import checkDirectory
 
-requiredDirectories = ["objects", \
-                       "logs", \
-                       "metadata",\
+requiredDirectories = ["objects",
+                       "logs",
+                       "metadata",
                        "metadata/submissionDocumentation"]
 allowableFiles = ["processingMCP.xml"]
+
 
 def verifyDirectoriesExist(SIPDir, ret=0):
     for directory in requiredDirectories:
@@ -37,6 +38,7 @@ def verifyDirectoriesExist(SIPDir, ret=0):
             print("Required Directory Does Not Exist: " + directory, file=sys.stderr)
             ret += 1
     return ret
+
 
 def verifyNothingElseAtTopLevel(SIPDir, ret=0):
     for entry in os.listdir(SIPDir):
@@ -49,6 +51,7 @@ def verifyNothingElseAtTopLevel(SIPDir, ret=0):
                 print("Error, file exists: " + entry, file=sys.stderr)
                 ret += 1
     return ret
+
 
 if __name__ == '__main__':
     SIPDir = sys.argv[1]

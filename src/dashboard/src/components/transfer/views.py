@@ -43,11 +43,13 @@ logger = logging.getLogger('archivematica.dashboard')
       Transfer
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
     return render(request, 'transfer/grid.html', locals())
+
 
 def transfer_source_locations(request):
     try:
@@ -61,6 +63,7 @@ def transfer_source_locations(request):
         }
         return helpers.json_response(response, status_code=500)
 
+
 def component(request, uuid):
     messages = []
     fields_saved = False
@@ -73,7 +76,7 @@ def component(request, uuid):
         metadata_set.save()
     fields = models.TransferMetadataField.objects.all().order_by('sortorder')
     values = {}  # field values
-    options = [] # field options (for value selection)
+    options = []  # field options (for value selection)
 
     for field in fields:
         if field.optiontaxonomy is not None:
@@ -91,7 +94,7 @@ def component(request, uuid):
             for term in field.optiontaxonomy.taxonomyterm_set.iterator():
                 optionvalues.append(term.term)
             options.append({
-                'field':   field,
+                'field': field,
                 'options': optionvalues
             })
 
@@ -116,22 +119,25 @@ def component(request, uuid):
             field_value.fieldvalue = request.POST.get(field.fieldname, '')
             field_value.save()
             fields_saved = True
-            values[(field.fieldname)] = field_value.fieldvalue # override initially loaded value, if any
+            values[(field.fieldname)] = field_value.fieldvalue  # override initially loaded value, if any
 
     if fields_saved:
         messages.append('Metadata saved.')
 
     return render(request, 'transfer/component.html', locals())
 
+
 def status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').order_by('-timestamp')
+    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').order_by('-timestamp')
     mcp_available = False
     try:
         client = MCPClient()
         mcp_status = etree.XML(client.list())
         mcp_available = True
-    except Exception: pass
+    except Exception:
+        pass
+
     def encoder(obj):
         items = []
         for item in obj:
@@ -155,8 +161,10 @@ def status(request, uuid=None):
                 newJob['currentstep'] = job.currentstep
                 newJob['currentstep_label'] = job.get_currentstep_display()
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
+                try:
+                    mcp_status
+                except NameError:
+                    pass
                 else:
                     xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
                     if xml_unit:
@@ -171,6 +179,7 @@ def status(request, uuid=None):
     response['objects'] = objects
     response['mcp'] = mcp_available
     return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
+
 
 def transfer_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('Transfer')
@@ -208,7 +217,7 @@ def transfer_metadata_edit(request, uuid, id=None):
         form = DublinCoreMetadataForm(request.POST)
         if form.is_valid():
             for item in fields:
-                if not item in form.cleaned_data:
+                if item not in form.cleaned_data:
                     continue
                 setattr(dc, item, form.cleaned_data[item])
             dc.save()
@@ -223,6 +232,7 @@ def transfer_metadata_edit(request, uuid, id=None):
 
     return render(request, 'transfer/metadata_edit.html', locals())
 
+
 def create_metadata_set_uuid(request):
     """
     Transfer metadata sets are used to associate a group of metadata field values with
@@ -236,6 +246,7 @@ def create_metadata_set_uuid(request):
         json.dumps(response),
         content_type='application/json'
     )
+
 
 def rename_metadata_set(request, set_uuid, placeholder_id):
     response = {}
@@ -260,6 +271,7 @@ def rename_metadata_set(request, set_uuid, placeholder_id):
         json.dumps(response),
         content_type='application/json'
     )
+
 
 def cleanup_metadata_set(request, set_uuid):
     """

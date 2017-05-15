@@ -32,12 +32,13 @@ SUCCESS = 0
 RULE_FAILED = 1
 NO_RULE_FOUND = 2
 
+
 def get_replacement_dict(opts):
     """ Generates values for all knows %var% replacement variables. """
     prefix = ""
     postfix = ""
     output_dir = ""
-    #get file name and extension
+    # get file name and extension
     (directory, basename) = os.path.split(opts.file_path)
     directory += os.path.sep  # All paths should have trailing /
     (filename, extension_dot) = os.path.splitext(basename)
@@ -65,14 +66,14 @@ def get_replacement_dict(opts):
         "%outputDirectory%": output_dir,
         "%prefix%": prefix,
         "%postfix%": postfix,
-        "%outputFileName%": output_filename, # does not include extension
-        "%outputFilePath%": os.path.join(output_dir, output_filename) # does not include extension
+        "%outputFileName%": output_filename,  # does not include extension
+        "%outputFilePath%": os.path.join(output_dir, output_filename)  # does not include extension
     })
     return replacement_dict
 
 
 def check_manual_normalization(opts):
-    """ Checks for manually normalized file, returns that path or None. 
+    """ Checks for manually normalized file, returns that path or None.
 
     Checks by looking for access/preservation files for a give original file.
 
@@ -97,7 +98,7 @@ def check_manual_normalization(opts):
                 for row in reader:
                     if not row:
                         continue
-                    if "#" in row[0]: # ignore comments
+                    if "#" in row[0]:  # ignore comments
                         continue
                     original, access_file, preservation_file = row
                     if original == bname:
@@ -127,7 +128,7 @@ def check_manual_normalization(opts):
                 return None
             print('Looking for', filename, 'in database')
             # FIXME: SQL uses removedtime=0. Convince Django to express this
-            return File.objects.get(sip=opts.sip_uuid, originallocation__iendswith=filename) #removedtime = 0
+            return File.objects.get(sip=opts.sip_uuid, originallocation__iendswith=filename)  # removedtime = 0
 
     # Assume that any access/preservation file found with the right
     # name is the correct one
@@ -135,19 +136,20 @@ def check_manual_normalization(opts):
     path = os.path.splitext(opts.file_path.replace(opts.sip_path, '%SIPDirectory%', 1))[0]
     if "preservation" in opts.purpose:
         path = path.replace("%SIPDirectory%objects/",
-            "%SIPDirectory%objects/manualNormalization/preservation/")
+                            "%SIPDirectory%objects/manualNormalization/preservation/")
     elif "access" in opts.purpose:
         path = path.replace("%SIPDirectory%objects/",
-            "%SIPDirectory%objects/manualNormalization/access/")
+                            "%SIPDirectory%objects/manualNormalization/access/")
     else:
         return None
     try:
         # FIXME: SQL uses removedtime=0. Cannot get Django to express this
-        return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path) #removedtime = 0
+        return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path)  # removedtime = 0
     except (File.DoesNotExist, File.MultipleObjectsReturned):
         # No file with the correct path found, assume not manually normalized
         return None
     return None
+
 
 def once_normalized(command, opts, replacement_dict):
     """ Updates the database if normalization completed successfully.
@@ -185,24 +187,24 @@ def once_normalized(command, opts, replacement_dict):
         today = timezone.now()
         output_file_uuid = opts.task_uuid  # Match the UUID on disk
         # TODO Add manual normalization for files of same name mapping?
-        #Add the new file to the SIP
+        # Add the new file to the SIP
         path_relative_to_sip = ef.replace(opts.sip_path, "%SIPDirectory%", 1)
         fileOperations.addFileToSIP(
             path_relative_to_sip,
-            output_file_uuid, # File UUID
-            opts.sip_uuid, # SIP UUID
-            opts.task_uuid, # Task UUID
-            today, # Current date
+            output_file_uuid,  # File UUID
+            opts.sip_uuid,  # SIP UUID
+            opts.task_uuid,  # Task UUID
+            today,  # Current date
             sourceType="creation",
             use=opts.purpose,
         )
 
-        #Calculate new file checksum
+        # Calculate new file checksum
         fileOperations.updateSizeAndChecksum(
-            output_file_uuid, # File UUID, same as task UUID for preservation
-            ef, # File path
-            today, # Date
-            str(uuid.uuid4()), # Event UUID, new UUID
+            output_file_uuid,  # File UUID, same as task UUID for preservation
+            ef,  # File path
+            today,  # Date
+            str(uuid.uuid4()),  # Event UUID, new UUID
         )
 
         # Add derivation link and associated event
@@ -244,19 +246,19 @@ def once_normalized(command, opts, replacement_dict):
 
 
 def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
-        event_detail_output, outcome_detail_note, today=None):
+                            event_detail_output, outcome_detail_note, today=None):
     """ Add the derivation link for preservation files and the event. """
     if today is None:
         today = timezone.now()
     # Add event information to current file
     databaseFunctions.insertIntoEvents(
-       fileUUID=original_uuid,
-       eventIdentifierUUID=derivation_uuid,
-       eventType="normalization",
-       eventDateTime=today,
-       eventDetail=event_detail_output,
-       eventOutcome="",
-       eventOutcomeDetailNote=outcome_detail_note or "",
+        fileUUID=original_uuid,
+        eventIdentifierUUID=derivation_uuid,
+        eventType="normalization",
+        eventDateTime=today,
+        eventDetail=event_detail_output,
+        eventOutcome="",
+        eventOutcomeDetailNote=outcome_detail_note or "",
     )
 
     # Add linking information between files
@@ -266,8 +268,10 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
         relatedEventUUID=derivation_uuid,
     )
 
+
 def get_default_rule(purpose):
-    return FPRule.active.get(purpose='default_'+purpose)
+    return FPRule.active.get(purpose='default_' + purpose)
+
 
 def main(opts):
     """ Find and execute normalization commands on input file. """
@@ -343,12 +347,12 @@ def main(opts):
             try:
                 rule = get_default_rule(opts.purpose)
                 print("No rule for", os.path.basename(file_.currentlocation),
-                    "falling back to default", opts.purpose, "rule")
+                      "falling back to default", opts.purpose, "rule")
                 status = NO_RULE_FOUND
             except FPRule.DoesNotExist:
                 print('Not normalizing', os.path.basename(file_.currentlocation),
-                    ' - No rule or default rule found to normalize for', opts.purpose,
-                    file=sys.stderr)
+                      ' - No rule or default rule found to normalize for', opts.purpose,
+                      file=sys.stderr)
                 return NO_RULE_FOUND
     print('Format Policy Rule:', rule)
     command = rule.command
@@ -413,4 +417,3 @@ if __name__ == '__main__':
 
     opts = parser.parse_args()
     sys.exit(main(opts))
-

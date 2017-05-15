@@ -82,6 +82,7 @@ def _normalize_record_id(record_id):
     """
     return record_id.replace('-', '/')
 
+
 def _get_arrange_path(func):
     @wraps(func)
     def wrapper(request, system='', record_id=''):
@@ -327,6 +328,7 @@ def _get_sip_arrange_children(record, system):
     record['has_children'] = record['has_children'] or ArchivesSpaceDigitalObject.objects.filter(resourceid=record['id']).exists()
     return record
 
+
 @_authenticate_to_archivesspace
 def get_levels_of_description(client, request, system=''):
     levels = client.get_levels_of_description()
@@ -342,7 +344,7 @@ def create_arranged_directory(system, record_id):
     """
     identifier = _normalize_record_id(record_id)
     mapping, created = SIPArrangeAccessMapping.objects.get_or_create(system=system,
-                                                                      identifier=identifier)
+                                                                     identifier=identifier)
     if created:
         try:
             filepath = '/arrange/' + record_id + str(uuid.uuid4())  # TODO: get this from the title?

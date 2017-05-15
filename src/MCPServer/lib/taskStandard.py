@@ -25,7 +25,6 @@ import cPickle
 import gearman
 import logging
 import os
-import sys
 import time
 import uuid
 
@@ -34,27 +33,28 @@ from utils import log_exceptions
 
 from django.utils import timezone
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from fileOperations import writeToFile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
 # ~Class Task~
-#Tasks are what are assigned to clients.
-#They have a zero-many(tasks) TO one(job) relationship
-#This relationship is formed by storing a pointer to it's owning job in its job variable.
-#They use a "replacement dictionary" to define variables for this task.
-#Variables used for the task are defined in the Job's configuration/module (The xml file)
+# Tasks are what are assigned to clients.
+# They have a zero-many(tasks) TO one(job) relationship
+# This relationship is formed by storing a pointer to it's owning job in its job variable.
+# They use a "replacement dictionary" to define variables for this task.
+# Variables used for the task are defined in the Job's configuration/module (The xml file)
+
+
 class taskStandard():
     """A task to hand to gearman"""
 
     def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
-        if UUID == None:
+        if UUID is None:
             UUID = uuid.uuid4().__str__()
         self.UUID = UUID
         self.linkTaskManager = linkTaskManager
-        self.execute = execute.encode( "utf-8" )
+        self.execute = execute.encode("utf-8")
         self.arguments = arguments
         self.standardOutputFile = standardOutputFile
         self.standardErrorFile = standardErrorFile
@@ -66,7 +66,7 @@ class taskStandard():
         from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()
         gm_client = gearman.GearmanClient([archivematicaMCP.config.get('MCPServer', "MCPArchivematicaServer")])
-        data = {"createdDate" : timezone.now().isoformat(' ')}
+        data = {"createdDate": timezone.now().isoformat(' ')}
         data["arguments"] = self.arguments
         LOGGER.info('Executing %s %s', self.execute, data)
         completed_job_request = None
@@ -74,7 +74,7 @@ class taskStandard():
         failSleepInitial = 1
         failSleep = failSleepInitial
         failSleepIncrementor = 2
-        while completed_job_request == None:
+        while completed_job_request is None:
             try:
                 completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
             except gearman.errors.ServerUnavailable:
@@ -136,11 +136,11 @@ class taskStandard():
 
         return True
 
-    #Used to write the output of the commands to the specified files
+    # Used to write the output of the commands to the specified files
     def writeOutputs(self):
         """Used to write the output of the commands to the specified files"""
 
-        if self.outputLock != None:
+        if self.outputLock is not None:
             self.outputLock.acquire()
 
         if self.validateOutputFile(self.standardOutputFile):
@@ -152,7 +152,7 @@ class taskStandard():
         else:
             stderrStatus = -1
 
-        if self.outputLock != None:
+        if self.outputLock is not None:
             self.outputLock.release()
 
         if stdoutStatus and self.standardOutputFile is not None:
@@ -167,6 +167,6 @@ class taskStandard():
             else:
                 stderr = self.standardErrorFile
             self.stdError = "Failed to write to file{" + stderr + "}\r\n" + self.results["stdError"]
-        if  self.results['exitCode']:
+        if self.results['exitCode']:
             return self.results['exitCode']
         return stdoutStatus + stderrStatus

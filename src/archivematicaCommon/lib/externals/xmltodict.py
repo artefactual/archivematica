@@ -6,16 +6,19 @@ __author__ = 'Martin Blech'
 __version__ = '0.1.dev'
 __license__ = 'MIT'
 
-class ParsingInterrupted(Exception): pass
+
+class ParsingInterrupted(Exception):
+    pass
+
 
 class DictSAXHandler:
     def __init__(self,
-            item_depth=0,
-            xml_attribs=True,
-            item_callback=lambda *args: True,
-            attr_prefix='@',
-            cdata_key='#text',
-            force_cdata=False):
+                 item_depth=0,
+                 xml_attribs=True,
+                 item_callback=lambda *args: True,
+                 attr_prefix='@',
+                 cdata_key='#text',
+                 force_cdata=False):
         self.path = []
         self.stack = []
         self.data = None
@@ -23,7 +26,7 @@ class DictSAXHandler:
         self.item_depth = item_depth
         self.xml_attribs = xml_attribs
         self.item_callback = item_callback
-        self.attr_prefix = attr_prefix;
+        self.attr_prefix = attr_prefix
         self.cdata_key = cdata_key
         self.force_cdata = force_cdata
 
@@ -31,11 +34,11 @@ class DictSAXHandler:
         self.path.append((name, attrs or None))
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
-            attrs = dict((self.attr_prefix+key, value)
-                    for (key, value) in attrs.items())
+            attrs = dict((self.attr_prefix + key, value)
+                         for (key, value) in attrs.items())
             self.item = self.xml_attribs and attrs or None
             self.data = None
-    
+
     def endElement(self, name):
         if len(self.path) == self.item_depth:
             item = self.item
@@ -78,6 +81,7 @@ class DictSAXHandler:
         except KeyError:
             self.item[key] = data
 
+
 def parse(xml_input, *args, **kwargs):
     """Parse the given XML input and convert it into a dictionary.
 
@@ -115,7 +119,7 @@ def parse(xml_input, *args, **kwargs):
         >>> def handle(path, item):
         ...     print 'path:%s item:%s' % (path, item)
         ...     return True
-        ... 
+        ...
         >>> xmltodict.parse(\"\"\"
         ... <a prop="x">
         ...   <b>1</b>
@@ -136,6 +140,7 @@ def parse(xml_input, *args, **kwargs):
         parser.Parse(xml_input, True)
     return handler.item
 
+
 if __name__ == '__main__':
     import sys
     import marshal
@@ -149,8 +154,8 @@ if __name__ == '__main__':
 
     try:
         root = parse(sys.stdin,
-                item_depth=item_depth,
-                item_callback=handle_item)
+                     item_depth=item_depth,
+                     item_callback=handle_item)
         if item_depth == 0:
             handle_item([], root)
     except KeyboardInterrupt:

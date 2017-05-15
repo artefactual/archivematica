@@ -21,15 +21,14 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 
 class LinkTaskManager(object):
     """ Common manager for MicroServiceChainLinks of different task types. """
+
     def __init__(self, jobChainLink, pk, unit):
         """ Initalize common variables. """
         self.jobChainLink = jobChainLink

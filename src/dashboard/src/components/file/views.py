@@ -25,6 +25,7 @@ class TransferFileTags(View):
     This view's methods operate on the file data indexed in Elasticsearch, and do not affect the database.
     All methods return 404 if a record can't be retrieved for the given UUID, and 400 if more than one file was found for a given UUID.
     """
+
     def get(self, request, fileuuid):
         """
         Requires a file UUID.

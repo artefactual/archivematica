@@ -26,10 +26,10 @@ import ast
 import ConfigParser
 import os
 import re
-import sys
 
 # archivematicaCommon
 from archivematicaFunctions import unicodeToStr
+
 
 def replace_string_values(string, **kwargs):
     """
@@ -227,6 +227,7 @@ class ChoicesDict(ReplacementDict):
         """
         return ChoicesDict(ast.literal_eval(s))
 
+
 # We can't guarantee this is being run from an actual
 # Archivematica installation if this is being run via
 # doctest, so don't try to import the dashboard models
@@ -237,9 +238,6 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 else:
-    path = '/usr/share/archivematica/dashboard'
-    if path not in sys.path:
-        sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
     from main import models
 

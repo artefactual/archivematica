@@ -143,12 +143,12 @@ def tasks(request, uuid):
         item.stdout = escape(item.stdout)
         item.stderror = escape(item.stderror)
 
-    page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
+    page = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
     objects = page.object_list
 
     # figure out duration in seconds
     for object in objects:
-         object.duration = helpers.task_duration_in_seconds(object)
+        object.duration = helpers.task_duration_in_seconds(object)
 
     return render(request, 'main/tasks.html', locals())
 
@@ -170,12 +170,12 @@ def tasks_subjobs(request, uuid):
 
 
 def formdata_delete(request, type, parent_id, delete_id):
-  return formdata(request, type, parent_id, delete_id)
+    return formdata(request, type, parent_id, delete_id)
 
 
-def formdata(request, type, parent_id, delete_id = None):
-    model    = None
-    results  = None
+def formdata(request, type, parent_id, delete_id=None):
+    model = None
+    results = None
     response = {}
 
     # define types handled
@@ -224,9 +224,9 @@ def formdata(request, type, parent_id, delete_id = None):
         parent_model = models.RightsStatementCopyright
         model_parent_field = 'rightscopyright'
         model_value_fields = [
-          'copyrightdocumentationidentifiertype',
-          'copyrightdocumentationidentifiervalue',
-          'copyrightdocumentationidentifierrole'
+            'copyrightdocumentationidentifiertype',
+            'copyrightdocumentationidentifiervalue',
+            'copyrightdocumentationidentifierrole'
         ]
 
         results = model.objects.filter(rightscopyright=parent_id)
@@ -236,9 +236,9 @@ def formdata(request, type, parent_id, delete_id = None):
         parent_model = models.RightsStatementStatuteInformation
         model_parent_field = 'rightsstatementstatute'
         model_value_fields = [
-          'statutedocumentationidentifiertype',
-          'statutedocumentationidentifiervalue',
-          'statutedocumentationidentifierrole'
+            'statutedocumentationidentifiertype',
+            'statutedocumentationidentifiervalue',
+            'statutedocumentationidentifierrole'
         ]
 
         results = model.objects.filter(rightsstatementstatute=parent_id)
@@ -248,9 +248,9 @@ def formdata(request, type, parent_id, delete_id = None):
         parent_model = models.RightsStatementLicense
         model_parent_field = 'rightsstatementlicense'
         model_value_fields = [
-          'licensedocumentationidentifiertype',
-          'licensedocumentationidentifiervalue',
-          'licensedocumentationidentifierrole'
+            'licensedocumentationidentifiertype',
+            'licensedocumentationidentifiervalue',
+            'licensedocumentationidentifierrole'
         ]
 
         results = model.objects.filter(rightsstatementlicense=parent_id)
@@ -260,9 +260,9 @@ def formdata(request, type, parent_id, delete_id = None):
         parent_model = models.RightsStatementOtherRightsInformation
         model_parent_field = 'rightsstatementotherrights'
         model_value_fields = [
-          'otherrightsdocumentationidentifiertype',
-          'otherrightsdocumentationidentifiervalue',
-          'otherrightsdocumentationidentifierrole'
+            'otherrightsdocumentationidentifiertype',
+            'otherrightsdocumentationidentifiervalue',
+            'otherrightsdocumentationidentifierrole'
         ]
 
         results = model.objects.filter(rightsstatementotherrights=parent_id)
@@ -295,31 +295,31 @@ def formdata(request, type, parent_id, delete_id = None):
         instance.save()
 
         if id == 0:
-          response['new_id']  = instance.pk
+            response['new_id'] = instance.pk
 
         response['message'] = _('Added.')
 
     # handle deletion
     if (request.method == 'DELETE'):
-        if (delete_id == None):
+        if (delete_id is None):
             response['message'] = _('Error: no delete ID supplied.')
         else:
             model.objects.filter(pk=delete_id).delete()
             response['message'] = _('Deleted.')
 
     # send back revised data
-    if (results != None):
+    if (results is not None):
         response['results'] = []
         for result in results:
             values = {}
             for field in model_value_fields:
                 values[field] = result.__dict__[field]
             response['results'].append({
-              'id': result.pk,
-              'values': values
-            });
+                'id': result.pk,
+                'values': values
+            })
 
-    if (model == None):
+    if (model is None):
         response['message'] = _('Incorrect type.')
 
     return helpers.json_response(response)

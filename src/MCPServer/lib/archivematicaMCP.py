@@ -21,7 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
+# ~DOC~
 #
 # --- This is the MCP (master control program) ---
 # The intention of this program is to provide a centralized automated distributed system for performing an arbitrary set of tasks on a directory.
@@ -44,10 +44,8 @@ import time
 import uuid
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append('/usr/lib/archivematica/MCPServer')
 
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 from django.db.models import Q
@@ -63,7 +61,6 @@ from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 import databaseFunctions
 from archivematicaFunctions import unicodeToStr
@@ -76,7 +73,7 @@ countOfCreateUnitAndJobChainThreaded = 0
 config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
 
-#time to sleep to allow db to be updated with the new location of a SIP
+# time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
 
 
@@ -84,25 +81,28 @@ limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-stopSignalReceived = False #Tracks whether a sigkill has been received or not
+stopSignalReceived = False  # Tracks whether a sigkill has been received or not
+
 
 def isUUID(uuid):
     """Return boolean of whether it's string representation of a UUID v4"""
     split = uuid.split("-")
     if len(split) != 5 \
-    or len(split[0]) != 8 \
-    or len(split[1]) != 4 \
-    or len(split[2]) != 4 \
-    or len(split[3]) != 4 \
-    or len(split[4]) != 12 :
+            or len(split[0]) != 8 \
+            or len(split[1]) != 4 \
+            or len(split[2]) != 4 \
+            or len(split[3]) != 4 \
+            or len(split[4]) != 12:
         return False
     return True
 
+
 def fetchUUIDFromPath(path):
-    #find UUID on end of SIP path
+    # find UUID on end of SIP path
     uuidLen = -36
-    if isUUID(path[uuidLen-1:-1]):
-        return path[uuidLen-1:-1]
+    if isUUID(path[uuidLen - 1:-1]):
+        return path[uuidLen - 1:-1]
+
 
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
@@ -153,12 +153,13 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
 
     return UUID
 
+
 @log_exceptions
 @auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
-            path = path + "/"
+        path = path + "/"
     logger.debug('Creating unit and job chain for %s with %s', path, config)
     unit = None
     if os.path.isdir(path):
@@ -184,14 +185,15 @@ def createUnitAndJobChain(path, config, terminate=False):
     if terminate:
         exit(0)
 
+
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
     try:
         logger.debug('Watching path %s', path)
-        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate":terminate})
+        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate": terminate})
         t.daemon = True
         countOfCreateUnitAndJobChainThreaded += 1
-        while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
+        while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
             if stopSignalReceived:
                 logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
                 exit(0)
@@ -201,6 +203,7 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         t.start()
     except Exception:
         logger.exception('Error creating threads to watch directories')
+
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
@@ -222,12 +225,12 @@ def watchDirectories():
                 continue
             item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
-            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
+            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
-        actOnFiles=True
+        actOnFiles = True
         if watched_directory.only_act_on_directories:
-            actOnFiles=False
+            actOnFiles = False
         watchDirectory.archivematicaWatchDirectory(
             directory,
             variablesAdded=row,
@@ -235,6 +238,7 @@ def watchDirectories():
             alertOnFiles=actOnFiles,
             interval=interval,
         )
+
 
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
@@ -249,6 +253,7 @@ def signal_handler(signalReceived, frame):
     sys.exit(0)
     exit(0)
 
+
 @log_exceptions
 @auto_close_db
 def debugMonitor():
@@ -260,6 +265,7 @@ def debugMonitor():
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         time.sleep(3600)
 
+
 @log_exceptions
 @auto_close_db
 def flushOutputs():
@@ -267,6 +273,7 @@ def flushOutputs():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
+
 
 def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
@@ -281,6 +288,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     # Reference http://stackoverflow.com/a/16993115/2475775
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
 
 LOGGING_CONFIG = {
     'version': 1,

@@ -79,7 +79,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
 
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=stdin_pipe, env=my_env)
         stdOut, stdError = p.communicate(input=stdin_string)
-        #append the output to stderror and stdout
+        # append the output to stderror and stdout
         if printing:
             print(stdOut)
             print(stdError, file=sys.stderr)

@@ -34,9 +34,9 @@ class MCPClient:
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
-        if uid != None:
+        if uid is not None:
             data["uid"] = uid
-        completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
+        gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         gm_client.shutdown()
         return
 

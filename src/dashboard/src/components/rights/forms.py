@@ -21,6 +21,7 @@ from django.utils.translation import ugettext as _
 
 from main import models
 
+
 class RightsForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatement
@@ -54,12 +55,14 @@ class RightsGrantedForm(forms.ModelForm):
             'enddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The ending date of the rights or restrictions granted")}),
             'enddateopen': forms.widgets.CheckboxInput(attrs={'title': _('Use "OPEN" for an open ended term of restriction. Omit end date if the ending date is unknown or the permission statement applies to many objects with different end dates.')}), }
 
+
 class RightsGrantedNotesForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementRightsGrantedNote
         fields = ('rightsgrantednote',)
         widgets = {
             'rightsgranted': forms.widgets.TextInput(attrs=settings.TEXTAREA_ATTRS), }
+
 
 class RightsCopyrightForm(forms.ModelForm):
     class Meta:
@@ -72,6 +75,7 @@ class RightsCopyrightForm(forms.ModelForm):
             'copyrightapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the particular copyright applies or is applied to the content.")}),
             'copyrightapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the particular copyright no longer applies or is applied to the content.")}), }
 
+
 class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightDocumentationIdentifier
@@ -82,12 +86,14 @@ class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
             'copyrightdocumentationidentifierrole': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS),
         }
 
+
 class RightsCopyrightNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightNote
         fields = ('copyrightnote',)
         widgets = {
             'copyrightnote': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS), }
+
 
 class RightsStatuteForm(forms.ModelForm):
     class Meta:
@@ -100,12 +106,14 @@ class RightsStatuteForm(forms.ModelForm):
             'statuteapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the statute begins to apply or is applied to the content.")}),
             'statuteapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the statute ceasees to apply or be applied to the content.")}), }
 
+
 class RightsStatuteNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformationNote
         fields = ('statutenote',)
         widgets = {
             'statutenote': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS), }
+
 
 class RightsOtherRightsForm(forms.ModelForm):
     class Meta:
@@ -116,6 +124,7 @@ class RightsOtherRightsForm(forms.ModelForm):
             'otherrightsapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the other right applies or is applied to the content.")}),
             'otherrightsapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date when the other right no longer applies or is applied to the content.")}), }
 
+
 class RightsLicenseForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementLicense
@@ -124,6 +133,7 @@ class RightsLicenseForm(forms.ModelForm):
             'licenseterms': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("Text describing the license or agreement by which permission as granted.")}),
             'licenseapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The date at which the license first applies or is applied to the content.")}),
             'licenseapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': _("The end date at which the license no longer applies or is applied to the content.")}), }
+
 
 class RightsLicenseNoteForm(forms.ModelForm):
     class Meta:

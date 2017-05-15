@@ -23,7 +23,7 @@ from collections import OrderedDict
 from django import forms
 from django.conf import settings
 from django.db import connection
-from django.forms.widgets import TextInput, CheckboxInput, Select
+from django.forms.widgets import TextInput, Select
 from django.utils.translation import ugettext_lazy as _
 
 from components import helpers
@@ -45,6 +45,7 @@ class AgentForm(forms.ModelForm):
 
 class SettingsForm(forms.Form):
     """Base class form to save settings to DashboardSettings."""
+
     def save(self, *args, **kwargs):
         """Save all the form fields to the DashboardSettings table."""
         for key in self.cleaned_data:
@@ -61,6 +62,7 @@ class StorageSettingsForm(SettingsForm):
         This won't be needed in Django 1.9, see
         https://docs.djangoproject.com/en/1.9/ref/forms/fields/#django.forms.CharField.strip.
         """
+
         def to_python(self, value):
             return super(forms.CharField, self).to_python(value).strip()
 
@@ -392,6 +394,7 @@ class PreconfiguredChoices(object):
     """
     Encode processing configuration XML documents and optionally write to disk.
     """
+
     def __init__(self):
         self.xml = etree.Element('processingMCP')
         self.choices = etree.SubElement(self.xml, 'preconfiguredChoices')

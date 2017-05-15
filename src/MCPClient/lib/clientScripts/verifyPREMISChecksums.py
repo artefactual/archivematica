@@ -37,6 +37,7 @@ from custom_handlers import get_script_logger
 import databaseFunctions
 from archivematicaFunctions import get_file_checksum
 
+
 def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     f = File.objects.get(uuid=fileUUID)
 

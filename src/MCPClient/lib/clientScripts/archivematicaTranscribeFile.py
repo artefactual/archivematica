@@ -136,7 +136,6 @@ def main(task_uuid, file_uuid):
         if exitstatus != 0:
             succeeded = False
 
-
         output_path = rd.replace(rule.command.output_location)[0]
         relative_path = output_path.replace(rd['%SIPDirectory%'], '%SIPDirectory%')
         event = insert_transcription_event(exitstatus, file_uuid, rule, relative_path)

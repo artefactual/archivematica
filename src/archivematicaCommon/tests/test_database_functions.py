@@ -1,17 +1,15 @@
 # -*- coding: UTF-8 -*-
 import os
-import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Agent, Event, File
+from main.models import Event, File
 
 from django.test import TestCase
 import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestDatabaseFunctions(TestCase):
 

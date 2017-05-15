@@ -24,20 +24,18 @@
 # Stdlib, alphabetical by import source
 import logging
 import os
-import sys
 import threading
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -70,7 +68,7 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         commandReplacementDic = unit.getReplacementDic(directory)
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
-                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+            commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)

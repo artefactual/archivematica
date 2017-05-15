@@ -20,8 +20,7 @@ def main(transfer_uuid, target_path):
     jsonified = {}
     try:
         dc = models.DublinCore.objects.get(metadataappliestoidentifier=transfer_uuid)
-    except:
-        # There may not be any DC metadata for this transfer, and that's fine
+    except:  # There may not be any DC metadata for this transfer, and that's fine
         print("No DC metadata found; skipping", file=sys.stderr)
         return 0
     for field in FIELDS:
@@ -35,6 +34,7 @@ def main(transfer_uuid, target_path):
     with open(target_path, 'w') as json_file:
         json.dump(jsonified, json_file)
     return 0
+
 
 if __name__ == '__main__':
     transfer_uuid = sys.argv[1]

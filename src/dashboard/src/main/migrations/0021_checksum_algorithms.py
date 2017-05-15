@@ -13,6 +13,7 @@ def data_migration(apps, schema_editor):
     DashboardSetting.objects.create(name='checksum_type', value='sha256')
     StandardTaskConfig.objects.filter(id='045f84de-2669-4dbc-a31b-43a4954d0481').update(arguments='create "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPDirectory%" "logs/" "objects/" "METS.%SIPUUID%.xml" "thumbnails/" "metadata/" --writer filesystem')
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

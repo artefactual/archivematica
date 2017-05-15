@@ -9,6 +9,7 @@ django.setup()
 # dashboard
 from main.models import Transfer
 
+
 def main(transfer_path, transfer_uuid, shared_path):
     """
     Move a Transfer that is a file into a directory.
@@ -41,6 +42,7 @@ def main(transfer_path, transfer_uuid, shared_path):
     print('Updating transfer', transfer_uuid, 'path to', db_path)
     Transfer.objects.filter(uuid=transfer_uuid).update(currentlocation=db_path)
     return 0
+
 
 if __name__ == '__main__':
     transfer_path = sys.argv[1]

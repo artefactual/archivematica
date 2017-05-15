@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf8
 
-#Author Ian Lewis
-#http://www.ianlewis.org/en/parsing-email-attachments-python
+# Author Ian Lewis
+# http://www.ianlewis.org/en/parsing-email-attachments-python
 
 
 # Modification
@@ -18,7 +18,6 @@ import sys
 from StringIO import StringIO
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.errorCounter = 0
 
@@ -58,7 +57,7 @@ def parse_attachment(message_part, attachments=None):
                 attachment.mod_date = params.get('modification-date')
                 attachment.read_date = params.get('read-date')
                 # TODO convert dates to datetime
-                
+
                 filename = message_part.get_filename(None)
                 if filename:
                     # Filenames may be encoded with =?encoding?...
@@ -76,7 +75,7 @@ def parse_attachment(message_part, attachments=None):
 
                 attachment.name = filename
                 return attachment
-                            
+
         except Exception as inst:
             print(type(inst), file=sys.stderr)
             print(inst.args, file=sys.stderr)
@@ -85,6 +84,7 @@ def parse_attachment(message_part, attachments=None):
             print(file=sys.stderr)
             sharedVariablesAcrossModules.errorCounter += 1
     return None
+
 
 def parse(content):
     """
@@ -95,7 +95,8 @@ def parse(content):
     attachments = []
     return parse2(msgobj, attachments)
 
-def parse2(msgobj, attachments=None):    
+
+def parse2(msgobj, attachments=None):
     if msgobj['Subject'] is not None:
         decodefrag = email.header.decode_header(msgobj['Subject'])
         subj_fragments = []
@@ -106,18 +107,17 @@ def parse2(msgobj, attachments=None):
         subject = ''.join(subj_fragments)
     else:
         subject = None
-    
-    if attachments == None:
+
+    if attachments is None:
         attachments = []
     for part in msgobj.walk():
         attachment = parse_attachment(part, attachments=attachments)
         if attachment:
             attachments.append(attachment)
     return {
-        'subject' : subject,
-        'from' : email.utils.parseaddr(msgobj.get('From'))[1], # 名前は除いてメールアドレスのみ抽出
-        'to' : email.utils.parseaddr(msgobj.get('To'))[1], # 名前は除いてメールアドレスのみ抽出
+        'subject': subject,
+        'from': email.utils.parseaddr(msgobj.get('From'))[1],  # 名前は除いてメールアドレスのみ抽出
+        'to': email.utils.parseaddr(msgobj.get('To'))[1],  # 名前は除いてメールアドレスのみ抽出
         'attachments': attachments,
         'msgobj': msgobj,
     }
-                    

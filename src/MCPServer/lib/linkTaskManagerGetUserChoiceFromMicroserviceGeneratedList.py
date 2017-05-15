@@ -25,19 +25,17 @@
 import logging
 from lxml import etree
 import os
-import sys
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig, UserProfile, Job
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -63,7 +61,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                 raise Exception("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
             LOGGER.error("passVar is %s instead of expected list",
-                type(self.jobChainLink.passVar))
+                         type(self.jobChainLink.passVar))
             raise Exception("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
 
@@ -91,7 +89,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         try:
             tree = etree.parse(xmlFilePath)
             root = tree.getroot()
-        except (etree.LxmlError, IOError) as e:
+        except (etree.LxmlError, IOError):
             LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
             return None
         for choice in root.findall(".//preconfiguredChoice"):

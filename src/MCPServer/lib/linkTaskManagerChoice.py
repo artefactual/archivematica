@@ -25,7 +25,6 @@ import datetime
 import logging
 import lxml.etree as etree
 import os
-import sys
 import threading
 import time
 
@@ -38,19 +37,19 @@ global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChainChoice, UserProfile, Job
 
-waitingOnTimer="waitingOnTimer"
+waitingOnTimer = "waitingOnTimer"
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerChoice(LinkTaskManager):
     """Used to get a selection, from a list of chains, to process"""
+
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerChoice, self).__init__(jobChainLink, pk, unit)
         self.choices = []
@@ -62,24 +61,24 @@ class linkTaskManagerChoice(LinkTaskManager):
             self.choices.append((choice.chainavailable_id, choice.chainavailable.description))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
-        if preConfiguredChain != None:
+        if preConfiguredChain is not None:
             time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
             self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             jobChain.jobChain(self.unit, preConfiguredChain)
 
         else:
             choicesAvailableForUnitsLock.acquire()
-            if self.delayTimer == None:
+            if self.delayTimer is None:
                 self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 
     def checkForPreconfiguredXML(self):
         desiredChoice = None
-        xmlFilePath = os.path.join( \
-                                        self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1), \
-                                        archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
-                                    )
+        xmlFilePath = os.path.join(
+            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1),
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+        )
         xmlFilePath = unicodeToStr(xmlFilePath)
         if os.path.isfile(xmlFilePath):
             # For a list of items with pks:
@@ -91,23 +90,23 @@ class linkTaskManagerChoice(LinkTaskManager):
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.pk:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
                         try:
-                            #<delay unitAtime="yes">30</delay>
+                            # <delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
                             if delayXML is not None:
                                 unitAtimeXML = delayXML.get("unitCtime")
                             else:
                                 unitAtimeXML = None
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
-                                delaySeconds=int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
-                                nowTime=time.time()
+                                delaySeconds = int(delayXML.text)
+                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%",
+                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
 
-                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart":True})
+                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart": True})
                                 t.daemon = True
                                 self.delayTimer = t
                                 t.start()
@@ -143,7 +142,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         self.delayTimerLock.acquire()
-        if self.delayTimer != None and not delayTimerStart:
+        if self.delayTimer is not None and not delayTimerStart:
             self.delayTimer.cancel()
             self.delayTimer = None
         self.delayTimerLock.release()

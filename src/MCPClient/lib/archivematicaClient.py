@@ -21,16 +21,16 @@
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
+# ~DOC~
 #
 # --- This is the MCP Client---
-#It connects to the MCP server, and informs the server of the tasks it can perform.
-#The server can send a command (matching one of the tasks) for the client to perform.
-#The client will perform that task, and return the exit code and output to the server.
+# It connects to the MCP server, and informs the server of the tasks it can perform.
+# The server can send a command (matching one of the tasks) for the client to perform.
+# The client will perform that task, and return the exit code and output to the server.
 #
-#For archivematica 0.9 release. Added integration with the transcoder.
-#The server will send the transcoder association pk, and file uuid to run.
-#The client is responsible for running the correct command on the file.
+# For archivematica 0.9 release. Added integration with the transcoder.
+# The server will send the transcoder association pk, and file uuid to run.
+# The client is responsible for running the correct command on the file.
 
 import ConfigParser
 import cPickle
@@ -39,7 +39,6 @@ import logging
 import os
 import time
 from socket import gethostname
-import sys
 import threading
 import traceback
 
@@ -48,15 +47,11 @@ config = ConfigParser.SafeConfigParser(
     defaults={'django_settings_module': 'settings.common'})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
-sys.path.append("/usr/lib/archivematica/MCPClient")
-
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 from main.models import Task
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
@@ -99,12 +94,14 @@ replacementDic = {
 }
 supportedModules = {}
 
+
 def loadSupportedModulesSupport(key, value):
     for key2, value2 in replacementDic.items():
         value = value.replace(key2, value2)
     if not os.path.isfile(value):
         logger.error("Warning! Module can't find file, or relies on system path: {%s} %s", key, value)
     supportedModules[key] = value + " "
+
 
 def loadSupportedModules(file):
     supportedModulesConfig = ConfigParser.RawConfigParser()
@@ -114,7 +111,7 @@ def loadSupportedModules(file):
 
     loadSupportedCommandsSpecial = config.get('MCPClient', "LoadSupportedCommandsSpecial")
     if loadSupportedCommandsSpecial.lower() == "yes" or \
-    loadSupportedCommandsSpecial.lower() == "true":
+            loadSupportedCommandsSpecial.lower() == "true":
         for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
             loadSupportedModulesSupport(key, value)
 
@@ -126,7 +123,7 @@ def executeCommand(gearman_worker, gearman_job):
         logger.info('Executing %s (%s)', execute, gearman_job.unique)
         data = cPickle.loads(gearman_job.data)
         utcDate = databaseFunctions.getUTCDate()
-        arguments = data["arguments"]#.encode("utf-8")
+        arguments = data["arguments"]  # .encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")
 
@@ -139,24 +136,24 @@ def executeCommand(gearman_worker, gearman_job):
             stdOut = ""
             stdError = """Detected this task has already started!
 Unable to determine if it completed successfully."""
-            return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
+            return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
         else:
             task.client = clientID
             task.starttime = utcDate
             task.save()
 
         if execute not in supportedModules:
-            output = ["Error!", "Error! - Tried to run and unsupported command." ]
+            output = ["Error!", "Error! - Tried to run and unsupported command."]
             exitCode = -1
-            return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
+            return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
         command = supportedModules[execute]
 
         replacementDic["%date%"] = utcDate.isoformat()
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
         # Replace replacement strings
         for key in replacementDic.keys():
-            command = command.replace ( key, replacementDic[key] )
-            arguments = arguments.replace ( key, replacementDic[key] )
+            command = command.replace(key, replacementDic[key])
+            arguments = arguments.replace(key, replacementDic[key])
 
         key = "%taskUUID%"
         value = gearman_job.unique.__str__()
@@ -173,12 +170,12 @@ Unable to determine if it completed successfully."""
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
-    except OSError as ose:
+    except OSError:
         logger.exception('Execution failed')
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
-    except Exception as e:
+    except Exception:
         logger.exception('Unexpected error')
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
@@ -213,7 +210,7 @@ def startThreads(t=1):
         from externals.detectCores import detectCPUs
         t = detectCPUs()
     for i in range(t):
-        t = threading.Thread(target=startThread, args=(i+1, ))
+        t = threading.Thread(target=startThread, args=(i + 1, ))
         t.daemon = True
         t.start()
 

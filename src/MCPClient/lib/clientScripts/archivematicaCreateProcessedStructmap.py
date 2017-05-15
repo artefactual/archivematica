@@ -28,6 +28,7 @@ def create_amdSecs(path, file_group_identifier, base_path, base_path_name, sip_u
 
     return amdSecs
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.createProcessedStructmap")
 

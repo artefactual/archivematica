@@ -57,18 +57,17 @@ def welcome(request):
 
         # Update Archivematica version in DB
         archivematica_agent = Agent.objects.get(pk=1)
-        archivematica_agent.identifiervalue = "Archivematica-"+version.get_version()
+        archivematica_agent.identifiervalue = "Archivematica-" + version.get_version()
         archivematica_agent.save()
 
-
         # save organization PREMIS agent if supplied
-        org_name       = request.POST.get('org_name', '')
+        org_name = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
 
         if org_name != '' or org_identifier != '':
             agent = Agent.objects.get(pk=2)
-            agent.name            = org_name
-            agent.identifiertype  = 'repository code'
+            agent.name = org_name
+            agent.identifiertype = 'repository code'
             agent.identifiervalue = org_identifier
             agent.save()
 
@@ -89,7 +88,8 @@ def welcome(request):
 
     return render(request, 'installer/welcome.html', {
         'form': form,
-      })
+    })
+
 
 def get_my_ip():
     server_addr = '1.2.3.4'
@@ -104,16 +104,18 @@ def get_my_ip():
         del s
     return client
 
+
 def fprconnect(request):
     if request.method == 'POST':
         return redirect('installer.views.storagesetup')
     else:
         return render(request, 'installer/fprconnect.html')
 
+
 def fprupload(request):
     response_data = {}
     agent = Agent.objects.get(pk=2)
-    #url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
+    # url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
     url = django_settings.FPR_URL + 'agent/'
     logging.info("FPR Server URL: {}".format(django_settings.FPR_URL))
     payload = {'uuid': helpers.get_setting('dashboard_uuid'),
@@ -121,10 +123,9 @@ def fprupload(request):
                'agentName': agent.name,
                'clientIP': get_my_ip(),
                'agentIdentifierType': agent.identifiertype,
-               'agentIdentifierValue': agent.identifiervalue
-              }
+               'agentIdentifierValue': agent.identifiervalue}
     headers = {'Content-Type': 'application/json'}
-    try: 
+    try:
         r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=120, verify=True)
         if r.status_code == 201:
             response_data['result'] = 'success'
@@ -134,6 +135,7 @@ def fprupload(request):
         response_data['result'] = 'failed to post to ' + url
 
     return helpers.json_response(response_data)
+
 
 def fprdownload(request):
     response_data = {}
@@ -146,6 +148,7 @@ def fprdownload(request):
         logging.warning("FPR update error: {}".format(error))
 
     return helpers.json_response(response_data)
+
 
 def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page

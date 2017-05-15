@@ -30,6 +30,7 @@ import django
 django.setup()
 from main.models import File
 
+
 def verifyFileUUID(fileUUID, filePath, sipDirectory):
     if fileUUID == "None":
         relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)

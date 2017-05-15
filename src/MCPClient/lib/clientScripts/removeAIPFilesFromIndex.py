@@ -40,4 +40,4 @@ if __name__ == '__main__':
     client = elasticSearchFunctions.get_client()
 
     logger.info('Removing indexed files for AIP %s...', aip_uuid)
-    elasticSearchFunctions.delete_aip_files(client, AIPUUID)
+    elasticSearchFunctions.delete_aip_files(client, aip_uuid)

@@ -22,12 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
-#/src/dashboard/src/main/models.py
+# /src/dashboard/src/main/models.py
 
 from __future__ import print_function
 import collections
 import csv
-import os
 import sys
 import traceback
 # archivematicaCommon

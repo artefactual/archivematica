@@ -14,12 +14,13 @@ def main(target, output):
         subprocess.call(args)
         # remove empty BulkExtractor logs
         for filename in os.listdir(output):
-            filepath = os.path.join(output,filename)
+            filepath = os.path.join(output, filename)
             if os.path.getsize(filepath) == 0:
                 os.remove(filepath)
         return 0
     except Exception as e:
         return e
+
 
 if __name__ == '__main__':
     target = sys.argv[1]

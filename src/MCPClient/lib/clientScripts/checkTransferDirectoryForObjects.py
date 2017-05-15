@@ -29,7 +29,7 @@ if __name__ == '__main__':
     os.path.isdir(objectsDir)
     ret = 0
     for dirs, subDirs, files in os.walk(objectsDir):
-        if files != None and files != []:
+        if files is not None and files != []:
             ret = exitInidcatingThereAreObjects
             break
     exit(ret)

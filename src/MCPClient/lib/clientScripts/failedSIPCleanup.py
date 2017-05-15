@@ -15,6 +15,7 @@ import storageService as storage_service
 REJECTED = 'reject'
 FAILED = 'fail'
 
+
 def main(fail_type, sip_uuid):
     # Update SIP Arrange table for failed SIP
     file_uuids = models.File.objects.filter(sip=sip_uuid).values_list('uuid', flat=True)
@@ -30,6 +31,7 @@ def main(fail_type, sip_uuid):
         # Ignore errors, as this may not be reingest
         pass
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Cleanup from failed/rejected SIPs.')

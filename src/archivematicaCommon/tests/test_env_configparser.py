@@ -33,8 +33,7 @@ class TestConfigReader(TestCase):
         self.environ['ARCHIVEMATICA_NICESERVICE_QUEUE_MAX_SIZE'] = '100'
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
-            test_config=
-"""
+            test_config="""
 [queue]
 max_size = 500
 """)
@@ -48,12 +47,11 @@ max_size = 500
         self.environ['ARCHIVEMATICA_NICESERVICE_TLS'] = 'off'
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
-            test_config=
-"""
+            test_config="""
 [network]
 tls = on
 """)
-        assert config.getboolean('network', 'tls') == False
+        assert config.getboolean('network', 'tls') is False
 
     def test_unknown_section(self):
         """
@@ -61,7 +59,7 @@ tls = on
         when undefined.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)
@@ -74,7 +72,7 @@ foo = bar
         when undefined.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)
@@ -87,9 +85,9 @@ foo = bar
         configuration even if it's undefiend.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)
-        assert config.getboolean('main', 'undefined_option', fallback=True) == True
+        assert config.getboolean('main', 'undefined_option', fallback=True) is True
         assert config.getint('undefined_section', 'undefined_option', fallback=12345) == 12345

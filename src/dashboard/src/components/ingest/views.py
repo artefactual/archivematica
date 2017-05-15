@@ -63,6 +63,7 @@ logger = logging.getLogger('archivematica.dashboard')
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
@@ -75,6 +76,7 @@ def ingest_grid(request):
 
     return render(request, 'ingest/grid.html', locals())
 
+
 class SipsView(View):
     def post(self, request):
         """
@@ -86,15 +88,18 @@ class SipsView(View):
             "id": sip.uuid,
         })
 
+
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').filter(unittype__exact = 'unitSIP')
+    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
     mcp_available = False
     try:
         client = MCPClient()
         mcp_status = etree.XML(client.list())
         mcp_available = True
-    except Exception: pass
+    except Exception:
+        pass
+
     def encoder(obj):
         items = []
         for item in obj:
@@ -119,8 +124,10 @@ def ingest_status(request, uuid=None):
                 newJob['currentstep'] = job.currentstep
                 newJob['currentstep_label'] = job.get_currentstep_display()
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
+                try:
+                    mcp_status
+                except NameError:
+                    pass
                 else:
                     xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
                     if xml_unit:
@@ -141,10 +148,12 @@ def ingest_status(request, uuid=None):
         content_type='application/json'
     )
 
+
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')
 
-@decorators.load_jobs # Adds jobs, name
+
+@decorators.load_jobs  # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
@@ -153,6 +162,7 @@ def ingest_metadata_list(request, uuid, jobs, name):
     )
 
     return render(request, 'ingest/metadata_list.html', locals())
+
 
 def ingest_metadata_edit(request, uuid, id=None):
     if id:
@@ -176,11 +186,11 @@ def ingest_metadata_edit(request, uuid, id=None):
     # If the SIP is an AIC, use the AIC metadata form
     if 'AIC' in models.SIP.objects.get(uuid=uuid).sip_type:
         form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None,
-            instance=dc)
+                                                      instance=dc)
         dc_type = "Archival Information Collection"
     else:
         form = ingest_forms.DublinCoreMetadataForm(request.POST or None,
-            instance=dc)
+                                                   instance=dc)
         dc_type = "Archival Information Package"
 
     if form.is_valid():
@@ -240,7 +250,7 @@ def aic_metadata_add(request, uuid):
         dir_name = '{name}-{uuid}'.format(name=name, uuid=uuid)
         destination = os.path.join(watched_dir, 'system', 'createAIC', dir_name)
 
-        destination_db = destination.replace(shared_dir, '%sharedPath%')+'/'
+        destination_db = destination.replace(shared_dir, '%sharedPath%') + '/'
         models.SIP.objects.filter(uuid=uuid).update(currentpath=destination_db)
         shutil.move(source, destination)
         return redirect('ingest_index')
@@ -248,6 +258,7 @@ def aic_metadata_add(request, uuid):
     name = dc.title or "New AIC"
     aic = True
     return render(request, 'ingest/metadata_edit.html', locals())
+
 
 def ingest_metadata_event_detail(request, uuid):
     EventDetailFormset = modelformset_factory(models.Event, form=forms.EventDetailForm, extra=0)
@@ -270,9 +281,11 @@ def ingest_metadata_event_detail(request, uuid):
     name = utils.get_directory_name_from_job(jobs)
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
+
 def delete_context(request, uuid, id):
     cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': _('Are you sure you want to delete this metadata?'), 'cancel_url': cancel_url})
+
 
 @decorators.confirm_required('simple_confirm.html', delete_context)
 def ingest_metadata_delete(request, uuid, id):
@@ -282,6 +295,7 @@ def ingest_metadata_delete(request, uuid, id):
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     except:
         raise Http404
+
 
 def ingest_upload_destination_url_check(request):
     settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
@@ -296,6 +310,7 @@ def ingest_upload_destination_url_check(request):
     # return resulting status code from request
     return HttpResponse(response.status_code)
 
+
 def ingest_upload(request, uuid):
     """
         The upload DIP is actually not executed here, but some data is storaged
@@ -304,8 +319,8 @@ def ingest_upload(request, uuid):
         - POST = Create Accesses tuple with permalink
     """
     try:
-        sip = models.SIP.objects.get(uuid__exact=uuid)
-    except:
+        models.SIP.objects.get(uuid__exact=uuid)
+    except models.SIP.DoesNotExist:
         raise Http404
 
     if request.method == 'POST':
@@ -315,16 +330,15 @@ def ingest_upload(request, uuid):
             except:
                 access = models.Access(sipuuid=uuid)
             access.target = cPickle.dumps({
-              "target": request.POST['target'] })
+                "target": request.POST['target']})
             access.save()
-            response = { 'ready': True }
+            response = {'ready': True}
             return helpers.json_response(response)
     elif request.method == 'GET':
         try:
             access = models.Access.objects.get(sipuuid=uuid)
             data = cPickle.loads(str(access.target))
         except:
-            # pass
             raise Http404
         # Disabled, it could be very slow
         # job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=uuid)
@@ -332,6 +346,7 @@ def ingest_upload(request, uuid):
         return helpers.json_response(data)
 
     return HttpResponseBadRequest()
+
 
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
@@ -343,13 +358,14 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     results_per_page = 10
 
-    if current_page == None:
+    if current_page is None:
         current_page = 1
 
     page = helpers.pager(objects, results_per_page, current_page)
     hit_count = len(objects)
 
     return render(request, 'ingest/normalization_report.html', locals())
+
 
 def ingest_browse(request, browse_type, jobuuid):
     watched_dir = helpers.get_server_config_value('watchDirectoryPath')
@@ -369,6 +385,7 @@ def ingest_browse(request, browse_type, jobuuid):
     name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/aip_browse.html', locals())
+
 
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
@@ -392,7 +409,7 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         this_node = return_list[-1]
         # Populate children list
         _es_results_to_directory_tree(others, this_node['children'],
-            not_draggable=not_draggable)
+                                      not_draggable=not_draggable)
 
         # Generate count of all non-directory objects in this tree
         object_count = sum(e['properties'].get('object count', 0) for e in this_node['children'])
@@ -403,6 +420,7 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         # If any children of a dir are draggable, the whole dir should be
         # Otherwise, directories have the draggability of their first child
         this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
+
 
 def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_draggable=False):
     """
@@ -439,7 +457,7 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         else:
             node_not_draggable = not_draggable
 
-        if not node in record_map:
+        if node not in record_map:
             dir_record = {
                 'type': 'transfer' if is_transfer else 'directory',
                 # have to artificially create directory IDs, since we don't assign those
@@ -505,7 +523,7 @@ def transfer_backlog(request, ui):
     if ui == 'appraisal' or request.GET.get('hidemetadatalogs'):
         backlog_filter = elasticSearchFunctions.BACKLOG_FILTER_NO_MD_LOGS
 
-    if not 'query' in request.GET:
+    if 'query' not in request.GET:
         query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
         query['filter'] = backlog_filter
     else:
@@ -561,7 +579,7 @@ def transfer_backlog(request, ui):
         # If a path is in SIPArrange.original_path, then it shouldn't be draggable
         not_draggable = False
         if models.SIPArrange.objects.filter(
-            original_path__endswith=path['relative_path']).exists():
+                original_path__endswith=path['relative_path']).exists():
             not_draggable = True
         if ui == 'legacy':
             _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
@@ -587,7 +605,6 @@ def transfer_file_download(request, uuid):
     except:
         raise Http404
 
-    file_basename = os.path.basename(file.currentlocation)
     shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
     path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)

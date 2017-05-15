@@ -26,16 +26,13 @@ import logging
 import lxml.etree as etree
 import os
 import threading
-import sys
 import time
 
 from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock, waitingOnTimer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import DashboardSetting, Job, MicroServiceChainLink, MicroServiceChoiceReplacementDic, StandardTaskConfig, UserProfile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
@@ -73,7 +70,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 self.choices.append((len(self.choices), stc.execute, str(args)))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
-        if preConfiguredChain != None:
+        if preConfiguredChain is not None:
             if preConfiguredChain != waitingOnTimer:
                 self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
                 rd = ReplacementDict.fromstring(preConfiguredChain)
@@ -89,10 +86,10 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
 
     def checkForPreconfiguredXML(self):
         ret = None
-        xmlFilePath = os.path.join( \
-                                        self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/", \
-                                        archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
-                                    )
+        xmlFilePath = os.path.join(
+            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/",
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+        )
 
         if os.path.isfile(xmlFilePath):
             # For a list of items with pks:
@@ -106,25 +103,25 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                         dic = MicroServiceChoiceReplacementDic.objects.get(id=desiredChoice, choiceavailableatlink=self.jobChainLink.pk)
                         ret = dic.replacementdic
                         try:
-                            #<delay unitAtime="yes">30</delay>
+                            # <delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
                             unitAtimeXML = delayXML.get("unitCtime")
-                            if unitAtimeXML != None and unitAtimeXML.lower() != "no":
-                                delaySeconds=int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
-                                nowTime=time.time()
+                            if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
+                                delaySeconds = int(delayXML.text)
+                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%",
+                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
                                 rd = ReplacementDict.fromstring(ret)
-                                if self.jobChainLink.passVar != None:
-                                        if isinstance(self.jobChainLink.passVar, ReplacementDict):
-                                            new = {}
-                                            new.update(self.jobChainLink.passVar.dic)
-                                            new.update(rd.dic)
-                                            rd.dic = new
+                                if self.jobChainLink.passVar is not None:
+                                    if isinstance(self.jobChainLink.passVar, ReplacementDict):
+                                        new = {}
+                                        new.update(self.jobChainLink.passVar.dic)
+                                        new.update(rd.dic)
+                                        rd.dic = new
                                 t = threading.Timer(timeToGo, self.jobChainLink.linkProcessingComplete, args=[0, rd], kwargs={})
                                 t.daemon = True
                                 t.start()

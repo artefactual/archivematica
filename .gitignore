@@ -14,3 +14,9 @@
 
 # coverage data file
 .coverage
+
+# pytest's working directory
+.cache
+
+# tox working directory
+.tox/

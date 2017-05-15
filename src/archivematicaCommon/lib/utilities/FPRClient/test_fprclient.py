@@ -1,12 +1,10 @@
 #!/usr/bin/env python2
 from __future__ import absolute_import
 import os
-import sys
 import vcr
 
 from django.test import TestCase, TransactionTestCase
 
-sys.path.append("/usr/share/archivematica/dashboard/")
 from fpr import models
 import main.models
 
@@ -16,6 +14,7 @@ from . import getFromRestAPI
 # WARNING Rules must be refetched from the DB to get updated values
 FPRSERVER = 'http://localhost:9000/fpr/api/v2/'
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestGetFromFPRRESTAPI(TestCase):
     """
@@ -35,6 +34,7 @@ class TestGetFromFPRRESTAPI(TestCase):
     def test_can_fetch_records(self):
         records = list(getFromRestAPI.each_record("id-command", url=FPRSERVER))
         assert len(records) == 2
+
 
 class TestFPRClient(TransactionTestCase):
     """

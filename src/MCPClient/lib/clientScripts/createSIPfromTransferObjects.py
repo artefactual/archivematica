@@ -47,7 +47,7 @@ if __name__ == '__main__':
     sipName = transferName
 
     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-    destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
+    destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"
     archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=False)
 
     # If transfer is a reingested AIP, then pass that info to the SIP

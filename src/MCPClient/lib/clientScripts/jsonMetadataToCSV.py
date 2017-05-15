@@ -120,6 +120,7 @@ def main(sip_uuid, json_metadata):
 
     return 0
 
+
 if __name__ == '__main__':
     try:
         sip_uuid, json_metadata = sys.argv[1:]

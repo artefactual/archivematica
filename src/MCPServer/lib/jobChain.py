@@ -22,25 +22,23 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 
 from jobChainLink import jobChainLink
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChain, UnitVariable
 
-#Holds:
-#-UNIT
-#-Job chain link
-#-Job chain description
+# Holds:
+# -UNIT
+# -Job chain link
+# -Job chain description
 #
-#potentialToHold/getFromDB
-#-previous chain links
+# potentialToHold/getFromDB
+# -previous chain links
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 def fetchUnitVariableForUnit(unit_uuid):
     """
@@ -57,11 +55,12 @@ def fetchUnitVariableForUnit(unit_uuid):
 
     return results
 
+
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
         """Create an instance of a chain from the MicroServiceChains table"""
         LOGGER.debug('Creating jobChain %s for chain %s', unit, chainPK)
-        if chainPK == None:
+        if chainPK is None:
             return None
         self.unit = unit
         self.pk = chainPK
@@ -82,7 +81,7 @@ class jobChain:
             rd.update(passVar)
 
         self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd, subJobOf=subJobOf)
-        if self.currentLink == None:
+        if self.currentLink is None:
             return None
 
     def nextChainLink(self, pk, passVar=None, incrementLinkSplit=False, subJobOf=""):
@@ -91,7 +90,7 @@ class jobChain:
             subJobOf = self.subJobOf
         if incrementLinkSplit:
             self.linkSplitCount += 1
-        if pk != None:
+        if pk is not None:
             jobChainLink(self, pk, self.unit, passVar=passVar, subJobOf=subJobOf)
         else:
             self.linkSplitCount -= 1
@@ -99,4 +98,3 @@ class jobChain:
                 LOGGER.debug('Done with unit %s', self.unit.UUID)
                 if self.notifyComplete:
                     self.notifyComplete(self)
-

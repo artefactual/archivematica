@@ -33,8 +33,8 @@ from databaseFunctions import insertIntoEvents
 import MySQLdb
 from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
+
 
 def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSize=None, checksum=None, checksumType=None, add_event=True):
     """
@@ -62,7 +62,7 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSiz
 
 
 def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
-    #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
+    # print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID,
                      eventType=sourceType,
@@ -72,16 +72,18 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
                      eventOutcomeDetailNote="")
     addAccessionEvent(fileUUID, transferUUID, date)
 
+
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
-        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid)
+        eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(transfer.accessionid)
         insertIntoEvents(fileUUID=fileUUID,
                          eventType="registration",
                          eventDateTime=date,
                          eventDetail="",
                          eventOutcome="",
                          eventOutcomeDetailNote=eventOutcomeDetailNote)
+
 
 def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
@@ -92,16 +94,18 @@ def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourc
                      eventOutcome="",
                      eventOutcomeDetailNote="")
 
-#Used to write to file
-#@output - the text to append to the file
-#@fileName - The name of the file to create, or append to.
-#@returns - 0 if ok, non zero if error occured.
+# Used to write to file
+# @output - the text to append to the file
+# @fileName - The name of the file to create, or append to.
+# @returns - 0 if ok, non zero if error occured.
+
+
 def writeToFile(output, fileName, writeWhite=False):
-    #print fileName
+    # print fileName
     if not writeWhite and output.isspace():
         return 0
     if fileName and output:
-        #print "writing to: " + fileName
+        # print "writing to: " + fileName
         try:
             f = open(fileName, 'a')
             f.write(output.__str__())
@@ -118,9 +122,16 @@ def writeToFile(output, fileName, writeWhite=False):
         print("No output, or file specified")
     return 0
 
+<<<<<<< HEAD
 def rename(source, destination):
     """Used to move/rename directories. This function was before used to wrap the operation with sudo."""
     command = ["mv", source, destination]
+=======
+
+def renameAsSudo(source, destination):
+    """Used to move/rename Directories that the archivematica user may or may not have writes to move"""
+    command = ["sudo", "mv", source, destination]
+>>>>>>> qa/1.x
     exitCode, stdOut, stdError = executeOrRun("command", command, "", printing=False)
     if exitCode:
         print("exitCode:", exitCode, file=sys.stderr)
@@ -155,6 +166,7 @@ def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierTy
     print("moving: ", src, dst)
     shutil.move(src, dst)
 
+
 def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
     """Dest needs to be the actual full destination path with filename."""
     srcDB = src.replace(unitPath, unitPathReplaceWith)
@@ -182,6 +194,7 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     # Update the DB
     f.currentlocation = dstDB
     f.save()
+
 
 def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="", eventIdentifierUUID=uuid.uuid4().__str__(), fileUUID="None", sipUUID=None, transferUUID=None, eventOutcomeDetailNote="", createEvent=True):
     """
@@ -219,9 +232,10 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" %(src, dst)
+        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" % (src, dst)
     # CREATE THE EVENT
     insertIntoEvents(fileUUID=f.uuid, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
+
 
 def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
     """Dest needs to be the actual full destination path with filename."""
@@ -233,11 +247,14 @@ def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unit
     }
     return {f.currentlocation: f.uuid for f in File.objects.filter(**kwargs)}
 
+
 def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
     File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse, filegrpuuid=fileGrpUUID)
 
+
 def updateFileGrpUse(fileUUID, fileGrpUse):
     File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse)
+
 
 def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_uuid):
     """ Returns the original filename or None for a manually normalized file.

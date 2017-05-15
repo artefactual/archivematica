@@ -39,4 +39,3 @@ class TestSignals(TestCase):
         # Verify statement deleted
         assert models.RightsStatement.objects.count() == 0
         assert models.RightsStatementRightsGranted.objects.count() == 0
-

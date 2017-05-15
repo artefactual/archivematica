@@ -90,7 +90,7 @@ class BreadcrumbNode(Node):
 
         url = None
 
-        if len(self.vars)>1:
+        if len(self.vars) > 1:
             val = self.vars[1]
             try:
                 url = val.resolve(context)

@@ -23,20 +23,20 @@
 
 import logging
 import os
-import sys
 
 import archivematicaFunctions
 
 import archivematicaMCP
 from unitFile import unitFile
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class unit:
     """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
+
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
@@ -68,7 +68,7 @@ class unit:
                     self.fileList[currentlocation].fileGrpUse = f.filegrpuse
                 else:
                     LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
-                        self.unitType, self.UUID, f.uuid, f.currentlocation)
+                                   self.unitType, self.UUID, f.uuid, f.currentlocation)
         except Exception:
             LOGGER.exception('Error reloading file list for %s', currentPath)
             exit(1)
@@ -83,8 +83,8 @@ class unit:
         if not variableValue:
             variableValue = ""
         variables = UnitVariable.objects.filter(unittype=self.unitType,
-                                           unituuid=self.UUID,
-                                           variable=variable)
+                                                unituuid=self.UUID,
+                                                variable=variable)
         if variables:
             LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL %s)', variable, self.UUID, variableValue, microServiceChainLink)
             for var in variables:

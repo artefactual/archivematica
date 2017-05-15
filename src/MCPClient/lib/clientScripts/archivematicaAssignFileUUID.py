@@ -97,6 +97,7 @@ def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
         'original_path': original_path,
     }
 
+
 def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='', sip_uuid=None, transfer_uuid=None, use='original', update_use=True):
     if file_uuid == "None":
         file_uuid = None
