@@ -29,7 +29,6 @@ from tastypie.models import ApiKey
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
 import components.decorators as decorators
-from components.helpers import get_client_config_value
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -63,9 +62,6 @@ def add(request):
 
 
 def edit(request, id=None):
-    if get_client_config_value('kioskMode') == 'True':
-        return redirect('main.views.forbidden')
-
     # Forbidden if user isn't an admin and is trying to edit another user
     if str(request.user.id) != str(id) and id is not None:
         if request.user.is_superuser is False:

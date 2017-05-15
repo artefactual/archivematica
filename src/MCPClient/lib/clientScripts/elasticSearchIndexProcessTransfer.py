@@ -20,7 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-import ConfigParser
+
 import sys
 
 # elasticSearchFunctions requires Django to be set up
@@ -30,22 +30,14 @@ django.setup()
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
+from django.conf import settings as mcpclient_settings
 
 logger = get_script_logger('archivematica.mcp.client.elasticSearchIndexProcessTransfer')
 
 
 if __name__ == '__main__':
-    config_file = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(config_file)
-
-    elasticsearchDisabled = False
-    try:
-        elasticsearchDisabled = config.getboolean('MCPClient', "disableElasticsearchIndexing")
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-        pass
-    if elasticsearchDisabled is True:
-        logger.info('Skipping indexing: indexing is currently disabled in %s.', config_file)
+    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+        logger.info('Skipping indexing: indexing is currently disabled.')
         sys.exit(0)
 
     transfer_path = sys.argv[1]
@@ -55,6 +47,6 @@ if __name__ == '__main__':
     except IndexError:
         status = ''
 
-    elasticSearchFunctions.setup_reading_from_client_conf(config)
+    elasticSearchFunctions.setup_reading_from_client_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
     sys.exit(elasticSearchFunctions.index_files(client, 'transfers', 'transferfile', transfer_uuid, transfer_path, status=status))

@@ -15,11 +15,83 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import ConfigParser
+import StringIO
+import os
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
+from env_configparser import EnvConfigParser
+
+
+class Config(object):
+    ENV_PREFIX = 'ARCHIVEMATICA_DASHBOARD'
+
+    DBSETTINGS_FILE = '/etc/archivematica/archivematicaCommon/dbsettings'
+    DBSETTINGS_CONFIG = """[client]
+user = archivematica
+password = demo
+host = localhost
+database = MCP
+max_overflow = 40
+port = 3306
+engine = django_mysqlpool.backends.mysqlpool
+    """
+
+    """
+    Mapping configuration attributes with INI section, options and types.
+    """
+    MAPPING = {
+        'secret_key': {'section': 'Dashboard', 'option': 'django_secret_key', 'type': 'string'},
+        'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
+        'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
+        'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
+
+        # [client]
+        'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
+        'db_name': {'section': 'client', 'option': 'database', 'type': 'string'},
+        'db_user': {'section': 'client', 'option': 'user', 'type': 'string'},
+        'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
+        'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
+        'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
+        'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
+    }
+
+    def __init__(self):
+        self.config = EnvConfigParser(prefix=self.ENV_PREFIX)
+
+        self.read_defaults()
+        self.read_files()
+
+    def read_defaults(self):
+        self.config.readfp(StringIO.StringIO(self.DBSETTINGS_CONFIG))
+
+    def read_files(self):
+        self.config.read([self.DBSETTINGS_FILE])
+
+    def get(self, attr, default=None):
+        if attr not in self.MAPPING:
+            raise ImproperlyConfigured('Unknown attribute: %s. Make sure the attribute is included in the MAPPING property in `common.py`.' % attr)
+
+        attr_opts = self.MAPPING[attr]
+        if not all(k in attr_opts for k in ('section', 'option', 'type')):
+            raise ImproperlyConfigured('Invalid attribute: %s. Make sure the entry in MAPPING in common.py has all the fields needed (section, option, type).' % attr)
+
+        getter = 'get{}'.format('' if attr_opts['type'] == 'string' else attr_opts['type'])
+        kwargs = {'section': attr_opts['section'], 'option': attr_opts['option']}
+        if default is not None:
+            kwargs['fallback'] = default
+        elif 'default' in attr_opts:
+            kwargs['fallback'] = attr['default']
+
+        try:
+            return getattr(self.config, getter)(**kwargs)
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            raise ImproperlyConfigured('The following configuration attribute must be defined: %s.' % attr)
+
+
+config = Config()
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
@@ -35,18 +107,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# Get DB settings from main configuration file
-config = ConfigParser.SafeConfigParser()
-config.read('/etc/archivematica/archivematicaCommon/dbsettings')
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',         # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': config.get('client', 'database'),     # Or path to database file if using sqlite3.
-        'USER': config.get('client', 'user'),         # Not used with sqlite3.
-        'PASSWORD': config.get('client', 'password'),  # Not used with sqlite3.
-        'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                                   # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': config.get('db_engine'),
+        'NAME': config.get('db_name'),
+        'USER': config.get('db_user'),
+        'PASSWORD': config.get('db_password'),
+        'HOST': config.get('db_host'),
+        'PORT': config.get('db_port'),
     }
 }
 
@@ -136,7 +204,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48'
+SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
 
 TEMPLATES = [
     {
@@ -237,11 +305,6 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.NullHandler',
         },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
         'logfile': {
             'level': 'INFO',
             'class': 'custom_handlers.GroupWriteRotatingFileHandler',
@@ -257,6 +320,11 @@ LOGGING = {
             'formatter': 'detailed',
             'backupCount': 5,
             'maxBytes': 100 * 1024 * 1024,  # 100 MiB
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
         },
     },
     'loggers': {
@@ -279,7 +347,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['console'],
         'level': 'WARNING',
     },
 }
@@ -340,3 +408,7 @@ TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
 TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
+
+SHARED_DIRECTORY = config.get('shared_directory', default='/var/archivematica/sharedDirectory/')
+WATCH_DIRECTORY = config.get('watch_directory', default='/var/archivematica/sharedDirectory/watchedDirectories/')
+ELASTICSEARCH_SERVER = config.get('elasticsearch_server', default='127.0.0.1:9200')

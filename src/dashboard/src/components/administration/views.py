@@ -21,6 +21,7 @@ import os
 import shutil
 import subprocess
 
+from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -179,7 +180,7 @@ def _usage_dirs(calculate_usage=True):
     # 'subdirectories' to a list of them
     dir_defs = (
         ('shared', {
-            'path': helpers.get_client_config_value('sharedDirectoryMounted')
+            'path': django_settings.SHARED_DIRECTORY,
         }),
         ('dips', {
             'description': 'DIP uploads',

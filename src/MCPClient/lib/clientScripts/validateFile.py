@@ -20,8 +20,13 @@ from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
 
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 def main(file_path, file_uuid, sip_uuid):
+    setup_dicts(mcpclient_settings)
+
     failed = False
 
     # Get file format
