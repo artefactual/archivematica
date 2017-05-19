@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
-import os
+
 import sys
 import uuid
 
@@ -33,54 +33,82 @@ from main.models import Event
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
 
+from django.conf import settings as mcpclient_settings
+from clamd import ClamdUnixSocket, ClamdNetworkSocket, ClamdError
+
+
+logger = get_script_logger("archivematica.mcp.client.clamscan")
+
+DEFAULT_TIMEOUT = 10
+
+
+def get_client(addr):
+    if ':' in addr:
+        host, port = addr.split(':')
+        return ClamdNetworkSocket(host=host, port=int(port), timeout=DEFAULT_TIMEOUT)
+    return ClamdUnixSocket(path=addr)
+
+
+def record_event(fileUUID, version, date, outcome):
+    if not fileUUID or fileUUID == 'None':
+        return
+    logger.info('Recording event for fileUUID=%s outcome=%s', fileUUID, outcome)
+    program = 'Clam AV'
+    version, virus_defs, virus_defs_date = version.split('/')
+    event_detail = 'program="{}"; version="{}"; virusDefinitions="{}/{}"' \
+        .format(
+            program,
+            version,
+            virus_defs,
+            virus_defs_date
+        )
+    return insertIntoEvents(
+        fileUUID=fileUUID,
+        eventIdentifierUUID=str(uuid.uuid4()),
+        eventType="virus check",
+        eventDateTime=date,
+        eventDetail=event_detail,
+        eventOutcome=outcome)
+
+
+def main(fileUUID, target, date):
+    # Check if scan event already exists for this file - if so abort early
+    count = Event.objects.filter(file_uuid_id=fileUUID, event_type='virus check').count()
+    if count >= 1:
+        logger.info('Virus scan already performed, not running scan again')
+        return 0
+
+    try:
+        client = get_client(mcpclient_settings.CLAMAV_SERVER)
+        version = client.version()
+    except ClamdError:
+        logger.error('Clamd error', exc_info=True)
+        return 1
+
+    try:
+        result = client.scan(target)
+    except ClamdError:
+        logger.error('Clamd error', exc_info=True)
+        record_event(fileUUID, version, date, outcome='Fail')
+        return 1
+
+    try:
+        state, details = result[target]
+    except KeyError:
+        logger.error('File not scanned: %s', target)
+        return 1
+    if state == 'OK':
+        record_event(fileUUID, version, date, outcome='Pass')
+    else:
+        record_event(fileUUID, version, date, outcome='Fail')
+        logger.info('Clamd state=%s - %s', state, details)
+
+
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.clamscan")
     fileUUID = sys.argv[1]
     target = sys.argv[2]
     date = sys.argv[3]
 
-    # Check if scan event already exists for this file - if so abort early
-    count = Event.objects.filter(file_uuid_id=fileUUID, event_type='virus check').count()
-    if count >= 1:
-        print('Virus scan already performed, not running scan again')
-        sys.exit(0)
-
-    command = ['clamdscan', '-']
-    print('Clamscan command:', ' '.join(command), '<', target)
-    with open(target) as file_:
-        scan_rc, scan_stdout, scan_stderr = executeOrRun("command", command, printing=False, stdIn=file_)
-    commandVersion = "clamdscan -V"
-    print('Clamscan version command:', commandVersion)
-    version_rc, version_stdout, version_stderr = executeOrRun("command", commandVersion, printing=False)
-
-    eventOutcome = "Pass"
-    if scan_rc or version_rc:  # Either command returned non-0 RC
-        if version_rc:
-            print('Error determining version, aborting', file=sys.stderr)
-            print('Version RC:', version_rc, file=sys.stderr)
-            print('Version Standard output:', version_stdout, file=sys.stderr)
-            print('Version Standard error:', version_stderr, file=sys.stderr)
-            sys.exit(2)
-        else:
-            eventOutcome = "Fail"
-
-    clamscanResultShouldBe = "Infected files: 0"
-    if eventOutcome == "Fail" or scan_stdout.find(clamscanResultShouldBe) == -1:
-        eventOutcome = "Fail"
-        print('Scan failed for file', fileUUID, " - ", os.path.basename(target), file=sys.stderr)
-        print('Clamscan RC:', scan_rc, file=sys.stderr)
-        print('Clamscan Standard output:', scan_stdout, file=sys.stderr)
-        print('Clamscan Standard error:', scan_stderr, file=sys.stderr)
-
-    version, virusDefs, virusDefsDate = version_stdout.split("/")
-    virusDefs = virusDefs + "/" + virusDefsDate
-    eventDetailText = 'program="Clam AV"; version="' + version + '"; virusDefinitions="' + virusDefs + '"'
-
-    print('Event outcome:', eventOutcome)
-    if fileUUID != "None":
-        insertIntoEvents(fileUUID=fileUUID, eventIdentifierUUID=str(uuid.uuid4()), eventType="virus check", eventDateTime=date, eventDetail=eventDetailText, eventOutcome=eventOutcome, eventOutcomeDetailNote="")
-    if eventOutcome != "Pass":
-        sys.exit(3)
+    sys.exit(main(fileUUID, target, date))
