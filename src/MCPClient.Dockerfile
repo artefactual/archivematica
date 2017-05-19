@@ -27,7 +27,6 @@ RUN set -ex \
 		atool \
 		bagit \
 		bulk-extractor \
-		clamav-daemon \
 		ffmpeg \
 		libavcodec-extra-56 \
 		fits \
