@@ -82,6 +82,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Lets us know whether we're behind an HTTPS connection
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 DATABASES = {
     'default': {
         'ENGINE': config.get('db_engine'),
