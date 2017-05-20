@@ -25,8 +25,8 @@ RUN pip install -r /src/MCPServer/requirements/production.txt -r /src/MCPServer/
 ADD MCPServer/ /src/MCPServer/
 
 RUN set -ex \
-	&& groupadd -r archivematica \
-	&& useradd -r -g archivematica archivematica
+	&& groupadd --gid 333 --system archivematica \
+	&& useradd --uid 333 --gid 333 --system archivematica
 
 RUN set -ex \
 	&& mkdir -p /var/archivematica/sharedDirectory \

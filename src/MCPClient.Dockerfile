@@ -80,8 +80,8 @@ RUN pip install -r /src/MCPClient/requirements/production.txt -r /src/MCPClient/
 ADD MCPClient/ /src/MCPClient/
 
 RUN set -ex \
-	&& groupadd -r archivematica \
-	&& useradd -r -g archivematica archivematica
+	&& groupadd --gid 333 --system archivematica \
+	&& useradd --uid 333 --gid 333 --system archivematica
 
 USER archivematica
 

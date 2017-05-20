@@ -35,8 +35,8 @@ RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashbo
 ADD dashboard/ /src/dashboard/
 
 RUN set -ex \
-	&& groupadd -r archivematica \
-	&& useradd -r -g archivematica archivematica
+	&& groupadd --gid 333 --system archivematica \
+	&& useradd --uid 333 --gid 333 --system archivematica
 
 RUN set -ex \
 	&& internalDirs=' \
