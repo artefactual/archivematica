@@ -260,6 +260,74 @@ def cleanupOldDbEntriesOnNewRun():
     Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
 
 
+def created_shared_directory_structure():
+    dirs = (
+        "arrange",
+        "completed",
+        "completed/transfers",
+        "currentlyProcessing",
+        "DIPbackups",
+        "failed",
+        "rejected",
+        "sharedMicroServiceTasksConfigs",
+        "sharedMicroServiceTasksConfigs/createXmlEventsAssist",
+        "sharedMicroServiceTasksConfigs/generateAIP",
+        "sharedMicroServiceTasksConfigs/generateAIP/bagit",
+        "sharedMicroServiceTasksConfigs/processingMCPConfigs",
+        "sharedMicroServiceTasksConfigs/transcoder",
+        "sharedMicroServiceTasksConfigs/transcoder/defaultIcons",
+        "SIPbackups",
+        "tmp",
+        "watchedDirectories",
+        "watchedDirectories/activeTransfers",
+        "watchedDirectories/activeTransfers/baggitDirectory",
+        "watchedDirectories/activeTransfers/baggitZippedDirectory",
+        "watchedDirectories/activeTransfers/Dspace",
+        "watchedDirectories/activeTransfers/maildir",
+        "watchedDirectories/activeTransfers/standardTransfer",
+        "watchedDirectories/activeTransfers/TRIM",
+        "watchedDirectories/approveNormalization",
+        "watchedDirectories/approveSubmissionDocumentationIngest",
+        "watchedDirectories/quarantined",
+        "watchedDirectories/SIPCreation",
+        "watchedDirectories/SIPCreation/completedTransfers",
+        "watchedDirectories/SIPCreation/SIPsUnderConstruction",
+        "watchedDirectories/storeAIP",
+        "watchedDirectories/system",
+        "watchedDirectories/system/autoProcessSIP",
+        "watchedDirectories/system/autoRestructureForCompliance",
+        "watchedDirectories/system/createAIC",
+        "watchedDirectories/system/reingestAIP",
+        "watchedDirectories/uploadDIP",
+        "watchedDirectories/uploadedDIPs",
+        "watchedDirectories/watchedDirectories",
+        "watchedDirectories/watchedDirectories/system",
+        "watchedDirectories/watchedDirectories/system/autoProcessSIP",
+        "watchedDirectories/workFlowDecisions",
+        "watchedDirectories/workFlowDecisions/compressionAIPDecisions",
+        "watchedDirectories/workFlowDecisions/createDip",
+        "watchedDirectories/workFlowDecisions/createTree",
+        "watchedDirectories/workFlowDecisions/examineContentsChoice",
+        "watchedDirectories/workFlowDecisions/extractPackagesChoice",
+        "watchedDirectories/workFlowDecisions/metadataReminder",
+        "watchedDirectories/workFlowDecisions/quarantineTransfer",
+        "watchedDirectories/workFlowDecisions/selectFormatIDToolIngest",
+        "watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer",
+        "www",
+        "www/AIPsStore",
+        "www/AIPsStore/transferBacklog",
+        "www/AIPsStore/transferBacklog/arrange",
+        "www/AIPsStore/transferBacklog/originals",
+        "www/DIPsStore"
+    )
+    for d in dirs:
+        d = os.path.join(django_settings.SHARED_DIRECTORY, d)
+        if os.path.isdir(d):
+            continue
+        logger.info('Creating directory: %s', d)
+        os.makedirs(d, mode=770)
+
+
 def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     """
     Replacement for default exception handler that logs exceptions.
@@ -287,6 +355,8 @@ if __name__ == '__main__':
         watch_directory=django_settings.WATCH_DIRECTORY,
         rejected_directory=django_settings.REJECTED_DIRECTORY,
     )
+
+    created_shared_directory_structure()
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True

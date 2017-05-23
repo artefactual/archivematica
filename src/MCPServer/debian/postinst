@@ -7,7 +7,6 @@ dbc_go archivematica-mcp-server $@
 
 # Create sharedDirectory and rsync content
 mkdir -p /var/archivematica/sharedDirectory/
-rsync -a /usr/share/archivematica/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/.
 
 chown -R archivematica:archivematica /var/archivematica/
 
