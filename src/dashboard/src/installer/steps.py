@@ -18,7 +18,6 @@
 import json
 import logging
 import socket
-import urlparse
 import uuid
 
 from django.conf import settings as django_settings
@@ -119,12 +118,6 @@ def setup_pipeline_in_ss(use_default_config=False):
         api_username=user.username,
         api_key=api_key.key,
     )
-
-    # Add the storage service URL to the API whitelist
-    ss_url = urlparse.urlparse(helpers.get_setting('storage_service_url'))
-    whitelist = helpers.get_setting('api_whitelist', '')
-    whitelist = '\n'.join([whitelist, ss_url.hostname])
-    helpers.set_setting('api_whitelist', whitelist)
 
 
 def get_my_ip():
