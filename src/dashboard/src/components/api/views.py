@@ -80,18 +80,18 @@ def _api_endpoint(expected_methods):
 def authenticate_request(request):
     error = None
 
+    client_ip = request.META['REMOTE_ADDR']
+    whitelist = helpers.get_setting('api_whitelist', '').split()
+    if client_ip in whitelist:
+        LOGGER.debug('API called by trusted IP %s', client_ip)
+        return None
+
     api_auth = ApiKeyAuthentication()
     authorized = api_auth.is_authenticated(request)
 
     # 'authorized' can be True, False or tastypie.http.HttpUnauthorized
     # Check explicitly for True, not just truthiness
-    if authorized is True:
-        client_ip = request.META['REMOTE_ADDR']
-        whitelist = helpers.get_setting('api_whitelist', '127.0.0.1').split()
-        if client_ip not in whitelist:
-            LOGGER.debug('API called by invalid IP %s', client_ip)
-            error = 'Host/IP ' + client_ip + ' not authorized.'
-    else:
+    if authorized is not True:
         error = 'API key not valid.'
 
     return error

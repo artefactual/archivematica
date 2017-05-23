@@ -370,7 +370,7 @@ def api(request):
         helpers.set_setting('api_whitelist', whitelist)
         messages.info(request, _('Saved.'))
     else:
-        whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
+        whitelist = helpers.get_setting('api_whitelist', '')
 
     return render(request, 'administration/api.html', locals())
 
