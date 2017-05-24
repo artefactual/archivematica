@@ -81,3 +81,13 @@ class CustomShibbolethRemoteUserMiddleware(ShibbolethRemoteUserMiddleware):
     to identify the remote Shibboleth user
     """
     header = SHIBBOLETH_REMOTE_USER_HEADER
+
+    def make_profile(self, user, shib_meta):
+        """
+        Customize the user based on shib_meta mappings (anything that's not
+        already covered by the attribute map)
+        """
+        # Make the user an administrator if they are in the designated admin group
+        entitlements = shib_meta['entitlement'].split(';')
+        user.is_superuser = settings.SHIBBOLETH_ADMIN_ENTITLEMENT in entitlements
+        user.save()

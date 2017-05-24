@@ -16,7 +16,8 @@ class TestShibbolethLogin(TestCase):
             'HTTP_EPPN': 'testuser',
             'HTTP_GIVENNAME': 'Test',
             'HTTP_SN': 'User',
-            'HTTP_MAIL': 'test@example.com'
+            'HTTP_MAIL': 'test@example.com',
+            'HTTP_ENTITLEMENT': 'preservation-user',
         }
 
         response = self.client.get('/transfer/', **shib_headers)
@@ -28,6 +29,7 @@ class TestShibbolethLogin(TestCase):
         assert user.email == 'test@example.com'
         assert not user.has_usable_password()
         assert user.api_key
+        assert not user.is_superuser
 
     def test_uses_existing_user(self):
         user = User.objects.create(username='testuser')
@@ -35,7 +37,8 @@ class TestShibbolethLogin(TestCase):
             'HTTP_EPPN': 'testuser',
             'HTTP_GIVENNAME': 'Test',
             'HTTP_SN': 'User',
-            'HTTP_MAIL': 'test@example.com'
+            'HTTP_MAIL': 'test@example.com',
+            'HTTP_ENTITLEMENT': 'preservation-user',
         }
 
         response = self.client.get('/transfer/', **shib_headers)
@@ -49,10 +52,26 @@ class TestShibbolethLogin(TestCase):
             'HTTP_EPPN': long_email,
             'HTTP_GIVENNAME': 'Test',
             'HTTP_SN': 'User',
-            'HTTP_MAIL': 'test@example.com'
+            'HTTP_MAIL': 'test@example.com',
+            'HTTP_ENTITLEMENT': 'preservation-user',
         }
 
         response = self.client.get('/transfer/', **shib_headers)
 
         assert response.status_code == 200
         assert response.context['user'].username == long_email
+
+    def test_creates_superuser_based_on_entitlement(self):
+        shib_headers = {
+            'HTTP_EPPN': 'testuser',
+            'HTTP_GIVENNAME': 'Test',
+            'HTTP_SN': 'User',
+            'HTTP_MAIL': 'test@example.com',
+            'HTTP_ENTITLEMENT': 'preservation-admin;some-other-entitlement',
+        }
+
+        response = self.client.get('/transfer/', **shib_headers)
+
+        assert response.status_code == 200
+        user = response.context['user']
+        assert user.is_superuser
