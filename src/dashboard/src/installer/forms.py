@@ -20,13 +20,13 @@ from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _l
 
 
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    org_name = forms.CharField(label=_('Organization name'), help_text=_('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_('Organization identifier'), help_text=_('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     class Meta:
         model = User
@@ -42,6 +42,14 @@ class SuperUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class OrganizationForm(forms.Form):
+    """
+    Simplified version of the superuser form - simply ask for organisation info
+    """
+    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
 
 class FPRConnectForm(forms.Form):
