@@ -85,9 +85,9 @@ def profile(request):
         api_key = _('<no API key generated>')
 
     return render(request, 'accounts/profile.html', {
-      'form': form,
-      'api_key': api_key,
-      'title': title
+        'form': form,
+        'api_key': api_key,
+        'title': title
     })
 
 

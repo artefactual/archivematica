@@ -16,10 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 
+import components.helpers as helpers
 from re import compile as re_compile
 
 
@@ -30,11 +30,8 @@ if hasattr(settings, 'LOGIN_EXEMPT_URLS'):
 
 class ConfigurationCheckMiddleware:
     def process_request(self, request):
-        if User.objects.count() == 0:
+        # The presence of the UUID is an indicator of whether we've already set up.
+        dashboard_uuid = helpers.get_setting('dashboard_uuid')
+        if not dashboard_uuid:
             if reverse('installer.views.welcome') != request.path_info:
                 return redirect('installer.views.welcome')
-        else:
-            if not request.user.is_authenticated():
-                path = request.path_info.lstrip('/')
-                if not any(m.match(path) for m in EXEMPT_URLS):
-                    return redirect(settings.LOGIN_URL)
