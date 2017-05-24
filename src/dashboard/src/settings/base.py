@@ -403,9 +403,9 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "12345"
 
-SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_X_SHIB_USER'
+SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
 SHIBBOLETH_ATTRIBUTE_MAP = {
-    'HTTP_X_SHIB_GIVEN_NAME': (False, 'first_name'),
-    'HTTP_X_SHIB_SN': (False, 'last_name'),
-    'HTTP_X_SHIB_MAIL': (False, 'email'),
+    'HTTP_GIVENNAME': (False, 'first_name'),
+    'HTTP_SN': (False, 'last_name'),
+    'HTTP_MAIL': (False, 'email'),
 }
