@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,7 @@ for transfer_dir in os.listdir(transferPath):
         if objectMD5 == xmlMD5:
             print('File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%'))
 
-            fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transferUUID', '%transferDirectory%')
+            fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transfer', '%transferDirectory%')
             for path, fileUUID in fileID.items():
                 eventDetail = 'program="python"; module="hashlib.md5()"'
                 eventOutcome = 'Pass'

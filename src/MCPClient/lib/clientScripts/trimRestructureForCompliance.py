@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from archivematicaFunctions import REQUIRED_DIRECTORIES
 from custom_handlers import get_script_logger
 import fileOperations
 
-def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
+def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer", unitPathReplaceWith="%transferDirectory%"):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unitPath)
 

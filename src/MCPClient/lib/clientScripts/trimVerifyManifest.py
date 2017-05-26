@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -86,7 +86,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
         if os.path.isfile(path):
             print("Verified file exists: ", path.replace(transferPath, "%TransferDirectory%"))
             fileCount += 1
-            fileID = getFileUUIDLike(path, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+            fileID = getFileUUIDLike(path, transferPath, transferUUID, "transfer", "%transferDirectory%")
             if not len(fileID):
                 print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1
@@ -108,7 +108,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             if i != -1 and os.path.isfile(path2):
                 print("Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 fileCount += 1
-                fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+                fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transfer", "%transferDirectory%")
                 if not len(fileID):
                     print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                     exitCode += 1
