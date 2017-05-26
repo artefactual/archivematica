@@ -325,7 +325,8 @@ def created_shared_directory_structure():
         if os.path.isdir(d):
             continue
         logger.info('Creating directory: %s', d)
-        os.makedirs(d, mode=770)
+        os.makedirs(d)
+        os.chmod(d, 0o770)
 
 
 def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
