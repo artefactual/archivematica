@@ -29,7 +29,6 @@ import threading
 import time
 
 from linkTaskManager import LinkTaskManager
-from executeOrRunSubProcess import executeOrRun
 import jobChain
 from utils import log_exceptions
 

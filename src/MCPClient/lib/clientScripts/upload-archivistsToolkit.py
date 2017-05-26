@@ -23,6 +23,7 @@ import os
 import sys
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from xml2obj import mets_file
 
 # dashboard
@@ -36,6 +37,7 @@ testMode = 0
 
 # moved after django.setup()
 logger = get_script_logger("archivematica.mcp.client")
+
 
 def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):
