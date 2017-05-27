@@ -410,6 +410,7 @@ class File(models.Model):
     checksumtype = models.CharField(max_length=36, db_column='checksumType', blank=True)
     size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
     label = models.TextField(blank=True)
+    modificationtime = models.DateTimeField(db_column='modificationTime', auto_now_add=True)
     enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
     removedtime = models.DateTimeField(db_column='removedTime', null=True, default=None)
 
