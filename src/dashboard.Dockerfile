@@ -4,20 +4,11 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/dashboard/src/:/src/archivematicaCommon/lib/
 ENV PYTHONUNBUFFERED 1
-ENV GUNICORN_CMD_ARGS \
-	--user archivematica \
-	--group archivematica \
-	--bind 0.0.0.0:8000 \
-	--workers 4 \
-	--worker-class gevent \
-	--timeout 172800 \
-	--chdir /src/dashboard/src \
-	--access-logfile - \
-	--error-logfile - \
-	--log-level info \
-	--reload \
-	--reload-engine poll \
-	--name archivematica-dashboard
+ENV GUNICORN_BIND 0.0.0.0:8000
+ENV GUNICORN_CHDIR /src/dashboard/src
+ENV GUNICORN_ACCESSLOG -
+ENV GUNICORN_ERRORLOG -
+ENV FORWARDED_ALLOW_IPS *
 
 RUN set -ex \
 	&& apt-get update \
@@ -33,6 +24,7 @@ ADD archivematicaCommon/ /src/archivematicaCommon/
 ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 ADD dashboard/ /src/dashboard/
+ADD dashboard/install/dashboard.gunicorn-config.py /etc/archivematica/dashboard.gunicorn-config.py
 
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
@@ -55,4 +47,4 @@ RUN env \
 
 EXPOSE 8000
 
-ENTRYPOINT /usr/local/bin/gunicorn wsgi:application
+ENTRYPOINT /usr/local/bin/gunicorn --config=/etc/archivematica/dashboard.gunicorn-config.py wsgi:application
