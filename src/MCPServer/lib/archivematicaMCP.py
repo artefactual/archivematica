@@ -324,11 +324,12 @@ def cleanupOldDbEntriesOnNewRun():
 
 
 def created_shared_directory_structure():
+    default_mode = 0o770
     dirs = (
         "arrange",
         "completed",
         "completed/transfers",
-        "currentlyProcessing",
+        ("currentlyProcessing", 0o775),
         "DIPbackups",
         "failed",
         "rejected",
@@ -383,13 +384,19 @@ def created_shared_directory_structure():
         "www/AIPsStore/transferBacklog/originals",
         "www/DIPsStore"
     )
-    for d in dirs:
-        d = os.path.join(django_settings.SHARED_DIRECTORY, d)
-        if os.path.isdir(d):
+    for item in dirs:
+        if isinstance(item, tuple):
+            dirpath = item[0]
+            mode = item[1]
+        else:
+            dirpath = item
+            mode = default_mode
+        dirpath = os.path.join(django_settings.SHARED_DIRECTORY, dirpath)
+        if os.path.isdir(dirpath):
             continue
-        logger.info('Creating directory: %s', d)
-        os.makedirs(d)
-        os.chmod(d, 0o770)
+        logger.info('Creating directory: %s', dirpath)
+        os.makedirs(dirpath)
+        os.chmod(dirpath, mode)
 
     # Populate defaultProcessingMCP.xml (DEFAULT_PROCESSING_CONFIG)
     default_proc_config = os.path.join(django_settings.SHARED_DIRECTORY, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
