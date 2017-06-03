@@ -33,6 +33,7 @@ from archivematicaFunctions import REQUIRED_DIRECTORIES
 from custom_handlers import get_script_logger
 import fileOperations
 
+
 def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer", unitPathReplaceWith="%transferDirectory%"):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unitPath)

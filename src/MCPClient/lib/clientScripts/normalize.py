@@ -372,7 +372,7 @@ def main(opts):
     # normalization; if not, then a transfer with a single file that failed
     # thumbnail normalization will result in a failed SIP at "Prepare DIP: Copy
     # thumbnails to DIP directory"
-    if (    exitstatus != 0 and
+    if (exitstatus != 0 and
             opts.purpose in ('access', 'thumbnail') and
             cl.commandObject.output_location and
             (not os.path.isfile(cl.commandObject.output_location))):
