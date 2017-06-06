@@ -138,6 +138,112 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
 </processingMCP>
 """
 
+AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
+  <preconfiguredChoices>
+    <!-- Select file format identification command (Submission documentation & metadata) -->
+    <preconfiguredChoice>
+      <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
+      <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
+    </preconfiguredChoice>
+    <!-- Generate transfer structure report -->
+    <preconfiguredChoice>
+      <appliesTo>56eebd45-5600-4768-a8c2-ec0114555a3d</appliesTo>
+      <goToChain>df54fec1-dae1-4ea6-8d17-a839ee7ac4a7</goToChain>
+    </preconfiguredChoice>
+    <!-- Select compression level -->
+    <preconfiguredChoice>
+      <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
+      <goToChain>ecfad581-b007-4612-a0e0-fcc551f4057f</goToChain>
+    </preconfiguredChoice>
+    <!-- Select file format identification command (Ingest) -->
+    <preconfiguredChoice>
+      <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
+      <goToChain>664cbde3-e658-4288-87db-bd28266d83f5</goToChain>
+    </preconfiguredChoice>
+    <!-- Reminder: add metadata if desired -->
+    <preconfiguredChoice>
+      <appliesTo>eeb23509-57e2-4529-8857-9d62525db048</appliesTo>
+      <goToChain>5727faac-88af-40e8-8c10-268644b0142d</goToChain>
+    </preconfiguredChoice>
+    <!-- Create SIP(s) -->
+    <preconfiguredChoice>
+      <appliesTo>bb194013-597c-4e4a-8493-b36d190f8717</appliesTo>
+      <goToChain>61cfa825-120e-4b17-83e6-51a42b67d969</goToChain>
+    </preconfiguredChoice>
+    <!-- Store DIP location -->
+    <preconfiguredChoice>
+      <appliesTo>b7a83da6-ed5a-47f7-a643-1e9f9f46e364</appliesTo>
+      <goToChain>/api/v2/location/bb215be6-ce08-489a-aafb-e921bb81e72b/</goToChain>
+    </preconfiguredChoice>
+    <!-- Transcribe files (OCR) -->
+    <preconfiguredChoice>
+      <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
+      <goToChain>5a9985d3-ce7e-4710-85c1-f74696770fa9</goToChain>
+    </preconfiguredChoice>
+    <!-- Delete packages after extraction -->
+    <preconfiguredChoice>
+      <appliesTo>f19926dd-8fb5-4c79-8ade-c83f61f55b40</appliesTo>
+      <goToChain>72e8443e-a8eb-49a8-ba5f-76d52f960bde</goToChain>
+    </preconfiguredChoice>
+    <!-- Normalize (match 1 for "Normalize for preservation") -->
+    <preconfiguredChoice>
+      <appliesTo>cb8e5706-e73f-472f-ad9b-d1236af8095f</appliesTo>
+      <goToChain>612e3609-ce9a-4df6-a9a3-63d634d2d934</goToChain>
+    </preconfiguredChoice>
+    <!-- Normalize (match 2 for "Normalize for preservation") -->
+    <preconfiguredChoice>
+      <appliesTo>7509e7dc-1e1b-4dce-8d21-e130515fce73</appliesTo>
+      <goToChain>612e3609-ce9a-4df6-a9a3-63d634d2d934</goToChain>
+    </preconfiguredChoice>
+    <!-- Send transfer to quarantine -->
+    <preconfiguredChoice>
+      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
+      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
+    </preconfiguredChoice>
+    <!-- Select compression algorithm -->
+    <preconfiguredChoice>
+      <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
+      <goToChain>dc04c4c0-07ea-4796-b643-66d967ed33a4</goToChain>
+    </preconfiguredChoice>
+    <!-- Examine contents -->
+    <preconfiguredChoice>
+      <appliesTo>accea2bf-ba74-4a3a-bb97-614775c74459</appliesTo>
+      <goToChain>e0a39199-c62a-4a2f-98de-e9d1116460a8</goToChain>
+    </preconfiguredChoice>
+    <!-- Select file format identification command (Transfer) -->
+    <preconfiguredChoice>
+      <appliesTo>f09847c2-ee51-429a-9478-a860477f6b8d</appliesTo>
+      <goToChain>bed4eeb1-d654-4d97-b98d-40eb51d3d4bb</goToChain>
+    </preconfiguredChoice>
+    <!-- Extract packages -->
+    <preconfiguredChoice>
+      <appliesTo>dec97e3c-5598-4b99-b26e-f87a435a6b7f</appliesTo>
+      <goToChain>79f1f5af-7694-48a4-b645-e42790bbf870</goToChain>
+    </preconfiguredChoice>
+    <!-- Store AIP -->
+    <preconfiguredChoice>
+      <appliesTo>2d32235c-02d4-4686-88a6-96f4d6c7b1c3</appliesTo>
+      <goToChain>9efab23c-31dc-4cbd-a39d-bb1665460cbe</goToChain>
+    </preconfiguredChoice>
+    <!-- Approve normalization -->
+    <preconfiguredChoice>
+      <appliesTo>de909a42-c5b5-46e1-9985-c031b50e9d30</appliesTo>
+      <goToChain>1e0df175-d56d-450d-8bee-7df1dc7ae815</goToChain>
+    </preconfiguredChoice>
+    <!-- Upload DIP -->
+    <preconfiguredChoice>
+      <appliesTo>92879a29-45bf-4f0b-ac43-e64474f0f2f9</appliesTo>
+      <goToChain>0fe9842f-9519-4067-a691-8a363132ae24</goToChain>
+    </preconfiguredChoice>
+    <!-- Store AIP location -->
+    <preconfiguredChoice>
+      <appliesTo>b320ce81-9982-408a-9502-097d0daa48fa</appliesTo>
+      <goToChain>/api/v2/location/0a62b8ff-ef79-4b76-8f14-a0ea7351065e/</goToChain>
+    </preconfiguredChoice>
+  </preconfiguredChoices>
+</processingMCP>
+"""
+
 
 def fetchUUIDFromPath(path):
     # find UUID on end of SIP path
@@ -387,12 +493,17 @@ def created_shared_directory_structure():
         logger.info('Creating directory: %s', d)
         os.makedirs(d, mode=0o770)
 
-    # Populate defaultProcessingMCP.xml (DEFAULT_PROCESSING_CONFIG)
-    default_proc_config = os.path.join(django_settings.SHARED_DIRECTORY, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
-    if os.path.isfile(default_proc_config):
-        return
-    with open(default_proc_config, 'w') as fd:
-        fd.write(DEFAULT_PROCESSING_CONFIG.encode('utf-8'))
+    # Populate processing configurations
+    proc_configs = (
+        ('defaultProcessingMCP.xml', DEFAULT_PROCESSING_CONFIG),
+        ('automatedProcessingMCP.xml', AUTOMATED_PROCESSING_CONFIG),
+    )
+    for item in proc_configs:
+        path = os.path.join(django_settings.SHARED_DIRECTORY, 'sharedMicroServiceTasksConfigs/processingMCPConfigs', item[0])
+        if os.path.isfile(path):
+            continue
+        with open(path, 'w') as fd:
+            fd.write(item[1].encode('utf-8'))
 
 
 def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
