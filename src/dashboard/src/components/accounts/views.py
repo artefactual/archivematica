@@ -77,16 +77,8 @@ def profile(request):
     else:
         form = ApiKeyForm()
 
-    # load API key for display
-    try:
-        api_key_data = ApiKey.objects.get(user_id=user.pk)
-        api_key = api_key_data.key
-    except ApiKey.DoesNotExist:
-        api_key = _('<no API key generated>')
-
     return render(request, 'accounts/profile.html', {
         'form': form,
-        'api_key': api_key,
         'title': title
     })
 
@@ -144,17 +136,9 @@ def edit(request, id=None):
             suppress_administrator_toggle = False
         form = UserChangeForm(instance=user, suppress_administrator_toggle=suppress_administrator_toggle)
 
-    # load API key for display
-    try:
-        api_key_data = ApiKey.objects.get(user_id=user.pk)
-        api_key = api_key_data.key
-    except:
-        api_key = '<no API key generated>'
-
     return render(request, 'accounts/edit.html', {
         'form': form,
         'user': user,
-        'api_key': api_key,
         'title': title
     })
 

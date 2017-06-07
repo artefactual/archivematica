@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load user %}
 {% load i18n %}
 
 {% block title %}{% blocktrans with user=user %}Users - Edit {{ user }}{% endblocktrans %}{% endblock %}
@@ -29,7 +30,7 @@
         {% include "_form.html" %}
 
         <div>
-          <div class='input'><code>{{ api_key }}</code></div>
+          <div class='input'><code>{{ user|api_key }}</code></div>
         </div>
 
         <div class="actions">
