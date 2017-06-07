@@ -236,7 +236,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0029_backlog_removal_event'),
+        ('main', '0032_dashboardsetting_scope'),
     ]
 
     operations = [
