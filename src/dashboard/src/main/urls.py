@@ -44,5 +44,9 @@ urlpatterns = [
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', views.formdata_delete),
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', views.formdata),
 
-    url(r'^shib/', include('shibboleth.urls', namespace='shibboleth')),
 ]
+
+if 'shibboleth' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        url(r'^shib/', include('shibboleth.urls', namespace='shibboleth')),
+    ]
