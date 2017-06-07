@@ -33,5 +33,11 @@ class ConfigurationCheckMiddleware:
         # The presence of the UUID is an indicator of whether we've already set up.
         dashboard_uuid = helpers.get_setting('dashboard_uuid')
         if not dashboard_uuid:
+            # Start off the installer
             if reverse('installer.views.welcome') != request.path_info:
                 return redirect('installer.views.welcome')
+        elif not request.user.is_authenticated():
+            # Installation already happened - make sure the user is logged in.
+            path = request.path_info.lstrip('/')
+            if not any(m.match(path) for m in EXEMPT_URLS):
+                return redirect(settings.LOGIN_URL)
