@@ -1,9 +1,13 @@
+import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from components import helpers
 
 
+@pytest.mark.skipif(not settings.SHIBBOLETH_AUTHENTICATION,
+                    reason='tests will only pass if Shibboleth is enabled')
 class TestShibbolethLogin(TestCase):
     def setUp(self):
         helpers.set_setting('dashboard_uuid', 'test-uuid')
