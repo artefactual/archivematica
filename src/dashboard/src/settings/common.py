@@ -32,6 +32,7 @@ CONFIG_MAPPING = {
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
+    'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -49,6 +50,7 @@ watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
+shibboleth_authentication = False
 # django_allowed_hosts = ... Mandatory!
 # django_secret_key = ... Mandatory!
 
@@ -202,20 +204,17 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
-                'shibboleth.context_processors.login_link',
-                'shibboleth.context_processors.logout_link',
             ],
             'debug': DEBUG,
         },
     },
 ]
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'components.accounts.backends.CustomShibbolethRemoteUserBackend',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     # 'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -224,17 +223,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'middleware.common.CustomShibbolethRemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.common.AJAXSimpleExceptionResponseMiddleware',
     'installer.middleware.ConfigurationCheckMiddleware',
     'middleware.common.SpecificExceptionErrorPageResponseMiddleware',
     'middleware.common.ElasticsearchMiddleware',
-)
+]
 
 ROOT_URLCONF = 'urls'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     # Django basics
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -262,12 +260,9 @@ INSTALLED_APPS = (
 
     'django_forms_bootstrap',
 
-    # Shibboleth authentication'
-    'shibboleth',
-
     # Support long (>30 characters) usernames
     'longerusername',
-)
+]
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -342,15 +337,12 @@ CACHES = {
 }
 
 # login-related settings
+LOGIN_URL = '/administration/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/Shibboleth.sso/Login'
-SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
-SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
     r'^api',
     r'^administration/accounts/logged-out',
-    r'^Shibboleth.sso/',
 ]
 # Django debug toolbar
 try:
@@ -401,14 +393,44 @@ WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 
-SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
-SHIBBOLETH_ATTRIBUTE_MAP = {
-    # Automatic user fields
-    'HTTP_GIVENNAME': (False, 'first_name'),
-    'HTTP_SN': (False, 'last_name'),
-    'HTTP_MAIL': (False, 'email'),
-    # Entitlement field (which we handle manually)
-    'HTTP_ENTITLEMENT': (True, 'entitlement'),
-}
-# If the user has this entitlement, they will be a superuser/admin
-SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
+ALLOW_USER_EDITS = True
+
+SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
+if SHIBBOLETH_AUTHENTICATION:
+    SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
+    SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
+
+    SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
+    SHIBBOLETH_ATTRIBUTE_MAP = {
+        # Automatic user fields
+        'HTTP_GIVENNAME': (False, 'first_name'),
+        'HTTP_SN': (False, 'last_name'),
+        'HTTP_MAIL': (False, 'email'),
+        # Entitlement field (which we handle manually)
+        'HTTP_ENTITLEMENT': (True, 'entitlement'),
+    }
+
+    # If the user has this entitlement, they will be a superuser/admin
+    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
+
+
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'shibboleth.context_processors.login_link',
+        'shibboleth.context_processors.logout_link',
+    ]
+
+    AUTHENTICATION_BACKENDS += [
+        'components.accounts.backends.CustomShibbolethRemoteUserBackend',
+    ]
+
+    # Insert Shibboleth after the authentication middleware
+    MIDDLEWARE_CLASSES.insert(
+        MIDDLEWARE_CLASSES.index(
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+        ) + 1,
+        'middleware.common.CustomShibbolethRemoteUserMiddleware',
+    )
+
+    INSTALLED_APPS += ['shibboleth']
+
+    ALLOW_USER_EDITS = False
