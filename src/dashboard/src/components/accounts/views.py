@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
@@ -94,11 +95,8 @@ def edit(request, id=None):
         user = request.user
         title = 'Edit your profile (%s)' % user
     else:
-        try:
-            user = User.objects.get(pk=id)
-            title = 'Edit user %s' % user
-        except:
-            raise Http404
+        user = get_object_or_404(User, pk=id)
+        title = 'Edit user %s' % user
 
     # Form
     if request.method == 'POST':
