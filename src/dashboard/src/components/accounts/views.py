@@ -65,6 +65,10 @@ def add(request):
 
 
 def profile(request):
+    # If users are editable in this setup, go to the editable profile view
+    if settings.ALLOW_USER_EDITS:
+        return edit(request)
+
     user = request.user
     title = _('Your profile (%s)') % user
 
@@ -121,10 +125,10 @@ def edit(request, id=None):
                 generate_api_key(user)
 
             # determine where to redirect to
-            if request.user.is_superuser is False:
-                return_view = 'components.accounts.views.edit'
-            else:
+            if request.user.is_superuser:
                 return_view = 'components.accounts.views.list'
+            else:
+                return_view = 'profile'
 
             messages.info(request, _('Saved.'))
             return redirect(return_view)
