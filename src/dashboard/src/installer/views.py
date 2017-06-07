@@ -16,12 +16,15 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
+from tastypie.models import ApiKey
 
 import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
-from installer.forms import OrganizationForm
+from installer.forms import OrganizationForm, SuperUserCreationForm
 from installer.steps import download_fpr_rules, setup_pipeline, setup_pipeline_in_ss, submit_fpr_agent
 
 
@@ -31,16 +34,33 @@ def welcome(request):
     if dashboard_uuid:
         return redirect('main.views.home')
 
+    # Do we need to set up a user?
+    set_up_user = not User.objects.exists()
+
     if request.method == 'POST':
         # save organization PREMIS agent if supplied
         setup_pipeline(
             org_name=request.POST.get('org_name', ''),
             org_identifier=request.POST.get('org_identifier', '')
         )
-        request.session['first_login'] = True
-        return redirect('installer.views.fprconnect')
+
+        if set_up_user:
+            form = SuperUserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                api_key = ApiKey.objects.create(user=user)
+                api_key.key = api_key.generate_key()
+                api_key.save()
+                user = authenticate(username=user.username, password=form.cleaned_data['password1'])
+                if user is not None:
+                    login(request, user)
+                    request.session['first_login'] = True
+                    return redirect('installer.views.fprconnect')
+        else:
+            request.session['first_login'] = True
+            return redirect('installer.views.fprconnect')
     else:
-        form = OrganizationForm()
+        form = SuperUserCreationForm() if set_up_user else OrganizationForm()
 
     return render(request, 'installer/welcome.html', {
         'form': form,
