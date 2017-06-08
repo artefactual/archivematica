@@ -206,16 +206,16 @@ def data_migration(apps, schema_editor):
 
     # Make "Policy checks for preservation derivatives" exit to the "Policy
     # checks for access derivatives" CHOICE chain link.
-    for pk, exit_code, exit_message in (
-            ('088ef391-3c7c-4dff-be9b-34af19f3d38b', 0,
-             'Completed successfully'),
-            ('150d2b36-6262-4c7b-9dbc-5b0606dd5a48', 1,
-             'Failed')):
+    # Note: in ``exit_message_codes`` 2 is 'Completed successfully' and 4 is
+    # 'Failed'; see models.py.
+    for pk, exit_code, exit_message_code in (
+            ('088ef391-3c7c-4dff-be9b-34af19f3d38b', 0, 2),
+            ('150d2b36-6262-4c7b-9dbc-5b0606dd5a48', 1, 4)):
         MicroServiceChainLinkExitCode.objects.create(
             id=pk,
             microservicechainlink=prsrvtn_drvtv_policy_check_cl,
             exitcode=exit_code,
-            exitmessage=exit_message,
+            exitmessage=exit_message_code,
             nextmicroservicechainlink=ccss_drvtv_policy_check_choice_cl
         )
 
@@ -299,16 +299,16 @@ def data_migration(apps, schema_editor):
 
     # Make "Policy checks for access derivatives" exit to "Move to metadata
     # reminder". (Note: this crucially must follow the above update!)
-    for pk, exit_code, exit_message in (
-            ('a9c2f8b8-e21f-4bf2-af22-e304c23b0143', 0,
-             'Completed successfully'),
-            ('db44f68e-259a-4ff0-a122-d3281d6f2c7d', 1,
-             'Failed')):
+    # Note: in ``exit_message_codes`` 2 is 'Completed successfully' and 4 is
+    # 'Failed'; see models.py.
+    for pk, exit_code, exit_message_code in (
+            ('a9c2f8b8-e21f-4bf2-af22-e304c23b0143', 0, 2),
+            ('db44f68e-259a-4ff0-a122-d3281d6f2c7d', 1, 4)):
         MicroServiceChainLinkExitCode.objects.create(
             id=pk,
             microservicechainlink=ccss_drvtv_policy_check_cl,
             exitcode=exit_code,
-            exitmessage=exit_message,
+            exitmessage=exit_message_code,
             nextmicroservicechainlink=move_metadata_cl
         )
 
@@ -349,16 +349,16 @@ def data_migration(apps, schema_editor):
 
     # Make "Policy checks for originals" exit to "Move to examine
     # contents". (Note: this crucially must follow the above update!)
-    for pk, exit_code, exit_message in (
-            ('24b40a16-819e-4748-b886-c05d7829615b', 0,
-             'Completed successfully'),
-            ('103b22f4-7495-4c08-8233-8389ed300e68', 1,
-             'Failed')):
+    # Note: in ``exit_message_codes`` 2 is 'Completed successfully' and 4 is
+    # 'Failed'; see models.py.
+    for pk, exit_code, exit_message_code in (
+            ('24b40a16-819e-4748-b886-c05d7829615b', 0, 2),
+            ('103b22f4-7495-4c08-8233-8389ed300e68', 1, 4)):
         MicroServiceChainLinkExitCode.objects.create(
             id=pk,
             microservicechainlink=rgnl_policy_check_cl,
             exitcode=exit_code,
-            exitmessage=exit_message,
+            exitmessage=exit_message_code,
             nextmicroservicechainlink=move_examine_contents_cl
         )
 

@@ -132,15 +132,16 @@ def data_migration(apps, schema_editor):
     # Create three new chain link exit code rows that cause the Validate
     # Preservation Derivatives chain link to exit to whatever chain link that
     # Normalize for Preservation used to exit to.
-    for pk, exit_code, exit_message in (
-            ('f574f94f-c431-4442-a554-ac0934ccac93', 0,
-             'Completed successfully'),
-            ('d922a98b-2d65-4d75-bae0-9e8a446cb289', 1, 'Failed')):
+    # Note: in ``exit_message_codes`` 2 is 'Completed successfully'
+    # and 4 is 'Failed'; see models.py.
+    for pk, exit_code, exit_message_code in (
+            ('f574f94f-c431-4442-a554-ac0934ccac93', 0, 2),
+            ('d922a98b-2d65-4d75-bae0-9e8a446cb289', 1, 4)):
         MicroServiceChainLinkExitCode.objects.create(
             id=pk,
             microservicechainlink=vldt_prsrvtn_drvtv_cl,
             exitcode=exit_code,
-            exitmessage=exit_message,
+            exitmessage=exit_message_code,
             nextmicroservicechainlink=nrmlz_prsrvtn_next_link
         )
 
@@ -205,16 +206,16 @@ def data_migration(apps, schema_editor):
 
     # Create three new MSCL exit code rows that cause the Validate
     # Access Derivatives CL 1 to exit to whatever Normalize for Access 1 used
-    # to exit to.
-    for pk, exit_code, exit_message in (
-            ('9bbaafd6-9954-4f1f-972a-4f7eb0a60de7', 0,
-             'Completed successfully'),
-            ('de1dabdd-93ca-4f3b-accf-b9096aa494ba', 1, 'Failed')):
+    # to exit to. Note: in ``exit_message_codes`` 2 is 'Completed successfully'
+    # and 4 is 'Failed'; see models.py.
+    for pk, exit_code, exit_message_code in (
+            ('9bbaafd6-9954-4f1f-972a-4f7eb0a60de7', 0, 2),
+            ('de1dabdd-93ca-4f3b-accf-b9096aa494ba', 1, 4)):
         MicroServiceChainLinkExitCode.objects.create(
             id=pk,
             microservicechainlink=vldt_ccss_drvtv_cl_1,
             exitcode=exit_code,
-            exitmessage=exit_message,
+            exitmessage=exit_message_code,
             nextmicroservicechainlink=nrmlz_ccss_1_next_link
         )
 
