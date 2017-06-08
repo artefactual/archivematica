@@ -498,10 +498,9 @@ def created_shared_directory_structure():
             dirpath = item
             mode = default_mode
         dirpath = os.path.join(django_settings.SHARED_DIRECTORY, dirpath)
-        if os.path.isdir(dirpath):
-            continue
-        logger.info('Creating directory: %s', dirpath)
-        os.makedirs(dirpath)
+        if not os.path.isdir(dirpath):
+            logger.info('Creating directory: %s', dirpath)
+            os.makedirs(dirpath)
         os.chmod(dirpath, mode)
 
     # Populate processing configurations
