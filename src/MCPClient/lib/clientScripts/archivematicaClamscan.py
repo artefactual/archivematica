@@ -94,7 +94,11 @@ def main(fileUUID, target, date):
         record_event(fileUUID, version, date, outcome='Fail')
         return 1
 
-    state, details = result[target]
+    try:
+        state, details = result[target]
+    except KeyError:
+        logger.error('File not scanned: %s', target)
+        return 1
     if state == 'OK':
         record_event(fileUUID, version, date, outcome='Pass')
     else:
