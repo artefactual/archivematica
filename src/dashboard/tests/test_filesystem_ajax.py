@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
+from components import helpers
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +22,7 @@ class TestSIPArrange(TestCase):
     def setUp(self):
         self.client = Client()
         self.client.login(username='test', password='test')
+        helpers.set_setting('dashboard_uuid', 'test-uuid')
 
     def test_fixtures(self):
         objs = models.SIPArrange.objects.all()
