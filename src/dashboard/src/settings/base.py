@@ -412,14 +412,12 @@ if SHIBBOLETH_AUTHENTICATION:
         'HTTP_ENTITLEMENT': (True, 'entitlement'),
     }
 
-    # If the user has this entitlement, they will be a superuser/admin
-    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
-
-
     TEMPLATES[0]['OPTIONS']['context_processors'] += [
-        'shibboleth.context_processors.login_link',
         'shibboleth.context_processors.logout_link',
     ]
+
+    # If the user has this entitlement, they will be a superuser/admin
+    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
 
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomShibbolethRemoteUserBackend',
