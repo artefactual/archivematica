@@ -34,6 +34,9 @@ NOT_APPLICABLE_CODE = 0
 FAIL_CODE = 1
 
 
+LOGGER = get_script_logger("archivematica.mcp.client.policyCheck")
+
+
 class PolicyChecker(object):
     """Checks whether a given file conforms to all of the MediaConch policies
     that the system is configured to run against that type of file, given the
@@ -213,7 +216,13 @@ class PolicyChecker(object):
         exitstatus, stdout, stderr = executeOrRun(
             rule.command.script_type, command_to_execute, arguments=args,
             printing=False)
-        output = json.loads(stdout)
+        try:
+            output = json.loads(stdout)
+        except ValueError:
+            LOGGER.exception(
+                'Unable to load an object from the malformed JSON in\n%s',
+                stdout)
+            raise
         if self.file_type in ('preservation', 'original'):
             self._save_to_logs_dir(output)
         if exitstatus == 0:
@@ -392,15 +401,6 @@ class PolicyChecker(object):
         return self._sip_policy_checks_dir
 
 
-def _get_logger_name(file_type):
-    if file_type == 'original':
-        return "archivematica.mcp.client.policyCheckOriginal"
-    elif file_type == 'preservation':
-        return "archivematica.mcp.client.policyCheckPreservationDerivative"
-    else:
-        return "archivematica.mcp.client.policyCheckAccessDerivative"
-
-
 def _get_shared_path(argv):
     try:
         return argv[4]
@@ -421,7 +421,6 @@ if __name__ == '__main__':
     sip_uuid = sys.argv[3]
     shared_path = _get_shared_path(sys.argv)
     file_type = _get_file_type(sys.argv)
-    logger = get_script_logger(_get_logger_name(file_type))
     policy_checker = PolicyChecker(file_path, file_uuid, sip_uuid, shared_path,
                                    file_type)
     sys.exit(policy_checker.check())

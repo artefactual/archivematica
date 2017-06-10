@@ -131,7 +131,7 @@ class Validator(object):
         # insecure practice; should be JSON.
         output = ast.literal_eval(stdout)
         event_detail = ('program="{tool.description}";'
-                        'version="{tool.version}"'.format(
+                        ' version="{tool.version}"'.format(
                             tool=rule.command.tool))
         # If the FPR command has not errored but the actual validation
         # determined that the file is not valid, then we want to both create a

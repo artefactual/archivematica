@@ -230,6 +230,7 @@ def data_migration(apps, schema_editor):
             id=pk,
             microservicechainlink=vldt_ccss_drvtv_cl_2,
             exitcode=exit_code,
+            exitmessage=2,  # 2 is "Completed successfully"
             nextmicroservicechainlink=nrmlz_ccss_2_next_link
         )
 
