@@ -9,6 +9,7 @@ from django.db.models import Q
 from main import models
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import archivematicaFunctions
 
 # Third party dependencies, alphabetical by import source
@@ -17,6 +18,9 @@ from agentarchives import archivesspace
 # initialize Django (required for Django 1.7)
 import django
 django.setup()
+
+
+logger = get_script_logger("archivematica.mcp.client.moveTransfer")
 
 
 def create_archivesspace_client():
@@ -35,10 +39,10 @@ def create_archivesspace_client():
             repository=config['repository']
         )
     except archivesspace.AuthenticationError:
-        print("Unable to authenticate to ArchivesSpace server using the default user! Check administrative settings.")
+        logger.error('Unable to authenticate to ArchivesSpace server using the default user! Check administrative settings.')
         return None
     except archivesspace.ConnectionError:
-        print("Unable to connect to ArchivesSpace server at the default location! Check administrative settings.")
+        logger.error('Unable to connect to ArchivesSpace server at the default location! Check administrative settings.')
         return None
     return client
 
@@ -73,14 +77,15 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
     # Check for archivesspaceids.csv
     csv_paths = archivematicaFunctions.find_metadata_files(sip_path, 'archivesspaceids.csv')
     if not csv_paths:
-        print('No archivesspaceids.csv files found, exiting')
+        logger.info('No archivesspaceids.csv files found, exiting')
         return 0
 
     file_info = parse_archivesspaceids_csv(csv_paths)
     if not file_info:
-        print('No information found in archivesspaceids.csv files')
+        logger.info('No information found in archivesspaceids.csv files')
         return 1
-    print(file_info)
+
+    logger.info('File info: %s', file_info)
 
     # Create client
     client = create_archivesspace_client()
@@ -89,7 +94,7 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
 
     for filename, ref_id in file_info.items():
         # Get file object (for fileUUID, to see if in DIP)
-        print(filename, ref_id, '%SIPLocation%' + filename)
+        logger.debug('Getting file object: filename="%s" ref_id="%s"', filename, ref_id)
         try:
 
             f = models.File.objects.get(
@@ -100,22 +105,22 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
                 sip_id=sip_uuid
             )
         except models.File.DoesNotExist:
-            print(filename, 'not found in database, skipping')
+            logger.error('%s not found in database, skipping', filename)
             continue
         except models.File.MultipleObjectsReturned:
-            print('Multiple entries for', filename, 'found in database, skipping')
+            logger.error('Multiple entries for %s found in database, skipping', filename)
             continue
-        print('File:', f)
+        logger.debug('File: %s', f)
 
         # Query ref_id to client for resource_id
         resource = client.find_by_id('archival_objects', 'ref_id', ref_id)
         try:
             resource_id = resource[0]['id']
         except IndexError:
-            print('ArchivesSpace did not return an ID for', ref_id)
-            print('Returned', resource)
+            logger.error('ArchivesSpace did not return an ID for %s', ref_id)
+            logger.error('Returned %s', resource)
             continue
-        print('Resource ID:', resource_id)
+        logger.debug('Resource ID: %s', resource_id)
 
         # Add to ArchivesSpaceDIPObjectResourcePairing
         models.ArchivesSpaceDIPObjectResourcePairing.objects.create(

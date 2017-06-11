@@ -8,6 +8,13 @@
   "osdeps_repos": [
   ],
   "osdeps_packages": [
-  { "name": "gettext", "state": "latest"}
+  { "name": "gettext", "state": "latest"},
+  { "name": "nginx", "state": "latest"},
+  { "name": "libffi-dev", "state": "latest"},
+  { "name": "libxml2-dev", "state": "latest"},
+  { "name": "libxslt1-dev", "state": "latest"},
+  { "name": "libssl-dev", "state": "latest"},
+  { "name": "python-dev", "state": "latest"}
   ]
 }
+

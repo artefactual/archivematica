@@ -1,6 +1,7 @@
 from __future__ import print_function
 from functools import wraps
 import json
+import logging
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
@@ -11,6 +12,8 @@ from main import models
 from agentarchives.archivesspace import ArchivesSpaceClient, AuthenticationError, ConnectionError
 
 from components.ingest import pair_matcher
+
+logger = logging.getLogger('archivematica.dashboard')
 
 
 def get_as_system_client():

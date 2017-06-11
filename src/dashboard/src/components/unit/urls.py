@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/$', views.detail),
     url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/microservices/$', views.microservices),
     url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/delete/$', views.mark_hidden),
+    url(r'^delete/$', views.mark_completed_hidden),
 ]

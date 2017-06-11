@@ -32,6 +32,7 @@ CONFIG_MAPPING = {
     'number_of_tasks': {'section': 'MCPClient', 'option': 'numberOfTasks', 'type': 'int'},
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
+    'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
     'disable_search_indexing': {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
@@ -59,6 +60,7 @@ clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
 LoadSupportedCommandsSpecial = True
 numberOfTasks = 0
 elasticsearchServer = localhost:9200
+elasticsearchTimeout = 10
 disableElasticsearchIndexing = False
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
@@ -160,4 +162,5 @@ DISABLE_SEARCH_INDEXING = config.get('disable_search_indexing')
 REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
+ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 CLAMAV_SERVER = config.get('clamav_server')

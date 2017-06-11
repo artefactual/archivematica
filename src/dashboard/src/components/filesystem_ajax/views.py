@@ -251,7 +251,9 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
 
         if helpers.file_is_an_archive(path):
             transfer_dir = temp_dir
-            filepath = os.path.join(temp_dir, os.path.basename(path))
+            p = path.split(':', 1)[1]
+            logger.debug('found a zip file, splitting path ' + p)
+            filepath = os.path.join(temp_dir, os.path.basename(p))
         else:
             path = os.path.join(path, '.')  # Copy contents of dir but not dir
             transfer_dir = os.path.join(temp_dir, target)

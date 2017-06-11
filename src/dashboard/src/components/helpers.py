@@ -29,6 +29,7 @@ from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import render
@@ -328,3 +329,42 @@ def generate_api_key(user):
         api_key = ApiKey.objects.create(user=user)
     api_key.key = api_key.generate_key()
     api_key.save()
+
+
+def completed_units_efficient(unit_type='transfer', include_failed=True):
+    """Returns a list of unit UUIDs corresponding to the non-hidden completed
+    units. Uses a single database request. If ``include_failed`` is ``True``,
+    failed units will be included in the returned list. Note that the criteria
+    used here for determining that a unit is completed (and failed) are
+    intended to coincide exactly with the criteria used by
+    api/views.py::get_unit_status
+    """
+    table_name = 'Transfers'
+    pk_name = 'transferUUID'
+    if unit_type != 'transfer':
+        table_name = 'SIPs'
+        pk_name = 'sipUUID'
+    q = ('SELECT u.{pk_name}, j.jobType, j.microserviceGroup'
+         ' FROM {table_name} as u'
+         ' INNER JOIN Jobs as j'
+         ' ON j.SIPUUID = u.{pk_name}'
+         ' WHERE u.hidden = 0'
+         ' ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;'.format(
+             table_name=table_name, pk_name=pk_name))
+    completed = set()
+    current_uuid = None
+    with connection.cursor() as cursor:
+        cursor.execute(q)
+        for uuid, job_type, ms_group in cursor.fetchall():
+            if uuid == current_uuid:
+                first = False
+            else:
+                first = True
+            current_uuid = uuid
+            if ((job_type in ('Create SIP from transfer objects',
+                              'Move transfer to backlog')) or
+                    (first and
+                        (job_type == 'Remove the processing directory' or
+                         'failed' in ms_group.lower()))):
+                completed.add(uuid)
+    return list(completed)

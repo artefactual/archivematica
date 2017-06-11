@@ -369,6 +369,38 @@ def main(opts):
     cl = transcoder.CommandLinker(rule, command, replacement_dict, opts, once_normalized)
     exitstatus = cl.execute()
 
+    # If the access/thumbnail normalization command has errored AND a
+    # derivative was NOT created, then we run the default access/thumbnail
+    # rule. Note that we DO need to check if the derivative file exists. Even
+    # when a verification command exists for the normalization command, the
+    # transcoder.py::Command.execute method will only run the verification
+    # command if the normalization command returns a 0 exit code.
+    # Errored thumbnail normalization also needs to result in default thumbnail
+    # normalization; if not, then a transfer with a single file that failed
+    # thumbnail normalization will result in a failed SIP at "Prepare DIP: Copy
+    # thumbnails to DIP directory"
+    if (exitstatus != 0 and
+            opts.purpose in ('access', 'thumbnail') and
+            cl.commandObject.output_location and
+            (not os.path.isfile(cl.commandObject.output_location))):
+        # Fall back to default rule
+        try:
+            fallback_rule = get_default_rule(opts.purpose)
+            print(opts.purpose, 'normalization failed, falling back to default', opts.purpose, 'rule')
+            status = RULE_FAILED  # TODO what status should this return?
+        except FPRule.DoesNotExist:
+            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose, file=sys.stderr)
+            fallback_rule = None
+        # Don't re-run the same command
+        if fallback_rule and fallback_rule.command != command:
+            print('Fallback Format Policy Rule:', fallback_rule)
+            command = fallback_rule.command
+            print('Fallback Format Policy Command', command.description)
+
+            # Use existing replacement dict
+            cl = transcoder.CommandLinker(fallback_rule, command, replacement_dict, opts, once_normalized)
+            exitstatus = cl.execute()
+
     # Store thumbnails locally for use during AIP searches
     # TODO is this still needed, with the storage service?
     if 'thumbnail' in opts.purpose:

@@ -30,6 +30,7 @@ CONFIG_MAPPING = {
     'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
     'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
+    'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
 
     # [client]
@@ -46,6 +47,7 @@ CONFIG_DEFAULTS = """[Dashboard]
 shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
+elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 # django_allowed_hosts = ... Mandatory!
 # django_secret_key = ... Mandatory!
@@ -397,6 +399,7 @@ INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
 SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
+ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 
 SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
 SHIBBOLETH_ATTRIBUTE_MAP = {

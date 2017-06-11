@@ -220,6 +220,24 @@ def mark_hidden(request, unit_type, unit_uuid):
     return unit_views.mark_hidden(request, unit_type, unit_uuid)
 
 
+@_api_endpoint(expected_methods=['DELETE'])
+def mark_completed_hidden(request, unit_type):
+    """Mark all completed (``unit_type``) units as deleted.
+
+    This is just a wrapper around unit.views.mark_completed_hidden that
+    verifies API auth.
+
+    :param unit_type: 'transfer' or 'ingest' for Transfers or SIPs, respectively
+
+    Usage::
+
+        $ curl -X DELETE \
+               -H"Authorization: ApiKey test:5c2f6c8fbaff3b3038f89ab05b1c2267e447581e" \
+               'http://localhost/api/transfer/delete/'
+    """
+    return unit_views.mark_completed_hidden(request, unit_type)
+
+
 @_api_endpoint(expected_methods=['POST'])
 def start_transfer_api(request):
     """

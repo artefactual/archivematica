@@ -1,0 +1,56 @@
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file"
+  ],
+  "osdeps_repokeys": [
+    { "id": "0x5236CA08",
+      "url": "https://packages.archivematica.org/GPG-KEY-archivematica",
+      "validate_certs": "no"
+    },
+    { "id": "0xF06FC659",
+      "url": "http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x8CF63AD3F06FC659",
+      "validate_certs": "no"
+    }
+
+  ],
+  "osdeps_repos": [
+    "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main",
+    "deb http://archive.ubuntu.com/ubuntu/ xenial multiverse",
+    "deb http://archive.ubuntu.com/ubuntu/ xenial-security universe",
+    "deb http://archive.ubuntu.com/ubuntu/ xenial-updates multiverse",
+    "deb http://ppa.launchpad.net/jonathonf/ffmpeg-3/ubuntu xenial main"
+
+  ],
+  "osdeps_packages": [
+  { "name": "atool", "state": "latest"},
+  { "name": "bagit", "state": "latest"},
+  { "name": "bulk-extractor", "state": "latest"},
+  { "name": "ffmpeg", "state": "latest"},
+  { "name": "fits", "state": "latest"},
+  { "name": "gearman", "state": "latest"},
+  { "name": "imagemagick", "state": "latest"},
+  { "name": "inkscape", "state": "latest"},
+  { "name": "jhove", "state": "latest"},
+  { "name": "libimage-exiftool-perl", "state": "latest"},
+  { "name": "libxml2-utils", "state": "latest"},
+  { "name": "logapp", "state": "latest"},
+  { "name": "md5deep", "state": "latest"},
+  { "name": "mediainfo", "state": "latest"},
+  { "name": "nfs-common", "state": "latest"},
+  { "name": "openjdk-8-jre-headless", "state": "latest"},
+  { "name": "p7zip-full", "state": "latest"},
+  { "name": "pbzip2", "state": "latest"},
+  { "name": "postfix", "state": "latest"},
+  { "name": "readpst", "state": "latest"},
+  { "name": "rsync", "state": "latest"},
+  { "name": "siegfried", "state": "latest"},
+  { "name": "sleuthkit", "state": "latest"},
+  { "name": "tesseract-ocr", "state": "latest"},
+  { "name": "tika", "state": "latest"},
+  { "name": "tree", "state": "latest"},
+  { "name": "ufraw", "state": "latest"},
+  { "name": "unrar-free", "state": "latest"},
+  { "name": "uuid", "state": "latest"}
+  ]
+}
