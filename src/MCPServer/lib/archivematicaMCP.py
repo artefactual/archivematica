@@ -153,7 +153,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Select compression level -->
     <preconfiguredChoice>
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
-      <goToChain>ecfad581-b007-4612-a0e0-fcc551f4057f</goToChain>
+      <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
     <!-- Select file format identification command (Ingest) -->
     <preconfiguredChoice>
@@ -169,11 +169,6 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>bb194013-597c-4e4a-8493-b36d190f8717</appliesTo>
       <goToChain>61cfa825-120e-4b17-83e6-51a42b67d969</goToChain>
-    </preconfiguredChoice>
-    <!-- Store DIP location -->
-    <preconfiguredChoice>
-      <appliesTo>b7a83da6-ed5a-47f7-a643-1e9f9f46e364</appliesTo>
-      <goToChain>/api/v2/location/bb215be6-ce08-489a-aafb-e921bb81e72b/</goToChain>
     </preconfiguredChoice>
     <!-- Transcribe files (OCR) -->
     <preconfiguredChoice>
@@ -203,7 +198,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Select compression algorithm -->
     <preconfiguredChoice>
       <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
-      <goToChain>dc04c4c0-07ea-4796-b643-66d967ed33a4</goToChain>
+      <goToChain>9475447c-9889-430c-9477-6287a9574c5b</goToChain>
     </preconfiguredChoice>
     <!-- Examine contents -->
     <preconfiguredChoice>
@@ -229,11 +224,6 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>de909a42-c5b5-46e1-9985-c031b50e9d30</appliesTo>
       <goToChain>1e0df175-d56d-450d-8bee-7df1dc7ae815</goToChain>
-    </preconfiguredChoice>
-    <!-- Upload DIP -->
-    <preconfiguredChoice>
-      <appliesTo>92879a29-45bf-4f0b-ac43-e64474f0f2f9</appliesTo>
-      <goToChain>0fe9842f-9519-4067-a691-8a363132ae24</goToChain>
     </preconfiguredChoice>
     <!-- Store AIP location -->
     <preconfiguredChoice>
