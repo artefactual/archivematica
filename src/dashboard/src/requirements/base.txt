@@ -10,7 +10,7 @@ django-extensions==1.1.1
 django-autoslug==1.7.1
 django-annoying==0.7.7
 elasticsearch>=1.0.0,<2.0.0
-git+https://github.com/artefactual/archivematica-fpr-admin.git@v1.6.0#egg=archivematica-fpr-admin
+git+https://github.com/artefactual/archivematica-fpr-admin.git@f50fe53e34169e63a9a8339039601477915b2e24#egg=archivematica-fpr-admin
 gearman==2.0.2
 gunicorn==19.4.5
 lazy-paged-sequence

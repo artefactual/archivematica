@@ -15,10 +15,12 @@
         <th>{% trans "File format" %}</th>
         <th>{% trans "Preservation normalization attempted" %}</th>
         <th>{% trans "Preservation normalization failed" %}</th>
+        <th>{% trans "Preservation conformance check" %}</th>
         <th>{% trans "Already in preservation format" %}</th>
         <th>{% trans "Access normalization attempted" %}</th>
         <th>{% trans "Access normalization failed" %}</th>
         <th>{% trans "Already in access format" %}</th>
+        <th>{% trans "Access conformance check" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -41,6 +43,22 @@
           <!-- Red when yes -->
           <td class="{{ item.preservation_normalization_failed|yesno:"error,ok" }}">
             {{ item.preservation_normalization_failed|yesno:_("Yes,No") }}
+          </td>
+
+          <!-- Preservation Conformance Check -->
+          <!-- Red when conformance check failed -->
+          <td>
+            {% if item.preservation_derivative_validation_attempted %}
+              {% if item.preservation_derivative_validation_task_uuid %}
+                <a href="{% url 'main.views.task' item.preservation_derivative_validation_task_uuid %}"
+                   target="_blank"
+                   >{{ item.preservation_derivative_validation_failed|yesno:_("Failed,Passed") }}</a>
+              {% else %}
+                {{ item.preservation_derivative_validation_failed|yesno:_("Failed,Passed") }}
+              {% endif %}
+            {% else %}
+              {% trans 'N/A' %}
+            {% endif %}
           </td>
 
           <!-- Red if reservation_normalization_attempted is No and already_in_preservation_format is No -->
@@ -66,6 +84,23 @@
           <td{% if not item.access_normalization_attempted and not item.already_in_access_format %} class="error"{% endif %}>
             {{ item.already_in_access_format|yesno:_("Yes,No") }}
           </td>
+
+          <!-- Access Conformance Check -->
+          <!-- Red when conformance check failed -->
+          <td>
+            {% if item.access_derivative_validation_attempted %}
+              {% if item.access_derivative_validation_task_uuid %}
+                <a href="{% url 'main.views.task' item.access_derivative_validation_task_uuid %}"
+                   target="_blank"
+                   >{{ item.access_derivative_validation_failed|yesno:_("Failed,Passed") }}</a>
+              {% else %}
+                {{ item.access_derivative_validation_failed|yesno:_("Failed,Passed") }}
+              {% endif %}
+            {% else %}
+              {% trans 'N/A' %}
+            {% endif %}
+          </td>
+
         </tr>
       {% endfor %}
     </tbody>
