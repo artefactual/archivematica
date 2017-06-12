@@ -119,8 +119,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             t.exitcode,
             t.stdOut,
             dv.sourceFileUUID
-        from 
-            Jobs j 
+        from
+            Jobs j
             join
             Tasks t on t.jobUUID = j.jobUUID
             join
@@ -138,8 +138,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             t.exitcode,
             t.stdOut,
             dv.sourceFileUUID
-        from 
-            Jobs j 
+        from
+            Jobs j
             join
             Tasks t on t.jobUUID = j.jobUUID
             join

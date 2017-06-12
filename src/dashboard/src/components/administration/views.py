@@ -29,7 +29,6 @@ from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.utils.text import get_valid_filename
 
 from main import models
 from components.administration.forms import AgentForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
@@ -373,6 +372,7 @@ def api(request):
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
     return render(request, 'administration/api.html', locals())
+
 
 def taxonomy(request):
     taxonomies = models.Taxonomy.objects.all().order_by('name')

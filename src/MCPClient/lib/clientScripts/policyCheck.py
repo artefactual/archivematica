@@ -13,7 +13,6 @@ Usage::
 from __future__ import print_function
 import json
 import os
-import shutil
 import sys
 
 from custom_handlers import get_script_logger
@@ -105,7 +104,7 @@ class PolicyChecker(object):
                 return False
             return True
         elif self.file_type == 'access':
-            if (    self._file_is_derivative(for_access=True) and
+            if (self._file_is_derivative(for_access=True) and
                     self._file_is_for_access()):
                 return True
             print('File {uuid} is not an access derivative; not performing'
@@ -156,7 +155,7 @@ class PolicyChecker(object):
         """Returns ``True`` if the file with UUID ``self.file_uuid`` is "for"
         access.
         """
-        if (    self.is_manually_normalized_access_derivative or
+        if (self.is_manually_normalized_access_derivative or
                 self.file_model.filegrpuse == 'access'):
             return True
         return False
