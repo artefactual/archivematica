@@ -35,6 +35,9 @@ NO_RULES_CODE = 0
 DERIVATIVE_TYPES = ('preservation', 'access')
 
 
+LOGGER = get_script_logger("archivematica.mcp.client.validateFile")
+
+
 class Validator(object):
     """A validator validates a file, during transfer or ingest, using FPR
     config.
@@ -262,15 +265,6 @@ class Validator(object):
         return self._sip_pres_val_dir
 
 
-def _get_logger_name(file_type):
-    if file_type == 'original':
-        return "archivematica.mcp.client.validateFile"
-    elif file_type == 'preservation':
-        return "archivematica.mcp.client.validatePreservationDerivative"
-    else:
-        return "archivematica.mcp.client.validateAccessDerivative"
-
-
 def _get_shared_path(argv):
     try:
         return argv[4]
@@ -291,7 +285,6 @@ if __name__ == '__main__':
     sip_uuid = sys.argv[3]
     shared_path = _get_shared_path(sys.argv)
     file_type = _get_file_type(sys.argv)
-    logger = get_script_logger(_get_logger_name(file_type))
     validator = Validator(file_path, file_uuid, sip_uuid, shared_path,
                           file_type)
     sys.exit(validator.validate())
