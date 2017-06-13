@@ -126,7 +126,7 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT):
 
 
 def setup_reading_from_client_conf(settings):
-    setup(settings.ELASTICSEARCH_SERVER, ELASTICSEARCH_TIMEOUT)
+    setup(settings.ELASTICSEARCH_SERVER, settings.ELASTICSEARCH_TIMEOUT)
 
 
 def get_host():
