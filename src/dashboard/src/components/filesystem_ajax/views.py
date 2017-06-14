@@ -83,7 +83,14 @@ def _prepare_browse_response(response):
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
         elif 'object count' in prop:
-            prop['display_string'] = ungettext("%(count)d object", "%(count)d objects", prop['object count']) % {'count': prop['object count']}
+            try:
+                prop['display_string'] = ungettext(
+                    "%(count)d object",
+                    "%(count)d objects",
+                    prop['object count']) % {'count': prop['object count']}
+            except TypeError:  # 'object_count' val can be a string, see SS:space.py
+                prop['display_string'] = _(
+                    "%(count)s objects") % {'count': prop['object count']}
         elif 'size' in prop:
             prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
 
