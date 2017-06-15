@@ -40,6 +40,7 @@ REQUIRED_DIRECTORIES = [
 
 OPTIONAL_FILES = [
     "processingMCP.xml",
+    "README.html",
 ]
 
 MANUAL_NORMALIZATION_DIRECTORIES = [

@@ -103,7 +103,8 @@ logger = logging.getLogger('archivematica.mcp.client')
 
 replacementDic = {
     "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
-    "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
+    "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory"),
+    "%clientAssetsDirectory%": config.get('MCPClient', "clientAssetsDirectory"),
 }
 supportedModules = {}
 
