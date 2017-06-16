@@ -84,7 +84,14 @@ def _prepare_browse_response(response):
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
         elif 'object count' in prop:
-            prop['display_string'] = ungettext("%(count)d object", "%(count)d objects", prop['object count']) % {'count': prop['object count']}
+            try:
+                prop['display_string'] = ungettext(
+                    "%(count)d object",
+                    "%(count)d objects",
+                    prop['object count']) % {'count': prop['object count']}
+            except TypeError:  # 'object_count' val can be a string, see SS:space.py
+                prop['display_string'] = _(
+                    "%(count)s objects") % {'count': prop['object count']}
         elif 'size' in prop:
             prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
 
@@ -821,11 +828,18 @@ def copy_from_transfer_sources(paths, relative_destination):
             logger.warning('Location %s is not associated with this pipeline.', location)
             return True, _('Location %(location)s is not associated with this pipeline') % {'location': location}
 
-        source = path.replace(files[location]['location']['path'], '', 1).lstrip('/')
+        # ``path`` will be a UTF-8 bytestring but the replacement pattern path
+        # from ``files`` will be a Unicode object. Therefore, the latter must
+        # be UTF-8 encoded prior. Same reasoning applies to ``destination``
+        # below. This allows transfers to be started on UTF-8-encoded directory
+        # names.
+        source = path.replace(files[location]['location']['path'].encode('utf8'), '', 1).lstrip('/')
         # Use the last segment of the path for the destination - basename for a
         # file, or the last folder if not. Keep the trailing / for folders.
         last_segment = os.path.basename(source.rstrip('/')) + '/' if source.endswith('/') else os.path.basename(source)
-        destination = os.path.join(processing_location['path'], relative_destination, last_segment).replace('%sharedPath%', '')
+        destination = os.path.join(processing_location['path'].encode('utf8'),
+                                   relative_destination,
+                                   last_segment).replace('%sharedPath%', '')
         files[location]['files'].append({'source': source, 'destination': destination})
         logger.debug('source: %s, destination: %s', source, destination)
 

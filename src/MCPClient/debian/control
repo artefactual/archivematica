@@ -18,7 +18,7 @@ Depends:
 	clamav,
 	clamav-daemon,
 	ffmpeg (>= 7:3.0),
-	libavcodec-extra-56,
+	libavcodec-extra-56|libavcodec-extra57,
 	fits (>= 0.8.4),
 	gearman,
 	imagemagick (>=8:6.7.7.10),

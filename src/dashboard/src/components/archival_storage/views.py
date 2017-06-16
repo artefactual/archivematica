@@ -25,7 +25,7 @@ import uuid
 
 from django.contrib import messages
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
@@ -309,7 +309,7 @@ def create_aic(request, *args, **kwargs):
 
 def aip_download(request, uuid):
     redirect_url = storage_service.download_file_url(uuid)
-    return HttpResponseRedirect(redirect_url)
+    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
 
 
 def aip_file_download(request, uuid):
@@ -348,7 +348,7 @@ def aip_file_download(request, uuid):
 
 def aip_pointer_file_download(request, uuid):
     redirect_url = storage_service.pointer_file_url(uuid)
-    return HttpResponseRedirect(redirect_url)
+    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
 
 
 def send_thumbnail(request, fileuuid):
