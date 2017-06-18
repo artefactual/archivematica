@@ -24,9 +24,11 @@
 
       <h3>{% trans "REST API configuration" %}</h3>
 
+      <p>{% trans "Applications calling the REST API must use either a valid API Key or enter the IP address of the calling application in the IP whitelist." %}</p>
+
       <h4>{% trans "IP whitelist" %}</h4>
 
-      <p>{% trans "Enter a whitespace-separated list of IPs or hostnames permitted to use the API." %}</p>
+      <p>{% trans "Enter a whitespace-separated list of IPs or hostnames exempt from authentication requirements." %}</p>
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
