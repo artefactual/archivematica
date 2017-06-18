@@ -238,7 +238,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Store AIP location -->
     <preconfiguredChoice>
       <appliesTo>b320ce81-9982-408a-9502-097d0daa48fa</appliesTo>
-      <goToChain>/api/v2/location/0a62b8ff-ef79-4b76-8f14-a0ea7351065e/</goToChain>
+      <goToChain>/api/v2/location/default/AS/</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
