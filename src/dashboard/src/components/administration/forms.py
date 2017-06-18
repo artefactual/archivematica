@@ -294,6 +294,7 @@ class ProcessingConfigurationForm(forms.Form):
                     for item in replace_dicts:
                         choices.append((item.pk, item.description))
                 elif ftype == 'storage_service':
+                    choices.append(('/api/v2/location/default/{}/'.format(field['purpose']), _('Default location')))
                     for loc in get_storage_locations(purpose=field['purpose']):
                         choices.append((loc['resource_uri'], loc['description']))
                 self.fields[choice_uuid] = forms.ChoiceField(widget=Select(attrs={'class': 'form-control'}),
