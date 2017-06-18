@@ -20,6 +20,7 @@ def get_aip_storage_locations(purpose):
     choices = {}
     for storage_dir in storage_directories:
         choices[storage_dir['description']] = storage_dir['resource_uri']
+    choices['Default location'] = '/api/v2/location/default/{}/'.format(purpose)
     print(choices)
 
 
