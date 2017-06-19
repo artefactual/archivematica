@@ -31,7 +31,7 @@ Depends:
 	mediainfo,
 	nailgun-client,
 	nfs-common,
-	openjdk-7-jre-headless,
+	openjdk-7-jre-headless|openjdk-8-jre-headless,
 	p7zip-full,
 	pbzip2,
 	postfix,
