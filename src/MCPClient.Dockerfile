@@ -50,6 +50,7 @@ RUN set -ex \
 		tree \
 		ufraw \
 		unrar-free \
+		uuid \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build dependencies
