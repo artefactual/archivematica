@@ -420,7 +420,7 @@ def cleanupOldDbEntriesOnNewRun():
 
 
 def created_shared_directory_structure():
-    default_mode = 0o770
+    default_mode = 0o775
     dirs = (
         "arrange",
         "completed",
