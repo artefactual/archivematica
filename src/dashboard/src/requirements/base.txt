@@ -23,3 +23,7 @@ pyasn1
 requests==2.7.0
 lxml==3.5.0
 django-forms-bootstrap>=3.0.0,<4.0.0
+
+# fpr-admin needs this. fpr-admin has its own requirements but not until AM 1.7
+# the fpr-admin was installed as a Python package.
+django-autoslug==1.9.3
