@@ -27,12 +27,22 @@ import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 from dicts import replace_string_values
 
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 SUCCESS_CODE = 0
 FAIL_CODE = 1
 NOT_DERIVATIVE_CODE = 0
 NO_RULES_CODE = 0
 DERIVATIVE_TYPES = ('preservation', 'access')
+
+
+def main(file_path, file_uuid, sip_uuid, shared_path, file_type):
+    setup_dicts(mcpclient_settings)
+
+    validator = Validator(file_path, file_uuid, sip_uuid, shared_path, file_type)
+    return validator.validate()
 
 
 LOGGER = get_script_logger("archivematica.mcp.client.validateFile")
@@ -285,6 +295,4 @@ if __name__ == '__main__':
     sip_uuid = sys.argv[3]
     shared_path = _get_shared_path(sys.argv)
     file_type = _get_file_type(sys.argv)
-    validator = Validator(file_path, file_uuid, sip_uuid, shared_path,
-                          file_type)
-    sys.exit(validator.validate())
+    sys.exit(main(file_path, file_uuid, sip_uuid, shared_path, file_type))

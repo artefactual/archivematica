@@ -26,10 +26,11 @@ import os
 
 import archivematicaFunctions
 
-import archivematicaMCP
 from unitFile import unitFile
 
 from main.models import File, UnitVariable
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -46,7 +47,7 @@ class unit:
         self.fileList = {}
         # currentPath must be a string to return all filenames as bytestrings,
         # and to safely concatenate with other bytestrings
-        currentPath = os.path.join(self.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1), "").encode('utf-8')
+        currentPath = os.path.join(self.currentPath.replace("%sharedPath%", django_settings.SHARED_DIRECTORY, 1), "").encode('utf-8')
         try:
             for directory, subDirectories, files in os.walk(currentPath):
                 directory = directory.replace(currentPath, self.pathString, 1)

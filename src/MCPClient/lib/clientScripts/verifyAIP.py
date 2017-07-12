@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 from __future__ import print_function
-import ConfigParser
 import os
 import shutil
 import sys
@@ -8,6 +7,10 @@ import sys
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
+
+import django
+django.setup()
+from django.conf import settings as mcpclient_settings
 
 
 def extract_aip(aip_path, extract_path):
@@ -36,10 +39,7 @@ def verify_aip():
     sip_uuid = sys.argv[1]  # %sip_uuid%
     aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
 
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-    temp_dir = config.get('MCPClient', 'temp_dir')
+    temp_dir = mcpclient_settings.TEMP_DIRECTORY
 
     is_uncompressed_aip = os.path.isdir(aip_path)
 

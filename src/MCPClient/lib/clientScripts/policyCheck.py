@@ -19,18 +19,28 @@ from custom_handlers import get_script_logger
 
 import django
 django.setup()
+from django.conf import settings as mcpclient_settings
 from fpr.models import FPRule, FormatVersion
 from main.models import Derivation, File, SIP, Transfer
 
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
+from lib import setup_dicts
 
 # Note that linkTaskManagerFiles.py will take the highest exit code it has seen
 # from all tasks and will use that as the exit code of the job as a whole.
 SUCCESS_CODE = 0
 NOT_APPLICABLE_CODE = 0
 FAIL_CODE = 1
+
+
+def main(file_path, file_uuid, sip_uuid, shared_path, file_type):
+    setup_dicts(mcpclient_settings)
+
+    policy_checker = PolicyChecker(
+        file_path, file_uuid, sip_uuid, shared_path, file_type)
+    return policy_checker.check()
 
 
 LOGGER = get_script_logger("archivematica.mcp.client.policyCheck")
@@ -420,6 +430,4 @@ if __name__ == '__main__':
     sip_uuid = sys.argv[3]
     shared_path = _get_shared_path(sys.argv)
     file_type = _get_file_type(sys.argv)
-    policy_checker = PolicyChecker(file_path, file_uuid, sip_uuid, shared_path,
-                                   file_type)
-    sys.exit(policy_checker.check())
+    sys.exit(main(file_path, file_uuid, sip_uuid, shared_path, file_type))

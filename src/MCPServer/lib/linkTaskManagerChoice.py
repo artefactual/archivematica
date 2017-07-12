@@ -32,8 +32,7 @@ from linkTaskManager import LinkTaskManager
 from executeOrRunSubProcess import executeOrRun
 import jobChain
 from utils import log_exceptions
-import archivematicaMCP
-global choicesAvailableForUnits
+
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
@@ -41,6 +40,7 @@ from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
 from main.models import MicroServiceChainChoice, UserProfile, Job
+from django.conf import settings as django_settings
 
 waitingOnTimer = "waitingOnTimer"
 
@@ -62,7 +62,7 @@ class linkTaskManagerChoice(LinkTaskManager):
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
-            time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
+            time.sleep(django_settings.WAIT_ON_AUTO_APPROVE)
             self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             jobChain.jobChain(self.unit, preConfiguredChain)
 
@@ -76,8 +76,8 @@ class linkTaskManagerChoice(LinkTaskManager):
     def checkForPreconfiguredXML(self):
         desiredChoice = None
         xmlFilePath = os.path.join(
-            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1),
-            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+            self.unit.currentPath.replace("%sharedPath%", django_settings.SHARED_DIRECTORY, 1),
+            django_settings.PROCESSING_XML_FILE
         )
         xmlFilePath = unicodeToStr(xmlFilePath)
         if os.path.isfile(xmlFilePath):
@@ -102,8 +102,12 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 unitAtimeXML = None
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds = int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%",
-                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                unitTime = os.path.getmtime(
+                                    self.unit.currentPath.replace(
+                                        "%sharedPath%",
+                                        django_settings.SHARED_DIRECTORY,
+                                        1)
+                                )
                                 nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
