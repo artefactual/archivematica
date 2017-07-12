@@ -28,13 +28,14 @@ import threading
 import time
 import uuid
 
-import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
 from main.models import StandardTaskConfig, UnitVariable
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -126,9 +127,9 @@ class linkTaskManagerFiles(LinkTaskManager):
             databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
             t = threading.Thread(target=task.performTask)
             t.daemon = True
-            while(archivematicaMCP.limitTaskThreads <= threading.activeCount()):
+            while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount()):
                 self.tasksLock.release()
-                time.sleep(archivematicaMCP.limitTaskThreadsSleep)
+                time.sleep(django_settings.LIMIT_TASK_THREADS_SLEEP)
                 self.tasksLock.acquire()
             t.start()
 

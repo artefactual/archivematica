@@ -1,7 +1,9 @@
 # -*- coding: UTF-8 -*-
 import os
+import pytest
 
 from dicts import ReplacementDict, ChoicesDict
+from dicts import setup as setup_dicts
 
 from main import models
 
@@ -26,6 +28,16 @@ FILE = models.File(
     currentlocation='%sharedDirectory%new',
     filegrpuse='original'
 )
+
+
+@pytest.fixture(scope='module', autouse=True)
+def with_dicts():
+    setup_dicts(
+        shared_directory='/shared/',
+        processing_directory='/processing/',
+        watch_directory='/watch/',
+        rejected_directory='/rejected/',
+    )
 
 
 def test_alternate_replacementdict_constructor():

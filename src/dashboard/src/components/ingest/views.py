@@ -241,10 +241,10 @@ def aic_metadata_add(request, uuid):
         dc.save()
 
         # Start the MicroServiceChainLink for the AIC
-        shared_dir = helpers.get_server_config_value('sharedDirectory')
+        shared_dir = django_settings.SHARED_DIRECTORY
         source = os.path.join(shared_dir, 'tmp', uuid)
 
-        watched_dir = helpers.get_server_config_value('watchDirectoryPath')
+        watched_dir = django_settings.WATCH_DIRECTORY
         name = dc.title if dc.title else dc.identifier
         name = slugify(name).replace('-', '_')
         dir_name = '{name}-{uuid}'.format(name=name, uuid=uuid)
@@ -414,7 +414,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
 
 def ingest_browse(request, browse_type, jobuuid):
-    watched_dir = helpers.get_server_config_value('watchDirectoryPath')
+    watched_dir = django_settings.WATCH_DIRECTORY
     if browse_type == 'normalization':
         title = _('Review normalization')
         directory = os.path.join(watched_dir, 'approveNormalization')
@@ -651,7 +651,7 @@ def transfer_file_download(request, uuid):
     except:
         raise Http404
 
-    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    shared_directory_path = django_settings.SHARED_DIRECTORY
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
     path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
     path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)

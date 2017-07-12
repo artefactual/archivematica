@@ -15,15 +15,64 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import StringIO
 import os
-import ConfigParser
 
 from django.utils.translation import ugettext_lazy as _
+
+from appconfig import Config
+
+
+CONFIG_MAPPING = {
+    # [Dashboard]
+    'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
+    'secret_key': {'section': 'Dashboard', 'option': 'django_secret_key', 'type': 'string'},
+    'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
+    'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
+    'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
+    'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
+    'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
+
+    # [client]
+    'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
+    'db_name': {'section': 'client', 'option': 'database', 'type': 'string'},
+    'db_user': {'section': 'client', 'option': 'user', 'type': 'string'},
+    'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
+    'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
+    'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
+    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
+}
+
+CONFIG_DEFAULTS = """[Dashboard]
+shared_directory = /var/archivematica/sharedDirectory/
+watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
+elasticsearch_server = 127.0.0.1:9200
+elasticsearch_timeout = 10
+gearman_server = 127.0.0.1:4730
+# django_allowed_hosts = ... Mandatory!
+# django_secret_key = ... Mandatory!
+
+[client]
+user = archivematica
+password = demo
+host = localhost
+database = MCP
+max_overflow = 40
+port = 3306
+engine = django_mysqlpool.backends.mysqlpool
+"""
+
+config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
+config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
+config.read_files([
+    '/etc/archivematica/archivematicaCommon/dbsettings',
+])
 
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
 BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
+
 
 # Django settings for app project.
 
@@ -35,18 +84,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# Get DB settings from main configuration file
-config = ConfigParser.SafeConfigParser()
-config.read('/etc/archivematica/archivematicaCommon/dbsettings')
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',         # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': config.get('client', 'database'),     # Or path to database file if using sqlite3.
-        'USER': config.get('client', 'user'),         # Not used with sqlite3.
-        'PASSWORD': config.get('client', 'password'),  # Not used with sqlite3.
-        'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                                   # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': config.get('db_engine'),
+        'NAME': config.get('db_name'),
+        'USER': config.get('db_user'),
+        'PASSWORD': config.get('db_password'),
+        'HOST': config.get('db_host'),
+        'PORT': config.get('db_port'),
     }
 }
 
@@ -136,7 +181,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48'
+SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
 
 TEMPLATES = [
     {
@@ -240,7 +285,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'detailed',
         },
         'logfile': {
             'level': 'INFO',
@@ -312,7 +357,7 @@ else:
     }
 
 # Dashboard internal settings
-MCP_SERVER = ('127.0.0.1', 4730)  # localhost:4730
+GEARMAN_SERVER = config.get('gearman_server')
 POLLING_INTERVAL = 5  # Seconds
 STATUS_POLLING_INTERVAL = 5  # Seconds
 TASKS_PER_PAGE = 10  # for paging in tasks dialog
@@ -321,7 +366,8 @@ UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = True
 
-ALLOWED_HOSTS = ('*')
+ALLOWED_HOSTS = config.get('allowed_hosts').split(',')
+
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
     'Workflow decision - create transfer backup': _('Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.'),
@@ -340,3 +386,8 @@ TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
 TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
+
+SHARED_DIRECTORY = config.get('shared_directory')
+WATCH_DIRECTORY = config.get('watch_directory')
+ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
+ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')

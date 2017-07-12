@@ -24,7 +24,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
-import ConfigParser
+
 import datetime
 import json
 import logging
@@ -125,26 +125,8 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT):
     })
 
 
-def setup_reading_from_client_conf(config=None):
-    """
-    Similar to setup() but added to guarantee backward compatibility with old
-    consumers. Load the configuration from clientConfig.conf. It also accepts
-    an instance of ConfigParser, which is convenient when the consumer already
-    has loaded the configuration for other reasons.
-    """
-    if not config:
-        config = ConfigParser.SafeConfigParser()
-        config.read('/etc/archivematica/MCPClient/clientConfig.conf')
-    try:
-        hosts = config.get('MCPClient', "elasticsearchServer")
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-        hosts = '127.0.0.1:9200'
-    try:
-        timeout = config.getfloat('MCPClient', "elasticsearchTimeout")
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-        timeout = DEFAULT_TIMEOUT
-
-    setup(hosts, timeout)
+def setup_reading_from_conf(settings):
+    setup(settings.ELASTICSEARCH_SERVER, settings.ELASTICSEARCH_TIMEOUT)
 
 
 def get_host():

@@ -16,3 +16,16 @@ def log_exceptions(fn):
             LOGGER.exception('Uncaught exception')
             raise
     return wrapped
+
+
+def isUUID(uuid):
+    """Return boolean of whether it's string representation of a UUID v4"""
+    split = uuid.split("-")
+    if len(split) != 5 \
+            or len(split[0]) != 8 \
+            or len(split[1]) != 4 \
+            or len(split[2]) != 4 \
+            or len(split[3]) != 4 \
+            or len(split[4]) != 12:
+        return False
+    return True

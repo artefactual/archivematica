@@ -22,13 +22,24 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import absolute_import
+
 import ast
-import ConfigParser
 import os
 import re
 
-# archivematicaCommon
 from archivematicaFunctions import unicodeToStr
+
+from main import models
+
+
+config = {}
+
+
+def setup(shared_directory, processing_directory, watch_directory, rejected_directory):
+    config['shared_directory'] = shared_directory
+    config['processing_directory'] = processing_directory
+    config['watch_directory'] = watch_directory
+    config['rejected_directory'] = rejected_directory
 
 
 def replace_string_values(string, **kwargs):
@@ -93,7 +104,7 @@ class ReplacementDict(dict):
             except:
                 sip = models.Transfer.objects.get(uuid=sip)
 
-        shared_path = config.get('MCPServer', "sharedDirectory")
+        shared_path = config['shared_directory']
 
         # We still want to set SIP variables, even if no SIP or Transfer
         # was passed in, so try to fetch it from the file
@@ -161,9 +172,9 @@ class ReplacementDict(dict):
             rd['%fileExtension%'] = ext[1:]
             rd['%fileExtensionWithDot%'] = ext
 
-        rd['%processingDirectory%'] = config.get('MCPServer', "processingDirectory")
-        rd['%watchDirectoryPath%'] = config.get('MCPServer', "watchDirectoryPath")
-        rd['%rejectedDirectory%'] = config.get('MCPServer', "rejectedDirectory")
+        rd['%processingDirectory%'] = config['processing_directory']
+        rd['%watchDirectoryPath%'] = config['watch_directory']
+        rd['%rejectedDirectory%'] = config['rejected_directory']
 
         return rd
 
@@ -226,22 +237,3 @@ class ChoicesDict(ReplacementDict):
         See ReplacementDict.fromstring.
         """
         return ChoicesDict(ast.literal_eval(s))
-
-
-# We can't guarantee this is being run from an actual
-# Archivematica installation if this is being run via
-# doctest, so don't try to import the dashboard models
-# in that case.
-#
-# Unfortunately that means we can't doctest .frommodel.
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-else:
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-    from main import models
-
-    # TODO This probably shouldn't be directly read here, but this file can't
-    #      safely import archivematicaMCP because it has too many side effects.
-    config = ConfigParser.SafeConfigParser()
-    config.read("/etc/archivematica/MCPServer/serverConfig.conf")

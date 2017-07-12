@@ -23,7 +23,7 @@ import os
 import sys
 
 # archivematicaCommon
-from custom_handlers import GroupWriteRotatingFileHandler
+from custom_handlers import get_script_logger
 from xml2obj import mets_file
 
 # dashboard
@@ -35,10 +35,8 @@ from agentarchives.atk import ArchivistsToolkitClient
 # global variables
 testMode = 0
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('archivematica.mcp.client')
-logger.addHandler(logging.NullHandler())
-logger.addHandler(GroupWriteRotatingFileHandler('/var/log/archivematica/at_upload.log', mode='a'))
+# moved after django.setup()
+logger = get_script_logger("archivematica.mcp.client")
 
 
 def recursive_file_gen(mydir):

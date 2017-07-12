@@ -275,7 +275,7 @@ def create_aic(request, *args, **kwargs):
         )
 
         # Create files in staging directory with AIP information
-        shared_dir = helpers.get_server_config_value('sharedDirectory')
+        shared_dir = settings.SHARED_DIRECTORY
         staging_dir = os.path.join(shared_dir, 'tmp')
 
         # Create SIP (AIC) directory in staging directory
@@ -356,7 +356,7 @@ def send_thumbnail(request, fileuuid):
     sipuuid = helpers.get_file_sip_uuid(fileuuid)
 
     thumbnail_path = os.path.join(
-        helpers.get_client_config_value('sharedDirectoryMounted'),
+        settings.SHARED_DIRECTORY,
         'www',
         'thumbnails',
         sipuuid,

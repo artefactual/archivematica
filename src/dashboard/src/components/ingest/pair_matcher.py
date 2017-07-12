@@ -1,4 +1,6 @@
 import json
+
+from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -167,7 +169,7 @@ def review_matches(client, request, template, uuid, matches=[]):
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
     # determine the DIP upload directory
-    watch_dir = helpers.get_server_config_value('watchDirectoryPath')
+    watch_dir = django_settings.WATCH_DIRECTORY
     dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
 
     # work out directory name for DIP (should be the same as the SIP)

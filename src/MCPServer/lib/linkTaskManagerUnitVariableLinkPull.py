@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from linkTaskManager import LinkTaskManager
-global choicesAvailableForUnits
+
 choicesAvailableForUnits = {}
 
 from main.models import TaskConfigUnitVariableLinkPull, Job

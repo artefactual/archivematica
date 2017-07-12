@@ -16,6 +16,8 @@ from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 
+from django.conf import settings as mcpclient_settings
+
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
 COMPLETED = 0
@@ -88,7 +90,7 @@ def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
-    elasticSearchFunctions.setup_reading_from_client_conf()
+    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
     # SIP ARRANGEMENT
