@@ -146,24 +146,27 @@ Unable to determine if it completed successfully."""
 @auto_close_db
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
-    gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
-    hostID = gethostname() + "_" + threadNumber.__str__()
-    gm_worker.set_client_id(hostID)
-    for key in supportedModules.keys():
-        logger.info('Registering: %s', key)
-        gm_worker.register_task(key, executeCommand)
+    try:
+        gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
+        hostID = gethostname() + "_" + threadNumber.__str__()
+        gm_worker.set_client_id(hostID)
+        for key in supportedModules.keys():
+            logger.info('Registering: %s', key)
+            gm_worker.register_task(key, executeCommand)
 
-    failMaxSleep = 30
-    failSleep = 1
-    failSleepIncrementor = 2
-    while True:
-        try:
-            gm_worker.work()
-        except gearman.errors.ServerUnavailable as inst:
-            logger.error('Gearman server is unavailable: %s. Retrying in %d seconds.', inst.args, failSleep)
-            time.sleep(failSleep)
-            if failSleep < failMaxSleep:
-                failSleep += failSleepIncrementor
+        failMaxSleep = 30
+        failSleep = 1
+        failSleepIncrementor = 2
+        while True:
+            try:
+                gm_worker.work()
+            except gearman.errors.ServerUnavailable as inst:
+                logger.error('Gearman server is unavailable: %s. Retrying in %d seconds.', inst.args, failSleep)
+                time.sleep(failSleep)
+                if failSleep < failMaxSleep:
+                    failSleep += failSleepIncrementor
+    except:
+        logger.error('Unable to create Gearman worker. Review "MCPClient" configuration item "MCPArchivematicaServer".')
 
 
 def startThreads(t=1):
