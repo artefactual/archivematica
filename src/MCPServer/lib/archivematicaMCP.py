@@ -32,7 +32,6 @@
 # It loads configurations from the database.
 #
 # stdlib, alphabetical by import source
-import ConfigParser
 import logging
 import logging.config
 import getpass
@@ -43,16 +42,14 @@ import threading
 import time
 import uuid
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
 import django
 django.setup()
 
+from django.conf import settings as django_settings
 from django.db.models import Q
 
 # This project, alphabetical by import source
 import watchDirectory
-import RPCServer
 from utils import log_exceptions
 
 from jobChain import jobChain
@@ -60,41 +57,23 @@ from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
+from utils import isUUID
+import RPCServer
 
 from django_mysqlpool import auto_close_db
 import databaseFunctions
 from archivematicaFunctions import unicodeToStr
+import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
 
-global countOfCreateUnitAndJobChainThreaded
-countOfCreateUnitAndJobChainThreaded = 0
 
-config = ConfigParser.SafeConfigParser()
-config.read("/etc/archivematica/MCPServer/serverConfig.conf")
+countOfCreateUnitAndJobChainThreaded = 0
 
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
 
-
-limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
-limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
-limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
-reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
 stopSignalReceived = False  # Tracks whether a sigkill has been received or not
-
-
-def isUUID(uuid):
-    """Return boolean of whether it's string representation of a UUID v4"""
-    split = uuid.split("-")
-    if len(split) != 5 \
-            or len(split[0]) != 8 \
-            or len(split[1]) != 4 \
-            or len(split[2]) != 4 \
-            or len(split[3]) != 4 \
-            or len(split[4]) != 12:
-        return False
-    return True
 
 
 def fetchUUIDFromPath(path):
@@ -106,7 +85,7 @@ def fetchUUIDFromPath(path):
 
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
-    path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
+    path = path.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%", 1)
 
     query = Q(currentpath=path)
 
@@ -193,7 +172,7 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate": terminate})
         t.daemon = True
         countOfCreateUnitAndJobChainThreaded += 1
-        while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
+        while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
             if stopSignalReceived:
                 logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
                 exit(0)
@@ -207,8 +186,8 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
-    watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
-    interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
+    watched_dir_path = django_settings.WATCH_DIRECTORY
+    interval = django_settings.WATCH_DIRECTORY_INTERVAL
 
     watched_directories = WatchedDirectory.objects.all()
 
@@ -225,7 +204,7 @@ def watchDirectories():
                 continue
             item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
-            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
+            while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
         actOnFiles = True
@@ -290,46 +269,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-    },
-    'handlers': {
-        'verboselogfile': {
-            'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPServer/MCPServer.debug.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
-        },
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPServer/MCPServer.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
-        },
-    },
-    'loggers': {
-        'archivematica': {
-            'level': 'DEBUG',
-        },
-    },
-    'root': {
-        'handlers': ['logfile', 'verboselogfile'],
-        'level': 'WARNING',
-    },
-}
-
 if __name__ == '__main__':
-    logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger("archivematica.mcp.server")
 
     # Replace exception handler with one that logs exceptions
@@ -340,6 +280,13 @@ if __name__ == '__main__':
 
     logger.info('This PID: %s', os.getpid())
     logger.info('User: %s', getpass.getuser())
+
+    dicts.setup(
+        shared_directory=django_settings.SHARED_DIRECTORY,
+        processing_directory=django_settings.PROCESSING_DIRECTORY,
+        watch_directory=django_settings.WATCH_DIRECTORY,
+        rejected_directory=django_settings.REJECTED_DIRECTORY,
+    )
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True

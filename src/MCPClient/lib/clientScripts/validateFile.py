@@ -27,6 +27,9 @@ import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 from dicts import replace_string_values
 
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 SUCCESS_CODE = 0
 FAIL_CODE = 1
@@ -280,6 +283,7 @@ def _get_file_type(argv):
 
 
 if __name__ == '__main__':
+    setup_dicts(mcpclient_settings)
     file_path = sys.argv[1]
     file_uuid = sys.argv[2]
     sip_uuid = sys.argv[3]

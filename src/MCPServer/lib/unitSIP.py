@@ -24,12 +24,13 @@
 import logging
 import lxml.etree as etree
 
-import archivematicaMCP
 from unit import unit
 
 from main.models import SIP
 
 from dicts import ReplacementDict
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -88,5 +89,5 @@ class unitSIP(unit):
         etree.SubElement(ret, "type").text = "SIP"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
         return ret

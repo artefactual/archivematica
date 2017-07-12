@@ -25,12 +25,13 @@ import logging
 import lxml.etree as etree
 import uuid
 
-import archivematicaMCP
 from unit import unit
+from utils import isUUID
 
 from main.models import Transfer
-
 from dicts import ReplacementDict
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -41,7 +42,7 @@ class unitTransfer(unit):
         self.unitType = "Transfer"
         # Just use the end of the directory name
         self.pathString = "%transferDirectory%"
-        currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
+        currentPath2 = currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%", 1)
 
         if not UUID:
             try:
@@ -53,7 +54,7 @@ class unitTransfer(unit):
 
         if not UUID:
             uuidLen = -36
-            if archivematicaMCP.isUUID(currentPath[uuidLen - 1:-1]):
+            if isUUID(currentPath[uuidLen - 1:-1]):
                 UUID = currentPath[uuidLen - 1:-1]
             else:
                 UUID = str(uuid.uuid4())
@@ -108,7 +109,7 @@ class unitTransfer(unit):
         etree.SubElement(ret, "type").text = "Transfer"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        tempPath = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        tempPath = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
         etree.SubElement(unitXML, "currentPath").text = tempPath
 
         return ret

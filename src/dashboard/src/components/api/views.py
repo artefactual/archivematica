@@ -27,6 +27,7 @@ import re
 # Core Django, alphabetical
 from django.db.models import Q
 import django.http
+from django.conf import settings as django_settings
 
 # External dependencies, alphabetical
 from annoying.functions import get_object_or_None
@@ -41,7 +42,7 @@ from components import helpers
 from main import models
 
 LOGGER = logging.getLogger('archivematica.dashboard')
-SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
+SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 UUID_REGEX = re.compile(r'^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$', re.IGNORECASE)
 
 
@@ -367,7 +368,7 @@ def approve_transfer(request):
 
 def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(
-        helpers.get_server_config_value('watchDirectoryPath'),
+        django_settings.WATCH_DIRECTORY,
         'activeTransfers'
     )
 
@@ -526,7 +527,7 @@ def reingest(request, target):
     models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).delete()  # Not actually a foreign key
     models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).delete()
 
-    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    shared_directory_path = django_settings.SHARED_DIRECTORY
     source = os.path.join(shared_directory_path, 'tmp', sip_name)
 
     reingest_uuid = sip_uuid

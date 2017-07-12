@@ -20,7 +20,7 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
-import archivematicaMCP
+
 import cPickle
 import gearman
 import logging
@@ -29,6 +29,8 @@ from socket import gethostname
 import time
 
 from linkTaskManagerChoice import choicesAvailableForUnits
+
+from django.conf import settings as django_settings
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server.rpcserver")
@@ -78,7 +80,7 @@ def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
 
 
 def startRPCServer():
-    gm_worker = gearman.GearmanWorker([archivematicaMCP.config.get('MCPServer', 'GearmanServerWorker')])
+    gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     hostID = gethostname() + "_MCPServer"
     gm_worker.set_client_id(hostID)
     gm_worker.register_task("approveJob", gearmanApproveJob)

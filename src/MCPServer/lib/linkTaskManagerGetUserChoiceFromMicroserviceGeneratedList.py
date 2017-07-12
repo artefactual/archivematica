@@ -28,11 +28,12 @@ import os
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
-import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
 from dicts import ReplacementDict, ChoicesDict
 from main.models import StandardTaskConfig, UserProfile, Job
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -81,10 +82,10 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         """ Check the processing XML file for a pre-selected choice.
 
         Returns an index for self.choices if found, None otherwise. """
-        sharedPath = archivematicaMCP.config.get('MCPServer', "sharedDirectory")
+        sharedPath = django_settings.SHARED_DIRECTORY
         xmlFilePath = os.path.join(
             self.unit.currentPath.replace("%sharedPath%", sharedPath, 1),
-            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+            django_settings.PROCESSING_XML_FILE
         )
         try:
             tree = etree.parse(xmlFilePath)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
+
 from __future__ import print_function
+
 import argparse
-import ConfigParser
 import csv
 import errno
 import os
@@ -26,6 +27,10 @@ from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
+
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 # Return codes
 SUCCESS = 0
@@ -277,6 +282,8 @@ def main(opts):
     """ Find and execute normalization commands on input file. """
     # TODO fix for maildir working only on attachments
 
+    setup_dicts(mcpclient_settings)
+
     # If no explicit return happens earlier, this returns `status`.
     # This allows default rules to define a non-zero exit status.
     status = SUCCESS
@@ -398,15 +405,8 @@ def main(opts):
     # TODO is this still needed, with the storage service?
     if 'thumbnail' in opts.purpose:
         thumbnail_filepath = cl.commandObject.output_location
-        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
-        config.read(clientConfigFilePath)
-        try:
-            shared_path = config.get('MCPClient', 'sharedDirectoryMounted')
-        except:
-            shared_path = '/var/archivematica/sharedDirectory/'
         thumbnail_storage_dir = os.path.join(
-            shared_path,
+            mcpclient_settings.SHARED_DIRECTORY,
             'www',
             'thumbnails',
             opts.sip_uuid,

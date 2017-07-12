@@ -25,12 +25,13 @@ import cPickle
 import gearman
 import logging
 import os
+import threading
 import time
 import uuid
 
-import archivematicaMCP
 from utils import log_exceptions
 
+from django.conf import settings as django_settings
 from django.utils import timezone
 
 from django_mysqlpool import auto_close_db
@@ -44,6 +45,9 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 # This relationship is formed by storing a pointer to it's owning job in its job variable.
 # They use a "replacement dictionary" to define variables for this task.
 # Variables used for the task are defined in the Job's configuration/module (The xml file)
+
+
+limitGearmanConnectionsSemaphore = threading.Semaphore(value=django_settings.LIMIT_GEARMAN_CONNS)
 
 
 class taskStandard():
@@ -63,9 +67,8 @@ class taskStandard():
     @log_exceptions
     @auto_close_db
     def performTask(self):
-        from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()
-        gm_client = gearman.GearmanClient([archivematicaMCP.config.get('MCPServer', "MCPArchivematicaServer")])
+        gm_client = gearman.GearmanClient([django_settings.GEARMAN_SERVER])
         data = {"createdDate": timezone.now().isoformat(' ')}
         data["arguments"] = self.arguments
         LOGGER.info('Executing %s %s', self.execute, data)
