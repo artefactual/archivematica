@@ -348,6 +348,48 @@ def ingest_upload(request, uuid):
     return HttpResponseBadRequest()
 
 
+def derivative_validation_report(obj):
+    """Return a 4-tuple indicating whether
+    i.   preservation derivative validation was attempted,
+    ii.  preservation derivative validation failed,
+    iii. access derivative validation was attempted,
+    iv.  access derivative validation failed,
+    ::param dict obj:: encodes information about a specific file and any
+        normalization and derivative validation events performed on it.
+    """
+    file_id = obj['fileID']
+    preservation_failed, preservation_attempted = \
+        derivative_validation_report_by_purpose(
+            obj['preservation_derivative_validation_task_exitCode'],
+            file_id)
+    access_failed, access_attempted = \
+        derivative_validation_report_by_purpose(
+            obj['access_derivative_validation_task_exitCode'],
+            file_id)
+    return (preservation_attempted,
+            preservation_failed,
+            access_attempted,
+            access_failed)
+
+
+def derivative_validation_report_by_purpose(exit_code, file_id):
+    """Return a 2-tuple indicating whether derivative validation failed and was
+    attempted, respectively.
+    """
+    if file_id:
+        if exit_code == 0:
+            return 0, 1
+        elif exit_code == 1:
+            return 1, 1
+        elif exit_code in (2, None):
+            return 0, 0
+        else:
+            raise ValueError('Derivative validation client script returned an'
+                             ' exit code not in 0, 1, 2: %s' % exit_code)
+    else:
+        return 0, 0
+
+
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     sipname = utils.get_directory_name_from_job(jobs)
@@ -355,6 +397,10 @@ def ingest_normalization_report(request, uuid, current_page=None):
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
         o['location'] = archivematicaFunctions.escape(o['location'])
+        (o['preservation_derivative_validation_attempted'],
+         o['preservation_derivative_validation_failed'],
+         o['access_derivative_validation_attempted'],
+         o['access_derivative_validation_failed']) = derivative_validation_report(o)
 
     results_per_page = 10
 
