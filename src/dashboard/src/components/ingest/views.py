@@ -91,7 +91,12 @@ class SipsView(View):
 
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
+    objects = models.Job.objects\
+        .filter(hidden=False, subjobof='')\
+        .values('sipuuid')\
+        .annotate(timestamp=Max('createdtime'))\
+        .exclude(sipuuid__icontains='None')\
+        .filter(unittype__exact='unitSIP')
     mcp_available = False
     try:
         client = MCPClient()
@@ -106,7 +111,9 @@ def ingest_status(request, uuid=None):
             # Check if hidden (TODO: this method is slow)
             if models.SIP.objects.is_hidden(item['sipuuid']):
                 continue
-            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
+            jobs = models.Job.objects\
+                .filter(sipuuid=item['sipuuid'], subjobof='')\
+                .order_by('-createdtime', 'subjobof')
             item['directory'] = utils.get_directory_name_from_job(jobs)
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
@@ -116,20 +123,22 @@ def ingest_status(request, uuid=None):
             for job in jobs:
                 newJob = {}
                 item['jobs'].append(newJob)
-
                 newJob['uuid'] = job.jobuuid
                 newJob['type'] = job.jobtype
                 newJob['microservicegroup'] = job.microservicegroup
                 newJob['subjobof'] = job.subjobof
                 newJob['currentstep'] = job.currentstep
                 newJob['currentstep_label'] = job.get_currentstep_display()
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
+                newJob['timestamp'] = '%d.%s' % (
+                    calendar.timegm(job.createdtime.timetuple()),
+                    str(job.createdtimedec).split('.')[-1])
                 try:
                     mcp_status
                 except NameError:
                     pass
                 else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
+                    xml_unit = mcp_status.xpath(
+                        'choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
                     if xml_unit:
                         xml_unit_choices = xml_unit[0].findall('choices/choice')
                         choices = {}
