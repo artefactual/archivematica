@@ -105,14 +105,6 @@ if __name__ == '__main__':
 
     archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
 
-    # Copy the JSON metadata file, if present;
-    # this contains a serialized copy of DC metadata entered in the dashboard UI
-    src = os.path.normpath(os.path.join(objectsDirectory, "..", "metadata", "dc.json"))
-    dst = os.path.join(tmpSIPDir, "metadata", "dc.json")
-    # This file only exists if any metadata was created during the transfer
-    if os.path.exists(src):
-        shutil.copy(src, dst)
-
     # Copy processingMCP.xml file
     src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
     dst = os.path.join(tmpSIPDir, "processingMCP.xml")
