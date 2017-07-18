@@ -74,6 +74,7 @@ fileToFolder_v1.0 = %clientScriptsDirectory%file_to_folder.py
 FITS_v0.0 = %clientScriptsDirectory%archivematicaFITS.py
 generateDIPFromAIPGenerateDIP_v0.0 = %clientScriptsDirectory%generateDIPFromAIPGenerateDIP.py
 getAipStorageLocations_v0.0 = %clientScriptsDirectory%getAipStorageLocations.py
+handleUnstoredDIP_v0.0 = %clientScriptsDirectory%handleUnstoredDIP.py
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
 identifyDspaceFiles_v0.0 = %clientScriptsDirectory%identifyDspaceFiles.py
 identifyFileFormat_v0.0 = %clientScriptsDirectory%identifyFileFormat.py
