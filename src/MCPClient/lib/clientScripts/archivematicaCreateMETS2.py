@@ -787,11 +787,9 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                     "filegrpuse": "original",
                     "originallocation__startswith": os.path.dirname(f.originallocation)
                 }
-                try:
-                    original_file = File.objects.get(**kwargs)
+                original_file = File.objects.filter(**kwargs).first()
+                if original_file is not None:
                     GROUPID = 'Group-' + original_file.uuid
-                except (File.DoesNotExist, File.MultipleObjectsReturned):
-                    pass
 
             elif use in ("preservation", "text/ocr"):
                 # Derived files should be in the original file's group
