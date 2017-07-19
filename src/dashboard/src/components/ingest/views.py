@@ -32,7 +32,7 @@ import uuid
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db.models import Max
+from django.db import connection
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -90,8 +90,20 @@ class SipsView(View):
 
 
 def ingest_status(request, uuid=None):
-    # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
+    """Returns the status of the SIPs in ingest as a JSON object with an
+    ``objects`` attribute that is an array of objects, each of which represents
+    a single SIP. Each SIP object has a ``jobs`` attribute whose value is an
+    array of objects, each of which represents a Job of the SIP.
+    """
+    sql = """
+        SELECT SIPUUID,
+                MAX(UNIX_TIMESTAMP(createdTime) + createdTimeDec) AS timestamp
+            FROM Jobs
+            WHERE unitType='unitSIP' AND NOT SIPUUID LIKE '%%None%%'
+            GROUP BY SIPUUID;"""
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        sipuuids_and_timestamps = cursor.fetchall()
     mcp_available = False
     try:
         client = MCPClient()
@@ -99,52 +111,49 @@ def ingest_status(request, uuid=None):
         mcp_available = True
     except Exception:
         pass
-
-    def encoder(obj):
-        items = []
-        for item in obj:
-            # Check if hidden (TODO: this method is slow)
-            if models.SIP.objects.is_hidden(item['sipuuid']):
-                continue
-            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
-            item['directory'] = utils.get_directory_name_from_job(jobs)
-            item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
-            item['uuid'] = item['sipuuid']
-            item['id'] = item['sipuuid']
-            del item['sipuuid']
-            item['jobs'] = []
-            for job in jobs:
-                newJob = {}
-                item['jobs'].append(newJob)
-
-                newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype
-                newJob['microservicegroup'] = job.microservicegroup
-                newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep
-                newJob['currentstep_label'] = job.get_currentstep_display()
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try:
-                    mcp_status
-                except NameError:
-                    pass
-                else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
-                    if xml_unit:
-                        xml_unit_choices = xml_unit[0].findall('choices/choice')
-                        choices = {}
-                        for choice in xml_unit_choices:
-                            choices[choice.find("chainAvailable").text] = choice.find("description").text
-                        newJob['choices'] = choices
-            items.append(item)
-        return items
-
+    objects = []
+    for sipuuid, timestamp in sipuuids_and_timestamps:
+        timestamp = float(timestamp)
+        item = {'sipuuid': sipuuid, 'timestamp': timestamp}
+        # Check if hidden (TODO: this method is slow)
+        if models.SIP.objects.is_hidden(sipuuid):
+            continue
+        jobs = models.Job.objects\
+            .filter(sipuuid=item['sipuuid'], subjobof='')\
+            .order_by('-createdtime', 'subjobof')
+        item['directory'] = utils.get_directory_name_from_job(jobs)
+        item['uuid'] = item['sipuuid']
+        item['id'] = item['sipuuid']
+        del item['sipuuid']
+        item['jobs'] = []
+        for job in jobs:
+            newJob = {}
+            item['jobs'].append(newJob)
+            newJob['uuid'] = job.jobuuid
+            newJob['type'] = job.jobtype
+            newJob['microservicegroup'] = job.microservicegroup
+            newJob['subjobof'] = job.subjobof
+            newJob['currentstep'] = job.currentstep
+            newJob['currentstep_label'] = job.get_currentstep_display()
+            newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
+            try:
+                mcp_status
+            except NameError:
+                pass
+            else:
+                xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
+                if xml_unit:
+                    xml_unit_choices = xml_unit[0].findall('choices/choice')
+                    choices = {}
+                    for choice in xml_unit_choices:
+                        choices[choice.find("chainAvailable").text] = choice.find("description").text
+                    newJob['choices'] = choices
+        objects.append(item)
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-
     return HttpResponse(
-        json.JSONEncoder(default=encoder).encode(response),
+        json.dumps(response),
         content_type='application/json'
     )
 
