@@ -37,35 +37,24 @@ def data_migration(apps, schema_editor):
 
     1. Remove "Reject DIP" from options at "Upload DIP" decision point:
 
-       - remove MicroServiceChainChoice 39bcba03-d251-4974-8a7b-45b2444e19a8
-       - remove MicroServiceChainLink f2a1faaf-7322-4d9c-aff9-f809e7a6a6a2
-       - remove MicroServiceChain eea54915-2a85-49b7-a370-b1a250dd29ce
-       - remove TasksConfigs ea331cfb-d4f2-40c0-98b5-34d21ee6ad3e
-       - remove StandardTasksConfigs 4f7e2ed6-44b9-49a7-a1b7-bbfe58eadea8
-
     2. Rename the "Store DIP" chain's description to "Do Not Upload DIP" and
        set its starting link to the "Store DIP?" question
 
-       - "Store DIP" chain: 2748bedb-12aa-4b10-a556-66e7205580a4
-       - "Store DIP?" link: 5e58066d-e113-4383-b20b-f301ed4d751c
-
     3. Remove the unused links and their dependencies:
 
-       - "Retrieve DIP Storage Locations" link pk: ed5d8475-3793-4fb0-a8df-94bd79b26a4c
-       - "Store DIP location" link pk: b7a83da6-ed5a-47f7-a643-1e9f9f46e364
-       - "Store DIP" link pk: e85a01f1-4061-4049-8922-5694b25c23a2
-       - "Move to the uploadedDIPs directory" link pk: e3efab02-1860-42dd-a46c-25601251b930
+       - "Retrieve DIP Storage Locations" (ed5d8475-3793-4fb0-a8df-94bd79b26a4c)
+       - "Store DIP location" (b7a83da6-ed5a-47f7-a643-1e9f9f46e364)
+       - "Store DIP" (e85a01f1-4061-4049-8922-5694b25c23a2)
+       - "Move to the uploadedDIPs directory"
+         (e3efab02-1860-42dd-a46c-25601251b930)
 
-    4. Change "Completed" link to "Handle unstored DIP"
+    4. Change "Completed" link to "Handle unstored DIP". This is handled by a
+       new client script that moves the DIP to the rejected/ directory iff it
+       has NOT been uploaded.
 
-       - link pk: f8ee488b-5667-4417-ae15-bed9e42ee97d
-       - task config pk: 79ba8ce2-d01a-4723-83b7-5ac2b9ab2ae9
-       - stc pk: 888281a1-9678-46ed-a1a0-be9f0c6d02b0
-
-         - Change execute and arguments of stc above to a new client script
-           that moves the DIP to the rejected/ directory iff it has NOT been
-           uploaded.
-
+    5. Change "move" to "copy" in "move to uploadedDIPS dectory" so that the
+       SIP is still where MCPServer expects it to be and preconfigured choices
+       can work for Store DIP and Store DIP locations
     """
     ###########################################################################
     # Model Classes
@@ -114,14 +103,14 @@ def data_migration(apps, schema_editor):
 
     upload_dip_choice_link_uuid = '92879a29-45bf-4f0b-ac43-e64474f0f2f9'
 
-
     ###########################################################################
     # 1. Remove "Reject DIP" from options at "Upload DIP" decision point:
     ###########################################################################
 
     # Destroy the "Reject DIP" chain and link and attendant models.
     # For some unknown reason, deleting just these two models will result in a
-    # deletion of the three that follow.
+    # deletion of the three that follow, despite the fact that this does not
+    # seem to be entailed by Django's foreign key cascade delete strategy.
     StandardTaskConfig.objects.get(id=reject_dip_stc_uuid).delete()
     TaskConfig.objects.get(id=reject_dip_tc_uuid).delete()
     try:
@@ -129,12 +118,10 @@ def data_migration(apps, schema_editor):
             id=reject_dip_chain_choice_uuid).delete()
     except MicroServiceChainChoice.DoesNotExist:
         print('Chain choice {} does not exist'.format(reject_dip_chain_choice_uuid))
-
     try:
         MicroServiceChainLink.objects.get(id=reject_dip_link_uuid).delete()
     except MicroServiceChainLink.DoesNotExist:
         print('Chain link {} does not exist'.format(reject_dip_link_uuid))
-
     try:
         MicroServiceChain.objects.get(id=reject_dip_chain_uuid).delete()
     except MicroServiceChain.DoesNotExist:
@@ -178,7 +165,9 @@ def data_migration(apps, schema_editor):
     completed_tc.description = 'Handle unstored DIP'
     completed_tc.save()
     completed_stc = StandardTaskConfig.objects.get(id=completed_stc_uuid)
-    completed_stc.arguments = '"%SIPDirectory%" "%rejectedDirectory%."'
+    completed_stc.arguments = ('"%SIPDirectory%" '
+                               '"%rejectedDirectory%." '
+                               '"%watchDirectoryPath%uploadedDIPs/"')
     completed_stc.execute = 'handleUnstoredDIP_v0.0'
     completed_stc.save()
 

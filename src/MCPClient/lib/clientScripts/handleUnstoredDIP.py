@@ -26,12 +26,11 @@ directory if it has *not* been uploaded and doing nothing otherwise.
 from __future__ import print_function
 
 import os
+import shutil
 import sys
 
 import django
 django.setup()
-# dashboard
-from main.models import SIP
 # archivematicaCommon
 from custom_handlers import get_script_logger
 
@@ -39,26 +38,39 @@ from custom_handlers import get_script_logger
 logger = get_script_logger('archivematica.mcp.client.handleUnstoredDIP')
 
 
-def _sip_uploaded(sip_dir):
+def _get_sip_dirname(sip_path):
+    return os.path.basename(sip_path.rstrip('/'))
+
+
+def _sip_uploaded(sip_path, uploaded_dips_path):
     """Return ``True`` if the SIP has been uploaded."""
-    return True
+    return _get_sip_dirname(sip_path) in os.listdir(uploaded_dips_path)
 
 
-def _move_to_rejected(sip_dir, rejected_dir):
-    """Move the SIP at ``sip_dir`` to the rejected directory at
-    ``rejected_dir``.
+def _move_to_rejected(sip_path, rejected_path):
+    """Move the SIP at ``sip_path`` to the rejected directory at
+    ``rejected_path``.
     """
-    pass
+    dest = os.path.join(rejected_path, _get_sip_dirname(sip_path))
+    shutil.move(sip_path, dest)
+    return dest
 
 
-def main(sip_dir, rejected_dir):
-    if not _sip_uploaded(sip_dir):
-        _move_to_rejected(sip_dir, rejected_dir)
+def main(sip_path, rejected_path, uploaded_dips_path):
+    if _sip_uploaded(sip_path, uploaded_dips_path):
+        msg = ('The SIP has been uploaded so it was NOT moved to the'
+               ' rejected/ directory')
+    else:
+        dest = _move_to_rejected(sip_path, rejected_path)
+        msg = ('The SIP had NOT been uploaded so it was moved to the'
+               ' rejected/ directory at %s' % dest)
+    print(msg)
+    logger.info(msg)
     return 0
 
 
 if __name__ == '__main__':
-    sip_dir, rejected_dir = sys.argv[1:]
+    sip_path, rejected_path, uploaded_dips_path = sys.argv[1:]
     logger.info('handleUnstoredDIP called with sip directory %s and rejected'
-                ' directory %s', sip_dir, rejected_dir)
-    sys.exit(main(sip_dir, rejected_dir))
+                ' directory %s', sip_path, rejected_path)
+    sys.exit(main(sip_path, rejected_path, uploaded_dips_path))
