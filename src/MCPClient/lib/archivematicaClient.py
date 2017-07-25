@@ -127,18 +127,10 @@ Unable to determine if it completed successfully."""
         value = gearman_job.unique.__str__()
         arguments = arguments.replace(key, value)
 
-        # Add useful environment vars for client scripts
-        env_updates = {
-            'PYTHONPATH': '{}:{}'.format(
-                os.path.dirname(os.path.abspath(__file__)),
-                os.environ['PYTHONPATH'],
-            ),
-        }
-
         # Execute command
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True, env_updates=env_updates)
+        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')
