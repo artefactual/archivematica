@@ -17,19 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Development settings and globals."""
+"""Production settings and globals."""
 
 from __future__ import absolute_import
 
 from .base import *
 
 
-DEBUG = True
-TEMPLATES[0]['OPTIONS']['debug'] = True
-FPR_URL = 'https://fpr-qa.archivematica.org/fpr/api/v2/'
-FPR_VERIFY_CERT = False
+ALLOWED_HOSTS = config.get('allowed_hosts').split(',')
 
-FIXTURE_DIRS = (
-    'tests/fixtures/',
-    '../archivematicaCommon/tests/fixtures/'
-)
+SECRET_KEY = config.get('secret_key')

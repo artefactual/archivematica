@@ -1,6 +1,8 @@
+# flake8: noqa
+
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +27,15 @@ from appconfig import Config
 
 CONFIG_MAPPING = {
     # [Dashboard]
-    'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
-    'secret_key': {'section': 'Dashboard', 'option': 'django_secret_key', 'type': 'string'},
     'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
     'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
+
+    # [Dashboard] (MANDATORY in production)
+    'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
+    'secret_key': {'section': 'Dashboard', 'option': 'django_secret_key', 'type': 'string'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -49,8 +53,6 @@ watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
-# django_allowed_hosts = ... Mandatory!
-# django_secret_key = ... Mandatory!
 
 [client]
 user = archivematica
@@ -181,9 +183,6 @@ STATICFILES_FINDERS = (
 )
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
 
 TEMPLATES = [
     {
@@ -355,8 +354,6 @@ UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = True
 
-ALLOWED_HOSTS = config.get('allowed_hosts').split(',')
-
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
     'Workflow decision - create transfer backup': _('Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.'),
@@ -380,3 +377,7 @@ SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+
+# Only required in production.py
+ALLOWED_HOSTS = ["*"]
+SECRET_KEY = "12345"
