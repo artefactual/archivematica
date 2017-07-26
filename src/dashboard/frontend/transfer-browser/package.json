@@ -27,7 +27,7 @@
     "webpack": "^1.12.9"
   },
   "scripts": {
-    "prepublish": "webpack --progress --colors --entry ./embeddable.entry.js",
+    "prepublish": "webpack --progress --colors --entry ./app.js",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000 -c-1",
     "pretest": "npm install",
@@ -42,8 +42,6 @@
     "angular-tree-control": "git+https://github.com/wix/angular-tree-control.git#273a0422d28e667784135b347c0aa06eaa1b2cd2",
     "archivematica-browse-helpers": "git+https://github.com/artefactual-labs/archivematica-browse-helpers.git",
     "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git",
-    "bootstrap": "^3.3.6",
-    "jquery": "^1.11.3",
     "lodash": "^3.10.1",
     "restangular": "^1.5.1"
   }

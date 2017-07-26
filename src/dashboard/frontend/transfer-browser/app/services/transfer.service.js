@@ -3,7 +3,6 @@ import Base64 from 'base64-helpers';
 // TODO rework the API in a way that's easier to use with Restangular?
 // The original API requires its body formatted in a way that
 // Restangular is not very good at.
-import $ from 'jquery';
 
 // Supports creating transfers by:
 // a) Tracking metadata of the current transfer-in-progress; and
@@ -35,7 +34,7 @@ class Transfer {
   // When the API call resolves, the UUID is assigned to the
   // provided object's "id" attribute.
   fetch_id_for(component) {
-    return $.get('/transfer/create_metadata_set_uuid/').then(result => {
+    return jQuery.get('/transfer/create_metadata_set_uuid/').then(result => {
       component.id = result.uuid;
     });
   }
@@ -55,7 +54,7 @@ class Transfer {
     };
 
     // Cleanup object state on success or failure
-    let promise = $.post('/filesystem/transfer/', params);
+    let promise = jQuery.post('/filesystem/transfer/', params);
     this.empty_properties();
     return promise;
   }

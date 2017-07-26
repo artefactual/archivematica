@@ -1,5 +1,4 @@
 import angular from 'angular';
-import $ from 'jquery';
 
 angular.module('treeDirectives', []).
 
@@ -11,7 +10,7 @@ directive('treeDraggable', function() {
   return {
     restrict: 'A',
     link: function($scope, element, attrs) {
-      $(element).draggable({
+      jQuery(element).draggable({
         appendTo: 'body',
         containment: false,
         cursor: 'move',
@@ -38,7 +37,7 @@ directive('treeDroppable', ['$parse', function($parse) {
     link: function($scope, element, attrs) {
       var drop_fn = $parse(attrs.onDrop)($scope);
 
-      $(element).droppable({
+      jQuery(element).droppable({
         drop: drop_fn.bind($scope.node),
         // The default tolerance requires 50% of the draggable element to be
         // intersecting with the droppable element. This is pretty hard to achieve

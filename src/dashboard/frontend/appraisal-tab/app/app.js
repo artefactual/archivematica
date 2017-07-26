@@ -1,4 +1,27 @@
-// third-party modules
+// Styles
+import './app.css';
+import './vendor/angular-tree-control/css/tree-control.css';
+import './vendor/angular-tree-control/css/tree-control-attribute.css';
+
+// Angular must be available to cache the partials
+import 'angular';
+
+// Partials
+import 'ng-cache?prefix=[dir]!./analysis/analysis.html';
+import 'ng-cache?prefix=[dir]!./archivesspace/form.html';
+import 'ng-cache?prefix=[dir]!./examine_contents/examine_contents.html';
+import 'ng-cache?prefix=[dir]!./examine_contents/file_info.html';
+import 'ng-cache?prefix=[dir]!./front_page/content.html';
+import 'ng-cache?prefix=[dir]!./preview/preview.html';
+import 'ng-cache?prefix=[dir]!./report/format.html';
+import 'ng-cache?prefix=[dir]!./report/tags.html';
+import 'ng-cache?prefix=[dir]!./ui/minimize-bar.html';
+import 'ng-cache?prefix=[dir]!./ui/minimize-panel.html';
+import 'ng-cache?prefix=[dir]!./visualizations/formats_by_files.html';
+import 'ng-cache?prefix=[dir]!./visualizations/formats_by_size.html';
+import 'ng-cache?prefix=[dir]!./visualizations/visualizations.html';
+
+// Third-party modules
 import angular from 'angular';
 import './vendor/angular-charts/angular-charts.js';
 import 'angular-gettext';
@@ -7,12 +30,10 @@ import 'angular-route-segment';
 import './vendor/angular-tree-control/angular-tree-control.js';
 import 'angular-ui-validate';
 import 'd3';
-import 'jquery';
-import 'jquery-ui';
 import 'moment';
 import 'restangular';
 
-// controllers
+// Controllers
 import './alert/alert.controller.js';
 import './analysis/analysis.controller.js';
 import './archivesspace/archivesspace.controller.js';
@@ -26,16 +47,16 @@ import './search/search.controller.js';
 import './tree/tree.controller.js';
 import './visualizations/visualizations.controller.js';
 
-// directives
+// Directives
 import './checklist/checklist.directive.js';
 import './tree/tree.directive.js';
 import './ui/ui.directive.js';
 
-// filters
+// Filters
 import './filters/aggregation.filter.js';
 import './filters/facet.filter.js';
 
-// services
+// Services
 import './services/alert.service.js';
 import './services/archivesspace.service.js';
 import './services/facet.service.js';
@@ -45,7 +66,7 @@ import './services/sip_arrange.service.js';
 import './services/tag.service.js';
 import './services/transfer.service.js';
 
-// misc
+// Misc
 import './components/version/interpolate-filter.js';
 import './components/version/version-directive.js';
 import './components/version/version.js';

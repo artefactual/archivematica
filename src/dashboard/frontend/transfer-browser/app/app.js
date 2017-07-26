@@ -1,17 +1,26 @@
+// Styles
+import './css/browser.css';
+import 'angular-tree-control/css/tree-control.css';
+import 'angular-tree-control/css/tree-control-attribute.css';
+
+// Angular must be available to cache the partials
+import 'angular';
+
+// Partials
+import 'ng-cache?prefix=[dir]!./front_page/content.html';
+
+// Third-party modules
 import angular from 'angular';
 import 'angular-gettext';
 import 'angular-tree-control';
-// FIXME: doing this clashes with the dashboard's global bootstrap;
-//        we should find a better fix for this at some point.
-// import 'bootstrap';
 import 'restangular';
 
-// services
+// Services
 import './services/browse.service';
 import './services/source_locations.service';
 import './services/transfer.service';
 
-// controllers
+// Controllers
 import './browse/browse.controller';
 import './header/header.controller';
 

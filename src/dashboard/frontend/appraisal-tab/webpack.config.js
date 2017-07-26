@@ -1,12 +1,9 @@
 'use strict';
 
-var webpack = require('webpack');
-var APP = __dirname + '/app';
-
 module.exports = {
-  context: APP,
+  context:  __dirname + '/app',
   output: {
-    path: APP,
+    path:  __dirname + '/../../src/media/js/build',
     filename: 'appraisal_tab.js',
   },
   module: {

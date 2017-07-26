@@ -1,6 +1,5 @@
 import angular from 'angular';
 import {decode_browse_response, format_entries} from 'archivematica-browse-helpers';
-import $ from 'jquery';
 import Base64 from 'base64-helpers';
 // lodash is used by restangular
 import 'lodash';
@@ -115,7 +114,7 @@ factory('SipArrange', ['Restangular', function(Restangular) {
   var post_form = function(model, path, body) {
     return model.customPOST(
       // form-encode body
-      $.param(body),
+      jQuery.param(body),
       path,
       {}, // URL parameters - always empty
       {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
