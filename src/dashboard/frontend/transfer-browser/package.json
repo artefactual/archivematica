@@ -3,8 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "description": "Transfer browsing component for Archivematica",
-  "repository": "https://github.com/artefactual-labs/transfer_browse",
-  "license": "AGPL3",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",

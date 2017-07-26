@@ -2,9 +2,7 @@
   "name": "appraisal-tab",
   "private": true,
   "version": "0.0.0",
-  "description": "New appraisal tab prototype for Archivematica",
-  "repository": "https://github.com/artefactual-labs/appraisal-tab",
-  "license": "AGPL3",
+  "description": "Appraisal tab prototype for Archivematica",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
