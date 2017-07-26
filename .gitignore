@@ -21,4 +21,6 @@
 # tox working directory
 .tox/
 
+# frontend builds
 src/dashboard/src/static/
+src/dashboard/src/media/js/build
