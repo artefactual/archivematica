@@ -35,12 +35,12 @@
     "test-single-run": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
-    "angular": "^1.3.20",
+    "angular": "~1.5.0",
     "angular-gettext": "^2.3.8",
-    "angular-loader": "^1.3.20",
-    "angular-mocks": "^1.3.20",
-    "angular-route": "^1.3.20",
-    "angular-route-segment": "^1.5.0",
+    "angular-loader": "~1.5.0",
+    "angular-mocks": "~1.5.0",
+    "angular-route": "~1.5.0",
+    "angular-route-segment": "~1.5.0",
     "angular-ui-validate": "^1.2.2",
     "archivematica-browse-helpers": "git+https://github.com/artefactual-labs/archivematica-browse-helpers.git",
     "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git",
