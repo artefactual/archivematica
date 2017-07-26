@@ -141,8 +141,8 @@
       </form>
 
       <div class='actions' ng-if="vm.selected_files.selected.length > 0">
-        <input class='btn btn-sm btn-default' type="button" ng-hide="vm.show_path" ng-value="{{ 'Show path:' | translate }}" ng-click="vm.show_path = !vm.show_path">
-        <input class='btn btn-sm btn-default' type="button" ng-show="vm.show_path" ng-value="{{ 'Hide path:' | translate }}" ng-click="vm.show_path = !vm.show_path">
+        <a class='btn btn-sm btn-default' ng-hide="vm.show_path" ng-click="vm.show_path = !vm.show_path">{{ "Show path" | translate }}</a>
+        <a class='btn btn-sm btn-default' ng-show="vm.show_path" ng-click="vm.show_path = !vm.show_path">{{ "Hide path" | translate }}</a>
       </div>
     </div>
 
