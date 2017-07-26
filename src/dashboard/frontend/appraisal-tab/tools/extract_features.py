@@ -24,6 +24,7 @@ def main(uuid, log_path, output):
     with open(os.path.join(output, uuid), 'w') as outfile:
         print(json.dumps(features, indent=2), file=outfile)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert Bulk Extractor logs into fixture JSON')
     parser.add_argument('log_path',
