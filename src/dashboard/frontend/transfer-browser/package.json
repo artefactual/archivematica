@@ -2,7 +2,7 @@
   "name": "transfer-browse",
   "private": true,
   "version": "0.0.0",
-  "description": "Transfer browsing component for Archivematica",
+  "description": "Transfer browser component for Archivematica",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",

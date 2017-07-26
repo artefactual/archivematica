@@ -2,7 +2,7 @@
   "name": "appraisal-tab",
   "private": true,
   "version": "0.0.0",
-  "description": "Appraisal tab prototype for Archivematica",
+  "description": "Appraisal tab component for Archivematica",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
