@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+
+#: ./app/front_page/content.html:22
+msgid "Accession no."
+msgstr ""
+
+#: ./app/front_page/content.html:93
+msgid "Add"
+msgstr ""
+
+#: ./app/front_page/content.html:49
+msgid "Add next"
+msgstr ""
+
+#: ./app/front_page/content.html:32
+msgid "Browse"
+msgstr ""
+
+#: ./app/front_page/content.html:9
+msgid "DSpace"
+msgstr ""
+
+#: ./app/front_page/content.html:10
+msgid "Disk image"
+msgstr ""
+
+#: ./app/front_page/content.html:48
+msgid "Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved."
+msgstr ""
+
+#: ./app/front_page/content.html:6
+msgid "Standard"
+msgstr ""
+
+#: ./app/front_page/content.html:40
+msgid "Start transfer"
+msgstr ""
+
+#: ./app/front_page/content.html:17
+msgid "Transfer name"
+msgstr ""
+
+#: ./app/front_page/content.html:12
+msgid "Transfer type"
+msgstr ""
+
+#: ./app/front_page/content.html:7
+msgid "Unzipped bag"
+msgstr ""
+
+#: ./app/front_page/content.html:8
+msgid "Zipped bag"
+msgstr ""

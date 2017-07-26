@@ -1,0 +1,10 @@
+<ul class="nav nav-pills">
+  <li ng-class="{ active: $routeSegment.contains('report') }">
+    <a href="#{{ $routeSegment.getSegmentUrl('objects.report') }}">{{ "Report" | translate }}</a>
+  </li>
+  <li ng-class="{ active: $routeSegment.contains('visualizations') }">
+    <a href="#{{ $routeSegment.getSegmentUrl('objects.visualizations') }}">{{ "Visualizations" | translate }}</a>
+  </li>
+</ul>
+
+<div app-view-segment="1"></div>

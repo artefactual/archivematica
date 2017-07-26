@@ -1,0 +1,95 @@
+<div ng-controller="HeaderController as vm">
+  <div class="row" id="transfer-browser-form">
+
+  <div class="col-xs-3">
+  <select class="form-control" ng-model="vm.transfer.type" ng-disabled="vm.transfer.components.length > 0">
+    <option value="standard" selected>{{ "Standard" | translate }}</option>
+    <option value="unzipped bag">{{ "Unzipped bag" | translate }}</option>
+    <option value="zipped bag">{{ "Zipped bag" | translate }}</option>
+    <option value="dspace">{{ "DSpace" | translate }}</option>
+    <option value="disk image">{{ "Disk image" | translate }}</option>
+  </select>
+  <div class="help-block">{{ "Transfer type" | translate }}</div>
+  </div>
+
+  <div class="col-xs-3" ng-if="vm.transfer.type !== 'zipped bag'">
+  <input class="form-control" ng-model="vm.transfer.name"/>
+  <div class="help-block">{{ "Transfer name" | translate }}</div>
+  </div>
+
+  <div class="col-xs-2">
+  <input class="form-control" ng-model="vm.transfer.accession"/>
+  <div class="help-block">{{ "Accession no." | translate }}</div>
+  </div>
+
+  <div class="col-xs-1">
+  <button type="submit"
+          class="btn btn-default"
+          data-toggle="collapse"
+          data-target="#transfer_browse_tree"
+          aria-expanded="false"
+          aria-controls="transfer_browse_tree">
+    {{ "Browse" | translate }}
+  </button>
+  </div>
+
+  <div class="col-xs-2">
+  <button type="submit"
+          class="btn btn-success"
+          ng-disabled="!vm.enable_submit_button()"
+          ng-click="vm.transfer.start()">{{ "Start transfer" | translate }}</button>
+  </div>
+
+  <div class="col-xs-1">
+  <button type="submit"
+          class="btn btn-default"
+          ng-if="vm.transfer.type == 'disk image'"
+          ng-click="vm.add_next_metadata()"
+          title="{{ 'Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.' | translate }}">
+    {{ "Add next" | translate }}
+  </button>
+  </div>
+
+  </div> <!-- /row -->
+
+  <div id="path_container">
+    <div ng-repeat="component in vm.transfer.components" id="transfer-component-path-item-{{ $index + 1 }}">
+      <span class="transfer_path">{{ component.path }}</span>
+      <span class="transfer_path_icons">
+        <span ng-if="vm.transfer.type == 'disk image'" class="transfer_path_edit_icon" ng-click="vm.open_edit_page(component)">
+          <img src="/media/images/table_edit.png">
+        </span>
+        <span class="transfer_path_delete_icon" ng-click="vm.remove_component(component)">
+          <img src="/media/images/delete.png">
+        </span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div ng-controller="BrowseController as vm" class="collapse" id="transfer_browse_tree">
+  <select class='form-control'
+          ng-model="vm.source_location"
+          ng-change="vm.browse(vm.source_location)">
+    <option ng-repeat="(location_uuid, location) in vm.source_locations" value="{{ location_uuid }}">{{ location.description }}</option>
+  </select>
+
+  <div class="well well-sm transfer-tree-container">
+    <treecontrol class="tree-classic"
+                 tree-model="vm.data"
+                 options="vm.options"
+                 selected-node="vm.selected"
+                 on-node-toggle="vm.on_toggle(node, expanded)">
+      <span ng-class="{'disabled-file': !vm.file_can_be_added(node)}">
+        {{ node.title }} ({{ node.properties.display_string }})
+      </span>
+    </treecontrol>
+  </div> <!-- well -->
+
+  <button type="submit"
+          class="btn btn-primary pull-right"
+          ng-click="vm.transfer.add_component(vm.selected)"
+          ng-disabled="!vm.selected || !vm.file_can_be_added(vm.selected)">
+    {{ "Add" | translate }}
+  </button>
+</div>

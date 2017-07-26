@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="appraisalTab" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="appraisalTab" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="appraisalTab" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="appraisalTab" ng-controller="MainController" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Appraisal tab</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
+      <div class='navbar-header'>
+        <a class="navbar-brand">Archivematica</a>
+        <ul class="nav navbar-nav" role='menubar'>
+          <li><a>Transfer</a></li>
+          <li class="active"><a>Appraisal</a></li>
+          <li><a>Ingest</a></li>
+          <li><a>Archival storage</a></li>
+          <li><a>Preservation planning</a></li>
+          <li><a>Access</a></li>
+          <li><a>Administration</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <ng-include src="'front_page/content.html'"></ng-include>
+
+  <script src="/media/vendor/jquery.js"></script>
+  <script src="/media/vendor/underscore.js"></script>
+  <script src="/media/vendor/backbone.js"></script>
+  <script src="/media/js/advanced-search-query-creator.js"></script>
+  <script src="/media/js/ingest/backlog.js"></script>
+  <!-- In production use:
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+  -->
+  <script src="appraisal_tab.js"></script>
+</body>
+</html>

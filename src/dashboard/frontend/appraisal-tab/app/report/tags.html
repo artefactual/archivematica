@@ -1,0 +1,11 @@
+<h2>Tags</h2>
+<table class='table table-striped table-hover table-condensed'>
+  <tr>
+    <th><a ng-click="set_sort_property('tag', 'tag_sort_property', 'tag_reverse')">{{ "Tag" | translate }}</a></th>
+    <th><a ng-click="set_sort_property('count', 'tag_sort_property', 'tag_reverse')">{{ "Count" | translate }}</a></th>
+  </tr>
+  <tr ng-repeat="data in records.selected | tag_count | orderBy: tag_sort_fn : tag_reverse">
+    <td>{{ data[0] }}</td>
+    <td>{{ data[1] }}</td>
+  </tr>
+</table>

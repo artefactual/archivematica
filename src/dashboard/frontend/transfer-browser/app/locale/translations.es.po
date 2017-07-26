@@ -1,0 +1,70 @@
+# Translators:
+# artefactual <translate@artefactual.com>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
+"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ./app/front_page/content.html:22
+msgid "Accession no."
+msgstr "Número de accesión"
+
+#: ./app/front_page/content.html:93
+msgid "Add"
+msgstr "Añadir"
+
+#: ./app/front_page/content.html:49
+msgid "Add next"
+msgstr "Añadir siguiente"
+
+#: ./app/front_page/content.html:32
+msgid "Browse"
+msgstr "Navegar"
+
+#: ./app/front_page/content.html:9
+msgid "DSpace"
+msgstr "DSpace"
+
+#: ./app/front_page/content.html:10
+msgid "Disk image"
+msgstr "Imagen de disco"
+
+#: ./app/front_page/content.html:48
+msgid ""
+"Metadata entered in this form will be associated with the next component "
+"added to this transfer. Data will not be used if no component is added after"
+" the form is saved."
+msgstr ""
+"Los metadatos introducidos en este formulario serán asociados con el "
+"siguiente componente añadido en esta transferencia, sin embargo no serán "
+"utilizados si ningún componente es añadido una vez que el formulario sea "
+"grabado."
+
+#: ./app/front_page/content.html:6
+msgid "Standard"
+msgstr "Estándar"
+
+#: ./app/front_page/content.html:40
+msgid "Start transfer"
+msgstr "Comenzar transferencia"
+
+#: ./app/front_page/content.html:17
+msgid "Transfer name"
+msgstr "Nombre de la transferencia"
+
+#: ./app/front_page/content.html:12
+msgid "Transfer type"
+msgstr "Tipo de transferencia"
+
+#: ./app/front_page/content.html:7
+msgid "Unzipped bag"
+msgstr "Bag no comprimido"
+
+#: ./app/front_page/content.html:8
+msgid "Zipped bag"
+msgstr "Bag comprimido (zip)"

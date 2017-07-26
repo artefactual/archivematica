@@ -1,0 +1,10 @@
+<table class='table table-striped table-hover table-condensed' ng-if="vm.file[vm.type].length > 0">
+  <tr>
+    <th>{{ "Content" | translate }}</th>
+    <th>{{ "Context" | translate }}</th>
+  </tr>
+  <tr ng-repeat="feature in vm.file[vm.type]">
+    <td>{{ feature.content }}</td>
+    <td>{{ feature.context }}</td>
+  </tr>
+</table>
