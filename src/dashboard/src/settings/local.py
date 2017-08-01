@@ -1,3 +1,5 @@
+# flake8: noqa
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from .common import *  # noqa: F403
+from .common import *
 
 DEBUG = True
-TEMPLATES[0]['OPTIONS']['debug'] = True  # noqa: F405
+TEMPLATES[0]['OPTIONS']['debug'] = True 
 FPR_URL = 'https://fpr-qa.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = False
 
