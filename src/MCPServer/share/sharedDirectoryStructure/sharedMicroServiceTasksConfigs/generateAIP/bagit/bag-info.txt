@@ -1,5 +1,0 @@
-External-Description:  A brief explanation of the contents and provenance.
-External-Identifier:  A sender-supplied identifier for the bag.
-Bag-Group-Identifier:  A sender-supplied identifier for the set, if any, of bags to which it logically belongs.  This identifier must be unique across the sender's content, and if recognizable as belonging to a globally unique scheme, the receiver should make an effort to honor reference to it.
-Internal-Sender-Identifier:  An alternate sender-specific identifier for the content and/or bag.
-Internal-Sender-Description:  A sender-local prose description of the contents of the bag.
