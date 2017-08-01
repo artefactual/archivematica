@@ -756,10 +756,12 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 file_uuid = f.uuid
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(pathToTransfer, file_uuid)
+                modification_date = f.modificationtime.strftime('%Y-%m-%d')
             except File.DoesNotExist:
                 file_uuid = ''
                 formats = []
                 bulk_extractor_reports = []
+                modification_date = ''
 
             # Get file path info
             relative_path = relative_path.replace('%transferDirectory%', transfer_name + '/')
@@ -783,6 +785,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                     'origin': dashboard_uuid,
                     'ingestdate': ingest_date,
                     'created': create_time,
+                    'modification_date': modification_date,
                     'size': size,
                     'tags': [],
                     'file_extension': file_extension,

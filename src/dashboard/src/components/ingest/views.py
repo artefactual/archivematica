@@ -552,6 +552,10 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         'bulk_extractor_reports': record['bulk_extractor_reports'],
         'not_draggable': dir_not_draggable
     }
+
+    if record['modification_date']:
+        child['last_modified'] = record['modification_date']
+
     if record['format']:
         format = record['format'][0]  # TODO handle multiple format identifications
         child['format'] = format['format']
