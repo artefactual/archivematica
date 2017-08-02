@@ -20,3 +20,5 @@
 
 # tox working directory
 .tox/
+
+src/dashboard/src/static/
