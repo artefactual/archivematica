@@ -36,7 +36,7 @@ def welcome(request):
     if request.method == 'POST':
         setup_pipeline(
             org_name=request.POST.get('org_name', ''),
-            org_identifie=request.POST.get('org_identifier', '')
+            org_identifier=request.POST.get('org_identifier', '')
         )
 
         # Save user and set cookie to indicate this is the first login
