@@ -40,7 +40,6 @@
   { "name": "siegfried", "state": "latest"},
   { "name": "sleuthkit", "state": "latest"},
   { "name": "tesseract-ocr", "state": "latest"},
-  { "name": "tika", "state": "latest"},
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
