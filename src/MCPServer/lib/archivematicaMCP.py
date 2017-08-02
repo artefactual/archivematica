@@ -385,7 +385,7 @@ def created_shared_directory_structure():
         if os.path.isdir(d):
             continue
         logger.info('Creating directory: %s', d)
-        os.makedirs(d, mode=770)
+        os.makedirs(d, mode=0o770)
 
     # Populate defaultProcessingMCP.xml (DEFAULT_PROCESSING_CONFIG)
     default_proc_config = os.path.join(django_settings.SHARED_DIRECTORY, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
