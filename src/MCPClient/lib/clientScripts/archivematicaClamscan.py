@@ -88,16 +88,20 @@ def main(fileUUID, target, date):
         return 1
 
     try:
-        result = client.scan(target)
-    except ClamdError:
-        logger.error('Clamd error', exc_info=True)
+        if mcpclient_settings.CLAMAV_PASS_BY_REFERENCE:
+            result = client.scan(target)
+        else:
+            result = client.instream(open(target))
+    except (IOError, ClamdError):
+        logger.error('Unexpected error scanning: %s', target, exc_info=True)
         record_event(fileUUID, version, date, outcome='Fail')
         return 1
 
     try:
-        state, details = result[target]
+        rkey = target if mcpclient_settings.CLAMAV_PASS_BY_REFERENCE else 'stream'
+        state, details = result[rkey]
     except KeyError:
-        logger.error('File not scanned: %s', target)
+        logger.error('File not scanned: %s (result: %s)', target, result)
         return 1
     if state == 'OK':
         record_event(fileUUID, version, date, outcome='Pass')

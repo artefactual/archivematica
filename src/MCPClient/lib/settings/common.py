@@ -39,6 +39,7 @@ CONFIG_MAPPING = {
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
     'clamav_server': {'section': 'MCPClient', 'option': 'clamav_server', 'type': 'string'},
+    'clamav_pass_by_reference': {'section': 'MCPClient', 'option': 'clamav_pass_by_reference', 'type': 'boolean'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -67,6 +68,7 @@ disableElasticsearchIndexing = False
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
+clamav_pass_by_reference = False
 
 [client]
 user = archivematica
@@ -167,3 +169,4 @@ TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
+CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
