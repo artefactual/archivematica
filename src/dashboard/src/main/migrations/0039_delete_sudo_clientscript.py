@@ -53,7 +53,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0037_mediaconch_policy_checks'),
+        ('main', '0038_fix_workflow_store_dip'),
     ]
 
     operations = [
