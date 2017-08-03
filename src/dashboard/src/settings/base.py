@@ -32,6 +32,7 @@ CONFIG_MAPPING = {
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
+    'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -53,6 +54,7 @@ watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
+shibboleth_authentication = False
 
 [client]
 user = archivematica
@@ -85,6 +87,9 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# Lets us know whether we're behind an HTTPS connection
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 DATABASES = {
     'default': {
@@ -220,9 +225,14 @@ MIDDLEWARE_CLASSES = [
     'middleware.common.ElasticsearchMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
 ROOT_URLCONF = 'urls'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     # Django basics
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -249,7 +259,10 @@ INSTALLED_APPS = (
     'tastypie',
 
     'django_forms_bootstrap',
-)
+
+    # Support long (>30 characters) usernames
+    'longerusername',
+]
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -324,13 +337,13 @@ CACHES = {
 }
 
 # login-related settings
-LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/administration/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
-    r'^api'
+    r'^api',
+    r'^administration/accounts/logged-out',
 ]
-
 # Django debug toolbar
 try:
     import debug_toolbar  # noqa: F401
@@ -381,3 +394,43 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 # Only required in production.py
 ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "12345"
+
+ALLOW_USER_EDITS = True
+
+SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
+if SHIBBOLETH_AUTHENTICATION:
+    SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
+    SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
+
+    SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
+    SHIBBOLETH_ATTRIBUTE_MAP = {
+        # Automatic user fields
+        'HTTP_GIVENNAME': (False, 'first_name'),
+        'HTTP_SN': (False, 'last_name'),
+        'HTTP_MAIL': (False, 'email'),
+        # Entitlement field (which we handle manually)
+        'HTTP_ENTITLEMENT': (True, 'entitlement'),
+    }
+
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'shibboleth.context_processors.logout_link',
+    ]
+
+    # If the user has this entitlement, they will be a superuser/admin
+    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
+
+    AUTHENTICATION_BACKENDS += [
+        'components.accounts.backends.CustomShibbolethRemoteUserBackend',
+    ]
+
+    # Insert Shibboleth after the authentication middleware
+    MIDDLEWARE_CLASSES.insert(
+        MIDDLEWARE_CLASSES.index(
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+        ) + 1,
+        'middleware.common.CustomShibbolethRemoteUserMiddleware',
+    )
+
+    INSTALLED_APPS += ['shibboleth']
+
+    ALLOW_USER_EDITS = False

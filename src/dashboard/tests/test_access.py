@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.test.client import Client
 
 from main import models
+from components import helpers
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,6 +21,7 @@ class TestAccessAPI(TestCase):
     def setUp(self):
         self.client = Client()
         self.client.login(username='test', password='test')
+        helpers.set_setting('dashboard_uuid', 'test-uuid')
 
     def test_creating_arrange_directory(self):
         record_id = '/repositories/2/archival_objects/2'

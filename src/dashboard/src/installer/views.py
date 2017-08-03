@@ -24,35 +24,43 @@ from tastypie.models import ApiKey
 
 import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
-from installer.forms import SuperUserCreationForm
+from installer.forms import OrganizationForm, SuperUserCreationForm
 from installer.steps import download_fpr_rules, setup_pipeline, setup_pipeline_in_ss, submit_fpr_agent
 
 
 def welcome(request):
-    # This form will be only accessible when the database has no users
-    if 0 < User.objects.count():
+    # This form will be only accessible when there is no uuid
+    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    if dashboard_uuid:
         return redirect('main.views.home')
 
+    # Do we need to set up a user?
+    set_up_user = not User.objects.exists()
+
     if request.method == 'POST':
+        # save organization PREMIS agent if supplied
         setup_pipeline(
             org_name=request.POST.get('org_name', ''),
             org_identifier=request.POST.get('org_identifier', '')
         )
 
-        # Save user and set cookie to indicate this is the first login
-        form = SuperUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            api_key = ApiKey.objects.create(user=user)
-            api_key.key = api_key.generate_key()
-            api_key.save()
-            user = authenticate(username=user.username, password=form.cleaned_data['password1'])
-            if user is not None:
-                login(request, user)
-                request.session['first_login'] = True
-                return redirect('installer.views.fprconnect')
+        if set_up_user:
+            form = SuperUserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                api_key = ApiKey.objects.create(user=user)
+                api_key.key = api_key.generate_key()
+                api_key.save()
+                user = authenticate(username=user.username, password=form.cleaned_data['password1'])
+                if user is not None:
+                    login(request, user)
+                    request.session['first_login'] = True
+                    return redirect('installer.views.fprconnect')
+        else:
+            request.session['first_login'] = True
+            return redirect('installer.views.fprconnect')
     else:
-        form = SuperUserCreationForm()
+        form = SuperUserCreationForm() if set_up_user else OrganizationForm()
 
     return render(request, 'installer/welcome.html', {
         'form': form,

@@ -3,8 +3,8 @@
 {% load user %}
 {% load i18n %}
 
-{% block title %}{% blocktrans with user=user %}Users - Edit {{ user }}{% endblocktrans %}{% endblock %}
-{% block h1 %}{% blocktrans with user=user %}Users - Edit {{ user }}{% endblocktrans %}{% endblock %}
+{% block title %}Users - Edit {{ user }}{% endblock %}
+{% block h1 %}Users - Edit {{ user }}{% endblock %}
 {% block page_id %}accounts-edit{% endblock %}
 
 {% block content %}
@@ -18,14 +18,23 @@
     <div class="col-md-10">
 
       <ul class="breadcrumb">
-        {% trans "Users" as users %}
-        {% breadcrumb_url users 'components.accounts.views.list' %}
         {% breadcrumb title %}
       </ul>
 
-      <form method="post" action="{% url 'components.accounts.views.edit' user.id %}">
+      <form method="post" action="{% url 'profile' %}">
 
         {% csrf_token %}
+
+        <dl class="dl-horizontal">
+          <dt>{% trans "Username" %}</dt>
+          <dd>{{ user.username }}</dd>
+          <dt>{% trans "Name" %}</dt>
+          <dd>{{ user.get_full_name }}</dd>
+          <dt>{% trans "E-mail" %}</dt>
+          <dd>{{ user.email }}</dd>
+          <dt>{% trans "Admin" %}</dt>
+          <dd>{{ user.is_superuser|yesno }}</dd>
+        </dl>
 
         {% include "_form.html" %}
 
@@ -35,7 +44,7 @@
 
         <div class="actions">
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-          <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">{% trans "Cancel" %}</a>
+          <a class="btn btn-default" href="{% url 'main.views.home' %}">{% trans "Cancel" %}</a>
         </div>
 
       </form>

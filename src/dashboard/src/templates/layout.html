@@ -1,6 +1,7 @@
 {% load active %}
 {% load i18n %}
 {% load static %}
+{% load user %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -68,9 +69,9 @@
                     {{ request.user }} <div class="caret"></div>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                    <li><a href="{% url 'components.accounts.views.edit' %}">{% trans "Your profile" %}</a></li>
+                    <li><a href="{% url 'components.accounts.views.profile' %}">{% trans "Your profile" %}</a></li>
                     <li class="divider"></li>
-                    <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">{% trans "Log out" %}</a></li>
+                    <li><a href="{% logout_link %}">{% trans "Log out" %}</a></li>
                   </ul>
                 </li>
               {% endif %}

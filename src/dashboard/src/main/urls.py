@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.conf import settings
 
 from main import views
@@ -43,4 +43,10 @@ urlpatterns = [
     url(r'status/$', views.status),
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', views.formdata_delete),
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', views.formdata),
+
 ]
+
+if 'shibboleth' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        url(r'^shib/', include('shibboleth.urls', namespace='shibboleth')),
+    ]

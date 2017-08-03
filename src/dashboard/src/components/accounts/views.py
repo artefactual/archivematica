@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
@@ -28,7 +29,9 @@ from tastypie.models import ApiKey
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
+from components.accounts.forms import ApiKeyForm
 import components.decorators as decorators
+from components.helpers import generate_api_key
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -61,6 +64,30 @@ def add(request):
     })
 
 
+def profile(request):
+    # If users are editable in this setup, go to the editable profile view
+    if settings.ALLOW_USER_EDITS:
+        return edit(request)
+
+    user = request.user
+    title = _('Your profile (%s)') % user
+
+    if request.method == 'POST':
+        form = ApiKeyForm(request.POST)
+        if form.is_valid():
+            if form['regenerate_api_key'] != '':
+                generate_api_key(user)
+
+            return redirect('profile')
+    else:
+        form = ApiKeyForm()
+
+    return render(request, 'accounts/profile.html', {
+        'form': form,
+        'title': title
+    })
+
+
 def edit(request, id=None):
     # Forbidden if user isn't an admin and is trying to edit another user
     if str(request.user.id) != str(id) and id is not None:
@@ -72,11 +99,8 @@ def edit(request, id=None):
         user = request.user
         title = 'Edit your profile (%s)' % user
     else:
-        try:
-            user = User.objects.get(pk=id)
-            title = 'Edit user %s' % user
-        except:
-            raise Http404
+        user = get_object_or_404(User, pk=id)
+        title = 'Edit user %s' % user
 
     # Form
     if request.method == 'POST':
@@ -98,18 +122,13 @@ def edit(request, id=None):
             # regenerate API key if requested
             regenerate_api_key = request.POST.get('regenerate_api_key', '')
             if regenerate_api_key != '':
-                try:
-                    api_key = ApiKey.objects.get(user_id=user.pk)
-                except ApiKey.DoesNotExist:
-                    api_key = ApiKey.objects.create(user=user)
-                api_key.key = api_key.generate_key()
-                api_key.save()
+                generate_api_key(user)
 
             # determine where to redirect to
-            if request.user.is_superuser is False:
-                return_view = 'components.accounts.views.edit'
-            else:
+            if request.user.is_superuser:
                 return_view = 'components.accounts.views.list'
+            else:
+                return_view = 'profile'
 
             messages.info(request, _('Saved.'))
             return redirect(return_view)
@@ -119,17 +138,9 @@ def edit(request, id=None):
             suppress_administrator_toggle = False
         form = UserChangeForm(instance=user, suppress_administrator_toggle=suppress_administrator_toggle)
 
-    # load API key for display
-    try:
-        api_key_data = ApiKey.objects.get(user_id=user.pk)
-        api_key = api_key_data.key
-    except:
-        api_key = '<no API key generated>'
-
     return render(request, 'accounts/edit.html', {
         'form': form,
         'user': user,
-        'api_key': api_key,
         'title': title
     })
 
@@ -160,3 +171,8 @@ def delete(request, id):
         return redirect('components.accounts.views.list')
     except:
         raise Http404
+
+
+def logged_out(request):
+    # Display a post-logout message
+    return render(request, 'accounts/logged_out.html')

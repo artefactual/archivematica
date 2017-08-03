@@ -26,3 +26,8 @@ ndg-httpsclient
 pyasn1
 requests==2.7.0
 whitenoise==3.3.0
+git+git://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
+
+# Support for longer (>30 characters) usernames
+# Using a fork of the main package because this one provides Django (rather than South) migrations
+git+git://github.com/seatme/django-longer-username.git@seatme#egg=longerusername
