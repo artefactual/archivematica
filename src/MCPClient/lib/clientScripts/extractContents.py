@@ -9,18 +9,22 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPCommand
-from main.models import FileFormatVersion, File
+from main.models import FileFormatVersion, File, Transfer
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import fileWasRemoved
+from databaseFunctions import fileWasRemoved, create_directory_models
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
+from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
 from hasPackages import already_extracted
 
 file_path_cache = {}
+
+
+logger = get_script_logger("archivematica.mcp.client.extractContents")
 
 
 def output_directory(file_path, date):
@@ -33,7 +37,7 @@ def output_directory(file_path, date):
 
 
 def tree(root):
-    for dirpath, dirs, files in os.walk(root):
+    for dirpath, __, files in os.walk(root):
         for file in files:
             yield os.path.join(dirpath, file)
 
@@ -48,8 +52,16 @@ def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_dire
                       sourceType="unpacking", eventDetail=event_detail)
     updateSizeAndChecksum(file_uuid, filename, date, uuid.uuid4().__str__())
 
-    print('Assigning new file UUID:', file_uuid, 'to file', filename,
-          file=sys.stderr)
+    print('Assigning new file UUID:', file_uuid, 'to file', filename)
+
+
+def _get_subdir_paths(root_path, path_prefix_to_repl):
+    """Return a generator of subdirectory paths in ``root_path`` with
+    the ancestor path ``path_prefix_to_repl`` replaced by a placeholder
+    string.
+    """
+    return (format_subdir_path(dir_path, path_prefix_to_repl) for
+            dir_path, __, ___ in os.walk(root_path))
 
 
 def delete_and_record_package_file(file_path, file_uuid, current_location):
@@ -63,6 +75,8 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
     files = File.objects.filter(transfer=transfer_uuid, removedtime__isnull=True)
     if not files:
         print('No files found for transfer: ', transfer_uuid)
+
+    transfer_mdl = Transfer.objects.get(uuid=transfer_uuid)
 
     # We track whether or not anything was extracted because that controls what
     # the next microservice chain link will be.
@@ -135,8 +149,20 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
             # Assign UUIDs and insert them into the database, so the newly-
             # extracted files are properly tracked by Archivematica
-            for extracted_file in tree(output_directory(file_path, date)):
-                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date, task_uuid, sip_directory, file_.currentlocation)
+            extracted_path = output_directory(file_path, date)
+            for extracted_file in tree(extracted_path):
+                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date,
+                            task_uuid, sip_directory, file_.currentlocation)
+
+            # Assign UUIDs to directories via ``Directory`` objects in the
+            # database.
+            if transfer_mdl.diruuids:
+                create_directory_models(
+                    get_dir_uuids(
+                        _get_subdir_paths(extracted_path, sip_directory),
+                        logger),
+                    transfer_mdl)
+
             # We may want to remove the original package file after extracting its contents
             if delete:
                 delete_and_record_package_file(file_path, file_.uuid, file_.currentlocation)
@@ -148,7 +174,6 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.extractContents")
 
     transfer_uuid = sys.argv[1]
     sip_directory = sys.argv[2]
@@ -156,9 +181,8 @@ if __name__ == '__main__':
     task_uuid = sys.argv[4]
     # Whether or not to remove the package file post-extraction
     # This is set by the user during the transfer, and defaults to false.
+    delete = False
     if sys.argv[5] == "True":
         delete = True
-    else:
-        delete = False
-    print("Deleting: {}".format(delete), file=sys.stderr)
+    print("Deleting?: {}".format(delete), file=sys.stderr)
     sys.exit(main(transfer_uuid, sip_directory, date, task_uuid, delete=delete))

@@ -32,7 +32,7 @@ from archivematicaFunctions import strToUnicode
 
 from django.db.models import Q
 from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from main.models import Agent, Derivation, Directory, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.common')
 
@@ -309,13 +309,14 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNot
     f.save()
 
 
-def createSIP(path, UUID=None, sip_type='SIP'):
+def createSIP(path, UUID=None, sip_type='SIP', diruuids=False):
     """
     Create a new SIP object for a SIP at the given path.
 
     :param str path: The current path of the SIP on disk. Can contain variables; see the documentation for ReplacementDict for supported names.
     :param str UUID: The UUID to be created for the SIP. If not specified, a new UUID will be generated using the version 4 scheme.
     :param str sip_type: A string representing the type of the SIP. Defaults to "SIP". The other value typically used is "AIC".
+    :param str diruuids: A boolean indicating whether the SIP should have UUIDs assigned to all of its subdirectories. This param is relevant in filesystem_ajax/views.py and clientScripts/createSIPfromTransferObjects.py.
 
     :returns str: The UUID for the created SIP.
     """
@@ -324,7 +325,8 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     print("Creating SIP:", UUID, "-", path)
     sip = SIP(uuid=UUID,
               currentpath=path,
-              sip_type=sip_type)
+              sip_type=sip_type,
+              diruuids=diruuids)
     sip.save()
 
     return UUID
@@ -356,3 +358,17 @@ def deUnicode(str):
     if str is None:
         return None
     return unicode(str).encode('utf-8')
+
+
+def create_directory_models(dir_paths_uuids, unit_mdl, unit_type='transfer'):
+    """Create ``Directory`` models to encode the relationship between each
+    directory path/UUID pair in ``dir_paths_uuids`` and the ``Transfer`` model
+    that the directories are a part of.
+    """
+    unit_type = {'transfer': 'transfer'}.get(unit_type, 'sip')
+    Directory.objects.bulk_create([
+        Directory(**{'uuid': dir_uuid,
+                     unit_type: unit_mdl,
+                     'originallocation': dir_path,
+                     'currentlocation': dir_path})
+        for dir_path, dir_uuid in dir_paths_uuids])

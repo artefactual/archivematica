@@ -26,6 +26,7 @@ import collections
 import hashlib
 import os
 import re
+from uuid import uuid4
 
 from main.models import DashboardSetting
 
@@ -199,3 +200,34 @@ def create_structured_directory(basepath, manual_normalization=False, printing=F
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
     if manual_normalization:
         create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
+
+
+def get_dir_uuids(dir_paths, logger=None):
+    """Return a generator of 2-tuples, each containing one of the directory
+    paths in ``dir_paths`` and its newly minted UUID. Used by multiple client
+    scripts.
+    """
+    for dir_path in dir_paths:
+        dir_uuid = str(uuid4())
+        msg = 'Assigning UUID {} to directory path {}'.format(
+            dir_uuid, dir_path)
+        print(msg)
+        if logger:
+            logger.info(msg)
+        yield dir_path, dir_uuid
+
+
+def format_subdir_path(dir_path, path_prefix_to_repl):
+    """Add "/" to end of ``dir_path`` and replace actual root directory
+    ``path_prefix_to_repl`` with a placeholder. Used when creating
+    ``originallocation`` attributes for ``Directory`` models.
+    """
+    return os.path.join(dir_path, '').replace(
+        path_prefix_to_repl, '%transferDirectory%', 1)
+
+
+def str2bool(val):
+    """'True' is ``True``; aught else is ``False."""
+    if val == 'True':
+        return True
+    return False
