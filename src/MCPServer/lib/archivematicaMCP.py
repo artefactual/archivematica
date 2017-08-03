@@ -255,6 +255,21 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>b320ce81-9982-408a-9502-097d0daa48fa</appliesTo>
       <goToChain>/api/v2/location/default/AS/</goToChain>
     </preconfiguredChoice>
+    <!-- Perform policy checks on preservation derivatives: No -->
+    <preconfiguredChoice>
+      <appliesTo>153c5f41-3cfb-47ba-9150-2dd44ebc27df</appliesTo>
+      <goToChain>b7ce05f0-9d94-4b3e-86cc-d4b2c6dba546</goToChain>
+    </preconfiguredChoice>
+    <!-- Perform policy checks on access derivatives: No -->
+    <preconfiguredChoice>
+      <appliesTo>8ce07e94-6130-4987-96f0-2399ad45c5c2</appliesTo>
+      <goToChain>76befd52-14c3-44f9-838f-15a4e01624b0</goToChain>
+    </preconfiguredChoice>
+    <!-- Perform policy checks on originals: No -->
+    <preconfiguredChoice>
+      <appliesTo>70fc7040-d4fb-4d19-a0e6-792387ca1006</appliesTo>
+      <goToChain>3e891cc4-39d2-4989-a001-5107a009a223</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
 """
