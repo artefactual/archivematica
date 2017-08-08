@@ -1,1 +1,20 @@
-Ubuntu-14.json
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file"
+  ],
+  "osdeps_repokeys": [
+  ],
+  "osdeps_repos": [
+  ],
+  "osdeps_packages": [
+  { "name": "gettext", "state": "latest"},
+  { "name": "nginx", "state": "latest"},
+  { "name": "libffi-dev", "state": "latest"},
+  { "name": "libxml2-dev", "state": "latest"},
+  { "name": "libxslt1-dev", "state": "latest"},
+  { "name": "libssl-dev", "state": "latest"},
+  { "name": "python-dev", "state": "latest"}
+  ]
+}
+
