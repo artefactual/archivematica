@@ -33,6 +33,7 @@ CONFIG_MAPPING = {
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
+    'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -55,6 +56,7 @@ elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
+ldap_authentication = False
 
 [client]
 user = archivematica
@@ -434,3 +436,11 @@ if SHIBBOLETH_AUTHENTICATION:
     INSTALLED_APPS += ['shibboleth']
 
     ALLOW_USER_EDITS = False
+
+
+LDAP_AUTHENTICATION = config.get('ldap_authentication')
+if LDAP_AUTHENTICATION:
+    AUTHENTICATION_BACKENDS += [
+        'components.accounts.backends.CustomLDAPBackend',
+    ]
+    from .ldap import *
