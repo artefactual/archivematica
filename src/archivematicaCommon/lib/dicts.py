@@ -172,6 +172,7 @@ class ReplacementDict(dict):
             rd['%fileExtension%'] = ext[1:]
             rd['%fileExtensionWithDot%'] = ext
 
+        rd['%tmpDirectory%'] = os.path.join(config['shared_directory'], 'tmp', '')
         rd['%processingDirectory%'] = config['processing_directory']
         rd['%watchDirectoryPath%'] = config['watch_directory']
         rd['%rejectedDirectory%'] = config['rejected_directory']
