@@ -5,11 +5,11 @@ import ldap
 import django_auth_ldap
 from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
 
-from .common import *
+from .base import *
 
 # Authentication
 AUTHENTICATION_BACKENDS = (
-    'contrib.auth.CustomLdapConfig',
+    'components.accounts.backends.CustomLDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
