@@ -14,7 +14,9 @@
   { "name": "libxml2-dev", "state": "latest"},
   { "name": "libxslt1-dev", "state": "latest"},
   { "name": "libssl-dev", "state": "latest"},
-  { "name": "python-dev", "state": "latest"}
+  { "name": "python-dev", "state": "latest"},
+  { "name": "libldap2-dev", "state": "latest"},
+  { "name": "libsasl2-dev", "state": "latest"}
   ]
 }
 
