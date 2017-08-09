@@ -30,7 +30,6 @@ RUN set -ex \
 
 RUN set -ex \
 	&& mkdir -p /var/archivematica/sharedDirectory \
-	&& cp -R /src/MCPServer/share/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/ \
 	&& chown -R archivematica:archivematica /var/archivematica
 
 USER archivematica
