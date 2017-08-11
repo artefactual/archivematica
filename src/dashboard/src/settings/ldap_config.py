@@ -65,3 +65,6 @@ AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_X_TLS_REQUIRE_CERT: False,
     ldap.OPT_REFERRALS: False,
 }
+
+# All LDAP usernames have this suffix - it is removed when creating Django users
+AUTH_LDAP_USERNAME_SUFFIX = os.environ.get('AUTH_LDAP_USERNAME_SUFFIX', '')

@@ -1,5 +1,6 @@
-import os
+import re
 
+from django.conf import settings
 from django.dispatch import receiver
 
 from django_auth_ldap.backend import LDAPBackend, populate_user
@@ -19,15 +20,15 @@ class CustomLDAPBackend(LDAPBackend):
 
     def __init__(self):
         super(CustomLDAPBackend, self).__init__()
-        self.replacement = os.environ.get('AUTH_LDAP_USERNAME_SUFFIX', '')
+        self._username_suffix = settings.AUTH_LDAP_USERNAME_SUFFIX
 
     def ldap_to_django_username(self, username):
         # Replaces user creation in get_ldap_users
-        return username.replace(self.replacement, '')
+        return re.sub(self._username_suffix + '$', '', username)
 
     def django_to_ldap_username(self, username):
         # Replaces user creation in get_ldap_users
-        return username + self.replacement
+        return username + self._username_suffix
 
 
 @receiver(populate_user)

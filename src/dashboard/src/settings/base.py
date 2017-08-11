@@ -443,4 +443,4 @@ if LDAP_AUTHENTICATION:
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomLDAPBackend',
     ]
-    from .ldap import *
+    from .ldap_config import *
