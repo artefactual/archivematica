@@ -401,25 +401,8 @@ ALLOW_USER_EDITS = True
 
 SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
 if SHIBBOLETH_AUTHENTICATION:
-    SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
-    SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
-
-    SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
-    SHIBBOLETH_ATTRIBUTE_MAP = {
-        # Automatic user fields
-        'HTTP_GIVENNAME': (False, 'first_name'),
-        'HTTP_SN': (False, 'last_name'),
-        'HTTP_MAIL': (False, 'email'),
-        # Entitlement field (which we handle manually)
-        'HTTP_ENTITLEMENT': (True, 'entitlement'),
-    }
-
-    TEMPLATES[0]['OPTIONS']['context_processors'] += [
-        'shibboleth.context_processors.logout_link',
-    ]
-
-    # If the user has this entitlement, they will be a superuser/admin
-    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
+    ALLOW_USER_EDITS = False
+    INSTALLED_APPS += ['shibboleth']
 
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomShibbolethRemoteUserBackend',
@@ -433,14 +416,18 @@ if SHIBBOLETH_AUTHENTICATION:
         'middleware.common.CustomShibbolethRemoteUserMiddleware',
     )
 
-    INSTALLED_APPS += ['shibboleth']
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'shibboleth.context_processors.logout_link',
+    ]
 
-    ALLOW_USER_EDITS = False
+    from .components.shibboleth_auth import *  # noqa
 
 
 LDAP_AUTHENTICATION = config.get('ldap_authentication')
 if LDAP_AUTHENTICATION:
+    ALLOW_USER_EDITS = False
+
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomLDAPBackend',
     ]
-    from .ldap_config import *
+    from .components.ldap_auth import *  # noqa
