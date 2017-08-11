@@ -348,7 +348,7 @@ def _source_transfers_gave_uuids_to_directories(files):
 
 
 def create_arranged_sip(staging_sip_path, files, sip_uuid):
-    shared_dir = helpers.get_server_config_value('sharedDirectory')
+    shared_dir = django_settings.SHARED_DIRECTORY
     staging_sip_path = staging_sip_path.lstrip('/')
     staging_abs_path = os.path.join(shared_dir, staging_sip_path)
 
