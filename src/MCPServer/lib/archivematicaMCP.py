@@ -149,6 +149,16 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>70fc7040-d4fb-4d19-a0e6-792387ca1006</appliesTo>
       <goToChain>3e891cc4-39d2-4989-a001-5107a009a223</goToChain>
     </preconfiguredChoice>
+    <!-- Bind PIDs?: No -->
+    <preconfiguredChoice>
+      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
+      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+    </preconfiguredChoice>
+    <!-- Assign UUIDs to directories?: No -->
+    <preconfiguredChoice>
+      <appliesTo>bd899573-694e-4d33-8c9b-df0af802437d</appliesTo>
+      <goToChain>891f60d0-1ba8-48d3-b39e-dd0934635d29</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
 """
@@ -269,6 +279,16 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>70fc7040-d4fb-4d19-a0e6-792387ca1006</appliesTo>
       <goToChain>3e891cc4-39d2-4989-a001-5107a009a223</goToChain>
+    </preconfiguredChoice>
+    <!-- Bind PIDs?: No -->
+    <preconfiguredChoice>
+      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
+      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+    </preconfiguredChoice>
+    <!-- Assign UUIDs to directories?: No -->
+    <preconfiguredChoice>
+      <appliesTo>bd899573-694e-4d33-8c9b-df0af802437d</appliesTo>
+      <goToChain>891f60d0-1ba8-48d3-b39e-dd0934635d29</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>

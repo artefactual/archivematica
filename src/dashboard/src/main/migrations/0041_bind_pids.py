@@ -97,7 +97,7 @@ def data_migration(apps, schema_editor):
         replaces_id=None,
     )
 
-    # MSChainLink that performs "Bind PID"
+    # MSChainLink that performs "Bind PIDs"
     bind_pids_chain_link_uuid = '7677d1cd-2211-4969-8c10-5ec2a93d5c2f'
     bind_pids_chain_link = MicroServiceChainLink.objects.create(
         id=bind_pids_chain_link_uuid,
@@ -170,7 +170,7 @@ def data_migration(apps, schema_editor):
         defaultnextchainlink=bind_pid_chain_link
     )
 
-    # Create the "No" choice, i.e., "No, do not assign UUIDs to directories".
+    # Create the "No" choice, i.e., "No, do not Bind PIDs".
     MicroServiceChoiceReplacementDic.objects.create(
         id='fcfea449-158c-452c-a8ad-4ae009c4eaba',
         description='No',
@@ -179,7 +179,7 @@ def data_migration(apps, schema_editor):
         replaces_id=None
     )
 
-    # Create the "Yes" choice, i.e., "Yes, do assign UUIDs to directories".
+    # Create the "Yes" choice, i.e., "Yes, do Bind PIDs".
     MicroServiceChoiceReplacementDic.objects.create(
         id='1e79e1b6-cf50-49ff-98a3-fa51d73553dc',
         description='Yes',
