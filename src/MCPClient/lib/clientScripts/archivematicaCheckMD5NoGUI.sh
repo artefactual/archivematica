@@ -34,12 +34,16 @@ integrityReport="$3"
 checksumTool="$4"
 
 tmpDir=`pwd`
+ret=0
+
 cd "$checkFolder"
 #check for passing checksums
 "${checksumTool}" -r -m "$md5Digest" . > $passTmp
+ret+="$?"
 #check for failing checksums
 "${checksumTool}" -r -x "$md5Digest" . > $failTmp
-cd $tmpDir      
+ret+="$?"
+cd $tmpDir
 
 
 
@@ -66,4 +70,6 @@ cat $failTmp 1>&2
 #cleanup
 rm $failTmp $passTmp $reportTmp
 
-exit $numberFail
+ret+="$numberFail"
+
+exit ${ret}
