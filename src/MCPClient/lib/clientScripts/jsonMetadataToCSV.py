@@ -65,10 +65,12 @@ def encode_item(item):
     """
     Wraps str.encode by recursively encoding lists.
     """
-    if isinstance(item, basestring):
+    if not item:  # Handle case where json contains null.
+        return
+    elif isinstance(item, basestring):
         return item.encode('utf-8')
     else:
-        return [i.encode('utf-8') for i in item]
+        return [i.encode('utf-8') if i else '' for i in item]
 
 
 def fix_encoding(row):
@@ -119,6 +121,7 @@ def main(sip_uuid, json_metadata):
             writer.writerow(object_to_row(fix_encoding(row), headers))
 
     return 0
+
 
 if __name__ == '__main__':
     try:
