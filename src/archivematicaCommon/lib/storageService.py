@@ -54,7 +54,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=5):
+def _storage_api_session(timeout=300):
     """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
