@@ -65,10 +65,12 @@ def encode_item(item):
     """
     Wraps str.encode by recursively encoding lists.
     """
-    if isinstance(item, basestring):
+    if not item:  # Handle case where json contains null.
+        return
+    elif isinstance(item, basestring):
         return item.encode('utf-8')
     else:
-        return [i.encode('utf-8') for i in item]
+        return [i.encode('utf-8') if i else '' for i in item]
 
 
 def fix_encoding(row):
