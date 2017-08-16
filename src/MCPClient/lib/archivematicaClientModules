@@ -60,7 +60,6 @@ createMETS_v0.0 = %clientScriptsDirectory%archivematicaCreateMETS.py
 createMETS_v2.0 = %clientScriptsDirectory%archivematicaCreateMETS2.py
 createProcessedStructmap_v0.0 = %clientScriptsDirectory%archivematicaCreateProcessedStructmap.py
 createTransferMetadata_v0.0 = %clientScriptsDirectory%archivematicaTransferMetadata.py
-createPointerFile_v0.0 = %clientScriptsDirectory%createPointerFile.py
 createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransferObjects.py
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
 determineAIPVersionKeyExitCode_v0.0 = %clientScriptsDirectory%determineAIPVersionKeyExitCode.py
