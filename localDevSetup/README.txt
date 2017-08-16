@@ -1,3 +1,3 @@
 
 Please Read
-http://archivematica.org/wiki/index.php?title=Development_environment
+https://wiki.archivematica.org/Getting_started
