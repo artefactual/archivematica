@@ -332,30 +332,33 @@ def main(opts):
             )
         return SUCCESS
 
+    do_fallback = False
     format_id = get_object_or_None(
         FileFormatVersion,
         file_uuid=opts.file_uuid
     )
 
     # Look up the normalization command in the FPR
-    if format_id is None:
-        rule = get_default_rule(opts.purpose)
-        print(os.path.basename(file_.currentlocation), "not identified - falling back to default", opts.purpose, "rule")
-    else:
+    if format_id:
         print('File format:', format_id.format_version)
         try:
             rule = FPRule.active.get(format=format_id.format_version,
                                      purpose=opts.purpose)
         except FPRule.DoesNotExist:
-            try:
-                rule = get_default_rule(opts.purpose)
-                print("No rule for", os.path.basename(file_.currentlocation),
-                      "falling back to default", opts.purpose, "rule")
-            except FPRule.DoesNotExist:
-                print('Not normalizing', os.path.basename(file_.currentlocation),
-                      ' - No rule or default rule found to normalize for', opts.purpose,
-                      file=sys.stderr)
-                return NO_RULE_FOUND
+            do_fallback = True
+
+    # Try with default rule if no format_id or rule was found
+    if format_id is None or do_fallback:
+        try:
+            rule = get_default_rule(opts.purpose)
+            print(os.path.basename(file_.currentlocation), "not identified or without rule",
+                  "- Falling back to default", opts.purpose, "rule")
+        except FPRule.DoesNotExist:
+            print('Not normalizing', os.path.basename(file_.currentlocation),
+                  ' - No rule or default rule found to normalize for', opts.purpose,
+                  file=sys.stderr)
+            return NO_RULE_FOUND
+
     print('Format Policy Rule:', rule)
     command = rule.command
     print('Format Policy Command', command.description)
