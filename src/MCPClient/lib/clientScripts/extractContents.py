@@ -9,12 +9,12 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPCommand
-from main.models import FileFormatVersion, File, Transfer
+from main.models import Directory, FileFormatVersion, File, Transfer
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import fileWasRemoved, create_directory_models
+from databaseFunctions import fileWasRemoved
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
@@ -157,7 +157,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             # Assign UUIDs to directories via ``Directory`` objects in the
             # database.
             if transfer_mdl.diruuids:
-                create_directory_models(
+                Directory.create_many(
                     get_dir_uuids(
                         _get_subdir_paths(extracted_path, sip_directory),
                         logger),

@@ -55,6 +55,7 @@ from main.models import DashboardSetting, File, Identifier
 # archivematicaCommon
 import bindpid
 from custom_handlers import get_script_logger
+from archivematicaFunctions import str2bool
 
 
 logger = get_script_logger('archivematica.mcp.client.bind_pid')
@@ -95,14 +96,9 @@ def _get_bind_pid_config(file_uuid):
     _args = {'entity_type': 'file',
              'desired_pid': file_uuid}
     _args.update(DashboardSetting.objects.get_dict('handle'))
+    _args['pid_request_verify_certs'] = str2bool(
+        _args.get('pid_request_verify_certs', 'True'))
     return _args
-
-
-def str2bool(val):
-    """'True' is ``True``; aught else is ``False."""
-    if val == 'True':
-        return True
-    return False
 
 
 def _update_file_mdl(file_uuid, naming_authority, resolver_url):

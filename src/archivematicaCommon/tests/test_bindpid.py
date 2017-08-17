@@ -105,14 +105,6 @@ INVALID_ARG_DICT = {
 
 class TestBindPID(TestCase):
 
-    def setUp(self):
-        """Set some stuff up...
-        """
-
-    def tearDown(self):
-        """Tear some stuff down...
-        """
-
     def test__validate(self):
         """Test the _validate function"""
 

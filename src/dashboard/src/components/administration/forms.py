@@ -104,6 +104,13 @@ class HandleForm(SettingsForm):
     # constructed from multiple Transfers), then the UUID is used as the
     # fallback; see the bind_pids client script for details.
 
+    pid_request_verify_certs = forms.BooleanField(
+        required=False,
+        initial=True,
+        label=_('Verify SSL certificates'),
+        help_text=_('Verify SSL certificates when making requests to bind PIDs.')
+    )
+
     resolve_url_template_archive = forms.CharField(
         required=False,
         label=_('Archive resolve URL template'),

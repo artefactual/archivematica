@@ -207,6 +207,8 @@ def main(sip_uuid, shared_path, bind_pids_switch):
     """
     _exit_if_not_bind_pids(bind_pids_switch)
     handle_config = DashboardSetting.objects.get_dict('handle')
+    handle_config['pid_request_verify_certs'] = str2bool(
+        handle_config.get('pid_request_verify_certs', 'True'))
     for mdl in chain([_get_sip(sip_uuid)],
                      Directory.objects.filter(sip_id=sip_uuid).all()):
         _bind_pid_to_model(mdl, shared_path, handle_config)

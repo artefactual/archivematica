@@ -40,11 +40,10 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import Transfer
+from main.models import Transfer, Directory
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from databaseFunctions import create_directory_models
-from archivematicaFunctions import get_dir_uuids, format_subdir_path
+from archivematicaFunctions import get_dir_uuids, format_subdir_path, str2bool
 
 logger = get_script_logger('archivematica.mcp.client.assignUUIDsToDirectories')
 
@@ -107,13 +106,6 @@ def _get_subdir_paths(root_path):
             os.walk(root_path) if dir_path not in exclude_paths)
 
 
-def str2bool(val):
-    """'True' is ``True``; aught else is ``False."""
-    if val == 'True':
-        return True
-    return False
-
-
 @exit_on_known_exception
 def main(transfer_path, transfer_uuid, include_dirs):
     """Assign UUIDs to all of the directories (and subdirectories, i.e., all
@@ -122,7 +114,7 @@ def main(transfer_path, transfer_uuid, include_dirs):
     this only if ``include_dirs`` is ``True``.
     """
     _exit_if_not_include_dirs(include_dirs)
-    create_directory_models(
+    Directory.create_many(
         get_dir_uuids(_get_subdir_paths(transfer_path), logger),
         _get_transfer_mdl(transfer_uuid))
     return 0

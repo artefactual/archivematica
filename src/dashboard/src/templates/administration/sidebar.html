@@ -49,11 +49,9 @@
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">{% trans "Users" %}</a></li>
     {% endif %}
 
-    <li class="{% active request handle_config %}"
-        ><a href="{{ handle_config }}">{% trans "Handle server config" %}</a></li>
+    <li class="{% active request handle_config %}" ><a href="{{ handle_config }}">{% trans "Handle server config" %}</a></li>
 
-    <li class="{% active request url_language %}"
-        ><a href="{{ url_language }}">{% trans "Language" %}</a></li>
+    <li class="{% active request url_language %}"><a href="{{ url_language }}">{% trans "Language" %}</a></li>
 
     <li class="{% active request url_version %}"><a href="{{ url_version }}">{% trans "Version" %}</a></li>
   </ul>

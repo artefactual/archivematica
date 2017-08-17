@@ -23,7 +23,6 @@ Example usage::
     http://<RESOLVER_URL>/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858?locatt=view:original => https://my-domain.org/original/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858
     http://<RESOLVER_URL>/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858?locatt=view:preservation => https://my-domain.org/preservation/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858
     http://<RESOLVER_URL>/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858 => https://my-domain.org/access/12345/58fe1b06-ee88-41ca-9bc9-320dcac6c858
-    Joels-MacBook-Pro-2:handlepid joeldunham
 
 
 PID Binding Configuration Parameters
@@ -172,7 +171,8 @@ CFGABLE_PARAMS = (
     'resolve_url_template_file_access',
     'resolve_url_template_file_preservation',
     'resolve_url_template_file_original',
-    'pid_request_body_template'
+    'pid_request_body_template',
+    'pid_request_verify_certs'
 )
 
 # Maps entity type values ('file' or 'unit') to the required and optional
@@ -329,10 +329,10 @@ def bind_pid(**kwargs):
     response = requests.post(
         kwargs['pid_web_service_endpoint'],
         data=request_body,
-        headers={'Content-Type': 'text/xml',  # <= non-paramed assumpton alert
+        headers={'Content-Type': 'text/xml',
                  'Authorization': 'bearer {}'.format(
                      kwargs['pid_web_service_key'])},
-        verify=False  # TODO: REMOVE IN PRODUCTION!!! Needed in dev because test handle endpoint has bad HTTPS
+        verify=kwargs.get('pid_request_verify_certs', True)
     )
     if response.status_code == requests.codes.ok:
         yay_msg = (

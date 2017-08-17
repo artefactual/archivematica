@@ -398,7 +398,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
         # arranged SIP. Because the user can arbitrarily modify the directory
         # structure, it doesn't make sense to reuse any directory models that
         # were created during transfer.
-        databaseFunctions.create_directory_models(
+        models.Directory.create_many(
             archivematicaFunctions.get_dir_uuids(directories, logger),
             sip,
             unit_type='sip')
