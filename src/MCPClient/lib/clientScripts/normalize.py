@@ -355,8 +355,7 @@ def main(opts):
                   "- Falling back to default", opts.purpose, "rule")
         except FPRule.DoesNotExist:
             print('Not normalizing', os.path.basename(file_.currentlocation),
-                  ' - No rule or default rule found to normalize for', opts.purpose,
-                  file=sys.stderr)
+                  ' - No rule or default rule found to normalize for', opts.purpose)
             return NO_RULE_FOUND
 
     print('Format Policy Rule:', rule)
@@ -386,7 +385,7 @@ def main(opts):
             fallback_rule = get_default_rule(opts.purpose)
             print(opts.purpose, 'normalization failed, falling back to default', opts.purpose, 'rule')
         except FPRule.DoesNotExist:
-            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose, file=sys.stderr)
+            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose)
             fallback_rule = None
         # Don't re-run the same command
         if fallback_rule and fallback_rule.command != command:
