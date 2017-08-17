@@ -41,7 +41,7 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
+    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'int'},
 }
 
 CONFIG_DEFAULTS = """[Dashboard]
