@@ -244,7 +244,10 @@ def get_files_from_backlog(files):
 
 def create_file(uuid, origin_location, origin_path, current_location,
                 current_path, package_type, size, update=False, related_package_uuid=None):
-    """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
+    """Creates a new file. Returns a tuple of (resulting dict, None) on
+    success, (None, error) on failure. Note: for backwards compatibility
+    reasons, the SS API calls "packages" "files" and this function should be
+    read as ``create_package``.
 
     origin_location and current_location should be URIs for the storage service.
     """
@@ -276,6 +279,10 @@ def create_file(uuid, origin_location, origin_path, current_location,
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to create file from %s because %s", new_file, e)
         return (None, e)
+    # TODO: if the SS returns a 500 error, then the dashboard will not signal
+    # to the user that AIP storage has failed! This is not good.
+    LOGGER.info('Status code of create file/package request: %s',
+                response.status_code)
     file_ = response.json()
     return (file_, None)
 
