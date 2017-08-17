@@ -1,5 +1,7 @@
+# flake8: noqa
+
 from __future__ import absolute_import
-from .common import *  # noqa: F401, F403
+from .common import *
 
 # IN-MEMORY TEST DATABASE
 DATABASES = {
