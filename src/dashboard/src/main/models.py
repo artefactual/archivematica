@@ -414,7 +414,7 @@ class Identifier(models.Model):
 
     def __str__(self):
         return (u'Identifier {i.identifiervalue} of type'
-                ' {i.identifiertype}'.format(a=self))
+                ' {i.identifiertype}'.format(i=self))
 
     class Meta:
         db_table = u'Identifiers'
@@ -494,7 +494,7 @@ class Directory(models.Model):
         that the directories are a part of.
         """
         unit_type = {'transfer': 'transfer'}.get(unit_type, 'sip')
-        cls.objects.bulk_create([
+        return cls.objects.bulk_create([
             cls(**{'uuid': dir_uuid,
                    unit_type: unit_mdl,
                    'originallocation': dir_path,

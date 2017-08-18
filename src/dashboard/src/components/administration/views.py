@@ -366,7 +366,7 @@ def handle_config(request):
     else:
         form = HandleForm(
             initial=models.DashboardSetting.objects.get_dict('handle'))
-    return render(request, 'administration/handle_config.html', locals())
+    return render(request, 'administration/handle_config.html', {'form': form})
 
 
 def premis_agent(request):

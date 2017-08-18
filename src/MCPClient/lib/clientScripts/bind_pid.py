@@ -38,7 +38,7 @@ The idea is to allow for PURL resolution like:
     http://<PID-RESOLVER>/<NAME_AUTH>/<PID>?locatt=view:original
         => http://my-org-domain.org/original/files/<PID>
 
-The sole command-line argument is the File's UUID. If the --pind-pids option
+The sole command-line argument is the File's UUID. If the --bind-pids option
 is something other than 'Yes', the script will exit without doing anything.
 """
 

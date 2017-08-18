@@ -1217,7 +1217,7 @@ if __name__ == '__main__':
         aipDmdSec = getDirDmdSec(sip_mdl, sip_dir_name)
         globalDmdSecCounter += 1
         dmdSecs.append(aipDmdSec)
-        aip_dmd_id = "dmdSec_" + globalDmdSecCounter.__str__()
+        aip_dmd_id = "dmdSec_" + str(globalDmdSecCounter)
         aipDmdSec.set("ID", aip_dmd_id)
         structMapDiv.set("DMDID", aip_dmd_id)
 

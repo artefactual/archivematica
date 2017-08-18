@@ -340,11 +340,8 @@ def _source_transfers_gave_uuids_to_directories(files):
     directories in the arranged SIP.
     """
     file_uuids = filter(None, [file_.get('uuid') for file_ in files])
-    return any([
-        rslt[0] for rslt in
-        models.Transfer.objects.filter(
-            file__uuid__in=file_uuids).values_list(
-                'diruuids').distinct()])
+    return models.Transfer.objects.filter(
+        file__uuid__in=file_uuids, diruuids=True).exists()
 
 
 def create_arranged_sip(staging_sip_path, files, sip_uuid):

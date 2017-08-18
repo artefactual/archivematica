@@ -102,8 +102,9 @@ def _get_subdir_paths(root_path):
         raise DirsUUIDsException
     # objects/ and root dirs need no UUIDs.
     exclude_paths = (root_path, os.path.join(root_path, 'objects'))
-    return (format_subdir_path(dir_path, root_path) for dir_path, __, ___ in
-            os.walk(root_path) if dir_path not in exclude_paths)
+    return (format_subdir_path(dir_path, root_path)
+            for dir_path, __, ___ in os.walk(root_path)
+            if dir_path not in exclude_paths)
 
 
 @exit_on_known_exception

@@ -36,8 +36,9 @@ The idea is to allow for PURL resolution like:
     http://<PID-RESOLVER>/<NAME_AUTH>/<PID>?locatt=view:mets
         => http://my-org-domain.org/mets/<PID>
 
-The sole command-line argument is the SIP's UUID. If the --pind-pids option
-is something other than 'Yes', the script will exit without doing anything.
+The required command-line arguments are the SIP's UUID and the path to the
+shared directory where SIPs are stored. If the --bind-pids option is something
+other than 'Yes', the script will exit without doing anything.
 """
 
 from __future__ import print_function

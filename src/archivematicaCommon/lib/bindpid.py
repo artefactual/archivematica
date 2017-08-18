@@ -175,6 +175,10 @@ CFGABLE_PARAMS = (
     'pid_request_verify_certs'
 )
 
+CFGABLE_PARAMS_TYPES = {
+    'pid_request_verify_certs': 'boolean'
+}
+
 # Maps entity type values ('file' or 'unit') to the required and optional
 # resolve URL template params. This means, for example, that a PID for a file
 # must be requested so that its PURL resolves to something (i.e., the value
@@ -297,7 +301,7 @@ def _render_request_body(argsdict, resolve_url, qualified_resolve_urls):
         dict(naming_authority=argsdict['naming_authority'],
              pid=argsdict['desired_pid'],
              base_resolve_url=resolve_url,
-             qualified_resolve_urls=qualified_resolve_urls))
+             qualified_resolve_urls=qualified_resolve_urls)).encode('utf8')
 
 
 def bind_pid(**kwargs):
@@ -415,6 +419,10 @@ def _add_parser_args(parser):
                         help="Template for the URL that a file's PURL with the"
                         " \"original\" qualifier should resolve to",
                         default=None)
+    parser.add_argument('--verify-certs', dest='pid_request_verify_certs',
+                        action='store_true')
+    parser.add_argument('--no-verify-certs', dest='pid_request_verify_certs',
+                        action='store_false')
     return parser, parser.parse_args()
 
 
@@ -429,16 +437,28 @@ def _parse_config(args):
     if not os.path.isfile(cf):
         print('Warning: there is no config file at {}'.format(cf))
         return {}
-    config = configparser.ConfigParser()
+    config = configparser.SafeConfigParser()
     with open(cf) as filei:
-        config.read_file(filei)
-    return {key: config.get('Handle', key, fallback=None) for key in CFGABLE_PARAMS}
+        try:
+            config.read_file(filei)
+        except AttributeError:
+            config.readfp(filei)
+    return {key: _get_config_val(config, key) for key in CFGABLE_PARAMS}
+
+
+def _get_config_val(config, key):
+    type_ = CFGABLE_PARAMS_TYPES.get(key, '')
+    getter = getattr(config, 'get' + type_)
+    try:
+        return getter('Handle', key)
+    except configparser.NoOptionError:
+        return None
 
 
 def _merge_args_config(args, config):
     for arg in vars(args):
         argval = getattr(args, arg, None)
-        if argval or arg not in config:
+        if (argval is not None) and (config.get(arg, None) is None):
             config[arg] = argval
     return config
 
