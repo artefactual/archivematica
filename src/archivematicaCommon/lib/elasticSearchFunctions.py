@@ -339,6 +339,13 @@ def set_up_mapping_transfer_index(client):
         'status': MACHINE_READABLE_FIELD_SPEC,
         'origin': MACHINE_READABLE_FIELD_SPEC,
         'ingestdate': {'type': 'date', 'format': 'dateOptionalTime'},
+        # METS.xml files in transfers sent to backlog will have '' as their
+        # modification_date value. This can cause a failure in certain
+        # cases---see https://github.com/artefactual/archivematica/issues/719.
+        # For this reason, we specify the type and format here and ignore
+        # malformed values like ''.
+        'modification_date': {'type': 'date', 'format': 'dateOptionalTime',
+                              'ignore_malformed': True},
         'created': {'type': 'double'},
         'size': {'type': 'double'},
         'tags': MACHINE_READABLE_FIELD_SPEC,
@@ -425,7 +432,6 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
 def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10):
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
-
     for _ in xrange(0, max_tries):
         try:
             return client.index(body=data, index=index, doc_type=doc_type)
