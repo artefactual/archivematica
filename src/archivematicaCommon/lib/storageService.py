@@ -54,7 +54,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=300):
+def _storage_api_session():
     """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
@@ -215,7 +215,7 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
     try:
-        response = _storage_api_session().post(url, json=move_files)
+        response = _storage_api_session(timeout=300).post(url, json=move_files)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
