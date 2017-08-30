@@ -61,6 +61,7 @@
           <th>{% trans "Files" %}</th>
           <th>{% trans "Date stored" %}</th>
           <th>{% trans "Status" %}</th>
+          <th>{% trans "Encrypted" %}</th>
           <th>{% trans "Actions" %}</th>
         </thead>
         <tbody>
@@ -94,6 +95,7 @@
             <td>{{ term_usage.count }} file{{term_usage.count|pluralize}}</td>
             <td><span class='timestamp'>{{ term_usage.created }}</a></td>
             <td>{{ term_usage.status }}</td>
+            <td>{{ term_usage.encrypted }}</td>
             <td><a href="{% url 'view_aip' term_usage.uuid %}">{% trans "View" %}</a></td>
           </tr>
         {% endfor %}

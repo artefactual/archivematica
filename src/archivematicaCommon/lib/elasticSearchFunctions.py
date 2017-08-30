@@ -390,7 +390,8 @@ def set_up_mapping(client, index):
         set_up_mapping_aip_index(client)
 
 
-def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
+def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[], encrypted=False):
+
     tree = ElementTree.parse(pathToMETS)
 
     # TODO add a conditional to toggle this
@@ -424,6 +425,7 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'countAIPsinAIC': aips_in_aic,
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
+        'encrypted': encrypted
     }
     wait_for_cluster_yellow_status(client)
     try_to_index(client, aipData, 'aips', 'aip')

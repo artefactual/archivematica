@@ -76,6 +76,10 @@
         <td>{{ status }}</td>
       </tr>
       <tr>
+        <th>{% trans "Encrypted" %}</th>
+        <td>{{ encrypted }}</td>
+      </tr>
+      <tr>
         <th>{% trans "Location" %}</th>
         <td>
           <a class="btn btn-default btn-sm" href="{% url 'components.archival_storage.views.aip_download' uuid %}">{% trans "Download" %}</a>

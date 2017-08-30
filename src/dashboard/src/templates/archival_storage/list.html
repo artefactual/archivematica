@@ -89,6 +89,11 @@
         </th>
         <th>
           <div>
+            {% trans "Encrypted" %}
+          </div>
+        </th>
+        <th>
+          <div>
             {% trans "Actions" %}
           </div>
         </th>
@@ -101,6 +106,7 @@
             <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
             <td><span class="timestamp">{{ item.date }}</span></td>
             <td>{{ item.status }}</td>
+            <td>{{ item.encrypted }}</td>
             <td><a href="{% url 'view_aip' item.uuid %}">{% trans "View" %}</a></td>
           </tr>
         {% endfor %}

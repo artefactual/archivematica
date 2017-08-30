@@ -91,7 +91,8 @@ def index_aip():
         mets_path,
         size=aip_info['size'],
         aips_in_aic=aips_in_aic,
-        identifiers=identifiers)
+        identifiers=identifiers,
+        encrypted=aip_info['encrypted'])
 
     # Index AIP files
     print('Indexing AIP files')
