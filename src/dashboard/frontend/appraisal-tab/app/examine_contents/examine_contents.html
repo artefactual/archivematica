@@ -1,0 +1,80 @@
+<ul class="nav nav-pills">
+  <li ng-class="{ active: vm.type === 'pii' }">
+    <a href="#{{ vm.$routeSegment.getSegmentUrl('examine_contents', {type: 'pii'}) }}">{{ "PII" | translate }}</a>
+  </li>
+  <li ng-class="{ active: vm.type === 'ccn' }">
+    <a href="#{{ vm.$routeSegment.getSegmentUrl('examine_contents', {type: 'ccn'}) }}">{{ "Credit card numbers" | translate }}</a>
+  </li>
+</ul>
+
+<div ng-if='vm.type'>
+  <h2 ng-if="(vm.SelectedFiles.selected | find_transfers).length != 0">{{ "Transfers:" | translate }}</h2>
+  <ul>
+    <li ng-repeat="record in vm.SelectedFiles.selected | find_transfers">
+    {{ record.title }}:
+      <a ng-if="record.original_order" href="{{ record.original_order }}">{{ "original order" | translate }}</a>
+      <a ng-if="!record.original_order" class="disabled">{{ "original order" | translate }}</a>
+    </li>
+  </ul>
+  <p ng-if='(vm.SelectedFiles.selected | find_transfers).length == 0'>{{ "No information found for selected Transfers." | translate }}</p>
+
+  <div ng-if="(vm.SelectedFiles.selected | find_files).length != 0">
+  <h2>{{ "Files" | translate }}</h2>
+
+  <form ng-submit="vm.submit(vm.selected)" class="form-inline examine-contents-form">
+    <input type="text"
+           class="form-control input-sm"
+           ng-model="vm.tag"
+           ng-disabled="vm.selected.length < 1">
+    <input type="submit"
+           id="submit-tag"
+           value="{{ 'Add tag to checked files' | translate }}"
+           ng-disabled="vm.selected.length < 1"
+           class='btn btn-sm btn-default'>
+  </form>
+
+  <table class='table table-hover table-striped table-condensed'>
+    <tr>
+      <th>
+        <input type="checkbox"
+               name="checked_files[]"
+               value="{{ 'Select all' | translate }}"
+               ng-checked="vm.all_selected"
+               ng-click="vm.select_all((vm.SelectedFiles.selected | find_files | filter:{bulk_extractor_reports: vm.type}))">
+      </th>
+      <th>{{ "Filename" | translate }}</th>
+      <th>{{ "Transfer name" | translate }}</th>
+      <th>{{ "Preview" | translate }}</th>
+      <th>{{ "Bulk extractor logs" | translate }}</th>
+    </tr>
+    <tr ng-repeat="record in vm.SelectedFiles.selected | find_files | filter:{bulk_extractor_reports: vm.type}">
+      <td>
+        <input checklist
+             type="checkbox"
+             name="checked_files[]"
+             ng-element="record"
+             ng-checked="vm.selected.indexOf(record.id) > -1"
+             record-count="(vm.SelectedFiles.selected | find_files | filter:{bulk_extractor_reports: vm.type}).length"
+             selected-list="vm.selected"
+             all-selected="vm.all_selected">
+      </td>
+      <td>
+        <a href="#{{ vm.$routeSegment.getSegmentUrl('examine_contents.file_info', {id: record.id, type: vm.type}) }}">{{ vm.cutRelativePath(record.relative_path) }}</a>
+      </td>
+      <td>
+        {{ record.relative_path | limitTo:record.relative_path.indexOf('/') }}
+      </td>
+      <td>
+        <a href="#{{ vm.$routeSegment.getSegmentUrl('preview', {id: record.id}) }}">{{ "Preview" | translate }}</a>
+      </td>
+      <td>
+        <a ng-if="record.bulk_extractor" href="{{ record.bulk_extractor}}">{{ "Bulk extractor logs" | translate }}</a>
+      </td>
+    </tr>
+  </table>
+  </div>
+
+  <p ng-if='(vm.SelectedFiles.selected | find_files).length == 0'>{{ "No information found for selected files." | translate }}</p>
+
+  <div app-view-segment="1"></div>
+</div>

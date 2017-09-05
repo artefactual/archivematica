@@ -1,0 +1,11 @@
+<ul class="nav nav-pills">
+  <li ng-class="{ active: $routeSegment.contains('files') }">
+    <a href="#{{ $routeSegment.getSegmentUrl('objects.visualizations.files') }}">{{ "Formats (by total number of files)" | translate }}</a>
+  </li>
+  <li ng-class="{ active: $routeSegment.contains('size') }">
+    <a href="#{{ $routeSegment.getSegmentUrl('objects.visualizations.size') }}">{{ "Formats (by total size of files)" | translate }}</a>
+  </li>
+</ul>
+
+<p ng-if='records.selected.length === 0'>{{ "No files selected" | translate }}</p>
+<div app-view-segment="2"></div>

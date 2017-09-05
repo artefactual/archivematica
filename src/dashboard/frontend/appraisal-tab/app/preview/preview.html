@@ -1,0 +1,6 @@
+<div class="preview-frame"><iframe ng-src="{{ url }}" name="preview-frame"></iframe></div>
+<p ng-if='file'>
+  <span translate>Previewing {{ file.title }}</span>
+  <a ng-href="{{ url }}" download="filename">({{ "Download" | translate }})</a>
+</p>
+<p ng-if='!file'>{{ "No file selected" | translate }}</p>
