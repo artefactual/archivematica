@@ -25,20 +25,22 @@ ADD archivematicaCommon/ /src/archivematicaCommon/
 ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 
-ADD dashboard/frontend/transfer-browser/package.json /src/dashboard/frontend/transfer-browser/package.json
-ADD dashboard/frontend/transfer-browser/package-lock.json /src/dashboard/frontend/transfer-browser/package-lock.json
-RUN npm install --prefix /src/dashboard/frontend/transfer-browser
+RUN set -ex \
+	&& groupadd --gid 333 --system archivematica \
+	&& useradd --uid 333 --gid 333 --create-home --system archivematica \
+	&& mkdir -p /src/dashboard/src/media \
+	&& chown archivematica:archivematica /src/dashboard/src/media
 
-ADD dashboard/frontend/appraisal-tab/package.json /src/dashboard/frontend/appraisal-tab/package.json
-ADD dashboard/frontend/appraisal-tab/package-lock.json /src/dashboard/frontend/appraisal-tab/package-lock.json
-RUN npm install --prefix /src/dashboard/frontend/appraisal-tab
+ADD dashboard/frontend/transfer-browser/ /src/dashboard/frontend/transfer-browser/
+RUN chown -R archivematica:archivematica /src/dashboard/frontend/transfer-browser \
+	&& su -l archivematica -c "cd /src/dashboard/frontend/transfer-browser && npm install"
+
+ADD dashboard/frontend/appraisal-tab/ /src/dashboard/frontend/appraisal-tab/
+RUN chown -R archivematica:archivematica /src/dashboard/frontend/appraisal-tab \
+	&& su -l archivematica -c "cd /src/dashboard/frontend/appraisal-tab && npm install"
 
 ADD dashboard/ /src/dashboard/
 ADD dashboard/install/dashboard.gunicorn-config.py /etc/archivematica/dashboard.gunicorn-config.py
-
-RUN set -ex \
-	&& groupadd --gid 333 --system archivematica \
-	&& useradd --uid 333 --gid 333 --system archivematica
 
 RUN set -ex \
 	&& internalDirs=' \
