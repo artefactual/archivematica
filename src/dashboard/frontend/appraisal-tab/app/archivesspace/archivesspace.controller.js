@@ -41,19 +41,28 @@ controller('ArchivesSpaceController', ['$scope', 'gettextCatalog', '$uibModal', 
   // Returns a modified copy of the passed-in object.
   var reformat_form_results = form => {
     var copy = Object.assign({}, form);
-
+    copy.notes = [];
     copy.levelOfDescription = form.level;
-    copy.notes = [{
-      type: 'odd',
-      content: form.note,
-    }];
-    delete copy.note;
-    if (copy.accessrestrict_note) {
-      copy.notes.push({
-        type: 'accessrestrict',
-        content: copy.accessrestrict_note,
-      });
+
+    // If the notes are disabled (the record has existing notes),
+    // send empty array to avoid overwriting them, otherwise build
+    // notes array and delete note fields
+    if (!form.disableNotesEdit) {
+      if (copy.note) {
+        copy.notes.push({
+          type: 'odd',
+          content: copy.note,
+        });
+      }
+      if (copy.accessrestrict_note) {
+        copy.notes.push({
+          type: 'accessrestrict',
+          content: copy.accessrestrict_note,
+        });
+      }
     }
+
+    delete copy.note;
     delete copy.accessrestrict_note;
 
     if (form.date_expression) {
@@ -108,22 +117,9 @@ controller('ArchivesSpaceController', ['$scope', 'gettextCatalog', '$uibModal', 
         date_expression: () => {
           return false;
         },
-        note: () => {
-          if (node.notes) {
-            let general_notes = node.notes.filter(note => note.type === 'odd');
-            if (general_notes.length > 0) {
-              return general_notes[0].content;
-            }
-          }
-        },
-        accessrestrict_note: () => {
-          if (node.notes) {
-            let use_notes = node.notes.filter(note => note.type === 'accessrestrict');
-            if (use_notes.length > 0) {
-              return use_notes[0].content;
-            }
-          }
-        },
+        notes: () => {
+          return node.notes;
+        }
       },
     });
     form.result.then(result => {
@@ -141,6 +137,11 @@ controller('ArchivesSpaceController', ['$scope', 'gettextCatalog', '$uibModal', 
       node.request_pending = true;
 
       var on_success = response => {
+        if (result.disableNotesEdit) {
+          // Restore notes after request when notes edit
+          // is disabled and an empty array has been sent
+          node.notes = original_note;
+        }
         node.request_pending = false;
       };
 
@@ -204,12 +205,9 @@ controller('ArchivesSpaceController', ['$scope', 'gettextCatalog', '$uibModal', 
         date_expression: () => {
           return '';
         },
-        note: () => {
-          return '';
-        },
-        accessrestrict_note: () => {
-          return '';
-        },
+        notes: () => {
+          return [];
+        }
       },
     });
     form.result.then(result => {
@@ -580,7 +578,7 @@ controller('ArchivesSpaceController', ['$scope', 'gettextCatalog', '$uibModal', 
   };
 }]).
 
-controller('ArchivesSpaceEditController', ['$uibModalInstance', 'levels', 'level', 'title', 'start_date', 'end_date', 'date_expression', 'note', 'accessrestrict_note', function($uibModalInstance, levels, level, title, start_date, end_date, date_expression, note, accessrestrict_note) {
+controller('ArchivesSpaceEditController', ['$uibModalInstance', 'levels', 'level', 'title', 'start_date', 'end_date', 'date_expression', 'notes', function($uibModalInstance, levels, level, title, start_date, end_date, date_expression, notes) {
   var vm = this;
 
   vm.levels = levels;
@@ -589,8 +587,24 @@ controller('ArchivesSpaceEditController', ['$uibModalInstance', 'levels', 'level
   vm.start_date = start_date;
   vm.end_date = end_date;
   vm.date_expression = date_expression;
-  vm.note = note;
-  vm.accessrestrict_note = accessrestrict_note;
+  vm.disableNotesEdit = false;
+
+  if (angular.isDefined(notes) && notes.length > 0) {
+    // If the record has existing notes,
+    // disable the fields but show the values
+    vm.disableNotesEdit = true;
+    let general_notes = notes.filter(note => note.type === 'odd');
+    if (general_notes.length > 0) {
+      vm.note = general_notes[0].content;
+    }
+    let use_notes = notes.filter(note => note.type === 'accessrestrict');
+    if (use_notes.length > 0) {
+      vm.accessrestrict_note = use_notes[0].content;
+    }
+  } else {
+    vm.note = '';
+    vm.accessrestrict_note = '';
+  }
 
   vm.ok = function() {
     $uibModalInstance.close(vm);

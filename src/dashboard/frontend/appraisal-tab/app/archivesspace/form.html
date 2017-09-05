@@ -10,11 +10,11 @@
     </div>
     <div class="col-md-6 form-group">
       <label for="general-note">{{ "General note:" | translate }}</label>
-      <textarea class="form-control" id="general-note" ng-model="form.note"></textarea>
+      <textarea class="form-control" id="general-note" ng-model="form.note" ng-disabled="form.disableNotesEdit"></textarea>
     </div>
     <div class="col-md-6 form-group">
       <label for="accessrestrict-note">{{ "Conditions governing access note:" | translate }}</label>
-      <textarea class="form-control" id="accessrestrict-note" ng-model="form.accessrestrict_note"></textarea>
+      <textarea class="form-control" id="accessrestrict-note" ng-model="form.accessrestrict_note" ng-disabled="form.disableNotesEdit"></textarea>
     </div>
     <!-- Date fields are only in the form for creating a new item, not editing -->
     <div class="col-md-6 form-group" ng-if="form.start_date !== false">
