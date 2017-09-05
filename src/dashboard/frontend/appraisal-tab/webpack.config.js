@@ -10,7 +10,11 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        loader: 'babel?presets[]=es2015,plugins=transform-object-assign',
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015'],
+          plugins: ['transform-object-assign', 'transform-runtime'],
+        },
         exclude: /node_modules/,
       },
       {
