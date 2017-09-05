@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+type = PO
+
+[archivematica.appraisal-tab]
+file_filter = app/locale/translations.<lang>.po
+source_file = app/locale/extract.pot
+source_lang = en

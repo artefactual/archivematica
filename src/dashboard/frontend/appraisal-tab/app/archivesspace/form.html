@@ -1,0 +1,39 @@
+<form class="resource-form" name="resource_form">
+  <div class="row">
+    <div class="col-md-6 form-group">
+      <label for="title">{{ "Title:" | translate }}</label>
+      <input type="text" class="form-control" id="title" ng-model="form.title" ng-required="!form.date_expression &amp;&amp; !form.start_date &amp;&amp; !form.end_date"/>
+    </div>
+    <div class="col-md-6 form-group">
+      <label for="lod">{{ "Level of description:" | translate }}</label>
+      <select class="form-control" id="lod" ng-model="form.level" ng-options="level for level in form.levels" ng-required="true"></select>
+    </div>
+    <div class="col-md-6 form-group">
+      <label for="general-note">{{ "General note:" | translate }}</label>
+      <textarea class="form-control" id="general-note" ng-model="form.note" ng-disabled="form.disableNotesEdit"></textarea>
+    </div>
+    <div class="col-md-6 form-group">
+      <label for="accessrestrict-note">{{ "Conditions governing access note:" | translate }}</label>
+      <textarea class="form-control" id="accessrestrict-note" ng-model="form.accessrestrict_note" ng-disabled="form.disableNotesEdit"></textarea>
+    </div>
+    <!-- Date fields are only in the form for creating a new item, not editing -->
+    <div class="col-md-6 form-group" ng-if="form.start_date !== false">
+      <label for="start-date">{{ "Start date:" | translate }}</label>
+      <input type="text" class="form-control" id="start-date" ng-model="form.start_date" ui-validate="'form.validateDate($value)'" ng-required="!form.date_expression &amp;&amp; !form.title &amp;&amp; !form.end_date"/>
+      <p class="help-block">e.g. YYYY, YYYY-MM, or YYYY-MM-DD</p>
+    </div>
+    <div class="col-md-6 form-group" ng-if="form.end_date !== false">
+      <label for="end-date">{{ "End date:" | translate }}</label>
+      <input type="text" class="form-control" id="end-date" ng-model="form.end_date" ui-validate="'form.validateDate($value)'" ng-required="!form.date_expression &amp;&amp; !form.start_date &amp;&amp; !form.title"/>
+      <p class="help-block">e.g. YYYY, YYYY-MM, or YYYY-MM-DD</p>
+    </div>
+    <div class="col-md-12 form-group" ng-if="form.date_expression !== false">
+      <label for="expression">{{ "Date expression:" | translate }}</label>
+      <textarea class="form-control" id="expression" ng-model="form.date_expression" ng-required="!form.title &amp;&amp; !form.start_date &amp;&amp; !form.end_date"></textarea>
+    </div>
+  </div>
+  <div class="btn-group" role="group">
+    <button type="submit" class="btn btn-success" ng-click="form.ok()" ng-disabled="resource_form.$invalid">{{ "Save" | translate }}</button>
+    <button type="submit" class="btn btn-danger" ng-click="form.cancel()">{{ "Cancel" | translate }}</button>
+  </div>
+</form>

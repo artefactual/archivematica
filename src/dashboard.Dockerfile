@@ -11,10 +11,11 @@ ENV AM_GUNICORN_ERRORLOG -
 ENV FORWARDED_ALLOW_IPS *
 
 RUN set -ex \
-	&& apt-get update \
+	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
 		libmysqlclient-dev \
+		nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
 ADD archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
@@ -23,6 +24,15 @@ ADD archivematicaCommon/ /src/archivematicaCommon/
 
 ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
+
+ADD dashboard/frontend/transfer-browser/package.json /src/dashboard/frontend/transfer-browser/package.json
+ADD dashboard/frontend/transfer-browser/package-lock.json /src/dashboard/frontend/transfer-browser/package-lock.json
+RUN npm install --prefix /src/dashboard/frontend/transfer-browser
+
+ADD dashboard/frontend/appraisal-tab/package.json /src/dashboard/frontend/appraisal-tab/package.json
+ADD dashboard/frontend/appraisal-tab/package-lock.json /src/dashboard/frontend/appraisal-tab/package-lock.json
+RUN npm install --prefix /src/dashboard/frontend/appraisal-tab
+
 ADD dashboard/ /src/dashboard/
 ADD dashboard/install/dashboard.gunicorn-config.py /etc/archivematica/dashboard.gunicorn-config.py
 
