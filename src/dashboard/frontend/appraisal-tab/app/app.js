@@ -71,6 +71,19 @@ import './components/version/interpolate-filter.js';
 import './components/version/version-directive.js';
 import './components/version/version.js';
 
+// Object.entries polyfill
+if (!Object.entries) {
+  Object.entries = function (obj) {
+    var ownProps = Object.keys(obj);
+    var i = ownProps.length;
+    var resArray = new Array(i); // preallocate the Array
+    while (i--) {
+      resArray[i] = [ownProps[i], obj[ownProps[i]]];
+    }
+    return resArray;
+  };
+}
+
 // Declare app level module which depends on views, and components
 module.exports = angular.module('appraisalTab', [
   'ngRoute',
