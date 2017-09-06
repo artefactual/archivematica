@@ -7,6 +7,8 @@ import requests
 from requests.auth import AuthBase
 import urllib
 
+from django.conf import settings
+
 # archivematicaCommon
 from archivematicaFunctions import get_setting
 
@@ -215,7 +217,8 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
     try:
-        response = _storage_api_session().post(url, json=move_files)
+        timeout = settings.COPY_FILES_TIMEOUT
+        response = _storage_api_session(timeout).post(url, json=move_files)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)

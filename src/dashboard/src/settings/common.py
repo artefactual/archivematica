@@ -33,6 +33,7 @@ CONFIG_MAPPING = {
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
+    'copy_files_timeout': {'section': 'Dashboard', 'option': 'copy_files_timeout', 'type': 'int'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -51,6 +52,7 @@ elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
+copy_files_timeout = 300
 # django_allowed_hosts = ... Mandatory!
 # django_secret_key = ... Mandatory!
 
@@ -394,6 +396,8 @@ ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 
 ALLOW_USER_EDITS = True
+
+COPY_FILES_TIMEOUT = config.get('copy_files_timeout')
 
 SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
 if SHIBBOLETH_AUTHENTICATION:
