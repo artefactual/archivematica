@@ -80,6 +80,9 @@ ADD MCPClient/requirements/ /src/MCPClient/requirements/
 RUN pip install -r /src/MCPClient/requirements/production.txt -r /src/MCPClient/requirements/dev.txt
 ADD MCPClient/ /src/MCPClient/
 
+# Workaround for https://github.com/artefactual/archivematica-fpr-admin/issues/49
+ADD archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
+
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
 	&& useradd --uid 333 --gid 333 --system archivematica
