@@ -108,7 +108,7 @@ def main(fileUUID, target, date):
     else:
         record_event(fileUUID, version, date, outcome='Fail')
         logger.info('Clamd state=%s - %s', state, details)
-
+        return 1
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
