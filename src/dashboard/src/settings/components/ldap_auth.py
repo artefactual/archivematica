@@ -1,7 +1,6 @@
 import os
 
 import ldap
-import django_auth_ldap
 from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
 
 
