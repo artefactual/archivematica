@@ -46,7 +46,6 @@ RUN set -ex \
 		siegfried \
 		sleuthkit \
 		tesseract-ocr \
-		tika \
 		tree \
 		ufraw \
 		unrar-free \
@@ -68,17 +67,16 @@ RUN set -ex \
 		libxslt-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
-ADD archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
+COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
+COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
+COPY MCPClient/requirements/ /src/MCPClient/requirements/
 RUN pip install -r /src/archivematicaCommon/requirements/production.txt -r /src/archivematicaCommon/requirements/dev.txt
-ADD archivematicaCommon/ /src/archivematicaCommon/
-
-ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
-ADD dashboard/ /src/dashboard/
-
-ADD MCPClient/requirements/ /src/MCPClient/requirements/
 RUN pip install -r /src/MCPClient/requirements/production.txt -r /src/MCPClient/requirements/dev.txt
-ADD MCPClient/ /src/MCPClient/
+
+COPY archivematicaCommon/ /src/archivematicaCommon/
+COPY dashboard/ /src/dashboard/
+COPY MCPClient/ /src/MCPClient/
 
 # Workaround for https://github.com/artefactual/archivematica-fpr-admin/issues/49
 ADD archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
