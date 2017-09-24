@@ -32,6 +32,7 @@ from archivematicaFunctions import unicodeToStr
 
 VERSION = "1.10." + "$Id$".split(" ")[1]
 valid = "-_.()" + string.ascii_letters + string.digits
+not_valid = ":"
 replacementChar = "_"
 
 
@@ -48,7 +49,7 @@ def sanitizeName(basename):
     ret = ""
     basename = transliterate(basename)
     for c in basename:
-        if c in valid:
+        if (c in valid and c not in not_valid):
             ret += c
         else:
             ret += replacementChar
