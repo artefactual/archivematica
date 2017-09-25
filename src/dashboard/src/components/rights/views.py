@@ -537,13 +537,7 @@ def rights_holders_lookup(request, id):
 
 
 def rights_holders_autocomplete(request):
-
-    search_text = ''
-
-    try:
-        search_text = request.REQUEST['text']
-    except Exception:
-        pass
+    search_text = request.GET.get('text', '')
 
     response = {}
 

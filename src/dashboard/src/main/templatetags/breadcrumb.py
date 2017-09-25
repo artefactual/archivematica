@@ -18,7 +18,7 @@ import logging
 
 from django.template import Node, Variable, Library
 from django.utils.encoding import smart_unicode
-from django.templatetags.future import url
+from django.template.defaulttags import url
 from django.template import VariableDoesNotExist
 
 logger = logging.getLogger('archivematica.dashboard')
