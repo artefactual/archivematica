@@ -1,4 +1,4 @@
-git+git://github.com/artefactual-labs/ammcpc@v0.1.1#egg=ammcpc
+git+https://github.com/artefactual-labs/ammcpc@v0.1.1#egg=ammcpc
 bagit==1.5.2
 clamd==1.0.2
 Django>=1.8,<1.9
