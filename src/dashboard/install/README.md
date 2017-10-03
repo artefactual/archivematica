@@ -12,21 +12,21 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All 
+Archivematica components can be configured using multipe methods.  All
 components follow the same pattern:
 
-1. **Environment variables** - setting a configuration parameter with an 
+1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
-1. **Configuration file** - if the parameter is not set by an environment 
+1. **Configuration file** - if the parameter is not set by an environment
    variable, the component will look for a setting in its default configuration file.
-1. **Application defaults**  - if the parameter is not set in an environment 
+1. **Application defaults**  - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
 Logging behaviour is configured differently, and provides two methods:
 
 1. **`logging.json` file** - if a JSON file is present in the default location,
     the contents of the JSON file will control the components logging behaviour.
-1. **Application default** - if no JSON file is present, the default logging 
+1. **Application default** - if no JSON file is present, the default logging
    behaviour is to write to standard streams (standard out and standard error).
 
 Dashboard specific details are provided below.
@@ -57,7 +57,7 @@ The Dashboard will look for a configuration file in one location:
 
 - `/etc/archivematica/archivematicaCommon/dbsettings`
 
-Traditionally, the dbsettings file was used to hold mysql login credentials, 
+Traditionally, the dbsettings file was used to hold mysql login credentials,
 which are then shared with other Archivematica components like MCPClient.
 Non-database parameters can be set in the dbsets,tings file, to override the
 application defaults.
@@ -65,7 +65,7 @@ application defaults.
 The dashboard is a [WSGI](https://wsgi.readthedocs.io/) application. The
 default configuration uses gunicorn as an application server together with
 nginx as an http server.  The dashboard is then typically run by a service
-manager such as systemd, although it can be run by other systems such as 
+manager such as systemd, although it can be run by other systems such as
 upstart or docker instead.
 
 This directory contains example configuration files for these services:
@@ -78,21 +78,21 @@ This directory contains example configuration files for these services:
 location for this file is `/etc/nginx/sites-available/dashboard.conf`.
 
 - [`archivematica-dashboard.service`](./archivematica-dashboard.service) -
-  systemd config sample.  The default location for this file is 
+  systemd config sample.  The default location for this file is
   `/etc/systemd/system/archivematica-dashboard.service`.
 
 - [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) - upstart
    config sample, for use on Ubuntu 14.04 where systemd is not available. The
    default location for this file is /etc/init/archivematica-dashboard.conf.
 
-These are fairly basic example files, that can be extended or customised to 
+These are fairly basic example files, that can be extended or customised to
 meet local needs.  Depending on the method used to install your Archivematica
 instance, the contents of your files may differ from these examples.
 
 ## Parameter list
 
-This is the full list of variables supported by the Dashboard.  
-The first section lists application variables that can be set as environment 
+This is the full list of variables supported by the Dashboard.
+The first section lists application variables that can be set as environment
 variables or in the dbsettings file.
 The second section lists gunicorn variable that can be set as environment
 variables or in the gunicorn configuration file.
@@ -213,6 +213,91 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `0`
 
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_BACKEND`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.backend`
+    - **Type:** `string`
+    - **Default:** `django.core.mail.backends.console.EmailBackend`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host`
+    - **Type:** `string`
+    - **Default:** `smtp.gmail.com`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_USER`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host_user`
+    - **Type:** `string`
+    - **Default:** `your_email@example.com`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_PASSWORD`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host_password`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_PORT`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.port`
+    - **Type:** `integer`
+    - **Default:** `587`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_CERTFILE`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.ssl_certfile`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_KEYFILE`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.ssl_keyfile`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_USE_SSL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.use_ssl`
+    - **Type:** `boolean`
+    - **Default:** `False`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_USE_TLS`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.use_tls`
+    - **Type:** `boolean`
+    - **Default:** `True`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_FILE_PATH`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.file_path`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_DEFAULT_FROM_EMAIL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.default_from_email`
+    - **Type:** `string`
+    - **Default:** `webmaster@example.com`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SUBJECT_PREFIX`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.subject_prefix`
+    - **Type:** `string`
+    - **Default:** `[Archivematica]`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_TIMEOUT`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.timeout`
+    - **Type:** `integer`
+    - **Default:** `300`
+
+- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SERVER_EMAIL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details. When the value is `None`, Archivematica uses the value in `EMAIL_HOST_USER`.
+    - **Config file example:** `email.server_email`
+    - **Type:** `string`
+    - **Default:** `None`
+
+
 ### Gunicorn variables
 
 - **`AM_GUNICORN_USER`**:
@@ -232,7 +317,7 @@ variables or in the gunicorn configuration file.
 
 - **`AM_GUNICORN_WORKERS`**:
     - **Description:** Number of gunicorn worker processes to run.  See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers)
-    - **Type:** `integer` 
+    - **Type:** `integer`
     - **Default:** `1`
 
 - **`AM_GUNICORN_WORKER_CLASS`**:

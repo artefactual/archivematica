@@ -26,6 +26,7 @@ import os
 from django.utils.translation import ugettext_lazy as _
 
 from appconfig import Config
+import email_settings
 
 CONFIG_MAPPING = {
     # [Dashboard]
@@ -57,6 +58,8 @@ CONFIG_MAPPING = {
     'db_conn_max_age': {'section': 'client', 'option': 'conn_max_age', 'type': 'float'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
 CONFIG_DEFAULTS = """[Dashboard]
 shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
@@ -77,6 +80,22 @@ database = MCP
 port = 3306
 engine = django.db.backends.mysql
 conn_max_age = 0
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
@@ -291,12 +310,6 @@ INSTALLED_APPS = [
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# For configuration option details see:
-# https://docs.djangoproject.com/en/1.8/ref/settings/#email-backend
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = '127.0.0.1'
-EMAIL_TIMEOUT = 15
-
 # Configure logging manually
 LOGGING_CONFIG = None
 
@@ -468,3 +481,6 @@ if LDAP_AUTHENTICATION:
         'components.accounts.backends.CustomLDAPBackend',
     ]
     from .components.ldap_auth import *  # noqa
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))

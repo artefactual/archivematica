@@ -22,6 +22,7 @@ import logging.config
 import os
 
 from appconfig import Config
+import email_settings
 
 
 CONFIG_MAPPING = {
@@ -68,6 +69,8 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
 CONFIG_DEFAULTS = """[MCPClient]
 MCPArchivematicaServer = localhost:4730
 sharedDirectoryMounted = /var/archivematica/sharedDirectory/
@@ -102,6 +105,22 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
@@ -214,3 +233,7 @@ AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
 CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
 DEFAULT_CHECKSUM_ALGORITHM = 'sha256'
+
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))

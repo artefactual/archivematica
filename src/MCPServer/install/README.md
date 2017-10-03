@@ -10,21 +10,21 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All 
+Archivematica components can be configured using multipe methods.  All
 components follow the same pattern:
 
-1. **Environment variables** - setting a configuration parameter with an 
+1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
-1. **Configuration file** - if the parameter is not set by an environment 
+1. **Configuration file** - if the parameter is not set by an environment
    variable, the component will look for a setting in its default configuration file.
-1. **Application defaults**  - if the parameter is not set in an environment 
+1. **Application defaults**  - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
 Logging behaviour is configured differently, and provides two methods:
 
 1. **`logging.json` file** - if a JSON file is present in the default location,
     the contents of the JSON file will control the components logging behaviour.
-1. **Application default** - if no JSON file is present, the default logging 
+1. **Application default** - if no JSON file is present, the default logging
    behaviour is to write to standard streams (standard out and standard error).
 
 MCPServer specific details are provided below.
@@ -51,17 +51,17 @@ of these settings or provide values to mandatory fields.
 
 ## Configuration file
 
-There is an example configuration file for MCPServer included in the source 
+There is an example configuration file for MCPServer included in the source
 code: (see [`the example`](./serverConfig.conf))
 
 MCPClient will look for a configuration file in one of two locations:
 
-- `/etc/archivematica/archivematicaCommon/dbsettings` 
-- `/etc/archivematica/MCPServer/serverConfig.conf` 
+- `/etc/archivematica/archivematicaCommon/dbsettings`
+- `/etc/archivematica/MCPServer/serverConfig.conf`
 
-Traditionally, the dbsettings file was used to hold mysql login credentials, 
-which are then shared with other Archivematica components like MCPClient.  
-Database credentials can be set in the serverConfig.conf file instead, or 
+Traditionally, the dbsettings file was used to hold mysql login credentials,
+which are then shared with other Archivematica components like MCPClient.
+Database credentials can be set in the serverConfig.conf file instead, or
 non-database parameters could be set in the dbsettings file.
 
 ## Parameter list
@@ -187,6 +187,90 @@ This is the full list of variables supported by MCPServer:
     - **Config file example:** `client.port`
     - **Type:** `string`
     - **Default:** `3306`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_BACKEND`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.backend`
+    - **Type:** `string`
+    - **Default:** `django.core.mail.backends.console.EmailBackend`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_HOST`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host`
+    - **Type:** `string`
+    - **Default:** `smtp.gmail.com`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_HOST_USER`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host_user`
+    - **Type:** `string`
+    - **Default:** `your_email@example.com`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_HOST_PASSWORD`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.host_password`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_PORT`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.port`
+    - **Type:** `integer`
+    - **Default:** `587`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_SSL_CERTFILE`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.ssl_certfile`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_SSL_KEYFILE`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.ssl_keyfile`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_USE_SSL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.use_ssl`
+    - **Type:** `boolean`
+    - **Default:** `False`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_USE_TLS`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.use_tls`
+    - **Type:** `boolean`
+    - **Default:** `True`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_FILE_PATH`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.file_path`
+    - **Type:** `string`
+    - **Default:** `None`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_DEFAULT_FROM_EMAIL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.default_from_email`
+    - **Type:** `string`
+    - **Default:** `webmaster@example.com`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_SUBJECT_PREFIX`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.subject_prefix`
+    - **Type:** `string`
+    - **Default:** `[Archivematica]`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_TIMEOUT`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
+    - **Config file example:** `email.timeout`
+    - **Type:** `integer`
+    - **Default:** `300`
+
+- ** `ARCHIVEMATICA_MCPSERVER_EMAIL_SERVER_EMAIL`**:
+    - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details. When the value is `None`, Archivematica uses the value in `EMAIL_HOST_USER`.
+    - **Config file example:** `email.server_email`
+    - **Type:** `string`
+    - **Default:** `None`
 
 ## Logging configuration
 
