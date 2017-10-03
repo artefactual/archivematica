@@ -23,7 +23,6 @@
 from __future__ import print_function
 from annoying.functions import get_object_or_None
 import argparse
-import logging
 import os
 import sys
 from uuid import uuid4
@@ -36,6 +35,23 @@ from main.models import UnitVariable
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import storageService as storage_service
+
+
+LOGGER = get_script_logger("archivematica.mcp.client.storeAIP")
+
+
+def get_upload_dip_path(aip_path):
+    """Replace uploadedDIPs/ dirname in ``aip_path`` with uploadDIP/."""
+    new_aip_path = []
+    aip_path_parts = os.path.normpath(aip_path).split(os.path.sep)
+    uploaded_dips_found = False
+    for part in aip_path_parts:
+        if not uploaded_dips_found and part == 'uploadedDIPs':
+            uploaded_dips_found = True
+            new_aip_path.append('uploadDIP')
+        else:
+            new_aip_path.append(part)
+    return os.path.sep + os.path.join(*new_aip_path)
 
 
 def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
@@ -59,6 +75,12 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
+
+    # If ``aip_path`` does not exist, this may be a DIP that was not uploaded.
+    # In that case, it will be in the uploadDIP/ directory instead of the
+    # uploadedDIPs/ directory.
+    if not os.path.exists(aip_path):
+        aip_path = get_upload_dip_path(aip_path)
 
     # Make aip_path relative to the Location
     shared_path = os.path.join(current_location['path'], '')  # Ensure ends with /
@@ -128,13 +150,13 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
 
     if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Storage service created {}: {}".format(sip_type, new_file)
-        logging.info(message)
+        LOGGER.info(message)
         print(message)
         sys.exit(0)
     else:
         print("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
         print(error_msg or "Package status: Failed", file=sys.stderr)
-        logging.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
+        LOGGER.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
         sys.exit(1)
 
     # FIXME this should be moved to the storage service and areas that rely
@@ -155,7 +177,6 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
     parser = argparse.ArgumentParser(description='Create AIP pointer file.')
     parser.add_argument('aip_destination_uri', type=str, help='%AIPsStore%')
