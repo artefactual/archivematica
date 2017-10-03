@@ -18,6 +18,7 @@
 import StringIO
 
 from appconfig import Config
+import email_settings
 
 
 CONFIG_MAPPING = {
@@ -48,6 +49,7 @@ CONFIG_MAPPING = {
     'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'int'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
 
 CONFIG_DEFAULTS = """[MCPServer]
 MCPArchivematicaServer = localhost:4730
@@ -74,6 +76,23 @@ database = MCP
 max_overflow = 40
 port = 3306
 engine = django_mysqlpool.backends.mysqlpool
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+amazon_ses_region = us-east-1
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 
@@ -150,3 +169,6 @@ LIMIT_TASK_THREADS = config.get('limit_task_threads')
 LIMIT_TASK_THREADS_SLEEP = config.get('limit_task_threads_sleep')
 LIMIT_GEARMAN_CONNS = config.get('limit_gearman_conns')
 RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_threads')
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))

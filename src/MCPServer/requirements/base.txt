@@ -1,4 +1,5 @@
 Django>=1.8,<1.9
+django-amazon-ses==0.3.0
 django-mysqlpool==0.1-9
 django-extensions==1.1.1
 mysqlclient==1.3.7
