@@ -34,6 +34,7 @@ from main.models import Event
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
+from archivematicaFunctions import cmd_line_arg_to_unicode
 
 from django.conf import settings as mcpclient_settings
 from clamd import ClamdUnixSocket, ClamdNetworkSocket, ClamdError
@@ -113,7 +114,6 @@ def main(fileUUID, target, date):
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
-    target = sys.argv[2]
+    target = cmd_line_arg_to_unicode(sys.argv[2])
     date = sys.argv[3]
-
     sys.exit(main(fileUUID, target, date))
