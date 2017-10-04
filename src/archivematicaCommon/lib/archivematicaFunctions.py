@@ -24,6 +24,7 @@
 from __future__ import print_function
 import collections
 import hashlib
+import locale
 import os
 import re
 
@@ -91,6 +92,24 @@ def strToUnicode(string, obstinate=False):
             else:
                 raise
     return string
+
+
+def get_locale_encoding():
+    try:
+        return locale.getdefaultlocale()[1]
+    except IndexError:
+        return 'UTF-8'
+
+
+def cmd_line_arg_to_unicode(cmd_line_arg):
+    """Decode a command-line argument (bytestring, type ``str``) to Unicode
+    (type ``unicode``) by decoding it using the default system encoding (if
+    retrievable) or UTF-8 otherwise.
+    """
+    try:
+        return cmd_line_arg.decode(get_locale_encoding())
+    except (LookupError, UnicodeDecodeError):
+        return cmd_line_arg
 
 
 def getTagged(root, tag):
