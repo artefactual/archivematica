@@ -33,6 +33,9 @@ CONFIG_MAPPING = {
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
+    'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
+    'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -55,6 +58,9 @@ elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
+storage_service_client_timeout = 86400
+agentarchives_client_timeout = 300
+fpr_client_timeout = 60
 
 [client]
 user = archivematica
@@ -366,6 +372,7 @@ UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = True
+FPR_CLIENT_TIMEOUT = config.get('fpr_client_timeout')
 
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
@@ -390,6 +397,8 @@ SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 
 # Only required in production.py
 ALLOWED_HOSTS = ["*"]

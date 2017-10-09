@@ -42,13 +42,11 @@ from clamd import ClamdUnixSocket, ClamdNetworkSocket, ClamdError
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
-DEFAULT_TIMEOUT = 10
-
 
 def get_client(addr):
     if ':' in addr:
         host, port = addr.split(':')
-        return ClamdNetworkSocket(host=host, port=int(port), timeout=DEFAULT_TIMEOUT)
+        return ClamdNetworkSocket(host=host, port=int(port), timeout=mcpclient_settings.CLAMAV_CLIENT_TIMEOUT)
     return ClamdUnixSocket(path=addr)
 
 
