@@ -49,7 +49,8 @@ def test_dashboardsetting_get_dict():
 
     assert isinstance(ret, dict)
     assert len(ret) == len(data)
-    assert ret.keys() == [u'url', u'key']
+    assert u'url' in ret.keys()
+    assert u'key' in ret.keys()
     assert ret['url'] == unicode(data['url'])
     assert ret['key'] == unicode(data['key'])
 
