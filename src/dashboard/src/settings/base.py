@@ -353,7 +353,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
     r'^api',
-    r'^administration/accounts/logged-out',
 ]
 # Django debug toolbar
 try:
@@ -414,7 +413,6 @@ ALLOW_USER_EDITS = True
 SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
 if SHIBBOLETH_AUTHENTICATION:
     SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
-    SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
 
     SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
     SHIBBOLETH_ATTRIBUTE_MAP = {

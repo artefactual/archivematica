@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'(?P<id>\d+)/edit/$', views.edit),
     url(r'profile/$', views.profile, name='profile'),
     url(r'list/$', views.list),
-    url(r'logged-out', views.logged_out, name='logged-out'),
 ]
 
 urlpatterns += [
