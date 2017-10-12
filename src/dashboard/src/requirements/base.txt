@@ -24,7 +24,7 @@ pyopenssl
 python-dateutil==2.6.0
 ndg-httpsclient
 pyasn1
-requests==2.7.0
+requests==2.18.4
 whitenoise==3.3.0
 git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
 
