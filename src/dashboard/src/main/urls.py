@@ -47,6 +47,14 @@ urlpatterns = [
 ]
 
 if 'shibboleth' in settings.INSTALLED_APPS:
+    # Simulate a shibboleth urls module (so our custom Shibboleth logout view
+    # matches the same namespaced URL name as the standard logout view from
+    # the shibboleth lib)
+    class shibboleth_urls:
+        urlpatterns = [
+            url(r'^logout/$', views.CustomShibbolethLogoutView.as_view(), name='logout'),
+        ]
+
     urlpatterns += [
-        url(r'^shib/', include('shibboleth.urls', namespace='shibboleth')),
+        url(r'^shib/', include(shibboleth_urls, namespace='shibboleth')),
     ]
