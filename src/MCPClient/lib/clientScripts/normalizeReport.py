@@ -5,7 +5,6 @@ from __future__ import print_function
 from argparse import ArgumentParser
 import logging
 import os.path
-from smtplib import SMTPException
 import sys
 
 import django
@@ -159,7 +158,7 @@ def report(uuid):
             from_email='Archivematica <ArchivematicaSystem@archivematica.org>',
             recipient_list=recipient_list,
         )
-    except (SMTPException):
+    except:
         logger.exception('Report email was not delivered')
         return 1
     else:

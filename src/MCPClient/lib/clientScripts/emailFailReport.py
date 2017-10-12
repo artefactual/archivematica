@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -17,29 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
-
 from __future__ import print_function
-import smtplib
-import sys
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+
 import argparse
 from lxml import etree
+import sys
 
 import django
-django.setup()
-# dashboard
-from django.db import connection
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.db import connection
+
 from main.models import Job, Report
 
-# archivematicaCommon
 from custom_handlers import get_script_logger
 from externals.HTML import HTML
 
+
+django.setup()
 
 logger = get_script_logger('archivematica.mcp.client.emailFailReport')
 
@@ -54,25 +49,21 @@ def get_emails_from_dashboard_users():
     return User.objects.filter(is_active=True).values_list('email', flat=True).exclude(email__in=['demo@example.com', ''])
 
 
-def send_email(subject, to, efrom, content, server):
-    logger.info('Sending report by email (to=%s, server=%s)', to, server)
-    to2 = ", ".join(to)
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = subject
-    msg['From'] = efrom
-    msg['To'] = to2
-
-    part1 = MIMEText(content, 'html')
-
-    msg.attach(part1)
-
+def send_email(subject, to, efrom, content):
     try:
-        server = smtplib.SMTP(server)
-        server.sendmail(efrom, to, msg.as_string())
-    except (smtplib.SMTPException):
+        logger.info('Sending email...')
+        return send_mail(
+            subject=subject,
+            message='Please see the attached HTML document',
+            html_message=content,
+            from_email=efrom,
+            recipient_list=to,
+        )
+    except:
         logger.exception('Report email was not delivered')
-    finally:
-        server.quit()
+        raise
+    else:
+        logger.info('Report sent successfully!')
 
 
 def get_file_stats(cursor, unit_type, unit_uuid):
@@ -196,7 +187,6 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--unitType', action='store', dest='unit_type', required=True)
     parser.add_argument('-i', '--unitIdentifier', action='store', dest='unit_uuid', required=True)
     parser.add_argument('-n', '--unitName', action='store', dest='unit_name', default='')
-    parser.add_argument('-s', '--server', action='store', dest='server', default='localhost')
     parser.add_argument('-f', '--from', action='store', dest='from', default='ArchivematicaSystem@archivematica.org')
     parser.add_argument('--stdout', action='store_true', dest='stdout', default=False)
     args = parser.parse_args()
@@ -210,7 +200,7 @@ if __name__ == '__main__':
 
     # Generate report in HTML and send it by email
     content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
-    send_email(subject, to, efrom, content, args.server)
+    send_email(subject, to, efrom, content)
 
     if args.stdout:
         print(content)
