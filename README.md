@@ -1,3 +1,5 @@
+[![Travis CI](https://travis-ci.org/artefactual/archivematica.svg?branch=qa/1.x)](https://travis-ci.org/artefactual/archivematica)
+
 # [Archivematica](https://www.archivematica.org/)
 
 By [Artefactual](https://www.artefactual.com/)
