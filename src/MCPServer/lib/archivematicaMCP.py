@@ -60,9 +60,8 @@ from unitTransfer import unitTransfer
 from utils import isUUID
 import RPCServer
 
-from django_mysqlpool import auto_close_db
-import databaseFunctions
 from archivematicaFunctions import unicodeToStr
+from databaseFunctions import auto_close_db, createSIP, getUTCDate
 import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
@@ -394,7 +393,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         # Note that if UUID is None here, a new UUID will be generated
         # and returned by the function; otherwise it returns the
         # value that was passed in.
-        UUID = databaseFunctions.createSIP(path, UUID=UUID)
+        UUID = createSIP(path, UUID=UUID)
         logger.info('Creating SIP %s at %s', UUID, path)
     else:
         current_path = sip.currentpath
@@ -512,7 +511,7 @@ def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
     while True:
-        logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
+        logger.debug('Debug monitor: datetime: %s', getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         time.sleep(3600)

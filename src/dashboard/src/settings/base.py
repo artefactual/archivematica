@@ -48,7 +48,7 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
+    'db_conn_max_age': {'section': 'client', 'option': 'conn_max_age', 'type': 'float'},
 }
 
 CONFIG_DEFAULTS = """[Dashboard]
@@ -67,9 +67,9 @@ user = archivematica
 password = demo
 host = localhost
 database = MCP
-max_overflow = 40
 port = 3306
-engine = django_mysqlpool.backends.mysqlpool
+engine = django.db.backends.mysql
+conn_max_age = 0
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
@@ -105,6 +105,11 @@ DATABASES = {
         'PASSWORD': config.get('db_password'),
         'HOST': config.get('db_host'),
         'PORT': config.get('db_port'),
+
+        # If the web server uses greenlets (e.g. gevent) it is not safe to give
+        # CONN_MAX_AGE a value different than 0 - unless you're using a
+        # thread-safe connection pool. More here: https://git.io/vd9qq.
+        'CONN_MAX_AGE': config.get('db_conn_max_age'),
     }
 }
 

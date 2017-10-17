@@ -34,7 +34,7 @@ from utils import log_exceptions
 from django.conf import settings as django_settings
 from django.utils import timezone
 
-from django_mysqlpool import auto_close_db
+from databaseFunctions import auto_close_db
 from fileOperations import writeToFile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
