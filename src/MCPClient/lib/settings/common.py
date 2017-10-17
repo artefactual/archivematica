@@ -51,7 +51,6 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
 }
 
 CONFIG_DEFAULTS = """[MCPClient]
@@ -81,9 +80,8 @@ user = archivematica
 password = demo
 host = localhost
 database = MCP
-max_overflow = 40
 port = 3306
-engine = django_mysqlpool.backends.mysqlpool
+engine = django.db.backends.mysql
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
@@ -102,16 +100,14 @@ DATABASES = {
         'PASSWORD': config.get('db_password'),
         'HOST': config.get('db_host'),
         'PORT': config.get('db_port'),
+
+        # Recycling connections in MCPClient is not an option because this is
+        # a threaded application. We need a connection pool but we don't have
+        # one we can rely on at the moment - django_mysqlpool does not support
+        # Py3 and seems abandoned.
+        'CONN_MAX_AGE': 0,
     }
 }
-
-MYSQLPOOL_BACKEND = 'QueuePool'
-MYSQLPOOL_ARGUMENTS = {
-    'use_threadlocal': False,
-    'max_overflow': config.get('db_pool_max_overflow'),
-}
-
-CONN_MAX_AGE = 14400
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
