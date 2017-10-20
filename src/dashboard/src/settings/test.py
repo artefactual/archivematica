@@ -21,6 +21,9 @@
 
 from __future__ import absolute_import
 
+import ldap
+from django_auth_ldap.config import LDAPSearch
+
 from .base import *
 
 
@@ -61,3 +64,15 @@ LOGGING = {
 STATICFILES_STORAGE = None
 if MIDDLEWARE_CLASSES[0] == 'whitenoise.middleware.WhiteNoiseMiddleware':
     del MIDDLEWARE_CLASSES[0]
+
+
+# Special testing setup for LDAP tests in test_ldap.py
+# (since override_settings would take effect too late)
+AUTH_LDAP_SERVER_URI = 'ldap://localhost/'
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    'ou=example,o=test',
+    ldap.SCOPE_SUBTREE,
+    '(cn=%(user)s)'
+)
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {}
+AUTH_LDAP_USERNAME_SUFFIX = '_ldap'

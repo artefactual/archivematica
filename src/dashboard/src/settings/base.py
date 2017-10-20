@@ -33,6 +33,7 @@ CONFIG_MAPPING = {
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
+    'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
     'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
     'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
@@ -58,6 +59,7 @@ elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
+ldap_authentication = False
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
 fpr_client_timeout = 60
@@ -417,24 +419,8 @@ ALLOW_USER_EDITS = True
 
 SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
 if SHIBBOLETH_AUTHENTICATION:
-    SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
-
-    SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
-    SHIBBOLETH_ATTRIBUTE_MAP = {
-        # Automatic user fields
-        'HTTP_GIVENNAME': (False, 'first_name'),
-        'HTTP_SN': (False, 'last_name'),
-        'HTTP_MAIL': (False, 'email'),
-        # Entitlement field (which we handle manually)
-        'HTTP_ENTITLEMENT': (True, 'entitlement'),
-    }
-
-    TEMPLATES[0]['OPTIONS']['context_processors'] += [
-        'shibboleth.context_processors.logout_link',
-    ]
-
-    # If the user has this entitlement, they will be a superuser/admin
-    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
+    ALLOW_USER_EDITS = False
+    INSTALLED_APPS += ['shibboleth']
 
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomShibbolethRemoteUserBackend',
@@ -448,6 +434,18 @@ if SHIBBOLETH_AUTHENTICATION:
         'middleware.common.CustomShibbolethRemoteUserMiddleware',
     )
 
-    INSTALLED_APPS += ['shibboleth']
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'shibboleth.context_processors.logout_link',
+    ]
 
+    from .components.shibboleth_auth import *  # noqa
+
+
+LDAP_AUTHENTICATION = config.get('ldap_authentication')
+if LDAP_AUTHENTICATION:
     ALLOW_USER_EDITS = False
+
+    AUTHENTICATION_BACKENDS += [
+        'components.accounts.backends.CustomLDAPBackend',
+    ]
+    from .components.ldap_auth import *  # noqa

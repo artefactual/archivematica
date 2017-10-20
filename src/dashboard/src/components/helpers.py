@@ -366,9 +366,6 @@ def generate_api_key(user):
     """
     Generate API key for a user
     """
-    try:
-        api_key = ApiKey.objects.get(user_id=user.pk)
-    except ApiKey.DoesNotExist:
-        api_key = ApiKey.objects.create(user=user)
+    api_key, _ = ApiKey.objects.get_or_create(user=user)
     api_key.key = api_key.generate_key()
     api_key.save()
