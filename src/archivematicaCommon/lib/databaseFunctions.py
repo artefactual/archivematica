@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
 
+from functools import wraps
 import logging
 import os
 import string
@@ -30,11 +31,23 @@ import uuid
 
 from archivematicaFunctions import strToUnicode
 
+from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.common')
+
+
+def auto_close_db(f):
+    """Decorator to ensure the db connection is closed when the function returns."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        finally:
+            close_old_connections()
+    return wrapper
 
 
 def getUTCDate():

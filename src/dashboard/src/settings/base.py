@@ -34,6 +34,9 @@ CONFIG_MAPPING = {
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
+    'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
+    'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -46,7 +49,7 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'string'},
+    'db_conn_max_age': {'section': 'client', 'option': 'conn_max_age', 'type': 'float'},
 }
 
 CONFIG_DEFAULTS = """[Dashboard]
@@ -57,15 +60,18 @@ elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 ldap_authentication = False
+storage_service_client_timeout = 86400
+agentarchives_client_timeout = 300
+fpr_client_timeout = 60
 
 [client]
 user = archivematica
 password = demo
 host = localhost
 database = MCP
-max_overflow = 40
 port = 3306
-engine = django_mysqlpool.backends.mysqlpool
+engine = django.db.backends.mysql
+conn_max_age = 0
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
@@ -101,6 +107,11 @@ DATABASES = {
         'PASSWORD': config.get('db_password'),
         'HOST': config.get('db_host'),
         'PORT': config.get('db_port'),
+
+        # If the web server uses greenlets (e.g. gevent) it is not safe to give
+        # CONN_MAX_AGE a value different than 0 - unless you're using a
+        # thread-safe connection pool. More here: https://git.io/vd9qq.
+        'CONN_MAX_AGE': config.get('db_conn_max_age'),
     }
 }
 
@@ -216,7 +227,12 @@ MIDDLEWARE_CLASSES = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    # Automatic language selection is disabled.
+    # See #723 for more details.
+    'middleware.locale.ForceDefaultLanguageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -344,7 +360,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
     r'^api',
-    r'^administration/accounts/logged-out',
 ]
 # Django debug toolbar
 try:
@@ -368,6 +383,7 @@ UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = True
+FPR_CLIENT_TIMEOUT = config.get('fpr_client_timeout')
 
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
@@ -392,6 +408,8 @@ SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 
 # Only required in production.py
 ALLOWED_HOSTS = ["*"]

@@ -214,7 +214,7 @@ def get_atom_levels_of_description(clear=True):
 
     # taxonomy 34 is "level of description"
     dest = urljoin(url, 'api/taxonomies/34')
-    response = requests.get(dest, params={'culture': 'en'}, auth=auth, timeout=120)
+    response = requests.get(dest, params={'culture': 'en'}, auth=auth, timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
     if response.status_code == 200:
         base = 1
         if clear:
@@ -307,7 +307,7 @@ def processing_config_path():
 
 
 def stream_file_from_storage_service(url, error_message='Remote URL returned {}'):
-    stream = requests.get(url, stream=True, timeout=120)
+    stream = requests.get(url, stream=True, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
     if stream.status_code == 200:
         content_type = stream.headers.get('content-type', 'text/plain')
         content_disposition = stream.headers.get('content-disposition')

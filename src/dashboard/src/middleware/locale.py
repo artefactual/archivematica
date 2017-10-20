@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -15,20 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
-import django.contrib.auth.views
-from components.accounts import views
 
-urlpatterns = [
-    url(r'^$', views.list),
-    url(r'add/$', views.add),
-    url(r'(?P<id>\d+)/delete/$', views.delete),
-    url(r'(?P<id>\d+)/edit/$', views.edit),
-    url(r'profile/$', views.profile, name='profile'),
-    url(r'list/$', views.list),
-]
+class ForceDefaultLanguageMiddleware(object):
+    """
+    Ignore Accept-Language HTTP headers
 
-urlpatterns += [
-    url(r'login/$', django.contrib.auth.views.login, {'template_name': 'accounts/login.html'}),
-    url(r'logout/$', django.contrib.auth.views.logout_then_login)
-]
+    This will force the I18N machinery to always choose settings.LANGUAGE_CODE
+    as the default initial language, unless another one is set via sessions or
+    cookies.
+
+    Should be installed *before* any middleware that checks
+    request.META['HTTP_ACCEPT_LANGUAGE'], namely
+    django.middleware.locale.LocaleMiddleware.
+    """
+
+    def process_request(self, request):
+        if 'HTTP_ACCEPT_LANGUAGE' in request.META:
+            del request.META['HTTP_ACCEPT_LANGUAGE']

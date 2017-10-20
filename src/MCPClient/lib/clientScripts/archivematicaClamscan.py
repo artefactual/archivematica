@@ -34,6 +34,7 @@ from main.models import Event
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
+from archivematicaFunctions import cmd_line_arg_to_unicode
 
 from django.conf import settings as mcpclient_settings
 from clamd import ClamdUnixSocket, ClamdNetworkSocket, ClamdError
@@ -41,13 +42,11 @@ from clamd import ClamdUnixSocket, ClamdNetworkSocket, ClamdError
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
-DEFAULT_TIMEOUT = 10
-
 
 def get_client(addr):
     if ':' in addr:
         host, port = addr.split(':')
-        return ClamdNetworkSocket(host=host, port=int(port), timeout=DEFAULT_TIMEOUT)
+        return ClamdNetworkSocket(host=host, port=int(port), timeout=mcpclient_settings.CLAMAV_CLIENT_TIMEOUT)
     return ClamdUnixSocket(path=addr)
 
 
@@ -108,11 +107,11 @@ def main(fileUUID, target, date):
     else:
         record_event(fileUUID, version, date, outcome='Fail')
         logger.info('Clamd state=%s - %s', state, details)
+        return 1
 
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
-    target = sys.argv[2]
+    target = cmd_line_arg_to_unicode(sys.argv[2])
     date = sys.argv[3]
-
     sys.exit(main(fileUUID, target, date))

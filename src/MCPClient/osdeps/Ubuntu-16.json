@@ -30,6 +30,8 @@
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
+  { "name": "nailgun", "state": "latest"},
+  { "name": "nailgun-client", "state": "latest"},
   { "name": "nfs-common", "state": "latest"},
   { "name": "openjdk-8-jre-headless", "state": "latest"},
   { "name": "p7zip-full", "state": "latest"},

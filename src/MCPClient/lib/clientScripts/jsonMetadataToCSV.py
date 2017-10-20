@@ -29,10 +29,10 @@ def fetch_keys(objects):
                     occurrence_count[key] = occurrence
         keys.update(o_keys)
 
-    # Column order is otherwise unimportant, but
+    # Column order is important so the output is consistent.
     # "filename" and "parts" must be column 0.
     # (They are mutually exclusive.)
-    keys = list(keys)
+    keys = sorted(list(keys))
     if 'filename' in keys:
         keys.remove('filename')
         keys.insert(0, 'filename')

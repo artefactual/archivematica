@@ -12,17 +12,16 @@ RUN set -ex \
 		libmysqlclient-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
-ADD archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
+COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
+COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
+COPY MCPServer/requirements/ /src/MCPServer/requirements/
 RUN pip install -r /src/archivematicaCommon/requirements/production.txt -r /src/archivematicaCommon/requirements/dev.txt
-ADD archivematicaCommon/ /src/archivematicaCommon/
-
-ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
-ADD dashboard/ /src/dashboard/
-
-ADD MCPServer/requirements/ /src/MCPServer/requirements/
 RUN pip install -r /src/MCPServer/requirements/production.txt -r /src/MCPServer/requirements/dev.txt
-ADD MCPServer/ /src/MCPServer/
+
+COPY archivematicaCommon/ /src/archivematicaCommon/
+COPY dashboard/ /src/dashboard/
+COPY MCPServer/ /src/MCPServer/
 
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \

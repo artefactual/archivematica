@@ -4,6 +4,7 @@ import logging
 import os
 
 # Django Core, alphabetical by import source
+from django.conf import settings as django_settings
 from django.views.generic import View
 
 # External dependencies, alphabetical
@@ -170,7 +171,7 @@ def bulk_extractor(request, fileuuid):
     for report in reports:
         relative_path = os.path.join('logs', 'bulk-' + fileuuid, report + '.txt')
         url = storage_service.extract_file_url(f.transfer_id, relative_path)
-        response = requests.get(url, timeout=120)
+        response = requests.get(url, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
 
         if response.status_code != 200:
             message = 'Unable to retrieve ' + report + ' report for file with UUID ' + fileuuid
