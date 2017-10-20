@@ -13,6 +13,8 @@ RUN set -ex \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
 		libmysqlclient-dev \
+		libldap2-dev \
+		libsasl2-dev \
 		nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
