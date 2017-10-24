@@ -16,6 +16,8 @@ RUN set -ex \
 		git \
 		python-software-properties \
 		software-properties-common \
+		libldap2-dev \
+		libsasl2-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # OS dependencies
