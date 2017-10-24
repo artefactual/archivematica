@@ -268,7 +268,8 @@ def add_new_files(mets, sip_uuid, sip_dir):
     """
     # Find new files
     # How tell new file from old with same name? Check hash?
-    # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
+    # QUESTION should the metadata.csv be parsed and only updated if different
+    # even if one already existed?
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
@@ -276,7 +277,8 @@ def add_new_files(mets, sip_uuid, sip_dir):
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
-            current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
+            current_loc = os.path.join(dirpath, filename).replace(
+                sip_dir, '%SIPDirectory%', 1)
             rel_path = current_loc.replace('%SIPDirectory%', '', 1)
             print('Looking for', rel_path, 'in METS')
             fsentry = mets.get_file(path=rel_path)
@@ -297,9 +299,13 @@ def add_new_files(mets, sip_uuid, sip_dir):
         return mets
 
     # Set global counters so getAMDSec will work
-    createmets2.globalAmdSecCounter = int(mets.tree.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
-    createmets2.globalTechMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
-    createmets2.globalDigiprovMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))
+    createmets2.globalAmdSecCounter = int(
+        mets.tree.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
+    createmets2.globalTechMDCounter = int(
+        mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
+    createmets2.globalDigiprovMDCounter = int(
+        mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)',
+                        namespaces=ns.NSMAP))
 
     objects_fsentry = mets.get_file(label='objects', type='Directory')
 
