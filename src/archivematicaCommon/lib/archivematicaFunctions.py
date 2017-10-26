@@ -95,10 +95,11 @@ def strToUnicode(string, obstinate=False):
 
 
 def get_locale_encoding():
+    default = 'UTF-8'
     try:
-        return locale.getdefaultlocale()[1]
+        return locale.getdefaultlocale()[1] or default
     except IndexError:
-        return 'UTF-8'
+        return default
 
 
 def cmd_line_arg_to_unicode(cmd_line_arg):
