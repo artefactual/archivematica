@@ -34,6 +34,7 @@ CONFIG_MAPPING = {
     'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
+    'disable_search_indexing': {'section': 'Dashboard', 'option': 'disable_search_indexing', 'type': 'boolean'},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
@@ -60,6 +61,7 @@ shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
+disable_search_indexing = False
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 ldap_authentication = False
@@ -427,6 +429,7 @@ SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+DISABLE_SEARCH_INDEXING = config.get('disable_search_indexing')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 
