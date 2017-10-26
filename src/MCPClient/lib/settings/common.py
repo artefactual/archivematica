@@ -43,6 +43,7 @@ CONFIG_MAPPING = {
     'storage_service_client_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'MCPClient', 'option': 'agentarchives_client_timeout', 'type': 'float'},
     'clamav_client_timeout': {'section': 'MCPClient', 'option': 'clamav_client_timeout', 'type': 'float'},
+    'clamav_client_threshold': {'section': 'MCPClient', 'option': 'clamav_client_threshold', 'type': 'float'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -74,6 +75,7 @@ clamav_pass_by_reference = False
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
 clamav_client_timeout = 86400
+clamav_client_threshold = 20  # Unit: MB
 
 [client]
 user = archivematica
@@ -173,5 +175,6 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
 CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
+CLAMAV_CLIENT_THRESHOLD = config.get('clamav_client_threshold')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
