@@ -32,6 +32,7 @@ RUN set -ex \
 		atool \
 		bagit \
 		bulk-extractor \
+		clamav \
 		ffmpeg \
 		libavcodec-extra-56 \
 		fits \
@@ -56,6 +57,9 @@ RUN set -ex \
 		unrar-free \
 		uuid \
 	&& rm -rf /var/lib/apt/lists/*
+
+# Download ClamAV virus signatures
+RUN freshclam --quiet
 
 # Build dependencies
 RUN set -ex \
