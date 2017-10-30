@@ -119,6 +119,7 @@ Sip = Backbone.Model.extend({
   initialize: function()
     {
       this.loadJobs();
+      this.isInProgress = true;
     },
 
   hasFinished: function(attributes)
@@ -131,16 +132,31 @@ Sip = Backbone.Model.extend({
         });
     },
 
+  shouldUpdateView: function(attributes)
+    {
+      // Return `true` if the view should be updated. Update the view only if the
+      // unit is in progress or if it was in progress and has just now finished.
+      var ret = false;
+      var hasFinished = this.hasFinished(attributes);
+      if (this.hasOwnProperty('view')) {
+        if (hasFinished) {
+          if (this.isInProgress) {
+              ret = true;
+          }
+          this.isInProgress = false;
+        } else {
+            ret = true;
+        }
+      }
+      return ret;
+    },
+
   set: function(attributes, options)
     {
       res = Backbone.Model.prototype.set.call(this, attributes, options);
-
-      // Update the view only if the unit is in progress
-      if (!this.hasFinished(attributes) && this.hasOwnProperty('view'))
-      {
+      if (this.shouldUpdateView(attributes)) {
         this.view.update();
       }
-
       return res;
     },
 
