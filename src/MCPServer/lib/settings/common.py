@@ -16,6 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import StringIO
+import json
+import logging
+import logging.config
+import os
 
 from appconfig import Config
 
@@ -106,6 +110,13 @@ SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc
 USE_TZ = True
 TIME_ZONE = 'UTC'
 
+# Configure logging manually
+LOGGING_CONFIG = None
+
+# Location of the logging configuration file that we're going to pass to
+# `logging.config.fileConfig` unless it doesn't exist.
+LOGGING_CONFIG_FILE = '/etc/archivematica/serverConfig.logging.json'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -132,6 +143,12 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+if os.path.isfile(LOGGING_CONFIG_FILE):
+    with open(LOGGING_CONFIG_FILE, 'rt') as f:
+        LOGGING = logging.config.dictConfig(json.load(f))
+else:
+    logging.config.dictConfig(LOGGING)
 
 
 SHARED_DIRECTORY = config.get('shared_directory')

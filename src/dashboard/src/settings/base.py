@@ -18,6 +18,9 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import StringIO
+import json
+import logging
+import logging.config
 import os
 
 from django.utils.translation import ugettext_lazy as _
@@ -291,6 +294,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = '127.0.0.1'
 EMAIL_TIMEOUT = 15
 
+# Configure logging manually
+LOGGING_CONFIG = None
+
+# Location of the logging configuration file that we're going to pass to
+# `logging.config.fileConfig` unless it doesn't exist.
+LOGGING_CONFIG_FILE = '/etc/archivematica/dashboard.logging.json'
+
+# This is our default logging configuration.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -348,6 +359,13 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+if os.path.isfile(LOGGING_CONFIG_FILE):
+    with open(LOGGING_CONFIG_FILE, 'rt') as f:
+        LOGGING = logging.config.dictConfig(json.load(f))
+else:
+    logging.config.dictConfig(LOGGING)
+
 
 CACHES = {
     'default': {
