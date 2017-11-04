@@ -10,10 +10,9 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-04 16:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
-"es/)\n"
-"Language: es\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,16 +31,16 @@ msgstr ""
 #: media/js/ingest/ingest_file_browser.js:350
 #: media/js/repeating-ajax-data.js:209
 msgid "Delete"
-msgstr "Eliminar"
+msgstr ""
 
 #: media/js/advanced-search-query-creator.js:15
 msgid "Add"
-msgstr "Añadir"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:43
 #: media/js/ingest/backlog.js:19
 msgid "Add new"
-msgstr "Agregar nuevo"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:62
 #: media/js/ingest/backlog.js:34
@@ -59,11 +58,11 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:65
 #: media/js/ingest/backlog.js:36
 msgid "File extension"
-msgstr "Extensión del fichero"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:66
 msgid "AIP UUID"
-msgstr "AIP UUID"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:67
 msgid "AIP name"
@@ -83,7 +82,7 @@ msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:71
 msgid "Transfer metadata"
-msgstr "Metadatos de transferencia"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:72
 msgid "Transfer metadata (other)"
@@ -101,15 +100,15 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:85
 #: media/js/ingest/backlog.js:45
 msgid "Phrase"
-msgstr "Frase"
+msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:86
 msgid "Date range"
-msgstr "Rango de fechas"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:7 media/js/backlog/backlog-search.js:11
 msgid "Download"
-msgstr "Descargas"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:12
 msgid "Request deletion"
@@ -117,7 +116,7 @@ msgstr ""
 
 #: media/js/backlog/backlog-search.js:19
 msgid "Filename"
-msgstr "Nombre del archivo"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:20 media/js/backlog/backlog-search.js:27
 msgid "Transfer UUID"
@@ -126,11 +125,11 @@ msgstr ""
 #: media/js/backlog/backlog-search.js:21 media/js/backlog/backlog-search.js:30
 #: media/js/ingest.js:227 media/js/transfer.js:155
 msgid "Actions"
-msgstr "Acciones"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:26
 msgid "Name"
-msgstr "Nombre"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:28
 msgid "File count"
@@ -193,22 +192,22 @@ msgstr ""
 #: media/js/backlog/backlog-search.js:48
 msgctxt "DataTable - sFirst"
 msgid "First"
-msgstr "Primera"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:49
 msgctxt "DataTable - sLast"
 msgid "Last"
-msgstr "Última"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:50
 msgctxt "DataTable - sNext"
 msgid "Next"
-msgstr "Siguiente"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:51
 msgctxt "DataTable - sPrevious"
 msgid "Previous"
-msgstr "Previa"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:54
 msgctxt "DataTable - sSortAscending"
@@ -231,12 +230,12 @@ msgstr ""
 
 #: media/js/directory_picker.js:83 media/js/file_browser.js:171
 msgid "Yes"
-msgstr "Sí"
+msgstr ""
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
 #: media/js/ingest.js:124 media/js/jobs.js:576 media/js/jobs.js:664
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #: media/js/file_browser.js:60
 msgid "Delete file or directory"
@@ -280,7 +279,7 @@ msgstr ""
 
 #: media/js/ingest.js:96 media/js/jobs.js:635 media/js/transfer.js:97
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr ""
 
 #: media/js/ingest.js:146
 msgid "Dublin Core metadata editor"
@@ -288,7 +287,7 @@ msgstr ""
 
 #: media/js/ingest.js:153 media/js/jobs.js:530
 msgid "Close"
-msgstr "Cerrar"
+msgstr ""
 
 #: media/js/ingest.js:174 media/js/ingest/ingest_file_browser.js:125
 #: media/js/ingest/ingest_file_browser.js:129
@@ -337,11 +336,11 @@ msgstr ""
 
 #: media/js/ingest/backlog.js:35
 msgid "File name"
-msgstr "Nombre de fichero"
+msgstr ""
 
 #: media/js/ingest/backlog.js:37
 msgid "Accession number"
-msgstr "Número de acceso"
+msgstr ""
 
 #: media/js/ingest/backlog.js:38
 msgid "Ingest date (YYYY-MM-DD)"
@@ -377,7 +376,7 @@ msgstr ""
 
 #: media/js/ingest/ingest_file_browser.js:292
 msgid "Edit metadata"
-msgstr "Editar metadatos"
+msgstr ""
 
 #: media/js/ingest/ingest_file_browser.js:292
 msgid "Please select a directory or file to edit."
@@ -399,7 +398,7 @@ msgstr ""
 #: media/js/ingest/ingest_file_browser.js:384
 #: media/js/ingest/ingest_file_browser.js:389
 msgid "Create SIP"
-msgstr "Crear SIP"
+msgstr ""
 
 #: media/js/ingest/ingest_file_browser.js:376
 msgid "Please select a directory before creating a SIP."
@@ -420,7 +419,7 @@ msgstr ""
 
 #: media/js/ingest/metadata_form.js:83
 msgid "Browse"
-msgstr "Navegar"
+msgstr ""
 
 #: media/js/ingest/metadata_form.js:85
 msgid "Add files"
@@ -470,11 +469,11 @@ msgstr ""
 
 #: media/js/jobs.js:780
 msgid "Previous"
-msgstr "Previa"
+msgstr ""
 
 #: media/js/jobs.js:795
 msgid "Next"
-msgstr "Siguiente"
+msgstr ""
 
 #: media/js/jobs.js:833
 msgid "Error trying to connect to database. Trying again..."
@@ -498,11 +497,11 @@ msgstr ""
 
 #: media/js/repeating-ajax-data.js:215
 msgid "Are you sure?"
-msgstr "¿Estás seguro?"
+msgstr ""
 
 #: media/js/rights_edit.js:24
 msgid "Type"
-msgstr "Tipo"
+msgstr ""
 
 #: media/js/rights_edit.js:29
 msgid "Vype"
@@ -611,7 +610,7 @@ msgstr ""
 
 #: media/js/rights_edit.js:144
 msgid "Restriction"
-msgstr "Autorización"
+msgstr ""
 
 #: media/js/rights_edit.js:152
 msgid "Rights Granted Note"
@@ -625,7 +624,7 @@ msgstr ""
 
 #: media/js/rights_edit.js:231 media/js/rights_edit.js:244
 msgid "Note"
-msgstr "Notas"
+msgstr ""
 
 #: media/js/rights_edit.js:235
 #, javascript-format
@@ -665,18 +664,3 @@ msgstr ""
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr ""
-
-#~ msgid "Start transfer"
-#~ msgstr "Comenzar transferencia"
-
-#~ msgid ""
-#~ "Metadata entered in this form will be associated with the next component "
-#~ "added to this transfer. Data will not be used if no component is added "
-#~ "after the form is saved."
-#~ msgstr ""
-#~ "Los metadatos introducidos en este formulario se asociarán con el "
-#~ "siguiente componente añadido a la transferencia. Por lo tanto, serán "
-#~ "ignorados si no se añade un nuevo componente."
-
-#~ msgid "Add next"
-#~ msgstr "Añadir otro"

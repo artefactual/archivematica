@@ -64,8 +64,8 @@ msgstr ""
 msgid "Backlog"
 msgstr ""
 
-#: ./app/examine_contents/examine_contents.html:47
-#: ./app/examine_contents/examine_contents.html:67
+#: ./app/examine_contents/examine_contents.html:48
+#: ./app/examine_contents/examine_contents.html:71
 msgid "Bulk extractor logs"
 msgstr ""
 
@@ -208,7 +208,7 @@ msgid "Group"
 msgstr ""
 
 #: ./app/front_page/content.html:145
-msgid "Hide path:"
+msgid "Hide path"
 msgstr ""
 
 #: ./app/front_page/content.html:198
@@ -239,7 +239,7 @@ msgstr ""
 msgid "No information found for selected Transfers."
 msgstr ""
 
-#: ./app/examine_contents/examine_contents.html:73
+#: ./app/examine_contents/examine_contents.html:77
 msgid "No information found for selected files."
 msgstr ""
 
@@ -269,8 +269,8 @@ msgstr ""
 msgid "Path"
 msgstr ""
 
-#: ./app/examine_contents/examine_contents.html:46
-#: ./app/examine_contents/examine_contents.html:64
+#: ./app/examine_contents/examine_contents.html:47
+#: ./app/examine_contents/examine_contents.html:68
 msgid "Preview"
 msgstr ""
 
@@ -315,7 +315,7 @@ msgid "Select all"
 msgstr ""
 
 #: ./app/front_page/content.html:144
-msgid "Show path:"
+msgid "Show path"
 msgstr ""
 
 #: ./app/front_page/content.html:161
@@ -327,7 +327,7 @@ msgstr ""
 msgid "Start date:"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:557
+#: ./app/archivesspace/archivesspace.controller.js:555
 msgid "Successfully started SIP from record \"{{title}}\""
 msgstr ""
 
@@ -350,27 +350,31 @@ msgstr ""
 msgid "Title:"
 msgstr ""
 
+#: ./app/examine_contents/examine_contents.html:46
+msgid "Transfer name"
+msgstr ""
+
 #: ./app/examine_contents/examine_contents.html:11
 msgid "Transfers:"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:354
+#: ./app/archivesspace/archivesspace.controller.js:352
 msgid "Unable to access ArchivesSpace; check dashboard logs!"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:235
+#: ./app/archivesspace/archivesspace.controller.js:233
 msgid "Unable to add new child record to record {{id}}"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:268
+#: ./app/archivesspace/archivesspace.controller.js:266
 msgid "Unable to add new digital object component to record {{id}}"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:300
+#: ./app/archivesspace/archivesspace.controller.js:298
 msgid "Unable to fetch record {{id}} from ArchivesSpace!"
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:308
+#: ./app/archivesspace/archivesspace.controller.js:306
 msgid "Unable to fetch record {{path}} from Arrangement!"
 msgstr ""
 
@@ -382,15 +386,15 @@ msgstr ""
 msgid "Unable to retrieve transfer data from Archivematica."
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:570
+#: ./app/archivesspace/archivesspace.controller.js:568
 msgid "Unable to start SIP; check dashboard logs."
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:568
+#: ./app/archivesspace/archivesspace.controller.js:566
 msgid "Unable to start SIP; no files arranged into record \"{{title}}\"."
 msgstr ""
 
-#: ./app/archivesspace/archivesspace.controller.js:161
+#: ./app/archivesspace/archivesspace.controller.js:162
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 
