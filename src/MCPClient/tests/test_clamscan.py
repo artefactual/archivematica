@@ -173,15 +173,19 @@ def test_clamscanner_version_attrs(mocker, settings):
 
 def test_clamscanner_scan(mocker):
     scanner = setup_clamscanner()
-    mock = mocker.patch.object(scanner, '_call', return_value='Output of clamscan')
+    mock = mocker.patch.object(
+        scanner, '_call',
+        return_value='Output of clamscan')
 
     assert scanner.scan('/file') == (True, 'OK', None)
     mock.assert_called_once_with('/file')
 
-    mock.side_effect = subprocess.CalledProcessError(1, 'clamscan', 'Output of clamscan')
+    mock.side_effect = \
+        subprocess.CalledProcessError(1, 'clamscan', 'Output of clamscan')
     assert scanner.scan('/file') == (False, 'FOUND', None)
 
-    mock.side_effect = subprocess.CalledProcessError(2, 'clamscan', 'Output of clamscan')
+    mock.side_effect = \
+        subprocess.CalledProcessError(2, 'clamscan', 'Output of clamscan')
     assert scanner.scan('/file') == (False, 'ERROR', None)
 
 
