@@ -60,6 +60,19 @@ def test_clamdscanner_version_props(mocker, settings):
     assert scanner.virus_definitions() == "23992/Fri Oct 27 05:04:12 2017"
 
 
+def test_clamdscanner_version_attrs(mocker, settings):
+    scanner = setup_clamdscanner(settings, addr="/var/run/clamav/clamd.ctl")
+    version = mocker.patch.object(
+        scanner.client, 'version',
+        return_value="ClamAV 0.99.2/23992/Fri Oct 27 05:04:12 2017")
+
+    assert scanner.version_attrs() == (
+        "ClamAV 0.99.2",
+        "23992/Fri Oct 27 05:04:12 2017",
+    )
+    version.assert_called_once()
+
+
 def test_clamdscanner_get_client(settings):
     scanner = setup_clamdscanner(settings, addr="/var/run/clamav/clamd.ctl")
     assert isinstance(scanner.client, ClamdUnixSocket)
@@ -143,6 +156,19 @@ def test_clamscanner_version_props(mocker):
     assert scanner.program() == "ClamAV (clamscan)"
     assert scanner.version() == "ClamAV 0.99.2"
     assert scanner.virus_definitions() == "23992/Fri Oct 27 05:04:12 2017"
+
+
+def test_clamscanner_version_attrs(mocker, settings):
+    scanner = setup_clamscanner()
+    mock = mocker.patch.object(
+        scanner, '_call',
+        return_value="ClamAV 0.99.2/23992/Fri Oct 27 05:04:12 2017")
+
+    assert scanner.version_attrs() == (
+        "ClamAV 0.99.2",
+        "23992/Fri Oct 27 05:04:12 2017",
+    )
+    mock.assert_called_once_with('-V')
 
 
 def test_clamscanner_scan(mocker):

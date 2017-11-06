@@ -125,7 +125,7 @@ class ClamdScanner(ScannerBase):
         try:
             self._version_attrs
         except AttributeError:
-            self._version_attrs = clamav_version_parts(self._version)
+            self._version_attrs = clamav_version_parts(self.client.version())
         return self._version_attrs
 
     def get_client(self):
