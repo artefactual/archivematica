@@ -34,7 +34,19 @@ from archivematicaFunctions import strToUnicode
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from main.models import (
+    Agent,
+    Derivation,
+    Event,
+    File,
+    FPCommandOutput,
+    Job,
+    SIP,
+    Task,
+    Transfer,
+    UnitVariable,
+    JOB_STATUS_EXECUTING_COMMANDS,
+)
 
 LOGGER = logging.getLogger('archivematica.common')
 
@@ -280,7 +292,7 @@ def logJobCreatedSQL(job):
                        jobtype=job.description,
                        directory=job.unit.currentPath,
                        sipuuid=unitUUID,
-                       currentstep=Job.STATUS_EXECUTING_COMMANDS,
+                       currentstep=JOB_STATUS_EXECUTING_COMMANDS,
                        unittype=job.unit.__class__.__name__,
                        microservicegroup=str(job.microserviceGroup),
                        createdtime=job.createdDate,

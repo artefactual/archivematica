@@ -64,7 +64,15 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db, createSIP, getUTCDate
 import dicts
 
-from main.models import Job, SIP, Task, WatchedDirectory
+from main.models import (
+    Job,
+    SIP,
+    Task,
+    WatchedDirectory,
+    JOB_STATUS_AWAITING_DECISION,
+    JOB_STATUS_EXECUTING_COMMANDS,
+    JOB_STATUS_FAILED,
+)
 
 
 countOfCreateUnitAndJobChainThreaded = 0
@@ -527,8 +535,9 @@ def flushOutputs():
 
 
 def cleanupOldDbEntriesOnNewRun():
-    Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
-    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(currentstep=Job.STATUS_FAILED)
+    Job.objects.filter(currentstep=JOB_STATUS_AWAITING_DECISION).delete()
+    Job.objects.filter(currentstep=JOB_STATUS_EXECUTING_COMMANDS) \
+        .update(currentstep=JOB_STATUS_FAILED)
     Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
 
 

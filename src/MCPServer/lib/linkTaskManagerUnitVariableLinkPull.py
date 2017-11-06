@@ -25,7 +25,10 @@ from linkTaskManager import LinkTaskManager
 
 choicesAvailableForUnits = {}
 
-from main.models import TaskConfigUnitVariableLinkPull, Job
+from main.models import (
+    TaskConfigUnitVariableLinkPull,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+)
 
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
@@ -36,5 +39,5 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
 
         # Update the unit
         if link is not None:
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.setExitMessage(JOB_STATUS_COMPLETED_SUCCESSFULLY)
             self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)

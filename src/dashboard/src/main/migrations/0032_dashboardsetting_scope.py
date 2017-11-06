@@ -4,7 +4,11 @@ import ast
 
 from django.db import migrations, models
 
-from main.models import DashboardSetting, DashboardSettingManager, Job
+from main.models import (
+    DashboardSetting,
+    DashboardSettingManager,
+    JOB_STATUS_FAILED,
+)
 
 
 def data_migration_atom_to_dict(apps, schema_editor):
@@ -77,7 +81,7 @@ def data_migration_atom_restore_std(apps, schema_editor):
     new_mscl = MicroServiceChainLink.objects.create(
         id=uuids[0],
         microservicegroup='Upload DIP',
-        defaultexitmessage=Job.STATUS_FAILED,
+        defaultexitmessage=JOB_STATUS_FAILED,
         defaultnextchainlink_id='651236d2-d77f-4ca7-bfe9-6332e96608ff',
         currenttask=TaskConfig.objects.create(
             id=uuids[1],

@@ -25,7 +25,7 @@ from linkTaskManager import LinkTaskManager
 
 choicesAvailableForUnits = {}
 
-from main.models import Job
+from main.models import JOB_STATUS_COMPLETED_SUCCESSFULLY
 
 
 class linkTaskManagerLoadMagicLink(LinkTaskManager):
@@ -38,5 +38,5 @@ class linkTaskManagerLoadMagicLink(LinkTaskManager):
         magicLink = self.unit.getMagicLink()
         if magicLink is not None:
             link, exitStatus = magicLink
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.setExitMessage(JOB_STATUS_COMPLETED_SUCCESSFULLY)
             self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)

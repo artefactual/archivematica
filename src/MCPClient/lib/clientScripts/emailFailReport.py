@@ -28,7 +28,12 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import connection
 
-from main.models import Job, Report
+from main.models import (
+    Job,
+    Report,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+    JOB_STATUS_FAILED,
+)
 
 from custom_handlers import get_script_logger
 from externals.HTML import HTML
@@ -39,8 +44,8 @@ django.setup()
 logger = get_script_logger('archivematica.mcp.client.emailFailReport')
 
 COLORS = {
-    Job.STATUS_COMPLETED_SUCCESSFULLY: '#dff0d8',
-    Job.STATUS_FAILED: '#f2dede',
+    JOB_STATUS_COMPLETED_SUCCESSFULLY: '#dff0d8',
+    JOB_STATUS_FAILED: '#f2dede',
     'default': 'yellow',
 }
 

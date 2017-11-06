@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations
-
-from django.db import models
+from django.db import migrations, models
 
 # Can't use apps.get_model for this model as we need to access class attributes
-from main.models import Job
+from main.models import (
+    JOB_STATUS_FAILED,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+)
 
 
 def data_migration(apps, schema_editor):
@@ -78,7 +79,7 @@ def data_migration(apps, schema_editor):
         currenttask_id=set_file_mod_dates_tc_pk,
         microservicegroup='Characterize and extract metadata',
         defaultnextchainlink_id=fail_cl_pk,
-        defaultexitmessage=Job.STATUS_FAILED
+        defaultexitmessage=JOB_STATUS_FAILED
     )
 
     # Make "Policy checks for preservation derivatives" exit to the "Load
@@ -89,7 +90,7 @@ def data_migration(apps, schema_editor):
         microservicechainlink_id=set_transfer_file_mod_dates_cl_pk,
         nextmicroservicechainlink_id=load_rights_cl_pk,
         exitcode=0,
-        exitmessage=Job.STATUS_COMPLETED_SUCCESSFULLY
+        exitmessage=JOB_STATUS_COMPLETED_SUCCESSFULLY
     )
 
     # Introduce between "Add processed structMap to METS.xml document" and "Characterize and extract"

@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 # Can't use apps.get_model for this model as we need to access class attributes
-from main.models import Job
+from main.models import (
+    JOB_STATUS_FAILED,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+)
 
 
 def data_migration(apps, schema_editor):
@@ -78,7 +81,7 @@ def data_migration(apps, schema_editor):
         currenttask_id=add_readme_file_tc_pk,
         defaultnextchainlink_id=fail_cl_pk,
         microservicegroup='Add README file',
-        defaultexitmessage=Job.STATUS_FAILED
+        defaultexitmessage=JOB_STATUS_FAILED
     )
 
     # Add README File Chain.
@@ -96,7 +99,7 @@ def data_migration(apps, schema_editor):
         microservicechainlink=add_readme_file_cl,
         nextmicroservicechainlink_id=generate_dip_cl_pk,
         exitcode=0,
-        exitmessage=Job.STATUS_COMPLETED_SUCCESSFULLY
+        exitmessage=JOB_STATUS_COMPLETED_SUCCESSFULLY
     )
 
     # Introduce after "Generate METS.xml document"

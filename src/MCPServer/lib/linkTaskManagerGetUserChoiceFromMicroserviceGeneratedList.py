@@ -31,7 +31,12 @@ from linkTaskManager import LinkTaskManager
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
 from dicts import ReplacementDict, ChoicesDict
-from main.models import StandardTaskConfig, UserProfile, Job
+from main.models import (
+    StandardTaskConfig,
+    UserProfile,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+    JOB_STATUS_AWAITING_DECISION
+)
 
 from django.conf import settings as django_settings
 
@@ -70,11 +75,11 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
 
         preConfiguredIndex = self.checkForPreconfiguredXML()
         if preConfiguredIndex is not None:
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.setExitMessage(JOB_STATUS_COMPLETED_SUCCESSFULLY)
             self.proceedWithChoice(index=preConfiguredIndex, user_id=None)
         else:
             choicesAvailableForUnitsLock.acquire()
-            self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
+            self.jobChainLink.setExitMessage(JOB_STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 
