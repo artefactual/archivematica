@@ -79,7 +79,7 @@ clamav_pass_by_reference = False
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
 clamav_client_timeout = 86400
-clamav_client_threshold = 20  # Unit: MB
+clamav_client_threshold = 20  ; Unit: MB
 
 [client]
 user = archivematica
