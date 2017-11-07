@@ -24,6 +24,7 @@ from lxml import etree
 import sys
 
 import django
+from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import connection
@@ -49,15 +50,15 @@ def get_emails_from_dashboard_users():
     return User.objects.filter(is_active=True).values_list('email', flat=True).exclude(email__in=['demo@example.com', ''])
 
 
-def send_email(subject, to, efrom, content):
+def send_email(subject, to, content):
     try:
         logger.info('Sending email...')
         return send_mail(
             subject=subject,
             message='Please see the attached HTML document',
-            html_message=content,
-            from_email=efrom,
+            from_email=mcpclient_settings.DEFAULT_FROM_EMAIL,
             recipient_list=to,
+            html_message=content,
         )
     except:
         logger.exception('Report email was not delivered')
@@ -196,11 +197,10 @@ if __name__ == '__main__':
         logger.error('Nobody to send it to. Please add users with valid email addresses in the dashboard.')
         sys.exit(1)
     subject = 'Archivematica Fail Report for %s: %s-%s' % (args.unit_type, args.unit_name, args.unit_uuid)
-    efrom = 'ArchivematicaSystem@archivematica.org'
 
     # Generate report in HTML and send it by email
     content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
-    send_email(subject, to, efrom, content)
+    send_email(subject, to, content)
 
     if args.stdout:
         print(content)
