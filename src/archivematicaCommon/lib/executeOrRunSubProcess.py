@@ -28,7 +28,8 @@ import os
 import sys
 
 
-def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates={}):
+def launchSubProcess(command, stdIn="", printing=True, arguments=[],
+                     env_updates={}, capture_output=True):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
     a) a single string containing a commandline statement, or
@@ -49,6 +50,8 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
                 only honoured if ``command`` is an array, and will be ignored
                 if ``command`` is a string.
     env_updates: Dict of changes to apply to the started process' environment.
+    capture_output: Whether or not to capture output from the subprocess.
+                    Defaults to `True`.
     """
     stdError = ""
     stdOut = ""
@@ -77,8 +80,16 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
         else:
             raise Exception("stdIn must be a string or a file object")
 
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=stdin_pipe, env=my_env)
-        stdOut, stdError = p.communicate(input=stdin_string)
+        if capture_output:
+            # Capture the stdout and stderr of the subprocess
+            p = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, stdin=stdin_pipe,
+                                 env=my_env)
+            stdOut, stdError = p.communicate(input=stdin_string)
+        else:
+            # Ignore the stdout and stderr of the subprocess
+            p = subprocess.Popen(command, stdin=stdin_pipe, env=my_env)
+            p.communicate(input=stdin_string)
         # append the output to stderror and stdout
         if printing:
             print(stdOut)
@@ -95,7 +106,8 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
     return retcode, stdOut, stdError
 
 
-def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates={}):
+def createAndRunScript(text, stdIn="", printing=True, arguments=[],
+                       env_updates={}, capture_output=True):
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
@@ -105,7 +117,9 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates=
     cmd.extend(arguments)
 
     # Run it
-    ret = launchSubProcess(cmd, stdIn="", printing=True, env_updates=env_updates)
+    ret = launchSubProcess(cmd, stdIn="", printing=True,
+                           env_updates=env_updates,
+                           capture_output=capture_output)
 
     # Remove the temp file
     os.remove(scriptPath)
@@ -113,7 +127,8 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates=
     return ret
 
 
-def executeOrRun(type, text, stdIn="", printing=True, arguments=[], env_updates={}):
+def executeOrRun(type, text, stdIn="", printing=True, arguments=[],
+                 env_updates={}, capture_output=True):
     """
     Attempts to run the provided command on the shell, with the text of
     "stdIn" passed as standard input if provided. The type parameter
@@ -141,14 +156,24 @@ def executeOrRun(type, text, stdIn="", printing=True, arguments=[], env_updates=
                 honoured if ``command`` is an array, and will be ignored if ``command``
                 is a string.
     env_updates: Dict of changes to apply to the started process' environment.
+    capture_output: Whether or not to capture output for the executed process.
+                Default is `True`.
     """
     if type == "command":
-        return launchSubProcess(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
+        return launchSubProcess(text, stdIn=stdIn, printing=printing,
+                                arguments=arguments, env_updates=env_updates,
+                                capture_output=capture_output)
     if type == "bashScript":
         text = "#!/bin/bash\n" + text
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing,
+                                  arguments=arguments, env_updates=env_updates,
+                                  capture_output=capture_output)
     if type == "pythonScript":
         text = "#!/usr/bin/env python2\n" + text
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing,
+                                  arguments=arguments, env_updates=env_updates,
+                                  capture_output=capture_output)
     if type == "as_is":
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing,
+                                  arguments=arguments, env_updates=env_updates,
+                                  capture_output=capture_output)
