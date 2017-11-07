@@ -1,6 +1,7 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
 {% load i18n %}
+{% load job_status %}
 
 {% block content %}
   <div class="row">
@@ -27,7 +28,7 @@
           {{ item.grouper }}<br />
           <ul>
             {% for i in item.list %}
-              <li><strong>{{ i.jobtype }}:</strong> {{ i.currentstep }}</li>
+              <li><strong>{{ i.jobtype }}:</strong> {{ i.currentstep|job_status }}</li>
             {% endfor %}
           </ul>
         </div>
