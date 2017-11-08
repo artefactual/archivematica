@@ -2,8 +2,9 @@
 
 This directory contains the following files:
 
-- [`serverConfig.conf`](./serverConfig.conf) - a sample configuration file that the user can place in
-`/etc/archivematica/serverConfig.conf` to tweak the configuration of MCPServer.
+- [`serverConfig.conf`](./serverConfig.conf) - a sample configuration file that
+the user can place in `/etc/archivematica/serverConfig.conf` to tweak the
+configuration of MCPServer.
 
 - [`serverConfig.logging.json`](./serverConfig.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
@@ -27,5 +28,6 @@ The MCPServer will look in `/etc/archivematica` for a file called
 `serverConfig.logging.json`, and if found, this file will override the default
 behaviour described above.
 
-The [`logging.json`](./logging.json) file in this directory provides an example
-that implements the logging behaviour used in Archivematica 1.6.1 and earlier.
+The [`serverConfig.logging.json`](./serverConfig.logging.json) file in this
+directory provides an example that implements the logging behaviour used in
+Archivematica 1.6.1 and earlier.

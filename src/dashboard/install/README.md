@@ -2,11 +2,13 @@
 
 This directory contains the following files:
 
-- [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) - systemd unit file sample.
+- [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) -
+systemd unit file sample.
 
-- [`dashboard.conf`](./dashboard.conf) - nginx server block sample. 
+- [`dashboard.conf`](./dashboard.conf) - nginx server block sample.
 
-- [`dashboard.gunicorn-config.py`](./dashboard.gunicorn-config.py) - gunicorn configuration file sample.
+- [`dashboard.gunicorn-config.py`](./dashboard.gunicorn-config.py) -
+gunicorn configuration file sample.
 
 - [`dashboard.logging.json`](./dashboard.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
@@ -30,5 +32,6 @@ The dashboard will look in `/etc/archivematica` for a file called
 `dashboard.logging.json`, and if found, this file will override the default
 behaviour described above.
 
-The [`dashboard.logging.json`](./dashboard.logging.json) file in this directory provides an example
-that implements the logging behaviour used in Archivematica 1.6.1 and earlier.
+The [`dashboard.logging.json`](./dashboard.logging.json) file in this directory
+provides an example that implements the logging behaviour used in Archivematica
+1.6.1 and earlier.

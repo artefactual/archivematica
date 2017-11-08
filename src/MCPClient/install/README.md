@@ -2,8 +2,9 @@
 
 This directory contains the following files:
 
-- [`clientConfig.conf`](./clientConfig.conf) - a sample configuration file that the user can place in
-`/etc/archivematica/clientConfig.conf` to tweak the configuration of MCPClient.
+- [`clientConfig.conf`](./clientConfig.conf) - a sample configuration file that
+the user can place in `/etc/archivematica/clientConfig.conf` to tweak the
+configuration of MCPClient.
 
 - [`clientConfig.logging.json`](./clientConfig.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
@@ -27,5 +28,6 @@ The MCPClient will look in `/etc/archivematica` for a file called
 `clientConfig.logging.json`, and if found, this file will override the default
 behaviour described above.
 
-The [`clientConfig.logging.json`](./clientConfig.logging.json) file in this directory provides an example
-that implements the logging behaviour used in Archivematica 1.6.1 and earlier.
+The [`clientConfig.logging.json`](./clientConfig.logging.json) file in this
+directory provides an example that implements the logging behaviour used in
+Archivematica 1.6.1 and earlier.
