@@ -8,7 +8,7 @@ This directory contains the following files:
 
 - [`dashboard.gunicorn-config.py`](./dashboard.gunicorn-config.py) - gunicorn configuration file sample.
 
-- [`logging.json`](./logging.json) - read the
+- [`dashboard.logging.json`](./dashboard.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
 
 ## Logging configuration
@@ -30,5 +30,5 @@ The dashboard will look in `/etc/archivematica` for a file called
 `dashboard.logging.json`, and if found, this file will override the default
 behaviour described above.
 
-The [`logging.json`](./logging.json) file in this directory provides an example
+The [`dashboard.logging.json`](./dashboard.logging.json) file in this directory provides an example
 that implements the logging behaviour used in Archivematica 1.6.1 and earlier.

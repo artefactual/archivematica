@@ -2,10 +2,10 @@
 
 This directory contains the following files:
 
-- [`config.ini`](./config.ini) - a sample configuration file that the user can place in
+- [`serverConfig.conf`](./serverConfig.conf) - a sample configuration file that the user can place in
 `/etc/archivematica/serverConfig.conf` to tweak the configuration of MCPServer.
 
-- [`logging.json`](./logging.json) - read the
+- [`serverConfig.logging.json`](./serverConfig.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
 
 ## Logging configuration
