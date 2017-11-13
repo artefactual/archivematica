@@ -364,7 +364,7 @@ $(function()
                       $.ajax({ type: 'POST', url: url, data: { target: target } })
                     ).done(function(resp1, resp2) {
 
-                      if (resp2.ready) {
+                      if (resp2[0].ready) {
                         executeCommand(self);
                       }
 
