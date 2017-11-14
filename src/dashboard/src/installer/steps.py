@@ -37,10 +37,14 @@ logger = logging.getLogger('archivematica.dashboard')
 
 def create_super_user(username, email, password, key):
     UserModel = get_user_model()
-    user = UserModel._default_manager.db_manager('default').create_superuser(username, email, password)
-    api_key = ApiKey.objects.create(user=user)
-    api_key.key = key
-    api_key.save()
+    # Create the new super user if it doesn't already exist
+    try:
+        user = UserModel._default_manager.get(**{UserModel.USERNAME_FIELD: username})
+    except UserModel.DoesNotExist:
+        # User doesn't exist, create it
+        user = UserModel._default_manager.db_manager('default').create_superuser(username, email, password)
+    # Create or update the user's api key
+    api_key, created = ApiKey.objects.update_or_create(user=user, defaults={'key': key})
 
 
 def setup_pipeline(org_name, org_identifier):
