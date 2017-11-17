@@ -23,7 +23,7 @@ RUN set -ex \
 # OS dependencies
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
-	&& add-apt-repository "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main" \
+	&& add-apt-repository "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals trusty main" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-security universe" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse" \
