@@ -10,7 +10,7 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main",
+    "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals trusty main",
     "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ trusty-security universe",
     "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse"

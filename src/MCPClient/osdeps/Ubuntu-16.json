@@ -10,7 +10,7 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals xenial main",
+    "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals xenial main",
     "deb http://archive.ubuntu.com/ubuntu/ xenial multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ xenial-security universe",
     "deb http://archive.ubuntu.com/ubuntu/ xenial-updates multiverse"
