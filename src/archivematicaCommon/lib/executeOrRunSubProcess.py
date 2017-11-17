@@ -29,7 +29,7 @@ import sys
 
 
 def launchSubProcess(command, stdIn="", printing=True, arguments=[],
-                     env_updates={}, capture_output=True):
+                     env_updates={}, capture_output=False):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
     a) a single string containing a commandline statement, or
