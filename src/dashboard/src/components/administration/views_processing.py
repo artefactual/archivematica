@@ -77,3 +77,10 @@ def delete(request, name):
     except OSError:
         pass
     return redirect('components.administration.views_processing.list')
+
+
+def download(request, name):
+    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    if not os.path.isfile(config_path):
+        raise Http404
+    return helpers.send_file(request, config_path, force_download=True)

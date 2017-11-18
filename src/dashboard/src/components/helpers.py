@@ -246,7 +246,7 @@ def send_file_or_return_error_response(request, filepath, content_type, verb='do
         })
 
 
-def send_file(request, filepath):
+def send_file(request, filepath, force_download=False):
     """
     Send a file through Django without loading the whole file into
     memory at once. The FileWrapper will turn the file object into an
@@ -255,19 +255,17 @@ def send_file(request, filepath):
     filename = os.path.basename(filepath)
     extension = os.path.splitext(filepath)[1].lower()
 
-    wrapper = FileWrapper(file(filepath))
+    wrapper = FileWrapper(open(filepath))
     response = HttpResponse(wrapper)
 
     # force download for certain filetypes
     extensions_to_download = ['.7z', '.zip']
 
-    try:
-        extensions_to_download.index(extension)
+    if force_download or (extension in extensions_to_download):
         response['Content-Type'] = 'application/force-download'
         response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-    except:
-        mimetype = mimetypes.guess_type(filename)[0]
-        response['Content-type'] = mimetype
+    else:
+        response['Content-type'] = mimetypes.guess_type(filename)[0]
 
     response['Content-Length'] = os.path.getsize(filepath)
     return response

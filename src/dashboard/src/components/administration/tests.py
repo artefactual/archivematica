@@ -1,12 +1,15 @@
 import os
 
 from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponse
 from django.test import TestCase
 from django.test.client import Client
 
+from components import helpers
 from components.administration.views_dip_upload import _AS_DICTNAME, _ATK_DICTNAME, _ATOM_DICTNAME
 from main.models import DashboardSetting
 
+import mock
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.abspath(os.path.join(THIS_DIR, '../../../tests/fixtures'))
@@ -206,3 +209,42 @@ class TestUploadDipAtoMConfigView(TestCase):
 
         self.assertIsInstance(config, dict)
         self.assertFalse(config)
+
+
+class TestProcessingConfig(TestCase):
+    fixture_files = ['test_user.json']
+    fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='test', password='test')
+        helpers.set_setting('dashboard_uuid', 'test-uuid')
+
+    @staticmethod
+    def send_file_404_mock(*args, **kwargs):
+        raise Http404
+
+    @staticmethod
+    def send_file_ok_mock(*args, **kwargs):
+        DEFAULT = '<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>'
+        return HttpResponse(DEFAULT)
+
+    def test_download_404(self):
+        with mock.patch('components.helpers.send_file',
+                        side_effect=self.send_file_404_mock):
+            response = self.client.get(reverse(
+                'components.administration.views_processing.download',
+                args=['default']))
+
+        self.assertEquals(response.status_code, 404)
+
+    def test_download_ok(self):
+        with mock.patch('components.helpers.send_file',
+                        side_effect=self.send_file_ok_mock):
+            response = self.client.get(reverse(
+                'components.administration.views_processing.download',
+                args=['default']))
+
+        self.assertEquals(
+            response.content,
+            '<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>')

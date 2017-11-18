@@ -25,6 +25,7 @@
           </td>
           <td>
             <a class="btn btn-default btn-sm" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
+            <a class="btn btn-default btn-sm" href="{% url "components.administration.views_processing.download" item.1 %}">{% trans "Download" %}</a>
             {% if item.1 != "default" %}
               <a class="btn btn-danger btn-sm" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
             {% endif %}
