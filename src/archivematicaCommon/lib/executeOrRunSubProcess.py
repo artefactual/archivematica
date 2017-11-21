@@ -88,8 +88,10 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
             stdOut, stdError = p.communicate(input=stdin_string)
         else:
             # Ignore the stdout and stderr of the subprocess
-            p = subprocess.Popen(command, stdin=stdin_pipe, env=my_env)
-            p.communicate(input=stdin_string)
+            with open(os.devnull, 'w') as devnull:
+                p = subprocess.Popen(command, stdin=stdin_pipe, env=my_env,
+                                     stdout=devnull, stderr=devnull)
+                p.communicate(input=stdin_string)
         # append the output to stderror and stdout
         if printing:
             print(stdOut)
