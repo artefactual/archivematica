@@ -1,4 +1,0 @@
-etc/* /etc/archivematica/archivematicaCommon/
-lib/* /usr/lib/archivematica/archivematicaCommon/
-requirements.txt /usr/share/archivematica/archivematicaCommon/
-requirements/* /usr/share/archivematica/archivematicaCommon/requirements/
