@@ -87,6 +87,9 @@ COPY archivematicaCommon/ /src/archivematicaCommon/
 COPY dashboard/ /src/dashboard/
 COPY MCPClient/ /src/MCPClient/
 
+# Workaround for https://github.com/artefactual/archivematica-fpr-admin/issues/49
+COPY archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
+
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
 	&& useradd --uid 333 --gid 333 --system archivematica
