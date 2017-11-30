@@ -25,103 +25,110 @@
 
 {% block content %}
 
-  <ul class="breadcrumb">
-    {% trans "Archival storage" as archival_storage_label %}
-    {% trans "Search" as search_label %}
-    {% breadcrumb_url archival_storage_label 'components.archival_storage.views.overview' %}
-    {% breadcrumb search_label %}
-  </ul>
-
-  {% include "archival_storage/_archival_storage_search_form.html" %}
-
-  {% if aips %}
-
-    <h1>
-      {% trans "Browse archival storage" %}<br/>
-      <small>
-
-        {% blocktrans with size=total_size %}
-          Total size: {{ size }} MB
-        {% endblocktrans %}
-
-        {% if aip_indexed_file_count %}
-          |
-          {% blocktrans with count=aip_indexed_file_count %}
-            Files indexed: {{ count }}
-          {% endblocktrans %}
-        {% endif %}
-
-      </small>
-    </h1>
-
-    <table class="table">
-      <thead>
-        <th>
-          <div>
-            {% trans "AIP" %}
-            <a class="up {% if order_by == 'name_unanalyzed' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=name_unanalyzed&sort_by=up">{% trans "Sort" %}</a>
-            <a class="down {% if order_by == 'name_unanalyzed' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=name_unanalyzed&sort_by=down">{% trans "Sort" %}</a>
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "Size" %}
-            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&amp;sort_by=up">{% trans "Sort" %}</a>
-            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&amp;sort_by=down">{% trans "Sort" %}</a>
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "UUID" %}
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "Date stored" %}
-            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&amp;sort_by=up">{% trans "Sort" %}</a>
-            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&amp;sort_by=down">{% trans "Sort" %}</a>
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "Status" %}
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "Encrypted" %}
-          </div>
-        </th>
-        <th>
-          <div>
-            {% trans "Actions" %}
-          </div>
-        </th>
-      </thead>
-      <tbody>
-        {% for item in aips %}
-          <tr>
-            <td><a href="{% url 'view_aip' item.uuid %}">{{ item.name }}</a></td>
-            <td class="size">{{ item.size }}</td>
-            <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
-            <td><span class="timestamp">{{ item.date }}</span></td>
-            <td>{{ item.status }}</td>
-            <td>{{ item.encrypted }}</td>
-            <td><a href="{% url 'view_aip' item.uuid %}">{% trans "View" %}</a></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <div style='clear: both' class='search-summary'>
-      {% include "_pager.html" %}
-    </div>
-
+  {% if disable_search_indexing %}
+    <h1>Elasticsearch Indexing Disabled</h1>
+    <p class="es-indexing-disabled">Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The archival storage tab is non-functional when indexing is turned off.</p>
   {% else %}
 
-    <div class="alert alert-info">
-      <p>{% trans "Archival storage is empty." %}</p>
-    </div>
+    <ul class="breadcrumb">
+      {% trans "Archival storage" as archival_storage_label %}
+      {% trans "Search" as search_label %}
+      {% breadcrumb_url archival_storage_label 'components.archival_storage.views.overview' %}
+      {% breadcrumb search_label %}
+    </ul>
+
+    {% include "archival_storage/_archival_storage_search_form.html" %}
+
+    {% if aips %}
+
+      <h1>
+        {% trans "Browse archival storage" %}<br/>
+        <small>
+
+          {% blocktrans with size=total_size %}
+            Total size: {{ size }} MB
+          {% endblocktrans %}
+
+          {% if aip_indexed_file_count %}
+            |
+            {% blocktrans with count=aip_indexed_file_count %}
+              Files indexed: {{ count }}
+            {% endblocktrans %}
+          {% endif %}
+
+        </small>
+      </h1>
+
+      <table class="table">
+        <thead>
+          <th>
+            <div>
+              {% trans "AIP" %}
+              <a class="up {% if order_by == 'name_unanalyzed' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=name_unanalyzed&sort_by=up">{% trans "Sort" %}</a>
+              <a class="down {% if order_by == 'name_unanalyzed' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=name_unanalyzed&sort_by=down">{% trans "Sort" %}</a>
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "Size" %}
+              <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&amp;sort_by=up">{% trans "Sort" %}</a>
+              <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&amp;sort_by=down">{% trans "Sort" %}</a>
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "UUID" %}
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "Date stored" %}
+              <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&amp;sort_by=up">{% trans "Sort" %}</a>
+              <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&amp;sort_by=down">{% trans "Sort" %}</a>
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "Status" %}
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "Encrypted" %}
+            </div>
+          </th>
+          <th>
+            <div>
+              {% trans "Actions" %}
+            </div>
+          </th>
+        </thead>
+        <tbody>
+          {% for item in aips %}
+            <tr>
+              <td><a href="{% url 'view_aip' item.uuid %}">{{ item.name }}</a></td>
+              <td class="size">{{ item.size }}</td>
+              <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
+              <td><span class="timestamp">{{ item.date }}</span></td>
+              <td>{{ item.status }}</td>
+              <td>{{ item.encrypted }}</td>
+              <td><a href="{% url 'view_aip' item.uuid %}">{% trans "View" %}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div style='clear: both' class='search-summary'>
+        {% include "_pager.html" %}
+      </div>
+
+    {% else %}
+
+      <div class="alert alert-info">
+        <p>{% trans "Archival storage is empty." %}</p>
+      </div>
+
+    {% endif %}
 
   {% endif %}
 

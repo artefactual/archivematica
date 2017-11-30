@@ -55,10 +55,14 @@
             <ul class="nav navbar-nav">
 
               <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">{% trans "Transfer" %}</a></li>
-              <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">{% trans "Backlog" %}</a></li>
-              <li class="{% active request url_appraisal %}"><a href="{{ url_appraisal }}">{% trans "Appraisal" %}</a></li>
+              {% if not DISABLE_SEARCH_INDEXING %}
+                <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">{% trans "Backlog" %}</a></li>
+                <li class="{% active request url_appraisal %}"><a href="{{ url_appraisal }}">{% trans "Appraisal" %}</a></li>
+              {% endif %}
               <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">{% trans "Ingest" %}</a></li>
-              <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">{% trans "Archival storage" %}</a></li>
+              {% if not DISABLE_SEARCH_INDEXING %}
+                <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">{% trans "Archival storage" %}</a></li>
+              {% endif %}
               <li class="{% active request url_fpr %}"><a href="{{ url_fpr }}">{% trans "Preservation planning" %}</a></li>
               <li class="{% active request url_access %}"><a href="{{ url_access }}">{% trans "Access" %}</a></li>
               <li class="{% active request url_administration %}"><a href="{{ url_administration }}">{% trans "Administration" %}</a></li>
