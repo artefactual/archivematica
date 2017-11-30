@@ -57,6 +57,9 @@ class linkTaskManagerChoice(LinkTaskManager):
 
         choices = MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=str(jobChainLink.pk))
         for choice in choices:
+            if (django_settings.DISABLE_SEARCH_INDEXING and
+                    choice.chainavailable.description == 'Send to backlog'):
+                continue
             self.choices.append((choice.chainavailable_id, choice.chainavailable.description))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
