@@ -65,29 +65,31 @@
 
 {% block content %}
 
-  {% include "ingest/backlog/_search_form.html" with show_files=False %}
-  <div class="activity-indicator">
-    <img src='/media/images/ajax-loader.gif' />
-  </div>
+  {% if not DISABLE_SEARCH_INDEXING %}
+    {% include "ingest/backlog/_search_form.html" with show_files=False %}
+    <div class="activity-indicator">
+      <img src='/media/images/ajax-loader.gif' />
+    </div>
 
-  <div style='float:left;'>
-    <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
-    <div id='originals_controls'>
-      <span id='open_originals_file_button' class='btn btn-default'>{% trans "View file" %}</span>
-      <span id='originals_hide_button' class='btn btn-default'>{% trans "Hide" %}</span>
+    <div style='float:left;'>
+      <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
+      <div id='originals_controls'>
+        <span id='open_originals_file_button' class='btn btn-default'>{% trans "View file" %}</span>
+        <span id='originals_hide_button' class='btn btn-default'>{% trans "Hide" %}</span>
+      </div>
     </div>
-  </div>
-  <div style='margin-left: 30px; float:left;'>
-    <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
-    <div id='arrange_controls'>
-      <span id='arrange_create_directory_button' class='btn btn-default'>{% trans "Add directory" %}</span>
-      <span id='arrange_edit_metadata_button' class='btn btn-default'>{% trans "Edit metadata" %}</span>
-      <span id='arrange_delete_button' class='btn btn-default'>{% trans "Delete" %}</span>
-      <span id='arrange_create_sip_button' class='btn btn-primary'>{% trans "Create SIP" %}</span>
+    <div style='margin-left: 30px; float:left;'>
+      <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
+      <div id='arrange_controls'>
+        <span id='arrange_create_directory_button' class='btn btn-default'>{% trans "Add directory" %}</span>
+        <span id='arrange_edit_metadata_button' class='btn btn-default'>{% trans "Edit metadata" %}</span>
+        <span id='arrange_delete_button' class='btn btn-default'>{% trans "Delete" %}</span>
+        <span id='arrange_create_sip_button' class='btn btn-primary'>{% trans "Create SIP" %}</span>
+      </div>
     </div>
-  </div>
-  <br clear='all' />
-  <br />
+    <br clear='all' />
+    <br />
+  {% endif %}
 
   <div id="sip-container">
     <div>

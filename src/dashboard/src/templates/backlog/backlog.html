@@ -22,7 +22,12 @@
 {% endblock %}
 
 {% block content %}
-  {% include "ingest/backlog/_search_form.html" with show_files=True %}
-  <table id="backlog-entries">
-  </table>
+  {% if disable_search_indexing %}
+    <h1>Elasticsearch Indexing Disabled</h1>
+    <p class="es-indexing-disabled">Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The backlog tab is non-functional when indexing is turned off.</p>
+  {% else %}
+    {% include "ingest/backlog/_search_form.html" with show_files=True %}
+    <table id="backlog-entries">
+    </table>
+  {% endif %}
 {% endblock %}

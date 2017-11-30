@@ -435,6 +435,10 @@ def total_size_of_aips(es_client):
 
 
 def list_display(request):
+
+    if settings.DISABLE_SEARCH_INDEXING:
+        return render(request, 'archival_storage/list.html',
+                      {'disable_search_indexing': True})
     current_page_number = int(request.GET.get('page', 1))
     logger.debug('Current page: %s', current_page_number)
 
@@ -559,6 +563,7 @@ def list_display(request):
 
     return render(request, 'archival_storage/list.html',
                   {
+                      'disable_search_indexing': False,
                       'total_size': total_size,
                       'aip_indexed_file_count': aip_indexed_file_count,
                       'aips': aips,
