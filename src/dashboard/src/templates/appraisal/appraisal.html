@@ -20,9 +20,14 @@
 {% endblock %}
 
 {% block content %}
-{% verbatim %}
-<div ng-app="appraisalTab">
-    <ng-include src="'front_page/content.html'"></ng-include>
-</div>
-{% endverbatim %}
+  {% if disable_search_indexing %}
+    <h1>Elasticsearch Indexing Disabled</h1>
+    <p class="es-indexing-disabled">Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The appraisal tab is non-functional when indexing is turned off.</p>
+  {% else %}
+    {% verbatim %}
+    <div ng-app="appraisalTab">
+          <ng-include src="'front_page/content.html'"></ng-include>
+    </div>
+    {% endverbatim %}
+  {% endif %}
 {% endblock %}

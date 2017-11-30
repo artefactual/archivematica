@@ -42,6 +42,14 @@
 
         {% include "_form.html" with form=checksum_form %}
 
+        <h4>Elasticsearch Indexing</h4>
+
+        {% if disable_search_indexing %}
+          <p class="es-indexing-configuration">Elasticsearch indexing has been disabled in this Archivematica installation</p>
+        {% else %}
+          <p class="es-indexing-configuration">Elasticsearch indexing is enabled in this Archivematica installation</p>
+        {% endif %}
+
         <div>
           <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary">
         </div>
