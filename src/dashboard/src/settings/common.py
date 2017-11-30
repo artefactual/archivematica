@@ -17,6 +17,7 @@
 
 import StringIO
 import os
+import yaml
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -453,3 +454,7 @@ if SHIBBOLETH_AUTHENTICATION:
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
+
+doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
+ARCHIVEMATICA_VERSION = doc.get('version')
+AGENT_CODE = doc.get('agent_code')

@@ -38,7 +38,7 @@ import components.decorators as decorators
 import components.helpers as helpers
 import storageService as storage_service
 
-from version import get_full_version
+from version import get_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
@@ -444,6 +444,6 @@ def general(request):
 
 
 def version(request):
-    version = get_full_version()
+    version = get_version()
     agent_code = models.Agent.objects.get(identifiertype="preservation system").identifiervalue
     return render(request, 'administration/version.html', locals())
