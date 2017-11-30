@@ -300,11 +300,17 @@ RecordEventParams = namedtuple('RecordEventParams', [
 
 
 @pytest.mark.parametrize("setup_kwargs, exit_code, record_event_params", [
-    # Invalid size
+    # Invalid return from getsize
     (
-        {'file_size': 0},
+        {'file_size': None},
         1,
         RecordEventParams(scanner_is_None=True, passed=False),
+    ),
+    # Zero byte file passes
+    (
+        {'file_size': 0, 'scanner_passed': True},
+        0,
+        RecordEventParams(scanner_is_None=False, passed=True),
     ),
     # Faulty scanner
     (
