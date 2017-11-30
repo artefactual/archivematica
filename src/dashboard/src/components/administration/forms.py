@@ -298,11 +298,14 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'examine',
         'label': _('Examine contents'),
     }
+    create_sip_ignored_choices = ['Reject transfer']
+    if settings.DISABLE_SEARCH_INDEXING:
+        create_sip_ignored_choices.append('Send to backlog')
     processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
         'type': 'chain_choice',
         'name': 'create_sip',
         'label': _('Create SIP(s)'),
-        'ignored_choices': ['Reject transfer'],
+        'ignored_choices': create_sip_ignored_choices,
     }
     processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
         'type': 'replace_dict',
