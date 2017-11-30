@@ -259,8 +259,8 @@ def scan_file(file_uuid, path, date, task_uuid):
 
     try:
         size = get_size(file_uuid, path)
-        if not size:
-            logger.error('Unexpected file size')
+        if size is None:
+            logger.error('Getting file size returned: %s', size)
             return 1
 
         scanner = get_scanner(size)
