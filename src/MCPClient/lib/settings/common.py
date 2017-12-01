@@ -39,10 +39,16 @@ CONFIG_MAPPING = {
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
+
+    # [antivirus]
     'clamav_server': {'section': 'MCPClient', 'option': 'clamav_server', 'type': 'string'},
     'clamav_pass_by_reference': {'section': 'MCPClient', 'option': 'clamav_pass_by_reference', 'type': 'boolean'},
     'clamav_client_timeout': {'section': 'MCPClient', 'option': 'clamav_client_timeout', 'type': 'float'},
-    'clamav_client_threshold': {'section': 'MCPClient', 'option': 'clamav_client_threshold', 'type': 'float'},
+    'clamav_client_backend': {'section': 'MCPClient', 'option': 'clamav_client_backend', 'type': 'string'},
+
+    # float for megabytes to preserve fractions on in-code operations on bytes
+    'clamav_client_max_file_size': {'section': 'MCPClient', 'option': 'clamav_client_max_file_size', 'type': 'float'},
+    'clamav_client_max_scan_size': {'section': 'MCPClient', 'option': 'clamav_client_max_scan_size', 'type': 'float'},
 
     # [client]
     'db_engine': {'section': 'client', 'option': 'engine', 'type': 'string'},
@@ -74,7 +80,9 @@ removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
 clamav_pass_by_reference = False
 clamav_client_timeout = 86400
-clamav_client_threshold = 20  # Unit: MB
+clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
+clamav_client_max_file_size = 42        ; MB
+clamav_client_max_scan_size = 42        ; MB
 
 [client]
 user = archivematica
@@ -131,7 +139,8 @@ MYSQLPOOL_ARGUMENTS = {
 CONN_MAX_AGE = 14400
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
+SECRET_KEY = config.get(
+    'secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
 
 USE_TZ = True
 TIME_ZONE = 'UTC'
@@ -193,7 +202,9 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
 CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
-CLAMAV_CLIENT_THRESHOLD = config.get('clamav_client_threshold')
+CLAMAV_CLIENT_BACKEND = config.get('clamav_client_backend')
+CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')
+CLAMAV_CLIENT_MAX_SCAN_SIZE = config.get('clamav_client_max_scan_size')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

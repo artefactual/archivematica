@@ -26,6 +26,7 @@ import re
 import subprocess
 import sys
 import uuid
+import errno
 
 import django
 from django.conf import settings as mcpclient_settings
@@ -114,6 +115,12 @@ class ClamdScanner(ScannerBase):
         try:
             result = getattr(self, method_name)(path)
             state, details = result[result_key]
+        except IOError as err:
+            if err.errno == errno.EPIPE:
+                logger.error(
+                    '[Errno 32] Broken pipe. File not scanned. Check Clamd '
+                    'StreamMaxLength')
+                return None, state, details
         except Exception as err:
             logger.error('Virus scanning failed: %s', err, exc_info=True)
         else:
@@ -154,12 +161,17 @@ class ClamScanner(ScannerBase):
     def scan(self, path):
         passed, state, details = (False, 'ERROR', None)
         try:
-            self._call(path)
+            max_file_size = "--max-filesize=%dM" % \
+                mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE
+            max_scan_size = "--max-scansize=%dM" % \
+                mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE
+            self._call(max_file_size, max_scan_size, path)
         except subprocess.CalledProcessError as err:
             if err.returncode == 1:
                 state = 'FOUND'
             else:
-                logger.error('Virus scanning failed: %s', err.output, exc_info=True)
+                logger.error(
+                    'Virus scanning failed: %s', err.output, exc_info=True)
         else:
             passed, state = (True, 'OK')
         return passed, state, details
@@ -182,7 +194,7 @@ def file_already_scanned(file_uuid):
 
 
 def record_event(file_uuid, date, scanner, passed):
-    if file_uuid == "None":
+    if passed is None or file_uuid == "None":
         return
 
     event_detail = ''
@@ -195,7 +207,8 @@ def record_event(file_uuid, date, scanner, passed):
             )
 
     outcome = 'Pass' if passed else 'Fail'
-    logger.info('Recording new event for file %s (outcome: %s)', file_uuid, outcome)
+    logger.info(
+        'Recording new event for file %s (outcome: %s)', file_uuid, outcome)
 
     insertIntoEvents(
         fileUUID=file_uuid,
@@ -226,14 +239,24 @@ def get_parser():
     return parser
 
 
-def get_scanner(size):
-    """ Return the ClamAV scanner that is more appropiate given the size of the
-    file and the threshold setting. The goal is to use ClamScanner instead of
-    ClamdScanner because the latter won't take files that are too big. """
-    threshold = mcpclient_settings.CLAMAV_CLIENT_THRESHOLD * 1024 * 1024  # Convert to bytes
-    if size > threshold:
-        return ClamScanner()
-    return ClamdScanner()
+SCANNERS = [ClamScanner, ClamdScanner]
+SCANNERS_NAMES = [b.__name__.lower() for b in SCANNERS]
+DEFAULT_SCANNER = ClamdScanner
+
+
+def get_scanner():
+    """ Return the ClamAV client configured by the user and found in the
+    installation's environment variables. Clamdscanner may perform quicker
+    than Clamscanner given a larger number of objects. Return clamdscanner
+    object as a default if no other, or an incorrect value is specified. """
+
+    choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
+    if choice not in SCANNERS_NAMES:
+        logger.warning('Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):'
+                       ' "%s"; using %s.',
+                       choice, DEFAULT_SCANNER.__name__)
+        return DEFAULT_SCANNER()
+    return SCANNERS[SCANNERS_NAMES.index(choice)]()
 
 
 def get_size(file_uuid, path):
@@ -258,30 +281,58 @@ def scan_file(file_uuid, path, date, task_uuid):
     scanner, passed = None, False
 
     try:
+
         size = get_size(file_uuid, path)
         if size is None:
             logger.error('Getting file size returned: %s', size)
             return 1
 
-        scanner = get_scanner(size)
-        logger.info(
-            'Using scanner %s (%s - %s)',
-            scanner.program(),
-            scanner.version(),
-            scanner.virus_definitions())
+        max_file_size = (
+            mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE * 1024 * 1024)
+        max_scan_size = (
+            mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE * 1024 * 1024)
 
-        passed, state, details = scanner.scan(path)
+        valid_scan = True
+
+        if size > max_file_size:
+            logger.info(
+                'File will not be scanned. Size %s bytes greater than scanner '
+                'max file size %s bytes', size, max_file_size)
+            valid_scan = False
+        elif size > max_scan_size:
+            logger.info(
+                'File will not be scanned. Size %s bytes greater than scanner '
+                'max scan size %s bytes', size, max_scan_size)
+            valid_scan = False
+
+        if valid_scan:
+            scanner = get_scanner()
+            logger.info(
+                'Using scanner %s (%s - %s)',
+                scanner.program(),
+                scanner.version(),
+                scanner.virus_definitions())
+
+            passed, state, details = scanner.scan(path)
+        else:
+            passed, state, details = None, None, None
+
     except:
         logger.error('Unexpected error scanning file %s', path, exc_info=True)
         return 1
     else:
-        logger.info('File %s scanned!', path)
-        logger.debug('passed=%s state=%s details=%s',
-                     passed, state, details)
+        # record pass or fail, but not None if the file hasn't
+        # been scanned, e.g. Max File Size thresholds being too low.
+        if passed is not None:
+            logger.info('File %s scanned!', path)
+            logger.debug('passed=%s state=%s details=%s',
+                         passed, state, details)
     finally:
         record_event(file_uuid, date, scanner, passed)
 
-    return 0 if passed else 1
+    # If True or None, then we have no error, the file can move through the
+    # process as expected...
+    return 1 if passed is False else 0
 
 
 def main(args):
