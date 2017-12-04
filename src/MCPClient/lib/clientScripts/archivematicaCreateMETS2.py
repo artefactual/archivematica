@@ -1134,9 +1134,8 @@ def write_mets(tree, filename):
         f.write(fileContents)
 
 
-def add_normative_structmap_div(all_fsitems, root_el, directories, index=0,
-                                path_to_el=None):
-    """Recursively document all of the file/dir paths in ``all_fsitems`` in the
+def add_normative_structmap_div(all_fsitems, root_el, directories, path_to_el=None):
+    """Document all of the file/dir paths in ``all_fsitems`` in the
     lxml._Element instance ``root_el``. This constructs the <mets:div> element
     tree under the TYPE "logical" structMap with LABEL "Normative Directory
     Structure". Said structural map documents all files and directories,
@@ -1149,7 +1148,6 @@ def add_normative_structmap_div(all_fsitems, root_el, directories, index=0,
     :param dict directories: maps directory model instance ``currentlocation``
         values to directories for any and all directory model instances
         associated to the current SIP.
-    :param int index: index of the ``FSItem()`` to document
     :param dict path_to_el: maps paths from ``all_fsitems`` to the lxml elements
         that document them.
     :returns: None.
@@ -1157,38 +1155,32 @@ def add_normative_structmap_div(all_fsitems, root_el, directories, index=0,
     global globalDmdSecCounter
     global dmdSecs
     path_to_el = path_to_el or {'': root_el}
-    try:
-        fsitem = all_fsitems[index]
-        index += 1
-    except IndexError:
-        return
-    parent_path = os.path.dirname(fsitem.path)
-    basename = os.path.basename(fsitem.path)
-    try:
-        parent_el = path_to_el[parent_path]
-    except KeyError:
-        logger.info('Unable to find parent path {} of item {} in path_to_el\n{}'.format(
-            parent_path, fsitem.path, pprint.pformat(path_to_el)))
-        raise
-    el = etree.SubElement(
-        parent_el,
-        ns.metsBNS + 'div',
-        TYPE={'dir': 'Directory'}.get(fsitem.type, 'Item'),
-        LABEL=basename)
-    if fsitem.is_empty:  # Create dmdSec for empty dirs
-        fsitem_path = '%SIPDirectory%' + fsitem.path
-        dir_mdl = directories.get(
-            fsitem_path, directories.get(
-                fsitem_path.rstrip('/'), FakeDirMdl(uuid=str(uuid4()))))
-        dirDmdSec = getDirDmdSec(dir_mdl, fsitem_path)
-        globalDmdSecCounter += 1
-        dmdSecs.append(dirDmdSec)
-        dir_dmd_id = 'dmdSec_' + str(globalDmdSecCounter)
-        dirDmdSec.set('ID', dir_dmd_id)
-        el.set('DMDID', dir_dmd_id)
-    path_to_el[fsitem.path] = el
-    add_normative_structmap_div(
-        all_fsitems, root_el, directories, index=index, path_to_el=path_to_el)
+    for fsitem in all_fsitems:
+        parent_path = os.path.dirname(fsitem.path)
+        basename = os.path.basename(fsitem.path)
+        try:
+            parent_el = path_to_el[parent_path]
+        except KeyError:
+            logger.info('Unable to find parent path {} of item {} in path_to_el\n{}'.format(
+                parent_path, fsitem.path, pprint.pformat(path_to_el)))
+            raise
+        el = etree.SubElement(
+            parent_el,
+            ns.metsBNS + 'div',
+            TYPE={'dir': 'Directory'}.get(fsitem.type, 'Item'),
+            LABEL=basename)
+        if fsitem.is_empty:  # Create dmdSec for empty dirs
+            fsitem_path = '%SIPDirectory%' + fsitem.path
+            dir_mdl = directories.get(
+                fsitem_path, directories.get(
+                    fsitem_path.rstrip('/'), FakeDirMdl(uuid=str(uuid4()))))
+            dirDmdSec = getDirDmdSec(dir_mdl, fsitem_path)
+            globalDmdSecCounter += 1
+            dmdSecs.append(dirDmdSec)
+            dir_dmd_id = 'dmdSec_' + str(globalDmdSecCounter)
+            dirDmdSec.set('ID', dir_dmd_id)
+            el.set('DMDID', dir_dmd_id)
+        path_to_el[fsitem.path] = el
 
 
 if __name__ == '__main__':
