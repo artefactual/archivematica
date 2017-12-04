@@ -25,6 +25,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+import calendar
 import datetime
 import json
 import logging
@@ -412,6 +413,18 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
     xml = ElementTree.tostring(root)
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
+    # Pull the create time from the METS header
+    mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
+    mets_created_attr = mets_hdr.get('CREATEDATE')
+
+    created = time.time()
+
+    if mets_created_attr:
+        try:
+            created = calendar.timegm(time.strptime(mets_created_attr, '%Y-%m-%dT%H:%M:%S'))
+        except ValueError:
+            print("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
+
     aipData = {
         'uuid': uuid,
         'name': name,
@@ -419,7 +432,7 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'size': (size or os.path.getsize(filePath)) / 1024 / 1024,
         'mets': mets_data,
         'origin': get_dashboard_uuid(),
-        'created': os.path.getmtime(pathToMETS),
+        'created': created,
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
         'countAIPsinAIC': aips_in_aic,
