@@ -175,7 +175,7 @@ if __name__ == '__main__':
         print "Nobody to send it to. Please add users with valid email addresses in the dashboard."
         exit(1)
     subject = "Archivematica Fail Report for %s: %s-%s" % (opts.unitType, opts.unitName, opts.unitIdentifier)
-    from_ = "ArchivematicaSystem@archivematica.org"
+    from_ = "archivematica_system@moma.org"
     content = getContentFor(opts.unitType, opts.unitName, opts.unitIdentifier)
     server = "localhost"
     

@@ -156,7 +156,7 @@ def report(uuid):
             subject='Normalization failure report for {} ({})'.format(ctxdict['name'], ctxdict['uuid']),
             message='Please see the attached HTML document',
             html_message=html_message,
-            from_email='Archivematica <ArchivematicaSystem@archivematica.org>',
+            from_email='Archivematica <archivematica_system@moma.org>',
             recipient_list=recipient_list,
         )
     except (SMTPException):
