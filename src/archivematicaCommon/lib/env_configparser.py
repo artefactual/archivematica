@@ -70,3 +70,7 @@ class EnvConfigParser(ConfigParser.SafeConfigParser):
     @fallback_option
     def getboolean(self, *args, **kwargs):
         return ConfigParser.SafeConfigParser.getboolean(self, *args, **kwargs)
+
+    @fallback_option
+    def getiboolean(self, *args, **kwargs):
+        return not self.getboolean(*args, **kwargs)
