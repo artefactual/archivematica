@@ -38,7 +38,10 @@ CONFIG_MAPPING = {
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
-    'disable_search_indexing': {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
+    'search_enabled': [
+        {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
+        {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'iboolean'},
+    ],
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -58,6 +61,8 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
+SEARCH_ENABLED_DEFAULT = False
+
 CONFIG_DEFAULTS = """[MCPClient]
 MCPArchivematicaServer = localhost:4730
 sharedDirectoryMounted = /var/archivematica/sharedDirectory/
@@ -71,7 +76,7 @@ LoadSupportedCommandsSpecial = True
 numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
-disableElasticsearchIndexing = True
+search_enabled = {search_enabled_default}
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -88,7 +93,7 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
-"""
+""".format(search_enabled_default=SEARCH_ENABLED_DEFAULT)
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
@@ -184,7 +189,6 @@ LOAD_SUPPORTED_COMMANDS_SPECIAL = config.get('load_supported_commands_special')
 GEARMAN_SERVER = config.get('gearman_server')
 NUMBER_OF_TASKS = config.get('number_of_tasks')
 CLIENT_MODULES_FILE = config.get('client_modules_file')
-DISABLE_SEARCH_INDEXING = config.get('disable_search_indexing')
 REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
@@ -195,3 +199,4 @@ CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
 CLAMAV_CLIENT_THRESHOLD = config.get('clamav_client_threshold')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
+SEARCH_ENABLED = config.get('search_enabled')

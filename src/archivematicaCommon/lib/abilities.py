@@ -25,7 +25,8 @@ def choice_is_available(choice, settings):
     object ``settings``.
     """
     for ability in ABILITIES:
-        feature_enabled = getattr(settings, ability['enabled_attr'], False)
+        enabled_attr = ability['enabled_attr']
+        feature_enabled = getattr(settings, enabled_attr, False)
         if not feature_enabled:
             choice_tuple = (
                 choice.choiceavailableatlink.currenttask.description,
