@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from components import helpers
 from main import models
 
+from abilities import choice_is_available
 import storageService as storage_service
 
 
@@ -298,14 +299,11 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'examine',
         'label': _('Examine contents'),
     }
-    create_sip_ignored_choices = ['Reject transfer']
-    if settings.DISABLE_SEARCH_INDEXING:
-        create_sip_ignored_choices.append('Send to backlog')
     processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
         'type': 'chain_choice',
         'name': 'create_sip',
         'label': _('Create SIP(s)'),
-        'ignored_choices': create_sip_ignored_choices,
+        'ignored_choices': ['Reject transfer'],
     }
     processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
         'type': 'replace_dict',
@@ -442,7 +440,8 @@ class ProcessingConfigurationForm(forms.Form):
                     ignored_choices = field.get('ignored_choices', [])
                     for item in chain_choices:
                         chain = item.chainavailable
-                        if chain.description in ignored_choices:
+                        if ((chain.description in ignored_choices) or
+                                (not choice_is_available(item, settings))):
                             continue
                         choices.append((chain.pk, chain.description))
                 elif ftype == 'replace_dict':

@@ -86,8 +86,7 @@ def execute(request):
     :param request: The Django request object
     :return: The main backlog page rendered
     """
-    disable_search_indexing = django_settings.DISABLE_SEARCH_INDEXING
-    if not disable_search_indexing:
+    if not django_settings.DISABLE_SEARCH_INDEXING:
         es_client = elasticSearchFunctions.get_client()
         check_and_remove_deleted_transfers(es_client)
     return render(request, 'backlog/backlog.html', locals())

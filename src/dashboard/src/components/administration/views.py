@@ -458,7 +458,6 @@ def general(request):
     else:
         if not pipeline:
             messages.warning(request, _("This pipeline is not registered with the storage service or has been disabled in the storage service. Please contact an administrator."))
-    disable_search_indexing = django_settings.DISABLE_SEARCH_INDEXING
     return render(request, 'administration/general.html', locals())
 
 
