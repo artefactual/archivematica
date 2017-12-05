@@ -36,7 +36,7 @@ logger = get_script_logger('archivematica.mcp.client.elasticSearchIndexProcessTr
 
 
 if __name__ == '__main__':
-    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+    if not mcpclient_settings.SEARCH_ENABLED:
         logger.info('Skipping indexing: indexing is currently disabled.')
         sys.exit(0)
 

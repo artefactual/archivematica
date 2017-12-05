@@ -38,7 +38,7 @@ logger = get_script_logger("archivematica.mcp.client.removeAIPFilesFromIndex")
 if __name__ == '__main__':
     aip_uuid = sys.argv[1]
 
-    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+    if not mcpclient_settings.SEARCH_ENABLED:
         logger.info('Skipping. Indexing is currently disabled.')
 
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)

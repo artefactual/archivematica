@@ -89,7 +89,7 @@ def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
-    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+    if not mcpclient_settings.SEARCH_ENABLED:
         logger.info('Skipping indexing: indexing is currently disabled.')
         return 0
 
