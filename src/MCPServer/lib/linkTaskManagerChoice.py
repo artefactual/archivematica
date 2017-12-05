@@ -37,6 +37,7 @@ choicesAvailableForUnitsLock = threading.Lock()
 
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
+from abilities import choice_is_available
 
 from main.models import MicroServiceChainChoice, UserProfile, Job
 from django.conf import settings as django_settings
@@ -54,14 +55,12 @@ class linkTaskManagerChoice(LinkTaskManager):
         self.choices = []
         self.delayTimerLock = threading.Lock()
         self.delayTimer = None
-
-        choices = MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=str(jobChainLink.pk))
+        choices = MicroServiceChainChoice.objects.filter(
+            choiceavailableatlink_id=str(jobChainLink.pk))
         for choice in choices:
-            if (django_settings.DISABLE_SEARCH_INDEXING and
-                    choice.chainavailable.description == 'Send to backlog'):
-                continue
-            self.choices.append((choice.chainavailable_id, choice.chainavailable.description))
-
+            if choice_is_available(choice, django_settings):
+                self.choices.append((choice.chainavailable_id,
+                                     choice.chainavailable.description))
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
             time.sleep(django_settings.WAIT_ON_AUTO_APPROVE)
