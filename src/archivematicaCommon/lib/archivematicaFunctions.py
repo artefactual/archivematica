@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import absolute_import
 import collections
 import hashlib
 import locale
@@ -34,7 +35,7 @@ from uuid import uuid4
 from lxml import etree
 
 from main.models import DashboardSetting
-from namespaces import NSMAP
+from .namespaces import NSMAP
 
 
 REQUIRED_DIRECTORIES = [

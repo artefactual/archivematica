@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import ConfigParser
 
 from django.core.exceptions import ImproperlyConfigured
 
-from env_configparser import EnvConfigParser
+from .env_configparser import EnvConfigParser
 
 
 class Config(object):

@@ -21,6 +21,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import absolute_import
 
 from functools import wraps
 import logging
@@ -30,7 +31,7 @@ import string
 import sys
 import uuid
 
-from archivematicaFunctions import strToUnicode
+from .archivematicaFunctions import strToUnicode
 
 from django.db import close_old_connections
 from django.db.models import Q
