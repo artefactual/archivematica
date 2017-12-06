@@ -27,8 +27,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from appconfig import Config
 
-SEARCH_ENABLED_DEFAULT = False
-
 CONFIG_MAPPING = {
     # [Dashboard]
     'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
@@ -65,7 +63,7 @@ shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
-search_enabled = {search_enabled_default}
+search_enabled = false
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 ldap_authentication = False
@@ -81,7 +79,7 @@ database = MCP
 port = 3306
 engine = django.db.backends.mysql
 conn_max_age = 0
-""".format(search_enabled_default=SEARCH_ENABLED_DEFAULT)
+"""
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))

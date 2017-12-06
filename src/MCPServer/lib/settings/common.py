@@ -55,8 +55,6 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
-SEARCH_ENABLED_DEFAULT = False
-
 CONFIG_DEFAULTS = """[MCPServer]
 MCPArchivematicaServer = localhost:4730
 watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
@@ -66,7 +64,7 @@ rejectedDirectory = %%sharedPath%%rejected/
 watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
-search_enabled = {search_enabled_default}
+search_enabled = false
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -82,7 +80,7 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
-""".format(search_enabled_default=SEARCH_ENABLED_DEFAULT)
+"""
 
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPSERVER', attrs=CONFIG_MAPPING)
