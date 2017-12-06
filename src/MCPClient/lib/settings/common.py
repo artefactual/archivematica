@@ -67,8 +67,6 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
-SEARCH_ENABLED_DEFAULT = False
-
 CONFIG_DEFAULTS = """[MCPClient]
 MCPArchivematicaServer = localhost:4730
 sharedDirectoryMounted = /var/archivematica/sharedDirectory/
@@ -82,7 +80,7 @@ LoadSupportedCommandsSpecial = True
 numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
-search_enabled = {search_enabled_default}
+search_enabled = false
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -102,7 +100,7 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
-""".format(search_enabled_default=SEARCH_ENABLED_DEFAULT)
+"""
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
