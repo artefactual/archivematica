@@ -1,4 +1,7 @@
+from __future__ import unicode_literals
 # Standard library, alphabetical by import source
+from builtins import str
+from builtins import zip
 import json
 import logging
 import os
@@ -189,7 +192,7 @@ def bulk_extractor(request, fileuuid):
 
 def _parse_bulk_extractor_report(data):
     headers = ['offset', 'content', 'context']
-    return [dict(zip(headers, l.split('\t'))) for l in data.splitlines() if not l.startswith('#')]
+    return [dict(list(zip(headers, l.split('\t')))) for l in data.splitlines() if not l.startswith('#')]
 
 
 def file_details(request, fileuuid):

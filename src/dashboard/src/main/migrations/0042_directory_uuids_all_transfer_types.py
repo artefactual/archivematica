@@ -124,7 +124,7 @@ def data_migration(apps, schema_editor):
         }
     }
 
-    for meta in transfer_types.values():
+    for meta in list(transfer_types.values()):
 
         next_chain_link = (
             MicroServiceChainLink.objects.get(

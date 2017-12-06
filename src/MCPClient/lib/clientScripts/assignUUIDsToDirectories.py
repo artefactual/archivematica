@@ -31,6 +31,7 @@ without doing anything.
 """
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import argparse
 from functools import wraps

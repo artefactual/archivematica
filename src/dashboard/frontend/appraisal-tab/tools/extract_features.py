@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import zip
 import argparse
 import json
 import os
@@ -19,7 +21,7 @@ def main(uuid, log_path, output):
         with open(filepath) as f:
             data = f.read()
 
-        features[name] = [dict(zip(HEADERS, l.split('\t'))) for l in data.splitlines() if not l.startswith('#')]
+        features[name] = [dict(list(zip(HEADERS, l.split('\t')))) for l in data.splitlines() if not l.startswith('#')]
 
     with open(os.path.join(output, uuid), 'w') as outfile:
         print(json.dumps(features, indent=2), file=outfile)

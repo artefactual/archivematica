@@ -21,6 +21,8 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import object
 import logging
 import os
 
@@ -35,7 +37,7 @@ from django.conf import settings as django_settings
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
 
-class unit:
+class unit(object):
     """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
 
     def __init__(self, currentPath, UUID):

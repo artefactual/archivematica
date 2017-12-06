@@ -21,6 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
 from linkTaskManager import LinkTaskManager
 
 from main.models import TaskConfigAssignMagicLink

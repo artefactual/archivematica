@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,9 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import ast
 import copy
-import httplib
+import http.client
 import json
 import logging
 import os
@@ -226,7 +230,7 @@ def search_augment_file_results(es_client, raw_results):
         if 'fields' not in item:
             continue
 
-        clone = {k: v[0] for k, v in item['fields'].copy().items()}
+        clone = {k: v[0] for k, v in list(item['fields'].copy().items())}
 
         # try to find AIP details in database
         try:
@@ -570,7 +574,7 @@ def list_display(request):
 
 def document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
-    es_client = httplib.HTTPConnection(elasticSearchFunctions.get_host())
+    es_client = http.client.HTTPConnection(elasticSearchFunctions.get_host())
     es_client.request("GET", "/aips/" + type + "/" + document_id)
     response = es_client.getresponse()
     data = response.read()

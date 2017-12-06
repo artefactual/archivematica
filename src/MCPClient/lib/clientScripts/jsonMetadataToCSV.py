@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+from __future__ import unicode_literals
+from builtins import range
 import csv
 import json
 import os
@@ -43,7 +45,7 @@ def fetch_keys(objects):
 
     # now we need to update the list to ensure there are the right numbers
     # of occurrences.
-    for key, count in occurrence_count.items():
+    for key, count in list(occurrence_count.items()):
         index = keys.index(key) + 1
         for _ in range(count - 1):
             keys.insert(index, key)
@@ -80,7 +82,7 @@ def fix_encoding(row):
     keys or values passed to writerow(). This encodes them all to
     UTF-8 bytestrings.
     """
-    return {key.encode('utf-8'): encode_item(value) for key, value in row.items()}
+    return {key.encode('utf-8'): encode_item(value) for key, value in list(row.items())}
 
 
 def object_to_row(row, headers):
@@ -91,7 +93,7 @@ def object_to_row(row, headers):
     """
     def sort_row(keyvalue):
         return headers.index(keyvalue[0])
-    row = sorted(row.items(), key=sort_row)
+    row = sorted(list(row.items()), key=sort_row)
     row = [kv[1] for kv in row]
     return shallow_flatten(row)
 

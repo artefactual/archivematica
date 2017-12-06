@@ -21,6 +21,8 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import str
 import ast
 import logging
 import os
@@ -83,10 +85,10 @@ class linkTaskManagerFiles(LinkTaskManager):
 
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         # Escape all values for shell
-        for key, value in SIPReplacementDic.items():
+        for key, value in list(SIPReplacementDic.items()):
             SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         self.tasksLock.acquire()
-        for file, fileUnit in unit.fileList.items():
+        for file, fileUnit in list(unit.fileList.items()):
             if filterFileEnd:
                 if not file.endswith(filterFileEnd):
                     continue
@@ -113,7 +115,7 @@ class linkTaskManagerFiles(LinkTaskManager):
 
             # Apply file replacement values
             commandReplacementDic = fileUnit.getReplacementDic()
-            for key, value in commandReplacementDic.items():
+            for key, value in list(commandReplacementDic.items()):
                 # Escape values for shell
                 commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
             arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)

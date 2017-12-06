@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import json
 import os
 import sys
@@ -25,7 +26,7 @@ def main(sip_uuid, dc_path):
         data = json.load(json_data)
     dc = models.DublinCore(metadataappliestoidentifier=sip_uuid,
                            metadataappliestotype_id=INGEST_METADATA_TYPE)
-    for key, value in data.items():
+    for key, value in list(data.items()):
         try:
             setattr(dc, key, value)
         except AttributeError:

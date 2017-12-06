@@ -21,6 +21,8 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import str
 import datetime
 import logging
 import lxml.etree as etree
@@ -67,7 +69,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         else:
             args = DashboardSetting.objects.get_dict(stc.execute)
             if args:
-                args = {'%{}%'.format(key): value for key, value in args.items()}
+                args = {'%{}%'.format(key): value for key, value in list(args.items())}
                 self.choices.append((len(self.choices), stc.execute, str(args)))
 
         preConfiguredChain = self.checkForPreconfiguredXML()

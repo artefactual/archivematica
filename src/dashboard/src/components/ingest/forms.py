@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,13 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from main import models
 from django.conf import settings
 
 
 class DublinCoreMetadataForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.DublinCore
         fields = ('title', 'is_part_of', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
         widgets = {
@@ -68,7 +70,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
 
 
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
-    class Meta:
+    class Meta(object):
         model = models.DublinCore
         fields = ('title', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')  # Removed 'is_part_of'
         widgets = DublinCoreMetadataForm.Meta.widgets.copy()

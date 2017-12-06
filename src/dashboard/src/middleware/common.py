@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import str
+from builtins import object
 import sys
 import traceback
 
@@ -27,7 +30,7 @@ from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 import elasticsearch
 
 
-class AJAXSimpleExceptionResponseMiddleware:
+class AJAXSimpleExceptionResponseMiddleware(object):
     def process_exception(self, request, exception):
         if not settings.DEBUG or not request.is_ajax():
             return
@@ -40,13 +43,13 @@ class AJAXSimpleExceptionResponseMiddleware:
         return HttpResponseServerError(response)
 
 
-class SpecificExceptionErrorPageResponseMiddleware:
+class SpecificExceptionErrorPageResponseMiddleware(object):
     def process_exception(self, request, exception):
         if settings.DEBUG and isinstance(exception, TemplateDoesNotExist):
             return HttpResponseServerError('Missing template: ' + str(exception))
 
 
-class ElasticsearchMiddleware:
+class ElasticsearchMiddleware(object):
     """
     Redirect the user to a friendly error page when an exception related to
     Elasticsearch is detected.

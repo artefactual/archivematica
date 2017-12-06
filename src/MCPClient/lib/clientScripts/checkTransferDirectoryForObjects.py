@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import unicode_literals
 import os
 import sys
 exitInidcatingThereAreObjects = 179

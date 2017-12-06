@@ -25,6 +25,9 @@
 # /src/dashboard/src/main/models.py
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import next
+from builtins import zip
 import collections
 import csv
 import sys
@@ -60,7 +63,7 @@ def parseMetadata(SIPPath):
             continue
         # Provide warning if this file already has differing metadata
         # Not using all_metadata.update(csv_metadata) because of that
-        for entry, values in csv_metadata.items():
+        for entry, values in list(csv_metadata.items()):
             if entry in all_metadata and all_metadata[entry] != values:
                 print('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
             existing = all_metadata.get(entry, collections.OrderedDict())
@@ -107,7 +110,7 @@ def parseMetadataCSV(metadataCSVFilePath):
                 entry_name = entry_name[:-1]
             # Strip file/dir name from values
             row = row[1:]
-            values = archivematicaFunctions.OrderedListsDict(zip(header, row))
+            values = archivematicaFunctions.OrderedListsDict(list(zip(header, row)))
             if entry_name in metadata and metadata[entry_name] != values:
                 print('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
             metadata[entry_name] = values

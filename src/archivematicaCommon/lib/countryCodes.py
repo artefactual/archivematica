@@ -27,6 +27,7 @@
 # Country Name;ISO 3166-1-alpha-2 code
 
 
+from __future__ import unicode_literals
 countryCodes = {
     "AFGHANISTAN": "AF",
     "ÅLAND ISLANDS": "AX",
@@ -292,7 +293,7 @@ def getCodeForCountry(country):
 
 
 def getCountryFromCode(code):
-    for key, value in countryCodes.items():
+    for key, value in list(countryCodes.items()):
         if value == code:
             return key
     return None

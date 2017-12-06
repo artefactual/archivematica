@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 # Stdlib, alphabetical by import source
+from __future__ import unicode_literals
+from builtins import str
 import logging
 import os
 import threading
@@ -67,7 +69,7 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         # Apply unit (SIP/Transfer) replacement values
         commandReplacementDic = unit.getReplacementDic(directory)
         # Escape all values for shell
-        for key, value in commandReplacementDic.items():
+        for key, value in list(commandReplacementDic.items()):
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 

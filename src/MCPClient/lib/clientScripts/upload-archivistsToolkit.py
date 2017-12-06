@@ -17,6 +17,8 @@
 #
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import input
 import argparse
 import logging
 import os
@@ -49,22 +51,22 @@ def recursive_file_gen(mydir):
 def get_user_input():
     print("Archivematica import to AT script")
     print("Welcome\n")
-    atdbhost = input("AT database hostname:")
-    atdbport = input("AT database port:")
-    atdbuser = input("AT database user name:")
-    atpass = input("AT database user password:")
-    atuser = input("AT username:")
-    atdb = input("AT database name:")
+    atdbhost = eval(input("AT database hostname:"))
+    atdbport = eval(input("AT database port:"))
+    atdbuser = eval(input("AT database user name:"))
+    atpass = eval(input("AT database user password:"))
+    atuser = eval(input("AT username:"))
+    atdb = eval(input("AT database name:"))
 
-    dip_location = input("Location of DIP:")
-    dip_name = input("Name of DIP:")
+    dip_location = eval(input("Location of DIP:"))
+    dip_name = eval(input("Name of DIP:"))
 
-    object_type = input("Object Type:")
-    ead_actuate = input("EAD Actuate:")
-    ead_show = input("EAD Show:")
-    use_statement = input("Use Statement:")
+    object_type = eval(input("Object Type:"))
+    ead_actuate = eval(input("EAD Actuate:"))
+    ead_show = eval(input("EAD Show:"))
+    use_statement = eval(input("Use Statement:"))
 
-    uri_prefix = input("prefix for uri:")
+    uri_prefix = eval(input("prefix for uri:"))
     return atdbhost, atdbport, atdbuser, atpass, atdb, dip_location, dip_name, atuser, object_type, ead_actuate, ead_show, use_statement, uri_prefix
 
 

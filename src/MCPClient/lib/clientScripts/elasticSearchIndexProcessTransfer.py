@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
 
+from __future__ import unicode_literals
 import sys
 
 # elasticSearchFunctions requires Django to be set up

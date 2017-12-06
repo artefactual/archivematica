@@ -2,7 +2,9 @@
 """Tests for the archivematicaClamscan.py client script."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import object
 import os
 import subprocess
 import sys
@@ -220,7 +222,7 @@ args['date'] = '2019-12-01'
 args['task_uuid'] = 'c380e94e-7a7b-4ab8-aa72-ec0644cc3f5d'
 
 
-class FileMock():
+class FileMock(object):
     def __init__(self, size):
         self.size = size
 
@@ -243,7 +245,7 @@ class ScannerMock(archivematicaClamscan.ScannerBase):
 
 def test_main_with_expected_arguments(mocker):
     mocker.patch('archivematicaClamscan.scan_file')
-    archivematicaClamscan.main(args.values())
+    archivematicaClamscan.main(list(args.values()))
     archivematicaClamscan.scan_file.assert_called_once_with(**dict(args))
 
 

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Shibboleth authentication settings
 
 SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'

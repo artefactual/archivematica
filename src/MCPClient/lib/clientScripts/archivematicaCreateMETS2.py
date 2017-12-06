@@ -23,6 +23,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import collections
 import copy
 from glob import glob
@@ -154,7 +156,7 @@ def getDublinCore(unit, id):
     ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, 'dc': ns.dcNS})
     ret.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
 
-    for dbname, term in db_field_mapping.items():
+    for dbname, term in list(db_field_mapping.items()):
         txt = getattr(dc, dbname)
         elem_ns = ''
         # See http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements for which elements are which namespace
@@ -253,7 +255,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
     # e.g., dc.description.abstract is mapped to <dc:abstract>
     refinement_regex = re.compile('\w+\.(.+)')
 
-    for key, value in metadata.items():
+    for key, value in list(metadata.items()):
         if key.startswith("dc.") or key.startswith("dcterms."):
             if dc is None:
                 globalDmdSecCounter += 1
@@ -704,7 +706,7 @@ def getIncludedStructMap(baseDirectoryPath):
                 else:
                     print("error: no fileUUID for ", fileName, file=sys.stderr)
                     sharedVariablesAcrossModules.globalErrorCount += 1
-    for fileName, fileID in fileNameToFileID.items():
+    for fileName, fileID in list(fileNameToFileID.items()):
         # locate file based on key
         continue
         print(fileName)
@@ -922,8 +924,8 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath,
                 label = "mets.xml-%s" % (GROUPID)
                 dspace_dmdsecs = createDSpaceDMDSec(label, itemdirectoryPath, directoryPathSTR)
                 if dspace_dmdsecs:
-                    dmdSecs.extend(dspace_dmdsecs.values())
-                    ids = ' '.join(dspace_dmdsecs.keys())
+                    dmdSecs.extend(list(dspace_dmdsecs.values()))
+                    ids = ' '.join(list(dspace_dmdsecs.keys()))
                     if admidApplyTo is not None:
                         admidApplyTo.set("DMDID", ids)
                     else:
@@ -1095,7 +1097,7 @@ def create_object_metadata(struct_map, baseDirectoryPath):
         mdwrap = etree.SubElement(sourcemd, ns.metsBNS + 'mdWrap', {'MDTYPE': 'OTHER', 'OTHERMDTYPE': 'BagIt'})
         xmldata = etree.SubElement(mdwrap, ns.metsBNS + 'xmlData')
         bag_metadata = etree.SubElement(xmldata, "transfer_metadata")
-        for key, value in bagdata.items():
+        for key, value in list(bagdata.items()):
             try:
                 bag_tag = etree.SubElement(bag_metadata, key)
             except ValueError:

@@ -1,4 +1,6 @@
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 from collections import defaultdict
 import re
 import six
@@ -73,7 +75,7 @@ def xml2obj(src):
         def __contains__(self, name):
             return name in self._attrs
 
-        def __nonzero__(self):
+        def __bool__(self):
             return bool(self._attrs or self.data)
 
         def __getattr__(self, name):
@@ -114,7 +116,7 @@ def xml2obj(src):
             self.current = DataNode()
             self.text_parts = []
             # xml attributes --> python attributes
-            for k, v in attrs.items():
+            for k, v in list(attrs.items()):
                 self.current._add_xml_attr(_name_mangle(k), v)
 
         def endElement(self, name):

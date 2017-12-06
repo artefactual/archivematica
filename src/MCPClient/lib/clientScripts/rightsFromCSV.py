@@ -22,6 +22,8 @@
 # @author Mike Cantelon <mike@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import csv
 import os
 import sys
@@ -173,7 +175,7 @@ class RightCsvReader(object):
 
     def validate_columns(self, row):
         """Check for invalid/missing columns."""
-        for column_name in row.keys():
+        for column_name in list(row.keys()):
             if column_name not in self.allowed_column_names:
                 raise RightsRowException('Invalid column found: {}'.format(column_name), self)
 
@@ -195,7 +197,7 @@ class RightCsvReader(object):
 
     def set_model_instance_attributes_to_row_columns_if_set(self, model_instance, attribute_to_column_map):
         """Using a dict that maps model attributes to column names, set a model instance's attributes."""
-        for attribute, column_name in attribute_to_column_map.iteritems():
+        for attribute, column_name in attribute_to_column_map.items():
             self.set_model_instance_attribute_to_row_column_if_set(model_instance, attribute, column_name)
 
     def store_doc_id(self, model, parent_instance, parent_property, type_property, value_property, role_property):

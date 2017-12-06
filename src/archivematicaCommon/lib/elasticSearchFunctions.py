@@ -24,7 +24,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import unicode_literals
 
+from builtins import str
+from builtins import range
 import datetime
 import json
 import logging
@@ -1086,7 +1089,7 @@ def normalize_results_dict(d):
     The "fields" dict always returns all sections of the response as arrays; however, for Archivematica's records, only a single value is ever contained.
     This normalizes the dict by replacing the arrays with their first value.
     """
-    return {k: v[0] for k, v in d['fields'].items()}
+    return {k: v[0] for k, v in list(d['fields'].items())}
 
 
 def augment_raw_search_results(raw_results):

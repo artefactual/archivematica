@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import logging
 import logging.config
 import logging.handlers

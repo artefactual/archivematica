@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import zip
+from builtins import map
+from builtins import str
 import base64
 import errno
 import os
@@ -80,7 +84,7 @@ def _prepare_browse_response(response):
     :return: Dict response ready to be returned to file-browser JS.
     """
     # Generate display string based on properties
-    for entry, prop in response.get('properties', {}).items():
+    for entry, prop in list(response.get('properties', {}).items()):
         logger.debug('Properties for %s: %s', entry, prop)
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
@@ -96,9 +100,9 @@ def _prepare_browse_response(response):
         elif 'size' in prop:
             prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
 
-    response['entries'] = map(base64.b64encode, response['entries'])
-    response['directories'] = map(base64.b64encode, response['directories'])
-    response['properties'] = {base64.b64encode(k): v for k, v in response.get('properties', {}).items()}
+    response['entries'] = list(map(base64.b64encode, response['entries']))
+    response['directories'] = list(map(base64.b64encode, response['directories']))
+    response['properties'] = {base64.b64encode(k): v for k, v in list(response.get('properties', {}).items())}
 
     return response
 
@@ -340,7 +344,7 @@ def _source_transfers_gave_uuids_to_directories(files):
     directories. If ``True`` is returned, we assign new UUIDs to all
     directories in the arranged SIP.
     """
-    file_uuids = filter(None, [file_.get('uuid') for file_ in files])
+    file_uuids = [_f for _f in [file_.get('uuid') for file_ in files] if _f]
     return models.Transfer.objects.filter(
         file__uuid__in=file_uuids, diruuids=True).exists()
 
@@ -750,8 +754,8 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     if sources is None or destinations is None:
         # List of sources & destinations
         if 'filepath[]' in request.POST or 'destination[]' in request.POST:
-            sources = map(base64.b64decode, request.POST.getlist('filepath[]', []))
-            destinations = map(base64.b64decode, request.POST.getlist('destination[]', []))
+            sources = list(map(base64.b64decode, request.POST.getlist('filepath[]', [])))
+            destinations = list(map(base64.b64decode, request.POST.getlist('destination[]', [])))
         # Single path representing tree
         else:
             fetch_children = True
@@ -885,7 +889,7 @@ def copy_from_transfer_sources(paths, relative_destination):
         logger.debug('source: %s, destination: %s', source, destination)
 
     message = []
-    for pl in files.values():
+    for pl in list(files.values()):
         reply, error = storage_service.copy_files(pl['location'], processing_location, pl['files'])
         if reply is None:
             message.append(str(error))

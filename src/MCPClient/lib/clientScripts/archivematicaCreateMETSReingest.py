@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import print_function
+from __future__ import unicode_literals
 import copy
 from lxml import etree
 import os
@@ -386,7 +387,7 @@ def update_metadata_csv(mets, metadata_csv, sip_uuid, sip_dir):
 
     # FIXME This doesn't support having both DC and non-DC metadata in dmdSecs
     # If createDmdSecsFromCSVParsedMetadata returns more than 1 dmdSec, behaviour is undefined
-    for f, md in csvmetadata.items():
+    for f, md in list(csvmetadata.items()):
         # Verify file is in AIP
         print('Looking for', f, 'from metadata.csv in SIP')
         # Find File with original or current locationg matching metadata.csv

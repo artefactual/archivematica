@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -208,7 +209,7 @@ def _usage_dirs(calculate_usage=True):
     dirs = collections.OrderedDict(dir_defs)
 
     # Resolve location paths and make relative paths absolute
-    for __, dir_spec in dirs.items():
+    for __, dir_spec in list(dirs.items()):
         if 'contained_by' in dir_spec:
             # If contained, make path absolute
             space = dir_spec['contained_by']

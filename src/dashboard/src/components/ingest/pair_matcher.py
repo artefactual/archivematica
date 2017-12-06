@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import json
 
 from django.conf import settings as django_settings
@@ -26,7 +27,7 @@ def _determine_reverse_sort_direction(sort):
 
 def getDictArray(post, name):
     dic = {}
-    for k in post.keys():
+    for k in list(post.keys()):
         if k.startswith(name):
             rest = k[len(name):]
 

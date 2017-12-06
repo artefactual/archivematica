@@ -21,6 +21,9 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
 import logging
 
 from jobChainLink import jobChainLink
@@ -56,7 +59,7 @@ def fetchUnitVariableForUnit(unit_uuid):
     return results
 
 
-class jobChain:
+class jobChain(object):
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
         """Create an instance of a chain from the MicroServiceChains table"""
         LOGGER.debug('Creating jobChain %s for chain %s', unit, chainPK)

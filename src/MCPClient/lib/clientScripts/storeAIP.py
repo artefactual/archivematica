@@ -21,6 +21,8 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 from annoying.functions import get_object_or_None
 import argparse
 import os

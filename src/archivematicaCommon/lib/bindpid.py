@@ -133,11 +133,13 @@ Example::
 
 from __future__ import print_function, unicode_literals
 
+from future import standard_library
+standard_library.install_aliases()
 import argparse
 try:
     import configparser
 except ImportError:
-    import ConfigParser as configparser
+    import configparser as configparser
 import os
 
 try:
@@ -345,7 +347,7 @@ def bind_pid(**kwargs):
             ' bound to the indicated URLs:\n{purl_map_fmted}'.format(
                 pid=kwargs['desired_pid'],
                 purl_map_fmted='\n'.join(
-                    '{} => {}'.format(*x) for x in purl_map.items())))
+                    '{} => {}'.format(*x) for x in list(purl_map.items()))))
         return yay_msg
     else:
         raise BindPIDException(

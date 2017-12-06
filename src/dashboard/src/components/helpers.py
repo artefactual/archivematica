@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,13 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
 import logging
 import mimetypes
 import os
 import pprint
 import requests
-import urllib
-from urlparse import urljoin
+import urllib.request, urllib.parse, urllib.error
+from urllib.parse import urljoin
 import json
 
 from django.conf import settings as django_settings
@@ -56,7 +62,7 @@ def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
     return [
-        dict(zip([col[0] for col in desc], row))
+        dict(list(zip([col[0] for col in desc], row)))
         for row in cursor.fetchall()
     ]
 
@@ -133,14 +139,14 @@ def pager(objects, items_per_page, current_page_number):
     # Add lists of the (up to) 5 adjacent pages
     num_neighbours = 5
     if page.number > num_neighbours:
-        page.previous_pages = range(page.number - num_neighbours, page.number)
+        page.previous_pages = list(range(page.number - num_neighbours, page.number))
     else:
-        page.previous_pages = range(1, page.number)
+        page.previous_pages = list(range(1, page.number))
 
     if page.number < (paginator.num_pages - num_neighbours):
-        page.next_pages = range(page.number + 1, page.number + num_neighbours + 1)
+        page.next_pages = list(range(page.number + 1, page.number + num_neighbours + 1))
     else:
-        page.next_pages = range(page.number + 1, paginator.num_pages + 1)
+        page.next_pages = list(range(page.number + 1, paginator.num_pages + 1))
 
     return page
 
@@ -232,7 +238,7 @@ def get_atom_levels_of_description(clear=True):
 
 def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args=args)
-    params = urllib.urlencode(kwargs)
+    params = urllib.parse.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 
 

@@ -21,6 +21,8 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import str
 import os
 import sys
 
@@ -59,7 +61,7 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
                     files = fileOperations.getFileUUIDLike('%' + TRIMfileID + '%', unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
                     fileUUID = None
                     fileGrpUUID = None
-                    for key, value in files.items():
+                    for key, value in list(files.items()):
                         if key.endswith("Metadata.xml"):
                             fileUUID = value
                         else:
@@ -77,7 +79,7 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
             dst = os.path.join(unitPath, destDir, item)
             fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
             files = fileOperations.getFileUUIDLike(dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-            for key, value in files.items():
+            for key, value in list(files.items()):
                 fileUUID = value
                 fileOperations.updateFileGrpUse(fileUUID, "TRIM metadata")
 

@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 # Stdlib, alphabetical by import source
+from __future__ import unicode_literals
+from builtins import str
 import logging
 from lxml import etree
 import os
@@ -52,7 +54,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                 if isinstance(item, ChoicesDict):
                     # For display, convert the ChoicesDict passVar into a list
                     # of tuples: (index, description, replacement dict string)
-                    for description, value in item.items():
+                    for description, value in list(item.items()):
                         replacementDic_ = str({key: value})
                         self.choices.append((choiceIndex, description, replacementDic_))
                         choiceIndex += 1

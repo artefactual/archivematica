@@ -21,6 +21,8 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
+from builtins import str
 import datetime
 import logging
 import lxml.etree as etree

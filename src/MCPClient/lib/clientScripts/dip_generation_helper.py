@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import csv
 import sys
@@ -92,7 +93,7 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
     if not client:
         return 1
 
-    for filename, ref_id in file_info.items():
+    for filename, ref_id in list(file_info.items()):
         # Get file object (for fileUUID, to see if in DIP)
         logger.debug('Getting file object: filename="%s" ref_id="%s"', filename, ref_id)
         try:

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,6 +17,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from builtins import object
 class ForceDefaultLanguageMiddleware(object):
     """
     Ignore Accept-Language HTTP headers

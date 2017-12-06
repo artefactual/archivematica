@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # flake8: noqa
 
 # This file is part of Archivematica.
@@ -17,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
+from future import standard_library
+standard_library.install_aliases()
+import io
 import json
 import logging
 import logging.config
@@ -78,7 +81,7 @@ conn_max_age = 0
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
+config.read_defaults(io.StringIO(CONFIG_DEFAULTS))
 config.read_files([
     '/etc/archivematica/archivematicaCommon/dbsettings',
 ])

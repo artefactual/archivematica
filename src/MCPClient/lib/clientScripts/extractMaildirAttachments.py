@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 from lxml import etree
 import mailbox
 import os
@@ -109,7 +111,7 @@ if __name__ == '__main__':
         directory = etree.SubElement(root, "subDir")
         directory.set("dir", maildirsub)
         try:
-            for item in md.keys():
+            for item in list(md.keys()):
                 try:
                     subDir = md.get_message(item).get_subdir()
                     sourceFilePath2 = os.path.join(maildir, maildirsub, subDir, item)

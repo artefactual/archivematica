@@ -3,6 +3,7 @@
 # Source http://www.artima.com/weblogs/viewpost.jsp?thread=230001
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import os
 
 

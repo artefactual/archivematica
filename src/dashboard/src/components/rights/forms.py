@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -23,7 +25,7 @@ from main import models
 
 
 class RightsForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatement
         fields = ('rightsbasis',)
         widgets = {
@@ -45,7 +47,7 @@ class RightsForm(forms.ModelForm):
 
 
 class RightsGrantedForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementRightsGranted
         fields = ('act', 'startdate', 'enddate', 'enddateopen')
         widgets = {
@@ -57,7 +59,7 @@ class RightsGrantedForm(forms.ModelForm):
 
 
 class RightsGrantedNotesForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementRightsGrantedNote
         fields = ('rightsgrantednote',)
         widgets = {
@@ -65,7 +67,7 @@ class RightsGrantedNotesForm(forms.ModelForm):
 
 
 class RightsCopyrightForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementCopyright
         fields = ('copyrightstatus', 'copyrightjurisdiction', 'copyrightstatusdeterminationdate', 'copyrightapplicablestartdate', 'copyrightapplicableenddate', 'copyrightenddateopen')
         widgets = {
@@ -77,7 +79,7 @@ class RightsCopyrightForm(forms.ModelForm):
 
 
 class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementCopyrightDocumentationIdentifier
         fields = ('copyrightdocumentationidentifiertype', 'copyrightdocumentationidentifiervalue', 'copyrightdocumentationidentifierrole')
         widgets = {
@@ -88,7 +90,7 @@ class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
 
 
 class RightsCopyrightNoteForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementCopyrightNote
         fields = ('copyrightnote',)
         widgets = {
@@ -96,7 +98,7 @@ class RightsCopyrightNoteForm(forms.ModelForm):
 
 
 class RightsStatuteForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementStatuteInformation
         fields = ('statutejurisdiction', 'statutecitation', 'statutedeterminationdate', 'statuteapplicablestartdate', 'statuteapplicableenddate', 'statuteenddateopen')
         widgets = {
@@ -108,7 +110,7 @@ class RightsStatuteForm(forms.ModelForm):
 
 
 class RightsStatuteNoteForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementStatuteInformationNote
         fields = ('statutenote',)
         widgets = {
@@ -116,7 +118,7 @@ class RightsStatuteNoteForm(forms.ModelForm):
 
 
 class RightsOtherRightsForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementOtherRightsInformation
         fields = ('otherrightsbasis', 'otherrightsapplicablestartdate', 'otherrightsapplicableenddate', 'otherrightsenddateopen')
         widgets = {
@@ -126,7 +128,7 @@ class RightsOtherRightsForm(forms.ModelForm):
 
 
 class RightsLicenseForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementLicense
         fields = ('licenseterms', 'licenseapplicablestartdate', 'licenseapplicableenddate', 'licenseenddateopen')
         widgets = {
@@ -136,7 +138,7 @@ class RightsLicenseForm(forms.ModelForm):
 
 
 class RightsLicenseNoteForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.RightsStatementLicenseNote
         fields = ('licensenote',)
         widgets = {

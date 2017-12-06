@@ -21,7 +21,11 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import cPickle
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+import pickle
 import gearman
 import logging
 import lxml.etree as etree
@@ -45,7 +49,7 @@ def rpcError(code="", details=""):
 
 def getJobsAwaitingApproval():
     ret = etree.Element("choicesAvailableForUnits")
-    for UUID, choice in choicesAvailableForUnits.items():
+    for UUID, choice in list(choicesAvailableForUnits.items()):
         ret.append(choice.xmlify())
     return etree.tostring(ret, pretty_print=True)
 
@@ -59,11 +63,11 @@ def approveJob(jobUUID, chain, user_id):
 
 def gearmanApproveJob(gearman_worker, gearman_job):
     try:
-        data = cPickle.loads(gearman_job.data)
+        data = pickle.loads(gearman_job.data)
         jobUUID = data["jobUUID"]
         chain = data["chain"]
         user_id = str(data["uid"])
-        return cPickle.dumps(approveJob(jobUUID, chain, user_id))
+        return pickle.dumps(approveJob(jobUUID, chain, user_id))
     # catch OS errors
     except Exception:
         LOGGER.exception('Error approving job')
@@ -72,7 +76,7 @@ def gearmanApproveJob(gearman_worker, gearman_job):
 
 def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
     try:
-        return cPickle.dumps(getJobsAwaitingApproval())
+        return pickle.dumps(getJobsAwaitingApproval())
     # catch OS errors
     except Exception:
         LOGGER.exception('Error getting jobs awaiting approval')

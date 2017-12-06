@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import unicode_literals
 import sys
 import lxml.etree as etree
 import os

@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import unicode_literals
 import re
 import os
 import sys
@@ -90,7 +91,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"), 'r'):
             if not len(fileID):
                 print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1
-            for paths, fileUUID in fileID.items():
+            for paths, fileUUID in list(fileID.items()):
                 eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                 eventOutcome = "Pass"
                 eventOutcomeDetailNote = "Verified file exists"
@@ -112,7 +113,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"), 'r'):
                 if not len(fileID):
                     print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                     exitCode += 1
-                for paths, fileUUID in fileID.items():
+                for paths, fileUUID in list(fileID.items()):
                     eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                     eventOutcome = "Pass"
                     eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"

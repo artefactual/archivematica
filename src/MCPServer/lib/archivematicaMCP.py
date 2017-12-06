@@ -32,6 +32,7 @@
 # It loads configurations from the database.
 #
 # stdlib, alphabetical by import source
+from __future__ import unicode_literals
 import logging
 import logging.config
 import getpass

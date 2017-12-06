@@ -7,6 +7,7 @@
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
 from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 
 from lxml import etree

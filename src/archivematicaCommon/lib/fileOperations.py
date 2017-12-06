@@ -21,6 +21,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import absolute_import, print_function
+from __future__ import unicode_literals
 import csv
 import os
 import uuid

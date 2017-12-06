@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import sys
 from optparse import OptionParser
 import uuid

@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import division
+from __future__ import unicode_literals
 
+from builtins import str
+from builtins import object
 import os
 from lxml import etree
 from collections import OrderedDict
@@ -33,7 +36,7 @@ import storageService as storage_service
 
 
 class AgentForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.Agent
         fields = ('identifiervalue', 'name', 'agenttype')
         widgets = {
@@ -210,7 +213,7 @@ class ChecksumSettingsForm(SettingsForm):
 
 
 class TaxonomyTermForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.TaxonomyTerm
         fields = ('taxonomy', 'term')
         widgets = {
@@ -415,7 +418,7 @@ class ProcessingConfigurationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
-        for choice_uuid, field in self.processing_fields.items():
+        for choice_uuid, field in list(self.processing_fields.items()):
             ftype = field['type']
             opts = self.DEFAULT_FIELD_OPTS.copy()
             if 'label' in field:
@@ -481,7 +484,7 @@ class ProcessingConfigurationForm(forms.Form):
         del self.cleaned_data['name']
         config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
         config = PreconfiguredChoices()
-        for choice_uuid, value in self.cleaned_data.items():
+        for choice_uuid, value in list(self.cleaned_data.items()):
             fprops = self.processing_fields.get(choice_uuid)
             if fprops is None or value is None:
                 continue

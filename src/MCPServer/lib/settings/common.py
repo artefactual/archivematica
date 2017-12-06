@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2015 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
+from future import standard_library
+standard_library.install_aliases()
+import io
 import json
 import logging
 import logging.config
@@ -80,7 +83,7 @@ engine = django.db.backends.mysql
 
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPSERVER', attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
+config.read_defaults(io.StringIO(CONFIG_DEFAULTS))
 config.read_files([
     '/etc/archivematica/archivematicaCommon/dbsettings',
     '/etc/archivematica/serverConfig.conf',

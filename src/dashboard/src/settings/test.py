@@ -20,6 +20,7 @@
 """Test settings and globals."""
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import ldap
 from django_auth_ldap.config import LDAPSearch

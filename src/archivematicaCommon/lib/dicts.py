@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import ast
 import os
@@ -208,7 +209,7 @@ class ReplacementDict(dict):
         for orig in strings:
             if orig is not None:
                 orig = unicodeToStr(orig)
-                for key, value in self.items():
+                for key, value in list(self.items()):
                     orig = orig.replace(key, unicodeToStr(value))
             ret.append(orig)
         return ret
@@ -224,7 +225,7 @@ class ReplacementDict(dict):
         ['--foo=bar']
         """
         args = []
-        for key, value in self.items():
+        for key, value in list(self.items()):
             optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
             opt = '--{k}={v}'.format(k=optname, v=value)
             args.append(opt)

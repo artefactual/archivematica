@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import str
 import json
 import logging
 import socket

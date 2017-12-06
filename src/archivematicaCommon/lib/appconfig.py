@@ -1,5 +1,9 @@
 from __future__ import absolute_import
-import ConfigParser
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import configparser
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -47,6 +51,6 @@ class Config(object):
 
         try:
             return getattr(self.config, getter)(**kwargs)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             raise ImproperlyConfigured('The following configuration attribute '
                                        'must be defined: %s.' % attr)

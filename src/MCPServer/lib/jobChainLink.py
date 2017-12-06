@@ -20,6 +20,9 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
 import logging
 import six
 import uuid
@@ -55,7 +58,7 @@ constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTask
 constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
 
 
-class jobChainLink:
+class jobChainLink(object):
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
         if jobChainLinkPK is None:
             return None

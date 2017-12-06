@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import str
 ARCHIVEMATICA_VERSION = (1, 7, 0)
 
 

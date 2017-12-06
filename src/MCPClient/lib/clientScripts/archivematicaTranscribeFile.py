@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import os
 import sys
 from uuid import uuid4

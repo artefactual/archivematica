@@ -1,4 +1,6 @@
+from __future__ import unicode_literals
 # Standard library, alphabetical by import source
+from builtins import str
 import base64
 from functools import wraps
 import json

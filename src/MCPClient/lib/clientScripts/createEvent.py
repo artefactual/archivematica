@@ -20,6 +20,8 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import unicode_literals
+from builtins import str
 from optparse import OptionParser
 import uuid
 

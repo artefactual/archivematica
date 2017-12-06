@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Documentation: http://docs.gunicorn.org/en/stable/configure.html
 # Example: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
 

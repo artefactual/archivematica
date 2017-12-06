@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import str
 import logging
 
 import dateutil.parser
@@ -205,7 +207,7 @@ def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
             # The requested field doesn't exist in the index, so don't worry about validating subfields
             new_fields.append(field)
         else:
-            for subfield, field_properties in subfields.items():
+            for subfield, field_properties in list(subfields.items()):
                 if field_properties['type'] == 'string':
                     new_fields.append(field_name + '.' + subfield)
 

@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import unicode_literals
 import os
 from lxml import etree as etree
 import sys
@@ -74,7 +75,7 @@ for transfer_dir in os.listdir(transferPath):
             print('File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%'))
 
             fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transfer', '%transferDirectory%')
-            for path, fileUUID in fileID.items():
+            for path, fileUUID in list(fileID.items()):
                 eventDetail = 'program="python"; module="hashlib.md5()"'
                 eventOutcome = 'Pass'
                 eventOutcomeDetailNote = '%s %s' % (xmlFile.__str__(), 'verified')

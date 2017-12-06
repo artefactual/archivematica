@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import string
 import os
 from shutil import move as rename
@@ -97,6 +99,6 @@ if __name__ == '__main__':
         sys.exit(-1)
     print("Scanning: ", path)
     sanitizations = sanitizeRecursively(path)
-    for oldfile, newfile in sanitizations.items():
+    for oldfile, newfile in list(sanitizations.items()):
         print(oldfile, " -> ", newfile)
     print("TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE", file=sys.stderr)

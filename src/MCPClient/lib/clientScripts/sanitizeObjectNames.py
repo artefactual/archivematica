@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import unicode_literals
 from itertools import chain
 import logging
 import sys
@@ -55,7 +56,7 @@ def sanitize_object_names(objectsDirectory, sipUUID, date, groupType, groupSQL, 
 
     # Sanitize objects on disk
     sanitizations = sanitizeNames.sanitizeRecursively(objectsDirectory)
-    for oldfile, newfile in sanitizations.items():
+    for oldfile, newfile in list(sanitizations.items()):
         logger.info('sanitizations: %s -> %s', oldfile, newfile)
 
     eventDetail = 'program="sanitizeNames"; version="' + sanitizeNames.VERSION + '"'

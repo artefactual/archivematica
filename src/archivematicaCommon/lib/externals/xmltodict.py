@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import xml.parsers.expat
 
 __author__ = 'Martin Blech'
@@ -11,7 +13,7 @@ class ParsingInterrupted(Exception):
     pass
 
 
-class DictSAXHandler:
+class DictSAXHandler(object):
     def __init__(self,
                  item_depth=0,
                  xml_attribs=True,
@@ -35,7 +37,7 @@ class DictSAXHandler:
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
             attrs = dict((self.attr_prefix + key, value)
-                         for (key, value) in attrs.items())
+                         for (key, value) in list(attrs.items()))
             self.item = self.xml_attribs and attrs or None
             self.data = None
 

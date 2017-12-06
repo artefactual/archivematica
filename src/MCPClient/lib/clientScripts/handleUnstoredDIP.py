@@ -24,6 +24,7 @@ This client script hanles an unstored DIP by moving it to the rejected/
 directory if it has *not* been uploaded and doing nothing otherwise.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import shutil

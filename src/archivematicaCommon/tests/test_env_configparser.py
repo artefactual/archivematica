@@ -1,7 +1,10 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 import os
-import StringIO
-import ConfigParser
+import io
+import configparser
 
 from django.test import TestCase
 import pytest
@@ -21,7 +24,7 @@ class TestConfigReader(TestCase):
         self.environ = None
 
     def read_test_config(self, test_config, prefix=''):
-        buf = StringIO.StringIO(test_config)
+        buf = io.StringIO(test_config)
         config = EnvConfigParser(env=self.environ, prefix=prefix)
         config.readfp(buf)
         return config
@@ -63,7 +66,7 @@ tls = on
 [main]
 foo = bar
 """)
-        with pytest.raises(ConfigParser.NoSectionError):
+        with pytest.raises(configparser.NoSectionError):
             assert config.get('undefined_section', 'foo')
 
     def test_unknown_option(self):
@@ -76,7 +79,7 @@ foo = bar
 [main]
 foo = bar
 """)
-        with pytest.raises(ConfigParser.NoOptionError):
+        with pytest.raises(configparser.NoOptionError):
             assert config.get('main', 'undefined_option')
 
     def test_unknown_option_with_fallback(self):

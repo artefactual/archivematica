@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,16 +17,19 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # Standard library, alphabetical by import source
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import base64
 import calendar
-import cPickle
+import pickle
 import json
 import logging
 from lxml import etree
 import os
 import requests
 import shutil
-from urlparse import urljoin
+from urllib.parse import urljoin
 import uuid
 
 # Django Core, alphabetical by import source
@@ -338,7 +342,7 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = cPickle.dumps({
+            access.target = pickle.dumps({
                 "target": request.POST['target']})
             access.save()
             response = {'ready': True}
@@ -346,7 +350,7 @@ def ingest_upload(request, uuid):
     elif request.method == 'GET':
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = cPickle.loads(str(access.target))
+            data = pickle.loads(str(access.target))
         except:
             raise Http404
         # Disabled, it could be very slow

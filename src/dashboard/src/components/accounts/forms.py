@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -36,7 +38,7 @@ class UserCreationForm(UserCreationForm):
             user.save()
         return user
 
-    class Meta:
+    class Meta(object):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
 
@@ -59,7 +61,7 @@ class UserChangeForm(UserChangeForm):
         if suppress_administrator_toggle:
             del self.fields['is_superuser']
 
-    class Meta:
+    class Meta(object):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
 

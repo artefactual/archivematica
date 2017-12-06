@@ -18,7 +18,7 @@ def data_migration(apps, schema_editor):
         'Failed': 4,
     }
 
-    for key, value in replacements.items():
+    for key, value in list(replacements.items()):
         Job.objects.filter(currentstep=key).update(currentstep=value)
         MicroServiceChainLink.objects.filter(defaultexitmessage=key).update(defaultexitmessage=value)
         MicroServiceChainLinkExitCode.objects.filter(exitmessage=key).update(exitmessage=value)

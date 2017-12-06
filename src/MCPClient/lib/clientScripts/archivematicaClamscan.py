@@ -18,7 +18,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import str
+from builtins import object
 import abc
 import argparse
 import os
@@ -35,6 +38,7 @@ from clamd import ClamdUnixSocket, ClamdNetworkSocket
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
 from main.models import Event, File
+from future.utils import with_metaclass
 
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
@@ -64,9 +68,7 @@ def clamav_version_parts(ver):
     return None, None
 
 
-class ScannerBase(object):
-    __metaclass__ = abc.ABCMeta
-
+class ScannerBase(with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def scan(self, path):
         """Scan a file and return a tuple of three elements reporting the

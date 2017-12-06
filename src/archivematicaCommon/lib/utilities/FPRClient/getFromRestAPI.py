@@ -22,9 +22,12 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 from optparse import OptionParser
-from httplib import responses
-import urlparse
+from http.client import responses
+import urllib.parse
 import json
 import requests
 import sys
@@ -72,7 +75,7 @@ def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.
     should be checked. This is on by default, but can be disabled to connect
     to test FPR servers which may not have valid SSL certificates.
     """
-    parsed_url = urlparse.urlparse(url)
+    parsed_url = urllib.parse.urlparse(url)
 
     if resource and not resource.endswith('/'):
         resource += '/'
@@ -93,7 +96,7 @@ def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.
     if limit:
         params["limit"] = limit
 
-    resource_url = urlparse.urljoin(url, resource)
+    resource_url = urllib.parse.urljoin(url, resource)
     r = requests.get(resource_url, params=params, auth=auth, timeout=10, verify=verify)
 
     if r.status_code != 200:
@@ -134,7 +137,7 @@ def each_record(resource, url="https://fpr.archivematica.org/fpr/api/v2/", start
     verbose, when passed as True, causes verbose information about the request
     to be printed at the conclusion of the request.
     """
-    url = urlparse.urlparse(url)
+    url = urllib.parse.urlparse(url)
     base_url = "{}://{}".format(url.scheme, url.netloc)
 
     response = _get_from_rest_api(resource, url=url.geturl(),
@@ -145,7 +148,7 @@ def each_record(resource, url="https://fpr.archivematica.org/fpr/api/v2/", start
         yield object
 
     while response["meta"]["next"]:
-        next = urlparse.urljoin(base_url, response["meta"]["next"])
+        next = urllib.parse.urljoin(base_url, response["meta"]["next"])
         response = _get_from_rest_api(url=next, verify=verify)
 
         for object in response["objects"]:

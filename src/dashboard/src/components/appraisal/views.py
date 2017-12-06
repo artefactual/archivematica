@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Standard library, alphabetical by import source
 import logging
 

@@ -4,9 +4,11 @@
 pronom-ident.py - Identify a bitstream against PRONOM; uses fido
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 # https://github.com/anarchivist/fiwalk-dgi/blob/master/python/pronom_ident.py
 # Author  anarchivist
 
+from builtins import str
 import os
 import sys
 import time
@@ -89,7 +91,7 @@ def main():
     filename = args[0]
     out = pronom_ident(filename)
 
-    for k, v in out.items():
+    for k, v in list(out.items()):
         if v is not None:
             print(k + ': ' + str(v))
 

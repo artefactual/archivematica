@@ -22,7 +22,9 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 
-class SharedVariablesAcrossModules:
+from __future__ import unicode_literals
+from builtins import object
+class SharedVariablesAcrossModules(object):
     "used to share variables across multiple files"
 
 

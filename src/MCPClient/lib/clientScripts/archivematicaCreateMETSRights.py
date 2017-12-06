@@ -24,6 +24,7 @@
 # /src/dashboard/src/main/models.py
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 import uuid
 import lxml.etree as etree

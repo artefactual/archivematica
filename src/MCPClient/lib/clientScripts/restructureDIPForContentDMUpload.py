@@ -22,6 +22,7 @@
 # @author Mark Jordan <mark2jordan@gmail.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import collections
 import csv
@@ -176,7 +177,7 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
             # Create csv_header and csv_values from the dmdSec metadata
             csv_header = []
             csv_values = []
-            for header, value in metadata.items():
+            for header, value in list(metadata.items()):
                 csv_header.append(header)
                 value = '; '.join(value).replace('\r', '').replace('\n', '')
                 csv_values.append(archivematicaFunctions.unicodeToStr(value))

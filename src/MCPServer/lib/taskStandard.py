@@ -21,7 +21,11 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import cPickle
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import pickle
 import gearman
 import logging
 import os
@@ -51,7 +55,7 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=django_settings.LIMIT_GEARMAN_CONNS)
 
 
-class taskStandard():
+class taskStandard(object):
     """A task to hand to gearman"""
 
     def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
@@ -80,7 +84,7 @@ class taskStandard():
         failSleepIncrementor = 2
         while completed_job_request is None:
             try:
-                completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
+                completed_job_request = gm_client.submit_job(self.execute.lower(), pickle.dumps(data), self.UUID)
             except gearman.errors.ServerUnavailable:
                 completed_job_request = None
                 time.sleep(failSleep)
@@ -95,7 +99,7 @@ class taskStandard():
 
     def check_request_status(self, job_request):
         if job_request.complete:
-            self.results = cPickle.loads(job_request.result)
+            self.results = pickle.loads(job_request.result)
             LOGGER.debug('Task %s finished! Result %s - %s', job_request.job.unique, job_request.state, self.results)
             self.writeOutputs()
             self.linkTaskManager.taskCompletedCallBackFunction(self)

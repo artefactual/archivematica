@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
@@ -28,7 +30,7 @@ if hasattr(settings, 'LOGIN_EXEMPT_URLS'):
     EXEMPT_URLS += [re_compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
 
 
-class ConfigurationCheckMiddleware:
+class ConfigurationCheckMiddleware(object):
     def process_request(self, request):
         # The presence of the UUID is an indicator of whether we've already set up.
         dashboard_uuid = helpers.get_setting('dashboard_uuid')

@@ -21,6 +21,8 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 # @thanks to http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html
+from __future__ import unicode_literals
+from builtins import object
 import logging
 import os
 import time
@@ -34,7 +36,7 @@ from utils import log_exceptions
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
 
-class archivematicaWatchDirectory:
+class archivematicaWatchDirectory(object):
     """Watches for new files/directories to process in a watched directory. Directories are defined in the WatchedDirectoriesTable."""
 
     def __init__(self, directory,

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 
 from django.core.urlresolvers import reverse
@@ -54,7 +55,7 @@ class TestUploadDipAsConfigView(TestCase):
         self.assertEqual(config['host'], 'aspace.test.org')
         self.assertEqual(config['port'], '8089')
         self.assertEqual(config['repository'], '2')
-        self.assertEquals(len(config.keys()), len(form.fields))
+        self.assertEquals(len(list(config.keys())), len(form.fields))
 
     def test_post_missing_fields(self):
         response = self.client.post(self.url, {
@@ -123,7 +124,7 @@ class TestUploadDipAtkConfigView(TestCase):
         self.assertEqual(config['port'], '3306')
         self.assertEqual(config['access_conditions'], '')
         self.assertEqual(config['use_conditions'], '')
-        self.assertEquals(len(config.keys()), len(form.fields))
+        self.assertEquals(len(list(config.keys())), len(form.fields))
 
     def test_post_missing_fields(self):
         response = self.client.post(self.url, {
@@ -188,7 +189,7 @@ class TestUploadDipAtoMConfigView(TestCase):
         self.assertEqual(config['password'], 'demo')
         self.assertEqual(config['version'], '2')
         self.assertEqual(config['key'], '')
-        self.assertEquals(len(config.keys()), len(form.fields))
+        self.assertEquals(len(list(config.keys())), len(form.fields))
 
     def test_post_missing_fields(self):
         response = self.client.post(self.url, {

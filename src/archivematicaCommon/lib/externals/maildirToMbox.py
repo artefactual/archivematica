@@ -33,6 +33,7 @@ cur, tmp, and the subfolders, which are hidden directories with names like
 directory.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import mailbox
 import sys

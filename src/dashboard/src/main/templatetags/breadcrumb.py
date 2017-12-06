@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from builtins import map
 import logging
 
 from django.template import Node, Variable, Library
@@ -72,7 +74,7 @@ def breadcrumb_url(parser, token):
 
 class BreadcrumbNode(Node):
     def __init__(self, vars):
-        self.vars = map(Variable, vars)
+        self.vars = list(map(Variable, vars))
 
     def render(self, context):
         title = self.vars[0].var

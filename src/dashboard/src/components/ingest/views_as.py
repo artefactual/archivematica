@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from functools import wraps
 import json
 import logging

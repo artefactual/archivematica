@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import logging
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

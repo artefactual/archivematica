@@ -19,7 +19,11 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-import cPickle
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+import pickle
 import getpass
 import optparse
 import os
@@ -108,7 +112,7 @@ def start(data):
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
-        target = cPickle.loads(str(access.target))
+        target = pickle.loads(str(access.target))
         log("Target: %s" % (target['target']))
     except:
         error("No target was selected")

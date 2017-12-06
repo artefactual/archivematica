@@ -10,13 +10,16 @@
 # date Aug 10 2010
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 import email
 import six
 import sys
 # According to the original blogpost, StringIO was chosen over cStringIO because PIL
 # required native Python types.
 # TODO: Look at using cStringIO instead, as it's faster, and we're not using PIL
-from StringIO import StringIO
+from io import StringIO
 import uuid
 
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules

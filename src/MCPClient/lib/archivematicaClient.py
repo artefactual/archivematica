@@ -32,8 +32,12 @@
 # The server will send the transcoder association pk, and file uuid to run.
 # The client is responsible for running the correct command on the file.
 
-import ConfigParser
-import cPickle
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+import configparser
+import pickle
 import gearman
 import logging
 import os
@@ -66,7 +70,7 @@ supportedModules = {}
 
 
 def loadSupportedModulesSupport(key, value):
-    for key2, value2 in replacementDic.items():
+    for key2, value2 in list(replacementDic.items()):
         value = value.replace(key2, value2)
     if not os.path.isfile(value):
         logger.error("Warning! Module can't find file, or relies on system path: {%s} %s", key, value)
@@ -74,7 +78,7 @@ def loadSupportedModulesSupport(key, value):
 
 
 def loadSupportedModules(file):
-    supportedModulesConfig = ConfigParser.RawConfigParser()
+    supportedModulesConfig = configparser.RawConfigParser()
     supportedModulesConfig.read(file)
     for key, value in supportedModulesConfig.items('supportedCommands'):
         loadSupportedModulesSupport(key, value)
@@ -89,7 +93,7 @@ def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
         logger.info('Executing %s (%s)', execute, gearman_job.unique)
-        data = cPickle.loads(gearman_job.data)
+        data = pickle.loads(gearman_job.data)
         utcDate = getUTCDate()
         arguments = data["arguments"]  # .encode("utf-8")
         if isinstance(arguments, six.text_type):
@@ -104,7 +108,7 @@ def executeCommand(gearman_worker, gearman_job):
             stdOut = ""
             stdError = """Detected this task has already started!
 Unable to determine if it completed successfully."""
-            return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
+            return pickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
         else:
             task.client = clientID
             task.starttime = utcDate
@@ -113,13 +117,13 @@ Unable to determine if it completed successfully."""
         if execute not in supportedModules:
             output = ["Error!", "Error! - Tried to run and unsupported command."]
             exitCode = -1
-            return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
+            return pickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
         command = supportedModules[execute]
 
         replacementDic["%date%"] = utcDate.isoformat()
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
         # Replace replacement strings
-        for key in replacementDic.keys():
+        for key in list(replacementDic.keys()):
             command = command.replace(key, replacementDic[key])
             arguments = arguments.replace(key, replacementDic[key])
 
@@ -131,16 +135,16 @@ Unable to determine if it completed successfully."""
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True)
-        return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
+        return pickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
-        return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
+        return pickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
     except Exception:
         logger.exception('Unexpected error')
         output = ["", traceback.format_exc()]
-        return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
+        return pickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
 
 @auto_close_db
@@ -149,7 +153,7 @@ def startThread(threadNumber):
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
-    for key in supportedModules.keys():
+    for key in list(supportedModules.keys()):
         logger.info('Registering: %s', key)
         gm_worker.register_task(key, executeCommand)
 
