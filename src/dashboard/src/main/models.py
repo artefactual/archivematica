@@ -22,6 +22,7 @@
 # stdlib, alphabetical by import source
 import ast
 import logging
+import six
 
 # Core Django, alphabetical by import source
 from django import forms
@@ -125,7 +126,7 @@ class DashboardSettingManager(models.Manager):
         with transaction.atomic():
             self.unset_dict(scope)
             self.bulk_create([
-                DashboardSetting(scope=scope, name=unicode(name), value=unicode(value)) for name, value in items.items()
+                DashboardSetting(scope=scope, name=six.text_type(name), value=six.text_type(value)) for name, value in items.items()
             ])
 
     def unset_dict(self, scope):
@@ -239,7 +240,7 @@ class MetadataAppliesToType(models.Model):
         db_table = u'MetadataAppliesToTypes'
 
     def __unicode__(self):
-        return unicode(self.description)
+        return six.text_type(self.description)
 
 
 class Event(models.Model):

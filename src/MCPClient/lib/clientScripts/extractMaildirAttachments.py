@@ -25,6 +25,7 @@ from __future__ import print_function
 from lxml import etree
 import mailbox
 import os
+import six
 import sys
 import traceback
 import uuid
@@ -123,7 +124,7 @@ if __name__ == '__main__':
                         msg = etree.SubElement(directory, "msg")
                         etree.SubElement(msg, "Message-ID").text = out['msgobj']['Message-ID'][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        if isinstance(out["subject"], str):
+                        if isinstance(out["subject"], six.binary_type):
                             etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
                         else:
                             etree.SubElement(msg, "Subject").text = out["subject"]

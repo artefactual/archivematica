@@ -28,6 +28,7 @@ import locale
 import os
 import pprint
 import re
+import six
 from uuid import uuid4
 
 from lxml import etree
@@ -81,13 +82,13 @@ class OrderedListsDict(collections.OrderedDict):
 
 
 def unicodeToStr(string):
-    if isinstance(string, unicode):
+    if isinstance(string, six.text_type):
         string = string.encode("utf-8")
     return string
 
 
 def strToUnicode(string, obstinate=False):
-    if isinstance(string, str):
+    if isinstance(string, six.binary_type):
         try:
             string = string.decode('utf8')
         except UnicodeDecodeError:
@@ -129,7 +130,7 @@ def getTagged(root, tag):
 
 def escapeForCommand(string):
     ret = string
-    if isinstance(ret, basestring):
+    if isinstance(ret, six.string_types):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace("\"", "\\\"")
         ret = ret.replace("`", "\`")
@@ -143,7 +144,7 @@ def escapeForCommand(string):
 
 
 def escape(string):
-    if isinstance(string, str):
+    if isinstance(string, six.binary_type):
         string = string.decode('utf-8', errors='replace')
     return string
 

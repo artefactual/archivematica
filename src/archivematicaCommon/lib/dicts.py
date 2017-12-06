@@ -26,6 +26,7 @@ from __future__ import absolute_import
 import ast
 import os
 import re
+import six
 
 from archivematicaFunctions import unicodeToStr
 
@@ -95,9 +96,9 @@ class ReplacementDict(dict):
         # In order to make this code accessible to MCPServer,
         # we need to support passing in UUID strings instead
         # of models.
-        if isinstance(file_, basestring):
+        if isinstance(file_, six.text_types):
             file_ = models.File.objects.get(uuid=file_)
-        if isinstance(sip, basestring):
+        if isinstance(sip, six.text_types):
             # sip can be a SIP or Transfer
             try:
                 sip = models.SIP.objects.get(uuid=sip)

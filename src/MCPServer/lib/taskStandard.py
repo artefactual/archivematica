@@ -25,6 +25,7 @@ import cPickle
 import gearman
 import logging
 import os
+import six
 import threading
 import time
 import uuid
@@ -159,13 +160,13 @@ class taskStandard():
             self.outputLock.release()
 
         if stdoutStatus and self.standardOutputFile is not None:
-            if isinstance(self.standardOutputFile, unicode):
+            if isinstance(self.standardOutputFile, six.text_type):
                 stdout = self.standardOutputFile.encode('utf-8')
             else:
                 stdout = self.standardOutputFile
             self.stdError = "Failed to write to file{" + stdout + "}\r\n" + self.results["stdOut"]
         if stderrStatus and self.standardErrorFile is not None:
-            if isinstance(self.standardErrorFile, unicode):
+            if isinstance(self.standardErrorFile, six.text_type):
                 stderr = self.standardErrorFile.encode('utf-8')
             else:
                 stderr = self.standardErrorFile

@@ -20,6 +20,7 @@ from __future__ import print_function
 import argparse
 import logging
 import os
+from six.moves import input
 import sys
 
 # archivematicaCommon
@@ -48,22 +49,22 @@ def recursive_file_gen(mydir):
 def get_user_input():
     print("Archivematica import to AT script")
     print("Welcome\n")
-    atdbhost = raw_input("AT database hostname:")
-    atdbport = raw_input("AT database port:")
-    atdbuser = raw_input("AT database user name:")
-    atpass = raw_input("AT database user password:")
-    atuser = raw_input("AT username:")
-    atdb = raw_input("AT database name:")
+    atdbhost = input("AT database hostname:")
+    atdbport = input("AT database port:")
+    atdbuser = input("AT database user name:")
+    atpass = input("AT database user password:")
+    atuser = input("AT username:")
+    atdb = input("AT database name:")
 
-    dip_location = raw_input("Location of DIP:")
-    dip_name = raw_input("Name of DIP:")
+    dip_location = input("Location of DIP:")
+    dip_name = input("Name of DIP:")
 
-    object_type = raw_input("Object Type:")
-    ead_actuate = raw_input("EAD Actuate:")
-    ead_show = raw_input("EAD Show:")
-    use_statement = raw_input("Use Statement:")
+    object_type = input("Object Type:")
+    ead_actuate = input("EAD Actuate:")
+    ead_show = input("EAD Show:")
+    use_statement = input("Use Statement:")
 
-    uri_prefix = raw_input("prefix for uri:")
+    uri_prefix = input("prefix for uri:")
     return atdbhost, atdbport, atdbuser, atpass, atdb, dip_location, dip_name, atuser, object_type, ead_actuate, ead_show, use_statement, uri_prefix
 
 

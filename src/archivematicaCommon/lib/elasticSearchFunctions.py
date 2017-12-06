@@ -30,6 +30,7 @@ import json
 import logging
 import os
 import re
+from six.moves import range
 import sys
 import time
 from xml.etree import ElementTree
@@ -434,7 +435,7 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
 def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10):
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
-    for _ in xrange(0, max_tries):
+    for _ in range(0, max_tries):
         try:
             return client.index(body=data, index=index, doc_type=doc_type)
         except Exception as e:

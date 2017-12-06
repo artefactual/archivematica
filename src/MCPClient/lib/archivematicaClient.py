@@ -39,6 +39,7 @@ import logging
 import os
 import time
 from socket import gethostname
+import six
 import threading
 import traceback
 
@@ -91,7 +92,7 @@ def executeCommand(gearman_worker, gearman_job):
         data = cPickle.loads(gearman_job.data)
         utcDate = getUTCDate()
         arguments = data["arguments"]  # .encode("utf-8")
-        if isinstance(arguments, unicode):
+        if isinstance(arguments, six.text_type):
             arguments = arguments.encode("utf-8")
 
         sInput = ""

@@ -1,3 +1,5 @@
+import six
+
 from main.models import DashboardSetting
 
 import pytest
@@ -11,8 +13,8 @@ def test_dashboardsetting_set_simple_dict():
     DashboardSetting.objects.set_dict(scope, data)
 
     assert DashboardSetting.objects.filter(scope=scope).count() == len(data)
-    assert DashboardSetting.objects.get(scope=scope, name='url').value == unicode(data['url'])
-    assert DashboardSetting.objects.get(scope=scope, name='key').value == unicode(data['key'])
+    assert DashboardSetting.objects.get(scope=scope, name='url').value == six.text_type(data['url'])
+    assert DashboardSetting.objects.get(scope=scope, name='key').value == six.text_type(data['key'])
 
     with pytest.raises(DashboardSetting.DoesNotExist):
         DashboardSetting.objects.get(scope=scope, name='unknown')
@@ -34,9 +36,9 @@ def test_dashboardsetting_set_complex_dict():
 
     DashboardSetting.objects.set_dict(scope, data)
 
-    assert DashboardSetting.objects.get(scope=scope, name='hidden').value == unicode(data['hidden'])
-    assert DashboardSetting.objects.get(scope=scope, name='hours').value == unicode(data['hours'])
-    assert DashboardSetting.objects.get(scope=scope, name='path').value == unicode(data['path'])
+    assert DashboardSetting.objects.get(scope=scope, name='hidden').value == six.text_type(data['hidden'])
+    assert DashboardSetting.objects.get(scope=scope, name='hours').value == six.text_type(data['hours'])
+    assert DashboardSetting.objects.get(scope=scope, name='path').value == six.text_type(data['path'])
 
 
 @pytest.mark.django_db
@@ -51,8 +53,8 @@ def test_dashboardsetting_get_dict():
     assert len(ret) == len(data)
     assert u'url' in ret.keys()
     assert u'key' in ret.keys()
-    assert ret['url'] == unicode(data['url'])
-    assert ret['key'] == unicode(data['key'])
+    assert ret['url'] == six.text_type(data['url'])
+    assert ret['key'] == six.text_type(data['key'])
 
 
 @pytest.mark.django_db

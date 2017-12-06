@@ -3,6 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import os
+import six
 
 from .getFromRestAPI import each_record, FPRConnectionError
 
@@ -67,7 +68,7 @@ class FPRClient(object):
 
         # Convert foreign keys from URIs to just UUIDs
         for field, value in valid_fields.items():
-            if isinstance(value, basestring) and value.startswith('/fpr/api/'):
+            if isinstance(value, six.string_types) and value.startswith('/fpr/api/'):
                 # Parse out UUID.  value.split gives
                 # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']
                 uuid = value.split('/')[-2]

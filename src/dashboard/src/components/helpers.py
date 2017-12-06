@@ -255,7 +255,7 @@ def send_file(request, filepath):
     filename = os.path.basename(filepath)
     extension = os.path.splitext(filepath)[1].lower()
 
-    wrapper = FileWrapper(file(filepath))
+    wrapper = FileWrapper(open(filepath))
     response = HttpResponse(wrapper)
 
     # force download for certain filetypes

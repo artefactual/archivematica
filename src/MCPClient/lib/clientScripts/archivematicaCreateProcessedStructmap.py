@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import os
+import six
 import sys
 
 from custom_handlers import get_script_logger
@@ -17,7 +18,7 @@ def create_amdSecs(path, file_group_identifier, base_path, base_path_name, sip_u
     amdSecs = []
 
     for child in each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid):
-        if isinstance(child, basestring):  # directory
+        if isinstance(child, six.string_types):  # directory
             amdSecs.extend(create_amdSecs(child, file_group_identifier, base_path, base_path_name, sip_uuid))
         else:  # file
             admid = "digiprov-" + child.uuid

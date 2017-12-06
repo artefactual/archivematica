@@ -21,6 +21,7 @@ import os
 import logging
 import re
 import shutil
+import six
 import tempfile
 import uuid
 
@@ -741,7 +742,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     :param list destinations: List of paths within arrange folder. All paths should start with DEFAULT_ARRANGE_PATH
     :param bool fetch_children: If True, will fetch all children of the provided path(s) to copy to the destination.
     """
-    if isinstance(sources, basestring) or isinstance(destinations, basestring):
+    if isinstance(sources, six.string_types) or isinstance(destinations, six.string_types):
         fetch_children = True
         sources = [sources]
         destinations = [destinations]

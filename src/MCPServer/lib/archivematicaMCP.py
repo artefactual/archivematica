@@ -37,6 +37,7 @@ import logging.config
 import getpass
 import os
 import signal
+import six
 import sys
 import threading
 import time
@@ -475,7 +476,7 @@ def watchDirectories():
             if item == ".gitignore":
                 continue
             item = item.decode("utf-8")
-            path = os.path.join(unicode(directory), item)
+            path = os.path.join(six.text_type(directory), item)
             while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)

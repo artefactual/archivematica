@@ -19,6 +19,7 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 from __future__ import print_function
+import six
 import sys
 
 # archivematicaCommon
@@ -30,7 +31,7 @@ from django.db.models import F
 
 def toStrFromUnicode(inputString, encoding='utf-8'):
     """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, unicode):
+    if isinstance(inputString, six.text_type):
         inputString = inputString.encode(encoding)
     return inputString
 

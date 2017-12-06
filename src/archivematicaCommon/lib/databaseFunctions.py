@@ -25,6 +25,7 @@ from __future__ import print_function
 from functools import wraps
 import logging
 import os
+import six
 import string
 import sys
 import uuid
@@ -370,4 +371,4 @@ def deUnicode(str):
     """
     if str is None:
         return None
-    return unicode(str).encode('utf-8')
+    return six.text_type(str).encode('utf-8')

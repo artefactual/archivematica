@@ -21,11 +21,19 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
-import subprocess
-import shlex
-import uuid
+import io
 import os
+import shlex
+import six
+import subprocess
 import sys
+import uuid
+
+
+try:
+    file_types = (file, io.IOBase)
+except NameError:
+    file_types = (io.IOBase,)
 
 
 def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates={}):
@@ -55,7 +63,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
 
     try:
         # Split command strings but pass through arrays untouched
-        if isinstance(command, basestring):
+        if isinstance(command, six.string_types):
             command = shlex.split(command)
         else:
             command.extend(arguments)
@@ -68,10 +76,10 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
             my_env['LANGUAGE'] = my_env['LANG']
         my_env.update(env_updates)
 
-        if isinstance(stdIn, basestring):
+        if isinstance(stdIn, six.string_types):
             stdin_pipe = subprocess.PIPE
             stdin_string = stdIn
-        elif isinstance(stdIn, file):
+        elif isinstance(stdIn, file_types):
             stdin_pipe = stdIn
             stdin_string = ""
         else:

@@ -3,6 +3,7 @@
 import csv
 import json
 import os
+import six
 import sys
 
 
@@ -67,7 +68,7 @@ def encode_item(item):
     """
     if not item:  # Handle case where json contains null.
         return
-    elif isinstance(item, basestring):
+    elif isinstance(item, six.string_types):
         return item.encode('utf-8')
     else:
         return [i.encode('utf-8') if i else '' for i in item]

@@ -1,7 +1,8 @@
 from __future__ import print_function
-import re
-import xml.sax.handler
 from collections import defaultdict
+import re
+import six
+import xml.sax.handler
 
 
 class Tree(defaultdict):
@@ -64,7 +65,7 @@ def xml2obj(src):
             return 1
 
         def __getitem__(self, key):
-            if isinstance(key, basestring):
+            if isinstance(key, six.string_types):
                 return self._attrs.get(key, None)
             else:
                 return [self][key]
@@ -132,7 +133,7 @@ def xml2obj(src):
             self.text_parts.append(content)
 
     builder = TreeBuilder()
-    if isinstance(src, basestring):
+    if isinstance(src, six.string_types):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)

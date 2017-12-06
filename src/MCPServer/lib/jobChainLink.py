@@ -21,6 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 import logging
+import six
 import uuid
 
 from utils import log_exceptions
@@ -67,7 +68,7 @@ class jobChainLink:
 
         # Depending on the path that led to this, jobChainLinkPK may
         # either be a UUID or a MicroServiceChainLink instance
-        if isinstance(jobChainLinkPK, basestring):
+        if isinstance(jobChainLinkPK, six.string_types):
             try:
                 link = MicroServiceChainLink.objects.get(id=str(jobChainLinkPK))
             # This will sometimes return no values
