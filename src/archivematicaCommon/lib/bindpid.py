@@ -139,7 +139,7 @@ import argparse
 try:
     import configparser
 except ImportError:
-    import configparser as configparser
+    from six.moves import configparser
 import os
 
 try:

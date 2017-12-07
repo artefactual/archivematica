@@ -14,6 +14,7 @@ git+https://github.com/artefactual/archivematica-fpr-admin.git@v1.7.4#egg=archiv
 gearman==2.0.2
 gevent==1.2.1  # used by gunicorn's async workers
 gunicorn==19.7.1
+future
 futures==3.0.5  # used by gunicorn's async workers
 lazy-paged-sequence
 lxml==3.5.0

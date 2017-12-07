@@ -97,9 +97,9 @@ class ReplacementDict(dict):
         # In order to make this code accessible to MCPServer,
         # we need to support passing in UUID strings instead
         # of models.
-        if isinstance(file_, six.text_types):
+        if isinstance(file_, six.text_type):
             file_ = models.File.objects.get(uuid=file_)
-        if isinstance(sip, six.text_types):
+        if isinstance(sip, six.text_type):
             # sip can be a SIP or Transfer
             try:
                 sip = models.SIP.objects.get(uuid=sip)
@@ -210,7 +210,7 @@ class ReplacementDict(dict):
             if orig is not None:
                 orig = unicodeToStr(orig)
                 for key, value in list(self.items()):
-                    orig = orig.replace(key, unicodeToStr(value))
+                    orig = orig.replace(unicodeToStr(key), unicodeToStr(value))
             ret.append(orig)
         return ret
 

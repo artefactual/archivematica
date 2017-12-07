@@ -227,7 +227,7 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" % (src, dst)
+        eventOutcomeDetailNote = b"Original name=\"%s\"; cleaned up name=\"%s\"" % (src, dst)
     # CREATE THE EVENT
     insertIntoEvents(fileUUID=f.uuid, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
 

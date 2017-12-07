@@ -161,7 +161,7 @@ class RightCsvReader(object):
 
         # Get file data
         filepath = self.column_value('file')
-        transfer_file = models.File.objects.get(originallocation='%transferDirectory%' + filepath, transfer_id=self.transfer_uuid)
+        transfer_file = models.File.objects.get(originallocation=b'%transferDirectory%' + filepath, transfer_id=self.transfer_uuid)
 
         # Create rights statement
         rights_statement = models.RightsStatement()

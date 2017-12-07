@@ -26,7 +26,9 @@ import mimetypes
 import os
 import pprint
 import requests
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 from urllib.parse import urljoin
 import json
 

@@ -36,7 +36,10 @@ from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import range
-import configparser
+try:
+    import configparser
+except ImportError:
+    from six.moves import configparser
 import pickle
 import gearman
 import logging

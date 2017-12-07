@@ -22,7 +22,6 @@ from builtins import input
 import argparse
 import logging
 import os
-from six.moves import input
 import sys
 
 # archivematicaCommon

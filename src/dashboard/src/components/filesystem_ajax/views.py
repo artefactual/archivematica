@@ -54,7 +54,7 @@ ACTIVE_TRANSFER_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 
 ORIGINAL_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'www', 'AIPsStore', 'transferBacklog', 'originals')
 
 DEFAULT_BACKLOG_PATH = 'originals/'
-DEFAULT_ARRANGE_PATH = '/arrange/'
+DEFAULT_ARRANGE_PATH = b'/arrange/'
 
 TRANSFER_TYPE_DIRECTORIES = {
     'standard': 'standardTransfer',
@@ -141,8 +141,8 @@ def arrange_contents(request, path=None):
         base_path = path
 
     # Must indicate that base_path is a folder by ending with /
-    if not base_path.endswith('/'):
-        base_path += '/'
+    if not base_path.endswith(b'/'):
+        base_path += b'/'
 
     if not base_path.startswith(DEFAULT_ARRANGE_PATH):
         base_path = DEFAULT_ARRANGE_PATH

@@ -44,6 +44,7 @@ logger = logging.getLogger()
 
 def sanitize_object_names(objectsDirectory, sipUUID, date, groupType, groupSQL, sipPath):
     """Sanitize object names in a Transfer/SIP."""
+    groupType = groupType.encode('utf8')
     relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1)  # "%SIPDirectory%objects/"
 
     # Get any ``Directory`` instances created for this transfer (if such exist)

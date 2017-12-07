@@ -33,7 +33,6 @@ import json
 import logging
 import os
 import re
-from six.moves import range
 import sys
 import time
 from xml.etree import ElementTree

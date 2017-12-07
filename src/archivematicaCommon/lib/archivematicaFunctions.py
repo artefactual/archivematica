@@ -37,7 +37,7 @@ from uuid import uuid4
 from lxml import etree
 
 from main.models import DashboardSetting
-from .namespaces import NSMAP
+from namespaces import NSMAP
 
 
 REQUIRED_DIRECTORIES = [

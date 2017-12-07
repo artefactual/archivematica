@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-import configparser
+try:
+    import configparser
+except ImportError:
+    from six.moves import configparser
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .env_configparser import EnvConfigParser
+from env_configparser import EnvConfigParser
 
 
 class Config(object):

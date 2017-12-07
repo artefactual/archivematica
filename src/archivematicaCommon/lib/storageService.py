@@ -9,7 +9,9 @@ import os
 import platform
 import requests
 from requests.auth import AuthBase
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from django.conf import settings as django_settings
 

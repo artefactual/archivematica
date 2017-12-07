@@ -4,7 +4,10 @@ from future import standard_library
 standard_library.install_aliases()
 import os
 import io
-import configparser
+try:
+    import configparser
+except ImportError:
+    from six.moves import configparser
 
 from django.test import TestCase
 import pytest
