@@ -1,6 +1,6 @@
 Django>=1.8,<1.9
 django-extensions==1.1.1
-future
+future==0.16.0
 mysqlclient==1.3.7
-gearman==2.0.2
+git+https://github.com/PerformanceHorizonGroup/python-gearman.git@cccfec3d3b28a994798f5506b9d07700fa33851a
 lxml==3.5.0

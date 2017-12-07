@@ -11,10 +11,10 @@ django-extensions==1.1.1
 django-annoying==0.7.7
 elasticsearch>=1.0.0,<2.0.0
 git+https://github.com/artefactual/archivematica-fpr-admin.git@v1.7.4#egg=archivematica-fpr-admin
-gearman==2.0.2
+git+https://github.com/PerformanceHorizonGroup/python-gearman.git@cccfec3d3b28a994798f5506b9d07700fa33851a
 gevent==1.2.1  # used by gunicorn's async workers
 gunicorn==19.7.1
-future
+future==0.16.0
 futures==3.0.5  # used by gunicorn's async workers
 lazy-paged-sequence
 lxml==3.5.0
@@ -35,4 +35,4 @@ git+https://github.com/seatme/django-longer-username.git@seatme#egg=longeruserna
 
 # Required by LDAP authentication
 django-auth-ldap==1.2.0
-python-ldap==2.4.15
+python-ldap==3.0.0b1
