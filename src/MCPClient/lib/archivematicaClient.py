@@ -130,7 +130,8 @@ Unable to determine if it completed successfully."""
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
         exitCode, stdOut, stdError = executeOrRun(
-            "command", command, sInput, printing=True, capture_output=False)
+            "command", command, sInput, printing=True,
+            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')

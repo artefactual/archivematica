@@ -42,6 +42,7 @@ CONFIG_MAPPING = {
         {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
         {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'iboolean'},
     ],
+    'capture_client_script_output': {'section': 'MCPClient', 'option': 'capture_client_script_output', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -75,6 +76,7 @@ numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = false
+capture_client_script_output = true
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -198,3 +200,4 @@ CLAMAV_CLIENT_THRESHOLD = config.get('clamav_client_threshold')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
+CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
