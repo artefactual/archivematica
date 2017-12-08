@@ -426,7 +426,7 @@ def _get_old_mets_rel_path(sip_uuid):
         'METS.' + sip_uuid + '.xml')
 
 
-def update_mets(sip_dir, sip_uuid):
+def update_mets(sip_dir, sip_uuid, keep_normative_structmap=True):
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     print('Looking for old METS at path', old_mets_path)
@@ -441,9 +441,18 @@ def update_mets(sip_dir, sip_uuid):
     add_new_files(mets, sip_uuid, sip_dir)
     delete_files(mets, sip_uuid)
 
+    if not keep_normative_structmap:
+        # Remove normative structMap
+        serialized = mets.serialize()
+        structmaps = serialized.findall(
+            'mets:structMap[@LABEL="Normative Directory Structure"]', namespaces=ns.NSMAP)
+        for structmap in structmaps:
+            structmap.getparent().remove(structmap)
+            print("Removed normative structMap")
+
     # Delete original METS
 
-    return mets.serialize()
+    return serialized
 
 
 if __name__ == '__main__':

@@ -1134,6 +1134,49 @@ def write_mets(tree, filename):
         f.write(fileContents)
 
 
+def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
+    """Get all paths in the SIP as ``FSItem`` instances before deleting any
+    empty directories. These filesystem items are crucially ordered so that
+    directories always precede the paths of the items they contain.
+    :param string baseDirectoryPath: path to the AIP with a trailing slash
+    :param string objectsDirectoryPath: path to the AIP's object directory
+    :returns: list or ``FSItem`` instances representing paths
+    """
+    all_fsitems = []
+    for root, dirs, files in os.walk(objectsDirectoryPath):
+        root = root.replace(baseDirectoryPath, '', 1)
+        if files or dirs:
+            all_fsitems.append(FSItem('dir', root, False))
+        else:
+            all_fsitems.append(FSItem('dir', root, True))
+        for file_ in files:
+            all_fsitems.append(FSItem('file', os.path.join(root, file_), False))
+    return all_fsitems
+
+
+def get_normative_structmap(baseDirectoryPath, objectsDirectoryPath,
+                            directories):
+    """Get a normative structMap representing the paths within a SIP.
+    :param string baseDirectoryPath: path to the AIP with a trailing slash
+    :param string objectsDirectoryPath: path to the AIP's object directory
+    :param dict directories: maps directory model instance ``currentlocation``
+    :returns: etree Element representing structMap XML
+    """
+    normativeStructMap = etree.Element(
+        ns.metsBNS + 'structMap',
+        TYPE='logical',
+        ID='structMap_{}'.format(globalStructMapCounter),
+        LABEL='Normative Directory Structure')
+    normativeStructMapDiv = etree.SubElement(
+        normativeStructMap,
+        ns.metsBNS + 'div',
+        TYPE='Directory',
+        LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
+    all_fsitems = get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath)
+    add_normative_structmap_div(all_fsitems, normativeStructMapDiv, directories)
+    return normativeStructMap
+
+
 def add_normative_structmap_div(all_fsitems, root_el, directories, path_to_el=None):
     """Document all of the file/dir paths in ``all_fsitems`` in the
     lxml._Element instance ``root_el``. This constructs the <mets:div> element
@@ -1203,6 +1246,8 @@ if __name__ == '__main__':
                       default="")
     parser.add_option("-a", "--amdSec", action="store_true", dest="amdSec",
                       default=False)
+    parser.add_option("-n", "--createNormativeStructmap", action="store_true",
+                      dest="createNormativeStructmap", default=False)
     (opts, args) = parser.parse_args()
 
     SIP_TYPE = opts.sip_type
@@ -1212,14 +1257,18 @@ if __name__ == '__main__':
     fileGroupIdentifier = opts.fileGroupIdentifier
     fileGroupType = opts.fileGroupType
     includeAmdSec = opts.amdSec
+    createNormativeStructmap = opts.createNormativeStructmap
+    keepNormativeStructmap = not createNormativeStructmap
 
     # If reingesting, do not create a new METS, just modify existing one
     if 'REIN' in SIP_TYPE:
         print('Updating METS during reingest')
         # fileGroupIdentifier is SIPUUID, baseDirectoryPath is SIP dir,
+        # don't keep existing normative structmap if creating one
         root = archivematicaCreateMETSReingest.update_mets(
             baseDirectoryPath,
             fileGroupIdentifier,
+            keep_normative_structmap=keepNormativeStructmap
         )
         tree = etree.ElementTree(root)
         write_mets(tree, XMLFile)
@@ -1231,19 +1280,6 @@ if __name__ == '__main__':
     baseDirectoryPath = os.path.join(baseDirectoryPath, '')
     objectsDirectoryPath = os.path.join(baseDirectoryPath, 'objects')
     objectsMetadataDirectoryPath = os.path.join(objectsDirectoryPath, 'metadata')
-
-    # Get all paths in the SIP as ``FSItem`` instances before deleting any
-    # empty directories. These filesystem items are crucially ordered so that
-    # directories always precede the paths of the items they contain.
-    all_fsitems = []
-    for root, dirs, files in os.walk(objectsDirectoryPath):
-        root = root.replace(baseDirectoryPath, '', 1)
-        if files or dirs:
-            all_fsitems.append(FSItem('dir', root, False))
-        else:
-            all_fsitems.append(FSItem('dir', root, True))
-        for file_ in files:
-            all_fsitems.append(FSItem('file', os.path.join(root, file_), False))
 
     # Delete empty directories, see #8427
     for root, dirs, files in os.walk(baseDirectoryPath, topdown=False):
@@ -1271,19 +1307,14 @@ if __name__ == '__main__':
         structMap, ns.metsBNS + 'div', TYPE="Directory",
         LABEL=sip_dir_name)
 
-    # Create the normative structmap.
-    globalStructMapCounter += 1
-    normativeStructMap = etree.Element(
-        ns.metsBNS + 'structMap',
-        TYPE='logical',
-        ID='structMap_{}'.format(globalStructMapCounter),
-        LABEL='Normative Directory Structure')
-    normativeStructMapDiv = etree.SubElement(
-        normativeStructMap,
-        ns.metsBNS + 'div',
-        TYPE='Directory',
-        LABEL=sip_dir_name)
-    add_normative_structmap_div(all_fsitems, normativeStructMapDiv, directories)
+    if createNormativeStructmap:
+        # Create the normative structmap.
+        globalStructMapCounter += 1
+        normativeStructMap = get_normative_structmap(
+            baseDirectoryPath, objectsDirectoryPath, directories)
+    else:
+        print("Skipping creation of normative structmap")
+        normativeStructMap = None
 
     # Get the <dmdSec> for the entire AIP; it is associated to the root
     # <mets:div> in the physical structMap.
@@ -1349,7 +1380,8 @@ if __name__ == '__main__':
 
     root.append(fileSec)
     root.append(structMap)
-    root.append(normativeStructMap)
+    if normativeStructMap is not None:
+        root.append(normativeStructMap)
 
     for structMapIncl in getIncludedStructMap(baseDirectoryPath):
         root.append(structMapIncl)

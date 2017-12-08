@@ -112,6 +112,11 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
       <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
     </preconfiguredChoice>
+    <!-- Add normative structMap to METS XML: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
+      <goToChain>29881c21-3548-454a-9637-ebc5fd46aee0</goToChain>
+    </preconfiguredChoice>
     <!-- Create SIP(s): Create single SIP and continue processing -->
     <preconfiguredChoice>
       <appliesTo>bb194013-597c-4e4a-8493-b36d190f8717</appliesTo>
@@ -337,6 +342,11 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
       <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+    </preconfiguredChoice>
+    <!-- Add normative structMap to METS XML: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
+      <goToChain>29881c21-3548-454a-9637-ebc5fd46aee0</goToChain>
     </preconfiguredChoice>
     <!-- Assign UUIDs to directories?: No -->
     <preconfiguredChoice>

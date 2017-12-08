@@ -343,6 +343,13 @@ class ProcessingConfigurationForm(forms.Form):
         'yes_option': '1e79e1b6-cf50-49ff-98a3-fa51d73553dc',
         'no_option': 'fcfea449-158c-452c-a8ad-4ae009c4eaba',
     }
+    processing_fields['d0dfa5fc-e3c2-4638-9eda-f96eea1070e0'] = {
+        'type': 'boolean',
+        'name': 'normative_structmap',
+        'label': _('Document empty directories'),
+        'yes_option': '29881c21-3548-454a-9637-ebc5fd46aee0',
+        'no_option': '65273f18-5b4e-4944-af4f-09be175a88e8',
+    }
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
         'name': 'reminder',
