@@ -103,7 +103,7 @@ config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
 config.read_files([
     '/etc/archivematica/archivematicaCommon/dbsettings',
-    '/etc/archivematica/clientConfig.conf',
+    '/etc/archivematica/MCPClient/clientConfig.conf',
 ])
 
 
