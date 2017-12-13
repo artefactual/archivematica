@@ -3,8 +3,8 @@
 This directory contains the following files:
 
 - [`serverConfig.conf`](./serverConfig.conf) - a sample configuration file that
-the user can place in `/etc/archivematica/serverConfig.conf` to tweak the
-configuration of MCPServer.
+the user can place in `/etc/archivematica/MCPServer/serverConfig.conf` to tweak
+the configuration of MCPServer.
 
 - [`serverConfig.logging.json`](./serverConfig.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.

@@ -3,8 +3,8 @@
 This directory contains the following files:
 
 - [`clientConfig.conf`](./clientConfig.conf) - a sample configuration file that
-the user can place in `/etc/archivematica/clientConfig.conf` to tweak the
-configuration of MCPClient.
+the user can place in `/etc/archivematica/MCPClient/clientConfig.conf` to tweak
+the configuration of MCPClient.
 
 - [`clientConfig.logging.json`](./clientConfig.logging.json) - read the
 [logging configuration section](#logging-configuration) for more details.
