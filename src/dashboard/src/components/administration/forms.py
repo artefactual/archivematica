@@ -112,7 +112,7 @@ class HandleForm(SettingsForm):
     )
 
     resolve_url_template_archive = forms.CharField(
-        required=False,
+        required=True,
         label=_('Archive resolve URL template'),
         help_text=_('Template (Django or Jinja2) for the URL that a unit\'s'
                     ' PURL should resolve to. Has access to "pid" and'
@@ -126,7 +126,7 @@ class HandleForm(SettingsForm):
                     ' access to "pid" and "naming_authority" variables.'))
 
     resolve_url_template_file = forms.CharField(
-        required=False,
+        required=True,
         label=_('File resolve URL template'),
         help_text=_('Template (Django or Jinja2) for the URL that a file\'s'
                     ' PURL should resolve to. Has access to "pid" and'
