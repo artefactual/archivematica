@@ -364,8 +364,10 @@ def handle_config(request):
                 'handle', form.cleaned_data)
             messages.info(request, _('Saved.'))
     else:
-        form = HandleForm(
-            initial=models.DashboardSetting.objects.get_dict('handle'))
+        settings_dict = models.DashboardSetting.objects.get_dict('handle')
+        settings_dict['pid_request_verify_certs'] = {
+            'False': False}.get(settings_dict['pid_request_verify_certs'], True)
+        form = HandleForm(initial=settings_dict)
     return render(request, 'administration/handle_config.html', {'form': form})
 
 
