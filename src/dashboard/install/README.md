@@ -1,18 +1,35 @@
-# Configuration
+# Dashboard Configuration
+
+## Table of contents
 
 - [Introduction](#introduction)
 - [Environment variables](#environment-variables)
-- [Other configuration files](#other-configuration-files)
+- [Configuration files](#configuration-files)
+- [Parameter list](#parameter-list)
+  - [Application variables](#application-variables)
+  - [Gunicorn variables](#gunicorn-variables)
 - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
-Dashboard has multiple sources of configuration. This is the full list ordered
-by precedence (with the last listed item winning prioritization):
+Archivematica components can be configured using multipe methods.  All 
+components follow the same pattern:
 
-- Application defaults
-- Configuration file: `/etc/archivematica/archivematicaCommon/dbsettings`
-- Environment variables (always win precedence)
+1. **Environment variables** - setting a configuration parameter with an 
+   environment variable will override all other methods.
+1. **Configuration file** - if the parameter is not set by an environment 
+   variable, the component will look for a setting in its default configuration file.
+1. **Application defaults**  - if the parameter is not set in an environment 
+   variable or the config file, the application default is used.
+
+Logging behaviour is configured differently, and provides two methods:
+
+1. **`logging.json` file** - if a JSON file is present in the default location,
+    the contents of the JSON file will control the components logging behaviour.
+1. **Application default** - if no JSON file is present, the default logging 
+   behaviour is to write to standard streams (standard out and standard error).
+
+Dashboard specific details are provided below.
 
 ## Environment variables
 
@@ -23,9 +40,9 @@ configuration system coerces the value to the types supported:
 - `int` (e.g. `"60"`)
 - `float` (e.g. `"1.20"`)
 - `boolean` where truth values can be represented as follows (checked in a
-case-insensitive manner):
-    - True (enabled):  `"1"`, `"yes"`, `"true"` or `"on"`
-    - False (disabled): `"0"`, `"no"`, `"false"` or `"off"`
+  case-insensitive manner):
+  - True (enabled):  `"1"`, `"yes"`, `"true"` or `"on"`
+  - False (disabled): `"0"`, `"no"`, `"false"` or `"off"`
 
 Certain environment strings are mandatory, i.e. they don't have defaults and
 the application will refuse to start if the user does not provide one.
@@ -34,7 +51,49 @@ Please be aware that Archivematica supports different types of distributions
 (Ubuntu/CentOS packages, Ansible or Docker images) and they may override some
 of these settings or provide values to mandatory fields.
 
-This is the full list of environment strings supported:
+## Configuration files
+
+The Dashboard will look for a configuration file in one location:
+
+- `/etc/archivematica/archivematicaCommon/dbsettings`
+
+Traditionally, the dbsettings file was used to hold mysql login credentials, 
+which are then shared with other Archivematica components like MCPClient.
+Non-database parameters can be set in the dbsets,tings file, to override the
+application defaults.
+
+The dashboard is a [WSGI](https://wsgi.readthedocs.io/) application. The
+default configuration uses gunicorn as an application server together with
+nginx as an http server.  The dashboard is then typically run by a service
+manager such as systemd, although it can be run by other systems such as 
+upstart or docker instead.
+
+This directory contains example configuration files for these services:
+
+- [`dashboard.gunicorn-config.py`](./dashboard.gunicorn-config.py) -
+  gunicorn configuration file sample. The default location for this file is
+  `/etc/archivematica/dashboard.gunicorn-config.py`.
+
+- [`dashboard.conf`](./dashboard.conf) - nginx server block sample. The default
+location for this file is `/etc/nginx/sites-available/dashboard.conf`.
+
+- [`archivematica-dashboard.service`](./archivematica-dashboard.conf) -
+  systemd unit file sample.  The default location for this file is 
+  `/etc/systemd/system/archivematica-dashboard.service`.
+
+These are fairly basic example files, that can be extended or customised to 
+meet local needs.  Depending on the method used to install your Archivematica
+instance, the contents of your files may differ from these examples.
+
+## Parameter list
+
+This is the full list of variables supported by the Dashboard.  
+The first section lists application variables that can be set as environment 
+variables or in the dbsettings file.
+The second section lists gunicorn variable that can be set as environment
+variables or in the gunicorn configuration file.
+
+### Application variables
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_ALLOWED_HOSTS`**:
     - **Description:** a list of strings representing the host/domain names that this Django site can serve. See [`ALLOWED_HOSTS`](https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts) for more details.
@@ -156,28 +215,79 @@ This is the full list of environment strings supported:
     - **Type:** `float`
     - **Default:** `0`
 
+### Gunicorn variables
 
-## Other configuration files
+- **`AM_GUNICORN_USER`**:
+    - **Description:** OS user for gunicorn worker processes to run as.  See [USER](http://docs.gunicorn.org/en/stable/settings.html#user)
+    - **Type:** `integer` (user id) or `string` (user name)
+    - **Default:** `archivematica`
 
-This directory contains the following files:
+- **`AM_GUNICORN_GROUP`**:
+    - **Description:** OS group for gunicorn worker processes to run as.  See [GROUP](http://docs.gunicorn.org/en/styable/settings.html#group)
+    - **Type:** `integer` (group id) or `string` (group name)
+    - **Default:** `archivematica`
 
-- [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) -
-systemd unit file sample.
+- **`AM_GUNICORN_BIND`**:
+    - **Description:** The socket for gunicorn to bind to.  See [BIND](http://docs.gunicorn.org/en/stable/settings.html#bind)
+    - **Type:** `string` (host name or ip with port number)
+    - **Default:** `127.0.0.1:8002`
 
-- [`dashboard.conf`](./dashboard.conf) - nginx server block sample.
+- **`AM_GUNICORN_WORKERS`**:
+    - **Description:** Number of gunicorn worker processes to run.  See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers)
+    - **Type:** `integer` 
+    - **Default:** `1`
 
-- [`dashboard.gunicorn-config.py`](./dashboard.gunicorn-config.py) -
-gunicorn configuration file sample.
+- **`AM_GUNICORN_WORKER_CLASS`**:
+    - **Description:** The type of worker processes to run.  See [WORKER-CLASS](http://docs.gunicorn.org/en/stable/settings.html#worker-class)
+    - **Type:** `string`
+    - **Default:** `gevent`
 
-- [`dashboard.logging.json`](./dashboard.logging.json) - read the
-[logging configuration section](#logging-configuration) for more details.
+- **`AM_GUNICORN_TIMEOUT`**:
+    - **Description:** Worker process timeout.  See [TIMEOUT](http://docs.gunicorn.org/en/stable/settings.html#timeout)
+    - **Type:** `integer` (seconds)
+    - **Default:** `172800`
+
+- **`AM_GUNICORN_RELOAD`**:
+    - **Description:** Restart workers when code changes.  See [RELOAD](http://docs.gunicorn.org/en/stable/settings.html#reload)
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`AM_GUNICORN_RELOAD_ENGINE`**:
+    - **Description:** Method of performing reload.  See [RELOAD-ENGINE](http://docs.gunicorn.org/en/stable/settings.html#reload-engine)
+    - **Type:** `string`
+    - **Default:** `auto`
+
+- **`AM_GUNICORN_CHDIR`**:
+    - **Description:** Directory to load apps from.  See [CHDIR](http://docs.gunicorn.org/en/stable/settings.html#chdir)
+    - **Type:** `string`
+    - **Default:** `/usr/share/archivematica/dashboard`
+
+- **`AM_GUNICORN_ACCESSLOG`**:
+    - **Description:** Location to write access log to.  See [ACCESSLOG](http://docs.gunicorn.org/en/stable/settings.html#accesslog)
+    - **Type:** `string`
+    - **Default:** `/dev/null`
+
+- **`AM_GUNICORN_ERRORLOG`**:
+    - **Description:** Location to write error log to.  See [ERRORLOG](http://docs.gunicorn.org/en/stable/settings.html#errorlog)
+    - **Type:** `string`
+    - **Default:** `-`
+
+- **`AM_GUNICORN_LOGLEVEL`**:
+    - **Description:** The granularity of Error log outputs.  See [LOGLEVEL](http://docs.gunicorn.org/en/stable/settings.html#loglevel)
+    - **Type:** `string`
+    - **Default:** `INFO`
+
+- **`AM_GUNICORN_PROC_NAME`**:
+    - **Description:** Name for this instance of gunicorn.  See [PROC-NAME](http://docs.gunicorn.org/en/stable/settings.html#proc-name)
+    - **Type:** `string`
+    - **Default:** `archivematica-dashboard`
 
 ## Logging configuration
 
 Archivematica 1.6.1 and earlier releases are configured by default to log to
-subdirectories in `/var/log/archivematica`, such as
+subdirectories in /var/log/archivematica, such as
 `/var/log/archivematica/dashboard/dashboard.debug.log`. Starting with
-Archivematica 1.7.0, logging configuration defaults to using stdout and stderr
+Archivematica 1.7.0, configuration defaults to using stdout and stderr
 for all logs. If no changes are made to the new default configuration, logs
 will be handled by whichever process is managing Archivematica's services. For
 example on Ubuntu 16.04 or Centos 7, Archivematica's processes are managed by

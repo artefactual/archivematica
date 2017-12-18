@@ -1,4 +1,4 @@
-description "Archivematica Storage Service"
+description "Archivematica Dashboard"
 author "Artefactual Systems"
 
 start on (runlevel [2345] and filesystem)
