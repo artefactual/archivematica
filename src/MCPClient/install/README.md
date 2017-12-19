@@ -91,12 +91,6 @@ This is the full list of environment strings supported:
     - **Type:** `string`
     - **Default:** `localhost:4730`
 
-- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_NUMBEROFTASKS`**:
-    - **Description:** number of Gearman workers that the process will run in parallel. When `0`, MCPClient will start as many workers as CPU cores are found in the system.
-    - **Config file example:** `MCPClient.numberOfTasks`
-    - **Type:** `int`
-    - **Default:** `0`
-
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ARCHIVEMATICACLIENTMODULES`**:
     - **Description:** location of the client modules configuration file. This can be useful when the user wants to set up workers that can only work in a limited number of tasks, e.g. a worker exclusively dedicated to antivirus scanning or file identification.
     - **Config file example:** `MCPClient.archivematicaClientModules`

@@ -51,13 +51,11 @@ import ConfigParser
 import cPickle
 import logging
 import os
+import signal
 from socket import gethostname
-import threading
-import time
 import traceback
 
 import django
-django.setup()
 from django.conf import settings as django_settings
 import gearman
 
@@ -78,6 +76,13 @@ replacement_dict = {
 # (typically MCPClient/lib/archivematicaClientModules) to the full paths to
 # those scripts on disk.
 supported_modules = {}
+
+# The worker object needs to be shared with the thread that runs the signal
+# handler.
+gm_worker = None
+
+SIGNALS = dict((getattr(signal, n), n)
+               for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
 
 def load_supported_modules_support(client_script, client_script_path):
@@ -195,47 +200,44 @@ def execute_command(gearman_worker, gearman_job):
                           'stdError': std_error})
 
 
-@auto_close_db
-def start_thread(thread_number):
-    """Setup a gearman client, for the thread."""
-    gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
-    host_id = '{}_{}'.format(gethostname(), thread_number)
-    gm_worker.set_client_id(host_id)
+def main(gearman_servers):
+    """Create worker and loop indefinitely to complete tasks handed by the
+    Gearman servers.
+    """
+    global gm_worker
+    gm_worker = gearman.GearmanWorker(gearman_servers)
+    gm_worker.set_client_id(gethostname())
+
     for client_script in supported_modules:
         logger.info('Registering: %s', client_script)
         gm_worker.register_task(client_script, execute_command)
-    fail_max_sleep = 30
-    fail_sleep = 1
-    fail_sleep_incrementor = 2
-    while True:
-        try:
-            gm_worker.work()
-        except gearman.errors.ServerUnavailable as inst:
-            logger.error('Gearman server is unavailable: %s. Retrying in %d'
-                         ' seconds.', inst.args, fail_sleep)
-            time.sleep(fail_sleep)
-            if fail_sleep < fail_max_sleep:
-                fail_sleep += fail_sleep_incrementor
+
+    try:
+        logger.info('Ready to accept jobs.')
+        gm_worker.work()  # This is going to block.
+    except gearman.errors.ServerUnavailable as err:
+        logger.error('Gearman server is unavailable - %s', err)
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('Shutting down!')
 
 
-def start_threads(t=1):
-    """Start a processing thread for each core (t=0), or a specified number of
-    threads.
+def quit(signo, _frame):
+    """SIGTERM and SIGINT signal handler.
+
+    It closes the current connections with the Gearman server in order to
+    interrupt the worker loop.
     """
-    if t == 0:
-        from externals.detectCores import detectCPUs
-        t = detectCPUs()
-    for i in range(t):
-        t = threading.Thread(target=start_thread, args=(i + 1,))
-        t.daemon = True
-        t.start()
+    logger.info("Interrupted by signal %s, shutting down." % SIGNALS[signo])
+    gm_worker.shutdown()
 
 
 if __name__ == '__main__':
-    try:
-        load_supported_modules(django_settings.CLIENT_MODULES_FILE)
-        start_threads(django_settings.NUMBER_OF_TASKS)
-        while True:
-            time.sleep(100)
-    except (KeyboardInterrupt, SystemExit):
-        logger.info('Received keyboard interrupt, quitting threads.')
+    # Set up quit signal handler
+    signal.signal(signal.SIGTERM, quit)
+    signal.signal(signal.SIGINT, quit)
+
+    django.setup()
+
+    load_supported_modules(django_settings.CLIENT_MODULES_FILE)
+    gearman_servers = django_settings.GEARMAN_SERVER.split(',')
+    main(gearman_servers)

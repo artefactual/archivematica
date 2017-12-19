@@ -34,7 +34,6 @@ CONFIG_MAPPING = {
     'client_assets_directory': {'section': 'MCPClient', 'option': 'clientAssetsDirectory', 'type': 'string'},
     'load_supported_commands_special': {'section': 'MCPClient', 'option': 'LoadSupportedCommandsSpecial', 'type': 'boolean'},
     'gearman_server': {'section': 'MCPClient', 'option': 'MCPArchivematicaServer', 'type': 'string'},
-    'number_of_tasks': {'section': 'MCPClient', 'option': 'numberOfTasks', 'type': 'int'},
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
@@ -74,7 +73,6 @@ archivematicaClientModules = /usr/lib/archivematica/MCPClient/archivematicaClien
 clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
 clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
 LoadSupportedCommandsSpecial = True
-numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 disableElasticsearchIndexing = False
@@ -192,7 +190,6 @@ CLIENT_SCRIPTS_DIRECTORY = config.get('client_scripts_directory')
 CLIENT_ASSETS_DIRECTORY = config.get('client_assets_directory')
 LOAD_SUPPORTED_COMMANDS_SPECIAL = config.get('load_supported_commands_special')
 GEARMAN_SERVER = config.get('gearman_server')
-NUMBER_OF_TASKS = config.get('number_of_tasks')
 CLIENT_MODULES_FILE = config.get('client_modules_file')
 DISABLE_SEARCH_INDEXING = config.get('disable_search_indexing')
 REMOVABLE_FILES = config.get('removable_files')
