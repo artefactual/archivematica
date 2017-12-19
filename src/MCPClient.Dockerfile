@@ -96,4 +96,4 @@ RUN set -ex \
 
 USER archivematica
 
-ENTRYPOINT /src/MCPClient/lib/archivematicaClient.py
+ENTRYPOINT ["/src/MCPClient/lib/archivematicaClient.py"]
