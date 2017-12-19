@@ -31,4 +31,4 @@ RUN mkdir -p /etc/archivematica && (echo "---"; \
 
 USER archivematica
 
-ENTRYPOINT /src/MCPClient/lib/archivematicaClient.py
+ENTRYPOINT ["/src/MCPClient/lib/archivematicaClient.py"]
