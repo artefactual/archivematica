@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import StringIO
+import yaml
 
 from appconfig import Config
 import email_settings
@@ -187,3 +188,7 @@ CLAMAV_SERVER = config.get('clamav_server')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
+
+doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
+ARCHIVEMATICA_VERSION = doc.get('version')
+AGENT_CODE = doc.get('agent_code')

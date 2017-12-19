@@ -1,5 +1,7 @@
 FROM ubuntu:14.04
 
+ARG ARCHIVEMATICA_VERSION
+ARG AGENT_CODE
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_SETTINGS_MODULE settings.common
@@ -84,6 +86,11 @@ ADD archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
 	&& useradd --uid 333 --gid 333 --system archivematica
+
+RUN mkdir -p /etc/archivematica && (echo "---"; \
+	 echo "version: $ARCHIVEMATICA_VERSION"; \
+	 echo "agent_code: $AGENT_CODE";) \
+		> /etc/archivematica/version.yml
 
 USER archivematica
 
