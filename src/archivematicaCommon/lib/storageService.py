@@ -94,7 +94,7 @@ def _storage_relative_from_absolute(location_path, space_path):
 # ########### PIPELINE #############
 
 
-def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
+def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None, remote_name=None):
     pipeline = {
         'uuid': get_setting('dashboard_uuid'),
         'description': "Archivematica on {}".format(platform.node()),
@@ -102,6 +102,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         'shared_path': shared_path,
         'api_username': api_username,
         'api_key': api_key,
+        'remote_name': remote_name
     }
     LOGGER.info("Creating pipeline in storage service with %s", pipeline)
     url = _storage_service_url() + 'pipeline/'

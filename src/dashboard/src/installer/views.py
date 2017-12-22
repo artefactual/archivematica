@@ -34,6 +34,8 @@ def welcome(request):
     if dashboard_uuid:
         return redirect('main.views.home')
 
+    dashboard_public_url = helpers.get_setting('dashboard_public_url')
+
     # Do we need to set up a user?
     set_up_user = not User.objects.exists()
 
@@ -41,7 +43,8 @@ def welcome(request):
         # save organization PREMIS agent if supplied
         setup_pipeline(
             org_name=request.POST.get('org_name', ''),
-            org_identifier=request.POST.get('org_identifier', '')
+            org_identifier=request.POST.get('org_identifier', ''),
+            public_url=request.POST.get('public_url', '')
         )
 
         if set_up_user:
@@ -60,7 +63,10 @@ def welcome(request):
             request.session['first_login'] = True
             return redirect('installer.views.fprconnect')
     else:
-        form = SuperUserCreationForm() if set_up_user else OrganizationForm()
+        if set_up_user:
+            form = SuperUserCreationForm({'public_url': dashboard_public_url})
+        else:
+            form = OrganizationForm({'public_url': dashboard_public_url})
 
     return render(request, 'installer/welcome.html', {
         'form': form,
@@ -85,6 +91,7 @@ def fprdownload(request):
 def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page
     dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
+    dashboard_public_url = helpers.get_setting('dashboard_public_url', None)
     assert dashboard_uuid is not None
 
     # Prefill the storage service URL
@@ -100,8 +107,12 @@ def storagesetup(request):
 
     try:
         use_default_config = storage_form.cleaned_data['storage_service_use_default_config']
-        setup_pipeline_in_ss(use_default_config)
-    except Exception:
-        messages.warning(request, _('Error creating pipeline: is the storage server running? Please contact an administrator.'))
+        setup_pipeline_in_ss(use_default_config=use_default_config,
+                             remote_name=dashboard_public_url)
+    except Exception as error:
+        messages.warning(
+            request,
+            _('Error creating pipeline: is the storage server running? Please'
+              ' contact an administrator. {} {}'.format(type(error), error)))
 
     return redirect('main.views.home')

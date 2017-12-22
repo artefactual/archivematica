@@ -25,8 +25,22 @@ from django.utils.translation import ugettext_lazy as _l
 
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(
+        label=_l('Organization name'),
+        help_text=_l('PREMIS agent name'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(
+        label=_l('Organization identifier'),
+        help_text=_l('PREMIS agent identifier'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
+    public_url = forms.CharField(
+        label=_l('Public URL'),
+        help_text=_l('URL where this Archivematica installation is being'
+                     ' served. Leave this field empty if you are not sure.'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     class Meta:
         model = User
@@ -48,8 +62,22 @@ class OrganizationForm(forms.Form):
     """
     Simplified version of the superuser form - simply ask for organisation info
     """
-    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(
+        label=_l('Organization name'),
+        help_text=_l('PREMIS agent name'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(
+        label=_l('Organization identifier'),
+        help_text=_l('PREMIS agent identifier'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
+    public_url = forms.CharField(
+        label=_l('Public URL'),
+        help_text=_l('URL where this Archivematica installation is being'
+                     ' served. Leave this field empty if you are not sure.'),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS))
 
 
 class FPRConnectForm(forms.Form):

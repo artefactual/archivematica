@@ -43,10 +43,13 @@ def create_super_user(username, email, password, key):
     api_key.save()
 
 
-def setup_pipeline(org_name, org_identifier):
+def setup_pipeline(org_name, org_identifier, public_url=None):
     # Assign UUID to Dashboard
     dashboard_uuid = str(uuid.uuid4())
     helpers.set_setting('dashboard_uuid', dashboard_uuid)
+
+    if public_url:
+        helpers.set_setting('dashboard_public_url', public_url)
 
     # Update Archivematica version in DB
     archivematica_agent = Agent.objects.get(pk=1)
@@ -98,7 +101,7 @@ def download_fpr_rules():
     return resp
 
 
-def setup_pipeline_in_ss(use_default_config=False):
+def setup_pipeline_in_ss(use_default_config=False, remote_name=None):
     if not use_default_config:
         # Storage service manually set up, just register Pipeline if
         # possible. Do not provide additional information about the shared
@@ -111,12 +114,17 @@ def setup_pipeline_in_ss(use_default_config=False):
     user = User.objects.all()[0]
     api_key = ApiKey.objects.get(user=user)
 
+    remote_name = (remote_name or
+                   helpers.get_setting('dashboard_public_url') or
+                   django_settings.PUBLIC_URL)
+
     # Create pipeline, tell it to use default setup
     storage_service.create_pipeline(
         create_default_locations=True,
         shared_path=django_settings.SHARED_DIRECTORY,
         api_username=user.username,
         api_key=api_key.key,
+        remote_name=remote_name
     )
 
 

@@ -108,6 +108,12 @@ This is the full list of environment strings supported:
     - **Type:** `float`
     - **Default:** `60`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_PUBLIC_URL`**:
+    - **Description:** the URL where the dashboard is being served. This setting is optional. If set, it will be passed to the Storage Service (SS) as the `remote_name` attribute when making the API call to create a pipeline during installation. If not set, the SS will use the request's `REMOTE_ADDR` header value as the `remote_name` when creating the pipeline.
+    - **Config file example:** `http://archivematica-dashboard:8000`
+    - **Type:** `string`
+    - **Default:** `None`
+
 - **`ARCHIVEMATICA_DASHBOARD_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.
     - **Config file example:** `client.engine`
