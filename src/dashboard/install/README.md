@@ -77,9 +77,13 @@ This directory contains example configuration files for these services:
 - [`dashboard.conf`](./dashboard.conf) - nginx server block sample. The default
 location for this file is `/etc/nginx/sites-available/dashboard.conf`.
 
-- [`archivematica-dashboard.service`](./archivematica-dashboard.conf) -
-  systemd unit file sample.  The default location for this file is 
+- [`archivematica-dashboard.service`](./archivematica-dashboard.service) -
+  systemd config sample.  The default location for this file is 
   `/etc/systemd/system/archivematica-dashboard.service`.
+
+- [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) - upstart
+   config sample, for use on Ubuntu 14.04 where systemd is not available. The
+   default location for this file is /etc/init/archivematica-dashboard.conf
 
 These are fairly basic example files, that can be extended or customised to 
 meet local needs.  Depending on the method used to install your Archivematica
