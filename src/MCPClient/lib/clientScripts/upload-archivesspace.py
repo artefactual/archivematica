@@ -225,6 +225,6 @@ if __name__ == '__main__':
 
     args.inherit_notes = args.inherit_notes.lower() in INHERIT_NOTES_CHOICES
 
-    client = ArchivesSpaceClient(host=args.host, user=args.user, passwd=args.passwd)
+    client = ArchivesSpaceClient(host=args.host, port=args.port, user=args.user, passwd=args.passwd)
     files = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
     upload_to_archivesspace(files, client, args.xlink_show, args.xlink_actuate, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location, args.inherit_notes)
