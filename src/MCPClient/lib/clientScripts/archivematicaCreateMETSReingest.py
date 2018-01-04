@@ -441,17 +441,14 @@ def update_mets(sip_dir, sip_uuid, keep_normative_structmap=True):
     add_new_files(mets, sip_uuid, sip_dir)
     delete_files(mets, sip_uuid)
 
+    serialized = mets.serialize()
     if not keep_normative_structmap:
         # Remove normative structMap
-        serialized = mets.serialize()
         structmaps = serialized.findall(
             'mets:structMap[@LABEL="Normative Directory Structure"]', namespaces=ns.NSMAP)
         for structmap in structmaps:
             structmap.getparent().remove(structmap)
             print("Removed normative structMap")
-
-    # Delete original METS
-
     return serialized
 
 
