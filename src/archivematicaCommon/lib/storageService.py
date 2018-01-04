@@ -7,7 +7,7 @@ import requests
 from requests.auth import AuthBase
 import urllib
 
-from django.conf import settings
+from django.conf import settings as django_settings
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
@@ -56,7 +56,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=5):
+def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT):
     """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
@@ -217,8 +217,7 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
     try:
-        timeout = settings.COPY_FILES_TIMEOUT
-        response = _storage_api_session(timeout).post(url, json=move_files)
+        response = _storage_api_session().post(url, json=move_files)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
@@ -266,7 +265,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     LOGGER.info("Creating file with %s", new_file)
     try:
-        session = _storage_api_session(timeout=None)
+        session = _storage_api_session()
         if update:
             new_file['reingest'] = pipeline['uuid']
             url = _storage_service_url() + 'file/' + uuid + '/'

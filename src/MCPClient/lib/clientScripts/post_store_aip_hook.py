@@ -8,6 +8,7 @@ import requests
 
 import django
 django.setup()
+from django.conf import settings as mcpclient_settings
 # dashboard
 from main import models
 
@@ -15,8 +16,6 @@ from main import models
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
-
-from django.conf import settings as mcpclient_settings
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
@@ -55,7 +54,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     url = archivesspace_url + '/users/' + config['user'] + '/login'
     params = {'password': config['passwd']}
     logger.debug('Log in to ArchivesSpace URL: %s', url)
-    response = requests.post(url, params=params, timeout=120)
+    response = requests.post(url, params=params, timeout=mcpclient_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
     logger.debug('Response: %s %s', response, response.content)
     session_id = response.json()['session']
     headers = {'X-ArchivesSpace-Session': session_id}
@@ -63,7 +62,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     # Get Digital Object from ArchivesSpace
     url = archivesspace_url + digital_object.remoteid
     logger.debug('Get Digital Object info URL: %s', url)
-    response = requests.get(url, headers=headers, timeout=120)
+    response = requests.get(url, headers=headers, timeout=mcpclient_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
     logger.debug('Response: %s %s', response, response.content)
     body = response.json()
 
@@ -77,7 +76,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     }
     body['file_versions'].append(file_version)
     logger.debug('Modified Digital Object: %s', body)
-    response = requests.post(url, headers=headers, json=body, timeout=120)
+    response = requests.post(url, headers=headers, json=body, timeout=mcpclient_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
     print('Update response:', response, response.content)
     logger.debug('Response: %s %s', response, response.content)
     if response.status_code != 200:

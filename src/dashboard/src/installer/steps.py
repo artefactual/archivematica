@@ -84,7 +84,7 @@ def submit_fpr_agent():
 
     try:
         logger.info("FPR Server URL: {}".format(django_settings.FPR_URL))
-        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=120, verify=True)
+        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=django_settings.FPR_CLIENT_TIMEOUT, verify=True)
         if r.status_code == 201:
             resp['result'] = 'success'
         else:

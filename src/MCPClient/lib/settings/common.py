@@ -39,6 +39,8 @@ CONFIG_MAPPING = {
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
+    'storage_service_client_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'agentarchives_client_timeout': {'section': 'MCPClient', 'option': 'agentarchives_client_timeout', 'type': 'float'},
 
     # [antivirus]
     'clamav_server': {'section': 'MCPClient', 'option': 'clamav_server', 'type': 'string'},
@@ -79,6 +81,8 @@ temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
 clamav_pass_by_reference = False
+storage_service_client_timeout = 86400
+agentarchives_client_timeout = 300
 clamav_client_timeout = 600
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
@@ -199,6 +203,8 @@ REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
 CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
