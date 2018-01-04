@@ -1258,7 +1258,7 @@ if __name__ == '__main__':
     fileGroupType = opts.fileGroupType
     includeAmdSec = opts.amdSec
     createNormativeStructmap = opts.createNormativeStructmap
-    keepNormativeStructmap = not createNormativeStructmap
+    keepNormativeStructmap = createNormativeStructmap
 
     # If reingesting, do not create a new METS, just modify existing one
     if 'REIN' in SIP_TYPE:
