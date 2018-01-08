@@ -114,7 +114,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
     return True
 
 
-def _get_pipeline(uuid):
+def get_pipeline(uuid):
     url = _storage_service_url() + 'pipeline/' + uuid + '/'
     try:
         response = _storage_api_session().get(url)
@@ -146,7 +146,7 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
-    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    pipeline = get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return None
     url = _storage_service_url() + 'location/'
@@ -194,7 +194,7 @@ def copy_files(source_location, destination_location, files):
         source_location and destination_location, respectively.  All other
         fields ignored.
     """
-    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    pipeline = get_pipeline(get_setting('dashboard_uuid'))
     move_files = {
         'origin_location': source_location['resource_uri'],
         'files': files,
@@ -248,7 +248,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     origin_location and current_location should be URIs for the storage service.
     """
-    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    pipeline = get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return (None, 'Pipeline not available, see logs.')
     new_file = {

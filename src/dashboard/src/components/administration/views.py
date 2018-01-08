@@ -434,7 +434,7 @@ def general(request):
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
     try:
-        pipeline = storage_service._get_pipeline(dashboard_uuid)
+        pipeline = storage_service.get_pipeline(dashboard_uuid)
     except Exception:
         messages.warning(request, _("Storage server inaccessible. Please contact an administrator or update storage service URL below."))
     else:
