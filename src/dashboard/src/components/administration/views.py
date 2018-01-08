@@ -465,7 +465,7 @@ def general(request):
 
     not_created_yet = False
     try:
-        pipeline = storage_service._get_pipeline(dashboard_uuid)
+        pipeline = storage_service.get_pipeline(dashboard_uuid)
     except Exception as err:
         if err.response is not None and err.response.status_code == 404:
             # The server has returned a 404, we're going to assume that this is
