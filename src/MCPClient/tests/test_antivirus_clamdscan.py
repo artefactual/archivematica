@@ -5,9 +5,10 @@ from __future__ import print_function
 
 import os
 import sys
+import errno
 
 from collections import namedtuple
-from clamd import ClamdNetworkSocket, ClamdUnixSocket
+from clamd import ClamdNetworkSocket, ClamdUnixSocket, BufferTooLongError, ConnectionError
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(
@@ -68,6 +69,11 @@ def test_clamdscanner_scan(mocker, settings):
     FOUND_RET = ('FOUND', 'Eicar-Test-Signature')
 
     def patch(scanner, ret=OKAY_RET, excepts=False):
+        """Patch the scanner function and enable testing of exceptions raised
+        by clamdscanner that we want to control. excepts can take an argument
+        of True to pass a generic exception. excepts can also take an exception
+        as an argument for better granularity.
+        """
         deps = namedtuple('deps', ['pass_by_value', 'pass_by_reference'])(
             pass_by_value=mocker.patch.object(
                 scanner, 'pass_by_value',
@@ -76,8 +82,10 @@ def test_clamdscanner_scan(mocker, settings):
                 scanner, 'pass_by_reference',
                 return_value={'/file': ret})
         )
-        if excepts:
-            e = Exception('Something bad happened!')
+        if excepts is not False:
+            e = excepts
+            if excepts is True:
+                e = Exception("Testing an unmanaged exception.")
             deps.pass_by_value.side_effect = e
             deps.pass_by_reference.side_effect = e
         return deps
@@ -112,8 +120,43 @@ def test_clamdscanner_scan(mocker, settings):
     assert state == 'FOUND'
     assert details == 'Eicar-Test-Signature'
 
-    patch(scanner, ret=FOUND_RET, excepts=True)
+    # Testing a generic Exception returned by the clamdscan micorservice.
+    patch(scanner, ret=OKAY_RET, excepts=True)
     passed, state, details = scanner.scan('/file')
     assert passed is False
+    assert state is None
+    assert details is None
+
+    # Testing a generic IOError that is not a broken pipe error that we're
+    # expecting to be able to manage from clamdscan.
+    patch(scanner, ret=OKAY_RET, excepts=IOError("Testing a generic IO Error"))
+    passed, state, details = scanner.scan('/file')
+    assert passed is False
+    assert state is None
+    assert details is None
+
+    # Broken pipe is a known error from the clamd library.
+    brokenpipe_error = IOError("Testing a broken pipe error")
+    brokenpipe_error.errno = errno.EPIPE
+    patch(scanner, ret=OKAY_RET, excepts=brokenpipe_error)
+    passed, state, details = scanner.scan('/file')
+    assert passed is None
+    assert state is None
+    assert details is None
+
+    # The INSTREAM size limit error is known to us; test it here.
+    instream_error = BufferTooLongError("INSTREAM size limit exceeded. ERROR.")
+    patch(scanner, ret=OKAY_RET, excepts=instream_error)
+    passed, state, details = scanner.scan('/file')
+    assert passed is None
+    assert state is None
+    assert details is None
+
+    # The clamd library can return a further error code here, and we we test it
+    # to make sure that if it does, it is managed.
+    connection_error = ConnectionError("Error while reading from socket.")
+    patch(scanner, ret=OKAY_RET, excepts=connection_error)
+    passed, state, details = scanner.scan('/file')
+    assert passed is None
     assert state is None
     assert details is None
