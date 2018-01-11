@@ -51,7 +51,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
                 if ``command`` is a string.
     env_updates: Dict of changes to apply to the started process' environment.
     capture_output: Whether or not to capture output from the subprocess.
-                    Defaults to `True`.
+                    Defaults to `False`.
     """
     stdError = ""
     stdOut = ""

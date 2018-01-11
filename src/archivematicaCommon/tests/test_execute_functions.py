@@ -9,10 +9,17 @@ def test_capture_output():
     # Test that stdout and stderr are not captured by default
     ret, std_out, std_err = execsub.launchSubProcess(['ls', '/tmp'])
     assert std_out is ''
-    assert std_err is''
+    assert std_err is ''
 
     # Test that stdout and stderr are captured when `capture_output` is
     # enabled.
     ret, std_out, std_err = execsub.launchSubProcess(
         ['ls', '/tmp'], capture_output=True)
     assert std_out is not '' or std_err is not ''
+
+    # Test that stdout and stderr are not captured when `capture_output` is
+    # not enabled.
+    ret, std_out, std_err = execsub.launchSubProcess(
+        ['ls', '/tmp'], capture_output=False)
+    assert std_out is ''
+    assert std_err is ''
