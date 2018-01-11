@@ -1,5 +1,6 @@
 // Styles
 import './app.css';
+import 'font-awesome/css/font-awesome.min.css';
 import './vendor/angular-tree-control/css/tree-control.css';
 import './vendor/angular-tree-control/css/tree-control-attribute.css';
 
