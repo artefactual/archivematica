@@ -92,6 +92,8 @@ def data_migration_atom_restore_std(apps, schema_editor):
     MicroServiceChainLinkExitCode.objects.create(
         id=uuids[2],
         microservicechainlink=new_mscl,
+        exitcode=0,
+        exitmessage=Job.STATUS_COMPLETED_SUCCESSFULLY,
         nextmicroservicechainlink_id='651236d2-d77f-4ca7-bfe9-6332e96608ff',
     )
 
