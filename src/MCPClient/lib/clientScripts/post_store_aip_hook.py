@@ -89,7 +89,7 @@ def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
-    elasticSearchFunctions.setup_reading_from_client_conf(mcpclient_settings)
+    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
     # SIP ARRANGEMENT

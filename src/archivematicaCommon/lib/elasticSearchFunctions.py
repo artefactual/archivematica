@@ -25,6 +25,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+import calendar
 import datetime
 import json
 import logging
@@ -125,7 +126,7 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT):
     })
 
 
-def setup_reading_from_client_conf(settings):
+def setup_reading_from_conf(settings):
     setup(settings.ELASTICSEARCH_SERVER, settings.ELASTICSEARCH_TIMEOUT)
 
 
@@ -339,6 +340,13 @@ def set_up_mapping_transfer_index(client):
         'status': MACHINE_READABLE_FIELD_SPEC,
         'origin': MACHINE_READABLE_FIELD_SPEC,
         'ingestdate': {'type': 'date', 'format': 'dateOptionalTime'},
+        # METS.xml files in transfers sent to backlog will have '' as their
+        # modification_date value. This can cause a failure in certain
+        # cases---see https://github.com/artefactual/archivematica/issues/719.
+        # For this reason, we specify the type and format here and ignore
+        # malformed values like ''.
+        'modification_date': {'type': 'date', 'format': 'dateOptionalTime',
+                              'ignore_malformed': True},
         'created': {'type': 'double'},
         'size': {'type': 'double'},
         'tags': MACHINE_READABLE_FIELD_SPEC,
@@ -383,7 +391,8 @@ def set_up_mapping(client, index):
         set_up_mapping_aip_index(client)
 
 
-def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
+def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[], encrypted=False):
+
     tree = ElementTree.parse(pathToMETS)
 
     # TODO add a conditional to toggle this
@@ -404,6 +413,18 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
     xml = ElementTree.tostring(root)
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
+    # Pull the create time from the METS header
+    mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
+    mets_created_attr = mets_hdr.get('CREATEDATE')
+
+    created = time.time()
+
+    if mets_created_attr:
+        try:
+            created = calendar.timegm(time.strptime(mets_created_attr, '%Y-%m-%dT%H:%M:%S'))
+        except ValueError:
+            print("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
+
     aipData = {
         'uuid': uuid,
         'name': name,
@@ -411,12 +432,13 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'size': (size or os.path.getsize(filePath)) / 1024 / 1024,
         'mets': mets_data,
         'origin': get_dashboard_uuid(),
-        'created': os.path.getmtime(pathToMETS),
+        'created': created,
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
         'countAIPsinAIC': aips_in_aic,
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
+        'encrypted': encrypted
     }
     wait_for_cluster_yellow_status(client)
     try_to_index(client, aipData, 'aips', 'aip')
@@ -425,7 +447,6 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
 def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10):
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
-
     for _ in xrange(0, max_tries):
         try:
             return client.index(body=data, index=index, doc_type=doc_type)
@@ -756,10 +777,12 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 file_uuid = f.uuid
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(pathToTransfer, file_uuid)
+                modification_date = f.modificationtime.strftime('%Y-%m-%d')
             except File.DoesNotExist:
                 file_uuid = ''
                 formats = []
                 bulk_extractor_reports = []
+                modification_date = ''
 
             # Get file path info
             relative_path = relative_path.replace('%transferDirectory%', transfer_name + '/')
@@ -783,6 +806,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                     'origin': dashboard_uuid,
                     'ingestdate': ingest_date,
                     'created': create_time,
+                    'modification_date': modification_date,
                     'size': size,
                     'tags': [],
                     'file_extension': file_extension,

@@ -47,6 +47,6 @@ if __name__ == '__main__':
     except IndexError:
         status = ''
 
-    elasticSearchFunctions.setup_reading_from_client_conf(mcpclient_settings)
+    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
     sys.exit(elasticSearchFunctions.index_files(client, 'transfers', 'transferfile', transfer_uuid, transfer_path, status=status))

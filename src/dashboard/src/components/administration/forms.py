@@ -53,6 +53,119 @@ class SettingsForm(forms.Form):
             helpers.set_setting(key, self.cleaned_data[key])
 
 
+class HandleForm(SettingsForm):
+    """Form class for configuring client access to a handle server endpoint.
+    This configures PIDs/handles to be requested for units (DIPs), files or
+    directories, as well as the resolution of URLs based on those PIDs, i.e.,
+    PURLs, to specified URLs.
+    Note: the attributes of this form are (and must remain) identical to
+    archivematicaCommon/bindpid::CFGABLE_PARAMS.
+    """
+
+    pid_web_service_endpoint = forms.URLField(
+        required=True,
+        label=_('Web service endpoint'),
+        help_text=_('The URL for (POST) requests to create and resolve PIDs.'))
+
+    pid_web_service_key = forms.CharField(
+        required=True,
+        label=_('Web service key'),
+        help_text=_('Web service key needed for authentication to make'
+                    ' PID-binding requests to the PID web service endpoint.'))
+
+    naming_authority = forms.CharField(
+        required=True,
+        label=_('Naming authority'),
+        help_text=_('Handle naming authority (e.g., 12345)'))
+
+    handle_resolver_url = forms.URLField(
+        required=True,
+        label=_('Resolver URL'),
+        help_text=_('The URL to append generated PIDs to in order to create'
+                    ' (potentially qualified) PURLs (persistent URLs) that'
+                    ' resolve to the applicable resolve URL. Note the second'
+                    ' "r" in "resolver"!'))
+
+    AIP_PID_SOURCE_CHOICES = (
+        ('uuid', 'UUID'),
+        ('accession_no', 'Accession number'),
+    )
+
+    handle_archive_pid_source = forms.ChoiceField(
+        choices=AIP_PID_SOURCE_CHOICES,
+        label=_('AIP PID source'),
+        help_text=_('The source of the AIP\'s persistent identifier. The UUID '
+                    'of the AIP is the default since it is virtually guaranteed '
+                    'to be unique. However, the accession number of the '
+                    'transfer may be used, assuming the user can guarantee a '
+                    '1-to-1 relationship between the transfer and the AIP.'))
+    # If this is set to "accession number" and Archivematica cannot find a
+    # unique accession number for the AIP (because it references/ was
+    # constructed from multiple Transfers), then the UUID is used as the
+    # fallback; see the bind_pids client script for details.
+
+    pid_request_verify_certs = forms.BooleanField(
+        required=False,
+        initial=True,
+        label=_('Verify SSL certificates'),
+        help_text=_('Verify SSL certificates when making requests to bind PIDs.')
+    )
+
+    resolve_url_template_archive = forms.CharField(
+        required=True,
+        label=_('Archive resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a unit\'s'
+                    ' PURL should resolve to. Has access to "pid" and'
+                    ' "naming_authority" variables.'))
+
+    resolve_url_template_mets = forms.CharField(
+        required=False,
+        label=_('METS resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a unit\'s'
+                    ' PURL with the "mets" qualifier should resolve to. Has'
+                    ' access to "pid" and "naming_authority" variables.'))
+
+    resolve_url_template_file = forms.CharField(
+        required=True,
+        label=_('File resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a file\'s'
+                    ' PURL should resolve to. Has access to "pid" and'
+                    ' "naming_authority" variables.'))
+
+    resolve_url_template_file_access = forms.CharField(
+        required=False,
+        label=_('Access derivative resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a file\'s'
+                    ' PURL with the "access" qualifier should resolve to. Has'
+                    ' access to "pid" and "naming_authority" variables.'))
+
+    resolve_url_template_file_preservation = forms.CharField(
+        required=False,
+        label=_('Preservation derivative resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a file\'s'
+                    ' PURL with the "preservation" qualifier should resolve'
+                    ' to. Has access to "pid" and "naming_authority"'
+                    ' variables.'))
+
+    resolve_url_template_file_original = forms.CharField(
+        required=False,
+        label=_('Original file resolve URL template'),
+        help_text=_('Template (Django or Jinja2) for the URL that a file\'s'
+                    ' PURL with the "original" qualifier should resolve to. Has'
+                    ' access to "pid" and "naming_authority" variables.'))
+
+    pid_request_body_template = forms.CharField(
+        required=False,
+        widget=forms.Textarea,
+        label=_('PID/handle request request body template'),
+        help_text=_('Template (Django or Jinja2) that constructs the HTTP'
+                    ' request body using the rendered URL templates above. Has'
+                    ' access to the following variables: "pid",'
+                    ' "naming_authority", "base_resolve_url", and'
+                    ' "qualified_resolve_urls", the last of which is a list of'
+                    ' dicts with "url" and "qualifier" keys.'))
+
+
 class StorageSettingsForm(SettingsForm):
 
     class StripCharField(forms.CharField):
@@ -127,7 +240,13 @@ class ProcessingConfigurationForm(forms.Form):
 
     # The available processing fields indexed by choice_uuid.
     processing_fields = OrderedDict()
-
+    processing_fields['bd899573-694e-4d33-8c9b-df0af802437d'] = {
+        'type': 'boolean',
+        'name': 'assign_uuids_to_directories',
+        'label': _('Assign UUIDs to directories'),
+        'yes_option': '2dc3f487-e4b0-4e07-a4b3-6216ed24ca14',
+        'no_option': '891f60d0-1ba8-48d3-b39e-dd0934635d29',
+    }
     processing_fields['755b4177-c587-41a7-8c52-015277568302'] = {
         'type': 'boolean',
         'name': 'quarantine_transfer',
@@ -167,6 +286,13 @@ class ProcessingConfigurationForm(forms.Form):
         'label': _('Delete packages after extraction'),
         'uuid': '85b1e45d-8f98-4cae-8336-72f40e12cbef',
     }
+    processing_fields['70fc7040-d4fb-4d19-a0e6-792387ca1006'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_originals',
+        'label': _('Perform policy checks on originals'),
+        'yes_option': 'c611a6ff-dfdb-46d1-b390-f366a6ea6f66',
+        'no_option': '3e891cc4-39d2-4989-a001-5107a009a223',
+    }
     processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
         'type': 'chain_choice',
         'name': 'examine',
@@ -195,6 +321,34 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'normalize_transfer',
         'label': _('Approve normalization'),
         'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
+    }
+    processing_fields['153c5f41-3cfb-47ba-9150-2dd44ebc27df'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_preservation_derivatives',
+        'label': _('Perform policy checks on preservation derivatives'),
+        'yes_option': '3a55f688-eca3-4ebc-a012-4ce68290e7b0',
+        'no_option': 'b7ce05f0-9d94-4b3e-86cc-d4b2c6dba546',
+    }
+    processing_fields['8ce07e94-6130-4987-96f0-2399ad45c5c2'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_access_derivatives',
+        'label': _('Perform policy checks on access derivatives'),
+        'yes_option': 'd9760427-b488-4381-832a-de10106de6fe',
+        'no_option': '76befd52-14c3-44f9-838f-15a4e01624b0',
+    }
+    processing_fields['05357876-a095-4c11-86b5-a7fff01af668'] = {
+        'type': 'boolean',
+        'name': 'bind_pids',
+        'label': _('Bind PIDs'),
+        'yes_option': '1e79e1b6-cf50-49ff-98a3-fa51d73553dc',
+        'no_option': 'fcfea449-158c-452c-a8ad-4ae009c4eaba',
+    }
+    processing_fields['d0dfa5fc-e3c2-4638-9eda-f96eea1070e0'] = {
+        'type': 'boolean',
+        'name': 'normative_structmap',
+        'label': _('Document empty directories'),
+        'yes_option': '29881c21-3548-454a-9637-ebc5fd46aee0',
+        'no_option': '65273f18-5b4e-4944-af4f-09be175a88e8',
     }
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
@@ -241,7 +395,13 @@ class ProcessingConfigurationForm(forms.Form):
         'label': 'Upload DIP',
         'ignored_choices': []
     }
-    processing_fields['b7a83da6-ed5a-47f7-a643-1e9f9f46e364'] = {
+    processing_fields['5e58066d-e113-4383-b20b-f301ed4d751c'] = {
+        'type': 'chain_choice',
+        'name': 'store_dip',
+        'label': _('Store DIP'),
+        'ignored_choices': []
+    }
+    processing_fields['cd844b6e-ab3c-4bc6-b34f-7103f88715de'] = {
         'type': 'storage_service',
         'name': 'store_dip_location',
         'label': _('Store DIP location'),

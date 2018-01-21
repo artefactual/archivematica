@@ -18,6 +18,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Assign a UUID to the passed-in file.
+
+This client script assigns a UUID to a file by generating a new UUID and
+creating several database rows (model instances), among them a ``File``
+instance recording the UUID associated to a unit model, i.e., to a ``Transfer``
+or ``SIP`` instance. ``Event`` instances are also created for "ingestion" and
+"accession" events.
+
+Salient parameters are the UUID of the containing unit (Transfer or SIP) and
+the path to the file.
+
+"""
+
 from __future__ import print_function
 
 import argparse

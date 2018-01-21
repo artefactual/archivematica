@@ -51,7 +51,7 @@ def index_aip():
         logger.info('Skipping indexing: indexing is currently disabled.')
         return 0
 
-    elasticSearchFunctions.setup_reading_from_client_conf(mcpclient_settings)
+    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
     print('SIP UUID:', sip_uuid)
@@ -91,7 +91,8 @@ def index_aip():
         mets_path,
         size=aip_info['size'],
         aips_in_aic=aips_in_aic,
-        identifiers=identifiers)
+        identifiers=identifiers,
+        encrypted=aip_info['encrypted'])
 
     # Index AIP files
     print('Indexing AIP files')

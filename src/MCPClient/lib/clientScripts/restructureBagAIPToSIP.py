@@ -26,9 +26,13 @@ import os
 import sys
 import shutil
 
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import archivematicaFunctions
+
+
+logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
 
 
 def _move_file(src, dst, exit_on_error=True):
@@ -42,7 +46,6 @@ def _move_file(src, dst, exit_on_error=True):
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
 
     sip_path = sys.argv[1]
 
@@ -55,24 +58,39 @@ if __name__ == '__main__':
     os.rmdir(os.path.join(sip_path, 'data'))
 
     # Move metadata and logs out of objects if they exist
-    src = os.path.join(sip_path, 'objects', 'metadata')
+    objects_path = os.path.join(sip_path, 'objects')
+    src = os.path.join(objects_path, 'metadata')
     dst = os.path.join(sip_path, 'metadata')
     _move_file(src, dst, exit_on_error=False)
 
-    src = os.path.join(sip_path, 'objects', 'logs')
+    src = os.path.join(objects_path, 'logs')
     dst = os.path.join(sip_path, 'logs')
     _move_file(src, dst, exit_on_error=False)
 
     # Move anything unexpected to submission documentation
     # Leave objects, metadata, etc
     # Original METS ends up in submissionDocumentation
-    os.makedirs(os.path.join(sip_path, 'metadata', 'submissionDocumentation'))
+    subm_doc_path = os.path.join(
+        sip_path, 'metadata', 'submissionDocumentation')
+    os.makedirs(subm_doc_path)
+    mets_file_path = None
     for item in os.listdir(sip_path):
         # Leave SIP structure
         if item in archivematicaFunctions.OPTIONAL_FILES + archivematicaFunctions.REQUIRED_DIRECTORIES:
             continue
         src = os.path.join(sip_path, item)
-        dst = os.path.join(sip_path, 'metadata', 'submissionDocumentation', item)
+        dst = os.path.join(subm_doc_path, item)
+        if item.startswith('METS.') and item.endswith('.xml'):
+            mets_file_path = dst
         _move_file(src, dst)
+
+    # Reconstruct any empty directories documented in the METS file under the
+    # logical structMap labelled "Normative Directory Structure"
+    if mets_file_path:
+        archivematicaFunctions.reconstruct_empty_directories(
+            mets_file_path, objects_path, logger=logger)
+    else:
+        logger.info('Unable to reconstruct empty directories: no METS file'
+                    ' could be found in {}'.format(sip_path))
 
     archivematicaFunctions.create_structured_directory(sip_path, manual_normalization=True, printing=True)

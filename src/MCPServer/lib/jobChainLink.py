@@ -35,8 +35,7 @@ from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskMa
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 
-from django_mysqlpool import auto_close_db
-from databaseFunctions import logJobCreatedSQL, getUTCDate
+from databaseFunctions import auto_close_db, logJobCreatedSQL, getUTCDate
 
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
 

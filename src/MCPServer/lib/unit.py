@@ -81,19 +81,28 @@ class unit:
         return
 
     def setVariable(self, variable, variableValue, microServiceChainLink):
+        """This gets called by linkTaskManagerSetUnitVariable.py in order to
+        upsert `UnitVariable` rows for this unit. This is triggered by
+        execution of a workflow chain link of type
+        'linkTaskManagerSetUnitVariable'.
+        """
         if not variableValue:
             variableValue = ""
         variables = UnitVariable.objects.filter(unittype=self.unitType,
                                                 unituuid=self.UUID,
                                                 variable=variable)
         if variables:
-            LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL %s)', variable, self.UUID, variableValue, microServiceChainLink)
+            LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL'
+                        ' %s)', variable, self.UUID, variableValue,
+                        microServiceChainLink)
             for var in variables:
                 var.variablevalue = variableValue
                 var.microservicechainlink_id = microServiceChainLink
                 var.save()
         else:
-            LOGGER.info('New UnitVariable %s created for %s: %s (MSCL: %s)', variable, self.UUID, variableValue, microServiceChainLink)
+            LOGGER.info('New UnitVariable %s created for %s: %s (MSCL: %s)',
+                        variable, self.UUID, variableValue,
+                        microServiceChainLink)
             var = UnitVariable(
                 unittype=self.unitType, unituuid=self.UUID,
                 variable=variable, variablevalue=variableValue,

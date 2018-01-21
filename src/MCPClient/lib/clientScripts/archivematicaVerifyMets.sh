@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -17,29 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
+set -o errexit
+set -o pipefail
+set -o nounset
 
 
-set -e
-
-exit 0
+clientScriptsDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+libDir="$(cd "$(dirname "${clientScriptsDir}")" && pwd)"
+assetsDir="${libDir}/assets"
 
 sipPath="$1"
 metsFile="${sipPath}metadata/mets_structmap.xml"
-schema="/usr/lib/archivematica/archivematicaCommon/externals/mets/mets.xsd"
+schemaFile="${assetsDir}/mets/mets.xsd"
 
-#not used... doesn't put file in correct location either
-if [ ! -f "${schema}" ]; then
-	echo TODO
-    echo getting mets.xsd
-    wget http://www.loc.gov/standards/mets/mets.xsd /usr/lib/archivematica/archivematicaCommon/externals/mets/mets.xsd
-fi
 
 if [ -f "${metsFile}" ]; then
-    xmllint --noout --schema "$schema" "${sipPath}metadata/mets_structmap.xml"
+    xmllint --noout --schema "${schemaFile}" "${metsFile}"
 else
-	echo No metadata/mets_structmap.xml file to verify.
+    echo "No metadata/mets_structmap.xml file to verify."
 fi

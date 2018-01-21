@@ -1,5 +1,6 @@
 -r base.txt
 
+mockldap==0.2.8
 pytest>=2,<3
 pytest-cov==2.4.0
 coverage==4.2

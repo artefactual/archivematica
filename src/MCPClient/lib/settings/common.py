@@ -16,6 +16,11 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import StringIO
+import json
+import logging
+import logging.config
+import os
+
 import yaml
 
 from appconfig import Config
@@ -29,6 +34,7 @@ CONFIG_MAPPING = {
     'rejected_directory': {'section': 'MCPClient', 'option': 'rejectedDirectory', 'type': 'string'},
     'watch_directory': {'section': 'MCPClient', 'option': 'watchDirectoryPath', 'type': 'string'},
     'client_scripts_directory': {'section': 'MCPClient', 'option': 'clientScriptsDirectory', 'type': 'string'},
+    'client_assets_directory': {'section': 'MCPClient', 'option': 'clientAssetsDirectory', 'type': 'string'},
     'load_supported_commands_special': {'section': 'MCPClient', 'option': 'LoadSupportedCommandsSpecial', 'type': 'boolean'},
     'gearman_server': {'section': 'MCPClient', 'option': 'MCPArchivematicaServer', 'type': 'string'},
     'number_of_tasks': {'section': 'MCPClient', 'option': 'numberOfTasks', 'type': 'int'},
@@ -59,7 +65,6 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'int'},
 }
 
 CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
@@ -72,6 +77,7 @@ processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
 rejectedDirectory = %%sharedPath%%rejected/
 archivematicaClientModules = /usr/lib/archivematica/MCPClient/archivematicaClientModules
 clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
+clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
 LoadSupportedCommandsSpecial = True
 numberOfTasks = 0
 elasticsearchServer = localhost:9200
@@ -93,9 +99,8 @@ user = archivematica
 password = demo
 host = localhost
 database = MCP
-max_overflow = 40
 port = 3306
-engine = django_mysqlpool.backends.mysqlpool
+engine = django.db.backends.mysql
 
 [email]
 backend = django.core.mail.backends.console.EmailBackend
@@ -119,7 +124,7 @@ config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
 config.read_files([
     '/etc/archivematica/archivematicaCommon/dbsettings',
-    '/etc/archivematica/clientConfig.conf',
+    '/etc/archivematica/MCPClient/clientConfig.conf',
 ])
 
 
@@ -131,16 +136,14 @@ DATABASES = {
         'PASSWORD': config.get('db_password'),
         'HOST': config.get('db_host'),
         'PORT': config.get('db_port'),
+
+        # Recycling connections in MCPClient is not an option because this is
+        # a threaded application. We need a connection pool but we don't have
+        # one we can rely on at the moment - django_mysqlpool does not support
+        # Py3 and seems abandoned.
+        'CONN_MAX_AGE': 0,
     }
 }
-
-MYSQLPOOL_BACKEND = 'QueuePool'
-MYSQLPOOL_ARGUMENTS = {
-    'use_threadlocal': False,
-    'max_overflow': config.get('db_pool_max_overflow'),
-}
-
-CONN_MAX_AGE = 14400
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config.get(
@@ -161,6 +164,13 @@ INSTALLED_APPS = (
     'fpr',
 )
 
+# Configure logging manually
+LOGGING_CONFIG = None
+
+# Location of the logging configuration file that we're going to pass to
+# `logging.config.fileConfig` unless it doesn't exist.
+LOGGING_CONFIG_FILE = '/etc/archivematica/clientConfig.logging.json'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -174,7 +184,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'detailed'
+            'formatter': 'detailed',
         },
     },
     'loggers': {
@@ -188,12 +198,19 @@ LOGGING = {
     }
 }
 
+if os.path.isfile(LOGGING_CONFIG_FILE):
+    with open(LOGGING_CONFIG_FILE, 'rt') as f:
+        LOGGING = logging.config.dictConfig(json.load(f))
+else:
+    logging.config.dictConfig(LOGGING)
+
 
 SHARED_DIRECTORY = config.get('shared_directory')
 PROCESSING_DIRECTORY = config.get('processing_directory')
 REJECTED_DIRECTORY = config.get('rejected_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 CLIENT_SCRIPTS_DIRECTORY = config.get('client_scripts_directory')
+CLIENT_ASSETS_DIRECTORY = config.get('client_assets_directory')
 LOAD_SUPPORTED_COMMANDS_SPECIAL = config.get('load_supported_commands_special')
 GEARMAN_SERVER = config.get('gearman_server')
 NUMBER_OF_TASKS = config.get('number_of_tasks')
@@ -212,9 +229,14 @@ CLAMAV_CLIENT_BACKEND = config.get('clamav_client_backend')
 CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')
 CLAMAV_CLIENT_MAX_SCAN_SIZE = config.get('clamav_client_max_scan_size')
 
+
 # Apply email settings
 globals().update(email_settings.get_settings(config))
 
-doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
-ARCHIVEMATICA_VERSION = doc.get('version')
-AGENT_CODE = doc.get('agent_code')
+
+try:
+    doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
+except IOError:
+    doc = {}
+ARCHIVEMATICA_VERSION = doc.get('version', 'UNKNOWN')
+AGENT_CODE = doc.get('agent_code', 'UNKNOWN')

@@ -1,4 +1,11 @@
 #!/usr/bin/env python2
+"""Attempts to remove a file if its name matches a list of filenames that
+should be removed. If it does, and if the removal was successful, then it
+updates the ``File`` model of the file accordingly and also creates a "file
+removed" event in the database. Command line required arguments are the path to
+the file and its UUID. There is a default list of file names that are deleted;
+however, this can be overridden in MCPClient/clientConfig.conf s
+"""
 
 from __future__ import print_function
 import os

@@ -66,14 +66,21 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
             uncompressed_location=uncompressed_location,
             compressed_location=compressed_location
         )
-        tool_info_command = 'echo program=\"7z\"\; version=\"`7z | grep Version`\"'
+        tool_info_command = (
+            'echo program="7z"\; '
+            'algorithm="{}"\; '
+            'version="`7z | grep Version`"'.format(compression_algorithm))
     elif program == 'pbzip2':
         compressed_location = uncompressed_location + ".tar.bz2"
         command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{level} > "{compressed_location}"'.format(
             sip_directory=sip_directory, archive_path=archive_path,
             level=compression_level, compressed_location=compressed_location
         )
-        tool_info_command = 'echo program=\"pbzip2\"\; version=\"`pbzip2 --version`\"'
+        tool_info_command = (
+            'echo program="pbzip2"\; '
+            'algorithm="{}"\; '
+            'version="$((pbzip2 -V) 2>&1)"'.format(compression_algorithm))
+
     else:
         msg = "Program {} not recognized, exiting script prematurely.".format(program)
         print(msg, file=sys.stderr)

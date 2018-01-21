@@ -1,13 +1,11 @@
 FROM python:2.7
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV DJANGO_SETTINGS_MODULE settings.common
+ENV DJANGO_SETTINGS_MODULE settings.production
 ENV PYTHONPATH /src/dashboard/src/:/src/archivematicaCommon/lib/
 ENV PYTHONUNBUFFERED 1
 ENV AM_GUNICORN_BIND 0.0.0.0:8000
 ENV AM_GUNICORN_CHDIR /src/dashboard/src
-ENV AM_GUNICORN_ACCESSLOG -
-ENV AM_GUNICORN_ERRORLOG -
 ENV FORWARDED_ALLOW_IPS *
 
 RUN set -ex \
@@ -15,6 +13,8 @@ RUN set -ex \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
 		libmysqlclient-dev \
+		libldap2-dev \
+		libsasl2-dev \
 		nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -56,8 +56,6 @@ USER archivematica
 
 RUN env \
 	DJANGO_SETTINGS_MODULE=settings.local \
-	ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_SECRET_KEY=12345 \
-	ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_ALLOWED_HOSTS=127.0.0.1 \
 		/src/dashboard/src/manage.py collectstatic --noinput --clear
 
 EXPOSE 8000

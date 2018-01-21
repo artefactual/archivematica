@@ -33,8 +33,13 @@ from main.models import Transfer, SIP
 from verifyBAG import verify_bag
 
 # archivematicaCommon
-import archivematicaFunctions
-from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+from archivematicaFunctions import (
+    create_structured_directory,
+    reconstruct_empty_directories,
+    REQUIRED_DIRECTORIES,
+    OPTIONAL_FILES
+)
+
 from custom_handlers import get_script_logger
 
 logger = get_script_logger('archivematica.mcp.client.restructureForCompliance')
@@ -52,7 +57,7 @@ def _move_file(src, dst, exit_on_error=True):
 
 def restructure_transfer(unit_path):
     # Create required directories
-    archivematicaFunctions.create_structured_directory(unit_path, printing=True)
+    create_structured_directory(unit_path, printing=True)
 
     # Move everything else to the objects directory
     for item in os.listdir(unit_path):
@@ -82,7 +87,7 @@ def restructure_transfer_aip(unit_path):
     # - "/logs" and "/logs/fileMeta"
     # - "/metadata" and "/metadata/submissionDocumentation"
     # - "/objects"
-    archivematicaFunctions.create_structured_directory(unit_path, printing=True)
+    create_structured_directory(unit_path, printing=True)
 
     # Move /old_bag/data/METS.<UUID>.xml => /metadata/METS.<UUID>.xml
     p = re.compile(r'^METS\..*\.xml$', re.IGNORECASE)
@@ -93,6 +98,7 @@ def restructure_transfer_aip(unit_path):
             break  # Stop trying after the first match
     src = os.path.join(src, m.group())
     dst = os.path.join(unit_path, 'metadata')
+    mets_file_path = dst
     _move_file(src, dst)
 
     # Move /old_bag/data/objects/metadata/* => /metadata/
@@ -114,7 +120,7 @@ def restructure_transfer_aip(unit_path):
 
     # Move /old_bag/data/objects/* => /objects/
     src = os.path.join(old_bag, 'data', 'objects')
-    dst = os.path.join(unit_path, 'objects')
+    objects_path = dst = os.path.join(unit_path, 'objects')
     for item in os.listdir(src):
         item_path = os.path.join(src, item)
         _move_file(item_path, dst)
@@ -127,6 +133,10 @@ def restructure_transfer_aip(unit_path):
 
     # Get rid of old_bag
     shutil.rmtree(old_bag)
+
+    # Reconstruct any empty directories documented in the METS file under the
+    # logical structMap labelled "Normative Directory Structure"
+    reconstruct_empty_directories(mets_file_path, objects_path, logger=logger)
 
 
 if __name__ == '__main__':

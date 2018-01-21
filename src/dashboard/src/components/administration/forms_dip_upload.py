@@ -29,7 +29,7 @@ class ArchivesSpaceConfigForm(forms.Form):
     port = forms.IntegerField(label=_('ArchivesSpace backend port'), help_text=_('Example: 8089'), initial=8089)
     user = forms.CharField(label=_('ArchivesSpace administrative user'), help_text=_('Example: admin'))
     passwd = forms.CharField(required=False, label=_('ArchivesSpace administrative user password'), help_text=_('Password for user set above. Re-enter this password every time changes are made.'))
-    premis = forms.ChoiceField(choices=PREMIS_CHOICES, label=_('Restrictions apply'), initial='yes')
+    restrictions = forms.ChoiceField(choices=PREMIS_CHOICES, label=_('Restrictions apply'), initial='yes')
     xlink_show = forms.ChoiceField(choices=EAD_SHOW_CHOICES, label=_('XLink Show'), initial='embed')
     xlink_actuate = forms.ChoiceField(choices=EAD_ACTUATE_CHOICES, label=_('XLink Actuate'), initial='none')
     object_type = forms.CharField(required=False, label=_('Object type'), help_text=_('Optional, must come from ArchivesSpace controlled list. Example: sound_recording'))

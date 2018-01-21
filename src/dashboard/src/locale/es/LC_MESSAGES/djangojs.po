@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 19:26+0000\n"
+"POT-Creation-Date: 2017-11-04 16:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
 "Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
@@ -234,7 +234,7 @@ msgid "Yes"
 msgstr "Sí"
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:560
+#: media/js/ingest.js:124 media/js/jobs.js:576 media/js/jobs.js:664
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -278,7 +278,7 @@ msgstr ""
 msgid "Remove SIP"
 msgstr ""
 
-#: media/js/ingest.js:96 media/js/transfer.js:97
+#: media/js/ingest.js:96 media/js/jobs.js:635 media/js/transfer.js:97
 msgid "Confirm"
 msgstr "Confirmar"
 
@@ -286,7 +286,7 @@ msgstr "Confirmar"
 msgid "Dublin Core metadata editor"
 msgstr ""
 
-#: media/js/ingest.js:153 media/js/jobs.js:514
+#: media/js/ingest.js:153 media/js/jobs.js:530
 msgid "Close"
 msgstr "Cerrar"
 
@@ -430,31 +430,57 @@ msgstr ""
 msgid "Please select at least one metadata file."
 msgstr ""
 
-#: media/js/jobs.js:460
+#: media/js/jobs.js:476
 msgid "Review"
 msgstr ""
 
-#: media/js/jobs.js:508
+#: media/js/jobs.js:524
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr ""
 
-#: media/js/jobs.js:560
+#: media/js/jobs.js:576
 msgid "Select an action..."
 msgstr ""
 
-#: media/js/jobs.js:702
+#: media/js/jobs.js:625
+msgid ""
+"Are you sure you want to remove all completed %(unit)ss from the dashboard? "
+"Note that this does not delete the %(unit)ss or related entities."
+msgstr ""
+
+#: media/js/jobs.js:631
+#, javascript-format
+msgid "Remove All Completed %ss"
+msgstr ""
+
+#: media/js/jobs.js:642
+#, javascript-format
+msgid "There were no completed %ss to remove"
+msgstr ""
+
+#: media/js/jobs.js:646
+#, javascript-format
+msgid "Successfully removed the following %ss: %s"
+msgstr ""
+
+#: media/js/jobs.js:652
+#, javascript-format
+msgid "Failed to remove all completed %ss"
+msgstr ""
+
+#: media/js/jobs.js:780
 msgid "Previous"
 msgstr "Previa"
 
-#: media/js/jobs.js:717
+#: media/js/jobs.js:795
 msgid "Next"
 msgstr "Siguiente"
 
-#: media/js/jobs.js:755
+#: media/js/jobs.js:833
 msgid "Error trying to connect to database. Trying again..."
 msgstr ""
 
-#: media/js/jobs.js:805
+#: media/js/jobs.js:883
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr ""
 

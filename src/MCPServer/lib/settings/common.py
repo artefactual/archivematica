@@ -16,6 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import StringIO
+import json
+import logging
+import logging.config
+import os
 
 from appconfig import Config
 import email_settings
@@ -46,10 +50,10 @@ CONFIG_MAPPING = {
     'db_password': {'section': 'client', 'option': 'password', 'type': 'string'},
     'db_host': {'section': 'client', 'option': 'host', 'type': 'string'},
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
-    'db_pool_max_overflow': {'section': 'client', 'option': 'max_overflow', 'type': 'int'},
 }
 
 CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
 
 CONFIG_DEFAULTS = """[MCPServer]
 MCPArchivematicaServer = localhost:4730
@@ -73,9 +77,8 @@ user = archivematica
 password = demo
 host = localhost
 database = MCP
-max_overflow = 40
 port = 3306
-engine = django_mysqlpool.backends.mysqlpool
+engine = django.db.backends.mysql
 
 [email]
 backend = django.core.mail.backends.console.EmailBackend
@@ -100,7 +103,7 @@ config = Config(env_prefix='ARCHIVEMATICA_MCPSERVER', attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
 config.read_files([
     '/etc/archivematica/archivematicaCommon/dbsettings',
-    '/etc/archivematica/serverConfig.conf',
+    '/etc/archivematica/MCPServer/serverConfig.conf',
 ])
 
 
@@ -112,22 +115,27 @@ DATABASES = {
         'PASSWORD': config.get('db_password'),
         'HOST': config.get('db_host'),
         'PORT': config.get('db_port'),
+
+        # CONN_MAX_AGE is irrelevant in MCPServer because Django's database
+        # connection reciclyng mechanism is only used in the web context, i.e.
+        # see `signals.request_started` and `signals.request_finished` in
+        # Django's source code.
+        'CONN_MAX_AGE': 0,
     }
 }
-
-MYSQLPOOL_BACKEND = 'QueuePool'
-MYSQLPOOL_ARGUMENTS = {
-    'use_threadlocal': False,
-    'max_overflow': config.get('db_pool_max_overflow'),
-}
-
-CONN_MAX_AGE = 14400
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config.get('secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
 
 USE_TZ = True
 TIME_ZONE = 'UTC'
+
+# Configure logging manually
+LOGGING_CONFIG = None
+
+# Location of the logging configuration file that we're going to pass to
+# `logging.config.fileConfig` unless it doesn't exist.
+LOGGING_CONFIG_FILE = '/etc/archivematica/serverConfig.logging.json'
 
 LOGGING = {
     'version': 1,
@@ -142,7 +150,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'detailed'
+            'formatter': 'detailed',
         },
     },
     'loggers': {
@@ -155,6 +163,12 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+if os.path.isfile(LOGGING_CONFIG_FILE):
+    with open(LOGGING_CONFIG_FILE, 'rt') as f:
+        LOGGING = logging.config.dictConfig(json.load(f))
+else:
+    logging.config.dictConfig(LOGGING)
 
 
 SHARED_DIRECTORY = config.get('shared_directory')

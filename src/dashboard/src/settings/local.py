@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from .common import *
+"""Development settings and globals."""
+
+from __future__ import absolute_import
+
+from .base import *
+
 
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = True

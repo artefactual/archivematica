@@ -28,6 +28,7 @@ import os
 import threading
 import time
 
+from utils import choice_unifier
 from linkTaskManager import LinkTaskManager
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock, waitingOnTimer
 
@@ -97,17 +98,25 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             # For a list of items with pks:
             # SELECT TasksConfigs.description, choiceAvailableAtLink, ' ' AS 'SPACE', MicroServiceChains.description, chainAvailable FROM MicroServiceChainChoice Join MicroServiceChains on MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk Join MicroServiceChainLinks on MicroServiceChainLinks.pk = MicroServiceChainChoice.choiceAvailableAtLink Join TasksConfigs on TasksConfigs.pk = MicroServiceChainLinks.currentTask ORDER BY choiceAvailableAtLink desc;
             try:
+                this_choice_point = choice_unifier.get(
+                    self.jobChainLink.pk, self.jobChainLink.pk)
                 tree = etree.parse(xmlFilePath)
                 root = tree.getroot()
                 for preconfiguredChoice in root.findall(".//preconfiguredChoice"):
-                    if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.pk:
+                    if preconfiguredChoice.find("appliesTo").text == this_choice_point:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
-                        dic = MicroServiceChoiceReplacementDic.objects.get(id=desiredChoice, choiceavailableatlink=self.jobChainLink.pk)
+                        desiredChoice = choice_unifier.get(
+                            desiredChoice, desiredChoice)
+                        dic = MicroServiceChoiceReplacementDic.objects.get(
+                            id=desiredChoice,
+                            choiceavailableatlink=this_choice_point)
                         ret = dic.replacementdic
                         try:
                             # <delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
-                            unitAtimeXML = delayXML.get("unitCtime")
+                            unitAtimeXML = None
+                            if delayXML:
+                                unitAtimeXML = delayXML.get("unitCtime")
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds = int(delayXML.text)
                                 unitTime = os.path.getmtime(

@@ -23,7 +23,6 @@
 from __future__ import print_function
 from annoying.functions import get_object_or_None
 import argparse
-import logging
 import os
 import sys
 from uuid import uuid4
@@ -31,11 +30,31 @@ from uuid import uuid4
 # storageService requires Django to be set up
 import django
 django.setup()
-from main.models import UnitVariable
+from metsrw.plugins import premisrw
+
+from main.models import UnitVariable, Event, Agent, DublinCore
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import storageService as storage_service
+from archivematicaFunctions import escape
+
+
+LOGGER = get_script_logger("archivematica.mcp.client.storeAIP")
+
+
+def get_upload_dip_path(aip_path):
+    """Replace uploadedDIPs/ dirname in ``aip_path`` with uploadDIP/."""
+    new_aip_path = []
+    aip_path_parts = os.path.normpath(aip_path).split(os.path.sep)
+    uploaded_dips_found = False
+    for part in aip_path_parts:
+        if not uploaded_dips_found and part == 'uploadedDIPs':
+            uploaded_dips_found = True
+            new_aip_path.append('uploadDIP')
+        else:
+            new_aip_path.append(part)
+    return os.path.sep + os.path.join(*new_aip_path)
 
 
 def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
@@ -59,6 +78,12 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
+
+    # If ``aip_path`` does not exist, this may be a DIP that was not uploaded.
+    # In that case, it will be in the uploadDIP/ directory instead of the
+    # uploadedDIPs/ directory.
+    if not os.path.exists(aip_path):
+        aip_path = get_upload_dip_path(aip_path)
 
     # Make aip_path relative to the Location
     shared_path = os.path.join(current_location['path'], '')  # Ensure ends with /
@@ -113,6 +138,18 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     else:
         size = os.path.getsize(aip_path)
 
+    # Get the AIP subtype from any DC type attribute supplied by the user for
+    # the AIP. If found, this will replace 'Archival Information Package' in
+    # ``<mets:div TYPE='Archival Information Package'>`` in the pointer file.
+    sip_metadata_uuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+    try:
+        dc = DublinCore.objects.get(metadataappliestotype_id=sip_metadata_uuid,
+                                    metadataappliestoidentifier=uuid)
+    except DublinCore.DoesNotExist:
+        aip_subtype = 'Archival Information Package'
+    else:
+        aip_subtype = dc.type
+
     # Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=uuid,
@@ -121,20 +158,23 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         current_location=aip_destination_uri,
         current_path=current_path,
         package_type=package_type,
+        aip_subtype=aip_subtype,
         size=size,
         update='REIN' in sip_type,
         related_package_uuid=related_package_uuid,
+        events=get_events_from_db(uuid),
+        agents=get_agents_from_db(uuid)
     )
 
     if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Storage service created {}: {}".format(sip_type, new_file)
-        logging.info(message)
+        LOGGER.info(message)
         print(message)
         sys.exit(0)
     else:
         print("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
         print(error_msg or "Package status: Failed", file=sys.stderr)
-        logging.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
+        LOGGER.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
         sys.exit(1)
 
     # FIXME this should be moved to the storage service and areas that rely
@@ -154,8 +194,60 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     #     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
 
+def get_events_from_db(uuid):
+    events = []
+    for event_mdl in Event.objects.filter(file_uuid_id=uuid):
+        event = [
+            'event',
+            premisrw.PREMIS_META,
+            (
+                'event_identifier',
+                ('event_identifier_type', 'UUID'),
+                ('event_identifier_value', event_mdl.event_id),
+            ),
+            ('event_type', event_mdl.event_type),
+            ('event_date_time', event_mdl.event_datetime.isoformat()),
+            # String detailing the program and algorithm used and the program's
+            # version (and any notable parameters passed).
+            ('event_detail', escape(event_mdl.event_detail)),
+            (
+                'event_outcome_information',
+                ('event_outcome', event_mdl.event_outcome),
+                (
+                    'event_outcome_detail',
+                    ('event_outcome_detail_note',
+                        escape(event_mdl.event_outcome_detail))
+                ),
+            ),
+        ]
+        for agent_mdl in event_mdl.agents.all():
+            event.append((
+                'linking_agent_identifier',
+                ('linking_agent_identifier_type', agent_mdl.identifiertype),
+                ('linking_agent_identifier_value', agent_mdl.identifiervalue)
+            ))
+        events.append(tuple(event))
+    return events
+
+
+def get_agents_from_db(uuid):
+    agents = []
+    for agent_mdl in Agent.objects.filter(event__file_uuid_id=uuid).distinct():
+        agents.append((
+            'agent',
+            premisrw.PREMIS_META,
+            (
+                'agent_identifier',
+                ('agent_identifier_type', agent_mdl.identifiertype),
+                ('agent_identifier_value', agent_mdl.identifiervalue)
+            ),
+            ('agent_name', agent_mdl.name),
+            ('agent_type', agent_mdl.agenttype)
+        ))
+    return agents
+
+
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
     parser = argparse.ArgumentParser(description='Create AIP pointer file.')
     parser.add_argument('aip_destination_uri', type=str, help='%AIPsStore%')

@@ -28,7 +28,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import File, SIP, Transfer
+from main.models import File, Directory, SIP, Transfer
 
 # archivematicaCommon
 import archivematicaFunctions
@@ -65,12 +65,23 @@ if __name__ == '__main__':
     print('sip_uuid', sip_uuid)
     print('sip_type', sip_type)
 
+    # Find out if any ``Directory`` models were created for the source
+    # ``Transfer``. If so, this fact gets recorded in the new ``SIP`` model.
+    dir_mdls = Directory.objects.filter(
+        transfer_id=transferUUID,
+        currentlocation__startswith='%transferDirectory%objects')
+    diruuids = len(dir_mdls) > 0
+
     # Create row in SIPs table if one doesn't already exist
     lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
     try:
         sip = SIP.objects.get(currentpath=lookup_path).uuid
+        if diruuids:
+            sip.diruuids = True
+            sip.save()
     except SIP.DoesNotExist:
-        sip_uuid = databaseFunctions.createSIP(lookup_path, UUID=sip_uuid, sip_type=sip_type)
+        sip_uuid = databaseFunctions.createSIP(
+            lookup_path, UUID=sip_uuid, sip_type=sip_type, diruuids=diruuids)
         sip = SIP.objects.get(uuid=sip_uuid)
 
     # Move the objects to the SIPDir
@@ -86,6 +97,19 @@ if __name__ == '__main__':
                 shutil.move(os.path.join(src_path, subitem), dst_path)
         else:
             shutil.move(src_path, dst_path)
+
+    # Get the ``Directory`` models representing the subdirectories in the
+    # objects/ directory. For each subdirectory, confirm it's in the SIP
+    # objects/ directory, and update the current location and owning SIP.
+    for dir_mdl in dir_mdls:
+        currentPath = databaseFunctions.deUnicode(dir_mdl.currentlocation)
+        currentSIPDirPath = currentPath.replace("%transferDirectory%", tmpSIPDir)
+        if os.path.isdir(currentSIPDirPath):
+            dir_mdl.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
+            dir_mdl.sip = sip
+            dir_mdl.save()
+        else:
+            print("directory not found: ", currentSIPDirPath, file=sys.stderr)
 
     # Get the database list of files in the objects directory.
     # For each file, confirm it's in the SIP objects directory, and update the
@@ -104,14 +128,6 @@ if __name__ == '__main__':
             print("file not found: ", currentSIPFilePath, file=sys.stderr)
 
     archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
-
-    # Copy the JSON metadata file, if present;
-    # this contains a serialized copy of DC metadata entered in the dashboard UI
-    src = os.path.normpath(os.path.join(objectsDirectory, "..", "metadata", "dc.json"))
-    dst = os.path.join(tmpSIPDir, "metadata", "dc.json")
-    # This file only exists if any metadata was created during the transfer
-    if os.path.exists(src):
-        shutil.copy(src, dst)
 
     # Copy processingMCP.xml file
     src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")

@@ -268,7 +268,8 @@ def add_new_files(mets, sip_uuid, sip_dir):
     """
     # Find new files
     # How tell new file from old with same name? Check hash?
-    # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
+    # QUESTION should the metadata.csv be parsed and only updated if different
+    # even if one already existed?
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
@@ -276,7 +277,8 @@ def add_new_files(mets, sip_uuid, sip_dir):
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
-            current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
+            current_loc = os.path.join(dirpath, filename).replace(
+                sip_dir, '%SIPDirectory%', 1)
             rel_path = current_loc.replace('%SIPDirectory%', '', 1)
             print('Looking for', rel_path, 'in METS')
             fsentry = mets.get_file(path=rel_path)
@@ -297,9 +299,13 @@ def add_new_files(mets, sip_uuid, sip_dir):
         return mets
 
     # Set global counters so getAMDSec will work
-    createmets2.globalAmdSecCounter = int(mets.tree.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
-    createmets2.globalTechMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
-    createmets2.globalDigiprovMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))
+    createmets2.globalAmdSecCounter = int(
+        mets.tree.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
+    createmets2.globalTechMDCounter = int(
+        mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
+    createmets2.globalDigiprovMDCounter = int(
+        mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)',
+                        namespaces=ns.NSMAP))
 
     objects_fsentry = mets.get_file(label='objects', type='Directory')
 
@@ -420,7 +426,7 @@ def _get_old_mets_rel_path(sip_uuid):
         'METS.' + sip_uuid + '.xml')
 
 
-def update_mets(sip_dir, sip_uuid):
+def update_mets(sip_dir, sip_uuid, keep_normative_structmap=True):
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     print('Looking for old METS at path', old_mets_path)
@@ -435,9 +441,15 @@ def update_mets(sip_dir, sip_uuid):
     add_new_files(mets, sip_uuid, sip_dir)
     delete_files(mets, sip_uuid)
 
-    # Delete original METS
-
-    return mets.serialize()
+    serialized = mets.serialize()
+    if not keep_normative_structmap:
+        # Remove normative structMap
+        structmaps = serialized.findall(
+            'mets:structMap[@LABEL="Normative Directory Structure"]', namespaces=ns.NSMAP)
+        for structmap in structmaps:
+            structmap.getparent().remove(structmap)
+            print("Removed normative structMap")
+    return serialized
 
 
 if __name__ == '__main__':

@@ -25,6 +25,31 @@ NSMAP = {
 }
 
 
+class TestNormativeStructMap(TestCase):
+    """Test creation of normative structMap."""
+    fixture_files = []
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+    sip_dir = os.path.join(THIS_DIR, 'fixtures', 'create_aip_mets') + '/'
+    sip_object_dir = os.path.join(THIS_DIR, 'fixtures', 'create_aip_mets') + '/objects'
+
+    def test_path_to_fsitems(self):
+        """It should return 4 tuple instances"""
+        os.mkdir(os.path.join(self.sip_object_dir, 'empty_dir'))
+        fsitems = archivematicaCreateMETS2.get_paths_as_fsitems(
+            self.sip_dir, self.sip_object_dir)
+        assert len(fsitems) == 4
+        assert isinstance(fsitems[0], tuple)
+        assert isinstance(fsitems[1], tuple)
+        assert isinstance(fsitems[2], tuple)
+        assert isinstance(fsitems[3], tuple)
+
+    def test_normative_structmap_creation(self):
+        """It should return an etree Element instance."""
+        normativeStructMap = archivematicaCreateMETS2.get_normative_structmap(
+            self.sip_dir, self.sip_object_dir, {})
+        assert isinstance(normativeStructMap, etree._Element)
+
+
 class TestDublinCore(TestCase):
     """Test creation of dmdSecs containing Dublin Core."""
     fixture_files = ['dublincore.json']

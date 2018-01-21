@@ -26,9 +26,14 @@ import collections
 import hashlib
 import locale
 import os
+import pprint
 import re
+from uuid import uuid4
+
+from lxml import etree
 
 from main.models import DashboardSetting
+from namespaces import NSMAP
 
 
 REQUIRED_DIRECTORIES = [
@@ -41,6 +46,7 @@ REQUIRED_DIRECTORIES = [
 
 OPTIONAL_FILES = [
     "processingMCP.xml",
+    "README.html",
 ]
 
 MANUAL_NORMALIZATION_DIRECTORIES = [
@@ -218,3 +224,98 @@ def create_structured_directory(basepath, manual_normalization=False, printing=F
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
     if manual_normalization:
         create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
+
+
+def get_dir_uuids(dir_paths, logger=None):
+    """Return a generator of 2-tuples, each containing one of the directory
+    paths in ``dir_paths`` and its newly minted UUID. Used by multiple client
+    scripts.
+    """
+    for dir_path in dir_paths:
+        dir_uuid = str(uuid4())
+        msg = 'Assigning UUID {} to directory path {}'.format(
+            dir_uuid, dir_path)
+        print(msg)
+        if logger:
+            logger.info(msg)
+        yield dir_path, dir_uuid
+
+
+def format_subdir_path(dir_path, path_prefix_to_repl):
+    """Add "/" to end of ``dir_path`` and replace actual root directory
+    ``path_prefix_to_repl`` with a placeholder. Used when creating
+    ``originallocation`` attributes for ``Directory`` models.
+    """
+    return os.path.join(dir_path, '').replace(
+        path_prefix_to_repl, '%transferDirectory%', 1)
+
+
+def str2bool(val):
+    """'True' is ``True``; aught else is ``False."""
+    if val == 'True':
+        return True
+    return False
+
+
+NORMATIVE_STRUCTMAP_LABEL = 'Normative Directory Structure'
+
+
+def div_el_to_dir_paths(div_el, parent='', include=True):
+    """Recursively extract the list of filesystem directory paths encoded in
+    <mets:div> element ``div_el``.
+    """
+    paths = []
+    path = parent
+    dir_name = div_el.get('LABEL')
+    if parent == '' and dir_name in ('metadata', 'submissionDocumentation'):
+        return []
+    if include:
+        path = os.path.join(parent, dir_name)
+        paths.append(path)
+    for sub_div_el in div_el.findall('mets:div[@TYPE="Directory"]', NSMAP):
+        paths += div_el_to_dir_paths(sub_div_el, parent=path)
+    return paths
+
+
+def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
+    """Reconstruct in objects/ path ``objects_path`` the empty directories
+    documented in METS file ``mets_file_path``.
+    :param str mets_file_path: absolute path to an AIP/SIP's METS file.
+    :param str objects_path: absolute path to an AIP/SIP's objects/ directory
+        on disk.
+    :returns None:
+    """
+    if (not os.path.isfile(mets_file_path) or
+            not os.path.isdir(objects_path)):
+        if logger:
+            logger.info('Unable to construct empty directories, either because'
+                        ' there is no METS file at {} or because there is no'
+                        ' objects/ directory at {}'.format(mets_file_path,
+                                                           objects_path))
+        return
+    doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
+    logical_struct_map_el = doc.find(
+        'mets:structMap[@TYPE="logical"][@LABEL="{}"]'.format(
+            NORMATIVE_STRUCTMAP_LABEL), NSMAP)
+    if logical_struct_map_el is None:
+        if logger:
+            logger.info('Unable to locate a logical structMap labelled {}.'
+                        ' Aborting attempt to reconstruct empty'
+                        ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
+        return
+    root_div_el = logical_struct_map_el.find(
+        'mets:div/mets:div[@LABEL="objects"]', NSMAP)
+    if root_div_el is None:
+        if logger:
+            logger.info('Unable to locate a logical structMap labelled {}.'
+                        ' Aborting attempt to reconstruct empty'
+                        ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
+        return
+    paths = div_el_to_dir_paths(root_div_el, include=False)
+    if logger:
+        logger.info('paths extracted from METS file:')
+        logger.info(pprint.pformat(paths))
+    for path in paths:
+        path = os.path.join(objects_path, path)
+        if not os.path.isdir(path):
+            os.makedirs(path)

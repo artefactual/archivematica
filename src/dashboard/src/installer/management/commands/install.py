@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 from django.core.management.base import BaseCommand, CommandError
 from django.http import QueryDict
 
+from components import helpers
 from components.administration.forms import StorageSettingsForm
 from installer.steps import create_super_user, download_fpr_rules, setup_pipeline, setup_pipeline_in_ss, submit_fpr_agent
 
@@ -36,6 +37,7 @@ class Command(BaseCommand):
         parser.add_argument('--ss-url', required=True)
         parser.add_argument('--ss-user', required=True)
         parser.add_argument('--ss-api-key', required=True)
+        parser.add_argument('--whitelist', required=False)
 
     def save_ss_settings(self, options):
         POST = QueryDict('', mutable=True)
@@ -56,3 +58,4 @@ class Command(BaseCommand):
         download_fpr_rules()
         self.save_ss_settings(options)
         setup_pipeline_in_ss(use_default_config=True)
+        helpers.set_setting('api_whitelist', options['whitelist'])

@@ -30,7 +30,7 @@ class FiwalkFido(fido.Fido):
             f = open(filename, 'rb')
             size = os.stat(filename)[6]
             self.current_filesize = size
-            bofbuffer, eofbuffer = self.get_buffers(f, size, seekable=True)
+            bofbuffer, eofbuffer, __ = self.get_buffers(f, size, seekable=True)
             matches = self.match_formats(bofbuffer, eofbuffer)
             # from here is also repeated in walk_zip
             # we should make this uniform in next version!

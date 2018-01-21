@@ -1,0 +1,2795 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-11-04 16:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: components/accounts/views.py:55 components/accounts/views.py:133
+#: components/administration/views.py:365
+#: components/administration/views.py:377
+#: components/administration/views.py:389
+#: components/administration/views.py:416
+#: components/administration/views.py:451
+#: components/administration/views_dip_upload.py:20
+#: components/administration/views_dip_upload.py:32
+#: components/administration/views_dip_upload.py:44
+msgid "Saved."
+msgstr ""
+
+#: components/accounts/views.py:73
+#, python-format
+msgid "Your profile (%s)"
+msgstr ""
+
+#: components/administration/forms.py:67
+msgid "Web service endpoint"
+msgstr ""
+
+#: components/administration/forms.py:68
+msgid "The URL for (POST) requests to create and resolve PIDs."
+msgstr ""
+
+#: components/administration/forms.py:72
+msgid "Web service key"
+msgstr ""
+
+#: components/administration/forms.py:73
+msgid ""
+"Web service key needed for authentication to make PID-binding requests to "
+"the PID web service endpoint."
+msgstr ""
+
+#: components/administration/forms.py:78
+msgid "Naming authority"
+msgstr ""
+
+#: components/administration/forms.py:79
+msgid "Handle naming authority (e.g., 12345)"
+msgstr ""
+
+#: components/administration/forms.py:83
+msgid "Resolver URL"
+msgstr ""
+
+#: components/administration/forms.py:84
+msgid ""
+"The URL to append generated PIDs to in order to create (potentially "
+"qualified) PURLs (persistent URLs) that resolve to the applicable resolve "
+"URL. Note the second \"r\" in \"resolver\"!"
+msgstr ""
+
+#: components/administration/forms.py:96
+msgid "AIP PID source"
+msgstr ""
+
+#: components/administration/forms.py:97
+msgid ""
+"The source of the AIP's persistent identifier. The UUID of the AIP is the "
+"default since it is virtually guaranteed to be unique. However, the "
+"accession number of the transfer may be used, assuming the user can "
+"guarantee a 1-to-1 relationship between the transfer and the AIP."
+msgstr ""
+
+#: components/administration/forms.py:110
+msgid "Verify SSL certificates"
+msgstr ""
+
+#: components/administration/forms.py:111
+msgid "Verify SSL certificates when making requests to bind PIDs."
+msgstr ""
+
+#: components/administration/forms.py:116
+msgid "Archive resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:117
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL should resolve "
+"to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+
+#: components/administration/forms.py:123
+msgid "METS resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:124
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL with the \"mets\" "
+"qualifier should resolve to. Has access to \"pid\" and \"naming_authority\" "
+"variables."
+msgstr ""
+
+#: components/administration/forms.py:130
+msgid "File resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:131
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL should resolve "
+"to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+
+#: components/administration/forms.py:137
+msgid "Access derivative resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:138
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the \"access"
+"\" qualifier should resolve to. Has access to \"pid\" and \"naming_authority"
+"\" variables."
+msgstr ""
+
+#: components/administration/forms.py:144
+msgid "Preservation derivative resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:145
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"preservation\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
+msgstr ""
+
+#: components/administration/forms.py:152
+msgid "Original file resolve URL template"
+msgstr ""
+
+#: components/administration/forms.py:153
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"original\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
+msgstr ""
+
+#: components/administration/forms.py:160
+msgid "PID/handle request request body template"
+msgstr ""
+
+#: components/administration/forms.py:161
+msgid ""
+"Template (Django or Jinja2) that constructs the HTTP request body using the "
+"rendered URL templates above. Has access to the following variables: \"pid"
+"\", \"naming_authority\", \"base_resolve_url\", and \"qualified_resolve_urls"
+"\", the last of which is a list of dicts with \"url\" and \"qualifier\" keys."
+msgstr ""
+
+#: components/administration/forms.py:183
+msgid "Storage Service URL"
+msgstr ""
+
+#: components/administration/forms.py:184
+msgid "Full URL of the storage service. E.g. https://192.168.168.192:8000"
+msgstr ""
+
+#: components/administration/forms.py:187
+msgid "Storage Service User"
+msgstr ""
+
+#: components/administration/forms.py:188
+msgid "User in the storage service to authenticate as. E.g. test"
+msgstr ""
+
+#: components/administration/forms.py:191
+msgid "API key"
+msgstr ""
+
+#: components/administration/forms.py:192
+msgid ""
+"API key of the storage service user. E.g. "
+"45f7684483044809b2de045ba59dc876b11b9810"
+msgstr ""
+
+#: components/administration/forms.py:197
+msgid "Use default configuration"
+msgstr ""
+
+#: components/administration/forms.py:198
+msgid ""
+"You have to manually set up a custom configuration if the default "
+"configuration is not selected."
+msgstr ""
+
+#: components/administration/forms.py:209
+msgid "Select algorithm"
+msgstr ""
+
+#: components/administration/forms.py:246
+msgid "Assign UUIDs to directories"
+msgstr ""
+
+#: components/administration/forms.py:253
+msgid "Send transfer to quarantine"
+msgstr ""
+
+#: components/administration/forms.py:260
+msgid "Remove from quarantine after (days)"
+msgstr ""
+
+#: components/administration/forms.py:261
+msgid "days"
+msgstr ""
+
+#: components/administration/forms.py:268
+msgid "Generate transfer structure report"
+msgstr ""
+
+#: components/administration/forms.py:275
+msgid "Select file format identification command (Transfer)"
+msgstr ""
+
+#: components/administration/forms.py:280
+msgid "Extract packages"
+msgstr ""
+
+#: components/administration/forms.py:286
+msgid "Delete packages after extraction"
+msgstr ""
+
+#: components/administration/forms.py:292
+msgid "Perform policy checks on originals"
+msgstr ""
+
+#: components/administration/forms.py:299
+msgid "Examine contents"
+msgstr ""
+
+#: components/administration/forms.py:304
+msgid "Create SIP(s)"
+msgstr ""
+
+#: components/administration/forms.py:310
+msgid "Select file format identification command (Ingest)"
+msgstr ""
+
+#: components/administration/forms.py:315
+msgid "Normalize"
+msgstr ""
+
+#: components/administration/forms.py:322
+msgid "Approve normalization"
+msgstr ""
+
+#: components/administration/forms.py:328
+msgid "Perform policy checks on preservation derivatives"
+msgstr ""
+
+#: components/administration/forms.py:335
+msgid "Perform policy checks on access derivatives"
+msgstr ""
+
+#: components/administration/forms.py:342
+msgid "Bind PIDs"
+msgstr ""
+
+#: components/administration/forms.py:349
+msgid "Reminder: add metadata if desired"
+msgstr ""
+
+#: components/administration/forms.py:354
+msgid "Transcribe files (OCR)"
+msgstr ""
+
+#: components/administration/forms.py:361
+msgid ""
+"Select file format identification command (Submission documentation & "
+"metadata)"
+msgstr ""
+
+#: components/administration/forms.py:366
+msgid "Select compression algorithm"
+msgstr ""
+
+#: components/administration/forms.py:371
+msgid "Select compression level"
+msgstr ""
+
+#: components/administration/forms.py:376
+msgid "Store AIP"
+msgstr ""
+
+#: components/administration/forms.py:382
+msgid "Store AIP location"
+msgstr ""
+
+#: components/administration/forms.py:394
+msgid "Store DIP"
+msgstr ""
+
+#: components/administration/forms.py:400
+msgid "Store DIP location"
+msgstr ""
+
+#: components/administration/forms.py:404
+#: components/administration/forms_dip_upload.py:12
+#: components/administration/forms_dip_upload.py:21
+#: templates/archival_storage/search.html:91
+msgid "None"
+msgstr ""
+
+#: components/administration/forms.py:434
+#: components/administration/forms_dip_upload.py:6
+#: components/administration/forms_dip_upload.py:68
+msgid "Yes"
+msgstr ""
+
+#: components/administration/forms.py:436
+#: components/administration/forms_dip_upload.py:7
+#: components/administration/forms_dip_upload.py:68
+msgid "No"
+msgstr ""
+
+#: components/administration/forms.py:450
+msgid "Default location"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:8
+msgid "Base on PREMIS"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:13
+msgid "onLoad"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:14
+msgid "other"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:15
+msgid "onRequest"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:19
+msgid "Embed"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:20
+msgid "New"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:22
+msgid "Other"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:23
+msgid "Replace"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:28
+msgid "ArchivesSpace host"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:28
+msgid "Do not include http:// or www. Example: aspace.test.org"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:29
+msgid "ArchivesSpace backend port"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:29
+msgid "Example: 8089"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:30
+msgid "ArchivesSpace administrative user"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:30
+msgid "Example: admin"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:31
+msgid "ArchivesSpace administrative user password"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:31
+msgid ""
+"Password for user set above. Re-enter this password every time changes are "
+"made."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:32
+#: components/administration/forms_dip_upload.py:51
+msgid "Restrictions apply"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:33
+msgid "XLink Show"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:34
+msgid "XLink Actuate"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:35
+#: components/administration/forms_dip_upload.py:54
+msgid "Object type"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:35
+msgid ""
+"Optional, must come from ArchivesSpace controlled list. Example: "
+"sound_recording"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:36
+#: components/administration/forms_dip_upload.py:55
+msgid "Use statement"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:36
+msgid ""
+"Optional, but if present should come from ArchivesSpace controlled list. "
+"Example: image-master"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:37
+#: components/administration/forms_dip_upload.py:56
+msgid "URL prefix"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:37
+msgid ""
+"URL of DIP object server as you wish to appear in ArchivesSpace record. "
+"Example: http://example.com"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:38
+#: components/administration/forms_dip_upload.py:57
+msgid "Conditions governing access"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:38
+msgid "Populates Conditions governing access note"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:39
+#: components/administration/forms_dip_upload.py:58
+msgid "Conditions governing use"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:39
+msgid "Populates Conditions governing use note"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:40
+msgid "ArchivesSpace repository number"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:40
+msgid "Default for single repository installation is 2"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:41
+msgid "Inherit digital object notes from the parent component"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:45
+msgid "Database host"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:46
+msgid "Database port"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:47
+msgid "Database name"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:48
+msgid "Database user"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:49
+msgid "Database password"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:50
+msgid "Archivists' Toolkit username"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:52
+msgid "EAD DAO actuate"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:53
+msgid "EAD DAO show"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:62
+msgid "Upload URL"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:62
+msgid ""
+"URL where the AtoM index.php frontend lives, SWORD services path will be "
+"appended."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:63
+msgid "Login email"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:63
+msgid "E-mail account used to log into AtoM."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:64
+msgid "Login password"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:64
+msgid "Password used to log into AtoM."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:65
+msgid "AtoM version"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:66
+msgid "Rsync target"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:66
+msgid ""
+"The DIP can be sent with Rsync to a remote host before is deposited in AtoM. "
+"This is the destination value passed to Rsync (see man 1 rsync). For "
+"example: foobar.com:~/dips/."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:67
+msgid "Rsync command"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:67
+msgid ""
+"If --rsync-target is used, you can use this argument to specify the remote "
+"shell manually. For example: ssh -p 22222 -l user."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:68
+msgid "Debug mode"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:68
+msgid "Show additional details."
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:69
+msgid "REST API key"
+msgstr ""
+
+#: components/administration/forms_dip_upload.py:69
+msgid "Used in metadata-only DIP upload."
+msgstr ""
+
+#: components/administration/views.py:79
+#: components/administration/views.py:106 components/ingest/views.py:303
+#: main/views.py:309
+msgid "Deleted."
+msgstr ""
+
+#: components/administration/views.py:94
+msgid "Promoted."
+msgstr ""
+
+#: components/administration/views.py:96
+msgid "Error attempting to promote level of description."
+msgstr ""
+
+#: components/administration/views.py:99
+msgid "Demoted."
+msgstr ""
+
+#: components/administration/views.py:101
+msgid "Error attempting to demote level of description."
+msgstr ""
+
+#: components/administration/views.py:108
+msgid "Level of description not found."
+msgstr ""
+
+#: components/administration/views.py:150
+#: components/administration/views.py:345
+msgid ""
+"Error retrieving locations: is the storage server running? Please contact an "
+"administrator."
+msgstr ""
+
+#: components/administration/views.py:457
+msgid ""
+"Storage server inaccessible. Please contact an administrator or update "
+"storage service URL below."
+msgstr ""
+
+#: components/administration/views.py:460
+msgid ""
+"This pipeline is not registered with the storage service or has been "
+"disabled in the storage service. Please contact an administrator."
+msgstr ""
+
+#: components/archival_storage/forms.py:32
+msgid "Insert slug"
+msgstr ""
+
+#: components/archival_storage/forms.py:32
+msgid "Only compatible with AtoM 2.4 or newer."
+msgstr ""
+
+#: components/archival_storage/forms.py:40
+msgid "Connection establishment failed: AtoM server cannot be reached."
+msgstr ""
+
+#: components/archival_storage/forms.py:43
+#, python-format
+msgid "Description with slug %(slug)s not found!"
+msgstr ""
+
+#: components/archival_storage/forms.py:44
+#, python-format
+msgid "Unknown error: %(error)s"
+msgstr ""
+
+#: components/archival_storage/forms.py:53
+msgid "Metadata re-ingest"
+msgstr ""
+
+#: components/archival_storage/forms.py:54
+msgid "Partial re-ingest"
+msgstr ""
+
+#: components/archival_storage/forms.py:55
+msgid "Full re-ingest"
+msgstr ""
+
+#: components/archival_storage/forms.py:59
+msgid "Only needed in full re-ingest"
+msgstr ""
+
+#: components/archival_storage/forms.py:60
+msgid "default"
+msgstr ""
+
+#: components/archival_storage/forms.py:64
+msgid "Please type in the UUID to confirm"
+msgstr ""
+
+#: components/archival_storage/forms.py:64
+#: templates/administration/reports/failures.html:27
+#: templates/archival_storage/list.html:75
+#: templates/archival_storage/search.html:57
+#: templates/archival_storage/view.html:63 templates/ingest/grid.html:98
+#: templates/ingest/grid.html.py:172 templates/transfer/grid.html:79
+#: templates/transfer/grid.html.py:101
+msgid "UUID"
+msgstr ""
+
+#: components/archival_storage/forms.py:65
+msgid "Reason for deletion"
+msgstr ""
+
+#: components/archival_storage/forms.py:70
+msgid "uuid must be defined"
+msgstr ""
+
+#: components/archival_storage/forms.py:76
+msgid "UUID mismatch"
+msgstr ""
+
+#: components/archival_storage/views.py:48
+msgid "Stored"
+msgstr ""
+
+#: components/archival_storage/views.py:49
+msgid "Deletion requested"
+msgstr ""
+
+#: components/archival_storage/views.py:611
+msgid "Metadata-only DIP upload failed, check the logs for more details"
+msgstr ""
+
+#: components/archival_storage/views.py:614
+#, python-format
+msgid ""
+"Metadata-only DIP upload has been completed successfully. New resource has "
+"slug: %(slug)s"
+msgstr ""
+
+#: components/archival_storage/views.py:626
+#, python-format
+msgid "Error re-ingesting package: %(message)s"
+msgstr ""
+
+#: components/backlog/views.py:230
+msgid "Unable to connect to storage server. Please contact your administrator."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:89
+#, python-format
+msgid "%(count)d object"
+msgid_plural "%(count)d objects"
+msgstr[0] ""
+msgstr[1] ""
+
+#: components/filesystem_ajax/views.py:94
+#, python-format
+msgid "%(count)s objects"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:132
+#, python-format
+msgid "Could not base64-decode provided path: %(path)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:153
+#, python-format
+msgid "No files or directories found under path: %(path)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:194
+msgid "No filepath to delete was provided!"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:201
+msgid "Delete successful."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:282
+msgid "Copy successful."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:371
+#, python-format
+msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:455
+#, python-format
+msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:463
+#, python-format
+msgid "%(path1)s is not in %(path2)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:466
+#, python-format
+msgid "%(path)s is not a directory"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:537
+msgid "SIP created."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:551
+msgid "Directory is not within the arrange directory."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:576
+msgid "Creation successful."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:584
+#, python-format
+msgid "%(src)s and %(dst)s must be inside %(path)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:597
+msgid "You cannot drag and drop onto a file."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:654
+msgid "GET parameter 'filepath' or 'destination' was blank."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:656
+#, python-format
+msgid "%(path)s must be in arrange directory."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:665
+#, python-format
+msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:693
+#, python-format
+msgid "Storage Service failed with the message: %(messsage)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:703
+#, python-format
+msgid ""
+"No file information returned from the Storage Service for file at "
+"relative_path: %(path)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:779
+#, python-format
+msgid "%(path)s is not in base backlog path nor arrange path"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:786
+#: components/filesystem_ajax/views.py:800
+msgid "Files added to the SIP."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:790
+msgid "SIP files successfully moved."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:838
+msgid "Metadata files added successfully."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:869
+#, python-format
+msgid "Location %(location)s is not associated with this pipeline"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:892
+#, python-format
+msgid "The following errors occured: %(message)s"
+msgstr ""
+
+#: components/filesystem_ajax/views.py:894
+msgid "Files added successfully."
+msgstr ""
+
+#: components/filesystem_ajax/views.py:944
+#, python-format
+msgid "File with UUID %(uuid)s could not be found"
+msgstr ""
+
+#: components/helpers.py:207
+msgid "AtoM URL not defined!"
+msgstr ""
+
+#: components/helpers.py:212
+msgid "AtoM authentication settings not defined!"
+msgstr ""
+
+#: components/helpers.py:230
+msgid "Unable to fetch levels of description from AtoM!"
+msgstr ""
+
+#: components/ingest/views.py:75
+msgid ""
+"Error retrieving originals/arrange directory locations: is the storage "
+"server running? Please contact an administrator."
+msgstr ""
+
+#: components/ingest/views.py:220
+msgid ""
+"Error retrieving source directories: is the storage server running? Please "
+"contact an administrator."
+msgstr ""
+
+#: components/ingest/views.py:224
+msgid ""
+"No transfer source locations are available. Please contact an administrator."
+msgstr ""
+
+#: components/ingest/views.py:296
+msgid "Are you sure you want to delete this metadata?"
+msgstr ""
+
+#: components/ingest/views.py:428
+msgid "Review normalization"
+msgstr ""
+
+#: components/ingest/views.py:431
+msgid "Review AIP"
+msgstr ""
+
+#: components/ingest/views.py:434
+msgid "Review DIP"
+msgstr ""
+
+#: components/rights/forms.py:35
+msgid ""
+"Designation of the basis for the right or permission described in the rights "
+"statement identifier."
+msgstr ""
+
+#: components/rights/forms.py:52
+msgid ""
+"The action the preservation repository is allowed to take; eg replicate, "
+"migrate, modify, use, disseminate, delete"
+msgstr ""
+
+#: components/rights/forms.py:54
+msgid "The beginning date of the rights or restrictions granted"
+msgstr ""
+
+#: components/rights/forms.py:55
+msgid "The ending date of the rights or restrictions granted"
+msgstr ""
+
+#: components/rights/forms.py:56
+msgid ""
+"Use \"OPEN\" for an open ended term of restriction. Omit end date if the "
+"ending date is unknown or the permission statement applies to many objects "
+"with different end dates."
+msgstr ""
+
+#: components/rights/forms.py:72
+msgid ""
+"A coded designation of the copyright status of the object at the time the "
+"rights statement is recorded. Available options: Copyrighted, Public Domain, "
+"Unknown"
+msgstr ""
+
+#: components/rights/forms.py:73
+msgid "The country whose copyright laws apply [ISO 3166]"
+msgstr ""
+
+#: components/rights/forms.py:74
+msgid ""
+"The date that the copyright status recorded in 'copyright status' was "
+"determined."
+msgstr ""
+
+#: components/rights/forms.py:75
+msgid ""
+"The date when the particular copyright applies or is applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:76
+msgid ""
+"The date when the particular copyright no longer applies or is applied to "
+"the content."
+msgstr ""
+
+#: components/rights/forms.py:103
+msgid "The country or other political body enacting the statute."
+msgstr ""
+
+#: components/rights/forms.py:104
+msgid "An identifying designation for the statute."
+msgstr ""
+
+#: components/rights/forms.py:105
+msgid ""
+"The date that the determination was made that the statue authorized the "
+"permission(s) noted."
+msgstr ""
+
+#: components/rights/forms.py:106
+msgid "The date when the statute begins to apply or is applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:107
+msgid ""
+"The date when the statute ceasees to apply or be applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:123
+msgid ""
+"The designation of the basis for the other right or permission described in "
+"the rights statement identifier."
+msgstr ""
+
+#: components/rights/forms.py:124
+msgid "The date when the other right applies or is applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:125
+msgid ""
+"The date when the other right no longer applies or is applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:133
+msgid ""
+"Text describing the license or agreement by which permission as granted."
+msgstr ""
+
+#: components/rights/forms.py:134
+msgid ""
+"The date at which the license first applies or is applied to the content."
+msgstr ""
+
+#: components/rights/forms.py:135
+msgid ""
+"The end date at which the license no longer applies or is applied to the "
+"content."
+msgstr ""
+
+#: components/rights/views.py:242 components/rights/views.py:260
+msgid "copyright"
+msgstr ""
+
+#: components/rights/views.py:288 components/rights/views.py:306
+msgid "license"
+msgstr ""
+
+#: components/rights/views.py:315 components/rights/views.py:334
+#: components/rights/views.py:343 components/rights/views.py:360
+msgid "statute"
+msgstr ""
+
+#: components/rights/views.py:353
+msgid "statue"
+msgstr ""
+
+#: components/transfer/views.py:58
+msgid "Error retrieving source directories"
+msgstr ""
+
+#: components/transfer/views.py:261
+msgid "Updated path was not provided."
+msgstr ""
+
+#: components/transfer/views.py:264
+msgid "Unable to update transfer metadata set: contact administrator."
+msgstr ""
+
+#: contrib/utils.py:64
+msgid "(Unnamed)"
+msgstr ""
+
+#: installer/views.py:105
+msgid ""
+"Error creating pipeline: is the storage server running? Please contact an "
+"administrator."
+msgstr ""
+
+#: main/models.py:191 templates/ingest/normalization_report.html:60
+#: templates/ingest/normalization_report.html:100
+msgid "N/A"
+msgstr ""
+
+#: main/models.py:224
+msgid "Untitled"
+msgstr ""
+
+#: main/models.py:261
+#, python-format
+msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
+msgstr ""
+
+#: main/models.py:283
+#, python-format
+msgid "%(derived)s derived from %(src)s in %(event)s"
+msgstr ""
+
+#: main/models.py:327
+#, python-brace-format
+msgid "SIP: {path}"
+msgstr ""
+
+#: main/models.py:377
+#, python-format
+msgid "%(original)s -> %(arrange)s"
+msgstr ""
+
+#: main/models.py:456
+#, python-format
+msgid "File %(uuid)s: %(originallocation)s now at %(currentlocation)s"
+msgstr ""
+
+#: main/models.py:484
+#, python-format
+msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
+msgstr ""
+
+#: main/models.py:641
+#, python-format
+msgid "%(basis)s for %(unit)s (%(id)s)"
+msgstr ""
+
+#: main/models.py:854
+#, python-format
+msgid "MicroServiceChain ID: %(uuid)s; %(desc)s"
+msgstr ""
+
+#: main/models.py:874
+#, python-format
+msgid "MicroServiceChainLink ID: %(id)s"
+msgstr ""
+
+#: main/models.py:901
+#, python-format
+msgid "MicroServiceChainChoice ID: %(uuid)s (%(chain)s at %(choice)s)"
+msgstr ""
+
+#: main/models.py:921 main/models.py:923
+msgid "Invalid syntax."
+msgstr ""
+
+#: main/models.py:941 main/models.py:959
+msgid "TaskType ID: %(id), desc: %(desc)"
+msgstr ""
+
+#: main/models.py:1199
+#, python-format
+msgid "%(sortorder)s: %(name)s"
+msgstr ""
+
+#: main/templatetags/user.py:14
+msgid "<no API key generated>"
+msgstr ""
+
+#: main/views.py:301
+msgid "Added."
+msgstr ""
+
+#: main/views.py:306
+msgid "Error: no delete ID supplied."
+msgstr ""
+
+#: main/views.py:324
+msgid "Incorrect type."
+msgstr ""
+
+#: settings/base.py:134
+msgid "French"
+msgstr ""
+
+#: settings/base.py:135
+msgid "English"
+msgstr ""
+
+#: settings/base.py:136
+msgid "Spanish"
+msgstr ""
+
+#: settings/base.py:137
+msgid "Portuguese"
+msgstr ""
+
+#: settings/base.py:390
+msgid ""
+"Select \"Approve transfer\" to begin processing or \"Reject transfer\" to "
+"start over again."
+msgstr ""
+
+#: settings/base.py:391
+msgid ""
+"Create a complete backup of the transfer in case transfer/ingest are "
+"interrupted or fail. The transfer will automatically be deleted once the AIP "
+"has been moved into storage."
+msgstr ""
+
+#: settings/base.py:392
+msgid ""
+"If desired, quarantine transfer to allow definitions in anti-virus software "
+"to be updated."
+msgstr ""
+
+#: settings/base.py:393
+msgid ""
+"If desired, select \"Unquarantine\" to remove the transfer from quarantine "
+"immediately. Otherwise, wait until the quarantine period has expired and the "
+"transfer will be removed automatically."
+msgstr ""
+
+#: settings/base.py:394
+msgid "Create a SIP from the transfer."
+msgstr ""
+
+#: settings/base.py:395
+msgid ""
+"Once you have added files from the transfer to the SIP and have completed "
+"any appraisal and physical arrangement, select \"SIP creation complete\" to "
+"start ingest micro-services."
+msgstr ""
+
+#: settings/base.py:396
+msgid ""
+"Create preservation and/or access copies of files if desired. Creating "
+"access copies will result in a DIP being generated for upload into an access "
+"system."
+msgstr ""
+
+#: settings/base.py:397
+msgid ""
+"If desired, click \"review\" to view the normalized files. To see a report "
+"summarizing the normalization results, click on the report icon next to the "
+"Actions drop-down menu. If normalization has failed, click on \"Yes\" under "
+"\"Preservation normalization failed\" or \"Access normalization failed\" to "
+"view the tool output and error message."
+msgstr ""
+
+#: settings/base.py:398
+msgid ""
+"If desired, click \"review\" to view AIP contents. Select \"Store AIP\" to "
+"move the AIP into archival storage."
+msgstr ""
+
+#: settings/base.py:399
+msgid ""
+"If desired, select \"Upload DIP\" to upload the DIP to the access system."
+msgstr ""
+
+#: templates/404.html:6
+msgid "Page not found"
+msgstr ""
+
+#: templates/404.html:9
+msgid "Sorry! The page that you are trying to view is not here."
+msgstr ""
+
+#: templates/500.html:6
+msgid "Internal server error"
+msgstr ""
+
+#: templates/500.html:9
+msgid ""
+"Sorry! Something wrong happened. Please, contact with your administrator."
+msgstr ""
+
+#: templates/_fpr_update_button.html:4
+msgid "Update"
+msgstr ""
+
+#: templates/_fpr_update_button.html:23
+msgid "Error updating FPR."
+msgstr ""
+
+#: templates/_pager.html:9
+msgid "First"
+msgstr ""
+
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:115
+msgid "Previous"
+msgstr ""
+
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:121
+#: templates/rights/rights_edit.html:287
+msgid "Next"
+msgstr ""
+
+#: templates/_pager.html:39
+msgid "Last"
+msgstr ""
+
+#: templates/_pager.html:54
+msgid "Jump to"
+msgstr ""
+
+#: templates/_pager.html:60
+#, python-format
+msgid ""
+"\n"
+"      Found %(count)s entries. Showing %(start_index)s to %(end_index)s.\n"
+"    "
+msgstr ""
+
+#: templates/accounts/add.html:5 templates/accounts/add.html.py:6
+msgid "Users - Add new"
+msgstr ""
+
+#: templates/accounts/add.html:20 templates/accounts/edit.html:21
+#: templates/accounts/list.html:4 templates/accounts/list.html.py:5
+#: templates/accounts/list.html:18 templates/administration/sidebar.html:49
+msgid "Users"
+msgstr ""
+
+#: templates/accounts/add.html:21
+msgid "Add new user"
+msgstr ""
+
+#: templates/accounts/add.html:33 templates/ingest/metadata_edit.html:64
+#: templates/installer/welcome.html:49
+#: templates/transfer/metadata_edit.html:63
+msgid "Create"
+msgstr ""
+
+#: templates/accounts/add.html:34 templates/accounts/edit.html:38
+#: templates/accounts/profile.html:47
+#: templates/administration/processing_edit.html:40
+#: templates/delete_request.html:19 templates/ingest/as/match.html:129
+#: templates/ingest/atk/match.html:104 templates/ingest/grid.html:158
+#: templates/ingest/grid.html.py:260 templates/ingest/metadata_edit.html:66
+#: templates/rights/rights_edit.html:290 templates/rights/rights_edit.html:292
+#: templates/rights/rights_grants_edit.html:111
+#: templates/rights/rights_grants_edit.html:113
+#: templates/simple_confirm.html:10 templates/transfer/metadata_edit.html:65
+msgid "Cancel"
+msgstr ""
+
+#: templates/accounts/edit.html:6 templates/accounts/edit.html.py:7
+#, python-format
+msgid "Users - Edit %(user)s"
+msgstr ""
+
+#: templates/accounts/edit.html:37 templates/accounts/profile.html:46
+#: templates/administration/api.html:36
+#: templates/administration/dips_as_edit.html:29
+#: templates/administration/dips_atk_edit.html:29
+#: templates/administration/dips_atom_edit.html:44
+#: templates/administration/general.html:46
+#: templates/administration/handle_config.html:24
+#: templates/administration/premis_agent.html:24
+#: templates/administration/processing_edit.html:39
+#: templates/administration/term_detail.html:34 templates/ingest/grid.html:160
+#: templates/ingest/metadata_edit.html:62
+#: templates/rights/rights_edit.html:285
+#: templates/rights/rights_grants_edit.html:106
+#: templates/transfer/component.html:54
+#: templates/transfer/metadata_edit.html:61
+msgid "Save"
+msgstr ""
+
+#: templates/accounts/list.html:23 templates/accounts/profile.html:29
+msgid "Username"
+msgstr ""
+
+#: templates/accounts/list.html:24 templates/accounts/profile.html:31
+#: templates/administration/atom_levels_of_description.html:38
+#: templates/administration/reports/failures.html:26
+msgid "Name"
+msgstr ""
+
+#: templates/accounts/list.html:25 templates/accounts/profile.html:33
+msgid "E-mail"
+msgstr ""
+
+#: templates/accounts/list.html:26
+msgid "Administrator"
+msgstr ""
+
+#: templates/accounts/list.html:27
+msgid "Active"
+msgstr ""
+
+#: templates/accounts/list.html:41 templates/administration/processing.html:27
+#: templates/ingest/metadata_edit.html:33 templates/rights/rights_edit.html:19
+#: templates/rights/rights_grants_edit.html:19
+#: templates/rights/rights_list.html:12 templates/rights/rights_list.html:54
+#: templates/rights/rights_list.html:57 templates/transfer/detail.html:50
+#: templates/transfer/metadata_edit.html:32
+msgid "Edit"
+msgstr ""
+
+#: templates/accounts/list.html:42
+#: templates/administration/atom_levels_of_description.html:46
+#: templates/administration/processing.html:29
+#: templates/administration/reports/failure_detail.html:31
+#: templates/administration/reports/failures.html:39
+#: templates/administration/term_detail.html:35
+#: templates/archival_storage/view.html:105
+#: templates/archival_storage/view.html:148 templates/ingest/grid.html:85
+#: templates/main/access.html:25 templates/rights/rights_list.html:55
+#: templates/rights/rights_list.html:58
+msgid "Delete"
+msgstr ""
+
+#: templates/accounts/list.html:51
+msgid "Add new"
+msgstr ""
+
+#: templates/accounts/logged_out.html:9
+msgid "You are logged out."
+msgstr ""
+
+#: templates/accounts/logged_out.html:13
+msgid "Log in again"
+msgstr ""
+
+#: templates/accounts/login.html:21
+msgid "Forgot your password?"
+msgstr ""
+
+#: templates/accounts/login.html:22
+msgid "Log in"
+msgstr ""
+
+#: templates/accounts/profile.html:35
+msgid "Admin"
+msgstr ""
+
+#: templates/administration/api.html:5 templates/administration/api.html:6
+#: templates/administration/atom_levels_of_description.html:6
+#: templates/administration/atom_levels_of_description.html:7
+#: templates/administration/dips_as_edit.html:5
+#: templates/administration/dips_as_edit.html:6
+#: templates/administration/dips_atk_edit.html:5
+#: templates/administration/dips_atk_edit.html:6
+#: templates/administration/dips_atom_edit.html:5
+#: templates/administration/dips_atom_edit.html:6
+#: templates/administration/general.html:5
+#: templates/administration/general.html:6
+#: templates/administration/handle_config.html:5
+#: templates/administration/handle_config.html:6
+#: templates/administration/language.html:5
+#: templates/administration/language.html:6
+#: templates/administration/locations.html:5
+#: templates/administration/locations.html:6
+#: templates/administration/premis_agent.html:5
+#: templates/administration/premis_agent.html:6
+#: templates/administration/processing.html:4
+#: templates/administration/processing.html:5
+#: templates/administration/processing_edit.html:4
+#: templates/administration/processing_edit.html:5
+#: templates/administration/reports/failure_detail.html:5
+#: templates/administration/reports/failure_detail.html:6
+#: templates/administration/reports/failures.html:5
+#: templates/administration/reports/failures.html:6
+#: templates/administration/search.html:5
+#: templates/administration/search.html:6
+#: templates/administration/taxonomy.html:5
+#: templates/administration/taxonomy.html:6
+#: templates/administration/term_detail.html:5
+#: templates/administration/term_detail.html:6
+#: templates/administration/terms.html:5 templates/administration/terms.html:6
+#: templates/layout.html:64
+msgid "Administration"
+msgstr ""
+
+#: templates/administration/api.html:25
+msgid "REST API configuration"
+msgstr ""
+
+#: templates/administration/api.html:27
+msgid "IP whitelist"
+msgstr ""
+
+#: templates/administration/api.html:29
+msgid ""
+"Enter a whitespace-separated list of IPs or hostnames permitted to use the "
+"API."
+msgstr ""
+
+#: templates/administration/api.html:30
+msgid "If the whitelist is left empty, all IPs and hostnames will be allowed."
+msgstr ""
+
+#: templates/administration/atom_levels_of_description.html:27
+msgid "Fetch from AtoM"
+msgstr ""
+
+#: templates/administration/atom_levels_of_description.html:30
+msgid "AtoM Levels of Description"
+msgstr ""
+
+#: templates/administration/atom_levels_of_description.html:47
+msgid "Promote"
+msgstr ""
+
+#: templates/administration/atom_levels_of_description.html:48
+msgid "Demote"
+msgstr ""
+
+#: templates/administration/atom_levels_of_description.html:56
+msgid "No levels found."
+msgstr ""
+
+#: templates/administration/dips_as_edit.html:25
+msgid "ArchivesSpace DIP upload"
+msgstr ""
+
+#: templates/administration/dips_atk_edit.html:25
+msgid "Archivists Toolkit DIP upload"
+msgstr ""
+
+#: templates/administration/dips_atom_edit.html:32
+msgid "Levels of Description"
+msgstr ""
+
+#: templates/administration/dips_atom_edit.html:37
+msgid "AtoM DIP upload"
+msgstr ""
+
+#: templates/administration/dips_atom_edit.html:39
+msgid "The settings below configure DIP uploading to Atom."
+msgstr ""
+
+#: templates/administration/general.html:27
+#, python-format
+msgid ""
+"\n"
+"            <b>Dashboard UUID</b> %(uuid)s\n"
+"          "
+msgstr ""
+
+#: templates/administration/general.html:33
+msgid "General configuration"
+msgstr ""
+
+#: templates/administration/general.html:37
+msgid "Storage Service options"
+msgstr ""
+
+#: templates/administration/general.html:41
+msgid "Checksum algorithm"
+msgstr ""
+
+#: templates/administration/handle_config.html:19
+msgid "Handle Configuration for Persistent Identifier (PID) Binding"
+msgstr ""
+
+#: templates/administration/language.html:19
+#: templates/administration/sidebar.html:54
+msgid "Language"
+msgstr ""
+
+#: templates/administration/language.html:30
+msgid "Select one of the following languages available:"
+msgstr ""
+
+#: templates/administration/language.html:44
+msgid ""
+"Your choice will be recorded in the internal session store which doesn't not "
+"retain data forever."
+msgstr ""
+
+#: templates/administration/language.html:50
+msgid "Change"
+msgstr ""
+
+#: templates/administration/locations.html:27
+#: templates/ingest/as/resource_component.html:16
+#: templates/ingest/as/resource_component.html:32
+#: templates/ingest/atk/resource_component.html:15
+#: templates/ingest/atk/resource_component.html:26
+msgid "Description"
+msgstr ""
+
+#: templates/administration/locations.html:28
+#: templates/administration/usage.html:24
+msgid "Path"
+msgstr ""
+
+#: templates/administration/locations.html:41
+msgid "No available locations."
+msgstr ""
+
+#: templates/administration/premis_agent.html:19
+#: templates/administration/sidebar.html:44
+msgid "PREMIS agent"
+msgstr ""
+
+#: templates/administration/processing.html:18
+#: templates/administration/processing_edit.html:18
+#: templates/administration/sidebar.html:23
+msgid "Processing configuration"
+msgstr ""
+
+#: templates/administration/processing.html:38
+msgid "No processing configuration file found (*ProcessingMCP.xml)."
+msgstr ""
+
+#: templates/administration/processing.html:45
+msgid ""
+"The following files are being ignored because they don't meet the "
+"requirements."
+msgstr ""
+
+#: templates/administration/processing.html:55 templates/ingest/detail.html:43
+#: templates/ingest/detail.html.py:49 templates/ingest/metadata_edit.html:34
+#: templates/rights/rights_edit.html:20
+#: templates/rights/rights_grants_edit.html:20
+#: templates/rights/rights_list.html:13 templates/rights/rights_list.html:82
+#: templates/rights/rights_list.html:84 templates/transfer/detail.html:44
+#: templates/transfer/detail.html.py:57
+#: templates/transfer/metadata_edit.html:33
+msgid "Add"
+msgstr ""
+
+#: templates/administration/reports/failure_detail.html:18
+#, python-format
+msgid ""
+"\n"
+"          Failure report: %(name)s\n"
+"        "
+msgstr ""
+
+#: templates/administration/reports/failures.html:18
+msgid "Failure report"
+msgstr ""
+
+#: templates/administration/reports/failures.html:24
+msgid "Date"
+msgstr ""
+
+#: templates/administration/reports/failures.html:25
+#: templates/rights/rights_edit.html:101 templates/rights/rights_edit.html:153
+#: templates/rights/rights_edit.html:203 templates/rights/rights_edit.html:251
+msgid "Type"
+msgstr ""
+
+#: templates/administration/reports/failures.html:56
+msgid "No reports found."
+msgstr ""
+
+#: templates/administration/search.html:23
+msgid "Search administration"
+msgstr ""
+
+#: templates/administration/search.html:26
+#, python-format
+msgid ""
+"\n"
+"          %(count)s AIP files indexed.\n"
+"        "
+msgstr ""
+
+#: templates/administration/search.html:33
+msgid "Flush AIP Index"
+msgstr ""
+
+#: templates/administration/sidebar.html:25
+msgid "General"
+msgstr ""
+
+#: templates/administration/sidebar.html:27
+msgid "Failures"
+msgstr ""
+
+#: templates/administration/sidebar.html:29
+msgid "Transfer source locations"
+msgstr ""
+
+#: templates/administration/sidebar.html:31
+msgid "AIP storage locations"
+msgstr ""
+
+#: templates/administration/sidebar.html:33
+#: templates/administration/usage.html:19
+msgid "Processing storage usage"
+msgstr ""
+
+#: templates/administration/sidebar.html:36 templates/ingest/as/match.html:61
+#: templates/ingest/as/resource_component.html:13
+#: templates/ingest/as/resource_detail.html:13
+#: templates/ingest/as/resource_list.html:13
+#: templates/ingest/atk/match.html:46
+#: templates/ingest/atk/resource_component.html:13
+#: templates/ingest/atk/resource_detail.html:13
+#: templates/ingest/atk/resource_list.html:13
+msgid "DIP upload"
+msgstr ""
+
+#: templates/administration/sidebar.html:38
+msgid "AtoM"
+msgstr ""
+
+#: templates/administration/sidebar.html:39
+msgid "ArchivesSpace"
+msgstr ""
+
+#: templates/administration/sidebar.html:40
+msgid "Archivists’ Toolkit"
+msgstr ""
+
+#: templates/administration/sidebar.html:46
+msgid "REST API"
+msgstr ""
+
+#: templates/administration/sidebar.html:52
+msgid "Handle server config"
+msgstr ""
+
+#: templates/administration/sidebar.html:56
+#: templates/administration/version.html:5
+#: templates/administration/version.html:6
+#: templates/administration/version.html:23
+msgid "Version"
+msgstr ""
+
+#: templates/administration/taxonomy.html:19
+msgid "Taxonomies"
+msgstr ""
+
+#: templates/administration/taxonomy.html:29
+#: templates/administration/terms.html:33 templates/main/_tasks_pager.html:5
+msgid "Previous page"
+msgstr ""
+
+#: templates/administration/taxonomy.html:35
+#: templates/administration/terms.html:39 templates/main/_tasks_pager.html:11
+msgid "Next page"
+msgstr ""
+
+#: templates/administration/term_detail.html:20
+#: templates/administration/terms.html:20
+msgid "Taxonomy"
+msgstr ""
+
+#: templates/administration/usage.html:5 templates/administration/usage.html:6
+#: templates/administration/usage.html:25
+msgid "Usage"
+msgstr ""
+
+#: templates/administration/usage.html:23
+msgid "Purpose"
+msgstr ""
+
+#: templates/administration/usage.html:26
+#: templates/archival_storage/list.html:68
+#: templates/archival_storage/search.html:56
+#: templates/archival_storage/view.html:67
+msgid "Size"
+msgstr ""
+
+#: templates/administration/usage.html:40
+msgid "Clear"
+msgstr ""
+
+#: templates/administration/version.html:19
+msgid "About Archivematica"
+msgstr ""
+
+#: templates/administration/version.html:27
+msgid "Agent code"
+msgstr ""
+
+#: templates/appraisal/appraisal.html:4 templates/appraisal/appraisal.html:5
+#: templates/layout.html:59
+msgid "Appraisal"
+msgstr ""
+
+#: templates/archival_storage/_archival_storage_search_form.html:7
+#: templates/ingest/backlog/_search_form.html:9
+msgid "Show files?"
+msgstr ""
+
+#: templates/archival_storage/_archival_storage_search_form.html:9
+msgid "Show AICs?"
+msgstr ""
+
+#: templates/archival_storage/_archival_storage_search_form.html:11
+msgid "Search archival storage"
+msgstr ""
+
+#: templates/archival_storage/list.html:6
+#: templates/archival_storage/list.html:7
+#: templates/archival_storage/list.html:29
+#: templates/archival_storage/search.html:6
+#: templates/archival_storage/search.html:7
+#: templates/archival_storage/search.html:29
+#: templates/archival_storage/view.html:6
+#: templates/archival_storage/view.html:7
+#: templates/archival_storage/view.html:50 templates/layout.html:61
+msgid "Archival storage"
+msgstr ""
+
+#: templates/archival_storage/list.html:30
+#: templates/archival_storage/search.html:30
+#: templates/ingest/as/_search_form.html:6
+#: templates/ingest/atk/_search_form.html:6
+msgid "Search"
+msgstr ""
+
+#: templates/archival_storage/list.html:40
+msgid "Browse archival storage"
+msgstr ""
+
+#: templates/archival_storage/list.html:43
+#, python-format
+msgid ""
+"\n"
+"          Total size: %(size)s MB\n"
+"        "
+msgstr ""
+
+#: templates/archival_storage/list.html:49
+#, python-format
+msgid ""
+"\n"
+"            Files indexed: %(count)s\n"
+"          "
+msgstr ""
+
+#: templates/archival_storage/list.html:61
+#: templates/archival_storage/search.html:55
+#: templates/ingest/aip_browse.html:6 templates/ingest/aip_browse.html.py:7
+#: templates/main/access.html:12
+msgid "AIP"
+msgstr ""
+
+#: templates/archival_storage/list.html:62
+#: templates/archival_storage/list.html:63
+#: templates/archival_storage/list.html:69
+#: templates/archival_storage/list.html:70
+#: templates/archival_storage/list.html:81
+#: templates/archival_storage/list.html:82
+msgid "Sort"
+msgstr ""
+
+#: templates/archival_storage/list.html:80
+#: templates/archival_storage/search.html:62
+#: templates/archival_storage/view.html:71
+msgid "Date stored"
+msgstr ""
+
+#: templates/archival_storage/list.html:87
+#: templates/archival_storage/search.html:63
+#: templates/archival_storage/view.html:75
+msgid "Status"
+msgstr ""
+
+#: templates/archival_storage/list.html:92
+#: templates/archival_storage/search.html:64
+#: templates/archival_storage/view.html:79
+msgid "Encrypted"
+msgstr ""
+
+#: templates/archival_storage/list.html:97
+#: templates/archival_storage/search.html:65
+#: templates/archival_storage/view.html:98 templates/main/access.html:16
+msgid "Actions"
+msgstr ""
+
+#: templates/archival_storage/list.html:110
+#: templates/archival_storage/search.html:99
+#: templates/archival_storage/view.html:92
+msgid "View"
+msgstr ""
+
+#: templates/archival_storage/list.html:123
+msgid "Archival storage is empty."
+msgstr ""
+
+#: templates/archival_storage/search.html:42
+msgid "Create an AIC"
+msgstr ""
+
+#: templates/archival_storage/search.html:59
+msgid "AIC"
+msgstr ""
+
+#: templates/archival_storage/search.html:61
+msgid "Files"
+msgstr ""
+
+#: templates/archival_storage/search.html:72
+#: templates/archival_storage/search.html:129
+msgid "view raw"
+msgstr ""
+
+#: templates/archival_storage/search.html:78 templates/main/tasks.html:34
+msgid "Unknown"
+msgstr ""
+
+#: templates/archival_storage/search.html:87
+#, python-format
+msgid ""
+"\n"
+"                    Part of %(item)s\n"
+"                  "
+msgstr ""
+
+#: templates/archival_storage/search.html:108
+msgid "File(s)"
+msgstr ""
+
+#: templates/archival_storage/search.html:109
+msgid "AIP(s)"
+msgstr ""
+
+#: templates/archival_storage/search.html:132
+#, python-format
+msgid "AIP %(uuid)s details missing from database."
+msgstr ""
+
+#: templates/archival_storage/search.html:144
+msgid "No results, please try another search."
+msgstr ""
+
+#: templates/archival_storage/view.html:57
+msgid "Archival Information Package"
+msgstr ""
+
+#: templates/archival_storage/view.html:83
+#: templates/ingest/normalization_report.html:31
+msgid "Location"
+msgstr ""
+
+#: templates/archival_storage/view.html:85
+msgid "Download"
+msgstr ""
+
+#: templates/archival_storage/view.html:90
+msgid "Pointer file"
+msgstr ""
+
+#: templates/archival_storage/view.html:103 templates/ingest/grid.html:244
+msgid "Upload DIP"
+msgstr ""
+
+#: templates/archival_storage/view.html:104
+#: templates/archival_storage/view.html:133
+msgid "Re-ingest"
+msgstr ""
+
+#: templates/archival_storage/view.html:115
+msgid "Metadata-only DIP upload to AtoM"
+msgstr ""
+
+#: templates/archival_storage/view.html:119 templates/ingest/grid.html:259
+msgid "Upload"
+msgstr ""
+
+#: templates/archival_storage/view.html:129
+msgid "Choose type of re-ingest"
+msgstr ""
+
+#: templates/archival_storage/view.html:143
+msgid "Are you sure that you want to delete this AIP"
+msgstr ""
+
+#: templates/archival_storage/view.html:144 templates/delete_request.html:8
+msgid ""
+"Choosing to delete this package will send a request to your Archival Storage "
+"administrator. If the administrator approves the request, your package will "
+"be deleted from your Archival Storage and your index will be updated. If the "
+"administrator denies the request, the package will remain in storage and the "
+"administrator will contact you."
+msgstr ""
+
+#: templates/backlog/backlog.html:5 templates/backlog/backlog.html.py:6
+msgid "Backlog search"
+msgstr ""
+
+#: templates/delete_request.html:14
+msgid "Reason for deletion:"
+msgstr ""
+
+#: templates/elasticsearch_error.html:6
+msgid "Elasticsearch error"
+msgstr ""
+
+#: templates/elasticsearch_error.html:9
+#, python-format
+msgid ""
+"\n"
+"        Exception type: %(exception_type)s\n"
+"    "
+msgstr ""
+
+#: templates/elasticsearch_error.html:15
+#: templates/elasticsearch_not_found.html:11
+msgid "Sorry! The page that you are trying to view is not available."
+msgstr ""
+
+#: templates/elasticsearch_error.html:16
+#: templates/elasticsearch_not_found.html:12
+msgid "Please contact an administrator."
+msgstr ""
+
+#: templates/elasticsearch_not_found.html:6
+msgid "ElasticSearch server issue"
+msgstr ""
+
+#: templates/forbidden.html:6
+msgid "Forbidden"
+msgstr ""
+
+#: templates/forbidden.html:9
+msgid "Sorry! You do not have enough access privileges for this operation."
+msgstr ""
+
+#: templates/ingest/aip_browse.html:38 templates/ingest/detail.html:10
+#: templates/ingest/grid.html:5 templates/ingest/grid.html.py:6
+#: templates/ingest/metadata_add_files.html:31
+#: templates/ingest/metadata_edit.html:31
+#: templates/ingest/microservices.html:10 templates/layout.html:60
+#: templates/rights/rights_edit.html:16
+#: templates/rights/rights_grants_edit.html:16
+#: templates/rights/rights_list.html:9
+msgid "Ingest"
+msgstr ""
+
+#: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:213
+#: templates/transfer/grid.html:139
+msgid "Initializing..."
+msgstr ""
+
+#: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
+#: templates/ingest/as/match.html.py:119
+#: templates/ingest/as/resource_component.html:52
+#: templates/ingest/as/resource_detail.html:42
+#: templates/ingest/as/resource_list.html:34
+#: templates/ingest/as/review_matches.html:27
+#: templates/ingest/atk/_search_form.html:4 templates/ingest/atk/match.html:76
+#: templates/ingest/atk/match.html.py:94
+#: templates/ingest/atk/resource_component.html:40
+#: templates/ingest/atk/resource_detail.html:37
+#: templates/ingest/atk/resource_list.html:27
+msgid "Title"
+msgstr ""
+
+#: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
+#: templates/ingest/as/match.html.py:120
+#: templates/ingest/as/review_matches.html:28
+#: templates/ingest/atk/_search_form.html:5 templates/ingest/atk/match.html:77
+#: templates/ingest/atk/match.html.py:95
+msgid "Identifier"
+msgstr ""
+
+#: templates/ingest/as/match.html:6 templates/ingest/as/match.html.py:7
+#: templates/ingest/as/resource_component.html:5
+#: templates/ingest/as/resource_component.html:6
+#: templates/ingest/as/resource_list.html:5
+#: templates/ingest/as/resource_list.html:6 templates/ingest/atk/match.html:6
+#: templates/ingest/atk/match.html.py:7
+#: templates/ingest/atk/resource_component.html:5
+#: templates/ingest/atk/resource_component.html:6
+#: templates/ingest/atk/resource_detail.html:5
+#: templates/ingest/atk/resource_detail.html:6
+#: templates/ingest/atk/resource_list.html:5
+#: templates/ingest/atk/resource_list.html:6
+msgid "Match"
+msgstr ""
+
+#: templates/ingest/as/match.html:48 templates/ingest/atk/match.html:33
+msgid "Filter objects"
+msgstr ""
+
+#: templates/ingest/as/match.html:53 templates/ingest/atk/match.html:38
+msgid "Filter resources"
+msgstr ""
+
+#: templates/ingest/as/match.html:57 templates/ingest/atk/match.html:42
+msgid "Pair"
+msgstr ""
+
+#: templates/ingest/as/match.html:62
+#: templates/ingest/as/resource_component.html:15
+msgid "Parent record"
+msgstr ""
+
+#: templates/ingest/as/match.html:63 templates/ingest/as/match.html.py:70
+#: templates/ingest/atk/match.html:47
+msgid "Assign objects"
+msgstr ""
+
+#: templates/ingest/as/match.html:71 templates/ingest/atk/match.html:54
+msgid "Assign objects to descriptions"
+msgstr ""
+
+#: templates/ingest/as/match.html:75 templates/ingest/as/match.html.py:77
+#: templates/ingest/as/resource_component.html:37
+#: templates/ingest/as/resource_component.html:39
+#: templates/ingest/as/resource_detail.html:28
+#: templates/ingest/as/resource_detail.html:30
+#: templates/ingest/as/resource_list.html:25
+#: templates/ingest/as/resource_list.html:27
+#: templates/ingest/as/review_matches.html:19
+msgid "Restart matching"
+msgstr ""
+
+#: templates/ingest/as/match.html:79
+#: templates/ingest/as/resource_component.html:41
+#: templates/ingest/as/resource_detail.html:33
+#: templates/ingest/as/resource_list.html:29
+#: templates/ingest/as/review_matches.html:6
+#: templates/ingest/as/review_matches.html:7
+msgid "Review matches"
+msgstr ""
+
+#: templates/ingest/as/match.html:88 templates/ingest/atk/match.html:64
+msgid "Objects"
+msgstr ""
+
+#: templates/ingest/as/match.html:90
+msgid "Select all"
+msgstr ""
+
+#: templates/ingest/as/match.html:95 templates/ingest/atk/match.html:70
+msgid "Resources"
+msgstr ""
+
+#: templates/ingest/as/match.html:100 templates/ingest/as/match.html.py:118
+#: templates/ingest/as/review_matches.html:26
+#: templates/ingest/atk/match.html:75 templates/ingest/atk/match.html.py:93
+msgid "Level"
+msgstr ""
+
+#: templates/ingest/as/match.html:103 templates/ingest/as/match.html.py:121
+#: templates/ingest/as/resource_component.html:53
+#: templates/ingest/as/resource_detail.html:43
+#: templates/ingest/as/resource_list.html:35
+#: templates/ingest/as/review_matches.html:29
+#: templates/ingest/atk/match.html:78 templates/ingest/atk/match.html.py:96
+#: templates/ingest/atk/resource_component.html:41
+#: templates/ingest/atk/resource_detail.html:38
+#: templates/ingest/atk/resource_list.html:28
+msgid "Dates"
+msgstr ""
+
+#: templates/ingest/as/match.html:112 templates/ingest/atk/match.html:87
+msgid "Pairs"
+msgstr ""
+
+#: templates/ingest/as/match.html:117
+#: templates/ingest/as/review_matches.html:25
+#: templates/ingest/atk/match.html:92
+msgid "File"
+msgstr ""
+
+#: templates/ingest/as/match.html:128 templates/ingest/atk/match.html:103
+msgid "Confirm"
+msgstr ""
+
+#: templates/ingest/as/match.html:158 templates/ingest/atk/match.html:133
+msgid "Delete match"
+msgstr ""
+
+#: templates/ingest/as/resource_component.html:14
+#: templates/ingest/as/resource_detail.html:14
+#: templates/ingest/atk/resource_component.html:14
+#: templates/ingest/atk/resource_detail.html:14
+#: templates/ingest/atk/resource_detail.html:24
+msgid "Collection"
+msgstr ""
+
+#: templates/ingest/as/resource_component.html:42
+#: templates/ingest/atk/resource_component.html:30
+msgid "Assign DIP objects to this level of description"
+msgstr ""
+
+#: templates/ingest/as/resource_component.html:51
+#: templates/ingest/as/resource_detail.html:41
+#: templates/ingest/atk/resource_component.html:39
+msgid "Level of description"
+msgstr ""
+
+#: templates/ingest/as/resource_component.html:69
+#: templates/ingest/as/resource_detail.html:59
+#: templates/ingest/atk/resource_component.html:57
+#: templates/ingest/atk/resource_detail.html:54
+msgid "No child descriptions found."
+msgstr ""
+
+#: templates/ingest/as/resource_detail.html:32
+msgid "Assign DIP objects to this resource"
+msgstr ""
+
+#: templates/ingest/as/resource_list.html:18
+#: templates/ingest/atk/resource_list.html:18
+msgid "Collections"
+msgstr ""
+
+#: templates/ingest/as/review_matches.html:20
+msgid "Finish matching"
+msgstr ""
+
+#: templates/ingest/atk/resource_detail.html:36
+msgid "Level of sescription"
+msgstr ""
+
+#: templates/ingest/backlog/_search_form.html:7
+msgid "Search transfer backlog"
+msgstr ""
+
+#: templates/ingest/detail.html:16 templates/ingest/grid.html:97
+msgid "Submission Information Package"
+msgstr ""
+
+#: templates/ingest/detail.html:21 templates/transfer/detail.html:22
+#, python-format
+msgid ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
+msgstr ""
+
+#: templates/ingest/detail.html:28
+msgid "There are micro-services awaiting user decisions."
+msgstr ""
+
+#: templates/ingest/detail.html:30
+msgid "View micro-services"
+msgstr ""
+
+#: templates/ingest/detail.html:35 templates/ingest/microservices.html:11
+#: templates/transfer/detail.html:36 templates/transfer/microservices.html:10
+msgid "Microservices"
+msgstr ""
+
+#: templates/ingest/detail.html:37 templates/ingest/detail.html.py:42
+#: templates/ingest/detail.html:48 templates/transfer/detail.html:38
+#: templates/transfer/detail.html.py:43 templates/transfer/detail.html:56
+msgid "List"
+msgstr ""
+
+#: templates/ingest/detail.html:40 templates/rights/rights_edit.html:17
+#: templates/rights/rights_grants_edit.html:17
+#: templates/rights/rights_list.html:10 templates/transfer/detail.html:41
+msgid "Rights"
+msgstr ""
+
+#: templates/ingest/detail.html:46 templates/ingest/metadata_edit.html:32
+#: templates/transfer/detail.html:54 templates/transfer/grid.html:106
+#: templates/transfer/metadata_edit.html:31
+msgid "Metadata"
+msgstr ""
+
+#: templates/ingest/detail.html:50
+msgid "Manual normalization event detail"
+msgstr ""
+
+#: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:32
+msgid "Add metadata files"
+msgstr ""
+
+#: templates/ingest/grid.html:76
+msgid "View file"
+msgstr ""
+
+#: templates/ingest/grid.html:77
+msgid "Hide"
+msgstr ""
+
+#: templates/ingest/grid.html:83
+msgid "Add directory"
+msgstr ""
+
+#: templates/ingest/grid.html:84 templates/ingest/grid.html.py:133
+msgid "Edit metadata"
+msgstr ""
+
+#: templates/ingest/grid.html:86
+msgid "Create SIP"
+msgstr ""
+
+#: templates/ingest/grid.html:99
+msgid "Ingest start time"
+msgstr ""
+
+#: templates/ingest/grid.html:102 templates/transfer/grid.html:82
+msgid "Remove all completed"
+msgstr ""
+
+#: templates/ingest/grid.html:140
+msgid "AtoM level of description"
+msgstr ""
+
+#: templates/ingest/grid.html:154
+msgid "No AtoM levels of description found. Please contact an administrator."
+msgstr ""
+
+#: templates/ingest/grid.html:177
+msgid "Metadatos"
+msgstr ""
+
+#: templates/ingest/grid.html:178 templates/transfer/grid.html:107
+msgid "Remove"
+msgstr ""
+
+#: templates/ingest/grid.html:187 templates/transfer/grid.html:116
+msgid "Microservice"
+msgstr ""
+
+#: templates/ingest/grid.html:193 templates/transfer/grid.html:122
+msgid "Job"
+msgstr ""
+
+#: templates/ingest/grid.html:207 templates/main/tasks.html:16
+#: templates/transfer/grid.html:133
+msgid "Tasks"
+msgstr ""
+
+#: templates/ingest/grid.html:247
+msgid ""
+"Upload the generated DIP to AtoM using the permalink of the target "
+"description."
+msgstr ""
+
+#: templates/ingest/grid.html:250
+msgid "Enter the permalink of the target description"
+msgstr ""
+
+#: templates/ingest/grid.html:253
+msgid ""
+"Example: if URL is http://myAtoM.ca/newsletters-2;rad enter "
+"<strong>newsletters-2</strong>"
+msgstr ""
+
+#: templates/ingest/metadata_add_files.html:47
+msgid "Select a directory"
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:77
+#: templates/transfer/metadata_edit.html:76
+msgid "A name given to the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:81
+#: templates/transfer/metadata_edit.html:80
+msgid "An entity primarily responsible for making the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:85
+#: templates/transfer/metadata_edit.html:84
+msgid "The topic of the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:89
+#: templates/transfer/metadata_edit.html:88
+msgid "An account of the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:93
+#: templates/transfer/metadata_edit.html:92
+msgid "An entity responsible for making the resource available."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:97
+#: templates/transfer/metadata_edit.html:96
+msgid "An entity responsible for making contributions to the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:101
+#: templates/transfer/metadata_edit.html:100
+msgid ""
+"A point or period of time associated with an event in the lifecycle of the "
+"resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:106
+#: templates/transfer/metadata_edit.html:105
+msgid "The nature or genre of the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:108
+#: templates/transfer/metadata_edit.html:107
+msgid ""
+"\n"
+"        You may wish to use the DCMI type vocabulary provided here: <a href="
+"\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore."
+"org/documents/dcmi-type-vocabulary/</a>\n"
+"      "
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:116
+#: templates/transfer/metadata_edit.html:115
+msgid "The file format, physical medium, or dimensions of the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:118
+#: templates/transfer/metadata_edit.html:117
+msgid ""
+"\n"
+"        Best practice is to use a controlled vocabulary such as the list of "
+"Internet Media Types [MIME] provided here: <a href=\"http://www.iana.org/"
+"assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/"
+"media-types/</a>\n"
+"      "
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:125
+#: templates/transfer/metadata_edit.html:124
+msgid "An unambiguous reference to the resource within a given context."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:129
+#: templates/transfer/metadata_edit.html:128
+msgid "A related resource from which the described resource is derived."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:133
+#: templates/transfer/metadata_edit.html:132
+msgid "A related resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:137
+#: templates/transfer/metadata_edit.html:136
+msgid "A language of the resource."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:141
+#: templates/transfer/metadata_edit.html:140
+msgid ""
+"The spatial or temporal topic of the resource, the spatial applicability of "
+"the resource, or the jurisdiction under which the resource is relevant."
+msgstr ""
+
+#: templates/ingest/metadata_edit.html:145
+#: templates/transfer/metadata_edit.html:144
+msgid "Information about rights held in and over the resource."
+msgstr ""
+
+#: templates/ingest/normalization_report.html:14 templates/main/tasks.html:36
+msgid "File name"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:15
+msgid "File format"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:16
+msgid "Preservation normalization attempted"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:17
+msgid "Preservation normalization failed"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:18
+msgid "Preservation conformance check"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:19
+msgid "Already in preservation format"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:20
+msgid "Access normalization attempted"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:21
+msgid "Access normalization failed"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:22
+msgid "Already in access format"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:23
+msgid "Access conformance check"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:32
+msgid "Format"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:39
+#: templates/ingest/normalization_report.html:45
+#: templates/ingest/normalization_report.html:66
+#: templates/ingest/normalization_report.html:72
+#: templates/ingest/normalization_report.html:74
+#: templates/ingest/normalization_report.html:80
+#: templates/ingest/normalization_report.html:85
+msgid "Yes,No"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:55
+#: templates/ingest/normalization_report.html:57
+#: templates/ingest/normalization_report.html:95
+#: templates/ingest/normalization_report.html:97
+msgid "Failed,Passed"
+msgstr ""
+
+#: templates/ingest/normalization_report.html:110
+#, python-format
+msgid ""
+"\n"
+"      Showing %(start_index)s-%(end_index)s of %(total_items)s\n"
+"    "
+msgstr ""
+
+#: templates/installer/fprconnect.html:5 templates/installer/fprconnect.html:6
+#: templates/installer/welcome.html:5 templates/installer/welcome.html.py:6
+msgid "Welcome"
+msgstr ""
+
+#: templates/installer/fprconnect.html:35
+msgid "Continue"
+msgstr ""
+
+#: templates/installer/fprconnect.html:36
+msgid "Registering new Archivematica installation..."
+msgstr ""
+
+#: templates/installer/fprconnect.html:37
+msgid "Successfully registered with FPR Server."
+msgstr ""
+
+#: templates/installer/fprconnect.html:38
+msgid "Unable to register with the FPR Server"
+msgstr ""
+
+#: templates/installer/fprconnect.html:39
+msgid "Updating format policy rules ..."
+msgstr ""
+
+#: templates/installer/fprconnect.html:40
+msgid ""
+"Unable to update FPR. You will not be able to get updated format policy "
+"rules until it is possible to connect to the FPR Server."
+msgstr ""
+
+#: templates/installer/fprconnect.html:41
+msgid "Request error:"
+msgstr ""
+
+#: templates/installer/fprconnect.html:42
+msgid "Attempt completed."
+msgstr ""
+
+#: templates/installer/fprconnect.html:98
+msgid "Now connecting to the FPR Server."
+msgstr ""
+
+#: templates/installer/storagesetup.html:25
+msgid "Register this pipeline in the Storage Service"
+msgstr ""
+
+#: templates/installer/storagesetup.html:30
+msgid "Dashboard UUID"
+msgstr ""
+
+#: templates/installer/storagesetup.html:39
+msgid "Register"
+msgstr ""
+
+#: templates/installer/welcome.html:40
+msgid "Welcome!"
+msgstr ""
+
+#: templates/installer/welcome.html:41
+msgid ""
+"Archivematica has been installed successfully. Please take a minute to enter "
+"some details into the system."
+msgstr ""
+
+#: templates/layout.html:9
+msgid "Archivematica Dashboard"
+msgstr ""
+
+#: templates/layout.html:57 templates/rights/rights_edit.html:18
+#: templates/rights/rights_grants_edit.html:18
+#: templates/rights/rights_list.html:11 templates/transfer/component.html:10
+#: templates/transfer/detail.html:9 templates/transfer/grid.html:5
+#: templates/transfer/grid.html.py:6 templates/transfer/grid.html:78
+#: templates/transfer/metadata_edit.html:30
+#: templates/transfer/microservices.html:9
+msgid "Transfer"
+msgstr ""
+
+#: templates/layout.html:58
+msgid "Backlog"
+msgstr ""
+
+#: templates/layout.html:62
+msgid "Preservation planning"
+msgstr ""
+
+#: templates/layout.html:63 templates/main/access.html:4
+#: templates/main/access.html.py:5
+msgid "Access"
+msgstr ""
+
+#: templates/layout.html:72
+msgid "Your profile"
+msgstr ""
+
+#: templates/layout.html:74
+msgid "Log out"
+msgstr ""
+
+#: templates/main/access.html:13
+msgid "DIP URL"
+msgstr ""
+
+#: templates/main/access.html:14
+msgid "Upload date"
+msgstr ""
+
+#: templates/main/access.html:15
+msgid "Upload status"
+msgstr ""
+
+#: templates/main/tasks.html:9
+#, python-format
+msgid "Transfer %(uuid)s"
+msgstr ""
+
+#: templates/main/tasks.html:11
+#, python-format
+msgid "DIP %(uuid)s"
+msgstr ""
+
+#: templates/main/tasks.html:13
+#, python-format
+msgid "SIP %(uuid)s"
+msgstr ""
+
+#: templates/main/tasks.html:33
+msgid "File UUID"
+msgstr ""
+
+#: templates/main/tasks.html:39
+msgid "Client"
+msgstr ""
+
+#: templates/main/tasks.html:42
+msgid "Exit code"
+msgstr ""
+
+#: templates/main/tasks.html:54
+msgid "Start time"
+msgstr ""
+
+#: templates/main/tasks.html:57
+msgid "End time"
+msgstr ""
+
+#: templates/main/tasks.html:60
+msgid "Created time"
+msgstr ""
+
+#: templates/main/tasks.html:63
+msgid "Duration"
+msgstr ""
+
+#: templates/main/tasks.html:64
+#, python-format
+msgid "%(duration)s seconds(s)"
+msgstr ""
+
+#: templates/main/tasks.html:72
+#, python-format
+msgid ""
+"\n"
+"                Module %(module)s\n"
+"              "
+msgstr ""
+
+#: templates/main/tasks.html:83
+msgid "Standard streams"
+msgstr ""
+
+#: templates/main/tasks.html:89
+msgid "Standard output (stdout)"
+msgstr ""
+
+#: templates/main/tasks.html:100
+msgid "Standard error (stderr)"
+msgstr ""
+
+#: templates/not_found.html:7
+#, python-format
+msgid ""
+"\n"
+"      %(content_type)s not found\n"
+"    "
+msgstr ""
+
+#: templates/not_found.html:14
+#, python-format
+msgid ""
+"\n"
+"        Sorry! The %(content_type)s that you are trying to %(verb)s is not "
+"here.\n"
+"      "
+msgstr ""
+
+#: templates/rights/rights_edit.html:47
+#: templates/rights/rights_grants_edit.html:46
+msgid "Saved"
+msgstr ""
+
+#: templates/rights/rights_edit.html:51
+msgid "An error has occurred."
+msgstr ""
+
+#: templates/rights/rights_edit.html:59
+msgid "New content added."
+msgstr ""
+
+#: templates/rights/rights_edit.html:62
+#, python-format
+msgid ""
+"\n"
+"                  New content added: %(type)s.\n"
+"                "
+msgstr ""
+
+#: templates/rights/rights_edit.html:96
+msgid "Copyright documentation identifier:"
+msgstr ""
+
+#: templates/rights/rights_edit.html:105 templates/rights/rights_edit.html:157
+#: templates/rights/rights_edit.html:207 templates/rights/rights_edit.html:255
+msgid "Value"
+msgstr ""
+
+#: templates/rights/rights_edit.html:109 templates/rights/rights_edit.html:161
+#: templates/rights/rights_edit.html:211 templates/rights/rights_edit.html:259
+msgid "Role"
+msgstr ""
+
+#: templates/rights/rights_edit.html:116
+msgid "Copyright note"
+msgstr ""
+
+#: templates/rights/rights_edit.html:147
+msgid "Statute documentation identifier:"
+msgstr ""
+
+#: templates/rights/rights_edit.html:168
+msgid "Statute note"
+msgstr ""
+
+#: templates/rights/rights_edit.html:197
+msgid "License documentation identifier:"
+msgstr ""
+
+#: templates/rights/rights_edit.html:218
+msgid "License note"
+msgstr ""
+
+#: templates/rights/rights_edit.html:245
+msgid "Documentation identifier"
+msgstr ""
+
+#: templates/rights/rights_edit.html:266
+msgid "Note"
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:53
+msgid ""
+"You may now add additional information such as document identifers and notes."
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:79
+msgid "Allow"
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:80
+msgid "Disallow"
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:81
+msgid "Conditional"
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:87
+msgid "Grant/restriction note"
+msgstr ""
+
+#: templates/rights/rights_grants_edit.html:108
+msgid "Done"
+msgstr ""
+
+#: templates/rights/rights_list.html:33
+msgid "Act"
+msgstr ""
+
+#: templates/rights/rights_list.html:34
+msgid "Basis"
+msgstr ""
+
+#: templates/rights/rights_list.html:35
+msgid "Restriction(s)"
+msgstr ""
+
+#: templates/rights/rights_list.html:36
+msgid "Start"
+msgstr ""
+
+#: templates/rights/rights_list.html:37
+msgid "End"
+msgstr ""
+
+#: templates/transfer/component.html:11
+msgid "Component metadata"
+msgstr ""
+
+#: templates/transfer/detail.html:29
+msgid "There are microservices awaiting user decisions."
+msgstr ""
+
+#: templates/transfer/detail.html:31
+msgid "View microservices"
+msgstr ""
+
+#: templates/transfer/detail.html:48
+msgid "Transfer metadata"
+msgstr ""
+
+#: templates/transfer/grid.html:80
+msgid "Transfer start time"
+msgstr ""
