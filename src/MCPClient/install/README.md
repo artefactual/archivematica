@@ -164,6 +164,12 @@ This is the full list of variables supported by MCPClient:
     - **Type:** `float`
     - **Default:** `86400`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT`**:
+    - **Description:** configures the Storage Service client to stop waiting for a response after a given number of seconds when the client uses asynchronous API endpoints.
+    - **Config file example:** `MCPClient.storage_service_client_quick_timeout`
+    - **Type:** `float`
+    - **Default:** `5`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_AGENTARCHIVES_CLIENT_TIMEOUT`**:
     - **Description:** configures the agentarchives client to stop waiting for a response after a given number of seconds.
     - **Config file example:** `MCPClient.agentarchives_client_timeout`

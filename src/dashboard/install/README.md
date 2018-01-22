@@ -165,6 +165,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `86400`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT`**:
+    - **Description:** configures the Storage Service client to stop waiting for a response after a given number of seconds when the client uses asynchronous API endpoints.
+    - **Config file example:** `Dashboard.storage_service_client_quick_timeout`
+    - **Type:** `float`
+    - **Default:** `5`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_AGENTARCHIVES_CLIENT_TIMEOUT`**:
     - **Description:** configures the agentarchives client to stop waiting for a response after a given number of seconds.
     - **Config file example:** `Dashboard.agentarchives_client_timeout`

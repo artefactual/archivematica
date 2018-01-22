@@ -57,7 +57,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT):
+def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT):
     """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
@@ -73,6 +73,11 @@ def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
     session.mount('http://', HTTPAdapterWithTimeout(timeout=timeout))
     session.mount('https://', HTTPAdapterWithTimeout(timeout=timeout))
     return session
+
+
+def _storage_api_slow_session():
+    """Return a requests.Session with a higher configurable timeout."""
+    return _storage_api_session(django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
 
 
 def _storage_api_params():
@@ -307,13 +312,14 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     LOGGER.info("Creating file with %s", new_file)
     try:
-        session = _storage_api_session()
         if update:
+            session = _storage_api_slow_session()
             new_file['reingest'] = pipeline['uuid']
             url = _storage_service_url() + 'file/' + uuid + '/'
             response = session.put(url, json=new_file)
             return (response.json(), None)
         else:
+            session = _storage_api_session()
             url = _storage_service_url() + 'file/async/'
             response = session.post(url, json=new_file, allow_redirects=False)
             return wait_for_async(response)
@@ -346,7 +352,7 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
         'offset': 0,
     }
     while True:
-        response = _storage_api_session().get(url, params=params)
+        response = _storage_api_slow_session().get(url, params=params)
         files = response.json()
         return_files += files['objects']
         if not files['meta']['next']:
@@ -383,7 +389,7 @@ def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
     url = _storage_service_url() + 'file/' + uuid + '/extract_file/'
     params = {'relative_path_to_file': relative_path}
-    response = _storage_api_session().get(url, params=params, stream=True)
+    response = _storage_api_slow_session().get(url, params=params, stream=True)
     chunk_size = 1024 * 1024
     with open(save_path, 'wb') as f:
         for chunk in response.iter_content(chunk_size):
@@ -418,7 +424,7 @@ def request_reingest(package_uuid, reingest_type, processing_config):
     }
     url = _storage_service_url() + 'file/' + package_uuid + '/reingest/'
     try:
-        response = _storage_api_session().post(url, json=api_request)
+        response = _storage_api_slow_session().post(url, json=api_request)
     except requests.ConnectionError:
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}
@@ -447,7 +453,7 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
 
 def post_store_aip_callback(uuid):
     url = _storage_service_url() + 'file/' + uuid + '/send_callback/post_store/'
-    response = _storage_api_session().get(url)
+    response = _storage_api_slow_session().get(url)
     try:
         return response.json()
     except Exception:
@@ -456,7 +462,7 @@ def post_store_aip_callback(uuid):
 
 def get_file_metadata(**kwargs):
     url = _storage_service_url() + 'file/metadata/'
-    response = _storage_api_session().get(url, params=kwargs)
+    response = _storage_api_slow_session().get(url, params=kwargs)
     if 400 <= response.status_code < 500:
         raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
     return response.json()
@@ -464,18 +470,18 @@ def get_file_metadata(**kwargs):
 
 def remove_files_from_transfer(transfer_uuid):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
-    _storage_api_session().delete(url)
+    _storage_api_slow_session().delete(url)
 
 
 def index_backlogged_transfer_contents(transfer_uuid, file_set):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
-    response = _storage_api_session().put(url, json=file_set)
+    response = _storage_api_slow_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
         raise BadRequest("Unable to add files to transfer: {}".format(response.text))
 
 
 def reindex_file(transfer_uuid):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/reindex/'
-    response = _storage_api_session().post(url)
+    response = _storage_api_slow_session().post(url)
     response.raise_for_status()
     return response.json()
