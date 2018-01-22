@@ -36,6 +36,7 @@ CONFIG_MAPPING = {
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
     'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
 
@@ -59,6 +60,7 @@ elasticsearch_timeout = 10
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 fpr_client_timeout = 60
 
@@ -416,6 +418,7 @@ WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 
 ALLOW_USER_EDITS = True

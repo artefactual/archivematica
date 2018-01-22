@@ -74,6 +74,10 @@ def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
     return session
 
 
+def _storage_api_quick_session():
+    return _storage_api_session(django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT)
+
+
 def _storage_api_params():
     """Return API GET params username=USERNAME&api_key=KEY for use in URL."""
     username = get_setting('storage_service_user', 'test')
@@ -106,7 +110,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
     LOGGER.info("Creating pipeline in storage service with %s", pipeline)
     url = _storage_service_url() + 'pipeline/'
     try:
-        response = _storage_api_session().post(url, json=pipeline)
+        response = _storage_api_quick_session().post(url, json=pipeline)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning('Unable to create Archivematica pipeline in storage service from %s because %s', pipeline, e, exc_info=True)
@@ -117,7 +121,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
 def get_pipeline(uuid):
     url = _storage_service_url() + 'pipeline/' + uuid + '/'
     try:
-        response = _storage_api_session().get(url)
+        response = _storage_api_quick_session().get(url)
         if response.status_code == 404:
             LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
         response.raise_for_status()
@@ -158,7 +162,7 @@ def get_location(path=None, purpose=None, space=None):
         'offset': 0,
     }
     while True:
-        response = _storage_api_session().get(url, params=params)
+        response = _storage_api_quick_session().get(url, params=params)
         locations = response.json()
         return_locations += locations['objects']
         if not locations['meta']['next']:
@@ -176,7 +180,7 @@ def browse_location(uuid, path):
     path = base64.b64encode(path)
     url = _storage_service_url() + 'location/' + uuid + '/browse/'
     params = {'path': path}
-    response = _storage_api_session().get(url, params=params)
+    response = _storage_api_quick_session().get(url, params=params)
     browse = response.json()
     browse['entries'] = map(base64.b64decode, browse['entries'])
     browse['directories'] = map(base64.b64decode, browse['directories'])
@@ -399,7 +403,7 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
         'user_id': user_id,
     }
     url = _storage_service_url() + 'file/' + uuid + '/delete_aip/'
-    response = _storage_api_session().post(url, json=api_request)
+    response = _storage_api_quick_session().post(url, json=api_request)
     return response.json()
 
 

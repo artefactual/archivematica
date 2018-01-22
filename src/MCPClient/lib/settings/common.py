@@ -40,6 +40,7 @@ CONFIG_MAPPING = {
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
     'storage_service_client_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'MCPClient', 'option': 'agentarchives_client_timeout', 'type': 'float'},
 
     # [antivirus]
@@ -82,6 +83,7 @@ removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
 clamav_pass_by_reference = False
 storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 clamav_client_timeout = 600
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
@@ -204,6 +206,7 @@ TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
 CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
