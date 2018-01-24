@@ -446,3 +446,10 @@ def index_backlogged_transfer_contents(transfer_uuid, file_set):
     response = _storage_api_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
         raise BadRequest("Unable to add files to transfer: {}".format(response.text))
+
+
+def reindex_file(transfer_uuid):
+    url = _storage_service_url() + 'file/' + transfer_uuid + '/reindex/'
+    response = _storage_api_session().post(url)
+    response.raise_for_status()
+    return response.json()
