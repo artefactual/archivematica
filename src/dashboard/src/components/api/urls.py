@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^ingest/copy_metadata_files/$', views.copy_metadata_files_api),
 
     url(r'administration/dips/atom/levels/$', views.get_levels_of_description),
-    url(r'administration/dips/atom/fetch_levels/$', views.fetch_levels_of_description_from_atom),
+    url(r'administration/dips/atom/fetch_levels/$', views.fetch_levels_of_description_from_atom, name='fetch_atom_lods'),
     url(r'filesystem/metadata/$', views.path_metadata),
     url(r'processing-configuration/(?P<name>\w{1,16})', views.processing_configuration),
 ]

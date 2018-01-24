@@ -21,10 +21,8 @@
 
     <div class="col-md-10">
 
-      {% url 'components.api.views.fetch_levels_of_description_from_atom' as url_fetch_atom_levels_of_description %}
-
       <div style="float: right">
-        <a onClick="fetchAtomLevelsOfDescription('{{ url_fetch_atom_levels_of_description }}')" class="btn btn-default">{% trans "Fetch from AtoM" %}</a>
+        <a onClick="fetchAtomLevelsOfDescription('{% url 'fetch_atom_lods' %}')" class="btn btn-default">{% trans "Fetch from AtoM" %}</a>
       </div>
 
       <h3>{% trans "AtoM Levels of Description" %}</h3>
@@ -45,7 +43,7 @@
                 <td>
                   <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/delete.png' %}" alt="{% trans 'Delete' %}" title="{% trans 'Delete' %}" /></a>
                   <a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_up.png' %}" alt="{% trans 'Promote' %}" title="{% trans 'Promote' %}" {% if level.sortorder == sortorder_min %}style="visibility: hidden"{% endif %}/></a>
-                  {% if level.sortorder != sortorder_max %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_down.png' %} alt="{% trans 'Demote' %}" title="{% trans 'Demote' %}" /></a>{% endif %}
+                  {% if level.sortorder != sortorder_max %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_down.png' %}" alt="{% trans 'Demote' %}" title="{% trans 'Demote' %}" /></a>{% endif %}
                 </td>
                 </tr>
             {% endfor %}
