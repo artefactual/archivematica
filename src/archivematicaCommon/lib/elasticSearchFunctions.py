@@ -197,12 +197,20 @@ def wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10):
 
 
 def create_indexes_if_needed(client):
+    create_aips_index(client)
+    create_transfers_index(client)
+
+
+def create_aips_index(client):
     create_index(client, 'aips')
+    if not aip_mapping_is_correct(client):
+        raise ElasticsearchError('The AIP index mapping is incorrect. The "aips" index should be re-created.')
+
+
+def create_transfers_index(client):
     create_index(client, 'transfers')
     if not transfer_mapping_is_correct(client):
         raise ElasticsearchError('The transfer index mapping is incorrect. The "transfers" index should be re-created.')
-    if not aip_mapping_is_correct(client):
-        raise ElasticsearchError('The AIP index mapping is incorrect. The "aips" index should be re-created.')
 
 
 def search_all_results(client, body, index=None, doc_type=None, **query_params):
