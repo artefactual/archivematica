@@ -602,7 +602,6 @@ def copy_metadata_files_api(request):
 # TODO should this have auth?
 
 
-@_api_endpoint(expected_methods=['GET'])
 def get_levels_of_description(request):
     """
     Returns a JSON-encoded set of the configured levels of description.
@@ -617,7 +616,6 @@ def get_levels_of_description(request):
 # TODO should this have auth?
 
 
-@_api_endpoint(expected_methods=['GET'])
 def fetch_levels_of_description_from_atom(request):
     """
     Fetch all levels of description from an AtoM database, removing
