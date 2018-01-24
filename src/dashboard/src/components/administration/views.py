@@ -36,6 +36,7 @@ from components.administration.forms import AgentForm, HandleForm, StorageSettin
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers
+from installer.steps import setup_pipeline_in_ss
 import storageService as storage_service
 
 from version import get_full_version
@@ -445,8 +446,15 @@ def _intial_settings_data():
 
 def general(request):
     initial_data = _intial_settings_data()
-    storage_form = StorageSettingsForm(request.POST or None, prefix='storage', initial=initial_data)
-    checksum_form = ChecksumSettingsForm(request.POST or None, prefix='checksum algorithm', initial=initial_data)
+    initial_data['storage_service_use_default_config'] = {
+        'False': False}.get(
+            initial_data.get('storage_service_use_default_config', True),
+            True)
+    storage_form = StorageSettingsForm(request.POST or None,
+                                       prefix='storage', initial=initial_data)
+    checksum_form = ChecksumSettingsForm(request.POST or None,
+                                         prefix='checksum algorithm',
+                                         initial=initial_data)
 
     if storage_form.is_valid() and checksum_form.is_valid():
         storage_form.save()
@@ -454,13 +462,42 @@ def general(request):
         messages.info(request, _('Saved.'))
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
+
+    not_created_yet = False
     try:
         pipeline = storage_service._get_pipeline(dashboard_uuid)
-    except Exception:
-        messages.warning(request, _("Storage server inaccessible. Please contact an administrator or update storage service URL below."))
-    else:
-        if not pipeline:
-            messages.warning(request, _("This pipeline is not registered with the storage service or has been disabled in the storage service. Please contact an administrator."))
+    except Exception as err:
+        if err.response is not None and err.response.status_code == 404:
+            # The server has returned a 404, we're going to assume that this is
+            # the Storage Service telling us that the pipeline is unknown.
+            not_created_yet = True
+        else:
+            messages.warning(request, _('Storage Service inaccessible. Please'
+                                        ' contact an administrator or update'
+                                        ' the Storage Sevice URL below.'
+                                        '<hr />%(error)s' % {'error': err}))
+
+    if not_created_yet:
+        if storage_form.is_valid():
+            try:
+                setup_pipeline_in_ss(
+                    storage_form.cleaned_data[
+                        'storage_service_use_default_config'])
+            except Exception as err:
+                messages.warning(request, _('Storage Service failed to create the'
+                                            ' pipeline. This can happen if'
+                                            ' the pipeline exists but it is'
+                                            ' disabled. Please contact an'
+                                            ' administrator.'
+                                            '<hr />%(error)s'
+                                            % {'error': err}))
+        else:
+            messages.warning(request, _('Storage Service returned a 404 error.'
+                                        ' Has the pipeline been disabled or is'
+                                        ' it not registered yet? Submitting'
+                                        ' form will attempt to register the'
+                                        ' pipeline.'))
+
     return render(request, 'administration/general.html', locals())
 
 
