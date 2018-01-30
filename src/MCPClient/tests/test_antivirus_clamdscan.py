@@ -20,10 +20,10 @@ import archivematicaClamscan
 def setup_clamdscanner(settings,
                        addr="/var/run/clamav/clamd.ctl",
                        timeout=10,
-                       stream=True):
+                       stream=False):
     settings.CLAMAV_SERVER = addr
     settings.CLAMAV_CLIENT_TIMEOUT = timeout
-    settings.CLAMAV_PASS_BY_REFERENCE = not stream
+    settings.CLAMAV_PASS_BY_STREAM = stream
 
     return archivematicaClamscan.ClamdScanner()
 
@@ -74,9 +74,9 @@ def test_clamdscanner_scan(mocker, settings):
         of True to pass a generic exception. excepts can also take an exception
         as an argument for better granularity.
         """
-        deps = namedtuple('deps', ['pass_by_value', 'pass_by_reference'])(
-            pass_by_value=mocker.patch.object(
-                scanner, 'pass_by_value',
+        deps = namedtuple('deps', ['pass_by_stream', 'pass_by_reference'])(
+            pass_by_stream=mocker.patch.object(
+                scanner, 'pass_by_stream',
                 return_value={'stream': ret}),
             pass_by_reference=mocker.patch.object(
                 scanner, 'pass_by_reference',
@@ -86,18 +86,9 @@ def test_clamdscanner_scan(mocker, settings):
             e = excepts
             if excepts is True:
                 e = Exception("Testing an unmanaged exception.")
-            deps.pass_by_value.side_effect = e
+            deps.pass_by_stream.side_effect = e
             deps.pass_by_reference.side_effect = e
         return deps
-
-    scanner = setup_clamdscanner(settings, stream=True)
-    deps = patch(scanner, ret=OKAY_RET)
-    passed, state, details = scanner.scan('/file')
-    assert passed is True
-    assert state == 'OK'
-    assert details is None
-    deps.pass_by_value.assert_called_once()
-    deps.pass_by_reference.assert_not_called()
 
     scanner = setup_clamdscanner(settings, stream=False)
     deps = patch(scanner, ret=OKAY_RET)
@@ -105,8 +96,17 @@ def test_clamdscanner_scan(mocker, settings):
     assert passed is True
     assert state == 'OK'
     assert details is None
-    deps.pass_by_value.assert_not_called()
+    deps.pass_by_stream.assert_not_called()
     deps.pass_by_reference.assert_called_once()
+
+    scanner = setup_clamdscanner(settings, stream=True)
+    deps = patch(scanner, ret=OKAY_RET)
+    passed, state, details = scanner.scan('/file')
+    assert passed is True
+    assert state == 'OK'
+    assert details is None
+    deps.pass_by_stream.assert_called_once()
+    deps.pass_by_reference.assert_not_called()
 
     patch(scanner, ret=ERROR_RET)
     passed, state, details = scanner.scan('/file')
