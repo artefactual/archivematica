@@ -47,7 +47,7 @@ CONFIG_MAPPING = {
 
     # [antivirus]
     'clamav_server': {'section': 'MCPClient', 'option': 'clamav_server', 'type': 'string'},
-    'clamav_pass_by_reference': {'section': 'MCPClient', 'option': 'clamav_pass_by_reference', 'type': 'boolean'},
+    'clamav_pass_by_stream': {'section': 'MCPClient', 'option': 'clamav_pass_by_stream', 'type': 'boolean'},
     'clamav_client_timeout': {'section': 'MCPClient', 'option': 'clamav_client_timeout', 'type': 'float'},
     'clamav_client_backend': {'section': 'MCPClient', 'option': 'clamav_client_backend', 'type': 'string'},
 
@@ -81,7 +81,7 @@ disableElasticsearchIndexing = False
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
-clamav_pass_by_reference = False
+clamav_pass_by_stream = True
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
 clamav_client_timeout = 86400
@@ -200,7 +200,7 @@ TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 CLAMAV_SERVER = config.get('clamav_server')
-CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
+CLAMAV_PASS_BY_STREAM = config.get('clamav_pass_by_stream')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
 CLAMAV_CLIENT_BACKEND = config.get('clamav_client_backend')
 CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')

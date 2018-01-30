@@ -151,11 +151,11 @@ This is the full list of environment strings supported:
     - **Type:** `string`
     - **Default:** `/var/run/clamav/clamd.ctl`
 
-- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_PASS_BY_REFERENCE`**:
-    - **Description:** configures the `clamdscanner` backend to pass files to clamd by reference. When disabled, the files are streamed which is useful when clamd does not have access to the filesystem where the file is stored.
-    - **Config file example:** `MCPClient.clamav_pass_by_reference`
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_PASS_BY_STREAM`**:
+    - **Description:** configures the `clamdscanner` backend to stream the file's contents to clamd. This is useful when clamd does not have access to the filesystem where the file is stored. When disabled, the files are read from the filesystem by reference.
+    - **Config file example:** `MCPClient.clamav_pass_by_stream`
     - **Type:** `boolean`
-    - **Default:** `false`
+    - **Default:** `true`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_TIMEOUT`**:
     - **Description:** configures the `clamdscanner` backend to stop waiting for a response after a given number of seconds.
@@ -170,16 +170,16 @@ This is the full list of environment strings supported:
     - **Default:** `clamdscanner`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_FILE_SIZE`**:
-    - **Description:** files larger than this limit won't be scanned. The unit used is megabyte (MB).
+    - **Description:** files larger than this limit will not be scanned. The unit used is megabyte (MB).
     - **Config file example:** `MCPClient.clamav_client_max_file_size`
     - **Type:** `float`
-    - **Default:** `42`
+    - **Default:** `2000`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_SCAN_SIZE`**:
     - **Description**: sets the maximum amount of data to be scanned for each input file. Files larger than this value will be scanned but only up to this limit. Archives and other containers are recursively extracted and scanned up to this value. The unit used is megabyte (MB).
     - **Config file example:** `MCPClient.clamav_client_max_scan_size`
     - **Type:** `float`
-    - **Default:** `42`
+    - **Default:** `2000`
 
 - **`ARCHIVEMATICA_MCPCLIENT_CLIENT_ENGINE`**
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.
