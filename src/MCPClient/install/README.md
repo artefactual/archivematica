@@ -115,9 +115,9 @@ This is the full list of environment strings supported:
     - **Type:** `float`
     - **Default:** `10`
 
-- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_DISABLEELASTICSEARCHINDEXING`**:
-    - **Description:** disables search indexing.
-    - **Config file example:** `MCPClient.disableElasticsearchIndexing`
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SEARCH_ENABLED`**:
+    - **Description:** controls whether Elasticsearch is enabled. When set to `false`, certain client scripts will exit without doing anything, e.g., indexAIP_v0.0, elasticSearchIndex_v0.0, postStoreAIPHook_v1.0, and removeAIPFilesFromIndex_v0.0.
+    - **Config file example:** `MCPClient.search_enabled`
     - **Type:** `boolean`
     - **Default:** `false`
 
@@ -216,6 +216,7 @@ This is the full list of environment strings supported:
     - **Config file example:** `client.port`
     - **Type:** `string`
     - **Default:** `3306`
+
 
 ## Logging configuration
 
