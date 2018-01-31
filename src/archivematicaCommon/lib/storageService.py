@@ -6,6 +6,7 @@ import platform
 import requests
 from requests.auth import AuthBase
 import urllib
+import time
 
 from django.conf import settings as django_settings
 
@@ -184,6 +185,34 @@ def browse_location(uuid, path):
     return browse
 
 
+def wait_for_async(response, poll_seconds=2):
+    """
+    Poll for results on an async endpoint.  `response` should have a HTTP 202
+    (Accepted) status code, and is expected to contain a Location header telling
+    us where to get our results from.
+
+    Returns a tuple like (<result>, <error>), where <error> will be None if
+    everything went well.
+    """
+    response.raise_for_status()
+
+    poll_url = response.headers['Location']
+
+    while True:
+        poll_response = _storage_api_session().get(poll_url)
+        poll_response.raise_for_status()
+
+        response_json = poll_response.json()
+        if response_json['completed']:
+            if response_json['was_error']:
+                LOGGER.warning("Failure storing file: %s", response_json['error'])
+                return (None, Exception(response_json['error']))
+            else:
+                return (response_json['result'], None)
+
+        time.sleep(poll_seconds)
+
+
 def copy_files(source_location, destination_location, files):
     """
     Copies `files` from `source_location` to `destination_location` using SS.
@@ -215,16 +244,13 @@ def copy_files(source_location, destination_location, files):
             except UnicodeError:
                 pass
 
-    url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
+    url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/async/'
     try:
         response = _storage_api_session().post(url, json=move_files)
-        response.raise_for_status()
+        return wait_for_async(response)
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
         return (None, e)
-    ret = response.json()
-    return (ret, None)
-
 
 def get_files_from_backlog(files):
     """
@@ -282,18 +308,14 @@ def create_file(uuid, origin_location, origin_path, current_location,
             new_file['reingest'] = pipeline['uuid']
             url = _storage_service_url() + 'file/' + uuid + '/'
             response = session.put(url, json=new_file)
+            return (response.json(), None)
         else:
-            url = _storage_service_url() + 'file/'
-            response = session.post(url, json=new_file)
+            url = _storage_service_url() + 'file/async/'
+            response = session.post(url, json=new_file, allow_redirects=False)
+            return wait_for_async(response)
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to create file from %s because %s", new_file, e)
         return (None, e)
-    # TODO: if the SS returns a 500 error, then the dashboard will not signal
-    # to the user that AIP storage has failed! This is not good.
-    LOGGER.info('Status code of create file/package request: %s',
-                response.status_code)
-    file_ = response.json()
-    return (file_, None)
 
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
