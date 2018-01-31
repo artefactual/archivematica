@@ -34,8 +34,8 @@ CONFIG_MAPPING = {
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
     'search_enabled': [
-        {'section': 'Dashboard', 'option': 'disable_search_indexing', 'type': 'boolean'},
-        {'section': 'Dashboard', 'option': 'search_enabled', 'type': 'iboolean'},
+        {'section': 'Dashboard', 'option': 'disable_search_indexing', 'type': 'iboolean'},
+        {'section': 'Dashboard', 'option': 'search_enabled', 'type': 'boolean'},
     ],
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},

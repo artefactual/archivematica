@@ -36,8 +36,8 @@ CONFIG_MAPPING = {
     'watch_directory_interval': {'section': 'MCPServer', 'option': 'watchDirectoriesPollInterval', 'type': 'int'},
     'secret_key': {'section': 'MCPServer', 'option': 'django_secret_key', 'type': 'string'},
     'search_enabled': [
-        {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'boolean'},
-        {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'iboolean'},
+        {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
+        {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
     ],
 
     # [Protocol]

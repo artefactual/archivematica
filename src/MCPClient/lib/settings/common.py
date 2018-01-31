@@ -39,8 +39,8 @@ CONFIG_MAPPING = {
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
     'search_enabled': [
-        {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
-        {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'iboolean'},
+        {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'iboolean'},
+        {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
     ],
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
