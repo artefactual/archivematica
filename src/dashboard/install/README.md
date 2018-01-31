@@ -83,7 +83,7 @@ location for this file is `/etc/nginx/sites-available/dashboard.conf`.
 
 - [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) - upstart
    config sample, for use on Ubuntu 14.04 where systemd is not available. The
-   default location for this file is /etc/init/archivematica-dashboard.conf
+   default location for this file is /etc/init/archivematica-dashboard.conf.
 
 These are fairly basic example files, that can be extended or customised to 
 meet local needs.  Depending on the method used to install your Archivematica
