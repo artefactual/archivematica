@@ -25,10 +25,7 @@
 
 {% block content %}
 
-  {% if disable_search_indexing %}
-    <h1>{% trans "Elasticsearch Indexing Disabled" %}</h1>
-    <p class="es-indexing-disabled">{% trans "Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The archival storage tab is non-functional when indexing is turned off." %}</p>
-  {% else %}
+  {% if search_enabled %}
 
     <ul class="breadcrumb">
       {% trans "Archival storage" as archival_storage_label %}
@@ -129,6 +126,11 @@
       </div>
 
     {% endif %}
+
+  {% else %}
+
+    <h1>{% trans "Elasticsearch Indexing Disabled" %}</h1>
+    <p class="es-indexing-disabled">{% trans "Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The archival storage tab is non-functional when indexing is turned off." %}</p>
 
   {% endif %}
 

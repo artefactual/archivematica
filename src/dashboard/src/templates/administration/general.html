@@ -44,10 +44,10 @@
 
         <h4>{% trans "Elasticsearch Indexing" %}</h4>
 
-        {% if disable_search_indexing %}
-          <p class="es-indexing-configuration">{% trans "Elasticsearch indexing has been disabled in this Archivematica installation" %}</p>
-        {% else %}
+        {% if search_enabled %}
           <p class="es-indexing-configuration">{% trans "Elasticsearch indexing is enabled in this Archivematica installation" %}</p>
+        {% else %}
+          <p class="es-indexing-configuration">{% trans "Elasticsearch indexing has been disabled in this Archivematica installation" %}</p>
         {% endif %}
 
         <div>
