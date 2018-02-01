@@ -22,12 +22,12 @@
 {% endblock %}
 
 {% block content %}
-  {% if disable_search_indexing %}
-    <h1>{% trans "Elasticsearch Indexing Disabled" %}</h1>
-    <p class="es-indexing-disabled">{% trans "Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The backlog tab is non-functional when indexing is turned off." %}</p>
-  {% else %}
+  {% if search_enabled %}
     {% include "ingest/backlog/_search_form.html" with show_files=True %}
     <table id="backlog-entries">
     </table>
+  {% else %}
+    <h1>{% trans "Elasticsearch Indexing Disabled" %}</h1>
+    <p class="es-indexing-disabled">{% trans "Sorry, Elasticsearch indexing has been disabled in this Archivematica installation. The backlog tab is non-functional when indexing is turned off." %}</p>
   {% endif %}
 {% endblock %}
