@@ -65,12 +65,14 @@ def data_migration_atom_restore_std(apps, schema_editor):
 
     MicroServiceChainLink = apps.get_model('main', 'MicroServiceChainLink')
     MicroServiceChain = apps.get_model('main', 'MicroServiceChain')
+    MicroServiceChainLinkExitCode = apps.get_model('main', 'MicroServiceChainLinkExitCode')
     TaskConfig = apps.get_model('main', 'TaskConfig')
 
-    # New UUIDs for a new MSCL and its TaskConfig
+    # New UUIDs for a new MSCL, its TaskConfig, and its exit code
     uuids = (
         '7f975ba6-2185-434c-b507-2911f3c77213',
         'a987e8d6-e633-4551-a082-2334a300fa72',
+        'c9e90d83-533f-44c3-8220-083a6eb91751',
     )
 
     # Create new MSCL
@@ -84,6 +86,13 @@ def data_migration_atom_restore_std(apps, schema_editor):
             tasktypepkreference='',
             description='Choose config for AtoM DIP upload',
             tasktype_id='9c84b047-9a6d-463f-9836-eafa49743b84')  # linkTaskManagerReplacementDicFromChoice
+    )
+
+    # Create new exit code
+    MicroServiceChainLinkExitCode.objects.create(
+        id=uuids[2],
+        microservicechainlink=new_mscl,
+        nextmicroservicechainlink_id='651236d2-d77f-4ca7-bfe9-6332e96608ff',
     )
 
     # Update MSC

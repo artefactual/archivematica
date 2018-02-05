@@ -10,6 +10,8 @@ RUN set -ex \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
 		libmysqlclient-dev \
+		libldap2-dev \
+		libsasl2-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/

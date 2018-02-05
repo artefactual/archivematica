@@ -32,7 +32,7 @@ import uuid
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db.models import Max
+from django.db import connection
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -90,8 +90,20 @@ class SipsView(View):
 
 
 def ingest_status(request, uuid=None):
-    # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
+    """Returns the status of the SIPs in ingest as a JSON object with an
+    ``objects`` attribute that is an array of objects, each of which represents
+    a single SIP. Each SIP object has a ``jobs`` attribute whose value is an
+    array of objects, each of which represents a Job of the SIP.
+    """
+    sql = """
+        SELECT SIPUUID,
+                MAX(UNIX_TIMESTAMP(createdTime) + createdTimeDec) AS timestamp
+            FROM Jobs
+            WHERE unitType='unitSIP' AND NOT SIPUUID LIKE '%%None%%'
+            GROUP BY SIPUUID;"""
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        sipuuids_and_timestamps = cursor.fetchall()
     mcp_available = False
     try:
         client = MCPClient()
@@ -99,52 +111,49 @@ def ingest_status(request, uuid=None):
         mcp_available = True
     except Exception:
         pass
-
-    def encoder(obj):
-        items = []
-        for item in obj:
-            # Check if hidden (TODO: this method is slow)
-            if models.SIP.objects.is_hidden(item['sipuuid']):
-                continue
-            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
-            item['directory'] = utils.get_directory_name_from_job(jobs)
-            item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
-            item['uuid'] = item['sipuuid']
-            item['id'] = item['sipuuid']
-            del item['sipuuid']
-            item['jobs'] = []
-            for job in jobs:
-                newJob = {}
-                item['jobs'].append(newJob)
-
-                newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype
-                newJob['microservicegroup'] = job.microservicegroup
-                newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep
-                newJob['currentstep_label'] = job.get_currentstep_display()
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try:
-                    mcp_status
-                except NameError:
-                    pass
-                else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
-                    if xml_unit:
-                        xml_unit_choices = xml_unit[0].findall('choices/choice')
-                        choices = {}
-                        for choice in xml_unit_choices:
-                            choices[choice.find("chainAvailable").text] = choice.find("description").text
-                        newJob['choices'] = choices
-            items.append(item)
-        return items
-
+    objects = []
+    for sipuuid, timestamp in sipuuids_and_timestamps:
+        timestamp = float(timestamp)
+        item = {'sipuuid': sipuuid, 'timestamp': timestamp}
+        # Check if hidden (TODO: this method is slow)
+        if models.SIP.objects.is_hidden(sipuuid):
+            continue
+        jobs = models.Job.objects\
+            .filter(sipuuid=item['sipuuid'], subjobof='')\
+            .order_by('-createdtime', 'subjobof')
+        item['directory'] = utils.get_directory_name_from_job(jobs)
+        item['uuid'] = item['sipuuid']
+        item['id'] = item['sipuuid']
+        del item['sipuuid']
+        item['jobs'] = []
+        for job in jobs:
+            newJob = {}
+            item['jobs'].append(newJob)
+            newJob['uuid'] = job.jobuuid
+            newJob['type'] = job.jobtype
+            newJob['microservicegroup'] = job.microservicegroup
+            newJob['subjobof'] = job.subjobof
+            newJob['currentstep'] = job.currentstep
+            newJob['currentstep_label'] = job.get_currentstep_display()
+            newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
+            try:
+                mcp_status
+            except NameError:
+                pass
+            else:
+                xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
+                if xml_unit:
+                    xml_unit_choices = xml_unit[0].findall('choices/choice')
+                    choices = {}
+                    for choice in xml_unit_choices:
+                        choices[choice.find("chainAvailable").text] = choice.find("description").text
+                    newJob['choices'] = choices
+        objects.append(item)
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-
     return HttpResponse(
-        json.JSONEncoder(default=encoder).encode(response),
+        json.dumps(response),
         content_type='application/json'
     )
 
@@ -348,6 +357,48 @@ def ingest_upload(request, uuid):
     return HttpResponseBadRequest()
 
 
+def derivative_validation_report(obj):
+    """Return a 4-tuple indicating whether
+    i.   preservation derivative validation was attempted,
+    ii.  preservation derivative validation failed,
+    iii. access derivative validation was attempted,
+    iv.  access derivative validation failed,
+    ::param dict obj:: encodes information about a specific file and any
+        normalization and derivative validation events performed on it.
+    """
+    file_id = obj['fileID']
+    preservation_failed, preservation_attempted = \
+        derivative_validation_report_by_purpose(
+            obj['preservation_derivative_validation_task_exitCode'],
+            file_id)
+    access_failed, access_attempted = \
+        derivative_validation_report_by_purpose(
+            obj['access_derivative_validation_task_exitCode'],
+            file_id)
+    return (preservation_attempted,
+            preservation_failed,
+            access_attempted,
+            access_failed)
+
+
+def derivative_validation_report_by_purpose(exit_code, file_id):
+    """Return a 2-tuple indicating whether derivative validation failed and was
+    attempted, respectively.
+    """
+    if file_id:
+        if exit_code == 0:
+            return 0, 1
+        elif exit_code == 1:
+            return 1, 1
+        elif exit_code in (2, None):
+            return 0, 0
+        else:
+            raise ValueError('Derivative validation client script returned an'
+                             ' exit code not in 0, 1, 2: %s' % exit_code)
+    else:
+        return 0, 0
+
+
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     sipname = utils.get_directory_name_from_job(jobs)
@@ -355,6 +406,10 @@ def ingest_normalization_report(request, uuid, current_page=None):
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
         o['location'] = archivematicaFunctions.escape(o['location'])
+        (o['preservation_derivative_validation_attempted'],
+         o['preservation_derivative_validation_failed'],
+         o['access_derivative_validation_attempted'],
+         o['access_derivative_validation_failed']) = derivative_validation_report(o)
 
     results_per_page = 10
 
@@ -497,6 +552,10 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         'bulk_extractor_reports': record['bulk_extractor_reports'],
         'not_draggable': dir_not_draggable
     }
+
+    if record['modification_date']:
+        child['last_modified'] = record['modification_date']
+
     if record['format']:
         format = record['format'][0]  # TODO handle multiple format identifications
         child['format'] = format['format']

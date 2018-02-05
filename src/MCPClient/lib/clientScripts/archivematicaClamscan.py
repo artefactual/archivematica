@@ -32,7 +32,7 @@ import django
 from django.conf import settings as mcpclient_settings
 
 from archivematicaFunctions import cmd_line_arg_to_unicode
-from clamd import ClamdUnixSocket, ClamdNetworkSocket
+from clamd import ClamdUnixSocket, ClamdNetworkSocket, BufferTooLongError, ConnectionError
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
 from main.models import Event, File
@@ -115,18 +115,39 @@ class ClamdScanner(ScannerBase):
         try:
             result = getattr(self, method_name)(path)
             state, details = result[result_key]
-        except IOError as err:
+        except Exception as err:
+            passed = ClamdScanner.clamd_exception_handler(err)
+        finally:
+            if state == 'OK':
+                passed = True
+            return passed, state, details
+
+    @staticmethod
+    def clamd_exception_handler(err):
+        """ Manage each decision for an exception when it is raised. Ensure
+        that each decision can be tested to meet the documented Archivematica
+        antivirus feature definition.
+        """
+        if isinstance(err, IOError):
             if err.errno == errno.EPIPE:
                 logger.error(
                     '[Errno 32] Broken pipe. File not scanned. Check Clamd '
                     'StreamMaxLength')
-                return None, state, details
-        except Exception as err:
-            logger.error('Virus scanning failed: %s', err, exc_info=True)
-        else:
-            if state == 'OK':
-                passed = True
-        return passed, state, details
+                return None
+        elif isinstance(err, BufferTooLongError):
+            logger.error(
+                'Clamd BufferTooLongError. File not scanned. Check Clamd '
+                'StreamMaxLength')
+            return None
+        elif isinstance(err, ConnectionError):
+            logger.error(
+                'Clamd ConnectionError. File not scanned. Check Clamd '
+                'output: %s', err)
+            return None
+        # Return False and provide some information to the user for all other
+        # failures.
+        logger.error('Virus scanning failed: %s', err, exc_info=True)
+        return False
 
     def version_attrs(self):
         try:
@@ -248,8 +269,8 @@ def get_scanner():
     """ Return the ClamAV client configured by the user and found in the
     installation's environment variables. Clamdscanner may perform quicker
     than Clamscanner given a larger number of objects. Return clamdscanner
-    object as a default if no other, or an incorrect value is specified. """
-
+    object as a default if no other, or an incorrect value is specified.
+    """
     choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
     if choice not in SCANNERS_NAMES:
         logger.warning('Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):'

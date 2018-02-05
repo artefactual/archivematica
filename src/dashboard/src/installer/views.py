@@ -41,7 +41,7 @@ def welcome(request):
         # save organization PREMIS agent if supplied
         setup_pipeline(
             org_name=request.POST.get('org_name', ''),
-            org_identifie=request.POST.get('org_identifier', '')
+            org_identifier=request.POST.get('org_identifier', '')
         )
 
         if set_up_user:

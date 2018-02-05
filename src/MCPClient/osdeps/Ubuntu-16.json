@@ -7,20 +7,13 @@
     { "id": "0x5236CA08",
       "url": "https://packages.archivematica.org/GPG-KEY-archivematica",
       "validate_certs": "no"
-    },
-    { "id": "0xF06FC659",
-      "url": "http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x8CF63AD3F06FC659",
-      "validate_certs": "no"
     }
-
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main",
+    "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals xenial main",
     "deb http://archive.ubuntu.com/ubuntu/ xenial multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ xenial-security universe",
-    "deb http://archive.ubuntu.com/ubuntu/ xenial-updates multiverse",
-    "deb http://ppa.launchpad.net/jonathonf/ffmpeg-3/ubuntu xenial main"
-
+    "deb http://archive.ubuntu.com/ubuntu/ xenial-updates multiverse"
   ],
   "osdeps_packages": [
   { "name": "atool", "state": "latest"},
@@ -37,6 +30,8 @@
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
+  { "name": "nailgun", "state": "latest"},
+  { "name": "nailgun-client", "state": "latest"},
   { "name": "nfs-common", "state": "latest"},
   { "name": "openjdk-8-jre-headless", "state": "latest"},
   { "name": "p7zip-full", "state": "latest"},
@@ -47,10 +42,14 @@
   { "name": "siegfried", "state": "latest"},
   { "name": "sleuthkit", "state": "latest"},
   { "name": "tesseract-ocr", "state": "latest"},
-  { "name": "tika", "state": "latest"},
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
   { "name": "uuid", "state": "latest"}
+  ],
+  "osdeps_debfiles": [
+  "https://mediaarea.net/download/binary/libzen0/0.4.35/libzen0v5_0.4.35-1_amd64.xUbuntu_16.04.deb",
+  "https://mediaarea.net/download/binary/libmediainfo0/0.7.97/libmediainfo0v5_0.7.97-1_amd64.xUbuntu_16.04.deb",
+  "https://mediaarea.net/download/binary/mediaconch/16.12/mediaconch_16.12-1_amd64.xUbuntu_16.04.deb"
   ]
 }

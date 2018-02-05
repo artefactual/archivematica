@@ -77,9 +77,27 @@ def _api_endpoint(expected_methods):
     return decorator
 
 
+def allowed_by_whitelist(ip_address):
+    whitelist = [
+        ip.strip()
+        for ip in helpers.get_setting('api_whitelist', '').split()
+    ]
+
+    # If there's no whitelist, allow all through
+    if not whitelist:
+        return True
+
+    LOGGER.debug('looking for ip %s in whitelist %s', ip_address, whitelist)
+    # There is a whitelist - check the IP address against it
+    if ip_address in whitelist:
+        LOGGER.debug('API called by trusted IP %s', ip_address)
+        return True
+
+    return False
+
+
 def authenticate_request(request):
     error = None
-
     client_ip = request.META['REMOTE_ADDR']
     whitelist = helpers.get_setting('api_whitelist', '').split()
     if client_ip in whitelist:
@@ -93,6 +111,9 @@ def authenticate_request(request):
     # Check explicitly for True, not just truthiness
     if authorized is not True:
         error = 'API key not valid.'
+
+    elif not allowed_by_whitelist(client_ip):
+        error = 'Host/IP ' + client_ip + ' not authorized.'
 
     return error
 

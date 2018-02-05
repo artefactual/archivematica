@@ -333,10 +333,26 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
     return destination
 
 
+def _source_transfers_gave_uuids_to_directories(files):
+    """Returns ``True`` if any of the ``Transfer`` models (that any of the
+    ``File`` models referenced in ``files`` were accessioned by) gave UUIDs to
+    directories. If ``True`` is returned, we assign new UUIDs to all
+    directories in the arranged SIP.
+    """
+    file_uuids = filter(None, [file_.get('uuid') for file_ in files])
+    return models.Transfer.objects.filter(
+        file__uuid__in=file_uuids, diruuids=True).exists()
+
+
 def create_arranged_sip(staging_sip_path, files, sip_uuid):
     shared_dir = django_settings.SHARED_DIRECTORY
     staging_sip_path = staging_sip_path.lstrip('/')
     staging_abs_path = os.path.join(shared_dir, staging_sip_path)
+
+    # If an arranged SIP contains a single file that comes from a
+    # transfer wherein UUIDs were assigned to directories, then assign new
+    # UUIDs to all directories in the arranged SIP.
+    diruuids = _source_transfers_gave_uuids_to_directories(files)  # boolean
 
     # Create SIP object
     sip_name = staging_sip_path.split('/')[1]
@@ -347,21 +363,42 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
         sip = models.SIP.objects.get(uuid=sip_uuid)
     except models.SIP.DoesNotExist:
         # Create a SIP object if none exists
-        databaseFunctions.createSIP(currentpath, sip_uuid)
+        databaseFunctions.createSIP(currentpath, sip_uuid, diruuids=diruuids)
+        sip = models.SIP.objects.get(uuid=sip_uuid)
     else:
         # Update the already-created SIP with its path
         if sip.currentpath is not None:
             return _('Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!') % {'uuid': sip_uuid}
         sip.currentpath = currentpath
+        sip.diruuids = diruuids
         sip.save()
 
     # Update currentLocation of files
+    # Also get all directory paths implicit in all of the file paths
+    directories = set()
     for file_ in files:
         if file_.get('uuid'):
             # Strip 'arrange/sip_name' from file path
             in_sip_path = '/'.join(file_['destination'].split('/')[2:])
             currentlocation = '%SIPDirectory%' + in_sip_path
-            models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
+            models.File.objects.filter(uuid=file_['uuid']).update(
+                sip=sip_uuid, currentlocation=currentlocation)
+            # Get all ancestor directory paths of the file's destination.
+            subdir = os.path.dirname(currentlocation)
+            while subdir:
+                directory = subdir.replace('%SIPDirectory%', '%SIPDirectory%objects/')
+                directories.add(directory)
+                subdir = os.path.dirname(subdir)
+
+    if diruuids:
+        # Create new Directory models for all subdirectories in the newly
+        # arranged SIP. Because the user can arbitrarily modify the directory
+        # structure, it doesn't make sense to reuse any directory models that
+        # were created during transfer.
+        models.Directory.create_many(
+            archivematicaFunctions.get_dir_uuids(directories, logger),
+            sip,
+            unit_type='sip')
 
     # Create directories for logs and metadata, if they don't exist
     for directory in ('logs', 'metadata', os.path.join('metadata', 'submissionDocumentation')):
@@ -434,15 +471,18 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
         staging_sip_path = os.path.join('staging', sip_name, '')
         logger.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
-        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath)
+        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(
+            arrange_path__startswith=filepath)
         arrange_files = arrange.filter(original_path__isnull=False)
 
-        # Collect file information.  Change path to be in staging, not arrange
+        # Collect file and directory information. Change path to be in staging, not arrange
         files = []
         for arranged_file in arrange_files:
+            destination = arranged_file.arrange_path.replace(
+                filepath, staging_sip_path, 1)
             files.append({
                 'source': arranged_file.original_path.lstrip('/'),
-                'destination': arranged_file.arrange_path.replace(filepath, staging_sip_path, 1),
+                'destination': destination,
                 'uuid': arranged_file.file_uuid,
             })
             # Get transfer folder name

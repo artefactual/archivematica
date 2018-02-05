@@ -35,8 +35,8 @@ from utils import log_exceptions
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
-from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
+from databaseFunctions import auto_close_db
 
 from main.models import MicroServiceChainChoice, UserProfile, Job
 from django.conf import settings as django_settings

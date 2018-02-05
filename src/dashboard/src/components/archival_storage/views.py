@@ -129,12 +129,12 @@ def search(request):
             }
             index = 'aips'
             doc_type = 'aip'
-            fields = 'name,uuid,size,created,status,AICID,isPartOf,countAIPsinAIC'
+            fields = 'name,uuid,size,created,status,AICID,isPartOf,countAIPsinAIC,encrypted'
             sort = 'name:desc'
         else:
             index = 'aips'
             doc_type = 'aipfile'
-            fields = 'AIPUUID,filePath,FILEUUID'
+            fields = 'AIPUUID,filePath,FILEUUID,encrypted'
             sort = 'sipName:desc'
 
         # To reduce amount of data fetched from ES, use LazyPagedSequence
@@ -208,6 +208,7 @@ def search_augment_aip_results(raw_results, counts):
             'countAIPsinAIC': _get_es_field(fields, 'countAIPsinAIC', '(unknown)'),
             'type': 'AIC' if 'AIC#' in _get_es_field(fields, 'AICID', '') else 'AIP',
             'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(fields, 'status', 'UPLOADED')],
+            'encrypted': _get_es_field(fields, 'encrypted', False),
             'document_id_no_hyphens': item['_id'].replace('-', '____'),
         }
         size = _get_es_field(fields, 'size')
@@ -230,7 +231,7 @@ def search_augment_file_results(es_client, raw_results):
         # try to find AIP details in database
         try:
             # get AIP data from ElasticSearch
-            aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'], fields='uuid,name,filePath,size,origin,created')
+            aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'], fields='uuid,name,filePath,size,origin,created,encrypted')
 
             # augment result data
             clone['sipname'] = aip['fields']['name'][0]
@@ -489,7 +490,7 @@ def list_display(request):
             index='aips',
             doc_type='aip',
             body=elasticSearchFunctions.MATCH_ALL_QUERY,
-            fields='origin,uuid,filePath,created,name,size',
+            fields='origin,uuid,filePath,created,name,size,encrypted',
             sort=sort_specification,
             size=page_size,
             from_=start,
@@ -554,6 +555,7 @@ def list_display(request):
             aips.append(aip)
 
     total_size = total_size_of_aips(es_client)
+    # Find out which AIPs are encrypted
 
     return render(request, 'archival_storage/list.html',
                   {
@@ -587,7 +589,7 @@ def aip_json(request, document_id_modified):
 def view_aip(request, uuid):
     es_client = elasticSearchFunctions.get_client()
     try:
-        es_aip_doc = elasticSearchFunctions.get_aip_data(es_client, uuid, fields='name,size,created,status,filePath')
+        es_aip_doc = elasticSearchFunctions.get_aip_data(es_client, uuid, fields='name,size,created,status,filePath,encrypted')
     except IndexError:
         raise Http404
 
@@ -642,6 +644,7 @@ def view_aip(request, uuid):
         'name': name,
         'created': _get_es_field(es_aip_doc['fields'], 'created'),
         'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(es_aip_doc['fields'], 'status', 'UPLOADED')],
+        'encrypted': _get_es_field(es_aip_doc['fields'], 'encrypted', False),
         'size': '{0:.2f} MB'.format(_get_es_field(es_aip_doc['fields'], 'size', 0)),
         'location_basename': os.path.basename(_get_es_field(es_aip_doc['fields'], 'filePath')),
         'active_tab': active_tab,

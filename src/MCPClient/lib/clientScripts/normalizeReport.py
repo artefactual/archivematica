@@ -120,7 +120,7 @@ def report(uuid):
         except IndexError:
             logger.info('No normalization failures have been detected in type "%s"', jobtype)
             continue
-        tasks = Task.objects.filter(job=job).exclude(exitcode=0)
+        tasks = Task.objects.filter(job=job).exclude(exitcode__in=[0, 2])
         if not tasks.exists():
             logger.info('No normalization failures have been detected in type "%s"', jobtype)
             continue

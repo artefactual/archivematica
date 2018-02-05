@@ -4,6 +4,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/MCPClient/lib/:/src/archivematicaCommon/lib/:/src/dashboard/src/
+ENV ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ARCHIVEMATICACLIENTMODULES /src/MCPClient/lib/archivematicaClientModules
+ENV ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTASSETSDIRECTORY /src/MCPClient/lib/assets/
+ENV ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/MCPClient/lib/clientScripts/
 
 RUN set -ex \
 	&& apt-get update \
@@ -13,12 +16,14 @@ RUN set -ex \
 		git \
 		python-software-properties \
 		software-properties-common \
+		libldap2-dev \
+		libsasl2-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # OS dependencies
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
-	&& add-apt-repository "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main" \
+	&& add-apt-repository "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals trusty main" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-security universe" \
 	&& add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse" \
@@ -27,7 +32,6 @@ RUN set -ex \
 		atool \
 		bagit \
 		bulk-extractor \
-		clamav \
 		ffmpeg \
 		libavcodec-extra-56 \
 		fits \
@@ -35,6 +39,8 @@ RUN set -ex \
 		inkscape \
 		jhove \
 		libimage-exiftool-perl \
+		libevent-dev \
+		libjansson4 \
 		libxml2-utils \
 		md5deep \
 		mediainfo \
@@ -53,9 +59,6 @@ RUN set -ex \
 		uuid \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Download ClamAV virus signatures
-RUN freshclam --quiet
-
 # Build dependencies
 RUN set -ex \
 	&& curl -s https://bootstrap.pypa.io/get-pip.py | python \
@@ -71,6 +74,18 @@ RUN set -ex \
 		libxslt-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
+# OS dependencies from .deb files
+RUN set -ex \
+	&& curl https://mediaarea.net/download/binary/libzen0/0.4.34/libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb --output libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& curl https://mediaarea.net/download/binary/libmediainfo0/0.7.91/libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb --output libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& curl https://mediaarea.net/download/binary/mediaconch/16.12/mediaconch_16.12-1_amd64.xUbuntu_14.04.deb --output mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
+	&& rm libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& rm libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& rm mediaconch_16.12-1_amd64.xUbuntu_14.04.deb
+
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
 COPY MCPClient/requirements/ /src/MCPClient/requirements/
@@ -83,11 +98,11 @@ COPY dashboard/ /src/dashboard/
 COPY MCPClient/ /src/MCPClient/
 
 # Workaround for https://github.com/artefactual/archivematica-fpr-admin/issues/49
-ADD archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
+COPY archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
 
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
-	&& useradd --uid 333 --gid 333 --system archivematica
+	&& useradd -m --uid 333 --gid 333 --system archivematica
 
 ARG ARCHIVEMATICA_VERSION=UNKNOWN
 ARG AGENT_CODE=UNKNOWN

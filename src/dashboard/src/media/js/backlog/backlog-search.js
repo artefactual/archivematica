@@ -74,9 +74,20 @@ $(document).ready(function()
     var dtable = get_datatable();
 
     function refresh_search_results() {
-      $('#backlog-entries thead').empty();
+
+      // If we have a datatable destroy its layout.
       dtable.fnDestroy();
+
+      // JQuery makes sure that the HTML element itself is emptied. The
+      // datatable library will raise an error if the number of columns it
+      // expects to find differs. This can happen, if like we're doing, when
+      // changing the layout of the tables we want to display.
+      $('#backlog-entries').empty();
+
+      // Return the correct datatable based on whether the user has selected
+      // to see the transfer backlog only, or file list.
       dtable = get_datatable();
+
     }
 
     $('#id_show_files').change(function() {

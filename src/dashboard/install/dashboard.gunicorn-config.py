@@ -13,7 +13,7 @@ group = os.environ.get('AM_GUNICORN_GROUP', 'archivematica')
 bind = os.environ.get('AM_GUNICORN_BIND', '127.0.0.1:8002')
 
 # http://docs.gunicorn.org/en/stable/settings.html#workers
-workers = os.environ.get('AM_GUNICORN_WORKERS', '4')
+workers = os.environ.get('AM_GUNICORN_WORKERS', '1')
 
 # http://docs.gunicorn.org/en/stable/settings.html#worker-class
 worker_class = os.environ.get('AM_GUNICORN_WORKER_CLASS', 'gevent')
@@ -30,31 +30,17 @@ reload_engine = os.environ.get('AM_GUNICORN_RELOAD_ENGINE', 'auto')
 # http://docs.gunicorn.org/en/stable/settings.html#chdir
 chdir = os.environ.get('AM_GUNICORN_CHDIR', '/usr/share/archivematica/dashboard')
 
-# http://docs.gunicorn.org/en/stable/settings.html#raw-env
-envs = (
-    ("DJANGO_SETTINGS_MODULE", "settings.common"),
-)
-raw_env = []
-for e in envs:
-    if e[0] in os.environ:
-        continue
-    raw_env.append('='.join(e))
-
-
 # http://docs.gunicorn.org/en/stable/settings.html#accesslog
-accesslog = os.environ.get('AM_GUNICORN_ACCESSLOG', '/var/log/archivematica/dashboard/gunicorn.access_log')
+accesslog = os.environ.get('AM_GUNICORN_ACCESSLOG', '/dev/null')
 
 # http://docs.gunicorn.org/en/stable/settings.html#errorlog
-errorlog = os.environ.get('AM_GUNICORN_ERRORLOG', '/var/log/archivematica/dashboard/gunicorn.error_log')
+errorlog = os.environ.get('AM_GUNICORN_ERRORLOG', '-')
 
 # http://docs.gunicorn.org/en/stable/settings.html#loglevel
 loglevel = os.environ.get('AM_GUNICORN_LOGLEVEL', 'info')
 
 # http://docs.gunicorn.org/en/stable/settings.html#proc-name
 proc_name = os.environ.get('AM_GUNICORN_PROC_NAME', 'archivematica-dashboard')
-
-# http://docs.gunicorn.org/en/stable/settings.html#pythonpath
-pythonpath = os.environ.get('AM_GUNICORN_PYTHONPATH', '/usr/share/archivematica/dashboard,/usr/lib/archivematica/archivematicaCommon')
 
 # http://docs.gunicorn.org/en/stable/settings.html#sendfile
 sendfile = os.environ.get('AM_GUNICORN_SENDFILE', 'false')

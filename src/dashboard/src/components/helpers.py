@@ -323,18 +323,6 @@ def stream_file_from_storage_service(url, error_message='Remote URL returned {}'
         return json_response(response, status_code=400)
 
 
-def generate_api_key(user):
-    """
-    Generate API key for a user
-    """
-    try:
-        api_key = ApiKey.objects.get(user_id=user.pk)
-    except ApiKey.DoesNotExist:
-        api_key = ApiKey.objects.create(user=user)
-    api_key.key = api_key.generate_key()
-    api_key.save()
-
-
 def completed_units_efficient(unit_type='transfer', include_failed=True):
     """Returns a list of unit UUIDs corresponding to the non-hidden completed
     units. Uses a single database request. If ``include_failed`` is ``True``,
@@ -372,3 +360,12 @@ def completed_units_efficient(unit_type='transfer', include_failed=True):
                          'failed' in ms_group.lower()))):
                 completed.add(uuid)
     return list(completed)
+
+
+def generate_api_key(user):
+    """
+    Generate API key for a user
+    """
+    api_key, _ = ApiKey.objects.get_or_create(user=user)
+    api_key.key = api_key.generate_key()
+    api_key.save()

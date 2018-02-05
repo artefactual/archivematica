@@ -32,7 +32,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from main import models
-from components.administration.forms import AgentForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
+from components.administration.forms import AgentForm, HandleForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers
@@ -42,6 +42,7 @@ from version import get_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
+
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -349,6 +350,26 @@ def sources(request):
 
 def processing(request):
     return processing_views.index(request)
+
+
+def handle_config(request):
+    """Display or save the Handle configuration form, which allows for the
+    specification of configuration values for Handle PID creation and binding
+    using the ``bindpid`` module. State is stored in DashboardSettings table.
+    """
+    if request.method == 'POST':
+        form = HandleForm(request.POST)
+        if form.is_valid():
+            models.DashboardSetting.objects.set_dict(
+                'handle', form.cleaned_data)
+            messages.info(request, _('Saved.'))
+    else:
+        settings_dict = models.DashboardSetting.objects.get_dict('handle')
+        settings_dict['pid_request_verify_certs'] = {
+            'False': False}.get(
+                settings_dict.get('pid_request_verify_certs', True), True)
+        form = HandleForm(initial=settings_dict)
+    return render(request, 'administration/handle_config.html', {'form': form})
 
 
 def premis_agent(request):

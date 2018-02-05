@@ -284,10 +284,6 @@ def main(opts):
 
     setup_dicts(mcpclient_settings)
 
-    # If no explicit return happens earlier, this returns `status`.
-    # This allows default rules to define a non-zero exit status.
-    status = SUCCESS
-
     # Find the file and it's FormatVersion (file identification)
     try:
         file_ = File.objects.get(uuid=opts.file_uuid)
@@ -336,31 +332,32 @@ def main(opts):
             )
         return SUCCESS
 
+    do_fallback = False
     format_id = get_object_or_None(
         FileFormatVersion,
         file_uuid=opts.file_uuid
     )
 
     # Look up the normalization command in the FPR
-    if format_id is None:
-        rule = get_default_rule(opts.purpose)
-        print(os.path.basename(file_.currentlocation), "not identified - falling back to default", opts.purpose, "rule")
-    else:
+    if format_id:
         print('File format:', format_id.format_version)
         try:
             rule = FPRule.active.get(format=format_id.format_version,
                                      purpose=opts.purpose)
         except FPRule.DoesNotExist:
-            try:
-                rule = get_default_rule(opts.purpose)
-                print("No rule for", os.path.basename(file_.currentlocation),
-                      "falling back to default", opts.purpose, "rule")
-                status = NO_RULE_FOUND
-            except FPRule.DoesNotExist:
-                print('Not normalizing', os.path.basename(file_.currentlocation),
-                      ' - No rule or default rule found to normalize for', opts.purpose,
-                      file=sys.stderr)
-                return NO_RULE_FOUND
+            do_fallback = True
+
+    # Try with default rule if no format_id or rule was found
+    if format_id is None or do_fallback:
+        try:
+            rule = get_default_rule(opts.purpose)
+            print(os.path.basename(file_.currentlocation), "not identified or without rule",
+                  "- Falling back to default", opts.purpose, "rule")
+        except FPRule.DoesNotExist:
+            print('Not normalizing', os.path.basename(file_.currentlocation),
+                  ' - No rule or default rule found to normalize for', opts.purpose)
+            return NO_RULE_FOUND
+
     print('Format Policy Rule:', rule)
     command = rule.command
     print('Format Policy Command', command.description)
@@ -387,9 +384,8 @@ def main(opts):
         try:
             fallback_rule = get_default_rule(opts.purpose)
             print(opts.purpose, 'normalization failed, falling back to default', opts.purpose, 'rule')
-            status = RULE_FAILED  # TODO what status should this return?
         except FPRule.DoesNotExist:
-            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose, file=sys.stderr)
+            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose)
             fallback_rule = None
         # Don't re-run the same command
         if fallback_rule and fallback_rule.command != command:
@@ -431,7 +427,7 @@ def main(opts):
         return RULE_FAILED
     else:
         print('Successfully normalized ', os.path.basename(opts.file_path), 'for', opts.purpose)
-        return status
+        return SUCCESS
 
 
 if __name__ == '__main__':

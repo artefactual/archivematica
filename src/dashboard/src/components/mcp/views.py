@@ -22,12 +22,12 @@ from lxml import etree
 
 def execute(request):
     result = ''
-    if 'uuid' in request.REQUEST:
+    if request.POST.get('uuid'):
         client = MCPClient()
-        uuid = request.REQUEST.get('uuid', '')
-        choice = request.REQUEST.get('choice', '')
-        uid = request.REQUEST.get('uid', '')
-        result = client.execute(uuid, choice, uid)
+        result = client.execute(
+            request.POST.get('uuid'),
+            request.POST.get('choice', ''),
+            request.POST.get('uid', ''))
     return HttpResponse(result, content_type='text/plain')
 
 

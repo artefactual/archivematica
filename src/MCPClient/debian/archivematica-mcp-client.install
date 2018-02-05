@@ -1,5 +1,0 @@
-etc/* /etc/archivematica/MCPClient/
-lib/* /usr/lib/archivematica/MCPClient/
-init/* /etc/init/
-
-

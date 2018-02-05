@@ -10,7 +10,7 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.6.x/ubuntu-externals trusty main",
+    "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals trusty main",
     "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ trusty-security universe",
     "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse"
@@ -40,10 +40,14 @@
   { "name": "siegfried", "state": "latest"},
   { "name": "sleuthkit", "state": "latest"},
   { "name": "tesseract-ocr", "state": "latest"},
-  { "name": "tika", "state": "latest"},
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
   { "name": "uuid", "state": "latest"}
+  ],
+  "osdeps_debfiles": [
+  "https://mediaarea.net/download/binary/libzen0/0.4.34/libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb",
+  "https://mediaarea.net/download/binary/libmediainfo0/0.7.91/libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb",
+  "https://mediaarea.net/download/binary/mediaconch/16.12/mediaconch_16.12-1_amd64.xUbuntu_14.04.deb"
   ]
 }

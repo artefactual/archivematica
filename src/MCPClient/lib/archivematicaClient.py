@@ -49,8 +49,7 @@ from django.conf import settings as django_settings
 
 from main.models import Task
 
-from django_mysqlpool import auto_close_db
-import databaseFunctions
+from databaseFunctions import auto_close_db, getUTCDate
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -59,6 +58,7 @@ logger = logging.getLogger('archivematica.mcp.client')
 replacementDic = {
     "%sharedPath%": django_settings.SHARED_DIRECTORY,
     "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
+    "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
 supportedModules = {}
 
@@ -88,7 +88,7 @@ def executeCommand(gearman_worker, gearman_job):
         execute = gearman_job.task
         logger.info('Executing %s (%s)', execute, gearman_job.unique)
         data = cPickle.loads(gearman_job.data)
-        utcDate = databaseFunctions.getUTCDate()
+        utcDate = getUTCDate()
         arguments = data["arguments"]  # .encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")
@@ -125,18 +125,10 @@ Unable to determine if it completed successfully."""
         value = gearman_job.unique.__str__()
         arguments = arguments.replace(key, value)
 
-        # Add useful environment vars for client scripts
-        env_updates = {
-            'PYTHONPATH': '{}:{}'.format(
-                os.path.dirname(os.path.abspath(__file__)),
-                os.environ['PYTHONPATH'],
-            ),
-        }
-
         # Execute command
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True, env_updates=env_updates)
+        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')
