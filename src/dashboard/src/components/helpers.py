@@ -202,12 +202,12 @@ def get_atom_levels_of_description(clear=True):
     """
     settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
 
-    url = settings('url', None)
+    url = settings.get('url')
     if not url:
         raise AtomError(_("AtoM URL not defined!"))
 
-    email = settings('email', None)
-    password = settings('password', None)
+    email = settings.get('email')
+    password = settings.get('password')
     if not email or not password:
         raise AtomError(_("AtoM authentication settings not defined!"))
     auth = (email, password)

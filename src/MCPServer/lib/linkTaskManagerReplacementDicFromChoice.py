@@ -68,7 +68,11 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             args = DashboardSetting.objects.get_dict(stc.execute)
             if args:
                 args = {'%{}%'.format(key): value for key, value in args.items()}
-                self.choices.append((len(self.choices), stc.execute, str(args)))
+                self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+                rd = ReplacementDict(args)
+                self.update_passvar_replacement_dict(rd)
+                self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
+                return
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:

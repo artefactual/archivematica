@@ -12,7 +12,14 @@ RUN set -ex \
 		libmysqlclient-dev \
 		libldap2-dev \
 		libsasl2-dev \
+		locales \
+		locales-all \
 	&& rm -rf /var/lib/apt/lists/*
+
+# Set the locale
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/

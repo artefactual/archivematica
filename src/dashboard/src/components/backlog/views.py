@@ -18,6 +18,7 @@
 import logging
 import requests
 
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
@@ -85,8 +86,9 @@ def execute(request):
     :param request: The Django request object
     :return: The main backlog page rendered
     """
-    es_client = elasticSearchFunctions.get_client()
-    check_and_remove_deleted_transfers(es_client)
+    if django_settings.SEARCH_ENABLED:
+        es_client = elasticSearchFunctions.get_client()
+        check_and_remove_deleted_transfers(es_client)
     return render(request, 'backlog/backlog.html', locals())
 
 

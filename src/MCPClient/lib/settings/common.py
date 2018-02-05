@@ -41,7 +41,10 @@ CONFIG_MAPPING = {
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
-    'disable_search_indexing': {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'boolean'},
+    'search_enabled': [
+        {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'iboolean'},
+        {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
+    ],
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -50,7 +53,7 @@ CONFIG_MAPPING = {
 
     # [antivirus]
     'clamav_server': {'section': 'MCPClient', 'option': 'clamav_server', 'type': 'string'},
-    'clamav_pass_by_reference': {'section': 'MCPClient', 'option': 'clamav_pass_by_reference', 'type': 'boolean'},
+    'clamav_pass_by_stream': {'section': 'MCPClient', 'option': 'clamav_pass_by_stream', 'type': 'boolean'},
     'clamav_client_timeout': {'section': 'MCPClient', 'option': 'clamav_client_timeout', 'type': 'float'},
     'clamav_client_backend': {'section': 'MCPClient', 'option': 'clamav_client_backend', 'type': 'string'},
 
@@ -82,11 +85,11 @@ LoadSupportedCommandsSpecial = True
 numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
-disableElasticsearchIndexing = False
+search_enabled = false
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
-clamav_pass_by_reference = False
+clamav_pass_by_stream = True
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
 clamav_client_timeout = 600
@@ -215,15 +218,15 @@ LOAD_SUPPORTED_COMMANDS_SPECIAL = config.get('load_supported_commands_special')
 GEARMAN_SERVER = config.get('gearman_server')
 NUMBER_OF_TASKS = config.get('number_of_tasks')
 CLIENT_MODULES_FILE = config.get('client_modules_file')
-DISABLE_SEARCH_INDEXING = config.get('disable_search_indexing')
 REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
+SEARCH_ENABLED = config.get('search_enabled')
 CLAMAV_SERVER = config.get('clamav_server')
-CLAMAV_PASS_BY_REFERENCE = config.get('clamav_pass_by_reference')
+CLAMAV_PASS_BY_STREAM = config.get('clamav_pass_by_stream')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
 CLAMAV_CLIENT_BACKEND = config.get('clamav_client_backend')
 CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')

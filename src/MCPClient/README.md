@@ -1,6 +1,6 @@
 # MCPClient
 
-This directory contains the Archivematica MCP client, frequently referred as
+This directory contains the Archivematica MCP client, frequently referred to as
 `MCPClient`. Its main responsibility is to perform the tasks assigned by
 `MCPServer`. These tasks are dispatched via Gearman. Technically speaking,
 `MCPClient` is a pool of Gearman workers each one running in a separate thread.

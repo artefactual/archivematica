@@ -435,6 +435,9 @@ def total_size_of_aips(es_client):
 
 
 def list_display(request):
+
+    if not settings.SEARCH_ENABLED:
+        return render(request, 'archival_storage/list.html')
     current_page_number = int(request.GET.get('page', 1))
     logger.debug('Current page: %s', current_page_number)
 

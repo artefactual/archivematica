@@ -89,6 +89,10 @@ def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
+    if not mcpclient_settings.SEARCH_ENABLED:
+        logger.info('Skipping indexing: indexing is currently disabled.')
+        return 0
+
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
