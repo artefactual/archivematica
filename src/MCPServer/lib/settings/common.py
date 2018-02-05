@@ -68,7 +68,7 @@ rejectedDirectory = %%sharedPath%%rejected/
 watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
-search_enabled = false
+search_enabled = true
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
