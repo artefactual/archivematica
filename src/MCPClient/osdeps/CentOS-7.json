@@ -52,7 +52,6 @@
   { "name": "pbzip2", "state": "latest"},
   { "name": "perl-Image-ExifTool", "state": "latest"},
   { "name": "postfix", "state": "latest"},
-  { "name": "python-unidecode", "state": "latest"},
   { "name": "rsync", "state": "latest"},
   { "name": "siegfried", "state": "latest"},
   { "name": "sleuthkit", "state": "latest"},
