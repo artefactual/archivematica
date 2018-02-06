@@ -31,7 +31,7 @@ from django.conf import settings as django_settings
 
 # External dependencies, alphabetical
 from annoying.functions import get_object_or_None
-from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
 
 # This project, alphabetical
 import archivematicaFunctions
@@ -100,7 +100,7 @@ def authenticate_request(request):
     error = None
     client_ip = request.META['REMOTE_ADDR']
 
-    api_auth = ApiKeyAuthentication()
+    api_auth = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
     authorized = api_auth.is_authenticated(request)
 
     # 'authorized' can be True, False or tastypie.http.HttpUnauthorized
@@ -602,6 +602,7 @@ def copy_metadata_files_api(request):
 # TODO should this have auth?
 
 
+@_api_endpoint(expected_methods=['GET'])
 def get_levels_of_description(request):
     """
     Returns a JSON-encoded set of the configured levels of description.
@@ -616,6 +617,7 @@ def get_levels_of_description(request):
 # TODO should this have auth?
 
 
+@_api_endpoint(expected_methods=['GET'])
 def fetch_levels_of_description_from_atom(request):
     """
     Fetch all levels of description from an AtoM database, removing
