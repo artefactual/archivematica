@@ -86,6 +86,12 @@ var DirectoryMetadataFormView = Backbone.View.extend({
     this.currentLevel = metadata.level_of_description;
   },
 
+  getCookie: function(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  },
+
   saveLevelOfDescription: function(callback) {
     var self = this;
 
@@ -93,6 +99,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
     $.ajax({
       url: '/api/filesystem/metadata/',
       type: 'POST',
+      headers: {'X-CSRFToken': self.getCookie('csrftoken')},
       async: false,
       cache: false,
       data: {
