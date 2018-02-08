@@ -29,13 +29,16 @@ from django.utils.translation import ugettext_lazy as _
 from appconfig import Config
 import email_settings
 
-
 CONFIG_MAPPING = {
     # [Dashboard]
     'shared_directory': {'section': 'Dashboard', 'option': 'shared_directory', 'type': 'string'},
     'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
+    'search_enabled': [
+        {'section': 'Dashboard', 'option': 'disable_search_indexing', 'type': 'iboolean'},
+        {'section': 'Dashboard', 'option': 'search_enabled', 'type': 'boolean'},
+    ],
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
@@ -65,6 +68,7 @@ shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
+search_enabled = true
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 ldap_authentication = False
@@ -243,6 +247,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                'main.context_processors.search_enabled',
             ],
             'debug': DEBUG,
         },
@@ -444,6 +449,7 @@ SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+SEARCH_ENABLED = config.get('search_enabled')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')

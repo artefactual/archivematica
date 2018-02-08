@@ -36,6 +36,10 @@ CONFIG_MAPPING = {
     'wait_on_auto_approve': {'section': 'MCPServer', 'option': 'waitOnAutoApprove', 'type': 'int'},
     'watch_directory_interval': {'section': 'MCPServer', 'option': 'watchDirectoriesPollInterval', 'type': 'int'},
     'secret_key': {'section': 'MCPServer', 'option': 'django_secret_key', 'type': 'string'},
+    'search_enabled': [
+        {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
+        {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
+    ],
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -64,6 +68,7 @@ rejectedDirectory = %%sharedPath%%rejected/
 watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
+search_enabled = true
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -183,6 +188,7 @@ LIMIT_TASK_THREADS = config.get('limit_task_threads')
 LIMIT_TASK_THREADS_SLEEP = config.get('limit_task_threads_sleep')
 LIMIT_GEARMAN_CONNS = config.get('limit_gearman_conns')
 RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_threads')
+SEARCH_ENABLED = config.get('search_enabled')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

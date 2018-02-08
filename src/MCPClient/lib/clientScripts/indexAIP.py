@@ -47,7 +47,7 @@ def index_aip():
     sip_path = sys.argv[3]  # %SIPDirectory%
     sip_type = sys.argv[4]  # %SIPType%
 
-    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+    if not mcpclient_settings.SEARCH_ENABLED:
         logger.info('Skipping indexing: indexing is currently disabled.')
         return 0
 

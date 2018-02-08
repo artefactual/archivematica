@@ -100,12 +100,12 @@ class ClamdScanner(ScannerBase):
     def __init__(self):
         self.addr = mcpclient_settings.CLAMAV_SERVER
         self.timeout = mcpclient_settings.CLAMAV_CLIENT_TIMEOUT
-        self.stream = not mcpclient_settings.CLAMAV_PASS_BY_REFERENCE
+        self.stream = mcpclient_settings.CLAMAV_PASS_BY_STREAM
         self.client = self.get_client()
 
     def scan(self, path):
         if self.stream:
-            method_name = 'pass_by_value'
+            method_name = 'pass_by_stream'
             result_key = 'stream'
         else:
             method_name = 'pass_by_reference'
@@ -166,9 +166,12 @@ class ClamdScanner(ScannerBase):
             timeout=self.timeout)
 
     def pass_by_reference(self, path):
+        logger.info("File being being read by Clamdscan from filesystem \
+            reference.")
         return self.client.scan(path)
 
-    def pass_by_value(self, path):
+    def pass_by_stream(self, path):
+        logger.info("File contents being streamed to Clamdscan.")
         return self.client.instream(open(path))
 
 
@@ -273,6 +276,7 @@ def get_scanner():
     """
     choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
     if choice not in SCANNERS_NAMES:
+
         logger.warning('Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):'
                        ' "%s"; using %s.',
                        choice, DEFAULT_SCANNER.__name__)

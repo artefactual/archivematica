@@ -454,6 +454,8 @@ var MicroserviceGroupView = Backbone.View.extend({
           return '/ingest/preview/normalization/' + uuid;
         } else if (jobType == 'Move to the uploadedDIPs directory') {
           return '/ingest/preview/dip/' + uuid;
+        } else if (jobType == 'Store DIP') {
+          return '/ingest/preview/dip/' + uuid;
         }
       }
 
@@ -472,6 +474,7 @@ var MicroserviceGroupView = Backbone.View.extend({
         if (
           (job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'] && -1 < jQuery.inArray(job.get('type'), ['Store AIP', 'Approve normalization']))
           || job.get('type') == 'Move to the uploadedDIPs directory'
+          || job.get('type') == 'Store DIP'
         ) {
           $(view.el).children(':first').children(':nth-child(2)').append('&nbsp;<a href="' + previewUrl(job.get('type'), job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
         }

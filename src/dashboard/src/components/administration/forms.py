@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from components import helpers
 from main import models
 
+from abilities import choice_is_available
 import storageService as storage_service
 
 
@@ -446,7 +447,8 @@ class ProcessingConfigurationForm(forms.Form):
                     ignored_choices = field.get('ignored_choices', [])
                     for item in chain_choices:
                         chain = item.chainavailable
-                        if chain.description in ignored_choices:
+                        if ((chain.description in ignored_choices) or
+                                (not choice_is_available(item, settings))):
                             continue
                         choices.append((chain.pk, chain.description))
                 elif ftype == 'replace_dict':

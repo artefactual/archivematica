@@ -219,7 +219,7 @@ class Validator(object):
 
     def _not_derivative_msg(self):
         """Return the message to print if the file is not a derivative."""
-        if self.file_type == 'perservation':
+        if self.file_type == 'preservation':
             return 'is not a preservation derivative'
         return 'is not an access derivative'
 

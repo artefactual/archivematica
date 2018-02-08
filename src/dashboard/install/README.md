@@ -72,6 +72,12 @@ This is the full list of environment strings supported:
     - **Type:** `float`
     - **Default:** `10`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED`**:
+    - **Description:** controls whether Elasticsearch is enabled. When set to `false`, the Backlog, Appraisal, and Archival storage tabs will not be displayed; in addition, the SIP Arrange pane in the Ingest tab will not be displayed. The status of Elasticsearch indexing is indicated in the Archivematica GUI under Administration > General.
+    - **Config file example:** `MCPClient.search_enabled`
+    - **Type:** `boolean`
+    - **Default:** `true`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER`**:
     - **Description:** address of the Gearman server.
     - **Config file example:** `Dashboard.gearman_server`

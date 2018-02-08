@@ -85,6 +85,12 @@ This is the full list of environment strings supported:
     - **Type:** `int`
     - **Default:** `"0"`
 
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_SEARCH_ENABLED`**:
+    - **Description:** controls whether Elasticsearch is enabled. This can affect which options the MCP server makes available for user choices. E.g., If search is disabled, then the MCP server will not make the "Send to backlong" option available at the "Create SIP(s)" choice point.
+    - **Config file example:** `MCPServer.search_enabled`
+    - **Type:** `boolean`
+    - **Default:** `true`
+
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
     - **Description:** time in seconds between filesystem poll intervals .
     - **Config file example:** `MCPServer.watchDirectoriesPollInterval`
