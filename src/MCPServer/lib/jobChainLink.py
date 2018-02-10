@@ -172,4 +172,9 @@ class jobChainLink:
     @auto_close_db
     def linkProcessingComplete(self, exitCode, passVar=None):
         self.updateExitMessage(exitCode)
-        self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)
+        next_chain_link_pk = self.getNextChainLinkPK(exitCode)
+        LOGGER.debug('jobChainLink.linkProcessingComplete: nextChainLink(%s)'
+                     ' (exitCode %s, description %s, unit %s)',
+                     next_chain_link_pk, exitCode, self.description,
+                     self.unit.UUID)
+        self.jobChain.nextChainLink(next_chain_link_pk, passVar=passVar)
