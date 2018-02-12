@@ -9,6 +9,7 @@ import requests
 import django
 django.setup()
 from django.conf import settings as mcpclient_settings
+from django.core.mail import send_mail
 # dashboard
 from main import models
 
@@ -84,6 +85,26 @@ def dspace_handle_to_archivesspace(sip_uuid):
         return ERROR
     return COMPLETED
 
+def email_success(sip_uuid):
+    email_to = mcpclient_settings.TEST_EMAIL
+    if email_to is None:
+        email_to = User.objects.filter(is_active=True).values_list('email', flat=True).exclude(email__in=['demo@example.com', ''])
+    else:
+        email_to = [email_to]
+        
+    try:
+        logger.info('Sending preserve report email.')
+        return send_mail(
+            subject='Preservation complete',
+            message='The preservation package for {} has been created'.format(sip_uuid),
+            from_email='ArchivematicaSystem@archivematica.org',
+            recipient_list=email_to,
+        )
+    except:
+        logger.exception('Preserve report email was not delivered')
+        raise
+
+
 
 def post_store_hook(sip_uuid):
     """
@@ -122,7 +143,9 @@ def post_store_hook(sip_uuid):
             elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
-    dspace_handle_to_archivesspace(sip_uuid)
+#    dspace_handle_to_archivesspace(sip_uuid)
+
+    email_success(sip_uuid)
 
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)

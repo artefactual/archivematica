@@ -32,6 +32,7 @@ CONFIG_MAPPING = {
     'email_file_path': {'section': 'email', 'option': 'file_path', 'type': 'string'},
     'email_amazon_ses_region': {'section': 'email', 'option': 'amazon_ses_region', 'type': 'string'},
     'default_from_email': {'section': 'email', 'option': 'default_from_email', 'type': 'string'},
+    'test_email': {'section': 'email', 'option': 'test_email', 'type': 'string'},
     'email_subject_prefix': {'section': 'email', 'option': 'subject_prefix', 'type': 'string'},
     'email_timeout': {'section': 'email', 'option': 'timeout', 'type': 'int'},
     'server_email': {'section': 'email', 'option': 'server_email', 'type': 'int'},
@@ -70,6 +71,7 @@ def get_settings(config):
 
         # General settings, not backend-specific
         DEFAULT_FROM_EMAIL=config.get('default_from_email'),
+        TEST_EMAIL=config.get('test_email'),
         EMAIL_SUBJECT_PREFIX=config.get('email_subject_prefix'),
         EMAIL_TIMEOUT=config.get('email_timeout', None),
     )

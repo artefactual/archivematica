@@ -120,6 +120,7 @@ use_tls = True
 file_path =
 amazon_ses_region = us-east-1
 default_from_email = webmaster@example.com
+test_email=webmaster@example.com
 subject_prefix = [Archivematica]
 timeout = 300
 #server_email =
