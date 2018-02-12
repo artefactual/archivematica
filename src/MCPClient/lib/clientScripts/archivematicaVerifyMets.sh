@@ -26,7 +26,6 @@ clientScriptsDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 libDir="$(cd "$(dirname "${clientScriptsDir}")" && pwd)"
 assetsDir="${libDir}/assets"
 
-
 sipPath="$1"
 metsFile="${sipPath}metadata/mets_structmap.xml"
 schemaFile="${assetsDir}/mets/mets.xsd"
@@ -35,5 +34,5 @@ schemaFile="${assetsDir}/mets/mets.xsd"
 if [ -f "${metsFile}" ]; then
     xmllint --noout --schema "${schemaFile}" "${metsFile}"
 else
-	  echo "No metadata/mets_structmap.xml file to verify."
+    echo "No metadata/mets_structmap.xml file to verify."
 fi

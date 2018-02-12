@@ -42,7 +42,6 @@ from socket import gethostname
 import threading
 import traceback
 
-
 import django
 django.setup()
 

@@ -22,10 +22,12 @@ import json
 import logging
 import logging.config
 import os
+import yaml
 
 from django.utils.translation import ugettext_lazy as _
 
 from appconfig import Config
+import email_settings
 
 CONFIG_MAPPING = {
     # [Dashboard]
@@ -41,6 +43,7 @@ CONFIG_MAPPING = {
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
     'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
     'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
 
@@ -58,6 +61,8 @@ CONFIG_MAPPING = {
     'db_conn_max_age': {'section': 'client', 'option': 'conn_max_age', 'type': 'float'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
 CONFIG_DEFAULTS = """[Dashboard]
 shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
@@ -68,6 +73,7 @@ gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 ldap_authentication = False
 storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 fpr_client_timeout = 60
 
@@ -79,6 +85,23 @@ database = MCP
 port = 3306
 engine = django.db.backends.mysql
 conn_max_age = 0
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+amazon_ses_region = us-east-1
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
@@ -256,7 +279,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-
 ROOT_URLCONF = 'urls'
 
 INSTALLED_APPS = [
@@ -292,12 +314,6 @@ INSTALLED_APPS = [
 ]
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-# For configuration option details see:
-# https://docs.djangoproject.com/en/1.8/ref/settings/#email-backend
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = '127.0.0.1'
-EMAIL_TIMEOUT = 15
 
 # Configure logging manually
 LOGGING_CONFIG = None
@@ -384,6 +400,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
     r'^api',
+    r'^administration/accounts/logged-out',
 ]
 # Django debug toolbar
 try:
@@ -434,6 +451,7 @@ ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 
 # Only required in production.py
@@ -444,8 +462,25 @@ ALLOW_USER_EDITS = True
 
 SHIBBOLETH_AUTHENTICATION = config.get('shibboleth_authentication')
 if SHIBBOLETH_AUTHENTICATION:
-    ALLOW_USER_EDITS = False
-    INSTALLED_APPS += ['shibboleth']
+    SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
+    SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
+
+    SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_EPPN'
+    SHIBBOLETH_ATTRIBUTE_MAP = {
+        # Automatic user fields
+        'HTTP_GIVENNAME': (False, 'first_name'),
+        'HTTP_SN': (False, 'last_name'),
+        'HTTP_MAIL': (False, 'email'),
+        # Entitlement field (which we handle manually)
+        'HTTP_ENTITLEMENT': (True, 'entitlement'),
+    }
+
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'shibboleth.context_processors.logout_link',
+    ]
+
+    # If the user has this entitlement, they will be a superuser/admin
+    SHIBBOLETH_ADMIN_ENTITLEMENT = 'preservation-admin'
 
     AUTHENTICATION_BACKENDS += [
         'components.accounts.backends.CustomShibbolethRemoteUserBackend',
@@ -459,11 +494,21 @@ if SHIBBOLETH_AUTHENTICATION:
         'middleware.common.CustomShibbolethRemoteUserMiddleware',
     )
 
-    TEMPLATES[0]['OPTIONS']['context_processors'] += [
-        'shibboleth.context_processors.logout_link',
-    ]
+    INSTALLED_APPS += ['shibboleth']
 
-    from .components.shibboleth_auth import *  # noqa
+    ALLOW_USER_EDITS = False
+
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))
+
+
+try:
+    doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
+except IOError:
+    doc = {}
+ARCHIVEMATICA_VERSION = doc.get('version', 'UNKNOWN')
+AGENT_CODE = doc.get('agent_code', 'UNKNOWN')
 
 
 LDAP_AUTHENTICATION = config.get('ldap_authentication')

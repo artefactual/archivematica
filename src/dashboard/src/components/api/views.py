@@ -99,6 +99,10 @@ def allowed_by_whitelist(ip_address):
 def authenticate_request(request):
     error = None
     client_ip = request.META['REMOTE_ADDR']
+    whitelist = helpers.get_setting('api_whitelist', '').split()
+    if client_ip in whitelist:
+        LOGGER.debug('API called by trusted IP %s', client_ip)
+        return None
 
     api_auth = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
     authorized = api_auth.is_authenticated(request)

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,8 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.template import Library
 
-# sudo chown -R archivematica:archivematica "$2"
+from main.models import Job
 
-touch "$2"
-chmod -R "$1" "$2"
+register = Library()
+
+
+@register.filter
+def job_status(status_id):
+    return dict(Job.STATUS).get(status_id)
