@@ -38,7 +38,6 @@ RUN set -ex \
 		atool \
 		bagit \
 		bulk-extractor \
-		clamav \
 		ffmpeg \
 		libavcodec-extra-56 \
 		fits \
@@ -46,6 +45,8 @@ RUN set -ex \
 		inkscape \
 		jhove \
 		libimage-exiftool-perl \
+		libevent-dev \
+		libjansson4 \
 		libxml2-utils \
 		md5deep \
 		mediainfo \
@@ -64,9 +65,6 @@ RUN set -ex \
 		uuid \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Download ClamAV virus signatures
-RUN freshclam --quiet
-
 # Build dependencies
 RUN set -ex \
 	&& curl -s https://bootstrap.pypa.io/get-pip.py | python \
@@ -81,6 +79,18 @@ RUN set -ex \
 		libxml2-dev \
 		libxslt-dev \
 	&& rm -rf /var/lib/apt/lists/*
+
+# OS dependencies from .deb files
+RUN set -ex \
+	&& curl https://mediaarea.net/download/binary/libzen0/0.4.34/libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb --output libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& curl https://mediaarea.net/download/binary/libmediainfo0/0.7.91/libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb --output libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& curl https://mediaarea.net/download/binary/mediaconch/16.12/mediaconch_16.12-1_amd64.xUbuntu_14.04.deb --output mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& dpkg -i mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
+	&& rm libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
+	&& rm libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
+	&& rm mediaconch_16.12-1_amd64.xUbuntu_14.04.deb
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
@@ -98,7 +108,14 @@ COPY archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml 
 
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
-	&& useradd --uid 333 --gid 333 --system archivematica
+	&& useradd -m --uid 333 --gid 333 --system archivematica
+
+ARG ARCHIVEMATICA_VERSION=UNKNOWN
+ARG AGENT_CODE=UNKNOWN
+RUN mkdir -p /etc/archivematica && (echo "---"; \
+	 echo "version: $ARCHIVEMATICA_VERSION"; \
+	 echo "agent_code: $AGENT_CODE";) \
+		> /etc/archivematica/version.yml
 
 USER archivematica
 

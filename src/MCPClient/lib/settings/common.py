@@ -21,7 +21,10 @@ import logging
 import logging.config
 import os
 
+import yaml
+
 from appconfig import Config
+import email_settings
 
 
 CONFIG_MAPPING = {
@@ -46,6 +49,7 @@ CONFIG_MAPPING = {
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
     'storage_service_client_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'MCPClient', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'MCPClient', 'option': 'agentarchives_client_timeout', 'type': 'float'},
 
     # [antivirus]
@@ -67,6 +71,8 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
 CONFIG_DEFAULTS = """[MCPClient]
 MCPArchivematicaServer = localhost:4730
 sharedDirectoryMounted = /var/archivematica/sharedDirectory/
@@ -86,12 +92,12 @@ removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
 clamav_pass_by_stream = True
 storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
-clamav_client_timeout = 86400
+clamav_client_timeout = 600
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
 clamav_client_max_scan_size = 42        ; MB
-
 
 [client]
 user = archivematica
@@ -100,6 +106,23 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+amazon_ses_region = us-east-1
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 config = Config(env_prefix='ARCHIVEMATICA_MCPCLIENT', attrs=CONFIG_MAPPING)
@@ -201,12 +224,25 @@ REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
 ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
+AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
+SEARCH_ENABLED = config.get('search_enabled')
 CLAMAV_SERVER = config.get('clamav_server')
 CLAMAV_PASS_BY_STREAM = config.get('clamav_pass_by_stream')
 CLAMAV_CLIENT_TIMEOUT = config.get('clamav_client_timeout')
 CLAMAV_CLIENT_BACKEND = config.get('clamav_client_backend')
 CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')
 CLAMAV_CLIENT_MAX_SCAN_SIZE = config.get('clamav_client_max_scan_size')
-STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
-AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
-SEARCH_ENABLED = config.get('search_enabled')
+
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))
+
+
+try:
+    doc = yaml.safe_load(open('/etc/archivematica/version.yml'))
+except IOError:
+    doc = {}
+ARCHIVEMATICA_VERSION = doc.get('version', 'UNKNOWN')
+AGENT_CODE = doc.get('agent_code', 'UNKNOWN')

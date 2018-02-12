@@ -25,7 +25,7 @@ import uuid
 import re
 
 # Core Django, alphabetical
-from django.db.models import Q
+from django.db.models import Q, Sum
 import django.http
 from django.conf import settings as django_settings
 
@@ -99,6 +99,10 @@ def allowed_by_whitelist(ip_address):
 def authenticate_request(request):
     error = None
     client_ip = request.META['REMOTE_ADDR']
+    whitelist = helpers.get_setting('api_whitelist', '').split()
+    if client_ip in whitelist:
+        LOGGER.debug('API called by trusted IP %s', client_ip)
+        return None
 
     api_auth = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
     authorized = api_auth.is_authenticated(request)
@@ -703,3 +707,45 @@ def processing_configuration(request, name):
         return django.http.HttpResponse(content, content_type='text/xml')
     except IOError:
         raise django.http.Http404
+
+
+@_api_endpoint(expected_methods=['GET'])
+def package_reporting(request, unit_uuid):
+
+    """
+    API to provide a set of metrics about the status of a given job in JSON format.
+    The request parameter is a UUID which can be the SIP UUID or the transfer UUID.
+    The response gives details about the job and all its tasks.
+    """
+    
+    num_files = models.File.objects.filter(Q(sip_id=unit_uuid) | Q(transfer_id=unit_uuid)).count()
+    total_size = models.File.objects.filter(Q(sip_id=unit_uuid) | Q(transfer_id=unit_uuid)).aggregate(Sum('size'))
+    
+    job = models.Job.objects.filter(sipuuid=unit_uuid).first()
+    if not job:
+        response = {'error': True, 'message': 'cannot find "uuid".'}
+        return helpers.json_response(response, status_code=404)
+    
+    tasks = job.task_set.all()
+    
+    response = {}
+    duration = 0
+    task_vals = []
+    
+    for task in tasks:
+        task_vals.append({
+                'task': task.client,
+                'CPU time': int((task.endtime - task.starttime).total_seconds())
+        })
+        duration = duration + (task.endtime - task.starttime).total_seconds()
+    
+    response['job'] = {
+        'phase': job.unittype,
+        'microservice_group': job.microservicegroup,
+        'tasks': tasks.count(),
+        'duration': int(duration),
+        'number_of_files': num_files,
+        'files_size': total_size,
+    }
+    response['tasks'] = task_vals
+    return helpers.json_response(response)
