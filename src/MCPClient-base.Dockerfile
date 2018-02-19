@@ -35,6 +35,7 @@ RUN set -ex \
     bulk-extractor \
     clamav \
     ffmpeg \
+    ghostscript \
     libavcodec-extra-56 \
     fits \
     imagemagick \
