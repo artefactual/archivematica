@@ -1282,14 +1282,6 @@ if __name__ == '__main__':
     objectsDirectoryPath = os.path.join(baseDirectoryPath, 'objects')
     objectsMetadataDirectoryPath = os.path.join(objectsDirectoryPath, 'metadata')
 
-    # Delete empty directories, see #8427
-    for root, dirs, files in os.walk(baseDirectoryPath, topdown=False):
-        try:
-            os.rmdir(root)
-            print("Deleted empty directory", root)
-        except OSError:
-            pass
-
     # Fetch any ``Directory`` objects in the database that are contained within
     # this SIP and return them as a dict from relative paths to UUIDs. (See
     # createSIPfromTransferObjects.py for the association of ``Directory``
@@ -1316,6 +1308,14 @@ if __name__ == '__main__':
     else:
         print("Skipping creation of normative structmap")
         normativeStructMap = None
+
+    # Delete empty directories, see #8427
+    for root, dirs, files in os.walk(baseDirectoryPath, topdown=False):
+        try:
+            os.rmdir(root)
+            print("Deleted empty directory", root)
+        except OSError:
+            pass
 
     # Get the <dmdSec> for the entire AIP; it is associated to the root
     # <mets:div> in the physical structMap.
