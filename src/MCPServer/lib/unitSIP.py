@@ -41,7 +41,6 @@ class unitSIP(unit):
         self.UUID = UUID
         self.fileList = {}
         self.pathString = "%SIPDirectory%"
-        self.owningUnit = None
         self.unitType = "SIP"
         self.aipFilename = ""
 

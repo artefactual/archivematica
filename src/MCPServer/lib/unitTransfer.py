@@ -38,7 +38,6 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
-        self.owningUnit = None
         self.unitType = "Transfer"
         # Just use the end of the directory name
         self.pathString = "%transferDirectory%"
@@ -67,12 +66,6 @@ class unitTransfer(unit):
 
     def __str__(self):
         return 'unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
-
-    def updateLocation(self, newLocation):
-        self.currentPath = newLocation
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.currentlocation = newLocation
-        transfer.save()
 
     def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.

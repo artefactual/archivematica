@@ -57,44 +57,29 @@ def fetchUnitVariableForUnit(unit_uuid):
 
 
 class jobChain:
-    def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
+    def __init__(self, unit, chain_id):
         """Create an instance of a chain from the MicroServiceChains table"""
-        LOGGER.debug('Creating jobChain %s for chain %s', unit, chainPK)
-        if chainPK is None:
+        LOGGER.debug('Creating jobChain %s for chain %s', unit, chain_id)
+        if chain_id is None:
             return None
         self.unit = unit
-        self.pk = chainPK
-        self.notifyComplete = notifyComplete
-        self.UUID = UUID
-        self.linkSplitCount = 1
-        self.subJobOf = subJobOf
 
-        chain = MicroServiceChain.objects.get(id=str(chainPK))
+        chain = MicroServiceChain.objects.get(id=str(chain_id))
         LOGGER.debug('Chain: %s', chain)
         self.startingChainLink = chain.startinglink_id
-        self.description = chain.description
 
-        # Migrate over unit variables containing replacement dicts from previous chains,
-        # but prioritize any values contained in passVars passed in as kwargs
+        # Migrate over unit variables containing replacement dicts from
+        # previous chains but prioritize any values contained in passVars
+        # passed in as kwargs.
         rd = fetchUnitVariableForUnit(unit.UUID)
-        if passVar:
-            rd.update(passVar)
 
-        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd, subJobOf=subJobOf)
+        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd)
         if self.currentLink is None:
             return None
 
-    def nextChainLink(self, pk, passVar=None, incrementLinkSplit=False, subJobOf=""):
-        """Proceed to next link, as passed(pk)"""
-        if self.subJobOf and not subJobOf:
-            subJobOf = self.subJobOf
-        if incrementLinkSplit:
-            self.linkSplitCount += 1
-        if pk is not None:
-            jobChainLink(self, pk, self.unit, passVar=passVar, subJobOf=subJobOf)
-        else:
-            self.linkSplitCount -= 1
-            if self.linkSplitCount == 0:
-                LOGGER.debug('Done with unit %s', self.unit.UUID)
-                if self.notifyComplete:
-                    self.notifyComplete(self)
+    def nextChainLink(self, link_id, passVar=None):
+        """Proceed to next link."""
+        if link_id is None:
+            LOGGER.debug('Done with unit %s', self.unit.UUID)
+            return
+        jobChainLink(self, link_id, self.unit, passVar=passVar)
