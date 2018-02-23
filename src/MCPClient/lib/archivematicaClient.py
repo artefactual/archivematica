@@ -185,7 +185,9 @@ def execute_command(gearman_worker, gearman_job):
                 task_uuid, script)
     try:
         exit_code, std_out, std_error = executeOrRun(
-            'command', script, stdIn='', printing=True)
+            'command', script, stdIn='',
+            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
+            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
     except OSError:
         logger.exception('Execution failed')
         return cPickle.dumps({'exitCode': 1,
