@@ -252,6 +252,7 @@ def copy_files(source_location, destination_location, files):
         LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
         return (None, e)
 
+
 def get_files_from_backlog(files):
     """
     Copies files from the backlog location to the currently processing location.
