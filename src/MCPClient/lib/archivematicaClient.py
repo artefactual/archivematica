@@ -66,6 +66,123 @@ def start_worker(thread_number, gearman_servers):
     """
     worker = get_worker(gearman_servers, name=thread_number)
 
+def load_supported_modules(file):
+    """Populate the global `supported_modules` dict by parsing the MCPClient
+    modules config file (typically MCPClient/lib/archivematicaClientModules).
+    """
+    supported_modules_config = ConfigParser.RawConfigParser()
+    supported_modules_config.read(file)
+    for client_script, client_script_path in supported_modules_config.items(
+            'supportedCommands'):
+        load_supported_modules_support(client_script, client_script_path)
+    if django_settings.LOAD_SUPPORTED_COMMANDS_SPECIAL:
+        for client_script, client_script_path in supported_modules_config.items(
+                'supportedCommandsSpecial'):
+            load_supported_modules_support(client_script, client_script_path)
+
+
+class ProcessGearmanJobError(Exception):
+    pass
+
+
+def _process_gearman_job(gearman_job, gearman_worker):
+    """Process a gearman job/task: return a 3-tuple consisting of a script
+    string (a command-line script with arguments), a task UUID string, and a
+    boolean indicating whether output streams should be captured. Raise a
+    custom exception if the client script is unregistered or if the task has
+    already been started.
+    """
+    # ``client_script`` is a string matching one of the keys (i.e., client
+    # scripts) in the global ``supported_modules`` dict.
+    client_script = gearman_job.task
+    task_uuid = str(gearman_job.unique)
+    logger.info('Executing %s (%s)', client_script, task_uuid)
+    data = cPickle.loads(gearman_job.data)
+    utc_date = getUTCDate()
+    arguments = data['arguments']
+    if isinstance(arguments, unicode):
+        arguments = arguments.encode('utf-8')
+    client_id = gearman_worker.worker_client_id
+    task = Task.objects.get(taskuuid=task_uuid)
+    if task.starttime is not None:
+        raise ProcessGearmanJobError({
+            'exitCode': -1,
+            'stdOut': '',
+            'stdError': 'Detected this task has already started!\n'
+                        'Unable to determine if it completed successfully.'})
+    task.client = client_id
+    task.starttime = utc_date
+    task.save()
+    client_script_full_path = supported_modules.get(client_script)
+    if not client_script_full_path:
+        raise ProcessGearmanJobError({
+            'exitCode': -1,
+            'stdOut': 'Error!',
+            'stdError': 'Error! - Tried to run an unsupported command.'})
+    replacement_dict['%date%'] = utc_date.isoformat()
+    replacement_dict['%jobCreatedDate%'] = data['createdDate']
+    # Replace replacement strings
+    for var, val in replacement_dict.items():
+        # TODO: this seems unneeded because the full path to the client
+        # script can never contain '%date%' or '%jobCreatedDate%' and the
+        # other possible vars have already been replaced.
+        client_script_full_path = client_script_full_path.replace(var, val)
+        arguments = arguments.replace(var, val)
+    arguments = arguments.replace('%taskUUID%', task_uuid)
+    script = client_script_full_path + ' ' + arguments
+    return script, task_uuid
+
+
+def _unexpected_error():
+    logger.exception('Unexpected error')
+    return cPickle.dumps({'exitCode': -1,
+                          'stdOut': '',
+                          'stdError': traceback.format_exc()})
+
+
+@auto_close_db
+def execute_command(gearman_worker, gearman_job):
+    """Execute the command encoded in ``gearman_job`` and return its exit code,
+    standard output and standard error as a pickled dict.
+    """
+    try:
+        script, task_uuid = _process_gearman_job(
+            gearman_job, gearman_worker)
+    except ProcessGearmanJobError:
+        return cPickle.dumps({
+            'exitCode': 1,
+            'stdOut': 'Archivematica Client Process Gearman Job Error!',
+            'stdError': traceback.format_exc()})
+    except Exception:
+        return _unexpected_error()
+    logger.info('<processingCommand>{%s}%s</processingCommand>',
+                task_uuid, script)
+    try:
+        exit_code, std_out, std_error = executeOrRun(
+            'command', script, stdIn='',
+            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
+            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
+    except OSError:
+        logger.exception('Execution failed')
+        return cPickle.dumps({'exitCode': 1,
+                              'stdOut': 'Archivematica Client Error!',
+                              'stdError': traceback.format_exc()})
+    except Exception:
+        return _unexpected_error()
+    return cPickle.dumps({'exitCode': exit_code,
+                          'stdOut': std_out,
+                          'stdError': std_error})
+
+
+@auto_close_db
+def start_thread(thread_number):
+    """Setup a gearman client, for the thread."""
+    gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
+    host_id = '{}_{}'.format(gethostname(), thread_number)
+    gm_worker.set_client_id(host_id)
+    for client_script in supported_modules:
+        logger.info('Registering: %s', client_script)
+        gm_worker.register_task(client_script, execute_command)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2

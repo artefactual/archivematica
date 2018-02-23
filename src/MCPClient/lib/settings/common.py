@@ -45,6 +45,7 @@ CONFIG_MAPPING = {
         {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'iboolean'},
         {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
     ],
+    'capture_client_script_output': {'section': 'MCPClient', 'option': 'capture_client_script_output', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -87,6 +88,7 @@ numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = true
+capture_client_script_output = true
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -236,6 +238,7 @@ CLAMAV_CLIENT_MAX_FILE_SIZE = config.get('clamav_client_max_file_size')
 CLAMAV_CLIENT_MAX_SCAN_SIZE = config.get('clamav_client_max_scan_size')
 
 
+
 # Apply email settings
 globals().update(email_settings.get_settings(config))
 
@@ -246,3 +249,4 @@ except IOError:
     doc = {}
 ARCHIVEMATICA_VERSION = doc.get('version', 'UNKNOWN')
 AGENT_CODE = doc.get('agent_code', 'UNKNOWN')
+CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
