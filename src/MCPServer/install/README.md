@@ -122,6 +122,24 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `boolean`
     - **Default:** `true`
 
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_STORAGE_SERVICE_CLIENT_TIMEOUT`**:
+    - **Description:** configures the Storage Service client to stop waiting for a response after a given number of seconds.
+    - **Config file example:** `MCPClient.storage_service_client_timeout`
+    - **Type:** `float`
+    - **Default:** `86400`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT`**:
+    - **Description:** configures the Storage Service client to stop waiting for a response after a given number of seconds. This applies only to requests that are supposed to return immediately.
+    - **Config file example:** `MCPClient.storage_service_client_timeout`
+    - **Type:** `float`
+    - **Default:** `5`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WORKERS`**:
+    - **Description:** numbers of internal threaded workers. Workers process background operations (jobs) queued by Gearman. This is an internal mechanism in MCPServer to execute jobs asynchronously with the support of Gearman.
+    - **Config file example:** `MCPServer.workers`
+    - **Type:** `int`
+    - **Default:** `"2"`
+
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
     - **Description:** time in seconds between filesystem poll intervals .
     - **Config file example:** `MCPServer.watchDirectoriesPollInterval`

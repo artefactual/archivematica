@@ -40,6 +40,8 @@ CONFIG_MAPPING = {
         {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
         {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
     ],
+    'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -69,6 +71,8 @@ watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
+storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -189,6 +193,8 @@ LIMIT_TASK_THREADS_SLEEP = config.get('limit_task_threads_sleep')
 LIMIT_GEARMAN_CONNS = config.get('limit_gearman_conns')
 RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_threads')
 SEARCH_ENABLED = config.get('search_enabled')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
