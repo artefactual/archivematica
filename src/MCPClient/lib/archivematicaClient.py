@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -129,7 +129,10 @@ Unable to determine if it completed successfully."""
         # Execute command
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True)
+        exitCode, stdOut, stdError = executeOrRun(
+            'command', command, stdIn=sInput,
+            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
+            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')

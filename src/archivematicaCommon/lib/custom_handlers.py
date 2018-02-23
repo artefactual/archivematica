@@ -46,7 +46,7 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", 
         },
         'root': {  # Everything else
             'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
         },
     }
 
