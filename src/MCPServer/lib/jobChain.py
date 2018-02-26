@@ -57,7 +57,7 @@ def fetchUnitVariableForUnit(unit_uuid):
 
 
 class jobChain:
-    def __init__(self, unit, chain_id):
+    def __init__(self, unit, chain_id, starting_link_id=None):
         """Create an instance of a chain from the MicroServiceChains table"""
         LOGGER.debug('Creating jobChain %s for chain %s', unit, chain_id)
         if chain_id is None:
@@ -66,16 +66,17 @@ class jobChain:
 
         chain = MicroServiceChain.objects.get(id=str(chain_id))
         LOGGER.debug('Chain: %s', chain)
-        self.startingChainLink = chain.startinglink_id
+
+        if starting_link_id is None:
+            starting_link_id = chain.startinglink_id
 
         # Migrate over unit variables containing replacement dicts from
         # previous chains but prioritize any values contained in passVars
         # passed in as kwargs.
         rd = fetchUnitVariableForUnit(unit.UUID)
 
-        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd)
-        if self.currentLink is None:
-            return None
+        # Run!
+        jobChainLink(self, starting_link_id, unit, passVar=rd)
 
     def nextChainLink(self, link_id, passVar=None):
         """Proceed to next link."""

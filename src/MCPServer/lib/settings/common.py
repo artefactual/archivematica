@@ -42,6 +42,7 @@ CONFIG_MAPPING = {
     ],
     'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'storage_service_client_quick_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
+    'workers': {'section': 'MCPServer', 'option': 'workers', 'type': 'int'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -73,6 +74,7 @@ waitOnAutoApprove = 0
 search_enabled = true
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
+workers = 2
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -195,6 +197,7 @@ RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_th
 SEARCH_ENABLED = config.get('search_enabled')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
+WORKERS = config.get('workers')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

@@ -61,6 +61,7 @@ from unitFile import unitFile
 from unitTransfer import unitTransfer
 from utils import isUUID
 import RPCServer
+import worker
 
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db, createSIP, getUTCDate
@@ -369,6 +370,16 @@ if __name__ == '__main__':
     t = threading.Thread(target=flushOutputs)
     t.daemon = True
     t.start()
+
+    # Start internal workers to process background operations. Workers were
+    # introduced when the non-blocking `packageCreate` method was added to the
+    # RPC service and we needed to schedule background jobs. If the workers are
+    # busy the jobs are queued by Gearman.
+    for i in range(django_settings.WORKERS):
+        t = threading.Thread(target=worker.start_worker, args=(i + 1,))
+        t.daemon = True
+        t.start()
+
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
 
