@@ -354,6 +354,7 @@ if __name__ == '__main__':
     t = threading.Thread(target=flushOutputs)
     t.daemon = True
     t.start()
+
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
 
