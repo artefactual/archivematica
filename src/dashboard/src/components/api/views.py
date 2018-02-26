@@ -78,6 +78,10 @@ def _api_endpoint(expected_methods):
     return decorator
 
 
+class HttpResponseNotImplemented(django.http.HttpResponse):
+    status_code = 501
+
+
 def allowed_by_whitelist(ip_address):
     whitelist = [
         ip.strip()
@@ -268,8 +272,6 @@ def start_transfer_api(request):
     transfer_name = request.POST.get('name', '')
     transfer_type = request.POST.get('type', '')
     accession = request.POST.get('accession', '')
-    # Note that the path may contain arbitrary, non-unicode characters,
-    # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [''])
@@ -743,3 +745,38 @@ def processing_configuration(request, name):
                 }, status_code=500)
 
         return django.http.HttpResponse(content, content_type='text/xml')
+
+
+@_api_endpoint(expected_methods=['GET', 'POST'])
+def package(request):
+    """Package resource handler."""
+    if request.method == 'POST':
+        return _package_create(request)
+    else:
+        return HttpResponseNotImplemented()
+
+
+def _package_create(request):
+    """Create a package."""
+    try:
+        payload = json.loads(request.body)
+        path = base64.b64decode(payload.get('path'))
+    except (TypeError, ValueError):
+        return helpers.json_response({
+            'error': True,
+            'message': 'Parameter "path" cannot be decoded.'}, 400)
+    args = (
+        payload.get('name'),
+        payload.get('type'),
+        payload.get('accession'),
+        path,
+        payload.get('metadata_set_id'),
+    )
+    try:
+        client = MCPClient()
+        id_ = client.create_package(*args)
+    except Exception as err:
+        LOGGER.error(err)
+        msg = 'Package cannot be created'
+        return helpers.json_response({'error': True, 'message': msg}, 500)
+    return helpers.json_response({'id': id_}, 202)
