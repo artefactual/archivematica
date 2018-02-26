@@ -40,6 +40,7 @@ CONFIG_MAPPING = {
         {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
     ],
     'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'workers': {'section': 'MCPServer', 'option': 'workers', 'type': 'int'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -67,6 +68,7 @@ processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
 storage_service_client_timeout = 2
+workers = 2
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -171,3 +173,4 @@ LIMIT_GEARMAN_CONNS = config.get('limit_gearman_conns')
 RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_threads')
 SEARCH_ENABLED = config.get('search_enabled')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+WORKERS = config.get('workers')
