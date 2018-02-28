@@ -15,20 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import logging
-import socket
 import uuid
 
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
-import requests
 from tastypie.models import ApiKey
 
 from main.models import Agent, User
 import components.helpers as helpers
 import storageService as storage_service
-import utilities.FPRClient.client as FPRClient
 from version import get_version
 
 
@@ -61,43 +57,6 @@ def setup_pipeline(org_name, org_identifier):
         agent.save()
 
 
-def submit_fpr_agent():
-    agent = get_agent()
-    url = django_settings.FPR_URL + 'agent/'
-    resp = {}
-    headers = {'Content-Type': 'application/json'}
-    payload = {
-        'uuid': helpers.get_setting('dashboard_uuid'),
-        'agentType': 'new install',
-        'agentName': agent.name,
-        'clientIP': get_my_ip(),
-        'agentIdentifierType': agent.identifiertype,
-        'agentIdentifierValue': agent.identifiervalue
-    }
-
-    try:
-        logger.info("FPR Server URL: {}".format(django_settings.FPR_URL))
-        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=django_settings.FPR_CLIENT_TIMEOUT, verify=True)
-        if r.status_code == 201:
-            resp['result'] = 'success'
-        else:
-            resp['result'] = 'failed to fetch from ' + url
-    except:
-        resp['result'] = 'failed to post to ' + url
-
-    return resp
-
-
-def download_fpr_rules():
-    resp = {}
-    logger.info("FPR Server URL: {}".format(django_settings.FPR_URL))
-    fpr = FPRClient.FPRClient(django_settings.FPR_URL)
-    resp['result'], resp['response'], error = fpr.getUpdates()
-    if error:
-        logging.warning("FPR update error: {}".format(error))
-    return resp
-
-
 def setup_pipeline_in_ss(use_default_config=False):
     if not use_default_config:
         # Storage service manually set up, just register Pipeline if
@@ -118,19 +77,6 @@ def setup_pipeline_in_ss(use_default_config=False):
         api_username=user.username,
         api_key=api_key.key,
     )
-
-
-def get_my_ip():
-    server_addr = '1.2.3.4'
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect((server_addr, 9))
-        client = s.getsockname()[0]
-    except socket.error:
-        client = "1.1.1.1"
-    finally:
-        del s
-    return client
 
 
 def get_agent():

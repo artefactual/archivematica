@@ -22,10 +22,10 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from tastypie.models import ApiKey
 
-import components.helpers as helpers
+from components import helpers
 from components.administration.forms import StorageSettingsForm
 from installer.forms import OrganizationForm, SuperUserCreationForm
-from installer.steps import download_fpr_rules, setup_pipeline, setup_pipeline_in_ss, submit_fpr_agent
+from installer.steps import setup_pipeline, setup_pipeline_in_ss
 
 
 def welcome(request):
@@ -55,31 +55,16 @@ def welcome(request):
                 if user is not None:
                     login(request, user)
                     request.session['first_login'] = True
-                    return redirect('installer.views.fprconnect')
+                    return redirect('installer.views.storagesetup')
         else:
             request.session['first_login'] = True
-            return redirect('installer.views.fprconnect')
+            return redirect('installer.views.storagesetup')
     else:
         form = SuperUserCreationForm() if set_up_user else OrganizationForm()
 
     return render(request, 'installer/welcome.html', {
         'form': form,
     })
-
-
-def fprconnect(request):
-    if request.method == 'POST':
-        return redirect('installer.views.storagesetup')
-    else:
-        return render(request, 'installer/fprconnect.html')
-
-
-def fprupload(request):
-    return helpers.json_response(submit_fpr_agent())
-
-
-def fprdownload(request):
-    return helpers.json_response(download_fpr_rules())
 
 
 def storagesetup(request):

@@ -42,7 +42,6 @@ CONFIG_MAPPING = {
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
     'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
-    'fpr_client_timeout': {'section': 'Dashboard', 'option': 'fpr_client_timeout', 'type': 'float'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -69,7 +68,6 @@ shibboleth_authentication = False
 ldap_authentication = False
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
-fpr_client_timeout = 60
 
 [client]
 user = archivematica
@@ -404,10 +402,6 @@ POLLING_INTERVAL = 5  # Seconds
 STATUS_POLLING_INTERVAL = 5  # Seconds
 TASKS_PER_PAGE = 10  # for paging in tasks dialog
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
-
-FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
-FPR_VERIFY_CERT = True
-FPR_CLIENT_TIMEOUT = config.get('fpr_client_timeout')
 
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
