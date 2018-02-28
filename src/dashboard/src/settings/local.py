@@ -26,8 +26,6 @@ from .base import *
 
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = True
-FPR_URL = 'https://fpr-qa.archivematica.org/fpr/api/v2/'
-FPR_VERIFY_CERT = False
 
 FIXTURE_DIRS = (
     'tests/fixtures/',

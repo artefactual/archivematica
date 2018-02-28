@@ -50,7 +50,3 @@ class OrganizationForm(forms.Form):
     """
     org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
     org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-
-
-class FPRConnectForm(forms.Form):
-    comments = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
