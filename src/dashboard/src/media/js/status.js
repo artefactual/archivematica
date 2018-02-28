@@ -27,8 +27,8 @@ $(function()
         {
           this.poll();
 
-          this.transfer = this.$('ul.nav > li').eq(0);
-          this.sip = this.$('ul.nav > li').eq(3);
+          this.transfer = this.$('ul.nav > li > a[href="/transfer/"]').eq(0);
+          this.sip = this.$('ul.nav > li > a[href="/ingest/"]').eq(0);
           // this.dip = this.$('ul.nav > li').eq(4);
         },
 

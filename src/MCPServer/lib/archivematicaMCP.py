@@ -47,6 +47,7 @@ django.setup()
 
 from django.conf import settings as django_settings
 from django.db.models import Q
+from django.utils import six
 
 # This project, alphabetical by import source
 import watchDirectory
@@ -484,7 +485,9 @@ def watchDirectories():
         for item in os.listdir(directory):
             if item == ".gitignore":
                 continue
-            item = item.decode("utf-8")
+            # We should expect both bytes and unicode. See #932.
+            if isinstance(item, six.binary_type):
+                item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
             while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
                 time.sleep(1)

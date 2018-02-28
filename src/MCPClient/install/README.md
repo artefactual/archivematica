@@ -1,19 +1,33 @@
+# MCPClient Configuration 
+
 ## Table of contents
 
 - [Introduction](#introduction)
 - [Environment variables](#environment-variables)
+- [Configuration file](#configuration-file)
+- [Parameter list](#parameter-list)
 - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
-MCPClient has multiple sources of configuration. This is the full list ordered
-by precedence (with the last listed item winning prioritization):
+Archivematica components can be configured using multipe methods.  All 
+components follow the same pattern:
 
-- Application defaults
-- Configuration files: (see [`the example`](./clientConfig.conf))
-    - `/etc/archivematica/archivematicaCommon/dbsettings` (optional)
-    - `/etc/archivematica/MCPClient/clientConfig.conf` (optional)
-- Environment variables (always win precedence)
+1. **Environment variables** - setting a configuration parameter with an 
+   environment variable will override all other methods.
+1. **Configuration file** - if the parameter is not set by an environment 
+   variable, the component will look for a setting in its default configuration file.
+1. **Application defaults**  - if the parameter is not set in an environment 
+   variable or the config file, the application default is used.
+
+Logging behaviour is configured differently, and provides two methods:
+
+1. **`logging.json` file** - if a JSON file is present in the default location,
+    the contents of the JSON file will control the components logging behaviour.
+1. **Application default** - if no JSON file is present, the default logging 
+   behaviour is to write to standard streams (standard out and standard error).
+
+MCPClient specific details are provided below.
 
 ## Environment variables
 
@@ -24,9 +38,9 @@ configuration system coerces the value to the types supported:
 - `int` (e.g. `"60"`)
 - `float` (e.g. `"1.20"`)
 - `boolean` where truth values can be represented as follows (checked in a
-case-insensitive manner):
-    - True (enabled):  `"1"`, `"yes"`, `"true"` or `"on"`
-    - False (disabled): `"0"`, `"no"`, `"false"` or `"off"`
+  case-insensitive manner):
+  - True (enabled):  `"1"`, `"yes"`, `"true"` or `"on"`
+  - False (disabled): `"0"`, `"no"`, `"false"` or `"off"`
 
 Certain environment strings are mandatory, i.e. they don't have defaults and
 the application will refuse to start if the user does not provide one.
@@ -35,7 +49,24 @@ Please be aware that Archivematica supports different types of distributions
 (Ubuntu/CentOS packages, Ansible or Docker images) and they may override some
 of these settings or provide values to mandatory fields.
 
-This is the full list of environment strings supported:
+## Configuration file
+
+There is an example configuration file for MCPClient included in the source 
+code: (see [`the example`](./clientConfig.conf))
+
+MCPClient will look for a configuration file in one of two locations:
+
+- `/etc/archivematica/archivematicaCommon/dbsettings`
+- `/etc/archivematica/MCPClient/clientConfig.conf`
+
+Traditionally, the dbsettings file was used to hold mysql login credentials, 
+which are then shared with other Archivematica components like MCPServer.  
+Database credentials can be set in the clientConfig.conf file instead, or 
+non-database parameters could be set in the dbsettings file.
+
+## Parameter list
+
+This is the full list of variables supported by MCPClient:
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_DJANGO_SECRET_KEY`**:
     - **Description:** a secret key used for cryptographic signing. See [SECRET_KEY](https://docs.djangoproject.com/en/1.8/ref/settings/#secret-key) for more details.
