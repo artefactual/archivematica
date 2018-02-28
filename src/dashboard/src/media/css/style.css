@@ -737,15 +737,6 @@ textarea.command {
   display: none;
 }
 
-/*
- * FPR administration
- */
-
-#fpr_update_button_container {
-  float: right;
-  margin-bottom: 10px;
-}
-
 .revisions_link {
   float: right;
   border: 1px solid #666;

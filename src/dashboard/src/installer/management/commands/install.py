@@ -23,7 +23,7 @@ from django.http import QueryDict
 
 from components import helpers
 from components.administration.forms import StorageSettingsForm
-from installer.steps import create_super_user, download_fpr_rules, setup_pipeline, setup_pipeline_in_ss, submit_fpr_agent
+from installer.steps import create_super_user, setup_pipeline, setup_pipeline_in_ss
 
 
 class Command(BaseCommand):
@@ -54,8 +54,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         setup_pipeline(options['org_name'], options['org_id'])
         create_super_user(options['username'], options['email'], options['password'], options['api_key'])
-        submit_fpr_agent()
-        download_fpr_rules()
         self.save_ss_settings(options)
         setup_pipeline_in_ss(use_default_config=True)
         helpers.set_setting('api_whitelist', options['whitelist'])

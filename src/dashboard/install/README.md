@@ -171,12 +171,6 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `300`
 
-- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_FPR_CLIENT_TIMEOUT`**:
-    - **Description:** configures the fpr client to stop waiting for a response after a given number of seconds.
-    - **Config file example:** `Dashboard.fpr_client_timeout`
-    - **Type:** `float`
-    - **Default:** `60`
-
 - **`ARCHIVEMATICA_DASHBOARD_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.
     - **Config file example:** `client.engine`
