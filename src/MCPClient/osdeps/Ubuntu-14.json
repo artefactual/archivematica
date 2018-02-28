@@ -22,6 +22,7 @@
   { "name": "ffmpeg", "state": "latest"},
   { "name": "fits", "state": "latest"},
   { "name": "gearman", "state": "latest"},
+  { "name": "ghostscript", "state": "latest"},
   { "name": "imagemagick", "state": "latest"},
   { "name": "inkscape", "state": "latest"},
   { "name": "jhove", "state": "latest"},
