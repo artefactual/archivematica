@@ -17,8 +17,11 @@ COPY archivematicaCommon/ /src/archivematicaCommon/
 COPY dashboard/ /src/dashboard/
 COPY MCPClient/ /src/MCPClient/
 
-# Workaround for https://github.com/artefactual/archivematica-fpr-admin/issues/49
-COPY archivematicaCommon/lib/externals/fido/archivematica_format_extensions.xml /usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml
+# Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
+# files being available in this image (e.g. see https://git.io/vA1wF).
+COPY archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
+COPY archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
+
 
 USER archivematica
 
