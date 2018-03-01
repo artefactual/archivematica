@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 import os
 
 from django.test import TestCase
