@@ -25,16 +25,22 @@ from linkTaskManager import LinkTaskManager
 
 choicesAvailableForUnits = {}
 
-from main.models import TaskConfigSetUnitVariable
+from main.models import TaskConfigSetUnitVariable, Job
 
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink, pk, unit)
-        # GET THE MAGIC NUMBER FROM THE TASK stuff
+        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink,
+                                                             pk, unit)
+
+        # Look up the variable entry in the workflow data.
         var = TaskConfigSetUnitVariable.objects.get(id=pk)
 
-        # Update the unit
-        # set the magic number
-        self.unit.setVariable(var.variable, var.variablevalue, var.microservicechainlink_id)
-        self.jobChainLink.linkProcessingComplete(0)
+        # Update the unit.
+        self.unit.setVariable(
+            var.variable,
+            var.variablevalue,
+            var.microservicechainlink_id)
+
+        # Mark as complete and continue
+        self.jobChainLink.linkProcessingComplete(Job.STATUS_UNKNOWN)

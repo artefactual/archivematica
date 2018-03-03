@@ -162,6 +162,8 @@ class jobChainLink:
 
     @log_exceptions
     @auto_close_db
-    def linkProcessingComplete(self, exitCode, passVar=None):
+    def linkProcessingComplete(self, exitCode, passVar=None, next_link_id=None):
         self.updateExitMessage(exitCode)
-        self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)
+        if next_link_id is None:
+            next_link_id = self.getNextChainLinkPK(exitCode)
+        self.jobChain.nextChainLink(next_link_id, passVar=passVar)

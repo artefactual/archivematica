@@ -30,11 +30,23 @@ from main.models import TaskConfigUnitVariableLinkPull, Job
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)
-        var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
-        link = self.unit.getmicroServiceChainLink(var.variable, var.variablevalue, var.defaultmicroservicechainlink_id)
+        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink,
+                                                                  pk, unit)
 
-        # Update the unit
-        if link is not None:
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
-            self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)
+        # Look up the variable entry in the workflow data.
+        var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
+
+        # Determine the next link.
+        link = self.unit.getmicroServiceChainLink(
+            var.variable,
+            var.variablevalue,
+            var.defaultmicroservicechainlink)
+
+        if link is None:
+            return
+
+        # Mark as complete and continue.
+        self.jobChainLink.linkProcessingComplete(
+            Job.STATUS_COMPLETED_SUCCESSFULLY,
+            passVar=self.jobChainLink.passVar,
+            next_link_id=link.id)
