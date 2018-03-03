@@ -74,24 +74,6 @@ class unitTransfer(unit):
         transfer.currentlocation = newLocation
         transfer.save()
 
-    def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.magiclink = link
-        if exitStatus:
-            transfer.magiclinkexitmessage = exitStatus
-        transfer.save()
-
-    def getMagicLink(self):
-        """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        try:
-            transfer = Transfer.objects.get(uuid=self.UUID)
-        except Transfer.DoesNotExist:
-            return
-        return (transfer.magiclink, transfer.magiclinkexitmessage)
-
     def reload(self):
         transfer = Transfer.objects.get(uuid=self.UUID)
         self.currentPath = transfer.currentlocation

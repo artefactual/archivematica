@@ -48,24 +48,6 @@ class unitSIP(unit):
     def __str__(self):
         return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
-    def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        sip = SIP.objects.get(uuid=self.UUID)
-        sip.magiclink = link
-        if exitStatus:
-            sip.magiclinkexitmessage = exitStatus
-        sip.save()
-
-    def getMagicLink(self):
-        """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        try:
-            sip = SIP.objects.get(uuid=self.UUID)
-        except SIP.DoesNotExist:
-            return
-        return (sip.magiclink, sip.magiclinkexitmessage)
-
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)
         self.createdTime = sip.createdtime

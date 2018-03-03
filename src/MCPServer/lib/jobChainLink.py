@@ -27,8 +27,6 @@ from utils import log_exceptions
 from linkTaskManagerDirectories import linkTaskManagerDirectories
 from linkTaskManagerFiles import linkTaskManagerFiles
 from linkTaskManagerChoice import linkTaskManagerChoice
-from linkTaskManagerAssignMagicLink import linkTaskManagerAssignMagicLink
-from linkTaskManagerLoadMagicLink import linkTaskManagerLoadMagicLink
 from linkTaskManagerReplacementDicFromChoice import linkTaskManagerReplacementDicFromChoice
 from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
 from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
@@ -45,8 +43,6 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 constOneTask = TaskType.objects.get(description="one instance").pk
 constTaskForEachFile = TaskType.objects.get(description="for each file").pk
 constSelectPathTask = TaskType.objects.get(description="get user choice to proceed with").pk
-constSetMagicLink = TaskType.objects.get(description="assign magic link").pk
-constLoadMagicLink = TaskType.objects.get(description="goto magic link").pk
 constGetReplacementDic = TaskType.objects.get(description="get replacement dic from user choice").pk
 constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = TaskType.objects.get(description="Get microservice generated list in stdOut").pk
 constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.objects.get(description="Get user choice from microservice generated list").pk
@@ -106,10 +102,6 @@ class jobChainLink:
             linkTaskManagerFiles(self, taskTypePKReference, self.unit)
         elif taskType == constSelectPathTask:
             linkTaskManagerChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constSetMagicLink:
-            linkTaskManagerAssignMagicLink(self, taskTypePKReference, self.unit)
-        elif taskType == constLoadMagicLink:
-            linkTaskManagerLoadMagicLink(self, taskTypePKReference, self.unit)
         elif taskType == constGetReplacementDic:
             linkTaskManagerReplacementDicFromChoice(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerGetMicroserviceGeneratedListInStdOut:

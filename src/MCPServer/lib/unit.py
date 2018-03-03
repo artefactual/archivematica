@@ -74,12 +74,6 @@ class unit:
             LOGGER.exception('Error reloading file list for %s', currentPath)
             exit(1)
 
-    def getMagicLink(self):
-        return
-
-    def setMagicLink(self, link, exitStatus=""):
-        return
-
     def setVariable(self, variable, variableValue, microServiceChainLink):
         """This gets called by linkTaskManagerSetUnitVariable.py in order to
         upsert `UnitVariable` rows for this unit. This is triggered by
