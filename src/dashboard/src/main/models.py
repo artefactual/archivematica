@@ -314,10 +314,6 @@ class SIP(models.Model):
     identifiers = models.ManyToManyField('Identifier')
     diruuids = models.BooleanField(db_column='dirUUIDs', default=False)
 
-    # Deprecated
-    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
-    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
-
     objects = UnitHiddenManager()
 
     class Meta:
@@ -348,10 +344,6 @@ class Transfer(models.Model):
     hidden = models.BooleanField(default=False)
     transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True, blank=True)
     diruuids = models.BooleanField(db_column='dirUUIDs', default=False)
-
-    # Deprecated
-    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
-    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
 
     objects = UnitHiddenManager()
 
@@ -977,16 +969,6 @@ class StandardTaskConfig(models.Model):
 
     class Meta:
         db_table = u'StandardTasksConfigs'
-
-
-class TaskConfigAssignMagicLink(models.Model):
-    id = UUIDPkField()
-    execute = models.ForeignKey('MicroServiceChainLink', null=True, db_column='execute', blank=True)
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta(object):
-        db_table = u'TasksConfigsAssignMagicLink'
 
 
 class TaskConfigSetUnitVariable(models.Model):

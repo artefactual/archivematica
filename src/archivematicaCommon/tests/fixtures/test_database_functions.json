@@ -39,8 +39,6 @@
             "createdtime": "2014-10-30T00:00:00",
             "currentpath": "%path%",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "sip_type": "SIP",
             "uuid": "742b0443-cf18-442a-94f9-6d5b4948227d"
         }
@@ -85,8 +83,6 @@
             "currentlocation": "%path%",
             "description": "",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "notes": "",
             "sourceofacquisition": "",
             "transfermetadatasetrow": null,
@@ -135,8 +131,6 @@
             "createdtime": "2014-10-30T00:00:00",
             "currentpath": "%path%",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "sip_type": "SIP",
             "uuid": "b266cd28-108c-41b3-9a49-a3d775ee6e76"
         }
@@ -149,8 +143,6 @@
             "currentlocation": "%path%",
             "description": "",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "notes": "",
             "sourceofacquisition": "",
             "transfermetadatasetrow": null,
@@ -199,8 +191,6 @@
             "createdtime": "2014-10-30T00:00:00",
             "currentpath": "%path%",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "sip_type": "SIP",
             "uuid": "01cf9fb8-bc01-40b4-b830-feb66e912f40"
         }
@@ -213,8 +203,6 @@
             "createdtime": "2014-10-30T00:00:00",
             "currentpath": "%path%",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "sip_type": "SIP",
             "uuid": "0049fa6c-152f-44a0-93b0-c5e856a02292"
         }
@@ -227,8 +215,6 @@
             "currentlocation": "%path%",
             "description": "",
             "hidden": false,
-            "magiclink": null,
-            "magiclinkexitmessage": null,
             "notes": "",
             "sourceofacquisition": "",
             "transfermetadatasetrow": null,
