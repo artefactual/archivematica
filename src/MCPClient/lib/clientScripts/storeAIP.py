@@ -21,7 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
-from annoying.functions import get_object_or_None
+
 import argparse
 import os
 import sys
@@ -125,8 +125,13 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
             print('Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.'.format(uuid))
     else:
         uuid = sip_uuid
-        related_package = get_object_or_None(UnitVariable, unituuid=sip_uuid, variable='relatedPackage')
-        related_package_uuid = related_package.variablevalue if related_package is not None else None
+        try:
+            related_package = UnitVariable.objects.get(
+                unituuid=sip_uuid, variable='relatedPackage')
+        except UnitVariable.DoesNotExist:
+            pass
+        else:
+            related_package_uuid = related_package.variablevalue
 
     # If AIP is a directory, calculate size recursively
     if os.path.isdir(aip_path):

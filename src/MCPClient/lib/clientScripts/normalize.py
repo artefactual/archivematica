@@ -20,7 +20,6 @@ django.setup()
 # dashboard
 from fpr.models import FPRule
 from main.models import Derivation, FileFormatVersion, File, FileID
-from annoying.functions import get_object_or_None
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -333,10 +332,10 @@ def main(opts):
         return SUCCESS
 
     do_fallback = False
-    format_id = get_object_or_None(
-        FileFormatVersion,
-        file_uuid=opts.file_uuid
-    )
+    try:
+        format_id = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
+    except FileFormatVersion.DoesNotExist:
+        format_id = None
 
     # Look up the normalization command in the FPR
     if format_id:

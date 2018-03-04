@@ -30,7 +30,6 @@ import django.http
 from django.conf import settings as django_settings
 
 # External dependencies, alphabetical
-from annoying.functions import get_object_or_None
 from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
 
 # This project, alphabetical
@@ -164,10 +163,16 @@ def status(request, unit_uuid, unit_type):
 
     # Get info about unit
     if unit_type == 'unitTransfer':
-        unit = get_object_or_None(models.Transfer, uuid=unit_uuid)
+        try:
+            unit = models.Transfer(uuid=unit_uuid)
+        except models.Transfer.DoesNotExist:
+            unit = None
         response['type'] = 'transfer'
     elif unit_type == 'unitSIP':
-        unit = get_object_or_None(models.SIP, uuid=unit_uuid)
+        try:
+            unit = models.SIP(uuid=unit_uuid)
+        except models.SIP.DoesNotExist:
+            unit = None
         response['type'] = 'SIP'
 
     if unit is None:
@@ -655,33 +660,33 @@ def path_metadata(request):
     path = request.GET.get('path', '') if request.method == 'GET' else request.POST.get('path', '')
 
     # Get current metadata, if any
-    file_lod = get_object_or_None(models.SIPArrange, arrange_path=path, sip_created=False)
-    if file_lod is None:
-        # Try with trailing / to see if it's a directory
-        file_lod = get_object_or_None(models.SIPArrange, arrange_path=path + '/', sip_created=False)
+    files = models.SIPArrange.objects.filter(
+        arrange_path__in=(path, path + '/'),
+        sip_created=False)
+    if not files:
+        raise django.http.Http404
+    file_lod = files.first()
 
     # Return current metadata, if requested
     if request.method == 'GET':
-        level_of_description = file_lod.level_of_description if file_lod is not None else ''
-
+        level_of_description = file_lod.level_of_description
         return helpers.json_response({
             "level_of_description": level_of_description
         })
 
     # Add/update metadata, if requested
     if request.method == 'POST':
-        level_of_description_id = request.POST.get('level_of_description', '')
-
-        level_of_description = get_object_or_None(models.LevelOfDescription, id=level_of_description_id)
-
         file_lod.relative_location = path
-        file_lod.level_of_description = level_of_description.name if level_of_description is not None else ''
+        try:
+            file_lod.level_of_description = \
+                models.LevelOfDescription.objects.get(
+                    pk=request.POST['level_of_description']).name
+        except (KeyError, models.LevelOfDescription.DoesNotExist):
+            file_lod.level_of_description = ''
         file_lod.save()
-
         body = {
             "success": True,
         }
-
         return helpers.json_response(body, status_code=201)
 
 

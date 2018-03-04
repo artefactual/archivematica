@@ -6,8 +6,6 @@ import os
 
 from .getFromRestAPI import each_record, FPRConnectionError
 
-from annoying.functions import get_object_or_None
-
 # Set up Django settings
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
@@ -47,13 +45,17 @@ class FPRClient(object):
             self.maxLastUpdate = fields['lastmodified']
 
         # If an fields with this UUID exists, update enabled
-        obj = get_object_or_None(model, uuid=fields['uuid'])
-        if obj:
-            print('Object already in DB:', get_object_or_None(model, uuid=fields['uuid']))
+        try:
+            obj = model.objects.get(uuid=fields['uuid'])
+        except model.DoesNotExist:
+            pass
+        else:
+            print('Object already in DB:', obj)
             if not hasattr(model, 'replaces') and hasattr(model, 'enabled'):
                 obj.enabled = fields['enabled']
                 obj.save()
             return
+
         # Otherwise, new fields, need to add to database
 
         # TastyPie doesn't like fields named format, so they're all fmt
@@ -75,10 +77,10 @@ class FPRClient(object):
                 valid_fields[field + u"_id"] = uuid
         # Insert FormatGroup for Formats if not exist
         if model == models.Format:
-            if not get_object_or_None(
-                    models.FormatGroup,
-                    uuid=fields['group']['uuid']):
-                models.FormatGroup.objects.create(**fields['group'])
+            models.FormatGroup.objects.get_or_create(
+                uuid=fields['group']['uuid'],
+                defaults=fields['group'],
+            )
             valid_fields['group_id'] = fields['group']['uuid']
             del valid_fields['group']
 
