@@ -30,7 +30,7 @@ import django
 django.setup()
 
 # dashboard
-from main.models import Job, SIP
+from main.models import Job, SIP, JOB_STATUS_COMPLETED_SUCCESSFULLY
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -74,6 +74,6 @@ if __name__ == '__main__':
         Job.objects.create(jobtype="Hack to make DIP Jobs appear",
                            directory=unitPath,
                            sip_id=originalSIPUUID,
-                           currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+                           currentstep=JOB_STATUS_COMPLETED_SUCCESSFULLY,
                            unittype="unitSIP",
                            microservicegroup="Upload DIP")

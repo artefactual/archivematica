@@ -49,6 +49,19 @@ METADATA_STATUS = (
     (METADATA_STATUS_UPDATED, 'updated'),  # Might be updated for both, on rereingest
 )
 
+JOB_STATUS_UNKNOWN = 0
+JOB_STATUS_AWAITING_DECISION = 1
+JOB_STATUS_COMPLETED_SUCCESSFULLY = 2
+JOB_STATUS_EXECUTING_COMMANDS = 3
+JOB_STATUS_FAILED = 4
+JOB_STATUS = (
+    (JOB_STATUS_UNKNOWN, _l('Unknown')),
+    (JOB_STATUS_AWAITING_DECISION, _l('Awaiting decision')),
+    (JOB_STATUS_COMPLETED_SUCCESSFULLY, _l('Completed successfully')),
+    (JOB_STATUS_EXECUTING_COMMANDS, _l('Executing command(s)')),
+    (JOB_STATUS_FAILED, _l('Failed'))
+)
+
 
 # CUSTOM FIELDS
 
@@ -530,19 +543,7 @@ class Job(models.Model):
     directory = models.TextField(blank=True)
     sipuuid = models.CharField(max_length=36, db_column='SIPUUID')  # Foreign key to SIPs or Transfers
     unittype = models.CharField(max_length=50, db_column='unitType', blank=True)
-    STATUS_UNKNOWN = 0
-    STATUS_AWAITING_DECISION = 1
-    STATUS_COMPLETED_SUCCESSFULLY = 2
-    STATUS_EXECUTING_COMMANDS = 3
-    STATUS_FAILED = 4
-    STATUS = (
-        (STATUS_UNKNOWN, _l('Unknown')),
-        (STATUS_AWAITING_DECISION, _l('Awaiting decision')),
-        (STATUS_COMPLETED_SUCCESSFULLY, _l('Completed successfully')),
-        (STATUS_EXECUTING_COMMANDS, _l('Executing command(s)')),
-        (STATUS_FAILED, _l('Failed'))
-    )
-    currentstep = models.IntegerField(db_column='currentStep', choices=STATUS, default=0, blank=False)
+    currentstep = models.IntegerField(db_column='currentStep', choices=JOB_STATUS, default=JOB_STATUS_UNKNOWN, blank=False)
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
     hidden = models.BooleanField(default=False)
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', db_column='MicroServiceChainLinksPK', null=True, blank=True)
@@ -863,7 +864,7 @@ class MicroServiceChainLink(models.Model):
     defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink', null=True, blank=True)
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
     reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
-    defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
+    defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', choices=JOB_STATUS, default=JOB_STATUS_FAILED)
     replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
     lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
@@ -879,7 +880,7 @@ class MicroServiceChainLinkExitCode(models.Model):
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='exit_codes', db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode', default=0)
     nextmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='parent_exit_codes+', db_column='nextMicroServiceChainLink', null=True, blank=True)
-    exitmessage = models.CharField(max_length=50, db_column='exitMessage', default='Completed successfully')
+    exitmessage = models.CharField(max_length=50, db_column='exitMessage', choices=JOB_STATUS, default=JOB_STATUS_COMPLETED_SUCCESSFULLY)
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 

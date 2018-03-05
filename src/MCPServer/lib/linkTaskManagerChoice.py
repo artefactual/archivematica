@@ -39,7 +39,12 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
 from abilities import choice_is_available
 
-from main.models import MicroServiceChainChoice, UserProfile, Job
+from main.models import (
+    MicroServiceChainChoice,
+    UserProfile,
+    JOB_STATUS_COMPLETED_SUCCESSFULLY,
+    JOB_STATUS_AWAITING_DECISION,
+)
 from django.conf import settings as django_settings
 
 waitingOnTimer = "waitingOnTimer"
@@ -64,13 +69,13 @@ class linkTaskManagerChoice(LinkTaskManager):
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
             time.sleep(django_settings.WAIT_ON_AUTO_APPROVE)
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.setExitMessage(JOB_STATUS_COMPLETED_SUCCESSFULLY)
             jobChain.jobChain(self.unit, preConfiguredChain)
 
         else:
             choicesAvailableForUnitsLock.acquire()
             if self.delayTimer is None:
-                self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
+                self.jobChainLink.setExitMessage(JOB_STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 
@@ -152,6 +157,6 @@ class linkTaskManagerChoice(LinkTaskManager):
             self.delayTimer = None
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
-        self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+        self.jobChainLink.setExitMessage(JOB_STATUS_COMPLETED_SUCCESSFULLY)
         LOGGER.info('Using user selected chain %s', chain)
         jobChain.jobChain(self.unit, chain)
