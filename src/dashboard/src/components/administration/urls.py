@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'processing/$', views_processing.list),
     url(r'processing/add/$', views_processing.edit),
     url(r'processing/edit/(?P<name>\w{1,16})/$', views_processing.edit),
+    url(r'processing/reset/(?P<name>\w{1,16})/$', views_processing.reset),
     url(r'processing/delete/(?P<name>\w{1,16})/$', views_processing.delete),
     url(r'premis/agent/$', views.premis_agent),
     url(r'handle/$', views.handle_config),

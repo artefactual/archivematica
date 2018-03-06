@@ -26,6 +26,7 @@ from django.contrib import messages
 from django.http import Http404
 
 from components import helpers
+from processing import install_builtin_config
 from .forms import ProcessingConfigurationForm
 
 
@@ -76,4 +77,16 @@ def delete(request, name):
         os.remove(config_path)
     except OSError:
         pass
+    return redirect('components.administration.views_processing.list')
+
+
+def reset(request, name):
+    try:
+        install_builtin_config(name, force=True)
+        messages.info(request, 'Configuration "%s" was reset' % name)
+    except Exception:
+        msg = 'Failed to reset processing config "%s".' % name
+        logger.exception(msg)
+        messages.error(request, msg)
+
     return redirect('components.administration.views_processing.list')
