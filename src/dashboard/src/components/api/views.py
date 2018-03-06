@@ -17,6 +17,7 @@
 
 # stdlib, alphabetical
 import base64
+from collections import namedtuple
 import json
 import shutil
 import logging
@@ -44,6 +45,30 @@ from main import models
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 UUID_REGEX = re.compile(r'^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$', re.IGNORECASE)
+
+
+TransferType = namedtuple('TransferType', 'dir description')
+
+TRANSFER_TYPE_DIRECTORIES = {
+    'standard': TransferType(
+        dir='standardTransfer',
+        description='Approve standard transfer'),
+    'unzipped bag': TransferType(
+        dir='baggitDirectory',
+        description='Approve bagit transfer'),
+    'zipped bag': TransferType(
+        dir='baggitZippedDirectory',
+        description='Approve zipped bagit transfer'),
+    'dspace': TransferType(
+        dir='Dspace',
+        description='Approve DSpace transfer'),
+    'maildir': TransferType(
+        dir='maildir',
+        description='Approve maildir transfer'),
+    'TRIM': TransferType(
+        dir='TRIM',
+        description='Approve TRIM transfer'),
+}
 
 
 def _api_endpoint(expected_methods):
@@ -261,18 +286,27 @@ def mark_completed_hidden(request, unit_type):
 
 @_api_endpoint(expected_methods=['POST'])
 def start_transfer_api(request):
-    """
-    Endpoint for starting a transfer if calling remote and using an API key.
-    """
-    transfer_name = request.POST.get('name', '')
-    transfer_type = request.POST.get('type', '')
-    accession = request.POST.get('accession', '')
-    paths = request.POST.getlist('paths[]', [])
-    paths = [base64.b64decode(path) for path in paths]
+    """Start a transfer."""
+    client = MCPClient()
     row_ids = request.POST.getlist('row_ids[]', [''])
-
-    response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
-    return helpers.json_response(response)
+    for index, path in enumerate(request.POST.getlist('paths[]', [])):
+        path = base64.b64decode(path)
+        metadata_set_id = row_ids[index] if index in row_ids else None
+        try:
+            client.create_package(request.POST.get('name'),
+                                  request.POST.get('type'),
+                                  request.POST.get('accession'),
+                                  path, metadata_set_id,
+                                  # The following keyword is important because
+                                  # the new default is to auto approve
+                                  # transfers. This also guarantees that the
+                                  # call will block until the files are moved
+                                  # to the corresponding watched directory that
+                                  # initiates the transfer.
+                                  auto_approve=False)
+        except Exception as err:
+            LOGGER.error(err)
+    return helpers.json_response({'ok': 'True', 'TODO': True})
 
 
 @_api_endpoint(expected_methods=['GET'])
@@ -344,7 +378,10 @@ def unapproved_transfers(request):
 
         transfer_watch_directory = type_and_directory.split('/')[0]
         # Get transfer type from transfer directory
-        transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
+        transfer_type_directories_reversed = {
+            v.dir: k
+            for k, v in TRANSFER_TYPE_DIRECTORIES.items()
+        }
         transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
         job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
@@ -393,7 +430,9 @@ def get_modified_standard_transfer_path(transfer_type=None):
 
     if transfer_type is not None:
         try:
-            path = os.path.join(path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type])
+            path = os.path.join(
+                path,
+                TRANSFER_TYPE_DIRECTORIES[transfer_type].dir)
         except:
             return None
 
@@ -419,17 +458,8 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
             try:
                 job = models.Job.objects.filter(directory=db_transfer_path, currentstep=models.Job.STATUS_AWAITING_DECISION)[0]
                 unit_uuid = job.sipuuid
-
-                type_task_config_descriptions = {
-                    'standard': 'Approve standard transfer',
-                    'unzipped bag': 'Approve bagit transfer',
-                    'zipped bag': 'Approve zipped bagit transfer',
-                    'dspace': 'Approve DSpace transfer',
-                    'maildir': 'Approve maildir transfer',
-                    'TRIM': 'Approve TRIM transfer'
-                }
-
-                type_description = type_task_config_descriptions[transfer_type]
+                type_description = \
+                    TRANSFER_TYPE_DIRECTORIES[transfer_type].description
 
                 # use transfer type to fetch possible choices to execute
                 choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink__currenttask__description=type_description)

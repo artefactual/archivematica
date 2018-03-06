@@ -64,7 +64,8 @@ class MCPClient:
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getNotifications failed (check MCPServer logs)")
 
-    def create_package(self, name, type_, accession, path, metadata_set_id):
+    def create_package(self, name, type_, accession, path, metadata_set_id,
+                       auto_approve=True):
         gm_client = gearman.GearmanClient([self.server])
         data = cPickle.dumps({
             'name': name,
@@ -72,6 +73,7 @@ class MCPClient:
             'accession': accession,
             'path': path,
             'metadata_set_id': metadata_set_id,
+            'auto_approve': auto_approve,
         })
         response = gm_client.submit_job('packageCreate', data,
                                         background=False,
@@ -80,18 +82,5 @@ class MCPClient:
         gm_client.shutdown()
         if response.state == gearman.JOB_COMPLETE:
             return cPickle.loads(response.result)  # Transfer ID (pickled)
-        elif response.state == gearman.JOB_FAILED:
-            raise RPCError('MCPServer returned an error (check the logs)')
-
-    def read_package(self, id_):
-        gm_client = gearman.GearmanClient([self.server])
-        data = cPickle.dumps({'id': id_})
-        response = gm_client.submit_job('packageRead', data,
-                                        background=False,
-                                        wait_until_complete=True,
-                                        poll_timeout=INFLIGHT_POLL_TIMEOUT)
-        gm_client.shutdown()
-        if response.state == gearman.JOB_COMPLETE:
-            return cPickle.loads(response.result)
         elif response.state == gearman.JOB_FAILED:
             raise RPCError('MCPServer returned an error (check the logs)')

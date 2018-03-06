@@ -63,24 +63,3 @@ def directory_to_dict(path, directory={}, entry=False):
 
     # return fully traversed data
     return directory
-
-
-def check_filepath_exists(filepath):
-    error = None
-    if filepath == '':
-        error = 'No filepath provided.'
-
-    # check if exists
-    if error is None and not os.path.exists(filepath):
-        error = 'Filepath ' + filepath + ' does not exist.'
-
-    # check if is file or directory
-
-    # check for trickery
-    try:
-        filepath.index('..')
-        error = 'Illegal path.'
-    except:
-        pass
-
-    return error

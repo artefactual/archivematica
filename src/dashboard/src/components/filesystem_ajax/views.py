@@ -21,7 +21,6 @@ import os
 import logging
 import re
 import shutil
-import tempfile
 import uuid
 
 from django.conf import settings as django_settings
@@ -44,21 +43,9 @@ locale.setlocale(locale.LC_ALL, '')
 
 logger = logging.getLogger('archivematica.dashboard')
 
-SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
-ACTIVE_TRANSFER_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 'activeTransfers')
-ORIGINAL_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'www', 'AIPsStore', 'transferBacklog', 'originals')
 
 DEFAULT_BACKLOG_PATH = 'originals/'
 DEFAULT_ARRANGE_PATH = '/arrange/'
-
-TRANSFER_TYPE_DIRECTORIES = {
-    'standard': 'standardTransfer',
-    'unzipped bag': 'baggitDirectory',
-    'zipped bag': 'baggitZippedDirectory',
-    'dspace': 'Dspace',
-    'maildir': 'maildir',
-    'TRIM': 'TRIM'
-}
 
 
 def _prepare_browse_response(response):
@@ -199,113 +186,6 @@ def delete_arrange(request, filepath=None):
     models.SIPArrangeAccessMapping.objects.filter(arrange_path=filepath).delete()
     models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
     return helpers.json_response({'message': _('Delete successful.')})
-
-
-def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
-    """
-    Start a new transfer.
-
-    :param str transfer_name: Name of new transfer.
-    :param str transfer_type: Type of new transfer. From TRANSFER_TYPE_DIRECTORIES.
-    :param str accession: Accession number of new transfer.
-    :param list paths: List of <location_uuid>:<relative_path> to be copied into the new transfer. Location UUIDs should be associated with this pipeline, and relative path should be relative to the location.
-    :param list row_ids: ID of the associated TransferMetadataSet for disk image ingest.
-    :returns: Dict with {'message': <message>, ['error': True, 'path': <path>]}.  Error is a boolean, present and True if there is an error.  Message describes the success or failure. Path is populated if there is no error.
-    """
-    if not transfer_name:
-        raise ValueError('No transfer name provided.')
-    if not paths:
-        raise ValueError('No path provided.')
-
-    # Create temp directory that everything will be copied into
-    temp_base_dir = os.path.join(SHARED_DIRECTORY_ROOT, 'tmp')
-    temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
-    os.chmod(temp_dir, 0o770)  # Needs to be writeable by the SS
-
-    for i, path in enumerate(paths):
-        index = i + 1  # so transfers start from 1, not 0
-        # Don't suffix the first transfer component, only subsequent ones
-        if index > 1:
-            target = transfer_name + '_' + str(index)
-        else:
-            target = transfer_name
-        row_id = row_ids[i]
-
-        if helpers.file_is_an_archive(path):
-            transfer_dir = temp_dir
-            p = path.split(':', 1)[1]
-            logger.debug('found a zip file, splitting path ' + p)
-            filepath = os.path.join(temp_dir, os.path.basename(p))
-        else:
-            path = os.path.join(path, '.')  # Copy contents of dir but not dir
-            transfer_dir = os.path.join(temp_dir, target)
-            filepath = os.path.join(temp_dir, target)
-
-        transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, '', 1)
-        copy_from_transfer_sources([path], transfer_relative)
-        filepath = archivematicaFunctions.unicodeToStr(filepath)
-        try:
-            destination = copy_to_start_transfer(
-                filepath=filepath,
-                type=transfer_type, accession=accession,
-                transfer_metadata_set_row_uuid=row_id)
-        except Exception:
-            logger.exception("Error copying %s to start of transfer", filepath)
-            raise storage_service.StorageServiceError('Error copying {} to start of transfer.'.format(filepath))
-
-    shutil.rmtree(temp_dir)
-    return {'message': _('Copy successful.'), 'path': destination}
-
-
-def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
-    error = filesystem_ajax_helpers.check_filepath_exists(filepath)
-
-    if error is None:
-        # confine destination to subdir of originals
-        basename = os.path.basename(filepath)
-
-        # default to standard transfer
-        type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, 'standardTransfer')
-        destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir, basename)
-        destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
-
-        # Ensure directories end with a trailing /
-        if os.path.isdir(filepath):
-            destination = os.path.join(destination, '')
-
-        # If we need to pass additional data to the Transfer, create the object here instead of letting MCPClient create it
-        if accession != '' or transfer_metadata_set_row_uuid != '':
-            temp_uuid = str(uuid.uuid4())
-            mcp_destination = destination.replace(os.path.join(SHARED_DIRECTORY_ROOT, ''), '%sharedPath%')
-            kwargs = {
-                "uuid": temp_uuid,
-                "accessionid": accession,
-                "currentlocation": mcp_destination
-            }
-
-            # Even if a UUID is passed, there might not be a row with
-            # that UUID yet - for instance, if the user opened an edit
-            # form but did not save any metadata for that row.
-            if transfer_metadata_set_row_uuid:
-                try:
-                    row = models.TransferMetadataSet.objects.get(
-                        id=transfer_metadata_set_row_uuid
-                    )
-                    kwargs["transfermetadatasetrow"] = row
-                except models.TransferMetadataSet.DoesNotExist:
-                    pass
-
-            transfer = models.Transfer.objects.create(**kwargs)
-            transfer.save()
-
-        try:
-            shutil.move(filepath, destination)
-        except (OSError, shutil.Error) as e:
-            error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(e) + ')'
-
-    if error:
-        raise Exception(error)
-    return destination
 
 
 def _source_transfers_gave_uuids_to_directories(files):
