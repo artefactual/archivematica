@@ -274,8 +274,11 @@ def logJobCreatedSQL(job):
     # microseconds are always 6 digits
     # The number returned may have a leading 0 which needs to be preserved
     decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
-    if job.unit.owningUnit is not None:
-        unitUUID = job.unit.owningUnit.UUID
+    try:
+        if job.unit.owningUnit is not None:
+            unitUUID = job.unit.owningUnit.UUID
+    except AttributeError:
+        pass
     Job.objects.create(jobuuid=job.UUID,
                        jobtype=job.description,
                        directory=job.unit.currentPath,
@@ -285,8 +288,7 @@ def logJobCreatedSQL(job):
                        microservicegroup=str(job.microserviceGroup),
                        createdtime=job.createdDate,
                        createdtimedec=decDate,
-                       microservicechainlink_id=str(job.pk),
-                       subjobof=str(job.subJobOf))
+                       microservicechainlink_id=str(job.pk))
 
     # TODO -un hardcode executing exeCommand
 

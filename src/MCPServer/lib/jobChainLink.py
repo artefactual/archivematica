@@ -55,7 +55,7 @@ constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="lin
 
 
 class jobChainLink:
-    def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
+    def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None):
         if jobChainLinkPK is None:
             return None
         self.UUID = uuid.uuid4().__str__()
@@ -63,7 +63,6 @@ class jobChainLink:
         self.unit = unit
         self.passVar = passVar
         self.createdDate = getUTCDate()
-        self.subJobOf = subJobOf
 
         # Depending on the path that led to this, jobChainLinkPK may
         # either be a UUID or a MicroServiceChainLink instance
