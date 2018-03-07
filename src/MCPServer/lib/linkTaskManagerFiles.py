@@ -36,6 +36,7 @@ from dicts import ReplacementDict
 from main.models import StandardTaskConfig, UnitVariable
 
 from django.conf import settings as django_settings
+from django.db import transaction
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -85,6 +86,10 @@ class linkTaskManagerFiles(LinkTaskManager):
         # Escape all values for shell
         for key, value in SIPReplacementDic.items():
             SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+
+        threads_to_run = []
+        tasks_to_log = []
+
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
             if filterFileEnd:
@@ -124,9 +129,17 @@ class linkTaskManagerFiles(LinkTaskManager):
             UUID = str(uuid.uuid4())
             task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
             self.tasks[UUID] = task
-            databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
             t = threading.Thread(target=task.performTask)
             t.daemon = True
+
+            threads_to_run.append(t)
+            tasks_to_log.append((commandReplacementDic, UUID, arguments))
+
+        with transaction.atomic():
+            for task_to_log in tasks_to_log:
+                databaseFunctions.logTaskCreatedSQL(self, *task_to_log)
+
+        for t in threads_to_run:
             while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount()):
                 self.tasksLock.release()
                 time.sleep(django_settings.LIMIT_TASK_THREADS_SLEEP)
