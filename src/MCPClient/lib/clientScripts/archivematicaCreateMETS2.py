@@ -890,7 +890,12 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath,
 
             elif use in ("preservation", "text/ocr"):
                 # Derived files should be in the original file's group
-                d = Derivation.objects.get(derived_file_id=f.uuid)
+                try:
+                    d = Derivation.objects.get(derived_file_id=f.uuid)
+                except Derivation.DoesNotExist:
+                    print('Fatal error: unable to locate a Derivation object'
+                          ' where the derived file is {}'.format(f.uuid))
+                    raise
                 GROUPID = "Group-" + d.source_file_id
 
             elif use == "service":

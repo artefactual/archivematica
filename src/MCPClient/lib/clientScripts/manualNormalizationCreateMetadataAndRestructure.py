@@ -117,6 +117,9 @@ try:
     e = Event.objects.get(event_type="normalization", file_uuid=original_file)
     e.event_outcome_detail = dstR
     e.save()
+    print('Updated the eventOutcomeDetailNote of an existing normalization'
+          ' Event for file {}. Not creating a Derivation object'.format(
+              fileUUID))
 except Event.DoesNotExist:
     # No normalization event was created in normalize.py - probably manually
     # normalized during Ingest
@@ -129,6 +132,8 @@ except Event.DoesNotExist:
         eventDetail="manual normalization",
         eventOutcome="",
         eventOutcomeDetailNote=dstR)
+    print('Created a manual normalization Event for file {}.'.format(
+        original_file.uuid))
 
     # Add linking information between files
     # Assuming that if an event already exists, then the derivation does as well
@@ -136,5 +141,7 @@ except Event.DoesNotExist:
         sourceFileUUID=original_file.uuid,
         derivedFileUUID=fileUUID,
         relatedEventUUID=derivationEventUUID)
+    print('Created a Derivation for original file {}, derived file {}, and'
+          ' event {}'.format(original_file.uuid, fileUUID, derivationEventUUID))
 
 exit(0)

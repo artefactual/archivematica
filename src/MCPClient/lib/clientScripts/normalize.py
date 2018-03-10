@@ -146,13 +146,27 @@ def check_manual_normalization(opts):
                             "%SIPDirectory%objects/manualNormalization/access/")
     else:
         return None
-    try:
-        # FIXME: SQL uses removedtime=0. Cannot get Django to express this
-        return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path)  # removedtime = 0
-    except (File.DoesNotExist, File.MultipleObjectsReturned):
+
+    # FIXME: SQL uses removedtime=0. Cannot get Django to express this
+    print('Checking for a manually normalized file by trying to get the'
+          ' unique file that matches SIP UUID {} and whose currentlocation'
+          ' value starts with this path: {}.'.format(opts.sip_uuid, path))
+    matches = File.objects.filter(  # removedtime = 0
+        sip=opts.sip_uuid, currentlocation__startswith=path)
+    if not matches:
         # No file with the correct path found, assume not manually normalized
+        print('No such file found.')
         return None
-    return None
+    if len(matches) > 1:
+        # If multiple matches, the shortest one should be the correct one. E.g.,
+        # if original is /a/b/abc.NEF then /a/b/abc.tif and /a/b/abc_1.tif will
+        # both match but /a/b/abc.tif is the correct match.
+        print('Multiple files matching path {} found. Returning the shortest'
+              ' one.')
+        ret = sorted(matches, key=lambda f: f.currentlocation)[0]
+        print('Returning file at {}'.format(ret.currentlocation))
+        return ret
+    return matches[0]
 
 
 def once_normalized(command, opts, replacement_dict):
