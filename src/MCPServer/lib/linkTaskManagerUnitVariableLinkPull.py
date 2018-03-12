@@ -25,7 +25,7 @@ from linkTaskManager import LinkTaskManager
 
 choicesAvailableForUnits = {}
 
-from main.models import TaskConfigUnitVariableLinkPull, Job
+from main.models import TaskConfigUnitVariableLinkPull
 
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
@@ -47,6 +47,6 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
 
         # Mark as complete and continue.
         self.jobChainLink.linkProcessingComplete(
-            Job.STATUS_COMPLETED_SUCCESSFULLY,
+            exitCode=0,
             passVar=self.jobChainLink.passVar,
             next_link_id=link.id)

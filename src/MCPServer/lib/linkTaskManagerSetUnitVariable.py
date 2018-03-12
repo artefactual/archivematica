@@ -25,7 +25,7 @@ from linkTaskManager import LinkTaskManager
 
 choicesAvailableForUnits = {}
 
-from main.models import TaskConfigSetUnitVariable, Job
+from main.models import TaskConfigSetUnitVariable
 
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):
@@ -43,4 +43,4 @@ class linkTaskManagerSetUnitVariable(LinkTaskManager):
             var.microservicechainlink_id)
 
         # Mark as complete and continue
-        self.jobChainLink.linkProcessingComplete(Job.STATUS_UNKNOWN)
+        self.jobChainLink.linkProcessingComplete(exitCode=0)
