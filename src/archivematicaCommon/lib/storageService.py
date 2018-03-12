@@ -249,7 +249,7 @@ def copy_files(source_location, destination_location, files):
         response = _storage_api_session().post(url, json=move_files)
         return wait_for_async(response)
     except requests.exceptions.RequestException as e:
-        LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
+        LOGGER.warning("Unable to move files with %s because %s", move_files, e)
         return (None, e)
 
 
