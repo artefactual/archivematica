@@ -174,8 +174,11 @@ def execute_command(gearman_worker, gearman_job):
     try:
         script, task_uuid = _process_gearman_job(
             gearman_job, gearman_worker)
-    except ProcessGearmanJobError as error:
-        return cPickle.dumps(error)
+    except ProcessGearmanJobError:
+        return cPickle.dumps({
+            'exitCode': 1,
+            'stdOut': 'Archivematica Client Process Gearman Job Error!',
+            'stdError': traceback.format_exc()})
     except Exception:
         return _unexpected_error()
     logger.info('<processingCommand>{%s}%s</processingCommand>',
