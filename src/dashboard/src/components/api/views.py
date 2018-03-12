@@ -164,13 +164,13 @@ def status(request, unit_uuid, unit_type):
     # Get info about unit
     if unit_type == 'unitTransfer':
         try:
-            unit = models.Transfer(uuid=unit_uuid)
+            unit = models.Transfer.objects.get(uuid=unit_uuid)
         except models.Transfer.DoesNotExist:
             unit = None
         response['type'] = 'transfer'
     elif unit_type == 'unitSIP':
         try:
-            unit = models.SIP(uuid=unit_uuid)
+            unit = models.SIP.objects.get(uuid=unit_uuid)
         except models.SIP.DoesNotExist:
             unit = None
         response['type'] = 'SIP'
