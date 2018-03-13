@@ -1,3 +1,10 @@
+This file is not maintained anymore.
+
+Visit our [release notes](https://wiki.archivematica.org/Release_Notes) wiki
+page for more details.
+
+---
+
 1.5.0
 =====
 
