@@ -928,22 +928,41 @@ def download_fs(request):
         raise django.http.Http404
 
 
-def download_by_uuid(request, uuid):
+def preview_by_uuid(request, uuid):
+    """Simple wrapper to the download_by_uuid function to create a route
+    through the code to enable the preview of a file in the browser, not
+    automatically download.
     """
-    Download a file from the Storage Service, given its UUID.
+    return download_by_uuid(request, uuid, preview_file=True)
 
-    This view will stream the response directly from the storage service, so, unlike download_ss, this will work even if the Storage Service is not accessible to the requestor.
 
-    Returns 404 if a file with the requested UUID cannot be found, and 400 if the storage service fails to retrieve the record.
+def download_by_uuid(request, uuid, preview_file=False):
+    """Download a file from the Storage Service, given its UUID.
+
+    This view will stream the response directly from the storage service,
+    so, unlike download_ss, this will work even if the Storage Service is
+    not accessible to the requestor.
+
+    Returns 404 if a file with the requested UUID cannot be found. Otherwise
+    the status code is returned via the call to
+    ``stream_file_from_storage_service``
+
+    ``preview_file`` is an instruction to be applied to the response headers
+    to enable the file to be seen inside the browser if it is capable of being
+    rendered. On receiving this instruction, the content-disposition header
+    will be set in the stream_file_from_storage_service to 'inline'.
     """
     try:
         f = models.File.objects.get(uuid=uuid)
     except models.File.DoesNotExist:
         response = {
             'success': False,
-            'message': _('File with UUID %(uuid)s could not be found') % {'uuid': uuid},
+            'message': _('File with UUID %(uuid)s '
+                         'could not be found') % {'uuid': uuid},
         }
         return helpers.json_response(response, status_code=404)
     relative_path = f.currentlocation.replace('%transferDirectory%', '')
-    redirect_url = storage_service.extract_file_url(f.transfer_id, relative_path)
-    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
+    redirect_url = storage_service.extract_file_url(f.transfer_id,
+                                                    relative_path)
+    return helpers.stream_file_from_storage_service(
+        redirect_url, 'Storage service returned {}; check logs?', preview_file)
