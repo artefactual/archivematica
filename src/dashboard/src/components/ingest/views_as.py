@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from components import advanced_search
 from main import models
 
-from agentarchives.archivesspace import ArchivesSpaceClient, AuthenticationError, ConnectionError
+from agentarchives.archivesspace import ArchivesSpaceError, ArchivesSpaceClient, AuthenticationError, ConnectionError
 
 from components.ingest import pair_matcher
 
@@ -18,6 +18,9 @@ logger = logging.getLogger('archivematica.dashboard')
 
 def get_as_system_client():
     config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
+
+    if not config['host']:
+        raise ArchivesSpaceError("ArchivesSpace host string has not been set")
 
     return ArchivesSpaceClient(
         host=config['host'],

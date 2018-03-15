@@ -53,7 +53,7 @@ def _authenticate_to_archivesspace(func):
             }
             return django.http.HttpResponseServerError(json.dumps(response),
                                                        content_type="application/json")
-        except ArchivesSpaceError:
+        except (ArchivesSpaceError):
             response = {
                 "success": False,
                 "message": "Unable to connect to ArchivesSpace server at the default location! Check administrative settings."
