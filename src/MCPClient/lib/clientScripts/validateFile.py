@@ -15,6 +15,7 @@ Usage::
 from __future__ import print_function
 import ast
 import os
+from pprint import pformat
 import sys
 
 import django
@@ -81,8 +82,8 @@ class Validator(object):
         """
         if self.file_type in DERIVATIVE_TYPES and not self._file_is_derivative():
             print('File {uuid} {not_derivative_msg}; not validating.'.format(
-                  uuid=self.file_uuid,
-                  not_derivative_msg=self._not_derivative_msg()))
+                uuid=self.file_uuid,
+                not_derivative_msg=self._not_derivative_msg()))
             return NOT_DERIVATIVE_CODE
         rules = self._get_rules()
         if not rules:
@@ -130,15 +131,14 @@ class Validator(object):
             args = [self.file_path]
         print('Running', rule.command.description)
         exitstatus, stdout, stderr = executeOrRun(
-            rule.command.script_type,
-            command_to_execute,
+            type=rule.command.script_type,
+            text=command_to_execute,
+            printing=False,
             arguments=args)
         if exitstatus != 0:
             print('Command {} failed with exit status {}; stderr:'.format(
                 rule.command.description, exitstatus), stderr, file=sys.stderr)
             return 'failed'
-        print('Command {} completed with output {}'.format(
-              rule.command.description, stdout))
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
         # insecure practice; should be JSON.
@@ -153,14 +153,18 @@ class Validator(object):
         # NOTE: this requires that the stdout of all validation FPR commands be
         # a dict (preferably a JSON object) with an ``eventOutcomeInformation``
         # boolean attribute.
-        if output.get('eventOutcomeInformation') != 'pass':
-            print('Command {} indicated failure with this output:\n\n{}'.format(
-                rule.command.description, stdout), file=sys.stderr)
+        if output.get('eventOutcomeInformation') == 'pass':
+            print('Command "{}" was successful'.format(rule.command.description))
+        else:
+            print('Command "{}" indicated failure with this'
+                  ' output:\n\n{}'.format(
+                      rule.command.description, pformat(stdout)),
+                  file=sys.stderr)
             result = 'failed'
         if self.file_type == 'preservation':
             self._save_stdout_to_logs_dir(output)
-        print('Creating {} event for {} ({})'
-              .format(self.purpose, self.file_path, self.file_uuid))
+        print('Creating {} event for {} ({})'.format(
+            self.purpose, self.file_path, self.file_uuid))
         databaseFunctions.insertIntoEvents(
             fileUUID=self.file_uuid,
             eventType='validation',  # From PREMIS controlled vocab.
