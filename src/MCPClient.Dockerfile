@@ -83,6 +83,18 @@ RUN set -ex \
 		libxslt-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
+# OS dependencies from .deb files
+RUN set -ex \
+  && curl -s https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb --output libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && curl -s https://mediaarea.net/download/binary/libmediainfo0/17.12/libmediainfo0_17.12-1_amd64.xUbuntu_14.04.deb --output libmediainfo0_17.12-1_amd64.xUbuntu_14.04.deb \
+  && curl -s https://mediaarea.net/download/binary/mediaconch/17.12/mediaconch_17.12-1_amd64.xUbuntu_14.04.deb --output mediaconch_17.12-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i libmediainfo0_17.12-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i mediaconch_17.12-1_amd64.xUbuntu_14.04.deb \
+  && rm libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && rm libmediainfo0_17.12-1_amd64.xUbuntu_14.04.deb \
+  && rm mediaconch_17.12-1_amd64.xUbuntu_14.04.deb
+
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
 COPY MCPClient/requirements/ /src/MCPClient/requirements/
