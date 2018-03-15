@@ -306,14 +306,27 @@ def processing_config_path():
     )
 
 
-def stream_file_from_storage_service(url, error_message='Remote URL returned {}'):
-    stream = requests.get(url, stream=True, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
+def stream_file_from_storage_service(url,
+                                     error_message='Remote URL returned {}',
+                                     preview_file=False):
+    # Repetetive or constant values to use below when seeting the headers.
+    header_content_disposition = 'Content-Disposition'
+    content_disposition_inline = 'inline'
+    storage_timeout = django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT
+    stream = requests.get(url,
+                          stream=True,
+                          timeout=storage_timeout)
     if stream.status_code == 200:
         content_type = stream.headers.get('content-type', 'text/plain')
-        content_disposition = stream.headers.get('content-disposition')
         response = StreamingHttpResponse(stream, content_type=content_type)
-        if content_disposition:
-            response['Content-Disposition'] = content_disposition
+
+        # Provide a content-disposition so the browser knows how to handles
+        # the response.
+        content_disposition = stream.headers.get('content-disposition')
+        if preview_file:
+            response[header_content_disposition] = content_disposition_inline
+        elif content_disposition:
+            response[header_content_disposition] = content_disposition
         return response
     else:
         response = {
