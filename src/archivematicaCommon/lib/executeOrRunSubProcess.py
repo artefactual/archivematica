@@ -128,7 +128,7 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[],
     cmd.extend(arguments)
 
     # Run it
-    ret = launchSubProcess(cmd, stdIn="", printing=True,
+    ret = launchSubProcess(cmd, stdIn="", printing=printing,
                            env_updates=env_updates,
                            capture_output=capture_output)
 
