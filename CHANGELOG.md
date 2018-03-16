@@ -1,9 +1,7 @@
-This file is not maintained anymore.
+1.6.0 onwards
+=============
 
-Visit our [release notes](https://wiki.archivematica.org/Release_Notes) wiki
-page for more details.
-
----
+This CHANGELOG is not longer maintained. Please visit the Archivematica wiki for comprehensive [release notes](https://wiki.archivematica.org/Release_Notes).
 
 1.5.0
 =====
