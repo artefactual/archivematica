@@ -56,13 +56,5 @@
   },
   "model": "auth.user",
   "pk": 1
-},
-{
-  "fields": {
-    "user": 1,
-    "agent": 3
-  },
-  "model": "main.userprofile",
-  "pk": 1
 }
 ]

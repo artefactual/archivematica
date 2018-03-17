@@ -2,6 +2,7 @@
 import collections
 import csv
 import os
+import shutil
 import sys
 import unittest
 
@@ -34,14 +35,19 @@ class TestNormativeStructMap(TestCase):
 
     def test_path_to_fsitems(self):
         """It should return 4 tuple instances"""
-        os.mkdir(os.path.join(self.sip_object_dir, 'empty_dir'))
-        fsitems = archivematicaCreateMETS2.get_paths_as_fsitems(
-            self.sip_dir, self.sip_object_dir)
-        assert len(fsitems) == 4
-        assert isinstance(fsitems[0], tuple)
-        assert isinstance(fsitems[1], tuple)
-        assert isinstance(fsitems[2], tuple)
-        assert isinstance(fsitems[3], tuple)
+        empty_dir = os.path.join(self.sip_object_dir, 'empty_dir')
+        try:
+            # Class tempfile.TemporaryDirectory only available in Py3.
+            os.mkdir(empty_dir)
+            fsitems = archivematicaCreateMETS2.get_paths_as_fsitems(
+                self.sip_dir, self.sip_object_dir)
+            assert len(fsitems) == 4
+            assert isinstance(fsitems[0], tuple)
+            assert isinstance(fsitems[1], tuple)
+            assert isinstance(fsitems[2], tuple)
+            assert isinstance(fsitems[3], tuple)
+        finally:
+            shutil.rmtree(empty_dir)
 
     def test_normative_structmap_creation(self):
         """It should return an etree Element instance."""
