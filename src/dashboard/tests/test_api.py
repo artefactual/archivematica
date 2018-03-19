@@ -1,12 +1,18 @@
 #!/usr/bin/env python2
 
 import os
+import tempfile
 
+from django.conf import settings
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.client import Client
+from lxml import etree
 
 from components.api import views
 from components import helpers
+from processing import install_builtin_config
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -113,6 +119,60 @@ class TestAPI(TestCase):
         assert 'microservice' in status
         assert status['status'] == 'COMPLETE'
         assert len(completed) == 1
+
+
+class TestProcessingConfigurationAPI(TestCase):
+    fixture_files = ['test_user.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='test', password='test')
+        helpers.set_setting('dashboard_uuid', 'test-uuid')
+        settings.SHARED_DIRECTORY = tempfile.gettempdir()
+        self.config_path = os.path.join(
+            settings.SHARED_DIRECTORY,
+            'sharedMicroServiceTasksConfigs/processingMCPConfigs/'
+        )
+        if not os.path.exists(self.config_path):
+            os.makedirs(self.config_path)
+        install_builtin_config('default')
+
+    def test_get_existing_processing_config(self):
+        response = self.client.get(
+            reverse('processing_configuration', args=['default']),
+            HTTP_ACCEPT='xml'
+        )
+        assert response.status_code == 200
+        assert etree.fromstring(response.content).xpath('.//preconfiguredChoice')
+
+    def test_delete_and_regenerate(self):
+        response = self.client.delete(
+            reverse('processing_configuration', args=['default']),
+        )
+        assert response.status_code == 200
+        assert not os.path.exists(os.path.join(self.config_path, 'defaultProcessingMCP.xml'))
+
+        response = self.client.get(
+            reverse('processing_configuration', args=['default']),
+            HTTP_ACCEPT='xml'
+        )
+        assert response.status_code == 200
+        assert etree.fromstring(response.content).xpath('.//preconfiguredChoice')
+        assert os.path.exists(os.path.join(self.config_path, 'defaultProcessingMCP.xml'))
+
+    def test_404_for_non_existent_config(self):
+        response = self.client.get(
+            reverse('processing_configuration', args=['nonexistent']),
+            HTTP_ACCEPT='xml'
+        )
+        assert response.status_code == 404
+
+    def test_404_for_delete_non_existent_config(self):
+        response = self.client.delete(
+            reverse('processing_configuration', args=['nonexistent']),
+        )
+        assert response.status_code == 404
 
 
 class TestAPI2(TestCase):

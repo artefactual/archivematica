@@ -40,6 +40,7 @@ from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
 from components import helpers
 from main import models
+from processing import install_builtin_config
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
@@ -690,20 +691,55 @@ def path_metadata(request):
 
 
 # TODO should this have auth?
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=['GET', 'DELETE'])
 def processing_configuration(request, name):
     """
     Return a processing configuration XML document given its name, i.e. where
     name is "default" the returned file will be "defaultProcessingMCP.xml"
     found in the standard processing configuration directory.
     """
-    accepted_types = request.META.get('HTTP_ACCEPT', '').lower()
-    if accepted_types != '*/*' and 'xml' not in accepted_types:
-        return django.http.HttpResponse(status=415)
+
     config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
-    try:
-        with open(config_path, 'r') as f:
-            content = f.read()
+
+    if request.method == 'DELETE':
+        try:
+            os.remove(config_path)
+            return helpers.json_response({'success': True})
+        except OSError:
+            msg = 'No such processing config "%s".' % name
+            LOGGER.error(msg)
+            return helpers.json_response({
+                "success": False,
+                "error": msg
+            }, status_code=404)
+    else:
+        accepted_types = request.META.get('HTTP_ACCEPT', '').lower()
+        if accepted_types != '*/*' and 'xml' not in accepted_types:
+            return django.http.HttpResponse(status=415)
+
+        try:
+            # Attempt to read the file
+            with open(config_path, 'r') as f:
+                content = f.read()
+        except IOError:
+            # The file didn't exist, so recreate it from the builtin config
+            try:
+                content = install_builtin_config(name)
+                if content:
+                    LOGGER.info('Regenerated processing config "%s".' % name)
+                else:
+                    msg = 'No such processing config "%s".' % name
+                    LOGGER.error(msg)
+                    return helpers.json_response({
+                        "success": False,
+                        "error": msg
+                    }, status_code=404)
+            except Exception:
+                msg = 'Failed to reset processing config "%s".' % name
+                LOGGER.exception(msg)
+                return helpers.json_response({
+                    "success": False,
+                    "error": msg
+                }, status_code=500)
+
         return django.http.HttpResponse(content, content_type='text/xml')
-    except IOError:
-        raise django.http.Http404
