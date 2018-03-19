@@ -191,7 +191,7 @@ def install_builtin_config(name, force=False):
     Install the original version of a builtin processing configuration
     """
     if name in BUILTIN_CONFIGS:
-        config = BUILTIN_CONFIGS[name]
+        config = BUILTIN_CONFIGS[name].encode('utf-8')
         path = os.path.join(
             django_settings.SHARED_DIRECTORY,
             'sharedMicroServiceTasksConfigs/processingMCPConfigs',
@@ -199,4 +199,5 @@ def install_builtin_config(name, force=False):
         )
         if force or not os.path.isfile(path):
             with open(path, 'w') as fd:
-                fd.write(config.encode('utf-8'))
+                fd.write(config)
+        return config
