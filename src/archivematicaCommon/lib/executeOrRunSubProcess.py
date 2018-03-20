@@ -105,7 +105,8 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates=
     cmd.extend(arguments)
 
     # Run it
-    ret = launchSubProcess(cmd, stdIn="", printing=True, env_updates=env_updates)
+    ret = launchSubProcess(cmd, stdIn="", printing=printing,
+                           env_updates=env_updates)
 
     # Remove the temp file
     os.remove(scriptPath)
