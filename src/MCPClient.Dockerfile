@@ -47,6 +47,8 @@ RUN set -ex \
 		inkscape \
 		jhove \
 		libimage-exiftool-perl \
+		libevent-dev \
+		libjansson4 \
 		libxml2-utils \
 		md5deep \
 		mediainfo \
@@ -114,7 +116,7 @@ COPY archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/ar
 
 RUN set -ex \
 	&& groupadd --gid 333 --system archivematica \
-	&& useradd --uid 333 --gid 333 --system archivematica
+	&& useradd -m --uid 333 --gid 333 --system archivematica
 
 USER archivematica
 
