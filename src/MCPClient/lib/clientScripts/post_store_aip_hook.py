@@ -15,6 +15,7 @@ from main import models
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
+import emailOnCompletion
 import storageService as storage_service
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
@@ -123,6 +124,8 @@ def post_store_hook(sip_uuid):
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(sip_uuid)
+
+    emailOnCompletion.run_job(sip_uuid, False)
 
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)

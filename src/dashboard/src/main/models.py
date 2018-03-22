@@ -1013,6 +1013,16 @@ class TaskConfigUnitVariableLinkPull(models.Model):
         db_table = u'TasksConfigsUnitVariableLinkPull'
 
 
+class JobFailMessage(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk')
+    message = models.CharField(max_length=1000, null=True, blank=True, db_column='Message')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='microServiceChainLinksPK')
+
+    class Meta:
+        db_table = u'JobFailMessages'
+
+
 class UnitVariable(models.Model):
     id = UUIDPkField()
     unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
