@@ -135,6 +135,5 @@ verifyAndRestructureTransferBag_v0.0 = %clientScriptsDirectory%verifyAndRestruct
 verifyBAG_v0.0 = %clientScriptsDirectory%verifyBAG.py
 verifyChecksumsInFileSecOfDspaceMETSFiles_v0.0 = %clientScriptsDirectory%verifyChecksumsInFileSecOfDspaceMETSFiles.py
 verifyMD5_v0.0 = %clientScriptsDirectory%verifyMD5.sh
-verifyPREMISChecksums_v0.0 = %clientScriptsDirectory%verifyPREMISChecksums.py
 verifySIPCompliance_v0.0 = %clientScriptsDirectory%verifySIPCompliance.py
 verifyTransferCompliance_v0.0 = %clientScriptsDirectory%verifyTransferCompliance.py
