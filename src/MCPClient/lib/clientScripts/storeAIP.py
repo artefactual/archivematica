@@ -24,6 +24,7 @@ from __future__ import print_function
 
 import argparse
 import os
+from pprint import pformat
 import sys
 from uuid import uuid4
 
@@ -172,7 +173,8 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     )
 
     if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Storage service created {}: {}".format(sip_type, new_file)
+        message = "Storage service created {}:\n{}".format(
+            sip_type, pformat(new_file))
         LOGGER.info(message)
         print(message)
         sys.exit(0)
