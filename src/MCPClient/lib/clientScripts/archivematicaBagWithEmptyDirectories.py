@@ -27,6 +27,7 @@ import sys
 
 import django
 django.setup()
+from django.conf import settings as mcpclient_settings
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
@@ -112,7 +113,8 @@ if __name__ == '__main__':
                         help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')
 
-    algorithm = get_setting('checksum_type', 'sha512')
+    algorithm = get_setting(
+        'checksum_type', mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM)
 
     args = parser.parse_args()
     bag_with_empty_directories(args.operation, args.destination, args.sip_directory, args.payload_entries, args.writer, algorithm)

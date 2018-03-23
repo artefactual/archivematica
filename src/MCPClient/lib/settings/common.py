@@ -213,3 +213,4 @@ STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
 CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
+DEFAULT_CHECKSUM_ALGORITHM = 'sha256'

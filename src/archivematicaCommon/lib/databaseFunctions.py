@@ -143,18 +143,26 @@ def getAMAgentsForFile(fileUUID):
     return agents
 
 
-def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote="", agents=None):
-    """
-    Creates a new entry in the Events table using the supplied arguments.
+def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="",
+                     eventDateTime=None, eventDetail="", eventOutcome="",
+                     eventOutcomeDetailNote="", agents=None):
+    """Creates a new entry in the Events table using the supplied arguments.
 
-    :param str fileUUID: The UUID of the file with which this event is associated. Must point to a valid File UUID.
-    :param str eventIdentifierUUID: The UUID for the event being generated. If not provided, a new UUID will be calculated using the version 4 scheme.
+    :param str fileUUID: The UUID of the file with which this event is
+        associated. Must point to a valid File UUID.
+    :param str eventIdentifierUUID: The UUID for the event being generated. If
+        not provided, a new UUID will be calculated using the version 4 scheme.
     :param str eventType: Can be blank.
-    :param datetime eventDateTime: The time at which the event occurred. If not provided, the current date will be used.
-    :param str eventDetail: Can be blank. Will be used in the eventDetail element in the AIP METS.
-    :param str eventOutcome: Can be blank. Will be used in the eventOutcome element in the AIP METS.
-    :param str eventOutcomeDetailNote: Can be blank. Will be used in the eventOutcomeDetailNote element in the AIP METS.
-    :param list agents: List of Agent IDs to associate with this. If None provided, automatically fetches Agents representing Archivematica.
+    :param datetime eventDateTime: The time at which the event occurred. If not
+        provided, the current date will be used.
+    :param str eventDetail: Can be blank. Will be used in the eventDetail
+        element in the AIP METS.
+    :param str eventOutcome: Can be blank. Will be used in the eventOutcome
+        element in the AIP METS.
+    :param str eventOutcomeDetailNote: Can be blank. Will be used in the
+        eventOutcomeDetailNote element in the AIP METS.
+    :param list agents: List of Agent IDs to associate with this. If None
+        provided, automatically fetches Agents representing Archivematica.
     """
     if eventDateTime is None:
         eventDateTime = getUTCDate()

@@ -52,6 +52,15 @@ def data_migration(apps, schema_editor):
     # MicroServiceChainLink.objects.get(
     #     id='88807d68-062e-4d1a-a2d5-2d198c88d8ca').delete()
 
+    ###########################################################################
+    # Make "Verify AIP" point to script verifyAIP_v1.0
+    ###########################################################################
+
+    StandardTaskConfig.objects.filter(
+        id='ae6b87d8-59c8-4ffa-b417-ce93ab472e74'
+    ).update(
+        execute='verifyAIP_v1.0')
+
 
 class Migration(migrations.Migration):
 
