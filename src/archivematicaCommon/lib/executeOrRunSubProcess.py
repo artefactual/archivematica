@@ -21,15 +21,56 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
-import subprocess
-import shlex
-import uuid
+import logging
 import os
+import shlex
+import subprocess
 import sys
+from threading import Thread
+import time
+import uuid
+
+
+LOGGER = logging.getLogger('archivematica.common')
+
+
+PYFLAME_PATH = '/var/pyflame/src/pyflame'
+
+
+def pyflameit(pid, output_file_path, seconds=5):
+    LOGGER.info('.:. in pyflameit')
+    cmd = ('{pyflame} -p {pid} -o {output_file_path} -s {seconds} -x'
+           ' --threads'.format(
+               pyflame=PYFLAME_PATH,
+               pid=pid,
+               output_file_path=output_file_path,
+               seconds=seconds))
+    LOGGER.info('.:. pyflameit cmd: %s', cmd)
+    try:
+        r = subprocess.check_output(shlex.split(cmd))
+        LOGGER.info('.:. pyflame output:\n%s', r)
+        LOGGER.info('.:. pyflame data written to:\n%s', output_file_path)
+    except Exception as err:
+        LOGGER.info('.:. Exception raised when calling pyflame: %s', err,
+                    exc_info=True)
+
+
+def get_pyflame_output_path(command):
+    fname = ''.join(c for c in command[0].lower() if c in
+                    'abcdefghijklmnopqrstuvwxyz0123456789')[:40]
+    return '/tmp/profile-pyflame-{}-{}.txt'.format(
+        fname, str(round(time.time())))
+
+
+def profile_process(pid, command):
+    pyflame_output_path = get_pyflame_output_path(command)
+    t = Thread(target=pyflameit, args=(pid, pyflame_output_path))
+    t.setDaemon(True)
+    t.start()
 
 
 def launchSubProcess(command, stdIn="", printing=True, arguments=[],
-                     env_updates={}, capture_output=False):
+                     env_updates={}, capture_output=False, profile=False):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
     a) a single string containing a commandline statement, or
@@ -90,12 +131,16 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
             p = subprocess.Popen(command, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE, stdin=stdin_pipe,
                                  env=my_env)
+            if profile:
+                profile_process(p.pid, command)
             stdOut, stdError = p.communicate(input=stdin_string)
         else:
             # Ignore the stdout of the subprocess, capturing only stderr
             with open(os.devnull, 'w') as devnull:
                 p = subprocess.Popen(command, stdin=stdin_pipe, env=my_env,
                                      stdout=devnull, stderr=subprocess.PIPE)
+                if profile:
+                    profile_process(p.pid, command)
                 __, stdError = p.communicate(input=stdin_string)
         retcode = p.returncode
         # If we are not capturing output and the subprocess has succeeded, set
@@ -118,7 +163,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
 
 
 def createAndRunScript(text, stdIn="", printing=True, arguments=[],
-                       env_updates={}, capture_output=True):
+                       env_updates={}, capture_output=True, profile=False):
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
@@ -130,7 +175,8 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[],
     # Run it
     ret = launchSubProcess(cmd, stdIn="", printing=printing,
                            env_updates=env_updates,
-                           capture_output=capture_output)
+                           capture_output=capture_output,
+                           profile=profile)
 
     # Remove the temp file
     os.remove(scriptPath)
@@ -139,7 +185,7 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[],
 
 
 def executeOrRun(type, text, stdIn="", printing=True, arguments=[],
-                 env_updates={}, capture_output=True):
+                 env_updates={}, capture_output=True, profile=False):
     """
     Attempts to run the provided command on the shell, with the text of
     "stdIn" passed as standard input if provided. The type parameter
@@ -173,18 +219,21 @@ def executeOrRun(type, text, stdIn="", printing=True, arguments=[],
     if type == "command":
         return launchSubProcess(text, stdIn=stdIn, printing=printing,
                                 arguments=arguments, env_updates=env_updates,
-                                capture_output=capture_output)
+                                capture_output=capture_output, profile=profile)
     if type == "bashScript":
         text = "#!/bin/bash\n" + text
         return createAndRunScript(text, stdIn=stdIn, printing=printing,
                                   arguments=arguments, env_updates=env_updates,
-                                  capture_output=capture_output)
+                                  capture_output=capture_output,
+                                  profile=profile)
     if type == "pythonScript":
         text = "#!/usr/bin/env python2\n" + text
         return createAndRunScript(text, stdIn=stdIn, printing=printing,
                                   arguments=arguments, env_updates=env_updates,
-                                  capture_output=capture_output)
+                                  capture_output=capture_output,
+                                  profile=profile)
     if type == "as_is":
         return createAndRunScript(text, stdIn=stdIn, printing=printing,
                                   arguments=arguments, env_updates=env_updates,
-                                  capture_output=capture_output)
+                                  capture_output=capture_output,
+                                  profile=profile)
