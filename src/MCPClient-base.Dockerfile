@@ -82,15 +82,15 @@ RUN set -ex \
 
 # OS dependencies from .deb files
 RUN set -ex \
-  && curl -s https://mediaarea.net/download/binary/libzen0/0.4.34/libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb --output libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
-  && curl -s https://mediaarea.net/download/binary/libmediainfo0/0.7.91/libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb --output libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
-  && curl -s https://mediaarea.net/download/binary/mediaconch/16.12/mediaconch_16.12-1_amd64.xUbuntu_14.04.deb --output mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
-  && dpkg -i libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
-  && dpkg -i libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
-  && dpkg -i mediaconch_16.12-1_amd64.xUbuntu_14.04.deb \
-  && rm libzen0_0.4.34-1_amd64.xUbuntu_14.04.deb \
-  && rm libmediainfo0_0.7.91-1_amd64.xUbuntu_14.04.deb \
-  && rm mediaconch_16.12-1_amd64.xUbuntu_14.04.deb
+  && curl -s https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb --output libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && curl -s https://mediaarea.net/download/binary/libmediainfo0/18.03/libmediainfo0_18.03-1_amd64.xUbuntu_14.04.deb --output libmediainfo0_18.03-1_amd64.xUbuntu_14.04.deb \
+  && curl -s https://mediaarea.net/download/binary/mediaconch/18.03/mediaconch_18.03-1_amd64.xUbuntu_14.04.deb --output mediaconch_18.03-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i libmediainfo0_18.03-1_amd64.xUbuntu_14.04.deb \
+  && dpkg -i mediaconch_18.03-1_amd64.xUbuntu_14.04.deb \
+  && rm libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb \
+  && rm libmediainfo0_18.03-1_amd64.xUbuntu_14.04.deb \
+  && rm mediaconch_18.03-1_amd64.xUbuntu_14.04.deb
 
 RUN set -ex \
   && groupadd --gid 333 --system archivematica \

@@ -1,3 +1,8 @@
+1.6.0 onwards
+=============
+
+This CHANGELOG is not longer maintained. Please visit the Archivematica wiki for comprehensive [release notes](https://wiki.archivematica.org/Release_Notes).
+
 1.5.0
 =====
 

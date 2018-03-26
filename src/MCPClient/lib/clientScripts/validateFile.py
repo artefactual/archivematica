@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
-"""
-Runs zero or more FPR validation commands against the provided file and returns
-an exit code. May also print to stdout, generate an Event models in the db,
-and/or write command-specific stdout to disk.
+"""Runs zero or more FPR validation commands against the provided file and
+returns an exit code. May also print to stdout, generate an Event model in the
+db, and/or write command-specific stdout to disk.
 
 If a format has no defined validation commands, no command is run.
 
@@ -15,6 +14,7 @@ Usage::
 from __future__ import print_function
 import ast
 import os
+from pprint import pformat
 import sys
 
 import django
@@ -81,8 +81,8 @@ class Validator(object):
         """
         if self.file_type in DERIVATIVE_TYPES and not self._file_is_derivative():
             print('File {uuid} {not_derivative_msg}; not validating.'.format(
-                  uuid=self.file_uuid,
-                  not_derivative_msg=self._not_derivative_msg()))
+                uuid=self.file_uuid,
+                not_derivative_msg=self._not_derivative_msg()))
             return NOT_DERIVATIVE_CODE
         rules = self._get_rules()
         if not rules:
@@ -92,8 +92,7 @@ class Validator(object):
             rule_outputs.append(self._execute_rule_command(rule))
         if 'failed' in rule_outputs:
             return FAIL_CODE
-        else:
-            return SUCCESS_CODE
+        return SUCCESS_CODE
 
     def _get_rules(self):
         """Return all FPR rules that apply to files of this type."""
@@ -130,15 +129,17 @@ class Validator(object):
             args = [self.file_path]
         print('Running', rule.command.description)
         exitstatus, stdout, stderr = executeOrRun(
-            rule.command.script_type,
-            command_to_execute,
+            type=rule.command.script_type,
+            text=command_to_execute,
+            printing=False,
             arguments=args)
         if exitstatus != 0:
-            print('Command {} failed with exit status {}; stderr:'.format(
-                rule.command.description, exitstatus), stderr, file=sys.stderr)
+            print('Command {description} failed with exit status {status};'
+                  ' stderr:'.format(
+                      description=rule.command.description,
+                      status=exitstatus),
+                  stderr, file=sys.stderr)
             return 'failed'
-        print('Command {} completed with output {}'.format(
-              rule.command.description, stdout))
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
         # insecure practice; should be JSON.
@@ -153,14 +154,21 @@ class Validator(object):
         # NOTE: this requires that the stdout of all validation FPR commands be
         # a dict (preferably a JSON object) with an ``eventOutcomeInformation``
         # boolean attribute.
-        if output.get('eventOutcomeInformation') != 'pass':
-            print('Command {} indicated failure with this output:\n\n{}'.format(
-                rule.command.description, stdout), file=sys.stderr)
+        if output.get('eventOutcomeInformation') == 'pass':
+            print('Command "{}" was successful'.format(rule.command.description))
+        else:
+            print('Command {cmd_description} indicated failure with this'
+                  ' output:\n\n{output}'.format(
+                      cmd_description=rule.command.description,
+                      output=pformat(stdout)),
+                  file=sys.stderr)
             result = 'failed'
         if self.file_type == 'preservation':
             self._save_stdout_to_logs_dir(output)
-        print('Creating {} event for {} ({})'
-              .format(self.purpose, self.file_path, self.file_uuid))
+        print('Creating {purpose} event for {file_path} ({file_uuid})'.format(
+            purpose=self.purpose,
+            file_path=self.file_path,
+            file_uuid=self.file_uuid))
         databaseFunctions.insertIntoEvents(
             fileUUID=self.file_uuid,
             eventType='validation',  # From PREMIS controlled vocab.

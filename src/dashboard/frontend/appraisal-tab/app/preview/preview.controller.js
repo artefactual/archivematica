@@ -15,7 +15,8 @@ controller('PreviewController', ['$scope', 'gettextCatalog', '$routeSegment', 'A
 
   vm.set_file_data = file => {
     $scope.file = file;
-    $scope.url = '/filesystem/' + file.id + '/download';
+    $scope.download = '/filesystem/' + file.id + '/download';
+    $scope.preview = '/filesystem/' + file.id + '/preview';
   };
 
   $scope.$routeSegment = $routeSegment;

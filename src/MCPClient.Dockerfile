@@ -1,4 +1,4 @@
-FROM artefactual/archivematica-mcp-client-base:20180228.01.e44c2e3c
+FROM artefactual/archivematica-mcp-client-base:20180326.01.253a998c
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/MCPClient/lib/:/src/archivematicaCommon/lib/:/src/dashboard/src/
@@ -21,6 +21,7 @@ COPY MCPClient/ /src/MCPClient/
 # files being available in this image (e.g. see https://git.io/vA1wF).
 COPY archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
 COPY archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
+
 
 ARG ARCHIVEMATICA_VERSION=UNKNOWN
 ARG AGENT_CODE=UNKNOWN

@@ -1141,17 +1141,18 @@ def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
     directories always precede the paths of the items they contain.
     :param string baseDirectoryPath: path to the AIP with a trailing slash
     :param string objectsDirectoryPath: path to the AIP's object directory
-    :returns: list or ``FSItem`` instances representing paths
+    :returns: list of ``FSItem`` instances representing paths
     """
     all_fsitems = []
     for root, dirs, files in os.walk(objectsDirectoryPath):
         root = root.replace(baseDirectoryPath, '', 1)
         if files or dirs:
-            all_fsitems.append(FSItem('dir', root, False))
+            all_fsitems.append(FSItem('dir', root, is_empty=False))
         else:
-            all_fsitems.append(FSItem('dir', root, True))
+            all_fsitems.append(FSItem('dir', root, is_empty=True))
         for file_ in files:
-            all_fsitems.append(FSItem('file', os.path.join(root, file_), False))
+            all_fsitems.append(
+                FSItem('file', os.path.join(root, file_), is_empty=False))
     return all_fsitems
 
 
@@ -1214,6 +1215,8 @@ def add_normative_structmap_div(all_fsitems, root_el, directories, path_to_el=No
             TYPE={'dir': 'Directory'}.get(fsitem.type, 'Item'),
             LABEL=basename)
         if fsitem.is_empty:  # Create dmdSec for empty dirs
+            if fsitem.path.startswith('objects/metadata/transfers/'):
+                continue
             fsitem_path = '%SIPDirectory%' + fsitem.path
             dir_mdl = directories.get(
                 fsitem_path, directories.get(

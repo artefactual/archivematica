@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 def data_migration(apps, schema_editor):
@@ -28,11 +28,4 @@ class Migration(migrations.Migration):
     dependencies = [('main', '0036_add_readme_to_aips')]
     operations = [
         migrations.RunPython(data_migration),
-        # Also modify File.modificationtime so that it corresponds to the
-        # camelCased database column name.
-        migrations.AlterField(
-            model_name='file',
-            name='modificationtime',
-            field=models.DateTimeField(auto_now_add=True,
-                                       db_column=b'modificationTime'))
     ]
