@@ -254,6 +254,12 @@ This is the full list of variables supported by MCPClient:
     - **Type:** `boolean`
     - **Default:** `true`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROFILE_CLIENT_SCRIPTS`**:
+    - **Description:** controls whether or not to use PyFlame to profile the client scripts; this should only be set to `true` in development for analyzing performance.
+    - **Config file example:** `MCPClient.profile_client_scripts`
+    - **Type:** `boolean`
+    - **Default:** `false`
+
 ## Logging configuration
 
 Archivematica 1.6.1 and earlier releases are configured by default to log to

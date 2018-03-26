@@ -43,6 +43,7 @@ CONFIG_MAPPING = {
         {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
     ],
     'capture_client_script_output': {'section': 'MCPClient', 'option': 'capture_client_script_output', 'type': 'boolean'},
+    'profile_client_scripts': {'section': 'MCPClient', 'option': 'profile_client_scripts', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -83,6 +84,7 @@ elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = true
 capture_client_script_output = true
+profile_client_scripts = false
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -213,3 +215,4 @@ STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
 CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
+PROFILE_CLIENT_SCRIPTS = config.get('profile_client_scripts')
