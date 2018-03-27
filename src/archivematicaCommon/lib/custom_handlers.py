@@ -1,18 +1,7 @@
 import logging
 import logging.config
-import logging.handlers
 import os
 import sys
-
-
-class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
-    def _open(self):
-        prevumask = os.umask(0o002)
-        try:
-            rtv = logging.handlers.RotatingFileHandler._open(self)
-            return rtv
-        finally:
-            os.umask(prevumask)
 
 
 STANDARD_FORMAT = "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
@@ -46,7 +35,7 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", 
         },
         'root': {  # Everything else
             'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
         },
     }
 

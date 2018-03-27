@@ -23,7 +23,6 @@ from django.utils.translation import get_language, ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import last_modified
 from django.views.i18n import javascript_catalog
-from shibboleth.views import ShibbolethLogoutView, LOGOUT_SESSION_KEY
 
 from contrib.mcp.client import MCPClient
 from main import models
@@ -324,15 +323,3 @@ def formdata(request, type, parent_id, delete_id=None):
         response['message'] = _('Incorrect type.')
 
     return helpers.json_response(response)
-
-
-class CustomShibbolethLogoutView(ShibbolethLogoutView):
-    def get(self, request, *args, **kwargs):
-        response = super(CustomShibbolethLogoutView, self).get(request, *args, **kwargs)
-        # LOGOUT_SESSION_KEY is set by the standard logout to prevent re-login
-        # which is useful to prevent bouncing straight back to login under
-        # certain setups, but not here where we want the Django session state
-        # to reflect the SP session state
-        if LOGOUT_SESSION_KEY in request.session:
-            del request.session[LOGOUT_SESSION_KEY]
-        return response

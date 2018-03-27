@@ -18,7 +18,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# This script shouldn't be using sudo but it also seems to be unused.
-sudo chown -R archivematica:archivematica "$2"
+# sudo chown -R archivematica:archivematica "$2"
+
 touch "$2"
 chmod -R "$1" "$2"

@@ -212,7 +212,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0039_delete_sudo_clientscript'),
+        ('main', '0041_delete_sudo_clientscript'),
     ]
 
     operations = [

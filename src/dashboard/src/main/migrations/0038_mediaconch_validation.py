@@ -238,7 +238,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0035_fix_workflow_dip_generation'),
+        ('main', '0037_fix_workflow_dip_generation'),
     ]
 
     operations = [

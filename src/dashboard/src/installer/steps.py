@@ -25,7 +25,6 @@ from tastypie.models import ApiKey
 from main.models import Agent, User
 import components.helpers as helpers
 import storageService as storage_service
-from version import get_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
@@ -33,21 +32,33 @@ logger = logging.getLogger('archivematica.dashboard')
 
 def create_super_user(username, email, password, key):
     UserModel = get_user_model()
-    user = UserModel._default_manager.db_manager('default').create_superuser(username, email, password)
-    api_key = ApiKey.objects.create(user=user)
-    api_key.key = key
-    api_key.save()
+    # Create the new super user if it doesn't already exist
+    try:
+        user = UserModel._default_manager.get(**{UserModel.USERNAME_FIELD: username})
+    except UserModel.DoesNotExist:
+        # User doesn't exist, create it
+        user = UserModel._default_manager.db_manager('default').create_superuser(username, email, password)
+    # Create or update the user's api key
+    api_key, created = ApiKey.objects.update_or_create(user=user, defaults={'key': key})
+
+
+def set_agent_code(agent_code):
+    archivematica_agent = Agent.objects.get(pk=1)
+    archivematica_agent.identifiervalue = agent_code
+    archivematica_agent.save()
 
 
 def setup_pipeline(org_name, org_identifier):
+    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    # Setup pipeline only if dashboard_uuid doesn't already exists
+    if dashboard_uuid:
+        return
     # Assign UUID to Dashboard
     dashboard_uuid = str(uuid.uuid4())
     helpers.set_setting('dashboard_uuid', dashboard_uuid)
 
     # Update Archivematica version in DB
-    archivematica_agent = Agent.objects.get(pk=1)
-    archivematica_agent.identifiervalue = "Archivematica-" + get_version()
-    archivematica_agent.save()
+    set_agent_code(django_settings.AGENT_CODE)
 
     if org_name != '' or org_identifier != '':
         agent = get_agent()
@@ -58,6 +69,17 @@ def setup_pipeline(org_name, org_identifier):
 
 
 def setup_pipeline_in_ss(use_default_config=False):
+    # Check if pipeline is already registered on SS
+    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    try:
+        storage_service.get_pipeline(dashboard_uuid)
+    except Exception:
+        logger.warning("SS inaccessible or pipeline not registered.")
+    else:
+        # If pipeline is already registered on SS, then exit
+        logger.warning("This pipeline is already configured on SS.")
+        return
+
     if not use_default_config:
         # Storage service manually set up, just register Pipeline if
         # possible. Do not provide additional information about the shared

@@ -52,6 +52,13 @@ COPY archivematicaCommon/ /src/archivematicaCommon/
 COPY dashboard/ /src/dashboard/
 COPY dashboard/install/dashboard.gunicorn-config.py /etc/archivematica/dashboard.gunicorn-config.py
 
+ARG ARCHIVEMATICA_VERSION=UNKNOWN
+ARG AGENT_CODE=UNKNOWN
+RUN (echo "---"; \
+	 echo "version: $ARCHIVEMATICA_VERSION"; \
+	 echo "agent_code: $AGENT_CODE";) \
+		> /etc/archivematica/version.yml
+
 USER archivematica
 
 RUN env \

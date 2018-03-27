@@ -53,11 +53,26 @@ def verifyNothingElseAtTopLevel(SIPDir, ret=0):
     return ret
 
 
+def verifyThereAreFiles(SIPDir, ret=0):
+    """
+    Make sure there are files in the transfer
+    """
+    if not any(
+        files
+        for (_, _, files) in os.walk(SIPDir)
+    ):
+        print("Error, no files found", file=sys.stderr)
+        ret += 1
+
+    return ret
+
+
 if __name__ == '__main__':
     SIPDir = sys.argv[1]
     ret = verifyDirectoriesExist(SIPDir)
     ret = verifyNothingElseAtTopLevel(SIPDir, ret)
     ret = checkDirectory(SIPDir, ret)
+    ret = verifyThereAreFiles(SIPDir, ret)
     if ret != 0:
         import time
         time.sleep(10)

@@ -8,6 +8,7 @@ import os.path
 import sys
 
 import django
+from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.template import Context, Template
@@ -154,9 +155,9 @@ def report(uuid):
         send_mail(
             subject='Normalization failure report for {} ({})'.format(ctxdict['name'], ctxdict['uuid']),
             message='Please see the attached HTML document',
-            html_message=html_message,
-            from_email='Archivematica <ArchivematicaSystem@archivematica.org>',
+            from_email=mcpclient_settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipient_list,
+            html_message=html_message,
         )
     except:
         logger.exception('Report email was not delivered')

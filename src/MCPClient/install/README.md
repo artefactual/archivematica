@@ -248,6 +248,11 @@ This is the full list of variables supported by MCPClient:
     - **Type:** `string`
     - **Default:** `3306`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CAPTURE_CLIENT_SCRIPT_OUTPUT`**:
+    - **Description:** controls whether or not to capture stdout from client script subprocesses.  If set to `true`, then stdout is captured; if set to `false`, then stdout is not captured. If set to `true`, then stderr is captured; if set to `false`, then stderr is captured only if the subprocess has failed, i.e., returned a non-zero exit code.
+    - **Config file example:** `MCPClient.capture_client_script_output`
+    - **Type:** `boolean`
+    - **Default:** `true`
 
 ## Logging configuration
 

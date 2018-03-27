@@ -101,7 +101,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0032_dashboardsetting_scope'),
+        ('main', '0034_compress_aip_quote_arg'),
     ]
 
     operations = [
