@@ -15,7 +15,7 @@ from main import models
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
-import emailOnCompletion
+from lib.job_email_report import run_report
 import storageService as storage_service
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
@@ -125,7 +125,13 @@ def post_store_hook(sip_uuid):
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(sip_uuid)
 
-    emailOnCompletion.run_job(sip_uuid, False)
+    try:
+        run_report(sip_uuid)
+    except Exception as err:
+        # Do our best effort but don't interrupt the script.
+        logger.error('The job email report could not be sent: %s',
+                     err, exc_info=True)
+        pass
 
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)
