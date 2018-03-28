@@ -201,6 +201,31 @@ def delete_arrange(request, filepath=None):
     return helpers.json_response({'message': _('Delete successful.')})
 
 
+def start_transfer_logged_in(request):
+    """
+    Endpoint for starting a transfer if logged in and calling from the dashboard.
+    """
+    if request.method not in ('POST',):
+        return django.http.HttpResponseNotAllowed(['POST'])
+
+    transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
+    transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
+    accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
+    # Note that the path may contain arbitrary, non-unicode characters,
+    # and hence is POSTed to the server base64-encoded
+    paths = request.POST.getlist('paths[]', [])
+    paths = [base64.b64decode(path) for path in paths]
+    row_ids = request.POST.getlist('row_ids[]', [])
+    try:
+        response = start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
+    except ValueError as e:
+        return helpers.json_response({'error': True, 'message': str(e)}, status_code=400)
+    except storage_service.StorageServiceError as e:
+        return helpers.json_response({'error': True, 'message': str(e)}, status_code=500)
+    else:
+        return helpers.json_response(response)
+
+
 def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
     """
     Start a new transfer.
