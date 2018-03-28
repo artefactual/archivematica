@@ -39,38 +39,24 @@ class Transfer {
     });
   }
 
-  getCookie(name) {
-    let value = "; " + document.cookie;
-    let parts = value.split("; " + name + "=");
-    if (parts.length == 2) return parts.pop().split(";").shift();
-  }
-
   // Starts a transfer using this service's current attributes.
   start() {
     // If this is a zipped bag, then there will be no transfer name;
     // give it a dummy name instead.
     let name = this.type === 'zipped bag' ? 'ZippedBag' : this.name;
-    let _self = this;
-    let requests = this.components.map(function(component) {
-      return jQuery.ajax('/api/v2beta/package/', {
-        method: 'POST',
-        headers: {'X-CSRFToken': _self.getCookie('csrftoken')},
-        cache: false,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        data: JSON.stringify({
-          name: name,
-          type: _self.type,
-          accession: _self.accession,
-          path: Base64.encode(`${component.location}:${component.path}`),
-          metadata_set_id: component.id || ''
-        })
-      });
-    });
 
+    let params = {
+      name: name,
+      type: this.type,
+      accession: this.accession,
+      'paths[]': this.components.map(component => Base64.encode(`${component.location}:${component.path}`)),
+      'row_ids[]': this.components.map(component => component.id || ''),
+    };
+
+    // Cleanup object state on success or failure
+    let promise = jQuery.post('/filesystem/transfer/', params);
     this.empty_properties();
-
-    return $.when(...requests);
+    return promise;
   }
 }
 
