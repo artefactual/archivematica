@@ -12,11 +12,12 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
 from main.models import Event, File, Transfer
 
-import sanitizeObjectNames
+from job import Job
+import sanitize_object_names
 
 
 class TestSanitize(TestCase):
-    """Test sanitizeNames, sanitizeObjectNames & sanitizeSipName."""
+    """Test sanitizeNames, sanitize_object_names & sanitizeSipName."""
 
     fixture_files = ['transfer.json', 'files-transfer-unicode.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
@@ -24,7 +25,7 @@ class TestSanitize(TestCase):
     transfer_uuid = 'e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6'
 
     def test_sanitize_object_names(self):
-        """Test sanitizeObjectNames.
+        """Test sanitize_object_names.
 
         It should sanitize files.
         It should sanitize a directory & update the files in it.
@@ -44,7 +45,8 @@ class TestSanitize(TestCase):
 
         try:
             # Sanitize
-            sanitizeObjectNames.sanitize_object_names(
+            sanitize_object_names.sanitize_object_names(
+                Job("stub", "stub", []),
                 objectsDirectory=os.path.join(transfer_path, 'objects', '').encode('utf8'),
                 sipUUID=self.transfer_uuid,
                 date='2017-01-04 19:35:22',

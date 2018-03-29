@@ -452,15 +452,15 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
     try_to_index(client, aipData, 'aips', 'aip')
 
 
-def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10):
+def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10, printfn=print):
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
     for _ in xrange(0, max_tries):
         try:
             return client.index(body=data, index=index, doc_type=doc_type)
         except Exception as e:
-            print("ERROR: error trying to index.")
-            print(e)
+            printfn("ERROR: error trying to index.")
+            printfn(e)
             time.sleep(wait_between_tries)
 
     # If indexing did not succeed after max_tries is already complete,
@@ -484,7 +484,7 @@ def get_aip_data(client, uuid, fields=None):
     return aips['hits']['hits'][0]
 
 
-def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipName=None, status=''):
+def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipName=None, status='', printfn=print):
     """
     Only used in clientScripts/* and prints to stdout/stderr.
     """
@@ -492,7 +492,7 @@ def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipNa
     if not os.path.exists(pathToArchive):
         error_message = "Directory does not exist: " + pathToArchive
         logger.warning(error_message)
-        print(error_message, file=sys.stderr)
+        printfn(error_message, file=sys.stderr)
         return 1
 
     # Use METS file if indexing an AIP
@@ -518,13 +518,14 @@ def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipNa
             pathToArchive,
             index,
             type_,
-            status=status
+            status=status,
+            printfn=printfn
         )
 
-        index_transfer(client, uuid, files_indexed, status=status)
+        index_transfer(client, uuid, files_indexed, status=status, printfn=printfn)
 
-    print(type_ + ' UUID: ' + uuid)
-    print('Files indexed: ' + str(files_indexed))
+    printfn(type_ + ' UUID: ' + uuid)
+    printfn('Files indexed: ' + str(files_indexed))
     return 0
 
 
@@ -714,7 +715,7 @@ def _list_bulk_extractor_reports(transfer_path, file_uuid):
     return reports
 
 
-def index_transfer(client, uuid, file_count, status=''):
+def index_transfer(client, uuid, file_count, status='', printfn=print):
     """
     Indexes transfer with UUID `uuid`
 
@@ -739,10 +740,10 @@ def index_transfer(client, uuid, file_count, status=''):
     }
 
     wait_for_cluster_yellow_status(client)
-    try_to_index(client, transfer_data, 'transfers', 'transfer')
+    try_to_index(client, transfer_data, 'transfers', 'transfer', printfn=printfn)
 
 
-def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
+def index_transfer_files(client, uuid, pathToTransfer, index, type_, status='', printfn=print):
     """
     Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
 
@@ -802,7 +803,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                print('Indexing {} (UUID: {})'.format(relative_path, file_uuid))
+                printfn('Indexing {} (UUID: {})'.format(relative_path, file_uuid))
 
                 # TODO Index Backlog Location UUID?
                 indexData = {
@@ -828,7 +829,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
 
                 files_indexed = files_indexed + 1
             else:
-                print('Skipping indexing {}'.format(relative_path))
+                printfn('Skipping indexing {}'.format(relative_path))
 
     if files_indexed > 0:
         client.indices.refresh()

@@ -1,5 +1,4 @@
-# -*- coding: utf8 -*-
-"""Tests for the archivematicaClamscan.py client script."""
+"""Tests for the archivematica_clamscan.py client script."""
 
 from __future__ import print_function
 
@@ -13,7 +12,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(
     os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
-import archivematicaClamscan
+import archivematica_clamscan
 
 
 @pytest.mark.parametrize("version, want", [
@@ -31,12 +30,12 @@ import archivematicaClamscan
     ),
 ])
 def test_clamav_version_parts(version, want):
-    got = archivematicaClamscan.clamav_version_parts(version)
+    got = archivematica_clamscan.clamav_version_parts(version)
     assert got == want
 
 
 def setup_clamscanner():
-    return archivematicaClamscan.ClamScanner()
+    return archivematica_clamscan.ClamScanner()
 
 
 def test_clamscanner_version_props(mocker):

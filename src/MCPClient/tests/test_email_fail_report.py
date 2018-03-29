@@ -12,7 +12,7 @@ import pytest
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
-from emailFailReport import send_email
+from email_fail_report import send_email
 
 
 def fake_send_email_with_exception(subject, message, from_email, recipient_list,

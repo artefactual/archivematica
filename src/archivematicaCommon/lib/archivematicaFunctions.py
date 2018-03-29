@@ -224,7 +224,8 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
     return paths
 
 
-def create_directories(directories, basepath='', printing=False):
+def create_directories(directories, basepath='',
+                       printing=False, printfn=print):
     """Create arbitrary directory structures given an iterable list of directory
     paths.
     """
@@ -233,25 +234,27 @@ def create_directories(directories, basepath='', printing=False):
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
             if printing:
-                print('Creating directory', dir_path)
+                printfn('Creating directory', dir_path)
 
 
 def create_structured_directory(basepath,
                                 manual_normalization=False,
-                                printing=False):
+                                printing=False, printfn=print):
     """Wrapper for create_directories for various structures required by
     Archivematica.
     """
     create_directories(REQUIRED_DIRECTORIES,
                        basepath=basepath,
-                       printing=printing)
+                       printing=printing,
+                       printfn=printfn)
     if manual_normalization:
         create_directories(MANUAL_NORMALIZATION_DIRECTORIES,
                            basepath=basepath,
-                           printing=printing)
+                           printing=printing,
+                           printfn=printfn)
 
 
-def get_dir_uuids(dir_paths, logger=None):
+def get_dir_uuids(dir_paths, logger=None, printfn=print):
     """Return a generator of 2-tuples, each containing one of the directory
     paths in ``dir_paths`` and its newly minted UUID. Used by multiple client
     scripts.
@@ -260,7 +263,7 @@ def get_dir_uuids(dir_paths, logger=None):
         dir_uuid = str(uuid4())
         msg = u'Assigning UUID {} to directory path {}'.format(
             dir_uuid, dir_path)
-        print(msg)
+        printfn(msg)
         if logger:
             logger.info(msg)
         yield dir_path, dir_uuid

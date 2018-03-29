@@ -1,8 +1,6 @@
 #!/usr/bin/env python2
-from __future__ import print_function
 import argparse
 import csv
-import sys
 
 # dashboard
 from django.db.models import Q
@@ -18,7 +16,7 @@ from agentarchives import archivesspace
 # initialize Django (required for Django 1.7)
 import django
 django.setup()
-
+from django.db import transaction
 
 logger = get_script_logger("archivematica.mcp.client.moveTransfer")
 
@@ -133,15 +131,19 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
     return 0
 
 
-if __name__ == '__main__':
+def call(jobs):
     parser = argparse.ArgumentParser(description='Parse metadata for DIP helpers')
     parser.add_argument('--sipUUID', required=True, help='%SIPUUID%')
     parser.add_argument('--sipPath', required=True, help='%SIPDirectory%')
-    args = parser.parse_args()
 
-    # Return non-zero if any of the helpers fail
-    rc = 0
-    rc = rc or parse_archivesspace_ids(args.sipPath, args.sipUUID)
-    # rc = rc or another_dip_helper(args.sipPath, args.sipUUID)
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                args = parser.parse_args(job.args[1:])
 
-    sys.exit(rc)
+                # Return non-zero if any of the helpers fail
+                rc = 0
+                rc = rc or parse_archivesspace_ids(args.sipPath, args.sipUUID)
+                # rc = rc or another_dip_helper(args.sipPath, args.sipUUID)
+
+                job.set_status(rc)

@@ -247,31 +247,6 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
                         createdtime=getUTCDate())
 
 
-def logTaskCompletedSQL(task):
-    """
-    Fetches execution data from the completed task and logs it to the database.
-    Updates the entry in the Tasks table with data in the provided task.
-    Saves the following fields: exitCode, stdOut, stdError
-
-    :param task:
-    """
-    print("Logging task output to db", task.UUID)
-    taskUUID = task.UUID.__str__()
-    exitCode = task.results["exitCode"].__str__()
-    stdOut = task.results["stdOut"]
-    stdError = task.results["stdError"]
-
-    task = Task.objects.get(taskuuid=taskUUID)
-    task.endtime = getUTCDate()
-    task.exitcode = exitCode
-    # ``strToUnicode`` here prevents the MCP server from crashing when, e.g.,
-    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
-    # symbol, cf. #9967.
-    task.stdout = strToUnicode(stdOut, obstinate=True)
-    task.stderror = strToUnicode(stdError, obstinate=True)
-    task.save()
-
-
 def logJobCreatedSQL(job):
     """
     Logs a job's properties into the Jobs table in the database.
@@ -331,7 +306,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNot
     f.save()
 
 
-def createSIP(path, UUID=None, sip_type='SIP', diruuids=False):
+def createSIP(path, UUID=None, sip_type='SIP', diruuids=False, printfn=print):
     """
     Create a new SIP object for a SIP at the given path.
 
@@ -344,7 +319,7 @@ def createSIP(path, UUID=None, sip_type='SIP', diruuids=False):
     """
     if UUID is None:
         UUID = str(uuid.uuid4())
-    print("Creating SIP:", UUID, "-", path)
+    printfn("Creating SIP:", UUID, "-", path)
     sip = SIP(uuid=UUID,
               currentpath=path,
               sip_type=sip_type,

@@ -42,12 +42,10 @@ The sole command-line argument is the File's UUID. If the --bind-pids option
 is something other than 'Yes', the script will exit without doing anything.
 """
 
-from __future__ import print_function
-
 import argparse
 from functools import wraps
-import sys
 
+from django.db import transaction
 import django
 django.setup()
 # dashboard
@@ -123,7 +121,7 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
 
 
 @exit_on_known_exception
-def main(file_uuid, bind_pids_switch):
+def main(job, file_uuid, bind_pids_switch):
     """Bind the UUID ``file_uuid`` to the appropriate URL(s), given the
     configuration from the dashboard, Do this only if ``bind_pids_switch`` is
     ``True``.
@@ -134,23 +132,32 @@ def main(file_uuid, bind_pids_switch):
         msg = bindpid.bind_pid(**args)
         _update_file_mdl(file_uuid, args['naming_authority'],
                          args['handle_resolver_url'])
-        print(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
+        job.print_output(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
         logger.info(msg)
         return 0
     except bindpid.BindPIDException as exc:
-        print(exc, file=sys.stderr)
+        job.print_error(repr(exc))
         logger.info(exc)
         raise BindPIDException
 
-
-if __name__ == '__main__':
+def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument('file_uuid', type=str,
                         help='The UUID of the file to bind a PID for.')
     parser.add_argument('--bind-pids', action='store', type=str2bool,
                         dest="bind_pids_switch", default='No')
-    args = parser.parse_args()
-    if args.file_uuid == 'None':
-        sys.exit(0)
-    logger.info('bind_pid called with args: %s', vars(args))
-    sys.exit(main(**vars(args)))
+
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                args = parser.parse_args(job.args[1:])
+                if args.file_uuid == 'None':
+                    job.set_status(0)
+                elif not args.bind_pids_switch:
+                    logger.info('Configuration indicates that PIDs should not be bound.')
+                    job.set_status(0)
+                else:
+                    logger.info('bind_pid called with args: %s', vars(args))
+                    args = vars(args)
+                    args['job'] = job
+                    job.set_status(main(**(args)))

@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
+from taskGroup import TaskGroup
 import os
 import threading
 
@@ -31,14 +31,13 @@ import databaseFunctions
 from dicts import ReplacementDict
 from main.models import StandardTaskConfig
 
+from taskGroupRunner import TaskGroupRunner
 
 class linkTaskManagerDirectories(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
-        self.tasks = []
         stc = StandardTaskConfig.objects.get(id=str(pk))
         filterSubDir = stc.filter_subdir
-        self.requiresOutputLock = stc.requires_output_lock
         standardOutputFile = stc.stdout_file
         standardErrorFile = stc.stderr_file
         execute = stc.execute
@@ -66,12 +65,12 @@ class linkTaskManagerDirectories(LinkTaskManager):
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
-        t = threading.Thread(target=self.task.performTask)
-        t.daemon = True
-        t.start()
+        group = TaskGroup(self, execute)
+        group.addTask(arguments,standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
+        group.logTaskCreatedSQL()
+        TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
-    def taskCompletedCallBackFunction(self, task):
-        databaseFunctions.logTaskCompletedSQL(task)
-        self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
+    def taskGroupFinished(self, finishedTaskGroup):
+        finishedTaskGroup.write_output()
+
+        self.jobChainLink.linkProcessingComplete(finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar)

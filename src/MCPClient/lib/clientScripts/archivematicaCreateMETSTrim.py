@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
-from __future__ import print_function
 import os
 import sys
 import lxml.etree as etree
@@ -33,7 +32,7 @@ from main.models import File
 import namespaces as ns
 
 
-def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
+def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
     # containerMetadata
     ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
@@ -79,7 +78,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     return ret
 
 
-def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
+def getTrimFileDmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
     ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
@@ -91,7 +90,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
                              filegrpuuid=fileUUID,
                              filegrpuse="TRIM file metadata")
     except File.DoesNotExist:
-        print("no metadata for original file: ", fileUUID, file=sys.stderr)
+        job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
         xmlFilePath = f.currentlocation.replace('%SIPDirectory%', baseDirectoryPath, 1)
@@ -106,7 +105,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     return ret
 
 
-def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
+def getTrimFileAmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
     try:
@@ -115,7 +114,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
                              filegrpuuid=fileUUID,
                              filegrpuse="TRIM file metadata")
     except File.DoesNotExist:
-        print("no metadata for original file: ", fileUUID, file=sys.stderr)
+        job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
         label = os.path.basename(f.currentlocation)
@@ -124,7 +123,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     return ret
 
 
-def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
+def getTrimAmdSec(job, baseDirectoryPath, fileGroupIdentifier):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
     files = File.objects.filter(removedtime__isnull=True,

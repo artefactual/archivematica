@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 
-from __future__ import print_function
 import argparse
 import datetime
 from lxml import etree
@@ -9,6 +8,7 @@ import os
 import uuid
 
 import django
+from django.db import transaction
 django.setup()
 # dashboard
 from main import models
@@ -22,7 +22,7 @@ import databaseFunctions
 MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
 
-def parse_format_version(element):
+def parse_format_version(job, element):
     """
     Parses the FPR FormatVersion for the file.
 
@@ -36,61 +36,61 @@ def parse_format_version(element):
         # Looks for PRONOM ID first
         if element.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'PRONOM':
             puid = element.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
-            print('PUID', puid)
+            job.pyprint('PUID', puid)
             format_version = fpr_models.FormatVersion.active.get(pronom_id=puid)
         elif element.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'Archivematica Format Policy Registry':
             key = element.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
-            print('FPR key', key)
+            job.pyprint('FPR key', key)
             format_version = fpr_models.IDRule.active.get(command_output=key).format
     except fpr_models.FormatVersion.DoesNotExist:
         pass
     return format_version
 
 
-def parse_files(root):
+def parse_files(job, root):
     filesec = root.find('.//mets:fileSec', namespaces=ns.NSMAP)
     files = []
 
     for fe in filesec.findall('.//mets:file', namespaces=ns.NSMAP):
         filegrpuse = fe.getparent().get('USE')
-        print('filegrpuse', filegrpuse)
+        job.pyprint('filegrpuse', filegrpuse)
 
         amdid = fe.get('ADMID')
-        print('amdid', amdid)
+        job.pyprint('amdid', amdid)
         current_techmd = root.xpath('mets:amdSec[@ID="' + amdid + '"]/mets:techMD[not(@STATUS="superseded")]', namespaces=ns.NSMAP)[0]
 
         file_uuid = current_techmd.findtext('.//premis:objectIdentifierValue', namespaces=ns.NSMAP)
-        print('file_uuid', file_uuid)
+        job.pyprint('file_uuid', file_uuid)
 
         original_path = current_techmd.findtext('.//premis:originalName', namespaces=ns.NSMAP)
         original_path = original_path.replace('%transferDirectory%', '%SIPDirectory%')
-        print('original_path', original_path)
+        job.pyprint('original_path', original_path)
 
         current_path = fe.find('mets:FLocat', namespaces=ns.NSMAP).get(ns.xlinkBNS + 'href')
         current_path = '%SIPDirectory%' + current_path
-        print('current_path', current_path)
+        job.pyprint('current_path', current_path)
 
         checksum = current_techmd.findtext('.//premis:messageDigest', namespaces=ns.NSMAP)
-        print('checksum', checksum)
+        job.pyprint('checksum', checksum)
 
         checksumtype = current_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=ns.NSMAP)
-        print('checksumtype', checksumtype)
+        job.pyprint('checksumtype', checksumtype)
 
         size = current_techmd.findtext('.//premis:size', namespaces=ns.NSMAP)
-        print('size', size)
+        job.pyprint('size', size)
 
         # FormatVersion
-        format_version = parse_format_version(current_techmd)
-        print('format_version', format_version)
+        format_version = parse_format_version(job, current_techmd)
+        job.pyprint('format_version', format_version)
 
         # Derivation
         derivation = derivation_event = None
         event = current_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=ns.NSMAP)
-        print('derivation event', event)
+        job.pyprint('derivation event', event)
         related_uuid = current_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=ns.NSMAP)
-        print('related_uuid', related_uuid)
+        job.pyprint('related_uuid', related_uuid)
         rel = current_techmd.findtext('.//premis:relationshipSubType', namespaces=ns.NSMAP)
-        print('relationship', rel)
+        job.pyprint('relationship', rel)
         if rel == 'is source of':
             derivation = related_uuid
             derivation_event = event
@@ -109,7 +109,7 @@ def parse_files(root):
         }
 
         files.append(file_info)
-        print()
+        job.pyprint()
 
     return files
 
@@ -162,7 +162,7 @@ def update_files(sip_uuid, files):
         )
 
 
-def parse_dc(sip_uuid, root):
+def parse_dc(job, sip_uuid, root):
     """
     Parse SIP-level DublinCore metadata into the DublinCore table.
 
@@ -215,17 +215,17 @@ def parse_dc(sip_uuid, root):
             metadataappliestotype_id=MD_TYPE_SIP_ID,
             status=models.METADATA_STATUS_REINGEST,
         )
-        print('Dublin Core:')
+        job.pyprint('Dublin Core:')
         for elem in dc_xml:
             tag = elem.tag.replace(ns.dctermsBNS, '', 1).replace(ns.dcBNS, '', 1)
-            print(tag, elem.text)
+            job.pyprint(tag, elem.text)
             if elem.text is not None:
                 setattr(dc_model, DC_TERMS_MATCHING[tag], elem.text)
         dc_model.save()
     return dc_model
 
 
-def parse_rights(sip_uuid, root):
+def parse_rights(job, sip_uuid, root):
     """
     Parse PREMIS:RIGHTS metadata into the database.
 
@@ -257,7 +257,7 @@ def parse_rights(sip_uuid, root):
         # Parse to DB
         for statement in rights_stmts:
             rights_basis = statement.findtext('premis:rightsBasis', namespaces=ns.NSMAP)
-            print('rights_basis', rights_basis)
+            job.pyprint('rights_basis', rights_basis)
             # Don't parse identifier type/value so if it's modified the new one gets unique identifiers
             rights = models.RightsStatement.objects.create(
                 metadataappliestotype_id=MD_TYPE_SIP_ID,
@@ -403,10 +403,10 @@ def parse_rights(sip_uuid, root):
                 if rights_end_date == 'OPEN':
                     rights_end_date = None
                     rights_end_open = True
-                print('rights_act', rights_act)
-                print('rights_start_date', rights_start_date)
-                print('rights_end_date', rights_end_date)
-                print('rights_end_open', rights_end_open)
+                job.pyprint('rights_act', rights_act)
+                job.pyprint('rights_start_date', rights_start_date)
+                job.pyprint('rights_end_date', rights_end_date)
+                job.pyprint('rights_end_open', rights_end_open)
                 rights_granted = models.RightsStatementRightsGranted.objects.create(
                     rightsstatement=rights,
                     act=rights_act,
@@ -416,14 +416,14 @@ def parse_rights(sip_uuid, root):
                 )
 
                 rights_note = rightsgranted_elem.findtext('premis:rightsGrantedNote', namespaces=ns.NSMAP) or ""
-                print('rights_note', rights_note)
+                job.pyprint('rights_note', rights_note)
                 models.RightsStatementRightsGrantedNote.objects.create(
                     rightsgranted=rights_granted,
                     rightsgrantednote=rights_note,
                 )
 
                 rights_restriction = rightsgranted_elem.findtext('premis:restriction', namespaces=ns.NSMAP) or ""
-                print('rights_restriction', rights_restriction)
+                job.pyprint('rights_restriction', rights_restriction)
                 models.RightsStatementRightsGrantedRestriction.objects.create(
                     rightsgranted=rights_granted,
                     restriction=rights_restriction,
@@ -432,7 +432,7 @@ def parse_rights(sip_uuid, root):
     return parsed_rights
 
 
-def main(sip_uuid, sip_path):
+def main(job, sip_uuid, sip_path):
     # Set reingest type
     # TODO also support AIC-REIN
     sip = models.SIP.objects.filter(uuid=sip_uuid)
@@ -442,19 +442,23 @@ def main(sip_uuid, sip_path):
     mets_path = os.path.join(sip_path, 'metadata', 'submissionDocumentation', 'METS.' + sip_uuid + '.xml')
     root = etree.parse(mets_path)
 
-    files = parse_files(root)
+    files = parse_files(job, root)
     update_files(sip_uuid, files)
 
-    parse_dc(sip_uuid, root)
+    parse_dc(job, sip_uuid, root)
 
-    parse_rights(sip_uuid, root)
+    parse_rights(job, sip_uuid, root)
 
 
-if __name__ == '__main__':
-    print('METS Reader')
+def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument('sip_uuid', help='%SIPUUID%')
     parser.add_argument('sip_path', help='%SIPDirectory%')
-    args = parser.parse_args()
 
-    sys.exit(main(args.sip_uuid, args.sip_path))
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext():
+                job.pyprint('METS Reader')
+                args = parser.parse_args(job.args[1:])
+
+                job.set_status(main(job, args.sip_uuid, args.sip_path))

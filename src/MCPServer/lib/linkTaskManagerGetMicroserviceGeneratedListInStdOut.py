@@ -28,11 +28,13 @@ import threading
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
-from main.models import StandardTaskConfig
+from main.models import StandardTaskConfig, Task
+
+from taskGroup import TaskGroup
+from taskGroupRunner import TaskGroupRunner
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -40,10 +42,8 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink, pk, unit)
-        self.tasks = []
         stc = StandardTaskConfig.objects.get(id=str(pk))
         filterSubDir = stc.filter_subdir
-        self.requiresOutputLock = stc.requires_output_lock
         standardOutputFile = stc.stdout_file
         standardErrorFile = stc.stderr_file
         execute = stc.execute
@@ -71,18 +71,20 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
-        t = threading.Thread(target=self.task.performTask)
-        t.daemon = True
-        t.start()
+        group = TaskGroup(self, execute)
+        group.addTask(arguments, standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
+        group.logTaskCreatedSQL()
+        TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
-    def taskCompletedCallBackFunction(self, task):
-        databaseFunctions.logTaskCompletedSQL(task)
+    def taskGroupFinished(self, finishedTaskGroup):
+        finishedTaskGroup.write_output()
+
+        task = Task.objects.get(taskuuid=finishedTaskGroup.tasks()[0].UUID)
+
         try:
-            choices = ChoicesDict.fromstring(task.results["stdOut"])
+            choices = ChoicesDict.fromstring(task.stdout)
         except Exception:
-            LOGGER.exception('Unable to create dic from output %s', task.results['stdOut'])
+            LOGGER.exception('Unable to create dic from output %s', task.stdout)
             choices = ChoicesDict({})
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
@@ -97,4 +99,4 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         else:
             self.jobChainLink.passVar = [choices]
 
-        self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
+        self.jobChainLink.linkProcessingComplete(finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar)

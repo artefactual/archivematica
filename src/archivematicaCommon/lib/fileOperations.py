@@ -123,15 +123,16 @@ def writeToFile(output, fileName, writeWhite=False):
     return 0
 
 
-def rename(source, destination):
+def rename(source, destination, printfn=print, should_exit=False):
     """Used to move/rename directories. This function was before used to wrap the operation with sudo."""
     command = ["mv", source, destination]
     exitCode, stdOut, stdError = executeOrRun("command", command, "", printing=False)
     if exitCode:
-        print("exitCode:", exitCode, file=sys.stderr)
-        print(stdOut, file=sys.stderr)
-        print(stdError, file=sys.stderr)
-        exit(exitCode)
+        printfn("exitCode:", exitCode, file=sys.stderr)
+        printfn(stdOut, file=sys.stderr)
+        printfn(stdError, file=sys.stderr)
+        if should_exit:
+            exit(exitCode)
 
 
 def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
@@ -161,7 +162,11 @@ def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierTy
     shutil.move(src, dst)
 
 
-def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
+class UpdateFileLocationFailed(Exception):
+    def __init__(self, code):
+        self.code = code
+
+def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=print):
     """Dest needs to be the actual full destination path with filename."""
     srcDB = src.replace(unitPath, unitPathReplaceWith)
     dstDB = dst.replace(unitPath, unitPathReplaceWith)
@@ -179,11 +184,11 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
             message = "no results found"
         else:
             message = "multiple results found"
-        print('ERROR: file information not found:', message, "for arguments:", repr(kwargs), file=sys.stderr)
-        exit(4)
+        printfn('ERROR: file information not found:', message, "for arguments:", repr(kwargs), file=sys.stderr)
+        raise UpdateFileLocationFailed(4)
 
     # Move the file
-    print("Moving", src, 'to', dst)
+    printfn("Moving", src, 'to', dst)
     shutil.move(src, dst)
     # Update the DB
     f.currentlocation = dstDB
@@ -250,7 +255,12 @@ def updateFileGrpUse(fileUUID, fileGrpUse):
     File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse)
 
 
-def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip_uuid):
+class FindFileInNormalizatonCSVError(Exception):
+    def __init__(self, code):
+        self.code = code
+
+
+def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip_uuid, printfn=print):
     """ Returns the original filename or None for a manually normalized file.
 
     :param str csv_path: absolute path to normalization.csv
@@ -270,11 +280,11 @@ def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip
                                  currentlocation__endswith=target_file,
                                  sip_id=sip_uuid)
         except File.MultipleObjectsReturned:
-            print("More than one result found for {} file ({}) in DB.".format(commandClassification, target_file), file=sys.stderr)
-            sys.exit(2)
+            printfn("More than one result found for {} file ({}) in DB.".format(commandClassification, target_file), file=sys.stderr)
+            raise FindFileInNormalizatonCSVError(2)
         except File.DoesNotExist:
-            print("{} file ({}) not found in DB.".format(commandClassification, target_file), file=sys.stderr)
-            sys.exit(2)
+            printfn("{} file ({}) not found in DB.".format(commandClassification, target_file), file=sys.stderr)
+            raise FindFileInNormalizatonCSVError(2)
         target_file = f.originallocation.replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
         try:
             for row in reader:
@@ -284,14 +294,14 @@ def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip
                     continue
                 original, access, preservation = row
                 if commandClassification == "access" and access == target_file:
-                    print("Found access file ({0}) for original ({1})".format(access, original))
+                    printfn("Found access file ({0}) for original ({1})".format(access, original))
                     return original
                 if commandClassification == "preservation" and preservation == target_file:
-                    print("Found preservation file ({0}) for original ({1})".format(preservation, original))
+                    printfn("Found preservation file ({0}) for original ({1})".format(preservation, original))
                     return original
             else:
                 return None
         except csv.Error:
-            print("Error reading {filename} on line {linenum}".format(
+            printfn("Error reading {filename} on line {linenum}".format(
                 filename=csv_path, linenum=reader.line_num), file=sys.stderr)
-            sys.exit(2)
+            raise FindFileInNormalizatonCSVError(2)

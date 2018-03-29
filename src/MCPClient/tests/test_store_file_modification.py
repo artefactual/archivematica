@@ -11,11 +11,11 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
 from main import models
 
-import storeFileModificationDates
+import store_file_modification_dates
 
 
 class TestStoreFileModification(TestCase):
-    """Test storeFileModificationDates."""
+    """Test store_file_modification_dates."""
 
     fixture_files = ['transfer.json', 'files-transfer-unicode.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
@@ -29,7 +29,7 @@ class TestStoreFileModification(TestCase):
         shutil.rmtree(transfer_path)
 
     def test_store_file_modification_dates(self):
-        """Test storeFileModificationDates.
+        """Test store_file_modification_dates.
 
         It should store file modification dates.
         """
@@ -49,7 +49,7 @@ class TestStoreFileModification(TestCase):
             os.utime(path, (1339485682, 1339485682))
 
         # Store file modification dates
-        storeFileModificationDates.main(
+        store_file_modification_dates.main(
             self.transfer_uuid,
             self.temp_dir + '/'
         )

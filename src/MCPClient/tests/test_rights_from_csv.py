@@ -11,7 +11,8 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
 from main import models
 
-import rightsFromCSV
+from job import Job
+import rights_from_csv
 
 
 class TestRightsImportFromCsvBase(TestCase):
@@ -39,7 +40,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         It should populate the rights-related models using data from the CSV file.
         """
         rights_csv_filepath = os.path.join(THIS_DIR, 'fixtures/rights.csv')
-        parser = rightsFromCSV.RightCsvReader(self.transfer_uuid, rights_csv_filepath)
+        parser = rights_from_csv.RightCsvReader(Job("stub", "stub", []), self.transfer_uuid, rights_csv_filepath)
         rows_processed = parser.parse()
 
         # Test rows processed and model intance counts
@@ -299,7 +300,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
         models.File.objects.get(pk='47813453-6872-442b-9d65-6515be3c5aa1')
 
         rights_csv_filepath = os.path.join(THIS_DIR, 'fixtures/rights-unicode-filepath.csv')
-        parser = rightsFromCSV.RightCsvReader(self.transfer_uuid, u"%s" % rights_csv_filepath)
+        parser = rights_from_csv.RightCsvReader(Job("stub", "stub", []), self.transfer_uuid, u"%s" % rights_csv_filepath)
         rows_processed = parser.parse()
 
         assert rows_processed == 1
