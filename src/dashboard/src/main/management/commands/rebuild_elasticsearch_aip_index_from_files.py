@@ -179,6 +179,14 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
         )
 
 
+def is_hex(string):
+    try:
+        int(string, 16)
+    except ValueError:
+        return False
+    return True
+
+
 class Command(DashboardCommand):
 
     help = __doc__
@@ -242,6 +250,13 @@ class Command(DashboardCommand):
             r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
         for root, directories, files in os.walk(options['rootdir']):
+            # Ignore top-level directories inside ``rootdir`` that are not hex,
+            # e.g. we walk ``0771`` but we're ignoring ``transferBacklog``.
+            if root == options['rootdir']:
+                directories[:] = [
+                    d for d in directories if is_hex(d) and len(d) == 4
+                ]
+
             # Uncompressed AIPs
             for directory in directories:
                 # Check if dir name matches AIP name format
