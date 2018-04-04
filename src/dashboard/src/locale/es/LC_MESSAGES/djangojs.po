@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -10,13 +10,12 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-04 16:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
-"es/)\n"
-"Language: es\n"
+"Last-Translator: María Jesús Colmenero <mcolmene@bib.uc3m.es>, 2018\n"
+"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: media/js/administration/atom_levels_of_description.js:17
@@ -296,7 +295,7 @@ msgstr "Cerrar"
 #: media/js/ingest/ingest_file_browser.js:419
 #: media/js/ingest/ingest_file_browser.js:426
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: media/js/ingest.js:248
 msgid "Report"
@@ -518,8 +517,8 @@ msgstr ""
 
 #: media/js/rights_edit.js:53
 msgid ""
-"designation used to uniquely identify documentation supporting the specified "
-"rights granted according to copyright within the repository system"
+"designation used to uniquely identify documentation supporting the specified"
+" rights granted according to copyright within the repository system"
 msgstr ""
 
 #: media/js/rights_edit.js:54
@@ -548,8 +547,8 @@ msgstr ""
 
 #: media/js/rights_edit.js:67
 msgid ""
-"a designation of the domain within which the statute documenation identifier "
-"is unique"
+"a designation of the domain within which the statute documenation identifier"
+" is unique"
 msgstr ""
 
 #: media/js/rights_edit.js:68
@@ -665,18 +664,3 @@ msgstr ""
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr ""
-
-#~ msgid "Start transfer"
-#~ msgstr "Comenzar transferencia"
-
-#~ msgid ""
-#~ "Metadata entered in this form will be associated with the next component "
-#~ "added to this transfer. Data will not be used if no component is added "
-#~ "after the form is saved."
-#~ msgstr ""
-#~ "Los metadatos introducidos en este formulario se asociarán con el "
-#~ "siguiente componente añadido a la transferencia. Por lo tanto, serán "
-#~ "ignorados si no se añade un nuevo componente."
-
-#~ msgid "Add next"
-#~ msgstr "Añadir otro"

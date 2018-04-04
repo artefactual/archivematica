@@ -1,40 +1,36 @@
-# Translators:
-# artefactual <translate@artefactual.com>, 2016
-# Canadian Council of Archives <cca@archivescanada.ca>, 2016
-# Caroline Derauw <caroline.derauw@uclouvain.be>, 2017
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: Caroline Derauw <caroline.derauw@uclouvain.be>, 2017\n"
-"Language-Team: French (https://www.transifex.com/artefactual/teams/1506/fr/)\n"
+"Language-Team: Portuguese (https://www.transifex.com/artefactual/teams/1506/pt/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ./app/front_page/content.html:22
 msgid "Accession no."
-msgstr "Numéro d'acquisition"
+msgstr ""
 
 #: ./app/front_page/content.html:93
 msgid "Add"
-msgstr "Ajouter"
+msgstr ""
 
 #: ./app/front_page/content.html:49
 msgid "Add next"
-msgstr "Ajouter suivant"
+msgstr ""
 
 #: ./app/front_page/content.html:32
 msgid "Browse"
-msgstr "Naviguer"
+msgstr ""
 
 #: ./app/front_page/content.html:9
 msgid "DSpace"
-msgstr "DSpace"
+msgstr ""
 
 #: ./app/front_page/content.html:10
 msgid "Disk image"
-msgstr "Image disque"
+msgstr ""
 
 #: ./app/front_page/content.html:48
 msgid ""
@@ -42,30 +38,27 @@ msgid ""
 "added to this transfer. Data will not be used if no component is added after"
 " the form is saved."
 msgstr ""
-"Les métadonnées encodées dans ce formulaire seront associées au prochain "
-"composant de ce transfert. Les données ne seront pas utilisées si aucun "
-"composant n'est ajouter après avoir sauver le formulaire."
 
 #: ./app/front_page/content.html:6
 msgid "Standard"
-msgstr "Standard"
+msgstr ""
 
 #: ./app/front_page/content.html:40
 msgid "Start transfer"
-msgstr "Commencer le transfert"
+msgstr ""
 
 #: ./app/front_page/content.html:17
 msgid "Transfer name"
-msgstr "Nom du transfert"
+msgstr ""
 
 #: ./app/front_page/content.html:12
 msgid "Transfer type"
-msgstr "Type de transfert"
+msgstr ""
 
 #: ./app/front_page/content.html:7
 msgid "Unzipped bag"
-msgstr "Bag non compressé"
+msgstr ""
 
 #: ./app/front_page/content.html:8
 msgid "Zipped bag"
-msgstr "Bag compressé"
+msgstr ""
