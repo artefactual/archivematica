@@ -111,6 +111,10 @@
                       "properties": {
                         "transfer_metadata_dict_list": {
                           "properties": {
+                            "Bagging-Date": {
+                              "type": "date",
+                              "format": "dateOptionalTime"
+                            },
                             "imaging_process_notes": {
                               "type": "string"
                             },
