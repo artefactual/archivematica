@@ -151,31 +151,31 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         aip_subtype = dc.type
 
     # Store the AIP
-    (new_file, error_msg) = storage_service.create_file(
-        uuid=uuid,
-        origin_location=current_location['resource_uri'],
-        origin_path=relative_aip_path,
-        current_location=aip_destination_uri,
-        current_path=current_path,
-        package_type=package_type,
-        aip_subtype=aip_subtype,
-        size=size,
-        update='REIN' in sip_type,
-        related_package_uuid=related_package_uuid,
-        events=get_events_from_db(uuid),
-        agents=get_agents_from_db(uuid)
-    )
-
-    if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Storage service created {}: {}".format(sip_type, new_file)
-        LOGGER.info(message)
-        print(message)
-        sys.exit(0)
-    else:
+    try:
+        new_file = storage_service.create_file(
+            uuid=uuid,
+            origin_location=current_location['resource_uri'],
+            origin_path=relative_aip_path,
+            current_location=aip_destination_uri,
+            current_path=current_path,
+            package_type=package_type,
+            aip_subtype=aip_subtype,
+            size=size,
+            update='REIN' in sip_type,
+            related_package_uuid=related_package_uuid,
+            events=get_events_from_db(uuid),
+            agents=get_agents_from_db(uuid)
+        )
+    except Exception as e:
         print("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
-        print(error_msg or "Package status: Failed", file=sys.stderr)
-        LOGGER.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
-        sys.exit(1)
+        print(e, file=sys.stderr)
+        LOGGER.warning("Unable to create {}: {}.  See Storage Service logs for more details.".format(sip_type, e))
+        return 1
+
+    message = "Storage service created {}: {}".format(sip_type, new_file)
+    LOGGER.info(message)
+    print(message)
+    return 0
 
     # FIXME this should be moved to the storage service and areas that rely
     # on the thumbnails should be updated

@@ -34,29 +34,30 @@ def main(transfer_uuid, transfer_path):
     transfer_name = os.path.basename(transfer_path.rstrip('/'))
     backlog_path = os.path.join('originals', transfer_name)
 
-    (new_file, error_msg) = storage_service.create_file(
-        uuid=transfer_uuid,
-        origin_location=current_location['resource_uri'],
-        origin_path=relative_transfer_path,
-        current_location=backlog['resource_uri'],
-        current_path=backlog_path,
-        package_type='transfer',  # TODO use constant from storage service
-        size=size,
-    )
-    if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Transfer moved to backlog: {}".format(new_file)
-        logging.info(message)
-        print(message)
-        # TODO update transfer location?  Files location?
-
-        # Delete transfer from processing space
-        shutil.rmtree(transfer_path)
-        return 0
-    else:
+    try:
+        new_file = storage_service.create_file(
+            uuid=transfer_uuid,
+            origin_location=current_location['resource_uri'],
+            origin_path=relative_transfer_path,
+            current_location=backlog['resource_uri'],
+            current_path=backlog_path,
+            package_type='transfer',  # TODO use constant from storage service
+            size=size,
+        )
+    except Exception as e:
         print("Moving to backlog failed.  See Storage Service logs for more details", file=sys.stderr)
-        print(error_msg or "Package status: Failed", file=sys.stderr)
-        logging.warning("Moving to backlog failed: {}.  See logs for more details.".format(error_msg))
+        print(e, file=sys.stderr)
+        logging.warning("Moving to backlog failed: {}.  See Storage Service logs for more details.".format(e))
         return 1
+
+    message = "Transfer moved to backlog: {}".format(new_file)
+    logging.info(message)
+    print(message)
+    # TODO update transfer location?  Files location?
+
+    # Delete transfer from processing space
+    shutil.rmtree(transfer_path)
+    return 0
 
 
 if __name__ == '__main__':
