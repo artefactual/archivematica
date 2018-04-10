@@ -187,8 +187,9 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="",
 
 
 def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):
-    """
-    Creates a new entry in the Derivations table using the supplied arguments. The two files in this relationship should already exist in the Files table.
+    """Creates a new entry in the Derivations table using the supplied
+    arguments. The two files in this relationship should already exist in the
+    Files table.
 
     :param str sourceFileUUID: The UUID of the original file.
     :param str derivedFileUUID: The UUID of the derived file.
