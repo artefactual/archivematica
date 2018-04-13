@@ -39,7 +39,7 @@
   { "name": "p7zip-full", "state": "latest"},
   { "name": "pbzip2", "state": "latest"},
   { "name": "postfix", "state": "latest"},
-  { "name": "readpst", "state": "latest"},
+  { "name": "pst-utils", "state": "latest"},
   { "name": "rsync", "state": "latest"},
   { "name": "siegfried", "state": "latest"},
   { "name": "sleuthkit", "state": "latest"},
