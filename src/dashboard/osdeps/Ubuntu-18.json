@@ -1,0 +1,47 @@
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file",
+    "libsasl2-dev, libldap2-dev: required to pip install python-ldap in virtualenv"
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": [],
+  "osdeps_packages": [
+    {
+      "name": "gettext",
+      "state": "latest"
+    },
+    {
+      "name": "nginx",
+      "state": "latest"
+    },
+    {
+      "name": "libffi-dev",
+      "state": "latest"
+    },
+    {
+      "name": "libxml2-dev",
+      "state": "latest"
+    },
+    {
+      "name": "libxslt1-dev",
+      "state": "latest"
+    },
+    {
+      "name": "libssl-dev",
+      "state": "latest"
+    },
+    {
+      "name": "python-dev",
+      "state": "latest"
+    },
+    {
+      "name": "libsasl2-dev",
+      "state": "latest"
+    },
+    {
+      "name": "libldap2-dev",
+      "state": "latest"
+    }
+  ]
+}
