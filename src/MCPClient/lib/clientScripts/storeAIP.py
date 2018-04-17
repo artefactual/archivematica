@@ -57,6 +57,36 @@ def get_upload_dip_path(aip_path):
     return os.path.sep + os.path.join(*new_aip_path)
 
 
+class StorageServiceCreateFileError(Exception):
+    pass
+
+
+def _create_file(uuid, current_location, relative_aip_path,
+                 aip_destination_uri, current_path, package_type, aip_subtype,
+                 size, sip_type, related_package_uuid):
+    new_file = storage_service.create_file(
+        uuid=uuid,
+        origin_location=current_location['resource_uri'],
+        origin_path=relative_aip_path,
+        current_location=aip_destination_uri,
+        current_path=current_path,
+        package_type=package_type,
+        aip_subtype=aip_subtype,
+        size=size,
+        update='REIN' in sip_type,
+        related_package_uuid=related_package_uuid,
+        events=get_events_from_db(uuid),
+        agents=get_agents_from_db(uuid)
+    )
+    if new_file is None:
+        raise StorageServiceCreateFileError(
+            'Value returned by Storage Service is unexpected')
+    if new_file.get('status') == 'FAIL':
+        raise StorageServiceCreateFileError(
+            'Object returned by Storage Service has status "FAIL"')
+    return new_file
+
+
 def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     """ Stores an AIP with the storage service.
 
@@ -152,24 +182,16 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
 
     # Store the AIP
     try:
-        new_file = storage_service.create_file(
-            uuid=uuid,
-            origin_location=current_location['resource_uri'],
-            origin_path=relative_aip_path,
-            current_location=aip_destination_uri,
-            current_path=current_path,
-            package_type=package_type,
-            aip_subtype=aip_subtype,
-            size=size,
-            update='REIN' in sip_type,
-            related_package_uuid=related_package_uuid,
-            events=get_events_from_db(uuid),
-            agents=get_agents_from_db(uuid)
-        )
+        new_file = _create_file(
+            uuid, current_location, relative_aip_path, aip_destination_uri,
+            current_path, package_type, aip_subtype, size, sip_type,
+            related_package_uuid)
     except Exception as e:
-        print("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
+        print('{} creation failed. See Storage Service logs for more'
+              ' details.'.format(sip_type), file=sys.stderr)
         print(e, file=sys.stderr)
-        LOGGER.warning("Unable to create {}: {}.  See Storage Service logs for more details.".format(sip_type, e))
+        LOGGER.warning('Unable to create {}: {}. See Storage Service logs for'
+                       ' more details.'.format(sip_type, e))
         return 1
 
     message = "Storage service created {}: {}".format(sip_type, new_file)
