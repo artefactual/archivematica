@@ -215,9 +215,13 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
                             _get_mdl_identifiers(dir_mdl)):
         object_elem = _add_identifier(
             object_elem, identifier, bns=ns.premisV3BNS)
+    try:
+        original_name = escape(dir_mdl.originallocation)
+    except AttributeError:  # SIP model won't have originallocation
+        original_name = escape(relativeDirectoryPath)
     etree.SubElement(
         object_elem,
-        ns.premisV3BNS + "originalName").text = escape(relativeDirectoryPath)
+        ns.premisV3BNS + "originalName").text = original_name
     return ret
 
 
