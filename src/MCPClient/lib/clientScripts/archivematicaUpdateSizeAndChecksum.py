@@ -89,7 +89,11 @@ def get_file_info_from_mets(shared_path, file_):
             relationship.related_event_identifier_value)
         if (not event) or (event.type != 'normalization'):
             continue
-        related_object_uuid = relationship.related_object_identifier_value
+        rel_obj_uuid = relationship.related_object_identifier_value
+        related_object_fsentry = mets.get_file(file_uuid=rel_obj_uuid)
+        if getattr(related_object_fsentry, 'use', None) != 'preservation':
+            continue
+        related_object_uuid = rel_obj_uuid
         break
 
     premis_object_doc = [
