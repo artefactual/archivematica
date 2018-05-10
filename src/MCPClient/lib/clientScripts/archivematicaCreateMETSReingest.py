@@ -158,6 +158,9 @@ def update_rights(mets, sip_uuid):
     for fsentry in original_files:
         rightsmds = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
         for r in rightsmds:
+            # Don't follow MDRef pointers (see #1083 for more details).
+            if isinstance(r.contents, metsrw.metadata.MDRef):
+                continue
             if r.status == 'superseded':
                 continue
             rightsbasis = r.contents.document.findtext('.//premis:rightsBasis', namespaces=ns.NSMAP)
