@@ -41,10 +41,14 @@ parser.add_option("-f", "--filePath", action="store", dest="filePath", default="
 (opts, args) = parser.parse_args()
 
 # Search for original file associated with the access file given in filePath
-filePathLike = opts.filePath.replace(os.path.join(opts.sipDirectory, "objects", "manualNormalization", "access"), "%SIPDirectory%objects", 1)
+filePathLike = opts.filePath.replace(
+    os.path.join(opts.sipDirectory, "objects", "manualNormalization", "access"),
+    "%SIPDirectory%objects", 1)
+
 i = filePathLike.rfind(".")
 if i != -1:
-    # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
+    # Matches "path/to/file/filename." Includes . so it doesn't false match
+    # foobar.txt when we wanted foo.txt
     filePathLike = filePathLike[:i + 1]
     # Matches the exact filename.  For files with no extension.
     filePathLike2 = filePathLike[:-1]
@@ -64,7 +68,7 @@ try:
     except (File.DoesNotExist, File.MultipleObjectsReturned):
         f = File.objects.get(currentlocation=filePathLike2,
                              **kwargs)
-except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
+except (File.DoesNotExist, File.MultipleObjectsReturned, NameError) as e:
     # Original file was not found, or there is more than one original file with
     # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
@@ -79,7 +83,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
                                                             "access", access_file, unitIdentifier)
         if original is None:
-            if isinstance(e, File.DoesNotExist):
+            if isinstance(e, (File.DoesNotExist, NameError)):
                 print("No matching file for: {0}".format(
                     opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%")), file=sys.stderr)
                 exit(3)
@@ -96,7 +100,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         }
         f = File.objects.get(**kwargs)
     else:
-        if isinstance(e, File.DoesNotExist):
+        if isinstance(e, (File.DoesNotExist, NameError)):
             print("No matching file for: ", opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
             exit(3)
         elif isinstance(e, File.MultipleObjectsReturned):
