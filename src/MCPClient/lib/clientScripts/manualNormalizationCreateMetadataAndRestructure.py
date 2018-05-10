@@ -65,8 +65,8 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         except ValueError:
             print("{0} not in manualNormalization directory".format(filePath), file=sys.stderr)
             exit(4)
-        original = fileOperations.findFileInNormalizatonCSV(csv_path,
-                                                            "preservation", preservation_file, SIPUUID)
+        original = fileOperations.findFileInNormalizationCSV(csv_path,
+                                                             "preservation", preservation_file, SIPUUID)
         if original is None:
             if isinstance(e, File.DoesNotExist):
                 print("No matching file for: {0}".format(

@@ -250,7 +250,7 @@ def updateFileGrpUse(fileUUID, fileGrpUse):
     File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse)
 
 
-def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_uuid):
+def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip_uuid):
     """ Returns the original filename or None for a manually normalized file.
 
     :param str csv_path: absolute path to normalization.csv
