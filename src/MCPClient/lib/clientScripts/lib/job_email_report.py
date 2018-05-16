@@ -38,7 +38,7 @@ def send_email(subject, to, content, attachment_text):
         mail = EmailMessage(subject, content,
                             mcpclient_settings.DEFAULT_FROM_EMAIL, to)
         if attachment_text:
-            attachment = MIMEText(attachment_text)
+            attachment = MIMEText(attachment_text, 'plain', 'utf-8')
             attachment.add_header('Content-Disposition', 'attachment; '
                                   'filename=TaskDetails.txt')
             mail.attach(attachment)
