@@ -71,7 +71,12 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
+        # This type of task must always capture stdout because communicating
+        # via stdout is the very nature of this task type.
+        self.task = taskStandard(
+            self, execute, arguments, standardOutputFile, standardErrorFile,
+            UUID=self.UUID, alwaysCapture=True)
+
         databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
         t = threading.Thread(target=self.task.performTask)
         t.daemon = True

@@ -126,6 +126,7 @@ def _process_gearman_job(gearman_job, gearman_worker):
     data = cPickle.loads(gearman_job.data)
     utc_date = getUTCDate()
     arguments = data['arguments']
+    always_capture = data["alwaysCapture"]
     if isinstance(arguments, unicode):
         arguments = arguments.encode('utf-8')
     client_id = gearman_worker.worker_client_id
@@ -156,7 +157,7 @@ def _process_gearman_job(gearman_job, gearman_worker):
         arguments = arguments.replace(var, val)
     arguments = arguments.replace('%taskUUID%', task_uuid)
     script = client_script_full_path + ' ' + arguments
-    return script, task_uuid
+    return script, task_uuid, always_capture
 
 
 def _unexpected_error():
@@ -172,7 +173,7 @@ def execute_command(gearman_worker, gearman_job):
     standard output and standard error as a pickled dict.
     """
     try:
-        script, task_uuid = _process_gearman_job(
+        script, task_uuid, always_capture = _process_gearman_job(
             gearman_job, gearman_worker)
     except ProcessGearmanJobError:
         return cPickle.dumps({
@@ -183,11 +184,12 @@ def execute_command(gearman_worker, gearman_job):
         return _unexpected_error()
     logger.info('<processingCommand>{%s}%s</processingCommand>',
                 task_uuid, script)
+    capture_output = (
+        django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT or always_capture)
     try:
         exit_code, std_out, std_error = executeOrRun(
-            'command', script, stdIn='',
-            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
-            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
+            'command', script, stdIn='', printing=capture_output,
+            capture_output=capture_output)
     except OSError:
         logger.exception('Execution failed')
         return cPickle.dumps({'exitCode': 1,
