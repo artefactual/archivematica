@@ -53,7 +53,9 @@ limitGearmanConnectionsSemaphore = threading.Semaphore(value=django_settings.LIM
 class taskStandard():
     """A task to hand to gearman"""
 
-    def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
+    def __init__(self, linkTaskManager, execute, arguments, standardOutputFile,
+                 standardErrorFile, outputLock=None, UUID=None,
+                 alwaysCapture=False):
         if UUID is None:
             UUID = uuid.uuid4().__str__()
         self.UUID = UUID
@@ -63,6 +65,7 @@ class taskStandard():
         self.standardOutputFile = standardOutputFile
         self.standardErrorFile = standardErrorFile
         self.outputLock = outputLock
+        self.alwaysCapture = alwaysCapture
 
     @log_exceptions
     @auto_close_db
@@ -71,6 +74,7 @@ class taskStandard():
         gm_client = gearman.GearmanClient([django_settings.GEARMAN_SERVER])
         data = {"createdDate": timezone.now().isoformat(' ')}
         data["arguments"] = self.arguments
+        data["alwaysCapture"] = self.alwaysCapture  # tells worker to always capture stdout
         LOGGER.info('Executing %s %s', self.execute, data)
         completed_job_request = None
         failMaxSleep = 60
@@ -79,7 +83,8 @@ class taskStandard():
         failSleepIncrementor = 2
         while completed_job_request is None:
             try:
-                completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
+                completed_job_request = gm_client.submit_job(
+                    self.execute.lower(), cPickle.dumps(data), self.UUID)
             except gearman.errors.ServerUnavailable:
                 completed_job_request = None
                 time.sleep(failSleep)

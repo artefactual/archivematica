@@ -91,6 +91,7 @@ def executeCommand(gearman_worker, gearman_job):
         data = cPickle.loads(gearman_job.data)
         utcDate = getUTCDate()
         arguments = data["arguments"]  # .encode("utf-8")
+        always_capture = data["alwaysCapture"]
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")
 
@@ -129,10 +130,11 @@ Unable to determine if it completed successfully."""
         # Execute command
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
+        capture_output = (
+            django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT or always_capture)
         exitCode, stdOut, stdError = executeOrRun(
-            'command', command, stdIn=sInput,
-            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
-            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
+            'command', command, stdIn=sInput, printing=capture_output,
+            capture_output=capture_output)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')
