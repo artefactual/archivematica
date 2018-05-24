@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:2.7-jessie
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DJANGO_SETTINGS_MODULE settings.production
