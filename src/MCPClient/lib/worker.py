@@ -21,6 +21,7 @@ logger = logging.getLogger('archivematica.mcp.client')
 replacement_dict = {
     "%sharedPath%": django_settings.SHARED_DIRECTORY,
     "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
+    "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
 
 
