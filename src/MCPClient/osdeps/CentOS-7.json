@@ -44,6 +44,7 @@
   { "name": "libvpx", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
+  { "name": "mediaconch", "state": "latest"},
   { "name": "nfs-utils", "state": "latest"},
   { "name": "java-1.7.0-openjdk-headless", "state": "latest"},
   { "name": "openjpeg", "state": "latest"},

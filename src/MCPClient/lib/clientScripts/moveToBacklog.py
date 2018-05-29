@@ -14,6 +14,30 @@ from custom_handlers import get_script_logger
 import storageService as storage_service
 
 
+class StorageServiceCreateFileError(Exception):
+    pass
+
+
+def _create_file(transfer_uuid, current_location, relative_transfer_path,
+                 backlog, backlog_path, size):
+    new_file = storage_service.create_file(
+        uuid=transfer_uuid,
+        origin_location=current_location['resource_uri'],
+        origin_path=relative_transfer_path,
+        current_location=backlog['resource_uri'],
+        current_path=backlog_path,
+        package_type='transfer',  # TODO use constant from storage service
+        size=size,
+    )
+    if new_file is None:
+        raise StorageServiceCreateFileError(
+            'Value returned by Storage Service is unexpected')
+    if new_file.get('status') == 'FAIL':
+        raise StorageServiceCreateFileError(
+            'Object returned by Storage Service has status "FAIL"')
+    return new_file
+
+
 def main(transfer_uuid, transfer_path):
     current_location = storage_service.get_location(purpose="CP")[0]
     backlog = storage_service.get_location(purpose="BL")[0]
@@ -34,29 +58,26 @@ def main(transfer_uuid, transfer_path):
     transfer_name = os.path.basename(transfer_path.rstrip('/'))
     backlog_path = os.path.join('originals', transfer_name)
 
-    (new_file, error_msg) = storage_service.create_file(
-        uuid=transfer_uuid,
-        origin_location=current_location['resource_uri'],
-        origin_path=relative_transfer_path,
-        current_location=backlog['resource_uri'],
-        current_path=backlog_path,
-        package_type='transfer',  # TODO use constant from storage service
-        size=size,
-    )
-    if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Transfer moved to backlog: {}".format(new_file)
-        logging.info(message)
-        print(message)
-        # TODO update transfer location?  Files location?
-
-        # Delete transfer from processing space
-        shutil.rmtree(transfer_path)
-        return 0
-    else:
-        print("Moving to backlog failed.  See Storage Service logs for more details", file=sys.stderr)
-        print(error_msg or "Package status: Failed", file=sys.stderr)
-        logging.warning("Moving to backlog failed: {}.  See logs for more details.".format(error_msg))
+    try:
+        new_file = _create_file(
+            transfer_uuid, current_location, relative_transfer_path, backlog,
+            backlog_path, size)
+    except Exception as e:
+        print('Moving to backlog failed.'
+              ' See Storage Service logs for more details', file=sys.stderr)
+        print(e, file=sys.stderr)
+        logging.warning('Moving to backlog failed: {}. See Storage Service'
+                        ' logs for more details.'.format(e))
         return 1
+
+    message = "Transfer moved to backlog: {}".format(new_file)
+    logging.info(message)
+    print(message)
+    # TODO update transfer location?  Files location?
+
+    # Delete transfer from processing space
+    shutil.rmtree(transfer_path)
+    return 0
 
 
 if __name__ == '__main__':

@@ -310,7 +310,7 @@ def set_up_mapping_aip_index(client):
     logger.info('Creating AIP mapping...')
     client.indices.put_mapping(
         doc_type='aip',
-        body={'aip': {'date_detection': True, 'properties': mapping}},
+        body={'aip': {'date_detection': False, 'properties': mapping}},
         index='aips'
     )
     logger.info('AIP mapping created.')
@@ -332,7 +332,7 @@ def set_up_mapping_aip_index(client):
     logger.info('Creating AIP file mapping...')
     client.indices.put_mapping(
         doc_type='aipfile',
-        body={'aipfile': {'date_detection': True, 'properties': mapping}},
+        body={'aipfile': {'date_detection': False, 'properties': mapping}},
         index='aips'
     )
     logger.info('AIP file mapping created.')

@@ -1,15 +1,11 @@
-# Translators:
-# artefactual <translate@artefactual.com>, 2016
-# Jesús García Crespo <jesus@sevein.com>, 2016
-# Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
+"Language-Team: Portuguese (https://www.transifex.com/artefactual/teams/1506/pt/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
+"Language: pt\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ./app/front_page/content.html:45
@@ -26,7 +22,7 @@ msgstr[1] ""
 
 #: ./app/front_page/content.html:293
 msgid "Add directory"
-msgstr "Añadir directorio"
+msgstr ""
 
 #: ./app/front_page/content.html:208
 msgid "Add new child record"
@@ -46,7 +42,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:18
 msgid "All"
-msgstr "Todos"
+msgstr ""
 
 #: ./app/front_page/content.html:80
 msgid "Analysis"
@@ -54,7 +50,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:191 ./app/front_page/content.html:194
 msgid "ArchivesSpace"
-msgstr "ArchivesSpace"
+msgstr ""
 
 #: ./app/front_page/content.html:231 ./app/front_page/content.html:303
 msgid "Are you sure you want to delete this?"
@@ -62,11 +58,11 @@ msgstr ""
 
 #: ./app/front_page/content.html:283 ./app/front_page/content.html:286
 msgid "Arrangement"
-msgstr "Disposición"
+msgstr ""
 
 #: ./app/front_page/content.html:38 ./app/front_page/content.html:41
 msgid "Backlog"
-msgstr "Cola"
+msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:48
 #: ./app/examine_contents/examine_contents.html:71
@@ -75,7 +71,7 @@ msgstr ""
 
 #: ./app/archivesspace/form.html:37
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #: ./app/front_page/content.html:55
 msgid "Collapse all"
@@ -99,7 +95,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:311
 msgid "Create SIP"
-msgstr "Crear SIP"
+msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:6
 msgid "Credit card numbers"
@@ -131,7 +127,7 @@ msgstr ""
 
 #: ./app/preview/preview.html:4
 msgid "Download"
-msgstr "Descargas"
+msgstr ""
 
 #: ./app/front_page/content.html:298
 msgid "Edit Metadata"
@@ -139,7 +135,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:226
 msgid "Edit metadata"
-msgstr "Editar metadatos"
+msgstr ""
 
 #: ./app/front_page/content.html:219
 msgid "Edit rights metadata"
@@ -151,7 +147,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:91
 msgid "Examine contents"
-msgstr "Examinar contenidos"
+msgstr ""
 
 #: ./app/front_page/content.html:56
 msgid "Expand all"
@@ -163,7 +159,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:102 ./app/front_page/content.html:105
 msgid "File list"
-msgstr "Listado de unidades documentales compuestas"
+msgstr ""
 
 #: ./app/front_page/content.html:109
 msgid "File list is empty."
@@ -172,7 +168,7 @@ msgstr ""
 #: ./app/examine_contents/examine_contents.html:45
 #: ./app/front_page/content.html:159
 msgid "Filename"
-msgstr "Nombre del archivo"
+msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:22
 msgid "Files"
@@ -186,11 +182,11 @@ msgstr ""
 #: ./app/visualizations/visualizations.controller.js:19
 #: ./app/visualizations/visualizations.controller.js:35
 msgid "Format"
-msgstr "Formato"
+msgstr ""
 
 #: ./app/report/report.controller.js:50
 msgid "Format group"
-msgstr "Grupo de formatos"
+msgstr ""
 
 #: ./app/visualizations/visualizations.html:3
 msgid "Formats (by total number of files)"
@@ -206,7 +202,7 @@ msgstr ""
 
 #: ./app/report/format.html:5
 msgid "Group"
-msgstr "Grupo"
+msgstr ""
 
 #: ./app/front_page/content.html:145
 msgid "Hide path"
@@ -214,11 +210,11 @@ msgstr ""
 
 #: ./app/front_page/content.html:198
 msgid "Identifier"
-msgstr "Identificador"
+msgstr ""
 
 #: ./app/front_page/content.html:162
 msgid "Last modified"
-msgstr "Última modificación"
+msgstr ""
 
 #: ./app/archivesspace/form.html:8
 msgid "Level of description:"
@@ -264,16 +260,16 @@ msgstr ""
 
 #: ./app/report/format.html:4
 msgid "PUID"
-msgstr "PUID"
+msgstr ""
 
 #: ./app/front_page/content.html:160
 msgid "Path"
-msgstr "Ruta"
+msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:47
 #: ./app/examine_contents/examine_contents.html:68
 msgid "Preview"
-msgstr "Vista previa"
+msgstr ""
 
 #: ./app/front_page/content.html:94
 msgid "Preview file"
@@ -301,7 +297,7 @@ msgstr ""
 
 #: ./app/archivesspace/form.html:36
 msgid "Save"
-msgstr "Grabar"
+msgstr ""
 
 #: ./app/front_page/content.html:199
 msgid "Search ArchivesSpace"
@@ -321,7 +317,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:161 ./app/report/format.html:7
 msgid "Size"
-msgstr "Tamaño"
+msgstr ""
 
 #: ./app/archivesspace/form.html:21
 msgid "Start date:"
@@ -343,7 +339,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:197
 msgid "Title"
-msgstr "Título"
+msgstr ""
 
 #: ./app/archivesspace/form.html:4
 msgid "Title:"
@@ -351,7 +347,7 @@ msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:46
 msgid "Transfer name"
-msgstr "Nombre de la transferencia"
+msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:11
 msgid "Transfers:"
@@ -371,7 +367,7 @@ msgstr ""
 
 #: ./app/archivesspace/archivesspace.controller.js:298
 msgid "Unable to fetch record {{id}} from ArchivesSpace!"
-msgstr "No se pudo obtener el registro {{id}} de ArchivesSpace."
+msgstr ""
 
 #: ./app/archivesspace/archivesspace.controller.js:306
 msgid "Unable to fetch record {{path}} from Arrangement!"
@@ -388,7 +384,6 @@ msgstr ""
 #: ./app/archivesspace/archivesspace.controller.js:568
 msgid "Unable to start SIP; check dashboard logs."
 msgstr ""
-"No se pudo comenzar el SIP; por favor compruebe los registros del dashboard."
 
 #: ./app/archivesspace/archivesspace.controller.js:566
 msgid "Unable to start SIP; no files arranged into record \"{{title}}\"."

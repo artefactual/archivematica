@@ -87,7 +87,8 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         return -1
 
     print('Executing command:', command)
-    exit_code, std_out, std_err = executeOrRun("bashScript", command, printing=True)
+    exit_code, std_out, std_err = executeOrRun("bashScript", command, printing=True,
+                                               capture_output=False)
 
     # Add new AIP File
     file_uuid = sip_uuid

@@ -19,7 +19,7 @@ gunicorn==19.7.1
 futures==3.0.5  # used by gunicorn's async workers
 lazy-paged-sequence
 lxml==3.5.0
-metsrw==0.2.0
+metsrw==0.2.1
 mysqlclient==1.3.7
 pytz
 pyopenssl

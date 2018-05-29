@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -10,13 +10,12 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-04 16:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Jesús García Crespo <jesus@sevein.com>, 2016\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
-"es/)\n"
-"Language: es\n"
+"Last-Translator: Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017\n"
+"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: components/accounts/views.py:55 components/accounts/views.py:133
@@ -28,16 +27,13 @@ msgstr ""
 #: components/administration/views_dip_upload.py:20
 #: components/administration/views_dip_upload.py:32
 #: components/administration/views_dip_upload.py:44
-#, fuzzy
-#| msgid "Save"
 msgid "Saved."
-msgstr "Grabar"
+msgstr "Grabado."
 
 #: components/accounts/views.py:73
-#, fuzzy, python-format
-#| msgid "Your profile"
+#, python-format
 msgid "Your profile (%s)"
-msgstr "Tu perfil"
+msgstr ""
 
 #: components/administration/forms.py:67
 msgid "Web service endpoint"
@@ -112,9 +108,9 @@ msgstr ""
 
 #: components/administration/forms.py:124
 msgid ""
-"Template (Django or Jinja2) for the URL that a unit's PURL with the \"mets\" "
-"qualifier should resolve to. Has access to \"pid\" and \"naming_authority\" "
-"variables."
+"Template (Django or Jinja2) for the URL that a unit's PURL with the \"mets\""
+" qualifier should resolve to. Has access to \"pid\" and \"naming_authority\""
+" variables."
 msgstr ""
 
 #: components/administration/forms.py:130
@@ -133,9 +129,9 @@ msgstr ""
 
 #: components/administration/forms.py:138
 msgid ""
-"Template (Django or Jinja2) for the URL that a file's PURL with the \"access"
-"\" qualifier should resolve to. Has access to \"pid\" and \"naming_authority"
-"\" variables."
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"access\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
 msgstr ""
 
 #: components/administration/forms.py:144
@@ -167,9 +163,10 @@ msgstr ""
 #: components/administration/forms.py:161
 msgid ""
 "Template (Django or Jinja2) that constructs the HTTP request body using the "
-"rendered URL templates above. Has access to the following variables: \"pid"
-"\", \"naming_authority\", \"base_resolve_url\", and \"qualified_resolve_urls"
-"\", the last of which is a list of dicts with \"url\" and \"qualifier\" keys."
+"rendered URL templates above. Has access to the following variables: "
+"\"pid\", \"naming_authority\", \"base_resolve_url\", and "
+"\"qualified_resolve_urls\", the last of which is a list of dicts with "
+"\"url\" and \"qualifier\" keys."
 msgstr ""
 
 #: components/administration/forms.py:183
@@ -254,7 +251,7 @@ msgstr "Examinar contenidos"
 
 #: components/administration/forms.py:304
 msgid "Create SIP(s)"
-msgstr ""
+msgstr "Crear SIP(s)"
 
 #: components/administration/forms.py:310
 msgid "Select file format identification command (Ingest)"
@@ -262,11 +259,11 @@ msgstr ""
 
 #: components/administration/forms.py:315
 msgid "Normalize"
-msgstr ""
+msgstr "Normalizar"
 
 #: components/administration/forms.py:322
 msgid "Approve normalization"
-msgstr ""
+msgstr "Aprobar normalización"
 
 #: components/administration/forms.py:328
 msgid "Perform policy checks on preservation derivatives"
@@ -312,7 +309,7 @@ msgstr ""
 
 #: components/administration/forms.py:394
 msgid "Store DIP"
-msgstr ""
+msgstr "Almacenar DIP"
 
 #: components/administration/forms.py:400
 msgid "Store DIP location"
@@ -551,8 +548,8 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:66
 msgid ""
-"The DIP can be sent with Rsync to a remote host before is deposited in AtoM. "
-"This is the destination value passed to Rsync (see man 1 rsync). For "
+"The DIP can be sent with Rsync to a remote host before is deposited in AtoM."
+" This is the destination value passed to Rsync (see man 1 rsync). For "
 "example: foobar.com:~/dips/."
 msgstr ""
 
@@ -589,46 +586,31 @@ msgid "Deleted."
 msgstr "Borrado."
 
 #: components/administration/views.py:94
-#, fuzzy
-#| msgid "Promote"
 msgid "Promoted."
-msgstr "Promover"
+msgstr ""
 
 #: components/administration/views.py:96
-#, fuzzy
-#| msgid "AtoM level of description"
 msgid "Error attempting to promote level of description."
-msgstr "Niveles de descripción en AtoM"
+msgstr ""
 
 #: components/administration/views.py:99
-#, fuzzy
-#| msgid "Demote"
 msgid "Demoted."
-msgstr "Degradar"
+msgstr ""
 
 #: components/administration/views.py:101
-#, fuzzy
-#| msgid "AtoM level of description"
 msgid "Error attempting to demote level of description."
-msgstr "Niveles de descripción en AtoM"
+msgstr ""
 
 #: components/administration/views.py:108
-#, fuzzy
-#| msgid "Level of description"
 msgid "Level of description not found."
-msgstr "Nivel de descripción"
+msgstr ""
 
 #: components/administration/views.py:150
 #: components/administration/views.py:345
-#, fuzzy
-#| msgid ""
-#| "No AtoM levels of description found. Please contact an administrator."
 msgid ""
-"Error retrieving locations: is the storage server running? Please contact an "
-"administrator."
+"Error retrieving locations: is the storage server running? Please contact an"
+" administrator."
 msgstr ""
-"No se han encontrado niveles de descripción en AtoM. Por favor contacte a su "
-"administrador."
 
 #: components/administration/views.py:457
 msgid ""
@@ -735,7 +717,8 @@ msgid "Error re-ingesting package: %(message)s"
 msgstr ""
 
 #: components/backlog/views.py:230
-msgid "Unable to connect to storage server. Please contact your administrator."
+msgid ""
+"Unable to connect to storage server. Please contact your administrator."
 msgstr ""
 
 #: components/filesystem_ajax/views.py:89
@@ -746,11 +729,9 @@ msgstr[0] "%(count)d objeto"
 msgstr[1] "%(count)d objetos"
 
 #: components/filesystem_ajax/views.py:94
-#, fuzzy, python-format
-#| msgid "%(count)d object"
-#| msgid_plural "%(count)d objects"
+#, python-format
 msgid "%(count)s objects"
-msgstr "%(count)d objeto"
+msgstr ""
 
 #: components/filesystem_ajax/views.py:132
 #, python-format
@@ -925,8 +906,8 @@ msgstr ""
 
 #: components/rights/forms.py:35
 msgid ""
-"Designation of the basis for the right or permission described in the rights "
-"statement identifier."
+"Designation of the basis for the right or permission described in the rights"
+" statement identifier."
 msgstr ""
 
 #: components/rights/forms.py:52
@@ -953,8 +934,8 @@ msgstr ""
 #: components/rights/forms.py:72
 msgid ""
 "A coded designation of the copyright status of the object at the time the "
-"rights statement is recorded. Available options: Copyrighted, Public Domain, "
-"Unknown"
+"rights statement is recorded. Available options: Copyrighted, Public Domain,"
+" Unknown"
 msgstr ""
 
 #: components/rights/forms.py:73
@@ -993,7 +974,8 @@ msgid ""
 msgstr ""
 
 #: components/rights/forms.py:106
-msgid "The date when the statute begins to apply or is applied to the content."
+msgid ""
+"The date when the statute begins to apply or is applied to the content."
 msgstr ""
 
 #: components/rights/forms.py:107
@@ -1013,7 +995,8 @@ msgstr ""
 
 #: components/rights/forms.py:125
 msgid ""
-"The date when the other right no longer applies or is applied to the content."
+"The date when the other right no longer applies or is applied to the "
+"content."
 msgstr ""
 
 #: components/rights/forms.py:133
@@ -1173,7 +1156,7 @@ msgstr "Español"
 
 #: settings/base.py:137
 msgid "Portuguese"
-msgstr ""
+msgstr "Portugués"
 
 #: settings/base.py:390
 msgid ""
@@ -1184,8 +1167,8 @@ msgstr ""
 #: settings/base.py:391
 msgid ""
 "Create a complete backup of the transfer in case transfer/ingest are "
-"interrupted or fail. The transfer will automatically be deleted once the AIP "
-"has been moved into storage."
+"interrupted or fail. The transfer will automatically be deleted once the AIP"
+" has been moved into storage."
 msgstr ""
 
 #: settings/base.py:392
@@ -1197,8 +1180,8 @@ msgstr ""
 #: settings/base.py:393
 msgid ""
 "If desired, select \"Unquarantine\" to remove the transfer from quarantine "
-"immediately. Otherwise, wait until the quarantine period has expired and the "
-"transfer will be removed automatically."
+"immediately. Otherwise, wait until the quarantine period has expired and the"
+" transfer will be removed automatically."
 msgstr ""
 
 #: settings/base.py:394
@@ -1215,8 +1198,8 @@ msgstr ""
 #: settings/base.py:396
 msgid ""
 "Create preservation and/or access copies of files if desired. Creating "
-"access copies will result in a DIP being generated for upload into an access "
-"system."
+"access copies will result in a DIP being generated for upload into an access"
+" system."
 msgstr ""
 
 #: settings/base.py:397
@@ -1235,8 +1218,7 @@ msgid ""
 msgstr ""
 
 #: settings/base.py:399
-msgid ""
-"If desired, select \"Upload DIP\" to upload the DIP to the access system."
+msgid "If desired, select \"Upload DIP\" to upload the DIP to the access system."
 msgstr ""
 
 #: templates/404.html:6
@@ -1246,8 +1228,8 @@ msgstr "Página no encontrada"
 #: templates/404.html:9
 msgid "Sorry! The page that you are trying to view is not here."
 msgstr ""
-"La página que está intentando visualizar no ha sido encontrada, sentimos las "
-"molestias."
+"La página que está intentando visualizar no ha sido encontrada, sentimos las"
+" molestias."
 
 #: templates/500.html:6
 msgid "Internal server error"
@@ -1404,10 +1386,8 @@ msgid "You are logged out."
 msgstr ""
 
 #: templates/accounts/logged_out.html:13
-#, fuzzy
-#| msgid "Log in"
 msgid "Log in again"
-msgstr "Iniciar sesión"
+msgstr ""
 
 #: templates/accounts/login.html:21
 msgid "Forgot your password?"
@@ -1419,7 +1399,7 @@ msgstr "Iniciar sesión"
 
 #: templates/accounts/profile.html:35
 msgid "Admin"
-msgstr ""
+msgstr "Administrador"
 
 #: templates/administration/api.html:5 templates/administration/api.html:6
 #: templates/administration/atom_levels_of_description.html:6
@@ -1552,8 +1532,8 @@ msgstr "Selecciona uno de los idiomas disponibles a continuación:"
 
 #: templates/administration/language.html:44
 msgid ""
-"Your choice will be recorded in the internal session store which doesn't not "
-"retain data forever."
+"Your choice will be recorded in the internal session store which doesn't not"
+" retain data forever."
 msgstr ""
 
 #: templates/administration/language.html:50
@@ -1689,7 +1669,7 @@ msgstr ""
 
 #: templates/administration/sidebar.html:39
 msgid "ArchivesSpace"
-msgstr ""
+msgstr "ArchivesSpace"
 
 #: templates/administration/sidebar.html:40
 msgid "Archivists’ Toolkit"
@@ -1954,11 +1934,11 @@ msgstr ""
 
 #: templates/archival_storage/view.html:144 templates/delete_request.html:8
 msgid ""
-"Choosing to delete this package will send a request to your Archival Storage "
-"administrator. If the administrator approves the request, your package will "
-"be deleted from your Archival Storage and your index will be updated. If the "
-"administrator denies the request, the package will remain in storage and the "
-"administrator will contact you."
+"Choosing to delete this package will send a request to your Archival Storage"
+" administrator. If the administrator approves the request, your package will"
+" be deleted from your Archival Storage and your index will be updated. If "
+"the administrator denies the request, the package will remain in storage and"
+" the administrator will contact you."
 msgstr ""
 
 #: templates/backlog/backlog.html:5 templates/backlog/backlog.html.py:6
@@ -2283,8 +2263,8 @@ msgstr "Niveles de descripción en AtoM"
 #: templates/ingest/grid.html:154
 msgid "No AtoM levels of description found. Please contact an administrator."
 msgstr ""
-"No se han encontrado niveles de descripción en AtoM. Por favor contacte a su "
-"administrador."
+"No se han encontrado niveles de descripción en AtoM. Por favor contacte a su"
+" administrador."
 
 #: templates/ingest/grid.html:177
 msgid "Metadatos"
@@ -2325,8 +2305,8 @@ msgid ""
 "<strong>newsletters-2</strong>"
 msgstr ""
 "Ejemplo: si la URL de destino fuera http://myAtoM.ca/newsletters-2;rad el "
-"permalink (identificador) correspondiente sería <strong>newsletters-2</"
-"strong>."
+"permalink (identificador) correspondiente sería "
+"<strong>newsletters-2</strong>."
 
 #: templates/ingest/metadata_add_files.html:47
 msgid "Select a directory"
@@ -2378,9 +2358,7 @@ msgstr ""
 #: templates/transfer/metadata_edit.html:107
 msgid ""
 "\n"
-"        You may wish to use the DCMI type vocabulary provided here: <a href="
-"\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore."
-"org/documents/dcmi-type-vocabulary/</a>\n"
+"        You may wish to use the DCMI type vocabulary provided here: <a href=\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore.org/documents/dcmi-type-vocabulary/</a>\n"
 "      "
 msgstr ""
 
@@ -2393,10 +2371,7 @@ msgstr ""
 #: templates/transfer/metadata_edit.html:117
 msgid ""
 "\n"
-"        Best practice is to use a controlled vocabulary such as the list of "
-"Internet Media Types [MIME] provided here: <a href=\"http://www.iana.org/"
-"assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/"
-"media-types/</a>\n"
+"        Best practice is to use a controlled vocabulary such as the list of Internet Media Types [MIME] provided here: <a href=\"http://www.iana.org/assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/media-types/</a>\n"
 "      "
 msgstr ""
 
@@ -2562,8 +2537,8 @@ msgstr ""
 
 #: templates/installer/welcome.html:41
 msgid ""
-"Archivematica has been installed successfully. Please take a minute to enter "
-"some details into the system."
+"Archivematica has been installed successfully. Please take a minute to enter"
+" some details into the system."
 msgstr ""
 
 #: templates/layout.html:9
@@ -2693,8 +2668,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"        Sorry! The %(content_type)s that you are trying to %(verb)s is not "
-"here.\n"
+"        Sorry! The %(content_type)s that you are trying to %(verb)s is not here.\n"
 "      "
 msgstr ""
 
@@ -2763,7 +2737,8 @@ msgstr "Notas"
 
 #: templates/rights/rights_grants_edit.html:53
 msgid ""
-"You may now add additional information such as document identifers and notes."
+"You may now add additional information such as document identifers and "
+"notes."
 msgstr ""
 
 #: templates/rights/rights_grants_edit.html:79
@@ -2825,6 +2800,3 @@ msgstr "Metadatos de transferencia"
 #: templates/transfer/grid.html:80
 msgid "Transfer start time"
 msgstr "Fecha de inicio"
-
-#~ msgid "Interface options"
-#~ msgstr "Opciones de interfaz"

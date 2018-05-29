@@ -250,16 +250,21 @@ def create_file(uuid, origin_location, origin_path, current_location,
                 current_path, package_type, size, update=False,
                 related_package_uuid=None, events=None, agents=None,
                 aip_subtype=None):
-    """Creates a new file. Returns a tuple of (resulting dict, None) on
-    success, (None, error) on failure. Note: for backwards compatibility
+    """Creates a new file. Note: for backwards compatibility
     reasons, the SS API calls "packages" "files" and this function should be
     read as ``create_package``.
 
     origin_location and current_location should be URIs for the storage service.
+
+    Returns:
+        Dict with the JSON response from the SS API
+
+    Raises:
+        RequestException: if the SS API call fails
     """
     pipeline = get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
-        return (None, 'Pipeline not available, see logs.')
+        raise ResourceNotFound('Pipeline not available')
     if events is None:
         events = []
     if agents is None:
@@ -289,15 +294,14 @@ def create_file(uuid, origin_location, origin_path, current_location,
         else:
             url = _storage_service_url() + 'file/'
             response = session.post(url, json=new_file)
+        # raise an HTTPError exception if getting HTTP 4xx or 5xx error
+        response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to create file from %s because %s", new_file, e)
-        return (None, e)
-    # TODO: if the SS returns a 500 error, then the dashboard will not signal
-    # to the user that AIP storage has failed! This is not good.
+        raise
     LOGGER.info('Status code of create file/package request: %s',
                 response.status_code)
-    file_ = response.json()
-    return (file_, None)
+    return response.json()
 
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,

@@ -31,6 +31,7 @@
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
+  { "name": "mediaconch", "state": "latest"},
   { "name": "nfs-common", "state": "latest"},
   { "name": "openjdk-7-jre-headless", "state": "latest"},
   { "name": "p7zip-full", "state": "latest"},
@@ -45,10 +46,5 @@
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
   { "name": "uuid", "state": "latest"}
-  ],
-  "osdeps_debfiles": [
-  "https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0_0.4.37-1_amd64.xUbuntu_14.04.deb",
-  "https://mediaarea.net/download/binary/libmediainfo0/18.03/libmediainfo0_18.03-1_amd64.xUbuntu_14.04.deb",
-  "https://mediaarea.net/download/binary/mediaconch/18.03/mediaconch_18.03-1_amd64.xUbuntu_14.04.deb"
   ]
 }

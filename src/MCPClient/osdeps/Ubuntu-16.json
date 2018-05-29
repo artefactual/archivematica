@@ -31,6 +31,7 @@
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
+  { "name": "mediaconch", "state": "latest"},
   { "name": "nailgun", "state": "latest"},
   { "name": "nailgun-client", "state": "latest"},
   { "name": "nfs-common", "state": "latest"},
@@ -47,10 +48,5 @@
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
   { "name": "uuid", "state": "latest"}
-  ],
-  "osdeps_debfiles": [
-  "https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0v5_0.4.37-1_amd64.xUbuntu_16.04.deb",
-  "https://mediaarea.net/download/binary/libmediainfo0/18.03/libmediainfo0v5_18.03-1_amd64.xUbuntu_16.04.deb",
-  "https://mediaarea.net/download/binary/mediaconch/18.03/mediaconch_18.03-1_amd64.xUbuntu_16.04.deb"
   ]
 }

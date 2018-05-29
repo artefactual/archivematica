@@ -116,7 +116,9 @@ def process_gearman_job(gearman_worker, gearman_job):
                 task_uuid, script)
     try:
         exit_code, std_out, std_error = execute_or_run(
-            'command', script, stdIn='', printing=True)
+            'command', script, stdIn='',
+            printing=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT,
+            capture_output=django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT)
     except OSError:
         logger.exception('Execution failed')
         return _serialize_job_response(1, 'Archivematica Client Error!',
