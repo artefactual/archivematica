@@ -39,7 +39,7 @@ import components.helpers as helpers
 from installer.steps import setup_pipeline_in_ss
 import storageService as storage_service
 
-from version import get_full_version
+from version import get_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
@@ -465,7 +465,7 @@ def general(request):
 
     not_created_yet = False
     try:
-        pipeline = storage_service._get_pipeline(dashboard_uuid)
+        pipeline = storage_service.get_pipeline(dashboard_uuid)
     except Exception as err:
         if err.response is not None and err.response.status_code == 404:
             # The server has returned a 404, we're going to assume that this is
@@ -497,11 +497,10 @@ def general(request):
                                         ' it not registered yet? Submitting'
                                         ' form will attempt to register the'
                                         ' pipeline.'))
-
     return render(request, 'administration/general.html', locals())
 
 
 def version(request):
-    version = get_full_version()
+    version = get_version()
     agent_code = models.Agent.objects.get(identifiertype="preservation system").identifiervalue
     return render(request, 'administration/version.html', locals())

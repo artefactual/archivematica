@@ -173,7 +173,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0045_archivesspace_config_dict'),
+        ('main', '0047_archivesspace_config_dict'),
     ]
 
     operations = [

@@ -22,6 +22,7 @@ import logging.config
 import os
 
 from appconfig import Config
+import email_settings
 
 
 CONFIG_MAPPING = {
@@ -39,6 +40,9 @@ CONFIG_MAPPING = {
         {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
         {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
     ],
+    'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
+    'storage_service_client_quick_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
+    'workers': {'section': 'MCPServer', 'option': 'workers', 'type': 'int'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -55,6 +59,9 @@ CONFIG_MAPPING = {
     'db_port': {'section': 'client', 'option': 'port', 'type': 'string'},
 }
 
+CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
+
+
 CONFIG_DEFAULTS = """[MCPServer]
 MCPArchivematicaServer = localhost:4730
 watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
@@ -65,6 +72,9 @@ watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
+storage_service_client_timeout = 86400
+storage_service_client_quick_timeout = 5
+workers = 2
 
 [Protocol]
 delimiter = <!&\delimiter/&!>
@@ -80,6 +90,23 @@ host = localhost
 database = MCP
 port = 3306
 engine = django.db.backends.mysql
+
+[email]
+backend = django.core.mail.backends.console.EmailBackend
+host = smtp.gmail.com
+host_password =
+host_user = your_email@example.com
+port = 587
+ssl_certfile =
+ssl_keyfile =
+use_ssl = False
+use_tls = True
+file_path =
+amazon_ses_region = us-east-1
+default_from_email = webmaster@example.com
+subject_prefix = [Archivematica]
+timeout = 300
+#server_email =
 """
 
 
@@ -168,3 +195,9 @@ LIMIT_TASK_THREADS_SLEEP = config.get('limit_task_threads_sleep')
 LIMIT_GEARMAN_CONNS = config.get('limit_gearman_conns')
 RESERVED_AS_TASK_PROCESSING_THREADS = config.get('reserved_as_task_processing_threads')
 SEARCH_ENABLED = config.get('search_enabled')
+STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
+STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
+WORKERS = config.get('workers')
+
+# Apply email settings
+globals().update(email_settings.get_settings(config))

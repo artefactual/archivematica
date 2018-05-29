@@ -23,12 +23,14 @@ def fake_send_email_with_exception(subject, message, from_email, recipient_list,
     raise SMTPException('Something really bad happened!')
 
 
-def test_send_email_ok():
-    total = send_email("Foobar", ["to@domain.tld"], "from@domain.tld",
-                       "<html>...</html>")
+def test_send_email_ok(settings):
+    settings.DEFAULT_FROM_EMAIL = "foo@bar.tld"
+    total = send_email("Foobar", ["to@domain.tld"], "<html>...</html>")
+
     assert total == 1
     assert len(mail.outbox) == 1
     assert mail.outbox[0].subject == "Foobar"
+    assert mail.outbox[0].from_email == "foo@bar.tld"
     assert mail.outbox[0].to == ["to@domain.tld"]
     assert mail.outbox[0].body == "Please see the attached HTML document"
     assert len(mail.outbox[0].alternatives) == 1
@@ -39,5 +41,4 @@ def test_send_email_err(monkeypatch):
     monkeypatch.setattr('django.core.mail.send_mail.func_code',
                         fake_send_email_with_exception.func_code)
     with pytest.raises(SMTPException):
-        send_email("Foobar", ["to@domain.tld"], "from@domain.tld",
-                   "<html>...</html>")
+        send_email("Foobar", ["to@domain.tld"], "<html>...</html>")

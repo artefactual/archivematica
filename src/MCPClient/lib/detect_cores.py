@@ -1,15 +1,17 @@
-#!/usr/bin/env python2
-# Author Bruce Eckel (www.BruceEckel.com)
-# Source http://www.artima.com/weblogs/viewpost.jsp?thread=230001
+"""Detect CPU cores.
 
-from __future__ import print_function
+This module contains a function that helps to determine the number of CPU cores
+available in the system.
+
+Inspired by code shared by Bruce Eckel (www.BruceEckel.com) found at
+http://www.artima.com/weblogs/viewpost.jsp?thread=230001.
+"""
+
 import os
 
 
-def detectCPUs():
-    """
-    Detects the number of CPUs on a system. Cribbed from pp.
-    """
+def detect_cores():
+    """Detect the number of CPU cores on a system."""
     # Linux, Unix and MacOS:
     if hasattr(os, "sysconf"):
         if "SC_NPROCESSORS_ONLN" in os.sysconf_names:  # Linux & Unix:
@@ -23,7 +25,3 @@ def detectCPUs():
     if ncpus > 0:
         return ncpus
     return 1  # Default
-
-
-if __name__ == '__main__':
-    print(detectCPUs())

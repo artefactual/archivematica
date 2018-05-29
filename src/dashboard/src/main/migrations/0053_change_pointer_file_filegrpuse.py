@@ -37,7 +37,7 @@ def update_pointer_files_filegrpuse(apps, filegrpuse):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0048_fix_upload_qubit_setting'),
+        ('main', '0052_add_failure_messages'),
     ]
 
     operations = [

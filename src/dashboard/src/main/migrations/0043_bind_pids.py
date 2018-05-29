@@ -254,7 +254,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0040_directory_model'),
+        ('main', '0042_directory_model'),
     ]
 
     operations = [
