@@ -233,7 +233,7 @@ def get_dir_uuids(dir_paths, logger=None):
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
-        msg = 'Assigning UUID {} to directory path {}'.format(
+        msg = u'Assigning UUID {} to directory path {}'.format(
             dir_uuid, dir_path)
         print(msg)
         if logger:
@@ -288,7 +288,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
     if (not os.path.isfile(mets_file_path) or
             not os.path.isdir(objects_path)):
         if logger:
-            logger.info('Unable to construct empty directories, either because'
+            logger.info(u'Unable to construct empty directories, either because'
                         ' there is no METS file at {} or because there is no'
                         ' objects/ directory at {}'.format(mets_file_path,
                                                            objects_path))
@@ -299,7 +299,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             NORMATIVE_STRUCTMAP_LABEL), NSMAP)
     if logical_struct_map_el is None:
         if logger:
-            logger.info('Unable to locate a logical structMap labelled {}.'
+            logger.info(u'Unable to locate a logical structMap labelled {}.'
                         ' Aborting attempt to reconstruct empty'
                         ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
         return
@@ -307,7 +307,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         'mets:div/mets:div[@LABEL="objects"]', NSMAP)
     if root_div_el is None:
         if logger:
-            logger.info('Unable to locate a logical structMap labelled {}.'
+            logger.info(u'Unable to locate a logical structMap labelled {}.'
                         ' Aborting attempt to reconstruct empty'
                         ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
         return
