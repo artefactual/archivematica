@@ -21,6 +21,11 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+"""archivematicaFunctions.py
+
+Provides various helper functions across the different Archivematica modules.
+"""
+
 from __future__ import print_function
 import collections
 import hashlib
@@ -56,6 +61,7 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
 
 
 def get_setting(setting, default=''):
+    """Get Dashboard setting from database model."""
     try:
         return DashboardSetting.objects.get(name=setting).value
     except DashboardSetting.DoesNotExist:
@@ -63,14 +69,15 @@ def get_setting(setting, default=''):
 
 
 def get_dashboard_uuid():
+    """Get Dashboard uuid via the Dashboard database mode."""
     return get_setting('dashboard_uuid', default=None)
 
 
 class OrderedListsDict(collections.OrderedDict):
     """
-    OrderedDict where all keys are lists, and elements are appended automatically.
+    OrderedDict where all keys are lists, and elements are appended
+    automatically.
     """
-
     def __setitem__(self, key, value):
         # When inserting, insert into a list of items with the same key
         try:
@@ -81,12 +88,14 @@ class OrderedListsDict(collections.OrderedDict):
 
 
 def unicodeToStr(string):
+    """Convert Unicode to string format."""
     if isinstance(string, unicode):
         string = string.encode("utf-8")
     return string
 
 
 def strToUnicode(string, obstinate=False):
+    """Convert string to Unicode format."""
     if isinstance(string, str):
         try:
             string = string.decode('utf8')
@@ -101,6 +110,7 @@ def strToUnicode(string, obstinate=False):
 
 
 def get_locale_encoding():
+    """Return the default locale of the machine calling this function."""
     default = 'UTF-8'
     try:
         return locale.getdefaultlocale()[1] or default
@@ -120,6 +130,7 @@ def cmd_line_arg_to_unicode(cmd_line_arg):
 
 
 def getTagged(root, tag):
+    """Return the XML elements with the given tag argument."""
     ret = []
     for element in root:
         if element.tag == tag:
@@ -128,6 +139,7 @@ def getTagged(root, tag):
 
 
 def escapeForCommand(string):
+    """Escape special characters in a given string."""
     ret = string
     if isinstance(ret, basestring):
         ret = ret.replace("\\", "\\\\")
@@ -137,26 +149,27 @@ def escapeForCommand(string):
         # ret = ret.replace("$", "\\$")
     return ret
 
-# This replaces non-unicode characters with a replacement character,
-# and is primarily used for arbitrary strings (e.g. filenames, paths)
-# that might not be valid unicode to begin with.
-
 
 def escape(string):
+    """Replace non-unicode characters with a replacement character. Use this
+    primarily for arbitrary strings (e.g. filenames, paths) that might not
+    be valid unicode to begin with.
+    """
     if isinstance(string, str):
         string = string.decode('utf-8', errors='replace')
     return string
 
 
-# Normalize non-DC CONTENTdm metadata element names to match those used
-# in transfer's metadata.csv files.
 def normalizeNonDcElementName(string):
+    """Normalize non-DC CONTENTdm metadata element names to match those used
+    in transfer's metadata.csv files.
+    """
     # Convert non-alphanumerics to _, remove extra _ from ends of string.
-    normalizedString = re.sub(r"\W+", '_', string)
-    normalizedString = normalizedString.strip('_')
+    normalized_string = re.sub(r"\W+", '_', string)
+    normalized_string = normalized_string.strip('_')
     # Lower case string.
-    normalizedString = normalizedString.lower()
-    return normalizedString
+    normalized_string = normalized_string.lower()
+    return normalized_string
 
 
 def get_file_checksum(filename, algorithm='sha256'):
@@ -164,37 +177,38 @@ def get_file_checksum(filename, algorithm='sha256'):
     Perform a checksum on the specified file.
 
     This function reads in files incrementally to avoid memory exhaustion.
-    See: http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python
+    See: https://stackoverflow.com/a/4213255
 
     :param filename: The path to the file we want to check
     :param algorithm: Which algorithm to use for hashing, e.g. 'md5'
     :return: Returns a checksum string for the specified file.
     """
-    h = hashlib.new(algorithm)
-
-    with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(1024 * h.block_size), b''):
-            h.update(chunk)
-
-    return h.hexdigest()
+    hash_ = hashlib.new(algorithm)
+    with open(filename, 'rb') as file_:
+        for chunk in iter(lambda: file_.read(1024 * hash_.block_size), b''):
+            hash_.update(chunk)
+    return hash_.hexdigest()
 
 
 def find_metadata_files(sip_path, filename, only_transfers=False):
     """
     Check the SIP and transfer metadata directories for filename.
 
-    Helper function to collect all of a particular metadata file (e.g. metadata.csv) in a SIP.
+    Helper function to collect all of a particular metadata file (e.g.
+    metadata.csv) in a SIP.
 
     SIP-level files will be at the end of the list, if they exist.
 
     :param sip_path: Path of the SIP to check
     :param filename: Name of the metadata file to search for
-    :param only_transfers: True if it should only look at Transfer metadata, False if it should look at SIP metadata too.
+    :param only_transfers: True if it should only look at Transfer metadata,
+                           False if it should look at SIP metadata too.
     :return: List of full paths to instances of filename
     """
     paths = []
-    # Check transfers
-    transfers_md_path = os.path.join(sip_path, 'objects', 'metadata', 'transfers')
+    # Check transfer metadata.
+    transfers_md_path = os.path.join(sip_path, 'objects',
+                                     'metadata', 'transfers')
     try:
         transfers = os.listdir(transfers_md_path)
     except OSError:
@@ -203,7 +217,7 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
         path = os.path.join(transfers_md_path, transfer, filename)
         if os.path.isfile(path):
             paths.append(path)
-    # Check SIP metadata dir
+    # Check the SIP metadata dir.
     if not only_transfers:
         path = os.path.join(sip_path, 'objects', 'metadata', filename)
         if os.path.isfile(path):
@@ -212,6 +226,9 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
 
 
 def create_directories(directories, basepath='', printing=False):
+    """Create arbitrary directory structures given an iterable list of directory
+    paths.
+    """
     for directory in directories:
         dir_path = os.path.join(basepath, directory)
         if not os.path.isdir(dir_path):
@@ -220,10 +237,19 @@ def create_directories(directories, basepath='', printing=False):
                 print('Creating directory', dir_path)
 
 
-def create_structured_directory(basepath, manual_normalization=False, printing=False):
-    create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
+def create_structured_directory(basepath,
+                                manual_normalization=False,
+                                printing=False):
+    """Wrapper for create_directories for various structures required by
+    Archivematica.
+    """
+    create_directories(REQUIRED_DIRECTORIES,
+                       basepath=basepath,
+                       printing=printing)
     if manual_normalization:
-        create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
+        create_directories(MANUAL_NORMALIZATION_DIRECTORIES,
+                           basepath=basepath,
+                           printing=printing)
 
 
 def get_dir_uuids(dir_paths, logger=None):
