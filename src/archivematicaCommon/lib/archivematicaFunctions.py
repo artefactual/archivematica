@@ -21,9 +21,8 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
-"""archivematicaFunctions.py
-
-Provides various helper functions across the different Archivematica modules.
+"""archivematicaFunctions provides various helper functions across the
+different Archivematica modules.
 """
 
 from __future__ import print_function
