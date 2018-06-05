@@ -152,15 +152,34 @@ def match_dip_objects_to_resource_component_levels(client, request, resource_com
     return render(request, match_template, locals())
 
 
-def review_matches(client, request, template, uuid, matches=[]):
-    object_paths = {pair['uuid']: pair['path']
-                    for pair in ingest_upload_atk_get_dip_object_paths(uuid)}
-    # Augment the match data with the path of the object (normally only
-    # fileuuid is included)
-    for match in matches:
-        object_path = object_paths[match['file_uuid']]
-        match['object_path'] = object_path
+def remove_prefix(string, prefix):
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    return string
 
+
+def remove_objects_prefix(path):
+    return remove_prefix(path, 'objects/')
+
+
+def remove_sip_dir_prefix(path):
+    return remove_prefix(path, '%SIPDirectory%')
+
+
+def remove_review_matches_prefixes(path):
+    return remove_objects_prefix(remove_sip_dir_prefix(path))
+
+
+def review_matches(client, request, template, uuid, matches=[]):
+    object_paths = {file_.uuid:
+                    remove_review_matches_prefixes(file_.currentlocation)
+                    for file_ in models.File.objects.filter(sip=uuid)}
+    for match in matches:
+        try:
+            match['object_path'] = object_paths[match['file_uuid']]
+        except KeyError:
+            match['object_path'] = 'Unable to locate a path for file {}'.format(
+                match['file_uuid'])
     return render(request, template, {
         "uuid": uuid,
         "matches": matches
@@ -168,67 +187,40 @@ def review_matches(client, request, template, uuid, matches=[]):
 
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
-    # determine the DIP upload directory
+    """Parse the DIP METS for original files and return a list of dicts with
+    'uuid' and 'path' keys which valuate to the UUID of an original file and
+    the relative path to that file, minus the 'objects/' prefix.
+    """
     watch_dir = django_settings.WATCH_DIRECTORY
     dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
-
-    # work out directory name for DIP (should be the same as the SIP)
     try:
         sip = models.SIP.objects.get(uuid=uuid)
     except:
         raise Http404
-
     directory = os.path.basename(os.path.dirname(sip.currentpath))
-
-    # work out the path to the DIP's METS file
-    metsFilePath = os.path.join(dip_upload_dir, directory, 'METS.' + uuid + '.xml')
-
-    # read file paths from METS file
+    metsFilePath = os.path.join(
+        dip_upload_dir, directory, 'METS.' + uuid + '.xml')
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
-
-    # use paths to create an array that we'll sort and store path UUIDs separately
     paths = []
     path_uuids = {}
-
-    # in the end we'll populate this using paths and path_uuids
     files = []
-
-    # get each object's filepath
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
+    for item in root.findall(
+            "{http://www.loc.gov/METS/}fileSec"
+            "/{http://www.loc.gov/METS/}fileGrp[@USE='original']"
+            "/{http://www.loc.gov/METS/}file"):
         for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
             object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
-
-            # look up file's UUID
             file = models.File.objects.get(
                 sip=uuid,
-                currentlocation='%SIPDirectory%' + object_path
-            )
-
-            # remove "objects/" dir when storing representation
-            if object_path.index('objects/') == 0:
-                object_path = object_path[8:]
-
+                currentlocation='%SIPDirectory%' + object_path)
+            object_path = remove_objects_prefix(object_path)
             paths.append(object_path)
             path_uuids[object_path] = file.uuid
-
-    # create array of objects with object data
     paths.sort()
     for path in paths:
         files.append({
             'uuid': path_uuids[path],
             'path': path
         })
-
     return files
-
-    """
-    files = [{
-        'uuid': '7665dc52-29f3-4309-b3fe-273c4c04df4b',
-        'path': 'dog.jpg'
-    },
-    {
-        'uuid': 'c2e41289-8280-4db9-ae4e-7730fbaa1471',
-        'path': 'inages/candy.jpg'
-    }]
-    """
