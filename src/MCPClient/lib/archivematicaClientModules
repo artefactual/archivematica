@@ -1,7 +1,7 @@
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-# 
+#
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -137,3 +137,7 @@ verifyChecksumsInFileSecOfDspaceMETSFiles_v0.0 = %clientScriptsDirectory%verifyC
 verifyMD5_v0.0 = %clientScriptsDirectory%verifyMD5.sh
 verifySIPCompliance_v0.0 = %clientScriptsDirectory%verifySIPCompliance.py
 verifyTransferCompliance_v0.0 = %clientScriptsDirectory%verifyTransferCompliance.py
+
+# Dataverse
+parseDataverse = %clientScriptsDirectory%parse_dataverse.py
+dataverse_v0.0 = %clientScriptsDirectory%dataverse.py

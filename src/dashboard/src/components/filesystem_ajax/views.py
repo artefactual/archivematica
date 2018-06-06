@@ -83,6 +83,8 @@ def _prepare_browse_response(response):
         logger.debug('Properties for %s: %s', entry, prop)
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
+        elif 'verbose name' in prop:
+            prop['display_string'] = prop['verbose name'].strip()
         elif 'object count' in prop:
             try:
                 prop['display_string'] = ungettext(

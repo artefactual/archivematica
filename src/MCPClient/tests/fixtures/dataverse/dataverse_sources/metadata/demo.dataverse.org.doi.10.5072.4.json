@@ -1,0 +1,171 @@
+{
+    "authority": "10.5072/FK2",
+    "id": 574,
+    "identifier": "6PPJ6Y",
+    "latestVersion": {
+        "UNF": "UNF:6:IgxkjKXUlveGP0Darp1fYg==",
+        "createTime": "2018-05-09T20:33:36Z",
+        "files": [
+            {
+                "dataFile": {
+                    "UNF": "UNF:6:IgxkjKXUlveGP0Darp1fYg==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "ddb3bc08ca0b5826efef8c87a277475f"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "A table with drinks data",
+                    "filename": "Drinks.tab",
+                    "filesize": 233,
+                    "id": 575,
+                    "md5": "ddb3bc08ca0b5826efef8c87a277475f",
+                    "originalFileFormat": "text/csv",
+                    "originalFormatLabel": "Comma Separated Values",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163469b1673-1e6c95ea2b41"
+                },
+                "datasetVersionId": 227,
+                "description": "A table with drinks data",
+                "label": "Drinks.tab",
+                "restricted": false,
+                "version": 2
+            }
+        ],
+        "id": 227,
+        "lastUpdateTime": "2018-05-09T20:45:27Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "A study of my afternoon drinks "
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Artefactual"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Tester, Archivematica"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Artefactual"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "joel@walnutdigital.com"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Tester, Archivematica"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionDate": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionDate",
+                                    "value": "2018-05-01"
+                                },
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "Photos with my drinks, and a tabular file with some data on drinks. \r\n"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Arts and Humanities"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Drinks"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "notesText",
+                        "value": "My first test dataset\r\n"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Tester, Archivematica"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2018-05-09"
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2018-05-09T20:45:27Z",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 0,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "persistentUrl": "https://doi.org/10.5072/FK2/6PPJ6Y",
+    "protocol": "doi",
+    "publicationDate": "2018-05-09",
+    "publisher": "Root Dataverse"
+}

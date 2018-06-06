@@ -1,0 +1,223 @@
+{
+    "authority": "10.5072/FK2",
+    "datasetVersion": {
+        "citation": "Admin, Dataverse, 2016, \"Test Dataset\", doi:10.5072/FK2/XSAZXH, Demo Dataverse, V1",
+        "createTime": "2016-03-10T14:55:44Z",
+        "files": [
+            {
+                "dataFile": {
+                    "contentType": "application/pdf",
+                    "filename": "00169Fiske-Longitudinal-BoxCoverSheets.pdf",
+                    "id": 2387,
+                    "md5": "0552b8380b966bd22487b43bba7d0b1c",
+                    "originalFormatLabel": "UNKNOWN",
+                    "storageIdentifier": "15360f6d891-af5e353b12b4"
+                },
+                "datasetVersionId": 679,
+                "label": "00169Fiske-Longitudinal-BoxCoverSheets.pdf",
+                "version": 2
+            },
+            {
+                "dataFile": {
+                    "contentType": "application/pdf",
+                    "description": "Great documentation codebook.",
+                    "filename": "00169Fiske-Longitudinal-Codebook.pdf",
+                    "id": 2388,
+                    "md5": "585528ddab313c820ebded435f830237",
+                    "originalFormatLabel": "UNKNOWN",
+                    "storageIdentifier": "15360f6f841-06199689c844"
+                },
+                "datasetVersionId": 679,
+                "description": "Great documentation codebook.",
+                "label": "00169Fiske-Longitudinal-Codebook.pdf",
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "contentType": "image/jpeg",
+                    "filename": "20150610_091644_dataversecommunitymeeting2015-1668.jpg",
+                    "id": 2391,
+                    "md5": "56e737e80105b3d8efb7657eeb629ac5",
+                    "originalFormatLabel": "UNKNOWN",
+                    "storageIdentifier": "15360f6d8b6-30f66bbb425b"
+                },
+                "datasetVersionId": 679,
+                "label": "20150610_091644_dataversecommunitymeeting2015-1668.jpg",
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "contentType": "text/tab-separated-values",
+                    "filename": "50by1000.tab",
+                    "id": 2389,
+                    "md5": "c03212f91e707f28711e72fb683d9bd7",
+                    "originalFormatLabel": "UNKNOWN",
+                    "storageIdentifier": "15360f6d8a9-f64d477f2c52"
+                },
+                "datasetVersionId": 679,
+                "label": "50by1000.tab",
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "contentType": "image/png",
+                    "filename": "dataverse_project_logo_1.png",
+                    "id": 2390,
+                    "md5": "4fbdaa3792c057ba86fa62882a3dbae6",
+                    "originalFormatLabel": "UNKNOWN",
+                    "storageIdentifier": "15360f6d68f-f4d157c9d1e1"
+                },
+                "datasetVersionId": 679,
+                "label": "dataverse_project_logo_1.png",
+                "version": 1
+            }
+        ],
+        "id": 679,
+        "lastUpdateTime": "2016-03-10T14:56:07Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "Test Dataset"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Dataverse.org"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Admin, Dataverse"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Dataverse.org"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "admin@mailinator.com"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Admin, Dataverse"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "Test dataset"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Social Sciences"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "test"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Admin, Dataverse"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2016-03-10"
+                    }
+                ]
+            },
+            "geospatial": {
+                "displayName": "Geospatial Metadata",
+                "fields": [
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "geographicCoverage",
+                        "value": [
+                            {
+                                "country": {
+                                    "multiple": false,
+                                    "typeClass": "controlledVocabulary",
+                                    "typeName": "country",
+                                    "value": "United Kingdom"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2016-03-10T14:56:07Z",
+        "termsOfAccess": "Must be a member of Manchester Dataverse group.",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 2,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "id": 2386,
+    "identifier": "XSAZXH",
+    "persistentUrl": "http://dx.doi.org/10.5072/FK2/XSAZXH",
+    "protocol": "doi",
+    "publicationDate": "2016-03-10",
+    "publisher": "Demo Dataverse"
+}
