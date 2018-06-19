@@ -22,7 +22,7 @@ from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from tastypie.models import ApiKey
 
-from main.models import Agent, User
+from main.models import Agent, DashboardSetting, User
 import components.helpers as helpers
 import storageService as storage_service
 from version import get_version
@@ -43,11 +43,12 @@ def create_super_user(username, email, password, key):
     api_key, created = ApiKey.objects.update_or_create(user=user, defaults={'key': key})
 
 
-def setup_pipeline(org_name, org_identifier):
+def setup_pipeline(org_name, org_identifier, site_url):
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
     # Setup pipeline only if dashboard_uuid doesn't already exists
     if dashboard_uuid:
         return
+
     # Assign UUID to Dashboard
     dashboard_uuid = str(uuid.uuid4())
     helpers.set_setting('dashboard_uuid', dashboard_uuid)
@@ -63,6 +64,9 @@ def setup_pipeline(org_name, org_identifier):
         agent.identifiertype = 'repository code'
         agent.identifiervalue = org_identifier
         agent.save()
+
+    if site_url:
+        helpers.set_setting('site_url', site_url)
 
 
 def setup_pipeline_in_ss(use_default_config=False):
@@ -89,10 +93,19 @@ def setup_pipeline_in_ss(use_default_config=False):
     user = User.objects.all()[0]
     api_key = ApiKey.objects.get(user=user)
 
+    # Retrieve remote name
+    try:
+        setting = DashboardSetting.objects.get(name='site_url')
+    except DashboardSetting.DoesNotExist:
+        remote_name = None
+    else:
+        remote_name = setting.value
+
     # Create pipeline, tell it to use default setup
     storage_service.create_pipeline(
         create_default_locations=True,
         shared_path=django_settings.SHARED_DIRECTORY,
+        remote_name=remote_name,
         api_username=user.username,
         api_key=api_key.key,
     )

@@ -29,10 +29,11 @@ from django.db.models import Max, Min
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.utils.six.moves import map
 from django.utils.translation import ugettext as _
 
 from main import models
-from components.administration.forms import AgentForm, HandleForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
+from components.administration.forms import AgentForm, HandleForm, GeneralSettingsForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers
@@ -450,15 +451,17 @@ def general(request):
         'False': False}.get(
             initial_data.get('storage_service_use_default_config', True),
             True)
+    general_form = GeneralSettingsForm(request.POST or None,
+                                       prefix='general', initial=initial_data)
     storage_form = StorageSettingsForm(request.POST or None,
                                        prefix='storage', initial=initial_data)
     checksum_form = ChecksumSettingsForm(request.POST or None,
                                          prefix='checksum algorithm',
                                          initial=initial_data)
 
-    if storage_form.is_valid() and checksum_form.is_valid():
-        storage_form.save()
-        checksum_form.save()
+    forms = (general_form, storage_form, checksum_form)
+    if all(map(lambda form: form.is_valid(), forms)):
+        map(lambda form: form.save(), forms)
         messages.info(request, _('Saved.'))
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')

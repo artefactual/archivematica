@@ -38,6 +38,7 @@ class Command(BaseCommand):
         parser.add_argument('--ss-user', required=True)
         parser.add_argument('--ss-api-key', required=True)
         parser.add_argument('--whitelist', required=False)
+        parser.add_argument('--site-url', required=False)
 
     def save_ss_settings(self, options):
         POST = QueryDict('', mutable=True)
@@ -52,7 +53,9 @@ class Command(BaseCommand):
         form.save()
 
     def handle(self, *args, **options):
-        setup_pipeline(options['org_name'], options['org_id'])
+        setup_pipeline(options['org_name'],
+                       options['org_id'],
+                       options['site_url'])
         create_super_user(options['username'], options['email'], options['password'], options['api_key'])
         self.save_ss_settings(options)
         setup_pipeline_in_ss(use_default_config=True)

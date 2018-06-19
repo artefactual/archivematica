@@ -22,8 +22,21 @@ from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _l
 
+from main.models import DashboardSetting
+
+
+site_url_field = forms.CharField(
+    label=_l('Site URL'),
+    help_text=_l('It defines the public address of this service. This is'
+                 ' needed so the service (which is part of the pipeline)'
+                 ' can be accessede by the Storage Service.'),
+    required=False,
+    widget=TextInput(attrs=settings.INPUT_ATTRS),
+)
+
 
 class SuperUserCreationForm(UserCreationForm):
+    site_url = site_url_field
     email = forms.EmailField(required=True)
     org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
     org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
@@ -31,6 +44,10 @@ class SuperUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['org_name', 'org_identifier', 'username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super(SuperUserCreationForm, self).__init__(*args, **kwargs)
+        load_site_url(self.fields['site_url'])
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
@@ -48,5 +65,24 @@ class OrganizationForm(forms.Form):
     """
     Simplified version of the superuser form - simply ask for organisation info
     """
+    site_url = site_url_field
     org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
     org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+
+    def __init__(self, *args, **kwargs):
+        super(OrganizationForm, self).__init__(*args, **kwargs)
+        load_site_url(self.fields['site_url'])
+
+
+def load_site_url(site_url_field):
+    """Update form field with the application site URL."""
+    if settings.SITE_URL:
+        site_url_field.initial = settings.SITE_URL
+        site_url_field.widget.attrs['readonly'] = True
+        return
+    try:
+        setting = DashboardSetting.objects.get(name='site_url')
+    except DashboardSetting.DoesNotExist:
+        pass
+    else:
+        site_url_field.initial = setting.value

@@ -43,6 +43,7 @@ CONFIG_MAPPING = {
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},
     'storage_service_client_timeout': {'section': 'Dashboard', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'agentarchives_client_timeout': {'section': 'Dashboard', 'option': 'agentarchives_client_timeout', 'type': 'float'},
+    'site_url': {'section': 'Dashboard', 'option': 'site_url', 'type': 'string'},
 
     # [Dashboard] (MANDATORY in production)
     'allowed_hosts': {'section': 'Dashboard', 'option': 'django_allowed_hosts', 'type': 'string'},
@@ -71,6 +72,7 @@ shibboleth_authentication = False
 ldap_authentication = False
 storage_service_client_timeout = 86400
 agentarchives_client_timeout = 300
+site_url =
 
 [client]
 user = archivematica
@@ -442,6 +444,8 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
+
+SITE_URL = config.get('site_url')
 
 # Only required in production.py
 ALLOWED_HOSTS = ["*"]

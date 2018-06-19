@@ -34,6 +34,8 @@
 
       <form method='POST'>
 
+        {% include "_form.html" with form=general_form %}
+
         <h4>{% trans "Storage Service options" %}</h4>
 
         {% include "_form.html" with form=storage_form %}

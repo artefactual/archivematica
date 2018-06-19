@@ -27,6 +27,7 @@ from django.forms.widgets import TextInput, Select
 from django.utils.translation import ugettext_lazy as _
 
 from components import helpers
+from installer.forms import site_url_field, load_site_url
 from main import models
 
 from abilities import choice_is_available
@@ -165,6 +166,14 @@ class HandleForm(SettingsForm):
                     ' "naming_authority", "base_resolve_url", and'
                     ' "qualified_resolve_urls", the last of which is a list of'
                     ' dicts with "url" and "qualifier" keys.'))
+
+
+class GeneralSettingsForm(SettingsForm):
+    site_url = site_url_field
+
+    def __init__(self, *args, **kwargs):
+        super(GeneralSettingsForm, self).__init__(*args, **kwargs)
+        load_site_url(self.fields['site_url'])
 
 
 class StorageSettingsForm(SettingsForm):

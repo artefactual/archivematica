@@ -171,6 +171,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `300`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SITE_URL`**:
+    - **Description:** the public address of this service.
+    - **Config file example:** `Dashboard.site_url`
+    - **Type:** `string`
+    - **Default:** `None`
+
 - **`ARCHIVEMATICA_DASHBOARD_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.
     - **Config file example:** `client.engine`
