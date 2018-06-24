@@ -14,7 +14,6 @@
 
 import argparse
 import os
-import sys
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

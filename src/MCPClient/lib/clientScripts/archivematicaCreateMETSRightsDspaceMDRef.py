@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import os
+import sys
 import lxml.etree as etree
 
 # dashboard

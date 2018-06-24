@@ -89,12 +89,10 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
+                # job.args[2] (transferName) is unused.
+                # job.args[4] (date) is unused.
                 transferUUID = job.args[1]
-                transferName = job.args[2]
                 transferPath = job.args[3]
-                date = job.args[4]
-
-                currentDirectory = ""
                 exitCode = 0
 
                 for dir in os.listdir(transferPath):
@@ -155,7 +153,7 @@ def call(jobs):
                         )
 
                         # RightsStatementOtherRightsDocumentationIdentifier
-                        identifier = RightsStatementOtherRightsDocumentationIdentifier.objects.create(
+                        RightsStatementOtherRightsDocumentationIdentifier.objects.create(
                             rightsstatementotherrights=info
                         )
 

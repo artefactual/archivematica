@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
-import os
 
 from executeOrRunSubProcess import executeOrRun
+
 
 def call(jobs):
     for job in jobs:

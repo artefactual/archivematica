@@ -29,8 +29,6 @@ import string
 import sys
 import uuid
 
-from archivematicaFunctions import strToUnicode
-
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone

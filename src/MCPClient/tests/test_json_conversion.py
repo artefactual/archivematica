@@ -23,7 +23,6 @@ from job import Job
 import json_metadata_to_csv
 
 
-
 def test_json_csv_conversion(tmpdir):
     json_path = os.path.join(str(tmpdir), 'metadata.json')
     csv_path = os.path.join(str(tmpdir), 'metadata.csv')

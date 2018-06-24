@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import argparse
+import multiprocessing
 import uuid
 
 import django
@@ -14,9 +15,10 @@ from django.db import transaction
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import getUTCDate, insertIntoEvents
 
-import multiprocessing
+
 def concurrent_instances():
     return multiprocessing.cpu_count()
+
 
 def save_idtool(file_, value):
     """

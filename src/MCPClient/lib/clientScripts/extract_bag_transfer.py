@@ -107,7 +107,7 @@ def call(jobs):
 
                 # update transfer
                 destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
-                t = Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
+                Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
 
                 # remove bag
                 os.remove(zipLocation)

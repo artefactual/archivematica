@@ -21,7 +21,6 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
 import csv
 import os
 

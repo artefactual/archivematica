@@ -8,7 +8,6 @@ however, this can be overridden in MCPClient/clientConfig.conf s
 """
 
 import os
-import sys
 import shutil
 
 # databaseFunctions requires Django to be set up

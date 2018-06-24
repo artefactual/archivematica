@@ -11,6 +11,7 @@ Arguments:
 """
 
 import ast
+import multiprocessing
 import os
 from pprint import pformat
 import sys
@@ -30,7 +31,6 @@ from django.conf import settings as mcpclient_settings
 from lib import setup_dicts
 
 
-import multiprocessing
 def concurrent_instances():
     return multiprocessing.cpu_count()
 
@@ -139,10 +139,10 @@ class Validator(object):
             printing=False,
             arguments=args)
         if exitstatus != 0:
-            self.job.print_error('Command {description} failed with exit status {status};'
-                  ' stderr:'.format(
-                      description=rule.command.description,
-                      status=exitstatus))
+            self.job.print_error(
+                'Command {description} failed with exit status {status};'
+                ' stderr:'.format(description=rule.command.description,
+                                  status=exitstatus))
             return 'failed'
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
@@ -230,7 +230,7 @@ class Validator(object):
             else:
                 return False
         except File.DoesNotExist:
-            return False 
+            return False
 
     def _not_derivative_msg(self):
         """Return the message to print if the file is not a derivative."""
@@ -248,8 +248,9 @@ class Validator(object):
         try:
             sip_model = SIP.objects.get(uuid=self.sip_uuid)
         except (SIP.DoesNotExist, SIP.MultipleObjectsReturned):
-            self.job.print_error('Warning: unable to retrieve SIP model corresponding to SIP'
-                  ' UUID {}'.format(self.sip_uuid))
+            self.job.print_error(
+                'Warning: unable to retrieve SIP model corresponding to SIP'
+                ' UUID {}'.format(self.sip_uuid))
             return None
         else:
             sip_path = sip_model.currentpath.replace(
@@ -258,8 +259,9 @@ class Validator(object):
             if os.path.isdir(logs_dir):
                 self._sip_logs_dir = logs_dir
                 return logs_dir
-            self.job.print_error('Warning: unable to find a logs/ directory in the SIP'
-                  ' with UUID {}'.format(self.sip_uuid))
+            self.job.print_error(
+                'Warning: unable to find a logs/ directory in the SIP'
+                ' with UUID {}'.format(self.sip_uuid))
             return None
 
     @property

@@ -130,10 +130,10 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
+                # job.args[4] (taskUUID) is unused.
                 objectsDirectory = job.args[1]  # directory to run sanitization on.
                 sipUUID = job.args[2]  # %SIPUUID%
                 date = job.args[3]  # %date%
-                taskUUID = job.args[4]  # %taskUUID%, unused
                 groupType = job.args[5]  # SIPDirectory or transferDirectory
                 groupType = "%%%s%%" % (groupType)  # %SIPDirectory% or %transferDirectory%
                 groupSQL = job.args[6]  # transfer_id or sip_id

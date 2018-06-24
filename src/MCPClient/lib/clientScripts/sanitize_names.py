@@ -58,6 +58,7 @@ class RenameFailed(Exception):
     def __init__(self, code):
         self.code = code
 
+
 def sanitizePath(job, path):
     basename = os.path.basename(path)
     dirname = os.path.dirname(path)

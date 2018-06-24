@@ -27,8 +27,8 @@ import fileOperations
 
 def main(job):
     # "%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
+    # job.args[2] (SIPName) is unused.
     SIPUUID = job.args[1]
-    SIPName = job.args[2]
     SIPDirectory = job.args[3]
     fileUUID = job.args[4]
     filePath = job.args[5]
@@ -63,8 +63,9 @@ def main(job):
             except ValueError:
                 job.print_error("{0} not in manualNormalization directory".format(filePath))
                 return 4
-            original = fileOperations.findFileInNormalizationCSV(csv_path,
-                                                                "preservation", preservation_file, SIPUUID, printfn=job.pyprint)
+            original = fileOperations.findFileInNormalizationCSV(
+                csv_path, "preservation", preservation_file,
+                SIPUUID, printfn=job.pyprint)
             if original is None:
                 if isinstance(e, File.DoesNotExist):
                     job.print_error("No matching file for: {0}".format(
@@ -115,9 +116,10 @@ def main(job):
         e = Event.objects.get(event_type="normalization", file_uuid=original_file)
         e.event_outcome_detail = dstR
         e.save()
-        job.print_output('Updated the eventOutcomeDetailNote of an existing normalization'
-              ' Event for file {}. Not creating a Derivation object'.format(
-                  fileUUID))
+        job.print_output(
+            'Updated the eventOutcomeDetailNote of an existing normalization'
+            ' Event for file {}. Not creating a Derivation object'.format(
+                fileUUID))
     except Event.DoesNotExist:
         # No normalization event was created in normalize.py - probably manually
         # normalized during Ingest
@@ -139,8 +141,10 @@ def main(job):
             sourceFileUUID=original_file.uuid,
             derivedFileUUID=fileUUID,
             relatedEventUUID=derivationEventUUID)
-        job.print_output('Created a Derivation for original file {}, derived file {}, and'
-              ' event {}'.format(original_file.uuid, fileUUID, derivationEventUUID))
+        job.print_output(
+            'Created a Derivation for original file {}, derived file {}, and'
+            ' event {}'.format(original_file.uuid,
+                               fileUUID, derivationEventUUID))
 
     return 0
 

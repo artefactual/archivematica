@@ -125,7 +125,8 @@ def handle_batch_task(gearman_job):
         jobs.append(job)
 
     # Set their start times...
-    Task.objects.filter(taskuuid__in=[job.UUID for job in jobs]).update(starttime=utc_date)
+    Task.objects.filter(
+        taskuuid__in=[item.UUID for item in jobs]).update(starttime=utc_date)
 
     module = importlib.import_module("clientScripts." + module_name)
 

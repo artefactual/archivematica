@@ -3,7 +3,6 @@
 import argparse
 import datetime
 from lxml import etree
-import sys
 import os
 import uuid
 

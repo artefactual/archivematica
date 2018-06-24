@@ -3,6 +3,7 @@ import os
 
 from executeOrRunSubProcess import executeOrRun
 
+
 def call(jobs):
     command = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quarantineSIP.sh')
 

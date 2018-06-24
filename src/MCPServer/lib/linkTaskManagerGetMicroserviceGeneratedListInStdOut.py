@@ -24,12 +24,10 @@
 # Stdlib, alphabetical by import source
 import logging
 import os
-import threading
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
-import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
 from main.models import StandardTaskConfig, Task
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import os
+import multiprocessing
 from uuid import uuid4
 
 import django
@@ -20,7 +21,7 @@ import fileOperations
 from django.conf import settings as mcpclient_settings
 from lib import setup_dicts
 
-import multiprocessing
+
 def concurrent_instances():
     return multiprocessing.cpu_count()
 

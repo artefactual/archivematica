@@ -36,9 +36,9 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
+                # job.args[3] (date) is unused.
                 SIPDirectory = job.args[1]
                 sipUUID = job.args[2]
-                date = job.args[3]
                 sharedDirectoryPath = job.args[4]
                 unitType = job.args[5]
 

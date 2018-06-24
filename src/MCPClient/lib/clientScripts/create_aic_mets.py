@@ -160,5 +160,5 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
-                args = parser.parse_args(job(1:))
+                args = parser.parse_args(job.qrgs[1:])
                 create_aic_mets(args.aic_uuid, args.aic_dir, job)

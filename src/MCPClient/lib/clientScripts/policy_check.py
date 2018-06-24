@@ -12,7 +12,6 @@ Arguments::
 """
 import json
 import os
-import sys
 
 from custom_handlers import get_script_logger
 
@@ -237,11 +236,13 @@ class PolicyChecker(object):
         if self.file_type in ('preservation', 'original'):
             self._save_to_logs_dir(output)
         if exitstatus == 0:
-            self.job.pyprint('Command {} completed with output {}'.format(
-                  rule.command.description, stdout))
+            self.job.pyprint(
+                'Command {} completed with output {}'.format(
+                    rule.command.description, stdout))
         else:
-            self.job.print_error('Command {} failed with exit status {}; stderr:'.format(
-                  rule.command.description, exitstatus), stderr)
+            self.job.print_error(
+                'Command {} failed with exit status {}; stderr:'.format(
+                    rule.command.description, exitstatus), stderr)
             return 'failed'
         event_detail = ('program="{tool.description}";'
                         ' version="{tool.version}"'.format(
@@ -254,8 +255,9 @@ class PolicyChecker(object):
                                      outcome=output.get('eventOutcomeInformation'),
                                      details=output.get('eventOutcomeDetailNote')))
             result = 'failed'
-        self.job.pyprint('Creating policy checking event for {} ({})'
-                              .format(self.file_path, self.file_uuid))
+        self.job.pyprint(
+            'Creating policy checking event for {} ({})'.format(
+                self.file_path, self.file_uuid))
         # Manually-normalized access derivatives have no file UUID so we can't
         # create a validation event for them. TODO/QUESTION: should we use the
         # UUID that was assigned to the manually normalized derivative during

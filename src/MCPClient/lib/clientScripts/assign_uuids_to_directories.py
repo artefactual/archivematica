@@ -119,6 +119,7 @@ def main(job, transfer_path, transfer_uuid, include_dirs):
         _get_transfer_mdl(transfer_uuid))
     return 0
 
+
 def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument('transfer_path', type=str,

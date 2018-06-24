@@ -41,12 +41,10 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
+                # job.args[2] (transferName) is unused.
                 transferUUID = job.args[1]
-                transferName = job.args[2]
                 transferPath = job.args[3]
                 date = job.args[4]
-
-                currentDirectory = ''
                 exitCode = 0
 
                 for transfer_dir in os.listdir(transferPath):

@@ -5,7 +5,6 @@ import csv
 import errno
 import os
 import shutil
-import sys
 import traceback
 import uuid
 
@@ -265,6 +264,7 @@ def once_normalized_callback(job):
         return once_normalized(job, *args)
 
     return wrapper
+
 
 def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
                             event_detail_output, outcome_detail_note, today=None):

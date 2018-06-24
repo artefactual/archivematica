@@ -30,6 +30,7 @@ django.setup()
 # dashboard
 from main.models import File, SIP
 
+
 def call(jobs):
     for job in jobs:
         with job.JobContext():

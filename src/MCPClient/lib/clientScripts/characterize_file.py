@@ -8,6 +8,7 @@
 # will be run instead (currently FITS).
 
 from lxml import etree
+import multiprocessing
 
 import django
 django.setup()
@@ -25,7 +26,7 @@ from dicts import replace_string_values, ReplacementDict
 
 from lib import setup_dicts
 
-import multiprocessing
+
 def concurrent_instances():
     return multiprocessing.cpu_count()
 

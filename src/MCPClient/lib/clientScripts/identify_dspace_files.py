@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import os
-import sys
 from lxml import etree
 
 import namespaces

@@ -1,8 +1,5 @@
 #!/usr/bin/env python2
 
-import logging
-import sys
-
 # storageService requires Django to be set up
 import django
 django.setup()
@@ -13,6 +10,7 @@ import storageService as storage_service
 from custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.get_aip_storage_locations")
+
 
 def get_aip_storage_locations(purpose, job):
     """ Return a dict of AIP Storage Locations and their descriptions."""

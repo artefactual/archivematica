@@ -2,7 +2,6 @@
 import copy
 from lxml import etree
 import os
-import sys
 
 import metsrw
 

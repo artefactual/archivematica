@@ -21,8 +21,6 @@
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
 
-import sys
-
 # elasticSearchFunctions requires Django to be set up
 import django
 django.setup()

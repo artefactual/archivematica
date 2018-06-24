@@ -18,8 +18,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+import argparse
 import os
 import re
+import multiprocessing
 import subprocess
 import uuid
 import errno
@@ -36,7 +38,7 @@ from main.models import Event, File
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
-import multiprocessing
+
 def concurrent_instances():
     return multiprocessing.cpu_count()
 
@@ -359,12 +361,8 @@ def scan_file(file_uuid, path, date, task_uuid):
     return 1 if passed is False else 0
 
 
-
-
 def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 job.set_status(scan_file(*job.args[1:]))
-
-

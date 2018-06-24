@@ -36,6 +36,7 @@ from main.models import File
 import archivematicaFunctions
 import databaseFunctions
 
+
 def call(jobs):
     with transaction.atomic():
         for job in jobs:

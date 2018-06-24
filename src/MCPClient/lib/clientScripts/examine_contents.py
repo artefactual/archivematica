@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
-import os
-import StringIO
-import subprocess
-import sys
-
 import multiprocessing
-def concurrent_instances():
-    return multiprocessing.cpu_count()
+import os
 
 from executeOrRunSubProcess import executeOrRun
+
+
+def concurrent_instances():
+    return multiprocessing.cpu_count()
 
 
 def main(job, target, output):
@@ -47,7 +45,7 @@ def call(jobs):
             output = os.path.join(sipdir, 'logs', 'bulk-' + file_uuid)
             result = main(job, target, output)
 
-            if isinstance(result , Exception):
+            if isinstance(result, Exception):
                 job.print_error(str(result))
                 job.set_status(1)
             else:

@@ -59,6 +59,7 @@ def moveSIP(job, src, dst, sipUUID, sharedDirectoryPath):
 
     return rename(src, dst, printfn=job.pyprint, should_exit=False)
 
+
 def call(jobs):
     with transaction.atomic():
         for job in jobs:

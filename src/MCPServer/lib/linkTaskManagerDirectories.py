@@ -24,14 +24,13 @@
 from linkTaskManager import LinkTaskManager
 from taskGroup import TaskGroup
 import os
-import threading
 
 import archivematicaFunctions
-import databaseFunctions
 from dicts import ReplacementDict
 from main.models import StandardTaskConfig
 
 from taskGroupRunner import TaskGroupRunner
+
 
 class linkTaskManagerDirectories(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -66,7 +65,7 @@ class linkTaskManagerDirectories(LinkTaskManager):
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         group = TaskGroup(self, execute)
-        group.addTask(arguments,standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
+        group.addTask(arguments, standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
         group.logTaskCreatedSQL()
         TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 

@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import os
-import sys
 import lxml.etree as etree
 
 # fileOperations requires Django to be set up

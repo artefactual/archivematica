@@ -78,8 +78,9 @@ def main(job):
             except ValueError:
                 job.print_error("{0} not in manualNormalization directory".format(opts.filePath))
                 return 4
-            original = fileOperations.findFileInNormalizationCSV(csv_path,
-                                                                "access", access_file, unitIdentifier, printfn=job.pyprint)
+            original = fileOperations.findFileInNormalizationCSV(
+                csv_path, "access", access_file,
+                unitIdentifier, printfn=job.pyprint)
             if original is None:
                 if isinstance(e, File.DoesNotExist):
                     job.print_error("No matching file for: {0}".format(

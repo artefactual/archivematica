@@ -166,6 +166,7 @@ class UpdateFileLocationFailed(Exception):
     def __init__(self, code):
         self.code = code
 
+
 def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=print):
     """Dest needs to be the actual full destination path with filename."""
     srcDB = src.replace(unitPath, unitPathReplaceWith)

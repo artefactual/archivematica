@@ -140,6 +140,7 @@ def main(job, file_uuid, bind_pids_switch):
         logger.info(exc)
         raise BindPIDException
 
+
 def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument('file_uuid', type=str,

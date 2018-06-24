@@ -20,13 +20,13 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
 
 import django
 django.setup()
 # dashboard
 from main.models import File
 from django.db import transaction
+
 
 def call(jobs):
     with transaction.atomic():

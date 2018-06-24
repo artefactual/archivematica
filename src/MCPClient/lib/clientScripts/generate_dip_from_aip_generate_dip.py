@@ -43,9 +43,9 @@ def call(jobs):
                 # COPY THE METS FILE
                 # Move the DIP Directory
 
-                fauxUUID = job.args[1]
+                # job.args[1] (fauxUUID) is unused.
+                # job.args[3] (date) is unused.
                 unitPath = job.args[2]
-                date = job.args[3]
 
                 basename = os.path.basename(unitPath[:-1])
                 uuidLen = 36

@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
 
 import django
 django.setup()
@@ -32,6 +31,7 @@ from custom_handlers import get_script_logger
 from django.db import transaction
 
 logger = get_script_logger("archivematica.mcp.client.setTransferType")
+
 
 def call(jobs):
     with transaction.atomic():
