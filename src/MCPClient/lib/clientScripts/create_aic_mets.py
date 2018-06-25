@@ -23,7 +23,7 @@ import namespaces as ns
 import storageService as storage_service
 
 
-def get_aip_info(aic_dir):
+def get_aip_info(aic_dir, job):
     """ Get AIP UUID, name and labels from objects directory and METS file. """
     aips = []
     aic_dir = os.path.join(aic_dir, 'objects')
