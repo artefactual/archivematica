@@ -153,8 +153,7 @@ def fail_all_tasks(gearman_job, reason):
                                                            exitcode=1,
                                                            endtime=getUTCDate())
     except Exception as e:
-        logger.error("Failed to update tasks in DB: %s", str(e))
-        logger.exception(e)
+        logger.exception("Failed to update tasks in DB: %s", e)
 
     # But we can at least send an exit code back to Gearman
     for task_uuid in gearman_data['tasks']:
@@ -198,8 +197,7 @@ def execute_command(gearman_worker, gearman_job):
         logger.error("IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!", gearman_job.task)
         return fail_all_tasks(gearman_job, "Module attempted exit")
     except Exception as e:
-        logger.error("Exception while processing task %s: %s", gearman_job.task, str(e))
-        logger.exception(e)
+        logger.exception("Exception while processing task %s: %s", gearman_job.task, e)
         return fail_all_tasks(gearman_job, e)
 
 
@@ -227,9 +225,8 @@ def start_gearman_worker():
             # Generally execute_command should have caught and dealt with any
             # errors gracefully, but we should never let an exception take down
             # the whole process, so one last catch-all.
-            logger.error('Unexpected error while handling gearman job: %s. Retrying in %d'
-                         ' seconds.', str(e), fail_sleep)
-            logger.exception(e)
+            logger.exception('Unexpected error while handling gearman job: %s.'
+                             ' Retrying in %d seconds.', e, fail_sleep)
             time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
