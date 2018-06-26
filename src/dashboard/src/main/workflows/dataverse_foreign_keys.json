@@ -1,0 +1,18 @@
+{
+	"transfer_type": {
+		"title": "Dataverse Foreign Keys",
+		"microservices": [
+			{
+				"id":25,
+				"name": "Add processed structMap to METS.xml document",
+				"exit_uuid": null,
+				"ms_in_uuid": "86c6e125-fe3b-4e38-9201-450601ab3264",
+				"ms_out_uuid": "ab2f2577-02b4-4891-9655-ad363d92ee6e",
+				"group":"Update METS.xml document",
+				"task_uuid": "275b3640-68a6-4c4e-adc1-888ea3fdfba5",
+				"default_exit_message": "Failed",
+				"default_next_ms":"61c316a6-0a50-4f65-8767-1f44b1eeb6dd"
+			}
+		]
+	}
+}

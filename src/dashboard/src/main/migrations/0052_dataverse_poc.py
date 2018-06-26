@@ -5,6 +5,7 @@ from django.db import migrations, models
 
 
 def data_migration(apps, schema_editor):
+    return
     # TEMPORARY
     # TODO Update this so it
     # A) autodetects transfer type OR

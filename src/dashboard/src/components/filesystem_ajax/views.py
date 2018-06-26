@@ -57,7 +57,8 @@ TRANSFER_TYPE_DIRECTORIES = {
     'zipped bag': 'baggitZippedDirectory',
     'dspace': 'Dspace',
     'maildir': 'maildir',
-    'TRIM': 'TRIM'
+    'TRIM': 'TRIM',
+    'dataverse': 'dataverseTransfer'
 }
 
 

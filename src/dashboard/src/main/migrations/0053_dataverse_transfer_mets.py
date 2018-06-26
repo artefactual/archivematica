@@ -5,6 +5,7 @@ from django.db import migrations
 
 
 def data_migration(apps, schema_editor):
+    return
 
     MicroServiceChainLink = apps.get_model("main", "MicroServiceChainLink")
     MicroServiceChainLinkExitCode = apps.get_model(
