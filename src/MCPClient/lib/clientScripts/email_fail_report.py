@@ -189,30 +189,36 @@ def call(jobs):
     parser.add_argument('-f', '--from', action='store', dest='from', default='ArchivematicaSystem@archivematica.org')
     parser.add_argument('--stdout', action='store_true', dest='stdout', default=False)
 
-    with transaction.atomic():
-        for job in jobs:
-            with job.JobContext(logger=logger):
-                try:
-                    args = parser.parse_args(job.args[1:])
+    reports_to_store = []
 
-                    to = get_emails_from_dashboard_users()
-                    if not to:
-                        logger.error('Nobody to send it to. Please add users with valid email addresses in the dashboard.')
-                        job.set_status(1)
-                        continue
-                    subject = 'Archivematica Fail Report for %s: %s-%s' % (args.unit_type, args.unit_name, args.unit_uuid)
-                    efrom = 'ArchivematicaSystem@archivematica.org'
+    for job in jobs:
+        with job.JobContext(logger=logger):
+            try:
+                args = parser.parse_args(job.args[1:])
 
-                    # Generate report in HTML and send it by email
-                    content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
-                    send_email(subject, to, efrom, content)
-
-                    if args.stdout:
-                        job.pyprint(content)
-
-                    # Generate report in plain text and store it in the database
-                    content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=False)
-                    store_report(content, args.unit_type, args.unit_name, args.unit_uuid)
-                except Exception as e:
-                    logger.exception(e)
+                to = get_emails_from_dashboard_users()
+                if not to:
+                    logger.error('Nobody to send it to. Please add users with valid email addresses in the dashboard.')
                     job.set_status(1)
+                    continue
+                subject = 'Archivematica Fail Report for %s: %s-%s' % (args.unit_type, args.unit_name, args.unit_uuid)
+                efrom = 'ArchivematicaSystem@archivematica.org'
+
+                # Generate report in HTML and send it by email
+                content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
+                send_email(subject, to, efrom, content)
+
+                if args.stdout:
+                    job.pyprint(content)
+
+                # Each successfully generated report will be stored in the DB
+                reports_to_store.append(args)
+            except Exception as e:
+                logger.exception(e)
+                job.set_status(1)
+
+    # Generate report in plain text and store it in the database
+    with transaction.atomic():
+        for arg in reports_to_store:
+            content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=False)
+            store_report(content, args.unit_type, args.unit_name, args.unit_uuid)
