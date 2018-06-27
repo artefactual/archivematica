@@ -15,16 +15,20 @@ function (indicating that it supports being run as a subprocess).
 
 import cPickle
 import importlib
+import logging
 import multiprocessing
 import os
 import sys
 import tempfile
+import traceback
 
 from executeOrRunSubProcess import launchSubProcess
 
+logger = logging.getLogger('archivematica.mcp.client')
 
 # Using this instead of __file__ to ensure we don't get fork_runner.pyc!
 THIS_SCRIPT = 'fork_runner.py'
+
 
 def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
     """
@@ -94,7 +98,18 @@ def _run_jobs(module_name, jobs):
                                                     capture_output=True)
 
         with os.fdopen(fd) as f:
-            return cPickle.load(f)
+            result = cPickle.load(f)
+
+            if isinstance(result, dict) and result['uncaught_exception']:
+                e = result['uncaught_exception']
+                # Something went wrong with our client script.  This shouldn't
+                # happen under normal operation, but might happen during
+                # development.
+                logging.error(("Failure while executing '%s':\n" % (module_name)) + e['traceback'])
+                raise Exception(e['type'] + ": " + e['message'])
+            else:
+                return result
+
     finally:
         os.unlink(output_file)
 
@@ -111,8 +126,16 @@ if __name__ == '__main__':
     jobs = environment['jobs']
     output_file = environment['output_file']
 
-    module = importlib.import_module(module_to_run)
-    module.call(jobs)
-
     with open(output_file, 'w') as f:
-        cPickle.dump(jobs, f)
+        try:
+            module = importlib.import_module(module_to_run)
+            module.call(jobs)
+            cPickle.dump(jobs, f)
+        except Exception as e:
+            cPickle.dump({
+                'uncaught_exception': {
+                    'message': e.message,
+                    'type': type(e).__name__,
+                    'traceback': traceback.format_exc(),
+                }
+            }, f)
