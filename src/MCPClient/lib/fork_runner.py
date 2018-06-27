@@ -23,6 +23,9 @@ import tempfile
 from executeOrRunSubProcess import launchSubProcess
 
 
+# Using this instead of __file__ to ensure we don't get fork_runner.pyc!
+THIS_SCRIPT = 'fork_runner.py'
+
 def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
     """
     Split `jobs` into `task_count` groups and fork a subprocess to run
@@ -84,7 +87,8 @@ def _run_jobs(module_name, jobs):
         # We communicate with our subprocess by supplying our `environment` map
         # on stdin.  It gives results back to us by writing them to a temporary
         # file.
-        (status, stdout, stderr) = launchSubProcess([os.path.abspath(__file__), module_name],
+        (status, stdout, stderr) = launchSubProcess([os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
+                                                     module_name],
                                                     cPickle.dumps(environment),
                                                     printing=False,
                                                     capture_output=True)
