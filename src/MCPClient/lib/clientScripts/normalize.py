@@ -361,7 +361,11 @@ def main(job, opts):
             rule = FPRule.active.get(format=format_id.format_version,
                                      purpose=opts.purpose)
         except FPRule.DoesNotExist:
-            do_fallback = True
+            if opts.purpose == 'thumbnail' and opts.thumbnail_mode == 'generate_non_default':
+                job.pyprint('Thumbnail not generated as no rule found for format')
+                return SUCCESS
+            else:
+                do_fallback = True
 
     # Try with default rule if no format_id or rule was found
     if format_id is None or do_fallback:
@@ -456,11 +460,18 @@ def call(jobs):
     parser.add_argument('sip_uuid', type=str, help='%SIPUUID%')
     parser.add_argument('task_uuid', type=str, help='%taskUUID%')
     parser.add_argument('normalize_file_grp_use', type=str, help='"service", "original", "submissionDocumentation", etc')
+    parser.add_argument('--thumbnail_mode', type=str, default='generate', help='"generate", "generate_non_default", "do_not_generate"')
 
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
                 opts = parser.parse_args(job.args[1:])
+
+                if opts.purpose == 'thumbnail' and opts.thumbnail_mode == 'do_not_generate':
+                    job.pyprint('Thumbnail generation has been disabled')
+                    job.set_status(SUCCESS)
+                    continue
+
                 try:
                     job.set_status(main(job, opts))
                 except Exception as e:
