@@ -26,10 +26,6 @@ import sys
 
 from custom_handlers import get_script_logger
 
-# FIXME run this SQL to use this script
-#    update StandardTasksConfigs set `execute` = 'removeDirectories_v0.0', `arguments` = '"%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%thumbnails/"' where pk = 'd12b6b59-1f1c-47c2-b1a3-2bf898740eae';
-# And turn this into a migration at some point
-
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.removeDirectories")
 

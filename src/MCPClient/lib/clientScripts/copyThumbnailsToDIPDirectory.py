@@ -26,9 +26,6 @@ import sys
 
 from custom_handlers import get_script_logger
 
-# FIXME run this SQL to use this script
-#    update StandardTasksConfigs set `execute` = 'copyThumbnailsToDIPDirectory_v0.0', `arguments` = '\"%SIPDirectory%thumbnails\" \"%SIPDirectory%DIP\"' where pk = '6abefa8d-387d-4f23-9978-bea7e6657a57';
-# And turn this into a migration at some point
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.copyThumbnailsToDIPDirectory")
