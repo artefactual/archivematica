@@ -179,8 +179,6 @@ WAIT_ON_AUTO_APPROVE = config.get('wait_on_auto_approve')
 WATCH_DIRECTORY_INTERVAL = config.get('watch_directory_interval')
 LIMIT_TASK_THREADS = config.get('limit_task_threads')
 SEARCH_ENABLED = config.get('search_enabled')
-RESERVED_AS_TASK_PROCESSING_THREADS = config.get(
-    'reserved_as_task_processing_threads')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
