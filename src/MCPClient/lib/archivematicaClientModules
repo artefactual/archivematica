@@ -134,3 +134,4 @@ restructuredipforcontentdmupload_v0.0 = restructure_dip_for_content_dm_upload
 upload-qubit_v0.0 = upload_qubit
 upload-archivesspace_v0.0 = upload_archivesspace
 copyThumbnailsToDIPDirectory_v0.0 = copyThumbnailsToDIPDirectory
+removeDirectories_v0.0 = removeDirectories
