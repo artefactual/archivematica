@@ -36,7 +36,9 @@ if __name__ == '__main__':
     thumbnailDirectory = sys.argv[1]
     dipDirectory = sys.argv[2]
 
+    destinationDirectory = os.path.join(dipDirectory, 'thumbnails')
+
     if os.path.isdir(thumbnailDirectory):
-        shutil.copy(thumbnailDirectory, dipDirectory)
+        shutil.copytree(thumbnailDirectory, destinationDirectory)
     else:
         logger.info('Nothing to copy as thumbnail directory does not exist: %s', thumbnailDirectory)
