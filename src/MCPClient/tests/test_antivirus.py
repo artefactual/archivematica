@@ -93,7 +93,6 @@ def setup_test_scan_file_mocks(mocker,
     deps = namedtuple('deps', [
         'file_already_scanned',
         'file_get',
-        'record_event',
         'scanner',
     ])(
         file_already_scanned=mocker.patch(
@@ -102,9 +101,6 @@ def setup_test_scan_file_mocks(mocker,
         file_get=mocker.patch(
             'main.models.File.objects.get',
             return_value=FileMock(size=file_size)),
-        record_event=mocker.patch(
-            'archivematica_clamscan.record_event',
-            return_value=None),
         scanner=ScannerMock(
             should_except=scanner_should_except,
             passed=scanner_passed)
@@ -120,64 +116,64 @@ def setup_test_scan_file_mocks(mocker,
 def test_scan_file_already_scanned(mocker):
     deps = setup_test_scan_file_mocks(mocker, file_already_scanned=True)
 
-    exit_code = archivematica_clamscan.scan_file(**dict(args))
+    exit_code = archivematica_clamscan.scan_file([], **dict(args))
 
     assert exit_code == 0
     deps.file_already_scanned.assert_called_once_with(args['file_uuid'])
 
 
-RecordEventParams = namedtuple('RecordEventParams', [
+QueueEventParams = namedtuple('QueueEventParams', [
     'scanner_is_None',
     'passed'
 ])
 
 
-@pytest.mark.parametrize("setup_kwargs, exit_code, record_event_params", [
+@pytest.mark.parametrize("setup_kwargs, exit_code, queue_event_params", [
     # File size too big for given file_size param
     (
         {'file_size': 43, 'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # File size too big for given file_scan param
     (
         {'file_size': 85, 'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # File size within given file_size param, and file_scan param
     (
         {'file_size': 42, 'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
     # Scan returns None with no-error, e.g. Broken Pipe
     (
         {'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # Zero byte file passes
     (
         {'file_size': 0, 'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
     # Virus found
     (
         {'scanner_passed': False},
         1,
-        RecordEventParams(scanner_is_None=False, passed=False),
+        QueueEventParams(scanner_is_None=False, passed=False),
     ),
     # Passed
     (
         {'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
 ])
-def test_scan_file(mocker, setup_kwargs, exit_code, record_event_params, settings):
-    deps = setup_test_scan_file_mocks(mocker, **setup_kwargs)
+def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings):
+    setup_test_scan_file_mocks(mocker, **setup_kwargs)
 
     # Here the user configurable thresholds for maimum file size, and maximum
     # scan size are being tested. The scan size is offset so as to enable the
@@ -186,18 +182,23 @@ def test_scan_file(mocker, setup_kwargs, exit_code, record_event_params, setting
     settings.CLAMAV_CLIENT_MAX_FILE_SIZE = "42"
     settings.CLAMAV_CLIENT_MAX_SCAN_SIZE = "84"
 
-    ret = archivematica_clamscan.scan_file(**dict(args))
+    event_queue = []
+
+    ret = archivematica_clamscan.scan_file(event_queue, **dict(args))
 
     # The integer returned by scan_file() is going to be used as the exit code
     # of the archivematica_clamscan.py script which is important for the AM
     # workflow in order to control what to do next.
     assert exit_code == ret
 
-    # A side effect of scan_file() is to record the corresponding event in the
-    # database. Here we are making sure that record_event() is called with the
-    # expected parameters.
-    deps.record_event.assert_called_once_with(
-        args['file_uuid'],
-        args['date'],
-        None if record_event_params.scanner_is_None is True else deps.scanner,
-        record_event_params.passed)
+    # A side effect of scan_file() is to queue an event to be created in the
+    # database.
+    if queue_event_params.passed is None:
+        assert len(event_queue) == 0
+    else:
+        assert len(event_queue) == 1
+
+        event = event_queue[0]
+        assert event['eventType'] == 'virus check'
+        assert event['fileUUID'] == args['file_uuid']
+        assert event['eventOutcome'] == 'Pass' if setup_kwargs['scanner_passed'] else 'Fail'
