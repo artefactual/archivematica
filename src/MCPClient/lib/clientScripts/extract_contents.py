@@ -15,7 +15,7 @@ from main.models import Directory, FileFormatVersion, File, Transfer
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
-from fileOperations import addFileToTransfer, updateSizeAndChecksum
+from fileOperations import addFileToTransfer, updateSizeAndChecksum, rename
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
@@ -23,11 +23,12 @@ from has_packages import already_extracted
 
 file_path_cache = {}
 
-
 logger = get_script_logger("archivematica.mcp.client.extractContents")
 
+TRANSFER_DIRECTORY = "%transferDirectory%"
 
-def output_directory(file_path, date):
+
+def temporary_directory(file_path, date):
     if file_path_cache.get(file_path):
         return file_path_cache[file_path]
     else:
@@ -42,26 +43,60 @@ def tree(root):
             yield os.path.join(dirpath, file)
 
 
-def assign_uuid(job, filename, package_uuid, transfer_uuid, date, task_uuid, sip_directory, package_filename):
+def assign_uuid(job, filename, package_uuid, transfer_uuid, date, task_uuid,
+                sip_directory, package_filename, original_location,
+                sanitized_original_location):
+    """Assign a uuid to each file in the extracted package."""
     file_uuid = uuid.uuid4().__str__()
-    relative_path = filename.replace(sip_directory, "%transferDirectory%", 1)
-    relative_package_path = package_filename.replace(sip_directory, "%transferDirectory%", 1)
+    location_to_replace = format_subdir_path(sanitized_original_location,
+                                             sip_directory)
+    # Correct the information in the path strings sent to this function. First
+    # remove the SIP directory from the string. Second, make sure that file
+    # paths have not been modified for processing purpose, i.e. in
+    # Archivematica current terminology, sanitized.
+    relative_path = filename.replace(sip_directory, TRANSFER_DIRECTORY, 1)
+    transfer_path = relative_path.replace(location_to_replace,
+                                          os.path.join(original_location, ''))
+    relative_package_path = package_filename.replace(sip_directory,
+                                                     TRANSFER_DIRECTORY, 1)
     package_detail = "{} ({})".format(relative_package_path, package_uuid)
     event_detail = "Unpacked from: " + package_detail
     addFileToTransfer(relative_path, file_uuid, transfer_uuid, task_uuid, date,
-                      sourceType="unpacking", eventDetail=event_detail)
+                      sourceType="unpacking", eventDetail=event_detail,
+                      originalLocation=transfer_path)
     updateSizeAndChecksum(file_uuid, filename, date, uuid.uuid4().__str__())
-
     job.pyprint('Assigning new file UUID:', file_uuid, 'to file', filename)
 
 
-def _get_subdir_paths(root_path, path_prefix_to_repl):
+def _get_subdir_paths(job, root_path,
+                      path_prefix_to_repl,
+                      original_location):
     """Return a generator of subdirectory paths in ``root_path`` with
     the ancestor path ``path_prefix_to_repl`` replaced by a placeholder
-    string.
+    string. ``original_location`` should be the zip container that the content
+    was extracted from as it was transferred. Between then and now the path
+    will have been changed to remove characters that are difficult for tools
+    to handle. PREMIS describes the original location as how it was received
+    not what it was changed to, so we make these changes below to reflect the
+    original transfer material.
     """
-    return (format_subdir_path(dir_path, path_prefix_to_repl) for
-            dir_path, __, ___ in os.walk(root_path))
+    # Make sure that the original location is suffixed with a trailing slash
+    # as it is a directory.
+    original_location = os.path.join(original_location, '')
+    # Transform the processing directory string to reflect where it was when
+    # transferred, that is, in the ``%transferDirectory%``.
+    location_to_replace = format_subdir_path(root_path,
+                                             path_prefix_to_repl)
+
+    # Return a generator here that contains information about the current path
+    # and the original path for the PREMIS information in the METS file.
+    for dir_path, __, ___ in os.walk(root_path):
+        formatted_path = format_subdir_path(dir_path, path_prefix_to_repl)
+        for dir_uuid in get_dir_uuids(
+                [formatted_path], logger, printfn=job.pyprint):
+            dir_uuid["originalLocation"] = formatted_path\
+                .replace(location_to_replace, original_location)
+            yield dir_uuid
 
 
 def delete_and_record_package_file(job, file_path, file_uuid, current_location):
@@ -72,7 +107,8 @@ def delete_and_record_package_file(job, file_path, file_uuid, current_location):
 
 
 def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
-    files = File.objects.filter(transfer=transfer_uuid, removedtime__isnull=True)
+    files = File.objects.filter(transfer=transfer_uuid,
+                                removedtime__isnull=True)
     if not files:
         job.pyprint('No files found for transfer: ', transfer_uuid)
 
@@ -123,18 +159,28 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
                         file=sys.stderr)
             continue
 
-        file_path = file_.currentlocation.replace('%transferDirectory%', sip_directory)
+        output_file_path = file_.currentlocation.replace(TRANSFER_DIRECTORY,
+                                                         sip_directory)
 
+        # Temporarily rename the input package so that when we extract the
+        # contents we don't extract it to a directory that will conflict with
+        # the names we want to preserve in our PREMIS:originalLocation.
+        temp_dir = temporary_directory(output_file_path, date)
+        rename(output_file_path, temp_dir)
+
+        # Create the extract packages command.
         if command.script_type == 'command' or command.script_type == 'bashScript':
             args = []
             command_to_execute = command.command.replace('%inputFile%',
-                                                         file_path)
+                                                         temp_dir)
             command_to_execute = command_to_execute.replace('%outputDirectory%',
-                                                            output_directory(file_path, date))
+                                                            output_file_path)
         else:
             command_to_execute = command.command
-            args = [file_path, output_directory(file_path, date)]
+            args = [temp_dir, output_file_path]
 
+        # Make the command clear to users when inspecting stdin/stdout.
+        logger.info("Command to execute is: %s", command_to_execute)
         exitstatus, stdout, stderr = executeOrRun(command.script_type,
                                                   command_to_execute,
                                                   arguments=args,
@@ -145,37 +191,48 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
         if not exitstatus == 0:
             # Dang, looks like the extraction failed
-            job.pyprint('Command', command.description, 'failed!', file=sys.stderr)
+            job.pyprint('Command', command.description, 'failed!',
+                        file=sys.stderr)
         else:
             extracted = True
-            job.pyprint('Extracted contents from', os.path.basename(file_path))
+            job.pyprint('Extracted contents from',
+                        os.path.basename(output_file_path))
 
             # Assign UUIDs and insert them into the database, so the newly-
             # extracted files are properly tracked by Archivematica
-            extracted_path = output_directory(file_path, date)
-            for extracted_file in tree(extracted_path):
-                assign_uuid(job,
-                            extracted_file, file_.uuid, transfer_uuid, date,
-                            task_uuid, sip_directory, file_.currentlocation)
+            for extracted_file in tree(output_file_path):
+                assign_uuid(
+                    job, extracted_file, file_.uuid, transfer_uuid, date,
+                    task_uuid, sip_directory, file_.currentlocation,
+                    file_.originallocation, output_file_path)
 
-            # Assign UUIDs to directories via ``Directory`` objects in the
-            # database.
             if transfer_mdl.diruuids:
-                Directory.create_many(
-                    get_dir_uuids(
-                        _get_subdir_paths(extracted_path, sip_directory),
-                        logger,
-                        printfn=job.pyprint),
-                    transfer_mdl)
+                create_extracted_dir_uuids(
+                    job, transfer_mdl, output_file_path, sip_directory, file_)
 
-            # We may want to remove the original package file after extracting its contents
+            # We may want to remove the original package file after extracting
+            # its contents
             if delete:
-                delete_and_record_package_file(job, file_path, file_.uuid, file_.currentlocation)
+                delete_and_record_package_file(
+                    job, temp_dir, file_.uuid, file_.currentlocation)
 
     if extracted:
         return 0
     else:
         return 255
+
+
+def create_extracted_dir_uuids(
+        job, transfer_mdl, output_file_path, sip_directory, file_):
+    """Assign UUIDs to directories via ``Directory`` objects in the database.
+    """
+    Directory.create_many(
+        _get_subdir_paths(
+            job,
+            output_file_path,
+            sip_directory,
+            file_.originallocation),
+        transfer_mdl)
 
 
 def call(jobs):

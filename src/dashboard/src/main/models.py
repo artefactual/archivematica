@@ -483,16 +483,25 @@ class Directory(models.Model):
     @classmethod
     def create_many(cls, dir_paths_uuids, unit_mdl, unit_type='transfer'):
         """Create ``Directory`` models to encode the relationship between each
-        directory path/UUID pair in ``dir_paths_uuids`` and the ``Transfer`` model
-        that the directories are a part of.
+        directory path/UUID entry in ``dir_paths_uuids`` and the ``Transfer``
+        model that the directories are a part of. ``dir_paths_uuids`` is
+        expected to be a dict instance where the ``originallocation`` field is
+        optional. The ``originallocation`` but can be set according to the
+        requirements of the PREMIS record that eventually needs to be created
+        using this model.
         """
         unit_type = {'transfer': 'transfer'}.get(unit_type, 'sip')
-        return cls.objects.bulk_create([
-            cls(**{'uuid': dir_uuid,
-                   unit_type: unit_mdl,
-                   'originallocation': dir_path,
-                   'currentlocation': dir_path})
-            for dir_path, dir_uuid in dir_paths_uuids])
+        paths = []
+        for dir_ in dir_paths_uuids:
+            dir_path = dir_.get("currentLocation")
+            dir_uuid = dir_.get("uuid")
+            orig_path = dir_.get("originalLocation")
+            paths.append(cls(**{'uuid': dir_uuid,
+                                unit_type: unit_mdl,
+                                'originallocation': dir_path if not orig_path
+                                else orig_path,
+                                'currentlocation': dir_path}))
+        return cls.objects.bulk_create(paths)
 
 
 class FileFormatVersion(models.Model):

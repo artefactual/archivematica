@@ -64,7 +64,8 @@ def getDeciDate(date):
     return str("{:10.10f}".format(float(ret)))
 
 
-def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
+def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="",
+                    sipUUID="", use="original", originalLocation=None):
     """
     Creates a new entry in the Files table using the supplied arguments.
 
@@ -74,15 +75,19 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
     :param str transferUUID: UUID for the transfer containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with sipUUID.
     :param str sipUUID: UUID for the SIP containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with transferUUID.
     :param str use: A category used to group the file with others of the same kind. Will be included in the AIP's METS document in the USE attribute. Defaults to "original".
+    :param str originalLocation: where the original location of the file needs to be recorded, such as premis:OriginalName fields, it can be set using this parameter here.
 
     :returns: None
     """
     if enteredSystem is None:
         enteredSystem = getUTCDate()
 
+    if not originalLocation:
+        originalLocation = filePath
+
     kwargs = {
         "uuid": fileUUID,
-        "originallocation": filePath,
+        "originallocation": originalLocation,
         "currentlocation": filePath,
         "enteredsystem": enteredSystem,
         "filegrpuse": use

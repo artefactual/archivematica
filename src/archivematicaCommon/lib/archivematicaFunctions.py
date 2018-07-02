@@ -253,9 +253,9 @@ def create_structured_directory(basepath,
 
 
 def get_dir_uuids(dir_paths, logger=None, printfn=print):
-    """Return a generator of 2-tuples, each containing one of the directory
-    paths in ``dir_paths`` and its newly minted UUID. Used by multiple client
-    scripts.
+    """Return a generator of dict instances, each containing one of the
+    directory paths in ``dir_paths`` and its newly minted UUID. Used by
+    multiple client scripts.
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
@@ -264,7 +264,8 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
         printfn(msg)
         if logger:
             logger.info(msg)
-        yield dir_path, dir_uuid
+        yield {"currentLocation": dir_path,
+               "uuid": dir_uuid}
 
 
 def format_subdir_path(dir_path, path_prefix_to_repl):

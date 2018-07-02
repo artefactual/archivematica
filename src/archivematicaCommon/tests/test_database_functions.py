@@ -17,7 +17,6 @@ class TestDatabaseFunctions(TestCase):
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     # insertIntoFiles
-
     def test_insert_into_files_with_sip(self):
         path = "%sharedDirectory%/no_such_file"
         assert File.objects.filter(currentlocation=path).count() == 0
@@ -35,8 +34,43 @@ class TestDatabaseFunctions(TestCase):
             databaseFunctions.insertIntoFiles("both", "both_path", sipUUID="sip", transferUUID="transfer")
         assert "both SIP and transfer UUID" in str(excinfo.value)
 
-    # getAMAgentsForFile
+    def test_insert_into_files_with_original_path(self):
+        # A filepath set during the extract contents microservice. Note the
+        # filename contains underscorres from normalization.
+        file_path = ("%transferDirectory%objects/another_parent_directory/"
+                     "compressed_directory.zip")
 
+        # What that path might look like when set correctly in the original
+        # location field.
+        original_location = ("%transferDirectory%objects/another parent "
+                             "directory/compressed directory.zip")
+
+        # If originalLocation is set, then test that it is set with the right
+        # value. Check also that we haven't set the current location field
+        # inaccurately.
+        databaseFunctions.insertIntoFiles(
+            fileUUID="e0a1fdc4-605a-4104-bf59-039859ee8238",
+            filePath=file_path,
+            sipUUID="0049fa6c-152f-44a0-93b0-c5e856a02292",
+            originalLocation=original_location)
+        assert File.objects.filter(originallocation=original_location)\
+            .count() == 1
+        assert File.objects.get(
+            originallocation=original_location)\
+            .currentlocation != original_location
+
+        # If originalLocation is not set (here we use None to be explicit),
+        # then default to the filePath.
+        databaseFunctions.insertIntoFiles(
+            fileUUID="554661f1-b331-452c-a583-0c582ebcb298",
+            filePath=file_path,
+            sipUUID="01cf9fb8-bc01-40b4-b830-feb66e912f40",
+            originalLocation=None)
+        assert File.objects.filter(
+            uuid="554661f1-b331-452c-a583-0c582ebcb298")[0]\
+            .originallocation == file_path
+
+    # getAMAgentsForFile
     def test_get_agent_for_file_with_sip_agent(self):
         agents = databaseFunctions.getAMAgentsForFile("88c8f115-80bc-4da4-a1e6-0158f5df13b9")
         assert 5 in agents
