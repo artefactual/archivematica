@@ -930,7 +930,7 @@ class TaskType(models.Model):
         db_table = 'TaskTypes'
 
     def __unicode__(self):
-        return _('TaskType ID: %(id), desc: %(desc)') % {
+        return _('TaskType ID: %(id)s, desc: %(desc)s') % {
             'id': self.id,
             'desc': self.description
         }
@@ -948,7 +948,7 @@ class TaskConfig(models.Model):
         db_table = u'TasksConfigs'
 
     def __unicode__(self):
-        return _('TaskType ID: %(id), desc: %(desc)') % {
+        return _('TaskType ID: %(id)s, desc: %(desc)s') % {
             'id': self.id,
             'desc': self.description
         }

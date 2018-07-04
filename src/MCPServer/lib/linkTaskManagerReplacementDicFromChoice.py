@@ -61,13 +61,28 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         try:
             mscl = MicroServiceChainLink.objects.get(id=jobChainLink.pk)
             task_id = mscl.defaultnextchainlink.currenttask.tasktypepkreference
+
+            LOGGER.info('task_id = mscl.defaultnextchainlink.currenttask.tasktypepkreference')
+            LOGGER.info(task_id)
+
             stc = StandardTaskConfig.objects.get(id=task_id)
         except (MicroServiceChainLink.DoesNotExist, StandardTaskConfig.DoesNotExist, AttributeError):
+
+            LOGGER.info('Something NOT EXIST')
+
             pass
         else:
             args = DashboardSetting.objects.get_dict(stc.execute)
+
+            LOGGER.info('args = DashboardSetting.objects.get_dict(stc.execute)')
+            LOGGER.info(args)
+
             if args:
                 args = {'%{}%'.format(key): value for key, value in args.items()}
+
+                LOGGER.info('self.choices.append((len(self.choices), stc.execute, str(args)))')
+                LOGGER.info((len(self.choices), stc.execute, str(args)))
+
                 self.choices.append((len(self.choices), stc.execute, str(args)))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
