@@ -24,6 +24,8 @@ import logging
 import os
 import threading
 
+from django.conf import settings as django_settings
+
 from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
 from dicts import ReplacementDict
@@ -40,7 +42,7 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 #
 # Setting this too large will use more memory; setting it too small will hurt
 # throughput.  So the trick is to set it juuuust right.
-BATCH_SIZE = 128
+BATCH_SIZE = django_settings.BATCH_SIZE
 
 
 class linkTaskManagerFiles(LinkTaskManager):

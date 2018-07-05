@@ -123,10 +123,16 @@ This is the full list of variables supported by MCPServer:
     - **Default:** `true`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
-    - **Description:** time in seconds between filesystem poll intervals .
+    - **Description:** time in seconds between filesystem poll intervals.
     - **Config file example:** `MCPServer.watchDirectoriesPollInterval`
     - **Type:** `int`
     - **Default:** `"1"`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_BATCH_SIZE`**:
+    - **Description:** the amount of files that are processed by an instance of MCPClient as a group to speed up certain operations like database updates.
+    - **Config file example:** `MCPServer.batch_size`
+    - **Type:** `int`
+    - **Default:** `"128"`
 
 - **`ARCHIVEMATICA_MCPSERVER_PROTOCOL_LIMITTASKTHREADS`**:
     - **Description:** max. number of threads that MCPServer will run simultaneously.

@@ -40,6 +40,7 @@ CONFIG_MAPPING = {
         {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
         {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
     ],
+    'batch_size': {'section': 'MCPServer', 'option': 'batch_size', 'type': 'int'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -66,6 +67,7 @@ watchDirectoriesPollInterval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
+batch_size = 128
 
 [Protocol]
 limitTaskThreads = 75
@@ -179,6 +181,7 @@ WAIT_ON_AUTO_APPROVE = config.get('wait_on_auto_approve')
 WATCH_DIRECTORY_INTERVAL = config.get('watch_directory_interval')
 LIMIT_TASK_THREADS = config.get('limit_task_threads')
 SEARCH_ENABLED = config.get('search_enabled')
+BATCH_SIZE = config.get('batch_size')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
