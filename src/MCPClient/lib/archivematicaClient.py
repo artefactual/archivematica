@@ -176,10 +176,16 @@ def execute_command(gearman_worker, gearman_job):
             for job in jobs:
                 logger.info("\n\n*** Completed job: %s" % (job.dump()))
 
-                Task.objects.filter(taskuuid=job.UUID).update(stdout=job.get_stdout(),
-                                                              stderror=job.get_stderr(),
-                                                              exitcode=job.get_exit_code(),
-                                                              endtime=getUTCDate())
+                kwargs = {
+                    'exitcode': job.get_exit_code(),
+                    'endtime': getUTCDate(),
+                }
+                if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                    kwargs.update({
+                        'stdout': job.get_stdout(),
+                        'stderror': job.get_stderr(),
+                    })
+                Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
                 results[job.UUID] = {'exitCode': job.get_exit_code()}
 
