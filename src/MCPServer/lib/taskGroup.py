@@ -78,12 +78,15 @@ class TaskGroup():
         with self.groupTasksLock:
             self.finalised = True
 
-            with transaction.atomic():
-                for task in self.groupTasks:
-                    databaseFunctions.logTaskCreatedSQL(self.linkTaskManager,
-                                                        task.commandReplacementDic,
-                                                        task.UUID,
-                                                        task.arguments)
+            def insertTasks():
+                with transaction.atomic():
+                    for task in self.groupTasks:
+                        databaseFunctions.logTaskCreatedSQL(self.linkTaskManager,
+                                                            task.commandReplacementDic,
+                                                            task.UUID,
+                                                            task.arguments)
+
+            databaseFunctions.retryOnFailure("Insert tasks", insertTasks)
 
     def calculateExitCode(self):
         """

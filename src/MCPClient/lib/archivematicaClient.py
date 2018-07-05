@@ -66,7 +66,7 @@ from django.conf import settings as django_settings
 import gearman
 
 from main.models import Task
-from databaseFunctions import getUTCDate
+from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
 import shlex
@@ -124,9 +124,13 @@ def handle_batch_task(gearman_job):
                   caller_wants_output=task_data['wants_output'])
         jobs.append(job)
 
-    # Set their start times...
-    Task.objects.filter(
-        taskuuid__in=[item.UUID for item in jobs]).update(starttime=utc_date)
+    # Set their start times.  If we collide with the MCP Server inserting new
+    # Tasks (which can happen under heavy concurrent load), retry as needed.
+    def set_start_times():
+        Task.objects.filter(
+            taskuuid__in=[item.UUID for item in jobs]).update(starttime=utc_date)
+
+    retryOnFailure("Set task start times", set_start_times)
 
     module = importlib.import_module("clientScripts." + module_name)
 
@@ -148,10 +152,14 @@ def fail_all_tasks(gearman_job, reason):
     # we got to this point because the DB is unavailable this isn't going to
     # work...
     try:
-        for task_uuid in gearman_data['tasks']:
-            Task.objects.filter(taskuuid=task_uuid).update(stderror=str(reason),
-                                                           exitcode=1,
-                                                           endtime=getUTCDate())
+        def fail_all_tasks_callback():
+            for task_uuid in gearman_data['tasks']:
+                Task.objects.filter(taskuuid=task_uuid).update(stderror=str(reason),
+                                                               exitcode=1,
+                                                               endtime=getUTCDate())
+
+            retryOnFailure("Fail all tasks", fail_all_tasks_callback)
+
     except Exception as e:
         logger.exception("Failed to update tasks in DB: %s", e)
 
@@ -172,31 +180,34 @@ def execute_command(gearman_worker, gearman_job):
         jobs = handle_batch_task(gearman_job)
         results = {}
 
-        with transaction.atomic():
-            for job in jobs:
-                logger.info("\n\n*** Completed job: %s" % (job.dump()))
+        def write_task_results_callback():
+            with transaction.atomic():
+                for job in jobs:
+                    logger.info("\n\n*** Completed job: %s" % (job.dump()))
 
-                kwargs = {
-                    'exitcode': job.get_exit_code(),
-                    'endtime': getUTCDate(),
-                }
-                if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
-                    kwargs.update({
-                        'stdout': job.get_stdout(),
-                        'stderror': job.get_stderr(),
-                    })
-                Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
+                    kwargs = {
+                        'exitcode': job.get_exit_code(),
+                        'endtime': getUTCDate(),
+                    }
+                    if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                        kwargs.update({
+                            'stdout': job.get_stdout(),
+                            'stderror': job.get_stderr(),
+                        })
+                    Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
-                results[job.UUID] = {'exitCode': job.get_exit_code()}
+                    results[job.UUID] = {'exitCode': job.get_exit_code()}
 
-                if job.caller_wants_output:
-                    # Send back stdout/stderr so it can be written to files.
-                    # Most cases don't require this (logging to the database is
-                    # enough), but the ones that do are coordinated through the
-                    # MCP Server so that multiple MCP Client instances don't try
-                    # to write the same file at the same time.
-                    results[job.UUID]['stdout'] = job.get_stdout()
-                    results[job.UUID]['stderror'] = job.get_stderr()
+                    if job.caller_wants_output:
+                        # Send back stdout/stderr so it can be written to files.
+                        # Most cases don't require this (logging to the database is
+                        # enough), but the ones that do are coordinated through the
+                        # MCP Server so that multiple MCP Client instances don't try
+                        # to write the same file at the same time.
+                        results[job.UUID]['stdout'] = job.get_stdout()
+                        results[job.UUID]['stderror'] = job.get_stderr()
+
+        retryOnFailure("Write task results", write_task_results_callback)
 
         return cPickle.dumps({'task_results': results})
     except SystemExit:
