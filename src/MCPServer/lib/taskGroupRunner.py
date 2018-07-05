@@ -1,8 +1,4 @@
-#!/usr/bin/env python2
-
-"""
-Manages the interactions between the MCP Server and the MCP Client (via
-Gearman).
+"""Manages the interactions between the MCPServer and the MCPClient.
 
 The big idea:
 

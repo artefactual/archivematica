@@ -1,9 +1,4 @@
-#!/usr/bin/env python2
-
-"""
-A collection of tasks that we'll send off to the MCP Client (via Gearman).
-"""
-
+"""Collection of tasks that we'll send off to the MCPClient (via Gearman)."""
 
 # This file is part of Archivematica.
 #

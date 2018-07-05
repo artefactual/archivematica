@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
+
 """Bind PID. Command-line utility and module for requesting PID-binding against
 a Handle.net server.
 

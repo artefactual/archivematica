@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # Author Bruce Eckel (www.BruceEckel.com)
 # Source http://www.artima.com/weblogs/viewpost.jsp?thread=230001
 
@@ -23,7 +22,3 @@ def detectCPUs():
     if ncpus > 0:
         return ncpus
     return 1  # Default
-
-
-if __name__ == '__main__':
-    print(detectCPUs())

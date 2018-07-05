@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # vim:fileencoding=utf8
 
 # Author Ian Lewis

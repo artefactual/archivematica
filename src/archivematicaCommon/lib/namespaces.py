@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 dcNS = "http://purl.org/dc/elements/1.1/"
 dctermsNS = "http://purl.org/dc/terms/"
 dspaceNS = "http://www.dspace.org/xmlns/dspace/dim"
