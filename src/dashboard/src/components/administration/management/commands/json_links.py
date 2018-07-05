@@ -119,8 +119,6 @@ def process_chain_link_task_details(link_dict, link, task_config):
             link_config['filter_file_end'] = stdtask_config.filter_file_end
             link_config['stdout_file'] = stdtask_config.stdout_file
             link_config['stderr_file'] = stdtask_config.stderr_file
-            link_config['requires_output_lock'] = \
-                stdtask_config.requires_output_lock
 
     elif model == MicroServiceChainChoice:
         choices = MicroServiceChainChoice.objects.filter(

@@ -961,7 +961,6 @@ class StandardTaskConfig(models.Model):
     filter_subdir = models.CharField(max_length=50, db_column='filterSubDir', null=True, blank=True)
     filter_file_start = models.CharField(max_length=50, db_column='filterFileStart', null=True, blank=True)
     filter_file_end = models.CharField(max_length=50, db_column='filterFileEnd', null=True, blank=True)
-    requires_output_lock = models.BooleanField(db_column='requiresOutputLock', default=False)
     stdout_file = models.CharField(max_length=250, db_column='standardOutputFile', null=True, blank=True)
     stderr_file = models.CharField(max_length=250, db_column='standardErrorFile', null=True, blank=True)
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
