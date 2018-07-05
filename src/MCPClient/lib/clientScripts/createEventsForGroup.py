@@ -24,9 +24,11 @@ from optparse import OptionParser
 import uuid
 
 import django
+from django.db import transaction
 django.setup()
 # dashboard
 from main.models import File
+
 
 # archivematicaCommon
 from databaseFunctions import insertIntoEvents
@@ -49,12 +51,14 @@ if __name__ == '__main__':
         "removedtime__isnull": True,
         opts.groupType: opts.groupUUID
     }
-    file_uuids = File.objects.filter(**kwargs).values_list('uuid')
-    for fileUUID, in file_uuids:
-        insertIntoEvents(fileUUID=fileUUID,
-                         eventIdentifierUUID=str(uuid.uuid4()),
-                         eventType=opts.eventType,
-                         eventDateTime=opts.eventDateTime,
-                         eventDetail=opts.eventDetail,
-                         eventOutcome=opts.eventOutcome,
-                         eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
+
+    with transaction.atomic():
+        file_uuids = File.objects.filter(**kwargs).values_list('uuid')
+        for fileUUID, in file_uuids:
+            insertIntoEvents(fileUUID=fileUUID,
+                             eventIdentifierUUID=str(uuid.uuid4()),
+                             eventType=opts.eventType,
+                             eventDateTime=opts.eventDateTime,
+                             eventDetail=opts.eventDetail,
+                             eventOutcome=opts.eventOutcome,
+                             eventOutcomeDetailNote=opts.eventOutcomeDetailNote)

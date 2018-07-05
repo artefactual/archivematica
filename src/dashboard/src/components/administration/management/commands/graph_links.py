@@ -412,10 +412,8 @@ def get_script_name(name):
     """Extract client script name."""
     if not isinstance(name, basestring):
         return
-    if config.has_option('supportedCommandsSpecial', name):
-        return config.get('supportedCommandsSpecial', name)
-    if config.has_option('supportedCommands', name):
-        return config.get('supportedCommands', name)
+    if config.has_option('supportedBatchCommands', name.lower()):
+        return config.get('supportedBatchCommands', name.lower())
 
 
 def add_edge(g, source_uuid, dest_uuid, color='black', label=None):

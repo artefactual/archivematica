@@ -24,18 +24,16 @@
 
 # /src/dashboard/src/main/models.py
 
-from __future__ import print_function
 import collections
 import csv
 import sys
 import traceback
 # archivematicaCommon
 import archivematicaFunctions
-from custom_handlers import get_script_logger
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
-def parseMetadata(SIPPath):
+def parseMetadata(job, SIPPath):
     """
     Parse all metadata.csv files in SIPPath.
 
@@ -52,17 +50,17 @@ def parseMetadata(SIPPath):
 
     for metadataCSVFilePath in metadata_csvs:
         try:
-            csv_metadata = parseMetadataCSV(metadataCSVFilePath)
+            csv_metadata = parseMetadataCSV(job, metadataCSVFilePath)
         except Exception:
-            print("error parsing: ", metadataCSVFilePath, file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
+            job.pyprint("error parsing: ", metadataCSVFilePath, file=sys.stderr)
+            job.print_error(traceback.format_exc())
             sharedVariablesAcrossModules.globalErrorCount += 1
             continue
         # Provide warning if this file already has differing metadata
         # Not using all_metadata.update(csv_metadata) because of that
         for entry, values in csv_metadata.items():
             if entry in all_metadata and all_metadata[entry] != values:
-                print('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
+                job.pyprint('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
             existing = all_metadata.get(entry, collections.OrderedDict())
             existing.update(values)
             all_metadata[entry] = existing
@@ -70,7 +68,7 @@ def parseMetadata(SIPPath):
     return all_metadata
 
 
-def parseMetadataCSV(metadataCSVFilePath):
+def parseMetadataCSV(job, metadataCSVFilePath):
     """
     Parses the metadata.csv into a dict with entries for each file.
 
@@ -109,13 +107,7 @@ def parseMetadataCSV(metadataCSVFilePath):
             row = row[1:]
             values = archivematicaFunctions.OrderedListsDict(zip(header, row))
             if entry_name in metadata and metadata[entry_name] != values:
-                print('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
+                job.pyprint('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
             metadata[entry_name] = values
 
     return collections.OrderedDict(metadata)  # Return a normal OrderedDict
-
-
-if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.createMETSMetadataCSV")
-
-    parseMetadata(sys.argv[1])

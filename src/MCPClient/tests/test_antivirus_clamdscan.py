@@ -1,5 +1,4 @@
-# -*- coding: utf8 -*-
-"""Tests for the archivematicaClamscan.py client script."""
+"""Tests for the archivematica_clamscan.py client script."""
 
 from __future__ import print_function
 
@@ -14,7 +13,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(
     os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
-import archivematicaClamscan
+import archivematica_clamscan
 
 
 def setup_clamdscanner(settings,
@@ -25,7 +24,7 @@ def setup_clamdscanner(settings,
     settings.CLAMAV_CLIENT_TIMEOUT = timeout
     settings.CLAMAV_PASS_BY_STREAM = stream
 
-    return archivematicaClamscan.ClamdScanner()
+    return archivematica_clamscan.ClamdScanner()
 
 
 def test_clamdscanner_version_props(mocker, settings):

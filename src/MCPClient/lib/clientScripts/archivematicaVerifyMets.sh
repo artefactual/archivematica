@@ -35,5 +35,5 @@ schemaFile="${assetsDir}/mets/mets.xsd"
 if [ -f "${metsFile}" ]; then
     xmllint --noout --schema "${schemaFile}" "${metsFile}"
 else
-	  echo "No metadata/mets_structmap.xml file to verify."
+    echo "No metadata/mets_structmap.xml file to verify."
 fi

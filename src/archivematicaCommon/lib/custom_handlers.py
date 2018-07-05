@@ -15,6 +15,16 @@ class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
             os.umask(prevumask)
 
 
+class CallbackHandler(logging.Handler):
+    def __init__(self, callback, module_name=None):
+        logging.Handler.__init__(self)
+        self.formatter = logging.Formatter("{}: ".format(module_name) + STANDARD_FORMAT if module_name else SCRIPT_FILE_FORMAT)
+        self.callback = callback
+
+    def emit(self, record):
+        self.callback(self.format(record) + "\n")
+
+
 STANDARD_FORMAT = "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
 SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s".format(os.path.basename(sys.argv[0]))
 

@@ -18,8 +18,6 @@
 
 # @package Archivematica
 # @subpackage archivematicaClient
-from __future__ import print_function
-import sys
 
 # archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
@@ -36,7 +34,7 @@ def toStrFromUnicode(inputString, encoding='utf-8'):
 
 
 class Command(object):
-    def __init__(self, command, replacement_dict, on_success=None, opts=None):
+    def __init__(self, job, command, replacement_dict, on_success=None, opts=None):
         self.fpcommand = command
         self.command = command.command
         self.type = command.script_type
@@ -46,6 +44,7 @@ class Command(object):
         self.std_out = ""
         self.exit_code = None
         self.opts = opts
+        self.job = job
 
         # Add the output location to the replacement dict - for use in
         # verification and event detail commands
@@ -56,11 +55,11 @@ class Command(object):
         # Add verification and event detail commands, if they exist
         self.verification_command = None
         if self.fpcommand.verification_command:
-            self.verification_command = Command(self.fpcommand.verification_command, self.replacement_dict)
+            self.verification_command = Command(self.job, self.fpcommand.verification_command, self.replacement_dict)
 
         self.event_detail_command = None
         if self.fpcommand.event_detail_command:
-            self.event_detail_command = Command(self.fpcommand.event_detail_command, self.replacement_dict)
+            self.event_detail_command = Command(self.job, self.fpcommand.event_detail_command, self.replacement_dict)
 
     def __str__(self):
         return u"[COMMAND] {}\n\tExecuting: {}\n\tOutput location: {}\n".format(self.fpcommand, self.command, self.verification_command, self.output_location)
@@ -80,29 +79,32 @@ class Command(object):
         # [%fileName%, foo] => --file-name=foo
         else:
             args = self.replacement_dict.to_gnu_options()
-        print("Command to execute:", self.command)
-        print("-----")
-        print("Command stdout:")
-        self.exit_code, self.std_out, std_err = executeOrRun(self.type, self.command, arguments=args, printing=True)
-        print("-----")
-        print('Command exit code:', self.exit_code)
+        self.job.print_output("Command to execute:", self.command)
+        self.job.print_output("-----")
+        self.job.print_output("Command stdout:")
+        self.exit_code, self.std_out, std_err = executeOrRun(self.type, self.command, arguments=args, printing=True,
+                                                             capture_output=True)
+        self.job.write_output(self.std_out)
+        self.job.write_error(std_err)
+        self.job.print_output("-----")
+        self.job.print_output('Command exit code:', self.exit_code)
         if self.exit_code == 0 and self.verification_command:
-            print("Running verification command", self.verification_command)
-            print("-----")
-            print("Command stdout:")
+            self.job.print_output("Running verification command", self.verification_command)
+            self.job.print_output("-----")
+            self.job.print_output("Command stdout:")
             self.exit_code = self.verification_command.execute(skip_on_success=True)
-            print("-----")
-            print('Verification Command exit code:', self.exit_code)
+            self.job.print_output("-----")
+            self.job.print_output('Verification Command exit code:', self.exit_code)
 
         if self.exit_code == 0 and self.event_detail_command:
-            print("Running event detail command", self.event_detail_command)
+            self.job.print_output("Running event detail command", self.event_detail_command)
             self.event_detail_command.execute(skip_on_success=True)
 
         # If unsuccesful
         if self.exit_code != 0:
-            print("Failed:", self.fpcommand, file=sys.stderr)
-            print("Standard out:", self.std_out, file=sys.stderr)
-            print("Standard error:", std_err, file=sys.stderr)
+            self.job.print_error("Failed:", self.fpcommand)
+            self.job.print_error("Standard out:", self.std_out)
+            self.job.print_error("Standard error:", std_err)
         else:
             if (not skip_on_success) and self.on_success:
                 self.on_success(self, self.opts, self.replacement_dict)
@@ -110,13 +112,13 @@ class Command(object):
 
 
 class CommandLinker(object):
-    def __init__(self, fprule, command, replacement_dict, opts, on_success):
+    def __init__(self, job, fprule, command, replacement_dict, opts, on_success):
         self.fprule = fprule
         self.command = command
         self.replacement_dict = replacement_dict
         self.opts = opts
         self.on_success = on_success
-        self.commandObject = Command(self.command, replacement_dict, self.on_success, opts)
+        self.commandObject = Command(job, self.command, replacement_dict, self.on_success, opts)
 
     def __str__(self):
         return "[Command Linker] FPRule: {fprule} Command: {co}".format(fprule=self.fprule.uuid, co=self.commandObject)

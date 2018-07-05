@@ -33,9 +33,7 @@ CONFIG_MAPPING = {
     'watch_directory': {'section': 'MCPClient', 'option': 'watchDirectoryPath', 'type': 'string'},
     'client_scripts_directory': {'section': 'MCPClient', 'option': 'clientScriptsDirectory', 'type': 'string'},
     'client_assets_directory': {'section': 'MCPClient', 'option': 'clientAssetsDirectory', 'type': 'string'},
-    'load_supported_commands_special': {'section': 'MCPClient', 'option': 'LoadSupportedCommandsSpecial', 'type': 'boolean'},
     'gearman_server': {'section': 'MCPClient', 'option': 'MCPArchivematicaServer', 'type': 'string'},
-    'number_of_tasks': {'section': 'MCPClient', 'option': 'numberOfTasks', 'type': 'int'},
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
@@ -43,7 +41,6 @@ CONFIG_MAPPING = {
         {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'iboolean'},
         {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
     ],
-    'capture_client_script_output': {'section': 'MCPClient', 'option': 'capture_client_script_output', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},
     'temp_directory': {'section': 'MCPClient', 'option': 'temp_dir', 'type': 'string'},
     'secret_key': {'section': 'MCPClient', 'option': 'django_secret_key', 'type': 'string'},
@@ -80,12 +77,9 @@ rejectedDirectory = %%sharedPath%%rejected/
 archivematicaClientModules = /usr/lib/archivematica/MCPClient/archivematicaClientModules
 clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
 clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
-LoadSupportedCommandsSpecial = True
-numberOfTasks = 0
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = true
-capture_client_script_output = true
 temp_dir = /var/archivematica/sharedDirectory/tmp
 removableFiles = Thumbs.db, Icon, Icon\r, .DS_Store
 clamav_server = /var/run/clamav/clamd.ctl
@@ -214,9 +208,7 @@ REJECTED_DIRECTORY = config.get('rejected_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 CLIENT_SCRIPTS_DIRECTORY = config.get('client_scripts_directory')
 CLIENT_ASSETS_DIRECTORY = config.get('client_assets_directory')
-LOAD_SUPPORTED_COMMANDS_SPECIAL = config.get('load_supported_commands_special')
 GEARMAN_SERVER = config.get('gearman_server')
-NUMBER_OF_TASKS = config.get('number_of_tasks')
 CLIENT_MODULES_FILE = config.get('client_modules_file')
 REMOVABLE_FILES = config.get('removable_files')
 TEMP_DIRECTORY = config.get('temp_directory')
@@ -231,7 +223,6 @@ CLAMAV_CLIENT_MAX_SCAN_SIZE = config.get('clamav_client_max_scan_size')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 AGENTARCHIVES_CLIENT_TIMEOUT = config.get('agentarchives_client_timeout')
 SEARCH_ENABLED = config.get('search_enabled')
-CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get('capture_client_script_output')
 DEFAULT_CHECKSUM_ALGORITHM = 'sha256'
 
 

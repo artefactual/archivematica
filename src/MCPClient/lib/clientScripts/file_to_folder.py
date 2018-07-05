@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os
 import sys
 
 import django
 django.setup()
+from django.db import transaction
 # dashboard
 from main.models import Transfer
 
 
-def main(transfer_path, transfer_uuid, shared_path):
+def main(job, transfer_path, transfer_uuid, shared_path):
     """
     Move a Transfer that is a file into a directory.
 
@@ -25,27 +25,30 @@ def main(transfer_path, transfer_uuid, shared_path):
     """
     # If directory, return unchanged
     if os.path.isdir(transfer_path):
-        print(transfer_path, 'is a folder, no action needed. Exiting.')
+        job.pyprint(transfer_path, 'is a folder, no action needed. Exiting.')
         return 0
     # If file, move into directory and update transfer
     dirpath = os.path.splitext(transfer_path)[0]
     basename = os.path.basename(transfer_path)
     if os.path.exists(dirpath):
-        print('Cannot move file', transfer_path, 'to folder', dirpath, 'because it already exists', file=sys.stderr)
+        job.pyprint('Cannot move file', transfer_path, 'to folder', dirpath, 'because it already exists', file=sys.stderr)
         return 1
     os.mkdir(dirpath)
     new_path = os.path.join(dirpath, basename)
-    print('Moving', transfer_path, 'to', new_path)
+    job.pyprint('Moving', transfer_path, 'to', new_path)
     os.rename(transfer_path, new_path)
 
     db_path = os.path.join(dirpath.replace(shared_path, '%sharedPath%', 1), '')
-    print('Updating transfer', transfer_uuid, 'path to', db_path)
+    job.pyprint('Updating transfer', transfer_uuid, 'path to', db_path)
     Transfer.objects.filter(uuid=transfer_uuid).update(currentlocation=db_path)
     return 0
 
 
-if __name__ == '__main__':
-    transfer_path = sys.argv[1]
-    transfer_uuid = sys.argv[2]
-    shared_path = sys.argv[3]
-    sys.exit(main(transfer_path, transfer_uuid, shared_path))
+def call(jobs):
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext():
+                transfer_path = job.args[1]
+                transfer_uuid = job.args[2]
+                shared_path = job.args[3]
+                job.set_status(main(job, transfer_path, transfer_uuid, shared_path))

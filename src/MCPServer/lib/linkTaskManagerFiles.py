@@ -25,27 +25,38 @@ import ast
 import logging
 import os
 import threading
-import time
-import uuid
 
 from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
 import archivematicaFunctions
-import databaseFunctions
 from dicts import ReplacementDict
 from main.models import StandardTaskConfig, UnitVariable
 
-from django.conf import settings as django_settings
+from taskGroupRunner import TaskGroupRunner
+from taskGroup import TaskGroup
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
+# The number of files we'll pack into each MCP Client job.  Chosen somewhat
+# arbitrarily, but benchmarking with larger values (like 512) didn't make much
+# difference to throughput.
+#
+# Setting this too large will use more memory; setting it too small will hurt
+# throughput.  So the trick is to set it juuuust right.
+BATCH_SIZE = 128
 
 
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)
-        self.tasks = {}
-        self.tasksLock = threading.Lock()
+
+        # The list of task groups we'll be executing for this batch of files
+        self.taskGroupsLock = threading.Lock()
+        self.taskGroups = {}
+
+        # Zero if every taskGroup executed so far has succeeded.  Otherwise,
+        # something greater than zero.
         self.exitCode = 0
+
         self.clearToNextLink = False
 
         stc = StandardTaskConfig.objects.get(id=str(pk))
@@ -59,10 +70,7 @@ class linkTaskManagerFiles(LinkTaskManager):
         self.execute = stc.execute
         self.arguments = stc.arguments
 
-        if stc.requires_output_lock:
-            outputLock = threading.Lock()
-        else:
-            outputLock = None
+        outputLock = threading.Lock()
 
         # Check if filterSubDir has been overridden for this Transfer/SIP
         try:
@@ -85,7 +93,10 @@ class linkTaskManagerFiles(LinkTaskManager):
         # Escape all values for shell
         for key, value in SIPReplacementDic.items():
             SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        self.tasksLock.acquire()
+        self.taskGroupsLock.acquire()
+
+        currentTaskGroup = None
+
         for file, fileUnit in unit.fileList.items():
             if filterFileEnd:
                 if not file.endswith(filterFileEnd):
@@ -99,7 +110,6 @@ class linkTaskManagerFiles(LinkTaskManager):
 
             standardOutputFile = self.standardOutputFile
             standardErrorFile = self.standardErrorFile
-            execute = self.execute
             arguments = self.arguments
 
             # Apply passvar replacement values
@@ -121,35 +131,44 @@ class linkTaskManagerFiles(LinkTaskManager):
             # Apply unit (SIP/Transfer) replacement values
             arguments, standardOutputFile, standardErrorFile = SIPReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
-            UUID = str(uuid.uuid4())
-            task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
-            self.tasks[UUID] = task
-            databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
-            t = threading.Thread(target=task.performTask)
-            t.daemon = True
-            while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount()):
-                self.tasksLock.release()
-                time.sleep(django_settings.LIMIT_TASK_THREADS_SLEEP)
-                self.tasksLock.acquire()
-            t.start()
+            if currentTaskGroup is None or currentTaskGroup.count() > BATCH_SIZE:
+                currentTaskGroup = TaskGroup(self, self.execute)
+                self.taskGroups[currentTaskGroup.UUID] = currentTaskGroup
+
+            currentTaskGroup.addTask(arguments, standardOutputFile, standardErrorFile,
+                                     outputLock=outputLock,
+                                     commandReplacementDic=commandReplacementDic)
+
+        for taskGroup in self.taskGroups.values():
+            taskGroup.logTaskCreatedSQL()
+            TaskGroupRunner.runTaskGroup(taskGroup, self.taskGroupFinished)
 
         self.clearToNextLink = True
-        self.tasksLock.release()
-        if self.tasks == {}:
-            self.jobChainLink.linkProcessingComplete(self.exitCode)
+        self.taskGroupsLock.release()
 
-    def taskCompletedCallBackFunction(self, task):
-        self.exitCode = max(self.exitCode, abs(task.results["exitCode"]))
-        databaseFunctions.logTaskCompletedSQL(task)
+        # If the batch of files was empty, we can immediately proceed to the
+        # next job in the chain.  Assume a successful status code.
+        if self.taskGroups == {}:
+            self.jobChainLink.linkProcessingComplete(0)
 
-        self.tasksLock.acquire()
-        if task.UUID in self.tasks:
-            del self.tasks[task.UUID]
+    def taskGroupFinished(self, finishedTaskGroup):
+        finishedTaskGroup.write_output()
+
+        # Exit code is the maximum of all task groups (and each task group's
+        # exit code is the maximum of the tasks it contains... turtles all the
+        # way down)
+        self.exitCode = max([finishedTaskGroup.calculateExitCode(), self.exitCode])
+
+        self.taskGroupsLock.acquire()
+        if finishedTaskGroup.UUID in self.taskGroups:
+            del self.taskGroups[finishedTaskGroup.UUID]
         else:
-            LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
-            exit(1)
+            # Shouldn't happen!
+            LOGGER.warning('TaskGroup UUID %s not in task list %s', finishedTaskGroup.UUID, self.taskGroups)
 
-        if self.clearToNextLink is True and self.tasks == {}:
+        if self.clearToNextLink is True and self.taskGroups == {}:
+            # All TaskGroups have been processed.  Proceed to next job in the chain.
             LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
-        self.tasksLock.release()
+
+        self.taskGroupsLock.release()

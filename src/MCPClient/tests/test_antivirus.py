@@ -1,5 +1,4 @@
-# -*- coding: utf8 -*-
-"""Tests for the archivematicaClamscan.py client script."""
+"""Tests for the archivematica_clamscan.py client script."""
 
 import os
 import sys
@@ -13,7 +12,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(
     os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 
-import archivematicaClamscan
+import archivematica_clamscan
 
 
 def test_get_scanner(settings):
@@ -25,36 +24,36 @@ def test_get_scanner(settings):
 
     # Testing to ensure clamscanner is returned when explicitly set.
     settings.CLAMAV_CLIENT_BACKEND = "clamscanner"
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamScanner)
 
     # Testing to ensure that clamdscanner is returned when explicitly set.
     settings.CLAMAV_CLIENT_BACKEND = "clamdscanner"
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamdScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
 
     # Testing to ensure that clamdscanner is the default returned scanner.
     settings.CLAMAV_CLIENT_BACKEND = "fprot"
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamdScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
 
     # Testing to ensure that clamdscanner is the default returned scanner when
     # the user configures an empty string.
     settings.CLAMAV_CLIENT_BACKEND = ""
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamdScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
 
     # Testing to ensure that clamdscanner is returned when the environment
     # hasn't been configured appropriately and None is returned.
     settings.CLAMAV_CLIENT_BACKEND = None
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamdScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
 
     # Testing to ensure that clamdscanner is returned when another variable
     # type is specified, e.g. in this instance, an integer.
     settings.CLAMAV_CLIENT_BACKEND = 10
-    scanner = archivematicaClamscan.get_scanner()
-    assert isinstance(scanner, archivematicaClamscan.ClamdScanner)
+    scanner = archivematica_clamscan.get_scanner()
+    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
 
 
 args = OrderedDict()
@@ -70,7 +69,7 @@ class FileMock():
         self.size = size
 
 
-class ScannerMock(archivematicaClamscan.ScannerBase):
+class ScannerMock(archivematica_clamscan.ScannerBase):
     PROGRAM = "Mock"
 
     def __init__(self, should_except=False, passed=False):
@@ -86,17 +85,6 @@ class ScannerMock(archivematicaClamscan.ScannerBase):
         return ("version", "virus_definitions")
 
 
-def test_main_with_expected_arguments(mocker):
-    mocker.patch('archivematicaClamscan.scan_file')
-    archivematicaClamscan.main(args.values())
-    archivematicaClamscan.scan_file.assert_called_once_with(**dict(args))
-
-
-def test_main_with_missing_arguments():
-    with pytest.raises(SystemExit):
-        archivematicaClamscan.main([])
-
-
 def setup_test_scan_file_mocks(mocker,
                                file_already_scanned=False,
                                file_size=1024,
@@ -105,25 +93,21 @@ def setup_test_scan_file_mocks(mocker,
     deps = namedtuple('deps', [
         'file_already_scanned',
         'file_get',
-        'record_event',
         'scanner',
     ])(
         file_already_scanned=mocker.patch(
-            'archivematicaClamscan.file_already_scanned',
+            'archivematica_clamscan.file_already_scanned',
             return_value=file_already_scanned),
         file_get=mocker.patch(
             'main.models.File.objects.get',
             return_value=FileMock(size=file_size)),
-        record_event=mocker.patch(
-            'archivematicaClamscan.record_event',
-            return_value=None),
         scanner=ScannerMock(
             should_except=scanner_should_except,
             passed=scanner_passed)
     )
 
     mocker.patch(
-        'archivematicaClamscan.get_scanner',
+        'archivematica_clamscan.get_scanner',
         return_value=deps.scanner)
 
     return deps
@@ -132,64 +116,64 @@ def setup_test_scan_file_mocks(mocker,
 def test_scan_file_already_scanned(mocker):
     deps = setup_test_scan_file_mocks(mocker, file_already_scanned=True)
 
-    exit_code = archivematicaClamscan.scan_file(**dict(args))
+    exit_code = archivematica_clamscan.scan_file([], **dict(args))
 
     assert exit_code == 0
     deps.file_already_scanned.assert_called_once_with(args['file_uuid'])
 
 
-RecordEventParams = namedtuple('RecordEventParams', [
+QueueEventParams = namedtuple('QueueEventParams', [
     'scanner_is_None',
     'passed'
 ])
 
 
-@pytest.mark.parametrize("setup_kwargs, exit_code, record_event_params", [
+@pytest.mark.parametrize("setup_kwargs, exit_code, queue_event_params", [
     # File size too big for given file_size param
     (
         {'file_size': 43, 'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # File size too big for given file_scan param
     (
         {'file_size': 85, 'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # File size within given file_size param, and file_scan param
     (
         {'file_size': 42, 'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
     # Scan returns None with no-error, e.g. Broken Pipe
     (
         {'scanner_passed': None},
         0,
-        RecordEventParams(scanner_is_None=None, passed=None),
+        QueueEventParams(scanner_is_None=None, passed=None),
     ),
     # Zero byte file passes
     (
         {'file_size': 0, 'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
     # Virus found
     (
         {'scanner_passed': False},
         1,
-        RecordEventParams(scanner_is_None=False, passed=False),
+        QueueEventParams(scanner_is_None=False, passed=False),
     ),
     # Passed
     (
         {'scanner_passed': True},
         0,
-        RecordEventParams(scanner_is_None=False, passed=True),
+        QueueEventParams(scanner_is_None=False, passed=True),
     ),
 ])
-def test_scan_file(mocker, setup_kwargs, exit_code, record_event_params, settings):
-    deps = setup_test_scan_file_mocks(mocker, **setup_kwargs)
+def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings):
+    setup_test_scan_file_mocks(mocker, **setup_kwargs)
 
     # Here the user configurable thresholds for maimum file size, and maximum
     # scan size are being tested. The scan size is offset so as to enable the
@@ -198,18 +182,23 @@ def test_scan_file(mocker, setup_kwargs, exit_code, record_event_params, setting
     settings.CLAMAV_CLIENT_MAX_FILE_SIZE = "42"
     settings.CLAMAV_CLIENT_MAX_SCAN_SIZE = "84"
 
-    ret = archivematicaClamscan.scan_file(**dict(args))
+    event_queue = []
+
+    ret = archivematica_clamscan.scan_file(event_queue, **dict(args))
 
     # The integer returned by scan_file() is going to be used as the exit code
-    # of the archivematicaClamscan.py script which is important for the AM
+    # of the archivematica_clamscan.py script which is important for the AM
     # workflow in order to control what to do next.
     assert exit_code == ret
 
-    # A side effect of scan_file() is to record the corresponding event in the
-    # database. Here we are making sure that record_event() is called with the
-    # expected parameters.
-    deps.record_event.assert_called_once_with(
-        args['file_uuid'],
-        args['date'],
-        None if record_event_params.scanner_is_None is True else deps.scanner,
-        record_event_params.passed)
+    # A side effect of scan_file() is to queue an event to be created in the
+    # database.
+    if queue_event_params.passed is None:
+        assert len(event_queue) == 0
+    else:
+        assert len(event_queue) == 1
+
+        event = event_queue[0]
+        assert event['eventType'] == 'virus check'
+        assert event['fileUUID'] == args['file_uuid']
+        assert event['eventOutcome'] == 'Pass' if setup_kwargs['scanner_passed'] else 'Fail'

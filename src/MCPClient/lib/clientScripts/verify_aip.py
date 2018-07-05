@@ -1,13 +1,16 @@
 #!/usr/bin/env python2
-from __future__ import print_function
 import os
 from pprint import pformat
 import shutil
 import sys
 
+import django
+django.setup()
+from django.conf import settings as mcpclient_settings
+from django.db import transaction
+
 # archivematicaCommon
 from archivematicaFunctions import get_setting
-from custom_handlers import get_script_logger
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
@@ -18,11 +21,13 @@ class VerifyChecksumsError(Exception):
     """Checksum verification has failed."""
 
 
-def extract_aip(aip_path, extract_path):
+def extract_aip(job, aip_path, extract_path):
     os.makedirs(extract_path)
     command = "atool --extract-to={} -V0 {}".format(extract_path, aip_path)
-    print('Running extraction command:', command)
-    exit_code, _, _ = executeOrRun("command", command, printing=True)
+    job.pyprint('Running extraction command:', command)
+    exit_code, stdout, stderr = executeOrRun("command", command, printing=True, capture_output=True)
+    job.write_output(stdout)
+    job.write_error(stderr)
     if exit_code != 0:
         raise Exception("Error extracting AIP")
 
@@ -32,7 +37,7 @@ def extract_aip(aip_path, extract_path):
     return os.path.join(extract_path, aip_identifier)
 
 
-def write_premis_event(sip_uuid, checksum_type, event_outcome,
+def write_premis_event(job, sip_uuid, checksum_type, event_outcome,
                        event_outcome_detail_note):
     """Write the AIP-level "fixity check" PREMIS event."""
     try:
@@ -45,13 +50,13 @@ def write_premis_event(sip_uuid, checksum_type, event_outcome,
             eventOutcomeDetailNote=event_outcome_detail_note
         )
     except Exception as err:
-        print('Failed to write PREMIS event to database. Error: {error}'.format(
+        job.pyprint('Failed to write PREMIS event to database. Error: {error}'.format(
             error=err))
     else:
         return event_outcome_detail_note
 
 
-def get_manifest_path(bag, sip_uuid, checksum_type):
+def get_manifest_path(job, bag, sip_uuid, checksum_type):
     """Raise exception if if the Bag manifest file is not a file."""
     manifest_path = os.path.join(
         bag, 'manifest-{algo}.txt'.format(algo=checksum_type))
@@ -62,12 +67,12 @@ def get_manifest_path(bag, sip_uuid, checksum_type):
             ' {manifest_path}.'.format(aip_uuid=sip_uuid,
                                        manifest_path=manifest_path))
         raise VerifyChecksumsError(
-            write_premis_event(sip_uuid, checksum_type, 'Fail',
+            write_premis_event(job, sip_uuid, checksum_type, 'Fail',
                                event_outcome_detail_note))
     return manifest_path
 
 
-def parse_manifest(manifest_path, sip_uuid, checksum_type):
+def parse_manifest(job, manifest_path, sip_uuid, checksum_type):
     """Raise exception if the Bag manifest file cannot be parsed."""
     with open(manifest_path) as filei:
         try:
@@ -83,11 +88,11 @@ def parse_manifest(manifest_path, sip_uuid, checksum_type):
                     manifest_path=manifest_path,
                     error=err))
             raise VerifyChecksumsError(
-                write_premis_event(sip_uuid, checksum_type, 'Fail',
+                write_premis_event(job, sip_uuid, checksum_type, 'Fail',
                                    event_outcome_detail_note))
 
 
-def assert_checksum_types_match(file_, sip_uuid, settings_checksum_type):
+def assert_checksum_types_match(job, file_, sip_uuid, settings_checksum_type):
     """Raise exception if checksum types (i.e., algorithms, e.g., 'sha256') of
     the file and the settings do not match.
     """
@@ -100,11 +105,11 @@ def assert_checksum_types_match(file_, sip_uuid, settings_checksum_type):
                 file_checksum_type=file_.checksumtype,
                 settings_checksum_type=settings_checksum_type))
         raise VerifyChecksumsError(
-            write_premis_event(sip_uuid, settings_checksum_type, 'Fail',
+            write_premis_event(job, sip_uuid, settings_checksum_type, 'Fail',
                                event_outcome_detail_note))
 
 
-def get_expected_checksum(file_, sip_uuid, checksum_type, path2checksum,
+def get_expected_checksum(job, file_, sip_uuid, checksum_type, path2checksum,
                           file_path, manifest_path, is_reingest):
     """Raise an exception if an expected checksum cannot be found in the
     Bag manifest.
@@ -124,11 +129,11 @@ def get_expected_checksum(file_, sip_uuid, checksum_type, path2checksum,
                 manifest_file=manifest_path,
                 mapping=pformat(path2checksum)))
         raise VerifyChecksumsError(
-            write_premis_event(sip_uuid, checksum_type, 'Fail',
+            write_premis_event(job, sip_uuid, checksum_type, 'Fail',
                                event_outcome_detail_note))
 
 
-def assert_checksums_match(file_, sip_uuid, checksum_type, expected_checksum):
+def assert_checksums_match(job, file_, sip_uuid, checksum_type, expected_checksum):
     """Raise an exception if checksums do not match."""
     if file_.checksum != expected_checksum:
         event_outcome_detail_note = (
@@ -139,11 +144,11 @@ def assert_checksums_match(file_, sip_uuid, checksum_type, expected_checksum):
                 db_checksum=file_.checksum,
                 manifest_checksum=expected_checksum))
         raise VerifyChecksumsError(
-            write_premis_event(sip_uuid, checksum_type, 'Fail',
+            write_premis_event(job, sip_uuid, checksum_type, 'Fail',
                                event_outcome_detail_note))
 
 
-def verify_checksums(bag, sip_uuid):
+def verify_checksums(job, bag, sip_uuid):
     """Verify that the checksums generated at the beginning of transfer match
     those generated near the end of ingest by bag, i.e., "Prepare AIP"
     (bagit_v0.0).
@@ -152,26 +157,26 @@ def verify_checksums(bag, sip_uuid):
     checksum_type = get_setting(
         'checksum_type', mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM)
     try:
-        manifest_path = get_manifest_path(bag, sip_uuid, checksum_type)
-        path2checksum = parse_manifest(manifest_path, sip_uuid, checksum_type)
+        manifest_path = get_manifest_path(job, bag, sip_uuid, checksum_type)
+        path2checksum = parse_manifest(job, manifest_path, sip_uuid, checksum_type)
         verification_count = 0
         verification_skipped_because_reingest = 0
         for file_ in File.objects.filter(sip_id=sip_uuid):
             if not file_.currentlocation.startswith('%SIPDirectory%objects/'):
                 continue
             file_path = file_.currentlocation.replace('%SIPDirectory%', '', 1)
-            assert_checksum_types_match(file_, sip_uuid, checksum_type)
+            assert_checksum_types_match(job, file_, sip_uuid, checksum_type)
             expected_checksum = get_expected_checksum(
-                file_, sip_uuid, checksum_type, path2checksum, file_path,
-                manifest_path, is_reingest)
+                job, file_, sip_uuid, checksum_type, path2checksum,
+                file_path, manifest_path, is_reingest)
             if expected_checksum is None:
                 verification_skipped_because_reingest += 1
                 continue
-            assert_checksums_match(file_, sip_uuid, checksum_type,
+            assert_checksums_match(job, file_, sip_uuid, checksum_type,
                                    expected_checksum)
             verification_count += 1
     except VerifyChecksumsError as err:
-        print(err)
+        job.print_error(repr(err))
         raise
     event_outcome_detail_note = (
         'All checksums (count={verification_count}) generated at start of'
@@ -183,12 +188,12 @@ def verify_checksums(bag, sip_uuid):
             ' file(s) because this AIP is being re-ingested and the re-ingest'
             ' payload did not include said file(s).'.format(
                 skipped_count=verification_skipped_because_reingest))
-    write_premis_event(sip_uuid, checksum_type, 'Pass',
+    write_premis_event(job, sip_uuid, checksum_type, 'Pass',
                        event_outcome_detail_note)
-    print(event_outcome_detail_note)
+    job.pyprint(event_outcome_detail_note)
 
 
-def verify_aip():
+def verify_aip(job):
     """Verify the AIP was bagged correctly by extracting it and running
     verification on its contents. This is also where we verify the checksums
     now that the verifyPREMISChecksums_v0.0 ("Verify checksums generated on
@@ -196,14 +201,14 @@ def verify_aip():
     checksums by calculating them in that MS and then having bagit calculate
     them here was redundant.
 
-    sys.argv[1] = UUID
+    job.args[1] = UUID
       UUID of the SIP, which will become the UUID of the AIP
-    sys.argv[2] = current location
+    job.args[2] = current location
       Full absolute path to the AIP's current location on the local filesystem
     """
 
-    sip_uuid = sys.argv[1]  # %sip_uuid%
-    aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
+    sip_uuid = job.args[1]  # %sip_uuid%
+    aip_path = job.args[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
 
     temp_dir = mcpclient_settings.TEMP_DIRECTORY
 
@@ -214,9 +219,10 @@ def verify_aip():
     else:
         try:
             extract_dir = os.path.join(temp_dir, sip_uuid)
-            bag = extract_aip(aip_path, extract_dir)
-        except Exception:
-            print('Error extracting AIP at "{}"'.format(aip_path), file=sys.stderr)
+            bag = extract_aip(job, aip_path, extract_dir)
+        except Exception as err:
+            job.print_error(repr(err))
+            job.pyprint('Error extracting AIP at "{}"'.format(aip_path), file=sys.stderr)
             return 1
 
     verification_commands = [
@@ -228,37 +234,38 @@ def verify_aip():
     ]
     return_code = 0
     for command in verification_commands:
-        print("Running test: ", command)
-        exit_code, _, _ = executeOrRun("command", command, printing=True)
+        job.pyprint("Running test: ", command)
+        exit_code, stdout, stderr = executeOrRun("command", command, printing=True, capture_output=True)
+        job.write_output(stdout)
+        job.write_error(stderr)
         if exit_code != 0:
-            print("Failed test: ", command, file=sys.stderr)
+            job.pyprint("Failed test: ", command, file=sys.stderr)
             return_code = 1
 
     if return_code == 0:
         try:
-            verify_checksums(bag, sip_uuid)
+            verify_checksums(job, bag, sip_uuid)
         except VerifyChecksumsError:
             return_code = 1
     else:
-        print('Not verifying checksums because other tests have already'
-              ' failed.')
+        job.pyprint('Not verifying checksums because other tests have already'
+                    ' failed.')
 
     # cleanup
     if not is_uncompressed_aip:
         try:
             shutil.rmtree(extract_dir)
         except OSError as err:
-            print('Failed to remove temporary directory at {extract_dir} which'
-                  ' contains the AIP extracted for verification.'
-                  ' Error:\n{err}'.format(extract_dir=extract_dir, err=err),
-                  file=sys.stderr)
+            job.pyprint('Failed to remove temporary directory at {extract_dir} which'
+                        ' contains the AIP extracted for verification.'
+                        ' Error:\n{err}'.format(extract_dir=extract_dir, err=err),
+                        file=sys.stderr)
 
     return return_code
 
 
-if __name__ == '__main__':
-    import django
-    django.setup()
-    from django.conf import settings as mcpclient_settings
-    logger = get_script_logger("archivematica.mcp.client.verifyAIP")
-    sys.exit(verify_aip())
+def call(jobs):
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext():
+                job.set_status(verify_aip(job))

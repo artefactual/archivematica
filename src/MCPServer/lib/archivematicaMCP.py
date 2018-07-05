@@ -67,9 +67,9 @@ from databaseFunctions import auto_close_db, createSIP, getUTCDate
 import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
+from multiprocessing.pool import ThreadPool
 
-
-countOfCreateUnitAndJobChainThreaded = 0
+taskThreadPool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
 
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
@@ -167,20 +167,9 @@ def createUnitAndJobChain(path, config, terminate=False):
 
 
 def createUnitAndJobChainThreaded(path, config, terminate=True):
-    global countOfCreateUnitAndJobChainThreaded
     try:
         logger.debug('Watching path %s', path)
-        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate": terminate})
-        t.daemon = True
-        countOfCreateUnitAndJobChainThreaded += 1
-        while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
-            if stopSignalReceived:
-                logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
-                exit(0)
-            logger.debug('Active thread count: %s', threading.activeCount())
-            time.sleep(.5)
-        countOfCreateUnitAndJobChainThreaded -= 1
-        t.start()
+        taskThreadPool.apply_async(createUnitAndJobChain, [path, config], {"terminate": terminate})
     except Exception:
         logger.exception('Error creating threads to watch directories')
 
@@ -207,8 +196,6 @@ def watchDirectories():
             if isinstance(item, six.binary_type):
                 item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
-            while(django_settings.LIMIT_TASK_THREADS <= threading.activeCount() + django_settings.RESERVED_AS_TASK_PROCESSING_THREADS):
-                time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
         actOnFiles = True
         if watched_directory.only_act_on_directories:
@@ -240,11 +227,9 @@ def signal_handler(signalReceived, frame):
 @auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
-    global countOfCreateUnitAndJobChainThreaded
     while True:
         logger.debug('Debug monitor: datetime: %s', getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
-        logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         time.sleep(3600)
 
 

@@ -36,12 +36,10 @@ The idea is to allow for PURL resolution like:
     http://<PID-RESOLVER>/<NAME_AUTH>/<PID>?locatt=view:mets
         => http://my-org-domain.org/mets/<PID>
 
-The required command-line arguments are the SIP's UUID and the path to the
+The required arguments are the SIP's UUID and the path to the
 shared directory where SIPs are stored. If the --bind-pids option is something
-other than 'Yes', the script will exit without doing anything.
+other than 'Yes', the script will continue to the next job without doing anything.
 """
-
-from __future__ import print_function
 
 import argparse
 from functools import wraps
@@ -51,6 +49,7 @@ import sys
 
 import django
 django.setup()
+from django.db import transaction
 from lxml import etree
 # dashboard
 from main.models import DashboardSetting, Directory, Identifier, SIP
@@ -158,7 +157,7 @@ def _get_unique_acc_no(sip_mdl, shared_path):
     return None
 
 
-def _get_desired_pid(mdl, is_sip, shared_path, pid_source):
+def _get_desired_pid(job, mdl, is_sip, shared_path, pid_source):
     """The desired PID is always the UUID for a directory. If the user has
     configured the accession number to be used for an AIP's PID, then we will
     try to use that here, if there is a unique one.
@@ -170,11 +169,11 @@ def _get_desired_pid(mdl, is_sip, shared_path, pid_source):
         msg = ('Unable to find a unique accession number for SIP %s. Using its'
                ' UUID as the PID instead', mdl.uuid)
         logger.warning(msg)
-        print(msg)
+        job.pyprint(msg)
     return mdl.uuid
 
 
-def _bind_pid_to_model(mdl, shared_path, config):
+def _bind_pid_to_model(job, mdl, shared_path, config):
     """Binds a PID (Handle persistent identifier) to the (SIP or Directory)
     model ``mdl`` by making a request to a Handle web service endpoint, given
     the configuration in ``config`` (which is configured in a dashboard form).
@@ -185,23 +184,24 @@ def _bind_pid_to_model(mdl, shared_path, config):
     entity_type = 'unit' if is_sip else 'file'  # bindpid treats directories and files equivalently
     # Desired PID is usually model's UUID, but can be accession number
     desired_pid = _get_desired_pid(
+        job,
         mdl, is_sip, shared_path, config['handle_archive_pid_source'])
     config.update({'entity_type': entity_type,
                    'desired_pid': desired_pid})
     try:
         msg = bind_pid(**config)
         _add_pid_to_mdl_identifiers(mdl, config)
-        print(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
+        job.pyprint(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
         logger.info(msg)
         return 0
     except BindPIDException as exc:
-        print(exc, file=sys.stderr)
+        job.pyprint(exc, file=sys.stderr)
         logger.info(exc)
         raise BindPIDsException
 
 
 @exit_on_known_exception
-def main(sip_uuid, shared_path, bind_pids_switch):
+def main(job, sip_uuid, shared_path, bind_pids_switch):
     """Bind the UUID ``sip_uuid`` to the appropriate URL(s), given the
     configuration in the dashboard, Do this only if ``bind_pids_switch`` is
     ``True``.
@@ -212,10 +212,10 @@ def main(sip_uuid, shared_path, bind_pids_switch):
         handle_config.get('pid_request_verify_certs', 'True'))
     for mdl in chain([_get_sip(sip_uuid)],
                      Directory.objects.filter(sip_id=sip_uuid).all()):
-        _bind_pid_to_model(mdl, shared_path, handle_config)
+        _bind_pid_to_model(job, mdl, shared_path, handle_config)
 
 
-if __name__ == '__main__':
+def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument('sip_uuid', type=str,
                         help='The UUID of the SIP to bind a PID for; any'
@@ -225,8 +225,14 @@ if __name__ == '__main__':
                         help='The shared directory where SIPs are stored.')
     parser.add_argument('--bind-pids', action='store', type=str2bool,
                         dest="bind_pids_switch", default='No')
-    args = parser.parse_args()
-    if args.sip_uuid == 'None':
-        sys.exit(0)
-    logger.info('bind_pids called with args: %s', vars(args))
-    sys.exit(main(**vars(args)))
+
+    with transaction.atomic():
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                args = parser.parse_args(job.args[1:])
+                if args.sip_uuid == 'None':
+                    job.set_status(0)
+                    continue
+
+                logger.info('bind_pids called with args: %s', vars(args))
+                job.set_status(main(job, **vars(args)))
