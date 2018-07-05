@@ -25,6 +25,8 @@ import logging
 import os
 import string
 import sys
+import random
+import time
 import uuid
 
 from django.db import close_old_connections
@@ -353,3 +355,19 @@ def deUnicode(str):
     if str is None:
         return None
     return unicode(str).encode('utf-8')
+
+
+def retryOnFailure(description, callback, retries=10):
+    for retry in range(0, retries + 1):
+        try:
+            callback()
+            break
+        except Exception as e:
+            if retry == retries:
+                LOGGER.error('Failed to complete transaction "%s" after %s retries',
+                             description, retries)
+                raise e
+            else:
+                LOGGER.debug('Retrying "%s" transaction after caught exception (retry %d): %s',
+                             description, retry + 1, e)
+                time.sleep(random.uniform(0, 2))
