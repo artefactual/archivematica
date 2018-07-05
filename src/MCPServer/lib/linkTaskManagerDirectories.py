@@ -63,7 +63,8 @@ class linkTaskManagerDirectories(LinkTaskManager):
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         group = TaskGroup(self, execute)
-        group.addTask(arguments, standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
+        group.addTask(arguments, standardOutputFile, standardErrorFile,
+                      commandReplacementDic=commandReplacementDic)
         group.logTaskCreatedSQL()
         TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 

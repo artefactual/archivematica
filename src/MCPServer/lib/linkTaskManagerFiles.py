@@ -135,9 +135,9 @@ class linkTaskManagerFiles(LinkTaskManager):
                 currentTaskGroup = TaskGroup(self, self.execute)
                 self.taskGroups[currentTaskGroup.UUID] = currentTaskGroup
 
-            currentTaskGroup.addTask(arguments, standardOutputFile, standardErrorFile,
-                                     outputLock=outputLock,
-                                     commandReplacementDic=commandReplacementDic)
+            currentTaskGroup.addTask(
+                arguments, standardOutputFile, standardErrorFile,
+                outputLock, commandReplacementDic)
 
         for taskGroup in self.taskGroups.values():
             taskGroup.logTaskCreatedSQL()

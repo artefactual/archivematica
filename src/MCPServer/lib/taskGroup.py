@@ -52,7 +52,7 @@ class TaskGroup():
     def addTask(self,
                 arguments, standardOutputFile, standardErrorFile,
                 outputLock=threading.Lock(),
-                commandReplacementDic={}):
+                commandReplacementDic={}, wants_output=False):
         """Add a task to this group"""
         with self.groupTasksLock:
             if self.finalised:
@@ -61,7 +61,8 @@ class TaskGroup():
             self.groupTasks.append(self.Task(arguments,
                                              standardOutputFile, standardErrorFile,
                                              outputLock,
-                                             commandReplacementDic))
+                                             commandReplacementDic,
+                                             wants_output))
 
     def count(self):
         """The number of tasks in this group"""
@@ -108,7 +109,7 @@ class TaskGroup():
             task_data["uuid"] = task.UUID
             task_data["createdDate"] = timezone.now().isoformat(' ')
             task_data["arguments"] = task.arguments
-            task_data["wants_output"] = bool(task.standardOutputFile or task.standardErrorFile)
+            task_data["wants_output"] = task.wants_output
 
             result['tasks'][task.UUID] = task_data
 
@@ -144,13 +145,20 @@ class TaskGroup():
                      arguments,
                      standardOutputFile, standardErrorFile,
                      outputLock,
-                     commandReplacementDic):
+                     commandReplacementDic,
+                     wants_output):
             self.arguments = arguments
             self.standardOutputFile = standardOutputFile
             self.standardErrorFile = standardErrorFile
             self.outputLock = outputLock
             self.UUID = str(uuid.uuid4())
             self.commandReplacementDic = commandReplacementDic
+
+            self.wants_output = any((
+                wants_output,
+                standardOutputFile,
+                standardErrorFile,
+            ))
 
             self.results = {
                 'exitCode': 0,

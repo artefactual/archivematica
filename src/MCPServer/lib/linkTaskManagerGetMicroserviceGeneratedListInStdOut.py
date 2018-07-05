@@ -27,7 +27,7 @@ import os
 from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
 from dicts import ChoicesDict, ReplacementDict
-from main.models import StandardTaskConfig, Task
+from main.models import StandardTaskConfig
 
 from taskGroup import TaskGroup
 from taskGroupRunner import TaskGroupRunner
@@ -68,19 +68,27 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         group = TaskGroup(self, execute)
-        group.addTask(arguments, standardOutputFile, standardErrorFile, commandReplacementDic=commandReplacementDic)
+        group.addTask(
+            arguments, standardOutputFile, standardErrorFile,
+            commandReplacementDic=commandReplacementDic, wants_output=True)
         group.logTaskCreatedSQL()
         TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
     def taskGroupFinished(self, finishedTaskGroup):
         finishedTaskGroup.write_output()
 
-        task = Task.objects.get(taskuuid=finishedTaskGroup.tasks()[0].UUID)
+        stdout = None
+        tasks = finishedTaskGroup.tasks()
+        try:
+            stdout = tasks[0].results['stdout']
+        except KeyError:
+            pass
+        LOGGER.debug('stdout emitted by client: %s', stdout)
 
         try:
-            choices = ChoicesDict.fromstring(task.stdout)
+            choices = ChoicesDict.fromstring(stdout)
         except Exception:
-            LOGGER.exception('Unable to create dic from output %s', task.stdout)
+            LOGGER.exception('Unable to create dic from output %s', stdout)
             choices = ChoicesDict({})
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
