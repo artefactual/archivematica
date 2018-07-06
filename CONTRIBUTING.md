@@ -11,6 +11,7 @@ There are many ways to contribute: writing tutorials or blog posts about your ex
 **Table of Contents**
 
 - [Submitting bugs](#submitting-bugs)
+- [Submitting enhancement ideas](#submitting-enhancements)
 - [Submitting code changes](#submitting-code-changes)
   - [Getting started](#getting-started)
   - [When to submit code for review?](#when-to-submit-code-for-review)
@@ -40,14 +41,16 @@ There are many ways to contribute: writing tutorials or blog posts about your ex
 If you find a security vulnerability, do NOT open an issue.
 Email info@artefactual.com instead.
 
-Artefactual staff use the [issue tracker](https://projects.artefactual.com/projects/archivematica) for any work they do on the Archivematica project.
-Anyone is welcome to request an account on that system to file issues there.
-To register for an account, please email info@artefactual.com.
-Please note that it may take up to two business days for your new account request to be approved.
+Issues can be filed using GitHub Issues in the
+[Archivematica Issues repo](https://github.com/archivematica/Issues). It is
+recommended to file issues there rather than in any of the Archivematica-related
+code repositories. Artefactual staff also use GitHub issues for any work they do
+on the Archivematica project.
 
-Issues can also be filed using GitHub Issues in the Archivematica project or any of the supporting GitHub repositories in the Artefactual organization.
-You can also post in our [technical](https://groups.google.com/forum/#!forum/archivematica-tech) or [user](https://groups.google.com/forum/#!forum/archivematica) mailing lists.
-A post to the mailing list is always welcome, especially if you're unsure if it's a bug or a local problem!
+You can also post in our
+[user](https://groups.google.com/forum/#!forum/archivematica) mailing list.
+A post to the mailing list is always welcome, especially if you're unsure if
+it's a bug or a local problem!
 
 Useful questions to answer if you're having problems include:
 
@@ -60,6 +63,20 @@ Useful questions to answer if you're having problems include:
 * Can you reproduce this reliably?
 * If a specific Job is failing, what output did it produce? This is available by clicking on the gear icon.
 
+## Submitting enhancement ideas
+
+Similar to submitting bugs, you are welcome to submit ideas for enhancements or
+new features in the
+[Archivematica Issues repo](https://github.com/archivematica/Issues). This is
+also where Artefactual staff record upcoming enhancements when they have been
+sponsored for inclusion either by Artefactual Systems or by a client.
+
+Please feel free also to use the
+[Issues repo wiki](https://github.com/archivematica/Issues/wiki) as a space for
+gathering and collaborating on ideas. If you are not already a member of the
+Archivematica repo (required for editing the wiki), file an issue there with
+the title "Request membership."
+
 ## Submitting code changes
 
 Every new feature and bugfix to a project is expected to go through code review before inclusion.
@@ -67,14 +84,17 @@ This applies both to developers at Artefactual and to outside contributors.
 
 Here's an outline of the contribution process:
 
-1. Fork the Artefactual project on GitHub, and commit your changes to a branch in your fork.
-2. Open a pull request.
-3. Back and forth discussion with developers on the branch.
-4. Make any changes suggested by reviewers.
-5. Repeat 3 and 4 as necessary.
-6. Clean up commit history, if necessary.
-7. Sign a Contributor's Agreement, if you haven't already.
-8. Your branch will be merged!
+1. File an issue in the
+   [Archivematica Issues repo](https://github.com/archivematica/Issues).
+2. Fork the Artefactual project on GitHub, and commit your changes to a branch
+   in your fork.
+3. Open a pull request.
+4. Back and forth discussion with developers on the branch.
+5. Make any changes suggested by reviewers.
+6. Repeat 3 and 4 as necessary.
+7. Clean up commit history, if necessary.
+8. Sign a Contributor's Agreement, if you haven't already.
+9. Your branch will be merged!
 
 ### Getting started
 
@@ -261,6 +281,29 @@ The commit message is the rest of the commit past the first line.
 If a commit makes a small and obvious change, it's fine to not even have a commit message past the summary.
 
 The commit message is your place to clarify the justification for a change.
-While there's no need to rehash anything that code comments already say, if there's more detail that helps a reader understand *why* a change was made, be as verbose as you need to!
-Remember: future-you (or another developer) will read this when going through the commit history to understand why a change was made.
-Make their life easier.
+While there's no need to rehash anything that code comments already say, if
+there's more detail that helps a reader understand *why* a change was made, be
+as verbose as you need to! Remember: future-you (or another developer) will
+read this when going through the commit history to understand why a change was
+made. Make their life easier.
+
+Each line of a commit message should be no more than 72 characters in width.
+The following is an outline of a commit message combined with an ideal commit
+summary:
+```
+Capitalized, short (50 chars or less) summary
+
+More detailed explanatory text, if necessary.  Wrap it to about 80
+characters or so.  In some contexts, the first line is treated as the
+subject of an email and the rest of the text as the body.  The blank
+line separating the summary from the body is critical (unless you omit
+the body entirely); tools like rebase can get confused if you run the
+two together.
+
+Further content comes after a blank line.
+```
+##### More information on commit messages
+For more information about how to write a good commit message and to
+understand some of the rationale behind our approach, please see this
+article from Chris Beams on
+[How to write a Git commit message](https://chris.beams.io/posts/git-commit/).
