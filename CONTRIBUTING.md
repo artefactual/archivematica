@@ -18,6 +18,7 @@ writing code which can be incorporated into Archivematica itself.
 **Table of Contents**
 
 - [Submitting bugs](#submitting-bugs)
+- [Submitting enhancement ideas](#submitting-enhancements)
 - [Submitting code changes](#submitting-code-changes)
   - [Getting started](#getting-started)
   - [When to submit code for review?](#when-to-submit-code-for-review)
@@ -48,14 +49,13 @@ If you find a security vulnerability, do NOT open an issue. Email
 info@artefactual.com instead.
 
 Issues can be filed using GitHub Issues in the
-[Archivematica project](https://github.com/artefactual/archivematica/issues) or
-any of the supporting GitHub repositories in the Artefactual organization.
-Artefactual staff also use GitHub issues for any work they do on the
-Archivematica project.
+[Archivematica Issues repo](https://github.com/archivematica/Issues). It is
+recommended to file issues there rather than in any of the Archivematica-related
+code repositories. Artefactual staff also use GitHub issues for any work they do
+on the Archivematica project.
 
 You can also post in our
-[technical](https://groups.google.com/forum/#!forum/archivematica-tech) or
-[user](https://groups.google.com/forum/#!forum/archivematica) mailing lists.
+[user](https://groups.google.com/forum/#!forum/archivematica) mailing list.
 A post to the mailing list is always welcome, especially if you're unsure if
 it's a bug or a local problem!
 
@@ -71,6 +71,20 @@ Useful questions to answer if you're having problems include:
 * If a specific Job is failing, what output did it produce? This is available
   by clicking on the gear icon.
 
+## Submitting enhancement ideas
+
+Similar to submitting bugs, you are welcome to submit ideas for enhancements or
+new features in the
+[Archivematica Issues repo](https://github.com/archivematica/Issues). This is
+also where Artefactual staff record upcoming enhancements when they have been
+sponsored for inclusion either by Artefactual Systems or by a client.
+
+Please feel free also to use the
+[Issues repo wiki](https://github.com/archivematica/Issues/wiki) as a space for
+gathering and collaborating on ideas. If you are not already a member of the
+Archivematica repo (required for editing the wiki), file an issue there with
+the title "Request membership."
+
 ## Submitting code changes
 
 Every new feature and bugfix to a project is expected to go through code
@@ -79,15 +93,17 @@ outside contributors.
 
 Here's an outline of the contribution process:
 
-1. Fork the Artefactual project on GitHub, and commit your changes to a branch
+1. File an issue in the
+   [Archivematica Issues repo](https://github.com/archivematica/Issues).
+2. Fork the Artefactual project on GitHub, and commit your changes to a branch
    in your fork.
-2. Open a pull request.
-3. Back and forth discussion with developers on the branch.
-4. Make any changes suggested by reviewers.
-5. Repeat 3 and 4 as necessary.
-6. Clean up commit history, if necessary.
-7. Sign a Contributor's Agreement, if you haven't already.
-8. Your branch will be merged!
+3. Open a pull request.
+4. Back and forth discussion with developers on the branch.
+5. Make any changes suggested by reviewers.
+6. Repeat 3 and 4 as necessary.
+7. Clean up commit history, if necessary.
+8. Sign a Contributor's Agreement, if you haven't already.
+9. Your branch will be merged!
 
 ### Permalinks
 

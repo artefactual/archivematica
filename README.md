@@ -21,8 +21,8 @@ See the [LICENSE](LICENSE) file for details.
 
 * [Website](https://www.archivematica.org/): User and administrator documentation
 * [Wiki](https://www.archivematica.org/wiki/Development): Developer facing documentation, requirements analysis and community resources
-* [User Google Group](https://groups.google.com/forum/#!forum/archivematica): Forum/mailing list for user questions
-* [Technical Google Group](https://groups.google.com/forum/#!forum/archivematica-tech): Forum/mailing list for technical questions about development, setup, administration, etc.
+* [Issues](https://github.com/archivematica/Issues): Git repository used for tracking Archivematica issues and feature/enhancement ideas
+* [User Google Group](https://groups.google.com/forum/#!forum/archivematica): Forum/mailing list for user questions (both technical and end-user)
 * [Paid support](https://www.artefactual.com/services/): Paid support, hosting, training, consulting and software development contracts from Artefactual
 
 
