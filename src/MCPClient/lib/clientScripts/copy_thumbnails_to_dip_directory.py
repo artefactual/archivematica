@@ -22,20 +22,17 @@
 
 import os
 import shutil
-import sys
-
-from custom_handlers import get_script_logger
 
 
-if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.copyThumbnailsToDIPDirectory")
+def call(jobs):
+    for job in jobs:
+        with job.JobContext():
+            thumbnailDirectory = job.args[1]
+            dipDirectory = job.args[2]
 
-    thumbnailDirectory = sys.argv[1]
-    dipDirectory = sys.argv[2]
+            destinationDirectory = os.path.join(dipDirectory, 'thumbnails')
 
-    destinationDirectory = os.path.join(dipDirectory, 'thumbnails')
-
-    if os.path.isdir(thumbnailDirectory):
-        shutil.copytree(thumbnailDirectory, destinationDirectory)
-    else:
-        logger.info('Nothing to copy as thumbnail directory does not exist: %s', thumbnailDirectory)
+            if os.path.isdir(thumbnailDirectory):
+                shutil.copytree(thumbnailDirectory, destinationDirectory)
+            else:
+                job.pyprint('Nothing to copy as thumbnail directory does not exist: %s', thumbnailDirectory)

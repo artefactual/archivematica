@@ -22,19 +22,14 @@
 
 import os
 import shutil
-import sys
 
-from custom_handlers import get_script_logger
 
-if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.removeDirectories")
-
-    thumbnailDirectory = sys.argv[1:]
-    dipDirectory = sys.argv[2]
-
-    for directory in sys.argv[1:]:
-        if os.path.isdir(directory):
-            logger.info('Removing directory: %s', directory)
-            shutil.rmtree(directory)
-        else:
-            logger.info('Directory does not exist: %s', directory)
+def call(jobs):
+    for job in jobs:
+        with job.JobContext():
+            for directory in job.args[1:]:
+                if os.path.isdir(directory):
+                    job.pyprint('Removing directory: %s', directory)
+                    shutil.rmtree(directory)
+                else:
+                    job.pyprint('Directory does not exist: %s', directory)

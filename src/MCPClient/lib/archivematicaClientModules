@@ -133,5 +133,5 @@ elasticsearchindex_v0.0 = elastic_search_index_process_transfer
 restructuredipforcontentdmupload_v0.0 = restructure_dip_for_content_dm_upload
 upload-qubit_v0.0 = upload_qubit
 upload-archivesspace_v0.0 = upload_archivesspace
-copyThumbnailsToDIPDirectory_v0.0 = copyThumbnailsToDIPDirectory
-removeDirectories_v0.0 = removeDirectories
+copyThumbnailsToDIPDirectory_v0.0 = copy_thumbnails_to_dip_directory
+removeDirectories_v0.0 = remove_directories
