@@ -115,7 +115,26 @@ def index_aip(job):
     return 0
 
 
+def filter_status_code(status_code):
+    """Force successful status code.
+
+    When ``INDEX_AIP_CONTINUE_ON_ERROR`` is enabled the desire of the user is
+    to continue processing the package at all costs. To achieve it, we return
+    the exit code 179 - this ensure that the job is marked as failing while the
+    processing is not interrupted.
+    """
+    if mcpclient_settings.INDEX_AIP_CONTINUE_ON_ERROR and status_code > 0:
+        status_code = 179
+    return status_code
+
+
 def call(jobs):
     for job in jobs:
         with job.JobContext(logger=logger):
-            job.set_status(index_aip(job))
+            try:
+                status_code = index_aip(job)
+            except Exception:
+                # We want to capture any exception so ``filter_status_code``
+                # makes the last call on what is the status returned.
+                status_code = 1
+            job.set_status(filter_status_code(status_code))

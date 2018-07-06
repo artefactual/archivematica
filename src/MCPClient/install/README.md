@@ -146,6 +146,12 @@ This is the full list of variables supported by MCPClient:
     - **Type:** `boolean`
     - **Default:** `true`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_INDEX_AIP_CONTINUE_ON_ERROR`**:
+    - **Description:** controls whether Archivematica continues processing the package when an error occurs in `indexAIP_v0.0`.
+    - **Config file example:** `MCPClient.index_aip_continue_on_error`
+    - **Type:** `boolean`
+    - **Default:** `false`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_REMOVABLEFILES`**:
     - **Description:** comma-separated listed of file names that will be deleted.
     - **Config file example:** `MCPClient.removableFiles`
