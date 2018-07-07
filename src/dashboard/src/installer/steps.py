@@ -43,6 +43,12 @@ def create_super_user(username, email, password, key):
     api_key, created = ApiKey.objects.update_or_create(user=user, defaults={'key': key})
 
 
+def set_agent_code(agent_code, pk):
+    archivematica_agent = Agent.objects.get(pk=pk)
+    archivematica_agent.identifiervalue = agent_code
+    archivematica_agent.save()
+
+
 def setup_pipeline(org_name, org_identifier, site_url):
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
     # Setup pipeline only if dashboard_uuid doesn't already exists
@@ -54,9 +60,7 @@ def setup_pipeline(org_name, org_identifier, site_url):
     helpers.set_setting('dashboard_uuid', dashboard_uuid)
 
     # Update Archivematica version in DB
-    archivematica_agent = Agent.objects.get(pk=1)
-    archivematica_agent.identifiervalue = "Archivematica-" + get_version()
-    archivematica_agent.save()
+    set_agent_code("Archivematica-" + get_version(), pk=1)
 
     if org_name != '' or org_identifier != '':
         agent = get_agent()
