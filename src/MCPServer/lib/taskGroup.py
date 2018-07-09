@@ -46,6 +46,9 @@ class TaskGroup():
         self.groupTasks = []
         self.groupTasksLock = threading.Lock()
 
+    def unit_uuid(self):
+        return self.linkTaskManager.unit.UUID
+
     def name(self):
         return self.execute.lower()
 

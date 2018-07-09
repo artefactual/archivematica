@@ -38,6 +38,7 @@ import logging
 import time
 import traceback
 import collections
+import math
 
 from multiprocessing.pool import ThreadPool
 
@@ -53,6 +54,17 @@ class TaskGroupRunner():
 
     # The frequency with which we'll log task stats
     NOTIFICATION_INTERVAL_SECONDS = 10
+
+    # How many samples to use when estimating the number of running units.
+    #
+    # By default we'll just assume NOTIFICATION_INTERVAL_SECONDS is a good
+    # sample size.
+    #
+    # We have to sample because running units aren't always registered with
+    # TaskGroupRunner (even though they'll spend most of their time here).  For
+    # example, they might be sitting in a watched directory waiting to be picked
+    # up to run on a new chain, or currently being processed by the MCP Server.
+    RUNNING_UNIT_SAMPLES = int(math.ceil(NOTIFICATION_INTERVAL_SECONDS / float(POLL_DELAY_SECONDS)))
 
     # Our singleton instance
     _instance = None
@@ -81,6 +93,10 @@ class TaskGroupRunner():
         """
         TaskGroupRunner._instance.submit(TaskGroupRunner.TaskGroupJob(task_group, finished_callback))
 
+    @staticmethod
+    def activeUnitCount():
+        return max(TaskGroupRunner._instance.activeUnitCounts)
+
     def __init__(self):
         # The list of TaskGroups that are ready to run but not yet submitted to
         # the MCP Client.
@@ -90,6 +106,10 @@ class TaskGroupRunner():
         # Gearman jobs that are currently waiting on the MCP Client
         self.running_gearman_jobs = []
         self.task_group_jobs_by_uuid = {}
+
+        # Track the number of units currently being processed
+        self.activeUnitCounts = [0] * TaskGroupRunner.RUNNING_UNIT_SAMPLES
+        self.activeUnitCountsIdx = 0
 
         # Used to run completed callbacks off the main thread.
         self.pool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
@@ -217,6 +237,11 @@ class TaskGroupRunner():
                         len(self.running_gearman_jobs),
                         len(self.task_group_jobs_by_uuid))
             self.last_notification_time = now
+
+        active_count = len(set([task_group.task_group.unit_uuid()
+                                for task_group in self.task_group_jobs_by_uuid.values()]))
+        self.activeUnitCounts[self.activeUnitCountsIdx] = active_count
+        self.activeUnitCountsIdx = (self.activeUnitCountsIdx + 1) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
 
     def _handle_gearman_response(self, job_request):
         """
