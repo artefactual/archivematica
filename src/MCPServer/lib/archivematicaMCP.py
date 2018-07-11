@@ -36,6 +36,7 @@ import logging
 import logging.config
 import getpass
 import os
+import re
 import signal
 import sys
 import threading
@@ -44,10 +45,10 @@ import uuid
 
 import django
 django.setup()
-
 from django.conf import settings as django_settings
 from django.db.models import Q
 from django.utils import six
+from prometheus_client import start_http_server
 
 # This project, alphabetical by import source
 import watchDirectory
@@ -68,6 +69,7 @@ import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
 from multiprocessing.pool import ThreadPool
+
 
 taskThreadPool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
 
@@ -317,6 +319,35 @@ def created_shared_directory_structure():
         processing.install_builtin_config(config)
 
 
+naiveip_re = re.compile(r"""^(?:
+(?P<addr>
+    (?P<ipv4>\d{1,3}(?:\.\d{1,3}){3}) |         # IPv4 address
+    (?P<ipv6>\[[a-fA-F0-9:]+\]) |               # IPv6 address
+    (?P<fqdn>[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*) # FQDN
+):)?(?P<port>\d+)$""", re.X)
+
+
+def start_prometheus_http_server(addrport):
+    if not addrport:
+        return
+    m = re.match(naiveip_re, addrport)
+    if m is None:
+        logger.error('[prometheus_http_server]'
+                     ' "%s" is not a valid port number or address:port pair.',
+                     addrport)
+        return
+    addr, _ipv4, _ipv6, _fqdn, port = m.groups()
+    try:
+        port = int(port)
+    except ValueError:
+        logger.error('[prometheus_http_server]'
+                     ' "%r" is not a valid port number.', port)
+        return
+    if addr is None:
+        addr = '127.0.0.1'
+    start_http_server(*(port, addr))
+
+
 def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     """
     Replacement for default exception handler that logs exceptions.
@@ -337,6 +368,8 @@ if __name__ == '__main__':
 
     logger.info('This PID: %s', os.getpid())
     logger.info('User: %s', getpass.getuser())
+
+    start_prometheus_http_server(django_settings.PROMETHEUS_HTTP_SERVER)
 
     dicts.setup(
         shared_directory=django_settings.SHARED_DIRECTORY,

@@ -35,14 +35,14 @@ import threading
 import gearman
 import cPickle
 import logging
+from multiprocessing.pool import ThreadPool
 import time
 import traceback
 import collections
 import math
 
-from multiprocessing.pool import ThreadPool
-
 from django.conf import settings as django_settings
+from prometheus_client import Gauge
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -110,6 +110,9 @@ class TaskGroupRunner():
         # Track the number of units currently being processed
         self.activeUnitCounts = [0] * TaskGroupRunner.RUNNING_UNIT_SAMPLES
         self.activeUnitCountsIdx = 0
+        self.activeUnitGauge = Gauge(
+            'task_group_runner_active_units',
+            'Number of units currently being processed')
 
         # Used to run completed callbacks off the main thread.
         self.pool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
@@ -242,6 +245,7 @@ class TaskGroupRunner():
                                 for task_group in self.task_group_jobs_by_uuid.values()]))
         self.activeUnitCounts[self.activeUnitCountsIdx] = active_count
         self.activeUnitCountsIdx = (self.activeUnitCountsIdx + 1) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
+        self.activeUnitGauge.set(self.activeUnitCount())
 
     def _handle_gearman_response(self, job_request):
         """

@@ -43,6 +43,7 @@ CONFIG_MAPPING = {
     'batch_size': {'section': 'MCPServer', 'option': 'batch_size', 'type': 'int'},
     'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'storage_service_client_quick_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},
+    'prometheus_http_server': {'section': 'MCPServer', 'option': 'prometheus_http_server', 'type': 'string'},
 
     # [Protocol]
     'limit_task_threads': {'section': 'Protocol', 'option': 'limitTaskThreads', 'type': 'int'},
@@ -72,6 +73,7 @@ search_enabled = true
 batch_size = 128
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
+prometheus_http_server =
 
 [Protocol]
 limitTaskThreads = 75
@@ -188,6 +190,7 @@ SEARCH_ENABLED = config.get('search_enabled')
 BATCH_SIZE = config.get('batch_size')
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get('storage_service_client_timeout')
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get('storage_service_client_quick_timeout')
+PROMETHEUS_HTTP_SERVER = config.get('prometheus_http_server')
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
