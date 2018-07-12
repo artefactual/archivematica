@@ -40,6 +40,7 @@ from components.unit import views as unit_views
 from components import helpers
 from main import models
 from processing import install_builtin_config
+from fpr.models import FormatVersion
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
@@ -737,3 +738,23 @@ def _package_create(request):
         LOGGER.error("{}: {}".format(msg, err))
         return helpers.json_response({'error': True, 'message': msg}, 500)
     return helpers.json_response({'id': id_}, 202)
+
+
+@_api_endpoint(expected_methods=['GET'])
+def par_format(request, pronom_id):
+    """
+    GET an fpr.FormatVersion by pronom_id and return it as a PAR format object
+
+    Example: http://127.0.0.1:62080/api/beta/par/format/fmt/30?username=test&api_key=test
+    """
+
+    fv = FormatVersion.active.get(pronom_id=pronom_id)
+    response = {
+        'id': fv.pronom_id,
+        'localLastModifiedDate': str(fv.lastmodified),
+        'version': fv.version,
+        'name': fv.slug,
+        'description': fv.description
+        }
+
+    return helpers.json_response(response)

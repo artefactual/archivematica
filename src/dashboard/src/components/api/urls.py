@@ -44,4 +44,6 @@ urlpatterns = [
     url(r'processing-configuration/(?P<name>\w{1,16})', views.processing_configuration, name='processing_configuration'),
 
     url(r'v2beta/package', views.package),
+
+    url(r'beta/par/format/(?P<pronom_id>.+)', views.par_format),
 ]
