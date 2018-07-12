@@ -68,8 +68,10 @@ def encode_item(item):
         return
     elif isinstance(item, basestring):
         return item.encode('utf-8')
-    else:
+    elif isinstance(item, (list, tuple)):
         return [i.encode('utf-8') if i else '' for i in item]
+    else:
+        return item
 
 
 def fix_encoding(row):
@@ -82,16 +84,28 @@ def fix_encoding(row):
 
 
 def object_to_row(row, headers):
+    """Takes a dict and returns a list (row) of scalars, suitable for
+    serialization to CSV. The `headers` argument is mandatory and determines
+    the order of values. Empty values in a row are denoted via ``None``.
     """
-    Takes a dict and returns a row suitable for serialization to CSV.
-    The `headers` argument is mandatory and determines the order
-    of values.
-    """
-    def sort_row(keyvalue):
-        return headers.index(keyvalue[0])
-    row = sorted(row.items(), key=sort_row)
-    row = [kv[1] for kv in row]
-    return shallow_flatten(row)
+    ret = []
+    header_idx = {}  # maps repeating headers to index in next val
+    for header in headers:
+        try:
+            val = row[header]
+            if isinstance(val, (list, tuple)):
+                idx = header_idx.get(header, 0)
+                try:
+                    ret.append(val[idx])
+                except IndexError:
+                    ret.append(None)
+                header_idx[header] = idx + 1
+            else:
+                ret.append(val)
+                del row[header]  # so we don't repeat a scalar value that corresponds to an array of scalars in another object
+        except KeyError:
+            ret.append(None)
+    return ret
 
 
 def main(job, sip_uuid, json_metadata):
