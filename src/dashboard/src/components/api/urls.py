@@ -45,5 +45,5 @@ urlpatterns = [
 
     url(r'v2beta/package', views.package),
 
-    url(r'beta/par/format/(?P<pronom_id>.+)', views.par_format),
+    url(r'beta/par/fileFormats/(?P<pronom_id>.+)', views.par_format),
 ]

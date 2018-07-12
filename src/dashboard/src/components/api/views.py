@@ -745,10 +745,14 @@ def par_format(request, pronom_id):
     """
     GET an fpr.FormatVersion by pronom_id and return it as a PAR format object
 
-    Example: http://127.0.0.1:62080/api/beta/par/format/fmt/30?username=test&api_key=test
+    Example: http://127.0.0.1:62080/api/beta/par/fileFormats/fmt/30?username=test&api_key=test
     """
 
-    fv = FormatVersion.active.get(pronom_id=pronom_id)
+    try:
+        fv = FormatVersion.active.get(pronom_id=pronom_id)
+    except FormatVersion.DoesNotExist:
+        return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
+
     response = {
         'id': fv.pronom_id,
         'localLastModifiedDate': str(fv.lastmodified),
