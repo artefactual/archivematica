@@ -1,0 +1,142 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
+{% block page_title %}{% trans "Convert Preservation Action to FPR" %}{% endblock page_title %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style type="text/css">
+      #par-convert pre {max-height: 100px; font-size: 0.8em;}
+  </style>
+{% endblock extra_css %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "PAR" %}</li>
+<li>{% trans "Preservation Actions" %}</li>
+<li>{% trans "Convert" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div id="par-convert" class="row">
+
+    <div class="col-sm-12">
+        <div class="well">
+            {% include 'par/preservation_action/_show.html' %}
+        </div>
+        {% if not fp_tool %}
+            <div class="alert alert-danger">No matching FPTool found for tool/version {{action.tool}}/{{action.version}}</div>
+        {% endif %}
+        {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+        <form method="POST" class="form-horizontal">
+          <input type="hidden" name="file_name" value="{{action.file_name}}">
+          <div class="row">
+              <h3 class="col-sm-2 text-right">FPR Command</h3>
+          </div>
+          <div class="form-group">
+            <label for="command_id" class="col-sm-2 control-label">Command Id</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="command_id" id="command_id" value="{{ action.id }}" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_description" class="col-sm-2 control-label">Command Description</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="command_description" name="command_description" value="{{ action.description }}" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_usage" class="col-sm-2 control-label">Command Usage</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="command_usage" required>
+                    <option/>
+                    {% for choice in command_usage_choices %}
+                        <option
+                            value="{{ choice.0 }}"
+                            {%if action.command_usage and action.command_usage = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fp_tool" class="col-sm-2 control-label">FPTool</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="fp_tool" name="fp_tool" value="{{ fp_tool.description }} {{ fp_tool.version }}" disabled>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_command" class="col-sm-2 control-label">Command</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" id="command_command" name="command_command" required>{{ action.command }}</textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="script_type" class="col-sm-2 control-label">Script Type</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="script_type" required>
+                    <option/>
+                    {% for choice in script_type_choices %}
+                        <option
+                            value="{{ choice.0 }}"
+                            {%if action.script_type and action.script_type = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <div class="row">
+              <h3 class="col-sm-2 text-right">FPR Rule</h3>
+          </div>
+          <div class="form-group">
+            <label for="purpose" class="col-sm-2 control-label">Purpose</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="purpose" required>
+                    <option/>
+                    {% for choice in purpose_choices %}
+                        <option
+                            value="{{ choice.0 }}"
+                            {%if action.purpose and action.purpose = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pronom_id" class="col-sm-2 control-label">Format</label>
+            <div class="col-sm-10">
+                {% if action.fprule_format %}
+                    <input type="text" class="form-control" name="pronom_id" id="pronom_id" value="{{ action.fprule_format }}" required>
+                {% else %}
+                    <input type="text" class="form-control" id="pronom_id" name="pronom_id" value="" required>
+                {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                  <input type="submit" value="Convert!" class="btn btn-success"/>
+                  <a href="/fpr/par/" class="btn btn-link">Cancel</a>
+              </div>
+          </div>
+        </form>
+    </div>
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

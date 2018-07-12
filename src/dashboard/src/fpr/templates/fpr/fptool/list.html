@@ -27,6 +27,7 @@
         <thead>
           <tr>
             <th>{% trans "Description" %}</th>
+            <th>{% trans "Version" %}</th>
             <th>{% trans "Actions" %}</th>
           </tr>
         </thead>
@@ -34,6 +35,7 @@
         {% for fptool in fptools %}
           <tr>
             <td><a href="{% url 'fptool_detail' fptool.slug %}">{{ fptool.description }}</a></td>
+            <td>{{ fptool.version }}</td>
             <td>
                <a href="{% url 'fptool_detail' fptool.slug %}">{% trans "View" %}</a>
                {% if request.user.is_superuser %}

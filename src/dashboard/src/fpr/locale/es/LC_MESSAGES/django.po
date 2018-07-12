@@ -1,0 +1,1264 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-12-02 01:25+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
+"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
+"es/)\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: fpr/models.py:40
+msgid "the related model"
+msgstr ""
+
+#: fpr/models.py:41 fpr/models.py:237 fpr/models.py:373 fpr/models.py:409
+#: fpr/models.py:433 fpr/models.py:445 fpr/models.py:459 fpr/models.py:474
+#: fpr/models.py:488 fpr/models.py:505 fpr/models.py:520
+msgid "enabled"
+msgstr ""
+
+#: fpr/models.py:42 fpr/models.py:408 fpr/models.py:432 fpr/models.py:444
+#: fpr/models.py:458 fpr/models.py:473 fpr/models.py:487 fpr/models.py:504
+#: fpr/models.py:519
+msgid "last modified"
+msgstr ""
+
+#: fpr/models.py:70 fpr/models.py:85 fpr/models.py:99 fpr/models.py:141
+#: fpr/models.py:198 fpr/models.py:234 fpr/models.py:257 fpr/models.py:333
+#: fpr/models.py:370
+msgid "Unique identifier"
+msgstr "Identificador único"
+
+#: fpr/models.py:71 fpr/models.py:86 fpr/models.py:103 fpr/models.py:142
+#: fpr/models.py:235 fpr/models.py:336 fpr/models.py:371 fpr/models.py:428
+#: fpr/models.py:441 fpr/models.py:456 fpr/models.py:467
+msgid "description"
+msgstr "descripción"
+
+#: fpr/models.py:71
+msgid "Common name of format"
+msgstr "Nombre del formato"
+
+#: fpr/models.py:72
+msgid "the related group"
+msgstr ""
+
+#: fpr/models.py:73 fpr/models.py:87 fpr/models.py:238 fpr/models.py:374
+msgid "slug"
+msgstr ""
+
+#: fpr/models.py:76 fpr/templates/fpr/format/version/detail.html:31
+#: fpr/templates/fpr/fprule/detail.html:30
+#: fpr/templates/fpr/fprule/list.html:30 fpr/templates/fpr/idrule/list.html:28
+msgid "Format"
+msgstr "Formato"
+
+#: fpr/models.py:90
+msgid "Format group"
+msgstr "Grupo de formatos"
+
+#: fpr/models.py:100 fpr/models.py:200 fpr/models.py:298 fpr/models.py:477
+msgid "the related format"
+msgstr ""
+
+#: fpr/models.py:101 fpr/models.py:236 fpr/models.py:372
+msgid "version"
+msgstr ""
+
+#: fpr/models.py:102
+msgid "pronom id"
+msgstr ""
+
+#: fpr/models.py:103
+msgid "Formal name to go in the METS file."
+msgstr "Nombre formal para uso en METS."
+
+#: fpr/models.py:104
+msgid "access format"
+msgstr ""
+
+#: fpr/models.py:105
+msgid "preservation format"
+msgstr ""
+
+#: fpr/models.py:110 fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:603
+msgid "Format version"
+msgstr "Version del formato"
+
+#: fpr/models.py:127
+msgid ""
+"Unable to save, an active Format Version  with this pronom id already exists."
+msgstr ""
+"No se ha podido guardar porque ya existe una versión de formato con este "
+"identificador PRONOM."
+
+#: fpr/models.py:131
+#, python-format
+msgid "%(format)s: %(description)s"
+msgstr "%(format)s: %(description)s"
+
+#: fpr/models.py:142
+msgid "Name to identify script"
+msgstr "Nombre para identificar al script"
+
+#: fpr/models.py:144
+msgid "PUID"
+msgstr "PUID"
+
+#: fpr/models.py:145
+msgid "MIME type"
+msgstr "Tipo MIME"
+
+#: fpr/models.py:146
+msgid "File extension"
+msgstr "Extensión del fichero"
+
+#: fpr/models.py:148
+msgid "configuration"
+msgstr ""
+
+#: fpr/models.py:150
+msgid "script"
+msgstr ""
+
+#: fpr/models.py:150
+msgid "Script to be executed."
+msgstr "Tipo de script"
+
+#: fpr/models.py:152 fpr/models.py:339
+msgid "Bash script"
+msgstr "Script Bash"
+
+#: fpr/models.py:153 fpr/models.py:340
+msgid "Python script"
+msgstr "Script Python"
+
+#: fpr/models.py:154 fpr/models.py:341
+msgid "Command line"
+msgstr "Linea de comando"
+
+#: fpr/models.py:155 fpr/models.py:342
+msgid "No shebang needed"
+msgstr "No se necesita shebang"
+
+#: fpr/models.py:157 fpr/models.py:344
+msgid "script type"
+msgstr ""
+
+#: fpr/models.py:158 fpr/models.py:335
+msgid "the related tool"
+msgstr ""
+
+#: fpr/models.py:161
+msgid "Format identification command"
+msgstr "Comando de identificaicón de formato"
+
+#: fpr/models.py:165
+#, python-format
+msgid "%(tool)s %(config)s runs %(command)s"
+msgstr "%(tool)s %(config)s que ejecuta el comando %(command)s"
+
+#: fpr/models.py:199 fpr/models.py:297
+msgid "the related command"
+msgstr ""
+
+#: fpr/models.py:202
+msgid "command output"
+msgstr ""
+
+#: fpr/models.py:205
+msgid "Format identification rule"
+msgstr "Regla de identificación de formato"
+
+#: fpr/models.py:221
+msgid ""
+"Unable to save, a rule with this output already exists for this command."
+msgstr ""
+"Imposible guardar puesto que ya existe una regla con la misma salida para "
+"este comando."
+
+#: fpr/models.py:225
+#, python-format
+msgid "%(command)s with %(output)s is %(format)s"
+msgstr "%(command)s con salida %(output)s es %(format)s"
+
+#: fpr/models.py:235 fpr/models.py:371
+msgid "Name of tool"
+msgstr "Nombre de la herramienta"
+
+#: fpr/models.py:241
+msgid "Format identification tool"
+msgstr "Herramienta de identificación de formato"
+
+#: fpr/models.py:247 fpr/models.py:381
+#, python-format
+msgid "%(description)s version %(version)s"
+msgstr "%(description)s versión %(version)s"
+
+#: fpr/models.py:275
+msgid "Access"
+msgstr "Acceso"
+
+#: fpr/models.py:276 fpr/models.py:348
+msgid "Characterization"
+msgstr "Caracterización"
+
+#: fpr/models.py:277
+msgid "Extract"
+msgstr "Extracción"
+
+#: fpr/models.py:278 fpr/templates/fpr/format/version/detail.html:33
+msgid "Preservation"
+msgstr "Preservación"
+
+#: fpr/models.py:279
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#: fpr/models.py:280 fpr/models.py:352
+msgid "Transcription"
+msgstr "Transcripción"
+
+#: fpr/models.py:281 fpr/models.py:353
+msgid "Validation"
+msgstr "Validación"
+
+#: fpr/models.py:284
+msgid "Default access"
+msgstr "Acceso por defecto"
+
+#: fpr/models.py:285
+msgid "Default characterization"
+msgstr "Caracterización por defecto"
+
+#: fpr/models.py:286
+msgid "Default thumbnail"
+msgstr "Miniatura por defecto"
+
+#: fpr/models.py:296
+msgid "purpose"
+msgstr ""
+
+#: fpr/models.py:300
+msgid "count attempts"
+msgstr ""
+
+#: fpr/models.py:301
+msgid "count okay"
+msgstr ""
+
+#: fpr/models.py:302
+msgid "count not okay"
+msgstr ""
+
+#: fpr/models.py:305 fpr/views.py:608
+msgid "Format policy rule"
+msgstr "Regla de norma de formato"
+
+#: fpr/models.py:325
+#, python-format
+msgid "Normalize %(format)s for %(purpose)s via %(command)s"
+msgstr ""
+"Normaliza el formato %(format)s para %(purpose)s con el comando %(command)s"
+
+#: fpr/models.py:337 fpr/models.py:426 fpr/models.py:501
+msgid "command"
+msgstr ""
+
+#: fpr/models.py:345 fpr/models.py:427
+msgid "output location"
+msgstr ""
+
+#: fpr/models.py:346
+msgid "the related output format"
+msgstr ""
+
+#: fpr/models.py:349
+msgid "Event Detail"
+msgstr "Detalle de evento"
+
+#: fpr/models.py:350
+msgid "Extraction"
+msgstr "Extracción"
+
+#: fpr/models.py:351
+msgid "Normalization"
+msgstr "Normalización"
+
+#: fpr/models.py:354
+msgid "Verification"
+msgstr "Verificación"
+
+#: fpr/models.py:356 fpr/models.py:418
+msgid "command usage"
+msgstr ""
+
+#: fpr/models.py:357
+msgid "the related verification command"
+msgstr ""
+
+#: fpr/models.py:358
+msgid "the related event detail command"
+msgstr ""
+
+#: fpr/models.py:361 fpr/views.py:607
+msgid "Format policy command"
+msgstr "Comando de norma de formato"
+
+#: fpr/models.py:378
+msgid "Normalization tool"
+msgstr "Herramienta de normalización"
+
+#: fpr/models.py:392
+msgid "agent identifier type"
+msgstr ""
+
+#: fpr/models.py:393
+msgid "agent identifier value"
+msgstr ""
+
+#: fpr/models.py:394
+msgid "agent name"
+msgstr ""
+
+#: fpr/models.py:395
+msgid "agent type"
+msgstr ""
+
+#: fpr/models.py:396
+msgid "client IP address"
+msgstr ""
+
+#: fpr/models.py:406 fpr/models.py:431 fpr/models.py:443 fpr/models.py:457
+#: fpr/models.py:472 fpr/models.py:486 fpr/models.py:503 fpr/models.py:518
+msgid "replaces"
+msgstr ""
+
+#: fpr/models.py:407
+msgid "type"
+msgstr ""
+
+#: fpr/models.py:419
+msgid "command type"
+msgstr ""
+
+#: fpr/models.py:421
+msgid "verification command"
+msgstr ""
+
+#: fpr/models.py:423
+msgid "event detail command"
+msgstr ""
+
+#: fpr/models.py:425
+msgid "supported by"
+msgstr ""
+
+#: fpr/models.py:429
+msgid "output file format"
+msgstr ""
+
+#: fpr/models.py:468
+msgid "valid preservation format"
+msgstr ""
+
+#: fpr/models.py:469
+msgid "valid access format"
+msgstr ""
+
+#: fpr/models.py:471
+msgid "file ID type"
+msgstr ""
+
+#: fpr/models.py:485
+msgid "classification"
+msgstr ""
+
+#: fpr/models.py:497
+msgid "command clasification"
+msgstr ""
+
+#: fpr/models.py:502 fpr/models.py:514
+msgid "file ID"
+msgstr ""
+
+#: fpr/models.py:516
+msgid "tool"
+msgstr ""
+
+#: fpr/models.py:517
+msgid "tool version"
+msgstr ""
+
+#: fpr/templates/fpr/_sidebar.html:14 fpr/templates/fpr/format/detail.html:9
+#: fpr/templates/fpr/format/form.html:19
+#: fpr/templates/fpr/format/group/delete.html:9
+#: fpr/templates/fpr/format/group/form.html:10
+#: fpr/templates/fpr/format/group/form.html:37
+#: fpr/templates/fpr/format/group/list.html:9
+#: fpr/templates/fpr/format/list.html:4 fpr/templates/fpr/format/list.html:5
+#: fpr/templates/fpr/format/list.html:9
+#: fpr/templates/fpr/format/version/detail.html:10
+#: fpr/templates/fpr/format/version/form.html:10
+msgid "Formats"
+msgstr "Formatos"
+
+#: fpr/templates/fpr/_sidebar.html:15
+#: fpr/templates/fpr/format/group/delete.html:10
+#: fpr/templates/fpr/format/group/form.html:11
+#: fpr/templates/fpr/format/group/list.html:10
+msgid "Groups"
+msgstr "Groups"
+
+#: fpr/templates/fpr/_sidebar.html:17
+msgid "Identification"
+msgstr "Identificación"
+
+#: fpr/templates/fpr/_sidebar.html:18 fpr/templates/fpr/_sidebar.html.py:23
+#: fpr/templates/fpr/idrule/list.html:31
+msgid "Tools"
+msgstr "Herramientas"
+
+#: fpr/templates/fpr/_sidebar.html:19 fpr/templates/fpr/_sidebar.html.py:29
+msgid "Rules"
+msgstr "Reglas"
+
+#: fpr/templates/fpr/_sidebar.html:20 fpr/templates/fpr/_sidebar.html.py:30
+#: fpr/templates/fpr/idtool/detail.html:38
+msgid "Commands"
+msgstr "Comandos"
+
+#: fpr/templates/fpr/_sidebar.html:22
+msgid "Format policy registry"
+msgstr "Registro de normas de formato"
+
+#: fpr/templates/fpr/app_layout.html:5
+msgid "Format Policy Registry"
+msgstr "Registro de normas de formato"
+
+#: fpr/templates/fpr/app_layout.html:36
+msgctxt "DataTable - emptyTable"
+msgid "No data available in table"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:37
+msgctxt "DataTable - info"
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:38
+msgctxt "DataTable - infoEmpty"
+msgid "Showing 0 to 0 of 0 entries"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:39
+msgctxt "DataTable - infoFiltered"
+msgid "(filtered from _MAX_ total entries)"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:41
+msgctxt "DataTable - thousands"
+msgid ","
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:42
+msgctxt "DataTable - lengthMenu"
+msgid "Show _MENU_ entries"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:43
+msgctxt "DataTable - loadingRecords"
+msgid "Loading..."
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:44
+msgctxt "DataTable - processing"
+msgid "Processing..."
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:45
+msgctxt "DataTable - search"
+msgid "Search:"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:46
+msgctxt "DataTable - zeroRecords"
+msgid "No matching records found"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:48
+msgctxt "DataTable - first"
+msgid "First"
+msgstr "Primera"
+
+#: fpr/templates/fpr/app_layout.html:49
+msgctxt "DataTable - last"
+msgid "Last"
+msgstr "Última"
+
+#: fpr/templates/fpr/app_layout.html:50
+msgctxt "DataTable - next"
+msgid "Next"
+msgstr "Siguiente"
+
+#: fpr/templates/fpr/app_layout.html:51
+msgctxt "DataTable - previous"
+msgid "Previous"
+msgstr "Previa"
+
+#: fpr/templates/fpr/app_layout.html:54
+msgctxt "DataTable - sortAscending"
+msgid ": activate to sort column ascending"
+msgstr ""
+
+#: fpr/templates/fpr/app_layout.html:55
+msgctxt "DataTable - sortDescending"
+msgid ": activate to sort column descending"
+msgstr ""
+
+#: fpr/templates/fpr/disable.html:32
+#, python-format
+msgid "Disable %(object)s"
+msgstr "Desactivar %(object)s"
+
+#: fpr/templates/fpr/disable.html:34
+#, python-format
+msgid "Enable %(object)s"
+msgstr "Activar %(object)s"
+
+#: fpr/templates/fpr/disable.html:41
+#: fpr/templates/fpr/format/group/delete.html:25
+msgid "Are you sure?"
+msgstr "¿Estás seguro?"
+
+#: fpr/templates/fpr/disable.html:44
+msgid "The following rules will also be disabled:"
+msgstr "Las siguientes reglas también serán desactivadas:"
+
+#: fpr/templates/fpr/disable.html:57 fpr/templates/fpr/format/detail.html:74
+#: fpr/templates/fpr/fpcommand/detail.html:59
+#: fpr/templates/fpr/fpcommand/list.html:46
+#: fpr/templates/fpr/fprule/detail.html:43
+#: fpr/templates/fpr/fprule/list.html:51
+#: fpr/templates/fpr/idcommand/detail.html:43
+#: fpr/templates/fpr/idcommand/list.html:48
+#: fpr/templates/fpr/idrule/detail.html:39
+#: fpr/templates/fpr/idrule/list.html:48
+msgid "Disable,Enable"
+msgstr "Desactivar,Activar"
+
+#: fpr/templates/fpr/disable.html:58
+#: fpr/templates/fpr/format/group/delete.html:50
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: fpr/templates/fpr/format/detail.html:4
+#: fpr/templates/fpr/format/detail.html:5
+#, python-format
+msgid "Format %(description)s"
+msgstr "Formato %(description)s"
+
+#: fpr/templates/fpr/format/detail.html:23
+#: fpr/templates/fpr/format/version/detail.html:27
+#: fpr/templates/fpr/fpcommand/detail.html:26
+#: fpr/templates/fpr/fprule/detail.html:26
+#: fpr/templates/fpr/fptool/detail.html:23
+#: fpr/templates/fpr/fptool/detail.html:49
+#: fpr/templates/fpr/idcommand/detail.html:26
+#: fpr/templates/fpr/idrule/detail.html:26
+#: fpr/templates/fpr/idtool/detail.html:23
+#: fpr/templates/fpr/revisions/list.html:25
+msgid "UUID"
+msgstr "UUID"
+
+#: fpr/templates/fpr/format/detail.html:25
+#: fpr/templates/fpr/format/detail.html:52
+#: fpr/templates/fpr/format/group/form.html:45
+#: fpr/templates/fpr/format/group/list.html:30
+#: fpr/templates/fpr/format/list.html:33
+#: fpr/templates/fpr/format/version/detail.html:28
+#: fpr/templates/fpr/fpcommand/detail.html:28
+#: fpr/templates/fpr/fpcommand/list.html:29
+#: fpr/templates/fpr/fptool/detail.html:25
+#: fpr/templates/fpr/fptool/list.html:29
+#: fpr/templates/fpr/idcommand/detail.html:30
+#: fpr/templates/fpr/idtool/detail.html:25
+#: fpr/templates/fpr/idtool/list.html:29
+msgid "Description"
+msgstr "Descripción"
+
+#: fpr/templates/fpr/format/detail.html:27
+#: fpr/templates/fpr/format/list.html:34
+msgid "Group"
+msgstr "Grupo"
+
+#: fpr/templates/fpr/format/detail.html:36
+#: fpr/templates/fpr/format/detail.html:58
+#: fpr/templates/fpr/format/group/form.html:46
+#: fpr/templates/fpr/format/group/list.html:32
+#: fpr/templates/fpr/format/list.html:35
+#: fpr/templates/fpr/format/version/detail.html:36
+#: fpr/templates/fpr/fpcommand/detail.html:57
+#: fpr/templates/fpr/fpcommand/list.html:33
+#: fpr/templates/fpr/fprule/detail.html:41
+#: fpr/templates/fpr/fprule/list.html:34
+#: fpr/templates/fpr/fptool/detail.html:32
+#: fpr/templates/fpr/fptool/detail.html:51
+#: fpr/templates/fpr/fptool/list.html:31
+#: fpr/templates/fpr/idcommand/detail.html:41
+#: fpr/templates/fpr/idcommand/list.html:33
+#: fpr/templates/fpr/idrule/detail.html:37
+#: fpr/templates/fpr/idrule/list.html:33
+#: fpr/templates/fpr/idtool/detail.html:32
+#: fpr/templates/fpr/idtool/detail.html:52
+#: fpr/templates/fpr/idtool/list.html:31
+msgid "Actions"
+msgstr "Acciones"
+
+#: fpr/templates/fpr/format/detail.html:37
+#: fpr/templates/fpr/format/group/form.html:53
+#: fpr/templates/fpr/format/group/list.html:48
+#: fpr/templates/fpr/format/list.html:52
+#: fpr/templates/fpr/fptool/detail.html:33
+#: fpr/templates/fpr/fptool/list.html:42
+#: fpr/templates/fpr/idtool/detail.html:33
+#: fpr/templates/fpr/idtool/list.html:43
+msgid "Edit"
+msgstr "Editar"
+
+#: fpr/templates/fpr/format/detail.html:42
+msgid "Specific versions"
+msgstr "Versiones específicas"
+
+#: fpr/templates/fpr/format/detail.html:45
+msgid "Create new format version"
+msgstr "Crear nueva versión de formato"
+
+#: fpr/templates/fpr/format/detail.html:53
+#: fpr/templates/fpr/format/version/detail.html:29
+#: fpr/templates/fpr/fptool/detail.html:27
+#: fpr/templates/fpr/fptool/list.html:30
+#: fpr/templates/fpr/idtool/detail.html:27
+#: fpr/templates/fpr/idtool/list.html:30
+msgid "Version"
+msgstr "Versión"
+
+#: fpr/templates/fpr/format/detail.html:54
+msgid "Pronom ID"
+msgstr "Identificador PRONOM"
+
+#: fpr/templates/fpr/format/detail.html:55
+msgid "Access format?"
+msgstr "Formato de acceso"
+
+#: fpr/templates/fpr/format/detail.html:56
+msgid "Preservation format?"
+msgstr "Formato de preservación"
+
+#: fpr/templates/fpr/format/detail.html:57
+#: fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:54
+#: fpr/templates/fpr/fpcommand/list.html:32
+#: fpr/templates/fpr/fprule/detail.html:38
+#: fpr/templates/fpr/fprule/list.html:33
+#: fpr/templates/fpr/fptool/detail.html:29
+#: fpr/templates/fpr/idcommand/detail.html:38
+#: fpr/templates/fpr/idcommand/list.html:32
+#: fpr/templates/fpr/idrule/detail.html:34
+#: fpr/templates/fpr/idrule/list.html:32
+#: fpr/templates/fpr/idtool/detail.html:29
+#: fpr/templates/fpr/idtool/detail.html:51
+msgid "Enabled"
+msgstr "Activado"
+
+#: fpr/templates/fpr/format/detail.html:67
+#: fpr/templates/fpr/format/detail.html:68
+#: fpr/templates/fpr/format/version/detail.html:32
+#: fpr/templates/fpr/format/version/detail.html:33
+#: fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:55
+#: fpr/templates/fpr/fpcommand/list.html:42
+#: fpr/templates/fpr/fprule/detail.html:39
+#: fpr/templates/fpr/fprule/list.html:44
+#: fpr/templates/fpr/fptool/detail.html:30
+#: fpr/templates/fpr/idcommand/detail.html:39
+#: fpr/templates/fpr/idcommand/list.html:43
+#: fpr/templates/fpr/idrule/detail.html:35
+#: fpr/templates/fpr/idrule/list.html:43
+#: fpr/templates/fpr/idtool/detail.html:30
+#: fpr/templates/fpr/idtool/detail.html:61
+msgid "Yes,No"
+msgstr "Sí,No"
+
+#: fpr/templates/fpr/format/detail.html:71
+#: fpr/templates/fpr/format/list.html:50
+#: fpr/templates/fpr/fpcommand/list.html:43
+#: fpr/templates/fpr/fprule/list.html:46 fpr/templates/fpr/fptool/list.html:40
+#: fpr/templates/fpr/idcommand/list.html:45
+#: fpr/templates/fpr/idrule/list.html:45
+#: fpr/templates/fpr/idtool/detail.html:63
+#: fpr/templates/fpr/idtool/list.html:40
+msgid "View"
+msgstr "Ver"
+
+#: fpr/templates/fpr/format/detail.html:73
+#: fpr/templates/fpr/format/version/detail.html:36
+#: fpr/templates/fpr/fpcommand/detail.html:58
+#: fpr/templates/fpr/fpcommand/list.html:45
+#: fpr/templates/fpr/fprule/detail.html:42
+#: fpr/templates/fpr/fprule/list.html:49
+#: fpr/templates/fpr/fptool/detail.html:61
+#: fpr/templates/fpr/idcommand/detail.html:42
+#: fpr/templates/fpr/idcommand/list.html:47
+#: fpr/templates/fpr/idrule/detail.html:38
+#: fpr/templates/fpr/idrule/list.html:47
+#: fpr/templates/fpr/idtool/detail.html:65
+msgid "Replace"
+msgstr "Reemplazar"
+
+#: fpr/templates/fpr/format/detail.html:82
+#, python-format
+msgid ""
+"\n"
+"          No versions exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"No existen versiones para %(description)s en el sistema."
+
+#: fpr/templates/fpr/format/form.html:49
+#: fpr/templates/fpr/format/group/form.html:32
+#: fpr/templates/fpr/format/version/form.html:30
+#: fpr/templates/fpr/fpcommand/form.html:32
+#: fpr/templates/fpr/fprule/form.html:47 fpr/templates/fpr/fptool/form.html:30
+#: fpr/templates/fpr/idcommand/form.html:32
+#: fpr/templates/fpr/idrule/form.html:29 fpr/templates/fpr/idtool/form.html:30
+msgid "Save"
+msgstr "Grabar"
+
+#: fpr/templates/fpr/format/group/delete.html:4
+#: fpr/templates/fpr/format/group/delete.html:5
+#, python-format
+msgid "Delete format group %(description)s"
+msgstr "Eliminar grupo de formatos %(description)s"
+
+#: fpr/templates/fpr/format/group/delete.html:12
+#: fpr/templates/fpr/format/group/delete.html:49
+#: fpr/templates/fpr/format/group/list.html:51
+msgid "Delete"
+msgstr "Eliminar"
+
+#: fpr/templates/fpr/format/group/delete.html:30
+#, python-format
+msgid ""
+"\n"
+"                %(count)s format(s) were found that are a member of this "
+"group.\n"
+"              "
+msgstr ""
+"\n"
+"Se ha(n) encontrado %(count)s formato(s) en este grupo."
+
+#: fpr/templates/fpr/format/group/delete.html:37
+msgid ""
+"Substitute formats that are a member of this group with the following group:"
+msgstr "Mover los formatos de este grupo al siguiente grupo:"
+
+#: fpr/templates/fpr/format/group/form.html:39
+#: fpr/templates/fpr/format/list.html:26
+msgid "Create new format"
+msgstr "Crear nuevo formato"
+
+#: fpr/templates/fpr/format/group/form.html:60
+#, python-format
+msgid ""
+"\n"
+"          No formats exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"No se han encontrado formatos en el grupo %(description)s."
+
+#: fpr/templates/fpr/format/group/list.html:4
+#: fpr/templates/fpr/format/group/list.html:5
+msgid "Format groups"
+msgstr "Grupos de formatos"
+
+#: fpr/templates/fpr/format/group/list.html:11
+#: fpr/templates/fpr/format/list.html:10
+#: fpr/templates/fpr/fpcommand/list.html:10
+#: fpr/templates/fpr/fprule/list.html:10 fpr/templates/fpr/fptool/list.html:10
+#: fpr/templates/fpr/idcommand/list.html:10
+#: fpr/templates/fpr/idrule/list.html:10 fpr/templates/fpr/idtool/list.html:10
+#: fpr/templates/fpr/revisions/list.html:10
+msgid "List"
+msgstr "Lista"
+
+#: fpr/templates/fpr/format/group/list.html:23
+msgid "Create new format group"
+msgstr "Crear grupo de formatos"
+
+#: fpr/templates/fpr/format/group/list.html:60
+msgid "No format groups exist."
+msgstr "No hay ningún grupo de formatos en el sistema."
+
+#: fpr/templates/fpr/format/list.html:60
+msgid "No formats exist."
+msgstr "No hay ningún formato en el sistema."
+
+#: fpr/templates/fpr/format/version/detail.html:5
+#, python-format
+msgid "Format version %(description)s"
+msgstr "Versión de formato %(description)s"
+
+#: fpr/templates/fpr/format/version/detail.html:6
+#, python-format
+msgid "Format version %(format)s"
+msgstr "Versión de formato %(format)s"
+
+#: fpr/templates/fpr/format/version/detail.html:30
+msgid "Pronom"
+msgstr "PRONOM"
+
+#: fpr/templates/fpr/format/version/detail.html:32
+msgid "Access?"
+msgstr "Acceso"
+
+#: fpr/templates/fpr/fpcommand/detail.html:5
+#: fpr/templates/fpr/fpcommand/detail.html:6
+#: fpr/templates/fpr/fpcommand/detail.html:11
+#, python-format
+msgid "Command %(description)s"
+msgstr "Comando %(description)s"
+
+#: fpr/templates/fpr/fpcommand/detail.html:10
+#: fpr/templates/fpr/fpcommand/form.html:10
+#: fpr/templates/fpr/fpcommand/list.html:4
+#: fpr/templates/fpr/fpcommand/list.html:5
+#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:564
+msgid "Format policy commands"
+msgstr "Comandos de normas de formatos"
+
+#: fpr/templates/fpr/fpcommand/detail.html:30
+#: fpr/templates/fpr/fpcommand/list.html:31
+#: fpr/templates/fpr/idcommand/detail.html:28
+#: fpr/templates/fpr/idcommand/list.html:30
+msgid "Tool"
+msgstr "Herramienta"
+
+#: fpr/templates/fpr/fpcommand/detail.html:32
+#: fpr/templates/fpr/fprule/detail.html:32
+#: fpr/templates/fpr/fprule/list.html:31
+#: fpr/templates/fpr/fptool/detail.html:48
+#: fpr/templates/fpr/idcommand/list.html:28
+#: fpr/templates/fpr/idrule/detail.html:30
+#: fpr/templates/fpr/idrule/list.html:29
+#: fpr/templates/fpr/idtool/detail.html:50
+msgid "Command"
+msgstr "Comando"
+
+#: fpr/templates/fpr/fpcommand/detail.html:34
+#: fpr/templates/fpr/idcommand/detail.html:36
+msgid "Script type"
+msgstr "Tipo de script"
+
+#: fpr/templates/fpr/fpcommand/detail.html:36
+msgid "Output file format"
+msgstr "Formato de archivo de salida"
+
+#: fpr/templates/fpr/fpcommand/detail.html:37
+#: fpr/templates/fpr/fpcommand/detail.html:39
+#: fpr/templates/fpr/fpcommand/detail.html:52
+msgid "None"
+msgstr "Ningún resultado"
+
+#: fpr/templates/fpr/fpcommand/detail.html:38
+msgid "Output location"
+msgstr "Ubicación de la salida"
+
+#: fpr/templates/fpr/fpcommand/detail.html:40
+msgid "Command usage"
+msgstr "Uso del comando"
+
+#: fpr/templates/fpr/fpcommand/detail.html:42
+msgid "Verification command"
+msgstr "Comando de verificación"
+
+#: fpr/templates/fpr/fpcommand/detail.html:48
+msgid "Event detail command"
+msgstr "Comando del detalle del evento"
+
+#: fpr/templates/fpr/fpcommand/list.html:22
+#: fpr/templates/fpr/idcommand/list.html:21
+#: fpr/templates/fpr/idtool/detail.html:41
+msgid "Create new command"
+msgstr "Crear nuevo comando"
+
+#: fpr/templates/fpr/fpcommand/list.html:30
+msgid "Usage"
+msgstr "Uso"
+
+#: fpr/templates/fpr/fpcommand/list.html:54
+msgid "No format policy commands exist."
+msgstr "No se han encontrado comandos de reglas de formato en el sistema."
+
+#: fpr/templates/fpr/fprule/detail.html:5
+#: fpr/templates/fpr/fprule/detail.html:6
+#: fpr/templates/fpr/fprule/detail.html:11
+#, python-format
+msgid "Rule %(description)s"
+msgstr "Regla %(description)s"
+
+#: fpr/templates/fpr/fprule/detail.html:10
+#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:456
+msgid "Format policy rules"
+msgstr "Reglas de normas de formato"
+
+#: fpr/templates/fpr/fprule/detail.html:28
+#: fpr/templates/fpr/fprule/list.html:29
+msgid "Purpose"
+msgstr "Objetivo"
+
+#: fpr/templates/fpr/fprule/detail.html:34
+msgid "Stats"
+msgstr "Estadísticas"
+
+#: fpr/templates/fpr/fprule/detail.html:35
+#, python-format
+msgid "Success: %(count)s"
+msgstr "Éxito: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:36
+#, python-format
+msgid "Failure: %(count)s"
+msgstr "Error: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:37
+#, python-format
+msgid "Total: %(count)s"
+msgstr "Total: %(count)s"
+
+#: fpr/templates/fpr/fprule/list.html:4 fpr/templates/fpr/fprule/list.html:5
+#: fpr/templates/fpr/fprule/list.html:9
+msgid "Format policy rules "
+msgstr "Reglas de normas de formato"
+
+#: fpr/templates/fpr/fprule/list.html:22 fpr/templates/fpr/idrule/list.html:21
+msgid "Create new rule"
+msgstr "Crear regla"
+
+#: fpr/templates/fpr/fprule/list.html:32
+msgid "Success"
+msgstr "Éxito"
+
+#: fpr/templates/fpr/fprule/list.html:59
+msgid "No format policy rules exist."
+msgstr "No se han encontrado reglas de normas de formato en el sistema."
+
+#: fpr/templates/fpr/fptool/detail.html:4
+#: fpr/templates/fpr/fptool/detail.html:5
+#, python-format
+msgid "Format policy registry tool %(description)s %(version)s"
+msgstr ""
+"Herramienta de registro de normas de formato %(description)s %(version)s"
+
+#: fpr/templates/fpr/fptool/detail.html:9 fpr/templates/fpr/fptool/form.html:10
+#: fpr/templates/fpr/fptool/list.html:4 fpr/templates/fpr/fptool/list.html:5
+#: fpr/templates/fpr/fptool/list.html:9
+msgid "Format policy registry tools"
+msgstr "Registro de herramientas de normas de formato"
+
+#: fpr/templates/fpr/fptool/detail.html:38
+msgid "Tool commands"
+msgstr "Comandos de herramientas"
+
+#: fpr/templates/fpr/fptool/detail.html:41
+msgid "Create new tool command"
+msgstr "Crear nuevo comando de herramienta"
+
+#: fpr/templates/fpr/fptool/detail.html:69
+#: fpr/templates/fpr/idtool/detail.html:75
+#, python-format
+msgid ""
+"\n"
+"          No commands exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"No se han encontrado comandos para %(description)s."
+
+#: fpr/templates/fpr/fptool/list.html:22 fpr/templates/fpr/idtool/list.html:22
+msgid "Create new tool"
+msgstr "Crear nueva herramienta"
+
+#: fpr/templates/fpr/fptool/list.html:50
+msgid "No tools exist."
+msgstr "No se han encontrado herramientas en el sistema."
+
+#: fpr/templates/fpr/idcommand/detail.html:5
+#: fpr/templates/fpr/idcommand/detail.html:6
+#, python-format
+msgid "Identification command %(description)s"
+msgstr "Comando de identificación %(description)s"
+
+#: fpr/templates/fpr/idcommand/detail.html:10
+#: fpr/templates/fpr/idcommand/form.html:10
+#: fpr/templates/fpr/idcommand/list.html:4
+#: fpr/templates/fpr/idcommand/list.html:5
+#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:369
+msgid "Identification commands"
+msgstr "Comandos de identificación"
+
+#: fpr/templates/fpr/idcommand/detail.html:32
+#: fpr/templates/fpr/idcommand/list.html:31
+msgid "Mode"
+msgstr "Modo"
+
+#: fpr/templates/fpr/idcommand/detail.html:34
+msgid "Script"
+msgstr "Escritura"
+
+#: fpr/templates/fpr/idcommand/list.html:29
+msgid "Type"
+msgstr "Tipo"
+
+#: fpr/templates/fpr/idcommand/list.html:56
+msgid "No identification commands exist."
+msgstr "No se han encontrado comandos de identificación en el sistema."
+
+#: fpr/templates/fpr/idrule/detail.html:5
+#: fpr/templates/fpr/idrule/detail.html:6
+#: fpr/templates/fpr/idrule/detail.html:11
+#, python-format
+msgid "Identification rule %(uuid)s"
+msgstr "Regla de identificación %(uuid)s"
+
+#: fpr/templates/fpr/idrule/detail.html:10
+#: fpr/templates/fpr/idrule/form.html:10 fpr/templates/fpr/idrule/list.html:4
+#: fpr/templates/fpr/idrule/list.html:5 fpr/templates/fpr/idrule/list.html:9
+#: fpr/views.py:300
+msgid "Identification rules"
+msgstr "Reglas de identificación"
+
+#: fpr/templates/fpr/idrule/detail.html:32
+msgid "Command output"
+msgstr "Salida del comando"
+
+#: fpr/templates/fpr/idrule/list.html:30
+msgid "Output"
+msgstr "Salida"
+
+#: fpr/templates/fpr/idrule/list.html:56
+msgid "No identification rules exist."
+msgstr "No hay reglas de identificación en el sistema."
+
+#: fpr/templates/fpr/idtool/detail.html:4
+#: fpr/templates/fpr/idtool/detail.html:5
+#, python-format
+msgid "Identification tool %(description)s"
+msgstr "Herramienta de identificación %(description)s"
+
+#: fpr/templates/fpr/idtool/detail.html:9 fpr/templates/fpr/idtool/form.html:10
+#: fpr/templates/fpr/idtool/list.html:4 fpr/templates/fpr/idtool/list.html:5
+#: fpr/templates/fpr/idtool/list.html:9
+msgid "Identification tools"
+msgstr "Herramientas de identificación"
+
+#: fpr/templates/fpr/idtool/detail.html:48
+msgid "Configuration"
+msgstr "Configuración"
+
+#: fpr/templates/fpr/idtool/detail.html:49
+msgid "Identifier"
+msgstr "Identificador"
+
+#: fpr/templates/fpr/idtool/detail.html:66
+msgid "Disable"
+msgstr "Desactivar"
+
+#: fpr/templates/fpr/idtool/list.html:51
+msgid "No identification tools exist."
+msgstr "No hay herramientas de identificación en el sistema."
+
+#: fpr/templates/fpr/revisions/list.html:4
+#: fpr/templates/fpr/revisions/list.html:9
+msgid "Revisions"
+msgstr "Revisiones"
+
+#: fpr/templates/fpr/revisions/list.html:5
+#, python-format
+msgid "%(revision_type)s revision history"
+msgstr "Registro de revisiones de %(revision_type)s"
+
+#: fpr/templates/fpr/revisions/list.html:26
+msgid "Last modified"
+msgstr "Última modificación"
+
+#: fpr/templates/fpr/revisions/list.html:49
+msgid "No revisions exist."
+msgstr "No hay revisiones en el sistema."
+
+#: fpr/utils.py:59
+msgid ""
+"You are replacing the current revision with data from an older revision."
+msgstr ""
+"Estás reemplazando la versión actual con datos de una versión anterior."
+
+#: fpr/utils.py:63
+msgid "You are viewing a disabled revision."
+msgstr "Estás visualizando una revisión que está desactivada."
+
+#: fpr/views.py:83
+#, python-format
+msgid "Edit format %(name)s"
+msgstr "Editar formato %(name)s"
+
+#: fpr/views.py:85
+msgid "Create format"
+msgstr "Crear formato"
+
+#: fpr/views.py:96 fpr/views.py:103 fpr/views.py:135 fpr/views.py:255
+#: fpr/views.py:288 fpr/views.py:356 fpr/views.py:436 fpr/views.py:444
+#: fpr/views.py:502 fpr/views.py:544
+msgid "Saved."
+msgstr "Grabado."
+
+#: fpr/views.py:123
+#, python-format
+msgid "Replace format version %(name)s"
+msgstr "Reemplezar versión de formato %(name)s"
+
+#: fpr/views.py:126 fpr/views.py:533
+msgid "Create format version"
+msgstr "Crear versión de formato"
+
+#: fpr/views.py:149
+msgid "Format versions"
+msgstr "Versiones de formato"
+
+#: fpr/views.py:155 fpr/views.py:306 fpr/views.py:375 fpr/views.py:463
+#: fpr/views.py:570
+msgid "Disabled."
+msgstr "Desactivado."
+
+#: fpr/views.py:161 fpr/views.py:309 fpr/views.py:381 fpr/views.py:466
+#: fpr/views.py:576
+msgid "Enabled."
+msgstr "Activado."
+
+#: fpr/views.py:168
+msgid "Enable/disable format version"
+msgstr "Activar/desactivar versión de formato"
+
+#: fpr/views.py:185
+#, python-format
+msgid "Edit format group %(name)s"
+msgstr "Editar grupo de formatos %(name)s"
+
+#: fpr/views.py:187
+msgid "Create format group"
+msgstr "Crear grupo de formato"
+
+#: fpr/views.py:218
+#, python-format
+msgid "%(count)d substitutions were performed."
+msgstr "Se han producido %(count)d substituciones."
+
+#: fpr/views.py:220
+msgid "Please select a group to substitute for this group in member formats."
+msgstr ""
+"Por favor, seleccione un nuevo grupo para los miembros del grupo actual."
+
+#: fpr/views.py:223
+msgid "Deleted."
+msgstr "Borrado."
+
+#: fpr/views.py:247
+#, python-format
+msgid "Edit identification tool %(name)s"
+msgstr "Editar herramienta de identificación %(name)s"
+
+#: fpr/views.py:250
+msgid "Create identification tool"
+msgstr "Crear herramienta de identificación"
+
+#: fpr/views.py:279
+#, python-format
+msgid "Replace identification rule %(uuid)s"
+msgstr "Reemplazar regla de identificación %(uuid)s"
+
+#: fpr/views.py:282
+msgid "Create identification rule"
+msgstr "Crear regla de identificación"
+
+#: fpr/views.py:316
+msgid "Enable/disable identification rule"
+msgstr "Activar/desactivar regla de identificación"
+
+#: fpr/views.py:339
+#, python-format
+msgid "Replace identification command %(name)s"
+msgstr "Reemplazar comando de identificación %(name)s"
+
+#: fpr/views.py:342
+msgid "Create identification command"
+msgstr "Crear comando de identificación"
+
+#: fpr/views.py:388
+msgid "Enable/disable identification command"
+msgstr "Activar/desactivar comando de identificación"
+
+#: fpr/views.py:422
+#, python-format
+msgid "Replace format policy rule %(uuid)s"
+msgstr "Reemplazar regla de norma de formato %(uuid)s"
+
+#: fpr/views.py:426
+msgid "Create format policy rule"
+msgstr "Crear regla de norma de formato"
+
+#: fpr/views.py:473
+msgid "Enable/disable format policy registry rule"
+msgstr "Activar/desactivar regla del registro de normas de formatos"
+
+#: fpr/views.py:495
+#, python-format
+msgid "Replace format policy registry tool %(name)s"
+msgstr "Reemplazar herramienta %(name)s del registro de normas de formatos "
+
+#: fpr/views.py:498
+msgid "Create format policy registry tool"
+msgstr "Crear herramienta del registro de normas de formatos"
+
+#: fpr/views.py:530
+#, python-format
+msgid "Replace command %(name)s"
+msgstr "Reemplazar comando %(name)s"
+
+#: fpr/views.py:583
+msgid "Enable/disable format policy command"
+msgstr "Activar/desactivar comando de normas de formatos"
+
+#: fpr/views.py:604
+msgid "Identification tool configuration"
+msgstr "Configuración de herramienta de identificación"
+
+#: fpr/views.py:605
+msgid "Identification rule"
+msgstr "Regla de identificación"
+
+#: fpr/views.py:606
+msgid "Identification command"
+msgstr "Comando de identificación"

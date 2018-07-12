@@ -1,13 +1,13 @@
 {% extends "fpr/app_layout.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }} - {% blocktrans with description=fptool.description  %}Format policy registry tool {{ description }} {% endblocktrans %}{% endblock title %}
-{% block page_title %}{% blocktrans with description=fptool.description  %}Format policy registry tool {{ description }} {% endblocktrans %}{% endblock page_title %}
+{% block title %}{{ block.super }} - {% blocktrans with description=fptool.description version=fptool.version %}Format policy registry tool {{ description }} {{ version }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=fptool.description version=fptool.version %}Format policy registry tool {{ description }} {{ version }}{% endblocktrans %}{% endblock page_title %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 <li><a href="{% url 'fptool_list' %}">{% trans "Format policy registry tools" %}</a></li>
-<li>{{ fptool.description }}</li>
+<li>{{ fptool.description }} {{ fptool.version }}</li>
 {% endblock breadcrumbs %}
 
 {% block app_content %}
@@ -24,6 +24,8 @@
         <dd>{{ fptool.uuid }}</dd>
         <dt>{% trans "Description" %}</dt>
         <dd>{{ fptool.description }}</dd>
+        <dt>{% trans "Version" %}</dt>
+        <dd>{{ fptool.version }}</dd>
         <dt>{% trans "Enabled" %}</dt>
         <dd>{{ fptool.enabled|yesno:_('Yes,No') }}</dd>
         {% if request.user.is_superuser %}

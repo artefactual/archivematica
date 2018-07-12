@@ -48,8 +48,17 @@ from main import models
 from processing import install_builtin_config
 from . import validators
 
+# PAR related
+# from rest_framework_swagger.views import get_swagger_view
+from fpr.models import Format, FormatGroup, FormatVersion, FPTool, FPRule
+from components import par
+from datetime import datetime
+import par_validator
+
+
 LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
+
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 UUID_REGEX = re.compile(
     r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
@@ -950,3 +959,352 @@ def task(request, task_uuid):
     except models.Task.DoesNotExist:
         return _error_response("Task with UUID {} does not exist".format(task_uuid))
     return helpers.json_response(format_task(task, detailed_output=True))
+
+
+# PAR implementation...
+
+# par_swagger = get_swagger_view(title='Test')
+
+
+@_api_endpoint(expected_methods=["GET"])
+def par_format(request, pronom_id):
+    """
+    GET an fpr.FormatVersion by pronom_id and return it as a PAR format object
+
+    Example: http://127.0.0.1:62080/api/beta/par/fileFormats/fmt/30?username=test&api_key=test
+    """
+
+    try:
+        format_version = FormatVersion.active.filter(pronom_id=pronom_id)[0]
+    except FormatVersion.DoesNotExist:
+        return helpers.json_response(
+            {"error": True, "message": "File format not found"}, 400
+        )
+
+    return helpers.json_response(par.to_par_file_format(format_version))
+
+
+@_api_endpoint(expected_methods=["GET", "POST"])
+def par_formats(request):
+    """
+    POST a PAR format object to create an fpr.FormatVersion ... and possibly an fpr.Format and fpr.FormatGroup
+
+    FIXME: Some tricky logic in the mapping has been largely fudged so far
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+        {"id": "fmt/jjj", "description": "111 Happy Street", "types": ["Audio"]}
+
+    or
+
+    GET a list of fpr.FormatVersions as PAR format objects
+
+    Accepts modifiedBefore and modifiedAfter filters as 'YYYY-MM-DD'
+    Also accepts offset and limit to return a subset of fileFormats
+    FIXME: the current state of the spec asks for time and timezone support too so might have to add that later
+
+    Examples:
+      All:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+      Modified after 2010-01-01:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01
+      Modified after 2010-01-01 and before 2010-06-30:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&modifiedBefore=2010-06-30
+      Paginated:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&offset=100&limit=20
+    """
+
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+            format_version = par.to_fpr_format_version(payload)
+
+            # See if a format already exists for this version
+            format = Format.objects.filter(
+                description=format_version["description"]
+            ).first()
+
+            if format == None:
+                # We need to create a format
+                group_name = payload.get("types", [format_version["description"]])[0]
+                group = FormatGroup.objects.filter(description=group_name).first()
+                if group == None:
+                    # And a group ... sigh
+                    # Note: The db says a format doesn't need a group, but the dashboard blows up if it doesn't have one
+                    group = FormatGroup.objects.create(
+                        par.to_fpr_format_group(group_name)
+                    )
+
+                format_hash = par.to_fpr_format(format_version["description"])
+                format_hash["group_id"] = group.uuid
+                format = Format.objects.create(**format_hash)
+
+            format_version["format_id"] = format.uuid
+
+            FormatVersion.objects.create(**format_version)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response(
+                {"error": True, "message": "Server failed to handle the request."}, 502
+            )
+
+        return helpers.json_response(
+            {
+                "message": "File format successfully created.",
+                "uri": request.path + "/" + format_version["pronom_id"],
+            },
+            201,
+        )
+
+    after = request.GET.get("modifiedAfter")
+    before = request.GET.get("modifiedBefore")
+
+    offset, limit = par.parse_offset_and_limit(request)
+
+    try:
+        format_versions = FormatVersion.active
+        if after != None:
+            format_versions = format_versions.filter(
+                lastmodified__gte=datetime.strptime(after, "%Y-%m-%d")
+            )
+
+        if before != None:
+            format_versions = format_versions.filter(
+                lastmodified__lte=datetime.strptime(before, "%Y-%m-%d")
+            )
+
+        if after == None and before == None:
+            format_versions = format_versions.all()
+
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response(
+            {"error": True, "message": "Server failed to handle the request."}, 502
+        )
+
+    return helpers.json_response(
+        [par.to_par_file_format(fv) for fv in format_versions[offset:limit]]
+    )
+
+
+@_api_endpoint(expected_methods=["GET", "PUT"])
+def par_tool(request, uuid):
+    """
+    PUT a PAR tool object to update an fpr.FPTool
+
+    Example: http://127.0.0.1:62080/api/beta/par/tools/085d8690-93b7-4d31-84f7-2c5f4cbf6735?username=test&api_key=test
+        {"toolName": "JHOVE", "toolVersion": "2.0"}
+
+    or
+
+    GET an fpr.tool by uuid and return it as a PAR tool object
+
+    Example: http://127.0.0.1:62080/api/beta/par/tools/085d8690-93b7-4d31-84f7-2c5f4cbf6735?username=test&api_key=test
+        {
+            "toolId": "085d8690-93b7-4d31-84f7-2c5f4cbf6735",
+            "toolName": "JHOVE",
+            "toolVersion": "1.6"
+        }
+    """
+
+    if request.method == "PUT":
+        try:
+            tool = par.to_fpr_tool(json.loads(request.body))
+
+            # FIXME: This doesn't regenerate the slug. Maybe it should? But then this is breaking the FPR versioning model, so ...
+            fptool = FPTool.objects.filter(uuid=uuid).update(**tool)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response(
+                {"error": True, "message": "Server failed to handle the request."}, 502
+            )
+
+        return helpers.json_response(
+            {"message": "Tool successfully updated.", "uri": request.path}, 201
+        )
+
+    try:
+        tool = FPTool.objects.get(uuid=uuid)
+    except FPTool.DoesNotExist:
+        return helpers.json_response({"error": True, "message": "Tool not found"}, 400)
+
+    return helpers.json_response(par.to_par_tool(tool))
+
+
+@_api_endpoint(expected_methods=["GET", "POST"])
+def par_tools(request):
+    """
+    POST a PAR tool object to create an fpr.FPTool
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test
+        {"toolName": "md5sum", "toolVersion": "8.13"}
+
+    or
+
+    GET a list of fpr.FPTools as PAR tool objects
+
+    Accepts offset and limit to select a subset of tools
+
+    Examples:
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&offset=10&limit=10
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&offset=100
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&limit=20
+    """
+
+    if request.method == "POST":
+        try:
+            tool = par.to_fpr_tool(json.loads(request.body))
+
+            created_tool = FPTool.objects.create(**tool)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response(
+                {"error": True, "message": "Server failed to handle the request."}, 502
+            )
+
+        return helpers.json_response(
+            {
+                "message": "Tool successfully created.",
+                "uri": request.path + "/" + created_tool.uuid,
+            },
+            201,
+        )
+
+    offset, limit = par.parse_offset_and_limit(request)
+
+    try:
+        tools = FPTool.objects.all()[offset:limit]
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response(
+            {"error": True, "message": "Server failed to handle the request."}, 502
+        )
+
+    return helpers.json_response([par.to_par_tool(fpt) for fpt in tools])
+
+
+@_api_endpoint(expected_methods=["GET"])
+def par_preservation_action_types(request):
+    """
+    GET a list of distinct fpr.FPRule.purpose values as PAR preservation_action_type objects
+
+    Examples:
+      http://127.0.0.1:62080/api/beta/par/preservation_action_types?username=test&api_key=test
+    """
+
+    # REPLACE WITH HARDCODED LIST.. see par.PRESERVATION_ACTION_TYPES
+    # try:
+    #     rules = FPRule.objects.values('purpose').distinct()
+    # except Exception as err:
+    #     LOGGER.error(err)
+    #     return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response(
+        [
+            par.to_par_preservation_action_type(rule)
+            for rule in par.PRESERVATION_ACTION_TYPES
+        ]
+    )
+
+
+@_api_endpoint(expected_methods=["GET", "POST"])
+def par_preservation_actions(request):
+    """
+    GET a list of fpr.FPRules as PAR preservation_action objects
+
+    Accepts offset and limit to select a subset of preservation_actions
+
+    Examples:
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&offset=10&limit=10
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&offset=100
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&limit=20
+    """
+
+    if request.method == "POST":
+        shared_directory_path = django_settings.SHARED_DIRECTORY
+        basedir = os.path.join(
+            django_settings.SHARED_DIRECTORY, "imported_preservation_actions"
+        )
+        try:
+            os.makedirs(basedir)
+        except OSError as e:
+            pass
+
+        validated = par_validator.for_schema(
+            "http://www.parcore.org/schema/preservation-action.json/"
+        ).parse_and_validate(request.body)
+
+        path = os.path.join(basedir, str(uuid.uuid4()) + ".json")
+        with open(path, "w") as f:
+            f.write(json.dumps(validated))
+
+        return helpers.json_response({})
+
+    # Handle GET
+    offset, limit = par.parse_offset_and_limit(request)
+
+    try:
+        rules = FPRule.objects.all()[offset:limit]
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response(
+            {"error": True, "message": "Server failed to handle the request."}, 502
+        )
+
+    return helpers.json_response(
+        [par.to_par_preservation_action(fprule) for fprule in rules]
+    )
+
+
+@_api_endpoint(expected_methods=["GET", "PUT"])
+def par_preservation_action(request, uuid):
+    """
+    PUT a PAR preservation_action  object to update an fpr.FPRule
+
+    Example: http://127.0.0.1:62080/api/beta/par/preservation_actions/111bec2e-e387-4ab9-8e95-86ce7af6adbc?username=test&api_key=test
+        {"description": "My new description"}
+
+    or
+
+    GET an fpr.FPRule as a PAR preservation_action object
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/preservation_actions/111bec2e-e387-4ab9-8e95-86ce7af6adbc?username=test&api_key=test
+          {
+              "description": "Transcoding to mkv with ffmpeg",
+              "id": {
+                  "guid": "111bec2e-e387-4ab9-8e95-86ce7af6adbc",
+                  ...
+    """
+    if request.method == "PUT":
+        try:
+            rule = par.to_fpr_rule(json.loads(request.body))
+
+            # FIXME: This is currently a noop, because heaven knows what we would want to update
+            FPRule.objects.filter(uuid=uuid).update(**rule)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response(
+                {"error": True, "message": "Server failed to handle the request."}, 502
+            )
+
+        return helpers.json_response(
+            {
+                "message": "Preservation action successfully updated.",
+                "uri": request.path,
+            },
+            201,
+        )
+
+    try:
+        rule = FPRule.objects.get(uuid=uuid)
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response(
+            {"error": True, "message": "Server failed to handle the request."}, 502
+        )
+
+    return helpers.json_response(par.to_par_preservation_action(rule))

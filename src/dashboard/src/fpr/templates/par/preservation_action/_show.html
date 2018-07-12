@@ -1,0 +1,33 @@
+<dl class="dl-horizontal">
+    <dt>Id</dt>
+    <dd>{{ action.id }}</dd>
+    <dt>Description</dt>
+    <dd>{{ action.description }}</dd>
+    <dt>Type</dt>
+    <dd>{{ action.type }}</dd>
+    <dt>Tool</dt>
+    <dd>{{ action.tool }}</dd>
+    <dt>Version</dt>
+    <dd>{{ action.version }}</dd>
+    <dt>Example</dt>
+    <dd>{{ action.example }}</dd>
+    <dt>Constraints</dt>
+    <dd><pre>{{ action.constraints }}</pre></dd>
+    <dt>Inputs</dt>
+    <dd><pre>{{ action.inputs }}</pre></dd>
+    <dt>Outputs</dt>
+    <dd><pre>{{ action.outputs }}</pre></dd>
+</dl>
+{% if action.converted %}
+<hr style="width: 90%">
+<dl class="dl-horizontal">
+    <dt>Status</dt>
+    <dd><strong class="text-success">CONVERTED</strong></dd>
+    {% if action.rule %}
+        <dt>FPR Rule</dt>
+        <dd><a href="{% url 'fprule_detail' action.rule_uuid %}">{{action.rule_uuid}}</a></dd>
+        <dt>FPR Command</dt>
+        <dd><a href="{% url 'fpcommand_detail' action.rule.command_id %}">{{action.rule.command_id}}</a></dd>
+    {% endif %}
+</dl>
+{% endif %}

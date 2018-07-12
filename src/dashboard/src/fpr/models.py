@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 :mod:`fpr.models`
 
@@ -371,7 +372,10 @@ class IDTool(models.Model):
     active = Enabled()
 
     def __unicode__(self):
-        return _("%(description)s") % {"description": self.description}
+        return _("%(description)s version %(version)s") % {
+            "description": self.description,
+            "version": self.version,
+        }
 
     def _slug(self):
         """ Returns string to be slugified. """
@@ -565,7 +569,10 @@ class FPTool(models.Model):
         verbose_name = _("Normalization tool")
 
     def __unicode__(self):
-        return _("%(description)s") % {"description": self.description}
+        return _("%(description)s version %(version)s") % {
+            "description": self.description,
+            "version": self.version,
+        }
 
     def _slug(self):
         """ Returns string to be slugified. """

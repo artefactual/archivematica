@@ -40,7 +40,7 @@
           <tr>
             <td><a href="{% url 'format_detail' format.slug %}">{{ format.description }}</a></td>
             <td>
-              {% if request.user.is_superuser %}
+              {% if request.user.is_superuser %}ss
                 <a href="{% url 'formatgroup_edit' format.group_slug %}">{{ format.group_name }}</a>
               {% else %}
                 {{ format.group_name }}

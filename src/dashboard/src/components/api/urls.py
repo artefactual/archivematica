@@ -66,4 +66,14 @@ urlpatterns = [
     url(r"v2beta/validate/([-\w]+)", views.validate, name="validate"),
     url(r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")", views.unit_jobs),
     url(r"v2beta/task/(?P<task_uuid>" + settings.UUID_REGEX + ")", views.task),
+    # PAR endpoints
+    # url(r'beta/par/?$', views.par_swagger),
+    url(r"beta/par/fileFormats/?$", views.par_formats),
+    url(r"beta/par/fileFormats/(?P<pronom_id>.+)", views.par_format),
+    url(r"beta/par/tools/?$", views.par_tools),
+    url(r"beta/par/tools/(?P<uuid>.+)", views.par_tool),
+    url(r"beta/par/preservation_action_types/?$", views.par_preservation_action_types),
+    url(r"beta/par/preservation_actions/?$", views.par_preservation_actions),
+    url(r"beta/par/preservation_actions/(?P<uuid>.+)", views.par_preservation_action),
+    # end PAR endpoints
 ]

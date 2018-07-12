@@ -1,0 +1,50 @@
+{
+  "$id": "http://www.parcore.org/schema/tool.json/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "definitions": {
+    "tool": {
+      "additionalProperties": false,
+      "description": "A software tool or application that can be used to perform preservation actions",
+      "properties": {
+        "id": {
+          "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+        },
+        "localLastModifiedDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "toolAcceptedParameters": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parameter"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "toolLabel": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "toolOperatingEnvironments": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "toolPublisher": {
+          "type": "string"
+        },
+        "toolVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "toolName"
+      ],
+      "type": "object"
+    }
+  }
+}

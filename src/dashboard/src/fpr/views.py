@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+# stdlib, alphabetical
+import json
+import os
+import uuid
+
+# Django core, alphabetical
 from django.apps import apps
+from django.conf import settings as django_settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -9,6 +16,13 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 
+from django.db import IntegrityError
+from django.db import transaction
+
+# External dependencies, alphabetical
+from annoying.functions import get_object_or_None
+
+# This project, alphabetical
 from fpr import forms as fprforms
 from fpr import models as fprmodels
 from fpr import utils
@@ -777,5 +791,232 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
             else:
                 revision.detail_url = reverse(detail_view_name, args=[revision.slug])
 
-        except Exception:
+        except:
             revision.detail_url = reverse(detail_view_name, args=[revision.uuid])
+
+
+# #### PAR #####
+def par_preservation_action_list(request):
+    preservationActions = []
+    basedir = os.path.join(
+        django_settings.SHARED_DIRECTORY, "imported_preservation_actions"
+    )
+
+    if os.path.isdir(basedir):
+        for file_name in os.listdir(basedir):
+            file_path = os.path.join(basedir, file_name)
+            if os.path.isfile(file_path) and file_name.endswith(".json"):
+                with open(file_path) as f:
+                    data = json.load(f)
+                    preservationActions.append(
+                        ParPreservationAction(file_name, file_path, data)
+                    )
+
+    return render(request, "par/preservation_action/list.html", context(locals()))
+
+
+def par_preservation_action_convert(request):
+    basedir = os.path.join(
+        django_settings.SHARED_DIRECTORY, "imported_preservation_actions"
+    )
+    file_name = request.GET["file_name"]
+    file_path = os.path.join(basedir, file_name)
+    if os.path.isfile(file_path) and file_name.endswith(".json"):
+        with open(file_path) as f:
+            data = json.load(f)
+            action = ParPreservationAction(file_name, file_path, data)
+    else:
+        raise Http404
+
+    command_usage_choices = fprmodels.FPCommand.COMMAND_USAGE_CHOICES
+    script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
+    purpose_choices = fprmodels.FPRule.PURPOSE_CHOICES
+
+    try:
+        if action.version is None:
+            fp_tool = fprmodels.FPTool.objects.filter(
+                description__icontains=action.tool, enabled=True
+            ).first()
+        else:
+            fp_tool = fprmodels.FPTool.objects.filter(
+                description__icontains=action.tool,
+                version__icontains=action.version,
+                enabled=True,
+            ).first()
+    except IndexError:
+        fp_tool = None
+
+    if fp_tool and request.method == "POST":
+        # Attempt to look up the pronom ID
+
+        action.populate_from_post(request)
+        print(request.POST)
+
+        try:
+            with transaction.atomic():
+                fpversion = fprmodels.FormatVersion.objects.filter(
+                    pronom_id=action.fprule_format
+                ).first()
+
+                if fpversion is None:
+                    error_message = (
+                        "Format Version not found for %s" % action.fprule_format
+                    )
+                    return render(
+                        request,
+                        "par/preservation_action/convert.html",
+                        context(locals()),
+                    )
+
+                command = fprmodels.FPCommand.objects.create(
+                    uuid=action.id,
+                    tool=fp_tool,
+                    description=action.description,
+                    command=action.command,
+                    script_type=action.type,
+                    command_usage=action.command_usage,
+                    enabled=False,
+                )
+
+                rule = fprmodels.FPRule.objects.create(
+                    uuid=str(uuid.uuid4()),
+                    purpose=action.purpose,
+                    command=command,
+                    format=fpversion,
+                    enabled=False,
+                )
+
+                # rename the file to indicate it has been converted
+                new_file_name = os.path.join(basedir, "%s.CONVERTED.json" % rule.uuid)
+                os.rename(file_path, new_file_name)
+
+                return redirect("par_preservation_action_converted_rule", rule.uuid)
+        except IntegrityError:
+            error_message = "UUID already exists"
+
+    return render(request, "par/preservation_action/convert.html", context(locals()))
+
+
+def par_preservation_action_converted_rule(request, uuid):
+    rule = fprmodels.FPRule.objects.filter(uuid=uuid).first()
+    command = fprmodels.FormatVersion.objects.filter(uuid=rule.command_id).first()
+
+    try:
+        enabled_rule = fprmodels.FPRule.objects.filter(
+            purpose=rule.purpose, format_id=rule.format_id, enabled=True
+        ).first()
+        enabled_command = fprmodels.FPCommand.objects.filter(
+            uuid=rule.command_id
+        ).first()
+    except IndexError:
+        enabled_rule = None
+        enabled_command = None
+
+    return render(request, "par/preservation_action/converted.html", context(locals()))
+
+
+def par_preservation_action_enable_rule(request, uuid):
+    with transaction.atomic():
+        rule = fprmodels.FPRule.objects.get(uuid=uuid)
+
+        fprmodels.FPRule.objects.filter(
+            purpose=rule.purpose, format_id=rule.format_id
+        ).update(enabled=False)
+        fprmodels.FPRule.objects.filter(uuid=rule.uuid).update(enabled=True)
+        fprmodels.FPCommand.objects.filter(uuid=rule.command_id).update(enabled=True)
+
+    return redirect("fprule_detail", uuid)
+
+
+class ParPreservationAction:
+    def __init__(self, file_name, file_location, json):
+        self.file_name = file_name
+        self.file_location = file_location
+
+        bits = self.file_name.split(".")
+        if len(bits) == 3 and bits[1] == "CONVERTED":
+            self.converted = True
+            self.rule_uuid = bits[0]
+            self.rule = fprmodels.FPRule.objects.get(uuid=self.rule_uuid)
+            if self.rule:
+                self.command = fprmodels.FPCommand.objects.get(
+                    uuid=self.rule.command_id
+                )
+        else:
+            self.converted = False
+
+        self.id = json["id"]["guid"]
+        self.description = json["description"]
+        self.type = json["type"]["label"]
+
+        self.script_type = None
+        self.purpose = None
+        self.command_usage = None
+
+        if "tool" in json:
+            if "toolName" in json["tool"]:
+                self.tool = json["tool"]["toolName"]
+            if "toolVersion" in json["tool"]:
+                self.version = json["tool"]["toolVersion"]
+            else:
+                self.version = None
+
+        self._parse_example(json)
+
+        self.fprule_format = self._parse_rule_format(json)
+
+        self.constraints = self._parse_constraints(json)
+        self.inputs = self._parse_inputs(json)
+        self.outputs = self._parse_outpus(json)
+
+        if self.type == "metadata extraction":
+            self.purpose = "characterization"
+            self.command_usage = "characterization"
+
+    def populate_from_post(self, request):
+        self.fprule_format = request.POST["pronom_id"]
+        self.id = request.POST["command_id"]
+        self.description = request.POST["command_description"]
+        self.command = request.POST["command_command"]
+        self.script_type = request.POST["script_type"]
+        self.command_usage = request.POST["command_usage"]
+        self.purpose = request.POST["purpose"]
+
+    def _parse_constraints(self, json_dict):
+        if "constraints" in json_dict:
+            return json.dumps(json_dict["constraints"], indent=2)
+
+        return None
+
+    def _parse_inputs(self, json_dict):
+        if "inputs" in json_dict:
+            return json.dumps(json_dict["inputs"], indent=2)
+
+        return None
+
+    def _parse_outpus(self, json_dict):
+        if "outputs" in json_dict:
+            return json.dumps(json_dict["outputs"], indent=2)
+
+        return None
+
+    def _parse_rule_format(self, json_dict):
+        if "constraints" in json_dict:
+            if len(json_dict["constraints"]) > 0:
+                if "allowedFormats" in json_dict["constraints"][0]:
+                    for allowed_format in json_dict["constraints"][0]["allowedFormats"]:
+                        if "id" in allowed_format:
+                            if "name" in allowed_format["id"]:
+                                return allowed_format["id"]["name"]
+        return None
+
+    def _parse_example(self, json_dict):
+        self.example = json_dict["example"]
+        self.command = self.example
+
+        if "commandline" in self.command:
+            self.script_type = "command"
+            self.command = self.command.replace("commandline", "").strip().strip("'")
+
+        if "inputFile" in self.command:
+            self.command = self.command.replace("inputFile", '"%fileFullName%"')

@@ -1,0 +1,51 @@
+{
+  "constraints": [
+    {
+      "allowedFormats": [
+        {
+          "id": {
+            "guid": "bf5ae53e-ffb4-4c40-a4f2-5b8e7c53e602",
+            "name": "x-fmt/384",
+            "namespace": "http://www.nationalarchives.gov.uk/"
+          },
+          "localLastModifiedDate": "2018-06-14T15:00:00.0Z",
+          "name": "Quicktime"
+        }
+      ],
+      "inputItemName": "inputfile"
+    }
+  ],
+  "description": "Extraction of properties for Video files using MediaInfo",
+  "example": "commandline 'mediainfo --Output=EBUCore inputfile'",
+  "id": {
+    "guid": "1caa0cde-e345-44ac-8d83-51afaa7427b6",
+    "name": "MediaInfo3",
+    "namespace": "http://www.parcore.org/preservation-actions"
+  },
+  "inputFiles": [
+    {
+      "description": "File that will have metadata extracted from",
+      "file": {
+        "filepath": ""
+      },
+      "name": "inputfile"
+    }
+  ],
+  "rawOutputs": [{
+      "description": "EBUCore XML output from MediaInfo",
+      "name": "EBUCore",
+      "value": "XML"
+      }],
+  "tool": {
+    "toolID": "mediainfo",
+    "toolName": "mediainfo"
+  },
+  "type": {
+    "id": {
+      "guid": "ed411b7f-1e0f-4486-b7b7-9a06835c04d9",
+      "name": "http://id.loc.gov/vocabulary/preservation/eventType/mee",
+      "namespace": "url"
+    },
+    "label": "metadata extraction"
+  }
+}

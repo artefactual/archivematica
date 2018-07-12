@@ -1,0 +1,96 @@
+{
+  "$id": "http://www.parcore.org/schema/business-rule.json/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "action": {
+      "properties": {
+        "optionalInputProperties": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/preservation-action.json/#/definitions/inputProperty"
+          },
+          "type": "array"
+        },
+        "outputFilesRetrieved": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/preservation-action.json/#/definitions/outputFile"
+          },
+          "type": "array"
+        },
+        "outputPropertiesRetrieved": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/preservation-action.json/#/definitions/outputProperty"
+          },
+          "type": "array"
+        },
+        "preservationAction": {
+          "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "rawOutputsRetrieved": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/preservation-action.json/#/definitions/outputRaw"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "preservationAction"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "A Business Rule describes additional context asserting how a Preservation Action should be performed. This allows the author of the rule to specify for example, a priority order in which to attempt certain Preservation Actions on particular content types, which inputs to supply, which outputs to extract etc. It also allows some free text fields to provide justification or share experience.",
+  "properties": {
+    "description": {
+      "description": "A short human readable explanation/display name for the Business Rule, e.g. 'Use md5sum to perform the MD5Check Preservation Action for all files'",
+      "type": "string"
+    },
+    "formatFamilies": {
+      "description": "A list of format families that this Business Rule should be applied to",
+      "items": {
+        "$ref": "http://www.parcore.org/schema/types.json/#/definitions/formatFamily"
+      },
+      "type": "array"
+    },
+    "formats": {
+      "description": "A list of file formats that this Business Rule should be applied to",
+      "items": {
+        "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+      },
+      "type": "array"
+    },
+    "id": {
+      "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+    },
+    "localLastModifiedDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "notes": {
+      "description": "A free text field for providing additional context. This may be used to record the decision making process that led to the formulation of this rule, details of real-world experience in applying the rule, or any other text.",
+      "type": "string"
+    },
+    "preservationActionTypes": {
+      "description": "A list of Preservation Action Types that this Business Rule should be applied to. This might be a subset of those that the Preservation Actions themselves apply to. For example, a file format transformation action might itself apply to Migration and Normalization action types, but the Business Rule might be applicable only to Normalization",
+      "items": {
+        "$ref": "http://www.parcore.org/schema/preservation-action-type.json/#"
+      },
+      "type": "array"
+    },
+    "preservationActions": {
+      "description": "A list of specific actions. These are defined internally to reference the Core Preservation Action, the priority order in which it should be performed, and any inputs and outputs that should be used.",
+      "items": {
+        "$ref": "http://www.parcore.org/schema/business-rule.json/#/definitions/action"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Business Rule",
+  "type": "object"
+}

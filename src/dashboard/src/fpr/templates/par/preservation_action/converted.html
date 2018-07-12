@@ -1,0 +1,76 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
+{% block page_title %}{% trans "Converted FPR Rule" %}{% endblock page_title %}
+
+{% block extra_css %}
+  {{ block.super }}
+{% endblock extra_css %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "PAR" %}</li>
+<li>{% trans "Preservation Actions" %}</li>
+<li>{% trans "Converted" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div id="par-convert" class="row">
+
+    <div class="col-sm-12">
+        <div class="alert alert-info">Please be aware the new FPR rule and command are disabled by default. To enable the rule and command, please review those they will replace and click 'Enable New Rule'.</div>
+
+        <h3>Converted Rule</h3>
+        <div class="well">
+            <h4>Rule</h4>
+            <dl class="dl-horizontal">
+                <dt>UUID</dt>
+                <dd><a href="{% url 'fprule_detail' rule.uuid %}" target="_blank">{{ rule.uuid }}</a></dd>
+            </dl>
+
+            <h4>Command</h4>
+            <dl class="dl-horizontal">
+                <dt>UUID</dt>
+                <dd><a href="{% url 'fpcommand_detail' rule.command_id %}" target="_blank">{{ rule.command_id }}</a></dd>
+            </dl>
+        </div>
+
+
+        <dl>
+
+        <h3>Currently Enabled Rule</h3>
+        {% if enabled_rule %}
+            <div class="well">
+                <h4>Rule</h4>
+                <dl class="dl-horizontal">
+                    <dt>UUID</dt>
+                    <dd><a href="{% url 'fprule_detail' enabled_rule.uuid %}" target="_blank">{{ enabled_rule.uuid }}</a></dd>
+                </dl>
+
+                {% if enabled_command %}
+                <h4>Command</h4>
+                <dl class="dl-horizontal">
+                    <dt>UUID</dt>
+                    <dd><a href="{% url 'fpcommand_detail' enabled_command.uuid %}" target="_blank">{{ enabled_command.uuid }}</a></dd>
+                </dl>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>No enabled rule for this purpose and format.</p>
+        {% endif %}
+
+        <hr>
+
+        <form method ="POST" action="{% url 'par_preservation_action_enable_rule' rule.uuid %}">
+              <div class="col-sm-12">
+              <input type="submit" value="Enable New Rule" class="btn btn-success"/>
+              <a href="/fpr/par/" class="btn btn-link">Cancel</a>
+          </div>
+        </form>
+    </div>
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

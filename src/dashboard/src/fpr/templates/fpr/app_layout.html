@@ -18,12 +18,29 @@
     {% block breadcrumbs %}{% endblock breadcrumbs %}
   </ul>
 
+<div>
+  <ul class="nav nav-tabs" role="tablist">
+      {% with '/fpr/par' as par_path %}
+          {% if 'par' in request.path_info %}
+              <li role="presentation"><a href="/fpr/format/" role="tab">{% trans "FPR" %}</a></li>
+              <li role="presentation" class="active"><a href="/fpr/par/" aria-controls="active" role="tab">{% trans "PAR Preservation Actions" %}</a></li>
+          {% else %}
+              <li role="presentation" class="active"><a href="/fpr/format/" aria-controls="active" role="tab">{% trans "FPR" %}</a></li>
+              <li role="presentation"><a href="/fpr/par/" role="tab">{% trans "PAR Preservation Actions" %}</a></li>
+          {% endif %}
+      {% endwith %}
+  </ul>
+
+  <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="active">
   <h1>{% block page_title %}{% endblock page_title %}</h1>
 
   {% block app_content %}{% endblock app_content %}
 
 {% endblock content %}
-
+    </div>
+  </div>
+</div>
 {% block extra_js %}
   <script src="{% static 'vendor/datatables/js/jquery.dataTables.min.js' %}"></script>
   <script>

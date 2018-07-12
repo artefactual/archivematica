@@ -34,6 +34,7 @@ greenlet==0.4.15          # via gevent
 gunicorn==19.9.0
 idna==2.8                 # via requests
 ipaddress==1.0.22         # via cryptography
+jsonschema==2.6.0	      # Add to base.in
 lazy-paged-sequence==0.3
 logutils==0.3.3
 lxml==3.5.0
