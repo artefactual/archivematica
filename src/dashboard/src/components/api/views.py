@@ -752,8 +752,24 @@ def par_format(request, pronom_id):
     """
 
     try:
-        fv = FormatVersion.active.get(pronom_id=pronom_id)
+        format_version = FormatVersion.active.get(pronom_id=pronom_id)
     except FormatVersion.DoesNotExist:
         return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
 
-    return helpers.json_response(par.to_file_format(fv))
+    return helpers.json_response(par.to_file_format(format_version))
+
+@_api_endpoint(expected_methods=['GET'])
+def par_formats(request):
+    """
+    GET a list of fpr.FormatVersions as PAR format objects
+
+    Example: http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+    """
+
+    try:
+        format_versions = FormatVersion.active.all()
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response([par.to_file_format(fv) for fv in format_versions])
