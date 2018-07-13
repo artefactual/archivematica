@@ -41,9 +41,10 @@ from components import helpers
 from main import models
 from processing import install_builtin_config
 
-# This project PAR related
+# PAR related
 from fpr.models import FormatVersion
 from components import par
+from datetime import datetime
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
@@ -763,11 +764,32 @@ def par_formats(request):
     """
     GET a list of fpr.FormatVersions as PAR format objects
 
-    Example: http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+    Accepts modifiedBefore and modifiedAfter filters as 'YYYY-MM-DD'
+    FIXME: the current state of the spec asks for time and timezone support too so might have to add that later
+
+    Examples:
+      All:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+      Modified after 2010-01-01:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01
+      Modified after 2010-01-01 and before 2010-06-30:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&modifiedBefore=2010-06-30
     """
 
+    after = request.GET.get('modifiedAfter')
+    before = request.GET.get('modifiedBefore')
+
     try:
-        format_versions = FormatVersion.active.all()
+        format_versions = FormatVersion.active
+        if after != None:
+            format_versions = format_versions.filter(lastmodified__gt=datetime.strptime(after, '%Y-%m-%d'))
+
+        if before != None:
+            format_versions = format_versions.filter(lastmodified__lt=datetime.strptime(before, '%Y-%m-%d'))
+
+        if after == None and before == None:
+            format_versions = format_versions.all()
+
     except Exception as err:
         LOGGER.error(err)
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
