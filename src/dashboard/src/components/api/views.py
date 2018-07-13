@@ -40,7 +40,10 @@ from components.unit import views as unit_views
 from components import helpers
 from main import models
 from processing import install_builtin_config
+
+# This project PAR related
 from fpr.models import FormatVersion
+from components import par
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
@@ -753,12 +756,4 @@ def par_format(request, pronom_id):
     except FormatVersion.DoesNotExist:
         return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
 
-    response = {
-        'id': fv.pronom_id,
-        'localLastModifiedDate': str(fv.lastmodified),
-        'version': fv.version,
-        'name': fv.slug,
-        'description': fv.description
-        }
-
-    return helpers.json_response(response)
+    return helpers.json_response(par.to_file_format(fv))
