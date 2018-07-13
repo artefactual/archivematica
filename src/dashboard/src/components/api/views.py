@@ -42,7 +42,7 @@ from main import models
 from processing import install_builtin_config
 
 # PAR related
-from fpr.models import FormatVersion
+from fpr.models import Format, FormatGroup, FormatVersion
 from components import par
 from datetime import datetime
 
@@ -757,11 +757,21 @@ def par_format(request, pronom_id):
     except FormatVersion.DoesNotExist:
         return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
 
-    return helpers.json_response(par.to_file_format(format_version))
+    return helpers.json_response(par.to_par_file_format(format_version))
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=['GET', 'POST'])
 def par_formats(request):
     """
+    POST a PAR format object to create an fpr.FormatVersion ... and possibly an fpr.Format and fpr.FormatGroup
+
+    FIXME: Some tricky logic in the mapping has been largely fudged so far
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
+        {"id": "fmt/jjj", "description": "111 Happy Street", "families": ["Audio"]}
+
+    or
+
     GET a list of fpr.FormatVersions as PAR format objects
 
     Accepts modifiedBefore and modifiedAfter filters as 'YYYY-MM-DD'
@@ -776,16 +786,47 @@ def par_formats(request):
         http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&modifiedBefore=2010-06-30
     """
 
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body)
+            format_version = par.to_fpr_format_version(payload)
+
+            # See if a format already exists for this version
+            format = Format.objects.filter(description=format_version.get('description')).first()
+
+            if format == None:
+                # We need to create a format
+                group_name = payload.get('families', [format_version['description']])[0]
+                group = FormatGroup.objects.filter(description=group_name).first()
+                if group == None:
+                    # And a group ... sigh
+                    # Note: The db says a format doesn't need a group, but the dashboard blows up if it doesn't have one
+                    group = FormatGroup.objects.create(par.to_fpr_format_group(group_name))
+
+                format_hash = par.to_fpr_format(payload)
+                format_hash['group_id'] = group.uuid
+                format = Format.objects.create(**format_hash)
+
+            format_version['format_id'] = format.uuid
+
+            FormatVersion.objects.create(**format_version)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+        return helpers.json_response({'message': 'File format successfully created.', 'uri': request.path + '/' + format_version['pronom_id']}, 201)
+
+
     after = request.GET.get('modifiedAfter')
     before = request.GET.get('modifiedBefore')
 
     try:
         format_versions = FormatVersion.active
         if after != None:
-            format_versions = format_versions.filter(lastmodified__gt=datetime.strptime(after, '%Y-%m-%d'))
+            format_versions = format_versions.filter(lastmodified__gte=datetime.strptime(after, '%Y-%m-%d'))
 
         if before != None:
-            format_versions = format_versions.filter(lastmodified__lt=datetime.strptime(before, '%Y-%m-%d'))
+            format_versions = format_versions.filter(lastmodified__lte=datetime.strptime(before, '%Y-%m-%d'))
 
         if after == None and before == None:
             format_versions = format_versions.all()
@@ -794,4 +835,4 @@ def par_formats(request):
         LOGGER.error(err)
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
-    return helpers.json_response([par.to_file_format(fv) for fv in format_versions])
+    return helpers.json_response([par.to_par_file_format(fv) for fv in format_versions])
