@@ -13,7 +13,6 @@ def to_par_file_format(format_version):
 
 def to_fpr_format_version(file_format):
     return {
-        'enabled': 1,
         'version': file_format.get('version'),
         'pronom_id': file_format.get('id'),
         'description': file_format.get('description'),
@@ -24,7 +23,7 @@ def to_fpr_format_group(group):
         'description': group,
         }
 
-def to_fpr_format(file_format):
+def to_fpr_format(format):
     return {
-        'description': file_format.get('description'),
+        'description': format,
         }

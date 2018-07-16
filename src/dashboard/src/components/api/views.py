@@ -792,7 +792,7 @@ def par_formats(request):
             format_version = par.to_fpr_format_version(payload)
 
             # See if a format already exists for this version
-            format = Format.objects.filter(description=format_version.get('description')).first()
+            format = Format.objects.filter(description=format_version['description']).first()
 
             if format == None:
                 # We need to create a format
@@ -803,7 +803,7 @@ def par_formats(request):
                     # Note: The db says a format doesn't need a group, but the dashboard blows up if it doesn't have one
                     group = FormatGroup.objects.create(par.to_fpr_format_group(group_name))
 
-                format_hash = par.to_fpr_format(payload)
+                format_hash = par.to_fpr_format(format_version['description'])
                 format_hash['group_id'] = group.uuid
                 format = Format.objects.create(**format_hash)
 
