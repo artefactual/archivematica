@@ -28,3 +28,16 @@ def to_fpr_format(format):
     return {
         'description': format,
         }
+
+def to_par_tool(tool):
+    return {
+        'toolId': tool.slug,
+        'toolVersion': tool.version,
+        'toolName': tool.description,
+        }
+
+def to_fpr_tool(tool):
+    return {
+        'description': tool.get('toolName'),
+        'version': tool.get('toolVersion'),
+        }

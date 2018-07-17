@@ -43,7 +43,7 @@ from processing import install_builtin_config
 
 # PAR related
 #from rest_framework_swagger.views import get_swagger_view
-from fpr.models import Format, FormatGroup, FormatVersion
+from fpr.models import Format, FormatGroup, FormatVersion, FPTool
 from components import par
 from datetime import datetime
 
@@ -747,6 +747,7 @@ def _package_create(request):
 
 #par_swagger = get_swagger_view(title='Test')
 
+
 @_api_endpoint(expected_methods=['GET'])
 def par_format(request, pronom_id):
     """
@@ -761,6 +762,7 @@ def par_format(request, pronom_id):
         return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
 
     return helpers.json_response(par.to_par_file_format(format_version))
+
 
 @_api_endpoint(expected_methods=['GET', 'POST'])
 def par_formats(request):
@@ -839,3 +841,57 @@ def par_formats(request):
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
     return helpers.json_response([par.to_par_file_format(fv) for fv in format_versions])
+
+
+@_api_endpoint(expected_methods=['GET'])
+def par_tool(request, slug):
+    """
+    GET an fpr.tool by slug and return it as a PAR tool object
+
+    Example: http://127.0.0.1:62080/api/beta/par/tools/jhove-16?username=test&api_key=test
+    """
+
+    try:
+        tool = FPTool.objects.get(slug=slug)
+    except FPTool.DoesNotExist:
+        return helpers.json_response({'error': True, 'message': 'Tool not found'}, 400)
+
+    return helpers.json_response(par.to_par_tool(tool))
+
+
+@_api_endpoint(expected_methods=['GET', 'POST'])
+def par_tools(request):
+    """
+    POST a PAR tool object to create an fpr.FPTool
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test
+        {"toolName": "md5sum", "toolVersion": "8.13"}
+
+    or
+
+    GET a list of fpr.FPTools as PAR tool objects
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test
+    """
+
+    if request.method == 'POST':
+        try:
+            tool = par.to_fpr_tool(json.loads(request.body))
+
+            created_tool = FPTool.objects.create(**tool)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+        return helpers.json_response({'message': 'Tool successfully created.', 'uri': request.path + '/' + created_tool.slug}, 201)
+
+
+    try:
+        tools = FPTool.objects.all()
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response([par.to_par_tool(fpt) for fpt in tools])
