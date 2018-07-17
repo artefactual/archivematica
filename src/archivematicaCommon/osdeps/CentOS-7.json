@@ -14,8 +14,7 @@
    { "name": "epel-release", "state": "latest"}
   ],
   "osdeps_packages_2": [
-   { "name": "gcc", "state": "latest"},
-   { "name": "mariadb-devel", "state": "latest"}
+   { "name": "gcc", "state": "latest"}
   ]
 
 }
