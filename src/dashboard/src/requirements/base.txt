@@ -8,6 +8,7 @@ django-model-utils==1.3.1
 logutils==0.3.3
 django-tastypie==0.13.2
 django-extensions==1.1.1
+django-rest-swagger>=2.0
 elasticsearch>=1.0.0,<2.0.0
 git+https://github.com/artefactual/archivematica-fpr-admin.git@v1.7.7#egg=archivematica-fpr-admin
 gearman==2.0.2

@@ -745,6 +745,8 @@ def _package_create(request):
     return helpers.json_response({'id': id_}, 202)
 
 
+#par_swagger = get_swagger_view(title='Test')
+
 @_api_endpoint(expected_methods=['GET'])
 def par_format(request, pronom_id):
     """

@@ -307,6 +307,9 @@ INSTALLED_APPS = [
 
     # Support long (>30 characters) usernames
     'longerusername',
+
+    # Swagger
+    #'rest_framework_swagger',
 ]
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
