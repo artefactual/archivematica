@@ -8,7 +8,8 @@ def to_par_file_format(format_version):
         'localLastModifiedDate': str(format_version.lastmodified),
         'version': format_version.version,
         'name': format_version.slug,
-        'description': format_version.description
+        'description': format_version.description,
+        'families': [format_version.format.group.description],
         }
 
 def to_fpr_format_version(file_format):
