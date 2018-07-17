@@ -42,6 +42,7 @@ from main import models
 from processing import install_builtin_config
 
 # PAR related
+#from rest_framework_swagger.views import get_swagger_view
 from fpr.models import Format, FormatGroup, FormatVersion
 from components import par
 from datetime import datetime
@@ -753,7 +754,7 @@ def par_format(request, pronom_id):
     """
 
     try:
-        format_version = FormatVersion.active.get(pronom_id=pronom_id)
+        format_version = FormatVersion.active.filter(pronom_id=pronom_id)[0]
     except FormatVersion.DoesNotExist:
         return helpers.json_response({'error': True, 'message': 'File format not found'}, 400)
 
