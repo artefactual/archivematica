@@ -888,8 +888,12 @@ def par_tools(request):
         return helpers.json_response({'message': 'Tool successfully created.', 'uri': request.path + '/' + created_tool.slug}, 201)
 
 
+    offset = request.GET.get('offset')
+    limit = request.GET.get('limit')
+    if offset != None and limit != None: limit = int(offset) + int(limit)
+
     try:
-        tools = FPTool.objects.all()
+        tools = FPTool.objects.all()[offset:limit]
     except Exception as err:
         LOGGER.error(err)
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
