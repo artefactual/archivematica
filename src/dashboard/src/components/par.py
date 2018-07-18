@@ -8,9 +8,15 @@ def parse_offset_and_limit(request):
     if offset != None and limit != None: limit = int(offset) + int(limit)
     return offset, limit
 
+def to_par_id(id, uuid):
+    return {
+        'guid': uuid,
+        'name': id,
+        }
+
 def to_par_file_format(format_version):
     return {
-        'id': format_version.pronom_id,
+        'id': to_par_id(format_version.pronom_id, format_version.format.uuid),
         'localLastModifiedDate': str(format_version.lastmodified),
         'version': format_version.version,
         'name': format_version.slug,
@@ -50,7 +56,7 @@ def to_fpr_tool(tool):
 
 def to_par_preservation_action_type(type):
     return {
-        'id': type,
+        'id': to_par_id(type, type),
         'label': type,
         }
 
@@ -62,7 +68,7 @@ def to_par_io_file(name):
 
 def to_par_preservation_action(rule):
     return {
-        'id': rule.uuid,
+        'id': to_par_id(rule.uuid, rule.uuid),
         'description': rule.command.description,
         'type': to_par_preservation_action_type(rule.purpose),
         'inputs': [to_par_io_file(rule.format.description)],
