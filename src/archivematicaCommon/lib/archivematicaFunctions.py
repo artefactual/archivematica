@@ -260,7 +260,7 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
         msg = u'Assigning UUID {} to directory path {}'.format(
-            dir_uuid, dir_path)
+            strToUnicode(dir_uuid), strToUnicode(dir_path))
         printfn(msg)
         if logger:
             logger.info(msg)
@@ -316,8 +316,8 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         if logger:
             logger.info(u'Unable to construct empty directories, either because'
                         ' there is no METS file at {} or because there is no'
-                        ' objects/ directory at {}'.format(mets_file_path,
-                                                           objects_path))
+                        ' objects/ directory at {}'.format(strToUnicode(mets_file_path),
+                                                           strToUnicode(objects_path)))
         return
     doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
     logical_struct_map_el = doc.find(
@@ -327,7 +327,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         if logger:
             logger.info(u'Unable to locate a logical structMap labelled {}.'
                         ' Aborting attempt to reconstruct empty'
-                        ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
+                        ' directories.'.format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL)))
         return
     root_div_el = logical_struct_map_el.find(
         'mets:div/mets:div[@LABEL="objects"]', NSMAP)
@@ -335,7 +335,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         if logger:
             logger.info(u'Unable to locate a logical structMap labelled {}.'
                         ' Aborting attempt to reconstruct empty'
-                        ' directories.'.format(NORMATIVE_STRUCTMAP_LABEL))
+                        ' directories.'.format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL)))
         return
     paths = div_el_to_dir_paths(root_div_el, include=False)
     if logger:
