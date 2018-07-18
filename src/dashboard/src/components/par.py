@@ -15,7 +15,7 @@ def to_par_file_format(format_version):
         'version': format_version.version,
         'name': format_version.slug,
         'description': format_version.description,
-        'families': [format_version.format.group.description],
+        'types': [format_version.format.group.description],
         }
 
 def to_fpr_format_version(file_format):

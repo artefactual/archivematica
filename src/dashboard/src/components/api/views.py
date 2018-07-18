@@ -773,7 +773,7 @@ def par_formats(request):
 
     Example:
       http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test
-        {"id": "fmt/jjj", "description": "111 Happy Street", "families": ["Audio"]}
+        {"id": "fmt/jjj", "description": "111 Happy Street", "types": ["Audio"]}
 
     or
 
@@ -804,7 +804,7 @@ def par_formats(request):
 
             if format == None:
                 # We need to create a format
-                group_name = payload.get('families', [format_version['description']])[0]
+                group_name = payload.get('types', [format_version['description']])[0]
                 group = FormatGroup.objects.filter(description=group_name).first()
                 if group == None:
                     # And a group ... sigh
