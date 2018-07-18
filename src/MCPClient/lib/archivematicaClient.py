@@ -120,7 +120,7 @@ def handle_batch_task(gearman_job):
 
         job = Job(gearman_job.task,
                   task_data['uuid'],
-                  shlex.split(arguments),
+                  _parse_command_line(arguments),
                   caller_wants_output=task_data['wants_output'])
         jobs.append(job)
 
@@ -141,6 +141,17 @@ def handle_batch_task(gearman_job):
         module.call(jobs)
 
     return jobs
+
+
+def _parse_command_line(s):
+    return [_shlex_unescape(x) for x in shlex.split(s)]
+
+
+# If we're looking at an escaped backtick, drop the escape
+# character.  Shlex doesn't do this but bash unescaping does, and we
+# want to remain compatible.
+def _shlex_unescape(s):
+    return ''.join(c1 for c1, c2 in zip(s, s[1:] + '.') if (c1, c2) != ('\\', '`'))
 
 
 def fail_all_tasks(gearman_job, reason):
