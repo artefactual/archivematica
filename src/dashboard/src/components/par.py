@@ -2,6 +2,12 @@
 PAR related gubbins
 """
 
+def parse_offset_and_limit(request):
+    offset = request.GET.get('offset')
+    limit = request.GET.get('limit')
+    if offset != None and limit != None: limit = int(offset) + int(limit)
+    return offset, limit
+
 def to_par_file_format(format_version):
     return {
         'id': format_version.pronom_id,

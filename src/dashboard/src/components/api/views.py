@@ -780,6 +780,7 @@ def par_formats(request):
     GET a list of fpr.FormatVersions as PAR format objects
 
     Accepts modifiedBefore and modifiedAfter filters as 'YYYY-MM-DD'
+    Also accepts offset and limit to return a subset of fileFormats
     FIXME: the current state of the spec asks for time and timezone support too so might have to add that later
 
     Examples:
@@ -789,6 +790,8 @@ def par_formats(request):
         http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01
       Modified after 2010-01-01 and before 2010-06-30:
         http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&modifiedBefore=2010-06-30
+      Paginated:
+        http://127.0.0.1:62080/api/beta/par/fileFormats?username=test&api_key=test&modifiedAfter=2010-01-01&offset=100&limit=20
     """
 
     if request.method == 'POST':
@@ -825,6 +828,8 @@ def par_formats(request):
     after = request.GET.get('modifiedAfter')
     before = request.GET.get('modifiedBefore')
 
+    offset, limit = par.parse_offset_and_limit(request)
+
     try:
         format_versions = FormatVersion.active
         if after != None:
@@ -840,7 +845,7 @@ def par_formats(request):
         LOGGER.error(err)
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
-    return helpers.json_response([par.to_par_file_format(fv) for fv in format_versions])
+    return helpers.json_response([par.to_par_file_format(fv) for fv in format_versions[offset:limit]])
 
 
 @_api_endpoint(expected_methods=['GET'])
@@ -872,8 +877,13 @@ def par_tools(request):
 
     GET a list of fpr.FPTools as PAR tool objects
 
-    Example:
+    Accepts offset and limit to select a subset of tools
+
+    Examples:
       http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&offset=10&limit=10
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&offset=100
+      http://127.0.0.1:62080/api/beta/par/tools?username=test&api_key=test&limit=20
     """
 
     if request.method == 'POST':
@@ -888,9 +898,7 @@ def par_tools(request):
         return helpers.json_response({'message': 'Tool successfully created.', 'uri': request.path + '/' + created_tool.slug}, 201)
 
 
-    offset = request.GET.get('offset')
-    limit = request.GET.get('limit')
-    if offset != None and limit != None: limit = int(offset) + int(limit)
+    offset, limit = par.parse_offset_and_limit(request)
 
     try:
         tools = FPTool.objects.all()[offset:limit]
