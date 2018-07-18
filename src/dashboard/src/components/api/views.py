@@ -43,7 +43,7 @@ from processing import install_builtin_config
 
 # PAR related
 #from rest_framework_swagger.views import get_swagger_view
-from fpr.models import Format, FormatGroup, FormatVersion, FPTool
+from fpr.models import Format, FormatGroup, FormatVersion, FPTool, FPRule
 from components import par
 from datetime import datetime
 
@@ -907,3 +907,28 @@ def par_tools(request):
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
     return helpers.json_response([par.to_par_tool(fpt) for fpt in tools])
+
+
+@_api_endpoint(expected_methods=['GET'])
+def par_preservation_actions(request):
+    """
+    GET a list of fpr.FPRules as PAR preservation_action objects
+
+    Accepts offset and limit to select a subset of preservation_actions
+
+    Examples:
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&offset=10&limit=10
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&offset=100
+      http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&limit=20
+    """
+
+    offset, limit = par.parse_offset_and_limit(request)
+
+    try:
+        rules = FPRule.objects.all()[offset:limit]
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response([par.to_par_preservation_action(fprule) for fprule in rules])

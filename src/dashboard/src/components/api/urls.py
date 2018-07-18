@@ -45,9 +45,12 @@ urlpatterns = [
 
     url(r'v2beta/package', views.package),
 
+    # PAR endpoints
     #url(r'beta/par/?$', views.par_swagger),
     url(r'beta/par/fileFormats/?$', views.par_formats),
     url(r'beta/par/fileFormats/(?P<pronom_id>.+)', views.par_format),
     url(r'beta/par/tools/?$', views.par_tools),
     url(r'beta/par/tools/(?P<slug>.+)', views.par_tool),
+    url(r'beta/par/preservation_actions/?$', views.par_preservation_actions),
+    # end PAR endpoints
 ]
