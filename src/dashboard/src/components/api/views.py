@@ -910,6 +910,24 @@ def par_tools(request):
 
 
 @_api_endpoint(expected_methods=['GET'])
+def par_preservation_action_types(request):
+    """
+    GET a list of distinct fpr.FPRule.purpose values as PAR preservation_action_type objects
+
+    Examples:
+      http://127.0.0.1:62080/api/beta/par/preservation_action_types?username=test&api_key=test
+    """
+
+    try:
+        rules = FPRule.objects.values('purpose').distinct()
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response([par.to_par_preservation_action_type(rule['purpose']) for rule in rules])
+
+
+@_api_endpoint(expected_methods=['GET'])
 def par_preservation_actions(request):
     """
     GET a list of fpr.FPRules as PAR preservation_action objects
