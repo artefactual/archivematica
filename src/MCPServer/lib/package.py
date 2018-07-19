@@ -139,6 +139,18 @@ def _check_filepath_exists(filepath):
     return None
 
 
+_default_location_uuid = None
+
+
+def _default_transfer_source_location_uuid():
+    if _default_location_uuid is not None:
+        return _default_location_uuid
+    location = storage_service.get_default_location('TS')
+    global _default_location_uuid
+    _default_location_uuid = location['uuid']
+    return _default_location_uuid
+
+
 def _copy_from_transfer_sources(paths, relative_destination):
     """Copy files from source locations to the currently processing location.
 
@@ -154,11 +166,9 @@ def _copy_from_transfer_sources(paths, relative_destination):
     files = {l['uuid']: {'location': l, 'files': []} for l in transfer_sources}
 
     for item in paths:
-        try:
-            location, path = item.split(':', 1)
-        except ValueError:
-            raise Exception(
-                'Path {} cannot be split into location:path'.format(item))
+        location, path = Path(item).parts()
+        if location is None:
+            location = _default_transfer_source_location_uuid()
         if location not in files:
             raise Exception('Location %(location)s is not associated'
                             ' with this pipeline' % {'location': location})
@@ -316,7 +326,7 @@ def _capture_transfer_failure(fn):
 def _determine_transfer_paths(name, path, tmpdir):
     if _file_is_an_archive(path):
         transfer_dir = tmpdir
-        p = path.split(':', 1)[1]
+        p = Path(path).path
         filepath = os.path.join(tmpdir, os.path.basename(p))
     else:
         path = os.path.join(path, '.')  # Copy contents of dir but not dir
@@ -378,3 +388,25 @@ def _start_package_transfer(
     logger.debug('Package %s: moving package to activeTransfers dir (from=%s,'
                  ' to=%s)', transfer.pk, filepath, starting_point.watched_dir)
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
+
+
+class Path(object):
+    """Path wraps a path that is a pair of two values: UUID and path."""
+    uuid, path = None, None
+
+    def __init__(self, path, sep=":"):
+        self.sep = sep
+        parts = path.partition(self.sep)
+        if parts[1] != self.sep:
+            self.path = parts[0]
+        else:
+            self.uuid = parts[0]
+            self.path = parts[2]
+
+    def __repr__(self):
+        return "%s (uuid=%r, sep=%r, path=%r)" % (
+            self.__class__,
+            self.uuid, self.sep, self.path)
+
+    def parts(self):
+        return self.uuid, self.path

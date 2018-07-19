@@ -178,6 +178,13 @@ def get_location(path=None, purpose=None, space=None):
     return return_locations
 
 
+def get_default_location(purpose):
+    url = _storage_service_url() + 'location/default/{}'.format(purpose)
+    response = _storage_api_session().get(url)
+    response.raise_for_status()
+    return response.json()
+
+
 def browse_location(uuid, path):
     """
     Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
