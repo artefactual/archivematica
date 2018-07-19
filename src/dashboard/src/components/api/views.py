@@ -60,6 +60,14 @@ def _api_endpoint(expected_methods):
             if request.method not in expected_methods:
                 return django.http.HttpResponseNotAllowed(expected_methods)  # 405
 
+            # Disable CSRF protection when Shibboleth is enabled.
+            # This is necessary when we're authenticating the user with
+            # `SessionAuthentication` because in a Shibboleth-enabled
+            # environment the `csrftoken` cookie is never set. This is likely
+            # not a problem since Shibboleth provides equivalent protections.
+            if django_settings.SHIBBOLETH_AUTHENTICATION:
+                request._dont_enforce_csrf_checks = True
+
             # Auth
             auth_error = authenticate_request(request)
             if auth_error is not None:
