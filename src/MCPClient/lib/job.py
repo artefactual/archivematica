@@ -58,18 +58,23 @@ class Job():
         self.error += s
 
     def print_output(self, *args):
-        self.write_output(' '.join([str(x) for x in args]) + "\n")
+        self.write_output(' '.join([self._to_str(x) for x in args]) + "\n")
 
     def print_error(self, *args):
-        self.write_error(' '.join([str(x) for x in args]) + "\n")
+        self.write_error(' '.join([self._to_str(x) for x in args]) + "\n")
+
+    @staticmethod
+    def _to_str(thing):
+        try:
+            return str(thing)
+        except UnicodeEncodeError:
+            return thing.encode('utf8')
 
     def pyprint(self, *objects, **kwargs):
         file = kwargs.get('file', sys.stdout)
         sep = kwargs.get('sep', ' ')
         end = kwargs.get('end', "\n")
-
-        msg = sep.join([str(x) for x in objects]) + end
-
+        msg = sep.join([self._to_str(x) for x in objects]) + end
         if file == sys.stdout:
             self.write_output(msg)
         elif file == sys.stderr:
@@ -88,7 +93,7 @@ class Job():
 
     @contextmanager
     def JobContext(self, logger=None):
-        handler = CallbackHandler(self.write_error, self.name)
+        handler = CallbackHandler(self.print_error, self.name)
 
         if logger:
             logger.addHandler(handler)

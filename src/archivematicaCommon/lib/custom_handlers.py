@@ -22,7 +22,7 @@ class CallbackHandler(logging.Handler):
         self.callback = callback
 
     def emit(self, record):
-        self.callback(self.format(record) + "\n")
+        self.callback(self.format(record))
 
 
 STANDARD_FORMAT = "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
