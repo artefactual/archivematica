@@ -332,6 +332,11 @@ class ProcessingConfigurationForm(forms.Form):
         'label': _('Approve normalization'),
         'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
     }
+    processing_fields['498f7a6d-1b8c-431a-aa5d-83f14f3c5e65'] = {
+        'type': 'replace_dict',
+        'name': 'normalize_thumbnail_mode',
+        'label': _('Generate thumbnails'),
+    }
     processing_fields['153c5f41-3cfb-47ba-9150-2dd44ebc27df'] = {
         'type': 'boolean',
         'name': 'policy_checks_preservation_derivatives',
