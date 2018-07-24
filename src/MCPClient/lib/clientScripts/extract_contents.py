@@ -19,7 +19,7 @@ from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
-from hasPackages import already_extracted
+from has_packages import already_extracted
 
 file_path_cache = {}
 
