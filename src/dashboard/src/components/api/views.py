@@ -784,6 +784,7 @@ def _package_create(request):
         payload.get('access_system_id'),
         path,
         payload.get('metadata_set_id'),
+        payload.get('auto_approve', True)
     )
     try:
         client = MCPClient()

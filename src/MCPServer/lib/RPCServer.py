@@ -114,6 +114,8 @@ def package_create_handler(*args, **kwargs):
         payload.get('access_system_id'),
         payload.get('path'),
         payload.get('metadata_set_id'),
+        payload.get('auto_approve'),
+        payload.get('wait_until_complete'),
     )
     return create_package(*create_package_args).pk
 

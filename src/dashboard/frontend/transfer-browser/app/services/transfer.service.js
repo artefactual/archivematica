@@ -18,6 +18,7 @@ class Transfer {
     this.accession = '';
     this.access_system_id = '';
     this.components = [];
+    this.auto_approve = true;
   }
 
   add_component(entry) {
@@ -65,7 +66,8 @@ class Transfer {
           accession: _self.accession,
           access_system_id: _self.access_system_id,
           path: Base64.encode(`${component.location}:${component.path}`),
-          metadata_set_id: component.id || ''
+          metadata_set_id: component.id || '',
+          auto_approve: _self.auto_approve,
         })
       });
     });

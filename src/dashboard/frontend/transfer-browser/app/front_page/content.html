@@ -12,7 +12,7 @@
   <div class="help-block">{{ "Transfer type" | translate }}</div>
   </div>
 
-  <div class="col-xs-3" ng-if="vm.transfer.type !== 'zipped bag'">
+  <div class="col-xs-2" ng-if="vm.transfer.type !== 'zipped bag'">
   <input class="form-control" ng-model="vm.transfer.name"/>
   <div class="help-block">{{ "Transfer name" | translate }}</div>
   </div>
@@ -27,22 +27,20 @@
   <div class="help-block">{{ "Access system ID" | translate }}</div>
   </div>
 
-  <div class="col-xs-1">
+  <div class="col-xs-3">
   <button type="submit"
           class="btn btn-default"
           data-toggle="collapse"
           data-target="#transfer_browse_tree"
           aria-expanded="false"
-          aria-controls="transfer_browse_tree">
-    {{ "Browse" | translate }}
-  </button>
-  </div>
-
-  <div class="col-xs-2">
+          aria-controls="transfer_browse_tree">{{ "Browse" | translate }}</button>
   <button type="submit"
           class="btn btn-success"
           ng-disabled="!vm.enable_submit_button()"
           ng-click="vm.transfer.start()">{{ "Start transfer" | translate }}</button>
+  <div class="checkbox">
+    <label><input type="checkbox" ng-model="vm.transfer.auto_approve">{{ "Approve automatically" | translate }}</label>
+  </div>
   </div>
 
   <div class="col-xs-1">
