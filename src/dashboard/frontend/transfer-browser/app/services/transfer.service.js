@@ -16,6 +16,7 @@ class Transfer {
     this.name = '';
     this.type = 'standard';
     this.accession = '';
+    this.access_system_id = '';
     this.components = [];
   }
 
@@ -62,6 +63,7 @@ class Transfer {
           name: name,
           type: _self.type,
           accession: _self.accession,
+          access_system_id: _self.access_system_id,
           path: Base64.encode(`${component.location}:${component.path}`),
           metadata_set_id: component.id || ''
         })

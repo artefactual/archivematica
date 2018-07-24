@@ -59,11 +59,11 @@ class ArchivistsToolkitConfigForm(forms.Form):
 
 
 class AtomConfigForm(forms.Form):
-    url = forms.CharField(label=_('Upload URL'), help_text=_('URL where the AtoM index.php frontend lives, SWORD services path will be appended.'))
-    email = forms.CharField(label=_('Login email'), help_text=_('E-mail account used to log into AtoM.'))
-    password = forms.CharField(label=_('Login password'), help_text=_('Password used to log into AtoM.'))
-    version = forms.ChoiceField(label=_('AtoM version'), choices=((1, '1.x'), (2, '2.x')))
-    rsync_target = forms.CharField(required=False, label=_('Rsync target'), help_text=_('The DIP can be sent with Rsync to a remote host before is deposited in AtoM. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/.'))
+    url = forms.CharField(label=_('Upload URL'), help_text=_('URL where the AtoM/Binder index.php frontend lives, SWORD services path will be appended.'))
+    email = forms.CharField(label=_('Login email'), help_text=_('E-mail account used to log into AtoM/Binder.'))
+    password = forms.CharField(label=_('Login password'), help_text=_('Password used to log into AtoM/Binder.'))
+    version = forms.ChoiceField(label=_('AtoM/Binder version'), choices=((1, '1.x'), (2, '2.x')))
+    rsync_target = forms.CharField(required=False, label=_('Rsync target'), help_text=_('The DIP can be sent with Rsync to a remote host before is deposited in AtoM/Binder. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/.'))
     rsync_command = forms.CharField(required=False, label=_('Rsync command'), help_text=_('If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: ssh -p 22222 -l user.'))
     debug = forms.ChoiceField(required=False, label=_('Debug mode'), help_text=_('Show additional details.'), choices=((False, _('No')), (True, _('Yes'))), initial=False)
     key = forms.CharField(required=False, label=_('REST API key'), help_text=_('Used in metadata-only DIP upload.'))

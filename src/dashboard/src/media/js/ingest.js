@@ -309,12 +309,14 @@ $(function()
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
           }
 
-          // if no DRMC object number is defined, ask for slug
+          // If no identifier for the AtoM or Binder SWORD V1 deposit endpoint
+          // provided at start of transfer, display a modal dialog to request
+          // such here.
           if (
-            '- Upload to DRMC' == $select.find('option:selected').text()
+            '- upload-qubit_v0.0' == $select.find('option:selected').text()
           )
           {
-            // if no TMS object ID provided, ask for one
+            // if no access system ID provided, ask for one
             var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/';
 
             if (this.model.sip.attributes.access_system_id == ''
@@ -324,6 +326,14 @@ $(function()
               var input = modal.find('input');
               var process = false;
               var self = this;
+
+              // Allow <Enter> keypress to click the "Upload" button
+              input.keypress(function(e) {
+                if (e.which == 13) {
+                  e.preventDefault();
+                  modal.find('a.btn-primary').click();
+                }
+              });
 
               modal
 
@@ -359,9 +369,8 @@ $(function()
                     if (input.filter(':text').val())
                     {
                       // get AtoM destination URL (so we can confirm it's up)
-                      var selectedPrefix = $('input[name=target_prefix]:checked').val();
                       var xhr = $.ajax(url, { type: 'POST', data: {
-                        'target': selectedPrefix + input.filter(':text').val() }})
+                        'target': input.filter(':text').val() }})
                       .done(function(data)
                         {
                           if (data.ready)
@@ -392,9 +401,13 @@ $(function()
 
                 .modal('show');
             } else {
-              // use accession ID for target with artwork record prefix
+              // The access system ID that the user supplies at the start of
+              // transfer must contain the correct target prefix if the upload
+              // is to Binder, i.e., the 'ar:' prefix for an artwork record and
+              // the 'tr:' prefix for a technical record. This is explained in
+              // the modal dialog help text. See templates/ingest/grid.html.
               var xhr = $.ajax(url, { type: 'POST', data: {
-                'target': 'ar:' + this.model.sip.attributes.access_system_id }})
+                'target': this.model.sip.attributes.access_system_id }})
 
                 .done(function(data)
                   {

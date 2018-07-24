@@ -16,7 +16,7 @@ class MCPClientMock(object):
     def __init__(self, fails=False):
         self.fails = fails
 
-    def create_package(self, name, type_, accession, path, metadata_set_id):
+    def create_package(self, name, type_, accession, access_system_id, path, metadata_set_id):
         if self.fails:
             raise Exception('Something bad happened!')
         return b'59402c61-3aba-4af7-966a-996073c0601d'

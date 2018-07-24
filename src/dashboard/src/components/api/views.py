@@ -781,6 +781,7 @@ def _package_create(request):
         payload.get('name'),
         payload.get('type'),
         payload.get('accession'),
+        payload.get('access_system_id'),
         path,
         payload.get('metadata_set_id'),
     )

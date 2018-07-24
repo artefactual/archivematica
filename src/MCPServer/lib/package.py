@@ -234,8 +234,9 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
         transfer.save()
 
 
-def create_package(name, type_, accession, path, metadata_set_id,
-                   auto_approve=True, wait_until_complete=False):
+def create_package(name, type_, accession, access_system_id, path,
+                   metadata_set_id, auto_approve=True,
+                   wait_until_complete=False):
     """Launch transfer and return its object immediately.
 
     ``auto_approve`` changes significantly the way that the transfer is
@@ -258,6 +259,8 @@ def create_package(name, type_, accession, path, metadata_set_id,
     kwargs = {'uuid': str(uuid4())}
     if accession is not None:
         kwargs['accessionid'] = unicodeToStr(accession)
+    if access_system_id is not None:
+        kwargs['access_system_id'] = unicodeToStr(access_system_id)
     if metadata_set_id is not None:
         try:
             kwargs['transfermetadatasetrow'] = \

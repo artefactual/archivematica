@@ -76,7 +76,7 @@ def error(job, message, code=1):
 def start(job, data):
     # Make sure we are working with an existing SIP record
     if not models.SIP.objects.filter(pk=data.uuid).exists():
-        error("UUID not recognized")
+        return error(job, "UUID not recognized")
 
     # Get directory
     jobs = models.Job.objects.filter(sipuuid=data.uuid, jobtype="Upload DIP")
@@ -95,7 +95,6 @@ def start(job, data):
 
         if os.path.exists(directory) is False:
             return error(job, "Directory not found: %s" % directory)
-            error("Directory not found: %s" % directory)
 
     try:
         # This upload was called before, restore Access record
@@ -105,7 +104,7 @@ def start(job, data):
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
-            access.target = access.target = cPickle.dumps({
+            access.target = cPickle.dumps({
                 "target": transfers[0].access_system_id
             })
         access.save()

@@ -64,13 +64,15 @@ class MCPClient:
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getNotifications failed (check MCPServer logs)")
 
-    def create_package(self, name, type_, accession, path, metadata_set_id,
-                       auto_approve=True, wait_until_complete=False):
+    def create_package(self, name, type_, accession, access_system_id, path,
+                       metadata_set_id, auto_approve=True,
+                       wait_until_complete=False):
         gm_client = gearman.GearmanClient([self.server])
         data = cPickle.dumps({
             'name': name,
             'type': type_,
             'accession': accession,
+            'access_system_id': access_system_id,
             'path': path,
             'metadata_set_id': metadata_set_id,
             'auto_approve': auto_approve,
