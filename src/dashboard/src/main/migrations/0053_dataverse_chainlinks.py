@@ -18,5 +18,5 @@ def data_migration_up(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [("main", "0055_dataverse_foreign_keys")]
+    dependencies = [("main", "0052_dataverse_foreign_keys")]
     operations = [migrations.RunPython(data_migration_up)]

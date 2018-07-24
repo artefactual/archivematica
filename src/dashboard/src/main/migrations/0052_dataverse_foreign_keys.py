@@ -14,5 +14,5 @@ def data_migration_up(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [("main", "0054_dataverse_transfer_type")]
+    dependencies = [("main", "0051_remove_verify_premis_checksums")]
     operations = [migrations.RunPython(data_migration_up)]
