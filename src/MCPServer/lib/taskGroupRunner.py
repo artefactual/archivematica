@@ -235,7 +235,7 @@ class TaskGroupRunner():
 
         now = time.time()
         if (now - self.last_notification_time) > TaskGroupRunner.NOTIFICATION_INTERVAL_SECONDS:
-            LOGGER.info("%d jobs pending; %d jobs running; %d known task groups",
+            LOGGER.debug("%d jobs pending; %d jobs running; %d known task groups",
                         len(self.pending_task_group_jobs),
                         len(self.running_gearman_jobs),
                         len(self.task_group_jobs_by_uuid))
