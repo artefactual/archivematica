@@ -3,8 +3,14 @@ from __future__ import print_function
 import sys
 
 import archivematicaFunctions
+from custom_handlers import get_script_logger
 
 import metsrw
+
+
+# Create a module level logger.
+logger = get_script_logger("archivematica.mcp.client.createMETSDataverse")
+
 
 def create_dataverse_sip_dmdsec(sip_path):
     """
@@ -13,6 +19,8 @@ def create_dataverse_sip_dmdsec(sip_path):
     :param str: Path to the SIP
     :return: List of dmdSec Elements
     """
+    logger.info("Create dataverse sip dmdsec %s", sip_path)
+
     # Find incoming external METS
     metadata_mets_paths = archivematicaFunctions.find_metadata_files(sip_path, 'METS.xml', only_transfers=True)
     # If doesn't exist, return None
@@ -40,6 +48,8 @@ def create_dataverse_tabfile_dmdsec(sip_path, tabfile):
     """
     Returns dmdSec associated with the given tabfile, if one exists.
     """
+    logger.info("Create Dataverse tabfile dmdsec %s", sip_path)
+
     # Find incoming external METS
     metadata_mets_paths = archivematicaFunctions.find_metadata_files(sip_path, 'METS.xml', only_transfers=True)
     # If doesn't exist, return None
