@@ -41,7 +41,8 @@ urlpatterns = [
     url(r'administration/dips/atom/levels/$', views.get_levels_of_description),
     url(r'administration/dips/atom/fetch_levels/$', views.fetch_levels_of_description_from_atom, name='fetch_atom_lods'),
     url(r'filesystem/metadata/$', views.path_metadata),
-    url(r'processing-configuration/(?P<name>\w{1,16})', views.processing_configuration, name='processing_configuration'),
+    url(r'processing-configuration/(?P<name>\w{1,16})', views.processing_configuration_detail, name='processing_configuration_detail'),
+    url(r'processing-configuration/', views.processing_configuration_list, name='processing_configuration_list'),
 
     url(r'v2beta/package', views.package),
 ]

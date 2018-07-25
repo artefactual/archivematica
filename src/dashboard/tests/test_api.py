@@ -1,3 +1,5 @@
+from base64 import b64encode
+import json
 import os
 import tempfile
 
@@ -136,9 +138,34 @@ class TestProcessingConfigurationAPI(TestCase):
             os.makedirs(self.config_path)
         install_builtin_config('default')
 
+    def test_create(self):
+        data = {
+            'name': 'test',
+            'document': b64encode('<xml/>'),
+        }
+        response = self.client.post(
+            reverse('processing_configuration_list'),
+            data=json.dumps(data),
+            content_type='application/json')
+
+        assert response.status_code == 201
+        assert os.path.exists(os.path.join(self.config_path, '%sProcessingMCP.xml' % (data['name'],)))
+
+    def test_create_traverse_path(self):
+        data = {
+            'name': '../../',
+            'document': b64encode('<xml/>'),
+        }
+        response = self.client.post(
+            reverse('processing_configuration_list'),
+            data=json.dumps(data),
+            content_type='application/json')
+
+        assert response.status_code == 400
+
     def test_get_existing_processing_config(self):
         response = self.client.get(
-            reverse('processing_configuration', args=['default']),
+            reverse('processing_configuration_detail', args=['default']),
             HTTP_ACCEPT='xml'
         )
         assert response.status_code == 200
@@ -146,13 +173,13 @@ class TestProcessingConfigurationAPI(TestCase):
 
     def test_delete_and_regenerate(self):
         response = self.client.delete(
-            reverse('processing_configuration', args=['default']),
+            reverse('processing_configuration_detail', args=['default']),
         )
         assert response.status_code == 200
         assert not os.path.exists(os.path.join(self.config_path, 'defaultProcessingMCP.xml'))
 
         response = self.client.get(
-            reverse('processing_configuration', args=['default']),
+            reverse('processing_configuration_detail', args=['default']),
             HTTP_ACCEPT='xml'
         )
         assert response.status_code == 200
@@ -161,14 +188,14 @@ class TestProcessingConfigurationAPI(TestCase):
 
     def test_404_for_non_existent_config(self):
         response = self.client.get(
-            reverse('processing_configuration', args=['nonexistent']),
+            reverse('processing_configuration_detail', args=['nonexistent']),
             HTTP_ACCEPT='xml'
         )
         assert response.status_code == 404
 
     def test_404_for_delete_non_existent_config(self):
         response = self.client.delete(
-            reverse('processing_configuration', args=['nonexistent']),
+            reverse('processing_configuration_detail', args=['nonexistent']),
         )
         assert response.status_code == 404
 

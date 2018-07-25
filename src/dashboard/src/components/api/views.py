@@ -704,16 +704,54 @@ def path_metadata(request):
         return helpers.json_response(body, status_code=201)
 
 
-# TODO should this have auth?
+def _is_safe_path(basedir, path):
+    return os.path.realpath(path).startswith(basedir)
+
+
+@_api_endpoint(expected_methods=['POST'])
+def processing_configuration_list(request):
+    if request.method != 'POST':
+        return HttpResponseNotImplemented()
+    try:
+        payload = json.loads(request.body)
+        name = payload['name']
+        document = base64.b64decode(payload.get('document'))
+    except:
+        return helpers.json_response({
+            'error': True,
+            'message': 'Request could not be decoded.'}, 400)
+    basedir = helpers.processing_config_path()
+    config_path = os.path.join(basedir, '{}ProcessingMCP.xml'.format(name))
+    if not _is_safe_path(basedir, config_path):
+        return helpers.json_response({
+            'error': True,
+            'message': 'Request could not be decoded.'}, 400)
+    try:
+        with open(config_path, 'w') as f:
+            f.write(document)
+    except Exception as err:
+        LOGGER.error("The configuration file (%s) could not be written: %s",
+                     config_path, err)
+        return helpers.json_response({
+            'error': True,
+            'message': 'The configuration file could not be written.'}, 500)
+    return helpers.json_response({'success': True}, 201)
+
+
 @_api_endpoint(expected_methods=['GET', 'DELETE'])
-def processing_configuration(request, name):
+def processing_configuration_detail(request, name):
     """
     Return a processing configuration XML document given its name, i.e. where
     name is "default" the returned file will be "defaultProcessingMCP.xml"
     found in the standard processing configuration directory.
     """
 
-    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    basedir = helpers.processing_config_path()
+    config_path = os.path.join(basedir, '{}ProcessingMCP.xml'.format(name))
+    if not _is_safe_path(basedir, config_path):
+        return helpers.json_response({
+            'error': True,
+            'message': 'Request could not be decoded.'}, 400)
 
     if request.method == 'DELETE':
         try:
