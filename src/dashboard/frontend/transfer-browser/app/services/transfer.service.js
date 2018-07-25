@@ -53,22 +53,29 @@ class Transfer {
     // give it a dummy name instead.
     let name = this.type === 'zipped bag' ? 'ZippedBag' : this.name;
     let _self = this;
+
+    let payload = {
+      name: name,
+      type: _self.type,
+      accession: _self.accession,
+      access_system_id: _self.access_system_id,
+      auto_approve: _self.auto_approve,
+    }
+    if (window.hasOwnProperty('processing_config')) {
+      payload.processing_config = window.processing_config;
+    }
+
     let requests = this.components.map(function(component) {
+      payload.path = Base64.encode(`${component.location}:${component.path}`);
+      payload.metadata_set_id = component.id || '';
+
       return jQuery.ajax('/api/v2beta/package/', {
         method: 'POST',
         headers: {'X-CSRFToken': _self.getCookie('csrftoken')},
         cache: false,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        data: JSON.stringify({
-          name: name,
-          type: _self.type,
-          accession: _self.accession,
-          access_system_id: _self.access_system_id,
-          path: Base64.encode(`${component.location}:${component.path}`),
-          metadata_set_id: component.id || '',
-          auto_approve: _self.auto_approve,
-        })
+        data: JSON.stringify(payload)
       });
     });
 
