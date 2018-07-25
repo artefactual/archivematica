@@ -43,7 +43,7 @@ def to_fpr_format(format):
 
 def to_par_tool(tool):
     return {
-        'toolId': tool.slug,
+        'toolId': tool.uuid,
         'toolVersion': tool.version,
         'toolName': tool.description,
         }

@@ -848,16 +848,41 @@ def par_formats(request):
     return helpers.json_response([par.to_par_file_format(fv) for fv in format_versions[offset:limit]])
 
 
-@_api_endpoint(expected_methods=['GET'])
-def par_tool(request, slug):
+@_api_endpoint(expected_methods=['GET', 'PUT'])
+def par_tool(request, uuid):
     """
-    GET an fpr.tool by slug and return it as a PAR tool object
+    PUT a PAR tool object to update an fpr.FPTool
 
-    Example: http://127.0.0.1:62080/api/beta/par/tools/jhove-16?username=test&api_key=test
+    Example: http://127.0.0.1:62080/api/beta/par/tools/085d8690-93b7-4d31-84f7-2c5f4cbf6735?username=test&api_key=test
+        {"toolName": "JHOVE", "toolVersion": "2.0"}
+
+    or
+
+    GET an fpr.tool by uuid and return it as a PAR tool object
+
+    Example: http://127.0.0.1:62080/api/beta/par/tools/085d8690-93b7-4d31-84f7-2c5f4cbf6735?username=test&api_key=test
+        {
+            "toolId": "085d8690-93b7-4d31-84f7-2c5f4cbf6735",
+            "toolName": "JHOVE",
+            "toolVersion": "1.6"
+        }
     """
+
+    if request.method == 'PUT':
+        try:
+            tool = par.to_fpr_tool(json.loads(request.body))
+
+            # FIXME: This doesn't regenerate the slug. Maybe it should? But then this is breaking the FPR versioning model, so ...
+            fptool = FPTool.objects.filter(uuid=uuid).update(**tool)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+        return helpers.json_response({'message': 'Tool successfully updated.', 'uri': request.path}, 201)
+
 
     try:
-        tool = FPTool.objects.get(slug=slug)
+        tool = FPTool.objects.get(uuid=uuid)
     except FPTool.DoesNotExist:
         return helpers.json_response({'error': True, 'message': 'Tool not found'}, 400)
 
