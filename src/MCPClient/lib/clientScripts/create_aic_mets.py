@@ -14,7 +14,7 @@ django.setup()
 from django.utils import timezone
 from main.models import UnitVariable
 
-import archivematicaCreateMETS2
+import create_mets_v2
 
 # archivematicaCommon
 import databaseFunctions
@@ -97,8 +97,8 @@ def create_mets_file(aic, aips, job):
 
     # Add Dublin Core info
     xml_data = mets.find('mets:dmdSec/mets:mdWrap/mets:xmlData', namespaces=ns.NSMAP)
-    dublincore = archivematicaCreateMETS2.getDublinCore(
-        archivematicaCreateMETS2.SIPMetadataAppliesToType, aic['uuid'])
+    dublincore = create_mets_v2.getDublinCore(
+        create_mets_v2.SIPMetadataAppliesToType, aic['uuid'])
     # Add <extent> with number of AIPs
     extent = etree.SubElement(dublincore, ns.dctermsBNS + 'extent')
     extent.text = "{} AIPs".format(len(aips))
