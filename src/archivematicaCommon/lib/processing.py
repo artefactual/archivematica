@@ -49,22 +49,17 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Select compression level -->
     <preconfiguredChoice>
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
-      <goToChain>ecfad581-b007-4612-a0e0-fcc551f4057f</goToChain>
-    </preconfiguredChoice>
-    <!-- Select file format identification command (Submission documentation & metadata) -->
-    <preconfiguredChoice>
-      <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
-      <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
+      <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
     <!-- Examine contents -->
     <preconfiguredChoice>
       <appliesTo>accea2bf-ba74-4a3a-bb97-614775c74459</appliesTo>
       <goToChain>e0a39199-c62a-4a2f-98de-e9d1116460a8</goToChain>
     </preconfiguredChoice>
-    <!-- Select compression algorithm -->
+    <!-- Select file format identification command (Submission documentation & metadata) -->
     <preconfiguredChoice>
-      <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
-      <goToChain>dc04c4c0-07ea-4796-b643-66d967ed33a4</goToChain>
+      <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
+      <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
     </preconfiguredChoice>
     <!-- Normalize (match 1 for "Normalize for preservation") -->
     <preconfiguredChoice>
@@ -89,12 +84,12 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Delete packages after extraction -->
     <preconfiguredChoice>
       <appliesTo>f19926dd-8fb5-4c79-8ade-c83f61f55b40</appliesTo>
-      <goToChain>72e8443e-a8eb-49a8-ba5f-76d52f960bde</goToChain>
+      <goToChain>85b1e45d-8f98-4cae-8336-72f40e12cbef</goToChain>
     </preconfiguredChoice>
     <!-- Transcribe files (OCR) -->
     <preconfiguredChoice>
       <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
-      <goToChain>5a9985d3-ce7e-4710-85c1-f74696770fa9</goToChain>
+      <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
     </preconfiguredChoice>
     <!-- Select file format identification command (Transfer) -->
     <preconfiguredChoice>
@@ -109,7 +104,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
       <appliesTo>56eebd45-5600-4768-a8c2-ec0114555a3d</appliesTo>
-      <goToChain>df54fec1-dae1-4ea6-8d17-a839ee7ac4a7</goToChain>
+      <goToChain>e9eaef1e-c2e0-4e3b-b942-bfb537162795</goToChain>
     </preconfiguredChoice>
     <!-- Perform policy checks on originals -->
     <preconfiguredChoice>
@@ -120,6 +115,16 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>eeb23509-57e2-4529-8857-9d62525db048</appliesTo>
       <goToChain>5727faac-88af-40e8-8c10-268644b0142d</goToChain>
+    </preconfiguredChoice>
+    <!-- Generate thumbnails -->
+    <preconfiguredChoice>
+      <appliesTo>498f7a6d-1b8c-431a-aa5d-83f14f3c5e65</appliesTo>
+      <goToChain>972fce6c-52c8-4c00-99b9-d6814e377974</goToChain>
+    </preconfiguredChoice>
+    <!-- Select compression algorithm -->
+    <preconfiguredChoice>
+      <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
+      <goToChain>9475447c-9889-430c-9477-6287a9574c5b</goToChain>
     </preconfiguredChoice>
     <!-- Store AIP -->
     <preconfiguredChoice>
@@ -134,7 +139,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Select file format identification command (Ingest) -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
-      <goToChain>664cbde3-e658-4288-87db-bd28266d83f5</goToChain>
+      <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
     </preconfiguredChoice>
     <!-- Perform policy checks on preservation derivatives -->
     <preconfiguredChoice>
@@ -144,7 +149,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Assign UUIDs to directories -->
     <preconfiguredChoice>
       <appliesTo>bd899573-694e-4d33-8c9b-df0af802437d</appliesTo>
-      <goToChain>891f60d0-1ba8-48d3-b39e-dd0934635d29</goToChain>
+      <goToChain>2dc3f487-e4b0-4e07-a4b3-6216ed24ca14</goToChain>
     </preconfiguredChoice>
     <!-- Store AIP location -->
     <preconfiguredChoice>
@@ -154,7 +159,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Document empty directories -->
     <preconfiguredChoice>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
-      <goToChain>29881c21-3548-454a-9637-ebc5fd46aee0</goToChain>
+      <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
     <!-- Send transfer to quarantine -->
     <preconfiguredChoice>
@@ -164,7 +169,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Extract packages -->
     <preconfiguredChoice>
       <appliesTo>dec97e3c-5598-4b99-b26e-f87a435a6b7f</appliesTo>
-      <goToChain>79f1f5af-7694-48a4-b645-e42790bbf870</goToChain>
+      <goToChain>01d80b27-4ad1-4bd1-8f8d-f819f18bf685</goToChain>
     </preconfiguredChoice>
     <!-- Approve normalization -->
     <preconfiguredChoice>
@@ -174,7 +179,7 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <!-- Upload DIP -->
     <preconfiguredChoice>
       <appliesTo>92879a29-45bf-4f0b-ac43-e64474f0f2f9</appliesTo>
-      <goToChain>3572f844-5e69-4000-a24b-4e32d3487f82</goToChain>
+      <goToChain>6eb8ebe7-fab3-4e4c-b9d7-14de17625baa</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
