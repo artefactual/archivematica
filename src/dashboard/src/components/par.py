@@ -2,6 +2,10 @@
 PAR related gubbins
 """
 
+import re
+import shlex
+
+
 PRESERVATION_ACTION_TYPES = {
     "access": "da68a236-9231-433f-b1df-ea89b12f2aa6",
     "characterization": "4db7ea62-afdb-405f-8075-df851f382b00",
@@ -85,13 +89,44 @@ def to_par_io_file(name):
         'name': name,
         }
 
+def to_par_input_items(rule):
+    file_type_re = ''
+
+    if rule.command.script_type == 'command':
+        result = []
+        i = 0
+        for arg in shlex.split(rule.command.command):
+            item = {
+                'name': arg,
+                'position': i
+            }
+
+            if 'directory' in arg.lower() or 'file' in arg.lower():
+                item['type'] = 'file'
+            else:
+                item['type'] = 'string'
+
+            result.append(item)
+
+            i = i + 1
+
+        return result
+    else:
+        return [to_par_io_file(rule.format.description)]
+
+def to_par_output_items(rule):
+    try:
+        return [to_par_io_file(rule.command.output_format.description)]
+    except AttributeError:
+        return []
+
 def to_par_preservation_action(rule):
     return {
         'id': to_par_id(rule.uuid, rule.uuid),
         'description': rule.command.description,
         'type': to_par_preservation_action_type(rule.purpose),
-        'inputs': [to_par_io_file(rule.format.description)],
-        'outputs': [to_par_io_file(rule.command.output_format.description)],
+        'inputs': to_par_input_items(rule),
+        'outputs': to_par_output_items(rule),
         'tool': to_par_tool(rule.command.tool),
         }
 
