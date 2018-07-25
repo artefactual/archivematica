@@ -2,6 +2,21 @@
 PAR related gubbins
 """
 
+PRESERVATION_ACTION_TYPES = {
+    "access": "da68a236-9231-433f-b1df-ea89b12f2aa6",
+    "characterization": "4db7ea62-afdb-405f-8075-df851f382b00",
+    "characterize": "66ab85e6-2af1-41ac-a415-9cf1d9a4435d",
+    "default_access": "9cb398cc-3706-4537-b144-ebb82ccb0fcd",
+    "default_characterization": "032e97c6-29d9-4b9c-bebf-7a571f004d6a",
+    "default_thumbnail": "2df2676d-74c4-4e57-a81c-2b08a5786732",
+    "extract": "a73fdd1c-6865-4b13-a0d1-93a7a4355979",
+    "policy_check": "4b3f414b-9c6e-4df9-8da2-67a34379fc3a",
+    "preservation": "d8a67ca5-aa32-4884-9967-06a6506cb4f7",
+    "thumbnail": "b6cdb762-ec50-44f2-ade5-e0583dd0897a",
+    "transcription": "01deb8e8-1d50-41a2-835b-001c64b79f09",
+    "validation": "a4449466-8388-424b-9d59-04a914a9c662",
+}
+
 def parse_offset_and_limit(request):
     offset = request.GET.get('offset')
     limit = request.GET.get('limit')
@@ -55,9 +70,13 @@ def to_fpr_tool(tool):
         }
 
 def to_par_preservation_action_type(type):
+    uuid = PRESERVATION_ACTION_TYPES[type]
+    label_bits = type.split('_')
+    label = ' '.join(bit.title() for bit in label_bits)
+
     return {
-        'id': to_par_id(type, type),
-        'label': type,
+        'id': to_par_id(type, uuid),
+        'label': label,
         }
 
 def to_par_io_file(name):

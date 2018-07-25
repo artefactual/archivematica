@@ -943,13 +943,14 @@ def par_preservation_action_types(request):
       http://127.0.0.1:62080/api/beta/par/preservation_action_types?username=test&api_key=test
     """
 
-    try:
-        rules = FPRule.objects.values('purpose').distinct()
-    except Exception as err:
-        LOGGER.error(err)
-        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+    # REPLACE WITH HARDCODED LIST.. see par.PRESERVATION_ACTION_TYPES
+    # try:
+    #     rules = FPRule.objects.values('purpose').distinct()
+    # except Exception as err:
+    #     LOGGER.error(err)
+    #     return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
-    return helpers.json_response([par.to_par_preservation_action_type(rule['purpose']) for rule in rules])
+    return helpers.json_response([par.to_par_preservation_action_type(rule) for rule in par.PRESERVATION_ACTION_TYPES])
 
 
 @_api_endpoint(expected_methods=['GET'])
