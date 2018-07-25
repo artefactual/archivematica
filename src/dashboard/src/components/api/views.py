@@ -784,11 +784,17 @@ def _package_create(request):
         payload.get('access_system_id'),
         path,
         payload.get('metadata_set_id'),
-        payload.get('auto_approve', True)
     )
+    kwargs = {
+        'auto_approve': payload.get('auto_approve', True),
+        'wait_until_complete': False,
+    }
+    processing_config = payload.get('processing_config')
+    if processing_config is not None:
+        kwargs['processing_config'] = processing_config
     try:
         client = MCPClient()
-        id_ = client.create_package(*args)
+        id_ = client.create_package(*args, **kwargs)
     except Exception as err:
         LOGGER.error(err)
         msg = 'Package cannot be created'

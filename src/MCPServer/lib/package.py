@@ -236,7 +236,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
 
 def create_package(name, type_, accession, access_system_id, path,
                    metadata_set_id, auto_approve=True,
-                   wait_until_complete=False):
+                   wait_until_complete=False, processing_config=None):
     """Launch transfer and return its object immediately.
 
     ``auto_approve`` changes significantly the way that the transfer is
@@ -278,7 +278,10 @@ def create_package(name, type_, accession, access_system_id, path,
         logger.debug('Package %s: starting transfer (%s)',
                      transfer.pk, (name, type_, path, tmpdir))
         try:
-            params = (transfer, name, path, tmpdir, starting_point)
+            params = (
+                transfer, name, path, tmpdir,
+                starting_point, processing_config
+            )
             if auto_approve:
                 _start_package_transfer_with_auto_approval(*params)
             else:
@@ -343,7 +346,7 @@ def _determine_transfer_paths(name, path, tmpdir):
 
 @_capture_transfer_failure
 def _start_package_transfer_with_auto_approval(
-        transfer, name, path, tmpdir, starting_point):
+        transfer, name, path, tmpdir, starting_point, processing_config):
     """Start a new transfer the new way.
 
     This method does not rely on the activeTransfer watched directory. It
@@ -359,6 +362,8 @@ def _start_package_transfer_with_auto_approval(
                  ' (from=%s, to=%s)', transfer.pk, path, transfer_rel)
     _copy_from_transfer_sources([path], transfer_rel)
 
+    _copy_processing_config(processing_config, transfer.pk, transfer_rel)
+
     logger.debug('Package %s: moving package to processing directory',
                  transfer.pk)
     _move_to_internal_shared_dir(
@@ -371,7 +376,7 @@ def _start_package_transfer_with_auto_approval(
 
 @_capture_transfer_failure
 def _start_package_transfer(
-        transfer, name, path, tmpdir, starting_point):
+        transfer, name, path, tmpdir, starting_point, processing_config):
     """Start a new transfer the old way.
 
     This means copying the transfer into one of the standard watched dirs.
@@ -388,9 +393,34 @@ def _start_package_transfer(
                  ' (from=%s, to=%s)', transfer.pk, path, transfer_rel)
     _copy_from_transfer_sources([path], transfer_rel)
 
+    _copy_processing_config(processing_config, transfer.pk, transfer_rel)
+
     logger.debug('Package %s: moving package to activeTransfers dir (from=%s,'
                  ' to=%s)', transfer.pk, filepath, starting_point.watched_dir)
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
+
+
+def _copy_processing_config(processing_config, transfer_pk, transfer_rel):
+    if processing_config is None:
+        return
+    src = os.path.join(
+        django_settings.SHARED_DIRECTORY,
+        'sharedMicroServiceTasksConfigs/processingMCPConfigs',
+        '%sProcessingMCP.xml' % processing_config
+    )
+    dest = os.path.join(
+        django_settings.SHARED_DIRECTORY,
+        transfer_rel,
+        'processingMCP.xml'
+    )
+    logger.debug('Package %s: copying processing configuration'
+                 ' (from=%s to=%s)', transfer_pk, src, dest)
+    try:
+        shutil.copyfile(src, dest)
+    except IOError as err:
+        logger.warning('Package %s: processing configuration could not'
+                       ' be copied: (from=%s to=%s) - %s',
+                       transfer_pk, src, dest, err)
 
 
 class Path(object):

@@ -66,9 +66,9 @@ class MCPClient:
 
     def create_package(self, name, type_, accession, access_system_id, path,
                        metadata_set_id, auto_approve=True,
-                       wait_until_complete=False):
+                       wait_until_complete=False, processing_config=None):
         gm_client = gearman.GearmanClient([self.server])
-        data = cPickle.dumps({
+        data = {
             'name': name,
             'type': type_,
             'accession': accession,
@@ -77,8 +77,11 @@ class MCPClient:
             'metadata_set_id': metadata_set_id,
             'auto_approve': auto_approve,
             'wait_until_complete': wait_until_complete,
-        })
-        response = gm_client.submit_job('packageCreate', data,
+        }
+        if processing_config is not None:
+            data['processing_config'] = processing_config
+        response = gm_client.submit_job('packageCreate',
+                                        cPickle.dumps(data),
                                         background=False,
                                         wait_until_complete=True,
                                         poll_timeout=INFLIGHT_POLL_TIMEOUT)

@@ -107,17 +107,22 @@ def job_awaiting_approval_handler(*args):
 def package_create_handler(*args, **kwargs):
     """Handle create package request."""
     payload = kwargs['payload']
-    create_package_args = (
+    args = (
         payload.get('name'),
         payload.get('type'),
         payload.get('accession'),
         payload.get('access_system_id'),
         payload.get('path'),
         payload.get('metadata_set_id'),
-        payload.get('auto_approve'),
-        payload.get('wait_until_complete'),
     )
-    return create_package(*create_package_args).pk
+    kwargs = {
+        'auto_approve': payload.get('auto_approve'),
+        'wait_until_complete': payload.get('wait_until_complete'),
+    }
+    processing_config = payload.get('processing_config')
+    if processing_config is not None:
+        kwargs['processing_config'] = processing_config
+    return create_package(*args, **kwargs).pk
 
 
 def startRPCServer():
