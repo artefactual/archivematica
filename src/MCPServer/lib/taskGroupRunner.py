@@ -236,9 +236,9 @@ class TaskGroupRunner():
         now = time.time()
         if (now - self.last_notification_time) > TaskGroupRunner.NOTIFICATION_INTERVAL_SECONDS:
             LOGGER.debug("%d jobs pending; %d jobs running; %d known task groups",
-                        len(self.pending_task_group_jobs),
-                        len(self.running_gearman_jobs),
-                        len(self.task_group_jobs_by_uuid))
+                         len(self.pending_task_group_jobs),
+                         len(self.running_gearman_jobs),
+                         len(self.task_group_jobs_by_uuid))
             self.last_notification_time = now
 
         active_count = len(set([task_group.task_group.unit_uuid()
