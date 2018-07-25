@@ -53,5 +53,6 @@ urlpatterns = [
     url(r'beta/par/tools/(?P<uuid>.+)', views.par_tool),
     url(r'beta/par/preservation_action_types/?$', views.par_preservation_action_types),
     url(r'beta/par/preservation_actions/?$', views.par_preservation_actions),
+    url(r'beta/par/preservation_actions/(?P<uuid>.+)', views.par_preservation_action),
     # end PAR endpoints
 ]

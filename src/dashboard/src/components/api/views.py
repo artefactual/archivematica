@@ -975,3 +975,23 @@ def par_preservation_actions(request):
         return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
     return helpers.json_response([par.to_par_preservation_action(fprule) for fprule in rules])
+
+
+@_api_endpoint(expected_methods=['GET'])
+def par_preservation_action(request, uuid):
+    """
+    GET an fpr.FPRule as a PAR preservation_action object
+
+    Example:
+      http://127.0.0.1:62080/api/beta/par/preservation_actions/111bec2e-e387-4ab9-8e95-86ce7af6adbc?username=test&api_key=test
+    """
+
+    try:
+        rule = FPRule.objects.get(uuid=uuid)
+    except Exception as err:
+        LOGGER.error(err)
+        return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+    return helpers.json_response(par.to_par_preservation_action(rule))
+
+
