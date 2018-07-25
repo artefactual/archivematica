@@ -978,14 +978,39 @@ def par_preservation_actions(request):
     return helpers.json_response([par.to_par_preservation_action(fprule) for fprule in rules])
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=['GET', 'PUT'])
 def par_preservation_action(request, uuid):
     """
+    PUT a PAR preservation_action  object to update an fpr.FPRule
+
+    Example: http://127.0.0.1:62080/api/beta/par/preservation_actions/111bec2e-e387-4ab9-8e95-86ce7af6adbc?username=test&api_key=test
+        {"description": "My new description"}
+
+    or
+
     GET an fpr.FPRule as a PAR preservation_action object
 
     Example:
       http://127.0.0.1:62080/api/beta/par/preservation_actions/111bec2e-e387-4ab9-8e95-86ce7af6adbc?username=test&api_key=test
+          {
+              "description": "Transcoding to mkv with ffmpeg",
+              "id": {
+                  "guid": "111bec2e-e387-4ab9-8e95-86ce7af6adbc",
+                  ...
     """
+
+    if request.method == 'PUT':
+        try:
+            rule = par.to_fpr_rule(json.loads(request.body))
+
+            # FIXME: This is currently a noop, because heaven knows what we would want to update
+            FPRule.objects.filter(uuid=uuid).update(**rule)
+        except Exception as err:
+            LOGGER.error(err)
+            return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
+
+        return helpers.json_response({'message': 'Preservation action successfully updated.', 'uri': request.path}, 201)
+
 
     try:
         rule = FPRule.objects.get(uuid=uuid)

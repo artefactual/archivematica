@@ -94,3 +94,7 @@ def to_par_preservation_action(rule):
         'outputs': [to_par_io_file(rule.command.output_format.description)],
         'tool': to_par_tool(rule.command.tool),
         }
+
+def to_fpr_rule(preservation_action):
+    return {
+        }
