@@ -89,12 +89,11 @@ def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
-    if not mcpclient_settings.SEARCH_ENABLED:
+    if mcpclient_settings.SEARCH_ENABLED:
+        elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
+        client = elasticSearchFunctions.get_client()
+    else:
         logger.info('Skipping indexing: indexing is currently disabled.')
-        return 0
-
-    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
-    client = elasticSearchFunctions.get_client()
 
     # SIP ARRANGEMENT
 
@@ -119,7 +118,8 @@ def post_store_hook(sip_uuid):
                 user_email='archivematica system',
                 reason_for_deletion='All files in Transfer are now in AIPs.'
             )
-            elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
+            if mcpclient_settings.SEARCH_ENABLED:
+                elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(sip_uuid)
