@@ -4,6 +4,7 @@ import os
 import sys
 
 from create_mets_v0 import createFileSec, each_child
+import create_mets_v2
 from create_mets_v2 import createDigiprovMD
 import namespaces as ns
 
@@ -37,6 +38,8 @@ def call(jobs):
 
     for job in jobs:
         with job.JobContext():
+            create_mets_v2.initGlobalState()
+
             opts = parser.parse_args(job.args[1:])
 
             if not os.path.exists(opts.xmlFile):

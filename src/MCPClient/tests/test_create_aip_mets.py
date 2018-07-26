@@ -19,6 +19,8 @@ import archivematicaCreateMETSRights
 
 from main.models import RightsStatement
 
+create_mets_v2.initGlobalState()
+
 NSMAP = {
     'dc': 'http://purl.org/dc/elements/1.1/',
     'dcterms': 'http://purl.org/dc/terms/',
