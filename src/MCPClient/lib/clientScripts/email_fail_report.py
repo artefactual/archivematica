@@ -202,11 +202,10 @@ def call(jobs):
                     job.set_status(1)
                     continue
                 subject = 'Archivematica Fail Report for %s: %s-%s' % (args.unit_type, args.unit_name, args.unit_uuid)
-                efrom = 'ArchivematicaSystem@archivematica.org'
 
                 # Generate report in HTML and send it by email
                 content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
-                send_email(subject, to, efrom, content)
+                send_email(subject, to, content)
 
                 if args.stdout:
                     job.pyprint(content)
