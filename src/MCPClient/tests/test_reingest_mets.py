@@ -11,6 +11,7 @@ from main import models
 
 from job import Job
 
+import create_mets_v2
 import metsrw
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -36,6 +37,7 @@ class TestUpdateObject(TestCase):
 
     def setUp(self):
         self.sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+        create_mets_v2.initGlobalState()
 
     def load_fixture(self, fixture_paths):
         try:
@@ -233,6 +235,9 @@ class TestUpdateDublinCore(TestCase):
     sip_uuid_original = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
     sip_uuid_reingest = '87d30df4-63f5-434b-9da6-25aa995de6fe'
     sip_uuid_updated = '5d78a2a5-57a6-430f-87b2-b89fb3ccb050'
+
+    def setUp(self):
+        create_mets_v2.initGlobalState()
 
     def test_no_dc(self):
         """ It should do nothing if there is no DC entry. """
@@ -433,6 +438,9 @@ class TestUpdateRights(TestCase):
     sip_uuid_reingest = '10d57d98-29e5-4b2c-9f9f-d163e632eb31'
     sip_uuid_updated = '2941f14c-bd57-4f4a-a514-a3bf6ac5adf0'
 
+    def setUp(self):
+        create_mets_v2.initGlobalState()
+
     def test_no_rights(self):
         """ It should do nothing if there are no rights entries. """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
@@ -563,6 +571,9 @@ class TestAddEvents(TestCase):
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
 
+    def setUp(self):
+        create_mets_v2.initGlobalState()
+
     def test_all_files_get_events(self):
         """
         It should add reingestion events to all files.
@@ -627,6 +638,9 @@ class TestAddingNewFiles(TestCase):
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+
+    def setUp(self):
+        create_mets_v2.initGlobalState()
 
     def test_no_new_files(self):
         """ It should not modify the fileSec or structMap if there are no new files. """
@@ -827,6 +841,9 @@ class TestDeleteFiles(TestCase):
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
 
+    def setUp(self):
+        create_mets_v2.initGlobalState()
+
     def test_delete_file(self):
         """
         It should change the fileGrp USE to deleted.
@@ -868,6 +885,7 @@ class TestUpdateMetadataCSV(TestCase):
 
     def setUp(self):
         self.csv_file = models.File.objects.get(uuid='66370f14-2f64-4750-9d50-547614be40e8')
+        create_mets_v2.initGlobalState()
 
     def test_new_dmdsecs(self):
         """ It should add file-level dmdSecs. """

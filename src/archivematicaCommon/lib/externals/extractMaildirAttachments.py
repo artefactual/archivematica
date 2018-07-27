@@ -18,7 +18,6 @@ from StringIO import StringIO
 import uuid
 
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
-sharedVariablesAcrossModules.errorCounter = 0
 
 
 def parse_attachment(message_part, attachments=None):
@@ -89,6 +88,8 @@ def parse(content):
     """
     Eメールのコンテンツを受け取りparse,encodeして返す
     """
+    sharedVariablesAcrossModules.errorCounter = 0
+
     p = email.Parser.Parser()
     msgobj = p.parse(content)
     attachments = []

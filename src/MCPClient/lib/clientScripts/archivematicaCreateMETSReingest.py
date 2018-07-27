@@ -300,13 +300,14 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
         return mets
 
     # Set global counters so getAMDSec will work
-    createmets2.globalAmdSecCounter = int(
-        mets.tree.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
-    createmets2.globalTechMDCounter = int(
-        mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
-    createmets2.globalDigiprovMDCounter = int(
-        mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)',
-                        namespaces=ns.NSMAP))
+    createmets2.initGlobalState(
+        globalAmdSecCounter=int(mets.tree.xpath('count(mets:amdSec)',
+                                                namespaces=ns.NSMAP)),
+        globalTechMDCounter=int(mets.tree.xpath('count(mets:amdSec/mets:techMD)',
+                                                namespaces=ns.NSMAP)),
+        globalDigiprovMDCounter=int(mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)',
+                                    namespaces=ns.NSMAP))
+    )
 
     objects_fsentry = mets.get_file(label='objects', type='Directory')
 
