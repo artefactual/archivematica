@@ -920,7 +920,7 @@ def par_tools(request):
             LOGGER.error(err)
             return helpers.json_response({'error': True, 'message': 'Server failed to handle the request.'}, 502)
 
-        return helpers.json_response({'message': 'Tool successfully created.', 'uri': request.path + '/' + created_tool.slug}, 201)
+        return helpers.json_response({'message': 'Tool successfully created.', 'uri': request.path + '/' + created_tool.uuid}, 201)
 
 
     offset, limit = par.parse_offset_and_limit(request)
