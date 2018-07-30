@@ -85,8 +85,9 @@ def to_par_preservation_action_type(type):
 
 def to_par_io_file(name):
     return {
-        'type': 'File',
+        'type': {'file': {'filepath': ''}},
         'name': name,
+        'description': name,
         }
 
 def to_par_input_items(rule):
@@ -98,13 +99,13 @@ def to_par_input_items(rule):
         for arg in shlex.split(rule.command.command):
             item = {
                 'name': arg,
-                'position': i
+                'description': arg,
             }
 
             if 'directory' in arg.lower() or 'file' in arg.lower():
-                item['type'] = 'file'
+                item['type'] = {'file': {'filepath': ''}}
             else:
-                item['type'] = 'string'
+                item['type'] = {'parProperty': {'class': 'other', 'id': {'guid': 'none'}, 'type': 'string'}}
 
             result.append(item)
 
