@@ -26,6 +26,7 @@ import time
 from django.conf import settings as django_settings
 import gearman
 
+from databaseFunctions import auto_close_db
 from linkTaskManagerChoice import choicesAvailableForUnits
 from package import create_package
 
@@ -78,6 +79,7 @@ def pickle_result(fn):
     return wrap
 
 
+@auto_close_db
 @pickle_result
 @unpickle_payload
 @log_exceptions(LOGGER)
@@ -92,6 +94,7 @@ def job_approve_handler(*args, **kwargs):
     return "approving: ", job_id, chain
 
 
+@auto_close_db
 @pickle_result
 @log_exceptions(LOGGER)
 def job_awaiting_approval_handler(*args):
@@ -101,6 +104,7 @@ def job_awaiting_approval_handler(*args):
     return etree.tostring(ret, pretty_print=True)
 
 
+@auto_close_db
 @pickle_result
 @unpickle_payload
 @log_exceptions(LOGGER)

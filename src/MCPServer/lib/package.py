@@ -28,6 +28,7 @@ from django.conf import settings as django_settings
 
 from archivematicaMCP import taskThreadPool
 from archivematicaFunctions import unicodeToStr
+from databaseFunctions import auto_close_db
 from jobChain import jobChain
 from main.models import Transfer, TransferMetadataSet
 import storageService as storage_service
@@ -270,6 +271,7 @@ def create_package(name, type_, accession, access_system_id, path,
     transfer = Transfer.objects.create(**kwargs)
     logger.debug('Transfer object created: %s', transfer.pk)
 
+    @auto_close_db
     def _start(transfer, name, type_, path):
         # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
         tmpdir = mkdtemp(

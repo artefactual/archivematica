@@ -22,6 +22,7 @@ import sys
 import tempfile
 import traceback
 
+from databaseFunctions import auto_close_db
 from executeOrRunSubProcess import launchSubProcess
 
 logger = logging.getLogger('archivematica.mcp.client')
@@ -75,6 +76,7 @@ def _split_jobs(jobs, n):
     return result
 
 
+@auto_close_db
 def _run_jobs(module_name, jobs):
     (fd, output_file) = tempfile.mkstemp()
 
