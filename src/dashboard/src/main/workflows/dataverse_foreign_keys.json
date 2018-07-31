@@ -1,13 +1,37 @@
 {
 	"transfer_type": {
 		"title": "Dataverse Foreign Keys",
+		"tasks": [
+			{
+				"id": 6,
+				"task_type_uuid": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+                "task_uuid": "aa1de01d-6027-4fda-acc1-a570a88d75ff",
+                "task_description": "Move to extract packages",
+                "task_config": "cce2d52d-4714-4fcf-8f19-6805f368e8ec"
+			}
+		],
 		"microservices": [
+			{
+				"id":23,
+				"name": "Move to extract packages",
+				"exit_uuid": null,
+				"ms_in_uuid": "c6b92628-b9e2-4186-8e47-129d80a0cc0a",
+				"ms_out_uuid": null,
+				"ms_duplicate": false,
+				"group":"Extract packages",
+				"task_uuid": "aa1de01d-6027-4fda-acc1-a570a88d75ff",
+				"default_exit_message": "Failed",
+				"exit_code": 0,
+				"exit_message": 2,
+				"default_next_ms":"61c316a6-0a50-4f65-8767-1f44b1eeb6dd"
+			},
 			{
 				"id":25,
 				"name": "Add processed structMap to METS.xml document",
 				"exit_uuid": null,
 				"ms_in_uuid": "86c6e125-fe3b-4e38-9201-450601ab3264",
 				"ms_out_uuid": "ab2f2577-02b4-4891-9655-ad363d92ee6e",
+				"ms_duplicate": false,
 				"group":"Update METS.xml document",
 				"task_uuid": "275b3640-68a6-4c4e-adc1-888ea3fdfba5",
 				"default_exit_message": "Failed",

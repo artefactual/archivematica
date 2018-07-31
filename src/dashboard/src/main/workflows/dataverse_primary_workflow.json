@@ -75,13 +75,6 @@
                 "task_config": "39ed942b-5e3f-46fc-9923-ea4657b44760"
 			},
 			{
-				"id": 6,
-				"task_type_uuid": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
-                "task_uuid": "aa1de01d-6027-4fda-acc1-a570a88d75ff",
-                "task_description": "Move to extract packages",
-                "task_config": "cce2d52d-4714-4fcf-8f19-6805f368e8ec"
-			},
-			{
 				"id": 7,
 				"task_type_uuid": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
                 "task_uuid": "9205abdf-2360-41e1-bd4f-b2d4fef8b2b0",
@@ -650,7 +643,7 @@
 				"default_exit_message": "Failed",
 				"exit_code": 0,
 				"exit_message": 2,
-				"default_next_ms":"61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
+				"default_next_ms":"c6b92628-b9e2-4186-8e47-129d80a0cc0a",
 				"choice": null,
 				"dict_choice": null,
 				"variable_link": null,
@@ -666,6 +659,7 @@
 				"exit_uuid": "1b21bc76-258b-443d-bd86-756370880f83",
 				"ms_in_uuid": "c6b92628-b9e2-4186-8e47-129d80a0cc0a",
 				"ms_out_uuid": null,
+				"ms_duplicate": true,
 				"group":"Extract packages",
 				"task_uuid": "aa1de01d-6027-4fda-acc1-a570a88d75ff",
 				"default_exit_message": "Failed",
@@ -887,7 +881,7 @@
 				"default_exit_message": "Failed",
 				"exit_code": 0,
 				"exit_message": 2,
-				"default_next_ms": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
+				"default_next_ms": "86c6e125-fe3b-4e38-9201-450601ab3264",
 				"choice": null,
 				"dict_choice": null,
 				"variable_link": null,
