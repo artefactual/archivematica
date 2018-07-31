@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-import main.processWorkflowJson as workflow
+import main.processworkflowjson as workflow
 
 
 # Json links definitions to read in.
