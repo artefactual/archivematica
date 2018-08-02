@@ -65,6 +65,8 @@ class BlobTextField(models.TextField):
     Text field backed by `longblob` instead of `longtext`.
 
     Used for storing strings that need to match unsanitized paths on disk.
+
+    BLOBs are byte strings (bynary character set and collation).
     """
 
     def db_type(self, connection):
@@ -354,9 +356,9 @@ class Transfer(models.Model):
 
 class SIPArrange(models.Model):
     """ Information about arranged files: original and arranged location, current status. """
-    original_path = models.CharField(max_length=255, null=True, blank=True, default=None, unique=True)
-    arrange_path = models.CharField(max_length=255)
-    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    original_path = BlobTextField(null=True, blank=True, default=None)
+    arrange_path = BlobTextField()
+    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None, unique=True)
     transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     sip = models.ForeignKey(SIP, to_field='uuid', null=True, blank=True, default=None)
     level_of_description = models.CharField(max_length=2014)
