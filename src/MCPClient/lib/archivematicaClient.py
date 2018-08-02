@@ -72,6 +72,7 @@ from django.db import transaction
 import shlex
 import importlib
 
+from databaseFunctions import auto_close_db
 import fork_runner
 from job import Job
 
@@ -98,6 +99,7 @@ def load_supported_modules(file):
         supported_modules[client_script] = module_name
 
 
+@auto_close_db
 def handle_batch_task(gearman_job):
     module_name = supported_modules.get(gearman_job.task)
     gearman_data = cPickle.loads(gearman_job.data)
@@ -181,6 +183,7 @@ def fail_all_tasks(gearman_job, reason):
     return cPickle.dumps({'task_results': result})
 
 
+@auto_close_db
 def execute_command(gearman_worker, gearman_job):
     """Execute the command encoded in ``gearman_job`` and return its exit code,
     standard output and standard error as a pickled dict.
