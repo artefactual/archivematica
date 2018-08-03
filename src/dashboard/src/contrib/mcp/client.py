@@ -21,12 +21,23 @@ import logging
 from django.conf import settings
 import gearman
 
+from main.models import Job
+
 
 LOGGER = logging.getLogger('archivematica.dashboard.mcp.client')
 
 
 class RPCError(Exception):
     pass
+
+
+class NoJobFoundError(Exception):
+    def __init__(self, *args, **kwargs):
+        try:
+            message = args[0]
+        except IndexError:
+            message = "No job was found"
+        super(NoJobFoundError, self).__init__(message)
 
 
 INFLIGHT_POLL_TIMEOUT = 5.0
@@ -46,6 +57,24 @@ class MCPClient:
         gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         gm_client.shutdown()
         return
+
+    def execute_unit(self, unit_id, choice, mscl_id=None, uid=None):
+        """Execute the jobs awaiting for approval associated to a given unit.
+
+        Use ``mscl_id`` to pass the ID of the chain link to restrict the
+        execution to a single microservice.
+        """
+        kwargs = {
+            'currentstep': Job.STATUS_AWAITING_DECISION,
+            'sipuuid': unit_id,
+        }
+        if mscl_id is not None:
+            kwargs['microservicechainlink_id'] = mscl_id
+        jobs = Job.objects.filter(**kwargs)
+        if len(jobs) < 1:
+            raise NoJobFoundError()
+        for item in jobs:
+            self.execute(item.pk, choice, uid)
 
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
