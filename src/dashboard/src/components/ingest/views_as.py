@@ -3,9 +3,12 @@ from functools import wraps
 import json
 import logging
 
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
+from django.utils.translation import ugettext as _
 
+from contrib.mcp.client import MCPClient
 from components import advanced_search
 from main import models
 
@@ -209,3 +212,33 @@ def ingest_upload_as_match(request, uuid):
         return HttpResponse(status=204)
     else:
         return HttpResponse(status=405)
+
+
+def complete_matching(request, uuid):
+    """Complete the process by moving to the ArchivesSpace upload chain.
+
+    This is the final step that we execute when the user has reviewed the
+    matchings and submits the form. It only accepts POST because the action
+    performed is not idempotent.
+    """
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+    try:
+        client = MCPClient()
+        client.execute_unit(
+            uuid,
+            uid=request.user.id,
+            # Microservice: Upload DIP
+            mscl_id="92879a29-45bf-4f0b-ac43-e64474f0f2f9",
+            # Chain: Upload DIP to ArchivesSpace
+            choice="3572f844-5e69-4000-a24b-4e32d3487f82")
+    except Exception as err:
+        messages.error(request, _("Operation failed, please try again later"
+                                  " or contact your administrator."))
+        logger.error("Upload DIP to ArchivesSpace failed: %s", err)
+        return HttpResponseRedirect(
+            reverse(
+                "components.ingest.views_as.ingest_upload_as_review_matches",
+                args=[uuid]))
+    return HttpResponseRedirect(
+        reverse("components.ingest.views.ingest_grid"))

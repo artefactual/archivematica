@@ -65,5 +65,6 @@ urlpatterns += [
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/$', views_as.ingest_upload_as_match),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/reset/$', views_as.ingest_upload_as_reset),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/review/$', views_as.ingest_upload_as_review_matches),
+    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/complete/$', views_as.complete_matching),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/$', views_as.ingest_upload_as)
 ]

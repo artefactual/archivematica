@@ -294,22 +294,28 @@ $(function()
 
           var chainId = $select.find('option:selected').val();
           var unitId = this.model.sip.get('uuid');
-          var loadingMessage = gettext('Loading...');
 
-          // "Upload DIP to Archivists Toolkit" chain matched by its UUID.
-          // Redirect to object/resource mapping pages.
-          if (chainId == 'f11409ad-cf3c-4e7f-b0d5-4be32d98229b')
-          {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + loadingMessage + '</h1>');
-            window.location.href = '/ingest/' + unitId + '/upload/atk/';
+          // If the Upload DIP targets a system where manual mapping is
+          // required, we forward the user to the corresponding page where
+          // we're going to collect the data required and continue the work.
+          //
+          // In other words, we're not going to execute the next job from
+          // JavaScript as we expect the pairing page to do it once the user
+          // has paired the items.
+          var dipUploadWithMappingPage = {
+            // "Upload DIP to ArchivesSpace" chain matched by its UUID.
+            '3572f844-5e69-4000-a24b-4e32d3487f82': '/ingest/' + unitId + '/upload/as/',
+            // "Upload DIP to Archivists Toolkit" chain matched by its UUID.
+            'f11409ad-cf3c-4e7f-b0d5-4be32d98229b': '/ingest/' + unitId + '/upload/atk/',
           }
+          if (chainId in dipUploadWithMappingPage) {
+            $('body').html('<h1 style="text-align: center;">' + gettext('Loading...') + '</h1>');
+            window.location.href = dipUploadWithMappingPage[chainId];
 
-          // "Upload DIP to ArchivesSpace" chain matched by its UUID.
-          // Redirect to object/resource mapping pages.
-          if (chainId == '3572f844-5e69-4000-a24b-4e32d3487f82')
-          {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + loadingMessage + '</h1>');
-            window.location.href = '/ingest/' + unitId + '/upload/as/';
+            // TODO: needs to be tested with Archivists' Toolkit.
+            if (chainId == 'f11409ad-cf3c-4e7f-b0d5-4be32d98229b') {
+              return;
+            }
           }
 
           // "Upload DIP to AtoM/Binder" chain matched by its UUID.
