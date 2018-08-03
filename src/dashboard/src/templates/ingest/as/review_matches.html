@@ -16,8 +16,10 @@
     {% breadcrumb_url 'DIP upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
   </ul>
 
-  <div id='reset_matching'><a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
-  <a class='btn btn-default' href="{% url 'components.ingest.views.ingest_grid' %}">{% trans "Finish matching" %}</a>
+  <form method="POST" action="{% url 'components.ingest.views_as.complete_matching' uuid %}">
+    <a class="btn btn-submit" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
+    <button class="btn btn-primary">{% trans "Finish matching" %}</button>
+  </form>
 
   <table class="table">
     <thead>

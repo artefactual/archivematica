@@ -302,11 +302,19 @@ $(function()
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
           }
 
-          // redirect to object/resource mapping pages
+          // If the Upload DIP targets a system where manual mapping is
+          // required, we forward the user to the corresponding page where
+          // we're going to collect the data required and continue the work.
+          //
+          // In other words, we're not going to execute the next job from
+          // JavaScript as we expect the pairing page to do it once the user
+          // has paired the items.
           if ('- Upload DIP to ArchivesSpace' == $select.find('option:selected').text())
           {
             $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gettext('Loading...') + '</h1>');
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
+            
+            return;
           }
 
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
