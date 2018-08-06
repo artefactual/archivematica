@@ -14,19 +14,23 @@ django.setup()
 from main import models
 
 # archivematicaCommon
-import databaseFunctions
 from archivematicaFunctions import get_file_checksum
+import databaseFunctions
+from custom_handlers import get_script_logger
+
+logger = get_script_logger("archivematica.mcp.client.parse_dataverse_mets")
+
 
 def get_db_objects(mets, transfer_uuid):
     """
     Get DB objects for files in METS.
 
-    This also validates that files exist for each file asserted in the structMap
+    This also validates that files exist for each file asserted in the
+    structMap
 
     :param mets: Parse METS file
     :return: Dict where key is the FSEntry and value is the DB object
     """
-    # TODO does this assert that structMap files exist on disk? Does that need to be checked separately?
     mapping = {}
     for entry in mets.all_files():
         if entry.type == 'Directory' or entry.label == 'dataset.json':
@@ -35,17 +39,49 @@ def get_db_objects(mets, transfer_uuid):
         if entry.path.endswith('.RData'):
             continue
         # Get DB entry
-        # Assuming that Dataverse has a flat file structure, so a filename uniquely identifies a file.
+        # Assuming that Dataverse has a flat file structure, so a filename
+        # uniquely identifies a file.
+
+        f = None
         try:
-            f = models.File.objects.get(originallocation__endswith=entry.path, transfer_id=transfer_uuid)
+            print("Looking for for file type: '{}' using relative path: {}"
+                  .format(entry.type, entry.path))
+            f = models.File.objects.get(originallocation__endswith=entry.path,
+                                        transfer_id=transfer_uuid)
         except models.File.DoesNotExist:
-            # Actual extracted folder likely has a different path than the presumed one in the METS. Search on basename
-            print('Could not find', entry.path, 'in database')
-            bname = os.path.basename(entry.path)
-            print('Look for', bname)
-            f = models.File.objects.get(originallocation__endswith=bname, transfer_id=transfer_uuid)
+            logger.info(
+                "Could not find file type: '{}' in the database: {}"
+                .format(entry.type, entry.path))
+        except models.File.MultipleObjectsReturned as e:
+            logger.info("Multiple entries for `%s` found. Exception: %s",
+                        entry.path, e)
+
+        try:
+            # Actual extracted folder likely has a different path than the
+            # presumed one in the METS. Search on basename
+            if f is None:
+                base_name = os.path.basename(entry.path)
+                print("Looking for for file type: '{}' using base name: {}"
+                      .format(entry.type, base_name))
+                f = models.File.objects.get(
+                    originallocation__endswith=base_name,
+                    transfer_id=transfer_uuid)
+        except models.File.DoesNotExist:
+            logger.error(
+                "Could not find file type: '{}' in the database: {}. "
+                "Checksum: '{}'"
+                .format(entry.type, base_name, entry.checksum))
+            return None
+        except models.File.MultipleObjectsReturned as e:
+            logger.info("Multiple entries for `%s` found. Exception: %s",
+                        base_name, e)
+            return None
+
+        print("Adding mapping dict [{}] entry: {}".format(entry, f))
         mapping[entry] = f
+
     return mapping
+
 
 def update_file_use(mapping):
     """
@@ -58,6 +94,7 @@ def update_file_use(mapping):
         f.filegrpuse = entry.use
         print(entry.label, 'file group use set to', entry.use)
         f.save()
+
 
 def add_external_agents(unit_path):
     """
@@ -88,6 +125,7 @@ def add_external_agents(unit_path):
 
     return agent_id
 
+
 def create_derivatives(mapping, dataverse_agent_id):
     """
     Create derivatives for derived tabular data.
@@ -115,6 +153,7 @@ def create_derivatives(mapping, dataverse_agent_id):
             )
             print('Added derivation from', original_uuid, 'to', f.uuid)
 
+
 def validate_checksums(mapping, unit_path):
     date = timezone.now().isoformat(' ')
     for entry, f in mapping.items():
@@ -122,13 +161,16 @@ def validate_checksums(mapping, unit_path):
             print('Checking checksum', entry.checksum, 'for', entry.label)
             verify_checksum(
                 file_uuid=f.uuid,
-                path=f.currentlocation.replace('%transferDirectory%', unit_path),
+                path=f.currentlocation.replace(
+                    '%transferDirectory%', unit_path),
                 checksum=entry.checksum,
                 checksumtype=entry.checksumtype,
                 date=date,
             )
 
-def verify_checksum(file_uuid, path, checksum, checksumtype, event_id=None, date=None):
+
+def verify_checksum(
+        file_uuid, path, checksum, checksumtype, event_id=None, date=None):
     """
     Verify the checksum of a given file, and create a fixity event.
 
@@ -146,7 +188,8 @@ def verify_checksum(file_uuid, path, checksum, checksumtype, event_id=None, date
 
     checksumtype = checksumtype.lower()
     generated_checksum = get_file_checksum(path, checksumtype)
-    event_detail = 'program="python"; module="hashlib.{}()"'.format(checksumtype)
+    event_detail = ('program="python"; '
+                    'module="hashlib.{}()"'.format(checksumtype))
     if checksum != generated_checksum:
         print('Checksum failed')
         event_outcome = "Fail"
@@ -166,22 +209,31 @@ def verify_checksum(file_uuid, path, checksum, checksumtype, event_id=None, date
         eventOutcomeDetailNote=detail_note,
     )
 
+
 def main(unit_path, unit_uuid):
     dataverse_mets_path = os.path.join(unit_path, 'metadata', 'METS.xml')
     mets = metsrw.METSDocument.fromfile(dataverse_mets_path)
     mapping = get_db_objects(mets, unit_uuid)
-
+    if mapping is None:
+        logger.error(
+            "Exiting. Returning the database objects for our Dataverse "
+            "files has failed.")
+        return 1
     update_file_use(mapping)
     agent = add_external_agents(unit_path)
     create_derivatives(mapping, agent)
     validate_checksums(mapping, unit_path)
     return 0
 
+
 if __name__ == '__main__':
     print('Parse Dataverse METS')
-    parser = argparse.ArgumentParser(description='Parse Dataverse METS file')
-    parser.add_argument('transfer_dir', action='store', type=str, help="%SIPDirectory%")
-    parser.add_argument('transfer_uuid', action='store', type=str, help="%SIPUUID%")
+    parser = argparse.ArgumentParser(
+        description='Parse Dataverse METS file')
+    parser.add_argument(
+        'transfer_dir', action='store', type=str, help="%SIPDirectory%")
+    parser.add_argument(
+        'transfer_uuid', action='store', type=str, help="%SIPUUID%")
     args = parser.parse_args()
 
     sys.exit(main(args.transfer_dir, args.transfer_uuid))

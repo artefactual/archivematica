@@ -41,7 +41,7 @@ django.setup()
 from django.utils import timezone
 from main.models import Agent, Derivation, Directory, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange
 
-import archivematicacreateaipmetsdataverse as dataverseaip
+import create_dataverse_aip_mets as dataverseaip
 import archivematicaCreateMETSReingest
 from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights

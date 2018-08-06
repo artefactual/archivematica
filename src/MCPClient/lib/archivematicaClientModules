@@ -139,5 +139,5 @@ verifySIPCompliance_v0.0 = %clientScriptsDirectory%verifySIPCompliance.py
 verifyTransferCompliance_v0.0 = %clientScriptsDirectory%verifyTransferCompliance.py
 
 # Dataverse
-parseDataverse = %clientScriptsDirectory%parse_dataverse.py
-dataverse_v0.0 = %clientScriptsDirectory%dataverse.py
+parseDataverse = %clientScriptsDirectory%parse_dataverse_mets.py
+dataverse_v0.0 = %clientScriptsDirectory%convert_dataverse_structure.py

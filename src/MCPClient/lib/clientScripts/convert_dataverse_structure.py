@@ -30,15 +30,17 @@ from lxml import etree
 import metsrw
 from custom_handlers import get_script_logger
 
-logger = get_script_logger("archivematica.mcp.client.dataverse")
+logger = get_script_logger("archivematica.mcp.client.convert_dataverse_struct")
 
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 DISTRBTR = "SP Dataverse Network"
-# Mapping from originalFormatLabel to file extension
-# Reference for values:
-# https://github.com/IQSS/dataverse/blob/4.0.1/src/main/java/MimeTypeDisplay.properties
-# https://github.com/IQSS/dataverse/blob/4.0.1/src/main/java/META-INF/mime.types
+
+# Mapping from originalFormatLabel in dataset.json to file extension. The
+# values here are associated with Dataverse Bundles, created when Tabular data
+# is ingested, see: http://guides.dataverse.org/en/latest/user/dataset-management.html?highlight=bundle
+# The formats supported for tabluar data ingests are here:
+# http://guides.dataverse.org/en/latest/user/tabulardataingest/supportedformats.html
 EXTENSION_MAPPING = {
     "Comma Separated Values": ".csv",
     "MS Excel (XLSX)": ".xlsx",
@@ -47,7 +49,7 @@ EXTENSION_MAPPING = {
     "SPSS SAV": ".sav",
     "Stata Binary": ".dta",
     "Stata 13 Binary": ".dta",
-    "UNKNOWN": "",
+    "UNKNOWN": "UNKNOWN",
 }
 
 
@@ -119,73 +121,87 @@ def create_bundle(tabfile_json):
     Creates and returns the metsrw entries for a tabfile's bundle
     """
     # Base name is .tab with suffix stripped
-    base_name = tabfile_json["label"][:-4]
-    bundle = metsrw.FSEntry(path=base_name, type="Directory")
+    tabfile_name = tabfile_json.get("label")
+    if tabfile_name is not None:
+        print("Creating entries for tabfile bundle {}"
+              .format(tabfile_name))
+        base_name = tabfile_name[:-4]
+        bundle = metsrw.FSEntry(path=base_name, type="Directory")
+        # Find the original file and add it to the METS FS Entries.
+        tabfile_datafile = tabfile_json.get("dataFile")
+        fname = None
+        ext = EXTENSION_MAPPING.get(
+            tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN")
+        logger.info("Retrieved extension mapping value: %s", ext)
+        if ext == "UNKNOWN":
+            fname = tabfile_datafile.get("filename")
+            logger.info(
+                "Original Format Label is UNKNOWN, using filename: %s",
+                fname)
+        if fname is None:
+            fname = "{}{}".format(base_name, ext)
+        original_file = metsrw.FSEntry(
+            path="{}/{}".format(base_name, fname),
+            use="original",
+            file_uuid=str(uuid.uuid4()),
+            checksumtype="MD5",
+            checksum=tabfile_datafile["md5"],
+        )
+        bundle.add_child(original_file)
+        if tabfile_datafile["originalFormatLabel"] != "R Data":
+            # RData derivative
+            f = metsrw.FSEntry(
+                path=base_name + "/" + base_name + ".RData",
+                use="derivative",
+                derived_from=original_file,
+                file_uuid=str(uuid.uuid4()),
+            )
+            bundle.add_child(f)
 
-    # Find original file
-    ext = EXTENSION_MAPPING[tabfile_json["dataFile"]["originalFormatLabel"]]
-    original_file = metsrw.FSEntry(
-        path=base_name + "/" + base_name + ext,
-        use="original",
-        file_uuid=str(uuid.uuid4()),
-        checksumtype="MD5",
-        checksum=tabfile_json["dataFile"]["md5"],
-    )
-    bundle.add_child(original_file)
-    if tabfile_json["dataFile"]["originalFormatLabel"] != "R Data":
-        # RData derivative
+        # Add expected bundle contents
+        # FIXME what is the actual path for the files?
+        # Tabfile
         f = metsrw.FSEntry(
-            path=base_name + "/" + base_name + ".RData",
+            path=base_name + "/" + tabfile_datafile["filename"],
             use="derivative",
+            derived_from=original_file,
+            file_uuid=str(uuid.uuid4()),
+        )
+        f.add_dmdsec(
+            md=base_name + "/" + base_name + "-ddi.xml",
+            mdtype="DDI",
+            mode="mdref",
+            label=base_name + "-ddi.xml",
+            loctype="OTHER",
+            otherloctype="SYSTEM",
+        )
+        bundle.add_child(f)
+        # -ddi.xml
+        f = metsrw.FSEntry(
+            path=base_name + "/" + base_name + "-ddi.xml",
+            use="metadata",
+            derived_from=original_file,
+            file_uuid=str(uuid.uuid4()),
+        )
+        bundle.add_child(f)
+        # citation - endnote
+        f = metsrw.FSEntry(
+            path=base_name + "/" + base_name + "citation-endnote.xml",
+            use="metadata",
+            derived_from=original_file,
+            file_uuid=str(uuid.uuid4()),
+        )
+        bundle.add_child(f)
+        # citation - ris
+        f = metsrw.FSEntry(
+            path=base_name + "/" + base_name + "citation-ris.ris",
+            use="metadata",
             derived_from=original_file,
             file_uuid=str(uuid.uuid4()),
         )
         bundle.add_child(f)
 
-    # Add expected bundle contents
-    # FIXME what is the actual path for the files?
-    # Tabfile
-    f = metsrw.FSEntry(
-        path=base_name + "/" + tabfile_json["dataFile"]["filename"],
-        use="derivative",
-        derived_from=original_file,
-        file_uuid=str(uuid.uuid4()),
-    )
-    f.add_dmdsec(
-        md=base_name + "/" + base_name + "-ddi.xml",
-        mdtype="DDI",
-        mode="mdref",
-        label=base_name + "-ddi.xml",
-        loctype="OTHER",
-        otherloctype="SYSTEM",
-    )
-    bundle.add_child(f)
-    # -ddi.xml
-    f = metsrw.FSEntry(
-        path=base_name + "/" + base_name + "-ddi.xml",
-        use="metadata",
-        derived_from=original_file,
-        file_uuid=str(uuid.uuid4()),
-    )
-    bundle.add_child(f)
-    # citation - endnote
-    f = metsrw.FSEntry(
-        path=base_name + "/" + base_name + "citation-endnote.xml",
-        use="metadata",
-        derived_from=original_file,
-        file_uuid=str(uuid.uuid4()),
-    )
-    bundle.add_child(f)
-    # citation - ris
-    f = metsrw.FSEntry(
-        path=base_name + "/" + base_name + "citation-ris.ris",
-        use="metadata",
-        derived_from=original_file,
-        file_uuid=str(uuid.uuid4()),
-    )
-    bundle.add_child(f)
-
-    return bundle
+        return bundle
 
 
 def map_dataverse(sip_dir, dataset_md_name="dataset.json",
@@ -220,7 +236,13 @@ def map_dataverse(sip_dir, dataset_md_name="dataset.json",
         if file_json["dataFile"]["filename"].endswith(".tab"):
             # If tabfile, set up bundle
             bundle = create_bundle(file_json)
-            sip.add_child(bundle)
+            if bundle:
+                sip.add_child(bundle)
+            else:
+                logger.error(
+                    "Create Dataverse transfer METS failed. "
+                    "Bundle returned: %s", bundle)
+                return 1
         else:
             f = metsrw.FSEntry(
                 path=file_json["dataFile"]["filename"],
@@ -236,7 +258,8 @@ def map_dataverse(sip_dir, dataset_md_name="dataset.json",
     sip.add_child(md_dir)
     # Add dataset.json
     f = metsrw.FSEntry(
-        path="metadata/dataset.json", use="metadata", file_uuid=str(uuid.uuid4())
+        path="metadata/dataset.json", use="metadata",
+        file_uuid=str(uuid.uuid4())
     )
     # Add to metadata dir
     md_dir.add_child(f)
@@ -256,7 +279,6 @@ def map_dataverse(sip_dir, dataset_md_name="dataset.json",
     mets_f.append_file(sip)
     # print(mets_f.tostring(fully_qualified=True).decode('ascii'))
     mets_f.write(mets_path, pretty_print=True, fully_qualified=True)
-
     return 0
 
 
