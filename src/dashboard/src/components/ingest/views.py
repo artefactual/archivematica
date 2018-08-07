@@ -141,6 +141,7 @@ def ingest_status(request, uuid=None):
             item['jobs'].append(newJob)
             newJob['uuid'] = job.jobuuid
             newJob['type'] = job.jobtype
+            newJob['link_id'] = job.microservicechainlink.pk
             newJob['microservicegroup'] = job.microservicegroup
             newJob['subjobof'] = job.subjobof
             newJob['currentstep'] = job.currentstep

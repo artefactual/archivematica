@@ -177,15 +177,6 @@ $(function()
                         }
                     }]
                 });
-
-              if (self.model.jobs.detect(function(job)
-                {
-                  return job.get('type') === 'Normalize submission documentation to preservation format';
-                }))
-              {
-                dialog.find('input, select, textarea').prop('disabled', true).addClass('disabled');
-                dialog.dialog('option', 'buttons', dialog.dialog('option', 'buttons').splice(0,1));
-              }
             };
 
           $.ajax({
@@ -242,20 +233,26 @@ $(function()
             this.$('.job-detail-actions').append($select);
           }
 
-          if ('Approve normalization' == this.model.get('type'))
+          var linkId = this.model.get('link_id');
+
+          // "Approve normalization" chain link matched by its UUID.
+          if (linkId == 'de909a42-c5b5-46e1-9985-c031b50e9d30')
           {
             this.$('.job-detail-actions')
               .append('<a class="btn_normalization_report" href="#" title="' + gettext('Report') + '"><span>' + gettext('Report') + '</span></a>');
           }
 
           var message = gettext('Match DIP objects to resources');
-          if ('Choose Config for ArchivesSpace DIP Upload' == this.model.get('type'))
+
+          // "Choose Config for ArchivesSpace DIP Upload" chain link matched by its UUID.
+          if (linkId == 'a0db8294-f02a-4f49-a557-b1310a715ffc')
           {
             this.$('.job-detail-actions')
             .append('<a class="btn_as_upload" href="#" title="' + message + '"><span>' + message + '</span>');
           }
 
-          if ('Choose Config for Archivists Toolkit DIP Upload' == this.model.get('type'))
+          // "Choose Config for Archivists Toolkit DIP Upload" chain link matched by its UUID.
+          if (linkId == '7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1')
           {
             this.$('.job-detail-actions')
             .append('<a class="btn_atk_upload" href="#" title="' + message + '"><span>' + message + '</span>');
@@ -295,29 +292,34 @@ $(function()
               });
             };
 
-          // redict to object/resource mapping pages
-          if ('- Upload DIP to Archivists Toolkit' == $select.find('option:selected').text())
+          var chainId = $select.find('option:selected').val();
+          var unitId = this.model.sip.get('uuid');
+          var loadingMessage = gettext('Loading...');
+
+          // "Upload DIP to Archivists Toolkit" chain matched by its UUID.
+          // Redirect to object/resource mapping pages.
+          if (chainId == 'f11409ad-cf3c-4e7f-b0d5-4be32d98229b')
           {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gettext('Loading...') + '</h1>');
-            window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + loadingMessage + '</h1>');
+            window.location.href = '/ingest/' + unitId + '/upload/atk/';
           }
 
-          // redirect to object/resource mapping pages
-          if ('- Upload DIP to ArchivesSpace' == $select.find('option:selected').text())
+          // "Upload DIP to ArchivesSpace" chain matched by its UUID.
+          // Redirect to object/resource mapping pages.
+          if (chainId == '3572f844-5e69-4000-a24b-4e32d3487f82')
           {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gettext('Loading...') + '</h1>');
-            window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + loadingMessage + '</h1>');
+            window.location.href = '/ingest/' + unitId + '/upload/as/';
           }
 
+          // "Upload DIP to AtoM/Binder" chain matched by its UUID.
           // If no identifier for the AtoM or Binder SWORD V1 deposit endpoint
           // provided at start of transfer, display a modal dialog to request
           // such here.
-          if (
-            '- upload-qubit_v0.0' == $select.find('option:selected').text()
-          )
+          if (chainId == '0fe9842f-9519-4067-a691-8a363132ae24')
           {
             // if no access system ID provided, ask for one
-            var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/';
+            var url = '/ingest/' + unitId + '/upload/';
 
             if (this.model.sip.attributes.access_system_id == ''
               || this.model.sip.attributes.access_system_id == null

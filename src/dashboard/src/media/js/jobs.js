@@ -447,15 +447,17 @@ var MicroserviceGroupView = Backbone.View.extend({
       var jobDiv = $('<div class="job-container"></div>').hide();
       $(this.el).append(jobDiv);
 
-      var previewUrl = function(jobType, uuid) {
-        if (jobType == 'Store AIP') {
-          return '/ingest/preview/aip/' + uuid;
-        } else if (jobType == 'Approve normalization') {
-          return '/ingest/preview/normalization/' + uuid;
-        } else if (jobType == 'Move to the uploadedDIPs directory') {
-          return '/ingest/preview/dip/' + uuid;
-        } else if (jobType == 'Store DIP') {
-          return '/ingest/preview/dip/' + uuid;
+      var previewUrl = function(linkId, uuid) {
+        switch (linkId) {
+          // "Store AIP" chain link matched by its UUID.
+          case "2d32235c-02d4-4686-88a6-96f4d6c7b1c3":
+            return '/ingest/preview/aip/' + uuid;
+          // "Approve normalization" chain link matched by its UUID.
+          case "de909a42-c5b5-46e1-9985-c031b50e9d30":
+            return '/ingest/preview/normalization/' + uuid;
+          // "Move to the uploadedDIPs directory" chain link matched by its UUID.
+          case "2e31580d-1678-474b-83e5-a53d97d150f6":
+            return '/ingest/preview/dip/' + uuid;
         }
       }
 
@@ -471,12 +473,18 @@ var MicroserviceGroupView = Backbone.View.extend({
         jobDiv.append(view.render().el);
 
         // Add link to browse SIP before it's made into an AIP
+        var linkId = job.get('link_id');
         if (
-          (job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'] && -1 < jQuery.inArray(job.get('type'), ['Store AIP', 'Approve normalization']))
-          || job.get('type') == 'Move to the uploadedDIPs directory'
-          || job.get('type') == 'Store DIP'
+          (job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'] && -1 < jQuery.inArray(linkId, [
+            // "Store AIP" chain link matched by its UUID.
+            '2d32235c-02d4-4686-88a6-96f4d6c7b1c3',
+            // "Approve normalization" chain link matched by its UUID.
+            'de909a42-c5b5-46e1-9985-c031b50e9d30'
+          ]))
+          // "Move to the uploadedDIPs directory" chain link matched by its UUID.
+          || linkId == '2e31580d-1678-474b-83e5-a53d97d150f6'
         ) {
-          $(view.el).children(':first').children(':nth-child(2)').append('&nbsp;<a href="' + previewUrl(job.get('type'), job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
+          $(view.el).children(':first').children(':nth-child(2)').append('&nbsp;<a href="' + previewUrl(linkId, job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
         }
 
       });
