@@ -38,8 +38,9 @@ def call(jobs):
         with job.JobContext(logger=logger):
             aip_uuid = job.args[1]
 
-            if not mcpclient_settings.SEARCH_ENABLED:
-                logger.info('Skipping. Indexing is currently disabled.')
+            if 'aips' not in mcpclient_settings.SEARCH_ENABLED:
+                logger.info('Skipping. AIPs indexing is currently disabled.')
+                return
 
             elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
             client = elasticSearchFunctions.get_client()

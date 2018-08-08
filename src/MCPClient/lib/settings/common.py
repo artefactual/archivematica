@@ -21,9 +21,8 @@ import logging
 import logging.config
 import os
 
-from appconfig import Config
+from appconfig import Config, process_search_enabled
 import email_settings
-
 
 CONFIG_MAPPING = {
     # [MCPClient]
@@ -37,10 +36,7 @@ CONFIG_MAPPING = {
     'client_modules_file': {'section': 'MCPClient', 'option': 'archivematicaClientModules', 'type': 'string'},
     'elasticsearch_server': {'section': 'MCPClient', 'option': 'elasticsearchServer', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'MCPClient', 'option': 'elasticsearchTimeout', 'type': 'float'},
-    'search_enabled': [
-        {'section': 'MCPClient', 'option': 'disableElasticsearchIndexing', 'type': 'iboolean'},
-        {'section': 'MCPClient', 'option': 'search_enabled', 'type': 'boolean'},
-    ],
+    'search_enabled': {'section': 'MCPClient', 'process_function': process_search_enabled},
     'index_aip_continue_on_error': {'section': 'MCPClient', 'option': 'index_aip_continue_on_error', 'type': 'boolean'},
     'capture_client_script_output': {'section': 'MCPClient', 'option': 'capture_client_script_output', 'type': 'boolean'},
     'removable_files': {'section': 'MCPClient', 'option': 'removableFiles', 'type': 'string'},

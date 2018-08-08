@@ -136,9 +136,14 @@ variables or in the gunicorn configuration file.
     - **Default:** `10`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED`**:
-    - **Description:** controls whether Elasticsearch is enabled. When set to `false`, the Backlog, Appraisal, and Archival storage tabs will not be displayed; in addition, the SIP Arrange pane in the Ingest tab will not be displayed. The status of Elasticsearch indexing is indicated in the Archivematica GUI under Administration > General.
-    - **Config file example:** `MCPClient.search_enabled`
-    - **Type:** `boolean`
+    - **Description:** controls what Elasticsearch indexes are enabled:
+        - When set to `aips`, the Backlog tab, Appraisal tab, and the SIP Arrange pane in the Ingest tab will not be displayed.
+        - When set to `transfers`, the Archival storage tab will not be displayed.
+        - When set to `false`, all the mentioned parts in the previous cases will not be displayed.
+        - When set to `aips,transfers` (the order does not matter) or `true`, all the mentioned parts will be displayed.
+    The status of Elasticsearch indexing is indicated in the Archivematica GUI under Administration > General.
+    - **Config file example:** `Dashboard.search_enabled`
+    - **Type:** `boolean` or `string`
     - **Default:** `true`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER`**:

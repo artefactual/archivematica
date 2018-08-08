@@ -25,7 +25,7 @@ import os
 
 from django.utils.translation import ugettext_lazy as _
 
-from appconfig import Config
+from appconfig import Config, process_search_enabled
 import email_settings
 
 CONFIG_MAPPING = {
@@ -34,10 +34,7 @@ CONFIG_MAPPING = {
     'watch_directory': {'section': 'Dashboard', 'option': 'watch_directory', 'type': 'string'},
     'elasticsearch_server': {'section': 'Dashboard', 'option': 'elasticsearch_server', 'type': 'string'},
     'elasticsearch_timeout': {'section': 'Dashboard', 'option': 'elasticsearch_timeout', 'type': 'float'},
-    'search_enabled': [
-        {'section': 'Dashboard', 'option': 'disable_search_indexing', 'type': 'iboolean'},
-        {'section': 'Dashboard', 'option': 'search_enabled', 'type': 'boolean'},
-    ],
+    'search_enabled': {'section': 'Dashboard', 'process_function': process_search_enabled},
     'gearman_server': {'section': 'Dashboard', 'option': 'gearman_server', 'type': 'string'},
     'shibboleth_authentication': {'section': 'Dashboard', 'option': 'shibboleth_authentication', 'type': 'boolean'},
     'ldap_authentication': {'section': 'Dashboard', 'option': 'ldap_authentication', 'type': 'boolean'},

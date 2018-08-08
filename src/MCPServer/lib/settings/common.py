@@ -21,9 +21,8 @@ import logging
 import logging.config
 import os
 
-from appconfig import Config
+from appconfig import Config, process_search_enabled
 import email_settings
-
 
 CONFIG_MAPPING = {
     # [MCPServer]
@@ -36,10 +35,7 @@ CONFIG_MAPPING = {
     'wait_on_auto_approve': {'section': 'MCPServer', 'option': 'waitOnAutoApprove', 'type': 'int'},
     'watch_directory_interval': {'section': 'MCPServer', 'option': 'watchDirectoriesPollInterval', 'type': 'int'},
     'secret_key': {'section': 'MCPServer', 'option': 'django_secret_key', 'type': 'string'},
-    'search_enabled': [
-        {'section': 'MCPServer', 'option': 'disable_search_indexing', 'type': 'iboolean'},
-        {'section': 'MCPServer', 'option': 'search_enabled', 'type': 'boolean'},
-    ],
+    'search_enabled': {'section': 'MCPServer', 'process_function': process_search_enabled},
     'batch_size': {'section': 'MCPServer', 'option': 'batch_size', 'type': 'int'},
     'storage_service_client_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_timeout', 'type': 'float'},
     'storage_service_client_quick_timeout': {'section': 'MCPServer', 'option': 'storage_service_client_quick_timeout', 'type': 'float'},

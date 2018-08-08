@@ -38,8 +38,8 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
-                if not mcpclient_settings.SEARCH_ENABLED:
-                    logger.info('Skipping indexing: indexing is currently disabled.')
+                if 'transfers' not in mcpclient_settings.SEARCH_ENABLED:
+                    logger.info('Skipping indexing: Transfers indexing is currently disabled.')
                     job.set_status(0)
                     continue
 

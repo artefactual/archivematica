@@ -48,8 +48,8 @@ def index_aip(job):
     sip_path = job.args[3]  # %SIPDirectory%
     sip_type = job.args[4]  # %SIPType%
 
-    if not mcpclient_settings.SEARCH_ENABLED:
-        logger.info('Skipping indexing: indexing is currently disabled.')
+    if 'aips' not in mcpclient_settings.SEARCH_ENABLED:
+        logger.info('Skipping indexing: AIPs indexing is currently disabled.')
         return 0
 
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)

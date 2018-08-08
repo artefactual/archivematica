@@ -65,7 +65,7 @@
 
 {% block content %}
 
-  {% if search_enabled %}
+  {% if search_transfers_enabled %}
     {% include "ingest/backlog/_search_form.html" with show_files=False %}
     <div class="activity-indicator">
       <img src='/media/images/ajax-loader.gif' />

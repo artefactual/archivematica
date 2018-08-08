@@ -117,9 +117,14 @@ This is the full list of variables supported by MCPServer:
     - **Default:** `"0"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_SEARCH_ENABLED`**:
-    - **Description:** controls whether Elasticsearch is enabled. This can affect which options the MCP server makes available for user choices. E.g., If search is disabled, then the MCP server will not make the "Send to backlong" option available at the "Create SIP(s)" choice point.
+    - **Description:** controls what Elasticsearch indexes are enabled. This can affect which options the MCP server makes available for user choices. E.g., If set to `false` or `aips`, then the MCP server will not make the "Send to backlong" option available at the "Create SIP(s)" choice point, as it will require the `transfers` indexes. Available options:
+        - `true`: all indexes enabled.
+        - `false`: no indexing enabled.
+        - `aips`: only AIPs related indexes.
+        - `transfers`: only Transfers related indexes.
+        - `aips,transfers` (the order does not matter): same as `true`.
     - **Config file example:** `MCPServer.search_enabled`
-    - **Type:** `boolean`
+    - **Type:** `boolean` or `string`
     - **Default:** `true`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_STORAGE_SERVICE_CLIENT_TIMEOUT`**:
