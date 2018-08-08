@@ -52,6 +52,7 @@ from archivematicaCreateMETSTrim import getTrimFileAmdSec
 from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
+from create_mets_dataverse_v2 import create_dataverse_sip_dmdsec, create_dataverse_tabfile_dmdsec
 from custom_handlers import get_script_logger
 import namespaces as ns
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
@@ -69,7 +70,9 @@ globalState = None
 class MetsGlobalState():
     def __init__(self, globalAmdSecCounter=0, globalTechMDCounter=0, globalDigiprovMDCounter=0):
         self.globalFileGrps = {}
-        self.globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
+        self.globalFileGrpsUses = [
+            "original", "submissionDocumentation", "preservation", "service",
+            "access", "license", "text/ocr", "metadata", "derivative"]
         for use in self.globalFileGrpsUses:
             grp = etree.Element(ns.metsBNS + "fileGrp")
             grp.set("USE", use)
@@ -869,7 +872,7 @@ def createFileSec(job,
                 if original_file is not None:
                     GROUPID = 'Group-' + original_file.uuid
 
-            elif use in ("preservation", "text/ocr"):
+            elif use in ("preservation", "text/ocr", "derivative"):
                 # Derived files should be in the original file's group
                 try:
                     d = Derivation.objects.get(derived_file_id=f.uuid)
@@ -915,6 +918,18 @@ def createFileSec(job,
                         admidApplyTo.set("DMDID", ids)
                     else:
                         dspaceMetsDMDID = ids
+
+            # Special Dataverse processing. If there's .tab file, check if
+            # there's a Dataverse METS with additional metadata.
+            if f.originallocation.endswith('.tab'):
+                dv_metadata = create_dataverse_tabfile_dmdsec(
+                    job, baseDirectoryPath,
+                    os.path.basename(f.originallocation))
+                globalState.dmdSecs.extend(dv_metadata)
+                ids = ' '.join([ds.get('ID') for ds in dv_metadata])
+                if ids != "":
+                    fileDiv.attrib['DMDID'] = \
+                        fileDiv.attrib.get('DMDID', '') + ids
 
             if GROUPID == "":
                 sharedVariablesAcrossModules.globalErrorCount += 1
@@ -1370,6 +1385,14 @@ def call(jobs):
                         # Attach the DC metadata to the top level SIP div
                         # See #9822 for details
                         structMapDiv.set('DMDID', ID)
+                    root.append(dmdSec)
+
+                # Look for Dataverse specific descriptive metatdata.
+                dv = create_dataverse_sip_dmdsec(job, baseDirectoryPath)
+                for dmdSec in dv:
+                    dmdid = dmdSec.attrib['ID']
+                    dmdids = structMapDivObjects.get("DMDID", '') + ' ' + dmdid
+                    structMapDivObjects.set("DMDID", dmdids)
                     root.append(dmdSec)
 
                 for dmdSec in globalState.dmdSecs:

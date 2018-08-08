@@ -97,6 +97,15 @@ PACKAGE_TYPE_STARTING_POINTS = {
         chain='e4a59e3e-3dba-4eb5-9cf1-c1fb3ae61fa9',
         link='2483c25a-ade8-4566-a259-c6c37350d0d6',
     ),
+    'dataverse': StartingPoint(
+        watched_dir=os.path.join(
+            django_settings.WATCH_DIRECTORY,
+            'activeTransfers/dataverseTransfer'),
+        # Approve Dataverse Transfer Chain
+        chain='10c00bc8-8fc2-419f-b593-cf5518695186',
+        # Chain link setting transfer-type: Dataverse
+        link='0af6b163-5455-4a76-978b-e35cc9ee445f',
+    ),
 }
 
 
@@ -259,7 +268,8 @@ def create_package(name, type_, accession, access_system_id, path,
     if type_ is None or type_ == 'disk image':
         type_ = 'standard'
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
-        raise ValueError('Unexpected type of package provided')
+        raise ValueError("Unexpected type of package provided '{}'"
+                         .format(type_))
     if not path:
         raise ValueError('No path provided.')
     if isinstance(auto_approve, bool) is False:

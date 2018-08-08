@@ -1,0 +1,625 @@
+{
+    "authority": "10864",
+    "id": 584,
+    "identifier": "11651",
+    "latestVersion": {
+        "citationRequirements": "The publishing of analysis and results from research using this data is permitted in research communications such as scholarly papers, journals and the like. The authors of these communications are required to cite the author as the source of\nthe data and to indicate that the results or views expresses are those of the author/authorized user.",
+        "contactForAccess": "academic.services@queensu.ca",
+        "createTime": "2018-03-22T12:40:37Z",
+        "disclaimer": "The original collector of the data bears no responsibility for use of this collection or for interpretation or inference upon such use.",
+        "files": [
+            {
+                "categories": [
+                    "Papers / Posters"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "5bd57f812772238c485527d35248d551"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "\"From Coast to Coast: Canadian Collaboration in a Changing RDM Seascape\" Paper presented at the IATUL 2016 Conference",
+                    "filename": "From Coast to Coast Canadian Collaboration in a Changing RDM Seascape.pdf",
+                    "filesize": 991201,
+                    "id": 37786,
+                    "md5": "5bd57f812772238c485527d35248d551",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "42047"
+                },
+                "datasetVersionId": 3589,
+                "description": "\"From Coast to Coast: Canadian Collaboration in a Changing RDM Seascape\" Paper presented at the IATUL 2016 Conference",
+                "label": "From Coast to Coast Canadian Collaboration in a Changing RDM Seascape.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "d51b7f99c4e948ebe0623daa3553a087"
+                    },
+                    "contentType": "text/plain; charset=US-ASCII",
+                    "description": "Data file - CSV",
+                    "filename": "Queens-EngSci-Survey-march2016-public.csv",
+                    "filesize": 101903,
+                    "id": 41050,
+                    "md5": "d51b7f99c4e948ebe0623daa3553a087",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "45644"
+                },
+                "datasetVersionId": 3589,
+                "description": "Data file - CSV",
+                "label": "Queens-EngSci-Survey-march2016-public.csv",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "af2776afe1107caaaa5eae24f837a927"
+                    },
+                    "contentType": "text/plain; charset=US-ASCII",
+                    "description": "Data file - ascii",
+                    "filename": "Queens-EngSci-Survey-march2016-public.dat",
+                    "filesize": 107712,
+                    "id": 41048,
+                    "md5": "af2776afe1107caaaa5eae24f837a927",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "45645"
+                },
+                "datasetVersionId": 3589,
+                "description": "Data file - ascii",
+                "label": "Queens-EngSci-Survey-march2016-public.dat",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Documentation"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "3d29ad205a8f0c5afca60d83a5fbaa68"
+                    },
+                    "contentType": "text/x-spss-syntax; charset=US-ASCII",
+                    "description": "Syntax File",
+                    "filename": "Queens-EngSci-Survey-march2016-public.sps",
+                    "filesize": 23943,
+                    "id": 41049,
+                    "md5": "3d29ad205a8f0c5afca60d83a5fbaa68",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "45646"
+                },
+                "datasetVersionId": 3589,
+                "description": "Syntax File",
+                "label": "Queens-EngSci-Survey-march2016-public.sps",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Data"
+                ],
+                "dataFile": {
+                    "UNF": "UNF:5:jWmH+8lhx6vzFjnGrpgmSQ==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "e51f5cd6e75570b4d0b49ca9223e041c"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "Data file - SPSS",
+                    "filename": "Queens-EngSci-Survey-march2016-public.tab",
+                    "filesize": 97092,
+                    "id": 41052,
+                    "md5": "e51f5cd6e75570b4d0b49ca9223e041c",
+                    "originalFileFormat": "application/x-spss-sav",
+                    "originalFormatLabel": "SPSS SAV",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "45643"
+                },
+                "datasetVersionId": 3589,
+                "description": "Data file - SPSS",
+                "label": "Queens-EngSci-Survey-march2016-public.tab",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Documentation"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "84a11f475c4518c4882d0e47caa8a4b4"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "User Guide and Codebook",
+                    "filename": "QueensU-RDM-EngSci-Survey-ug-cdbk.pdf",
+                    "filesize": 977460,
+                    "id": 41051,
+                    "md5": "84a11f475c4518c4882d0e47caa8a4b4",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "45647"
+                },
+                "datasetVersionId": 3589,
+                "description": "User Guide and Codebook",
+                "label": "QueensU-RDM-EngSci-Survey-ug-cdbk.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Documentation"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "fb6a572f5cd841512a8356537901fe9c"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "Report on Research Data Management Survey of Queen's Engineering and Science Departments",
+                    "filename": "QueensU-Report-RDM-EngSci-Survey-May2016.pdf",
+                    "filesize": 1617376,
+                    "id": 37756,
+                    "md5": "fb6a572f5cd841512a8356537901fe9c",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "42015"
+                },
+                "datasetVersionId": 3589,
+                "description": "Report on Research Data Management Survey of Queen's Engineering and Science Departments",
+                "label": "QueensU-Report-RDM-EngSci-Survey-May2016.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Papers / Posters"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "3b65d93723442f6cbe75f64e299d59df"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "\"Research Data Management (RDM) Needs of Science and Engineering Researchers: A View from Canada\" Poster presented at the IASSIST 2016 Conference",
+                    "filename": "Research Data Management (RDM) Needs of Science and Engineering Researchers A View  from Canada.pdf",
+                    "filesize": 879550,
+                    "id": 37785,
+                    "md5": "3b65d93723442f6cbe75f64e299d59df",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "42048"
+                },
+                "datasetVersionId": 3589,
+                "description": "\"Research Data Management (RDM) Needs of Science and Engineering Researchers: A View from Canada\" Poster presented at the IASSIST 2016 Conference",
+                "label": "Research Data Management (RDM) Needs of Science and Engineering Researchers A View  from Canada.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "Documentation"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "d1901773cd166a36e01ed60b3b214494"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "Questionnaire",
+                    "filename": "survey_queens-rdm-survey_20151120.pdf",
+                    "filesize": 425237,
+                    "id": 27964,
+                    "md5": "d1901773cd166a36e01ed60b3b214494",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "31584"
+                },
+                "datasetVersionId": 3589,
+                "description": "Questionnaire",
+                "label": "survey_queens-rdm-survey_20151120.pdf",
+                "restricted": false,
+                "version": 2
+            }
+        ],
+        "id": 3589,
+        "lastUpdateTime": "2018-03-22T12:48:57Z",
+        "license": "NONE",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "Research Data Management (RDM) Survey of Queen's University's Engineering and Science Departments"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University Library. Engineering &amp; Science Library"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Tatiana Zaraiskaya"
+                                }
+                            },
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University Library. Data Services"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Alexandra Cooper"
+                                }
+                            },
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University Library. Data Services"
+                                },
+                                "authorIdentifier": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorIdentifier",
+                                    "value": "0000-0001-6167-7064 "
+                                },
+                                "authorIdentifierScheme": {
+                                    "multiple": false,
+                                    "typeClass": "controlledVocabulary",
+                                    "typeName": "authorIdentifierScheme",
+                                    "value": "ORCID"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Jeff Moon"
+                                }
+                            },
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University Library. Academic Services"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Sharon Murphy"
+                                }
+                            },
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University Library. Engineering &amp; Science Library"
+                                },
+                                "authorIdentifier": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorIdentifier",
+                                    "value": "0000-0002-6942-7390"
+                                },
+                                "authorIdentifierScheme": {
+                                    "multiple": false,
+                                    "typeClass": "controlledVocabulary",
+                                    "typeName": "authorIdentifierScheme",
+                                    "value": "ORCID"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Nasser Saleh"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Queen's University Library"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "open.scholarship.services@queensu.ca"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Data Services"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "In order to become better prepared to support Research Data Management (RDM) practices in sciences and engineering, Queen\u2019s University Library, together with the University Research Services, conducted a research study of all ranks of faculty members, as well as postdoctoral fellows and graduate students at the Faculty of Engineering\r\n& Applied Science, Departments of Chemistry, Computer Science, Geological Sciences and Geological Engineering, Mathematics and Statistics, Physics, Engineering Physics & Astronomy, School of Environmental Studies, and Geography & Planning in the Faculty of Arts and Science."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Engineering"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Data Storage"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Research data management (RDM)"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Big data"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Program script"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Data sharing"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "producer",
+                        "value": [
+                            {
+                                "producerAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerAffiliation",
+                                    "value": "Queen's University"
+                                },
+                                "producerName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerName",
+                                    "value": "Queen's University Library"
+                                },
+                                "producerURL": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerURL",
+                                    "value": "http://library.queensu.ca"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "productionPlace",
+                        "value": "Queen's University, Kingston, Ontario"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "distributor",
+                        "value": [
+                            {
+                                "distributorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorAffiliation",
+                                    "value": "Queen's University Library"
+                                },
+                                "distributorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorName",
+                                    "value": "Data Services"
+                                },
+                                "distributorURL": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorURL",
+                                    "value": "http://library.queensu.ca/data"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2016-04-25"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dateOfCollection",
+                        "value": [
+                            {
+                                "dateOfCollectionEnd": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dateOfCollectionEnd",
+                                    "value": "2015-12-31"
+                                },
+                                "dateOfCollectionStart": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dateOfCollectionStart",
+                                    "value": "2015-11-24"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "geospatial": {
+                "displayName": "Geospatial Metadata",
+                "fields": [
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "geographicCoverage",
+                        "value": [
+                            {
+                                "country": {
+                                    "multiple": false,
+                                    "typeClass": "controlledVocabulary",
+                                    "typeName": "country",
+                                    "value": "Canada"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "journal": {
+                "displayName": "Journal Metadata",
+                "fields": []
+            },
+            "socialscience": {
+                "displayName": "Social Science and Humanities Metadata",
+                "fields": [
+                    {
+                        "multiple": true,
+                        "typeClass": "primitive",
+                        "typeName": "unitOfAnalysis",
+                        "value": [
+                            "Indivduals"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "primitive",
+                        "typeName": "universe",
+                        "value": [
+                            "Participants included all ranks of faculty members,  postdoctoral fellows,  research fellows, research associates, lecturers, and graduate students at master\u2019s and doctoral levels from the Faculty of Engineering\r\n& Applied Science, and the Faculty of Arts & Sciences. The following departments participated in this survey: Chemical Engineering, Civil Engineering, Electrical and Computer Engineering, Mechanical and Materials Engineering, Robert M. Buchan Department of Mining, Biology, Chemistry, Computer Science, Geological Sciences and Geological Engineering, Mathematics and Statistics, Physics, Engineering Physics & Astronomy, School of Environmental Studies, and Geography & Planning."
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dataCollector",
+                        "value": "Queen's University Library"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "collectionMode",
+                        "value": "Online survey"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "researchInstrument",
+                        "value": "FluidSurveys"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dataCollectionSituation",
+                        "value": "The survey was distributed using the subscription-based FluidSurveys service. An email distribution list was compiled from information provided on the departmental websites. Personalized invitations were sent to 1393 unique email addresses via the FluidSurveys service. In some cases, graduate students\u2019 emails were not available from departmental websites; in these instances, the survey team requested email lists from these departments. Three departments (Mechanical\r\n& Materials Engineering, Math and Stats, and Mining) did not provide lists of graduate students\u2019 emails due to privacy considerations. In these cases, the survey was distributed through departmental administrative offices; as such, the exact number of survey recipients is unknown."
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "responseRate",
+                        "value": "The total number of responses to the survey was 396, the number of completed survey responses received was 210, and the number of partially completed responses was 145. A total of 41 respondents decided to terminate the survey. Here, \u201cpartially completed\u201d refers to a survey where some questions were answered but the respondent never terminated the survey by clicking the terminate button, or never finished the survey by clicking the submit button. A survey was counted as completed if the respondent answered all required questions and clicked the submit button. Both completed and partially completed survey responses (355 in total) were included in the analysis. Considering the number of initially sent invitations was 1393, the response rate was calculated to be 25.5%."
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2018-03-22T12:48:57Z",
+        "versionMinorNumber": 1,
+        "versionNumber": 6,
+        "versionState": "RELEASED"
+    },
+    "persistentUrl": "https://hdl.handle.net/10864/11651",
+    "protocol": "hdl",
+    "publicationDate": "2016-04-25",
+    "publisher": "Scholars Portal Dataverse"
+}

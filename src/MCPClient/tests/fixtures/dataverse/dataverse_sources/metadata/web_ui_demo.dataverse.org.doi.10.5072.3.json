@@ -1,0 +1,192 @@
+{
+    "authority": "10.5072/FK2",
+    "datasetVersion": {
+        "citation": "Tester, Archivematica, 2018, \"A study with restricted data\", https://doi.org/10.5072/FK2/WZTJWN, Root Dataverse, V1",
+        "createTime": "2018-05-09T21:26:07Z",
+        "files": [
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "770d1b51aee0644ea1dbc2c588c91265"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "description": "Some data on cats",
+                    "filename": "CatDatabase.xlsx",
+                    "filesize": 24455,
+                    "id": 578,
+                    "md5": "770d1b51aee0644ea1dbc2c588c91265",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16346cbc5dc-a870f236ec8f"
+                },
+                "datasetVersionId": 228,
+                "description": "Some data on cats",
+                "label": "CatDatabase.xlsx",
+                "restricted": true,
+                "version": 2
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "2236b2e60aeb6d0d28fd99ce7a5e1aa4"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "A photo saved in PDF",
+                    "filename": "lightingPhoto.pdf",
+                    "filesize": 866439,
+                    "id": 579,
+                    "md5": "2236b2e60aeb6d0d28fd99ce7a5e1aa4",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16346c7f1f9-388794a74e06"
+                },
+                "datasetVersionId": 228,
+                "description": "A photo saved in PDF",
+                "label": "lightingPhoto.pdf",
+                "restricted": false,
+                "version": 1
+            }
+        ],
+        "id": 228,
+        "lastUpdateTime": "2018-05-09T21:27:17Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "A study with restricted data"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Artefactual"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Tester, Archivematica"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Artefactual"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "joel@walnutdigital.com"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Tester, Archivematica"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionDate": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionDate",
+                                    "value": "2017-01-01"
+                                },
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "A test with restricted data"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Other"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Restricted"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "notesText",
+                        "value": "Some restricted data files\r\n"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Tester, Archivematica"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2018-05-09"
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2018-05-09T21:27:17Z",
+        "termsOfAccess": "This is made up data, but restricted for test purposes.",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 0,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "id": 577,
+    "identifier": "WZTJWN",
+    "persistentUrl": "https://doi.org/10.5072/FK2/WZTJWN",
+    "protocol": "doi",
+    "publicationDate": "2018-05-09",
+    "publisher": "Root Dataverse"
+}

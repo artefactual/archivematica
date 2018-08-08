@@ -272,6 +272,7 @@ def created_shared_directory_structure():
         "watchedDirectories/activeTransfers",
         "watchedDirectories/activeTransfers/baggitDirectory",
         "watchedDirectories/activeTransfers/baggitZippedDirectory",
+        "watchedDirectories/activeTransfers/dataverseTransfer",
         "watchedDirectories/activeTransfers/Dspace",
         "watchedDirectories/activeTransfers/maildir",
         "watchedDirectories/activeTransfers/standardTransfer",

@@ -1,0 +1,770 @@
+{
+    "authority": "10.5072/FK2",
+    "datasetVersion": {
+        "UNF": "UNF:6:e0YCXa2mdX74Kw7YA+71XA==",
+        "citation": "Nicolas Bala; Suzanne Hunt; Carrie McCarney; Erin Gwynne; Christine Ashborne, 2018, \"Bala Parental Alienation Study: Canada, United Kingdom, and Australia 1984-2012 [test]\", https://doi.org/10.5072/FK2/UNMEZF, Root Dataverse, V1, UNF:6:e0YCXa2mdX74Kw7YA+71XA==",
+        "createTime": "2018-05-16T17:54:01Z",
+        "distributionDate": "2013-01-23",
+        "files": [
+            {
+                "categories": [
+                    "2012",
+                    "Documents"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "5f62252a609ceafef247549443560273"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "description": "Parental Alienation, Contact Problems and the Family Justice System [PowerPoint presentation]",
+                    "filename": "Alienation Aust Bala AIFS 2012.pptx",
+                    "filesize": 1429732,
+                    "id": 854,
+                    "md5": "5f62252a609ceafef247549443560273",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139ba-36fd492c9f73"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental Alienation, Contact Problems and the Family Justice System [PowerPoint presentation]",
+                "label": "Alienation Aust Bala AIFS 2012.pptx",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "2010",
+                    "Documents"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "8ae304c4cab6ee78d20b906e59079f37"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "description": "The Alienated Child: Myths, Realities and Effective Responses [PowerPoint presentation",
+                    "filename": "Alienation Bala SCJ May 2010.pptx",
+                    "filesize": 301875,
+                    "id": 859,
+                    "md5": "8ae304c4cab6ee78d20b906e59079f37",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139c8-77b5f6c12d71"
+                },
+                "datasetVersionId": 279,
+                "description": "The Alienated Child: Myths, Realities and Effective Responses [PowerPoint presentation",
+                "label": "Alienation Bala SCJ May 2010.pptx",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "2012",
+                    "Documents"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "0cec6f7b7a028715edcf1e0651d10b89"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "description": "Recognizing and Responding to Parental Alienation: Why have English Courts Been So Slow?",
+                    "filename": "Alienation London June 27 2012 (Bala) .pptx",
+                    "filesize": 1647626,
+                    "id": 851,
+                    "md5": "0cec6f7b7a028715edcf1e0651d10b89",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139db-7039ed455cb9"
+                },
+                "datasetVersionId": 279,
+                "description": "Recognizing and Responding to Parental Alienation: Why have English Courts Been So Slow?",
+                "label": "Alienation London June 27 2012 (Bala) .pptx",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1984-2011",
+                    "Data"
+                ],
+                "dataFile": {
+                    "UNF": "UNF:6:q2Avm3TwI/lWz71+rbtTcw==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "cea791d8230607e14dda1f520244704c"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "Parental alienation cases for Australia, 1984-2011, by date",
+                    "filename": "PA-Cases-Australia-by-date.tab",
+                    "filesize": 10242,
+                    "id": 862,
+                    "md5": "cea791d8230607e14dda1f520244704c",
+                    "originalFileFormat": "text/csv",
+                    "originalFormatLabel": "Comma Separated Values",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139e5-2f6d2e9ebb37"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Australia, 1984-2011, by date",
+                "label": "PA-Cases-Australia-by-date.tab",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1984-2011",
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "c037aa14a87b1148b8e3faf367d2f71c"
+                    },
+                    "contentType": "text/comma-separated-values",
+                    "description": "Parental alienation cases for Australia, 1984-2011, summary",
+                    "filename": "PA-Cases-Australia-summary.csv",
+                    "filesize": 98174,
+                    "id": 848,
+                    "md5": "c037aa14a87b1148b8e3faf367d2f71c",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139ea-06dd7e2cc23f"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Australia, 1984-2011, summary",
+                "label": "PA-Cases-Australia-summary.csv",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1984-2011",
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "1ee6960c8257b918f0c84dfd3a64ab98"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "description": "Parental alienation cases for Australia, 1984-2011",
+                    "filename": "PA-Cases-Australia.xlsx",
+                    "filesize": 71835,
+                    "id": 857,
+                    "md5": "1ee6960c8257b918f0c84dfd3a64ab98",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139f0-dafd0e574c7c"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Australia, 1984-2011",
+                "label": "PA-Cases-Australia.xlsx",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1989-2008",
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "ea7ffcdec6a3ad25ff0f3e8666851438"
+                    },
+                    "contentType": "text/csv",
+                    "description": "Parental alienation cases for Canada, 1989-2008, by date",
+                    "filename": "PA-Cases-Canada-by-date.csv",
+                    "filesize": 80057,
+                    "id": 853,
+                    "md5": "ea7ffcdec6a3ad25ff0f3e8666851438",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139f4-ea37961c2384"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Canada, 1989-2008, by date",
+                "label": "PA-Cases-Canada-by-date.csv",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1989-2008",
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "f76904c605ca9beed382faaa4b3db4f9"
+                    },
+                    "contentType": "text/comma-separated-values",
+                    "description": "Parental alienation cases for Canada, 1989-2008, PA found",
+                    "filename": "PA-Cases-Canada-pa-found.csv",
+                    "filesize": 20184,
+                    "id": 861,
+                    "md5": "f76904c605ca9beed382faaa4b3db4f9",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139f9-6a4ba9a97ddd"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Canada, 1989-2008, PA found",
+                "label": "PA-Cases-Canada-pa-found.csv",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1989-2008",
+                    "Data"
+                ],
+                "dataFile": {
+                    "UNF": "UNF:6:YLOG7cUWw9LlB/2D2gccag==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "6297f043f866b60befc921f84e4ccd11"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "Parental alienation cases for Canada, 1989-2008",
+                    "filename": "PA-Cases-Canada.tab",
+                    "filesize": 22902,
+                    "id": 850,
+                    "md5": "6297f043f866b60befc921f84e4ccd11",
+                    "originalFileFormat": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "originalFormatLabel": "MS Excel (XLSX)",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "163698139fe-6a64e0f90ec1"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for Canada, 1989-2008",
+                "label": "PA-Cases-Canada.tab",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1986-2008",
+                    "Data"
+                ],
+                "dataFile": {
+                    "UNF": "UNF:6:YkvpoCo3OSqXeLvUqSRUzQ==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "9078645e064e760d3031d0a6aa45326f"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "Parental alienation cases for United Kingdom, 1996-2008",
+                    "filename": "PA-Cases-UK-1996-2008.tab",
+                    "filesize": 14612,
+                    "id": 847,
+                    "md5": "9078645e064e760d3031d0a6aa45326f",
+                    "originalFileFormat": "text/csv",
+                    "originalFormatLabel": "Comma Separated Values",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a02-0a93eba4cb0a"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for United Kingdom, 1996-2008",
+                "label": "PA-Cases-UK-1996-2008.tab",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "2008-2011",
+                    "Data"
+                ],
+                "dataFile": {
+                    "UNF": "UNF:6:9AN16WYddUZo/etN3tjHCA==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "40ebe25763f9b82acf8e128c2004f78b"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "description": "Parental alienation cases for United Kingdom, 2008-2011",
+                    "filename": "PA-Cases-UK-2000-2011.tab",
+                    "filesize": 46679,
+                    "id": 852,
+                    "md5": "40ebe25763f9b82acf8e128c2004f78b",
+                    "originalFileFormat": "text/csv",
+                    "originalFormatLabel": "Comma Separated Values",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a08-4de2b1814bbc"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for United Kingdom, 2008-2011",
+                "label": "PA-Cases-UK-2000-2011.tab",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1996-2012",
+                    "Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "8779d98af2d1e94b25ee68704a5d7bc6"
+                    },
+                    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "description": "Parental alienation cases for United Kingdom, 1996-2012",
+                    "filename": "PA-Cases-UK.xlsx",
+                    "filesize": 42823,
+                    "id": 855,
+                    "md5": "8779d98af2d1e94b25ee68704a5d7bc6",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a0d-e39a02633d74"
+                },
+                "datasetVersionId": 279,
+                "description": "Parental alienation cases for United Kingdom, 1996-2012",
+                "label": "PA-Cases-UK.xlsx",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1997-2011",
+                    "Summary of Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "04867d3ba45394dfd0a56883f1a88496"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "Australia Summary, 1997-2011",
+                    "filename": "PA-Summary-Australia-1997 -2011.pdf",
+                    "filesize": 581806,
+                    "id": 856,
+                    "md5": "04867d3ba45394dfd0a56883f1a88496",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a18-0499aa4ba30c"
+                },
+                "datasetVersionId": 279,
+                "description": "Australia Summary, 1997-2011",
+                "label": "PA-Summary-Australia-1997 -2011.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1988-2008",
+                    "Summary of Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "cd720d05a7744a0da4c48bb227bf53ef"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "Canada Summary, 1988-2008",
+                    "filename": "PA-Summary-Canada-1988-2008.pdf",
+                    "filesize": 163271,
+                    "id": 849,
+                    "md5": "cd720d05a7744a0da4c48bb227bf53ef",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a20-fea7e670a8a2"
+                },
+                "datasetVersionId": 279,
+                "description": "Canada Summary, 1988-2008",
+                "label": "PA-Summary-Canada-1988-2008.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "2008",
+                    "Summary of Data"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "a25ea872f6e0dd83407a6db7ff869eb1"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "Canada Summary, 2009",
+                    "filename": "PA-Summary-Canada-2009.pdf",
+                    "filesize": 148169,
+                    "id": 860,
+                    "md5": "a25ea872f6e0dd83407a6db7ff869eb1",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a25-2a5fa912125d"
+                },
+                "datasetVersionId": 279,
+                "description": "Canada Summary, 2009",
+                "label": "PA-Summary-Canada-2009.pdf",
+                "restricted": false,
+                "version": 2
+            },
+            {
+                "categories": [
+                    "1984-2012",
+                    "Documents"
+                ],
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "c78b5c37cfcf5834bef135e34a09f532"
+                    },
+                    "contentType": "application/pdf",
+                    "description": "User Guide",
+                    "filename": "pa-user-guide.pdf",
+                    "filesize": 321835,
+                    "id": 863,
+                    "md5": "c78b5c37cfcf5834bef135e34a09f532",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "16369813a2d-41556d7c6f3a"
+                },
+                "datasetVersionId": 279,
+                "description": "User Guide",
+                "label": "pa-user-guide.pdf",
+                "restricted": false,
+                "version": 2
+            }
+        ],
+        "id": 279,
+        "lastUpdateTime": "2018-05-16T17:54:08Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "Bala Parental Alienation Study: Canada, United Kingdom, and Australia 1984-2012 [test]"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Queen's University"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Nicolas Bala"
+                                }
+                            },
+                            {
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Suzanne Hunt"
+                                }
+                            },
+                            {
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Carrie McCarney"
+                                }
+                            },
+                            {
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Erin Gwynne"
+                                }
+                            },
+                            {
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Christine Ashborne"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Queen's University"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "meghan.goodchild@queensu.ca"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Data and Government Information Centre"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionDate": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionDate",
+                                    "value": "2013-01-23"
+                                },
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "Using databases of judicial decisions from Canada, Australia, and the United Kingdom, from 1984-2012, searching terms \"parental alienation\", \"alienated child\", \"alienated\", etc., cases were combed through to determine whether they represented cases where the court dealt with an issue of alienation. Those cases that were found to have dealt with parental alienation were studied and analyzed."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Social Sciences"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Parental alienation"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Alienated child"
+                                }
+                            },
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Estrangement"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "publication",
+                        "value": [
+                            {
+                                "publicationCitation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "publicationCitation",
+                                    "value": "Bala, Hunt and McCarney, \"Parental Alienation: Canadian Court Cases 1989-2008\" (2010) 48 Family Court Review 162-177.\r\n\r\nFidler, Bala and Saini, Children Resisting Post-Separation Contact: A Differential Approach for Legal and Mental Professionals (New York: Oxford University Press, 2012)"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "language",
+                        "value": [
+                            "English"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "producer",
+                        "value": [
+                            {
+                                "producerAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerAffiliation",
+                                    "value": "Queen's University Faculty of Law"
+                                },
+                                "producerName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerName",
+                                    "value": "Nicolas Bala"
+                                },
+                                "producerURL": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "producerURL",
+                                    "value": "http://law.queensu.ca/ "
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "productionDate",
+                        "value": "2013-01"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "grantNumber",
+                        "value": [
+                            {
+                                "grantNumberAgency": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "grantNumberAgency",
+                                    "value": "Social Sciences and Humanities Research Council (SSHRC) "
+                                }
+                            },
+                            {
+                                "grantNumberAgency": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "grantNumberAgency",
+                                    "value": "Law Foundation of Ontario "
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "distributor",
+                        "value": [
+                            {
+                                "distributorAbbreviation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorAbbreviation",
+                                    "value": "DGIC"
+                                },
+                                "distributorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorAffiliation",
+                                    "value": "Queen's University"
+                                },
+                                "distributorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorName",
+                                    "value": "Data and Government Information Centre"
+                                },
+                                "distributorURL": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "distributorURL",
+                                    "value": "http://library.queensu.ca/webdoc/ "
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "distributionDate",
+                        "value": "2013-01-23"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Goodchild, Meghan"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2018-05-16"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "timePeriodCovered",
+                        "value": [
+                            {
+                                "timePeriodCoveredEnd": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "timePeriodCoveredEnd",
+                                    "value": "2012"
+                                },
+                                "timePeriodCoveredStart": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "timePeriodCoveredStart",
+                                    "value": "1984"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "primitive",
+                        "typeName": "relatedMaterial",
+                        "value": [
+                            "Bala, N. Managing Cases of Children Resistant to Parental Contact and Alienated Children - International and UK Experiences. Family Law Seminar, The Palace of Westminster, 27 June 2012. [PowerPoint presentation]\r\n\r\nBala, N. Parental Alienation, Contact Problems and the Family Justice System. Australian Institute of Family Studies, Melbourne, Australia, 20 February 2012. [PowerPoint presentation]\r\n\r\nBala, N. The Alienated Child: Myths, Realities and Effective Responses. Superior Cour t of Justice: Family Law Program, Niagara-on-the-Falls, Ontario, 5 May 2010. [PowerPoint presentation]"
+                        ]
+                    }
+                ]
+            },
+            "geospatial": {
+                "displayName": "Geospatial Metadata",
+                "fields": []
+            },
+            "journal": {
+                "displayName": "Journal Metadata",
+                "fields": []
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2018-05-16T17:54:08Z",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 1,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "id": 784,
+    "identifier": "UNMEZF",
+    "persistentUrl": "https://doi.org/10.5072/FK2/UNMEZF",
+    "protocol": "doi",
+    "publicationDate": "2018-05-16",
+    "publisher": "Root Dataverse"
+}

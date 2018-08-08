@@ -1,0 +1,197 @@
+{
+    "authority": "10.5072/FK2",
+    "id": 115,
+    "identifier": "NNTESQ",
+    "latestVersion": {
+        "UNF": "UNF:6:08UsvQXuLqTKseBaQf77Xw==",
+        "createTime": "2017-08-09T17:51:19Z",
+        "files": [
+            {
+                "dataFile": {
+                    "UNF": "UNF:6:08UsvQXuLqTKseBaQf77Xw==",
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "5fecac4095dbb6374cb32dd70811d2ce"
+                    },
+                    "contentType": "text/tab-separated-values",
+                    "filename": "depress.tab",
+                    "filesize": 5400,
+                    "id": 116,
+                    "md5": "5fecac4095dbb6374cb32dd70811d2ce",
+                    "originalFileFormat": "application/x-spss-sav",
+                    "originalFormatLabel": "SPSS SAV",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "15dc81eb3aa-927d0c6e8e93"
+                },
+                "datasetVersionId": 43,
+                "label": "depress.tab",
+                "restricted": true,
+                "version": 3
+            }
+        ],
+        "id": 43,
+        "lastUpdateTime": "2017-08-09T17:59:02Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "Depress"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "Ryerson University"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Manuel, Kevin"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "Ryerson University"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "kevin.manuel@ryerson.ca"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Manuel, Kevin"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "Depressing data"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Arts and Humanities"
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "keyword",
+                        "value": [
+                            {
+                                "keywordValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "keywordValue",
+                                    "value": "Depress"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "topicClassification",
+                        "value": [
+                            {
+                                "topicClassValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "topicClassValue",
+                                    "value": "Depress"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "language",
+                        "value": [
+                            "English",
+                            "Esperanto"
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Manuel, Kevin"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2017-08-09"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "software",
+                        "value": [
+                            {
+                                "softwareName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "softwareName",
+                                    "value": "SPSS"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2017-08-09T17:59:02Z",
+        "termsOfAccess": "Please contact owner for access",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 0,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "persistentUrl": "https://doi.org/10.5072/FK2/NNTESQ",
+    "protocol": "doi",
+    "publicationDate": "2017-08-09",
+    "publisher": "Root Dataverse"
+}

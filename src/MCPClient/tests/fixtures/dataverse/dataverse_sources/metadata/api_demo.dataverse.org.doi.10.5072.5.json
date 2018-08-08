@@ -1,0 +1,279 @@
+{
+    "authority": "10.5072/FK2",
+    "id": 34,
+    "identifier": "8KDUHM",
+    "latestVersion": {
+        "createTime": "2017-01-04T21:31:57Z",
+        "files": [
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "91725d755356dd3961c4165bd45faefe"
+                    },
+                    "contentType": "image/tiff",
+                    "filename": "TRT00001454.tif",
+                    "filesize": 28762385,
+                    "id": 42,
+                    "md5": "91725d755356dd3961c4165bd45faefe",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1bb9-610728527853"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001454.tif",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "5bf104854cad87f8ac62b1664ab1c17e"
+                    },
+                    "contentType": "text/xml",
+                    "filename": "TRT00001454.xml",
+                    "filesize": 1166,
+                    "id": 36,
+                    "md5": "5bf104854cad87f8ac62b1664ab1c17e",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1cf1-c1dd53996bc0"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001454.xml",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "73f05fc278ec672747573eccf146fc15"
+                    },
+                    "contentType": "image/tiff",
+                    "filename": "TRT00001741.tif",
+                    "filesize": 30287712,
+                    "id": 37,
+                    "md5": "73f05fc278ec672747573eccf146fc15",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1cfb-cf3c75e38b71"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001741.tif",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "1efa5ab42f8d34783d937e32887d8698"
+                    },
+                    "contentType": "text/xml",
+                    "filename": "TRT00001741.xml",
+                    "filesize": 1195,
+                    "id": 35,
+                    "md5": "1efa5ab42f8d34783d937e32887d8698",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1e47-69ac7755618d"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001741.xml",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "64c7219020a53da543a7a8f6ebd8c697"
+                    },
+                    "contentType": "image/tiff",
+                    "filename": "TRT00001919.tif",
+                    "filesize": 30525019,
+                    "id": 41,
+                    "md5": "64c7219020a53da543a7a8f6ebd8c697",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1e51-f5ef67bb880d"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001919.tif",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "9c6ef383d39ced23242591986705e12c"
+                    },
+                    "contentType": "text/xml",
+                    "filename": "TRT00001919.xml",
+                    "filesize": 1209,
+                    "id": 40,
+                    "md5": "9c6ef383d39ced23242591986705e12c",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1ff6-385c1079cced"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001919.xml",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "7ca1b595703655a1d47bfc1dd9039db3"
+                    },
+                    "contentType": "image/tiff",
+                    "filename": "TRT00001920.tif",
+                    "filesize": 30524375,
+                    "id": 38,
+                    "md5": "7ca1b595703655a1d47bfc1dd9039db3",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a1ffe-4fabf5fc1e39"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001920.tif",
+                "restricted": true,
+                "version": 1
+            },
+            {
+                "dataFile": {
+                    "checksum": {
+                        "type": "MD5",
+                        "value": "538a6212b530c1e1a03808efdfaf3c68"
+                    },
+                    "contentType": "text/xml",
+                    "filename": "TRT00001920.xml",
+                    "filesize": 1231,
+                    "id": 39,
+                    "md5": "538a6212b530c1e1a03808efdfaf3c68",
+                    "originalFormatLabel": "UNKNOWN",
+                    "rootDataFileId": -1,
+                    "storageIdentifier": "1596b5a21b2-441ae194899f"
+                },
+                "datasetVersionId": 9,
+                "label": "TRT00001920.xml",
+                "restricted": true,
+                "version": 1
+            }
+        ],
+        "id": 9,
+        "lastUpdateTime": "2017-01-04T21:32:02Z",
+        "license": "CC0",
+        "metadataBlocks": {
+            "citation": {
+                "displayName": "Citation Metadata",
+                "fields": [
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "title",
+                        "value": "Botanical Test"
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "author",
+                        "value": [
+                            {
+                                "authorAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorAffiliation",
+                                    "value": "OTHER"
+                                },
+                                "authorName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "authorName",
+                                    "value": "Admin, Dataverse"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "datasetContact",
+                        "value": [
+                            {
+                                "datasetContactAffiliation": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactAffiliation",
+                                    "value": "OTHER"
+                                },
+                                "datasetContactEmail": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactEmail",
+                                    "value": "amber@scholarsportal.info"
+                                },
+                                "datasetContactName": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "datasetContactName",
+                                    "value": "Admin, Dataverse"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "compound",
+                        "typeName": "dsDescription",
+                        "value": [
+                            {
+                                "dsDescriptionValue": {
+                                    "multiple": false,
+                                    "typeClass": "primitive",
+                                    "typeName": "dsDescriptionValue",
+                                    "value": "test batch upload of ZIP "
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "multiple": true,
+                        "typeClass": "controlledVocabulary",
+                        "typeName": "subject",
+                        "value": [
+                            "Other"
+                        ]
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "depositor",
+                        "value": "Admin, Dataverse"
+                    },
+                    {
+                        "multiple": false,
+                        "typeClass": "primitive",
+                        "typeName": "dateOfDeposit",
+                        "value": "2017-01-04"
+                    }
+                ]
+            }
+        },
+        "productionDate": "Production Date",
+        "releaseTime": "2017-01-04T21:32:02Z",
+        "termsOfUse": "CC0 Waiver",
+        "versionMinorNumber": 1,
+        "versionNumber": 1,
+        "versionState": "RELEASED"
+    },
+    "persistentUrl": "https://doi.org/10.5072/FK2/8KDUHM",
+    "protocol": "doi",
+    "publicationDate": "2017-01-04",
+    "publisher": "Root Dataverse"
+}

@@ -1,0 +1,149 @@
+{
+	"publisher": "Root Dataverse",
+	"protocol": "doi",
+	"authority": "10.5072/FK2",
+	"publicationDate": "2018-05-09",
+	"persistentUrl": "https://doi.org/10.5072/FK2/6PPJ6Y",
+	"latestVersion": {
+		"files": [{
+			"dataFile": {
+				"originalFormatLabel": "Comma Separated Values",
+				"contentType": "text/tab-separated-values",
+				"description": "A table with drinks data",
+				"rootDataFileId": -1,
+				"originalFileFormat": "text/csv",
+				"checksum": {
+					"type": "MD5",
+					"value": "ddb3bc08ca0b5826efef8c87a277475f"
+				},
+				"filename": "Drinks.tab",
+				"filesize": 233,
+				"UNF": "UNF:6:IgxkjKXUlveGP0Darp1fYg==",
+				"md5": "ddb3bc08ca0b5826efef8c87a277475f",
+				"id": 575,
+				"storageIdentifier": "163469b1673-1e6c95ea2b41"
+			},
+			"datasetVersionId": 227,
+			"description": "A table with drinks data",
+			"restricted": false,
+			"label": "Drinks.tab",
+			"version": 2
+		}],
+		"metadataBlocks": {
+			"citation": {
+				"fields": [{
+					"typeName": "title",
+					"multiple": false,
+					"value": "A study of my afternoon drinks ",
+					"typeClass": "primitive"
+				}, {
+					"typeName": "author",
+					"multiple": true,
+					"value": [{
+						"authorAffiliation": {
+							"typeName": "authorAffiliation",
+							"multiple": false,
+							"value": "Artefactual",
+							"typeClass": "primitive"
+						},
+						"authorName": {
+							"typeName": "authorName",
+							"multiple": false,
+							"value": "Tester, Archivematica",
+							"typeClass": "primitive"
+						}
+					}],
+					"typeClass": "compound"
+				}, {
+					"typeName": "datasetContact",
+					"multiple": true,
+					"value": [{
+						"datasetContactEmail": {
+							"typeName": "datasetContactEmail",
+							"multiple": false,
+							"value": "joel@walnutdigital.com",
+							"typeClass": "primitive"
+						},
+						"datasetContactAffiliation": {
+							"typeName": "datasetContactAffiliation",
+							"multiple": false,
+							"value": "Artefactual",
+							"typeClass": "primitive"
+						},
+						"datasetContactName": {
+							"typeName": "datasetContactName",
+							"multiple": false,
+							"value": "Tester, Archivematica",
+							"typeClass": "primitive"
+						}
+					}],
+					"typeClass": "compound"
+				}, {
+					"typeName": "dsDescription",
+					"multiple": true,
+					"value": [{
+						"dsDescriptionValue": {
+							"typeName": "dsDescriptionValue",
+							"multiple": false,
+							"value": "Photos with my drinks, and a tabular file with some data on drinks. \r\n",
+							"typeClass": "primitive"
+						},
+						"dsDescriptionDate": {
+							"typeName": "dsDescriptionDate",
+							"multiple": false,
+							"value": "2018-05-01",
+							"typeClass": "primitive"
+						}
+					}],
+					"typeClass": "compound"
+				}, {
+					"typeName": "subject",
+					"multiple": true,
+					"value": ["Arts and Humanities"],
+					"typeClass": "controlledVocabulary"
+				}, {
+					"typeName": "keyword",
+					"multiple": true,
+					"value": [{
+						"keywordValue": {
+							"typeName": "keywordValue",
+							"multiple": false,
+							"value": "Drinks",
+							"typeClass": "primitive"
+						}
+					}],
+					"typeClass": "compound"
+				}, {
+					"typeName": "notesText",
+					"multiple": false,
+					"value": "My first test dataset\r\n",
+					"typeClass": "primitive"
+				}, {
+					"typeName": "depositor",
+					"multiple": false,
+					"value": "Tester, Archivematica",
+					"typeClass": "primitive"
+				}, {
+					"typeName": "dateOfDeposit",
+					"multiple": false,
+					"value": "2018-05-09",
+					"typeClass": "primitive"
+				}],
+				"displayName": "Citation Metadata"
+			}
+		},
+		"license": "CC0",
+		"lastUpdateTime": "2018-05-09T20:45:27Z",
+		"versionMinorNumber": 0,
+		"createTime": "2018-05-09T20:33:36Z",
+		"termsOfUse": "CC0 Waiver",
+		"versionNumber": 1,
+		"UNF": "UNF:6:IgxkjKXUlveGP0Darp1fYg==",
+		"versionState": "RELEASED",
+		"productionDate": "Production Date",
+		"id": 227,
+		"releaseTime": "2018-05-09T20:45:27Z"
+	},
+	"identifier": "6PPJ6Y",
+	"id": 574
+}
