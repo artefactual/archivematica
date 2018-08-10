@@ -65,7 +65,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0050_change_pointer_file_filegrpuse'),
+        ('main', '0050_remove_magic_links'),
     ]
 
     operations = [
