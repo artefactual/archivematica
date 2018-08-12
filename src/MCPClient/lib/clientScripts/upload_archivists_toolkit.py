@@ -24,6 +24,7 @@ from main.models import AtkDIPObjectResourcePairing
 
 # external
 from agentarchives.atk import ArchivistsToolkitClient
+from django.utils.six.moves import input as raw_input
 
 # moved after django.setup()
 logger = get_script_logger("archivematica.mcp.client")

@@ -8,6 +8,7 @@ import create_mets_v2
 from create_mets_v2 import createDigiprovMD
 import namespaces as ns
 
+from django.utils import six
 from lxml import etree
 
 
@@ -15,7 +16,7 @@ def create_amdSecs(job, path, file_group_identifier, base_path, base_path_name, 
     amdSecs = []
 
     for child in each_child(job, path, file_group_identifier, base_path, base_path_name, sip_uuid):
-        if isinstance(child, basestring):  # directory
+        if isinstance(child, six.string_types):  # directory
             amdSecs.extend(create_amdSecs(job, child, file_group_identifier, base_path, base_path_name, sip_uuid))
         else:  # file
             admid = "digiprov-" + child.uuid

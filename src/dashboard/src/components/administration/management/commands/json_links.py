@@ -29,10 +29,10 @@ import os
 import sys
 import tempfile
 
-
 import django
 from django.conf import settings as django_settings
 from django.core.management.base import BaseCommand
+from django.utils import six
 
 # Workflow models
 from main.models import (
@@ -186,7 +186,7 @@ def process_chain_link_task_details(link_dict, link, task_config):
 def job_status_unicode(value):
     status = dict(Job.STATUS)
     try:
-        return unicode(status[int(value)])
+        return six.text_type(status[int(value)])
     except ValueError:
         # https://github.com/artefactual/archivematica/issues/784
         d = {
@@ -194,7 +194,7 @@ def job_status_unicode(value):
             'Completed successfully': 2,
         }
         if value in d:
-            return unicode(status[d[value]])
+            return six.text_type(status[d[value]])
         raise
     except KeyError:
         logging.error('Job status %s cannot be recognized', value)
@@ -221,7 +221,7 @@ def i18nize_field(field, description):
 
     Side effect: update global catalogue.
     """
-    value = unicode(field)
+    value = six.text_type(field)
     if not hasattr(sys.modules[__name__], 'i18n_catalogues'):
         return dict(en=value)
     catalogues = getattr(sys.modules[__name__], 'i18n_catalogues')

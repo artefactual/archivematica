@@ -21,11 +21,21 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+
+import io
 import subprocess
 import shlex
 import uuid
 import os
 import sys
+
+from django.utils import six
+
+# https://stackoverflow.com/a/36321030
+try:
+    file_types = (file, io.IOBase)
+except NameError:
+    file_types = (io.IOBase,)
 
 
 def launchSubProcess(command, stdIn="", printing=True, arguments=[],
@@ -64,7 +74,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
 
     try:
         # Split command strings but pass through arrays untouched
-        if isinstance(command, basestring):
+        if isinstance(command, six.string_types):
             command = shlex.split(command)
         else:
             command.extend(arguments)
@@ -77,10 +87,10 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[],
             my_env['LANGUAGE'] = my_env['LANG']
         my_env.update(env_updates)
 
-        if isinstance(stdIn, basestring):
+        if isinstance(stdIn, six.string_types):
             stdin_pipe = subprocess.PIPE
             stdin_string = stdIn
-        elif isinstance(stdIn, file):
+        elif isinstance(stdIn, file_types):
             stdin_pipe = stdIn
             stdin_string = ""
         else:

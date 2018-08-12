@@ -32,6 +32,7 @@ import pprint
 import re
 from uuid import uuid4
 
+from django.utils import six
 from lxml import etree
 
 from main.models import DashboardSetting
@@ -86,14 +87,14 @@ class OrderedListsDict(collections.OrderedDict):
 
 def unicodeToStr(string):
     """Convert Unicode to string format."""
-    if isinstance(string, unicode):
+    if isinstance(string, six.text_type):
         string = string.encode("utf-8")
     return string
 
 
 def strToUnicode(string, obstinate=False):
     """Convert string to Unicode format."""
-    if isinstance(string, str):
+    if isinstance(string, six.binary_type):
         try:
             string = string.decode('utf8')
         except UnicodeDecodeError:
@@ -138,7 +139,7 @@ def getTagged(root, tag):
 def escapeForCommand(string):
     """Escape special characters in a given string."""
     ret = string
-    if isinstance(ret, basestring):
+    if isinstance(ret, six.string_types):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace("\"", "\\\"")
         ret = ret.replace("`", "\`")
@@ -152,7 +153,7 @@ def escape(string):
     primarily for arbitrary strings (e.g. filenames, paths) that might not
     be valid unicode to begin with.
     """
-    if isinstance(string, str):
+    if isinstance(string, six.binary_type):
         string = string.decode('utf-8', errors='replace')
     return string
 

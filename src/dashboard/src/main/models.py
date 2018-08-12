@@ -30,6 +30,7 @@ from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _, ugettext_lazy as _l
+from django.utils import six
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
@@ -127,7 +128,7 @@ class DashboardSettingManager(models.Manager):
         with transaction.atomic():
             self.unset_dict(scope)
             self.bulk_create([
-                DashboardSetting(scope=scope, name=unicode(name), value=unicode(value)) for name, value in items.items()
+                DashboardSetting(scope=scope, name=six.text_type(name), value=six.text_type(value)) for name, value in items.items()
             ])
 
     def unset_dict(self, scope):
@@ -241,7 +242,7 @@ class MetadataAppliesToType(models.Model):
         db_table = u'MetadataAppliesToTypes'
 
     def __unicode__(self):
-        return unicode(self.description)
+        return six.text_type(self.description)
 
 
 class Event(models.Model):

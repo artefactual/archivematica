@@ -34,6 +34,7 @@ import time
 from xml.etree import ElementTree
 
 from django.db.models import Q
+from django.utils.six.moves import xrange
 from main.models import File, Transfer
 
 # archivematicaCommon

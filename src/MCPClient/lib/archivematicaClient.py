@@ -69,6 +69,7 @@ from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
+from django.utils import six
 import shlex
 import importlib
 
@@ -109,7 +110,7 @@ def handle_batch_task(gearman_job):
     for task_uuid in gearman_data['tasks']:
         task_data = gearman_data['tasks'][task_uuid]
         arguments = task_data['arguments']
-        if isinstance(arguments, unicode):
+        if isinstance(arguments, six.text_type):
             arguments = arguments.encode('utf-8')
 
         replacements = (replacement_dict.items() +

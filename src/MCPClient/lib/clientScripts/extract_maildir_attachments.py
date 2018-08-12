@@ -31,6 +31,8 @@ import uuid
 import django
 django.setup()
 from django.db import transaction
+from django.utils import six
+
 # dashboard
 from main.models import File
 
@@ -120,7 +122,7 @@ def handle_job(job):
                         msg = etree.SubElement(directory, "msg")
                         etree.SubElement(msg, "Message-ID").text = out['msgobj']['Message-ID'][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        if isinstance(out["subject"], str):
+                        if isinstance(out["subject"], six.binary_type):
                             etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
                         else:
                             etree.SubElement(msg, "Subject").text = out["subject"]

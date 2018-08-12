@@ -24,11 +24,12 @@ from executeOrRunSubProcess import executeOrRun
 
 # dashboard
 from django.db.models import F
+from django.utils import six
 
 
 def toStrFromUnicode(inputString, encoding='utf-8'):
     """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, unicode):
+    if isinstance(inputString, six.string_types):
         inputString = inputString.encode(encoding)
     return inputString
 

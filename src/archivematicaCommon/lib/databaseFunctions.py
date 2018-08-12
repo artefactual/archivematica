@@ -31,7 +31,7 @@ import uuid
 
 from django.db import close_old_connections
 from django.db.models import Q
-from django.utils import timezone
+from django.utils import six, timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.common')
@@ -350,16 +350,16 @@ def getAccessionNumberFromTransfer(UUID):
         raise ValueError("No Transfer found for UUID: {}".format(UUID))
 
 
-def deUnicode(str):
+def deUnicode(unicode_string):
     """
     Convert a unicode string into an str by encoding it using UTF-8.
 
     :param unicode: A string. If not already a unicode string, it will be converted to one before encoding.
     :returns str: A UTF-8 encoded string, or None if the provided string was None. May be identical to the original string, if the original string contained only ASCII values.
     """
-    if str is None:
+    if unicode_string is None:
         return None
-    return unicode(str).encode('utf-8')
+    return six.text_type(unicode_string).encode('utf-8')
 
 
 def retryOnFailure(description, callback, retries=10):

@@ -3,6 +3,8 @@ import re
 import xml.sax.handler
 from collections import defaultdict
 
+from django.utils import six
+
 
 class Tree(defaultdict):
     def __init__(self, value=None):
@@ -64,7 +66,7 @@ def xml2obj(src):
             return 1
 
         def __getitem__(self, key):
-            if isinstance(key, basestring):
+            if isinstance(key, six.string_types):
                 return self._attrs.get(key, None)
             else:
                 return [self][key]
@@ -132,7 +134,7 @@ def xml2obj(src):
             self.text_parts.append(content)
 
     builder = TreeBuilder()
-    if isinstance(src, basestring):
+    if isinstance(src, six.string_types):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)

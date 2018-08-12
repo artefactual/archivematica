@@ -29,6 +29,7 @@ from django.db import IntegrityError
 import django.http
 import django.template.defaultfilters
 from django.utils.translation import ugettext as _, ungettext
+from django.utils import six
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -719,7 +720,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     :param list destinations: List of paths within arrange folder. All paths should start with DEFAULT_ARRANGE_PATH
     :param bool fetch_children: If True, will fetch all children of the provided path(s) to copy to the destination.
     """
-    if isinstance(sources, basestring) or isinstance(destinations, basestring):
+    if isinstance(sources, six.string_types) or isinstance(destinations, six.string_types):
         fetch_children = True
         sources = [sources]
         destinations = [destinations]

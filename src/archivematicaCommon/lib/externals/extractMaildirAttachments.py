@@ -17,6 +17,9 @@ import sys
 from StringIO import StringIO
 import uuid
 
+from django.utils import six
+
+
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
@@ -66,7 +69,7 @@ def parse_attachment(message_part, attachments=None):
                         filename = name.decode(encoding)
                 else:  # filename not in Content-Disposition
                     print("""Warning, no filename found in: [{%s}%s] Content-Disposition: %s or Content-Type""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, params), file=sys.stderr)
-                    filename = unicode(uuid.uuid4())
+                    filename = six.text_type(uuid.uuid4())
                     print("Attempting extraction with random filename: %s" % (filename), file=sys.stderr)
                 # Remove newlines from filename because that breaks everything
                 filename = filename.replace("\r", "").replace("\n", "")

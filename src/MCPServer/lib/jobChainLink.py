@@ -21,6 +21,8 @@
 import logging
 import uuid
 
+from django.utils import six
+
 from utils import log_exceptions
 from linkTaskManagerDirectories import linkTaskManagerDirectories
 from linkTaskManagerFiles import linkTaskManagerFiles
@@ -60,7 +62,7 @@ class jobChainLink:
 
         # Depending on the path that led to this, jobChainLinkPK may
         # either be a UUID or a MicroServiceChainLink instance
-        if isinstance(jobChainLinkPK, basestring):
+        if isinstance(jobChainLinkPK, six.string_types):
             try:
                 link = MicroServiceChainLink.objects.get(id=str(jobChainLinkPK))
             # This will sometimes return no values

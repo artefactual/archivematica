@@ -197,7 +197,7 @@ def watchDirectories():
             # We should expect both bytes and unicode. See #932.
             if isinstance(item, six.binary_type):
                 item = item.decode("utf-8")
-            path = os.path.join(unicode(directory), item)
+            path = os.path.join(six.text_type(directory), item)
             createUnitAndJobChainThreaded(path, row, terminate=False)
         actOnFiles = True
         if watched_directory.only_act_on_directories:

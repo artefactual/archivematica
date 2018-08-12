@@ -37,6 +37,7 @@ import sys
 from django.conf import settings as django_settings
 from django.core.management.base import BaseCommand
 from django.db import connection
+from django.utils import six
 
 from lxml import etree
 import pygraphviz as pgv
@@ -410,7 +411,7 @@ config.read('/etc/archivematica/MCPClient/archivematicaClientModules')
 
 def get_script_name(name):
     """Extract client script name."""
-    if not isinstance(name, basestring):
+    if not isinstance(name, six.string_types):
         return
     if config.has_option('supportedBatchCommands', name.lower()):
         return config.get('supportedBatchCommands', name.lower())
