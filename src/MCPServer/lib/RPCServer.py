@@ -1,4 +1,7 @@
-"""Archivematica MCPServer RPC."""
+"""Archivematica MCPServer RPC.
+
+We have plans to replace this server using gRPC.
+"""
 
 # This file is part of Archivematica.
 #
@@ -28,31 +31,56 @@ import gearman
 
 from databaseFunctions import auto_close_db
 from linkTaskManagerChoice import choicesAvailableForUnits
-from package import create_package
+from package import create_package, get_approve_transfer_chain_id
+from main.models import Job, MicroServiceChainChoice
 
 
-LOGGER = logging.getLogger("archivematica.mcp.server.rpcserver")
+logger = logging.getLogger("archivematica.mcp.server.rpcserver")
 
 
 class RPCServerError(Exception):
-    """Base exception of RPCServer."""
+    """Base exception of RPCServer.
+
+    This exception and its subclasses are meant to be raised by RPC handlers.
+    """
 
 
 class UnexpectedPayloadError(RPCServerError):
     """Missing parameters in payload."""
 
 
-def log_exceptions(logger):
-    """Worker handler decorator to log exceptions."""
+class NotFoundError(RPCServerError):
+    """Generic NotFound exception."""
+
+
+def capture_exceptions(raise_exc=True):
+    """Worker handler decorator to capture and log handler exceptions.
+
+    All the exceptions are logged. Tracebacks are included only when the
+    exception is not an instance of ``RPCServerError``.
+
+    If ``raise_exc`` is True, handler exceptions are raised. This is
+    interpreted by the worker library as a failed job and the client will not
+    receive additional information about the error other than its status.
+    Set ``raise_exc`` to False when you want the client to receive a detailed
+    error.
+    """
     def decorator(func):
         def wrap(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except Exception as err:
-                internal_err = isinstance(err, RPCServerError)
+                is_handler_err = isinstance(err, RPCServerError)
                 logger.error('Exception raised by handler %s: %s',
-                             func.__name__, err, exc_info=not internal_err)
-                raise  # So GearmanWorker knows that it failed.
+                             func.__name__, err, exc_info=not is_handler_err)
+
+                if raise_exc:
+                    raise  # So GearmanWorker knows that it failed.
+                return {
+                    "error": True,
+                    "handler": func.__name__,
+                    "message": str(err),
+                }
         return wrap
     return decorator
 
@@ -82,13 +110,13 @@ def pickle_result(fn):
 @auto_close_db
 @pickle_result
 @unpickle_payload
-@log_exceptions(LOGGER)
+@capture_exceptions()
 def job_approve_handler(*args, **kwargs):
     payload = kwargs['payload']
     job_id = payload["jobUUID"]
     chain = payload["chain"]
     user_id = str(payload["uid"])
-    LOGGER.debug("Approving: %s %s %s", job_id, chain, user_id)
+    logger.debug("Approving: %s %s %s", job_id, chain, user_id)
     if job_id in choicesAvailableForUnits:
         choicesAvailableForUnits[job_id].proceedWithChoice(chain, user_id)
     return "approving: ", job_id, chain
@@ -96,7 +124,7 @@ def job_approve_handler(*args, **kwargs):
 
 @auto_close_db
 @pickle_result
-@log_exceptions(LOGGER)
+@capture_exceptions()
 def job_awaiting_approval_handler(*args):
     ret = etree.Element('choicesAvailableForUnits')
     for uuid, choice in choicesAvailableForUnits.items():
@@ -107,7 +135,7 @@ def job_awaiting_approval_handler(*args):
 @auto_close_db
 @pickle_result
 @unpickle_payload
-@log_exceptions(LOGGER)
+@capture_exceptions()
 def package_create_handler(*args, **kwargs):
     """Handle create package request."""
     payload = kwargs['payload']
@@ -129,15 +157,85 @@ def package_create_handler(*args, **kwargs):
     return create_package(*args, **kwargs).pk
 
 
+@auto_close_db
+@pickle_result
+@unpickle_payload
+@capture_exceptions(raise_exc=False)
+def approve_transfer_by_path_handler(*args, **kwargs):
+    payload = kwargs["payload"]
+    db_transfer_path = payload.get("db_transfer_path")
+    transfer_type = payload.get("transfer_type", "standard")
+    user_id = payload.get("user_id")
+    job = Job.objects.filter(
+        directory=db_transfer_path,
+        currentstep=Job.STATUS_AWAITING_DECISION
+    ).first()
+    if not job:
+        raise NotFoundError("There is no job awaiting for a decision.")
+    chain_id = get_approve_transfer_chain_id(transfer_type)
+    try:
+        choicesAvailableForUnits[job.pk].proceedWithChoice(
+            chain_id, user_id)
+    except IndexError:
+        raise NotFoundError("Could not find choice for unit")
+    return job.sipuuid
+
+
+@auto_close_db
+@pickle_result
+@unpickle_payload
+@capture_exceptions(raise_exc=False)
+def approve_partial_reingest_handler(*args, **kwargs):
+    """
+    TODO: this is just a temporary way of getting the API to do the
+    equivalent of clicking "Approve AIP reingest" in the dashboard when faced
+    with "Approve AIP reingest". This is non-dry given
+    ``approve_transfer_by_path_handler`` above.
+    """
+    payload = kwargs["payload"]
+    sip_uuid = payload.get("sip_uuid")
+    user_id = payload.get("user_id")
+
+    job = Job.objects.filter(
+        sipuuid=sip_uuid,
+        microservicegroup="Reingest AIP",
+        currentstep=Job.STATUS_AWAITING_DECISION,
+    ).first()
+    if not job:  # No job to be found.
+        raise NotFoundError(
+            'There is no "Reingest AIP" job awaiting a'
+            " decision for SIP {}".format(sip_uuid))
+    chain = MicroServiceChainChoice.objects.filter(
+        choiceavailableatlink__currenttask__description="Approve AIP reingest",
+        chainavailable__description="Approve AIP reingest"
+    ).first()
+    not_found = NotFoundError(
+        "Could not find choice for approve AIP reingest")
+    if not chain:
+        raise not_found
+    try:
+        choicesAvailableForUnits[job.pk].proceedWithChoice(
+            chain.chainavailable.pk, user_id)
+    except IndexError:
+        raise not_found
+
+
 def startRPCServer():
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     hostID = gethostname() + "_MCPServer"
     gm_worker.set_client_id(hostID)
 
     # The tasks registered in this worker should not block.
-    gm_worker.register_task("approveJob", job_approve_handler)
-    gm_worker.register_task("getJobsAwaitingApproval", job_awaiting_approval_handler)
-    gm_worker.register_task("packageCreate", package_create_handler)
+    gm_worker.register_task(
+        "approveJob", job_approve_handler)
+    gm_worker.register_task(
+        "getJobsAwaitingApproval", job_awaiting_approval_handler)
+    gm_worker.register_task(
+        "packageCreate", package_create_handler)
+    gm_worker.register_task(
+        "approveTransferByPath", approve_transfer_by_path_handler)
+    gm_worker.register_task(
+        "approvePartialReingest", approve_partial_reingest_handler)
 
     failMaxSleep = 30
     failSleep = 1

@@ -100,6 +100,15 @@ PACKAGE_TYPE_STARTING_POINTS = {
 }
 
 
+def get_approve_transfer_chain_id(transfer_type):
+    """Return chain ID to approve a transfer given its type."""
+    try:
+        item = PACKAGE_TYPE_STARTING_POINTS[transfer_type]
+    except KeyError:
+        raise ValueError("Unknown transfer type")
+    return item.chain
+
+
 def _file_is_an_archive(filepath):
     filepath = filepath.lower()
     return filepath.endswith('.zip') \

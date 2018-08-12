@@ -85,6 +85,21 @@ def _api_endpoint(expected_methods):
     return decorator
 
 
+def _ok_response(message, **kwargs):
+    """Mixin to return API responses to the user."""
+    payload = {"message": message}
+    status_code = kwargs.pop("status_code", 200)
+    payload.update(kwargs)
+    return helpers.json_response(payload, status_code=status_code)
+
+
+def _error_response(message, status_code=400):
+    """Mixin to return API errors to the user."""
+    return helpers.json_response(
+        {"error": True, "message": message},
+        status_code=status_code)
+
+
 class HttpResponseNotImplemented(django.http.HttpResponse):
     status_code = 501
 
@@ -381,97 +396,59 @@ def unapproved_transfers(request):
 
 @_api_endpoint(expected_methods=['POST'])
 def approve_transfer(request):
-    # Example: curl --data \
-    #   "username=mike&api_key=<API key>&directory=MyTransfer" \
-    #   http://127.0.0.1/api/transfer/approve
-    response = {}
-    error = None
+    """Approve a transfer.
 
-    directory = request.POST.get('directory', '')
-    transfer_type = request.POST.get('type', 'standard')
+    The user may find the Package API a better option when the ID of the
+    unit is known in advance.
+
+    The errors returned use the 500 status code for backward-compatibility
+    reasons.
+
+    Example::
+
+        $ curl --data "directory=MyTransfer" \
+               --header "Authorization: ApiKey: user:token" \
+               http://127.0.0.1/api/transfer/approve
+    """
+    directory = request.POST.get("directory")
+    if not directory:
+        return _error_response(
+            "Please specify a transfer directory.", status_code=500)
     directory = archivematicaFunctions.unicodeToStr(directory)
-    error, unit_uuid = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
 
-    if error is not None:
-        response['message'] = error
-        response['error'] = True
-        return helpers.json_response(response, status_code=500)
-    else:
-        response['message'] = 'Approval successful.'
-        response['uuid'] = unit_uuid
-        return helpers.json_response(response)
+    transfer_type = request.POST.get("type", "standard")
+    if not transfer_type:
+        return _error_response("Please specify a transfer type.", status_code=500)
+
+    modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
+    if modified_transfer_path is None:
+        return _error_response("Invalid transfer type.", status_code=500)
+
+    db_transfer_path = os.path.join(modified_transfer_path, directory, "")
+
+    try:
+        client = MCPClient()
+        unit_uuid = client.approve_transfer_by_path(
+            db_transfer_path, transfer_type, request.user.id)
+    except Exception as err:
+        msg = "Unable to start the transfer."
+        LOGGER.error("%s %s (db_transfer_path=%s)",
+                     msg, err, db_transfer_path)
+        return _error_response(msg, status_code=500)
+    return _ok_response("Approval successful.", uuid=unit_uuid)
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
-    path = os.path.join(
-        django_settings.WATCH_DIRECTORY,
-        'activeTransfers'
-    )
-
-    if transfer_type is not None:
-        try:
-            path = os.path.join(path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type])
-        except:
-            return None
-
-    return path.replace(SHARED_DIRECTORY_ROOT, '%sharedPath%', 1)
-
-
-def approve_transfer_via_mcp(directory, transfer_type, user_id):
-    error = None
-    unit_uuid = None
-    if (directory != ''):
-        # assemble transfer path
-        modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
-
-        if modified_transfer_path is None:
-            error = 'Invalid transfer type.'
-        else:
-            db_transfer_path = os.path.join(modified_transfer_path, directory)
-            transfer_path = db_transfer_path.replace('%sharedPath%', SHARED_DIRECTORY_ROOT, 1)
-            # Ensure directories end with /
-            if os.path.isdir(transfer_path):
-                db_transfer_path = os.path.join(db_transfer_path, '')
-            # look up job UUID using transfer path
-            try:
-                job = models.Job.objects.filter(directory=db_transfer_path, currentstep=models.Job.STATUS_AWAITING_DECISION)[0]
-                unit_uuid = job.sipuuid
-
-                type_task_config_descriptions = {
-                    'standard': 'Approve standard transfer',
-                    'unzipped bag': 'Approve bagit transfer',
-                    'zipped bag': 'Approve zipped bagit transfer',
-                    'dspace': 'Approve DSpace transfer',
-                    'maildir': 'Approve maildir transfer',
-                    'TRIM': 'Approve TRIM transfer'
-                }
-
-                type_description = type_task_config_descriptions[transfer_type]
-
-                # use transfer type to fetch possible choices to execute
-                choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink__currenttask__description=type_description)
-
-                # attempt to find appropriate choice
-                chain_to_execute = None
-                for choice in choices:
-                    if choice.chainavailable.description == 'Approve transfer':
-                        chain_to_execute = choice.chainavailable.pk
-
-                # execute choice if found
-                if chain_to_execute is not None:
-                    client = MCPClient()
-                    client.execute(job.pk, chain_to_execute, user_id)
-                else:
-                    error = 'Error: could not find MCP choice to execute.'
-
-            except Exception:
-                error = 'Unable to find unapproved transfer directory.'
-                # logging.exception(error)
-
-    else:
-        error = 'Please specify a transfer directory.'
-
-    return error, unit_uuid
+    path = os.path.join(django_settings.WATCH_DIRECTORY, "activeTransfers")
+    if transfer_type is None:
+        return None
+    try:
+        path = os.path.join(
+            path,
+            filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type])
+    except KeyError:
+        return None
+    return path.replace(SHARED_DIRECTORY_ROOT, "%sharedPath%", 1)
 
 
 @_api_endpoint(expected_methods=['POST'])
@@ -484,49 +461,18 @@ def reingest_approve(request):
                    - username -- AM username
                    - api_key  -- AM API key
                    - uuid     -- SIP UUID
-
-    TODO: this is just a temporary way of getting the API to do the
-    equivalent of clicking "Approve AIP reingest" in the dashboard when faced
-    with "Approve AIP reingest". This is non-dry given
-    ``approve_transfer_via_mcp`` above and should probably me made congruent
-    with that function and ``approve_transfer``.
     """
     sip_uuid = request.POST.get('uuid')
     if sip_uuid is None:
-        response = {'error': True, 'message': '"uuid" is required.'}
-        return helpers.json_response(response, status_code=400)
-    job = models.Job.objects.filter(
-        sipuuid=sip_uuid,
-        microservicegroup='Reingest AIP',
-        currentstep=models.Job.STATUS_AWAITING_DECISION
-    ).first()
-    if job:
-        chain = models.MicroServiceChainChoice.objects.filter(
-            choiceavailableatlink__currenttask__description='Approve AIP reingest',
-            chainavailable__description='Approve AIP reingest'
-        ).first()
-
-        if chain:
-            approve_aip_reingest_choice_uuid = chain.chainavailable.pk
-            client = MCPClient()
-            client.execute(job.pk, approve_aip_reingest_choice_uuid, request.user.id)
-
-            response = {'message': 'Approval successful.'}
-        else:
-            # No choice was found.
-            response = {
-                'error': True,
-                'message': 'Could not find choice for approve AIP reingest'
-            }
-            return helpers.json_response(response, status_code=400)
-
-        return helpers.json_response(response)
-    else:
-        # No job to be found.
-        response = {'error': True,
-                    'message': ('There is no "Reingest AIP" job awaiting a'
-                                ' decision for SIP {}'.format(sip_uuid))}
-        return helpers.json_response(response, status_code=400)
+        return _error_response('"uuid" is required.')
+    try:
+        client = MCPClient()
+        client.approve_partial_reingest(sip_uuid, request.user.id)
+    except Exception as err:
+        msg = "Unable to approve the partial reingest."
+        LOGGER.error("%s %s (sip_uuid=%s)", msg, err, sip_uuid)
+        return _error_response(msg)
+    return _ok_response("Approval successful.")
 
 
 @_api_endpoint(expected_methods=['POST'])
@@ -606,8 +552,6 @@ def reingest(request, target):
         response = {'message': 'Approval successful.', 'reingest_uuid': reingest_uuid}
         return helpers.json_response(response)
 
-# TODO should this have auth?  Does it support GET?
-
 
 @_api_endpoint(expected_methods=['POST'])
 def copy_metadata_files_api(request):
@@ -617,8 +561,6 @@ def copy_metadata_files_api(request):
     sip_uuid = request.POST.get('sip_uuid')
     paths = request.POST.getlist('source_paths[]')
     return filesystem_ajax_views.copy_metadata_files(sip_uuid, paths)
-
-# TODO should this have auth?
 
 
 @_api_endpoint(expected_methods=['GET'])
@@ -632,8 +574,6 @@ def get_levels_of_description(request):
     levels = models.LevelOfDescription.objects.all().order_by('sortorder')
     response = [{l.id: l.name} for l in levels]
     return helpers.json_response(response)
-
-# TODO should this have auth?
 
 
 @_api_endpoint(expected_methods=['GET'])
@@ -658,8 +598,6 @@ def fetch_levels_of_description_from_atom(request):
         return helpers.json_response(body, status_code=500)
     else:
         return get_levels_of_description(request)
-
-# TODO should this have auth?
 
 
 @_api_endpoint(expected_methods=['GET', 'POST'])
@@ -704,7 +642,6 @@ def path_metadata(request):
         return helpers.json_response(body, status_code=201)
 
 
-# TODO should this have auth?
 @_api_endpoint(expected_methods=['GET', 'DELETE'])
 def processing_configuration(request, name):
     """
@@ -796,7 +733,7 @@ def _package_create(request):
         client = MCPClient()
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
-        LOGGER.error(err)
         msg = 'Package cannot be created'
+        LOGGER.error("{}: {}".format(msg, err))
         return helpers.json_response({'error': True, 'message': msg}, 500)
     return helpers.json_response({'id': id_}, 202)
