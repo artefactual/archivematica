@@ -32,6 +32,7 @@ import gearman
 from databaseFunctions import auto_close_db
 from linkTaskManagerChoice import choicesAvailableForUnits
 from package import create_package, get_approve_transfer_chain_id
+from processing_config import get_processing_fields
 from main.models import Job, MicroServiceChainChoice
 
 
@@ -220,6 +221,13 @@ def approve_partial_reingest_handler(*args, **kwargs):
         raise not_found
 
 
+@auto_close_db
+@pickle_result
+@capture_exceptions(raise_exc=False)
+def get_processing_config_fields_handler(*args, **kwargs):
+    return get_processing_fields()
+
+
 def startRPCServer():
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     hostID = gethostname() + "_MCPServer"
@@ -236,6 +244,8 @@ def startRPCServer():
         "approveTransferByPath", approve_transfer_by_path_handler)
     gm_worker.register_task(
         "approvePartialReingest", approve_partial_reingest_handler)
+    gm_worker.register_task(
+        "getProcessingConfigFields", get_processing_config_fields_handler)
 
     failMaxSleep = 30
     failSleep = 1

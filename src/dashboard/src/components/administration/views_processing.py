@@ -21,9 +21,10 @@ import re
 from glob import iglob
 import logging
 
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import Http404
+from django.shortcuts import render, redirect
+from django.utils.translation import ugettext as _
 
 from components import helpers
 from processing import install_builtin_config
@@ -47,26 +48,47 @@ def list(request):
 
 
 def edit(request, name=None):
-    if request.method == 'POST':
-        form = ProcessingConfigurationForm(request.POST)
-        if form.is_valid():
-            try:
-                form.save_config()
-            except Exception:
-                msg = 'Failed to save processing config.'
-                logger.exception(msg)
-                messages.error(request, msg)
-            else:
-                messages.info(request, 'Saved!')
-            return redirect('components.administration.views_processing.list')
-    else:
-        form = ProcessingConfigurationForm()
-        if name is not None:
-            try:
-                form.load_config(name)
-            except IOError:
-                raise Http404
-    return render(request, 'administration/processing_edit.html', {'form': form})
+
+    def _report_error(error=None, error_msg=None):
+        if error is not None:
+            logger.exception("{} {}".format(error_msg, error))
+            messages.error(request, error_msg)
+        return redirect(
+            'components.administration.views_processing.list')
+
+    def _render_form():
+        return render(
+            request, 'administration/processing_edit.html',
+            {'form': form})
+
+    # Initialize form.
+    try:
+        form = ProcessingConfigurationForm(request.POST or None)
+    except Exception as err:
+        return _report_error(
+            err, _("Unable to load processing configuration page."))
+
+    # Process form post.
+    if request.method == "POST":
+        if form.is_valid() is False:
+            return _render_form()
+        try:
+            form.save_config()
+        except Exception as err:
+            return _report_error(
+                err, _("Failed to save processing configuration."))
+        messages.info(request, _('Saved!'))
+        return redirect('components.administration.views_processing.list')
+
+    # Process form load.
+    try:
+        form.load_config(name)
+    except IOError:
+        raise Http404
+    except Exception as err:
+        return _report_error(
+            err, _("Failed to load processing configuration."))
+    return _render_form()
 
 
 def delete(request, name):

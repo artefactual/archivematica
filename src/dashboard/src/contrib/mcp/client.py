@@ -92,7 +92,7 @@ class MCPClient(object):
     def __init__(self):
         self.server = settings.GEARMAN_SERVER
 
-    def _rpc_sync_call(self, ability, data, timeout=INFLIGHT_POLL_TIMEOUT):
+    def _rpc_sync_call(self, ability, data=None, timeout=INFLIGHT_POLL_TIMEOUT):
         """Invoke remote method synchronously and with a deadline.
 
         When successful, it returns the payload of the response. Otherwise, it
@@ -100,6 +100,8 @@ class MCPClient(object):
         ``RPCError`` when the worker failed abruptly, ``RPCServerError`` when
         the worker returned an error.
         """
+        if data is None:
+            data = b""
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             ability, cPickle.dumps(data),
@@ -192,3 +194,6 @@ class MCPClient(object):
         """Approve a partial reingest awaiting for approval."""
         data = {"sip_uuid": sip_uuid, "user_id": user_id}
         return self._rpc_sync_call("approvePartialReingest", data)
+
+    def get_processing_config_fields(self):
+        return self._rpc_sync_call("getProcessingConfigFields")
