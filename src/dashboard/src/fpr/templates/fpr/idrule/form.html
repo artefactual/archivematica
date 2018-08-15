@@ -1,0 +1,37 @@
+{% extends "fpr/app_layout.html" %}
+{% load bootstrap_tags %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ title }}{% endblock title %}
+{% block page_title %}{{ title }}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'idrule_list' %}">{% trans "Identification rules" %}</a></li>
+<li>{{ title }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+<div class='form'>
+    {% if idrule %}
+    <form action="{% url 'idrule_edit' idrule.uuid %}" method="post">
+    {% else %}
+    <form action="{% url 'idrule_create' %}" method="post">
+    {% endif %}
+        {% csrf_token %}
+        {{ form|as_bootstrap }}
+        <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary" />
+    </form>
+</div>
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

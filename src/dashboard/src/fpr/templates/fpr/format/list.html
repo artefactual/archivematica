@@ -1,0 +1,67 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Formats" %}{% endblock title %}
+{% block page_title %}{% trans "Formats" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Formats" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% if request.user.is_superuser %}
+      {% include '_fpr_update_button.html' %}
+    {% endif %}
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'format_create' %}">{% trans "Create new format" %}</a></p>
+    {% endif %}
+
+    {% if formats %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Group" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for format in formats %}
+          <tr>
+            <td><a href="{% url 'format_detail' format.slug %}">{{ format.description }}</a></td>
+            <td>
+              {% if request.user.is_superuser %}
+                <a href="{% url 'formatgroup_edit' format.group.slug %}">{{ format.group }}</a>
+              {% else %}
+                {{ format.group }}
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'format_detail' format.slug %}">{% trans "View" %}</a>
+              {% if request.user.is_superuser %}
+                | <a href="{% url 'format_edit' format.slug %}">{% trans "Edit" %}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans "No formats exist." %}</p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

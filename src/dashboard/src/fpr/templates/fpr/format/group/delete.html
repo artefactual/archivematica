@@ -1,0 +1,57 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% blocktrans with description=group.description %}Delete format group {{ description }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=group.description %}Delete format group {{ description }}{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'formatgroup_list' %}">{% trans "Groups" %}</a></li>
+<li><a href="{% url 'formatgroup_edit' group.slug %}">{{ group.description }}</a></li>
+<li>{% trans "Delete" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='format_group'>
+      <form action="{% url 'formatgroup_delete' group.slug %}" method="post">{% csrf_token %}
+        <p>{% trans "Are you sure?" %}</p>
+
+        {% if format_count > 0 %}
+          <p>
+            <strong>
+              {% blocktrans with count=format_count %}
+                {{ count }} format(s) were found that are a member of this group.
+              {% endblocktrans %}
+            </strong>
+          </p>
+
+          {% if other_group_count %}
+            <p>{% trans "Substitute formats that are a member of this group with the following group:" %}</p>
+            <p>
+            <select name="substitute" class="form-control">
+              <option value=""></option>
+              {% for other_group in other_groups %}
+                <option value="{{ other_group.uuid }}">{{ other_group.description }}</option>
+              {% endfor %}
+            </select>
+            </p>
+          {% endif %}
+        {% endif %}
+
+        <input type="submit" name="delete" value="{% trans 'Delete' %}" class="btn btn-danger" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" class="btn btn-default" />
+      </form>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+</div> <!-- /row -->
+
+{% endblock app_content %}

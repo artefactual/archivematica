@@ -1,0 +1,63 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Identification commands" %}{% endblock title %}
+{% block page_title %}{% trans "Identification commands" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Identification commands" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+  {% if request.user.is_superuser %}
+  <p><a href="{% url 'idcommand_create' %}">{% trans "Create new command" %}</a></p>
+  {% endif %}
+
+{% if idcommands %}
+  <table class="datatable">
+    <thead>
+      <tr>
+        <th>{% trans 'Command' %}</th>
+        <th>{% trans 'Type' %}</th>
+        <th>{% trans 'Tool' %}</th>
+        <th>{% trans 'Mode' %}</th>
+        <th>{% trans 'Enabled' %}</th>
+        <th>{% trans 'Actions' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for idcommand in idcommands %}
+      <tr>
+        <td><a href="{% url 'idcommand_detail' idcommand.uuid %}">{{ idcommand.description }}</a></td>
+        <td>{{ idcommand.get_script_type_display }}</td>
+        <td><a href="{% url 'idtool_detail' idcommand.tool.slug %}">{{ idcommand.tool }}</a></td>
+        <td>{{ idcommand.config }}</td>
+        <td>{{ idcommand.enabled|yesno:_("Yes,No") }}</td>
+        <td>
+          <a href="{% url 'idcommand_detail' idcommand.uuid %}">{% trans "View" %}</a>
+          {% if request.user.is_superuser %}
+            | <a href="{% url 'idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a>
+            | <a href="{% url 'idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>{% trans "No identification commands exist." %}</p>
+{% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

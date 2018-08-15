@@ -1,0 +1,76 @@
+{% extends "fpr/app_layout.html" %}
+{% load bootstrap_tags %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ title }}{% endblock title %}
+{% block page_title %}{{ title }}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'fprule_list' %}">{% trans "Format policy rules" %}</a></li>
+<li>{{ title }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='tool'>
+      {% if fprule %}
+        <form action="{% url 'fprule_edit' fprule.uuid %}" method="post">
+      {% else %}
+        <form action="{% url 'fprule_create' %}" method="post">
+      {% endif %}
+
+      {% csrf_token %}
+      {{ form|as_bootstrap }}
+
+      {% if fprule %}
+      <form action="{% url 'fprule_edit' fprule.uuid %}" method="post" id='fprule_form'>
+      {% else %}
+      <form action="{% url 'fprule_create' %}" method="post" id='fprule_form'>
+      {% endif %}
+
+        {% csrf_token %}
+
+        <div id='fprule_command_form'>
+          {{ fprule_command_form|as_bootstrap }}
+        </div>
+        <p>
+          {{ form.description.errors }}
+          {{ form.description.label_tag }} {{ form.description }}
+        </p>
+        <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary" />
+      </form>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}
+
+{% block extra_js %}
+<script type="text/javascript">
+
+function display_extra_form() {
+  val = $("#id_f-command option:selected").val();
+  if (val == 'new') {
+    $('#fprule_command_form').show();
+  } else {
+    $('#fprule_command_form').hide();
+  }
+}
+
+$(document).ready(function () {
+  display_extra_form();
+  $("#id_f-command").change(function () {display_extra_form();});
+
+});
+
+</script>
+{% endblock %}

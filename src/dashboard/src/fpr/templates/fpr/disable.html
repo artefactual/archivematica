@@ -1,0 +1,65 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ toggle_label }}{% endblock title %}
+{% block page_title %}{{ toggle_label }}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% for crumb in breadcrumbs %}
+    <li>
+      {% if crumb.link %}
+        <a href="{{ crumb.link }}">
+      {% endif %}
+      {{ crumb.text }}
+      {% if crumb.link %}
+        </a>
+      {% endif %}
+    </li>
+{% endfor %}
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <h2>
+      {% if object.enabled %}
+        {% blocktrans with object=object %}Disable {{ object }}{% endblocktrans %}
+      {% else %}
+        {% blocktrans with object=object %}Enable {{ object }}{% endblocktrans %}
+      {% endif %}
+    </h2>
+
+    <div class='config'>
+      <form action="{{ form_url }}" method="post">
+        {% csrf_token %}
+        <p>{% trans "Are you sure?" %}</p>
+
+        {% if object.enabled and dependent_objects %}
+        <p>{% trans "The following rules will also be disabled:" %}</p>
+
+        {% regroup dependent_objects by model as dependent_rules %}
+        <dl>
+            {% for model in dependent_rules %}
+                <dt>{{ model.grouper }}</dt>
+                {% for rule in model.list %}
+                    <dd>{{ rule.value }}</dd>
+                {% endfor %}
+            {% endfor %}
+        </dl>
+        {% endif %}
+
+        <input type="submit" name="{{ object.enabled|yesno:'disable,enable' }}" value="{{ object.enabled|yesno:_('Disable,Enable') }}" class="btn btn-{{ object.enabled|yesno:'danger,primary' }}" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" class="btn btn-default" />
+      </form>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+</div> <!-- /row -->
+
+{% endblock app_content %}

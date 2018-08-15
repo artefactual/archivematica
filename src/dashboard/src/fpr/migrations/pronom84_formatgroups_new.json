@@ -1,0 +1,29 @@
+[
+  {
+    "fields": {
+      "slug": "dataset",
+      "uuid": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+      "description": "Dataset"
+    },
+    "model": "fpr.formatgroup",
+    "pk": 25
+  },
+  {
+    "fields": {
+      "slug": "flash",
+      "uuid": "ee31791b-0e6c-4b52-b76e-6218ef7ed72c",
+      "description": "Flash"
+    },
+    "model": "fpr.formatgroup",
+    "pk": 31
+  },
+  {
+    "fields": {
+      "slug": "model",
+      "uuid": "8d32bf98-b569-4469-8953-10416b53b920",
+      "description": "Model"
+    },
+    "model": "fpr.formatgroup",
+    "pk": 26
+  }
+]

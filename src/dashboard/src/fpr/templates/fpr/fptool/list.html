@@ -1,0 +1,57 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Format policy registry tools" %}{% endblock title %}
+{% block page_title %}{% trans "Format policy registry tools" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Format policy registry tools" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'fptool_create' %}">{% trans "Create new tool" %}</a></p>
+    {% endif %}
+
+    {% if fptools %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Version" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for fptool in fptools %}
+          <tr>
+            <td><a href="{% url 'fptool_detail' fptool.slug %}">{{ fptool.description }}</a></td>
+            <td>{{ fptool.version }}</td>
+            <td>
+               <a href="{% url 'fptool_detail' fptool.slug %}">{% trans "View" %}</a>
+               {% if request.user.is_superuser %}
+                 | <a href="{% url 'fptool_edit' fptool.slug %}">{% trans "Edit" %}</a>
+               {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans "No tools exist." %}</p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

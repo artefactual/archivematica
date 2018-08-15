@@ -1,0 +1,68 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+{% load revisions_link %}
+
+{% block title %}{{ block.super }} - {% blocktrans with description=fpcommand.description %}Command {{ description }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=fpcommand.description %}Command {{ description }}{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'fpcommand_list' usage %}">{% trans "Format policy commands" %}</a></li>
+<li>{% blocktrans with description=fpcommand.description %}Command {{ description }}{% endblocktrans %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% revisions_link "fpcommand" fpcommand.uuid %}
+
+    <div class='format'>
+      <dl>
+        <dt>{% trans "UUID" %}</dt>
+        <dd>{{ fpcommand.uuid }} Rule</dd>
+        <dt>{% trans "Description" %}</dt>
+        <dd>{{ fpcommand.description }}</dd>
+        <dt>{% trans "Tool" %}</dt>
+        <dd>{{ fpcommand.tool.description }}</dd>
+        <dt>{% trans "Command" %}</dt>
+        <dd><pre>{{ fpcommand.command }}</pre></dd>
+        <dt>{% trans "Script type" %}</dt>
+        <dd>{{ fpcommand.get_script_type_display }}</dd>
+        <dt>{% trans "Output file format" %}</dt>
+        <dd>{{ fpcommand.output_format.description|default:_("None") }}</dd>
+        <dt>{% trans "Output location" %}</dt>
+        <dd>{{ fpcommand.output_location|default:_("None") }}</dd>
+        <dt>{% trans "Command usage" %}</dt>
+        <dd>{{ fpcommand.get_command_usage_display }}</dd>
+        <dt>{% trans "Verification command" %}</dt>
+          {% if fpcommand.verification_command %}
+            <dd><a href="{% url 'fpcommand_detail' fpcommand.verification_command.uuid %}">{{ fpcommand.verification_command.description }}</a></dd>
+          {% else %}
+            <dd>{{ fpcommand.verification_command }}</dd>
+          {% endif %}
+        <dt>{% trans "Event detail command" %}</dt>
+        {% if fpcommand.event_detail_command %}
+          <dd><a href="{% url 'fpcommand_detail' fpcommand.event_detail_command.uuid %}">{{ fpcommand.event_detail_command.description }}</a></dd>
+        {% else %}
+          <dd>{{ fpcommand.event_detail_command|default:_("None") }}</dd>
+        {% endif %}
+        <dt>{% trans "Enabled" %}</dt>
+        <dd>{{ fpcommand.enabled|yesno:_("Yes,No") }}</dd>
+        {% if request.user.is_superuser %}
+          <dt>{% trans "Actions" %}</dt>
+          <dd><a href="{% url 'fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></dd>
+          <dd><a href="{% url 'fpcommand_delete' fpcommand.uuid %}">{{ fpcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
+        {% endif %}
+      </dl>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

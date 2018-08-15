@@ -1,0 +1,79 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% blocktrans with description=fptool.description version=fptool.version %}Format policy registry tool {{ description }} {{ version }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=fptool.description version=fptool.version %}Format policy registry tool {{ description }} {{ version }}{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'fptool_list' %}">{% trans "Format policy registry tools" %}</a></li>
+<li>{{ fptool.description }} {{ fptool.version }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='format'>
+      <dl>
+        <dt>{% trans "UUID" %}</dt>
+        <dd>{{ fptool.uuid }}</dd>
+        <dt>{% trans "Description" %}</dt>
+        <dd>{{ fptool.description }}</dd>
+        <dt>{% trans "Version" %}</dt>
+        <dd>{{ fptool.version }}</dd>
+        <dt>{% trans "Enabled" %}</dt>
+        <dd>{{ fptool.enabled|yesno:_('Yes,No') }}</dd>
+        {% if request.user.is_superuser %}
+        <dt>{% trans "Actions" %}</dt>
+        <dd><a href="{% url 'fptool_edit' fptool.slug %}">{% trans "Edit" %}</a></dd>
+        {% endif %}
+      </dl>
+    </div>
+
+    <h2>{% trans "Tool commands" %}</h2>
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'fpcommand_create' %}?parent={{ fptool.uuid }}">{% trans "Create new tool command" %}</a></p>
+    {% endif %}
+
+    {% if fpcommands %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Command" %}</th>
+            <th>{% trans "UUID" %}</th>
+            {% if request.user.is_superuser %}
+            <th>{% trans "Actions" %}</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+        {% for fpcommand in fpcommands %}
+          <tr>
+            <td><a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
+            <td><a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.uuid }}</a></td>
+            {% if request.user.is_superuser %}
+            <td><a href="{% url 'fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>
+        {% blocktrans with description=fptool.description %}
+          No commands exist for {{ description }}.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

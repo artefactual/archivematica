@@ -1,0 +1,23 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
+{% block page_title %}{% trans "PAR Preservation Actions" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "PAR" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+    <div class="col-sm-12">
+        PAR STUFF HERE
+    </div>
+
+</div> <!-- /row -->
+
+{% endblock app_content %}
