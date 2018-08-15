@@ -679,6 +679,18 @@ def par_preservation_action_convert(request):
         with open(file_path) as f:
             data = json.load(f)
             action = ParPreservationAction(file_name, file_path, data)
+
+    command_usage_choices = fprmodels.FPCommand.COMMAND_USAGE_CHOICES
+    script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
+
+    try:
+        if action.version is None:
+            fp_tool = fprmodels.FPTool.objects.filter(description__icontains=action.tool, enabled=True).first()
+        else:
+            fp_tool = fprmodels.FPTool.objects.filter(description__icontains=action.tool, version__icontains=action.version, enabled=True).first()
+    except IndexError:
+        fp_tool = None
+
     return render(request, 'par/preservation_action/convert.html', context(locals()))
 
 
@@ -695,6 +707,8 @@ class ParPreservationAction:
                 self.tool = json['tool']['toolName']
             if 'toolVersion' in json['tool']:
                 self.version = json['tool']['toolVersion']
+            else:
+                self.version = None
 
         self.example = json['example']
         self.constraints = self._parse_constraints(json)

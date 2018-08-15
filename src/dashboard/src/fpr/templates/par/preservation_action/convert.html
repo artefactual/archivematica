@@ -19,6 +19,9 @@
         <div class="well">
             {% include 'par/preservation_action/_show.html' %}
         </div>
+        {% if not fp_tool %}
+            <div class="alert alert-danger">No matching FPTool found for tool/version {{action.tool}}/{{action.version}}</div>
+        {% endif %}
         <form class="form-horizontal">
           <input type="hidden" name="file_name" value="{{action.file_name}}">
           <div class="form-group">
@@ -37,14 +40,17 @@
             <label for="command_usage" class="col-sm-2 control-label">Command Usage</label>
             <div class="col-sm-10">
                 <select class="form-control" name="command_usage">
-                    <option></option>
+                    <option/>
+                    {% for choice in command_usage_choices %}
+                        <option name="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
                 </select>
             </div>
           </div>
           <div class="form-group">
             <label for="fp_tool" class="col-sm-2 control-label">FPTool</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="fp_tool" value="">
+              <input type="text" class="form-control" id="fp_tool" value="{{ fp_tool.description }} {{ fp_tool.version }}" disabled>
             </div>
           </div>
           <div class="form-group">
@@ -57,7 +63,10 @@
             <label for="script_type" class="col-sm-2 control-label">Script Type</label>
             <div class="col-sm-10">
                 <select class="form-control" name="script_type">
-                    <option></option>
+                    <option/>
+                    {% for choice in script_type_choices %}
+                        <option name="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
                 </select>
             </div>
           </div>
