@@ -1,0 +1,72 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
+{% block page_title %}{% trans "Convert Preservation Action to FPR" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "PAR" %}</li>
+<li>{% trans "Preservation Actions" %}</li>
+<li>{% trans "Convert" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+    <div class="col-sm-12">
+        <div class="well">
+            {% include 'par/preservation_action/_show.html' %}
+        </div>
+        <form class="form-horizontal">
+          <input type="hidden" name="file_name" value="{{action.file_name}}">
+          <div class="form-group">
+            <label for="command_id" class="col-sm-2 control-label">Command Id</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="command_id" value="{{ action.id }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_description" class="col-sm-2 control-label">Command Description</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="command_description" value="{{ action.description }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_usage" class="col-sm-2 control-label">Command Usage</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="command_usage">
+                    <option></option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fp_tool" class="col-sm-2 control-label">FPTool</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="fp_tool" value="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="command_command" class="col-sm-2 control-label">Command</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" id="command_command">{{ action.example }}</textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="script_type" class="col-sm-2 control-label">Script Type</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="script_type">
+                    <option></option>
+                </select>
+            </div>
+          </div>
+
+          <input type="submit" value="Convert!" class="btn btn-success"/>
+          <a href="/fpr/par/" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

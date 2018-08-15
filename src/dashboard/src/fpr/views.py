@@ -1,4 +1,5 @@
 # stdlib, alphabetical
+import json
 import os
 
 # Django core, alphabetical
@@ -658,9 +659,65 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
 
 ##### PAR #####
 def par_preservation_action_list(request):
-    # get the PAR jsons
+    preservationActions = []
     basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
-    jsonfiles = [f for f in os.listdir(basedir) if os.path.isfile(os.path.join(basedir, f)) and f.endswith('.json')]
-    
-    # turn them into something useful
+    for file_name in os.listdir(basedir):
+        file_path = os.path.join(basedir, file_name)
+        if os.path.isfile(file_path) and file_name.endswith('.json'):
+            with open(file_path) as f:
+                data = json.load(f)
+                preservationActions.append(ParPreservationAction(file_name, file_path, data))
+
     return render(request, 'par/preservation_action/list.html', context(locals()))
+
+
+def par_preservation_action_convert(request):
+    basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
+    file_name = request.GET['file_name']
+    file_path = os.path.join(basedir, file_name)
+    if os.path.isfile(file_path) and file_name.endswith('.json'):
+        with open(file_path) as f:
+            data = json.load(f)
+            action = ParPreservationAction(file_name, file_path, data)
+    return render(request, 'par/preservation_action/convert.html', context(locals()))
+
+
+class ParPreservationAction:
+    def __init__(self, file_name, file_location, json):
+        self.file_name = file_name
+        self.file_location = file_location
+
+        self.id = json['id']['guid']
+        self.description = json['description']
+        self.type = json['type']['label']
+        if 'tool' in json:
+            if 'toolName' in json['tool']:
+                self.tool = json['tool']['toolName']
+            if 'toolVersion' in json['tool']:
+                self.version = json['tool']['toolVersion']
+
+        self.example = json['example']
+        self.constraints = self._parse_constraints(json)
+        self.inputs = self._parse_inputs(json)
+        self.outputs = self._parse_outpus(json)
+
+    def _parse_constraints(self, json):
+        # FIXME parse this out into meaningful bits
+#         constraints = {}
+#         if 'allowedFormats' in json['constraints']:
+#             constraints['allowedFormats'] = []
+#             for allowedFormat in json['constraints']['allowedFormats']:
+#                 pass
+#         return constraints
+        if 'constraints' in json:
+            return json['constraints']
+
+    def _parse_inputs(self, json):
+        # FIXME parse this out into meaningful bits
+        if 'inputs' in json:
+            return json['inputs']
+
+    def _parse_outpus(self, json):
+        # FIXME parse this out into meaningful bits
+        if 'outputs' in json:
+            return json['outputs']

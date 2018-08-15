@@ -1,12 +1,24 @@
 {% extends "fpr/app_layout.html" %}
 {% load i18n %}
 
+{% block extra_css %}
+  {{ block.super }}
+  <style type="text/css">
+      #par-list {list-style: none; padding: 0;}
+      #par-list li {margin: 10px 0; padding: 10px; border-bottom: 1px solid #CCC;}
+      #par-list li:last-child {border-bottom: none;}
+      #par-list li:hover {background-color: #FAFAFA;}
+  </style>
+{% endblock extra_css %}
+
+
 {% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
 {% block page_title %}{% trans "PAR Preservation Actions" %}{% endblock page_title %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 <li>{% trans "PAR" %}</li>
+<li>{% trans "Preservation Actions" %}</li>
 <li>{% trans "List" %}</li>
 {% endblock breadcrumbs %}
 
@@ -15,9 +27,17 @@
 <div class="row">
 
     <div class="col-sm-12">
-        <ul>
-            {% for file in jsonfiles %}
-                <li>{{ file }}</li>
+        <ul id="par-list">
+            {% for action in preservationActions %}
+                <li>
+                    <form action="{{request.path_info}}preservation_action/convert" method="GET">
+                        <input type="hidden" name="file_name" value="{{action.file_name}}">
+                        {% include 'par/preservation_action/_show.html' %}
+                        <div class="text-right">
+                            <button class="btn btn-success">Convert to FPR</button>
+                        </div>
+                    </form>
+                </li>
             {% endfor %}
         </ul>
     </div>

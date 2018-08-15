@@ -119,4 +119,5 @@ urlpatterns = [
 
     # PAR
     url(r'^par/$', views.par_preservation_action_list, name='par_preservation_action_list'),
+    url(r'^par/preservation_action/convert$', views.par_preservation_action_convert, name='par_preservation_action_convert'),
 ]
