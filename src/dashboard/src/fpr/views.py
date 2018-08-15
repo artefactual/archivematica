@@ -1,7 +1,9 @@
 # stdlib, alphabetical
+import os
 
 # Django core, alphabetical
 from django.apps import apps
+from django.conf import settings as django_settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -655,5 +657,10 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
             revision.detail_url = reverse(detail_view_name, args=[revision.uuid])
 
 ##### PAR #####
-def par_list(request):
-    return render(request, 'par/list.html', context(locals()))
+def par_preservation_action_list(request):
+    # get the PAR jsons
+    basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
+    jsonfiles = [f for f in os.listdir(basedir) if os.path.isfile(os.path.join(basedir, f)) and f.endswith('.json')]
+    
+    # turn them into something useful
+    return render(request, 'par/preservation_action/list.html', context(locals()))

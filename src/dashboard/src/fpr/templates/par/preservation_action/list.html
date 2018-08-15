@@ -15,7 +15,11 @@
 <div class="row">
 
     <div class="col-sm-12">
-        PAR STUFF HERE
+        <ul>
+            {% for file in jsonfiles %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        </ul>
     </div>
 
 </div> <!-- /row -->

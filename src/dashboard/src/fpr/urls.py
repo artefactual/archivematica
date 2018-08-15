@@ -118,5 +118,5 @@ urlpatterns = [
         name='revision_list'),
 
     # PAR
-    url(r'^par/$', views.par_list, name='par_list'),
+    url(r'^par/$', views.par_preservation_action_list, name='par_preservation_action_list'),
 ]
