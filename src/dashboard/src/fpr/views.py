@@ -682,6 +682,7 @@ def par_preservation_action_convert(request):
 
     command_usage_choices = fprmodels.FPCommand.COMMAND_USAGE_CHOICES
     script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
+    purpose_choices = fprmodels.FPRule.PURPOSE_CHOICES
 
     try:
         if action.version is None:
@@ -690,6 +691,17 @@ def par_preservation_action_convert(request):
             fp_tool = fprmodels.FPTool.objects.filter(description__icontains=action.tool, version__icontains=action.version, enabled=True).first()
     except IndexError:
         fp_tool = None
+
+    if fp_tool and request.method == 'POST':
+        # create a fpr_fpcommand?
+        # FPRule.objects.create(
+        #     uuid=policy_check_preservation_rule_pk,
+        #     purpose='policy_check',
+        #     command=mediaconch_policy_check_command,
+        #     format=mkv_format,
+        #     enabled=False
+        # )
+        pass
 
     return render(request, 'par/preservation_action/convert.html', context(locals()))
 
@@ -711,6 +723,9 @@ class ParPreservationAction:
                 self.version = None
 
         self.example = json['example']
+
+        self.fprule_format = self._parse_rule_format(json)
+
         self.constraints = self._parse_constraints(json)
         self.inputs = self._parse_inputs(json)
         self.outputs = self._parse_outpus(json)
@@ -735,3 +750,12 @@ class ParPreservationAction:
         # FIXME parse this out into meaningful bits
         if 'outputs' in json:
             return json['outputs']
+
+    def _parse_rule_format(self, json):
+        if 'constraints' in json:
+            if 'allowedFormats' in json['constraints']:
+                for allowed_format in json['constraints']['allowedFormats']:
+                    if 'id' in allowed_format:
+                        if 'name' in allowed_format['id']:
+                            return allowed_format['id']['name']
+        return None
