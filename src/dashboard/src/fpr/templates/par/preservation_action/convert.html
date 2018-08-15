@@ -22,19 +22,19 @@
         {% if not fp_tool %}
             <div class="alert alert-danger">No matching FPTool found for tool/version {{action.tool}}/{{action.version}}</div>
         {% endif %}
-        <form class="form-horizontal">
+        <form method="POST" class="form-horizontal">
           <input type="hidden" name="file_name" value="{{action.file_name}}">
           <h3>FPR Command</h3>
           <div class="form-group">
             <label for="command_id" class="col-sm-2 control-label">Command Id</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="command_id" value="{{ action.id }}">
+              <input type="text" class="form-control" name="command_id" id="command_id" value="{{ action.id }}">
             </div>
           </div>
           <div class="form-group">
             <label for="command_description" class="col-sm-2 control-label">Command Description</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="command_description" value="{{ action.description }}">
+              <input type="text" class="form-control" id="command_description" name="command_description" value="{{ action.description }}">
             </div>
           </div>
           <div class="form-group">
@@ -51,13 +51,13 @@
           <div class="form-group">
             <label for="fp_tool" class="col-sm-2 control-label">FPTool</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="fp_tool" value="{{ fp_tool.description }} {{ fp_tool.version }}" disabled>
+              <input type="text" class="form-control" id="fp_tool" name="fp_tool" value="{{ fp_tool.description }} {{ fp_tool.version }}" disabled>
             </div>
           </div>
           <div class="form-group">
             <label for="command_command" class="col-sm-2 control-label">Command</label>
             <div class="col-sm-10">
-              <textarea class="form-control" id="command_command">{{ action.example }}</textarea>
+              <textarea class="form-control" id="command_command" name="command_command">{{ action.example }}</textarea>
             </div>
           </div>
           <div class="form-group">
@@ -75,7 +75,7 @@
           <div class="form-group">
             <label for="purpose" class="col-sm-2 control-label">Purpose</label>
             <div class="col-sm-10">
-                <select class="form-control" name="script_type">
+                <select class="form-control" name="purpose">
                     <option/>
                     {% for choice in purpose_choices %}
                         <option name="{{ choice.0 }}">{{ choice.1 }}</option>
@@ -84,12 +84,12 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="rule_format" class="col-sm-2 control-label">Format</label>
+            <label for="pronom_id" class="col-sm-2 control-label">Format</label>
             <div class="col-sm-10">
                 {% if action.fprule_format %}
-                    <input type="text" class="form-control" id="rule_format" value="{{ action.fprule_format }}">
+                    <input type="text" class="form-control" name="pronom_id" id="pronom_id" value="{{ action.fprule_format }}">
                 {% else %}
-                    <input type="text" class="form-control" id="rule_format" value="">
+                    <input type="text" class="form-control" id="pronom_id" name="pronom_id" value="">
                 {% endif %}
             </div>
           </div>

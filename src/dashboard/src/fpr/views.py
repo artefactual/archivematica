@@ -1,6 +1,7 @@
 # stdlib, alphabetical
 import json
 import os
+import uuid
 
 # Django core, alphabetical
 from django.apps import apps
@@ -11,6 +12,8 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
+
+from django.db import transaction
 
 
 # External dependencies, alphabetical
@@ -693,15 +696,33 @@ def par_preservation_action_convert(request):
         fp_tool = None
 
     if fp_tool and request.method == 'POST':
-        # create a fpr_fpcommand?
-        # FPRule.objects.create(
-        #     uuid=policy_check_preservation_rule_pk,
-        #     purpose='policy_check',
-        #     command=mediaconch_policy_check_command,
-        #     format=mkv_format,
-        #     enabled=False
-        # )
-        pass
+        # Attempt to look up the pronom ID
+
+        with transaction.atomic():
+            # FIXME: will throw an IndexError
+            fpversion = fprmodels.FormatVersion.objects.filter(pronom_id=request.POST['pronom_id']).first()
+
+            command = fprmodels.FPCommand.objects.create(
+                uuid=request.POST['command_id'],
+                tool=fp_tool,
+                description=(request.POST['command_description']),
+                command=request.POST['command_command'],
+                script_type=request.POST['script_type'],
+                command_usage=request.POST['command_usage'],
+                enabled=True
+            )
+
+            fprmodels.FPRule.objects.filter(purpose=request.POST['purpose'], format=fpversion).update(enabled=False)
+
+            fprmodels.FPRule.objects.create(
+                uuid=str(uuid.uuid4()),
+                purpose=request.POST['purpose'],
+                command=command,
+                format=fpversion,
+                enabled=True
+            )
+
+            return redirect('/fpr/fpcommand/' + command.uuid)
 
     return render(request, 'par/preservation_action/convert.html', context(locals()))
 
@@ -753,9 +774,10 @@ class ParPreservationAction:
 
     def _parse_rule_format(self, json):
         if 'constraints' in json:
-            if 'allowedFormats' in json['constraints']:
-                for allowed_format in json['constraints']['allowedFormats']:
-                    if 'id' in allowed_format:
-                        if 'name' in allowed_format['id']:
-                            return allowed_format['id']['name']
+            if len(json['constraints']) > 0:
+                if 'allowedFormats' in json['constraints'][0]:
+                    for allowed_format in json['constraints'][0]['allowedFormats']:
+                        if 'id' in allowed_format:
+                            if 'name' in allowed_format['id']:
+                                return allowed_format['id']['name']
         return None

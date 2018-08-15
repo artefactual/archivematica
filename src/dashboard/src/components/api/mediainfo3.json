@@ -38,8 +38,7 @@
       }],
   "tool": {
     "toolID": "mediainfo",
-    "toolName": "mediainfo",
-    "toolVersion": "18.03"
+    "toolName": "mediainfo"
   },
   "type": {
     "id": {
