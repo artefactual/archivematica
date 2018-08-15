@@ -977,7 +977,7 @@ def par_preservation_actions(request):
         except OSError as e:
             pass
 
-        validated = par_validator.for_schema('preservation-action').parse_and_validate(request.body)
+        validated = par_validator.for_schema('http://www.parcore.org/schema/preservation-action.json/').parse_and_validate(request.body)
 
         path = os.path.join(basedir, str(uuid.uuid4()) + '.json')
         with open(path, "w") as f:
