@@ -1,3 +1,13 @@
+FROM node:10-alpine as webpack-bundle
+COPY dashboard/frontend/transfer-browser/ /src/transfer-browser/
+COPY dashboard/frontend/appraisal-tab/ /src/appraisal-tab/
+RUN apk add --no-cache git && chown -R node:node /src
+USER node
+RUN cd /src/transfer-browser \
+	&& npm install \
+	&& cd /src/appraisal-tab \
+	&& npm install
+
 FROM python:2.7-jessie
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -9,13 +19,12 @@ ENV AM_GUNICORN_CHDIR /src/dashboard/src
 ENV FORWARDED_ALLOW_IPS *
 
 RUN set -ex \
-	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
 		libmysqlclient-dev \
 		libldap2-dev \
 		libsasl2-dev \
-		nodejs \
 		locales \
 		locales-all \
 	&& rm -rf /var/lib/apt/lists/*
@@ -40,13 +49,8 @@ RUN set -ex \
 	&& mkdir -p $internalDirs \
 	&& chown -R archivematica:archivematica $internalDirs
 
-COPY dashboard/frontend/transfer-browser/ /src/dashboard/frontend/transfer-browser/
-RUN chown -R archivematica:archivematica /src/dashboard/frontend/transfer-browser \
-	&& su -l archivematica -c "cd /src/dashboard/frontend/transfer-browser && npm install"
-
-COPY dashboard/frontend/appraisal-tab/ /src/dashboard/frontend/appraisal-tab/
-RUN chown -R archivematica:archivematica /src/dashboard/frontend/appraisal-tab \
-	&& su -l archivematica -c "cd /src/dashboard/frontend/appraisal-tab && npm install"
+COPY --from=webpack-bundle /src/media/js/build/transfer_browser.js /src/dashboard/src/media/js/build/
+COPY --from=webpack-bundle /src/media/js/build/appraisal_tab.js /src/dashboard/src/media/js/build/
 
 COPY archivematicaCommon/ /src/archivematicaCommon/
 COPY dashboard/ /src/dashboard/
