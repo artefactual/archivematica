@@ -28,19 +28,19 @@
           <div class="form-group">
             <label for="command_id" class="col-sm-2 control-label">Command Id</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="command_id" id="command_id" value="{{ action.id }}">
+              <input type="text" class="form-control" name="command_id" id="command_id" value="{{ action.id }}" required>
             </div>
           </div>
           <div class="form-group">
             <label for="command_description" class="col-sm-2 control-label">Command Description</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="command_description" name="command_description" value="{{ action.description }}">
+              <input type="text" class="form-control" id="command_description" name="command_description" value="{{ action.description }}" required>
             </div>
           </div>
           <div class="form-group">
             <label for="command_usage" class="col-sm-2 control-label">Command Usage</label>
             <div class="col-sm-10">
-                <select class="form-control" name="command_usage">
+                <select class="form-control" name="command_usage" required>
                     <option/>
                     {% for choice in command_usage_choices %}
                         <option name="{{ choice.0 }}">{{ choice.1 }}</option>
@@ -57,13 +57,13 @@
           <div class="form-group">
             <label for="command_command" class="col-sm-2 control-label">Command</label>
             <div class="col-sm-10">
-              <textarea class="form-control" id="command_command" name="command_command">{{ action.example }}</textarea>
+              <textarea class="form-control" id="command_command" name="command_command" required>{{ action.example }}</textarea>
             </div>
           </div>
           <div class="form-group">
             <label for="script_type" class="col-sm-2 control-label">Script Type</label>
             <div class="col-sm-10">
-                <select class="form-control" name="script_type">
+                <select class="form-control" name="script_type" required>
                     <option/>
                     {% for choice in script_type_choices %}
                         <option name="{{ choice.0 }}">{{ choice.1 }}</option>
@@ -75,7 +75,7 @@
           <div class="form-group">
             <label for="purpose" class="col-sm-2 control-label">Purpose</label>
             <div class="col-sm-10">
-                <select class="form-control" name="purpose">
+                <select class="form-control" name="purpose" required>
                     <option/>
                     {% for choice in purpose_choices %}
                         <option name="{{ choice.0 }}">{{ choice.1 }}</option>
@@ -87,9 +87,9 @@
             <label for="pronom_id" class="col-sm-2 control-label">Format</label>
             <div class="col-sm-10">
                 {% if action.fprule_format %}
-                    <input type="text" class="form-control" name="pronom_id" id="pronom_id" value="{{ action.fprule_format }}">
+                    <input type="text" class="form-control" name="pronom_id" id="pronom_id" value="{{ action.fprule_format }}" required>
                 {% else %}
-                    <input type="text" class="form-control" id="pronom_id" name="pronom_id" value="">
+                    <input type="text" class="form-control" id="pronom_id" name="pronom_id" value="" required>
                 {% endif %}
             </div>
           </div>
