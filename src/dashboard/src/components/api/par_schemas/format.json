@@ -1,0 +1,423 @@
+{
+  "$id": "http://www.parcore.org/schema/format.json/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "authorInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "authorCompoundName": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "authorIdNamespace": {
+          "type": "string"
+        },
+        "authorName": {
+          "type": "string"
+        },
+        "organisationName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "authorId",
+        "authorIdNamespace"
+      ],
+      "type": "object"
+    },
+    "byteSequenceInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "byteSequenceId": {
+          "type": "string"
+        },
+        "byteSequenceIdNamespace": {
+          "type": "string"
+        },
+        "byteSequenceValue": {
+          "type": "string"
+        },
+        "endianness": {
+          "type": "string"
+        },
+        "indirectOffsetLength": {
+          "type": "string"
+        },
+        "indirectOffsetLocation": {
+          "type": "string"
+        },
+        "maxOffset": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "string"
+        },
+        "positionType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "byteSequenceId",
+        "byteSequenceIdNamespace"
+      ],
+      "type": "object"
+    },
+    "developerInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "developerCompoundName": {
+          "type": "string"
+        },
+        "developerId": {
+          "type": "string"
+        },
+        "developerIdNamespace": {
+          "type": "string"
+        },
+        "developerName": {
+          "type": "string"
+        },
+        "organisationName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "developerId",
+        "developerIdNamespace"
+      ],
+      "type": "object"
+    },
+    "documentInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "$ref": "http://www.parcore.org/schema/format.json/#/definitions/authorInformation"
+        },
+        "availabilityDescription": {
+          "type": "string"
+        },
+        "availabilityNote": {
+          "type": "string"
+        },
+        "displayText": {
+          "type": "string"
+        },
+        "documentIPR": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "documentIdNamespace": {
+          "type": "string"
+        },
+        "documentNote": {
+          "type": "string"
+        },
+        "documentType": {
+          "type": "string"
+        },
+        "publicationDate": {
+          "type": "string"
+        },
+        "publisher": {
+          "$ref": "http://www.parcore.org/schema/format.json/#/definitions/publisherInformation"
+        },
+        "titleText": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentId",
+        "documentIdNamespace"
+      ],
+      "type": "object"
+    },
+    "environmentInformation": {
+      "type": "string"
+    },
+    "externalSignatureInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "externalSignatureId": {
+          "type": "string"
+        },
+        "externalSignatureIdNamespace": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "signatureType": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "identifierInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "identifier": {
+          "type": "string"
+        },
+        "identifierType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "identifierType"
+      ],
+      "type": "object"
+    },
+    "internalSignatureInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "byteSequences": {
+          "items": {
+            "$ref": "http://www.parcore.org/schema/format.json/#/definitions/byteSequenceInformation"
+          },
+          "type": "array"
+        },
+        "signatureId": {
+          "type": "string"
+        },
+        "signatureIdNamespace": {
+          "type": "string"
+        },
+        "signatureName": {
+          "type": "string"
+        },
+        "signatureNote": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "signatureId",
+        "signatureIdNamespace"
+      ],
+      "type": "object"
+    },
+    "provenanceInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "provenanceDescription": {
+          "type": "string"
+        },
+        "provenanceName": {
+          "type": "string"
+        },
+        "provenanceSourceDate": {
+          "format": "date",
+          "type": "string"
+        },
+        "provenanceSourceId": {
+          "type": "string"
+        },
+        "provenanceSourceNamespace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "provenanceSourceId",
+        "provenanceSourceNamespace"
+      ],
+      "type": "object"
+    },
+    "publisherInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "organisationName": {
+          "type": "string"
+        },
+        "publisherCompoundName": {
+          "type": "string"
+        },
+        "publisherId": {
+          "type": "string"
+        },
+        "publisherIdNamespace": {
+          "type": "string"
+        },
+        "publisherName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "publisherId",
+        "publisherIdNamespace"
+      ],
+      "type": "object"
+    },
+    "registryVersionInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "registryNamespace": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "registryNamespace",
+        "version"
+      ],
+      "type": "object"
+    },
+    "relatedFormatInformation": {
+      "additionalProperties": false,
+      "properties": {
+        "relatedFormatId": {
+          "type": "string"
+        },
+        "relatedFormatIdNamespace": {
+          "type": "string"
+        },
+        "relatedFormatName": {
+          "type": "string"
+        },
+        "relatedFormatVersion": {
+          "type": "string"
+        },
+        "relationshipType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "relationshipType",
+        "relatedFormatId",
+        "relatedFormatIdNamespace"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "A file format as defined by PRONOM",
+  "properties": {
+    "aliases": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "binaryFileFormat": {
+      "type": "string"
+    },
+    "byteOrders": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "description": {
+      "type": "string"
+    },
+    "developers": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/developerInformation"
+      },
+      "type": "array"
+    },
+    "disclosure": {
+      "type": "string"
+    },
+    "documents": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/documentInformation"
+      },
+      "type": "array"
+    },
+    "externalSignatures": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/externalSignatureInformation"
+      },
+      "type": "array"
+    },
+    "families": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "id": {
+      "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier",
+      "description": "A persistent unique identifier for the format, in PAR form"
+    },
+    "identifiers": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/identifierInformation"
+      },
+      "type": "array"
+    },
+    "internalSignatures": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/internalSignatureInformation"
+      },
+      "type": "array"
+    },
+    "lastUpdatedDate": {
+      "format": "date",
+      "type": "string"
+    },
+    "localLastModifiedDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "http://www.parcore.org/schema/format.json/#/definitions/provenanceInformation"
+    },
+    "registryVersions": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/registryVersionInformation"
+      },
+      "type": "array"
+    },
+    "relatedFormats": {
+      "items": {
+        "$ref": "http://www.parcore.org/schema/format.json/#/definitions/relatedFormatInformation"
+      },
+      "type": "array"
+    },
+    "releaseDate": {
+      "format": "date",
+      "type": "string"
+    },
+    "risk": {
+      "type": "string"
+    },
+    "technicalEnvironment": {
+      "$ref": "http://www.parcore.org/schema/format.json/#/definitions/environmentInformation"
+    },
+    "types": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "version": {
+      "type": "string"
+    },
+    "withdrawnDate": {
+      "format": "date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "localLastModifiedDate"
+  ],
+  "title": "Format",
+  "type": "object"
+}

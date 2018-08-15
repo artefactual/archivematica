@@ -46,6 +46,8 @@ from processing import install_builtin_config
 from fpr.models import Format, FormatGroup, FormatVersion, FPTool, FPRule
 from components import par
 from datetime import datetime
+import par_validator
+
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
@@ -953,7 +955,7 @@ def par_preservation_action_types(request):
     return helpers.json_response([par.to_par_preservation_action_type(rule) for rule in par.PRESERVATION_ACTION_TYPES])
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=['GET', 'POST'])
 def par_preservation_actions(request):
     """
     GET a list of fpr.FPRules as PAR preservation_action objects
@@ -967,6 +969,23 @@ def par_preservation_actions(request):
       http://127.0.0.1:62080/api/beta/par/preservation_actions?username=test&api_key=test&limit=20
     """
 
+    if request.method == 'POST':
+        shared_directory_path = django_settings.SHARED_DIRECTORY
+        basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
+        try:
+            os.makedirs(basedir)
+        except OSError as e:
+            pass
+
+        validated = par_validator.for_schema('preservation-action').parse_and_validate(request.body)
+
+        path = os.path.join(basedir, str(uuid.uuid4()) + '.json')
+        with open(path, "w") as f:
+            f.write(json.dumps(validated))
+
+        return helpers.json_response({})
+
+    # Handle GET
     offset, limit = par.parse_offset_and_limit(request)
 
     try:
@@ -998,7 +1017,6 @@ def par_preservation_action(request, uuid):
                   "guid": "111bec2e-e387-4ab9-8e95-86ce7af6adbc",
                   ...
     """
-
     if request.method == 'PUT':
         try:
             rule = par.to_fpr_rule(json.loads(request.body))

@@ -35,3 +35,6 @@ git+https://github.com/seatme/django-longer-username.git@seatme#egg=longeruserna
 # Required by LDAP authentication
 django-auth-ldap==1.2.0
 python-ldap==2.4.15
+
+# PAR schema validation
+jsonschema==2.6.0

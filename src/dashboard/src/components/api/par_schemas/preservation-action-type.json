@@ -1,0 +1,24 @@
+{
+  "$id": "http://www.parcore.org/schema/preservation-action-type.json/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "additionalProperties": false,
+  "description": "The type of the preservation action as defined by PREMIS v3 event types.  http://id.loc.gov/vocabulary/preservation/eventType.html",
+  "properties": {
+    "id": {
+      "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+    },
+    "label": {
+      "type": "string"
+    },
+    "localLastModifiedDate": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "label"
+  ],
+  "title": "Preservation Action Type",
+  "type": "object"
+}

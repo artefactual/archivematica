@@ -1,0 +1,59 @@
+{
+  "$id": "http://www.parcore.org/schema/par-property.json/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "additionalProperties": false,
+  "description": "this is a skeleton definition of a Property",
+  "properties": {
+    "class": {
+      "description": "Property Class is the logical type of a specific property falls, e.g. fmt/43 is a file format, MD5 and SHA512 are both checksums, PASS and FAIL are both format validity measures.",
+      "enum": [
+        "checksum",
+        "file format",
+        "validity",
+        "size",
+        "rate",
+        "raw",
+        "other"
+      ]
+    },
+    "equivalentTo": {
+      "description": "Equivalent To allows for assertions that a specific property is equivalent to named properties in other schemas or registries, for example, an Aspect Ration property for a video may be declared to be equivalent to the ebucore:aspectRatio, even if the representation of the measurement is different",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "id": {
+      "$ref": "http://www.parcore.org/schema/types.json/#/definitions/parIdentifier"
+    },
+    "localLastModifiedDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "type": {
+      "description": "Property Type is the datatype in which the value of a specific property should be formatted, for example fmt/43, MD5 and SHA512 values are typically strings, validity metrics may be booleans, size measures will be numeric types.",
+      "enum": [
+        "string",
+        "boolean",
+        "integer",
+        "float",
+        "other"
+      ]
+    },
+    "units": {
+      "description": "Property Units allow for the specification of the units in which the value is given, for example an image size may be given in pixels (px), video bitrates may be specified in bits per second (bps) or kilobits per second (kbps).",
+      "type": "string"
+    },
+    "value": {
+      "description": "Property Value is the measured value of a specific property for a particular object.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "class",
+    "type"
+  ],
+  "title": "PAR Property",
+  "type": "object"
+}
