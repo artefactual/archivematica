@@ -4,6 +4,13 @@
 {% block title %}{{ block.super }} - {% trans "PAR Preservation Actions" %}{% endblock title %}
 {% block page_title %}{% trans "Convert Preservation Action to FPR" %}{% endblock page_title %}
 
+{% block extra_css %}
+  {{ block.super }}
+  <style type="text/css">
+      #par-convert pre {max-height: 100px; font-size: 0.8em;}
+  </style>
+{% endblock extra_css %}
+
 {% block breadcrumbs %}
 {{ block.super }}
 <li>{% trans "PAR" %}</li>
@@ -13,7 +20,7 @@
 
 {% block app_content %}
 
-<div class="row">
+<div id="par-convert" class="row">
 
     <div class="col-sm-12">
         <div class="well">
@@ -24,7 +31,9 @@
         {% endif %}
         <form method="POST" class="form-horizontal">
           <input type="hidden" name="file_name" value="{{action.file_name}}">
-          <h3>FPR Command</h3>
+          <div class="row">
+              <h3 class="col-sm-2 text-right">FPR Command</h3>
+          </div>
           <div class="form-group">
             <label for="command_id" class="col-sm-2 control-label">Command Id</label>
             <div class="col-sm-10">
@@ -71,7 +80,9 @@
                 </select>
             </div>
           </div>
-          <h3>FPR Rule</h3>
+          <div class="row">
+              <h3 class="col-sm-2 text-right">FPR Rule</h3>
+          </div>
           <div class="form-group">
             <label for="purpose" class="col-sm-2 control-label">Purpose</label>
             <div class="col-sm-10">

@@ -753,32 +753,29 @@ class ParPreservationAction:
         self.inputs = self._parse_inputs(json)
         self.outputs = self._parse_outpus(json)
 
-    def _parse_constraints(self, json):
-        # FIXME parse this out into meaningful bits
-#         constraints = {}
-#         if 'allowedFormats' in json['constraints']:
-#             constraints['allowedFormats'] = []
-#             for allowedFormat in json['constraints']['allowedFormats']:
-#                 pass
-#         return constraints
-        if 'constraints' in json:
-            return json['constraints']
+    def _parse_constraints(self, json_dict):
+        if 'constraints' in json_dict:
+            return json.dumps(json_dict['constraints'], indent=2)
 
-    def _parse_inputs(self, json):
-        # FIXME parse this out into meaningful bits
-        if 'inputs' in json:
-            return json['inputs']
+        return None
 
-    def _parse_outpus(self, json):
-        # FIXME parse this out into meaningful bits
-        if 'outputs' in json:
-            return json['outputs']
+    def _parse_inputs(self, json_dict):
+        if 'inputs' in json_dict:
+            return json.dumps(json_dict['inputs'], indent=2)
 
-    def _parse_rule_format(self, json):
-        if 'constraints' in json:
-            if len(json['constraints']) > 0:
-                if 'allowedFormats' in json['constraints'][0]:
-                    for allowed_format in json['constraints'][0]['allowedFormats']:
+        return None
+
+    def _parse_outpus(self, json_dict):
+        if 'outputs' in json_dict:
+            return json.dumps(json_dict['outputs'], indent=2)
+
+        return None
+
+    def _parse_rule_format(self, json_dict):
+        if 'constraints' in json_dict:
+            if len(json_dict['constraints']) > 0:
+                if 'allowedFormats' in json_dict['constraints'][0]:
+                    for allowed_format in json_dict['constraints'][0]['allowedFormats']:
                         if 'id' in allowed_format:
                             if 'name' in allowed_format['id']:
                                 return allowed_format['id']['name']
