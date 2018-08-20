@@ -664,12 +664,14 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
 def par_preservation_action_list(request):
     preservationActions = []
     basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
-    for file_name in os.listdir(basedir):
-        file_path = os.path.join(basedir, file_name)
-        if os.path.isfile(file_path) and file_name.endswith('.json'):
-            with open(file_path) as f:
-                data = json.load(f)
-                preservationActions.append(ParPreservationAction(file_name, file_path, data))
+
+    if os.path.isdir(basedir):
+        for file_name in os.listdir(basedir):
+            file_path = os.path.join(basedir, file_name)
+            if os.path.isfile(file_path) and file_name.endswith('.json'):
+                with open(file_path) as f:
+                    data = json.load(f)
+                    preservationActions.append(ParPreservationAction(file_name, file_path, data))
 
     return render(request, 'par/preservation_action/list.html', context(locals()))
 
