@@ -684,10 +684,23 @@ def par_preservation_action_convert(request):
         with open(file_path) as f:
             data = json.load(f)
             action = ParPreservationAction(file_name, file_path, data)
+    else:
+        raise Http404
 
     command_usage_choices = fprmodels.FPCommand.COMMAND_USAGE_CHOICES
     script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
     purpose_choices = fprmodels.FPRule.PURPOSE_CHOICES
+
+    script_type_selected = None
+    purpose_selected = None
+    command_usage_selected = None
+
+    if 'commandline' in action.example:
+        script_type_selected = 'command'
+
+    if action.type == 'metadata extraction':
+        purpose_selected = 'characterization'
+        command_usage_selected = 'characterization'
 
     try:
         if action.version is None:
@@ -737,6 +750,7 @@ class ParPreservationAction:
         self.id = json['id']['guid']
         self.description = json['description']
         self.type = json['type']['label']
+
         if 'tool' in json:
             if 'toolName' in json['tool']:
                 self.tool = json['tool']['toolName']
@@ -745,7 +759,7 @@ class ParPreservationAction:
             else:
                 self.version = None
 
-        self.example = json['example']
+        self.example = self._parsed_example(json['example'])
 
         self.fprule_format = self._parse_rule_format(json)
 
@@ -780,3 +794,8 @@ class ParPreservationAction:
                             if 'name' in allowed_format['id']:
                                 return allowed_format['id']['name']
         return None
+
+    def _parsed_example(self, example):
+        if 'inputFile' in example:
+            example = example.replace('inputFile', '%fileFullName%')
+        return example

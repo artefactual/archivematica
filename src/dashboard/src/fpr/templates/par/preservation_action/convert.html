@@ -52,7 +52,14 @@
                 <select class="form-control" name="command_usage" required>
                     <option/>
                     {% for choice in command_usage_choices %}
-                        <option name="{{ choice.0 }}">{{ choice.1 }}</option>
+                        <option
+                            name="{{ choice.0 }}"
+                            {%if command_usage_selected and command_usage_selected = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
                     {% endfor %}
                 </select>
             </div>
@@ -75,7 +82,14 @@
                 <select class="form-control" name="script_type" required>
                     <option/>
                     {% for choice in script_type_choices %}
-                        <option name="{{ choice.0 }}">{{ choice.1 }}</option>
+                        <option
+                            name="{{ choice.0 }}"
+                            {%if script_type_selected and script_type_selected = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
                     {% endfor %}
                 </select>
             </div>
@@ -89,7 +103,14 @@
                 <select class="form-control" name="purpose" required>
                     <option/>
                     {% for choice in purpose_choices %}
-                        <option name="{{ choice.0 }}">{{ choice.1 }}</option>
+                        <option
+                            name="{{ choice.0 }}"
+                            {%if purpose_selected and purpose_selected = choice.0 %}
+                             selected
+                            {% endif %}
+                         >
+                             {{ choice.1 }}
+                         </option>
                     {% endfor %}
                 </select>
             </div>
