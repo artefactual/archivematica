@@ -24,6 +24,7 @@ from __future__ import print_function
 from annoying.functions import get_object_or_None
 import argparse
 import os
+import shutil
 import sys
 from uuid import uuid4
 
@@ -55,6 +56,21 @@ def get_upload_dip_path(aip_path):
         else:
             new_aip_path.append(part)
     return os.path.sep + os.path.join(*new_aip_path)
+
+
+def rmtree_upload_dip_transitory_loc(package_type, unit_path):
+    """If a DIP has been stored but still exists in the DIP Upload watched
+    directory then it needs to be deleted.
+    """
+    if package_type != "DIP":
+        return
+    unit_path = get_upload_dip_path(unit_path)
+    LOGGER.info(
+        "DIP stored. Removing duplicates in watched directory: %s", unit_path)
+    try:
+        shutil.rmtree(unit_path)
+    except OSError as e:
+        LOGGER.error("Directory removal failed with: %s", e)
 
 
 class StorageServiceCreateFileError(Exception):
@@ -197,6 +213,11 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     message = "Storage service created {}: {}".format(sip_type, new_file)
     LOGGER.info(message)
     print(message)
+
+    # Once the DIP is stored, remove it from the uploadDIP watched directory as
+    # it will no longer need to be referenced from there by the user or the
+    # system.
+    rmtree_upload_dip_transitory_loc(package_type, aip_path)
     return 0
 
     # FIXME this should be moved to the storage service and areas that rely
