@@ -660,7 +660,8 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
         except:
             revision.detail_url = reverse(detail_view_name, args=[revision.uuid])
 
-##### PAR #####
+
+# #### PAR #####
 def par_preservation_action_list(request):
     preservationActions = []
     basedir = os.path.join(django_settings.SHARED_DIRECTORY, 'imported_preservation_actions')
@@ -691,16 +692,9 @@ def par_preservation_action_convert(request):
     script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
     purpose_choices = fprmodels.FPRule.PURPOSE_CHOICES
 
-    script_type_selected = None
-    purpose_selected = None
-    command_usage_selected = None
-
-    if 'commandline' in action.example:
-        script_type_selected = 'command'
-
-    if action.type == 'metadata extraction':
-        purpose_selected = 'characterization'
-        command_usage_selected = 'characterization'
+    script_type_selected = action.script_type
+    purpose_selected = action.purpose
+    command_usage_selected = action.command_usage
 
     try:
         if action.version is None:
@@ -751,6 +745,10 @@ class ParPreservationAction:
         self.description = json['description']
         self.type = json['type']['label']
 
+        self.script_type = None
+        self.purpose = None
+        self.command_usage = None
+
         if 'tool' in json:
             if 'toolName' in json['tool']:
                 self.tool = json['tool']['toolName']
@@ -759,13 +757,17 @@ class ParPreservationAction:
             else:
                 self.version = None
 
-        self.example = self._parsed_example(json['example'])
+        self._parse_example(json)
 
         self.fprule_format = self._parse_rule_format(json)
 
         self.constraints = self._parse_constraints(json)
         self.inputs = self._parse_inputs(json)
         self.outputs = self._parse_outpus(json)
+
+        if self.type == 'metadata extraction':
+            self.purpose = 'characterization'
+            self.command_usage = 'characterization'
 
     def _parse_constraints(self, json_dict):
         if 'constraints' in json_dict:
@@ -795,7 +797,13 @@ class ParPreservationAction:
                                 return allowed_format['id']['name']
         return None
 
-    def _parsed_example(self, example):
-        if 'inputFile' in example:
-            example = example.replace('inputFile', '%fileFullName%')
-        return example
+    def _parse_example(self, json_dict):
+        self.example = json_dict['example']
+        self.command = self.example
+
+        if 'commandline' in self.command:
+            self.script_type = 'command'
+            self.command = self.command.replace('commandline', '').strip().strip('\'')
+
+        if 'inputFile' in self.command:
+            self.command = self.command.replace('inputFile', '"%fileFullName%"')
