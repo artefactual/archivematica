@@ -13,8 +13,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 
+from django.db import IntegrityError
 from django.db import transaction
-
 
 # External dependencies, alphabetical
 from annoying.functions import get_object_or_None
@@ -707,29 +707,32 @@ def par_preservation_action_convert(request):
     if fp_tool and request.method == 'POST':
         # Attempt to look up the pronom ID
 
-        with transaction.atomic():
-            # FIXME: will throw an IndexError
-            fpversion = fprmodels.FormatVersion.objects.filter(pronom_id=request.POST['pronom_id']).first()
+        try:
+            with transaction.atomic():
+                # FIXME: will throw an IndexError
+                fpversion = fprmodels.FormatVersion.objects.filter(pronom_id=request.POST['pronom_id']).first()
 
-            command = fprmodels.FPCommand.objects.create(
-                uuid=request.POST['command_id'],
-                tool=fp_tool,
-                description=(request.POST['command_description']),
-                command=request.POST['command_command'],
-                script_type=request.POST['script_type'],
-                command_usage=request.POST['command_usage'],
-                enabled=False
-            )
+                command = fprmodels.FPCommand.objects.create(
+                    uuid=request.POST['command_id'],
+                    tool=fp_tool,
+                    description=(request.POST['command_description']),
+                    command=request.POST['command_command'],
+                    script_type=request.POST['script_type'],
+                    command_usage=request.POST['command_usage'],
+                    enabled=False
+                )
 
-            rule = fprmodels.FPRule.objects.create(
-                uuid=str(uuid.uuid4()),
-                purpose=request.POST['purpose'],
-                command=command,
-                format=fpversion,
-                enabled=False
-            )
+                rule = fprmodels.FPRule.objects.create(
+                    uuid=str(uuid.uuid4()),
+                    purpose=request.POST['purpose'],
+                    command=command,
+                    format=fpversion,
+                    enabled=False
+                )
 
-            return redirect('par_preservation_action_converted_rule', rule.uuid)
+                return redirect('par_preservation_action_converted_rule', rule.uuid)
+        except IntegrityError:
+            error_message = "UUID already exists"
 
     return render(request, 'par/preservation_action/convert.html', context(locals()))
 

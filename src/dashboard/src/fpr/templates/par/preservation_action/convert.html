@@ -29,6 +29,9 @@
         {% if not fp_tool %}
             <div class="alert alert-danger">No matching FPTool found for tool/version {{action.tool}}/{{action.version}}</div>
         {% endif %}
+        {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
         <form method="POST" class="form-horizontal">
           <input type="hidden" name="file_name" value="{{action.file_name}}">
           <div class="row">
