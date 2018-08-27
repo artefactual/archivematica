@@ -120,4 +120,6 @@ urlpatterns = [
     # PAR
     url(r'^par/$', views.par_preservation_action_list, name='par_preservation_action_list'),
     url(r'^par/preservation_action/convert$', views.par_preservation_action_convert, name='par_preservation_action_convert'),
+    url(r'^par/preservation_action/converted/(?P<uuid>' + UUID_REGEX + ')$', views.par_preservation_action_converted_rule, name='par_preservation_action_converted_rule'),
+    url(r'^par/preservation_action/converted/(?P<uuid>' + UUID_REGEX + ')/enable$', views.par_preservation_action_enable_rule, name='par_preservation_action_enable_rule'),
 ]

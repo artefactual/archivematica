@@ -718,22 +718,44 @@ def par_preservation_action_convert(request):
                 command=request.POST['command_command'],
                 script_type=request.POST['script_type'],
                 command_usage=request.POST['command_usage'],
-                enabled=True
+                enabled=False
             )
 
-            fprmodels.FPRule.objects.filter(purpose=request.POST['purpose'], format=fpversion).update(enabled=False)
-
-            fprmodels.FPRule.objects.create(
+            rule = fprmodels.FPRule.objects.create(
                 uuid=str(uuid.uuid4()),
                 purpose=request.POST['purpose'],
                 command=command,
                 format=fpversion,
-                enabled=True
+                enabled=False
             )
 
-            return redirect('/fpr/fpcommand/' + command.uuid)
+            return redirect('par_preservation_action_converted_rule', rule.uuid)
 
     return render(request, 'par/preservation_action/convert.html', context(locals()))
+
+
+def par_preservation_action_converted_rule(request, uuid):
+    rule = fprmodels.FPRule.objects.filter(uuid=uuid).first()
+    command = fprmodels.FormatVersion.objects.filter(uuid=rule.command_id).first()
+
+    try:
+        enabled_rule = fprmodels.FPRule.objects.filter(purpose=rule.purpose, format_id=rule.format_id, enabled=True).first()
+        enabled_command = fprmodels.FPCommand.objects.filter(uuid=rule.command_id).first()
+    except IndexError:
+        enabled_rule = None
+        enabled_command = None
+
+    return render(request, 'par/preservation_action/converted.html', context(locals()))
+
+def par_preservation_action_enable_rule(request, uuid):
+    with transaction.atomic():
+        rule = fprmodels.FPRule.objects.get(uuid=uuid)
+
+        fprmodels.FPRule.objects.filter(purpose=rule.purpose, format_id=rule.format_id).update(enabled=False)
+        fprmodels.FPRule.objects.filter(uuid=rule.uuid).update(enabled=True)
+        fprmodels.FPCommand.objects.filter(uuid=rule.command_id).update(enabled=True)
+
+    return redirect('fprule_detail', uuid)
 
 
 class ParPreservationAction:
