@@ -24,14 +24,29 @@ def is_extractable(f):
         return False
 
 
+AM_DATE_DELIMITER = '-AM-DATE-SFX-'
+
+
 def already_extracted(f):
     """
     Returns True if this package has already been extracted, False otherwise.
     """
-    # Look for files in a directory that starts with the package name
-    files = File.objects.filter(transfer=f.transfer, currentlocation__startswith=f.currentlocation, removedtime__isnull=True).exclude(uuid=f.uuid)
+    # Once extracted by Archivematica, the current location of a package will
+    # have been changed (i.e., suffixed with a date string; see
+    # ``extract_contents.py::temporary_directory``) so we must reconstruct
+    # the previous "current" location of the package (as ``package_name``) by
+    # removing this date suffix.
+    package_name = f.currentlocation.split(AM_DATE_DELIMITER)[0]
+    # Look for files in a directory that starts with ``package_name``
+    files = File.objects.filter(
+        transfer=f.transfer,
+        currentlocation__startswith=package_name,
+        removedtime__isnull=True).exclude(uuid=f.uuid)
     # Check for unpacking events that reference the package
-    if Event.objects.filter(file_uuid__in=files, event_type='unpacking', event_detail__contains=f.currentlocation).exists():
+    if Event.objects.filter(
+            file_uuid__in=files,
+            event_type='unpacking',
+            event_detail__contains=package_name).exists():
         return True
     return False
 

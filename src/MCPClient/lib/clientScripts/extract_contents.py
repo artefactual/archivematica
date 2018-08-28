@@ -19,7 +19,7 @@ from fileOperations import addFileToTransfer, updateSizeAndChecksum, rename
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
-from has_packages import already_extracted
+from has_packages import already_extracted, AM_DATE_DELIMITER
 
 file_path_cache = {}
 
@@ -32,7 +32,7 @@ def temporary_directory(file_path, date):
     if file_path_cache.get(file_path):
         return file_path_cache[file_path]
     else:
-        path = file_path + '-' + date
+        path = file_path + AM_DATE_DELIMITER + date
         file_path_cache[file_path] = path
         return path
 
@@ -167,6 +167,8 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         # the names we want to preserve in our PREMIS:originalLocation.
         temp_dir = temporary_directory(output_file_path, date)
         rename(output_file_path, temp_dir)
+        file_.currentlocation = temporary_directory(file_.currentlocation, date)
+        file_.save()
 
         # Create the extract packages command.
         if command.script_type == 'command' or command.script_type == 'bashScript':
