@@ -38,7 +38,9 @@
                         <input type="hidden" name="file_name" value="{{action.file_name}}">
                         {% include 'par/preservation_action/_show.html' %}
                         <div class="text-right">
-                            <button class="btn btn-success">Convert to FPR</button>
+                            {% if not action.converted %}
+                                <button class="btn btn-success">Convert to FPR</button>
+                            {% endif %}
                         </div>
                     </form>
                 </li>

@@ -18,3 +18,16 @@
     <dt>Outputs</dt>
     <dd><pre>{{ action.outputs }}</pre></dd>
 </dl>
+{% if action.converted %}
+<hr style="width: 90%">
+<dl class="dl-horizontal">
+    <dt>Status</dt>
+    <dd><strong class="text-success">CONVERTED</strong></dd>
+    {% if action.rule %}
+        <dt>FPR Rule</dt>
+        <dd><a href="{% url 'fprule_detail' action.rule_uuid %}">{{action.rule_uuid}}</a></dd>
+        <dt>FPR Command</dt>
+        <dd><a href="{% url 'fpcommand_detail' action.rule.command_id %}">{{action.rule.command_id}}</a></dd>
+    {% endif %}
+</dl>
+{% endif %}

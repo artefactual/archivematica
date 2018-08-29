@@ -730,7 +730,13 @@ def par_preservation_action_convert(request):
                     enabled=False
                 )
 
+                # rename the file to indicate it has been converted
+                new_file_name = os.path.join(basedir, "%s.CONVERTED.json" % rule.uuid)
+                os.rename(file_path, new_file_name)
+
                 return redirect('par_preservation_action_converted_rule', rule.uuid)
+        except IndexError:
+            error_message = ("Format Version not found for %s" % request.POST['pronom_id'])
         except IntegrityError:
             error_message = "UUID already exists"
 
@@ -750,6 +756,7 @@ def par_preservation_action_converted_rule(request, uuid):
 
     return render(request, 'par/preservation_action/converted.html', context(locals()))
 
+
 def par_preservation_action_enable_rule(request, uuid):
     with transaction.atomic():
         rule = fprmodels.FPRule.objects.get(uuid=uuid)
@@ -765,6 +772,16 @@ class ParPreservationAction:
     def __init__(self, file_name, file_location, json):
         self.file_name = file_name
         self.file_location = file_location
+
+        bits = self.file_name.split('.')
+        if len(bits) == 3 and bits[1] == 'CONVERTED':
+            self.converted = True
+            self.rule_uuid = bits[0]
+            self.rule = fprmodels.FPRule.objects.get(uuid=self.rule_uuid)
+            if self.rule:
+                self.command = fprmodels.FPCommand.objects.get(uuid=self.rule.command_id)
+        else:
+            self.converted = False
 
         self.id = json['id']['guid']
         self.description = json['description']
