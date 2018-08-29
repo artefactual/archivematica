@@ -34,12 +34,7 @@ TRANSFER_DIRECTORY = "%transferDirectory%"
 
 
 def suffix_date(file_path, date):
-    if file_path_cache.get(file_path):
-        return file_path_cache[file_path]
-    else:
-        path = file_path + AM_DATE_DELIMITER + date
-        file_path_cache[file_path] = path
-        return path
+    return file_path + AM_DATE_DELIMITER + date
 
 
 def tree(root):
@@ -232,6 +227,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
                     eventType='movement',
                     eventDateTime=date,
                     eventDetail='',
+                    fileUUID=file_.uuid,
                     transferUUID=transfer_uuid,
                     eventOutcomeDetailNote=event_outcome_detail_note)
 

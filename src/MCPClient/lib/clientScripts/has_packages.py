@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 import django
 django.setup()
 # dashboard
@@ -37,10 +39,11 @@ def already_extracted(f):
     # the previous "current" location of the package (as ``package_name``) by
     # removing this date suffix.
     package_name = f.currentlocation.split(AM_DATE_DELIMITER)[0]
+    package_name_w_slash = os.path.join(package_name, '')
     # Look for files in a directory that starts with ``package_name``
     files = File.objects.filter(
         transfer=f.transfer,
-        currentlocation__startswith=package_name,
+        currentlocation__startswith=package_name_w_slash,
         removedtime__isnull=True).exclude(uuid=f.uuid)
     # Check for unpacking events that reference the package
     if Event.objects.filter(
