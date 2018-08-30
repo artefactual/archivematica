@@ -200,11 +200,17 @@ def browse_location(uuid, path):
     return browse
 
 
-def wait_for_async(response, poll_seconds=2):
+def wait_for_async(response, poll_seconds=2, poll_timeout_seconds=600):
     """
-    Poll for results on an async endpoint.  `response` should have a HTTP 202
-    (Accepted) status code, and is expected to contain a Location header telling
-    us where to get our results from.
+    Poll for results on an async endpoint.
+
+    `response` should have a HTTP 202 (Accepted) status code, and is expected to
+    contain a Location header telling us where to get our results from.
+
+    `poll_seconds` controls how long we wait between poll requests.
+
+    `poll_timeout_seconds` controls how long we wait for a poll request to
+    complete before giving up and throwing an exception.
 
     Returns a tuple like (<result>, <error>), where <error> will be None if
     everything went well.
@@ -214,7 +220,7 @@ def wait_for_async(response, poll_seconds=2):
     poll_url = response.headers['Location']
 
     while True:
-        poll_response = _storage_api_session().get(poll_url)
+        poll_response = _storage_api_session(timeout=poll_timeout_seconds).get(poll_url)
         poll_response.raise_for_status()
 
         response_json = poll_response.json()
