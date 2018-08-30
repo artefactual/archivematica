@@ -40,6 +40,8 @@
                         <div class="text-right">
                             {% if not action.converted %}
                                 <button class="btn btn-success">Convert to FPR</button>
+                            {% elif action.rule and not action.rule.enabled %}
+                                <a href="{% url 'par_preservation_action_converted_rule' action.rule_uuid %}" class="btn btn-success">Enable Rule</a>
                             {% endif %}
                         </div>
                     </form>
