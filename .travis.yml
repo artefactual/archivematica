@@ -10,6 +10,8 @@ before_script:
 
 script: tox
 
+install: true
+
 notifications:
   email: false
 
@@ -17,11 +19,23 @@ matrix:
   fast_finish: true
   include:
 
+    # Dashboard
+
     - python: "2.7"
       env: TOXENV=py27
 
     - python: "3.6"
       env: TOXENV=py36
+
+    # MCPServer
+
+    - python: "2.7"
+      env: TOXENV=mcpserver
+
+    - python: "3.6"
+      env: TOXENV=mcpserver
+
+    # Linters
 
     - python: "2.7"
       env: TOXENV=py27-flake8
@@ -33,3 +47,6 @@ matrix:
 
     - python: "3.6"
       env: TOXENV=py36
+
+    - python: "3.6"
+      env: TOXENV=mcpserver

@@ -125,6 +125,16 @@ DATABASES = {
     }
 }
 
+# These are all the apps that we need so we can use the models in the
+# Dashboard.
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'main',
+    'components.administration',
+    'fpr',
+)
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config.get(
     'secret_key', default='e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48')
