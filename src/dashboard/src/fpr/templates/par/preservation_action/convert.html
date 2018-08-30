@@ -56,8 +56,8 @@
                     <option/>
                     {% for choice in command_usage_choices %}
                         <option
-                            name="{{ choice.0 }}"
-                            {%if command_usage_selected and command_usage_selected = choice.0 %}
+                            value="{{ choice.0 }}"
+                            {%if action.command_usage and action.command_usage = choice.0 %}
                              selected
                             {% endif %}
                          >
@@ -86,8 +86,8 @@
                     <option/>
                     {% for choice in script_type_choices %}
                         <option
-                            name="{{ choice.0 }}"
-                            {%if script_type_selected and script_type_selected = choice.0 %}
+                            value="{{ choice.0 }}"
+                            {%if action.script_type and action.script_type = choice.0 %}
                              selected
                             {% endif %}
                          >
@@ -107,8 +107,8 @@
                     <option/>
                     {% for choice in purpose_choices %}
                         <option
-                            name="{{ choice.0 }}"
-                            {%if purpose_selected and purpose_selected = choice.0 %}
+                            value="{{ choice.0 }}"
+                            {%if action.purpose and action.purpose = choice.0 %}
                              selected
                             {% endif %}
                          >

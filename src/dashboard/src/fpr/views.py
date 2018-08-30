@@ -692,10 +692,6 @@ def par_preservation_action_convert(request):
     script_type_choices = fprmodels.FPCommand.SCRIPT_TYPE_CHOICES
     purpose_choices = fprmodels.FPRule.PURPOSE_CHOICES
 
-    script_type_selected = action.script_type
-    purpose_selected = action.purpose
-    command_usage_selected = action.command_usage
-
     try:
         if action.version is None:
             fp_tool = fprmodels.FPTool.objects.filter(description__icontains=action.tool, enabled=True).first()
@@ -707,24 +703,30 @@ def par_preservation_action_convert(request):
     if fp_tool and request.method == 'POST':
         # Attempt to look up the pronom ID
 
+        action.populate_from_post(request)
+        print request.POST
+
         try:
             with transaction.atomic():
-                # FIXME: will throw an IndexError
-                fpversion = fprmodels.FormatVersion.objects.filter(pronom_id=request.POST['pronom_id']).first()
+                fpversion = fprmodels.FormatVersion.objects.filter(pronom_id=action.fprule_format).first()
+
+                if fpversion is None:
+                    error_message = ("Format Version not found for %s" % action.fprule_format)
+                    return render(request, 'par/preservation_action/convert.html', context(locals()))
 
                 command = fprmodels.FPCommand.objects.create(
-                    uuid=request.POST['command_id'],
+                    uuid=action.id,
                     tool=fp_tool,
-                    description=(request.POST['command_description']),
-                    command=request.POST['command_command'],
-                    script_type=request.POST['script_type'],
-                    command_usage=request.POST['command_usage'],
+                    description=action.description,
+                    command=action.command,
+                    script_type=action.type,
+                    command_usage=action.command_usage,
                     enabled=False
                 )
 
                 rule = fprmodels.FPRule.objects.create(
                     uuid=str(uuid.uuid4()),
-                    purpose=request.POST['purpose'],
+                    purpose=action.purpose,
                     command=command,
                     format=fpversion,
                     enabled=False
@@ -735,8 +737,6 @@ def par_preservation_action_convert(request):
                 os.rename(file_path, new_file_name)
 
                 return redirect('par_preservation_action_converted_rule', rule.uuid)
-        except IndexError:
-            error_message = ("Format Version not found for %s" % request.POST['pronom_id'])
         except IntegrityError:
             error_message = "UUID already exists"
 
@@ -810,6 +810,15 @@ class ParPreservationAction:
         if self.type == 'metadata extraction':
             self.purpose = 'characterization'
             self.command_usage = 'characterization'
+
+    def populate_from_post(self, request):
+        self.fprule_format = request.POST['pronom_id']
+        self.id = request.POST['command_id']
+        self.description = request.POST['command_description']
+        self.command = request.POST['command_command']
+        self.script_type = request.POST['script_type']
+        self.command_usage = request.POST['command_usage']
+        self.purpose = request.POST['purpose']
 
     def _parse_constraints(self, json_dict):
         if 'constraints' in json_dict:
