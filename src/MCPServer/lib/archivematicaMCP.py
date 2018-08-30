@@ -54,6 +54,8 @@ from prometheus_client import start_http_server
 import watchDirectory
 from utils import log_exceptions
 
+from executor import Executor
+from taskGroupRunner import TaskGroupRunner
 import processing
 from jobChain import jobChain
 from unitSIP import unitSIP
@@ -68,10 +70,7 @@ from databaseFunctions import auto_close_db, createSIP, getUTCDate
 import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
-from multiprocessing.pool import ThreadPool
 
-
-taskThreadPool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
 
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
@@ -171,7 +170,7 @@ def createUnitAndJobChain(path, config, terminate=False):
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     try:
         logger.debug('Watching path %s', path)
-        taskThreadPool.apply_async(createUnitAndJobChain, [path, config], {"terminate": terminate})
+        Executor.apply_async(createUnitAndJobChain, [path, config], {"terminate": terminate})
     except Exception:
         logger.exception('Error creating threads to watch directories')
 
@@ -388,6 +387,9 @@ if __name__ == '__main__':
     t = threading.Thread(target=flushOutputs)
     t.daemon = True
     t.start()
+
+    Executor.init()
+    TaskGroupRunner.init()
 
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()

@@ -77,12 +77,8 @@ class TaskGroupRunner():
     TaskGroupJob = collections.namedtuple('Job', ['task_group', 'finished_callback'])
 
     @staticmethod
-    def _init():
-        """
-        Create a singleton instance of our TaskGroupRunner and start its poll
-        thread.
-        """
-
+    def init():
+        """Initialize TaskGroupRunner and start its poll thread."""
         TaskGroupRunner._instance = TaskGroupRunner()
         TaskGroupRunner._instance._start_polling()
 
@@ -309,6 +305,3 @@ class TaskGroupRunner():
             LOGGER.error(msg)
             for task in task_group.tasks():
                 task.results['exitCode'] = 1
-
-
-TaskGroupRunner._init()

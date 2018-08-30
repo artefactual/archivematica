@@ -26,9 +26,9 @@ from uuid import uuid4
 
 from django.conf import settings as django_settings
 
-from archivematicaMCP import taskThreadPool
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
+from executor import Executor
 from jobChain import jobChain
 from main.models import Transfer, TransferMetadataSet
 import storageService as storage_service
@@ -311,7 +311,7 @@ def create_package(name, type_, accession, access_system_id, path,
             os.chmod(tmpdir, 0o770)  # Needs to be writeable by the SS.
 
     getattr(
-        taskThreadPool,
+        Executor,
         'apply' if wait_until_complete else 'apply_async',
     )(_start, (transfer, name, type_, path))
 
