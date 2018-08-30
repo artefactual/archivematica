@@ -49,6 +49,9 @@ class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)
 
+        if jobChainLink.reloadFileList:
+            unit.reloadFileList()
+
         # The list of task groups we'll be executing for this batch of files
         self.taskGroupsLock = threading.Lock()
         self.taskGroups = {}

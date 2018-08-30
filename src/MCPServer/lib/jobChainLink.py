@@ -35,19 +35,23 @@ from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkP
 
 from databaseFunctions import auto_close_db, logJobCreatedSQL, getUTCDate
 
-from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-# Constants
-constOneTask = TaskType.objects.get(description="one instance").pk
-constTaskForEachFile = TaskType.objects.get(description="for each file").pk
-constSelectPathTask = TaskType.objects.get(description="get user choice to proceed with").pk
-constGetReplacementDic = TaskType.objects.get(description="get replacement dic from user choice").pk
-constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = TaskType.objects.get(description="Get microservice generated list in stdOut").pk
-constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.objects.get(description="Get user choice from microservice generated list").pk
-constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTaskManagerSetUnitVariable").pk
-constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
+# This is basically a dump of TaskTypes. It's not worth loading this from the
+# database since it's going to be gone very soon anyways.
+TASK_TYPES = {
+    "36b2e239-4a57-4aa5-8ebc-7a29139baca6": linkTaskManagerDirectories,
+    "a6b1c323-7d36-428e-846a-e7e819423577": linkTaskManagerFiles,
+    "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c": linkTaskManagerChoice,
+    "9c84b047-9a6d-463f-9836-eafa49743b84": linkTaskManagerReplacementDicFromChoice,
+    "a19bfd9f-9989-4648-9351-013a10b382ed": linkTaskManagerGetMicroserviceGeneratedListInStdOut,
+    "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba": linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList,
+    "6f0b612c-867f-4dfd-8e43-5b35b7f882d7": linkTaskManagerSetUnitVariable,
+    "c42184a3-1a7f-4c4d-b380-15d8d97fdd11": linkTaskManagerUnitVariableLinkPull,
+}
 
 
 class jobChainLink:
@@ -87,32 +91,19 @@ class jobChainLink:
 
         logJobCreatedSQL(self)
 
-        if self.createTasks(taskType, taskTypePKReference) is None:
+        if self.run_task_manager(taskType, taskTypePKReference) is None:
             self.getNextChainLinkPK(None)
             # can't have none represent end of chain, and no tasks to process.
             # could return negative?
 
-    def createTasks(self, taskType, taskTypePKReference):
-        if taskType == constOneTask:
-            linkTaskManagerDirectories(self, taskTypePKReference, self.unit)
-        elif taskType == constTaskForEachFile:
-            if self.reloadFileList:
-                self.unit.reloadFileList()
-            linkTaskManagerFiles(self, taskTypePKReference, self.unit)
-        elif taskType == constSelectPathTask:
-            linkTaskManagerChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constGetReplacementDic:
-            linkTaskManagerReplacementDicFromChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerGetMicroserviceGeneratedListInStdOut:
-            linkTaskManagerGetMicroserviceGeneratedListInStdOut(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
-            linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerUnitVariableLinkPull:
-            linkTaskManagerUnitVariableLinkPull(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerSetUnitVariable:
-            linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
-        else:
-            LOGGER.error('Unsupported task type %s', taskType)
+    def run_task_manager(self, taskType, taskTypePKReference):
+        """Execute the task manager corresponding to this link."""
+        try:
+            manager = TASK_TYPES[taskType]
+        except KeyError:
+            LOGGER.exception('Unsupported task type %s', taskType)
+            return
+        manager(self, taskTypePKReference, self.unit)
 
     def getNextChainLinkPK(self, exitCode):
         if exitCode is not None:
