@@ -20,16 +20,16 @@ from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import ugettext_lazy as _
 
 from main.models import DashboardSetting
 
 
 site_url_field = forms.CharField(
-    label=_l('Site URL'),
-    help_text=_l('It defines the public address of this service. This is'
-                 ' needed so the service (which is part of the pipeline)'
-                 ' can be accessede by the Storage Service.'),
+    label=_('Site URL'),
+    help_text=_('It defines the public address of this service. This is'
+                ' needed so the service (which is part of the pipeline)'
+                ' can be accessede by the Storage Service.'),
     required=False,
     widget=TextInput(attrs=settings.INPUT_ATTRS),
 )
@@ -38,8 +38,8 @@ site_url_field = forms.CharField(
 class SuperUserCreationForm(UserCreationForm):
     site_url = site_url_field
     email = forms.EmailField(required=True)
-    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(label=_('Organization name'), help_text=_('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label=_('Organization identifier'), help_text=_('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     class Meta:
         model = User
@@ -66,8 +66,8 @@ class OrganizationForm(forms.Form):
     Simplified version of the superuser form - simply ask for organisation info
     """
     site_url = site_url_field
-    org_name = forms.CharField(label=_l('Organization name'), help_text=_l('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_l('Organization identifier'), help_text=_l('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(label=_('Organization name'), help_text=_('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label=_('Organization identifier'), help_text=_('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     def __init__(self, *args, **kwargs):
         super(OrganizationForm, self).__init__(*args, **kwargs)
