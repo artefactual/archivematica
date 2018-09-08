@@ -158,7 +158,8 @@ def check_manual_normalization(job, opts):
         # If multiple matches, the shortest one should be the correct one. E.g.,
         # if original is /a/b/abc.NEF then /a/b/abc.tif and /a/b/abc_1.tif will
         # both match but /a/b/abc.tif is the correct match.
-        job.print_output('Multiple files matching path {} found. Returning the shortest one.')
+        job.print_output('Multiple files matching path {} found. Returning the'
+                         ' shortest one.'.format(path))
         ret = sorted(matches, key=lambda f: f.currentlocation)[0]
         job.print_output('Returning file at {}'.format(ret.currentlocation))
         return ret
