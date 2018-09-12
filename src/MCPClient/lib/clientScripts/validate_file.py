@@ -5,13 +5,17 @@ db, and/or write command-specific stdout to disk.
 
 If a format has no defined validation commands, no command is run.
 
+`concurrent_instances` is intentionally unused in order to mitigate a problem
+where MediaConch (one of the default validation tools) may block forever if
+there are more than one instance running in the same machine. See
+https://github.com/archivematica/Issues/issues/44 for more details.
+
 Arguments:
     [FILE_PATH] [FILE_UUID] [SIP_UUID] [SHARED_PATH] [FILE_TYPE]
 
 """
 
 import ast
-import multiprocessing
 import os
 from pprint import pformat
 import sys
@@ -29,10 +33,6 @@ from dicts import replace_string_values
 
 from django.conf import settings as mcpclient_settings
 from lib import setup_dicts
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 SUCCESS_CODE = 0
