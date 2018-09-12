@@ -25,7 +25,6 @@ import argparse
 import os
 from pprint import pformat
 import shutil
-import sys
 from uuid import uuid4
 
 # storageService requires Django to be set up
@@ -43,6 +42,39 @@ from archivematicaFunctions import escape
 
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
+
+
+class StorageServiceCreateFileError(Exception):
+    pass
+
+
+def _create_file(uuid, current_location, relative_aip_path,
+                 aip_destination_uri, current_path, package_type, aip_subtype,
+                 size, sip_type, related_package_uuid):
+    try:
+        new_file = storage_service.create_file(
+            uuid=uuid,
+            origin_location=current_location['resource_uri'],
+            origin_path=relative_aip_path,
+            current_location=aip_destination_uri,
+            current_path=current_path,
+            package_type=package_type,
+            aip_subtype=aip_subtype,
+            size=size,
+            update='REIN' in sip_type,
+            related_package_uuid=related_package_uuid,
+            events=get_events_from_db(uuid),
+            agents=get_agents_from_db(uuid)
+        )
+    except storage_service.Error as err:
+        raise StorageServiceCreateFileError(err)
+    if new_file is None:
+        raise StorageServiceCreateFileError(
+            'Value returned by Storage Service is unexpected')
+    if new_file.get('status') == 'FAIL':
+        raise StorageServiceCreateFileError(
+            'Object returned by Storage Service has status "FAIL"')
+    return new_file
 
 
 def get_upload_dip_path(aip_path):
@@ -173,36 +205,26 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         aip_subtype = dc.type
 
     # Store the AIP
-    (new_file, error_msg) = storage_service.create_file(
-        uuid=uuid,
-        origin_location=current_location['resource_uri'],
-        origin_path=relative_aip_path,
-        current_location=aip_destination_uri,
-        current_path=current_path,
-        package_type=package_type,
-        aip_subtype=aip_subtype,
-        size=size,
-        update='REIN' in sip_type,
-        related_package_uuid=related_package_uuid,
-        events=get_events_from_db(uuid),
-        agents=get_agents_from_db(uuid)
-    )
+    try:
+        new_file = _create_file(
+            uuid, current_location, relative_aip_path, aip_destination_uri,
+            current_path, package_type, aip_subtype, size, sip_type,
+            related_package_uuid)
+    except StorageServiceCreateFileError as err:
+        errmsg = '{} creation failed: {}.'.format(sip_type, err)
+        logger.warning(errmsg)
+        raise Exception(errmsg + " See logs for more details.")
 
-    if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Storage service created {}:\n{}".format(
-            sip_type, pformat(new_file))
-        logger.info(message)
-        job.pyprint(message)
-        # Once the DIP is stored, remove it from the uploadDIP watched directory as
-        # it will no longer need to be referenced from there by the user or the
-        # system.
-        rmtree_upload_dip_transitory_loc(package_type, aip_path)
-        return 0
-    else:
-        job.pyprint("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
-        job.pyprint(error_msg or "Package status: Failed", file=sys.stderr)
-        logger.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
-        return 1
+    message = "Storage Service created {}:\n{}".format(
+        sip_type, pformat(new_file))
+    logger.info(message)
+    job.pyprint(message)
+
+    # Once the DIP is stored, remove it from the uploadDIP watched directory as
+    # it will no longer need to be referenced from there by the user or the
+    # system.
+    rmtree_upload_dip_transitory_loc(package_type, aip_path)
+    return 0
 
     # FIXME this should be moved to the storage service and areas that rely
     # on the thumbnails should be updated
@@ -286,5 +308,6 @@ def call(jobs):
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
-                job.set_status(store_aip(job, args.aip_destination_uri, args.aip_filename,
-                                         args.sip_uuid, args.sip_name, args.sip_type))
+                job.set_status(store_aip(
+                    job, args.aip_destination_uri, args.aip_filename,
+                    args.sip_uuid, args.sip_name, args.sip_type))

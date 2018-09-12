@@ -16,16 +16,16 @@ from archivematicaFunctions import get_setting
 LOGGER = logging.getLogger("archivematica.common")
 
 
-class ResourceNotFound(Exception):
+class Error(requests.exceptions.RequestException):
     pass
 
 
-class BadRequest(Exception):
+class ResourceNotFound(Error):
     pass
 
 
-class StorageServiceError(Exception):
-    """Error related to the storage service."""
+class WaitForAsyncError(Error):
+    pass
 
 
 # ####################### INTERFACE WITH STORAGE API #########################
@@ -212,26 +212,24 @@ def wait_for_async(response, poll_seconds=2, poll_timeout_seconds=600):
     `poll_timeout_seconds` controls how long we wait for a poll request to
     complete before giving up and throwing an exception.
 
-    Returns a tuple like (<result>, <error>), where <error> will be None if
-    everything went well.
+    This function may raise exceptions. The caller can expect them to be
+    instances of ``requests.exceptions.RequestException``.
     """
     response.raise_for_status()
-
     poll_url = response.headers['Location']
-
     while True:
-        poll_response = _storage_api_session(timeout=poll_timeout_seconds).get(poll_url)
+        poll_response = _storage_api_session(
+            timeout=poll_timeout_seconds).get(poll_url)
         poll_response.raise_for_status()
-
-        response_json = poll_response.json()
-        if response_json['completed']:
-            if response_json['was_error']:
-                LOGGER.warning("Failure storing file: %s", response_json['error'])
-                return (None, Exception(response_json['error']))
-            else:
-                return (response_json['result'], None)
-
-        time.sleep(poll_seconds)
+        payload = poll_response.json()
+        if not payload['completed']:
+            time.sleep(poll_seconds)
+            continue
+        if payload['was_error']:
+            errmsg = 'Failure storing file: {}'.format(payload['error'])
+            LOGGER.warning(errmsg)
+            raise WaitForAsyncError(errmsg)
+        return payload['result']
 
 
 def copy_files(source_location, destination_location, files):
@@ -268,7 +266,7 @@ def copy_files(source_location, destination_location, files):
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/async/'
     try:
         response = _storage_api_session().post(url, json=move_files)
-        return wait_for_async(response)
+        return (wait_for_async(response), None)
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e)
         return (None, e)
@@ -294,16 +292,21 @@ def create_file(uuid, origin_location, origin_path, current_location,
                 current_path, package_type, size, update=False,
                 related_package_uuid=None, events=None, agents=None,
                 aip_subtype=None):
-    """Creates a new file. Returns a tuple of (resulting dict, None) on
-    success, (None, error) on failure. Note: for backwards compatibility
-    reasons, the SS API calls "packages" "files" and this function should be
-    read as ``create_package``.
+    """Creates a new file.
 
-    origin_location and current_location should be URIs for the storage service.
+    Note: for backwards compatibility reasons, the SS
+    API calls "packages" "files" and this function should be read as
+    ``create_package``.
+
+    ``origin_location`` and ``current_location`` should be URIs for the
+    Storage Service.
+
+    Returns a dict with the decoded JSON response from the SS API. It may raise
+    ``RequestException`` if the SS API call fails.
     """
     pipeline = get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
-        return (None, 'Pipeline not available, see logs.')
+        raise ResourceNotFound('Pipeline not available')
     if events is None:
         events = []
     if agents is None:
@@ -324,21 +327,34 @@ def create_file(uuid, origin_location, origin_path, current_location,
     }
 
     LOGGER.info("Creating file with %s", new_file)
-    try:
-        if update:
+    errmsg = "Unable to create file from %s because %s"
+
+    ret = None
+    if update:
+        try:
             session = _storage_api_slow_session()
             new_file['reingest'] = pipeline['uuid']
             url = _storage_service_url() + 'file/' + uuid + '/'
             response = session.put(url, json=new_file)
-            return (response.json(), None)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as err:
+            LOGGER.warning(errmsg, new_file, err)
+            raise
         else:
+            ret = response.json()
+    else:
+        try:
             session = _storage_api_session()
             url = _storage_service_url() + 'file/async/'
             response = session.post(url, json=new_file, allow_redirects=False)
-            return wait_for_async(response)
-    except requests.exceptions.RequestException as e:
-        LOGGER.warning("Unable to create file from %s because %s", new_file, e)
-        return (None, e)
+            ret = wait_for_async(response)
+        except requests.exceptions.RequestException as err:
+            LOGGER.warning(errmsg, new_file, err)
+            raise
+
+    LOGGER.info('Status code of create file/package request: %s',
+                response.status_code)
+    return ret
 
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
@@ -482,15 +498,24 @@ def get_file_metadata(**kwargs):
 
 
 def remove_files_from_transfer(transfer_uuid):
+    """Used in ``devtools:tools/reindex-backlogged-transfers``.
+
+    TODO: move tool to Dashboard management commands.
+    """
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
     _storage_api_slow_session().delete(url)
 
 
 def index_backlogged_transfer_contents(transfer_uuid, file_set):
+    """Used by ``devtools:tools/reindex-backlogged-transfers``.
+
+    TODO: move tool to Dashboard management commands.
+    """
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
     response = _storage_api_slow_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
-        raise BadRequest("Unable to add files to transfer: {}".format(response.text))
+        raise Error(
+            "Unable to add files to transfer: {}".format(response.text))
 
 
 def reindex_file(transfer_uuid):
