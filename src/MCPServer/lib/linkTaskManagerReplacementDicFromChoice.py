@@ -46,27 +46,33 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         for i, dic in enumerate(dicts):
             self.choices.append((i, dic.description, dic.replacementdic))
 
-        # This is an attempt to find a choice in DashboardSettings for the
-        # chain link that the current MicroServiceChoiceReplacementDic is
-        # taking us. We're looking up the setting dict by the module name
-        # that the StandardTaskConfig wants to execute, e.g. upload-qubit_v0.0.
+        # There are MicroServiceChoiceReplacementDic links with no
+        # replacements (``self.choices`` has zero elements at this point). This
+        # is true for the following chain links:
         #
-        # Not implemented yet, but this could enable us to store more than a
-        # configuration set a specific chain link.
+        #   - ``Choose Config for Archivists Toolkit DIP Upload``
+        #   - ``Choose config for AtoM DIP upload``
+        #   - ``Choose Config for ArchivesSpace DIP Upload``
         #
-        # DashboardSettings does not belong to MCPServer. We currently have
-        # direct access to the database but that may not be always possible.
-        try:
-            mscl = MicroServiceChainLink.objects.get(id=jobChainLink.pk)
-            task_id = mscl.defaultnextchainlink.currenttask.tasktypepkreference
-            stc = StandardTaskConfig.objects.get(id=task_id)
-        except (MicroServiceChainLink.DoesNotExist, StandardTaskConfig.DoesNotExist, AttributeError):
-            pass
-        else:
-            args = DashboardSetting.objects.get_dict(stc.execute)
-            if args:
-                args = {'%{}%'.format(key): value for key, value in args.items()}
-                self.choices.append((len(self.choices), stc.execute, str(args)))
+        # The only purpose of these links is to  load settings from the
+        # Dashboard configuration store (``DashboardSetting``), e.g.
+        # connection details or credentials that are needed to perform the
+        # upload of the DIP to the remote system.
+        #
+        # Once the settings are loaded, we proceed with the next chain link
+        # automatically instead of prompting the user with a single choice
+        # which was considered inconvenient and confusing. In the future, it
+        # should be possible to prompt the user only if we want to have the
+        # user decide between multiple configurations, e.g. more than one
+        # AtoM instance is available and the user wants to decide which one is
+        # going to be used.
+        rdict = self._get_dashboard_setting_choice()
+        if rdict and not self.choices:
+            LOGGER.debug('Found Dashboard settings for this task, proceed.')
+            self.update_passvar_replacement_dict(rdict)
+            self.jobChainLink.linkProcessingComplete(
+                0, passVar=self.jobChainLink.passVar)
+            return
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
@@ -82,6 +88,29 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
+
+    def _format_items(self, items):
+        """Wrap replacement items with the ``%`` wildcard character."""
+        return {'%{}%'.format(key): value
+                for key, value in items.items()}
+
+    def _get_dashboard_setting_choice(self):
+        """Load settings associated to this task into a ``ReplacementDict``.
+
+        The model used (``DashboardSetting``) is a shared model.
+        """
+        try:
+            mscl = MicroServiceChainLink.objects.get(id=self.jobChainLink.pk)
+            task_id = mscl.defaultnextchainlink.currenttask.tasktypepkreference
+            stc = StandardTaskConfig.objects.get(id=task_id)
+        except (MicroServiceChainLink.DoesNotExist,
+                StandardTaskConfig.DoesNotExist,
+                AttributeError):
+            return
+        args = DashboardSetting.objects.get_dict(stc.execute)
+        if not args:
+            return
+        return ReplacementDict(self._format_items(args))
 
     def checkForPreconfiguredXML(self):
         ret = None
