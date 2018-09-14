@@ -32,6 +32,15 @@ def main(job, sip_uuid, dc_path):
             job.pyprint("Invalid DC attribute:", key, file=sys.stderr)
 
     dc.save()
+
+    # ``dc.json`` was copied to ingest so the code above could read it, but we
+    # don't need it anymore so we're removing it.
+    try:
+        job.pyprint('Removing "dc.json":', dc_path)
+        os.remove(dc_path)
+    except Exception as err:
+        job.pyprint('Unable to remove "dc.json":', err)
+
     return 0
 
 

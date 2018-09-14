@@ -130,6 +130,15 @@ def call(jobs):
 
                 archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
 
+                # Copy the JSON metadata file, if present; this contains a
+                # serialized copy of DC metadata entered in the dashboard UI
+                # during the transfer.
+                src = os.path.normpath(os.path.join(
+                    objectsDirectory, "..", "metadata", "dc.json"))
+                dst = os.path.join(tmpSIPDir, "metadata", "dc.json")
+                if os.path.exists(src):
+                    shutil.copy(src, dst)
+
                 # Copy processingMCP.xml file
                 src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
                 dst = os.path.join(tmpSIPDir, "processingMCP.xml")
