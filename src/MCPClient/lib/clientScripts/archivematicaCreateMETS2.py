@@ -1102,21 +1102,16 @@ def create_object_metadata(struct_map, baseDirectoryPath):
         xmldata = etree.SubElement(mdwrap, ns.metsBNS + 'xmlData')
         bag_metadata = etree.SubElement(xmldata, "transfer_metadata")
         for key, value in bagdata.items():
-            if isinstance(value, (list,)):
-                for v in value:
-                    try:
-                        bag_tag = etree.SubElement(bag_metadata, key)
-                    except ValueError:
-                        print("Skipping bag key {}; not a valid XML tag name".format(key), file=sys.stderr)
-                        continue
-                    bag_tag.text = v
-            else:
+            if not isinstance(value, list):
+                value = [value]
+            for v in value:
                 try:
                     bag_tag = etree.SubElement(bag_metadata, key)
                 except ValueError:
-                    print("Skipping bag key {}; not a valid XML tag name".format(key), file=sys.stderr)
+                    print("Skipping bag key {}; not a"
+                          " valid XML tag name".format(key), file=sys.stderr)
                     continue
-                bag_tag.text = value
+                bag_tag.text = v
 
     return el
 
