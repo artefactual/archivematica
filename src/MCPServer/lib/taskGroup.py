@@ -25,11 +25,10 @@ import databaseFunctions
 import uuid
 import cPickle
 import logging
-
-from fileOperations import writeToFile
+import os
 
 from django.db import transaction
-from django.utils import timezone
+from django.utils import six, timezone
 
 LOGGER = logging.getLogger('archivematica.mcp.server.taskGroup')
 
@@ -121,6 +120,21 @@ class TaskGroup():
 
         return cPickle.dumps(result)
 
+    def _write_file_to_disk(self, path, contents):
+        """Write the bytes in ``contents`` to ``path`` in append mode.
+
+        The mode of ``path`` is adjusted to ensure that it's not readable by
+        ``others``.
+        """
+        if not all((path, contents)):
+            return
+        try:
+            with open(path, 'a') as f:
+                f.write(contents)
+            os.chmod(path, 0o750)
+        except Exception as err:
+            LOGGER.warning('Unable to write to: %s: %s', path, err)
+
     def write_output(self):
         """
         Write the stdout/stderror we got from MCP Client out to files if
@@ -128,19 +142,12 @@ class TaskGroup():
         """
         for task in self.groupTasks:
             with task.outputLock:
-                if task.standardOutputFile:
-                    try:
-                        writeToFile(task.results['stdout'], task.standardOutputFile)
-                    except Exception as e:
-                        LOGGER.warning("Unable to write to: %s: %s", task.standardOutputFile, str(e))
-                        LOGGER.exception(e)
-
-                if task.standardErrorFile:
-                    try:
-                        writeToFile(task.results['stderror'], task.standardErrorFile)
-                    except Exception as e:
-                        LOGGER.warning("Unable to write to: %s: %s", task.standardErrorFile, str(e))
-                        LOGGER.exception(e)
+                self._write_file_to_disk(
+                    task.standardOutputFile,
+                    six.binary_type(task.results['stdout']))
+                self._write_file_to_disk(
+                    task.standardErrorFile,
+                    six.binary_type(task.results['stderror']))
 
     class Task():
         """
