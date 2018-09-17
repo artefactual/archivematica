@@ -24,7 +24,7 @@ import lxml.etree as etree
 import uuid
 
 from unit import unit
-from utils import isUUID
+from utils import valid_uuid
 
 from main.models import Transfer
 from dicts import ReplacementDict
@@ -51,7 +51,7 @@ class unitTransfer(unit):
 
         if not UUID:
             uuidLen = -36
-            if isUUID(currentPath[uuidLen - 1:-1]):
+            if valid_uuid(currentPath[uuidLen - 1:-1]):
                 UUID = currentPath[uuidLen - 1:-1]
             else:
                 UUID = str(uuid.uuid4())

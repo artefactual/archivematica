@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -18,17 +19,13 @@ def log_exceptions(fn):
     return wrapped
 
 
-def isUUID(uuid):
-    """Return boolean of whether it's string representation of a UUID v4"""
-    split = uuid.split("-")
-    if len(split) != 5 \
-            or len(split[0]) != 8 \
-            or len(split[1]) != 4 \
-            or len(split[2]) != 4 \
-            or len(split[3]) != 4 \
-            or len(split[4]) != 12:
+def valid_uuid(string):
+    """Validate that ``string`` contains a valid UUID, it returns a boolean."""
+    try:
+        ret = UUID(string, version=4)
+    except Exception:
         return False
-    return True
+    return ret.hex == string.replace('-', '')
 
 
 # Maps decision point UUIDs and decision UUIDs to their "canonical"
