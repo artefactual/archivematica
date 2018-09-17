@@ -62,7 +62,7 @@ from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
-from utils import isUUID
+from utils import valid_uuid
 import RPCServer
 
 from archivematicaFunctions import unicodeToStr
@@ -82,7 +82,7 @@ stopSignalReceived = False  # Tracks whether a sigkill has been received or not
 def fetchUUIDFromPath(path):
     # find UUID on end of SIP path
     uuidLen = -36
-    if isUUID(path[uuidLen - 1:-1]):
+    if valid_uuid(path[uuidLen - 1:-1]):
         return path[uuidLen - 1:-1]
 
 
