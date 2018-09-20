@@ -10,7 +10,6 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.7.x/ubuntu-externals xenial main",
     "deb [arch=amd64] http://packages.archivematica.org/1.8.x/ubuntu-externals bionic main",
     "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe",
