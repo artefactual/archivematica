@@ -76,7 +76,7 @@ def call(jobs):
                 # Create row in SIPs table if one doesn't already exist
                 lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
                 try:
-                    sip = SIP.objects.get(currentpath=lookup_path).uuid
+                    sip = SIP.objects.get(currentpath=lookup_path)
                     if diruuids:
                         sip.diruuids = True
                         sip.save()
