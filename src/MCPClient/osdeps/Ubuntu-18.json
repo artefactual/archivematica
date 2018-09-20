@@ -32,7 +32,6 @@
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "nailgun", "state": "latest"},
-  { "name": "nailgun-client", "state": "latest"},
   { "name": "mediaconch", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
   { "name": "nfs-common", "state": "latest"},
