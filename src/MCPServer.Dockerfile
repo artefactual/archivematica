@@ -17,8 +17,8 @@ RUN set -ex \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set the locale
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
@@ -42,4 +42,4 @@ RUN set -ex \
 
 USER archivematica
 
-ENTRYPOINT /src/MCPServer/lib/archivematicaMCP.py
+ENTRYPOINT ["/src/MCPServer/lib/archivematicaMCP.py"]

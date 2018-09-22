@@ -25,4 +25,4 @@ COPY archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/ar
 
 USER archivematica
 
-ENTRYPOINT /src/MCPClient/lib/archivematicaClient.py
+ENTRYPOINT ["/src/MCPClient/lib/archivematicaClient.py"]

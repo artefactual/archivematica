@@ -20,9 +20,9 @@ RUN set -ex \
 		locales-all \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Set the locale  
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
+# Set the locale
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
@@ -60,4 +60,4 @@ RUN env \
 
 EXPOSE 8000
 
-ENTRYPOINT /usr/local/bin/gunicorn --config=/etc/archivematica/dashboard.gunicorn-config.py wsgi:application
+ENTRYPOINT ["/usr/local/bin/gunicorn", "--config=/etc/archivematica/dashboard.gunicorn-config.py", "wsgi:application"]
