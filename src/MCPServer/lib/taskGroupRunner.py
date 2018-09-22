@@ -149,6 +149,7 @@ class TaskGroupRunner():
                     time.sleep(5)
 
         self.poll_thread = threading.Thread(target=event_loop)
+        self.poll_thread.daemon = True
         self.poll_thread.start()
 
     def _finish_task_group_job(self, task_group_job):
