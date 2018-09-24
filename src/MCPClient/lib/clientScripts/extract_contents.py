@@ -15,11 +15,16 @@ from main.models import Directory, FileFormatVersion, File, Transfer
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
-from fileOperations import addFileToTransfer, updateSizeAndChecksum, rename
+from fileOperations import (
+    addFileToTransfer,
+    updateSizeAndChecksum,
+    rename,
+    updateFileLocation,
+)
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
-from has_packages import already_extracted
+from has_packages import already_extracted, AM_DATE_DELIMITER
 
 file_path_cache = {}
 
@@ -28,13 +33,8 @@ logger = get_script_logger("archivematica.mcp.client.extractContents")
 TRANSFER_DIRECTORY = "%transferDirectory%"
 
 
-def temporary_directory(file_path, date):
-    if file_path_cache.get(file_path):
-        return file_path_cache[file_path]
-    else:
-        path = file_path + '-' + date
-        file_path_cache[file_path] = path
-        return path
+def suffix_date(file_path, date):
+    return file_path + AM_DATE_DELIMITER + date
 
 
 def tree(root):
@@ -162,22 +162,22 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         output_file_path = file_.currentlocation.replace(TRANSFER_DIRECTORY,
                                                          sip_directory)
 
-        # Temporarily rename the input package so that when we extract the
+        # Rename the input package so that when we extract the
         # contents we don't extract it to a directory that will conflict with
         # the names we want to preserve in our PREMIS:originalLocation.
-        temp_dir = temporary_directory(output_file_path, date)
-        rename(output_file_path, temp_dir)
+        new_package_realpath = suffix_date(output_file_path, date)
+        rename(output_file_path, new_package_realpath)
 
         # Create the extract packages command.
         if command.script_type == 'command' or command.script_type == 'bashScript':
             args = []
             command_to_execute = command.command.replace('%inputFile%',
-                                                         temp_dir)
+                                                         new_package_realpath)
             command_to_execute = command_to_execute.replace('%outputDirectory%',
                                                             output_file_path)
         else:
             command_to_execute = command.command
-            args = [temp_dir, output_file_path]
+            args = [new_package_realpath, output_file_path]
 
         # Make the command clear to users when inspecting stdin/stdout.
         logger.info("Command to execute is: %s", command_to_execute)
@@ -210,11 +210,26 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
                 create_extracted_dir_uuids(
                     job, transfer_mdl, output_file_path, sip_directory, file_)
 
-            # We may want to remove the original package file after extracting
-            # its contents
             if delete:
+                # Remove the original package file after extracting its contents
                 delete_and_record_package_file(
-                    job, temp_dir, file_.uuid, file_.currentlocation)
+                    job, new_package_realpath, file_.uuid, file_.currentlocation)
+            else:
+                # Or document the moving of the package file.
+                old_currentlocation = file_.currentlocation
+                new_currentlocation = suffix_date(old_currentlocation, date)
+                event_outcome_detail_note = (
+                    'moved from="{}"; moved to="{}"'.format(
+                        old_currentlocation, new_currentlocation))
+                updateFileLocation(
+                    old_currentlocation,
+                    new_currentlocation,
+                    eventType='movement',
+                    eventDateTime=date,
+                    eventDetail='',
+                    fileUUID=file_.uuid,
+                    transferUUID=transfer_uuid,
+                    eventOutcomeDetailNote=event_outcome_detail_note)
 
     if extracted:
         return 0
