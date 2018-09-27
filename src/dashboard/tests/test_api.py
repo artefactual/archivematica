@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 
@@ -10,6 +11,7 @@ from lxml import etree
 
 from components.api import views
 from components import helpers
+from main.models import SIP, Transfer
 from processing import install_builtin_config
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,10 +22,31 @@ def load_fixture(fixtures):
     call_command('loaddata', *fixtures, **{'verbosity': 0})
 
 
+def e2e(fn):
+    """Use this decorator when your test uses the HTTP client."""
+    def _wrapper(self, *args):
+        load_fixture(['test_user.json'])
+        self.client = Client()
+        self.client.login(username='test', password='test')
+        helpers.set_setting('dashboard_uuid', 'test-uuid')
+        return fn(self, *args)
+    return _wrapper
+
+
 class TestAPI(TestCase):
     """Test API endpoints."""
     fixture_files = ['transfer.json', 'sip.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def _test_api_error(self, response, message=None, status_code=None):
+        payload = json.loads(response.content)
+        assert payload["error"] is True
+        if message is not None:
+            assert payload["message"] == message
+        else:
+            assert "message" in payload
+        if status_code is not None:
+            assert response.status_code == status_code
 
     def test_get_unit_status_processing(self):
         """It should return PROCESSING."""
@@ -134,6 +157,91 @@ class TestAPI(TestCase):
         assert 'microservice' in status
         assert status['status'] == 'COMPLETE'
         assert len(completed) == 1
+
+    @e2e
+    def test_status(self):
+        load_fixture(['jobs-transfer-complete.json'])
+        resp = self.client.get(
+            '/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e')
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert payload["status"] == "COMPLETE"
+        assert payload["type"] == "transfer"
+        assert payload["uuid"] == "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+
+    @e2e
+    def test_status_with_bogus_unit(self):
+        """It should return a 400 error as the status cannot be determined."""
+        bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
+        Transfer.objects.create(uuid=bogus_transfer_id)
+        resp = self.client.get(
+            "/api/transfer/status/{}".format(bogus_transfer_id))
+        self._test_api_error(resp, status_code=400, message=(
+            "Unable to determine the status of the unit {}".format(
+                bogus_transfer_id)))
+
+    def test__completed_units(self):
+        load_fixture(['jobs-transfer-complete.json'])
+        completed = views._completed_units()
+        assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
+
+    def test__completed_units_with_bogus_unit(self):
+        """Bogus units should be excluded and handled gracefully."""
+        load_fixture(['jobs-transfer-complete.json'])
+        Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+        try:
+            completed = views._completed_units()
+        except Exception as err:
+            self.fail("views._completed_units raised unexpected exception", err)
+        assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
+
+    @e2e
+    def test_completed_transfers(self):
+        load_fixture(['jobs-transfer-complete.json'])
+        resp = self.client.get("/api/transfer/completed")
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert payload == {
+            "message": "Fetched completed transfers successfully.",
+            "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
+        }
+
+    @e2e
+    def test_completed_transfers_with_bogus_transfer(self):
+        """Bogus transfers should be excluded and handled gracefully."""
+        load_fixture(['jobs-transfer-complete.json'])
+        Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+        resp = self.client.get("/api/transfer/completed")
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert payload == {
+            "message": "Fetched completed transfers successfully.",
+            "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
+        }
+
+    @e2e
+    def test_completed_ingests(self):
+        load_fixture(['jobs-sip-complete.json'])
+        resp = self.client.get("/api/ingest/completed")
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert payload == {
+            "message": "Fetched completed ingests successfully.",
+            "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
+        }
+
+    @e2e
+    def test_completed_ingests_with_bogus_sip(self):
+        """Bogus ingests should be excluded and handled gracefully."""
+        load_fixture(['jobs-sip-complete.json'])
+        SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
+        resp = self.client.get("/api/ingest/completed")
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert payload == {
+            "message": "Fetched completed ingests successfully.",
+            "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
+        }
 
 
 class TestProcessingConfigurationAPI(TestCase):
