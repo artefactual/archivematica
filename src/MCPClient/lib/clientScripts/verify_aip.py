@@ -156,13 +156,14 @@ def verify_checksums(job, bag, sip_uuid):
     is_reingest = 'REIN' in SIP.objects.get(uuid=sip_uuid).sip_type
     checksum_type = get_setting(
         'checksum_type', mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM)
+    removableFiles = [e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(',')]
     try:
         manifest_path = get_manifest_path(job, bag, sip_uuid, checksum_type)
         path2checksum = parse_manifest(job, manifest_path, sip_uuid, checksum_type)
         verification_count = 0
         verification_skipped_because_reingest = 0
         for file_ in File.objects.filter(sip_id=sip_uuid):
-            if not file_.currentlocation.startswith('%SIPDirectory%objects/'):
+            if (os.path.basename(file_.originallocation) in removableFiles) or (not file_.currentlocation.startswith('%SIPDirectory%objects/')):
                 continue
             file_path = file_.currentlocation.replace('%SIPDirectory%', '', 1)
             assert_checksum_types_match(job, file_, sip_uuid, checksum_type)
