@@ -234,7 +234,12 @@ def status(request, unit_uuid, unit_type):
     response['uuid'] = unit_uuid
 
     # Get status (including new SIP uuid, current microservice)
-    status_info = get_unit_status(unit_uuid, unit_type)
+    try:
+        status_info = get_unit_status(unit_uuid, unit_type)
+    except IndexError as err:
+        msg = "Unable to determine the status of the unit {}".format(unit_uuid)
+        LOGGER.error("%s (%s)", msg, err)
+        return _error_response(msg, status_code=400)
     response.update(status_info)
 
     if error is not None:
@@ -360,10 +365,19 @@ def _completed_units(unit_type='transfer'):
     model = getattr(models, model_name)
     completed = []
     units = model.objects.filter(hidden=False)
+    status_err = None
     for unit in units:
-        status = get_unit_status(unit.uuid, 'unit{0}'.format(model_name))
+        try:
+            status = get_unit_status(unit.uuid, 'unit{0}'.format(model_name))
+        except IndexError as err:
+            status_err = err
+            continue
         if status.get('status') == 'COMPLETE':
             completed.append(unit.uuid)
+    if status_err:
+        LOGGER.warning(
+            "Unable to determine status of at least one unit,"
+            " e.g.: unit %s (%s)", unit.uuid, model_name)
     return completed
 
 
