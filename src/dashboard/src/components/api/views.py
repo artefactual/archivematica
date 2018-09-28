@@ -424,7 +424,10 @@ def approve_transfer(request):
     if modified_transfer_path is None:
         return _error_response("Invalid transfer type.", status_code=500)
 
-    db_transfer_path = os.path.join(modified_transfer_path, directory, "")
+    if transfer_type == 'zipped bag':
+        db_transfer_path = os.path.join(modified_transfer_path, directory)
+    else:
+        db_transfer_path = os.path.join(modified_transfer_path, directory, "")
 
     try:
         client = MCPClient()

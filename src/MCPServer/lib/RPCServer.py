@@ -172,7 +172,7 @@ def approve_transfer_by_path_handler(*args, **kwargs):
         currentstep=Job.STATUS_AWAITING_DECISION
     ).first()
     if not job:
-        raise NotFoundError("There is no job awaiting for a decision.")
+        raise NotFoundError("There is no job awaiting a decision.")
     chain_id = get_approve_transfer_chain_id(transfer_type)
     try:
         choicesAvailableForUnits[job.pk].proceedWithChoice(
