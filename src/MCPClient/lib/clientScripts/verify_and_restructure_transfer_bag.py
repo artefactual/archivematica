@@ -57,7 +57,7 @@ def restructureBagForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, 
         else:
             if not os.path.isdir(dirPath):
                 job.pyprint("creating: ", dir)
-                os.makedirs(dirPath)
+                os.mkdir(dirPath)
     for item in os.listdir(unitPath):
         src = os.path.join(unitPath, item)
         if os.path.isfile(src):
