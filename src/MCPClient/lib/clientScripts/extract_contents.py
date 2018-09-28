@@ -15,7 +15,7 @@ from main.models import Directory, FileFormatVersion, File, Transfer
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
-from fileOperations import addFileToTransfer, updateSizeAndChecksum, rename
+from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
@@ -43,34 +43,28 @@ def tree(root):
             yield os.path.join(dirpath, file)
 
 
-def assign_uuid(job, filename, package_uuid, transfer_uuid, date, task_uuid,
-                sip_directory, package_filename, original_location,
-                sanitized_original_location):
+def assign_uuid(job, filename, extracted_file_original_location, package_uuid,
+                transfer_uuid, date, task_uuid, sip_directory,
+                package_filename):
     """Assign a uuid to each file in the extracted package."""
-    file_uuid = uuid.uuid4().__str__()
-    location_to_replace = format_subdir_path(sanitized_original_location,
-                                             sip_directory)
+    file_uuid = str(uuid.uuid4())
     # Correct the information in the path strings sent to this function. First
     # remove the SIP directory from the string. Second, make sure that file
     # paths have not been modified for processing purpose, i.e. in
     # Archivematica current terminology, sanitized.
     relative_path = filename.replace(sip_directory, TRANSFER_DIRECTORY, 1)
-    transfer_path = relative_path.replace(location_to_replace,
-                                          os.path.join(original_location, ''))
     relative_package_path = package_filename.replace(sip_directory,
                                                      TRANSFER_DIRECTORY, 1)
     package_detail = "{} ({})".format(relative_package_path, package_uuid)
     event_detail = "Unpacked from: " + package_detail
     addFileToTransfer(relative_path, file_uuid, transfer_uuid, task_uuid, date,
                       sourceType="unpacking", eventDetail=event_detail,
-                      originalLocation=transfer_path)
-    updateSizeAndChecksum(file_uuid, filename, date, uuid.uuid4().__str__())
+                      originalLocation=extracted_file_original_location)
+    updateSizeAndChecksum(file_uuid, filename, date, str(uuid.uuid4()))
     job.pyprint('Assigning new file UUID:', file_uuid, 'to file', filename)
 
 
-def _get_subdir_paths(job, root_path,
-                      path_prefix_to_repl,
-                      original_location):
+def _get_subdir_paths(job, root_path, path_prefix_to_repl, original_location):
     """Return a generator of subdirectory paths in ``root_path`` with
     the ancestor path ``path_prefix_to_repl`` replaced by a placeholder
     string. ``original_location`` should be the zip container that the content
@@ -159,25 +153,21 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
                         file=sys.stderr)
             continue
 
-        output_file_path = file_.currentlocation.replace(TRANSFER_DIRECTORY,
-                                                         sip_directory)
-
-        # Temporarily rename the input package so that when we extract the
-        # contents we don't extract it to a directory that will conflict with
-        # the names we want to preserve in our PREMIS:originalLocation.
-        temp_dir = temporary_directory(output_file_path, date)
-        rename(output_file_path, temp_dir)
+        file_to_be_extracted_path = file_.currentlocation.replace(
+            TRANSFER_DIRECTORY, sip_directory)
+        extraction_target = temporary_directory(file_to_be_extracted_path, date)
 
         # Create the extract packages command.
-        if command.script_type == 'command' or command.script_type == 'bashScript':
+        if (command.script_type == 'command' or
+                command.script_type == 'bashScript'):
             args = []
-            command_to_execute = command.command.replace('%inputFile%',
-                                                         temp_dir)
-            command_to_execute = command_to_execute.replace('%outputDirectory%',
-                                                            output_file_path)
+            command_to_execute = command.command.replace(
+                '%inputFile%', file_to_be_extracted_path)
+            command_to_execute = command_to_execute.replace(
+                '%outputDirectory%', extraction_target)
         else:
             command_to_execute = command.command
-            args = [temp_dir, output_file_path]
+            args = [file_to_be_extracted_path, extraction_target]
 
         # Make the command clear to users when inspecting stdin/stdout.
         logger.info("Command to execute is: %s", command_to_execute)
@@ -196,25 +186,28 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         else:
             extracted = True
             job.pyprint('Extracted contents from',
-                        os.path.basename(output_file_path))
+                        os.path.basename(file_to_be_extracted_path))
 
-            # Assign UUIDs and insert them into the database, so the newly-
+            # Assign UUIDs and insert them into the database, so the newly
             # extracted files are properly tracked by Archivematica
-            for extracted_file in tree(output_file_path):
+            for extracted_file in tree(extraction_target):
+                extracted_file_original_location = extracted_file.replace(
+                    extraction_target, file_.originallocation, 1)
                 assign_uuid(
-                    job, extracted_file, file_.uuid, transfer_uuid, date,
-                    task_uuid, sip_directory, file_.currentlocation,
-                    file_.originallocation, output_file_path)
+                    job, extracted_file, extracted_file_original_location,
+                    file_.uuid, transfer_uuid, date, task_uuid, sip_directory,
+                    file_to_be_extracted_path)
 
             if transfer_mdl.diruuids:
                 create_extracted_dir_uuids(
-                    job, transfer_mdl, output_file_path, sip_directory, file_)
+                    job, transfer_mdl, extraction_target, sip_directory, file_)
 
             # We may want to remove the original package file after extracting
             # its contents
             if delete:
                 delete_and_record_package_file(
-                    job, temp_dir, file_.uuid, file_.currentlocation)
+                    job, file_to_be_extracted_path, file_.uuid,
+                    file_.currentlocation)
 
     if extracted:
         return 0
@@ -223,16 +216,16 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
 
 def create_extracted_dir_uuids(
-        job, transfer_mdl, output_file_path, sip_directory, file_):
+        job, transfer_mdl, extraction_target, sip_directory, file_):
     """Assign UUIDs to directories via ``Directory`` objects in the database.
     """
     Directory.create_many(
-        _get_subdir_paths(
-            job,
-            output_file_path,
-            sip_directory,
-            file_.originallocation),
-        transfer_mdl)
+        dir_paths_uuids=_get_subdir_paths(
+            job=job,
+            root_path=extraction_target,
+            path_prefix_to_repl=sip_directory,
+            original_location=file_.originallocation),
+        unit_mdl=transfer_mdl)
 
 
 def call(jobs):

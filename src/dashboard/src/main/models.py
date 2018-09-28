@@ -498,11 +498,10 @@ class Directory(models.Model):
         for dir_ in dir_paths_uuids:
             dir_path = dir_.get("currentLocation")
             dir_uuid = dir_.get("uuid")
-            orig_path = dir_.get("originalLocation")
+            orig_path = dir_.get("originalLocation", dir_path)
             paths.append(cls(**{'uuid': dir_uuid,
                                 unit_type: unit_mdl,
-                                'originallocation': dir_path if not orig_path
-                                else orig_path,
+                                'originallocation': orig_path,
                                 'currentlocation': dir_path}))
         return cls.objects.bulk_create(paths)
 
