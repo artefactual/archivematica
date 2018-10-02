@@ -27,9 +27,7 @@ from main.models import DashboardSetting
 
 site_url_field = forms.CharField(
     label=_('Site URL'),
-    help_text=_('It defines the public address of this service. This is'
-                ' needed so the service (which is part of the pipeline)'
-                ' can be accessede by the Storage Service.'),
+    help_text=_('This is the public URL of your Archivematica dashboard.'),
     required=False,
     widget=TextInput(attrs=settings.INPUT_ATTRS),
 )
