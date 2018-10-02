@@ -291,12 +291,11 @@ subdirectories in `/var/log/archivematica`, such as
 Archivematica 1.7.0, logging configuration defaults to using stdout and stderr
 for all logs. If no changes are made to the new default configuration, logs
 will be handled by whichever process is managing Archivematica's services. For
-example on Ubuntu 16.04 or Centos 7, Archivematica's processes are managed by
-systemd. Logs for the MCPServer can be accessed using
-`sudo journalctl -u archivematica-mcp-server`. On Ubuntu 14.04, upstart is used
-instead of systemd, so logs are usually found in `/var/log/upstart`. When
-running Archivematica using docker, `docker-compose logs` commands can be used
-to access the logs from different containers.
+example on Ubuntu 16.04, Ubuntu 18.04 or CentOS 7, Archivematica's processes are
+managed by systemd. Logs for the MCPServer can be accessed using
+`sudo journalctl -u archivematica-mcp-server`. When running Archivematica using
+docker, `docker-compose logs` commands can be used to access the logs from
+different containers.
 
 The MCPServer will look in `/etc/archivematica` for a file called
 `serverConfig.logging.json`, and if found, this file will override the default
