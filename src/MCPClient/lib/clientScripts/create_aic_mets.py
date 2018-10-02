@@ -161,5 +161,5 @@ def call(jobs):
         for job in jobs:
             with job.JobContext():
                 create_mets_v2.initGlobalState()
-                args = parser.parse_args(job.qrgs[1:])
+                args = parser.parse_args(job.args[1:])
                 create_aic_mets(args.aic_uuid, args.aic_dir, job)
