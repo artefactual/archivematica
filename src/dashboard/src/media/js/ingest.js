@@ -310,12 +310,9 @@ $(function()
           }
           if (chainId in dipUploadWithMappingPage) {
             $('body').html('<h1 style="text-align: center;">' + gettext('Loading...') + '</h1>');
+            event.preventDefault();
             window.location.href = dipUploadWithMappingPage[chainId];
-
-            // TODO: needs to be tested with Archivists' Toolkit.
-            if (chainId == 'f11409ad-cf3c-4e7f-b0d5-4be32d98229b') {
-              return;
-            }
+            return false;
           }
 
           // "Upload DIP to AtoM/Binder" chain matched by its UUID.
