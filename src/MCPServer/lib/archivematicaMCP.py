@@ -71,6 +71,7 @@ import dicts
 
 from main.models import Job, SIP, Task, WatchedDirectory
 
+logger = logging.getLogger("archivematica.mcp.server")
 
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
@@ -358,8 +359,6 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("archivematica.mcp.server")
-
     # Replace exception handler with one that logs exceptions
     sys.excepthook = _except_hook_log_everything
 
