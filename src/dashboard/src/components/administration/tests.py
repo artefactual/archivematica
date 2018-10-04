@@ -248,3 +248,35 @@ class TestProcessingConfig(TestCase):
         self.assertEquals(
             response.content,
             '<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>')
+
+    def test_edit_new_config(self):
+        url = reverse("components.administration.views_processing.edit")
+        response = self.client.get(url)
+
+        self.assertEquals(url, "/administration/processing/add/")
+        self.assertEquals(response.status_code, 200)
+        self.assertNotIn("name", response.context["form"].initial)
+
+    @mock.patch('components.administration.forms.'
+                'ProcessingConfigurationForm.load_config')
+    def test_edit_not_found_config(self, load_config):
+        load_config.side_effect = IOError()
+        url = reverse(
+            "components.administration.views_processing.edit",
+            args=["not_found_config"])
+        response = self.client.get(url)
+
+        self.assertEquals(url, "/administration/processing/"
+                               "edit/not_found_config/")
+        self.assertEquals(response.status_code, 404)
+        load_config.assert_called_once_with("not_found_config")
+
+    @mock.patch('components.administration.forms.'
+                'ProcessingConfigurationForm.load_config')
+    def test_edit_found_config(self, load_config):
+        response = self.client.get(reverse(
+            "components.administration.views_processing.edit",
+            args=["found_config"]))
+
+        self.assertEquals(response.status_code, 200)
+        load_config.assert_called_once_with("found_config")

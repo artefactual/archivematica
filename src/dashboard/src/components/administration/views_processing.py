@@ -80,7 +80,11 @@ def edit(request, name=None):
         messages.info(request, _('Saved!'))
         return redirect('components.administration.views_processing.list')
 
-    # Process form load.
+    # New configuration.
+    if name is None:
+        return _render_form()
+
+    # Load existing configuration.
     try:
         form.load_config(name)
     except IOError:
