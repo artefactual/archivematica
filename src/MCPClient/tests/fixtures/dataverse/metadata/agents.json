@@ -1,0 +1,8 @@
+[
+    {
+        "agentIdentifierType": "URI",
+        "agentIdentifierValue": "http://dataverse.example.com/dvn/",
+        "agentName": "Example Dataverse Network",
+        "agentType": "organization"
+    }
+]

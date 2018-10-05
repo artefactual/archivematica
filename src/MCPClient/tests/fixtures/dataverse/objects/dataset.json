@@ -1,0 +1,142 @@
+{
+  "id": 90,
+  "identifier":"0MOPJM",
+  "persistentUrl":"http: //dx.doi.org/10.5072/FK2/0MOPJM",
+  "protocol":"doi",
+  "authority":"10.5072/FK2",
+  "latestVersion":{
+    "id": 40,
+    "versionNumber": 1,
+    "versionMinorNumber": 0,
+    "versionState":"RELEASED",
+    "productionDate":"Production Date",
+    "UNF":"UNF: 6: r5Z8n0CKSeRcAvjcTINpmQ==",
+    "lastUpdateTime":"2015-08-24T16: 32: 00Z",
+    "releaseTime":"2015-08-24T16: 32: 00Z",
+    "createTime":"2015-08-24T16: 28: 11Z",
+    "metadataBlocks":{
+      "citation":{
+        "displayName":"Citation Metadata",
+        "fields":[
+          {
+            "typeName":"title",
+            "multiple":false,
+            "typeClass":"primitive",
+            "value":"Metadata mapping test study"
+          },
+          {
+            "typeName":"author",
+            "multiple":true,
+            "typeClass":"compound",
+            "value":[
+              {
+                "authorName":{
+                  "typeName":"authorName",
+                  "multiple":false,
+                  "typeClass":"primitive",
+                  "value":"McLellan, Evelyn"
+                }
+              }
+            ]
+          },
+          {
+            "typeName":"datasetContact",
+            "multiple":true,
+            "typeClass":"compound",
+            "value":[
+              {
+                "datasetContactName":{
+                  "typeName":"datasetContactName",
+                  "multiple":false,
+                  "typeClass":"primitive",
+                  "value":"McLellan, Evelyn"
+                },
+                "datasetContactEmail":{
+                  "typeName":"datasetContactEmail",
+                  "multiple":false,
+                  "typeClass":"primitive",
+                  "value":"info@artefactual.com"
+                }
+              }
+            ]
+          },
+          {
+            "typeName":"dsDescription",
+            "multiple":true,
+            "typeClass":"compound",
+            "value":[
+              {
+                "dsDescriptionValue":{
+                  "typeName":"dsDescriptionValue",
+                  "multiple":false,
+                  "typeClass":"primitive",
+                  "value":"This study tests the types of metadata that are exported from Dataverse and how they can be mapped to standard schemas."
+                },
+                "dsDescriptionDate":{
+                  "typeName":"dsDescriptionDate",
+                  "multiple":false,
+                  "typeClass":"primitive",
+                  "value":"2015-08-24"
+                }
+              }
+            ]
+          },
+          {
+            "typeName":"subject",
+            "multiple":true,
+            "typeClass":"controlledVocabulary",
+            "value":[
+              "Computer and Information Science"
+            ]
+          },
+          {
+            "typeName":"depositor",
+            "multiple":false,
+            "typeClass":"primitive",
+            "value":"McLellan, Evelyn"
+          },
+          {
+            "typeName":"dateOfDeposit",
+            "multiple":false,
+            "typeClass":"primitive",
+            "value":"2015-08-24"
+          }
+        ]
+      }
+    },
+    "files":[
+      {
+        "description":"Lake Chelan North side launch.",
+        "label":"chelan 052.jpg",
+        "version": 1,
+        "datasetVersionId": 40,
+        "datafile":{
+          "id": 92,
+          "name":"chelan 052.jpg",
+          "contentType":"image/jpeg",
+          "filename":"14f608c3f9e-b80e0b388755",
+          "originalFormatLabel":"UNKNOWN",
+          "md5":"c77cea64f072d317bf7a9c8a9ed03b0f",
+          "description":"Lake Chelan North side launch."
+        }
+      },
+      {
+        "description":"YVR weather data information for Jan - June 2015",
+        "label":"Weather_data.tab",
+        "version": 2,
+        "datasetVersionId": 40,
+        "datafile":{
+          "id": 91,
+          "name":"Weather_data.tab",
+          "contentType":"text/tab-separated-values",
+          "filename":"14f60894788-dc91b9fdb34b",
+          "originalFileFormat":"application/x-spss-sav",
+          "originalFormatLabel":"SPSS SAV",
+          "UNF":"UNF: 6: r5Z8n0CKSeRcAvjcTINpmQ==",
+          "md5":"755a502c757e1e2aa4bcaebd687fa102",
+          "description":"YVR weather data information for Jan - June 2015"
+        }
+      }
+    ]
+  }
+}

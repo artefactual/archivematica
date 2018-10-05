@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<codeBook
+    xmlns="http://www.icpsr.umich.edu/DDI" version="2.0">
+    <stdyDscr>
+        <citation>
+            <titlStmt>
+                <titl>Metadata mapping test study</titl>
+                <IDNo agency="doi">10.5072/FK2/0MOPJM</IDNo>
+            </titlStmt>
+            <rspStmt>
+                <AuthEnty>McLellan, Evelyn</AuthEnty>
+            </rspStmt>
+            <biblCit>McLellan, Evelyn, 2015, "Metadata mapping test study", http://dx.doi.org/10.5072/FK2/0MOPJM,  API Test Dataverse,  DRAFT VERSION </biblCit>
+        </citation>
+    </stdyDscr>
+    <fileDscr ID="f91">
+        <fileTxt>
+            <fileName>Weather_data.tab</fileName>
+            <dimensns>
+                <caseQnty>4819</caseQnty>
+                <varQnty>23</varQnty>
+            </dimensns>
+            <fileType>text/tab-separated-values</fileType>
+        </fileTxt>
+        <notes level="file" type="VDC:UNF" subject="Universal Numeric Fingerprint">UNF:6:r5Z8n0CKSeRcAvjcTINpmQ==</notes>
+    </fileDscr>
+    <dataDscr>
+        <var ID="v1" name="ID" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Table identification</labl>
+            <sumStat type="medn">160.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="stdev">0.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="min">160.0</sumStat>
+            <sumStat type="mean">160.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="max">160.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:a7z2esfABcLvIM+sfVwrDw==</notes>
+        </var>
+        <var ID="v2" name="YEAR" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Year data was measured</labl>
+            <sumStat type="mean">2015.0</sumStat>
+            <sumStat type="max">2015.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="medn">2015.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="min">2015.0</sumStat>
+            <sumStat type="stdev">0.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:BDHWaNJzhkT+/8gh4efIYA==</notes>
+        </var>
+        <var ID="v18" name="JD" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Day of year, units=Julian Day</labl>
+            <sumStat type="medn">101.0</sumStat>
+            <sumStat type="mean">100.70056028221522</sumStat>
+            <sumStat type="stdev">57.844247917322214</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="max">201.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:ST5j+UcGxOUAzjWsC5JfQA==</notes>
+        </var>
+        <var ID="v22" name="TIME" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Time of measurements (Eastern Standard Time)</labl>
+            <sumStat type="mean">1249.6991076986928</sumStat>
+            <sumStat type="medn">1200.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="stdev">692.4288208921596</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="max">2400.0</sumStat>
+            <sumStat type="min">100.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:IVGb3V2l/VcmSdfKEHCH9g==</notes>
+        </var>
+        <var ID="v15" name="PRESS" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Mean station pressure, units=kiloPascals</labl>
+            <sumStat type="medn">97.22</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="max">99.42</sumStat>
+            <sumStat type="stdev">0.6817981711228113</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="mean">97.1824548661548</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="min">94.95</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:gHF2h54RdYcXSgbqjx6LKg==</notes>
+        </var>
+        <var ID="v14" name="ATEMP_HR" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Air temperature measured on the hour, units=degrees Celsius</labl>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="mean">3.2112178875285324</sumStat>
+            <sumStat type="min">-29.46</sumStat>
+            <sumStat type="medn">2.657</sumStat>
+            <sumStat type="max">29.3</sumStat>
+            <sumStat type="stdev">13.420628043300852</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:v5PnPEHdiUJiUwNP9rab+A==</notes>
+        </var>
+        <var ID="v21" name="ATEMP_AV" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Average hourly air temperature, units=degrees Celsius</labl>
+            <sumStat type="medn">2.655</sumStat>
+            <sumStat type="mean">3.206778792280571</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="stdev">13.412615314631529</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="max">29.04</sumStat>
+            <sumStat type="min">-29.63</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:GPeUQ9ZjeMeGQ5Xk1maakg==</notes>
+        </var>
+        <var ID="v23" name="RH_5S" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Relative humidity, 5 second peak, expressed as a percentage</labl>
+            <sumStat type="medn">78.3</sumStat>
+            <sumStat type="stdev">16.423147064717547</sumStat>
+            <sumStat type="max">97.5</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="min">19.46</sumStat>
+            <sumStat type="mean">74.1411143390745</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:zOairebK/X30uirb7PIHQg==</notes>
+        </var>
+        <var ID="v11" name="RH_TIME" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Relative humidity, at time of measurement, expressed as a percentage</labl>
+            <sumStat type="max">97.5</sumStat>
+            <sumStat type="stdev">16.343740584414018</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="medn">78.3</sumStat>
+            <sumStat type="min">2.724</sumStat>
+            <sumStat type="mean">74.12771197343848</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:jurmPbYhPCRP28hxzl/W8w==</notes>
+        </var>
+        <var ID="v9" name="WS10" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Wind speed at a height of 10 metres above ground, units=kilometres per hour</labl>
+            <sumStat type="stdev">13.52228830872108</sumStat>
+            <sumStat type="min">1.411224</sumStat>
+            <sumStat type="medn">21.87212</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="max">141.1224</sumStat>
+            <sumStat type="mean">23.66089758539116</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:1duGuPfNoiXcPPvKxY9phw==</notes>
+        </var>
+        <var ID="v20" name="WS10_PT" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Time over which peak wind speed (hourly average) was measured at a height of 10 metres above ground (Eastern Standard Time)</labl>
+            <sumStat type="medn">200.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="max">2400.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="mean">586.2012865739807</sumStat>
+            <sumStat type="stdev">679.5771361724203</sumStat>
+            <sumStat type="min">79.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:arBq+ObueusmgFlzEjJaqA==</notes>
+        </var>
+        <var ID="v13" name="WS10_PDR" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Direction of peak wind speed at a height of 10 metres above ground, hourly average, units=degrees true</labl>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="medn">227.4</sumStat>
+            <sumStat type="mean">201.8458871135092</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="min">-0.467</sumStat>
+            <sumStat type="stdev">102.85612895299752</sumStat>
+            <sumStat type="max">354.5</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:ZTXZxM1+P3vAaukZLxBrHQ==</notes>
+        </var>
+        <var ID="v8" name="WS10_AV" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Peak wind speed at a height of 10 metres above ground, hourly average, units=kilometres per hour</labl>
+            <sumStat type="stdev">8.915338688715375</sumStat>
+            <sumStat type="medn">13.2418</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="max">48.55944</sumStat>
+            <sumStat type="mean">14.685279314380574</sumStat>
+            <sumStat type="min">0.655608</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:YClddoIL9OBXrjBB2w6wWQ==</notes>
+        </var>
+        <var ID="v4" name="WS10_HT" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Wind direction at 10 metres above ground, hourly total, units=degrees true</labl>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="max">6999.0</sumStat>
+            <sumStat type="mean">205.49636439095246</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="medn">230.2</sumStat>
+            <sumStat type="stdev">141.53975617320822</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <catgry>
+                <catValu>6999</catValu>
+                <labl level="category">Over Range</labl>
+            </catgry>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:MCXrH5ShaFlQD2mtQNOOXg==</notes>
+        </var>
+        <var ID="v17" name="WS2_HT" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Wind speed at 2 metres above ground, hourly total, units=kilometres per hour</labl>
+            <sumStat type="stdev">14.344889633005865</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mean">0.4500871550114117</sumStat>
+            <sumStat type="min">0.225</sumStat>
+            <sumStat type="max">996.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="medn">0.229</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:lvyN9JS2SNQS+ES1TQzFWA==</notes>
+        </var>
+        <var ID="v12" name="TBRG" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Amount of rain measured by a tipping bucket rain gauge over the past hour, units=millimetres</labl>
+            <sumStat type="mean">0.2019506121601974</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="stdev">6.725439483962148</sumStat>
+            <sumStat type="medn">0.0</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="max">457.2</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:1qSUb3/Qd4C4L68OFvOfFA==</notes>
+        </var>
+        <var ID="v3" name="PRECIP" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Total hourly precipitation measured by a weighing bucket gauge, units=millimetres</labl>
+            <sumStat type="max">34.8</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="stdev">0.8211521506003161</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="medn">0.0</sumStat>
+            <sumStat type="mean">0.11739406515874574</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:vulBBwLt/gs98kyU/HTZpA==</notes>
+        </var>
+        <var ID="v10" name="SNOW_GR" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Snow on ground, units=centimetres</labl>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="mean">4261.271218095094</sumStat>
+            <sumStat type="stdev">3415.9370955062745</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="medn">6999.0</sumStat>
+            <sumStat type="max">6999.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <catgry>
+                <catValu>6999</catValu>
+                <labl level="category">Over Range</labl>
+            </catgry>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:3VTuQUqvK7ogKlcyfau9Zw==</notes>
+        </var>
+        <var ID="v19" name="SNOWFALL" intrvl="discrete">
+            <location fileid="f91"/>
+            <labl level="variable">Amount of snowfall occurring over the past hour, units=centimetres</labl>
+            <sumStat type="mean">1478.5187798299473</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="stdev">2857.2415455644323</sumStat>
+            <sumStat type="medn">0.0</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="max">6999.0</sumStat>
+            <catgry>
+                <catValu>6999</catValu>
+                <labl level="category">Over Range</labl>
+            </catgry>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:EnpUUm2j8XbeHKhHy6Zz6w==</notes>
+        </var>
+        <var ID="v6" name="SOL_RAD" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Solar radiation, units=Megajoules per metre squared</labl>
+            <sumStat type="stdev">52.946938715405295</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="mean">1.404029881095668</sumStat>
+            <sumStat type="medn">0.0432</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="max">3675.599997</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:F9roLEskt1U2Xxf8n+5z6g==</notes>
+        </var>
+        <var ID="v5" name="LW_RAD" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Longwave radiation, units=Megajoules per metre squared</labl>
+            <sumStat type="max">9999.0</sumStat>
+            <sumStat type="mean">3887.010405837915</sumStat>
+            <sumStat type="medn">1.353017</sumStat>
+            <sumStat type="min">0.545775</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="stdev">4873.940119045575</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <catgry>
+                <catValu>9999</catValu>
+                <labl level="category">Missing</labl>
+            </catgry>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:8j2QMWFrkNFK/tLErPmeew==</notes>
+        </var>
+        <var ID="v7" name="SUNSHINE" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Amount of sunshine over past hour, units=percent of hour</labl>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="stdev">1449.3245455652311</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="mean">44.55505291554192</sumStat>
+            <sumStat type="max">100600.0</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="min">0.0</sumStat>
+            <sumStat type="medn">0.0</sumStat>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:dt8SLAyzXsXDu85rfzoojw==</notes>
+        </var>
+        <var ID="v16" name="WATER" intrvl="contin">
+            <location fileid="f91"/>
+            <labl level="variable">Height of water table, units=centimetres</labl>
+            <sumStat type="max">9999.0</sumStat>
+            <sumStat type="mean">205.25391159991707</sumStat>
+            <sumStat type="vald">4819.0</sumStat>
+            <sumStat type="invd">0.0</sumStat>
+            <sumStat type="stdev">141.11093514608297</sumStat>
+            <sumStat type="mode">.</sumStat>
+            <sumStat type="medn">203.2</sumStat>
+            <sumStat type="min">202.6</sumStat>
+            <catgry>
+                <catValu>9999</catValu>
+                <labl level="category">Missing</labl>
+            </catgry>
+            <varFormat type="numeric"/>
+            <notes subject="Universal Numeric Fingerprint" level="variable" type="VDC:UNF">UNF:6:eWrOERMEOf+Qv074+7zWGw==</notes>
+        </var>
+    </dataDscr>
+</codeBook>

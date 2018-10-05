@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+   <records>
+      <record>
+         <ref-type name="Online Database">45</ref-type>
+         <contributors>
+            <authors>
+               <author>McLellan, Evelyn</author>
+            </authors>
+         </contributors>
+         <titles>
+            <title>Metadata mapping test study</title>
+         </titles>
+         <section>2015-08-24</section>
+         <dates>
+            <year>2015</year>
+         </dates>
+         <publisher>API Test Dataverse</publisher>
+         <urls>
+            <related-urls>
+               <url>http://dx.doi.org/10.5072/FK2/0MOPJM</url>
+            </related-urls>
+         </urls>
+         <custom1>Weather_data.tab</custom1>
+         <custom2>UNF:6:r5Z8n0CKSeRcAvjcTINpmQ==</custom2>
+         <electronic-resource-num>doi/10.5072/FK2/0MOPJM</electronic-resource-num>
+      </record>
+   </records>
+</xml>
