@@ -23,7 +23,11 @@
 
 import os
 import mailbox
-exitCodes = {None: 0, 'maildir': 179}
+
+EXIT_CODES = {
+    None: 0,
+    'maildir': 179
+}
 
 
 def isMaildir(path):
@@ -46,6 +50,6 @@ def call(jobs):
         with job.JobContext():
             path = job.args[1]
             if isMaildir(path):
-                job.set_status(exitCodes['maildir'])
+                job.set_status(EXIT_CODES['maildir'])
             else:
-                job.set_status(exitCodes[None])
+                job.set_status(EXIT_CODES[None])

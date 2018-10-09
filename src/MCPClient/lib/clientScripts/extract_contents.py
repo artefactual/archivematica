@@ -21,20 +21,18 @@ from archivematicaFunctions import get_dir_uuids, format_subdir_path
 # clientScripts
 from has_packages import already_extracted
 
-file_path_cache = {}
-
 logger = get_script_logger("archivematica.mcp.client.extractContents")
 
 TRANSFER_DIRECTORY = "%transferDirectory%"
 
 
-def temporary_directory(file_path, date):
-    if file_path_cache.get(file_path):
-        return file_path_cache[file_path]
-    else:
+def temporary_directory(file_path, date, file_path_cache):
+    try:
+        return file_path_cache[file_path], file_path_cache
+    except KeyError:
         path = file_path + '-' + date
         file_path_cache[file_path] = path
-        return path
+        return path, file_path_cache
 
 
 def tree(root):
@@ -101,6 +99,7 @@ def delete_and_record_package_file(job, file_path, file_uuid, current_location):
 
 
 def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
+    file_path_cache = {}
     files = File.objects.filter(transfer=transfer_uuid,
                                 removedtime__isnull=True)
     if not files:
@@ -155,7 +154,8 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
         file_to_be_extracted_path = file_.currentlocation.replace(
             TRANSFER_DIRECTORY, sip_directory)
-        extraction_target = temporary_directory(file_to_be_extracted_path, date)
+        extraction_target, file_path_cache = temporary_directory(
+            file_to_be_extracted_path, date, file_path_cache)
 
         # Create the extract packages command.
         if (command.script_type == 'command' or

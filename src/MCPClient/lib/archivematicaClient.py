@@ -55,6 +55,7 @@ task to run next).
 
 import ConfigParser
 import cPickle
+from functools import partial
 import logging
 import os
 from socket import gethostname
@@ -85,23 +86,21 @@ replacement_dict = {
     '%clientAssetsDirectory%': django_settings.CLIENT_ASSETS_DIRECTORY,
 }
 
-# Map the name of the client script (that comes in on a Gearman job) to the
-# module that will handle it.
-supported_modules = {}
 
-
-def load_supported_modules(file):
-    """Populate the global `supported_modules` dict by parsing the MCPClient
+def get_supported_modules(file_):
+    """Create and return the ``supported_modules`` dict by parsing the MCPClient
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
+    supported_modules = {}
     supported_modules_config = ConfigParser.RawConfigParser()
-    supported_modules_config.read(file)
+    supported_modules_config.read(file_)
     for client_script, module_name in supported_modules_config.items('supportedBatchCommands'):
         supported_modules[client_script] = module_name
+    return supported_modules
 
 
 @auto_close_db
-def handle_batch_task(gearman_job):
+def handle_batch_task(gearman_job, supported_modules):
     module_name = supported_modules.get(gearman_job.task)
     gearman_data = cPickle.loads(gearman_job.data)
 
@@ -185,20 +184,20 @@ def fail_all_tasks(gearman_job, reason):
 
 
 @auto_close_db
-def execute_command(gearman_worker, gearman_job):
+def execute_command(supported_modules, gearman_worker, gearman_job):
     """Execute the command encoded in ``gearman_job`` and return its exit code,
     standard output and standard error as a pickled dict.
     """
-    logger.info("\n\n*** RUNNING TASK: %s" % (gearman_job.task))
+    logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
 
     try:
-        jobs = handle_batch_task(gearman_job)
+        jobs = handle_batch_task(gearman_job, supported_modules)
         results = {}
 
         def write_task_results_callback():
             with transaction.atomic():
                 for job in jobs:
-                    logger.info("\n\n*** Completed job: %s" % (job.dump()))
+                    logger.info("\n\n*** Completed job: %s", job.dump())
 
                     kwargs = {
                         'exitcode': job.get_exit_code(),
@@ -233,14 +232,15 @@ def execute_command(gearman_worker, gearman_job):
         return fail_all_tasks(gearman_job, e)
 
 
-def start_gearman_worker():
+def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     host_id = '{}_{}'.format(gethostname(), os.getpid())
     gm_worker.set_client_id(host_id)
+    task_handler = partial(execute_command, supported_modules)
     for client_script in supported_modules:
         logger.info('Registering: %s', client_script)
-        gm_worker.register_task(client_script, execute_command)
+        gm_worker.register_task(client_script, task_handler)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2
@@ -266,7 +266,7 @@ def start_gearman_worker():
 
 if __name__ == '__main__':
     try:
-        load_supported_modules(django_settings.CLIENT_MODULES_FILE)
-        start_gearman_worker()
+        start_gearman_worker(
+            get_supported_modules(django_settings.CLIENT_MODULES_FILE))
     except (KeyboardInterrupt, SystemExit):
         logger.info('Received keyboard interrupt, quitting.')

@@ -40,7 +40,14 @@ from main.models import File
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import unicodeToStr
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules
+
+
+class State(object):
+
+    def __init__(self):
+        self.error_count = 0
+        self.sourceFilePath = None
+        self.sourceFileUUID = None
 
 
 def writeFile(filePath, fileContents):
@@ -86,7 +93,7 @@ path = %s
 
 def handle_job(job):
     # http://www.doughellmann.com/PyMOTW/mailbox/
-    sharedVariablesAcrossModules.errorCounter = 0
+    state = State()
     transferDir = job.args[1]
     transferUUID = job.args[2]
     date = job.args[3]
@@ -113,10 +120,10 @@ def handle_job(job):
                     sourceFilePath2 = os.path.join(maildir, maildirsub, subDir, item)
                     sourceFilePath = sourceFilePath2.replace(transferDir, "%transferDirectory%", 1)
                     sourceFileUUID = getFileUUIDofSourceFile(transferUUID, sourceFilePath)
-                    sharedVariablesAcrossModules.sourceFileUUID = sourceFileUUID
-                    sharedVariablesAcrossModules.sourceFilePath = sourceFilePath
+                    state.sourceFileUUID = sourceFileUUID
+                    state.sourceFilePath = sourceFilePath
                     fil = md.get_file(item)
-                    out = parse(fil)
+                    out = parse(fil, state)
                     job.pyprint('Email Subject:', out.get('subject'))
                     if out['attachments']:
                         msg = etree.SubElement(directory, "msg")
@@ -161,14 +168,14 @@ def handle_job(job):
                                 job.pyprint(inst.args, file=sys.stderr)
                                 job.pyprint(etree.tostring(msg), file=sys.stderr)
                                 job.pyprint(file=sys.stderr)
-                                sharedVariablesAcrossModules.errorCounter += 1
+                                state.error_count += 1
                 except Exception as inst:
                     job.pyprint(sourceFilePath, file=sys.stderr)
                     job.print_error(traceback.format_exc())
                     job.pyprint(type(inst), file=sys.stderr)     # the exception instance
                     job.pyprint(inst.args, file=sys.stderr)
                     job.pyprint(file=sys.stderr)
-                    sharedVariablesAcrossModules.errorCounter += 1
+                    state.error_count += 1
         except Exception as inst:
             job.pyprint("INVALID MAILDIR FORMAT", file=sys.stderr)
             job.pyprint(type(inst), file=sys.stderr)
@@ -187,7 +194,7 @@ def handle_job(job):
     tree = etree.ElementTree(root)
     tree.write(outXML, pretty_print=True, xml_declaration=True)
 
-    job.set_status(sharedVariablesAcrossModules.errorCounter)
+    job.set_status(state.error_count)
 
 
 def call(jobs):

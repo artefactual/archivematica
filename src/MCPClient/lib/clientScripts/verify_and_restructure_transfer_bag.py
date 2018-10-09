@@ -39,13 +39,13 @@ from verify_bag import verify_bag
 
 def restructureBagForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
     bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
-    REQUIRED_DIRECTORIES.append(bagFileDefaultDest)
+    MY_REQUIRED_DIRECTORIES = REQUIRED_DIRECTORIES + (bagFileDefaultDest,)
     # This needs to be cast to a string since we're calling os.path.join(),
     # and any of the other arguments could contain arbitrary, non-Unicode
     # characters.
     unitPath = str(unitPath)
     unitDataPath = str(os.path.join(unitPath, "data"))
-    for dir in REQUIRED_DIRECTORIES:
+    for dir in MY_REQUIRED_DIRECTORIES:
         dirPath = os.path.join(unitPath, dir)
         dirDataPath = os.path.join(unitPath, "data", dir)
         if os.path.isdir(dirDataPath):
@@ -71,7 +71,7 @@ def restructureBagForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, 
                 fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=job.pyprint)
     for item in os.listdir(unitDataPath):
         itemPath = os.path.join(unitDataPath, item)
-        if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
+        if os.path.isdir(itemPath) and item not in MY_REQUIRED_DIRECTORIES:
             job.pyprint("moving directory to objects: ", item)
             dst = os.path.join(unitPath, "objects", item)
             fileOperations.updateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)

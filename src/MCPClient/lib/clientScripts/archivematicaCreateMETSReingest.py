@@ -14,7 +14,7 @@ import namespaces as ns
 from main import models
 
 
-def update_object(job, mets, sip_uuid):
+def update_object(job, mets):
     """
     Updates PREMIS:OBJECT.
 
@@ -135,7 +135,7 @@ def update_dublincore(job, mets, sip_uuid):
     return mets
 
 
-def update_rights(job, mets, sip_uuid):
+def update_rights(job, mets, sip_uuid, state):
     """
     Add rightsMDs for updated PREMIS Rights.
     """
@@ -178,7 +178,7 @@ def update_rights(job, mets, sip_uuid):
     if not rights_list:
         job.pyprint('No new rights added')
     else:
-        add_rights_elements(job, rights_list, original_files)
+        add_rights_elements(job, rights_list, original_files, state)
 
     # Check for updated rights
     rights_list = models.RightsStatement.objects.filter(
@@ -189,12 +189,12 @@ def update_rights(job, mets, sip_uuid):
     if not rights_list:
         job.pyprint('No updated rights found')
     else:
-        add_rights_elements(job, rights_list, original_files, updated=True)
+        add_rights_elements(job, rights_list, original_files, state, updated=True)
 
     return mets
 
 
-def add_rights_elements(job, rights_list, files, updated=False):
+def add_rights_elements(job, rights_list, files, state, updated=False):
     """
     Create and add rightsMDs for everything in rights_list to files.
     """
@@ -202,7 +202,7 @@ def add_rights_elements(job, rights_list, files, updated=False):
     for fsentry in files:
         for rights in rights_list:
             # Create element
-            new_rightsmd = fsentry.add_premis_rights(createmetsrights.createRightsStatement(job, rights, fsentry.file_uuid))
+            new_rightsmd = fsentry.add_premis_rights(createmetsrights.createRightsStatement(job, rights, fsentry.file_uuid, state))
             job.pyprint('Adding rightsMD', new_rightsmd.id_string(), 'to amdSec with ID', fsentry.amdsecs[0].id_string(), 'for file', fsentry.file_uuid)
 
             if updated:
@@ -300,7 +300,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
         return mets
 
     # Set global counters so getAMDSec will work
-    createmets2.initGlobalState(
+    state = createmets2.MetsState(
         globalAmdSecCounter=int(mets.tree.xpath('count(mets:amdSec)',
                                                 namespaces=ns.NSMAP)),
         globalTechMDCounter=int(mets.tree.xpath('count(mets:amdSec/mets:techMD)',
@@ -319,12 +319,12 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
             fileUUID=f.uuid,
             filePath=None,  # Only needed if use=original
             use=f.filegrpuse,
-            type=None,  # Not used
             sip_uuid=sip_uuid,
             transferUUID=None,  # Only needed if use=original
             itemdirectoryPath=None,  # Only needed if use=original
             typeOfTransfer=None,  # Only needed if use=original
             baseDirectoryPath=sip_dir,
+            state=state,
         )
         job.pyprint(f.uuid, 'has amdSec with ID', amdid)
 
@@ -359,12 +359,12 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     # Parse metadata.csv and add dmdSecs
     if metadata_csv:
-        mets = update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir)
+        mets = update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state)
 
     return mets
 
 
-def delete_files(job, mets, sip_uuid):
+def delete_files(mets, sip_uuid):
     """
     Update METS for deleted files.
 
@@ -382,7 +382,7 @@ def delete_files(job, mets, sip_uuid):
     return mets
 
 
-def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir):
+def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
     job.pyprint('Parse new metadata.csv')
     full_path = metadata_csv.currentlocation.replace('%SIPDirectory%', sip_dir, 1)
     csvmetadata = createmetscsv.parseMetadataCSV(job, full_path)
@@ -408,7 +408,7 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir):
         job.pyprint(f, 'was associated with', fsentry.dmdids)
 
         # Create dmdSec
-        new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(job, md)
+        new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(job, md, state)
         # Add both
         for new_dmdsec in new_dmdsecs:
             # need to strip new_d to just the DC part
@@ -429,7 +429,7 @@ def _get_old_mets_rel_path(sip_uuid):
         'METS.' + sip_uuid + '.xml')
 
 
-def update_mets(job, sip_dir, sip_uuid, keep_normative_structmap=True):
+def update_mets(job, sip_dir, sip_uuid, state, keep_normative_structmap=True):
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     job.pyprint('Looking for old METS at path', old_mets_path)
@@ -437,12 +437,12 @@ def update_mets(job, sip_dir, sip_uuid, keep_normative_structmap=True):
     # Parse old METS
     mets = metsrw.METSDocument.fromfile(old_mets_path)
 
-    update_object(job, mets, sip_uuid)
+    update_object(job, mets)
     update_dublincore(job, mets, sip_uuid)
-    update_rights(job, mets, sip_uuid)
+    update_rights(job, mets, sip_uuid, state)
     add_events(job, mets, sip_uuid)
     add_new_files(job, mets, sip_uuid, sip_dir)
-    delete_files(job, mets, sip_uuid)
+    delete_files(mets, sip_uuid)
 
     serialized = mets.serialize()
     if not keep_normative_structmap:

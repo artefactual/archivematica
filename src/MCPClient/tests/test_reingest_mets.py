@@ -11,7 +11,6 @@ from main import models
 
 from job import Job
 
-import create_mets_v2
 import metsrw
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -37,7 +36,6 @@ class TestUpdateObject(TestCase):
 
     def setUp(self):
         self.sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
-        create_mets_v2.initGlobalState()
 
     def load_fixture(self, fixture_paths):
         try:
@@ -57,7 +55,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         # Verify no change
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
@@ -71,7 +69,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
         # Verify old techMD
@@ -98,7 +96,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
         # Verify old techMD
@@ -126,7 +124,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
         # Verify old techMD
@@ -152,7 +150,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
         # Verify old techMD
@@ -191,7 +189,7 @@ class TestUpdateObject(TestCase):
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
         # Run test
-        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.update_object(Job("stub", "stub", []), mets)
         root = mets.serialize()
         assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
         # Verify old techMD
@@ -235,9 +233,6 @@ class TestUpdateDublinCore(TestCase):
     sip_uuid_original = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
     sip_uuid_reingest = '87d30df4-63f5-434b-9da6-25aa995de6fe'
     sip_uuid_updated = '5d78a2a5-57a6-430f-87b2-b89fb3ccb050'
-
-    def setUp(self):
-        create_mets_v2.initGlobalState()
 
     def test_no_dc(self):
         """ It should do nothing if there is no DC entry. """
@@ -438,14 +433,12 @@ class TestUpdateRights(TestCase):
     sip_uuid_reingest = '10d57d98-29e5-4b2c-9f9f-d163e632eb31'
     sip_uuid_updated = '2941f14c-bd57-4f4a-a514-a3bf6ac5adf0'
 
-    def setUp(self):
-        create_mets_v2.initGlobalState()
-
     def test_no_rights(self):
         """ It should do nothing if there are no rights entries. """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_none)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_none, state)
         root = mets.serialize()
         assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
 
@@ -453,7 +446,8 @@ class TestUpdateRights(TestCase):
         """ It should do nothing if the rights have not been modified. """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_reingest)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_reingest, state)
         root = mets.serialize()
         assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
 
@@ -466,7 +460,8 @@ class TestUpdateRights(TestCase):
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_original)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_original, state)
         root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
@@ -488,7 +483,8 @@ class TestUpdateRights(TestCase):
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_all_rights.xml'))
         assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_updated)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_updated, state)
         root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
@@ -518,7 +514,8 @@ class TestUpdateRights(TestCase):
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_updated_rights.xml'))
         assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_updated)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_updated, state)
         root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
@@ -539,7 +536,8 @@ class TestUpdateRights(TestCase):
         """ It should mark the original rightsMD as obsolete. """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_all_rights.xml'))
         assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_none)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_none, state)
         root = mets.serialize()
 
         assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
@@ -548,11 +546,13 @@ class TestUpdateRights(TestCase):
     def test_delete_and_add(self):
         """
         Use case: Entire rights basis deleted, new one added
-        Solution: Mark original rightsMD as superseded. New rightsMD marked as current. """
-        """ It should mark the original rightsMD as obsolete. """
+        Solution: Mark original rightsMD as superseded. New rightsMD marked as current.
+        It should mark the original rightsMD as obsolete.
+        """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_updated_rights.xml'))
         assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
-        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_original)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_rights(Job("stub", "stub", []), mets, self.sip_uuid_original, state)
         root = mets.serialize()
 
         assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 6
@@ -570,9 +570,6 @@ class TestAddEvents(TestCase):
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
-
-    def setUp(self):
-        create_mets_v2.initGlobalState()
 
     def test_all_files_get_events(self):
         """
@@ -638,9 +635,6 @@ class TestAddingNewFiles(TestCase):
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
-
-    def setUp(self):
-        create_mets_v2.initGlobalState()
 
     def test_no_new_files(self):
         """ It should not modify the fileSec or structMap if there are no new files. """
@@ -841,9 +835,6 @@ class TestDeleteFiles(TestCase):
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
 
-    def setUp(self):
-        create_mets_v2.initGlobalState()
-
     def test_delete_file(self):
         """
         It should change the fileGrp USE to deleted.
@@ -858,7 +849,7 @@ class TestDeleteFiles(TestCase):
         assert mets.tree.find('.//mets:FLocat[@xlink:href="objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is not None
         assert mets.tree.find('.//mets:div[@LABEL="evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is not None
 
-        mets = archivematicaCreateMETSReingest.delete_files(Job("stub", "stub", []), mets, self.sip_uuid)
+        mets = archivematicaCreateMETSReingest.delete_files(mets, self.sip_uuid)
         root = mets.serialize()
 
         assert root.find('.//mets:fileGrp[@USE="preservation"]', namespaces=NSMAP) is None
@@ -885,13 +876,13 @@ class TestUpdateMetadataCSV(TestCase):
 
     def setUp(self):
         self.csv_file = models.File.objects.get(uuid='66370f14-2f64-4750-9d50-547614be40e8')
-        create_mets_v2.initGlobalState()
 
     def test_new_dmdsecs(self):
         """ It should add file-level dmdSecs. """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 0
-        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir, state)
         root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 1
         dmdsec = root.find('mets:dmdSec', namespaces=NSMAP)
@@ -908,7 +899,8 @@ class TestUpdateMetadataCSV(TestCase):
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_file_dc.xml'))
         assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 1
-        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir, state)
         root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 2
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
@@ -929,7 +921,8 @@ class TestUpdateMetadataCSV(TestCase):
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_file_dc_updated.xml'))
         assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 2
-        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, self.sip_dir, state)
         root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 3
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)

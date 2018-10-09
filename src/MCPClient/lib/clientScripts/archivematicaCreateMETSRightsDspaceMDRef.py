@@ -30,7 +30,6 @@ from main.models import File
 
 # archivematicaCommon
 import namespaces as ns
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
 def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
@@ -53,7 +52,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     return mdRef
 
 
-def archivematicaCreateMETSRightsDspaceMDRef(job, fileUUID, filePath, transferUUID, itemdirectoryPath):
+def archivematicaCreateMETSRightsDspaceMDRef(job, fileUUID, filePath, transferUUID, itemdirectoryPath, state):
     ret = []
     try:
         job.pyprint(fileUUID, filePath)
@@ -73,11 +72,11 @@ def archivematicaCreateMETSRightsDspaceMDRef(job, fileUUID, filePath, transferUU
         base = os.path.dirname(os.path.dirname(itemdirectoryPath))
         base2 = os.path.dirname(os.path.dirname(filePath))
 
-        for dir in os.listdir(base):
-            fullDir = os.path.join(base, dir)
-            fullDir2 = os.path.join(base2, dir)
+        for dir_ in os.listdir(base):
+            fullDir = os.path.join(base, dir_)
+            fullDir2 = os.path.join(base2, dir_)
             job.pyprint(fullDir)
-            if dir.startswith("ITEM"):
+            if dir_.startswith("ITEM"):
                 job.pyprint("continue")
                 continue
             if not os.path.isdir(fullDir):
@@ -99,6 +98,6 @@ def archivematicaCreateMETSRightsDspaceMDRef(job, fileUUID, filePath, transferUU
     except Exception as inst:
         job.pyprint("Error creating mets dspace mdref", fileUUID, filePath, file=sys.stderr)
         job.pyprint(type(inst), inst.args, file=sys.stderr)
-        sharedVariablesAcrossModules.globalErrorCount += 1
+        state.error_accumulator.error_count += 1
 
     return ret

@@ -4,25 +4,24 @@ import os
 import sys
 
 from create_mets_v0 import createFileSec, each_child
-import create_mets_v2
-from create_mets_v2 import createDigiprovMD
+from create_mets_v2 import createDigiprovMD, MetsState
 import namespaces as ns
 
 from django.utils import six
 from lxml import etree
 
 
-def create_amdSecs(job, path, file_group_identifier, base_path, base_path_name, sip_uuid):
+def create_amdSecs(job, path, file_group_identifier, base_path, base_path_name, sip_uuid, state):
     amdSecs = []
 
     for child in each_child(job, path, file_group_identifier, base_path, base_path_name, sip_uuid):
         if isinstance(child, six.string_types):  # directory
-            amdSecs.extend(create_amdSecs(job, child, file_group_identifier, base_path, base_path_name, sip_uuid))
+            amdSecs.extend(create_amdSecs(job, child, file_group_identifier, base_path, base_path_name, sip_uuid, state))
         else:  # file
             admid = "digiprov-" + child.uuid
             amdSec = etree.Element(ns.metsBNS + 'amdSec',
                                    ID=admid)
-            amdSec.extend(createDigiprovMD(child.uuid))
+            amdSec.extend(createDigiprovMD(child.uuid, state))
             amdSecs.append(amdSec)
 
     return amdSecs
@@ -39,7 +38,7 @@ def call(jobs):
 
     for job in jobs:
         with job.JobContext():
-            create_mets_v2.initGlobalState()
+            state = MetsState()
 
             opts = parser.parse_args(job.args[1:])
 
@@ -69,7 +68,7 @@ def call(jobs):
 
             # insert <amdSec>s after the <metsHdr>, which must be the first element
             # within the <mets> element if present.
-            for el in create_amdSecs(job, opts.basePath, opts.fileGroupIdentifier, opts.basePath, basePathString, opts.sipUUID):
+            for el in create_amdSecs(job, opts.basePath, opts.fileGroupIdentifier, opts.basePath, basePathString, opts.sipUUID, state):
                 root.insert(1, el)
 
                 with open(opts.xmlFile, "w") as f:

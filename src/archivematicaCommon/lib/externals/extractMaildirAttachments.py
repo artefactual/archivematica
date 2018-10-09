@@ -20,10 +20,7 @@ import uuid
 from django.utils import six
 
 
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules
-
-
-def parse_attachment(message_part, attachments=None):
+def parse_attachment(message_part, state, attachments=None):
     """ Extract the attachment and metadata about it from the message.
 
     Returns the content, content type, size, and create/modification/read dates
@@ -46,7 +43,7 @@ def parse_attachment(message_part, attachments=None):
                     if isinstance(payload, list):
                         for msgobj in payload:
                             # TODO not sure this actually does anything
-                            parse2(msgobj, attachments)
+                            parse2(msgobj, state, attachments)
                         return None
                     print(message_part.get_payload(), file=sys.stderr)
                     print(message_part.get_content_charset(), file=sys.stderr)
@@ -68,7 +65,7 @@ def parse_attachment(message_part, attachments=None):
                         print('\t{filename} encoded with {encoding}, converting to unicode'.format(filename=filename, encoding=encoding))
                         filename = name.decode(encoding)
                 else:  # filename not in Content-Disposition
-                    print("""Warning, no filename found in: [{%s}%s] Content-Disposition: %s or Content-Type""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, params), file=sys.stderr)
+                    print("""Warning, no filename found in: [{%s}%s] Content-Disposition: %s or Content-Type""" % (state.sourceFileUUID, state.sourceFilePath, params), file=sys.stderr)
                     filename = six.text_type(uuid.uuid4())
                     print("Attempting extraction with random filename: %s" % (filename), file=sys.stderr)
                 # Remove newlines from filename because that breaks everything
@@ -80,26 +77,25 @@ def parse_attachment(message_part, attachments=None):
         except Exception as inst:
             print(type(inst), file=sys.stderr)
             print(inst.args, file=sys.stderr)
-            print("Error parsing: file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath), file=sys.stderr)
+            print("Error parsing: file: {%s}%s" % (state.sourceFileUUID, state.sourceFilePath), file=sys.stderr)
             print("Error parsing: Content-Disposition: ", params, file=sys.stderr)
             print(file=sys.stderr)
-            sharedVariablesAcrossModules.errorCounter += 1
+            state.error_count += 1
     return None
 
 
-def parse(content):
+def parse(content, state):
     """
     Eメールのコンテンツを受け取りparse,encodeして返す
     """
-    sharedVariablesAcrossModules.errorCounter = 0
-
+    state.error_count = 0
     p = email.Parser.Parser()
     msgobj = p.parse(content)
     attachments = []
-    return parse2(msgobj, attachments)
+    return parse2(msgobj, state, attachments)
 
 
-def parse2(msgobj, attachments=None):
+def parse2(msgobj, state, attachments=None):
     if msgobj['Subject'] is not None:
         decodefrag = email.header.decode_header(msgobj['Subject'])
         subj_fragments = []
@@ -114,7 +110,7 @@ def parse2(msgobj, attachments=None):
     if attachments is None:
         attachments = []
     for part in msgobj.walk():
-        attachment = parse_attachment(part, attachments=attachments)
+        attachment = parse_attachment(part, state, attachments=attachments)
         if attachment:
             attachments.append(attachment)
     return {

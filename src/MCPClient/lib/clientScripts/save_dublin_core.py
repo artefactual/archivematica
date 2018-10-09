@@ -9,11 +9,23 @@ from django.db import transaction
 # dashboard
 from main import models
 
-FIELDS = [
-    'title', 'creator', 'subject', 'description', 'publisher', 'contributor',
-    'date', 'type', 'format', 'identifier', 'source', 'relation', 'language',
-    'coverage', 'rights'
-]
+FIELDS = (
+    'title',
+    'creator',
+    'subject',
+    'description',
+    'publisher',
+    'contributor',
+    'date',
+    'type',
+    'format',
+    'identifier',
+    'source',
+    'relation',
+    'language',
+    'coverage',
+    'rights',
+)
 
 
 def main(job, transfer_uuid, target_path):

@@ -33,7 +33,6 @@ from main.models import RightsStatement
 # archivematicaCommon
 from countryCodes import getCodeForCountry
 import namespaces as ns
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 RIGHTS_BASIS_OTHER = ["Policy", "Donor"]
 
@@ -45,7 +44,7 @@ def formatDate(date):
     return date
 
 
-def archivematicaGetRights(job, metadataAppliesToList, fileUUID):
+def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
     """[(fileUUID, fileUUIDTYPE), (sipUUID, sipUUIDTYPE), (transferUUID, transferUUIDType)]"""
     ret = []
     for metadataAppliesToidentifier, metadataAppliesToType in metadataAppliesToList:
@@ -54,12 +53,12 @@ def archivematicaGetRights(job, metadataAppliesToList, fileUUID):
             metadataappliestotype_id=metadataAppliesToType
         )
         for statement in statements:
-            rightsStatement = createRightsStatement(job, statement, fileUUID)
+            rightsStatement = createRightsStatement(job, statement, fileUUID, state)
             ret.append(rightsStatement)
     return ret
 
 
-def createRightsStatement(job, statement, fileUUID):
+def createRightsStatement(job, statement, fileUUID, state):
     rightsStatement = etree.Element(ns.premisBNS + "rightsStatement", nsmap={'premis': ns.premisNS})
     rightsStatement.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
 
@@ -161,7 +160,7 @@ def createRightsStatement(job, statement, fileUUID):
                 etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsNote").text = note.otherrightsnote
 
     # 4.1.6 rightsGranted (O, R)
-    getrightsGranted(job, statement, rightsStatement)
+    getrightsGranted(job, statement, rightsStatement, state)
 
     # 4.1.7 linkingObjectIdentifier (O, R)
     linkingObjectIdentifier = etree.SubElement(rightsStatement, ns.premisBNS + "linkingObjectIdentifier")
@@ -208,7 +207,7 @@ def getstatuteInformation(statement, parent):
                 etree.SubElement(statuteApplicableDates, ns.premisBNS + "endDate").text = formatDate(statuteapplicableenddate)
 
 
-def getrightsGranted(job, statement, parent):
+def getrightsGranted(job, statement, parent, state):
     for granted in statement.rightsstatementrightsgranted_set.all():
         rightsGranted = etree.SubElement(parent, ns.premisBNS + "rightsGranted")
         etree.SubElement(rightsGranted, ns.premisBNS + "act").text = granted.act
@@ -218,7 +217,7 @@ def getrightsGranted(job, statement, parent):
             restriction = restriction.restriction
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
                 job.pyprint("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction, file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount += 1
+                state.error_accumulator.error_count += 1
             etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
 
         if granted.startdate or granted.enddate or granted.enddateopen:
@@ -228,7 +227,7 @@ def getrightsGranted(job, statement, parent):
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfRestriction")
             else:
                 job.pyprint("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount += 1
+                state.error_accumulator.error_count += 1
                 continue
 
             if granted.startdate:

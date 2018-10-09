@@ -25,15 +25,20 @@ import os
 import sys
 from verify_sip_compliance import checkDirectory
 
-requiredDirectories = ["objects",
-                       "logs",
-                       "metadata",
-                       "metadata/submissionDocumentation"]
-allowableFiles = ["processingMCP.xml"]
+REQUIRED_DIRECTORIES = (
+    "objects",
+    "logs",
+    "metadata",
+    "metadata/submissionDocumentation",
+)
+
+ALLOWABLE_FILES = (
+    "processingMCP.xml",
+)
 
 
 def verifyDirectoriesExist(job, SIPDir, ret=0):
-    for directory in requiredDirectories:
+    for directory in REQUIRED_DIRECTORIES:
         if not os.path.isdir(os.path.join(SIPDir, directory)):
             job.pyprint("Required Directory Does Not Exist: " + directory, file=sys.stderr)
             ret += 1
@@ -43,11 +48,11 @@ def verifyDirectoriesExist(job, SIPDir, ret=0):
 def verifyNothingElseAtTopLevel(job, SIPDir, ret=0):
     for entry in os.listdir(SIPDir):
         if os.path.isdir(os.path.join(SIPDir, entry)):
-            if entry not in requiredDirectories:
+            if entry not in REQUIRED_DIRECTORIES:
                 job.pyprint("Error, directory exists: " + entry, file=sys.stderr)
                 ret += 1
         else:
-            if entry not in allowableFiles:
+            if entry not in ALLOWABLE_FILES:
                 job.pyprint("Error, file exists: " + entry, file=sys.stderr)
                 ret += 1
     return ret

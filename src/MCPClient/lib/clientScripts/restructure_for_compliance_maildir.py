@@ -23,12 +23,22 @@
 import os
 import shutil
 
-requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submissionDocumentation", "objects", "objects/Maildir"]
-optionalFiles = "processingMCP.xml"
+REQUIRED_DIRECTORIES = (
+    "logs",
+    "logs/fileMeta",
+    "metadata",
+    "metadata/submissionDocumentation",
+    "objects",
+    "objects/Maildir",
+)
+
+OPTIONAL_FILES = (
+    "processingMCP.xml",
+)
 
 
 def restructureMaildirDirectory(job, unitPath):
-    for dir in requiredDirectories:
+    for dir in REQUIRED_DIRECTORIES:
         dirPath = os.path.join(unitPath, dir)
         if not os.path.isdir(dirPath):
             os.mkdir(dirPath)
@@ -36,10 +46,10 @@ def restructureMaildirDirectory(job, unitPath):
     for item in os.listdir(unitPath):
         dst = os.path.join(unitPath, "objects", "Maildir") + "/."
         itemPath = os.path.join(unitPath, item)
-        if os.path.isdir(itemPath) and item not in requiredDirectories:
+        if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             shutil.move(itemPath, dst)
             job.pyprint("moving directory to objects/Maildir: ", item)
-        elif os.path.isfile(itemPath) and item not in optionalFiles:
+        elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
             shutil.move(itemPath, dst)
             job.pyprint("moving file to objects/Maildir: ", item)
 

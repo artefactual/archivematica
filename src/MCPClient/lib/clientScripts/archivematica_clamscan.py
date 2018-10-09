@@ -266,8 +266,8 @@ def get_parser():
     return parser
 
 
-SCANNERS = [ClamScanner, ClamdScanner]
-SCANNERS_NAMES = [b.__name__.lower() for b in SCANNERS]
+SCANNERS = (ClamScanner, ClamdScanner)
+SCANNERS_NAMES = tuple(b.__name__.lower() for b in SCANNERS)
 DEFAULT_SCANNER = ClamdScanner
 
 

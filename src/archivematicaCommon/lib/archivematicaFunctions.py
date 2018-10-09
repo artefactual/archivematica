@@ -39,18 +39,18 @@ from main.models import DashboardSetting
 from namespaces import NSMAP
 
 
-REQUIRED_DIRECTORIES = [
+REQUIRED_DIRECTORIES = (
     "logs",
     "logs/fileMeta",
     "metadata",
     "metadata/submissionDocumentation",
     "objects",
-]
+)
 
-OPTIONAL_FILES = [
+OPTIONAL_FILES = (
     "processingMCP.xml",
     "README.html",
-]
+)
 
 MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/access",

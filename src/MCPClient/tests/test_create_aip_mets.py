@@ -19,8 +19,6 @@ import archivematicaCreateMETSRights
 
 from main.models import RightsStatement
 
-create_mets_v2.initGlobalState()
-
 NSMAP = {
     'dc': 'http://purl.org/dc/elements/1.1/',
     'dcterms': 'http://purl.org/dc/terms/',
@@ -54,8 +52,9 @@ class TestNormativeStructMap(TestCase):
 
     def test_normative_structmap_creation(self):
         """It should return an etree Element instance."""
+        state = create_mets_v2.MetsState()
         normativeStructMap = create_mets_v2.get_normative_structmap(
-            self.sip_dir, self.sip_object_dir, {})
+            self.sip_dir, self.sip_object_dir, {}, state)
         assert isinstance(normativeStructMap, etree._Element)
 
 
@@ -116,7 +115,8 @@ class TestDublinCore(TestCase):
     def test_create_dc_dmdsec_dc_exists(self):
         """It should create a dmdSec if DC information exists."""
         # Generate dmdSec if DC exists
-        dmdsec_elem, dmdid = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, self.sipuuid, THIS_DIR)
+        state = create_mets_v2.MetsState()
+        dmdsec_elem, dmdid = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, self.sipuuid, THIS_DIR, state)
         # Verify created correctly
         assert dmdsec_elem is not None
         assert dmdsec_elem.tag == '{http://www.loc.gov/METS/}dmdSec'
@@ -134,7 +134,8 @@ class TestDublinCore(TestCase):
     def test_create_dc_dmdsec_no_dc_no_transfers_dir(self):
         """It should not fail if no transfers directory exists."""
         badsipuuid = 'dnednedn-5bd2-4249-84a1-2f00f725b981'
-        dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, badsipuuid, THIS_DIR)
+        state = create_mets_v2.MetsState()
+        dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, badsipuuid, THIS_DIR, state)
         # Expect no element
         assert dmdsec_elem is None
 
@@ -142,12 +143,13 @@ class TestDublinCore(TestCase):
         """It should not fail if no dublincore.xml exists from transfers."""
         badsipuuid = 'dnednedn-5bd2-4249-84a1-2f00f725b981'
         empty_transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'emptysip')
+        state = create_mets_v2.MetsState()
         # Make sure directory is empty
         try:
             os.remove(os.path.join(empty_transfers_sip, 'objects', 'metadata', 'transfers', '.gitignore'))
         except OSError:
             pass
-        dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, badsipuuid, empty_transfers_sip)
+        dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(Job("stub", "stub", []), self.siptypeuuid, badsipuuid, empty_transfers_sip, state)
         assert dmdsec_elem is None
         # Reset directory state
         with open(os.path.join(empty_transfers_sip, 'objects', 'metadata', 'transfers', '.gitignore'), 'w'):
@@ -179,7 +181,8 @@ class TestDublinCore(TestCase):
             ("dcterms.isPartOf", ["AIC#42"]),
         ])
         # Test
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data)
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data, state)
         # Verify
         assert ret
         assert len(ret) == 1
@@ -235,7 +238,8 @@ class TestDublinCore(TestCase):
             ("Long Description", ['This is about how glaives are used in the Yamani Islands'])
         ])
         # Test
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data)
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data, state)
         # Verify
         assert ret
         assert len(ret) == 1
@@ -270,7 +274,8 @@ class TestDublinCore(TestCase):
             ("Long Description", ['This is about how glaives are used in the Yamani Islands'])
         ])
         # Test
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data)
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data, state)
         # Verify
         assert ret
         assert len(ret) == 2
@@ -319,7 +324,8 @@ class TestDublinCore(TestCase):
         """It should not create dmdSecs with no parsed metadata."""
         data = {}
         # Test
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data)
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data, state)
         # Verify
         assert ret == []
 
@@ -330,7 +336,8 @@ class TestDublinCore(TestCase):
             ("Contributor", ["Yuki", u"雪 ユキ".encode('utf8')]),
         ])
         # Test
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data)
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(Job("stub", "stub", []), data, state)
         # Verify
         assert ret
         assert len(ret) == 2
@@ -491,7 +498,8 @@ class TestCreateDigiprovMD(TestCase):
         It should link Events only with Agents for that Event
         It should only include Agents used by that file
         """
-        ret = create_mets_v2.createDigiprovMD("ae8d4290-fe52-4954-b72a-0f591bee2e2f")
+        state = create_mets_v2.MetsState()
+        ret = create_mets_v2.createDigiprovMD("ae8d4290-fe52-4954-b72a-0f591bee2e2f", state)
         assert len(ret) == 9
         # Events
         assert ret[0][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
@@ -541,7 +549,8 @@ class TestRights(TestCase):
         elem = etree.Element("{info:lc/xmlns/premis-v2}rightsStatement", nsmap={'premis': NSMAP['premis']})
         statement = RightsStatement.objects.get(id=1)
         # Test
-        archivematicaCreateMETSRights.getrightsGranted(Job("stub", "stub", []), statement, elem)
+        state = create_mets_v2.MetsState()
+        archivematicaCreateMETSRights.getrightsGranted(Job("stub", "stub", []), statement, elem, state)
         # Verify
         assert len(elem) == 1
         rightsgranted = elem[0]

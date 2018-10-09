@@ -30,10 +30,9 @@ import sys
 import traceback
 # archivematicaCommon
 import archivematicaFunctions
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
-def parseMetadata(job, SIPPath):
+def parseMetadata(job, SIPPath, state):
     """
     Parse all metadata.csv files in SIPPath.
 
@@ -54,7 +53,7 @@ def parseMetadata(job, SIPPath):
         except Exception:
             job.pyprint("error parsing: ", metadataCSVFilePath, file=sys.stderr)
             job.print_error(traceback.format_exc())
-            sharedVariablesAcrossModules.globalErrorCount += 1
+            state.error_accumulator.error_count += 1
             continue
         # Provide warning if this file already has differing metadata
         # Not using all_metadata.update(csv_metadata) because of that
