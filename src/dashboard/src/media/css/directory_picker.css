@@ -53,3 +53,16 @@
 .backbone-file-explorer-idle {
   background-image: none;
 }
+
+/* Layout of directory items using CSS Grid */
+
+.backbone-file-explorer-directory {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 30px 1fr;
+  grid-template-columns: 30px 1fr;
+}
+
+.backbone-file-explorer-directory > span {
+  height: 100%;
+}
