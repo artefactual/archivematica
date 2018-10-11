@@ -115,7 +115,7 @@ EXISTING_EXIT_CODE_VALIDATE_TO_POLICY = "434066e6-8205-4832-a71f-cc9cd8b539d2"
 EXISTING_MS_REMOVE_HIDDEN = "50b67418-cb8d-434d-acc9-4a8324e7fdd2"
 EXISTING_MS_REMOVE_UNNEEDED = "5d780c7d-39d0-4f4a-922b-9d1b0d217bca"
 EXISTING_MS_RESTRUCTURE_COMPLIANCE = "ea0e8838-ad3a-4bdd-be14-e5dba5a4ae0c"
-EXISTING_MS_VAILIDATE_FORMATS = "a536828c-be65-4088-80bd-eb511a0a063d"
+EXISTING_MS_VALIDATE_FORMATS = "a536828c-be65-4088-80bd-eb511a0a063d"
 EXISTING_MS_POLICY_CHECKS = "70fc7040-d4fb-4d19-a0e6-792387ca1006"
 EXISTING_MS_CREATE_TRANSFER_METS = "db99ab43-04d7-44ab-89ec-e09d7bbdc39d"
 
@@ -129,6 +129,22 @@ EXISTING_CHAIN_REJECT_TRANSFER = "1b04ec43-055c-43b7-9543-bd03c6a778ba"
 
 # Watched directory type for transfers.
 EXISTING_WATCHED_DIR_TYPE_TRANSFER = "f9a3a93b-f184-4048-8072-115ffac06b5d"
+
+# Task and group names introduced in the Dataverse Transfer. Order is
+# determined first by group, then description, and in the order which they
+# appear in the workflow.
+VERIFY_COMPLIANCE_GROUP = "Verify transfer compliance"
+PARSE_EXTERNAL_FILES_GROUP = "Parse external files"
+APPROVE_TRANSFER_DESC = "Approve Dataverse transfer"
+SET_TRANSFER_TYPE_DESC = "Set transfer type: Dataverse"
+TRANSFER_IN_PROGRESS_DESC = "Set Dataverse transfer in progress"
+SET_CONVERT_DATAVERSE_DESC = "Set convert Dataverse structure flag"
+SET_PARSE_DATAVERSE_DESC = "Set parse Dataverse METS flag"
+CONVERT_DATAVERSE_DESC = "Convert Dataverse structure"
+DETERMINE_CONVERSION_DESC = "Determine if Dataverse conversion needs to happen"
+DETERMINE_PARSE_DATAVERSE_DESC = \
+    "Determine if Dataverse METS XML needs to be parsed"
+PARSE_DATAVERSE_METS_DESC = "Parse Dataverse METS XML"
 
 
 def create_variable_link_pull(
@@ -240,14 +256,14 @@ def create_parse_dataverse_mets_link_pull(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_LINK_PULL,
         task_uuid=NEW_LINK_PULL_PARSE_DATAVERSE_METS,
-        task_desc="Determine Parse Dataverse METS XML",
+        task_desc=DETERMINE_PARSE_DATAVERSE_DESC,
         task_config=NEW_LINK_PULL_CONFIG_PARSE_DV,
     )
 
     # ec3c965c (Determine Parse Dataverse METS XML).
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_DETERMINE_PARSE_DV,
-        group="Parse External Files",
+        group=PARSE_EXTERNAL_FILES_GROUP,
         task_uuid=NEW_LINK_PULL_PARSE_DATAVERSE_METS,
         ms_exit_message=Job.STATUS_COMPLETED_SUCCESSFULLY,
     )
@@ -272,7 +288,7 @@ def create_parse_dataverse_mets_link_pull(apps):
     # ec3c965c (Determine Parse Dataverse METS XML)
     create_ms_exit_codes(
         apps=apps, exit_code_uuid=EXISTING_EXIT_CODE_VALIDATE_TO_POLICY,
-        ms_in=EXISTING_MS_VAILIDATE_FORMATS,
+        ms_in=EXISTING_MS_VALIDATE_FORMATS,
         ms_out=NEW_MS_DETERMINE_PARSE_DV,
         update=True,
     )
@@ -297,14 +313,14 @@ def create_convert_dataverse_link_pull(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_LINK_PULL,
         task_uuid=NEW_LINK_PULL_CONVERT_DATAVERSE,
-        task_desc="Determine Dataverse conversion",
+        task_desc=DETERMINE_CONVERSION_DESC,
         task_config=NEW_LINK_PULL_CONFIG_CONVERT_DV,
     )
 
     # 7eade269 (Determine Dataverse Conversion).
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_DETERMINE_CONVERT_DV,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=NEW_LINK_PULL_CONVERT_DATAVERSE,
         ms_exit_message=Job.STATUS_COMPLETED_SUCCESSFULLY,
     )
@@ -360,14 +376,14 @@ def create_parse_dataverse_mets_microservice(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_SINGLE_INSTANCE,
         task_uuid=NEW_STD_TASK_PARSE_DATAVERSE_METS,
-        task_desc="Parse Dataverse METS XML",
+        task_desc=PARSE_DATAVERSE_METS_DESC,
         task_config=NEW_STD_TASK_CONFIG_PARSE_DV,
     )
 
     # fba1fd92 (Parse Dataverse METS XML) Chainlink.
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_PARSE_DV_METS,
-        group="Parse External Files",
+        group=PARSE_EXTERNAL_FILES_GROUP,
         task_uuid=NEW_STD_TASK_PARSE_DATAVERSE_METS,
     )
 
@@ -393,7 +409,7 @@ def create_dataverse_unit_variables_and_initial_tasks(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_SET_UNIT_VAR,
         task_uuid=NEW_UNIT_VAR_TASK_CONVERT_DATAVERSE,
-        task_desc="Set Convert Dataverse Structure",
+        task_desc=SET_CONVERT_DATAVERSE_DESC,
         task_config=NEW_UNIT_VAR_CONFIG_CONVERT_DV,
     )
 
@@ -402,7 +418,7 @@ def create_dataverse_unit_variables_and_initial_tasks(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_SET_UNIT_VAR,
         task_uuid=NEW_UNIT_VAR_TASK_PARSE_DV_METS,
-        task_desc="Set Parse Dataverse Mets",
+        task_desc=SET_PARSE_DATAVERSE_DESC,
         task_config=NEW_UNIT_VAR_CONFIG_PARSE_DV,
     )
 
@@ -410,7 +426,7 @@ def create_dataverse_unit_variables_and_initial_tasks(apps):
     # Create Unit Variable Task.
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_SET_CONVERT_DV_UNIT_VAR,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=NEW_UNIT_VAR_TASK_CONVERT_DATAVERSE,
     )
 
@@ -418,7 +434,7 @@ def create_dataverse_unit_variables_and_initial_tasks(apps):
     # Create Unit Variable Task.
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_SET_PARSE_DV_UNIT_VAR,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=NEW_UNIT_VAR_TASK_PARSE_DV_METS,
     )
 
@@ -437,14 +453,14 @@ def create_dataverse_unit_variables_and_initial_tasks(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_SINGLE_INSTANCE,
         task_uuid=NEW_STD_TASK_CONVERT_DATAVERSE,
-        task_desc="Convert Dataverse Structure",
+        task_desc=CONVERT_DATAVERSE_DESC,
         task_config=NEW_STD_TASK_CONFIG_CONVERT_DV,
     )
 
     # ab6c6e52 (Convert Dataverse Structure) Chainlink.
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_CONVERT_DV_STRUCTURE,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=NEW_STD_TASK_CONVERT_DATAVERSE,
     )
 
@@ -510,33 +526,33 @@ def create_dataverse_transfer_type(apps):
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_USER_CHOICE,
         task_uuid=NEW_CHOICE_TASK_APPROVE_DV_TRANSFER,
-        task_desc="Approve Dataverse Transfer",
+        task_desc=APPROVE_TRANSFER_DESC,
     )
     create_task(
         apps=apps, task_type_uuid=TASK_TYPE_SINGLE_INSTANCE,
         task_uuid=NEW_STD_TASK_SET_TRANSFER_TYPE_DV,
-        task_desc="Set transfer type: Dataverse",
+        task_desc=SET_TRANSFER_TYPE_DESC,
         task_config=NEW_STD_TASK_CONFIG_SET_DV_TRANSFER,
     )
 
     # 246943e4 (Approve Dataverse transfer)
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_APPROVE_DV_TRANSFER,
-        group="Approve Dataverse transfer",
+        group=APPROVE_TRANSFER_DESC,
         task_uuid=NEW_CHOICE_TASK_APPROVE_DV_TRANSFER,
     )
 
     # fdb12ea6 (Move to processing directory)
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_MOVE_TO_PROCESSING_DIR,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=EXISTING_TASK_MOVE_TO_PROCESSING_DIR,
     )
 
     # 0af6b163 (Set transfer type: Dataverse)
     create_ms_chain_link(
         apps=apps, ms_uuid=NEW_MS_SET_DV_TRANSFER_TYPE,
-        group="Verify transfer compliance",
+        group=VERIFY_COMPLIANCE_GROUP,
         task_uuid=NEW_STD_TASK_SET_TRANSFER_TYPE_DV,
     )
 
@@ -544,12 +560,12 @@ def create_dataverse_transfer_type(apps):
     create_ms_chain(
         apps=apps, chain_uuid=NEW_MS_CHAIN_DV_IN_PROGRESS,
         ms_uuid=NEW_MS_APPROVE_DV_TRANSFER,
-        chain_description="Dataverse Transfers in Progress",
+        chain_description=TRANSFER_IN_PROGRESS_DESC,
     )
     create_ms_chain(
         apps=apps, chain_uuid=NEW_MS_CHAIN_APPROVE_DV_TRANSFER,
         ms_uuid=NEW_MS_MOVE_TO_PROCESSING_DIR,
-        chain_description="Approve Dataverse transfer",
+        chain_description=APPROVE_TRANSFER_DESC,
     )
 
     # Approve Dataverse transfer
@@ -630,7 +646,7 @@ def data_migration_down(apps, schema_editor):
     #       (Perform policy checks on originals?)
     create_ms_exit_codes(
         apps=apps, exit_code_uuid=EXISTING_EXIT_CODE_VALIDATE_TO_POLICY,
-        ms_in=EXISTING_MS_VAILIDATE_FORMATS,
+        ms_in=EXISTING_MS_VALIDATE_FORMATS,
         ms_out=EXISTING_MS_POLICY_CHECKS,
         update=True,
     )
