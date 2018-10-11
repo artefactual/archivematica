@@ -186,7 +186,10 @@ def set_setting(setting, value=''):
     except:
         setting_data = models.DashboardSetting.objects.create()
         setting_data.name = setting
-
+    # ``DashboardSetting.value`` is a string-based field. The empty string is
+    # the way to represent the lack of data, therefore NULL values are avoided.
+    if value is None:
+        value = ''
     setting_data.value = value
     setting_data.save()
 
