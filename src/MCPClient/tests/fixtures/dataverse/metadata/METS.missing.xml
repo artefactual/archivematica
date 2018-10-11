@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  METS with just two files. One of which should not exist in the Dataverse
+  fixtures. This will help us in testing the behavior of the Dataverse scripts
+  when objects are missing. Missing objects happen in Dataverse because this
+  METS file in a transfer scenario is populated using metadata only, not the
+  files themselves, and so a certain number of assumptions are made about what
+  is and isn't there.
+-->
+<mets:mets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mets="http://www.loc.gov/METS/" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2015-09-12T00:01:35"/>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file ID="file-a001048d-4c3e-485d-af02-1d19584a93b1" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_data.RData" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <!-- The file below is the non-existent object in the mets fixtures -->
+      <mets:file ID="file-e5fde5cb-a5d7-4e67-ae66-20b73552eedf" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/i_am_not_here" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="missing_object_example" TYPE="Directory">
+        <mets:div LABEL="Weather_data/Weather_data.RData" TYPE="Item">
+          <mets:fptr FILEID="file-a001048d-4c3e-485d-af02-1d19584a93b1"/>
+        </mets:div>
+        <!-- The file below is the non-existent object in the mets fixtures -->
+        <mets:div LABEL="i_am_not_here" TYPE="Item">
+          <mets:fptr FILEID="file-e5fde5cb-a5d7-4e67-ae66-20b73552eedf"/>
+        </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

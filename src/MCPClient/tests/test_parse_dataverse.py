@@ -8,8 +8,8 @@ import sys
 
 from django.test import TestCase
 import metsrw
-from job import Job
 
+from job import Job
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,25 +30,40 @@ class TestParseDataverse(TestCase):
 
     def setUp(self):
         self.job = Job("stub", "stub", ["", ""])
+        # A completely valid METS document where there should be very few if
+        # any exceptions to contend with.
         self.mets = metsrw.METSDocument.fromfile(os.path.join(
             THIS_DIR, 'fixtures', 'dataverse', 'metadata', 'METS.xml'))
+        # A METS document with values that enable us to test when there are
+        # duplicate objects in a Dataverse transfer.
+        self.duplicate_file_mets = metsrw.METSDocument.fromfile(os.path.join(
+            THIS_DIR, 'fixtures', 'dataverse', 'metadata',
+            'METS.duplicate.xml'))
+        # A METS document with values that enable us to test when there is an
+        # object missing from the transfer which can happen when we populate
+        # the initial 'Dataverse' mets from metadata only.
+        self.missing_file_mets = metsrw.METSDocument.fromfile(os.path.join(
+            THIS_DIR, 'fixtures', 'dataverse', 'metadata', 'METS.missing.xml'))
+        # A METS document with values that enable us to test when there is an
+        # an object that has been purposely removed from a transfer, e.g.
+        # through extract packages.
+        self.removed_file_mets = metsrw.METSDocument.fromfile(os.path.join(
+            THIS_DIR, 'fixtures', 'dataverse', 'metadata', 'METS.removed.xml'))
+        # Transfer UUID and the location of that transfer for test's sakes.
         self.uuid = '6741c782-f22b-47b3-8bcf-72fd0c94e195'
         self.unit_path = os.path.join(THIS_DIR, 'fixtures', 'dataverse', '')
-
-        # Clear agents
         models.Agent.objects.all().delete()
 
     @staticmethod
     def test_fixture():
         """Test that the fixture has been loaded as expected."""
         assert models.Transfer.objects.count() == 1
-        assert models.File.objects.count() == 9
+        assert models.File.objects.count() == 12
 
     def test_mapping(self):
         """The first test in is to find the Dataverse objects in the Database
         and ensure they are there as expected.
         """
-
         test_cases = [
             {
                 # chelen_052.jpg
@@ -145,12 +160,10 @@ class TestParseDataverse(TestCase):
                 "file_group_use": "metadata",
             },
         ]
-
         assert models.File.objects.exclude(filegrpuse='original').count() == 0
         mapping = parse_dataverse.get_db_objects(
             self.job, self.mets, self.uuid)
         parse_dataverse.update_file_use(self.job, mapping)
-
         for test_case in test_cases:
             assert models.File.objects\
                 .get(currentlocation=test_case
@@ -252,3 +265,32 @@ class TestParseDataverse(TestCase):
         assert events.event_outcome == 'Pass'
         assert events.event_outcome_detail == \
             'Dataverse checksum 4ca2a78963445bce067e027e10394b61 verified'
+
+    def test_get_db_objects_returns(self):
+        """The get_db_objects(...) function performs the task of returning
+        the objects associated with a Dataverse transfer. Because the
+        population of the model is currently done via metadata and not the
+        digital objects themselves, the function has a number of possible
+        outcomes, and a high number of error conditions test here.
+        """
+        # Retrieve database objects matching those in the Dataverse METS.
+        mapping = parse_dataverse.get_db_objects(
+            self.job, self.duplicate_file_mets, self.uuid)
+        # We expect None at this point. If there is a situation where we have
+        # a duplicate file, we can't continue processing until this is solved.
+        assert mapping is None
+        # Retrieve database objects matching those in the Dataverse METS.
+        mapping = parse_dataverse.get_db_objects(
+            self.job, self.missing_file_mets, self.uuid)
+        # If the file cannot be found, it there shouldn't be an object mapping
+        # available. The function should return None to the user so processing
+        # can stop.
+        assert mapping is None
+        # Retrieve database objects matching those in the Dataverse METS.
+        mapping = parse_dataverse.get_db_objects(
+            self.job, self.removed_file_mets, self.uuid)
+        # If the file cannot be found, but it has been purposely removed from
+        # the database by Archivematica, then the service shouldn't fail.
+        # Processing should continue on the objects mapping that remains.
+        assert mapping is not None
+        assert len(mapping) == 1

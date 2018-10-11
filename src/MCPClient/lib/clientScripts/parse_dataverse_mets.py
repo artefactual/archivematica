@@ -48,23 +48,32 @@ def get_db_objects(job, mets, transfer_uuid):
             continue
         # Retrieve the item name from the database. The proof-of-concept for
         # Dataverse extracts objects from a bundle (zip) which can then be
-        # found on the root path of the transfer (the objects folder), but
-        # that means the initial lookup of the file might not resolve as
-        # anticipated as the directory structure of the bundle is reflected in
-        # the original path. We try the base name for the item below.
+        # found on the root path of the transfer (the objects folder).
+        # The initial lookup of the file might not resolve as anticipated as
+        # the directory structure of the bundle is reflected in the original
+        # path. We try the base name for the item below.
         file_entry = None
+        item_path = os.path.join(transfer_objects_directory, entry.path)
+        logger.info(
+            "Looking for file type: '%s' using path: %s",
+            entry.type, entry.path)
         try:
-            item_path = os.path.join(
-                transfer_objects_directory, entry.path)
-            logger.info(
-                "Looking for file type: '%s' using relative path: %s",
-                entry.type, item_path)
             file_entry = File.objects.get(
                 originallocation=item_path, transfer_id=transfer_uuid)
+            # If we retrieve the object there is still a chance that the
+            # file has been removed by Archivematica e.g. via extract
+            # packages. Log its exclusion from the rest of this process.
+            if file_entry.currentlocation is None \
+                    and file_entry.removedtime is not None:
+                logger.info(
+                    "File: %s has been removed from the transfer, see "
+                    "previous microservice job outputs for details, e.g. "
+                    "Extract packages", file_entry.originallocation)
+                continue
         except File.DoesNotExist:
-            logger.info(
-                "Could not find file type: '%s' in the database: %s",
-                entry.type, entry.path)
+            logger.debug(
+                "Could not find file type: '%s' in the database: %s with "
+                "path: %s", entry.type, entry.path, item_path)
         except File.MultipleObjectsReturned as err:
             logger.info("Multiple entries for `%s` found. Exception: %s",
                         entry.path, err)
@@ -75,15 +84,24 @@ def get_db_objects(job, mets, transfer_uuid):
             if file_entry is None:
                 base_name = os.path.basename(entry.path)
                 item_path = os.path.join(transfer_objects_directory, base_name)
-                logger.info("Looking for file type: '%s' using "
-                            "base name: %s", entry.type, item_path)
                 file_entry = File.objects.get(
                     originallocation=item_path,
                     transfer_id=transfer_uuid)
+                # If we retrieve the object there is still a chance that the
+                # file has been removed by Archivematica e.g. via extract
+                # packages. Log its exclusion from the rest of this process.
+                if file_entry.currentlocation is None \
+                        and file_entry.removedtime is not None:
+                    logger.info(
+                        "File: %s has been removed from the transfer, see "
+                        "previous microservice job outputs for details, e.g. "
+                        "Extract packages", file_entry.originallocation)
+                    continue
         except File.DoesNotExist:
             logger.error(
-                "Could not find file type: '%s' in the database: %s. "
-                "Checksum: '%s'", entry.type, base_name, entry.checksum)
+                "Could not find file type: '%s' in the database: %s with "
+                "path: %s. Checksum: '%s'",
+                entry.type, base_name, item_path, entry.checksum)
             return None
         except File.MultipleObjectsReturned as err:
             logger.info("Multiple entries for `%s` found. Exception: %s",
@@ -140,32 +158,38 @@ def add_external_agents(job, unit_path):
 
 def create_db_entries(job, mapping, dataverse_agent_id):
     """
-    Create event and derivatives entries for the derived tabular data in the
-    database.
+    Create derivation event and derivative entries for the tabular bundle data
+    in the transfer.
     """
     for entry, file_entry in mapping.items():
         if entry.derived_from and entry.use == 'derivative':
             original_uuid = mapping[entry.derived_from].uuid
             event_uuid = uuid.uuid4()
-            # Add event
-            databaseFunctions.insertIntoEvents(
-                original_uuid,
-                eventIdentifierUUID=event_uuid,
-                eventType="derivation",
-                eventDateTime=None,  # From Dataverse?
-                eventDetail="",  # From Dataverse?
-                eventOutcome="",  # From Dataverse?
-                eventOutcomeDetailNote=file_entry.currentlocation,
-                agents=[dataverse_agent_id],
-            )
-            # Add derivation
-            databaseFunctions.insertIntoDerivations(
-                sourceFileUUID=original_uuid,
-                derivedFileUUID=file_entry.uuid,
-                relatedEventUUID=event_uuid,
-            )
-            job.pyprint(
-                'Added derivation from', original_uuid, 'to', file_entry.uuid)
+            try:
+                databaseFunctions.insertIntoEvents(
+                    original_uuid,
+                    eventIdentifierUUID=event_uuid,
+                    eventType="derivation",
+                    eventDateTime=None,
+                    eventDetail="",
+                    eventOutcome="",
+                    eventOutcomeDetailNote=file_entry.currentlocation,
+                    agents=[dataverse_agent_id],
+                )
+                # Add derivation
+                databaseFunctions.insertIntoDerivations(
+                    sourceFileUUID=original_uuid,
+                    derivedFileUUID=file_entry.uuid,
+                    relatedEventUUID=event_uuid,
+                )
+                job.pyprint(
+                    'Added derivation from', original_uuid,
+                    'to', file_entry.uuid)
+            except django.db.IntegrityError:
+                err_log = "Database integrity error, entry: {} for file {}"\
+                    .format(file_entry.currentlocation,
+                            file_entry.originallocation)
+                raise ParseDataverseError(err_log)
 
 
 def validate_checksums(job, mapping, unit_path):

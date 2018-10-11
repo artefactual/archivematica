@@ -166,5 +166,59 @@
     },
     "model": "main.file",
     "pk": "e2834eed-4178-469a-9a4e-c8f1490bb804"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "originallocation": "%transferDirectory%objects/Weather_data/i_am_a_duplicate.original",
+        "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
+        "enteredsystem": "2015-11-05T22:06:49",
+        "currentlocation": "%transferDirectory%objects/Weather_data/i_am_a_duplicate.original",
+        "size": 563285
+    },
+    "model": "main.file",
+    "pk": "3e91412f-cd37-4215-afbc-a7197868e794"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "originallocation": "%transferDirectory%objects/Weather_data/i_am_a_duplicate.original",
+        "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
+        "enteredsystem": "2015-11-05T22:06:49",
+        "currentlocation": "%transferDirectory%objects/Weather_data/i_am_a_duplicate.original",
+        "size": 563285
+    },
+    "model": "main.file",
+    "pk": "fa8496ab-a523-4493-a89d-026d91fc5311"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "originallocation": "%transferDirectory%objects/Weather_data/i_have_been_removed",
+        "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
+        "filegrpuse": "original",
+        "removedtime": "2019-01-15T23:13:00",
+        "label": "",
+        "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
+        "enteredsystem": "2015-11-05T22:06:49",
+        "currentlocation": null,
+        "size": 563285
+    },
+    "model": "main.file",
+    "pk": "d6e0cc66-0ecc-4b60-8e2e-ffcf47196355"
 }
 ]
+
+
+
