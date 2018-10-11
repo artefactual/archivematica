@@ -148,24 +148,31 @@ def create_db_entries(job, mapping, dataverse_agent_id):
             original_uuid = mapping[entry.derived_from].uuid
             event_uuid = uuid.uuid4()
             # Add event
-            databaseFunctions.insertIntoEvents(
-                original_uuid,
-                eventIdentifierUUID=event_uuid,
-                eventType="derivation",
-                eventDateTime=None,  # From Dataverse?
-                eventDetail="",  # From Dataverse?
-                eventOutcome="",  # From Dataverse?
-                eventOutcomeDetailNote=file_entry.currentlocation,
-                agents=[dataverse_agent_id],
-            )
-            # Add derivation
-            databaseFunctions.insertIntoDerivations(
-                sourceFileUUID=original_uuid,
-                derivedFileUUID=file_entry.uuid,
-                relatedEventUUID=event_uuid,
-            )
-            job.pyprint(
-                'Added derivation from', original_uuid, 'to', file_entry.uuid)
+            try:
+                databaseFunctions.insertIntoEvents(
+                    original_uuid,
+                    eventIdentifierUUID=event_uuid,
+                    eventType="derivation",
+                    eventDateTime=None,  # From Dataverse?
+                    eventDetail="",  # From Dataverse?
+                    eventOutcome="",  # From Dataverse?
+                    eventOutcomeDetailNote=file_entry.currentlocation,
+                    agents=[dataverse_agent_id],
+                )
+                # Add derivation
+                databaseFunctions.insertIntoDerivations(
+                    sourceFileUUID=original_uuid,
+                    derivedFileUUID=file_entry.uuid,
+                    relatedEventUUID=event_uuid,
+                )
+                job.pyprint(
+                    'Added derivation from', original_uuid,
+                    'to', file_entry.uuid)
+            except django.db.IntegrityError:
+                err_log = "Database integrity error, entry: {} for file {}"\
+                    .format(file_entry.currentlocation,
+                            file_entry.originallocation)
+                raise ParseDataverseError(err_log)
 
 
 def validate_checksums(job, mapping, unit_path):
