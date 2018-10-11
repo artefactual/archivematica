@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 
 from django.core.management.base import BaseCommand, CommandError
 from django.http import QueryDict
+from django.utils import termcolors
 
 from components import helpers
 from components.administration.forms import StorageSettingsForm
@@ -53,6 +54,9 @@ class Command(BaseCommand):
         form.save()
 
     def handle(self, *args, **options):
+        # Not needed in Django 1.9+.
+        self.style.SUCCESS = termcolors.make_style(opts=('bold',), fg='green')
+
         setup_pipeline(options['org_name'],
                        options['org_id'],
                        options['site_url'])
@@ -60,3 +64,4 @@ class Command(BaseCommand):
         self.save_ss_settings(options)
         setup_pipeline_in_ss(use_default_config=True)
         helpers.set_setting('api_whitelist', options['whitelist'])
+        self.stdout.write(self.style.SUCCESS("Done!\n"))
