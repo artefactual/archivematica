@@ -138,12 +138,13 @@ VERIFY_COMPLIANCE_GROUP = "Verify transfer compliance"
 PARSE_EXTERNAL_FILES_GROUP = "Parse external files"
 APPROVE_TRANSFER_DESC = "Approve Dataverse transfer"
 SET_TRANSFER_TYPE_DESC = "Set transfer type: Dataverse"
-TRANSFER_IN_PROGRESS_DESC = "Dataverse transfer in Progress"
-SET_CONVERT_DATAVERSE_DESC = "Set convert dataverse structure"
-SET_PARSE_DATAVERSE_DESC = "Set parse Dataverse METS"
+TRANSFER_IN_PROGRESS_DESC = "Set Dataverse transfer in progress"
+SET_CONVERT_DATAVERSE_DESC = "Set convert Dataverse structure flag"
+SET_PARSE_DATAVERSE_DESC = "Set parse Dataverse METS flag"
 CONVERT_DATAVERSE_DESC = "Convert Dataverse structure"
-DETERMINE_CONVERSION_DESC = "Determine Dataverse conversion"
-DETERMINE_PARSE_DATAVERSE_DESC = "Determine parse Dataverse METS XML"
+DETERMINE_CONVERSION_DESC = "Determine if Dataverse conversion needs to happen"
+DETERMINE_PARSE_DATAVERSE_DESC = \
+    "Determine if Dataverse METS XML needs to be parsed"
 PARSE_DATAVERSE_METS_DESC = "Parse Dataverse METS XML"
 
 
