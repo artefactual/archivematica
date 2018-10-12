@@ -61,6 +61,18 @@ def get_db_objects(job, mets, transfer_uuid):
                 entry.type, item_path)
             file_entry = File.objects.get(
                 originallocation=item_path, transfer_id=transfer_uuid)
+            # File.objects.exclude(...).get(...) will return a
+            # File.DoesNotExist exception so we avoid that here. If the file
+            # has been removed e.g. via extract packages, these two values will
+            # determine that and will enable the mapping to be created without
+            # exiting the script.
+            if file_entry.currentlocation is None \
+                    and file_entry.removedtime is not None:
+                logger.info(
+                    "File: %s has been removed from the transfer, see "
+                    "previous microservice job outputs for details, e.g. "
+                    "Extract packages", file_entry.originallocation)
+                continue
         except File.DoesNotExist:
             logger.info(
                 "Could not find file type: '%s' in the database: %s",
@@ -80,6 +92,18 @@ def get_db_objects(job, mets, transfer_uuid):
                 file_entry = File.objects.get(
                     originallocation=item_path,
                     transfer_id=transfer_uuid)
+                # File.objects.exclude(...).get(...) will return a
+                # File.DoesNotExist exception so we avoid that here. If the
+                # file has been removed e.g. via extract packages, these two
+                # values will determine that and will enable the mapping to be
+                # created without exiting the script.
+                if file_entry.currentlocation is None \
+                        and file_entry.removedtime is not None:
+                    logger.info(
+                        "File: %s has been removed from the transfer, see "
+                        "previous microservice job outputs for details, e.g. "
+                        "Extract packages", file_entry.originallocation)
+                    continue
         except File.DoesNotExist:
             logger.error(
                 "Could not find file type: '%s' in the database: %s. "
