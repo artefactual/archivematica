@@ -59,6 +59,12 @@ from archivematicaFunctions import str2bool
 logger = get_script_logger('archivematica.mcp.client.bind_pid')
 
 
+# REMOVE THIS CODE BEFORE REBASE
+# REMOVE THIS CODE BEFORE REBASE
+# REMOVE THIS CODE BEFORE REBASE
+def concurrent_instances(): return 1
+
+
 class BindPIDException(Exception):
     """If I am raised, return 1."""
     exit_code = 1

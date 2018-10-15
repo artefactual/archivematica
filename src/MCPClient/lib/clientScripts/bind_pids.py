@@ -52,14 +52,21 @@ django.setup()
 from django.db import transaction
 from lxml import etree
 # dashboard
-from main.models import DashboardSetting, Directory, Identifier, SIP
+from main.models import DashboardSetting, Directory, Identifier, SIP, File
 # archivematicaCommon
 from archivematicaFunctions import str2bool
 from bindpid import bind_pid, BindPIDException
+import bind_third_party_pids
 from custom_handlers import get_script_logger
 import namespaces as ns
 
 logger = get_script_logger('archivematica.mcp.client.bind_pids')
+
+
+# REMOVE THIS CODE BEFORE REBASE
+# REMOVE THIS CODE BEFORE REBASE
+# REMOVE THIS CODE BEFORE REBASE
+def concurrent_instances(): return 1
 
 
 class BindPIDsException(Exception):
@@ -213,7 +220,20 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     for mdl in chain([_get_sip(sip_uuid)],
                      Directory.objects.filter(sip_id=sip_uuid).all()):
         _bind_pid_to_model(job, mdl, shared_path, handle_config)
-
+    # Insert additionally provided identifiers into database model where they
+    # have been provided by the user. Rely in identifiers.json file, which we
+    # need to locate in the SIP without having the path provided to this script
+    # where we might normally use find_metadata_files. As such, rely on the DB.
+    try:
+        identifiers_loc = File.objects.get(
+            sip_id=sip_uuid,
+            currentlocation__endswith=bind_third_party_pids.IDENTIFIERS_JSON)
+    except File.DoesNotExist:
+        logger.info("Custom `identifiers.json` not provided with transfer")
+        return
+    if identifiers_loc:
+        bind_third_party_pids.parse_identifiers_json(
+            job, sip_uuid, identifiers_loc, shared_path)
 
 def call(jobs):
     parser = argparse.ArgumentParser()
