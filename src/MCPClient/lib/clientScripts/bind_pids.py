@@ -52,24 +52,17 @@ django.setup()
 from django.db import transaction
 from lxml import etree
 # dashboard
-from main.models import DashboardSetting, Directory, Identifier, SIP
+from main.models import DashboardSetting, Directory, SIP, File
 # archivematicaCommon
 from archivematicaFunctions import str2bool
 from bindpid import bind_pid, BindPIDException
+from bind_pid_helpers import BindPIDsException, BindPIDsWarning, \
+    validate_handle_server_config, _add_pid_to_mdl_identifiers
+import bind_third_party_pids
 from custom_handlers import get_script_logger
 import namespaces as ns
 
 logger = get_script_logger('archivematica.mcp.client.bind_pids')
-
-
-class BindPIDsException(Exception):
-    """If I am raised, return 1."""
-    exit_code = 1
-
-
-class BindPIDsWarning(Exception):
-    """If I am raised, return 0."""
-    exit_code = 0
 
 
 def exit_on_known_exception(func):
@@ -78,6 +71,9 @@ def exit_on_known_exception(func):
     """
     @wraps(func)
     def wrapped(*_args, **kwargs):
+        """Try the function following the decorator and return as appropriate
+        if we fall foul of an exception.
+        """
         try:
             func(*_args, **kwargs)
         except (BindPIDsException, BindPIDsWarning) as exc:
@@ -92,17 +88,13 @@ def _exit_if_not_bind_pids(bind_pids_switch):
         raise BindPIDsWarning
 
 
-def _add_pid_to_mdl_identifiers(mdl, config):
-    """Add the newly minted handle/PID to the ``SIP`` or ``Directory`` model as
-    an identifier in its m2m ``identifiers`` attribute. Also add the PURL (URL
-    constructed out of the PID) as a URI-type identifier.
+def fmt_and_add_pid_to_mdl_ids(mdl, config):
+    """Format the newly minded handle/PID to be able to add it to the the
+    ``SIP`` or ``Directory`` model as appropriate.
     """
     pid = '{}/{}'.format(config['naming_authority'], config['desired_pid'])
     purl = '{}/{}'.format(config['handle_resolver_url'].rstrip('/'), pid)
-    hdl_identifier = Identifier.objects.create(type='hdl', value=pid)
-    purl_identifier = Identifier.objects.create(type='URI', value=purl)
-    mdl.identifiers.add(hdl_identifier)
-    mdl.identifiers.add(purl_identifier)
+    _add_pid_to_mdl_identifiers(mdl, pid, purl)
 
 
 def _get_sip(sip_uuid):
@@ -190,7 +182,7 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
                    'desired_pid': desired_pid})
     try:
         msg = bind_pid(**config)
-        _add_pid_to_mdl_identifiers(mdl, config)
+        fmt_and_add_pid_to_mdl_ids(mdl, config)
         job.pyprint(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
         logger.info(msg)
         return 0
@@ -207,15 +199,36 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     ``True``.
     """
     _exit_if_not_bind_pids(bind_pids_switch)
+    # If there are user provided identifiers
+    # insert them into the database
+    # and skip connecting to the pid server
+    identifiers_loc = None
+    try:
+        identifiers_loc = File.objects.get(
+            sip_id=sip_uuid,
+            currentlocation__endswith=bind_third_party_pids.IDENTIFIERS_JSON)
+    except File.DoesNotExist:
+        logger.info("Custom `identifiers.json` not provided with transfer")
+    if identifiers_loc:
+        bind_third_party_pids.load_identifiers_json(
+            job, logger, sip_uuid, identifiers_loc, shared_path)
+        return
     handle_config = DashboardSetting.objects.get_dict('handle')
     handle_config['pid_request_verify_certs'] = str2bool(
         handle_config.get('pid_request_verify_certs', 'True'))
-    for mdl in chain([_get_sip(sip_uuid)],
-                     Directory.objects.filter(sip_id=sip_uuid).all()):
-        _bind_pid_to_model(job, mdl, shared_path, handle_config)
+    if validate_handle_server_config(handle_config, logger):
+        # Given the opportunity, a happy path here would test to see if the
+        # handle configuration was set correctly, and then raise an exception
+        # if not. We don't want to exit the script this early, however, to we
+        # test for the positive existence of a config and run that path
+        # instead.
+        for mdl in chain([_get_sip(sip_uuid)],
+                         Directory.objects.filter(sip_id=sip_uuid).all()):
+            _bind_pid_to_model(job, mdl, shared_path, handle_config)
 
 
 def call(jobs):
+    """Primary entry point for the ``bind_pids`` script."""
     parser = argparse.ArgumentParser()
     parser.add_argument('sip_uuid', type=str,
                         help='The UUID of the SIP to bind a PID for; any'

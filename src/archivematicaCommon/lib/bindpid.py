@@ -200,7 +200,7 @@ ENTITY_TYPES = {
 
 
 class BindPIDException(Exception):
-    pass
+    """Exception to return to Job runner given a failure condition."""
 
 
 def _validate(argdict):
@@ -432,14 +432,14 @@ def _parse_config(args):
     ``args.config_file``, if there is such a reference. Return a dict of config
     attributes and values or an empty dict if there is no config.
     """
-    cf = args.config_file
-    if not cf:
+    config_file = args.config_file
+    if not config_file:
         return {}
-    if not os.path.isfile(cf):
-        print('Warning: there is no config file at {}'.format(cf))
+    if not os.path.isfile(config_file):
+        print('Warning: there is no config file at {}'.format(config_file))
         return {}
     config = configparser.SafeConfigParser()
-    with open(cf) as filei:
+    with open(config_file) as filei:
         try:
             config.read_file(filei)
         except AttributeError:
@@ -465,6 +465,7 @@ def _merge_args_config(args, config):
 
 
 def get_command_line_params():
+    """Read command line arguments."""
     parser = argparse.ArgumentParser(description='Request handle PIDs.')
     parser, args = _add_parser_args(parser)
     config = _parse_config(args)

@@ -49,9 +49,11 @@ from django.db import transaction
 import django
 django.setup()
 # dashboard
-from main.models import DashboardSetting, File, Identifier
+from main.models import DashboardSetting, File
 # archivematicaCommon
 import bindpid
+from bind_pid_helpers import validate_handle_server_config, \
+    _add_custom_pid_to_mdl_identifiers
 from custom_handlers import get_script_logger
 from archivematicaFunctions import str2bool
 
@@ -75,6 +77,9 @@ def exit_on_known_exception(func):
     """
     @wraps(func)
     def wrapped(*_args, **kwargs):
+        """Try the function following the decorator and return as appropriate
+        if we fall foul of an exception.
+        """
         try:
             func(*_args, **kwargs)
         except (BindPIDException, BindPIDWarning) as exc:
@@ -94,6 +99,8 @@ def _get_bind_pid_config(file_uuid):
     _args = {'entity_type': 'file',
              'desired_pid': file_uuid}
     _args.update(DashboardSetting.objects.get_dict('handle'))
+    if not validate_handle_server_config(_args):
+        raise BindPIDWarning
     _args['pid_request_verify_certs'] = str2bool(
         _args.get('pid_request_verify_certs', 'True'))
     return _args
@@ -115,9 +122,9 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
         # redundant identifiers for the file.
         matches = [True for id_ in existing_ids
                    if id_.type == id_type and id_.value == id_val]
-        if len(matches) == 0:
-            idfr = Identifier.objects.create(type=id_type, value=id_val)
-            file_mdl.identifiers.add(idfr)
+        if len(matches) is 0:
+            _add_custom_pid_to_mdl_identifiers(
+                mdl=file_mdl, scheme=id_type, value=id_val)
 
 
 @exit_on_known_exception
@@ -142,6 +149,7 @@ def main(job, file_uuid, bind_pids_switch):
 
 
 def call(jobs):
+    """Primary entry point for the ``bind_pid`` script."""
     parser = argparse.ArgumentParser()
     parser.add_argument('file_uuid', type=str,
                         help='The UUID of the file to bind a PID for.')
