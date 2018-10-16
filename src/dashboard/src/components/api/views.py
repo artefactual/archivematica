@@ -444,7 +444,7 @@ def approve_transfer(request):
 def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(django_settings.WATCH_DIRECTORY, "activeTransfers")
     if transfer_type is None:
-        return None
+        return path.replace(SHARED_DIRECTORY_ROOT, "%sharedPath%", 1)
     try:
         path = os.path.join(
             path,
