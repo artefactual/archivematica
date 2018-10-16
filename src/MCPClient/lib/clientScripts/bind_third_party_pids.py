@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 # This file is part of Archivematica.
@@ -22,32 +21,102 @@
 ``identifiers.json`` file update the ``Identifiers`` model to also include the
 values supplied in that file.
 """
+import json
 from os import path
 
-import archivematicaFunctions
-from dicts import ReplacementDict
-from custom_handlers import get_script_logger
-
+from bind_pid_helpers import BindPIDsException, \
+    _add_custom_pid_to_mdl_identifiers
 from main.models import Directory, File, SIP
 
-logger = get_script_logger('archivematica.mcp.client.bind_third_party_pids')
+from django.core.exceptions import ObjectDoesNotExist
+
 
 IDENTIFIERS_JSON = "identifiers.json"
+SIPDIR = "%SIPDirectory%"
+
+ISSIP = "sip"
+ISDIR = "directory"
+ISFILE = "file"
 
 
-class ThirdPartyPIDsException(Exception):
-    """If I am raised, return 1."""
-    exit_code = 1
+def create_absolute_objects_path(filepath, sip_loc):
+    return path.join(sip_loc, filepath)
 
 
-def parse_identifiers_json(job, sip_uuid, identifiers_loc, shared_path):
+def create_sip_objects_path(filepath, sip_loc):
+    return "{}{}".format(SIPDIR, filepath)
+
+
+def context(filepath):
+    if filepath.endswith("objects") or filepath.endswith('objects/'):
+        return ISSIP
+    if path.isdir(filepath):
+        return ISDIR
+    if path.isfile(filepath):
+        return ISFILE
+
+
+def parse_identifiers_json(job, logger, json_data, sip_loc, sip_uuid):
+    for path_ in json_data:
+        try:
+            object_path = path_['file']
+        except KeyError:
+            # Assume that other files in ``identifiers.json`` may still match.
+            continue
+        abs_object_path = create_absolute_objects_path(object_path, sip_loc)
+        sip_object_path = create_sip_objects_path(object_path, sip_loc)
+        logger.error("Looking for object: %s", sip_object_path)
+        try:
+            unit_type = context(abs_object_path)
+            if unit_type is ISSIP:
+                mdl = SIP.objects.get(uuid=sip_uuid)
+            elif unit_type is ISDIR:
+                mdl = Directory.objects.get(
+                    sip_id=sip_uuid,
+                    currentlocation=path.join(sip_object_path, ''))
+            elif unit_type is ISFILE:
+                mdl = File.objects.get(
+                    sip_id=sip_uuid, currentlocation=sip_object_path)
+        except ObjectDoesNotExist:
+            logger.warning(
+                "Cannot find unit type: %s in the db, path: %s",
+                unit_type, sip_object_path)
+            continue
+        job.pyprint("Found {}".format(mdl))
+        try:
+            pids = path_["identifiers"]
+        except KeyError:
+            logger.warning("Cannot find identifiers for: %s", sip_object_path)
+            continue
+        for ids in pids:
+            try:
+                identifier = ids["identifier"]
+                scheme = ids["identiferType"]
+            except KeyError:
+                logger.warning(
+                    "Cannot find identifier for unit type %s, path: %s",
+                    unit_type, sip_object_path)
+                continue
+            job.pyprint(
+                "Discovered identifier type: {} value: {} for: {}"
+                .format(scheme, identifier, sip_object_path))
+            _add_custom_pid_to_mdl_identifiers(mdl, scheme, identifier)
+
+
+def load_identifiers_json(job, logger, sip_uuid, identifiers_loc, shared_path):
     try:
         sip_loc = SIP.objects.get(uuid=sip_uuid).currentpath\
             .replace("%sharedPath%", shared_path)
     except SIP.DoesNotExist:
-        ThirdPartyPIDsException("Cannot find SIP %s", sip_uuid)
+        raise BindPIDsException("Cannot find SIP %s", sip_uuid)
     identifiers_loc = \
         identifiers_loc.currentlocation.replace(
-            "%SIPDirectory%", sip_loc)
+            SIPDIR, sip_loc)
     if path.exists(identifiers_loc):
-        job.pyprint("Let's do some work with the JSON here")
+        job.pyprint("Loading PIDs from identifiers.json")
+        with open(identifiers_loc) as json_data_file:
+            try:
+                json_data = json.load(json_data_file)
+            except ValueError as err:
+                raise BindPIDsException("JSON decode error: %s", err)
+            parse_identifiers_json(job, logger, json_data, sip_loc, sip_uuid)

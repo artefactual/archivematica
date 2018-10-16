@@ -52,10 +52,12 @@ django.setup()
 from django.db import transaction
 from lxml import etree
 # dashboard
-from main.models import DashboardSetting, Directory, Identifier, SIP, File
+from main.models import DashboardSetting, Directory, SIP, File
 # archivematicaCommon
 from archivematicaFunctions import str2bool
 from bindpid import bind_pid, BindPIDException
+from bind_pid_helpers import BindPIDsException, BindPIDsWarning, \
+    validate_handle_server_config, _add_pid_to_mdl_identifiers
 import bind_third_party_pids
 from custom_handlers import get_script_logger
 import namespaces as ns
@@ -67,16 +69,6 @@ logger = get_script_logger('archivematica.mcp.client.bind_pids')
 # REMOVE THIS CODE BEFORE REBASE
 # REMOVE THIS CODE BEFORE REBASE
 def concurrent_instances(): return 1
-
-
-class BindPIDsException(Exception):
-    """If I am raised, return 1."""
-    exit_code = 1
-
-
-class BindPIDsWarning(Exception):
-    """If I am raised, return 0."""
-    exit_code = 0
 
 
 def exit_on_known_exception(func):
@@ -99,17 +91,13 @@ def _exit_if_not_bind_pids(bind_pids_switch):
         raise BindPIDsWarning
 
 
-def _add_pid_to_mdl_identifiers(mdl, config):
-    """Add the newly minted handle/PID to the ``SIP`` or ``Directory`` model as
-    an identifier in its m2m ``identifiers`` attribute. Also add the PURL (URL
-    constructed out of the PID) as a URI-type identifier.
+def format_and_add_pid_to_mdl_identifiers(mdl, config):
+    """Format the newly minded handle/PID to be able to add it to the the
+    ``SIP`` or ``Directory`` model as appropriate.
     """
     pid = '{}/{}'.format(config['naming_authority'], config['desired_pid'])
     purl = '{}/{}'.format(config['handle_resolver_url'].rstrip('/'), pid)
-    hdl_identifier = Identifier.objects.create(type='hdl', value=pid)
-    purl_identifier = Identifier.objects.create(type='URI', value=purl)
-    mdl.identifiers.add(hdl_identifier)
-    mdl.identifiers.add(purl_identifier)
+    _add_pid_to_mdl_identifiers(mdl, pid, purl)
 
 
 def _get_sip(sip_uuid):
@@ -197,7 +185,7 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
                    'desired_pid': desired_pid})
     try:
         msg = bind_pid(**config)
-        _add_pid_to_mdl_identifiers(mdl, config)
+        format_and_add_pid_to_mdl_identifiers(mdl, config)
         job.pyprint(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
         logger.info(msg)
         return 0
@@ -217,13 +205,13 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     handle_config = DashboardSetting.objects.get_dict('handle')
     handle_config['pid_request_verify_certs'] = str2bool(
         handle_config.get('pid_request_verify_certs', 'True'))
-    for mdl in chain([_get_sip(sip_uuid)],
-                     Directory.objects.filter(sip_id=sip_uuid).all()):
-        _bind_pid_to_model(job, mdl, shared_path, handle_config)
-    # Insert additionally provided identifiers into database model where they
-    # have been provided by the user. Rely in identifiers.json file, which we
-    # need to locate in the SIP without having the path provided to this script
-    # where we might normally use find_metadata_files. As such, rely on the DB.
+    if validate_handle_server_config(handle_config, logger):
+        for mdl in chain([_get_sip(sip_uuid)],
+                         Directory.objects.filter(sip_id=sip_uuid).all()):
+            _bind_pid_to_model(job, mdl, shared_path, handle_config)
+    # Whether PIDs have been minted or not, insert user provided identifiers
+    # into the database model where they have been provided by the user. Rely
+    # in an ``identifiers.json`` file.
     try:
         identifiers_loc = File.objects.get(
             sip_id=sip_uuid,
@@ -232,8 +220,9 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
         logger.info("Custom `identifiers.json` not provided with transfer")
         return
     if identifiers_loc:
-        bind_third_party_pids.parse_identifiers_json(
-            job, sip_uuid, identifiers_loc, shared_path)
+        bind_third_party_pids.load_identifiers_json(
+            job, logger, sip_uuid, identifiers_loc, shared_path)
+
 
 def call(jobs):
     parser = argparse.ArgumentParser()
