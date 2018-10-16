@@ -118,7 +118,6 @@ EXISTING_MS_RESTRUCTURE_COMPLIANCE = "ea0e8838-ad3a-4bdd-be14-e5dba5a4ae0c"
 EXISTING_MS_VAILIDATE_FORMATS = "a536828c-be65-4088-80bd-eb511a0a063d"
 EXISTING_MS_POLICY_CHECKS = "70fc7040-d4fb-4d19-a0e6-792387ca1006"
 EXISTING_MS_CREATE_TRANSFER_METS = "db99ab43-04d7-44ab-89ec-e09d7bbdc39d"
-EXISTING_MS_EXAMINE_CONTENTS = "dae3c416-a8c2-4515-9081-6dbd7b265388"
 
 # Tasks that we want to reference, but eventually don't need to delete on
 # migration down.
@@ -254,11 +253,12 @@ def create_parse_dataverse_mets_link_pull(apps):
     )
 
     # If linkToParseDataverseMETS is set then goto the configured microservice,
-    # else, goto the default microservice, 'Move to examine contents'.
+    # else, goto the default microservice, 'Perform policy checks on
+    # originals?'.
     create_variable_link_pull(
         apps=apps, link_uuid=NEW_LINK_PULL_CONFIG_PARSE_DV,
         variable="linkToParseDataverseMETS",
-        default_ms_uuid=EXISTING_MS_EXAMINE_CONTENTS,
+        default_ms_uuid=EXISTING_MS_POLICY_CHECKS,
     )
 
     # Break and Update the existing link to connect to our new link.
