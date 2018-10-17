@@ -678,26 +678,23 @@ def getIncludedStructMap(job, baseDirectoryPath, state):
         if os.path.isfile(structMapXmlPath):
             tree = etree.parse(structMapXmlPath)
             root = tree.getroot()  # TDOD - not root to return, but sub element structMap
-            # print etree.tostring(root)
             structMap = root.find(ns.metsBNS + "structMap")
             id_ = structMap.get("ID")
             if not id_:
                 structMap.set("ID", "structMap_2")
             ret.append(structMap)
             for item in structMap.findall(".//" + ns.metsBNS + "fptr"):
-                fileName = item.get("FILEID")
-                if fileName in state.fileNameToFileID:
-                    # print fileName, " -> ", state.fileNameToFileID[fileName]
-                    item.set("FILEID", state.fileNameToFileID[fileName])
+                fileName = item.get("CONTENTIDS")
+                if os.path.basename(fileName) in state.fileNameToFileID:
+                    item.set(
+                        "FILEID",
+                        state.fileNameToFileID[os.path.basename(fileName)])
                 else:
                     job.pyprint("error: no fileUUID for ", fileName, file=sys.stderr)
                     state.error_accumulator.error_count += 1
     if state.trimStructMap is not None:
         ret.append(state.trimStructMap)
     return ret
-
-# DMDID="dmdSec_01" for an object goes in here
-# <file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 
 
 def createFileSec(job,
