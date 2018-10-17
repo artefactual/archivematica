@@ -49,9 +49,11 @@ from django.db import transaction
 import django
 django.setup()
 # dashboard
-from main.models import DashboardSetting, File, Identifier
+from main.models import DashboardSetting, File
 # archivematicaCommon
 import bindpid
+from bind_pid_helpers import validate_handle_server_config, \
+    _add_custom_pid_to_mdl_identifiers
 from custom_handlers import get_script_logger
 from archivematicaFunctions import str2bool
 
@@ -100,11 +102,8 @@ def _get_bind_pid_config(file_uuid):
     _args = {'entity_type': 'file',
              'desired_pid': file_uuid}
     _args.update(DashboardSetting.objects.get_dict('handle'))
-
-    # ADD VALIDATION CODE FROM PID HELPERS HERE
-    # ADD VALIDATION CODE FROM PID HELPERS HERE
-    # ADD VALIDATION CODE FROM PID HELPERS HERE
-
+    if not validate_handle_server_config(_args):
+        raise BindPIDWarning
     _args['pid_request_verify_certs'] = str2bool(
         _args.get('pid_request_verify_certs', 'True'))
     return _args
@@ -127,13 +126,8 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
         matches = [True for id_ in existing_ids
                    if id_.type == id_type and id_.value == id_val]
         if len(matches) == 0:
-
-            # REPLACE WITH PID HELPER CODE FOR UPDATING MODEL
-            # REPLACE WITH PID HELPER CODE FOR UPDATING MODEL
-            # REPLACE WITH PID HELPER CODE FOR UPDATING MODEL
-
-            idfr = Identifier.objects.create(type=id_type, value=id_val)
-            file_mdl.identifiers.add(idfr)
+            _add_custom_pid_to_mdl_identifiers(
+                mdl=file_mdl, scheme=id_type, value=id_val)
 
 
 @exit_on_known_exception

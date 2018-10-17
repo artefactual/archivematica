@@ -71,5 +71,9 @@ def _add_pid_to_mdl_identifiers(mdl, pid, purl):
 
 
 def _add_custom_pid_to_mdl_identifiers(mdl, scheme, value):
+    """Create an identifier with scheme:value and add the row to the
+    Identifiers table. Reference the new identifier in the given model (mdl)
+    table.
+    """
     identifier = Identifier.objects.create(type=scheme, value=value)
     mdl.identifiers.add(identifier)

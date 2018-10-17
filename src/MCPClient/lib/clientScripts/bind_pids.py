@@ -206,6 +206,11 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     handle_config['pid_request_verify_certs'] = str2bool(
         handle_config.get('pid_request_verify_certs', 'True'))
     if validate_handle_server_config(handle_config, logger):
+        # Given the opportunity, a happy path here would test to see if the
+        # handle configuration was set correctly, and then raise an exception
+        # if not. We don't want to exit the script this early, however, to we
+        # test for the positive existence of a config and run that path
+        # instead.
         for mdl in chain([_get_sip(sip_uuid)],
                          Directory.objects.filter(sip_id=sip_uuid).all()):
             _bind_pid_to_model(job, mdl, shared_path, handle_config)
