@@ -65,9 +65,12 @@ def parse_identifiers_json(job, logger, json_data, sip_loc, sip_uuid):
             continue
         # Don't assume that there is an objects folder in the metadata supplied
         # by the user.
+        logger.info("1. VAR %s", object_path)
         obj_check = path.split(object_path)[0]
         if obj_check != "objects":
+            logger.info("2. VAR adding objects %s", object_path)
             object_path = path.join("objects", object_path)
+        logger.info("3. VAR %s", object_path)
         abs_object_path = create_absolute_objects_path(object_path, sip_loc)
         sip_object_path = create_sip_objects_path(object_path, sip_loc)
         logger.error("Looking for object: %s", sip_object_path)
