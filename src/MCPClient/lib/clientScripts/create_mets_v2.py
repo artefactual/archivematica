@@ -59,6 +59,9 @@ import namespaces as ns
 from bagit import Bag, BagError
 
 
+def concurrent_instances(): return 1
+
+
 class ErrorAccumulator(object):
 
     def __init__(self):
@@ -685,10 +688,12 @@ def getIncludedStructMap(job, baseDirectoryPath, state):
                 structMap.set("ID", "structMap_2")
             ret.append(structMap)
             for item in structMap.findall(".//" + ns.metsBNS + "fptr"):
-                fileName = item.get("FILEID")
-                if fileName in state.fileNameToFileID:
-                    # print fileName, " -> ", state.fileNameToFileID[fileName]
-                    item.set("FILEID", state.fileNameToFileID[fileName])
+                fileName = item.get("CONTENTIDS")
+                job.pyprint(state.fileNameToFileID)
+                if os.path.basename(fileName) in state.fileNameToFileID:
+                    item.set(
+                        "FILEID",
+                        state.fileNameToFileID[os.path.basename(fileName)])
                 else:
                     job.pyprint("error: no fileUUID for ", fileName, file=sys.stderr)
                     state.error_accumulator.error_count += 1
