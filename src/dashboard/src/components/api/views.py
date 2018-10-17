@@ -158,7 +158,24 @@ def get_unit_status(unit_uuid, unit_type):
     :return: Dict with status info.
     """
     ret = {}
-    job = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')[0]
+    # get jobs for the current unit ordered by created time
+    unit_jobs = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')
+
+    # tentatively choose the job with the latest created time to be the current/last for the unit
+    job = unit_jobs[0]
+
+    # if a SIP, check if there could be another job that is the actual current/last
+    # by looking at the microservicechainlink object (ref. issue 262)
+    if unit_type == 'unitSIP':
+        while job.microservicechainlink.defaultnextchainlink is not None:
+            next_matches = [x for x in unit_jobs
+                            if x.microservicechainlink ==
+                            job.microservicechainlink.defaultnextchainlink]
+            if next_matches:
+                job = next_matches[0]
+            else:
+                break
+
     ret['microservice'] = job.jobtype
     if job.currentstep == models.Job.STATUS_AWAITING_DECISION:
         ret['status'] = 'USER_INPUT'
