@@ -202,6 +202,20 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     ``True``.
     """
     _exit_if_not_bind_pids(bind_pids_switch)
+
+    # If there are user provided identifiers
+    # insert them into the database
+    # and skip connecting to the pid server 
+    try:
+        identifiers_loc = File.objects.get(
+            sip_id=sip_uuid,
+            currentlocation__endswith=bind_third_party_pids.IDENTIFIERS_JSON)
+        bind_third_party_pids.load_identifiers_json(
+            job, logger, sip_uuid, identifiers_loc, shared_path)
+        return
+    except File.DoesNotExist:
+        logger.info("Custom `identifiers.json` not provided with transfer")
+
     handle_config = DashboardSetting.objects.get_dict('handle')
     handle_config['pid_request_verify_certs'] = str2bool(
         handle_config.get('pid_request_verify_certs', 'True'))
@@ -214,19 +228,6 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
         for mdl in chain([_get_sip(sip_uuid)],
                          Directory.objects.filter(sip_id=sip_uuid).all()):
             _bind_pid_to_model(job, mdl, shared_path, handle_config)
-    # Whether PIDs have been minted or not, insert user provided identifiers
-    # into the database model where they have been provided by the user. Rely
-    # in an ``identifiers.json`` file.
-    try:
-        identifiers_loc = File.objects.get(
-            sip_id=sip_uuid,
-            currentlocation__endswith=bind_third_party_pids.IDENTIFIERS_JSON)
-    except File.DoesNotExist:
-        logger.info("Custom `identifiers.json` not provided with transfer")
-        return
-    if identifiers_loc:
-        bind_third_party_pids.load_identifiers_json(
-            job, logger, sip_uuid, identifiers_loc, shared_path)
 
 
 def call(jobs):
