@@ -363,23 +363,16 @@ def unapproved_transfers(request):
     )
 
     for job in jobs:
-        # remove standard transfer path from directory (and last character)
-        type_and_directory = job.directory.replace(
-            get_modified_standard_transfer_path() + '/',
-            '',
-            1
-        )
-
         # remove trailing slash if not a zipped bag file
         if not helpers.file_is_an_archive(job.directory):
-            type_and_directory = type_and_directory[:-1]
+            job.directory = job.directory[:-1]
 
-        transfer_watch_directory = type_and_directory.split('/')[0]
+        transfer_watch_directory = job.directory.split('/')[-2]
+        job_directory = job.directory.split('/')[-1]
+
         # Get transfer type from transfer directory
         transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
         transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
-
-        job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
 
         unapproved.append({
             'type': transfer_type,
