@@ -1,0 +1,18 @@
+[
+    {
+        "fields": {
+            "accessionid": "",
+            "currentlocation": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "description": "",
+            "diruuids": false,
+            "hidden": false,
+            "notes": "",
+            "sourceofacquisition": "",
+            "transfermetadatasetrow": null,
+            "type": "Standard",
+            "typeoftransfer": ""
+        },
+        "model": "main.transfer",
+        "pk": "cea636e5-0e6f-4f9e-80ac-06039fec247d"
+    }
+]

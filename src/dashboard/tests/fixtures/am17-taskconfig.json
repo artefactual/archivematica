@@ -1,0 +1,3698 @@
+[
+    {
+        "fields": {
+            "description": "Characterize and extract metadata",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "d6307888-f5ef-4828-80d6-fb6f707ae023"
+        },
+        "model": "main.taskconfig",
+        "pk": "00041f5a-42cd-4b77-a6d4-6ef0f376a817"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with MediaInfo file identification.",
+            "lastmodified": "2012-10-23T19:41:24Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "be6dda53-ef28-42dd-8452-e11734d57a91"
+        },
+        "model": "main.taskconfig",
+        "pk": "008e5b38-b19c-48af-896f-349aaf5eba9f"
+    },
+    {
+        "fields": {
+            "description": "Bind PIDs?",
+            "lastmodified": "2018-05-16T18:06:04Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "02b44c99-f499-42d4-8742-3576c0d52804"
+    },
+    {
+        "fields": {
+            "description": "Set file group use and fileIDs for maildir AIP",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ec688528-d492-4de3-a176-b777734153b1"
+        },
+        "model": "main.taskconfig",
+        "pk": "032347f1-c0fb-4c6c-96ba-886ac8ac636c"
+    },
+    {
+        "fields": {
+            "description": "Sanitize SIP name",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0c6990d8-ce1f-4093-803b-5ca6256119ca"
+        },
+        "model": "main.taskconfig",
+        "pk": "04c7e0fb-ec4e-4637-a7b7-41601d5523bd"
+    },
+    {
+        "fields": {
+            "description": "Select upload type (Project Client or direct upload)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "06334a2c-82ed-477b-af0b-9c9f3dcade99"
+    },
+    {
+        "fields": {
+            "description": "Set specialized processing link",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "ed98984f-69c5-45de-8a32-2c9ecf65e83f"
+        },
+        "model": "main.taskconfig",
+        "pk": "06b45b5d-d06b-49a8-8f15-e9458fbae842"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with FITS-file utility file identification.",
+            "lastmodified": "2012-10-23T19:41:23Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "9329d1d8-03f9-4c5e-81ec-7010552d0a3e"
+        },
+        "model": "main.taskconfig",
+        "pk": "0732af8f-d60b-43e0-8f75-8e89039a05a8"
+    },
+    {
+        "fields": {
+            "description": "Approve TRIM transfer",
+            "lastmodified": "2012-11-30T19:55:48Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "07bf7432-fd9b-456e-9d17-5b387087723a"
+    },
+    {
+        "fields": {
+            "description": "Find type to process as",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "07f6f419-d51f-4c69-bca6-a395adecbee0"
+    },
+    {
+        "fields": {
+            "description": "Move to examine contents",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f62e7309-61b3-4318-a770-ab40595bc7b8"
+        },
+        "model": "main.taskconfig",
+        "pk": "08fc82e7-bc15-4608-8171-50475e8071e2"
+    },
+    {
+        "fields": {
+            "description": "Extract contents from compressed archives",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "8fad772e-7d2e-4cdd-89e6-7976152b6696"
+        },
+        "model": "main.taskconfig",
+        "pk": "09f73737-f7ca-4ea2-9676-d369f390e650"
+    },
+    {
+        "fields": {
+            "description": "Is maildir AIP",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c0ae5130-0c17-4fc1-91c7-aa36265a21d5"
+        },
+        "model": "main.taskconfig",
+        "pk": "09fae382-37ac-45bb-9b53-d1608a44742c"
+    },
+    {
+        "fields": {
+            "description": "Relate manual normalized preservation files to the original files",
+            "lastmodified": "2013-01-03T02:10:38Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "adde688c-eb79-4036-a3b8-49aacc6a1b36"
+        },
+        "model": "main.taskconfig",
+        "pk": "0a521e24-b376-4a9c-9cd6-ce41e187179a"
+    },
+    {
+        "fields": {
+            "description": "Move transfer back to activeTransfers directory.",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "4306315c-1f75-4eaf-8752-f08f67f9ada4"
+        },
+        "model": "main.taskconfig",
+        "pk": "0ae50158-a6e2-4663-a684-61d9a8384789"
+    },
+    {
+        "fields": {
+            "description": "Restructure TRIM for compliance",
+            "lastmodified": "2012-11-30T19:55:47Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e3c09c46-6d05-4369-8c12-b5af6657c8f7"
+        },
+        "model": "main.taskconfig",
+        "pk": "0b90715c-50bc-4cb7-a390-771a7cc8180f"
+    },
+    {
+        "fields": {
+            "description": "Set files to identify",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7"
+        },
+        "model": "main.taskconfig",
+        "pk": "0bb3f551-1418-4b99-8094-05a43fcd9537"
+    },
+    {
+        "fields": {
+            "description": "Verify checksums in fileSec of DSpace METS files",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "a5bb8df6-a8f0-4279-ac6d-873ec5cf37cd"
+        },
+        "model": "main.taskconfig",
+        "pk": "0c1664f2-dfcb-46d9-bd9e-5b604baef788"
+    },
+    {
+        "fields": {
+            "description": "Select file format identification command",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "0c95f944-837f-4ada-a396-2c7a818806c6"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after processing metadata directory",
+            "lastmodified": "2013-02-13T22:03:40Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "6b4600f2-6df6-42cb-b611-32938b46a9cf"
+        },
+        "model": "main.taskconfig",
+        "pk": "0cbfd02e-94bc-4f0d-8e56-f7af6379c3ca"
+    },
+    {
+        "fields": {
+            "description": "Policy checks for originals",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "cd5c8bbe-3699-4caf-a134-0e77c8ccc84a"
+        },
+        "model": "main.taskconfig",
+        "pk": "0f9f9634-275f-4460-aceb-09dcf37049c4"
+    },
+    {
+        "fields": {
+            "description": "Copy OCR data to DIP directory",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "5c4f877f-b352-4977-b51b-53ebc437b08c"
+        },
+        "model": "main.taskconfig",
+        "pk": "102cd6b0-5d30-4e04-9b62-4e9f12d74549"
+    },
+    {
+        "fields": {
+            "description": "Attempt restructure for compliance?",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "108f7f4c-72f2-4ddb-910a-24f173d64fa7"
+    },
+    {
+        "fields": {
+            "description": "Index AIP",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "81f36881-9e54-4c75-a5b2-838cfb2ca228"
+        },
+        "model": "main.taskconfig",
+        "pk": "134a1a94-22f0-4e67-be17-23a4c7178105"
+    },
+    {
+        "fields": {
+            "description": "Restructure from bag AIP to SIP directory format",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "2808a160-82df-40a8-a6ca-330151584968"
+        },
+        "model": "main.taskconfig",
+        "pk": "135dd73d-845a-412b-b17e-23941a3d9f78"
+    },
+    {
+        "fields": {
+            "description": "Rename with transfer UUID",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0b1177e8-8541-4293-a238-1783c793a7b1"
+        },
+        "model": "main.taskconfig",
+        "pk": "13aaa76e-41db-4bff-8519-1f9ba8ca794f"
+    },
+    {
+        "fields": {
+            "description": "Workflow decision - create transfer backup",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "1423da1c-e9f8-479c-9949-4238c59899ac"
+    },
+    {
+        "fields": {
+            "description": "Check for Access directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "8c50f6ab-7fa4-449e-bea8-483999568d85"
+        },
+        "model": "main.taskconfig",
+        "pk": "143b4734-9c33-4f6e-9af0-2dc09cf9017a"
+    },
+    {
+        "fields": {
+            "description": "Upload DIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "16b8cc42-68b6-4751-b497-3e3a64101bbb"
+    },
+    {
+        "fields": {
+            "description": "Sanitize Transfer name",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f8af7e00-0ae4-47ab-9d22-92395ff053fc"
+        },
+        "model": "main.taskconfig",
+        "pk": "16eaacad-e180-4be1-a13c-35ab070808a7"
+    },
+    {
+        "fields": {
+            "description": "Normalization report",
+            "lastmodified": "2017-08-18T10:07:08Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "59531c29-59d3-468d-897c-9800c4525f81"
+        },
+        "model": "main.taskconfig",
+        "pk": "17aa7180-ded8-45c7-96d0-5ecebfd1a5cf"
+    },
+    {
+        "fields": {
+            "description": "Move to compressionAIPDecisions directory",
+            "lastmodified": "2013-11-07T22:51:34Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ae090b70-0234-40ea-bc11-4be27370515f"
+        },
+        "model": "main.taskconfig",
+        "pk": "18dceb0a-dfb1-4b18-81a7-c6c5c578c5f1"
+    },
+    {
+        "fields": {
+            "description": "Approve standard transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "1b8b596f-b6ee-440f-b59c-5e8b39a2b46d"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "ec54a7cb-690f-4dd6-ad2b-979ae9f8d25a"
+        },
+        "model": "main.taskconfig",
+        "pk": "1c7de28f-8f18-41c7-b03a-19f900d38f34"
+    },
+    {
+        "fields": {
+            "description": "Select format identification tool",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "1cd60a70-f78e-4625-9381-3863ff819f33"
+    },
+    {
+        "fields": {
+            "description": "Move to metadata reminder",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "b6b39093-297e-4180-ad61-274bc9c5b451"
+        },
+        "model": "main.taskconfig",
+        "pk": "1cf09019-56a1-47eb-8fe0-9bbff158892d"
+    },
+    {
+        "fields": {
+            "description": "Policy checks for preservation derivatives",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "0dc703b8-780a-4643-a427-bb60bd5879a8"
+        },
+        "model": "main.taskconfig",
+        "pk": "1dd8e61f-0579-4a87-bfec-60bedb355048"
+    },
+    {
+        "fields": {
+            "description": "Remove files without linking information (failed normalization artifacts etc.)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "a32fc538-efd1-4be0-95a9-5ee40cbc70fd"
+        },
+        "model": "main.taskconfig",
+        "pk": "1e02e82a-2055-4f37-af3a-7dc606f9fd97"
+    },
+    {
+        "fields": {
+            "description": "Cleanup rejected transfer",
+            "lastmodified": "2017-08-18T10:07:10Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "72f11e68-7350-42a7-9bdc-60001d0505a2"
+        },
+        "model": "main.taskconfig",
+        "pk": "1fea5138-981f-4fef-9d74-4d6328fb9248"
+    },
+    {
+        "fields": {
+            "description": "Approve normalization",
+            "lastmodified": "2012-10-02T07:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "2002fd7c-e238-4cca-a393-3c1c63a04915"
+    },
+    {
+        "fields": {
+            "description": "Retrieve DIP Storage Locations",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a19bfd9f-9989-4648-9351-013a10b382ed",
+            "tasktypepkreference": "5a6d1a88-1c2f-40b5-adec-ad7e533340ff"
+        },
+        "model": "main.taskconfig",
+        "pk": "21292501-0c12-4376-8fb1-413286060dc2"
+    },
+    {
+        "fields": {
+            "description": "Normalize for thumbnails",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "26309e7d-6435-4700-9171-131005f29cbb"
+        },
+        "model": "main.taskconfig",
+        "pk": "21f8f2b6-d285-490a-9276-bfa87a0a4fb9"
+    },
+    {
+        "fields": {
+            "description": "Grant normalization options for no pre-existing DIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "f85bbe03-8aca-4211-99b7-ddb7dfb24da1"
+        },
+        "model": "main.taskconfig",
+        "pk": "235c3727-b138-4e62-9265-c8f07761a5fa"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "73b71a30-1a26-4a07-8aa8-4dfb6e66a321"
+        },
+        "model": "main.taskconfig",
+        "pk": "23ad16a5-49fe-409d-98d9-f5a8de333f81"
+    },
+    {
+        "fields": {
+            "description": "Approve zipped bagit transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "243b67e9-4d0b-4c38-8fa4-0fa3df8a5b86"
+    },
+    {
+        "fields": {
+            "description": "Normalize service files for access",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "339f300d-62d1-4a46-97c2-57244f54d32e"
+        },
+        "model": "main.taskconfig",
+        "pk": "246c34b0-b785-485f-971b-0ed9f82e1ae3"
+    },
+    {
+        "fields": {
+            "description": "Set resume link - postApproveNormalizationLink",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "95fb93a5-ef63-4ceb-8572-c0ddf88ef3ea"
+        },
+        "model": "main.taskconfig",
+        "pk": "24deba11-c719-4c64-a53c-e08c85663c40"
+    },
+    {
+        "fields": {
+            "description": "Select destination collection",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba",
+            "tasktypepkreference": "e8fb137c-d499-45a8-a4aa-a884d81b9f3d"
+        },
+        "model": "main.taskconfig",
+        "pk": "24f82c1a-5de7-4b2a-8ac2-68a48edf252f"
+    },
+    {
+        "fields": {
+            "description": "Remove files without linking information (failed normalization artifacts etc.)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "a32fc538-efd1-4be0-95a9-5ee40cbc70fd"
+        },
+        "model": "main.taskconfig",
+        "pk": "24fb04f6-95c1-4244-8f3d-65061418b188"
+    },
+    {
+        "fields": {
+            "description": "Set transfer type: TRIM",
+            "lastmodified": "2012-11-30T19:55:48Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "353f326a-c599-4e66-8e1c-6262316e3729"
+        },
+        "model": "main.taskconfig",
+        "pk": "256e18ca-1bcd-4b14-b3d5-4efbad5663fc"
+    },
+    {
+        "fields": {
+            "description": "Resume after normalization file identification tool selected.",
+            "lastmodified": "2012-10-23T19:41:22Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "003b52a6-f80a-409c-95f9-82dd770aa132"
+        },
+        "model": "main.taskconfig",
+        "pk": "26ec68d5-8d33-4fe2-bc11-f06d80fb23e0"
+    },
+    {
+        "fields": {
+            "description": "Add processed structMap to METS.xml document",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "fefd486c-e6ce-4229-ac3d-cf53e66f46cc"
+        },
+        "model": "main.taskconfig",
+        "pk": "275b3640-68a6-4c4e-adc1-888ea3fdfba5"
+    },
+    {
+        "fields": {
+            "description": "Copy submission documentation",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "919dfbcd-b328-4a7e-9340-569a9d8859df"
+        },
+        "model": "main.taskconfig",
+        "pk": "2894f4ea-0d11-431f-a7de-c2f765bd55a6"
+    },
+    {
+        "fields": {
+            "description": "Identify file format",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "82b08f3a-ca8f-4259-bd92-2fc1ab4f9974"
+        },
+        "model": "main.taskconfig",
+        "pk": "28e8e81c-3380-47f6-a973-e48f94104692"
+    },
+    {
+        "fields": {
+            "description": "Transcribe",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "657bdd72-8f18-4477-8018-1f6c8df7ad85"
+        },
+        "model": "main.taskconfig",
+        "pk": "297e7ebd-71bb-41e9-b1b7-945b6a9f00c5"
+    },
+    {
+        "fields": {
+            "description": "Set resume link - returnFromManualNormalized",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "ba7bafe6-7241-4ffe-a0b8-97ca3c68eac1"
+        },
+        "model": "main.taskconfig",
+        "pk": "29937fd7-b482-4180-8037-1b57d71e903c"
+    },
+    {
+        "fields": {
+            "description": "Normalize",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "2bfd7cef-dcf8-4587-8043-2c69c612a6e3"
+    },
+    {
+        "fields": {
+            "description": "Move to approve normalization directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "87fb2e00-03b9-4890-a4d4-0e28f27e32c2"
+        },
+        "model": "main.taskconfig",
+        "pk": "2d0b36bb-5c82-4ee5-b54c-f3e146ce370b"
+    },
+    {
+        "fields": {
+            "description": "Cleanup rejected SIP",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "44758789-e1b5-4cfe-8011-442612da2d3b"
+        },
+        "model": "main.taskconfig",
+        "pk": "2d8f4aa1-76ad-4c88-af81-f7f494780628"
+    },
+    {
+        "fields": {
+            "description": "Normalize for access",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "3c256437-6435-4307-9757-fbac5c07541c"
+        },
+        "model": "main.taskconfig",
+        "pk": "2d9483ef-7dbb-4e7e-a9c6-76ed4de52da9"
+    },
+    {
+        "fields": {
+            "description": "Store DIP",
+            "lastmodified": "2017-08-18T10:07:07Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1e4ccd56-a076-4aa2-9642-1ed8944b306a"
+        },
+        "model": "main.taskconfig",
+        "pk": "2dd14de8-62c7-49a5-bfa1-dd025e7a426b"
+    },
+    {
+        "fields": {
+            "description": "Set quarantine permissions on transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0b17b446-11d4-45a8-9d0c-4297b8c8887c"
+        },
+        "model": "main.taskconfig",
+        "pk": "2e3c3f0f-069e-4ca1-b71b-93f4880a39b5"
+    },
+    {
+        "fields": {
+            "description": "Select compression level",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "2f6947ee-5d92-416a-bade-b1079767e641"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after handling any manual normalized files",
+            "lastmodified": "2013-01-03T02:10:40Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "fc9f30bf-7f6e-4e62-9f99-689c8dc2e4ec"
+        },
+        "model": "main.taskconfig",
+        "pk": "31707047-5d61-4b9f-ba58-1353d6c38e0c"
+    },
+    {
+        "fields": {
+            "description": "Email fail report",
+            "lastmodified": "2013-01-08T02:11:59Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "807603e2-9914-46e0-9be4-73d4c073d2e8"
+        },
+        "model": "main.taskconfig",
+        "pk": "32b2600c-6907-4cb2-b18a-3986f0842219"
+    },
+    {
+        "fields": {
+            "description": "Remove empty manual normalization directories",
+            "lastmodified": "2013-01-11T00:50:39Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "8971383b-5c38-4818-975f-e539bd993eb8"
+        },
+        "model": "main.taskconfig",
+        "pk": "33c0dea0-da6c-4b8f-8038-6e95844eea95"
+    },
+    {
+        "fields": {
+            "description": "Check for specialized processing",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "49d853a9-646d-4e9f-b825-d1bcc3ba77f0"
+        },
+        "model": "main.taskconfig",
+        "pk": "3649f0f4-2174-44af-aef9-31ebeddeb73b"
+    },
+    {
+        "fields": {
+            "description": "Find options to normalize as",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "38324d67-8358-4679-902d-c20dcdfd548b"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a standard transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "c691548f-0131-4bd5-864c-364b1f7feb7f"
+        },
+        "model": "main.taskconfig",
+        "pk": "3875546f-9137-4c8f-9fcc-ed112eaa6414"
+    },
+    {
+        "fields": {
+            "description": "Assign UUIDs to directories",
+            "lastmodified": "2018-05-16T18:06:03Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "91096265-d582-46be-b606-4769fc27c7a7"
+        },
+        "model": "main.taskconfig",
+        "pk": "388a277b-2463-4d11-b203-fc5b80a08f69"
+    },
+    {
+        "fields": {
+            "description": "Process JSON metadata",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "44d3789b-10ad-4a9c-9984-c2fe503c8720"
+        },
+        "model": "main.taskconfig",
+        "pk": "38b99e0c-7066-49c4-82ed-d77bd7f019a1"
+    },
+    {
+        "fields": {
+            "description": "Move to select file ID tool",
+            "lastmodified": "2013-11-07T22:51:42Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "3e8f5b9e-b3a6-4782-a944-749de6ae234d"
+        },
+        "model": "main.taskconfig",
+        "pk": "38cea9c4-d75c-48f9-ba88-8052e9d3aa61"
+    },
+    {
+        "fields": {
+            "description": "Move to SIP creation directory for completed transfers",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ac562701-7672-4e1d-a318-b986b7c9007c"
+        },
+        "model": "main.taskconfig",
+        "pk": "39ac9ff8-d312-4033-a2c6-44219471abda"
+    },
+    {
+        "fields": {
+            "description": "Perform policy checks on originals?",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "3aaabae1-c329-4bbd-a25d-b07e0f7a6d08"
+    },
+    {
+        "fields": {
+            "description": "Move to quarantine",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "94d0c52f-7594-4f59-9de5-b827d8d2a7f3"
+        },
+        "model": "main.taskconfig",
+        "pk": "3ad0db9a-f57d-4664-ad34-947404dddd04"
+    },
+    {
+        "fields": {
+            "description": "Attempt restructure for compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "862c0ce2-82e3-4336-bd20-d8bcb2d0fa6c"
+        },
+        "model": "main.taskconfig",
+        "pk": "3ae4931e-886e-4e0a-9a85-9b047c9983ac"
+    },
+    {
+        "fields": {
+            "description": "Scan for viruses",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "de58249f-9594-439d-8bea-536ce59d70a3"
+        },
+        "model": "main.taskconfig",
+        "pk": "3c002fb6-a511-461e-ad16-0d2c46649374"
+    },
+    {
+        "fields": {
+            "description": "Set unquarantined file permissions on Transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "329fd50d-42fd-44e3-940e-7dc45d1a7727"
+        },
+        "model": "main.taskconfig",
+        "pk": "3c04068f-20b8-4cbc-8166-c61faacb6628"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "761f00af-3d9a-4cb4-b7f1-259fccedb802"
+        },
+        "model": "main.taskconfig",
+        "pk": "3df5643c-2556-412f-a7ac-e2df95722dae"
+    },
+    {
+        "fields": {
+            "description": "Move to workFlowDecisions-quarantineSIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e7d2a9ac-b5c5-4b5c-9e57-a3c4e98035e6"
+        },
+        "model": "main.taskconfig",
+        "pk": "3e70f50d-5056-413e-a3d1-7b4b13d2b821"
+    },
+    {
+        "fields": {
+            "description": "Check if SIP is from Maildir Transfer",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c0ae5130-0c17-4fc1-91c7-aa36265a21d5"
+        },
+        "model": "main.taskconfig",
+        "pk": "3f3ab7ae-766e-4405-a05a-5ee9aea5042f"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9c94b1d7-0563-4be9-9d64-058d0d1a03f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "41e84764-e3a0-4aac-94e9-adbe996b087f"
+    },
+    {
+        "fields": {
+            "description": "Characterize and extract metadata for attachments",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "2936f695-190e-49e9-b7c6-6d1610f6b6de"
+        },
+        "model": "main.taskconfig",
+        "pk": "445d6579-ee40-47d0-af6c-e2f6799f450d"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after processing metadata directory",
+            "lastmodified": "2013-02-13T22:03:40Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "771dd17a-02d1-403b-a761-c70cc9cc1d1a"
+        },
+        "model": "main.taskconfig",
+        "pk": "449530ec-cd94-4d8c-aae0-3b7cd2e2d5f9"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "57d42245-79e2-4c2d-8ed3-b596cce416db"
+        },
+        "model": "main.taskconfig",
+        "pk": "450794b5-db3e-4557-8ab8-1abd77786429"
+    },
+    {
+        "fields": {
+            "description": "Create removal from backlog PREMIS events",
+            "lastmodified": "2013-04-19T22:39:27Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "463e5d1c-d680-47fa-a27a-7efd4f702355"
+        },
+        "model": "main.taskconfig",
+        "pk": "4554c5f9-52f9-440c-bc69-0f7be3651949"
+    },
+    {
+        "fields": {
+            "description": "Set remove preservation and access normalized files to renormalize link.",
+            "lastmodified": "2012-10-24T00:40:06Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "76eaa4d2-fd4f-4741-b68c-df5b96ba81d1"
+        },
+        "model": "main.taskconfig",
+        "pk": "4745d0bb-910c-4c0d-8b81-82d7bfca7819"
+    },
+    {
+        "fields": {
+            "description": "Move to approve normalization directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "3565ac77-780e-43d8-87c8-8a6bf04aab40"
+        },
+        "model": "main.taskconfig",
+        "pk": "4773c7e4-df8b-4928-acdd-1e9a3235b4b1"
+    },
+    {
+        "fields": {
+            "description": "Remove files without linking information (failed normalization artifacts etc.)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "a32fc538-efd1-4be0-95a9-5ee40cbc70fd"
+        },
+        "model": "main.taskconfig",
+        "pk": "483d0fc9-8f89-4699-b90b-7be250bab743"
+    },
+    {
+        "fields": {
+            "description": "Move to generate transfer tree",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "760a9654-de3e-4ea7-bb76-eeff06acdf95"
+        },
+        "model": "main.taskconfig",
+        "pk": "48416179-7ae4-47cc-a0aa-f9847da08c63"
+    },
+    {
+        "fields": {
+            "description": "Set transfer type: Standard",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "36ad6300-5a2c-491b-867b-c202541749e8"
+        },
+        "model": "main.taskconfig",
+        "pk": "48929c19-c0c7-41b2-8bd0-552b22e2d86f"
+    },
+    {
+        "fields": {
+            "description": "Policy checks for access derivatives",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "0872e8ff-5b1b-4c00-a5ea-72efc498fcbf"
+        },
+        "model": "main.taskconfig",
+        "pk": "4a8d87e2-4a9a-4ad7-9b4c-d433c9281539"
+    },
+    {
+        "fields": {
+            "description": "Load finished with manual normalized link",
+            "lastmodified": "2013-01-03T02:10:38Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "65af383e-2153-4117-a2f9-bbe83358e54b"
+        },
+        "model": "main.taskconfig",
+        "pk": "4ad0eecf-aa6e-4e3c-afe4-7e230cc671b2"
+    },
+    {
+        "fields": {
+            "description": "Rename with transfer UUID",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0b1177e8-8541-4293-a238-1783c793a7b1"
+        },
+        "model": "main.taskconfig",
+        "pk": "4b07d97a-04c1-45ce-9d9b-36bc29054223"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "bc7d263a-3798-4e5e-8098-8e273fd5890b"
+        },
+        "model": "main.taskconfig",
+        "pk": "4b7e128d-193d-4b7a-8c46-b37842bac047"
+    },
+    {
+        "fields": {
+            "description": "Transcribe SIP contents",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "4c64875e-9f31-4596-96d9-f99bc886bb24"
+    },
+    {
+        "fields": {
+            "description": "Rename DIP files with original UUIDs",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "5f5ca409-8009-4732-a47c-1a35c72abefc"
+        },
+        "model": "main.taskconfig",
+        "pk": "4d2ed238-1b35-43fb-9753-fcac0ede8da4"
+    },
+    {
+        "fields": {
+            "description": "Choose Config for Archivists Toolkit DIP Upload",
+            "lastmodified": "2013-03-26T03:25:01Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": ""
+        },
+        "model": "main.taskconfig",
+        "pk": "4d56a90c-8d9f-498c-8331-cf469fcb3147"
+    },
+    {
+        "fields": {
+            "description": "Move to the store AIP approval directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "867f326b-66d1-498d-87e9-b6bcacf45abd"
+        },
+        "model": "main.taskconfig",
+        "pk": "502a8bc4-88b1-41b0-8821-f8afd984036e"
+    },
+    {
+        "fields": {
+            "description": "Verify mets_structmap.xml compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "fa903131-1d84-4d2b-b498-67a48bc44fc8"
+        },
+        "model": "main.taskconfig",
+        "pk": "5044f7ec-96f9-4bf1-8540-671e543c2411"
+    },
+    {
+        "fields": {
+            "description": "Populate database with reingested AIP data",
+            "lastmodified": "2017-08-18T10:07:03Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "12fcbb37-499b-4e1c-8164-3beb1657b6dd"
+        },
+        "model": "main.taskconfig",
+        "pk": "507c13db-63c9-476b-9a16-0c3a05aff1cb"
+    },
+    {
+        "fields": {
+            "description": "Load post approve normalization link",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "7477907c-79ec-4d48-93ae-9e0cbbfd2b65"
+        },
+        "model": "main.taskconfig",
+        "pk": "5092ff10-097b-4bac-a4d8-9b4766aaf40d"
+    },
+    {
+        "fields": {
+            "description": "Normalize for preservation",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "7478e34b-da4b-479b-ad2e-5a3d4473364f"
+        },
+        "model": "main.taskconfig",
+        "pk": "51e31d21-3e92-4c9f-8fec-740f559285f2"
+    },
+    {
+        "fields": {
+            "description": "Remove the processing directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "805d7c5d-5ca9-4e66-9223-767eef79e0bd"
+        },
+        "model": "main.taskconfig",
+        "pk": "525db1a2-d494-4764-a900-7ff89d67c384"
+    },
+    {
+        "fields": {
+            "description": "Verify metadata directory checksums",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c64b1064-c856-4758-9891-152c7eabde7f"
+        },
+        "model": "main.taskconfig",
+        "pk": "528c8fe3-265f-45dd-b5c0-1a4ac0e15954"
+    },
+    {
+        "fields": {
+            "description": "Verify metadata directory checksums",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "df65573b-70b7-4cd4-b825-d5d5d8dd016d"
+        },
+        "model": "main.taskconfig",
+        "pk": "52d646df-fd66-4157-b8aa-32786fef9481"
+    },
+    {
+        "fields": {
+            "description": "Validate formats",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "1d3ef137-b060-4b33-b13f-25aa9346877b"
+        },
+        "model": "main.taskconfig",
+        "pk": "530a3999-422f-4abb-a6be-bd29cbed04a4"
+    },
+    {
+        "fields": {
+            "description": "Characterize and extract metadata on submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "4b816807-10a7-447a-b42f-f34c8b8b3b76"
+        },
+        "model": "main.taskconfig",
+        "pk": "530b3b90-b97a-4aaf-836f-3a889ad1d7d2"
+    },
+    {
+        "fields": {
+            "description": "Scan for viruses on extracted files",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "51bce222-4157-427c-aca9-a670083db223"
+        },
+        "model": "main.taskconfig",
+        "pk": "5370a0cb-da97-4983-868a-1376d7737af5"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9c94b1d7-0563-4be9-9d64-058d0d1a03f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "547f95f6-3fcd-45e1-98b6-a8a7d9097373"
+    },
+    {
+        "fields": {
+            "description": "Remove hidden files and directories",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "6c50d546-b0a4-4900-90ac-b4bcca802368"
+        },
+        "model": "main.taskconfig",
+        "pk": "549181ed-febe-487a-a036-ed6fdfa10a86"
+    },
+    {
+        "fields": {
+            "description": "Failed compliance. See output in dashboard. Transfer moved back to activeTransfers.",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "b0aa4fd2-a837-4cb8-964d-7f905326aa85"
+        },
+        "model": "main.taskconfig",
+        "pk": "54a05ec3-a34f-4404-96ec-36b527445da9"
+    },
+    {
+        "fields": {
+            "description": "Store DIP location",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba",
+            "tasktypepkreference": "1fa7994d-9106-4d5a-892c-539af7e4ad8d"
+        },
+        "model": "main.taskconfig",
+        "pk": "55123c46-78c9-4b5d-ad92-2b1f3eb658af"
+    },
+    {
+        "fields": {
+            "description": "Removed bagged files",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "d12b6b59-1f1c-47c2-b1a3-2bf898740eae"
+        },
+        "model": "main.taskconfig",
+        "pk": "55f0e6fa-834c-44f1-89f3-c912e79cea7d"
+    },
+    {
+        "fields": {
+            "description": "Sanitize extracted objects' file and directory names",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f368a36d-2b27-4f08-b662-2828a96d189a"
+        },
+        "model": "main.taskconfig",
+        "pk": "57bd2747-181e-4f06-b969-dc012c592982"
+    },
+    {
+        "fields": {
+            "description": "Verify metadata directory checksums",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "7e47b56f-f9bc-4a10-9f63-1b165354d5f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "57ef1f9f-3a1a-4cdc-90fd-39b024524618"
+    },
+    {
+        "fields": {
+            "description": "Normalize",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "58a83299-c854-49bb-9b16-bf97813edd8e"
+    },
+    {
+        "fields": {
+            "description": "Move to select normalization path.",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "55eec242-68fa-4a1b-a3cd-458c087a017b"
+        },
+        "model": "main.taskconfig",
+        "pk": "596a7fd5-a86b-489c-a9c0-3aa64b836cec"
+    },
+    {
+        "fields": {
+            "description": "Move to the failed directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "5401961e-773d-41fe-8d62-8c1262f6156b"
+        },
+        "model": "main.taskconfig",
+        "pk": "59ebdcec-eacc-4daf-978a-1b0d8652cd0c"
+    },
+    {
+        "fields": {
+            "description": "Check for Service directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "290b358c-cfff-488c-a0b7-fffce037b2c5"
+        },
+        "model": "main.taskconfig",
+        "pk": "5a3d244e-c7a1-4cd9-b1a8-2890bf1f254c"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "4c25f856-6639-42b5-9120-3ac166dce932"
+        },
+        "model": "main.taskconfig",
+        "pk": "5a9fbb03-2434-4034-b20f-bcc6f971a8e5"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2018-05-16T18:06:06Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "07d6dff8-20ee-4346-88da-6dfe549eddb1"
+        },
+        "model": "main.taskconfig",
+        "pk": "5ba69f6a-1605-42a5-a53a-4d5179613e12"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to metadata ",
+            "lastmodified": "2013-02-13T22:03:40Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "e377b543-d9b8-47a9-8297-4f95ca7600b3"
+        },
+        "model": "main.taskconfig",
+        "pk": "5bd51fcb-6a68-4c5f-b99e-4fc36f51c40c"
+    },
+    {
+        "fields": {
+            "description": "Add README file",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "acb6b747-54b5-4d53-920d-85746cb453a4"
+        },
+        "model": "main.taskconfig",
+        "pk": "5bf6bc93-fa3d-4c3e-9ae0-8e714e8fedba"
+    },
+    {
+        "fields": {
+            "description": "Create DIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "5341d647-dc75-4f00-8e02-cef59c9862e5"
+        },
+        "model": "main.taskconfig",
+        "pk": "5c831a10-5d75-44ca-9741-06fdfc72052a"
+    },
+    {
+        "fields": {
+            "description": "Choose Config for ArchivesSpace DIP Upload",
+            "lastmodified": "2017-08-18T10:06:58Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": ""
+        },
+        "model": "main.taskconfig",
+        "pk": "5ded9d05-dd24-484a-a8b2-73ec5d35aa63"
+    },
+    {
+        "fields": {
+            "description": "Pre-processing for DIP generation",
+            "lastmodified": "2017-08-18T10:07:07Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "cbe200ab-a634-4902-a0e6-8ed1858538d4"
+        },
+        "model": "main.taskconfig",
+        "pk": "5e0ac12e-6ce7-4d11-bd75-e14167210df4"
+    },
+    {
+        "fields": {
+            "description": "Identify manually normalized files",
+            "lastmodified": "2013-02-19T00:52:52Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "2843eba9-a9cf-462a-9cfc-f24ff35a22c0"
+        },
+        "model": "main.taskconfig",
+        "pk": "602e9b26-5839-4940-b230-0264bb873fe7"
+    },
+    {
+        "fields": {
+            "description": "Create unquarantine PREMIS events",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "27dfc012-7cf4-449c-b0f0-bdd252c6f6e9"
+        },
+        "model": "main.taskconfig",
+        "pk": "62ba16c8-4a3f-4199-a48e-d557a90728e2"
+    },
+    {
+        "fields": {
+            "description": "Load rights",
+            "lastmodified": "2017-08-18T10:07:10Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "82579891-1cb7-486e-a0a6-b4cdf99c282f"
+        },
+        "model": "main.taskconfig",
+        "pk": "637cc23a-c5f5-4df5-a352-5d47014be63b"
+    },
+    {
+        "fields": {
+            "description": "Grant normalization options for pre-existing DIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "1871a1a5-1937-4c4d-ab05-3b0c04a0bca1"
+        },
+        "model": "main.taskconfig",
+        "pk": "63866950-cb04-4fe2-9b1d-9d5f1d22fc86"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "c06ecc19-8f75-4ccf-a549-22fde3972f28"
+        },
+        "model": "main.taskconfig",
+        "pk": "6405c283-9eed-410d-92b1-ce7d938ef080"
+    },
+    {
+        "fields": {
+            "description": "Extract zipped bag transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9e6d6445-ccc6-427a-9407-a126699f98b4"
+        },
+        "model": "main.taskconfig",
+        "pk": "64a859be-f362-45d1-b9b4-4e15091f686f"
+    },
+    {
+        "fields": {
+            "description": "Characterize and extract metadata on metadata files",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "e1e813dd-87ce-4468-a6de-35b787a02c7a"
+        },
+        "model": "main.taskconfig",
+        "pk": "6511ac58-d68e-4381-9cf3-01f2637acb4c"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "614b1d56-9078-4cb0-80cc-1ea87b9fbbe8"
+        },
+        "model": "main.taskconfig",
+        "pk": "674e21f3-1c50-4185-8e5d-70b1ed4a7f3a"
+    },
+    {
+        "fields": {
+            "description": "Run FITS on manual normalized preservation files",
+            "lastmodified": "2013-01-03T02:10:38Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "79f3c95a-c1f1-463b-ab23-972ad859e136"
+        },
+        "model": "main.taskconfig",
+        "pk": "68920df3-66aa-44fc-b221-710dbe97680a"
+    },
+    {
+        "fields": {
+            "description": "Verify TRIM manifest",
+            "lastmodified": "2012-11-30T19:55:47Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "748eef17-84d3-4b84-9439-6756f0fc697d"
+        },
+        "model": "main.taskconfig",
+        "pk": "6a930177-66db-49d3-b95d-10c28ee47562"
+    },
+    {
+        "fields": {
+            "description": "Create transfer backup (sharedDirectory/transferBackups)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9e302b2b-e28d-4a61-9be7-b94e16929560"
+        },
+        "model": "main.taskconfig",
+        "pk": "6af5d804-de90-4c5b-bdba-e15a89e1a3db"
+    },
+    {
+        "fields": {
+            "description": "Cleanup failed Transfer",
+            "lastmodified": "2017-08-18T10:07:10Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "3362ef11-b4f1-4862-b91d-496665d15cce"
+        },
+        "model": "main.taskconfig",
+        "pk": "6b2a7301-df99-4157-b09f-76e87e08f6d9"
+    },
+    {
+        "fields": {
+            "description": "Rename with transfer UUID",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "b3fed349-54c4-4142-8d86-925b3a9f4365"
+        },
+        "model": "main.taskconfig",
+        "pk": "6ed7ec07-5df1-470b-9a2e-a934cba8af26"
+    },
+    {
+        "fields": {
+            "description": "Verify TRIM checksums",
+            "lastmodified": "2012-11-30T19:55:47Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "3b889d1d-bfe1-467f-8373-2c9366127093"
+        },
+        "model": "main.taskconfig",
+        "pk": "6f5d5518-1ed4-49b8-9cd5-497d112c97e4"
+    },
+    {
+        "fields": {
+            "description": "Upload DIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ee80b69b-6128-4e31-9db4-ef90aa677c87"
+        },
+        "model": "main.taskconfig",
+        "pk": "7058a655-82f3-455c-9245-ad8e87e77a4f"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "2ad612bc-1993-407e-9d66-a8ab9c1ebbd5"
+        },
+        "model": "main.taskconfig",
+        "pk": "71d4f810-8fb6-45f7-9da2-f2dc07217076"
+    },
+    {
+        "fields": {
+            "description": "Upload to ArchivesSpace",
+            "lastmodified": "2017-08-18T10:06:58Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "10a0f352-aeb7-4c13-8e9e-e81bda9bca29"
+        },
+        "model": "main.taskconfig",
+        "pk": "71eaef05-264d-453e-b8c4-7b7e2c7ac889"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "d079b090-bc81-4fc6-a9c5-a267ad5f69a9"
+        },
+        "model": "main.taskconfig",
+        "pk": "72dce7bc-054c-4d2d-8971-a480cb894bdc"
+    },
+    {
+        "fields": {
+            "description": "Create SIP from transfer objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "744000f8-8688-4080-9225-5547cd3f77cc"
+        },
+        "model": "main.taskconfig",
+        "pk": "73ad6c9d-8ea1-4667-ae7d-229656a49237"
+    },
+    {
+        "fields": {
+            "description": "Move submission documentation into objects directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "2f2a9b2b-bcdb-406b-a842-898d4bed02be"
+        },
+        "model": "main.taskconfig",
+        "pk": "73e12d44-ec3d-41a9-b138-80ec7e31ede5"
+    },
+    {
+        "fields": {
+            "description": "Move to processing directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "464a0a66-571b-4e6d-ba3a-4d182551a20f"
+        },
+        "model": "main.taskconfig",
+        "pk": "74146fe4-365d-4f14-9aae-21eafa7d8393"
+    },
+    {
+        "fields": {
+            "description": "Create AIC METS file",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "77e6b5ec-acf7-44d0-b250-32cbe014499d"
+        },
+        "model": "main.taskconfig",
+        "pk": "741a09ee-8143-4216-8919-1046571af3e9"
+    },
+    {
+        "fields": {
+            "description": "Examine contents?",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "7569eff6-401f-11e3-ae52-1c6f65d9668b"
+    },
+    {
+        "fields": {
+            "description": "Verify mets_structmap.xml compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "fa903131-1d84-4d2b-b498-67a48bc44fc8"
+        },
+        "model": "main.taskconfig",
+        "pk": "757b5f8b-0fdf-4c5c-9cff-569d63a2d209"
+    },
+    {
+        "fields": {
+            "description": "Retrieve AIP Storage Locations",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "a19bfd9f-9989-4648-9351-013a10b382ed",
+            "tasktypepkreference": "857fb861-8aa1-45c0-95f5-c5af66764142"
+        },
+        "model": "main.taskconfig",
+        "pk": "75e00332-24a3-4076-aed1-e3dc44379227"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with FITS-JHOVE file identification.",
+            "lastmodified": "2012-10-23T19:41:23Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "face6ee9-42d5-46ff-be1b-a645594b2da8"
+        },
+        "model": "main.taskconfig",
+        "pk": "76135f22-6dba-417f-9833-89ecbe9a3d99"
+    },
+    {
+        "fields": {
+            "description": "Rename with transfer UUID",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0b1177e8-8541-4293-a238-1783c793a7b1"
+        },
+        "model": "main.taskconfig",
+        "pk": "76729a40-dfa1-4c1a-adbf-01fb362324f5"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a DSpace transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "f1357379-0118-4f51-aa49-37aeb702b760"
+        },
+        "model": "main.taskconfig",
+        "pk": "7872599e-ebfc-472b-bb11-524ff728679f"
+    },
+    {
+        "fields": {
+            "description": "Handle unstored DIP",
+            "lastmodified": "2018-05-16T18:06:03Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "888281a1-9678-46ed-a1a0-be9f0c6d02b0"
+        },
+        "model": "main.taskconfig",
+        "pk": "79ba8ce2-d01a-4723-83b7-5ac2b9ab2ae9"
+    },
+    {
+        "fields": {
+            "description": "Determine which files to identify",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "97ddf0be-7b07-48b1-82f6-6a3b49edde2b"
+        },
+        "model": "main.taskconfig",
+        "pk": "7a96f085-924b-483e-bc63-440323bce587"
+    },
+    {
+        "fields": {
+            "description": "Sanitize file and directory names in metadata",
+            "lastmodified": "2013-02-13T22:03:39Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "58b192eb-0507-4a83-ae5a-f5e260634c2a"
+        },
+        "model": "main.taskconfig",
+        "pk": "7b07859b-015e-4a17-8bbf-0d46f910d687"
+    },
+    {
+        "fields": {
+            "description": "Load labels from metadata/file_labels.csv",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "2f851d03-722f-4c49-8369-64f11542af89"
+        },
+        "model": "main.taskconfig",
+        "pk": "7beb3689-02a7-4f56-a6d1-9c9399f06842"
+    },
+    {
+        "fields": {
+            "description": "Move to processing directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "037feb3c-f4d1-44dd-842e-c681793094df"
+        },
+        "model": "main.taskconfig",
+        "pk": "7c02a87b-7113-4851-97cd-2cf9d3fc0010"
+    },
+    {
+        "fields": {
+            "description": "Cleanup failed SIP",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "bad1aea1-404c-4a0a-8f0a-83f09bf99fd5"
+        },
+        "model": "main.taskconfig",
+        "pk": "7d5cb258-1ce2-4510-bd04-3517abbe8fbc"
+    },
+    {
+        "fields": {
+            "description": "Normalize service files for thumbnails",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "62f21582-3925-47f6-b17e-90f46323b0d1"
+        },
+        "model": "main.taskconfig",
+        "pk": "7fd4e564-bed2-42c7-a186-7ae615381516"
+    },
+    {
+        "fields": {
+            "description": "Set transfer type: DSpace",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "6c261f8f-17ce-4b58-86c2-ac3bfb0d2850"
+        },
+        "model": "main.taskconfig",
+        "pk": "80ebef4c-0dd1-45eb-b993-1db56a077db8"
+    },
+    {
+        "fields": {
+            "description": "Create transfer metadata XML",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "290c1989-4d8a-4b6e-80bd-9ff43439aeca"
+        },
+        "model": "main.taskconfig",
+        "pk": "81304470-37ef-4abb-99d9-ca075a9f440e"
+    },
+    {
+        "fields": {
+            "description": "Identify DSpace mets files",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "f798426b-fbe9-4fd3-9180-8df776384b14"
+        },
+        "model": "main.taskconfig",
+        "pk": "81d64862-a4f6-4e3f-b32e-47268d9eb9a3"
+    },
+    {
+        "fields": {
+            "description": "Approve AIC",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "81f2a21b-a7a0-44e4-a2f6-9a6cf742b052"
+    },
+    {
+        "fields": {
+            "description": "Remove bagged files",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "d17b25c7-f83c-4862-904b-8074150b1395"
+        },
+        "model": "main.taskconfig",
+        "pk": "83755035-1dfd-4e25-9031-e1178be4bb84"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a standard transfer when unquarantined",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "1c460578-e696-4378-a5d1-63ee77dd18bc"
+        },
+        "model": "main.taskconfig",
+        "pk": "851d679e-44db-485a-9b0e-2dfbdf80c791"
+    },
+    {
+        "fields": {
+            "description": "Remove unneeded files",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "66aa823d-3b72-4d13-9ad6-c5e6580857b8"
+        },
+        "model": "main.taskconfig",
+        "pk": "85308c8b-b299-4453-bf40-9ac61d134015"
+    },
+    {
+        "fields": {
+            "description": "Identify file format",
+            "lastmodified": "2013-11-07T22:51:42Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "9c3680a5-91cb-413f-af4e-d39c3346f8db"
+        },
+        "model": "main.taskconfig",
+        "pk": "8558d885-d6c2-4d74-af46-20da45487ae7"
+    },
+    {
+        "fields": {
+            "description": "Select format identification tool",
+            "lastmodified": "2012-10-24T00:45:13Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "85a2ec9b-5a80-497b-af60-04926c0bf183"
+    },
+    {
+        "fields": {
+            "description": "Store DIP",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1f6f0cd1-acaf-40fb-bb2a-047383b8c977"
+        },
+        "model": "main.taskconfig",
+        "pk": "85ce72dd-627a-4d0d-b118-fdaedf8ed8e6"
+    },
+    {
+        "fields": {
+            "description": "Examine contents",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "3a17cc3f-eabc-4b58-90e8-1df2a96cf182"
+        },
+        "model": "main.taskconfig",
+        "pk": "869c4c44-6e7d-4473-934d-80c7b95a8310"
+    },
+    {
+        "fields": {
+            "description": "Delete package after extraction?",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "86a832aa-bd37-44e2-ba02-418fb82e34f1"
+    },
+    {
+        "fields": {
+            "description": "Scan for viruses in metadata",
+            "lastmodified": "2013-02-13T22:03:39Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "7316e6ed-1c1a-4bf6-a570-aead6b544e41"
+        },
+        "model": "main.taskconfig",
+        "pk": "8850aeff-8553-4ff1-ab31-99b5392a458b"
+    },
+    {
+        "fields": {
+            "description": "Bind PIDs",
+            "lastmodified": "2018-05-16T18:06:04Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0bd2524d-573a-4c8e-86b4-8fa54a5acfad"
+        },
+        "model": "main.taskconfig",
+        "pk": "88d8d473-6948-4f5d-abcb-12fb392df17a"
+    },
+    {
+        "fields": {
+            "description": "Select compression algorithm",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "8a291152-729c-42f2-ab2e-c53b9f357799"
+    },
+    {
+        "fields": {
+            "description": "Move to select file ID tool",
+            "lastmodified": "2013-11-07T22:51:42Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "179373e8-a6b4-4274-a245-ca3f4b105396"
+        },
+        "model": "main.taskconfig",
+        "pk": "8b846431-5da9-4743-906d-2cdc4e777f8f"
+    },
+    {
+        "fields": {
+            "description": "Check transfer directory for objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "77ea8809-bc90-4e9d-a144-ad6d5ec59de9"
+        },
+        "model": "main.taskconfig",
+        "pk": "8cda5b7a-fb44-4a61-a865-6ad01af5a150"
+    },
+    {
+        "fields": {
+            "description": "Attempt restructure for compliance",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "285a7b4d-155b-4f5b-ab35-daa6414303f9"
+        },
+        "model": "main.taskconfig",
+        "pk": "8e06349b-d4a3-420a-9a64-69553bd9a183"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1f3f4e3b-2f5a-47a2-8d1c-27a6f1b94b95"
+        },
+        "model": "main.taskconfig",
+        "pk": "8ea17652-a136-4251-b460-d50b0c7090eb"
+    },
+    {
+        "fields": {
+            "description": "Copy preconfigured choice XML to DIP directory",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "67a7341c-276e-46bf-9021-0dcd5123687f"
+        },
+        "model": "main.taskconfig",
+        "pk": "8ed6f0e4-cd5c-4c4b-bce0-e8949ea696cd"
+    },
+    {
+        "fields": {
+            "description": "Find branch to continue processing",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "8fa944df-1baf-4f89-8106-af013b5078f4"
+    },
+    {
+        "fields": {
+            "description": "Copy thumbnails to DIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "6abefa8d-387d-4f23-9978-bea7e6657a57"
+        },
+        "model": "main.taskconfig",
+        "pk": "90e0993d-23d4-4d0c-8b7d-73717b58f20e"
+    },
+    {
+        "fields": {
+            "description": "Verify mets_structmap.xml compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "fa903131-1d84-4d2b-b498-67a48bc44fc8"
+        },
+        "model": "main.taskconfig",
+        "pk": "92a7b76c-7c5c-41b3-8657-ba4cdd9a8176"
+    },
+    {
+        "fields": {
+            "description": "Create SIPs from TRIM transfer containers",
+            "lastmodified": "2012-12-04T21:29:48Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "4cfac870-24ec-4a80-8bcb-7a38fd02e048"
+        },
+        "model": "main.taskconfig",
+        "pk": "9371ba25-b600-485d-b2d8-cef2f39c35ed"
+    },
+    {
+        "fields": {
+            "description": "Find type to remove from quarantine as",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "93e01ed2-8d69-4a56-b686-3cf507931885"
+    },
+    {
+        "fields": {
+            "description": "Normalize",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "9413e636-1209-40b0-a735-74ec785ea14a"
+    },
+    {
+        "fields": {
+            "description": "Select target CONTENTdm server",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "94942d82-8b87-4be3-a338-158f893573cd"
+    },
+    {
+        "fields": {
+            "description": "Generate DIP",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a51af5c7-0ed4-41c2-9142-fc9e43e83960"
+        },
+        "model": "main.taskconfig",
+        "pk": "95d2ddff-a5e5-49cd-b4da-a5dd6fd3d2eb"
+    },
+    {
+        "fields": {
+            "description": "Create placement in backlog PREMIS events",
+            "lastmodified": "2013-04-19T22:39:27Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "6733ebdd-5c5f-4168-81a5-fe9a2fbc10c9"
+        },
+        "model": "main.taskconfig",
+        "pk": "9649186d-e5bd-4765-b285-3b0d8e83b105"
+    },
+    {
+        "fields": {
+            "description": "Set transfer type: Maildir",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "7b455fc5-b201-4233-ba1c-e05be059b279"
+        },
+        "model": "main.taskconfig",
+        "pk": "966f5720-3081-4697-9691-c19b86ffa569"
+    },
+    {
+        "fields": {
+            "description": "Select file format identification command",
+            "lastmodified": "2013-11-07T22:51:42Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "97545cb5-3397-4934-9bc5-143b774e4fa7"
+    },
+    {
+        "fields": {
+            "description": "Set remove preservation normalized files to renormalize link.",
+            "lastmodified": "2012-10-24T00:40:07Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "b5808a0f-e842-4820-837a-832d18398ebb"
+        },
+        "model": "main.taskconfig",
+        "pk": "97cc7629-c580-44db-8a41-68b6b2f23be4"
+    },
+    {
+        "fields": {
+            "description": "Set files to normalize",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "f226ecea-ae91-42d5-b039-39a1125b1c30"
+        },
+        "model": "main.taskconfig",
+        "pk": "99324102-ebe8-415d-b5d8-b299ab2f4703"
+    },
+    {
+        "fields": {
+            "description": "Move to the failed directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c79f55f7-637c-4d32-a6fa-1d193e87c5fc"
+        },
+        "model": "main.taskconfig",
+        "pk": "99712faf-6cd0-48d1-9c66-35a2033057cf"
+    },
+    {
+        "fields": {
+            "description": "Scan for viruses",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "de58249f-9594-439d-8bea-536ce59d70a3"
+        },
+        "model": "main.taskconfig",
+        "pk": "9a0f8eac-6a9d-4b85-8049-74954fbd6594"
+    },
+    {
+        "fields": {
+            "description": "Generate DIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ed8c70b7-1456-461c-981b-6b9c84896263"
+        },
+        "model": "main.taskconfig",
+        "pk": "9a70cc32-2b0e-4763-a168-b81485fac366"
+    },
+    {
+        "fields": {
+            "description": "Bind PID",
+            "lastmodified": "2018-05-16T18:06:04Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "b055f0a4-75d7-4747-98fe-aab08d835403"
+        },
+        "model": "main.taskconfig",
+        "pk": "9c9e75e9-04b0-4a04-83ad-07ddf2ff9a17"
+    },
+    {
+        "fields": {
+            "description": "Sanitize object's file and directory names",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "80759ad1-c79a-4c3b-b255-735c28a50f9e"
+        },
+        "model": "main.taskconfig",
+        "pk": "9dd95035-e11b-4438-a6c6-a03df302933c"
+    },
+    {
+        "fields": {
+            "description": "Parse external METS",
+            "lastmodified": "2017-08-18T10:07:10Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "d9708512-ac5f-4211-b07a-e5a41c6825b6"
+        },
+        "model": "main.taskconfig",
+        "pk": "9ecf18d4-652b-4bd2-a3f5-bfb5794299f8"
+    },
+    {
+        "fields": {
+            "description": "Reminder: add metadata if desired",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": "5c149b3b-8fb3-431c-a577-11cf349cfb38"
+        },
+        "model": "main.taskconfig",
+        "pk": "9f0388ae-155c-4cbf-9e15-525ff03e025f"
+    },
+    {
+        "fields": {
+            "description": "Move to processing directory",
+            "lastmodified": "2015-05-25T16:33:13Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "cb6cd728-fe54-4a50-a6cc-1c5bd9fa1198"
+        },
+        "model": "main.taskconfig",
+        "pk": "9f7029af-739d-4ec1-840d-b92d1d30f0c7"
+    },
+    {
+        "fields": {
+            "description": "Set unquarantined file permissions on Transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "329fd50d-42fd-44e3-940e-7dc45d1a7727"
+        },
+        "model": "main.taskconfig",
+        "pk": "a0aecc16-3f78-4579-b6d4-a10df1f89a41"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a standard transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "5dffcd9c-472d-44e0-ae4d-a30705cf80cd"
+        },
+        "model": "main.taskconfig",
+        "pk": "a2e93146-a3ff-4e6c-ae3d-76ce49ca5e1b"
+    },
+    {
+        "fields": {
+            "description": "Attempt restructure for compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "db753cdd-c556-4f4b-aa09-e55eb637244d"
+        },
+        "model": "main.taskconfig",
+        "pk": "a3c27d23-dbdf-47af-bf66-4238aa1a508f"
+    },
+    {
+        "fields": {
+            "description": "Check if DIP should be generated",
+            "lastmodified": "2013-02-13T22:03:37Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "49c816cd-b443-498f-9369-9274d060ddd3"
+        },
+        "model": "main.taskconfig",
+        "pk": "a493f430-d905-4f68-a742-f4393a43e694"
+    },
+    {
+        "fields": {
+            "description": "Extract packages?",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "a4a4679f-72b8-48da-a202-e0a25fbc41bf"
+    },
+    {
+        "fields": {
+            "description": "Perform policy checks on preservation derivatives?",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "a4aad773-480a-422a-8e61-124fc7487572"
+    },
+    {
+        "fields": {
+            "description": "Move to extract packages",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "8daffda4-397c-4f56-85db-c4376bf6891e"
+        },
+        "model": "main.taskconfig",
+        "pk": "a68d7873-86cf-42d3-a95e-68b62f92f0f9"
+    },
+    {
+        "fields": {
+            "description": "Include default Transfer processingMCP.xml",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a56a116c-167b-45c5-b634-253696270a12"
+        },
+        "model": "main.taskconfig",
+        "pk": "a71f40ec-77b2-4f13-91b6-da3d4a67a284"
+    },
+    {
+        "fields": {
+            "description": "Include default Transfer processingMCP.xml",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a56a116c-167b-45c5-b634-253696270a12"
+        },
+        "model": "main.taskconfig",
+        "pk": "a73b3690-ac75-4030-bb03-0c07576b649b"
+    },
+    {
+        "fields": {
+            "description": "Identify file format of attachments",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "02fd0952-4c9c-4da6-9ea3-a1409c87963d"
+        },
+        "model": "main.taskconfig",
+        "pk": "a75ee667-3a1c-4950-9194-e07d0e6bf545"
+    },
+    {
+        "fields": {
+            "description": "Normalize for thumbnails",
+            "lastmodified": "2013-11-15T00:31:31Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "8fe4a2c3-d43c-41e4-aeb9-18e8f57c9ccf"
+        },
+        "model": "main.taskconfig",
+        "pk": "a8489361-b731-4d4a-861d-f4da1767665f"
+    },
+    {
+        "fields": {
+            "description": "Perform policy checks on access derivatives?",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "a91ad9f6-1027-409c-8e66-4c8769ff9f06"
+    },
+    {
+        "fields": {
+            "description": "Choose config for AtoM DIP upload",
+            "lastmodified": "2018-05-16T18:05:58Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": ""
+        },
+        "model": "main.taskconfig",
+        "pk": "a987e8d6-e633-4551-a082-2334a300fa72"
+    },
+    {
+        "fields": {
+            "description": "Index transfer contents",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "2c9fd8e4-a4f9-4aa6-b443-de8a9a49e396"
+        },
+        "model": "main.taskconfig",
+        "pk": "aa2e26b3-539e-4071-b54c-bcb89650d2d2"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to submissionDocumentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "c8f93c3d-b078-428d-bd53-1b5789cde598"
+        },
+        "model": "main.taskconfig",
+        "pk": "abeaa79e-668b-4de0-b8cb-70f8ab8056b6"
+    },
+    {
+        "fields": {
+            "description": "Store DIP?",
+            "lastmodified": "2017-08-18T10:07:07Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "abf861ee-2125-4e7e-8d85-9e1dcd020b4b"
+    },
+    {
+        "fields": {
+            "description": "Create quarantine PREMIS events",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "30ea6854-cf7a-42d4-b1e8-3c4ca0b82b7d"
+        },
+        "model": "main.taskconfig",
+        "pk": "accc69f9-5b99-4565-92b5-114c7727d9e9"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9c94b1d7-0563-4be9-9d64-058d0d1a03f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "acd5e136-11ed-46fe-bf67-dc108f115d6b"
+    },
+    {
+        "fields": {
+            "description": "Approve maildir transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "acf7bd62-1587-4bff-b640-5b34b7196386"
+    },
+    {
+        "fields": {
+            "description": "Remove from quarantine",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "ad1f1ae6-658f-4281-abc2-fe2f6c5d5e8e"
+    },
+    {
+        "fields": {
+            "description": "Copy transfer submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "b3c14f6c-bc91-4349-9e8f-c02f7dac27b3"
+        },
+        "model": "main.taskconfig",
+        "pk": "b24525cd-e68d-4afd-b6ec-46192bbc117b"
+    },
+    {
+        "fields": {
+            "description": "Verify transfer compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "cf23dd75-d273-4c4e-8394-17622adf9bd6"
+        },
+        "model": "main.taskconfig",
+        "pk": "b3875772-0f3b-4b03-b602-5304ded86397"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "d079b090-bc81-4fc6-a9c5-a267ad5f69a9"
+        },
+        "model": "main.taskconfig",
+        "pk": "b3b86729-470f-4301-8861-d62574966747"
+    },
+    {
+        "fields": {
+            "description": "Verify AIP",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ae6b87d8-59c8-4ffa-b417-ce93ab472e74"
+        },
+        "model": "main.taskconfig",
+        "pk": "b57b3564-e271-4226-a5f9-2c7cf1661a83"
+    },
+    {
+        "fields": {
+            "description": "Verify bag, and restructure for compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e884b0db-8e51-4ea6-87f9-0420ee9ddf8f"
+        },
+        "model": "main.taskconfig",
+        "pk": "b5970cbb-1af7-4f8c-b41d-a0febd482da4"
+    },
+    {
+        "fields": {
+            "description": "Validate access derivatives",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "52e7912e-2ce9-4192-9ba4-19a75b2a2807"
+        },
+        "model": "main.taskconfig",
+        "pk": "b597753f-0b36-484f-ae78-4ae95951fd90"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with FITS-ffident file identification.",
+            "lastmodified": "2012-10-23T19:41:23Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "6c02936d-552a-415e-b3c1-6d681b01d1c6"
+        },
+        "model": "main.taskconfig",
+        "pk": "b5e6340f-07f3-4ed1-aada-7a7f049b19b9"
+    },
+    {
+        "fields": {
+            "description": "Create transfer backup (sharedDirectory/transferBackups)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9e302b2b-e28d-4a61-9be7-b94e16929560"
+        },
+        "model": "main.taskconfig",
+        "pk": "b6167c79-1770-4519-829c-fa01718756f4"
+    },
+    {
+        "fields": {
+            "description": "Validate preservation derivatives",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "f8bc7b43-8bd4-4db8-88dc-d6f55732fb63"
+        },
+        "model": "main.taskconfig",
+        "pk": "b6479474-159d-47aa-a10f-40495cb0e273"
+    },
+    {
+        "fields": {
+            "description": "Characterize and extract metadata on objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "51eab45d-6a24-4080-a1be-1e5c9405ce25"
+        },
+        "model": "main.taskconfig",
+        "pk": "b8403044-12a3-4b63-8399-772b9adace15"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with FITS-Droid file identification.",
+            "lastmodified": "2012-10-23T19:41:22Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "4093954b-5e44-4fe9-9a47-14c82158a00d"
+        },
+        "model": "main.taskconfig",
+        "pk": "b8c10f19-40c9-44c8-8b9f-6fab668513f5"
+    },
+    {
+        "fields": {
+            "description": "Document empty directories?",
+            "lastmodified": "2018-05-16T18:06:06Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "b9613953-9f2d-474b-b8b4-2e17f0b0239d"
+    },
+    {
+        "fields": {
+            "description": "Move metadata to objects directory",
+            "lastmodified": "2013-02-13T22:03:40Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ce13677c-8ad4-4af0-92c8-ae8763f5094d"
+        },
+        "model": "main.taskconfig",
+        "pk": "ba0d0244-1526-4a99-ab65-43bfcd704e70"
+    },
+    {
+        "fields": {
+            "description": "Remove preservation normalized files to renormalize.",
+            "lastmodified": "2012-10-24T00:40:07Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "352fc88d-4228-4bc8-9c15-508683dabc58"
+        },
+        "model": "main.taskconfig",
+        "pk": "bacb088a-66ef-4590-b855-69f21dfdf87a"
+    },
+    {
+        "fields": {
+            "description": "Compress AIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "4dc2b1d2-acbb-47e7-88ca-570281f3236f"
+        },
+        "model": "main.taskconfig",
+        "pk": "bafe0ba3-420a-44f2-bb15-7509ef5c498c"
+    },
+    {
+        "fields": {
+            "description": "Upload to Archivists Toolkit",
+            "lastmodified": "2013-03-26T03:25:01Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a650921e-b754-4e61-9713-1457cf52e77d"
+        },
+        "model": "main.taskconfig",
+        "pk": "bcff2873-f006-442e-9628-5eadbb8d0db7"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "ec54a7cb-690f-4dd6-ad2b-979ae9f8d25a"
+        },
+        "model": "main.taskconfig",
+        "pk": "bd9769ba-4182-4dd4-ba85-cff24ea8733e"
+    },
+    {
+        "fields": {
+            "description": "Move to the rejected directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "11e6fcbe-3d7b-41cc-bfac-14dee9172b51"
+        },
+        "model": "main.taskconfig",
+        "pk": "be4e3ee6-9be3-465f-93f0-77a4ccdfd1db"
+    },
+    {
+        "fields": {
+            "description": "Store AIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "bec683fa-f006-48a4-b298-d33b3b681cb2"
+    },
+    {
+        "fields": {
+            "description": "Remove from quarantine",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "bf0835be-4c76-4508-a5a7-cdc4c9dae217"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums and file sizes to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "45df6fd4-9200-4ec7-bd31-ba0338c07806"
+        },
+        "model": "main.taskconfig",
+        "pk": "bf5a1f0c-1b3e-4196-b51f-f6d509091346"
+    },
+    {
+        "fields": {
+            "description": "Store the AIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "7df9e91b-282f-457f-b91a-ad6135f4337d"
+        },
+        "model": "main.taskconfig",
+        "pk": "bf71562c-bc87-4fd0-baa6-1d85ff751ea2"
+    },
+    {
+        "fields": {
+            "description": "Load options to create SIPs",
+            "lastmodified": "2012-12-06T17:43:25Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "11aef684-f2c7-494e-9763-277344e139bf"
+        },
+        "model": "main.taskconfig",
+        "pk": "bf9b2fb7-43bd-4c3e-9dd0-7b6f43e6cb48"
+    },
+    {
+        "fields": {
+            "description": "Remove indexed AIP files",
+            "lastmodified": "2013-04-22T18:37:56Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "bfaf4e65-ab7b-11e2-bace-08002742f837"
+        },
+        "model": "main.taskconfig",
+        "pk": "bfb30b76-ab7b-11e2-bace-08002742f837"
+    },
+    {
+        "fields": {
+            "description": "Prepare AIP",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "045f84de-2669-4dbc-a31b-43a4954d0481"
+        },
+        "model": "main.taskconfig",
+        "pk": "c075014f-4051-441a-b16b-3083d5c264c5"
+    },
+    {
+        "fields": {
+            "description": "Copy transfers metadata and logs",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "2e9fb50f-2275-4253-87e5-47d2faf1031e"
+        },
+        "model": "main.taskconfig",
+        "pk": "c1bd4921-c446-4ff9-bb34-fcd155b8132a"
+    },
+    {
+        "fields": {
+            "description": "Sanitize extracted objects' file and directory names",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "89b4d447-1cfc-4bbf-beaa-fb6477b00f70"
+        },
+        "model": "main.taskconfig",
+        "pk": "c2c7edcc-0e65-4df7-812f-a2ee5b5d52b6"
+    },
+    {
+        "fields": {
+            "description": "Move access files to DIP",
+            "lastmodified": "2013-01-03T02:10:39Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "68b1456e-9a59-48d8-96ef-92bc20fd7cab"
+        },
+        "model": "main.taskconfig",
+        "pk": "c307d6bd-cb81-46a1-89f1-bb02a43e0a3a"
+    },
+    {
+        "fields": {
+            "description": "Create DIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1fb68647-9db0-49ef-b6b7-3f775646ffbe"
+        },
+        "model": "main.taskconfig",
+        "pk": "c310a18a-1659-45d0-845e-06eb3321512f"
+    },
+    {
+        "fields": {
+            "description": "Create DIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a540bd68-27fa-47c3-9fc3-bd297999478d"
+        },
+        "model": "main.taskconfig",
+        "pk": "c3e3f03d-c104-48c3-8c64-4290459965f4"
+    },
+    {
+        "fields": {
+            "description": "Approve SIP Creation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "c409f2b0-bcb7-49ad-a048-a217811ca9b6"
+    },
+    {
+        "fields": {
+            "description": "Approve AIP reingest",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "c450501a-251f-4de7-acde-91c47cf62e36"
+    },
+    {
+        "fields": {
+            "description": "Load post approve normalization link",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "e076e08f-5f14-4fc3-93d0-1e80ca727f34"
+        },
+        "model": "main.taskconfig",
+        "pk": "c4b2e8ce-fe02-45d4-9b0f-b163bffcc05f"
+    },
+    {
+        "fields": {
+            "description": "Generate METS.xml document",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0aec05d4-7222-4c28-89f4-043d20a812cc"
+        },
+        "model": "main.taskconfig",
+        "pk": "c52736fa-2bc5-4142-a111-8b13751ed067"
+    },
+    {
+        "fields": {
+            "description": "Upload DIP to CONTENTdm",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e469dc77-5712-4ef1-b053-06f3cd3c34be"
+        },
+        "model": "main.taskconfig",
+        "pk": "c5d7e646-01b1-4d4a-9e38-b89d97e77e33"
+    },
+    {
+        "fields": {
+            "description": "Move to workFlowDecisions-createDip directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "df526440-c08e-49f9-9b9e-c9aa3adedc72"
+        },
+        "model": "main.taskconfig",
+        "pk": "c5e80ef1-aa90-45b2-beb4-c42652acf3e7"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a standard transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "5057b0ce-a7f9-48c4-a7e9-65a7d88bb4ca"
+        },
+        "model": "main.taskconfig",
+        "pk": "c6f9f99a-0b60-438f-9a8d-35d4989db2bb"
+    },
+    {
+        "fields": {
+            "description": "Extract attachments",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "24272436-39b0-44f1-a0d6-c4bdca93ce88"
+        },
+        "model": "main.taskconfig",
+        "pk": "c74dfa47-9a6d-4a12-bffe-bf610ab75db9"
+    },
+    {
+        "fields": {
+            "description": "Set SIP to normalize with FITS-FITS file identification.",
+            "lastmodified": "2012-10-23T19:41:24Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "471ff5ad-1fd3-4540-9245-360cc8c9b389"
+        },
+        "model": "main.taskconfig",
+        "pk": "c87ec738-b679-4d8e-8324-73038ccf0dfd"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after handling any manual normalized files",
+            "lastmodified": "2013-01-03T02:10:39Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "5035632e-7879-4ece-bf43-2fc253026ff5"
+        },
+        "model": "main.taskconfig",
+        "pk": "caaa29bc-a2b6-487b-abff-c3031a0e147a"
+    },
+    {
+        "fields": {
+            "description": "Create quarantine PREMIS events",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "30ea6854-cf7a-42d4-b1e8-3c4ca0b82b7d"
+        },
+        "model": "main.taskconfig",
+        "pk": "cac32b11-820c-4d17-8c7f-4e71fc0be68a"
+    },
+    {
+        "fields": {
+            "description": "Determine if transfer still contains packages",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "93039c6d-5ef7-4a95-bf07-5f89c8886808"
+        },
+        "model": "main.taskconfig",
+        "pk": "cadd5e12-82b2-43ec-813e-85cd42b2d511"
+    },
+    {
+        "fields": {
+            "description": "Determine processing path for this AIP version",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "feec6329-c21a-48b6-b142-cd3c810e846f"
+        },
+        "model": "main.taskconfig",
+        "pk": "cd53e17c-1dd1-4e78-9086-e6e013a64536"
+    },
+    {
+        "fields": {
+            "description": "Set re-normalize link",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "c26b2859-7a96-462f-880a-0cd8d1b0ac32"
+        },
+        "model": "main.taskconfig",
+        "pk": "ce48a9f5-4513-49e2-83db-52b01234705b"
+    },
+    {
+        "fields": {
+            "description": "Determine what to remove to re-normalize.",
+            "lastmodified": "2012-10-24T17:04:11Z",
+            "replaces": null,
+            "tasktype": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11",
+            "tasktypepkreference": "e56e168e-d339-45b4-bc2a-a3eb24390f0f"
+        },
+        "model": "main.taskconfig",
+        "pk": "ce52ace2-68fc-4bfb-8444-f32ec8c01783"
+    },
+    {
+        "fields": {
+            "description": "Check for manual normalized files",
+            "lastmodified": "2013-01-03T02:10:39Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e8fc5fd0-fd55-4eb6-9170-92615fc9c344"
+        },
+        "model": "main.taskconfig",
+        "pk": "ce57ffbc-abd9-43dc-a09b-e888397488f2"
+    },
+    {
+        "fields": {
+            "description": "Include default Transfer processingMCP.xml",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "a56a116c-167b-45c5-b634-253696270a12"
+        },
+        "model": "main.taskconfig",
+        "pk": "cfc7f6be-3984-4727-a71a-02ce27bef791"
+    },
+    {
+        "fields": {
+            "description": "Failed compliance.",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1e5e8ee2-8b93-4e8c-bb9c-0cb40d2728dd"
+        },
+        "model": "main.taskconfig",
+        "pk": "d1004e1d-f938-4c68-ba70-0e0ae508cbbe"
+    },
+    {
+        "fields": {
+            "description": "Identify file format of metadata files",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "866037a3-d99e-4b9c-afb5-6de527a26e35"
+        },
+        "model": "main.taskconfig",
+        "pk": "d1f630dc-1082-4ad6-95b7-af36d2e2cf46"
+    },
+    {
+        "fields": {
+            "description": "Copy METS to DIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "20915fc5-594f-46d8-aa23-bfa45b622d17"
+        },
+        "model": "main.taskconfig",
+        "pk": "d49684b1-badd-4802-b54e-06eb6b329140"
+    },
+    {
+        "fields": {
+            "description": "Rename SIP directory with SIP UUID",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9f473616-9094-45b0-aa3c-41d81a204d3b"
+        },
+        "model": "main.taskconfig",
+        "pk": "d61bb906-feff-4d6f-9e6c-a3f077f46b21"
+    },
+    {
+        "fields": {
+            "description": "Index transfer contents",
+            "lastmodified": "2013-04-05T23:08:30Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "16ce41d9-7bfa-4167-bca8-49fe358f53ba"
+        },
+        "model": "main.taskconfig",
+        "pk": "d6a0dec1-63e7-4c7c-b4c0-e68f0afcedd3"
+    },
+    {
+        "fields": {
+            "description": "Index AIP contents",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "40bf5b85-7cfd-47b0-9fbc-aed6c2cde8be"
+        },
+        "model": "main.taskconfig",
+        "pk": "d7542890-281f-4cdb-a64c-4b6bdd88c4b8"
+    },
+    {
+        "fields": {
+            "description": "Remove files without linking information (failed normalization artifacts etc.)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "a32fc538-efd1-4be0-95a9-5ee40cbc70fd"
+        },
+        "model": "main.taskconfig",
+        "pk": "d7a2bfbe-3f4d-45f7-87c6-f5c3c98961cd"
+    },
+    {
+        "fields": {
+            "description": "Restructure DIP for CONTENTdm upload",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f9f7793c-5a70-4ffd-9727-159c1070e4f5"
+        },
+        "model": "main.taskconfig",
+        "pk": "d7f13903-55a0-4a1c-87fa-9b75b14dccb4"
+    },
+    {
+        "fields": {
+            "description": "Determine if transfer contains packages",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "93039c6d-5ef7-4a95-bf07-5f89c8886808"
+        },
+        "model": "main.taskconfig",
+        "pk": "d9ce0690-a8f9-40dc-a8b5-b021f578f8ff"
+    },
+    {
+        "fields": {
+            "description": "Check if file or folder",
+            "lastmodified": "2015-05-25T16:33:14Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "21f89353-30ba-4601-8690-7c235630736f"
+        },
+        "model": "main.taskconfig",
+        "pk": "d9ebceed-2cfb-462b-b130-48fecdf55bbf"
+    },
+    {
+        "fields": {
+            "description": "Sanitize object's file and directory names",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "89b4d447-1cfc-4bbf-beaa-fb6477b00f70"
+        },
+        "model": "main.taskconfig",
+        "pk": "da756a4e-9d8b-4992-a219-2a7fd1edf2bb"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to metadata",
+            "lastmodified": "2013-02-13T22:03:40Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "34966164-9800-4ae1-91eb-0a0c608d72d5"
+        },
+        "model": "main.taskconfig",
+        "pk": "dc2994f2-6de6-4c46-81f7-54676c5054aa"
+    },
+    {
+        "fields": {
+            "description": "Set quarantine permissions on transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "0b17b446-11d4-45a8-9d0c-4297b8c8887c"
+        },
+        "model": "main.taskconfig",
+        "pk": "dde51fc1-af7d-4923-ad6a-06e670447a2a"
+    },
+    {
+        "fields": {
+            "description": "Attempt restructure for compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c3625e5b-2c8d-47d9-9f66-c37111d39a07"
+        },
+        "model": "main.taskconfig",
+        "pk": "dde8c13d-330e-458b-9d53-0937370695fa"
+    },
+    {
+        "fields": {
+            "description": "Workflow decision - send transfer to quarantine",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "de195451-989e-48fe-ad0c-3ff2265b3410"
+    },
+    {
+        "fields": {
+            "description": "Assign checksums to manual normalized preservation files",
+            "lastmodified": "2013-01-03T02:10:38Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "0bdecdc8-f5ef-48dd-8a89-f937d2b3f2f9"
+        },
+        "model": "main.taskconfig",
+        "pk": "ded09ddd-2deb-4d62-bfe3-84703f60c522"
+    },
+    {
+        "fields": {
+            "description": "Create unquarantine PREMIS events",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "27dfc012-7cf4-449c-b0f0-bdd252c6f6e9"
+        },
+        "model": "main.taskconfig",
+        "pk": "dee46f53-8afb-4aec-820e-d495bcbeaf20"
+    },
+    {
+        "fields": {
+            "description": "Approve bagit transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "df1c53e4-1b69-441e-bdc9-6d08c3b47c9b"
+    },
+    {
+        "fields": {
+            "description": "Include default Transfer processingMCP.xml",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "35ef1f2d-0124-422f-a84a-5e1d756b6bf2"
+        },
+        "model": "main.taskconfig",
+        "pk": "df51d25b-6a63-4e7a-b164-77b929dd2f31"
+    },
+    {
+        "fields": {
+            "description": "Failed compliance. See output in dashboard. SIP moved back to SIPsUnderConstruction",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "3843f87a-12c4-4526-904a-d900572c6483"
+        },
+        "model": "main.taskconfig",
+        "pk": "e18e0c3a-dffb-42d2-9bfa-ea6c61328e28"
+    },
+    {
+        "fields": {
+            "description": "Move to the rejected directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "42aed4a4-8e2b-49f3-ba03-1a45c8baf52c"
+        },
+        "model": "main.taskconfig",
+        "pk": "e20ea90b-fa16-4576-8647-199ecde0d511"
+    },
+    {
+        "fields": {
+            "description": "Approve normalization",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "e211ae41-bf9d-4f34-8b58-9a0dcc0bebe2"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after tool selected.",
+            "lastmodified": "2012-10-23T19:41:25Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "1871a1a5-1937-4c4d-ab05-3b0c04a0bca1"
+        },
+        "model": "main.taskconfig",
+        "pk": "e476ac7e-d3e8-43fa-bb51-5a9cf42b2713"
+    },
+    {
+        "fields": {
+            "description": "Move to the uploadedDIPs directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "302be9f9-af3f-45da-9305-02706d81b742"
+        },
+        "model": "main.taskconfig",
+        "pk": "e485f0f4-7d44-45c6-a0d2-bba4b2abd0d0"
+    },
+    {
+        "fields": {
+            "description": "Serialize Dublin Core metadata to disk",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ed6daadf-a594-4327-b85c-7219c5832369"
+        },
+        "model": "main.taskconfig",
+        "pk": "e5789749-00df-4b6c-af12-47eeabc8926a"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "2ad612bc-1993-407e-9d66-a8ab9c1ebbd5"
+        },
+        "model": "main.taskconfig",
+        "pk": "e601b1e3-a957-487f-8cbe-54160070574d"
+    },
+    {
+        "fields": {
+            "description": "Set resume link after tool selected.",
+            "lastmodified": "2012-10-23T19:41:25Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "f85bbe03-8aca-4211-99b7-ddb7dfb24da1"
+        },
+        "model": "main.taskconfig",
+        "pk": "e62e4b85-e3f1-4550-8e40-3939e6497e92"
+    },
+    {
+        "fields": {
+            "description": "Identify DSpace text files",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "9ea66f4e-150b-4911-b68d-29fd5d372d2c"
+        },
+        "model": "main.taskconfig",
+        "pk": "e6591da1-abfa-4bf2-abeb-cc0791ba5284"
+    },
+    {
+        "fields": {
+            "description": "Verify SIP compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "80c4a6ed-abe4-4e02-8de8-55a50f559dab"
+        },
+        "model": "main.taskconfig",
+        "pk": "e82c3c69-3799-46fd-afc1-f479f960a362"
+    },
+    {
+        "fields": {
+            "description": "Move to workFlowDecisions-createTransferBackup directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f46bbd28-d533-4933-9b5c-4a5d32927ff3"
+        },
+        "model": "main.taskconfig",
+        "pk": "e9f57845-4609-4e0a-a573-4b488d8a4aeb"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9c94b1d7-0563-4be9-9d64-058d0d1a03f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "ea463bfd-5fa2-4936-b8c3-1ce3b74303cf"
+    },
+    {
+        "fields": {
+            "description": "Set TRIM options to create SIPs",
+            "lastmodified": "2012-12-06T19:01:04Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "6adccf2b-1c91-448b-bf0f-56414ee237ac"
+        },
+        "model": "main.taskconfig",
+        "pk": "eb14ba91-20cb-4b0e-ab5d-c30bfea4dbc8"
+    },
+    {
+        "fields": {
+            "description": "Set resume link",
+            "lastmodified": "2013-11-07T22:51:35Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "d8e2c7b2-5452-4c26-b57a-04caafe9f95c"
+        },
+        "model": "main.taskconfig",
+        "pk": "ec503c22-1f4d-442f-b546-f90c9a9e5c86"
+    },
+    {
+        "fields": {
+            "description": "Save directory tree",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f1a272df-bb3f-463e-95c0-6d2062bddfb8"
+        },
+        "model": "main.taskconfig",
+        "pk": "ede67763-2a12-4e8f-8c36-e266d3f05c6b"
+    },
+    {
+        "fields": {
+            "description": "Check if AIP is a file or directory",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "8c96ba0c-44e5-4ff8-8c73-0c567d52e2d4"
+        },
+        "model": "main.taskconfig",
+        "pk": "ee00a5c7-a69c-46cf-a5e0-a9e2f18e563e"
+    },
+    {
+        "fields": {
+            "description": "Verify checksums generated on ingest",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "4f400b71-37be-49d0-8da3-125abac2bfd0"
+        },
+        "model": "main.taskconfig",
+        "pk": "ef024cf9-1737-4161-b48a-13b4a8abddcd"
+    },
+    {
+        "fields": {
+            "description": "Remove cache files",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "49b803e3-8342-4098-bb3f-434e1eb5cfa8"
+        },
+        "model": "main.taskconfig",
+        "pk": "ef0bb0cf-28d5-4687-a13d-2377341371b5"
+    },
+    {
+        "fields": {
+            "description": "Load Dublin Core metadata from disk",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "cc8a1a4f-ccc8-4639-947e-01d0a5fddbb7"
+        },
+        "model": "main.taskconfig",
+        "pk": "efb7bf8e-4624-4b52-bf90-e3d389099fd9"
+    },
+    {
+        "fields": {
+            "description": "Clean up after storing AIP",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ab404b46-9c54-4ca5-87f1-b69a8d2299a1"
+        },
+        "model": "main.taskconfig",
+        "pk": "f09c1aa1-8a5d-49d1-ba60-2866e026eed9"
+    },
+    {
+        "fields": {
+            "description": "Assign UUIDs to directories?",
+            "lastmodified": "2018-05-16T18:06:03Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "f0c4abd3-1947-4d11-b78b-a55078460100"
+    },
+    {
+        "fields": {
+            "description": "Process transfer JSON metadata",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "44d3789b-10ad-4a9c-9984-c2fe503c8720"
+        },
+        "model": "main.taskconfig",
+        "pk": "f0e49772-3e2b-480d-8c06-023efc670dcd"
+    },
+    {
+        "fields": {
+            "description": "Move transfer to backlog",
+            "lastmodified": "2013-04-05T23:08:30Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9f25a366-f7a4-4b59-b219-2d5f259a1be9"
+        },
+        "model": "main.taskconfig",
+        "pk": "f1586bd7-f550-4588-9f45-07a212db7994"
+    },
+    {
+        "fields": {
+            "description": "Generate transfer structure report",
+            "lastmodified": "2014-09-11T16:09:53Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "f1ebd62a-fbf3-4790-88e8-4a3abec4ba00"
+    },
+    {
+        "fields": {
+            "description": "Create SIP(s)",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "f1f0409b-d4f8-419a-b625-218dc1abd335"
+    },
+    {
+        "fields": {
+            "description": "Sanitize file and directory names in submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ad65bf76-3491-4c3d-afb0-acc94ff28bee"
+        },
+        "model": "main.taskconfig",
+        "pk": "f23a22b8-a3b0-440b-bf4e-fb6e8e6e6b14"
+    },
+    {
+        "fields": {
+            "description": "Workflow decision - send transfer to quarantine",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "f3567a6d-8a45-4174-b302-a629cdbfbe92"
+    },
+    {
+        "fields": {
+            "description": "Create thumbnails directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "9c94b1d7-0563-4be9-9d64-058d0d1a03f4"
+        },
+        "model": "main.taskconfig",
+        "pk": "f452a117-a992-4447-9774-6a8130f05b30"
+    },
+    {
+        "fields": {
+            "description": "Designate to process as a DSpace transfer when unquarantined",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "3590f73d-5eb0-44a0-91a6-5b2db6655889",
+            "tasktypepkreference": "5975a5df-41af-4e3e-8e4e-ec7aff3ae085"
+        },
+        "model": "main.taskconfig",
+        "pk": "f5ca3e51-35ba-4cdd-acf5-7d4fec955e76"
+    },
+    {
+        "fields": {
+            "description": "Move to quarantined",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "39f8d4bf-2078-4415-b600-ce2865585aca"
+        },
+        "model": "main.taskconfig",
+        "pk": "f661aae0-05bf-4f55-a2f6-ef0f157231bd"
+    },
+    {
+        "fields": {
+            "description": "Create rights to flag closed AIPS.",
+            "lastmodified": "2012-12-12T21:37:10Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ccbaa53f-a486-4564-9b1a-a1b7bd5b1239"
+        },
+        "model": "main.taskconfig",
+        "pk": "f6fbbf4f-bf8d-49f2-a978-8d689380cafc"
+    },
+    {
+        "fields": {
+            "description": "Move to workFlowDecisions-quarantineSIP directory",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "f46bbd28-d533-4933-9b5c-4a5d32927ff3"
+        },
+        "model": "main.taskconfig",
+        "pk": "f872b932-90dd-4501-98c4-9fc5bac9d19a"
+    },
+    {
+        "fields": {
+            "description": "Include default SIP processingMCP.xml",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "e887c51e-afb9-48b1-b416-502a2357e621"
+        },
+        "model": "main.taskconfig",
+        "pk": "f89b9e0f-8789-4292-b5d0-4a330c0205e1"
+    },
+    {
+        "fields": {
+            "description": "Select pre-normalize file format identification command",
+            "lastmodified": "2013-11-07T22:51:42Z",
+            "replaces": null,
+            "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "f8d0b7df-68e8-4214-a49d-60a91ed27029"
+    },
+    {
+        "fields": {
+            "description": "Check for submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "1aaa6e10-7907-4dea-a92a-dd0931eff226"
+        },
+        "model": "main.taskconfig",
+        "pk": "f908bcd9-2fba-48c3-b04b-459f6ad1a4de"
+    },
+    {
+        "fields": {
+            "description": "Set files to identify",
+            "lastmodified": "2013-11-07T22:51:43Z",
+            "replaces": null,
+            "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7",
+            "tasktypepkreference": "42454e81-e776-44cc-ae9f-b40e7e5c7738"
+        },
+        "model": "main.taskconfig",
+        "pk": "fa2307df-e42a-4553-aaf5-b08879b0cbf4"
+    },
+    {
+        "fields": {
+            "description": "Approve DSpace transfer",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c",
+            "tasktypepkreference": null
+        },
+        "model": "main.taskconfig",
+        "pk": "fa3e0099-b891-43f6-a4bc-390d544fa3e9"
+    },
+    {
+        "fields": {
+            "description": "Sanitize file and directory names in submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ad65bf76-3491-4c3d-afb0-acc94ff28bee"
+        },
+        "model": "main.taskconfig",
+        "pk": "fb55b404-90f5-45b6-a47c-ccfbd0de2401"
+    },
+    {
+        "fields": {
+            "description": "Store AIP location",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba",
+            "tasktypepkreference": "ebab9878-f42e-4451-a24a-ec709889a858"
+        },
+        "model": "main.taskconfig",
+        "pk": "fb64af31-8f8a-4fe5-a20d-27ee26c9dda2"
+    },
+    {
+        "fields": {
+            "description": "Verify transfer compliance",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "cf23dd75-d273-4c4e-8394-17622adf9bd6"
+        },
+        "model": "main.taskconfig",
+        "pk": "fbaadb5d-63f9-440c-a607-a4ebfb973a78"
+    },
+    {
+        "fields": {
+            "description": "Store file modification dates",
+            "lastmodified": "2018-05-16T18:06:02Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "102edcd9-3d0c-47d1-be1e-137875d73765"
+        },
+        "model": "main.taskconfig",
+        "pk": "fc64dc4c-e245-402b-b572-2dc027b414d1"
+    },
+    {
+        "fields": {
+            "description": "Remove preservation and access normalized files to renormalize.",
+            "lastmodified": "2012-10-24T00:40:06Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "c15de53e-a5b2-41a1-9eee-1a7b4dd5447a"
+        },
+        "model": "main.taskconfig",
+        "pk": "fe354b27-dbb2-4454-9c1c-340d85e67b78"
+    },
+    {
+        "fields": {
+            "description": "Assign file UUIDs to objects",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "179c8ce5-2b83-4ae2-9653-971e868fe183"
+        },
+        "model": "main.taskconfig",
+        "pk": "feac0c04-3511-4e91-9403-5c569cff7bcc"
+    },
+    {
+        "fields": {
+            "description": "Set bag file permissions",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6",
+            "tasktypepkreference": "ba937c55-6148-4f45-a9ad-9697c0cf11ed"
+        },
+        "model": "main.taskconfig",
+        "pk": "feb27f44-3575-4d17-8e00-43aa5dc5c3dc"
+    },
+    {
+        "fields": {
+            "description": "Scan for viruses in submission documentation",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "2fdb8408-8bbb-45d1-846b-5e28bf220d5c"
+        },
+        "model": "main.taskconfig",
+        "pk": "fecb3fe4-5c5c-4796-b9dc-c7d7cf33a9f3"
+    },
+    {
+        "fields": {
+            "description": "Get list of collections on server",
+            "lastmodified": "2012-10-02T00:25:11Z",
+            "replaces": null,
+            "tasktype": "a19bfd9f-9989-4648-9351-013a10b382ed",
+            "tasktypepkreference": "13d2adfc-8cb8-4206-bf70-04f031436ca2"
+        },
+        "model": "main.taskconfig",
+        "pk": "fedffebc-7292-4b94-b402-84628c4254de"
+    },
+    {
+        "fields": {
+            "description": "Assign UUIDs to manual normalized preservation files",
+            "lastmodified": "2013-01-03T02:10:39Z",
+            "replaces": null,
+            "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577",
+            "tasktypepkreference": "4f47371b-a69b-4a8a-87b5-01e7eb1628c3"
+        },
+        "model": "main.taskconfig",
+        "pk": "ff8f70b9-e345-4163-a784-29b432b12558"
+    }
+]

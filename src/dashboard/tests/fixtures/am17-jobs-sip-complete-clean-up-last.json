@@ -1,0 +1,2365 @@
+[
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:20Z",
+            "createdtimedec": "0.5427310000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Determine which files to identify",
+            "microservicechainlink": "c3269a0a-91db-44e8-96d0-9c748cf80177",
+            "microservicegroup": "Identify file format",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "02f66d06-b8bd-44d2-b3f1-bc0f81837666"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:26Z",
+            "createdtimedec": "0.7195350000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Assign file UUIDs to objects",
+            "microservicechainlink": "dc144ff4-ad74-4a6e-ac15-b0beedcaf662",
+            "microservicegroup": "Assign file UUIDs and checksums",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "032d98c0-e1a1-4fca-953d-4adff85cd7a2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:38Z",
+            "createdtimedec": "0.0267800000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "8f639582-8881-4a8b-8574-d2f86dc4db3d",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "056de8fd-7beb-470a-9fb2-d7746ef5e9d8"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:13Z",
+            "createdtimedec": "0.8350570000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move submission documentation into objects directory",
+            "microservicechainlink": "173d310c-8e40-4669-9a69-6d4c8ffd0396",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "06e6b83f-e588-4aca-94b6-b8fc464d8f82"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:11Z",
+            "createdtimedec": "0.6488010000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Normalization report",
+            "microservicechainlink": "3a70bc05-fa82-4067-a069-a56b6006be0a",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "07c2e8e9-930f-438d-9505-786b5caa82d4"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:16Z",
+            "createdtimedec": "0.0190110000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Select file format identification command",
+            "microservicechainlink": "087d27be-c719-47d8-9bbb-9a7d8b609c44",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "07c55247-6d31-46b8-9076-93a66377af5a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:40Z",
+            "createdtimedec": "0.5357840000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Create SIP from transfer objects",
+            "microservicechainlink": "39a128e3-c35d-40b7-9363-87f75091e1ff",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "10ceb599-3616-4cfb-b63d-122366920f70"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:23Z",
+            "createdtimedec": "0.6966680000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Remove hidden files and directories",
+            "microservicechainlink": "50b67418-cb8d-434d-acc9-4a8324e7fdd2",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "11df9cfd-8920-4eaf-b735-cb7eb1705514"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:07Z",
+            "createdtimedec": "0.3753750000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Validate preservation derivatives",
+            "microservicechainlink": "5b0042a2-2244-475c-85d5-41e4b11e65d6",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "13cf0ce1-6693-4f8f-8c04-5a241d9e3a2c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:15Z",
+            "createdtimedec": "0.1398700000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Scan for viruses in submission documentation",
+            "microservicechainlink": "1ba589db-88d1-48cf-bb1a-a5f9d2b17378",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "17785dd9-7bc3-4434-8cc8-3004e0897a3b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:56Z",
+            "createdtimedec": "0.3686860000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/storeAIP/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Retrieve AIP Storage Locations",
+            "microservicechainlink": "49cbcc4d-067b-4cd5-b52e-faf50857b35a",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "1893035d-26b3-4983-aac1-2517b5ec7552"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:41Z",
+            "createdtimedec": "0.6224460000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Select file format identification command",
+            "microservicechainlink": "f09847c2-ee51-429a-9478-a860477f6b8d",
+            "microservicegroup": "Identify file format",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "1b951918-5074-47f5-a8da-5fa04349b589"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:39Z",
+            "createdtimedec": "0.7504730000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to select file ID tool",
+            "microservicechainlink": "d1b27e9e-73c8-4954-832c-36bd1e00c802",
+            "microservicegroup": "Identify file format",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "1cbc80bb-8d1d-42aa-b213-5fd9b5bf88d9"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:30Z",
+            "createdtimedec": "0.1673790000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to workFlowDecisions-quarantineSIP directory",
+            "microservicechainlink": "03ee1136-f6ad-4184-8dcb-34872f843e14",
+            "microservicegroup": "Quarantine",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "1d33ea6b-cf00-4f50-b7fc-9af9aea82219"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:18Z",
+            "createdtimedec": "0.2101350000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Remove files without linking information (failed normalization artifacts etc.)",
+            "microservicechainlink": "576f1f43-a130-4c15-abeb-c272ec458d33",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "1f08af4a-0eaf-4b9f-9676-b488ab54d362"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:33Z",
+            "createdtimedec": "0.7190840000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Add README file",
+            "microservicechainlink": "523c97cc-b267-4cfb-8209-d99e523bf4b3",
+            "microservicegroup": "Add README file",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "2023b0cf-4824-489c-a3cb-f86ea9219db6"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:24Z",
+            "createdtimedec": "0.3203370000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Bind PIDs?",
+            "microservicechainlink": "05357876-a095-4c11-86b5-a7fff01af668",
+            "microservicegroup": "Bind PIDs",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "206b0996-b17f-475f-8751-2fbc7f006170"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:42Z",
+            "createdtimedec": "0.3817950000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/storeAIP/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Store AIP",
+            "microservicechainlink": "2d32235c-02d4-4686-88a6-96f4d6c7b1c3",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "223340aa-f296-4c13-a2ac-266e35de482a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:32Z",
+            "createdtimedec": "0.3263090000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Scan for viruses",
+            "microservicechainlink": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
+            "microservicegroup": "Scan for viruses",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "2415bc3e-6935-4615-83ff-3a31bf39c30f"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:32Z",
+            "createdtimedec": "0.6702130000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "d7e6404a-a186-4806-a130-7e6d27179a15",
+            "microservicegroup": "Scan for viruses",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "24df04cb-e491-444a-9d7a-7a71b92c1996"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:21Z",
+            "createdtimedec": "0.7304290000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move metadata to objects directory",
+            "microservicechainlink": "e4b0c713-988a-4606-82ea-4b565936d9a7",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "24e9e5d1-d3fe-4abc-bde5-e8039ee8c62c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:17Z",
+            "createdtimedec": "0.0827810000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Characterize and extract metadata on submission documentation",
+            "microservicechainlink": "33d7ac55-291c-43ae-bb42-f599ef428325",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "2516263f-df1a-4537-abe9-ffa133695269"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:29Z",
+            "createdtimedec": "0.6044150000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to examine contents",
+            "microservicechainlink": "dae3c416-a8c2-4515-9081-6dbd7b265388",
+            "microservicegroup": "Examine contents",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "295cba6c-b9ee-4d3d-92fa-5b25a6f2808a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:21Z",
+            "createdtimedec": "0.8291130000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Assign file UUIDs to metadata",
+            "microservicechainlink": "dc9d4991-aefa-4d7e-b7b5-84e3c4336e74",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "2c559104-d3db-41a8-ac9b-4ead8a297eb3"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:20Z",
+            "createdtimedec": "0.9849860000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Copy transfers metadata and logs",
+            "microservicechainlink": "ee438694-815f-4b74-97e1-8e7dde2cc6d5",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "2c709f00-d63e-4f94-a5d9-f1a56aa4d493"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:06Z",
+            "createdtimedec": "0.8405990000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Normalize for preservation",
+            "microservicechainlink": "8ce378a5-1418-4184-bf02-328a06e1d3be",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "38495c1b-82bd-444c-98e5-32f58b8bd4f0"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:21Z",
+            "createdtimedec": "0.7911650000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to extract packages",
+            "microservicechainlink": "cc16178b-b632-4624-9091-822dd802a2c6",
+            "microservicegroup": "Extract packages",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "3ad3bbbd-6803-4521-9851-0617d0bb14e4"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:22Z",
+            "createdtimedec": "0.8702550000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Set transfer type: Standard",
+            "microservicechainlink": "045c43ae-d6cf-44f7-97d6-c8a602748565",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "3b8e7b23-51b2-4f06-9f08-8e15a30123f4"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:24Z",
+            "createdtimedec": "0.3766060000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Bind PID",
+            "microservicechainlink": "87e93d08-36e4-4c81-99a8-beea00b18400",
+            "microservicegroup": "Bind PIDs",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "436d6906-255a-4867-a99f-6032a98aeca5"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:32Z",
+            "createdtimedec": "0.9357270000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Generate METS.xml document",
+            "microservicechainlink": "ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0",
+            "microservicegroup": "Generate AIP METS",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "44375381-62a7-4f4f-89ff-e34acd84b22d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:33Z",
+            "createdtimedec": "0.0793740000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Check transfer directory for objects",
+            "microservicechainlink": "032cdc54-0b9b-4caf-86e8-10d63efbaec0",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "461d6635-9302-4ccc-aadc-16238d86de44"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:23Z",
+            "createdtimedec": "0.0994520000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Add processed structMap to METS.xml document",
+            "microservicechainlink": "307edcde-ad10-401c-92c4-652917c993ed",
+            "microservicegroup": "Update METS.xml document",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "49810cf7-9349-406e-ae09-3be36f921841"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:46Z",
+            "createdtimedec": "0.9716820000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check for Access directory",
+            "microservicechainlink": "67b44f8f-bc97-4cb3-b6dd-09dba3c99d30",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "4b1620d4-6153-4003-9b62-29ef80b009bc"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:25Z",
+            "createdtimedec": "0.0731150000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Assign UUIDs to directories",
+            "microservicechainlink": "6441980c-b64b-447e-abc7-9351a2547f6a",
+            "microservicegroup": "Assign file UUIDs and checksums",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "4b914124-a56a-4cf6-a533-658381737fca"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:48Z",
+            "createdtimedec": "0.2230970000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Identify file format",
+            "microservicechainlink": "2dd53959-8106-457d-a385-fee57fc93aa9",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "4be57373-fa9b-4b10-9062-08c8404b4ce1"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:27Z",
+            "createdtimedec": "0.5324160000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Load labels from metadata/file_labels.csv",
+            "microservicechainlink": "1b1a4565-b501-407b-b40f-2f20889423f1",
+            "microservicegroup": "Characterize and extract metadata",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "4ca707b5-3e38-4297-ad93-39e2dff63a67"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:37Z",
+            "createdtimedec": "0.6034120000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check for manual normalized files",
+            "microservicechainlink": "78b7adff-861d-4450-b6dd-3fabe96a849e",
+            "microservicegroup": "Process manually normalized files",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "4d0a376e-4886-417a-b7b2-194ff920fb11"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:13Z",
+            "createdtimedec": "0.7517680000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check for submission documentation",
+            "microservicechainlink": "47dd6ea6-1ee7-4462-8b84-3fc4c1eeeb7f",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "4db028ff-493e-4191-9ec8-2853093b4527"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:38Z",
+            "createdtimedec": "0.3096780000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Reminder: add metadata if desired",
+            "microservicechainlink": "eeb23509-57e2-4529-8857-9d62525db048",
+            "microservicegroup": "Add final metadata",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "4e501091-59d4-48a7-ae48-ccb0f1b03ef0"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:24Z",
+            "createdtimedec": "0.1660600000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Verify mets_structmap.xml compliance",
+            "microservicechainlink": "d0c463c2-da4c-4a70-accb-c4ce96ac5194",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "5291a050-7953-4642-89e0-48f927613b1f"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:41Z",
+            "createdtimedec": "0.1915440000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Check transfer directory for objects",
+            "microservicechainlink": "032cdc54-0b9b-4caf-86e8-10d63efbaec0",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "537c7eef-7662-4e73-872f-73a9e294acc1"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:37Z",
+            "createdtimedec": "0.6922600000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Perform policy checks on preservation derivatives?",
+            "microservicechainlink": "153c5f41-3cfb-47ba-9150-2dd44ebc27df",
+            "microservicegroup": "Policy checks for derivatives",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "555489e4-9553-4bdf-8ba9-79d743783a5a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:47Z",
+            "createdtimedec": "0.7724690000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to select file ID tool",
+            "microservicechainlink": "a2173b55-abff-4d8f-97b9-79cc2e0a64fa",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "57310ac5-b70b-40fe-862d-8ee5c9213e14"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:24Z",
+            "createdtimedec": "0.0793030000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Verify transfer compliance",
+            "microservicechainlink": "438dc1cf-9813-44b5-a0a3-58e09ae73b8a",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "580a5130-51b6-4b17-8a28-3a7c35378c12"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:25Z",
+            "createdtimedec": "0.2945910000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Characterize and extract metadata",
+            "microservicechainlink": "303a65f6-a16f-4a06-807b-cb3425a30201",
+            "microservicegroup": "Characterize and extract metadata",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "583b3191-26ae-4b8f-a6f2-aac0f05d445c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:12Z",
+            "createdtimedec": "0.1096010000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Copy transfer submission documentation",
+            "microservicechainlink": "f574b2a0-6e0b-4c74-ac5b-a73ddb9593a0",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "5845ae60-2b13-4e68-8ac2-b1f741af85bb"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:47Z",
+            "createdtimedec": "0.7363690000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Grant normalization options for no pre-existing DIP",
+            "microservicechainlink": "74665638-5d8f-43f3-b7c9-98c4c8889766",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "58687a80-de4a-4fa4-8b4c-4ce8f09cfa1b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:39Z",
+            "createdtimedec": "0.8340470000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Serialize Dublin Core metadata to disk",
+            "microservicechainlink": "f378ec85-adcc-4ee6-ada2-bc90cfe20efb",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "5a631730-1fb5-47f4-9302-0040b6f85103"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:23Z",
+            "createdtimedec": "0.4701380000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Attempt restructure for compliance",
+            "microservicechainlink": "ea0e8838-ad3a-4bdd-be14-e5dba5a4ae0c",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "5a697064-e8bd-45f5-bb0a-e6eb41aca692"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:28Z",
+            "createdtimedec": "0.1733820000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Assign checksums and file sizes to objects",
+            "microservicechainlink": "370aca94-65ab-4f2a-9d7d-294a62c8b7ba",
+            "microservicegroup": "Assign file UUIDs and checksums",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "5c2de7de-fd76-44a2-bed8-dad0b63699f2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:25Z",
+            "createdtimedec": "0.9311930000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Include default Transfer processingMCP.xml",
+            "microservicechainlink": "0c96c798-9ace-4c05-b3cf-243cdad796b7",
+            "microservicegroup": "Include default Transfer processingMCP.xml",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "5c9d3277-2543-4677-bc4a-35b370a5f6ee"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:43Z",
+            "createdtimedec": "0.1356100000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Remove cache files",
+            "microservicechainlink": "f3be1ee1-8881-465d-80a6-a6f093d40ec2",
+            "microservicegroup": "Remove cache files",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "5e0a2224-19d2-4214-8a8a-b6a0197d7fdb"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:15Z",
+            "createdtimedec": "0.9668910000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Verify AIP",
+            "microservicechainlink": "3f543585-fa4f-4099-9153-dd6d53572f5c",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "5e8c16ee-b559-4ad4-9dec-4c1210411b66"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:13Z",
+            "createdtimedec": "0.9227640000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Assign file UUIDs to submission documentation",
+            "microservicechainlink": "4edfe7e4-82ff-4c0a-ba5f-29f1ee14e17a",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "6021d2d2-e2b5-4705-846a-9c8c3dd9347e"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:37Z",
+            "createdtimedec": "0.3796090000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Sanitize object's file and directory names",
+            "microservicechainlink": "2584b25c-8d98-44b7-beca-2b3ea2ea2505",
+            "microservicegroup": "Clean up names",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "6433037e-68e1-4e8c-ae22-0ec15a724d6b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:37Z",
+            "createdtimedec": "0.6164480000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/createTree/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "6eca2676-b4ed-48d9-adb0-374e1d5c6e71",
+            "microservicegroup": "Generate transfer structure report",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "65aff125-02b2-4b17-85aa-ba582274cfc8"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:25Z",
+            "createdtimedec": "0.7292530000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Clean up after storing AIP",
+            "microservicechainlink": "b7cf0d9a-504f-4f4e-9930-befa817d67ff",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "66c74e9c-c737-4837-9305-e69744b097f4"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:30Z",
+            "createdtimedec": "0.1265730000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Parse external METS",
+            "microservicechainlink": "675acd22-828d-4949-adc7-1888240f5e3d",
+            "microservicegroup": "Complete transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "6c7b8dcc-73eb-43d0-ba3d-7c2afd89c689"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:49Z",
+            "createdtimedec": "0.0214560000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Resume after normalization file identification tool selected.",
+            "microservicechainlink": "83484326-7be7-4f9f-b252-94553cd42370",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "6efe129a-229a-4f67-9acf-31ecf3a63adf"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:41Z",
+            "createdtimedec": "0.1691920000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/system/autoProcessSIP/KSTest/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "70669a5b-01e4-4ea0-ac70-10292f87da05",
+            "microservicegroup": "Verify SIP compliance",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "7348f7b5-87df-4031-981a-efa385b84235"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:32Z",
+            "createdtimedec": "0.6373420000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Workflow decision - send transfer to quarantine",
+            "microservicechainlink": "755b4177-c587-41a7-8c52-015277568302",
+            "microservicegroup": "Quarantine",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "7518c215-8875-4b62-8982-b1152de353db"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:41Z",
+            "createdtimedec": "0.5427050000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Removed bagged files",
+            "microservicechainlink": "746b1f47-2dad-427b-8915-8b0cb7acccd8",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "77aca213-6c52-401b-aa7c-9cc582bef053"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:22Z",
+            "createdtimedec": "0.0646500000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Determine if transfer contains packages",
+            "microservicechainlink": "b944ec7f-7f99-491f-986d-58914c9bb4fa",
+            "microservicegroup": "Extract packages",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "77ce5e1d-c9c0-42cb-877b-0ef8231cd69b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:05Z",
+            "createdtimedec": "0.7997020000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Normalize for thumbnails",
+            "microservicechainlink": "180ae3d0-aa6c-4ed4-ab94-d0a2121e7f21",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "78b6ab8a-5bc2-45a1-9aa6-b4ccb128dffb"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:42Z",
+            "createdtimedec": "0.1188490000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Check if SIP is from Maildir Transfer",
+            "microservicechainlink": "b3d11842-0090-420a-8919-52d7039d50e6",
+            "microservicegroup": "Rename SIP directory with SIP UUID",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "78bdd63f-48af-4641-9506-b99a5df7ce43"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:21Z",
+            "createdtimedec": "0.8723570000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Assign checksums and file sizes to metadata ",
+            "microservicechainlink": "b6b0fe37-aa26-40bd-8be8-d3acebf3ccf8",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "7914eedc-fa38-4b08-bccb-4397dd51b8b2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:57Z",
+            "createdtimedec": "0.3865000000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/storeAIP/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Store AIP location",
+            "microservicechainlink": "b320ce81-9982-408a-9502-097d0daa48fa",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "81eace71-e71e-49bf-8b67-81eb6bf55ed3"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:14Z",
+            "createdtimedec": "0.7617530000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Assign checksums and file sizes to submissionDocumentation",
+            "microservicechainlink": "2a62f025-83ec-4f23-adb4-11d5da7ad8c2",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "83c2f5f1-50d5-42b6-9497-bd8634c717a9"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:04Z",
+            "createdtimedec": "0.9524960000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "6b39088b-683e-48bd-ab89-9dab47f4e9e0",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "85f99e73-76ba-4e7e-9dc0-1ab3db3c1993"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:30Z",
+            "createdtimedec": "0.1317910000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Designate to process as a standard transfer",
+            "microservicechainlink": "9071c352-aed5-444c-ac3f-b6c52dfb65ac",
+            "microservicegroup": "Quarantine",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "8e7a0cbb-42b5-411c-9d97-81481cad1c36"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:35Z",
+            "createdtimedec": "0.3804210000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Select compression algorithm",
+            "microservicechainlink": "01d64f58-8295-4b7b-9cab-8f1b153a504f",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "900259c8-6abf-439e-b886-8d4d26a58425"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:30Z",
+            "createdtimedec": "0.0716960000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Examine contents?",
+            "microservicechainlink": "accea2bf-ba74-4a3a-bb97-614775c74459",
+            "microservicegroup": "Examine contents",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "92291243-2d4f-40e6-80fa-48446905f811"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:14Z",
+            "createdtimedec": "0.4946540000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Sanitize file and directory names in submission documentation",
+            "microservicechainlink": "11033dbd-e4d4-4dd6-8bcf-48c424e222e3",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "93fdc858-d114-47be-ab3a-9a99f877279e"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:25Z",
+            "createdtimedec": "0.5899110000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Load rights",
+            "microservicechainlink": "1a136608-ae7b-42b4-bf2f-de0e514cfd47",
+            "microservicegroup": "Characterize and extract metadata",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "94a02094-f788-40ed-a632-c9e5255b7173"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:40Z",
+            "createdtimedec": "0.3450850000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Set bag file permissions",
+            "microservicechainlink": "5fbc344c-19c8-48be-a753-02dac987428c",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "95638549-560b-4c21-8f0a-9d45ce317d88"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:45Z",
+            "createdtimedec": "0.6168830000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Load Dublin Core metadata from disk",
+            "microservicechainlink": "970b7d17-7a6b-4d51-808b-c94b78c0d97f",
+            "microservicegroup": "Clean up names",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "95a5c777-4a00-4562-b297-38c477daef44"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:22Z",
+            "createdtimedec": "0.3593480000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Verify checksums generated on ingest",
+            "microservicechainlink": "88807d68-062e-4d1a-a2d5-2d198c88d8ca",
+            "microservicegroup": "Verify checksums",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "95d022de-98f7-4abc-b797-8ffb4b5f325a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:11Z",
+            "createdtimedec": "0.7153410000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Transcribe",
+            "microservicechainlink": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6",
+            "microservicegroup": "Transcribe SIP contents",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "95dfaf50-3985-4abf-95e1-3d2e7813e60a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:48Z",
+            "createdtimedec": "0.1705820000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Select pre-normalize file format identification command",
+            "microservicechainlink": "7a024896-c4f7-4808-a240-44c87c762bc5",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "99e2a78d-922c-4750-8190-2694fd216ccf"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:37Z",
+            "createdtimedec": "0.7222670000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Perform policy checks on access derivatives?",
+            "microservicechainlink": "8ce07e94-6130-4987-96f0-2399ad45c5c2",
+            "microservicegroup": "Policy checks for derivatives",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "9a32cf25-0df8-4385-bcb7-134c316a4b9c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:33Z",
+            "createdtimedec": "0.1938000000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Load options to create SIPs",
+            "microservicechainlink": "b04e9232-2aea-49fc-9560-27349c8eba4e",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "9f17e882-ab5d-4dd4-b086-d18ceb377602"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:24Z",
+            "createdtimedec": "0.5592290000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Remove the processing directory",
+            "microservicechainlink": "d5a2ef60-a757-483c-a71a-ccbffe6b80da",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "9f9fbd1a-dff0-47ae-992f-ae1e714f5f59"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:31Z",
+            "createdtimedec": "0.8643220000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Create transfer metadata XML",
+            "microservicechainlink": "db99ab43-04d7-44ab-89ec-e09d7bbdc39d",
+            "microservicegroup": "Complete transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "a0badcea-23d6-4f01-983e-862fc7448a0a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:42Z",
+            "createdtimedec": "0.2753270000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Rename SIP directory with SIP UUID",
+            "microservicechainlink": "e3a6d178-fa65-4086-a4aa-6533e8f12d51",
+            "microservicegroup": "Rename SIP directory with SIP UUID",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "a0d62ce3-ed9f-42f3-8e77-1c8f7eeb359c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:33Z",
+            "createdtimedec": "0.8002500000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check if DIP should be generated",
+            "microservicechainlink": "f1e286f9-4ec7-4e19-820c-dae7b8ea7d09",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "a2254b32-47ed-4811-88b0-c46ef6350acf"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:35Z",
+            "createdtimedec": "0.4658500000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Compress AIP",
+            "microservicechainlink": "d55b42c8-c7c5-4a40-b626-d248d2bd883f",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "a7122654-fc95-46db-aa27-f35132214f30"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:40Z",
+            "createdtimedec": "0.2503110000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Copy submission documentation",
+            "microservicechainlink": "0a63befa-327d-4655-a021-341b639ee9ed",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "ab36f811-397b-47eb-b681-4a7e12902d70"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:33Z",
+            "createdtimedec": "0.8788140000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Prepare AIP",
+            "microservicechainlink": "3e25bda6-5314-4bb4-aa1e-90900dce887d",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "ab5c51cc-da06-401b-b9f5-9f6de5520cf7"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:42Z",
+            "createdtimedec": "0.0148580000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Verify mets_structmap.xml compliance",
+            "microservicechainlink": "d1018160-aaab-4d92-adce-d518880d7c7d",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "ac2db5fa-3b20-43b4-bc34-9d3e4eb305dc"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:12Z",
+            "createdtimedec": "0.2711900000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/approveNormalization/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Approve normalization",
+            "microservicechainlink": "de909a42-c5b5-46e1-9985-c031b50e9d30",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "ae11ed26-6352-4668-945d-87d0aebf1bb6"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:35Z",
+            "createdtimedec": "0.6692350000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to compressionAIPDecisions directory",
+            "microservicechainlink": "002716a1-ae29-4f36-98ab-0d97192669c4",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "b1c6c1d3-9e85-4705-b732-cbc7f4e67d5b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:23Z",
+            "createdtimedec": "0.8197780000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Remove unneeded files",
+            "microservicechainlink": "5d780c7d-39d0-4f4a-922b-9d1b0d217bca",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "b3849af1-b62e-49be-9ce5-b84442e97de0"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:24Z",
+            "createdtimedec": "0.2520570000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Rename with transfer UUID",
+            "microservicechainlink": "ef6332ee-a890-4e1b-88de-986efc4269fb",
+            "microservicegroup": "Rename with transfer UUID",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "b46eec8a-ca28-416d-a13a-9495147dad8e"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:40Z",
+            "createdtimedec": "0.4347160000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check if AIP is a file or directory",
+            "microservicechainlink": "91dc1ab1-487e-4121-a6c5-d8441da7a422",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "b56d0698-85e0-426b-8ac3-e7dbb284baf2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:47Z",
+            "createdtimedec": "0.7013380000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Set remove preservation and access normalized files to renormalize link.",
+            "microservicechainlink": "5d6a103c-9a5d-4010-83a8-6f4c61eb1478",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "b6173de1-c28b-4f3a-b7a3-1e792afe2e13"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:08:56Z",
+            "createdtimedec": "0.3720660000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/standardTransfer/KSTest/",
+            "hidden": false,
+            "jobtype": "Approve standard transfer",
+            "microservicechainlink": "0c94e6b5-4714-4bec-82c8-e187e0c04d77",
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "b6902af2-0145-46d4-b2e0-72f2e12ab50e"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:43Z",
+            "createdtimedec": "0.0369990000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Include default SIP processingMCP.xml",
+            "microservicechainlink": "df02cac1-f582-4a86-b7cf-da98a58e279e",
+            "microservicegroup": "Include default SIP processingMCP.xml",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "bb6b4fbd-77e4-4b2f-873c-418097fb735b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:32Z",
+            "createdtimedec": "0.6121970000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Find type to process as",
+            "microservicechainlink": "55de1490-f3a0-4e1e-a25b-38b75f4f05e3",
+            "microservicegroup": "Quarantine",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "bbac97d4-ac0d-4f17-8972-5614815036ea"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:22Z",
+            "createdtimedec": "0.5777750000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Scan for viruses in metadata",
+            "microservicechainlink": "8bc92801-4308-4e3b-885b-1a89fdcd3014",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "bbbc08c5-8893-44a7-a4e7-a718728f725e"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:14Z",
+            "createdtimedec": "0.2375650000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/storeAIP/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "5f213529-ced4-49b0-9e30-be4e0c9b81d5",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "bdbabad3-0caf-49c5-a2f7-3f4938b4eab7"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:32Z",
+            "createdtimedec": "0.9055380000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Document empty directories?",
+            "microservicechainlink": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0",
+            "microservicegroup": "Generate AIP METS",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "bf5b806d-bb80-4999-a0ab-3cd7526c9f69"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:05Z",
+            "createdtimedec": "0.7290170000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Create thumbnails directory",
+            "microservicechainlink": "35c8763a-0430-46be-8198-9ecb23f895c8",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "bf6e1ffb-868a-4efb-b935-902cb32c7f7d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:21Z",
+            "createdtimedec": "0.9076210000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Sanitize file and directory names in metadata",
+            "microservicechainlink": "b21018df-f67d-469a-9ceb-ac92ac68654e",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "c150d996-a829-4449-8bbb-c623d612e33c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:20Z",
+            "createdtimedec": "0.5737730000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Identify file format",
+            "microservicechainlink": "2522d680-c7d9-4d06-8b11-a28d8bd8a71f",
+            "microservicegroup": "Identify file format",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "c1b09f8f-8df8-489e-ba64-711854d83d7b"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:29Z",
+            "createdtimedec": "0.4886240000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Generate METS.xml document",
+            "microservicechainlink": "3409b898-e532-49d3-98ff-a2a1f9d988fa",
+            "microservicegroup": "Generate METS.xml document",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "c1ff2d99-795a-4a8b-b9a4-39fe46bd0c6f"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:30Z",
+            "createdtimedec": "0.1047880000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Check for specialized processing",
+            "microservicechainlink": "192315ea-a1bf-44cf-8cb4-0b3edd1522a6",
+            "microservicegroup": "Examine contents",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "c679242b-6b8e-4ef8-b72a-1d228f362b4a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:37Z",
+            "createdtimedec": "0.7626620000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to metadata reminder",
+            "microservicechainlink": "54b73077-a062-41cc-882c-4df1eba447d9",
+            "microservicegroup": "Add final metadata",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "c73b6753-ea24-4b35-946b-c56a1ece9404"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:11Z",
+            "createdtimedec": "0.4960140000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to approve normalization directory",
+            "microservicechainlink": "c2e6600d-cd26-42ed-bed5-95d41c06e37b",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "c7fb3317-becf-4ab4-b13f-f3fc3b5826c2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:45Z",
+            "createdtimedec": "0.2796500000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Identify manually normalized files",
+            "microservicechainlink": "15a2df8a-7b45-4c11-b6fa-884c9b7e5c67",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "ca3291d8-a759-440b-8947-3ccc8b8ccf3d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:22Z",
+            "createdtimedec": "0.5534130000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Index AIP",
+            "microservicechainlink": "48703fad-dc44-4c8e-8f47-933df3ef6179",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "cb7a8f1a-6aba-4292-8004-43bbd97f7933"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:33Z",
+            "createdtimedec": "0.2246000000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Create SIP(s)",
+            "microservicechainlink": "bb194013-597c-4e4a-8493-b36d190f8717",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "cbe76bcf-c088-4a9f-b81b-3e1872332752"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:20Z",
+            "createdtimedec": "0.4467290000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/standardTransfer/KSTest/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "b4567e89-9fea-4256-99f5-a88987026488",
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "cdba0e5b-410e-4a20-94ca-9619f234238d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:11Z",
+            "createdtimedec": "0.6642910000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Transcribe SIP contents",
+            "microservicechainlink": "7079be6d-3a25-41e6-a481-cee5f352fe6e",
+            "microservicegroup": "Transcribe SIP contents",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "cdf68aa7-d34a-472f-9965-74bd0d264fa2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:31Z",
+            "createdtimedec": "0.0937180000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Bind PIDs",
+            "microservicechainlink": "7677d1cd-2211-4969-8c10-5ec2a93d5c2f",
+            "microservicegroup": "Bind PIDs",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "cfa19fa6-d0f4-4bff-9b20-32002fb1b684"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:21Z",
+            "createdtimedec": "0.6442560000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Process JSON metadata",
+            "microservicechainlink": "b0ffcd90-eb26-4caf-8fab-58572d205f04",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "d7de4140-af49-48d9-b5ab-14594b7c1e9d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:42Z",
+            "createdtimedec": "0.8936860000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest/",
+            "hidden": false,
+            "jobtype": "Verify SIP compliance",
+            "microservicechainlink": "208d441b-6938-44f9-b54a-bd73f05bc764",
+            "microservicegroup": "Verify SIP compliance",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "d8e20b56-caef-43b0-bc86-8ff6786e77a6"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:37Z",
+            "createdtimedec": "0.3513060000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Generate transfer structure report",
+            "microservicechainlink": "56eebd45-5600-4768-a8c2-ec0114555a3d",
+            "microservicegroup": "Generate transfer structure report",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "d9c8b5aa-b1e6-4b2c-8ad3-cdad229084c2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:32Z",
+            "createdtimedec": "0.0507840000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to SIP creation directory for completed transfers",
+            "microservicechainlink": "d27fd07e-d3ed-4767-96a5-44a2251c6d0a",
+            "microservicegroup": "Complete transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "d9efca69-7c25-4da8-9304-df4ee8469c9d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:29Z",
+            "createdtimedec": "0.3408160000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Process transfer JSON metadata",
+            "microservicechainlink": "8c8bac29-4102-4fd2-9d0a-a3bd2e607566",
+            "microservicegroup": "Reformat metadata files",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "da71e137-8a84-42d8-b3b9-67d84bdb6e7c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:45Z",
+            "createdtimedec": "0.3134570000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Check for Service directory",
+            "microservicechainlink": "1cd3b36a-5252-4a69-9b1c-3b36829288ab",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "da845f03-335b-4265-80c2-be6706b52b62"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:35Z",
+            "createdtimedec": "0.3703750000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to generate transfer tree",
+            "microservicechainlink": "559d9b14-05bf-4136-918a-de74a821b759",
+            "microservicegroup": "Generate transfer structure report",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "db9c6493-e15b-4c4c-b6d4-e050fbd263b2"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:41Z",
+            "createdtimedec": "0.6980450000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to the store AIP approval directory",
+            "microservicechainlink": "7c44c454-e3cc-43d4-abe0-885f93d693c6",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "dcdef821-a146-4dd1-80da-e9237f16f28d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:29Z",
+            "createdtimedec": "0.5637820000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Perform policy checks on originals?",
+            "microservicechainlink": "70fc7040-d4fb-4d19-a0e6-792387ca1006",
+            "microservicegroup": "Validation",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "dd594c55-0bbd-4044-b93a-a67fbe685e0c"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:36Z",
+            "createdtimedec": "0.8579920000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/approveNormalization/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Move to processing directory",
+            "microservicechainlink": "0f0c1f33-29f2-49ae-b413-3e043da5df61",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "debb3be5-047a-40de-83d7-2097291164cf"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:23:20Z",
+            "createdtimedec": "0.8111650000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Store the AIP",
+            "microservicechainlink": "20515483-25ed-4133-b23e-5bb14cab8e22",
+            "microservicegroup": "Store AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "e19715cb-3d34-4bde-ab52-50d21d8cfeb7"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:24Z",
+            "createdtimedec": "0.9129470000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Store file modification dates",
+            "microservicechainlink": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f",
+            "microservicegroup": "Characterize and extract metadata",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "e20d4f42-0b38-450b-8d78-418bd106fbb7"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:16Z",
+            "createdtimedec": "0.0643610000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Identify file format",
+            "microservicechainlink": "1dce8e21-7263-4cc4-aa59-968d9793b5f2",
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "e332a1ae-4826-46c4-86b2-411ec1943fd1"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:21:09Z",
+            "createdtimedec": "0.3939950000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Remove files without linking information (failed normalization artifacts etc.)",
+            "microservicechainlink": "dba3028d-2029-4a87-9992-f6335d890528",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "e4d142a1-5b2e-43c7-bc37-93fed861de48"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:49Z",
+            "createdtimedec": "0.0433480000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Normalize",
+            "microservicechainlink": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
+            "microservicegroup": "Normalize",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "e8a8a3f2-d77e-4539-856c-e70523a826d6"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:22Z",
+            "createdtimedec": "0.6130460000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Identify file format of metadata files",
+            "microservicechainlink": "b2444a6e-c626-4487-9abc-1556dd89a8ae",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "e9a4dbc7-50b1-48a7-8128-e81f6132e507"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:40Z",
+            "createdtimedec": "0.2967730000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Move to SIP creation directory for completed transfers",
+            "microservicechainlink": "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5",
+            "microservicegroup": "Create SIP from Transfer",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "ec3cefde-7249-4312-8c48-4846f68c4e08"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:25Z",
+            "createdtimedec": "0.0170100000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Assign UUIDs to directories?",
+            "microservicechainlink": "bd899573-694e-4d33-8c9b-df0af802437d",
+            "microservicegroup": "Assign file UUIDs and checksums",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "ef6ca33a-581c-4e85-89b9-f5f7618decf1"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:19:44Z",
+            "createdtimedec": "0.9175170000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Sanitize SIP name",
+            "microservicechainlink": "a46e95fe-4a11-4d3c-9b76-c5d8ea0b094d",
+            "microservicegroup": "Clean up names",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "f07b1d23-865d-4f77-9a1d-a16a267af779"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:22Z",
+            "createdtimedec": "0.6787230000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Remove empty manual normalization directories",
+            "microservicechainlink": "75fb5d67-5efa-4232-b00b-d85236de0d3f",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "f21d058e-d5ef-404c-a5a3-dafd68c8d68d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:35Z",
+            "createdtimedec": "0.4234930000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Select compression level",
+            "microservicechainlink": "01c651cb-c174-4ba4-b985-1d87a44d6754",
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "f344a9d3-1bc2-4891-ad7b-c7e4a3a72887"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:29Z",
+            "createdtimedec": "0.4191930000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Verify metadata directory checksums",
+            "microservicechainlink": "f1bfce12-b637-443f-85f8-b6450ca01a13",
+            "microservicegroup": "Verify transfer checksums",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "f510164e-b3a8-494b-921b-52d280444e2d"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:22:22Z",
+            "createdtimedec": "0.6469110000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "hidden": false,
+            "jobtype": "Characterize and extract metadata on metadata files",
+            "microservicechainlink": "04493ab2-6cad-400d-8832-06941f121a96",
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "535b4469-221b-41bb-aeaa-a78c5791c1c4",
+            "subjobof": "",
+            "unittype": "unitSIP"
+        },
+        "model": "main.job",
+        "pk": "f6f48c94-16c0-4bea-8ed5-b2b3c321820a"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:12:38Z",
+            "createdtimedec": "0.0737080000",
+            "currentstep": 2,
+            "directory": "%sharedPath%currentlyProcessing/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Sanitize Transfer name",
+            "microservicechainlink": "a329d39b-4711-4231-b54e-b5958934dccb",
+            "microservicegroup": "Clean up names",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "f9e7525e-6d6a-4ab0-b771-b9fb8d72a6f1"
+    },
+    {
+        "fields": {
+            "createdtime": "2018-10-17T20:18:27Z",
+            "createdtimedec": "0.1562540000",
+            "currentstep": 2,
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/KSTest-cea636e5-0e6f-4f9e-80ac-06039fec247d/",
+            "hidden": false,
+            "jobtype": "Validate formats",
+            "microservicechainlink": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "microservicegroup": "Validation",
+            "sipuuid": "cea636e5-0e6f-4f9e-80ac-06039fec247d",
+            "subjobof": "",
+            "unittype": "unitTransfer"
+        },
+        "model": "main.job",
+        "pk": "fd7eefe6-0095-43a6-b9b7-c3277b851f93"
+    }
+]

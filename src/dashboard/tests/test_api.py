@@ -105,19 +105,6 @@ class TestAPI(TestCase):
         assert status['sip_uuid'] == 'BACKLOG'
         assert len(completed) == 1
 
-    def test_get_unit_status_completed_sip(self):
-        """It should return COMPLETE."""
-        # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-transfer-complete.json', 'jobs-sip-complete.json'])
-        # Test
-        status = views.get_unit_status('4060ee97-9c3f-4822-afaf-ebdf838284c3', 'unitSIP')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
-        # Verify
-        assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'COMPLETE'
-        assert len(completed) == 1
-
 
 class TestProcessingConfigurationAPI(TestCase):
     fixture_files = ['test_user.json']
@@ -196,3 +183,39 @@ class TestAPI2(TestCase):
         assert '85216028-1150-4321-abb3-31ea570a341b' in completed
         assert '5d0ab97f-a45b-4e0f-9cb6-90ee3a404549' in completed
         assert 'b949773d-7cf7-4c1e-aea5-ccbf65b70ccd' in completed
+
+
+class TestAPI3(TestCase):
+    """Test API endpoints (use AM1.7 fixtures)."""
+    fixture_files = ['am17-transfer.json', 'am17-sip.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def test_get_unit_status_completed_sip(self):
+        """It should return COMPLETE."""
+        # Setup fixtures
+        load_fixture(['am17-microservicechainlink.json', 'am17-taskconfig.json', 'am17-tasktype.json', 'am17-jobs-sip-complete.json'])
+        # Test
+        status = views.get_unit_status('535b4469-221b-41bb-aeaa-a78c5791c1c4', 'unitSIP')
+        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        # Verify
+        assert len(status) == 2
+        assert 'microservice' in status
+        assert status['status'] == 'COMPLETE'
+        assert len(completed) == 1
+
+    def test_get_unit_status_completed_sip_chainlink_fix(self):
+        """Test get unit status for a completed SIP when the job with the latest
+        created time is not the last according to the microservicechainlink
+        (i.e, job with jobtype 'Remove the processing directory' is not the one with
+        latest created time)
+        It should return COMPLETE."""
+        # Setup fixtures
+        load_fixture(['am17-microservicechainlink.json', 'am17-taskconfig.json', 'am17-tasktype.json', 'am17-jobs-sip-complete-clean-up-last.json'])
+        # Test
+        status = views.get_unit_status('535b4469-221b-41bb-aeaa-a78c5791c1c4', 'unitSIP')
+        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        # Verify
+        assert len(status) == 2
+        assert 'microservice' in status
+        assert status['status'] == 'COMPLETE'
+        assert len(completed) == 1

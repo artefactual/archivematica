@@ -1,0 +1,15 @@
+[
+    {
+        "fields": {
+            "aip_filename": "KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4.7z",
+            "createdtime": "2018-10-17T20:19:40Z",
+            "currentpath": "%sharedPath%currentlyProcessing/KSTest-535b4469-221b-41bb-aeaa-a78c5791c1c4/",
+            "diruuids": false,
+            "hidden": false,
+            "identifiers": [],
+            "sip_type": "SIP"
+        },
+        "model": "main.sip",
+        "pk": "535b4469-221b-41bb-aeaa-a78c5791c1c4"
+    }
+]

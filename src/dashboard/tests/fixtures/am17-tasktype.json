@@ -1,0 +1,92 @@
+[
+    {
+        "fields": {
+            "description": "Get user choice from microservice generated list",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba"
+    },
+    {
+        "fields": {
+            "description": "assign magic link",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "3590f73d-5eb0-44a0-91a6-5b2db6655889"
+    },
+    {
+        "fields": {
+            "description": "one instance",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "36b2e239-4a57-4aa5-8ebc-7a29139baca6"
+    },
+    {
+        "fields": {
+            "description": "get user choice to proceed with",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c"
+    },
+    {
+        "fields": {
+            "description": "linkTaskManagerSetUnitVariable",
+            "lastmodified": "2012-10-22T17:05:07Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7"
+    },
+    {
+        "fields": {
+            "description": "goto magic link",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9"
+    },
+    {
+        "fields": {
+            "description": "get replacement dic from user choice",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "9c84b047-9a6d-463f-9836-eafa49743b84"
+    },
+    {
+        "fields": {
+            "description": "Get microservice generated list in stdOut",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "a19bfd9f-9989-4648-9351-013a10b382ed"
+    },
+    {
+        "fields": {
+            "description": "for each file",
+            "lastmodified": "2012-10-02T00:25:10Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "a6b1c323-7d36-428e-846a-e7e819423577"
+    },
+    {
+        "fields": {
+            "description": "linkTaskManagerUnitVariableLinkPull",
+            "lastmodified": "2012-10-22T17:03:13Z",
+            "replaces": null
+        },
+        "model": "main.tasktype",
+        "pk": "c42184a3-1a7f-4c4d-b380-15d8d97fdd11"
+    }
+]
