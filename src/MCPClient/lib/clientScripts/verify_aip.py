@@ -163,7 +163,12 @@ def verify_checksums(job, bag, sip_uuid):
         verification_count = 0
         verification_skipped_because_reingest = 0
         for file_ in File.objects.filter(sip_id=sip_uuid):
-            if (os.path.basename(file_.originallocation) in removableFiles) or (not file_.currentlocation.startswith('%SIPDirectory%objects/')):
+            if (
+                os.path.basename(file_.originallocation) in removableFiles or
+                not file_.currentlocation.startswith(
+                    '%SIPDirectory%objects/') or
+                file_.filegrpuse == 'manualNormalization'
+            ):
                 continue
             file_path = file_.currentlocation.replace('%SIPDirectory%', '', 1)
             assert_checksum_types_match(job, file_, sip_uuid, checksum_type)
