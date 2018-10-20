@@ -122,8 +122,10 @@ $(document).ready(function() {
     return false;
   });
 
-  $('.aip-search-query-input').keypress(function (e) {
+  $('#search_form_container').on('keypress', '.aip-search-query-input', function (e) {
     if (e.which == 13) {  // Return key
+      // Remove focus from query input field to update its value
+      e.target.blur();
       aipSearchSubmit();
       return false;
     }
