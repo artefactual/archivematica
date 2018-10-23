@@ -378,7 +378,7 @@ msgstr ""
 msgid "Unable to fetch record {{path}} from Arrangement!"
 msgstr ""
 
-#: ./app/preview/preview.controller.js:36
+#: ./app/preview/preview.controller.js:37
 msgid "Unable to retrieve metadata for file with UUID {{id}}"
 msgstr ""
 

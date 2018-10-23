@@ -39,7 +39,7 @@ run(function ($window, gettextCatalog) {
   // Look up current language, fallback to English
   var currentLanguage;
   try {
-      currentLanguage = $window.DashboarConfig.currentLanguage
+      currentLanguage = $window.DashboardConfig.currentLanguage
   } catch (err) {
       currentLanguage = 'en';
   }

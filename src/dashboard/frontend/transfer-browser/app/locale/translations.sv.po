@@ -1,13 +1,13 @@
 # Translators:
-# artefactual <translate@artefactual.com>, 2016
+# August Frihammar <august.frihammar@arkivit.se>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
+"Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2018\n"
+"Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/sv/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
+"Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ./app/front_page/content.html:28
@@ -16,15 +16,15 @@ msgstr ""
 
 #: ./app/front_page/content.html:23
 msgid "Accession no."
-msgstr "Número de accesión"
+msgstr "Accessions nummer"
 
 #: ./app/front_page/content.html:97
 msgid "Add"
-msgstr "Añadir"
+msgstr "Lägg till"
 
 #: ./app/front_page/content.html:53
 msgid "Add next"
-msgstr "Añadir siguiente"
+msgstr "Lägg till nästa"
 
 #: ./app/front_page/content.html:43
 msgid "Approve automatically"
@@ -32,7 +32,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:37
 msgid "Browse"
-msgstr "Navegar"
+msgstr "Bläddra"
 
 #: ./app/front_page/content.html:9
 msgid "DSpace"
@@ -44,7 +44,7 @@ msgstr ""
 
 #: ./app/front_page/content.html:10
 msgid "Disk image"
-msgstr "Imagen de disco"
+msgstr "Skiv- eller disk-avbild"
 
 #: ./app/front_page/content.html:52
 msgid ""
@@ -52,31 +52,30 @@ msgid ""
 "added to this transfer. Data will not be used if no component is added after"
 " the form is saved."
 msgstr ""
-"Los metadatos introducidos en este formulario serán asociados con el "
-"siguiente componente añadido en esta transferencia, sin embargo no serán "
-"utilizados si ningún componente es añadido una vez que el formulario sea "
-"grabado."
+"Metadata inmatat i detta formulär kommer associeras med nästa komponent "
+"tillagd till detta överföringspaket. Datan kommer inte användas om inga fler"
+" komponenter läggs till efter formuläret sparas."
 
 #: ./app/front_page/content.html:6
 msgid "Standard"
-msgstr "Estándar"
+msgstr "Standard"
 
 #: ./app/front_page/content.html:41
 msgid "Start transfer"
-msgstr "Comenzar transferencia"
+msgstr "Starta överföring"
 
 #: ./app/front_page/content.html:18
 msgid "Transfer name"
-msgstr "Nombre de la transferencia"
+msgstr "Överföringens namn"
 
 #: ./app/front_page/content.html:13
 msgid "Transfer type"
-msgstr "Tipo de transferencia"
+msgstr "Överföringstyp"
 
 #: ./app/front_page/content.html:7
 msgid "Unzipped bag"
-msgstr "Bag no comprimido"
+msgstr "Unzipped bad"
 
 #: ./app/front_page/content.html:8
 msgid "Zipped bag"
-msgstr "Bag comprimido (zip)"
+msgstr "Zipped bag"

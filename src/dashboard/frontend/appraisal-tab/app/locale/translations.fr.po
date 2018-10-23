@@ -1,9 +1,13 @@
 # Translators:
 # artefactual <translate@artefactual.com>, 2016
+# Canadian Council of Archives <cca@archivescanada.ca>, 2016
+# Louise Charlebois <lcharlebois@archivescanada.ca>, 2017
+# Caroline Derauw <caroline.derauw@uclouvain.be>, 2017
+# Isabelle Alain <ialain@archivescanada.ca>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
+"Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/fr/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,34 +17,34 @@ msgstr ""
 #: ./app/front_page/content.html:45
 msgid "1 object selected"
 msgid_plural "{{$count}} objects selected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "1 objet sélectionné"
+msgstr[1] "{{$count}} objets sélectionnés"
 
 #: ./app/front_page/content.html:44
 msgid "1 transfer"
 msgid_plural "{{$count}} transfers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "1 transfert"
+msgstr[1] "{{$count}} transferts"
 
 #: ./app/front_page/content.html:293
 msgid "Add directory"
-msgstr ""
+msgstr "Ajouter un répertoire"
 
 #: ./app/front_page/content.html:208
 msgid "Add new child record"
-msgstr ""
+msgstr "Ajouter une nouvelle notice enfant"
 
 #: ./app/front_page/content.html:214
 msgid "Add new digital object"
-msgstr ""
+msgstr "Ajouter un nouvel objet numérique"
 
 #: ./app/examine_contents/examine_contents.html:31
 msgid "Add tag to checked files"
-msgstr ""
+msgstr "Ajouter un mot-clé aux fichiers vérifiés"
 
 #: ./app/front_page/content.html:50
 msgid "Add tag to selected files"
-msgstr ""
+msgstr "Ajouter un mot-clé aux fichiers sélectionnés"
 
 #: ./app/front_page/content.html:18
 msgid "All"
@@ -48,15 +52,15 @@ msgstr "Tout"
 
 #: ./app/front_page/content.html:80
 msgid "Analysis"
-msgstr ""
+msgstr "Analyse"
 
 #: ./app/front_page/content.html:191 ./app/front_page/content.html:194
 msgid "ArchivesSpace"
-msgstr ""
+msgstr "ArchivesSpace"
 
 #: ./app/front_page/content.html:231 ./app/front_page/content.html:303
 msgid "Are you sure you want to delete this?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir supprimer ceci ?"
 
 #: ./app/front_page/content.html:283 ./app/front_page/content.html:286
 msgid "Arrangement"
@@ -64,12 +68,12 @@ msgstr "Classement"
 
 #: ./app/front_page/content.html:38 ./app/front_page/content.html:41
 msgid "Backlog"
-msgstr ""
+msgstr "Backlog"
 
-#: ./app/examine_contents/examine_contents.html:47
-#: ./app/examine_contents/examine_contents.html:67
+#: ./app/examine_contents/examine_contents.html:48
+#: ./app/examine_contents/examine_contents.html:71
 msgid "Bulk extractor logs"
-msgstr ""
+msgstr "Journaux (logs) de l'extracteur de masse"
 
 #: ./app/archivesspace/form.html:37
 msgid "Cancel"
@@ -77,55 +81,55 @@ msgstr "Annuler"
 
 #: ./app/front_page/content.html:55
 msgid "Collapse all"
-msgstr ""
+msgstr "Réduire"
 
 #: ./app/archivesspace/form.html:16
 msgid "Conditions governing access note:"
-msgstr ""
+msgstr "Note sur les conditions d'accès"
 
 #: ./app/examine_contents/file_info.html:3
 msgid "Content"
-msgstr ""
+msgstr "Contenu"
 
 #: ./app/examine_contents/file_info.html:4
 msgid "Context"
-msgstr ""
+msgstr "Contexte"
 
 #: ./app/report/tags.html:5
 msgid "Count"
-msgstr ""
+msgstr "Total"
 
 #: ./app/front_page/content.html:311
 msgid "Create SIP"
-msgstr ""
+msgstr "Créer un SIP "
 
 #: ./app/examine_contents/examine_contents.html:6
 msgid "Credit card numbers"
-msgstr ""
+msgstr "Numéro de carte de crédit"
 
 #: ./app/archivesspace/form.html:31
 msgid "Date expression:"
-msgstr ""
+msgstr "Expression de date :"
 
 #: ./app/front_page/content.html:120
 msgid "Date range end"
-msgstr ""
+msgstr "Date de fin"
 
 #: ./app/front_page/content.html:113
 msgid "Date range start"
-msgstr ""
+msgstr "Date de début"
 
 #: ./app/front_page/content.html:128
 msgid "Dates:"
-msgstr ""
+msgstr "Dates : "
 
 #: ./app/front_page/content.html:233 ./app/front_page/content.html:305
 msgid "Delete selected"
-msgstr ""
+msgstr "Supprimer la sélection"
 
 #: ./app/front_page/content.html:54
 msgid "Deselect all"
-msgstr ""
+msgstr "Désélectionner tout"
 
 #: ./app/preview/preview.html:4
 msgid "Download"
@@ -133,39 +137,41 @@ msgstr "Télécharger"
 
 #: ./app/front_page/content.html:298
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Modifier les métadonnées"
 
 #: ./app/front_page/content.html:226
 msgid "Edit metadata"
-msgstr ""
+msgstr "Modifier les métadonnées"
 
 #: ./app/front_page/content.html:219
 msgid "Edit rights metadata"
-msgstr ""
+msgstr "Éditer les métadonnées concernant les droits"
 
 #: ./app/archivesspace/form.html:26
 msgid "End date:"
-msgstr ""
+msgstr "Date de fin"
 
 #: ./app/front_page/content.html:91
 msgid "Examine contents"
-msgstr ""
+msgstr "Examiner le contenu"
 
 #: ./app/front_page/content.html:56
 msgid "Expand all"
-msgstr ""
+msgstr "Tout afficher"
 
 #: ./app/arrangement/arrangement.controller.js:149
 msgid "Failed to copy files to SIP arrange; check Dashboard logs."
 msgstr ""
+"La copie des fichiers vers Classer un SIP a échoué; consultez les journaux "
+"du Tableau de bord."
 
 #: ./app/front_page/content.html:102 ./app/front_page/content.html:105
 msgid "File list"
-msgstr "Liste de dossiers"
+msgstr "Liste de fichiers"
 
 #: ./app/front_page/content.html:109
 msgid "File list is empty."
-msgstr ""
+msgstr "La liste des fichiers est vide."
 
 #: ./app/examine_contents/examine_contents.html:45
 #: ./app/front_page/content.html:159
@@ -174,11 +180,11 @@ msgstr "Nom du fichier"
 
 #: ./app/examine_contents/examine_contents.html:22
 msgid "Files"
-msgstr ""
+msgstr "Fichiers"
 
 #: ./app/front_page/content.html:239
 msgid "Finalize arrangement"
-msgstr ""
+msgstr "Finaliser le classement"
 
 #: ./app/report/format.html:3 ./app/report/report.controller.js:45
 #: ./app/visualizations/visualizations.controller.js:19
@@ -188,27 +194,27 @@ msgstr "Format"
 
 #: ./app/report/report.controller.js:50
 msgid "Format group"
-msgstr ""
+msgstr "Groupe de formats"
 
 #: ./app/visualizations/visualizations.html:3
 msgid "Formats (by total number of files)"
-msgstr ""
+msgstr "Formats (en fonction du nombre total de fichiers)"
 
 #: ./app/visualizations/visualizations.html:6
 msgid "Formats (by total size of files)"
-msgstr ""
+msgstr "Formats (en fonction de la taille totale des fichiers)"
 
 #: ./app/archivesspace/form.html:12
 msgid "General note:"
-msgstr ""
+msgstr "Note générale :"
 
 #: ./app/report/format.html:5
 msgid "Group"
 msgstr "Groupe"
 
 #: ./app/front_page/content.html:145
-msgid "Hide path:"
-msgstr ""
+msgid "Hide path"
+msgstr "Cacher le chemin d'accès"
 
 #: ./app/front_page/content.html:198
 msgid "Identifier"
@@ -216,86 +222,88 @@ msgstr "Identifiant"
 
 #: ./app/front_page/content.html:162
 msgid "Last modified"
-msgstr ""
+msgstr "Dernière modification"
 
 #: ./app/archivesspace/form.html:8
 msgid "Level of description:"
-msgstr ""
+msgstr "Niveau de description :"
 
 #: ./app/arrangement/arrangement.controller.js:51
 msgid "Name of new directory?"
-msgstr ""
+msgstr "Nom du nouveau répertoire?"
 
 #: ./app/preview/preview.html:6
 msgid "No file selected"
-msgstr ""
+msgstr "Aucun fichier sélectionné"
 
 #: ./app/visualizations/visualizations.html:10
 msgid "No files selected"
-msgstr ""
+msgstr "Aucun fichier sélectionné"
 
 #: ./app/examine_contents/examine_contents.html:19
 msgid "No information found for selected Transfers."
-msgstr ""
+msgstr "Aucune information n'a été trouvée pour les transferts sélectionnés."
 
-#: ./app/examine_contents/examine_contents.html:73
+#: ./app/examine_contents/examine_contents.html:77
 msgid "No information found for selected files."
-msgstr ""
+msgstr "Aucune information n'a été trouvée pour les fichiers sélectionnés."
 
 #: ./app/report/format.html:6
 msgid "Number of files"
-msgstr ""
+msgstr "Nombre de fichiers"
 
 #: ./app/front_page/content.html:85
 msgid "Objects"
-msgstr ""
+msgstr "Objets "
 
 #: ./app/report/format.html:13
 msgid "One object"
 msgid_plural "{{$count}} objects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Un objet"
+msgstr[1] "{{$count}} objets"
 
 #: ./app/examine_contents/examine_contents.html:3
 msgid "PII"
-msgstr ""
+msgstr "PII"
 
 #: ./app/report/format.html:4
 msgid "PUID"
-msgstr ""
+msgstr "PUID"
 
 #: ./app/front_page/content.html:160
 msgid "Path"
 msgstr "Chemin d'accès"
 
-#: ./app/examine_contents/examine_contents.html:46
-#: ./app/examine_contents/examine_contents.html:64
+#: ./app/examine_contents/examine_contents.html:47
+#: ./app/examine_contents/examine_contents.html:68
 msgid "Preview"
 msgstr "Aperçu"
 
 #: ./app/front_page/content.html:94
 msgid "Preview file"
-msgstr ""
+msgstr "Aperçu du fichier"
 
 #: ./app/preview/preview.html:3
 msgid "Previewing {{ file.title }}"
-msgstr ""
+msgstr "Aperçu de {{ file.title }}"
 
 #: ./app/front_page/content.html:316
 msgid "Reload"
-msgstr ""
+msgstr "Recharger"
 
 #: ./app/analysis/analysis.html:3
 msgid "Report"
-msgstr ""
+msgstr "Rapport "
 
 #: ./app/arrangement/arrangement.controller.js:103
 msgid "SIP could not be started! Check dashboard logs."
 msgstr ""
+"La création du SIP n'a pas pu commencer! Vérifiez les journaux du tableau de"
+" bord."
 
 #: ./app/arrangement/arrangement.controller.js:96
 msgid "SIP successfully started!"
-msgstr ""
+msgstr "La création du SIP a bien commencé!"
 
 #: ./app/archivesspace/form.html:36
 msgid "Save"
@@ -303,41 +311,41 @@ msgstr "Sauvegarder"
 
 #: ./app/front_page/content.html:199
 msgid "Search ArchivesSpace"
-msgstr ""
+msgstr "Chercher dans ArchivesSpace"
 
 #: ./app/front_page/content.html:5
 msgid "Search transfer backlog"
-msgstr ""
+msgstr "Chercher dans le backlog des transferts"
 
 #: ./app/examine_contents/examine_contents.html:41
 msgid "Select all"
-msgstr ""
+msgstr "Sélectionner tout"
 
 #: ./app/front_page/content.html:144
-msgid "Show path:"
-msgstr ""
+msgid "Show path"
+msgstr "Montrer le chemin d'accès"
 
 #: ./app/front_page/content.html:161 ./app/report/format.html:7
 msgid "Size"
-msgstr ""
+msgstr "Taille"
 
 #: ./app/archivesspace/form.html:21
 msgid "Start date:"
-msgstr ""
+msgstr "Date de début :"
 
-#: ./app/archivesspace/archivesspace.controller.js:557
+#: ./app/archivesspace/archivesspace.controller.js:555
 msgid "Successfully started SIP from record \"{{title}}\""
-msgstr ""
+msgstr "Le SIP a débuté correctement à partir du document \"{{title}}\""
 
 #: ./app/facet_selector/facet_selector.controller.js:18
 #: ./app/report/tags.html:4
 msgid "Tag"
-msgstr ""
+msgstr "Mot-clé"
 
 #: ./app/front_page/content.html:16 ./app/front_page/content.html:163
 #: ./app/front_page/content.html:88
 msgid "Tags"
-msgstr ""
+msgstr "Mots-clés"
 
 #: ./app/front_page/content.html:197
 msgid "Title"
@@ -345,57 +353,71 @@ msgstr "Titre"
 
 #: ./app/archivesspace/form.html:4
 msgid "Title:"
-msgstr ""
+msgstr "Titre :"
+
+#: ./app/examine_contents/examine_contents.html:46
+msgid "Transfer name"
+msgstr "Nom du transfert"
 
 #: ./app/examine_contents/examine_contents.html:11
 msgid "Transfers:"
-msgstr ""
+msgstr "Transferts :"
 
-#: ./app/archivesspace/archivesspace.controller.js:354
+#: ./app/archivesspace/archivesspace.controller.js:352
 msgid "Unable to access ArchivesSpace; check dashboard logs!"
 msgstr ""
+"Incapable d'accéder à ArchivesSpace; vérifiez les journaux du tableau de "
+"bord."
 
-#: ./app/archivesspace/archivesspace.controller.js:235
+#: ./app/archivesspace/archivesspace.controller.js:233
 msgid "Unable to add new child record to record {{id}}"
 msgstr ""
+"Incapable d'ajouter une nouvelle notice enfant à l'enregistrement {{id}}"
 
-#: ./app/archivesspace/archivesspace.controller.js:268
+#: ./app/archivesspace/archivesspace.controller.js:266
 msgid "Unable to add new digital object component to record {{id}}"
 msgstr ""
+"Incapable d'ajouter un nouvel objet numérique à l'enregistrement {{id}}"
 
-#: ./app/archivesspace/archivesspace.controller.js:300
+#: ./app/archivesspace/archivesspace.controller.js:298
 msgid "Unable to fetch record {{id}} from ArchivesSpace!"
-msgstr ""
+msgstr "Incapable d'extraire l'enregistrement {{id}} d'ArchivesSpace!"
 
-#: ./app/archivesspace/archivesspace.controller.js:308
+#: ./app/archivesspace/archivesspace.controller.js:306
 msgid "Unable to fetch record {{path}} from Arrangement!"
-msgstr ""
+msgstr "Incapable de récupérer l'enregistrement {{path}} du classement!"
 
 #: ./app/preview/preview.controller.js:36
 msgid "Unable to retrieve metadata for file with UUID {{id}}"
 msgstr ""
+"Incapable de récupérer les métadonnées pour les fichiers avec UUID {{id}}"
 
 #: ./app/search/search.controller.js:16
 msgid "Unable to retrieve transfer data from Archivematica."
-msgstr ""
-
-#: ./app/archivesspace/archivesspace.controller.js:570
-msgid "Unable to start SIP; check dashboard logs."
-msgstr ""
+msgstr "Incapable de récupérer les données de transfert d'Archivematica."
 
 #: ./app/archivesspace/archivesspace.controller.js:568
+msgid "Unable to start SIP; check dashboard logs."
+msgstr ""
+"Incapable de commencer le SIP; vérifiez les journaux du tableau de bord."
+
+#: ./app/archivesspace/archivesspace.controller.js:566
 msgid "Unable to start SIP; no files arranged into record \"{{title}}\"."
 msgstr ""
+"Incapable  de commencer le SIP; aucun fichier n'a été classé dans "
+"l'enregistrement \"{{title}}\"."
 
-#: ./app/archivesspace/archivesspace.controller.js:161
+#: ./app/archivesspace/archivesspace.controller.js:162
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
+"Incapable de soumettre des modifications pour l'enregistrement "
+"\"{{title}}\"; vérifiez les journaux du tableau de bord."
 
 #: ./app/analysis/analysis.html:6
 msgid "Visualizations"
-msgstr ""
+msgstr "Visualisations"
 
 #: ./app/examine_contents/examine_contents.html:15
 #: ./app/examine_contents/examine_contents.html:16
 msgid "original order"
-msgstr ""
+msgstr "Ordre d'origine"

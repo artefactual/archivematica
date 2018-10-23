@@ -10,13 +10,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-23 22:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
+"Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
+"Language-Team: Japanese (https://www.transifex.com/artefactual/teams/1506/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: components/accounts/views.py:55 components/accounts/views.py:133
 #: components/administration/views.py:367
@@ -28,16 +28,16 @@ msgstr ""
 #: components/administration/views_dip_upload.py:32
 #: components/administration/views_dip_upload.py:44
 msgid "Saved."
-msgstr "Grabado."
+msgstr "保存しました。"
 
 #: components/accounts/views.py:73
 #, python-format
 msgid "Your profile (%s)"
-msgstr ""
+msgstr "あなたのプロフィール (%s)"
 
 #: components/administration/forms.py:67
 msgid "Web service endpoint"
-msgstr ""
+msgstr "Webサービスのエンドポイント"
 
 #: components/administration/forms.py:68
 msgid "The URL for (POST) requests to create and resolve PIDs."
@@ -45,7 +45,7 @@ msgstr ""
 
 #: components/administration/forms.py:72
 msgid "Web service key"
-msgstr ""
+msgstr "Webサービスキー"
 
 #: components/administration/forms.py:73
 msgid ""
@@ -55,15 +55,15 @@ msgstr ""
 
 #: components/administration/forms.py:78
 msgid "Naming authority"
-msgstr ""
+msgstr "命名権限"
 
 #: components/administration/forms.py:79
 msgid "Handle naming authority (e.g., 12345)"
-msgstr ""
+msgstr "命名権限の取扱い (例：12345)"
 
 #: components/administration/forms.py:83
 msgid "Resolver URL"
-msgstr ""
+msgstr "リゾルバURL"
 
 #: components/administration/forms.py:84
 msgid ""
@@ -86,11 +86,11 @@ msgstr ""
 
 #: components/administration/forms.py:110
 msgid "Verify SSL certificates"
-msgstr ""
+msgstr "SSL証明書を検証"
 
 #: components/administration/forms.py:111
 msgid "Verify SSL certificates when making requests to bind PIDs."
-msgstr ""
+msgstr "ストレージサービスのURL"
 
 #: components/administration/forms.py:116
 msgid "Archive resolve URL template"
@@ -179,7 +179,7 @@ msgstr ""
 
 #: components/administration/forms.py:195
 msgid "Storage Service User"
-msgstr ""
+msgstr "ストレージサービスのユーザー"
 
 #: components/administration/forms.py:196
 msgid "User in the storage service to authenticate as. E.g. test"
@@ -187,7 +187,7 @@ msgstr ""
 
 #: components/administration/forms.py:199
 msgid "API key"
-msgstr ""
+msgstr "APIキー"
 
 #: components/administration/forms.py:200
 msgid ""
@@ -197,7 +197,7 @@ msgstr ""
 
 #: components/administration/forms.py:205
 msgid "Use default configuration"
-msgstr ""
+msgstr "デフォルト設定を使用する"
 
 #: components/administration/forms.py:206
 msgid ""
@@ -207,14 +207,14 @@ msgstr ""
 
 #: components/administration/forms.py:217
 msgid "Select algorithm"
-msgstr ""
+msgstr "アルゴリズムを選択"
 
 #: components/administration/forms.py:237
 #: components/administration/forms_dip_upload.py:12
 #: components/administration/forms_dip_upload.py:21
 #: templates/archival_storage/search.html:91
 msgid "None"
-msgstr "Ningún resultado"
+msgstr "なし"
 
 #: components/administration/forms.py:249
 msgid "Assign UUIDs to directories"
@@ -230,7 +230,7 @@ msgstr ""
 
 #: components/administration/forms.py:252
 msgid "Generate transfer structure report"
-msgstr ""
+msgstr "転送の構造レポートを生成"
 
 #: components/administration/forms.py:253
 msgid "Select file format identification command (Transfer)"
@@ -238,11 +238,11 @@ msgstr ""
 
 #: components/administration/forms.py:254
 msgid "Extract packages"
-msgstr "Extraer paquetes"
+msgstr "パッケージの抽出"
 
 #: components/administration/forms.py:255
 msgid "Delete packages after extraction"
-msgstr ""
+msgstr "抽出後にパッケージを削除する"
 
 #: components/administration/forms.py:256
 msgid "Perform policy checks on originals"
@@ -250,11 +250,11 @@ msgstr ""
 
 #: components/administration/forms.py:257
 msgid "Examine contents"
-msgstr "Examinar contenidos"
+msgstr "内容を検査する"
 
 #: components/administration/forms.py:258
 msgid "Create SIP(s)"
-msgstr "Crear SIP(s)"
+msgstr "SIPを作成する"
 
 #: components/administration/forms.py:259
 msgid "Select file format identification command (Ingest)"
@@ -262,11 +262,11 @@ msgstr ""
 
 #: components/administration/forms.py:260
 msgid "Normalize"
-msgstr "Normalizar"
+msgstr ""
 
 #: components/administration/forms.py:261
 msgid "Approve normalization"
-msgstr "Aprobar normalización"
+msgstr "正常化／normalizationを承認"
 
 #: components/administration/forms.py:262
 msgid "Generate thumbnails"
@@ -290,7 +290,7 @@ msgstr ""
 
 #: components/administration/forms.py:267
 msgid "Reminder: add metadata if desired"
-msgstr ""
+msgstr "リマインダー：必要に応じてメタデータを追加する"
 
 #: components/administration/forms.py:268
 msgid "Transcribe files (OCR)"
@@ -304,52 +304,52 @@ msgstr ""
 
 #: components/administration/forms.py:270
 msgid "Select compression algorithm"
-msgstr ""
+msgstr "圧縮アルゴリズムの選択"
 
 #: components/administration/forms.py:271
 msgid "Select compression level"
-msgstr ""
+msgstr "圧縮レベルの選択"
 
 #: components/administration/forms.py:272
 msgid "Store AIP"
-msgstr ""
+msgstr "AIPを蓄える"
 
 #: components/administration/forms.py:273
 msgid "Store AIP location"
-msgstr ""
+msgstr "AIPの場所を蓄える"
 
 #: components/administration/forms.py:274
 #: templates/archival_storage/view.html:103 templates/ingest/grid.html:246
 msgid "Upload DIP"
-msgstr "Subir DIP"
+msgstr "DIPをアップロード"
 
 #: components/administration/forms.py:275
 msgid "Store DIP"
-msgstr "Almacenar DIP"
+msgstr "DIPを蓄える"
 
 #: components/administration/forms.py:276
 msgid "Store DIP location"
-msgstr ""
+msgstr "DIPの場所を蓄える"
 
 #: components/administration/forms.py:294
 msgid "days"
-msgstr ""
+msgstr "日"
 
 #: components/administration/forms.py:301
 #: components/administration/forms_dip_upload.py:6
 #: components/administration/forms_dip_upload.py:68
 msgid "Yes"
-msgstr "Sí"
+msgstr "はい"
 
 #: components/administration/forms.py:303
 #: components/administration/forms_dip_upload.py:7
 #: components/administration/forms_dip_upload.py:68
 msgid "No"
-msgstr "No"
+msgstr "いいえ"
 
 #: components/administration/forms.py:309
 msgid "Default location"
-msgstr ""
+msgstr "デフォルトの場所"
 
 #: components/administration/forms_dip_upload.py:8
 msgid "Base on PREMIS"
@@ -373,15 +373,15 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:20
 msgid "New"
-msgstr ""
+msgstr "New"
 
 #: components/administration/forms_dip_upload.py:22 main/models.py:635
 msgid "Other"
-msgstr "Otro"
+msgstr "その他"
 
 #: components/administration/forms_dip_upload.py:23
 msgid "Replace"
-msgstr "Reemplazar"
+msgstr "置換"
 
 #: components/administration/forms_dip_upload.py:28
 msgid "ArchivesSpace host"
@@ -455,7 +455,7 @@ msgstr ""
 #: components/administration/forms_dip_upload.py:37
 #: components/administration/forms_dip_upload.py:56
 msgid "URL prefix"
-msgstr ""
+msgstr "URLプレフィックス（接頭語）"
 
 #: components/administration/forms_dip_upload.py:37
 msgid ""
@@ -466,7 +466,7 @@ msgstr ""
 #: components/administration/forms_dip_upload.py:38
 #: components/administration/forms_dip_upload.py:57
 msgid "Conditions governing access"
-msgstr "Condiciones de acceso"
+msgstr ""
 
 #: components/administration/forms_dip_upload.py:38
 msgid "Populates Conditions governing access note"
@@ -586,7 +586,7 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:69
 msgid "REST API key"
-msgstr "Clave de la REST API"
+msgstr ""
 
 #: components/administration/forms_dip_upload.py:69
 msgid "Used in metadata-only DIP upload."
@@ -596,11 +596,11 @@ msgstr ""
 #: components/administration/views.py:108 components/ingest/views.py:314
 #: main/views.py:309
 msgid "Deleted."
-msgstr "Borrado."
+msgstr "削除しました。"
 
 #: components/administration/views.py:96
 msgid "Promoted."
-msgstr ""
+msgstr "昇格しました。"
 
 #: components/administration/views.py:98
 msgid "Error attempting to promote level of description."
@@ -608,7 +608,7 @@ msgstr ""
 
 #: components/administration/views.py:101
 msgid "Demoted."
-msgstr ""
+msgstr "降格しました。"
 
 #: components/administration/views.py:103
 msgid "Error attempting to demote level of description."
@@ -616,7 +616,7 @@ msgstr ""
 
 #: components/administration/views.py:110
 msgid "Level of description not found."
-msgstr ""
+msgstr "記述レベルが見つかりません。"
 
 #: components/administration/views.py:152
 #: components/administration/views.py:347
@@ -703,7 +703,7 @@ msgstr ""
 
 #: components/archival_storage/forms.py:60
 msgid "default"
-msgstr ""
+msgstr "デフォルト"
 
 #: components/archival_storage/forms.py:64
 msgid "Please type in the UUID to confirm"
@@ -764,8 +764,7 @@ msgstr ""
 #, python-format
 msgid "%(count)d object"
 msgid_plural "%(count)d objects"
-msgstr[0] "%(count)d objeto"
-msgstr[1] "%(count)d objetos"
+msgstr[0] ""
 
 #: components/filesystem_ajax/views.py:98
 #, python-format
@@ -788,11 +787,11 @@ msgstr ""
 
 #: components/filesystem_ajax/views.py:205
 msgid "Delete successful."
-msgstr ""
+msgstr "削除が成功しました。"
 
 #: components/filesystem_ajax/views.py:263
 msgid "Copy successful."
-msgstr ""
+msgstr "コピーが成功しました。"
 
 #: components/filesystem_ajax/views.py:353
 #, python-format
@@ -812,11 +811,11 @@ msgstr ""
 #: components/filesystem_ajax/views.py:448
 #, python-format
 msgid "%(path)s is not a directory"
-msgstr ""
+msgstr "%(path)s はディレクトリではありません"
 
 #: components/filesystem_ajax/views.py:519
 msgid "SIP created."
-msgstr ""
+msgstr "SIPを作成しました。"
 
 #: components/filesystem_ajax/views.py:533
 msgid "Directory is not within the arrange directory."
@@ -824,7 +823,7 @@ msgstr ""
 
 #: components/filesystem_ajax/views.py:558
 msgid "Creation successful."
-msgstr ""
+msgstr "作成に成功。"
 
 #: components/filesystem_ajax/views.py:566
 #, python-format
@@ -877,7 +876,7 @@ msgstr ""
 
 #: components/filesystem_ajax/views.py:820
 msgid "Metadata files added successfully."
-msgstr "Ficheros con metadatos añadidos correctamente."
+msgstr ""
 
 #: components/filesystem_ajax/views.py:851
 #, python-format
@@ -929,7 +928,7 @@ msgstr ""
 
 #: components/ingest/views.py:307
 msgid "Are you sure you want to delete this metadata?"
-msgstr "¿Estás seguro de que quieres eliminar estos metadatos?"
+msgstr ""
 
 #: components/ingest/views.py:438
 msgid "Review normalization"
@@ -1125,11 +1124,11 @@ msgstr ""
 #: main/models.py:194 templates/ingest/normalization_report.html:60
 #: templates/ingest/normalization_report.html:100
 msgid "N/A"
-msgstr "No disponible"
+msgstr ""
 
 #: main/models.py:203
 msgid "Part of AIC"
-msgstr ""
+msgstr "AIC部"
 
 #: main/models.py:203
 msgid "Optional: leave blank if unsure"
@@ -1145,7 +1144,7 @@ msgstr ""
 
 #: main/models.py:227
 msgid "Untitled"
-msgstr "Sin título"
+msgstr ""
 
 #: main/models.py:264
 #, python-format
@@ -1163,7 +1162,7 @@ msgstr ""
 
 #: main/models.py:312 templates/archival_storage/search.html:59
 msgid "AIC"
-msgstr ""
+msgstr "AIC"
 
 #: main/models.py:313
 msgid "Reingested AIP"
@@ -1214,23 +1213,23 @@ msgstr ""
 #: main/models.py:543 templates/archival_storage/search.html:78
 #: templates/main/tasks.html:34
 msgid "Unknown"
-msgstr "Desconocido"
+msgstr "不明"
 
 #: main/models.py:544
 msgid "Awaiting decision"
-msgstr "Esperando decisión"
+msgstr ""
 
 #: main/models.py:545
 msgid "Completed successfully"
-msgstr "Completado"
+msgstr ""
 
 #: main/models.py:546
 msgid "Executing command(s)"
-msgstr "Ejecutando comando(s)"
+msgstr ""
 
 #: main/models.py:547
 msgid "Failed"
-msgstr "Fallido"
+msgstr ""
 
 #: main/models.py:588
 msgid "Agent Identifier Type"
@@ -1266,41 +1265,41 @@ msgstr ""
 #: templates/rights/rights_edit.html:101 templates/rights/rights_edit.html:153
 #: templates/rights/rights_edit.html:203 templates/rights/rights_edit.html:251
 msgid "Type"
-msgstr "Tipo"
+msgstr "種別"
 
 #: main/models.py:627 templates/rights/rights_edit.html:105
 #: templates/rights/rights_edit.html:157 templates/rights/rights_edit.html:207
 #: templates/rights/rights_edit.html:255
 msgid "Value"
-msgstr "Valor"
+msgstr ""
 
 #: main/models.py:628
 msgid "Rights holder"
-msgstr "Titular de derechos"
+msgstr "権利保持者"
 
 #: main/models.py:630
 msgid "Copyright"
-msgstr "Derechos de autor"
+msgstr "著作権"
 
 #: main/models.py:631
 msgid "Statute"
-msgstr "Normativa"
+msgstr "法令"
 
 #: main/models.py:632
 msgid "License"
-msgstr "Licencia"
+msgstr "ライセンス"
 
 #: main/models.py:633
 msgid "Donor"
-msgstr "Donador"
+msgstr "寄贈者"
 
 #: main/models.py:634
 msgid "Policy"
-msgstr "Política"
+msgstr "ポリシー"
 
 #: main/models.py:637 templates/rights/rights_list.html:34
 msgid "Basis"
-msgstr "Fundamento"
+msgstr ""
 
 #: main/models.py:642
 msgid "Rights Statement"
@@ -1325,11 +1324,11 @@ msgstr ""
 
 #: main/models.py:660
 msgid "Copyright status"
-msgstr "Régimen de derechos de autor"
+msgstr "著作権のステータス"
 
 #: main/models.py:661
 msgid "Copyright jurisdiction"
-msgstr "Ley del estado aplicable"
+msgstr "著作権法制"
 
 #: main/models.py:662
 msgid "Copyright determination date"
@@ -1381,7 +1380,7 @@ msgstr ""
 
 #: main/models.py:687 templates/rights/rights_edit.html:116
 msgid "Copyright note"
-msgstr "Nota sobre los derechos de autor"
+msgstr ""
 
 #: main/models.py:691
 msgid "Rights: Copyright: Note"
@@ -1389,7 +1388,7 @@ msgstr ""
 
 #: main/models.py:697
 msgid "License terms"
-msgstr "Términos de licencia"
+msgstr "ライセンス条件"
 
 #: main/models.py:698
 msgid "License start date"
@@ -1421,7 +1420,7 @@ msgstr ""
 
 #: main/models.py:722 templates/rights/rights_edit.html:218
 msgid "License note"
-msgstr "Nota sobre la licencia"
+msgstr "ライセンス注記"
 
 #: main/models.py:726
 msgid "Rights: License: Note"
@@ -1429,11 +1428,11 @@ msgstr ""
 
 #: main/models.py:733 templates/rights/rights_list.html:36
 msgid "Start"
-msgstr "Inicio"
+msgstr "開始"
 
 #: main/models.py:734 templates/rights/rights_list.html:37
 msgid "End"
-msgstr "Fin"
+msgstr "終了"
 
 #: main/models.py:739
 msgid "Rights: Granted"
@@ -1453,15 +1452,15 @@ msgstr ""
 
 #: main/models.py:765
 msgid "Statute jurisdiction"
-msgstr "Organismo que ha dictado la norma"
+msgstr "法令の管轄"
 
 #: main/models.py:766
 msgid "Statute citation"
-msgstr "Cita de la normativa"
+msgstr "法令の引用"
 
 #: main/models.py:767
 msgid "Statute determination date"
-msgstr "Fecha de entrada en vigor"
+msgstr "法令の制定日"
 
 #: main/models.py:768
 msgid "Statute start date"
@@ -1477,7 +1476,7 @@ msgstr ""
 
 #: main/models.py:780 templates/rights/rights_edit.html:168
 msgid "Statute note"
-msgstr "Nota sobre la normativa"
+msgstr "状態注記"
 
 #: main/models.py:784
 msgid "Rights: Statute: Note"
@@ -1572,15 +1571,15 @@ msgstr ""
 #: templates/ingest/atk/resource_component.html:15
 #: templates/ingest/atk/resource_component.html:26
 msgid "Description"
-msgstr "Descripción"
+msgstr "記述"
 
 #: main/models.py:916
 msgid "Configuration"
-msgstr "Configuración"
+msgstr "設定"
 
 #: main/models.py:925 main/models.py:927
 msgid "Invalid syntax."
-msgstr "Sintaxis incorrecta."
+msgstr "無効な構文。"
 
 #: main/models.py:945 main/models.py:963
 #, python-format
@@ -1615,15 +1614,15 @@ msgstr ""
 #: main/models.py:1192
 #, python-format
 msgid "%(sortorder)s: %(name)s"
-msgstr ""
+msgstr "%(sortorder)s: %(name)s"
 
 #: main/templatetags/user.py:14
 msgid "<no API key generated>"
-msgstr ""
+msgstr "<no API key generated>"
 
 #: main/views.py:301
 msgid "Added."
-msgstr "Añadido."
+msgstr "追加しました。"
 
 #: main/views.py:306
 msgid "Error: no delete ID supplied."
@@ -1631,19 +1630,19 @@ msgstr ""
 
 #: main/views.py:324
 msgid "Incorrect type."
-msgstr "Tipo incorrecto."
+msgstr ""
 
 #: settings/base.py:159
 msgid "English"
-msgstr "Inglés"
+msgstr "目次"
 
 #: settings/base.py:160
 msgid "French"
-msgstr "Francés"
+msgstr ""
 
 #: settings/base.py:161
 msgid "Spanish"
-msgstr "Español"
+msgstr ""
 
 #: settings/base.py:162
 msgid "Japanese"
@@ -1651,7 +1650,7 @@ msgstr ""
 
 #: settings/base.py:163
 msgid "Portuguese"
-msgstr "Portugués"
+msgstr ""
 
 #: settings/base.py:164
 msgid "Brazilian Portuguese"
@@ -1726,17 +1725,15 @@ msgstr ""
 
 #: templates/404.html:6
 msgid "Page not found"
-msgstr "Página no encontrada"
+msgstr "ページが見つかりません"
 
 #: templates/404.html:9
 msgid "Sorry! The page that you are trying to view is not here."
 msgstr ""
-"La página que está intentando visualizar no ha sido encontrada, sentimos las"
-" molestias."
 
 #: templates/500.html:6
 msgid "Internal server error"
-msgstr ""
+msgstr "内部サーバーエラー"
 
 #: templates/500.html:9
 msgid ""
@@ -1745,28 +1742,28 @@ msgstr ""
 
 #: templates/_fpr_update_button.html:4
 msgid "Update"
-msgstr "Actualizar"
+msgstr "アップデート"
 
 #: templates/_pager.html:9
 msgid "First"
-msgstr "Primera"
+msgstr "先頭"
 
 #: templates/_pager.html:13 templates/ingest/normalization_report.html:115
 msgid "Previous"
-msgstr "Previa"
+msgstr "前"
 
 #: templates/_pager.html:35 templates/ingest/normalization_report.html:121
 #: templates/rights/rights_edit.html:287
 msgid "Next"
-msgstr "Siguiente"
+msgstr "次"
 
 #: templates/_pager.html:39
 msgid "Last"
-msgstr "Última"
+msgstr "最後"
 
 #: templates/_pager.html:54
 msgid "Jump to"
-msgstr "Saltar a"
+msgstr "ジャンプする"
 
 #: templates/_pager.html:60
 #, python-format
@@ -1778,23 +1775,23 @@ msgstr ""
 
 #: templates/accounts/add.html:5 templates/accounts/add.html.py:6
 msgid "Users - Add new"
-msgstr "Usuarios - Añadir nuevo"
+msgstr ""
 
 #: templates/accounts/add.html:20 templates/accounts/edit.html:21
 #: templates/accounts/list.html:4 templates/accounts/list.html.py:5
 #: templates/accounts/list.html:18 templates/administration/sidebar.html:49
 msgid "Users"
-msgstr "Usuarios"
+msgstr "ユーザー"
 
 #: templates/accounts/add.html:21
 msgid "Add new user"
-msgstr "Agregar nuevo usuario"
+msgstr "新規のユーザーを追加"
 
 #: templates/accounts/add.html:33 templates/ingest/metadata_edit.html:64
 #: templates/installer/welcome.html:49
 #: templates/transfer/metadata_edit.html:63
 msgid "Create"
-msgstr "Crear"
+msgstr "作成する"
 
 #: templates/accounts/add.html:34 templates/accounts/edit.html:38
 #: templates/accounts/profile.html:47
@@ -1807,12 +1804,12 @@ msgstr "Crear"
 #: templates/rights/rights_grants_edit.html:113
 #: templates/simple_confirm.html:10 templates/transfer/metadata_edit.html:65
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "キャンセル"
 
 #: templates/accounts/edit.html:6 templates/accounts/edit.html.py:7
 #, python-format
 msgid "Users - Edit %(user)s"
-msgstr "Usuarios - Editar %(user)s"
+msgstr ""
 
 #: templates/accounts/edit.html:37 templates/accounts/profile.html:46
 #: templates/administration/api.html:36
@@ -1830,29 +1827,29 @@ msgstr "Usuarios - Editar %(user)s"
 #: templates/transfer/component.html:54
 #: templates/transfer/metadata_edit.html:61
 msgid "Save"
-msgstr "Grabar"
+msgstr "保存"
 
 #: templates/accounts/list.html:23 templates/accounts/profile.html:29
 msgid "Username"
-msgstr "Nombre de usuario"
+msgstr ""
 
 #: templates/accounts/list.html:24 templates/accounts/profile.html:31
 #: templates/administration/atom_levels_of_description.html:36
 #: templates/administration/reports/failures.html:26
 msgid "Name"
-msgstr "Nombre"
+msgstr "名称"
 
 #: templates/accounts/list.html:25 templates/accounts/profile.html:33
 msgid "E-mail"
-msgstr "Correo electrónico"
+msgstr "Eメール"
 
 #: templates/accounts/list.html:26
 msgid "Administrator"
-msgstr "Administrador"
+msgstr "管理者"
 
 #: templates/accounts/list.html:27
 msgid "Active"
-msgstr "Activo"
+msgstr "アクティブ"
 
 #: templates/accounts/list.html:41 templates/administration/processing.html:27
 #: templates/ingest/metadata_edit.html:33 templates/rights/rights_edit.html:19
@@ -1861,7 +1858,7 @@ msgstr "Activo"
 #: templates/rights/rights_list.html:57 templates/transfer/detail.html:50
 #: templates/transfer/metadata_edit.html:32
 msgid "Edit"
-msgstr "Editar"
+msgstr "編集"
 
 #: templates/accounts/list.html:42
 #: templates/administration/atom_levels_of_description.html:44
@@ -1874,11 +1871,11 @@ msgstr "Editar"
 #: templates/main/access.html:25 templates/rights/rights_list.html:55
 #: templates/rights/rights_list.html:58
 msgid "Delete"
-msgstr "Eliminar"
+msgstr "削除"
 
 #: templates/accounts/list.html:51
 msgid "Add new"
-msgstr "Agregar nuevo"
+msgstr "新規追加"
 
 #: templates/accounts/logged_out.html:9
 msgid "You are logged out."
@@ -1890,15 +1887,15 @@ msgstr ""
 
 #: templates/accounts/login.html:21
 msgid "Forgot your password?"
-msgstr "¿Has olvidado tu contraseña?"
+msgstr ""
 
 #: templates/accounts/login.html:22
 msgid "Log in"
-msgstr "Iniciar sesión"
+msgstr "ログイン"
 
 #: templates/accounts/profile.html:35
 msgid "Admin"
-msgstr "Administrador"
+msgstr "管理者"
 
 #: templates/administration/api.html:5 templates/administration/api.html:6
 #: templates/administration/atom_levels_of_description.html:6
@@ -1936,15 +1933,15 @@ msgstr "Administrador"
 #: templates/administration/terms.html:5 templates/administration/terms.html:6
 #: templates/layout.html:68
 msgid "Administration"
-msgstr "Administración"
+msgstr ""
 
 #: templates/administration/api.html:25
 msgid "REST API configuration"
-msgstr "Configuración del API REST"
+msgstr ""
 
 #: templates/administration/api.html:27
 msgid "IP whitelist"
-msgstr "Lista blanca de direcciones IP"
+msgstr "IPホワイトリスト"
 
 #: templates/administration/api.html:29
 msgid ""
@@ -1966,15 +1963,15 @@ msgstr ""
 
 #: templates/administration/atom_levels_of_description.html:45
 msgid "Promote"
-msgstr "Promover"
+msgstr "昇格"
 
 #: templates/administration/atom_levels_of_description.html:46
 msgid "Demote"
-msgstr "Degradar"
+msgstr "降格"
 
 #: templates/administration/atom_levels_of_description.html:54
 msgid "No levels found."
-msgstr ""
+msgstr "レベルが見つからない。"
 
 #: templates/administration/dips_as_edit.html:25
 msgid "ArchivesSpace DIP upload"
@@ -1986,7 +1983,7 @@ msgstr ""
 
 #: templates/administration/dips_atom_edit.html:32
 msgid "Levels of Description"
-msgstr ""
+msgstr "記述レベル"
 
 #: templates/administration/dips_atom_edit.html:37
 msgid "AtoM/Binder DIP upload"
@@ -2006,7 +2003,7 @@ msgstr ""
 
 #: templates/administration/general.html:33
 msgid "General configuration"
-msgstr "Configuración general"
+msgstr "一般的な設定"
 
 #: templates/administration/general.html:39
 msgid "Storage Service options"
@@ -2014,7 +2011,7 @@ msgstr ""
 
 #: templates/administration/general.html:43
 msgid "Checksum algorithm"
-msgstr ""
+msgstr "チェックサム・アルゴリズム"
 
 #: templates/administration/general.html:47
 msgid "Elasticsearch Indexing"
@@ -2043,11 +2040,11 @@ msgstr ""
 #: templates/administration/language.html:19
 #: templates/administration/sidebar.html:54
 msgid "Language"
-msgstr "Idioma"
+msgstr "言語"
 
 #: templates/administration/language.html:30
 msgid "Select one of the following languages available:"
-msgstr "Selecciona uno de los idiomas disponibles a continuación:"
+msgstr ""
 
 #: templates/administration/language.html:44
 msgid ""
@@ -2057,12 +2054,12 @@ msgstr ""
 
 #: templates/administration/language.html:50
 msgid "Change"
-msgstr "Cambiar"
+msgstr "変更"
 
 #: templates/administration/locations.html:28
 #: templates/administration/usage.html:24
 msgid "Path"
-msgstr "Ruta"
+msgstr "パス"
 
 #: templates/administration/locations.html:41
 msgid "No available locations."
@@ -2071,22 +2068,22 @@ msgstr ""
 #: templates/administration/premis_agent.html:19
 #: templates/administration/sidebar.html:44
 msgid "PREMIS agent"
-msgstr ""
+msgstr "PREMISエージェント"
 
 #: templates/administration/processing.html:18
 #: templates/administration/processing_edit.html:18
 #: templates/administration/sidebar.html:23
 msgid "Processing configuration"
-msgstr "Configuración del procesamiento"
+msgstr ""
 
 #: templates/administration/processing.html:28
 #: templates/archival_storage/view.html:85
 msgid "Download"
-msgstr "Descargas"
+msgstr "ダウンロード"
 
 #: templates/administration/processing.html:30
 msgid "Reset"
-msgstr "Reiniciar"
+msgstr ""
 
 #: templates/administration/processing.html:42
 msgid "No processing configuration file found (*ProcessingMCP.xml)."
@@ -2107,7 +2104,7 @@ msgstr ""
 #: templates/transfer/detail.html.py:57
 #: templates/transfer/metadata_edit.html:33
 msgid "Add"
-msgstr "Añadir"
+msgstr "追加"
 
 #: templates/administration/reports/failure_detail.html:18
 #, python-format
@@ -2123,7 +2120,7 @@ msgstr ""
 
 #: templates/administration/reports/failures.html:24
 msgid "Date"
-msgstr "Fecha"
+msgstr "日付"
 
 #: templates/administration/reports/failures.html:56
 msgid "No reports found."
@@ -2143,28 +2140,28 @@ msgstr ""
 
 #: templates/administration/search.html:33
 msgid "Flush AIP Index"
-msgstr "Limpiar el índice de AIPs"
+msgstr ""
 
 #: templates/administration/sidebar.html:25
 msgid "General"
-msgstr "General"
+msgstr "一般"
 
 #: templates/administration/sidebar.html:27
 msgid "Failures"
-msgstr "Fallos"
+msgstr ""
 
 #: templates/administration/sidebar.html:29
 msgid "Transfer source locations"
-msgstr "Ubicaciones de orígenes de transferencias"
+msgstr ""
 
 #: templates/administration/sidebar.html:31
 msgid "AIP storage locations"
-msgstr "Ubicaciones de almacenamiento AIP"
+msgstr ""
 
 #: templates/administration/sidebar.html:33
 #: templates/administration/usage.html:19
 msgid "Processing storage usage"
-msgstr "Uso del almacén de procesamiento"
+msgstr ""
 
 #: templates/administration/sidebar.html:36 templates/ingest/as/match.html:61
 #: templates/ingest/as/resource_component.html:13
@@ -2175,7 +2172,7 @@ msgstr "Uso del almacén de procesamiento"
 #: templates/ingest/atk/resource_detail.html:13
 #: templates/ingest/atk/resource_list.html:13
 msgid "DIP upload"
-msgstr "DIP upload"
+msgstr "DIPアップロード"
 
 #: templates/administration/sidebar.html:38
 msgid "AtoM/Binder"
@@ -2183,7 +2180,7 @@ msgstr ""
 
 #: templates/administration/sidebar.html:39
 msgid "ArchivesSpace"
-msgstr "ArchivesSpace"
+msgstr "アーカイブスペース"
 
 #: templates/administration/sidebar.html:40
 msgid "Archivists’ Toolkit"
@@ -2191,7 +2188,7 @@ msgstr ""
 
 #: templates/administration/sidebar.html:46
 msgid "REST API"
-msgstr "API REST"
+msgstr "REST API"
 
 #: templates/administration/sidebar.html:52
 msgid "Handle server config"
@@ -2202,59 +2199,59 @@ msgstr ""
 #: templates/administration/version.html:6
 #: templates/administration/version.html:23
 msgid "Version"
-msgstr "Versión"
+msgstr "バージョン"
 
 #: templates/administration/taxonomy.html:19
 msgid "Taxonomies"
-msgstr "Taxonomías"
+msgstr "分類"
 
 #: templates/administration/taxonomy.html:29
 #: templates/administration/terms.html:33 templates/main/_tasks_pager.html:5
 msgid "Previous page"
-msgstr "Página anterior"
+msgstr "前ページ"
 
 #: templates/administration/taxonomy.html:35
 #: templates/administration/terms.html:39 templates/main/_tasks_pager.html:11
 msgid "Next page"
-msgstr "Página siguiente"
+msgstr "次ページ"
 
 #: templates/administration/term_detail.html:20
 #: templates/administration/terms.html:20
 msgid "Taxonomy"
-msgstr "Taxonomía"
+msgstr "分類"
 
 #: templates/administration/usage.html:5 templates/administration/usage.html:6
 #: templates/administration/usage.html:25
 msgid "Usage"
-msgstr "Uso"
+msgstr "使い方"
 
 #: templates/administration/usage.html:23
 msgid "Purpose"
-msgstr "Objetivo"
+msgstr "目的"
 
 #: templates/administration/usage.html:26
 #: templates/archival_storage/list.html:70
 #: templates/archival_storage/search.html:56
 #: templates/archival_storage/view.html:67
 msgid "Size"
-msgstr "Tamaño"
+msgstr "サイズ"
 
 #: templates/administration/usage.html:40
 msgid "Clear"
-msgstr "Limpiar"
+msgstr "クリア"
 
 #: templates/administration/version.html:19
 msgid "About Archivematica"
-msgstr "Sobre Archivematica"
+msgstr ""
 
 #: templates/administration/version.html:27
 msgid "Agent code"
-msgstr "Código del agente"
+msgstr ""
 
 #: templates/appraisal/appraisal.html:4 templates/appraisal/appraisal.html:5
 #: templates/layout.html:60
 msgid "Appraisal"
-msgstr "Evaluación"
+msgstr ""
 
 #: templates/appraisal/appraisal.html:30
 #: templates/archival_storage/list.html:132 templates/backlog/backlog.html:30
@@ -2271,11 +2268,11 @@ msgstr ""
 #: templates/archival_storage/_archival_storage_search_form.html:7
 #: templates/ingest/backlog/_search_form.html:9
 msgid "Show files?"
-msgstr "¿Mostrar ficheros?"
+msgstr ""
 
 #: templates/archival_storage/_archival_storage_search_form.html:9
 msgid "Show AICs?"
-msgstr "¿Mostrar AICs?"
+msgstr ""
 
 #: templates/archival_storage/_archival_storage_search_form.html:11
 msgid "Search archival storage"
@@ -2291,14 +2288,14 @@ msgstr ""
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:50 templates/layout.html:64
 msgid "Archival storage"
-msgstr "Almacén archivístico"
+msgstr ""
 
 #: templates/archival_storage/list.html:32
 #: templates/archival_storage/search.html:30
 #: templates/ingest/as/_search_form.html:6
 #: templates/ingest/atk/_search_form.html:6
 msgid "Search"
-msgstr "Búsqueda"
+msgstr "検索"
 
 #: templates/archival_storage/list.html:42
 msgid "Browse archival storage"
@@ -2325,7 +2322,7 @@ msgstr ""
 #: templates/ingest/aip_browse.html:6 templates/ingest/aip_browse.html.py:7
 #: templates/main/access.html:12
 msgid "AIP"
-msgstr ""
+msgstr "AIP"
 
 #: templates/archival_storage/list.html:64
 #: templates/archival_storage/list.html:65
@@ -2334,7 +2331,7 @@ msgstr ""
 #: templates/archival_storage/list.html:83
 #: templates/archival_storage/list.html:84
 msgid "Sort"
-msgstr "Ordenar"
+msgstr "並び替え"
 
 #: templates/archival_storage/list.html:82
 #: templates/archival_storage/search.html:62
@@ -2346,7 +2343,7 @@ msgstr ""
 #: templates/archival_storage/search.html:63
 #: templates/archival_storage/view.html:75
 msgid "Status"
-msgstr "Estado de elaboración"
+msgstr "ステータス"
 
 #: templates/archival_storage/list.html:94
 #: templates/archival_storage/search.html:64
@@ -2358,13 +2355,13 @@ msgstr ""
 #: templates/archival_storage/search.html:65
 #: templates/archival_storage/view.html:98 templates/main/access.html:16
 msgid "Actions"
-msgstr "Acciones"
+msgstr "行動"
 
 #: templates/archival_storage/list.html:112
 #: templates/archival_storage/search.html:99
 #: templates/archival_storage/view.html:92
 msgid "View"
-msgstr "Ver"
+msgstr "見る"
 
 #: templates/archival_storage/list.html:125
 msgid "Archival storage is empty."
@@ -2383,7 +2380,7 @@ msgstr ""
 
 #: templates/archival_storage/search.html:61
 msgid "Files"
-msgstr ""
+msgstr "ファイル"
 
 #: templates/archival_storage/search.html:72
 #: templates/archival_storage/search.html:129
@@ -2400,7 +2397,7 @@ msgstr ""
 
 #: templates/archival_storage/search.html:108
 msgid "File(s)"
-msgstr ""
+msgstr "ファイル"
 
 #: templates/archival_storage/search.html:109
 msgid "AIP(s)"
@@ -2422,7 +2419,7 @@ msgstr ""
 #: templates/archival_storage/view.html:83
 #: templates/ingest/normalization_report.html:31
 msgid "Location"
-msgstr "Localización"
+msgstr "所在"
 
 #: templates/archival_storage/view.html:90
 msgid "Pointer file"
@@ -2435,11 +2432,11 @@ msgstr ""
 
 #: templates/archival_storage/view.html:115
 msgid "Metadata-only DIP upload to AtoM"
-msgstr "Transferencia de DIP a AtoM con solo metadatos"
+msgstr ""
 
 #: templates/archival_storage/view.html:119 templates/ingest/grid.html:264
 msgid "Upload"
-msgstr "Subir"
+msgstr "アップロード"
 
 #: templates/archival_storage/view.html:129
 msgid "Choose type of re-ingest"
@@ -2460,7 +2457,7 @@ msgstr ""
 
 #: templates/backlog/backlog.html:5 templates/backlog/backlog.html.py:6
 msgid "Backlog search"
-msgstr "Búsqueda en cola"
+msgstr ""
 
 #: templates/backlog/backlog.html:31
 msgid ""
@@ -2501,7 +2498,7 @@ msgstr ""
 
 #: templates/forbidden.html:6
 msgid "Forbidden"
-msgstr "Prohibido"
+msgstr ""
 
 #: templates/forbidden.html:9
 msgid "Sorry! You do not have enough access privileges for this operation."
@@ -2516,12 +2513,12 @@ msgstr ""
 #: templates/rights/rights_grants_edit.html:16
 #: templates/rights/rights_list.html:9
 msgid "Ingest"
-msgstr "Incorporación"
+msgstr ""
 
 #: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:215
 #: templates/transfer/grid.html:139
 msgid "Initializing..."
-msgstr "Inicializando..."
+msgstr "初期化中..."
 
 #: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
 #: templates/ingest/as/match.html.py:119
@@ -2535,7 +2532,7 @@ msgstr "Inicializando..."
 #: templates/ingest/atk/resource_detail.html:37
 #: templates/ingest/atk/resource_list.html:27
 msgid "Title"
-msgstr "Título"
+msgstr "タイトル"
 
 #: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
 #: templates/ingest/as/match.html.py:120
@@ -2543,7 +2540,7 @@ msgstr "Título"
 #: templates/ingest/atk/_search_form.html:5 templates/ingest/atk/match.html:77
 #: templates/ingest/atk/match.html.py:95 templates/ingest/grid.html:256
 msgid "Identifier"
-msgstr "Identificador"
+msgstr "識別子"
 
 #: templates/ingest/as/match.html:6 templates/ingest/as/match.html.py:7
 #: templates/ingest/as/resource_component.html:5
@@ -2558,7 +2555,7 @@ msgstr "Identificador"
 #: templates/ingest/atk/resource_list.html:5
 #: templates/ingest/atk/resource_list.html:6
 msgid "Match"
-msgstr ""
+msgstr "一致"
 
 #: templates/ingest/as/match.html:48 templates/ingest/atk/match.html:33
 msgid "Filter objects"
@@ -2575,7 +2572,7 @@ msgstr ""
 #: templates/ingest/as/match.html:62
 #: templates/ingest/as/resource_component.html:15
 msgid "Parent record"
-msgstr ""
+msgstr "親レコード"
 
 #: templates/ingest/as/match.html:63 templates/ingest/as/match.html.py:70
 #: templates/ingest/atk/match.html:47
@@ -2608,11 +2605,11 @@ msgstr ""
 
 #: templates/ingest/as/match.html:88 templates/ingest/atk/match.html:64
 msgid "Objects"
-msgstr ""
+msgstr "オブジェクト"
 
 #: templates/ingest/as/match.html:90
 msgid "Select all"
-msgstr ""
+msgstr "全てを選択"
 
 #: templates/ingest/as/match.html:95 templates/ingest/atk/match.html:70
 msgid "Resources"
@@ -2622,7 +2619,7 @@ msgstr ""
 #: templates/ingest/as/review_matches.html:28
 #: templates/ingest/atk/match.html:75 templates/ingest/atk/match.html.py:93
 msgid "Level"
-msgstr "Nivel"
+msgstr "レベル"
 
 #: templates/ingest/as/match.html:103 templates/ingest/as/match.html.py:121
 #: templates/ingest/as/resource_component.html:53
@@ -2634,7 +2631,7 @@ msgstr "Nivel"
 #: templates/ingest/atk/resource_detail.html:38
 #: templates/ingest/atk/resource_list.html:28
 msgid "Dates"
-msgstr "Fechas"
+msgstr "日付"
 
 #: templates/ingest/as/match.html:112 templates/ingest/atk/match.html:87
 msgid "Pairs"
@@ -2644,11 +2641,11 @@ msgstr ""
 #: templates/ingest/as/review_matches.html:27
 #: templates/ingest/atk/match.html:92
 msgid "File"
-msgstr "Unidad documental compuesta"
+msgstr "ファイル"
 
 #: templates/ingest/as/match.html:128 templates/ingest/atk/match.html:103
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr "確認する"
 
 #: templates/ingest/as/match.html:158 templates/ingest/atk/match.html:133
 msgid "Delete match"
@@ -2660,7 +2657,7 @@ msgstr ""
 #: templates/ingest/atk/resource_detail.html:14
 #: templates/ingest/atk/resource_detail.html:24
 msgid "Collection"
-msgstr "Colección"
+msgstr "コレクション"
 
 #: templates/ingest/as/resource_component.html:42
 #: templates/ingest/atk/resource_component.html:30
@@ -2671,7 +2668,7 @@ msgstr ""
 #: templates/ingest/as/resource_detail.html:41
 #: templates/ingest/atk/resource_component.html:39
 msgid "Level of description"
-msgstr "Nivel de descripción"
+msgstr "記述レベル"
 
 #: templates/ingest/as/resource_component.html:69
 #: templates/ingest/as/resource_detail.html:59
@@ -2687,7 +2684,7 @@ msgstr ""
 #: templates/ingest/as/resource_list.html:18
 #: templates/ingest/atk/resource_list.html:18
 msgid "Collections"
-msgstr ""
+msgstr "コレクション"
 
 #: templates/ingest/as/review_matches.html:21
 msgid "Finish matching"
@@ -2695,15 +2692,15 @@ msgstr ""
 
 #: templates/ingest/atk/resource_detail.html:36
 msgid "Level of sescription"
-msgstr ""
+msgstr "記述レベル"
 
 #: templates/ingest/backlog/_search_form.html:7
 msgid "Search transfer backlog"
-msgstr ""
+msgstr "転送バックログの検索"
 
 #: templates/ingest/detail.html:16 templates/ingest/grid.html:99
 msgid "Submission Information Package"
-msgstr "SIP"
+msgstr ""
 
 #: templates/ingest/detail.html:21 templates/transfer/detail.html:22
 #, python-format
@@ -2724,25 +2721,25 @@ msgstr ""
 #: templates/ingest/detail.html:35 templates/ingest/microservices.html:12
 #: templates/transfer/detail.html:36 templates/transfer/microservices.html:11
 msgid "Microservices"
-msgstr "Microservicios"
+msgstr ""
 
 #: templates/ingest/detail.html:37 templates/ingest/detail.html.py:42
 #: templates/ingest/detail.html:48 templates/transfer/detail.html:38
 #: templates/transfer/detail.html.py:43 templates/transfer/detail.html:56
 msgid "List"
-msgstr "Lista"
+msgstr "リスト"
 
 #: templates/ingest/detail.html:40 templates/rights/rights_edit.html:17
 #: templates/rights/rights_grants_edit.html:17
 #: templates/rights/rights_list.html:10 templates/transfer/detail.html:41
 msgid "Rights"
-msgstr "Derechos"
+msgstr ""
 
 #: templates/ingest/detail.html:46 templates/ingest/metadata_edit.html:32
 #: templates/transfer/detail.html:54 templates/transfer/grid.html:106
 #: templates/transfer/metadata_edit.html:31
 msgid "Metadata"
-msgstr "Metadatos"
+msgstr "メタデータ"
 
 #: templates/ingest/detail.html:50
 msgid "Manual normalization event detail"
@@ -2750,31 +2747,31 @@ msgstr ""
 
 #: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:32
 msgid "Add metadata files"
-msgstr "Añadir ficheros con metadatos"
+msgstr ""
 
 #: templates/ingest/grid.html:77
 msgid "View file"
-msgstr "Ver fichero"
+msgstr ""
 
 #: templates/ingest/grid.html:78
 msgid "Hide"
-msgstr "Ocultar"
+msgstr "隠す"
 
 #: templates/ingest/grid.html:84
 msgid "Add directory"
-msgstr "Añadir directorio"
+msgstr "新規のフォルダを追加"
 
 #: templates/ingest/grid.html:85 templates/ingest/grid.html.py:135
 msgid "Edit metadata"
-msgstr "Editar metadatos"
+msgstr "メタデータ編集"
 
 #: templates/ingest/grid.html:87
 msgid "Create SIP"
-msgstr "Crear SIP"
+msgstr "SIPの作成"
 
 #: templates/ingest/grid.html:101
 msgid "Ingest start time"
-msgstr "Fecha de comienzo de incorporación"
+msgstr ""
 
 #: templates/ingest/grid.html:104 templates/transfer/grid.html:82
 msgid "Remove all completed"
@@ -2782,34 +2779,32 @@ msgstr ""
 
 #: templates/ingest/grid.html:142
 msgid "AtoM level of description"
-msgstr "Niveles de descripción en AtoM"
+msgstr "AtoM記述レベル"
 
 #: templates/ingest/grid.html:156
 msgid "No AtoM levels of description found. Please contact an administrator."
 msgstr ""
-"No se han encontrado niveles de descripción en AtoM. Por favor contacte a su"
-" administrador."
 
 #: templates/ingest/grid.html:179
 msgid "Metadatos"
-msgstr ""
+msgstr "メタデータ"
 
 #: templates/ingest/grid.html:180 templates/transfer/grid.html:107
 msgid "Remove"
-msgstr "Eliminar"
+msgstr "取り除く"
 
 #: templates/ingest/grid.html:189 templates/transfer/grid.html:116
 msgid "Microservice"
-msgstr "Microservicio"
+msgstr ""
 
 #: templates/ingest/grid.html:195 templates/transfer/grid.html:122
 msgid "Job"
-msgstr "Trabajo"
+msgstr ""
 
 #: templates/ingest/grid.html:209 templates/main/tasks.html:16
 #: templates/transfer/grid.html:133
 msgid "Tasks"
-msgstr "Tareas"
+msgstr "タスク"
 
 #: templates/ingest/grid.html:249
 msgid ""
@@ -2835,12 +2830,12 @@ msgstr ""
 
 #: templates/ingest/metadata_add_files.html:47
 msgid "Select a directory"
-msgstr "Seleccionar un directorio"
+msgstr "ディレクトリを選択"
 
 #: templates/ingest/metadata_edit.html:77
 #: templates/transfer/metadata_edit.html:76
 msgid "A name given to the resource."
-msgstr ""
+msgstr "リソースに与えられた名前。"
 
 #: templates/ingest/metadata_edit.html:81
 #: templates/transfer/metadata_edit.html:80
@@ -2850,7 +2845,7 @@ msgstr ""
 #: templates/ingest/metadata_edit.html:85
 #: templates/transfer/metadata_edit.html:84
 msgid "The topic of the resource."
-msgstr ""
+msgstr "リソースのトピック。"
 
 #: templates/ingest/metadata_edit.html:89
 #: templates/transfer/metadata_edit.html:88
@@ -2913,12 +2908,12 @@ msgstr ""
 #: templates/ingest/metadata_edit.html:133
 #: templates/transfer/metadata_edit.html:132
 msgid "A related resource."
-msgstr ""
+msgstr "関連リソース。"
 
 #: templates/ingest/metadata_edit.html:137
 #: templates/transfer/metadata_edit.html:136
 msgid "A language of the resource."
-msgstr ""
+msgstr "リソースの言語。"
 
 #: templates/ingest/metadata_edit.html:141
 #: templates/transfer/metadata_edit.html:140
@@ -2934,7 +2929,7 @@ msgstr ""
 
 #: templates/ingest/normalization_report.html:14 templates/main/tasks.html:36
 msgid "File name"
-msgstr "Nombre de fichero"
+msgstr "ファイル名"
 
 #: templates/ingest/normalization_report.html:15
 msgid "File format"
@@ -2974,7 +2969,7 @@ msgstr ""
 
 #: templates/ingest/normalization_report.html:32
 msgid "Format"
-msgstr "Formato"
+msgstr "フォーマット"
 
 #: templates/ingest/normalization_report.html:39
 #: templates/ingest/normalization_report.html:45
@@ -2984,14 +2979,14 @@ msgstr "Formato"
 #: templates/ingest/normalization_report.html:80
 #: templates/ingest/normalization_report.html:85
 msgid "Yes,No"
-msgstr "Sí,No"
+msgstr "はい,いいえ"
 
 #: templates/ingest/normalization_report.html:55
 #: templates/ingest/normalization_report.html:57
 #: templates/ingest/normalization_report.html:95
 #: templates/ingest/normalization_report.html:97
 msgid "Failed,Passed"
-msgstr ""
+msgstr "失敗,合格"
 
 #: templates/ingest/normalization_report.html:110
 #, python-format
@@ -3007,19 +3002,19 @@ msgstr ""
 
 #: templates/installer/storagesetup.html:30
 msgid "Dashboard UUID"
-msgstr ""
+msgstr "ダッシュボードUUID"
 
 #: templates/installer/storagesetup.html:39
 msgid "Register"
-msgstr ""
+msgstr "登録"
 
 #: templates/installer/welcome.html:5 templates/installer/welcome.html.py:6
 msgid "Welcome"
-msgstr ""
+msgstr "ようこそ"
 
 #: templates/installer/welcome.html:40
 msgid "Welcome!"
-msgstr ""
+msgstr "ようこそ！"
 
 #: templates/installer/welcome.html:41
 msgid ""
@@ -3029,7 +3024,7 @@ msgstr ""
 
 #: templates/layout.html:9
 msgid "Archivematica Dashboard"
-msgstr "Archivematica Dashboard"
+msgstr "Archivematica ダッシュボード"
 
 #: templates/layout.html:57 templates/rights/rights_edit.html:18
 #: templates/rights/rights_grants_edit.html:18
@@ -3039,40 +3034,40 @@ msgstr "Archivematica Dashboard"
 #: templates/transfer/metadata_edit.html:30
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
-msgstr "Transferencia"
+msgstr "転送"
 
 #: templates/layout.html:59
 msgid "Backlog"
-msgstr "Cola"
+msgstr "バックログ"
 
 #: templates/layout.html:66
 msgid "Preservation planning"
-msgstr "Planificación de la preservación"
+msgstr ""
 
 #: templates/layout.html:67 templates/main/access.html:4
 #: templates/main/access.html.py:5
 msgid "Access"
-msgstr "Acceso"
+msgstr "アクセス"
 
 #: templates/layout.html:76
 msgid "Your profile"
-msgstr "Tu perfil"
+msgstr "あなたのプロフィール"
 
 #: templates/layout.html:78
 msgid "Log out"
-msgstr "cerrar sesión"
+msgstr "ログアウト"
 
 #: templates/main/access.html:13
 msgid "DIP URL"
-msgstr ""
+msgstr "DIP URL"
 
 #: templates/main/access.html:14
 msgid "Upload date"
-msgstr ""
+msgstr "アップロード日"
 
 #: templates/main/access.html:15
 msgid "Upload status"
-msgstr ""
+msgstr "アップロード状態"
 
 #: templates/main/tasks.html:9
 #, python-format
@@ -3082,16 +3077,16 @@ msgstr ""
 #: templates/main/tasks.html:11
 #, python-format
 msgid "DIP %(uuid)s"
-msgstr ""
+msgstr "DIP %(uuid)s"
 
 #: templates/main/tasks.html:13
 #, python-format
 msgid "SIP %(uuid)s"
-msgstr ""
+msgstr "SIP %(uuid)s"
 
 #: templates/main/tasks.html:33
 msgid "File UUID"
-msgstr ""
+msgstr "ファイル UUID"
 
 #: templates/main/tasks.html:39
 msgid "Client"
@@ -3103,19 +3098,19 @@ msgstr ""
 
 #: templates/main/tasks.html:54
 msgid "Start time"
-msgstr ""
+msgstr "開始時刻"
 
 #: templates/main/tasks.html:57
 msgid "End time"
-msgstr ""
+msgstr "終了時刻"
 
 #: templates/main/tasks.html:60
 msgid "Created time"
-msgstr ""
+msgstr "作成時刻"
 
 #: templates/main/tasks.html:63
 msgid "Duration"
-msgstr ""
+msgstr "期限"
 
 #: templates/main/tasks.html:64
 #, python-format
@@ -3161,11 +3156,11 @@ msgstr ""
 #: templates/rights/rights_edit.html:47
 #: templates/rights/rights_grants_edit.html:46
 msgid "Saved"
-msgstr ""
+msgstr "保存しました"
 
 #: templates/rights/rights_edit.html:51
 msgid "An error has occurred."
-msgstr ""
+msgstr "エラーが発生しました。"
 
 #: templates/rights/rights_edit.html:59
 msgid "New content added."
@@ -3186,7 +3181,7 @@ msgstr ""
 #: templates/rights/rights_edit.html:109 templates/rights/rights_edit.html:161
 #: templates/rights/rights_edit.html:211 templates/rights/rights_edit.html:259
 msgid "Role"
-msgstr ""
+msgstr "役割"
 
 #: templates/rights/rights_edit.html:147
 msgid "Statute documentation identifier:"
@@ -3202,7 +3197,7 @@ msgstr ""
 
 #: templates/rights/rights_edit.html:266
 msgid "Note"
-msgstr "Notas"
+msgstr "注記"
 
 #: templates/rights/rights_grants_edit.html:53
 msgid ""
@@ -3212,15 +3207,15 @@ msgstr ""
 
 #: templates/rights/rights_grants_edit.html:79
 msgid "Allow"
-msgstr "Permitir"
+msgstr "許可する"
 
 #: templates/rights/rights_grants_edit.html:80
 msgid "Disallow"
-msgstr "No permitir"
+msgstr "禁止する"
 
 #: templates/rights/rights_grants_edit.html:81
 msgid "Conditional"
-msgstr "Condicional"
+msgstr ""
 
 #: templates/rights/rights_grants_edit.html:87
 msgid "Grant/restriction note"
@@ -3228,11 +3223,11 @@ msgstr ""
 
 #: templates/rights/rights_grants_edit.html:108
 msgid "Done"
-msgstr "Hecho"
+msgstr "完了"
 
 #: templates/rights/rights_list.html:33
 msgid "Act"
-msgstr "Acción"
+msgstr ""
 
 #: templates/rights/rights_list.html:35
 msgid "Restriction(s)"
@@ -3240,7 +3235,7 @@ msgstr ""
 
 #: templates/transfer/component.html:11
 msgid "Component metadata"
-msgstr "Metadatos de componente"
+msgstr ""
 
 #: templates/transfer/detail.html:29
 msgid "There are microservices awaiting user decisions."
@@ -3252,8 +3247,8 @@ msgstr ""
 
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
-msgstr "Metadatos de transferencia"
+msgstr "転送メタデータ"
 
 #: templates/transfer/grid.html:80
 msgid "Transfer start time"
-msgstr "Fecha de inicio"
+msgstr "転送開始時刻"

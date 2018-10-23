@@ -1,6 +1,7 @@
 {% load active %}
 {% load i18n %}
 {% load static %}
+{% load lang %}
 {% load user %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -25,8 +26,8 @@
     {% block js %}{% endblock %}
     {% get_current_language as LANGUAGE_CODE %}
     <script type="text/javascript">
-      window.DashboarConfig = {
-        'currentLanguage': '{{ LANGUAGE_CODE }}'
+      window.DashboardConfig = {
+        'currentLanguage': '{{ LANGUAGE_CODE|standardize_lang_code }}'
       };
     </script>
   </head>

@@ -156,10 +156,13 @@ LANGUAGE_CODE = 'en-us'
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#languages
 LANGUAGES = [
-    ('fr', _('French')),
     ('en', _('English')),
+    ('fr', _('French')),
     ('es', _('Spanish')),
+    ('ja', _('Japanese')),
     ('pt', _('Portuguese')),
+    ('pt-br', _('Brazilian Portuguese')),
+    ('sv', _('Swedish')),
 ]
 
 LOCALE_PATHS = [

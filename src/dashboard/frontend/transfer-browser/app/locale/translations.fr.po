@@ -1,66 +1,83 @@
 # Translators:
 # artefactual <translate@artefactual.com>, 2016
+# Canadian Council of Archives <cca@archivescanada.ca>, 2016
+# Caroline Derauw <caroline.derauw@uclouvain.be>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: artefactual <translate@artefactual.com>, 2016\n"
+"Last-Translator: Caroline Derauw <caroline.derauw@uclouvain.be>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/fr/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: ./app/front_page/content.html:22
-msgid "Accession no."
+#: ./app/front_page/content.html:28
+msgid "Access system ID"
 msgstr ""
 
-#: ./app/front_page/content.html:93
+#: ./app/front_page/content.html:23
+msgid "Accession no."
+msgstr "Numéro d'acquisition"
+
+#: ./app/front_page/content.html:97
 msgid "Add"
 msgstr "Ajouter"
 
-#: ./app/front_page/content.html:49
+#: ./app/front_page/content.html:53
 msgid "Add next"
+msgstr "Ajouter suivant"
+
+#: ./app/front_page/content.html:43
+msgid "Approve automatically"
 msgstr ""
 
-#: ./app/front_page/content.html:32
+#: ./app/front_page/content.html:37
 msgid "Browse"
-msgstr "Parcourir"
+msgstr "Naviguer"
 
 #: ./app/front_page/content.html:9
 msgid "DSpace"
 msgstr "DSpace"
 
-#: ./app/front_page/content.html:10
-msgid "Disk image"
+#: ./app/front_page/content.html:11
+msgid "Dataverse"
 msgstr ""
 
-#: ./app/front_page/content.html:48
+#: ./app/front_page/content.html:10
+msgid "Disk image"
+msgstr "Image disque"
+
+#: ./app/front_page/content.html:52
 msgid ""
 "Metadata entered in this form will be associated with the next component "
 "added to this transfer. Data will not be used if no component is added after"
 " the form is saved."
 msgstr ""
+"Les métadonnées encodées dans ce formulaire seront associées au prochain "
+"composant de ce transfert. Les données ne seront pas utilisées si aucun "
+"composant n'est ajouter après avoir sauver le formulaire."
 
 #: ./app/front_page/content.html:6
 msgid "Standard"
-msgstr ""
+msgstr "Standard"
 
-#: ./app/front_page/content.html:40
+#: ./app/front_page/content.html:41
 msgid "Start transfer"
 msgstr "Commencer le transfert"
 
-#: ./app/front_page/content.html:17
+#: ./app/front_page/content.html:18
 msgid "Transfer name"
-msgstr ""
+msgstr "Nom du transfert"
 
-#: ./app/front_page/content.html:12
+#: ./app/front_page/content.html:13
 msgid "Transfer type"
-msgstr ""
+msgstr "Type de transfert"
 
 #: ./app/front_page/content.html:7
 msgid "Unzipped bag"
-msgstr ""
+msgstr "Bag non compressé"
 
 #: ./app/front_page/content.html:8
 msgid "Zipped bag"
-msgstr ""
+msgstr "Bag compressé"

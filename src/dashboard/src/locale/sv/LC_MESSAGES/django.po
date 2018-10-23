@@ -10,12 +10,12 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-23 22:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017\n"
-"Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/es/)\n"
+"Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
+"Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
+"Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: components/accounts/views.py:55 components/accounts/views.py:133
@@ -28,42 +28,44 @@ msgstr ""
 #: components/administration/views_dip_upload.py:32
 #: components/administration/views_dip_upload.py:44
 msgid "Saved."
-msgstr "Grabado."
+msgstr "Sparad."
 
 #: components/accounts/views.py:73
 #, python-format
 msgid "Your profile (%s)"
-msgstr ""
+msgstr "Din profil (%s)"
 
 #: components/administration/forms.py:67
 msgid "Web service endpoint"
-msgstr ""
+msgstr "Webbtjänstens slutpunkt"
 
 #: components/administration/forms.py:68
 msgid "The URL for (POST) requests to create and resolve PIDs."
-msgstr ""
+msgstr "URL:en för (POST) begär att skapa och matcha PID:er."
 
 #: components/administration/forms.py:72
 msgid "Web service key"
-msgstr ""
+msgstr "Webbtjänstnyckel"
 
 #: components/administration/forms.py:73
 msgid ""
 "Web service key needed for authentication to make PID-binding requests to "
 "the PID web service endpoint."
 msgstr ""
+"Webservicenyckel nödvändig vid autentitisering för att göra PID-bindnings "
+"begäran till PID-webservice endpoint."
 
 #: components/administration/forms.py:78
 msgid "Naming authority"
-msgstr ""
+msgstr "Naming authority"
 
 #: components/administration/forms.py:79
 msgid "Handle naming authority (e.g., 12345)"
-msgstr ""
+msgstr "Handle naming authority (t. ex. 12345)"
 
 #: components/administration/forms.py:83
 msgid "Resolver URL"
-msgstr ""
+msgstr "Resolver URL"
 
 #: components/administration/forms.py:84
 msgid ""
@@ -71,10 +73,13 @@ msgid ""
 "qualified) PURLs (persistent URLs) that resolve to the applicable resolve "
 "URL. Note the second \"r\" in \"resolver\"!"
 msgstr ""
+"URL att fästa vid genererade PID:er för att skapa (potentiellt "
+"kvalificerade) PURL (persistent URLs) som går till den tillämpbara resolve "
+"URL:en. Notera det andra \"r\"et i \"resolver\"!"
 
 #: components/administration/forms.py:96
 msgid "AIP PID source"
-msgstr ""
+msgstr "AIP PID-källa"
 
 #: components/administration/forms.py:97
 msgid ""
@@ -83,28 +88,34 @@ msgid ""
 "accession number of the transfer may be used, assuming the user can "
 "guarantee a 1-to-1 relationship between the transfer and the AIP."
 msgstr ""
+"Källan till AIP:ens ständiga identifierare. AIP:ens UUID är standard "
+"eftersom det virtuellt är garanterat att den är unik. Hursomhelst så kan "
+"överföringens accessionsnummer komma att användas, förutsatt att användaren "
+"kan garantera ett 1-till-1 förhållande melan överföringen och AIP:n."
 
 #: components/administration/forms.py:110
 msgid "Verify SSL certificates"
-msgstr ""
+msgstr "Kontrollera SSL certifikat"
 
 #: components/administration/forms.py:111
 msgid "Verify SSL certificates when making requests to bind PIDs."
-msgstr ""
+msgstr "Kontrollera SSL-certifikat när begäran om att låsa PID görs."
 
 #: components/administration/forms.py:116
 msgid "Archive resolve URL template"
-msgstr ""
+msgstr "Resolve URL-mall för arkiv."
 
 #: components/administration/forms.py:117
 msgid ""
 "Template (Django or Jinja2) for the URL that a unit's PURL should resolve "
 "to. Has access to \"pid\" and \"naming_authority\" variables."
 msgstr ""
+"Mall (Django eller Jinja2) för det URL som en enhets PURL bör lösa till. Har"
+" tillgång till \"pid\" och \"naming_authority\" variablerna."
 
 #: components/administration/forms.py:123
 msgid "METS resolve URL template"
-msgstr ""
+msgstr "Resolve URL-mall för METS."
 
 #: components/administration/forms.py:124
 msgid ""
@@ -112,20 +123,25 @@ msgid ""
 " qualifier should resolve to. Has access to \"pid\" and \"naming_authority\""
 " variables."
 msgstr ""
+"Mall (Django eller Jinja2) för det URL som en enhets PURL med bestämningen "
+"\"mets\" bör lösa till. Har tillgång till \"pid\" och \"naming_authority\" "
+"variablerna."
 
 #: components/administration/forms.py:130
 msgid "File resolve URL template"
-msgstr ""
+msgstr "Resolve URL-mall för filer."
 
 #: components/administration/forms.py:131
 msgid ""
 "Template (Django or Jinja2) for the URL that a file's PURL should resolve "
 "to. Has access to \"pid\" and \"naming_authority\" variables."
 msgstr ""
+"Mall (Django eller Jinja2) för det URL som en fils PURL bör lösa till. Har "
+"tillgång till \"pid\" och \"naming_authority\" variablerna."
 
 #: components/administration/forms.py:137
 msgid "Access derivative resolve URL template"
-msgstr ""
+msgstr "Resolve URL-mall för lösning av URL för åtkomstbearbetning"
 
 #: components/administration/forms.py:138
 msgid ""
@@ -133,10 +149,13 @@ msgid ""
 "\"access\" qualifier should resolve to. Has access to \"pid\" and "
 "\"naming_authority\" variables."
 msgstr ""
+"Mall (Django eller Jinja2) för den URL som en fils PURL med bestämningen "
+"\"åtkomst\" bör lösa mot. Har tillgång till variablerna \"pid\" och "
+"\"naming_authority\"."
 
 #: components/administration/forms.py:144
 msgid "Preservation derivative resolve URL template"
-msgstr ""
+msgstr "Resolve URL-mall för bevarandebearbetning"
 
 #: components/administration/forms.py:145
 msgid ""
@@ -144,10 +163,13 @@ msgid ""
 "\"preservation\" qualifier should resolve to. Has access to \"pid\" and "
 "\"naming_authority\" variables."
 msgstr ""
+"Mall (Django eller Jinja2) för det URL som en filss PURL med bestämningen "
+"\"bevarande\" bör lösa till. Har tillgång till \"pid\" och "
+"\"naming_authority\" variablerna."
 
 #: components/administration/forms.py:152
 msgid "Original file resolve URL template"
-msgstr ""
+msgstr "Ursprunglig resolve URL mall för filer."
 
 #: components/administration/forms.py:153
 msgid ""
@@ -155,10 +177,13 @@ msgid ""
 "\"original\" qualifier should resolve to. Has access to \"pid\" and "
 "\"naming_authority\" variables."
 msgstr ""
+"Mall (Django eller Jinja2) för den URL som en fils PURL med bestämningen "
+"\"original\" bör lösa mot. Har tillgång till variablerna \"pid\" och "
+"\"naming_authority\"."
 
 #: components/administration/forms.py:160
 msgid "PID/handle request request body template"
-msgstr ""
+msgstr "PID/hantera begäran brödtextsmall"
 
 #: components/administration/forms.py:161
 msgid ""
@@ -168,105 +193,114 @@ msgid ""
 "\"qualified_resolve_urls\", the last of which is a list of dicts with "
 "\"url\" and \"qualifier\" keys."
 msgstr ""
+"Mall (Django eller Jinja2) som konstruerar HTTP begärandets brödtext genom "
+"att använda de framställda URL-mallarna ovan. Har tillgång till variablerna "
+"\"pid\", \"naming_authority\", \"base_resolve_url\", and "
+"\"qualified_resolve_urls\". Den sista av dessa är en lista med dicts med "
+"nycklarna \"url\" och \"qualifier\"."
 
 #: components/administration/forms.py:191
 msgid "Storage Service URL"
-msgstr ""
+msgstr "Lagringstjänsts URL"
 
 #: components/administration/forms.py:192
 msgid "Full URL of the storage service. E.g. https://192.168.168.192:8000"
-msgstr ""
+msgstr "Lagringstjänsten hela URL. T ex. https://192.168.168.192:8000"
 
 #: components/administration/forms.py:195
 msgid "Storage Service User"
-msgstr ""
+msgstr "Lagringstjänsts användare"
 
 #: components/administration/forms.py:196
 msgid "User in the storage service to authenticate as. E.g. test"
-msgstr ""
+msgstr "Användare i lagringstjänsten att autentisera som. T. ex. test."
 
 #: components/administration/forms.py:199
 msgid "API key"
-msgstr ""
+msgstr "API-nyckel"
 
 #: components/administration/forms.py:200
 msgid ""
 "API key of the storage service user. E.g. "
 "45f7684483044809b2de045ba59dc876b11b9810"
 msgstr ""
+"Lagringstjänstanvändarens API-nyckel. T. ex. "
+"45f7684483044809b2de045ba59dc876b11b9810"
 
 #: components/administration/forms.py:205
 msgid "Use default configuration"
-msgstr ""
+msgstr "Använd standardkonfigurering"
 
 #: components/administration/forms.py:206
 msgid ""
 "You have to manually set up a custom configuration if the default "
 "configuration is not selected."
 msgstr ""
+"Du måste ställa in konfigurationerna manuellt om standardkonfiguration inte "
+"är vald."
 
 #: components/administration/forms.py:217
 msgid "Select algorithm"
-msgstr ""
+msgstr "Välj algoritm"
 
 #: components/administration/forms.py:237
 #: components/administration/forms_dip_upload.py:12
 #: components/administration/forms_dip_upload.py:21
 #: templates/archival_storage/search.html:91
 msgid "None"
-msgstr "Ningún resultado"
+msgstr "Inga"
 
 #: components/administration/forms.py:249
 msgid "Assign UUIDs to directories"
-msgstr ""
+msgstr "Tilldela mappar UUID:er"
 
 #: components/administration/forms.py:250
 msgid "Send transfer to quarantine"
-msgstr ""
+msgstr "Skicka överföringspaketet till karantän"
 
 #: components/administration/forms.py:251
 msgid "Remove from quarantine after (days)"
-msgstr ""
+msgstr "Ta ur karantän efter (days)"
 
 #: components/administration/forms.py:252
 msgid "Generate transfer structure report"
-msgstr ""
+msgstr "Generera överföringsstruktursrapport"
 
 #: components/administration/forms.py:253
 msgid "Select file format identification command (Transfer)"
-msgstr ""
+msgstr "Välj kommando för identifikation av filformat (Överföringspaket)"
 
 #: components/administration/forms.py:254
 msgid "Extract packages"
-msgstr "Extraer paquetes"
+msgstr "Extrahera packages"
 
 #: components/administration/forms.py:255
 msgid "Delete packages after extraction"
-msgstr ""
+msgstr "Radera package efter extraktion"
 
 #: components/administration/forms.py:256
 msgid "Perform policy checks on originals"
-msgstr ""
+msgstr "Utför policykontroll på originalen"
 
 #: components/administration/forms.py:257
 msgid "Examine contents"
-msgstr "Examinar contenidos"
+msgstr "Undersök innehåll"
 
 #: components/administration/forms.py:258
 msgid "Create SIP(s)"
-msgstr "Crear SIP(s)"
+msgstr "Skapa SIP(ar)"
 
 #: components/administration/forms.py:259
 msgid "Select file format identification command (Ingest)"
-msgstr ""
+msgstr "Välj kommando för identifikation av filformat (Ingest)"
 
 #: components/administration/forms.py:260
 msgid "Normalize"
-msgstr "Normalizar"
+msgstr "Normalisera"
 
 #: components/administration/forms.py:261
 msgid "Approve normalization"
-msgstr "Aprobar normalización"
+msgstr "Godkänn normalisering"
 
 #: components/administration/forms.py:262
 msgid "Generate thumbnails"
@@ -274,15 +308,15 @@ msgstr ""
 
 #: components/administration/forms.py:263
 msgid "Perform policy checks on preservation derivatives"
-msgstr ""
+msgstr "Utför policykontroll på bevarandebearbetningar"
 
 #: components/administration/forms.py:264
 msgid "Perform policy checks on access derivatives"
-msgstr ""
+msgstr "Utför policykontroller på åtkomstbearbetningar"
 
 #: components/administration/forms.py:265
 msgid "Bind PIDs"
-msgstr ""
+msgstr "Lås PID:er."
 
 #: components/administration/forms.py:266
 msgid "Document empty directories"
@@ -290,244 +324,254 @@ msgstr ""
 
 #: components/administration/forms.py:267
 msgid "Reminder: add metadata if desired"
-msgstr ""
+msgstr "Påminnelse: lägg till metadata om önskat"
 
 #: components/administration/forms.py:268
 msgid "Transcribe files (OCR)"
-msgstr ""
+msgstr "Transkribera filer (OCR)"
 
 #: components/administration/forms.py:269
 msgid ""
 "Select file format identification command (Submission documentation & "
 "metadata)"
 msgstr ""
+"Välj kommando för identifikation av filformat (Överföringspaket och "
+"metadata)"
 
 #: components/administration/forms.py:270
 msgid "Select compression algorithm"
-msgstr ""
+msgstr "Välj komprimeringsalgoritm"
 
 #: components/administration/forms.py:271
 msgid "Select compression level"
-msgstr ""
+msgstr "Välj komprimeringsnivå"
 
 #: components/administration/forms.py:272
 msgid "Store AIP"
-msgstr ""
+msgstr "Lagra AIP"
 
 #: components/administration/forms.py:273
 msgid "Store AIP location"
-msgstr ""
+msgstr "Plats för lagring av AIP"
 
 #: components/administration/forms.py:274
 #: templates/archival_storage/view.html:103 templates/ingest/grid.html:246
 msgid "Upload DIP"
-msgstr "Subir DIP"
+msgstr "Ladda upp DIP"
 
 #: components/administration/forms.py:275
 msgid "Store DIP"
-msgstr "Almacenar DIP"
+msgstr "Lagra DIP"
 
 #: components/administration/forms.py:276
 msgid "Store DIP location"
-msgstr ""
+msgstr "Lagra DIP plats"
 
 #: components/administration/forms.py:294
 msgid "days"
-msgstr ""
+msgstr "dagar"
 
 #: components/administration/forms.py:301
 #: components/administration/forms_dip_upload.py:6
 #: components/administration/forms_dip_upload.py:68
 msgid "Yes"
-msgstr "Sí"
+msgstr "Ja"
 
 #: components/administration/forms.py:303
 #: components/administration/forms_dip_upload.py:7
 #: components/administration/forms_dip_upload.py:68
 msgid "No"
-msgstr "No"
+msgstr "Nej"
 
 #: components/administration/forms.py:309
 msgid "Default location"
-msgstr ""
+msgstr "Standardplats"
 
 #: components/administration/forms_dip_upload.py:8
 msgid "Base on PREMIS"
-msgstr ""
+msgstr "Basera på PREMIS"
 
 #: components/administration/forms_dip_upload.py:13
 msgid "onLoad"
-msgstr ""
+msgstr "onLoad"
 
 #: components/administration/forms_dip_upload.py:14
 msgid "other"
-msgstr ""
+msgstr "annat"
 
 #: components/administration/forms_dip_upload.py:15
 msgid "onRequest"
-msgstr ""
+msgstr "onRequest"
 
 #: components/administration/forms_dip_upload.py:19
 msgid "Embed"
-msgstr ""
+msgstr "Inbäddad"
 
 #: components/administration/forms_dip_upload.py:20
 msgid "New"
-msgstr ""
+msgstr "Ny"
 
 #: components/administration/forms_dip_upload.py:22 main/models.py:635
 msgid "Other"
-msgstr "Otro"
+msgstr "Annat"
 
 #: components/administration/forms_dip_upload.py:23
 msgid "Replace"
-msgstr "Reemplazar"
+msgstr "Ersätt"
 
 #: components/administration/forms_dip_upload.py:28
 msgid "ArchivesSpace host"
-msgstr ""
+msgstr "ArchivesSpace värd"
 
 #: components/administration/forms_dip_upload.py:28
 msgid "Do not include http:// or www. Example: aspace.test.org"
-msgstr ""
+msgstr "Inkludera inte http:// eller www. Exempel: aspace.test.org"
 
 #: components/administration/forms_dip_upload.py:29
 msgid "ArchivesSpace backend port"
-msgstr ""
+msgstr "ArchivesSpace backendport"
 
 #: components/administration/forms_dip_upload.py:29
 msgid "Example: 8089"
-msgstr ""
+msgstr "Exempel: 8089"
 
 #: components/administration/forms_dip_upload.py:30
 msgid "ArchivesSpace administrative user"
-msgstr ""
+msgstr "ArchivesSpace administrativ användare"
 
 #: components/administration/forms_dip_upload.py:30
 msgid "Example: admin"
-msgstr ""
+msgstr "Exempel: admin"
 
 #: components/administration/forms_dip_upload.py:31
 msgid "ArchivesSpace administrative user password"
-msgstr ""
+msgstr "ArchivesSpace administrativt användarlösenord"
 
 #: components/administration/forms_dip_upload.py:31
 msgid ""
 "Password for user set above. Re-enter this password every time changes are "
 "made."
 msgstr ""
+"Lösenord för användare satt oven. Skriv in detta lösenord varje gång "
+"ändringar görs."
 
 #: components/administration/forms_dip_upload.py:32
 #: components/administration/forms_dip_upload.py:51
 msgid "Restrictions apply"
-msgstr ""
+msgstr "Begränsningar gäller"
 
 #: components/administration/forms_dip_upload.py:33
 msgid "XLink Show"
-msgstr ""
+msgstr "XLink Visa"
 
 #: components/administration/forms_dip_upload.py:34
 msgid "XLink Actuate"
-msgstr ""
+msgstr "XLink Aktivera"
 
 #: components/administration/forms_dip_upload.py:35
 #: components/administration/forms_dip_upload.py:54
 msgid "Object type"
-msgstr ""
+msgstr "Objekttyp"
 
 #: components/administration/forms_dip_upload.py:35
 msgid ""
 "Optional, must come from ArchivesSpace controlled list. Example: "
 "sound_recording"
 msgstr ""
+"Frivillig, måste komma från ArchivesSpaces kontrollerade lista. Exempel "
+"sound_recording"
 
 #: components/administration/forms_dip_upload.py:36
 #: components/administration/forms_dip_upload.py:55
 msgid "Use statement"
-msgstr ""
+msgstr "Använd redogörelse"
 
 #: components/administration/forms_dip_upload.py:36
 msgid ""
 "Optional, but if present should come from ArchivesSpace controlled list. "
 "Example: image-master"
 msgstr ""
+"Frivillig, men om den är existerande så bör den komma från ArchivesSpace "
+"kontrollerade liste. Exempel: image-master"
 
 #: components/administration/forms_dip_upload.py:37
 #: components/administration/forms_dip_upload.py:56
 msgid "URL prefix"
-msgstr ""
+msgstr "URL-prefix"
 
 #: components/administration/forms_dip_upload.py:37
 msgid ""
 "URL of DIP object server as you wish to appear in ArchivesSpace record. "
 "Example: http://example.com"
 msgstr ""
+"DIP:ens URL som du vill att den ska dyka upp i ArchivesSpace register. "
+"Exempel: http://exempel.com"
 
 #: components/administration/forms_dip_upload.py:38
 #: components/administration/forms_dip_upload.py:57
 msgid "Conditions governing access"
-msgstr "Condiciones de acceso"
+msgstr "Villkor för åtkomst"
 
 #: components/administration/forms_dip_upload.py:38
 msgid "Populates Conditions governing access note"
-msgstr ""
+msgstr "Fyller Anteckning rörande villkor för åtkomst"
 
 #: components/administration/forms_dip_upload.py:39
 #: components/administration/forms_dip_upload.py:58
 msgid "Conditions governing use"
-msgstr ""
+msgstr "Villkor för användning"
 
 #: components/administration/forms_dip_upload.py:39
 msgid "Populates Conditions governing use note"
-msgstr ""
+msgstr "Fyller Anteckning rörande villkor för användning"
 
 #: components/administration/forms_dip_upload.py:40
 msgid "ArchivesSpace repository number"
-msgstr ""
+msgstr "ArchivesSpace repositorynummer"
 
 #: components/administration/forms_dip_upload.py:40
 msgid "Default for single repository installation is 2"
-msgstr ""
+msgstr "Standard för enkellagringsinstallation är 2"
 
 #: components/administration/forms_dip_upload.py:41
 msgid "Inherit digital object notes from the parent component"
-msgstr ""
+msgstr "Ärv anmärkningar om det digitala objektet från överordnad komponent"
 
 #: components/administration/forms_dip_upload.py:45
 msgid "Database host"
-msgstr ""
+msgstr "Databasvärd"
 
 #: components/administration/forms_dip_upload.py:46
 msgid "Database port"
-msgstr ""
+msgstr "Databasport"
 
 #: components/administration/forms_dip_upload.py:47
 msgid "Database name"
-msgstr ""
+msgstr "Databasnamn"
 
 #: components/administration/forms_dip_upload.py:48
 msgid "Database user"
-msgstr ""
+msgstr "Databasanvändare"
 
 #: components/administration/forms_dip_upload.py:49
 msgid "Database password"
-msgstr ""
+msgstr "Databaslösenord"
 
 #: components/administration/forms_dip_upload.py:50
 msgid "Archivists' Toolkit username"
-msgstr ""
+msgstr "Archivists' Toolkit användarnamn"
 
 #: components/administration/forms_dip_upload.py:52
 msgid "EAD DAO actuate"
-msgstr ""
+msgstr "Aktivera EAD DAO"
 
 #: components/administration/forms_dip_upload.py:53
 msgid "EAD DAO show"
-msgstr ""
+msgstr "Visa EAD DAO"
 
 #: components/administration/forms_dip_upload.py:62
 msgid "Upload URL"
-msgstr ""
+msgstr "Uppladdnings URL"
 
 #: components/administration/forms_dip_upload.py:62
 msgid ""
@@ -537,7 +581,7 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:63
 msgid "Login email"
-msgstr ""
+msgstr "Inloggning email"
 
 #: components/administration/forms_dip_upload.py:63
 msgid "E-mail account used to log into AtoM/Binder."
@@ -545,7 +589,7 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:64
 msgid "Login password"
-msgstr ""
+msgstr "Inloggning lösenord"
 
 #: components/administration/forms_dip_upload.py:64
 msgid "Password used to log into AtoM/Binder."
@@ -557,7 +601,7 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:66
 msgid "Rsync target"
-msgstr ""
+msgstr "Mål för Rsync"
 
 #: components/administration/forms_dip_upload.py:66
 msgid ""
@@ -568,55 +612,58 @@ msgstr ""
 
 #: components/administration/forms_dip_upload.py:67
 msgid "Rsync command"
-msgstr ""
+msgstr "Rsync-kommando"
 
 #: components/administration/forms_dip_upload.py:67
 msgid ""
 "If --rsync-target is used, you can use this argument to specify the remote "
 "shell manually. For example: ssh -p 22222 -l user."
 msgstr ""
+"Om --rsync-target används så kan du använda denna variabel för att "
+"specificera vilket remote shell som ska användas manuellt. Till exempel: ssh"
+" -p 22222 -l user."
 
 #: components/administration/forms_dip_upload.py:68
 msgid "Debug mode"
-msgstr ""
+msgstr "Avsökningsläge"
 
 #: components/administration/forms_dip_upload.py:68
 msgid "Show additional details."
-msgstr ""
+msgstr "Visa ytterliggare detaljer."
 
 #: components/administration/forms_dip_upload.py:69
 msgid "REST API key"
-msgstr "Clave de la REST API"
+msgstr "REST API-nyckel"
 
 #: components/administration/forms_dip_upload.py:69
 msgid "Used in metadata-only DIP upload."
-msgstr ""
+msgstr "Används vid uppladdning av DIP med enbart metadata."
 
 #: components/administration/views.py:81
 #: components/administration/views.py:108 components/ingest/views.py:314
 #: main/views.py:309
 msgid "Deleted."
-msgstr "Borrado."
+msgstr "Raderad."
 
 #: components/administration/views.py:96
 msgid "Promoted."
-msgstr ""
+msgstr "Upphöjt."
 
 #: components/administration/views.py:98
 msgid "Error attempting to promote level of description."
-msgstr ""
+msgstr "Fel under försök att befordra beskrivningsnivå"
 
 #: components/administration/views.py:101
 msgid "Demoted."
-msgstr ""
+msgstr "Degraderat."
 
 #: components/administration/views.py:103
 msgid "Error attempting to demote level of description."
-msgstr ""
+msgstr "Fel under försök att degradera beskrivningsnivå"
 
 #: components/administration/views.py:110
 msgid "Level of description not found."
-msgstr ""
+msgstr "Beskrivningsnivå inte funnen."
 
 #: components/administration/views.py:152
 #: components/administration/views.py:347
@@ -624,6 +671,8 @@ msgid ""
 "Error retrieving locations: is the storage server running? Please contact an"
 " administrator."
 msgstr ""
+"Fel under hämtning av platser: är lagringsservern igång? Var god kontakta en"
+" administratör."
 
 #: components/administration/views.py:478
 #, python-format
@@ -665,49 +714,49 @@ msgstr ""
 
 #: components/archival_storage/forms.py:32
 msgid "Insert slug"
-msgstr ""
+msgstr "Infoga slugg"
 
 #: components/archival_storage/forms.py:32
 msgid "Only compatible with AtoM 2.4 or newer."
-msgstr ""
+msgstr "Endast kompatibel med AtoM 2.4 eller senare."
 
 #: components/archival_storage/forms.py:40
 msgid "Connection establishment failed: AtoM server cannot be reached."
-msgstr ""
+msgstr "Anslutning kunde inte upprättas: AtoM-server kunde inte nås."
 
 #: components/archival_storage/forms.py:43
 #, python-format
 msgid "Description with slug %(slug)s not found!"
-msgstr ""
+msgstr "Beskrivning med slug %(slug)s hittades ej!"
 
 #: components/archival_storage/forms.py:44
 #, python-format
 msgid "Unknown error: %(error)s"
-msgstr ""
+msgstr "Okänt fel: %(error)s"
 
 #: components/archival_storage/forms.py:53
 msgid "Metadata re-ingest"
-msgstr ""
+msgstr "Återingestera metadata"
 
 #: components/archival_storage/forms.py:54
 msgid "Partial re-ingest"
-msgstr ""
+msgstr "Återingestera delvis"
 
 #: components/archival_storage/forms.py:55
 msgid "Full re-ingest"
-msgstr ""
+msgstr "Komplett återingestering"
 
 #: components/archival_storage/forms.py:59
 msgid "Only needed in full re-ingest"
-msgstr ""
+msgstr "Behövs enbart vid komplett återingestering"
 
 #: components/archival_storage/forms.py:60
 msgid "default"
-msgstr ""
+msgstr "standard"
 
 #: components/archival_storage/forms.py:64
 msgid "Please type in the UUID to confirm"
-msgstr ""
+msgstr "Var god skriv UUIDet för att bekräfta"
 
 #: components/archival_storage/forms.py:64
 #: templates/administration/reports/failures.html:27
@@ -721,27 +770,29 @@ msgstr "UUID"
 
 #: components/archival_storage/forms.py:65
 msgid "Reason for deletion"
-msgstr ""
+msgstr "Anledning för radering"
 
 #: components/archival_storage/forms.py:70
 msgid "uuid must be defined"
-msgstr ""
+msgstr "uuid måste specificeras"
 
 #: components/archival_storage/forms.py:76
 msgid "UUID mismatch"
-msgstr ""
+msgstr "UUID matchar inte"
 
 #: components/archival_storage/views.py:48
 msgid "Stored"
-msgstr ""
+msgstr "Lagrad"
 
 #: components/archival_storage/views.py:49
 msgid "Deletion requested"
-msgstr ""
+msgstr "Radering efterfrågad"
 
 #: components/archival_storage/views.py:614
 msgid "Metadata-only DIP upload failed, check the logs for more details"
 msgstr ""
+"Uppladdning av DIP med endast metadata misslyckades, se logg för fler "
+"detaljer."
 
 #: components/archival_storage/views.py:617
 #, python-format
@@ -749,110 +800,112 @@ msgid ""
 "Metadata-only DIP upload has been completed successfully. New resource has "
 "slug: %(slug)s"
 msgstr ""
+"Uppladdning av endast metadata DIP lyckades. Ny resurs har slug: %(slug)s"
 
 #: components/archival_storage/views.py:629
 #, python-format
 msgid "Error re-ingesting package: %(message)s"
-msgstr ""
+msgstr "Fel under återingestering av paket: %(message)s"
 
 #: components/backlog/views.py:232
 msgid ""
 "Unable to connect to storage server. Please contact your administrator."
 msgstr ""
+"Kunde inte ansluta till lagringsservern. Var god kontakta din administratör."
 
 #: components/filesystem_ajax/views.py:93
 #, python-format
 msgid "%(count)d object"
 msgid_plural "%(count)d objects"
-msgstr[0] "%(count)d objeto"
-msgstr[1] "%(count)d objetos"
+msgstr[0] "%(count)d objekt"
+msgstr[1] "%(count)d objekt"
 
 #: components/filesystem_ajax/views.py:98
 #, python-format
 msgid "%(count)s objects"
-msgstr ""
+msgstr "%(count)s objekt"
 
 #: components/filesystem_ajax/views.py:136
 #, python-format
 msgid "Could not base64-decode provided path: %(path)s"
-msgstr ""
+msgstr "Kunde inte base64-dekoda given katalog: %(path)s"
 
 #: components/filesystem_ajax/views.py:157
 #, python-format
 msgid "No files or directories found under path: %(path)s"
-msgstr ""
+msgstr "Inga filer eller mappar funna under sökväg: %(path)s"
 
 #: components/filesystem_ajax/views.py:198
 msgid "No filepath to delete was provided!"
-msgstr ""
+msgstr "Ingen sökväg för radering har tillhandahållits."
 
 #: components/filesystem_ajax/views.py:205
 msgid "Delete successful."
-msgstr ""
+msgstr "Radering lyckades."
 
 #: components/filesystem_ajax/views.py:263
 msgid "Copy successful."
-msgstr ""
+msgstr "Kopiering lyckades."
 
 #: components/filesystem_ajax/views.py:353
 #, python-format
 msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
-msgstr ""
+msgstr "Tillhandahållen SIP UUID (%(uuid)s) hör till en redan startad SIP!"
 
 #: components/filesystem_ajax/views.py:437
 #, python-format
 msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
-msgstr ""
+msgstr "Tillhandahållen UUID (%(uuid)s) är inte en giltigt UUID!"
 
 #: components/filesystem_ajax/views.py:445
 #, python-format
 msgid "%(path1)s is not in %(path2)s"
-msgstr ""
+msgstr "%(path1)s är inte in %(path2)s"
 
 #: components/filesystem_ajax/views.py:448
 #, python-format
 msgid "%(path)s is not a directory"
-msgstr ""
+msgstr "%(path)s är inte i mappen"
 
 #: components/filesystem_ajax/views.py:519
 msgid "SIP created."
-msgstr ""
+msgstr "SIP skapad."
 
 #: components/filesystem_ajax/views.py:533
 msgid "Directory is not within the arrange directory."
-msgstr ""
+msgstr "Katalogen finns inte i ordningskatalogen."
 
 #: components/filesystem_ajax/views.py:558
 msgid "Creation successful."
-msgstr ""
+msgstr "Skapande lyckades."
 
 #: components/filesystem_ajax/views.py:566
 #, python-format
 msgid "%(src)s and %(dst)s must be inside %(path)s"
-msgstr ""
+msgstr "%(src)s och %(dst)s måste vara i %(path)s"
 
 #: components/filesystem_ajax/views.py:579
 msgid "You cannot drag and drop onto a file."
-msgstr ""
+msgstr "Du kan inte dra och släppa till en fil."
 
 #: components/filesystem_ajax/views.py:636
 msgid "GET parameter 'filepath' or 'destination' was blank."
-msgstr ""
+msgstr "GET parameter 'filepath' eller 'destination' var tom."
 
 #: components/filesystem_ajax/views.py:638
 #, python-format
 msgid "%(path)s must be in arrange directory."
-msgstr ""
+msgstr "%(path)s måste finnas i ordningskatalogen."
 
 #: components/filesystem_ajax/views.py:647
 #, python-format
 msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
-msgstr ""
+msgstr "%(path1)s måste gå till en SIP, kan inte dras till %(path2)s"
 
 #: components/filesystem_ajax/views.py:675
 #, python-format
 msgid "Storage Service failed with the message: %(messsage)s"
-msgstr ""
+msgstr "Lagringsservern misslyckades med felmeddelande: %(messsage)s"
 
 #: components/filesystem_ajax/views.py:685
 #, python-format
@@ -860,88 +913,96 @@ msgid ""
 "No file information returned from the Storage Service for file at "
 "relative_path: %(path)s"
 msgstr ""
+"Ingen filinformation hämtades från lagringstjänsten för fil på "
+"relative_path: %(path)s"
 
 #: components/filesystem_ajax/views.py:761
 #, python-format
 msgid "%(path)s is not in base backlog path nor arrange path"
-msgstr ""
+msgstr "%(path)s finns inte i bas backlogsökvägen eller i ordningsmappen."
 
 #: components/filesystem_ajax/views.py:768
 #: components/filesystem_ajax/views.py:782
 msgid "Files added to the SIP."
-msgstr ""
+msgstr "Filer tillagda till SIP:en."
 
 #: components/filesystem_ajax/views.py:772
 msgid "SIP files successfully moved."
-msgstr ""
+msgstr "Flyttning av SIP-filer lyckades."
 
 #: components/filesystem_ajax/views.py:820
 msgid "Metadata files added successfully."
-msgstr "Ficheros con metadatos añadidos correctamente."
+msgstr "Tilläggande av metadatafiler lyckades."
 
 #: components/filesystem_ajax/views.py:851
 #, python-format
 msgid "Location %(location)s is not associated with this pipeline"
-msgstr ""
+msgstr "Platsen %(location)s är inte associerad med denna pipeline"
 
 #: components/filesystem_ajax/views.py:874
 #, python-format
 msgid "The following errors occured: %(message)s"
-msgstr ""
+msgstr "Följande fel uppstod: %(message)s"
 
 #: components/filesystem_ajax/views.py:876
 msgid "Files added successfully."
-msgstr ""
+msgstr "Tilläggande av filer lyckades."
 
 #: components/filesystem_ajax/views.py:942
 #, python-format
 msgid "File with UUID %(uuid)s could not be found"
-msgstr ""
+msgstr "Fil med UUID %(uuid)s kunde inte hittas"
 
 #: components/helpers.py:210
 msgid "AtoM URL not defined!"
-msgstr ""
+msgstr "AtoM URL inte specifierad!"
 
 #: components/helpers.py:215
 msgid "AtoM authentication settings not defined!"
-msgstr ""
+msgstr "AtoM:s verifieringsinställningar inte specificerade!"
 
 #: components/helpers.py:233
 msgid "Unable to fetch levels of description from AtoM!"
-msgstr ""
+msgstr "Kunde inte hämta beskrivningsnivåer från AtoM!"
 
 #: components/ingest/views.py:75
 msgid ""
 "Error retrieving originals/arrange directory locations: is the storage "
 "server running? Please contact an administrator."
 msgstr ""
+"Det gick inte att hämta original/ordna katalog: är lagringsservern igång? "
+"Vänligen kontakta en administratör."
 
 #: components/ingest/views.py:231
 msgid ""
 "Error retrieving source directories: is the storage server running? Please "
 "contact an administrator."
 msgstr ""
+"Fel vid hämtning av källmappar: är lagringsservern igång? Var god kontakta "
+"en administratör."
 
 #: components/ingest/views.py:235
 msgid ""
 "No transfer source locations are available. Please contact an administrator."
 msgstr ""
+"Inga källplatser för överföringen är tillgängliga. Var god kontakta en "
+"administratör."
 
 #: components/ingest/views.py:307
 msgid "Are you sure you want to delete this metadata?"
-msgstr "¿Estás seguro de que quieres eliminar estos metadatos?"
+msgstr "Är du säker på att du vill radera denna matadata?"
 
 #: components/ingest/views.py:438
 msgid "Review normalization"
-msgstr ""
+msgstr "Granska normalisering"
 
 #: components/ingest/views.py:441
 msgid "Review AIP"
-msgstr ""
+msgstr "Granska AIP"
 
 #: components/ingest/views.py:444
 msgid "Review DIP"
-msgstr ""
+msgstr "Granska DIP"
 
 #: components/ingest/views_as.py:236
 msgid ""
@@ -953,20 +1014,24 @@ msgid ""
 "Designation of the basis for the right or permission described in the rights"
 " statement identifier."
 msgstr ""
+"Designering av vad den rättighet eller behörighet som beskrivs i "
+"rättighetsredogörelsen grundas på."
 
 #: components/rights/forms.py:52
 msgid ""
 "The action the preservation repository is allowed to take; eg replicate, "
 "migrate, modify, use, disseminate, delete"
 msgstr ""
+"Den handling som arkivinstitutionen är tillåten att utföra: t. ex. "
+"replikera, migrera, modifiera, använda, disseminera, radera"
 
 #: components/rights/forms.py:54
 msgid "The beginning date of the rights or restrictions granted"
-msgstr ""
+msgstr "Startdatum för beviljat tillstånd eller begränsningar."
 
 #: components/rights/forms.py:55
 msgid "The ending date of the rights or restrictions granted"
-msgstr ""
+msgstr "Slutdatum för beviljat tillstånd eller begränsningar."
 
 #: components/rights/forms.py:56
 msgid ""
@@ -974,6 +1039,9 @@ msgid ""
 "ending date is unknown or the permission statement applies to many objects "
 "with different end dates."
 msgstr ""
+"Använd \"OPEN\" för en obegränsad restriktionstid. Utelämna slutdatum om "
+"sludatumet är okänt eller om tillståndsdeklarationen applicerar till flera "
+"olika objekt med olika slutdatum."
 
 #: components/rights/forms.py:72
 msgid ""
@@ -981,116 +1049,135 @@ msgid ""
 "rights statement is recorded. Available options: Copyrighted, Public Domain,"
 " Unknown"
 msgstr ""
+"En kodad beteckning på objektets upphovsrättsstatus vid tillfället då "
+"rättighetsredogörelsen dokumenteras. Tillgängliga alternativ: "
+"Upphovsrättsskyddad, Public Domain, Okänt"
 
 #: components/rights/forms.py:73
 msgid "The country whose copyright laws apply [ISO 3166]"
-msgstr ""
+msgstr "Landet vars upphovsrätt gäller [ISO 3166]"
 
 #: components/rights/forms.py:74
 msgid ""
 "The date that the copyright status recorded in 'copyright status' was "
 "determined."
 msgstr ""
+"Datumet då upphovsrättsstatusen registtrerad under \"upphovsrättsstatus\" "
+"blev fastställd."
 
 #: components/rights/forms.py:75
 msgid ""
 "The date when the particular copyright applies or is applied to the content."
 msgstr ""
+"Det datum när specifierad upphovsrätt börjar gälla för eller tillämpas på "
+"innehållet."
 
 #: components/rights/forms.py:76
 msgid ""
 "The date when the particular copyright no longer applies or is applied to "
 "the content."
 msgstr ""
+"Det datum när den specifierade upphovsrätten upphör gälla för eller "
+"tillämpas på innehållet."
 
 #: components/rights/forms.py:103
 msgid "The country or other political body enacting the statute."
-msgstr ""
+msgstr "Landet eller annat politiskt organ som antagit regelverket."
 
 #: components/rights/forms.py:104
 msgid "An identifying designation for the statute."
-msgstr ""
+msgstr "En identifierbar beteckning för regelverket."
 
 #: components/rights/forms.py:105
 msgid ""
 "The date that the determination was made that the statue authorized the "
 "permission(s) noted."
 msgstr ""
+"Det datum då det beslutades att stadgan befogade tillståndet/n som noterats."
 
 #: components/rights/forms.py:106
 msgid ""
 "The date when the statute begins to apply or is applied to the content."
-msgstr ""
+msgstr "Det datum då regelverket börjar gälla eller tillämpas på innehållet."
 
 #: components/rights/forms.py:107
 msgid ""
 "The date when the statute ceasees to apply or be applied to the content."
-msgstr ""
+msgstr "Det datum då regelverket upphör gälla eller tillämpas på innehållet."
 
 #: components/rights/forms.py:123
 msgid ""
 "The designation of the basis for the other right or permission described in "
 "the rights statement identifier."
 msgstr ""
+"Designering av vad andra rättigheter eller behörigheter som beskrivs i "
+"rättighetsredogörelsen."
 
 #: components/rights/forms.py:124
 msgid "The date when the other right applies or is applied to the content."
 msgstr ""
+"Det datum när andra rättigheter börjar gälla för eller tillämpas på "
+"innehållet."
 
 #: components/rights/forms.py:125
 msgid ""
 "The date when the other right no longer applies or is applied to the "
 "content."
 msgstr ""
+"Det datum när andra rättigheter upphör gälla för eller tillämpas på "
+"innehållet."
 
 #: components/rights/forms.py:133
 msgid ""
 "Text describing the license or agreement by which permission as granted."
 msgstr ""
+"Text som beskriver den licens eller överenskommelse tillståndet utfärdades "
+"enligt."
 
 #: components/rights/forms.py:134
 msgid ""
 "The date at which the license first applies or is applied to the content."
-msgstr ""
+msgstr "Det datum licensen först tillämpas på innehållet."
 
 #: components/rights/forms.py:135
 msgid ""
 "The end date at which the license no longer applies or is applied to the "
 "content."
-msgstr ""
+msgstr "Det slutdatum då licensen slutar tillämpas på innehållet."
 
 #: components/rights/views.py:242 components/rights/views.py:260
 msgid "copyright"
-msgstr ""
+msgstr "upphovsrätt"
 
 #: components/rights/views.py:288 components/rights/views.py:306
 msgid "license"
-msgstr ""
+msgstr "licens"
 
 #: components/rights/views.py:315 components/rights/views.py:334
 #: components/rights/views.py:343 components/rights/views.py:360
 msgid "statute"
-msgstr ""
+msgstr "regelverk"
 
 #: components/rights/views.py:353
 msgid "statue"
-msgstr ""
+msgstr "regelverk"
 
 #: components/transfer/views.py:58
 msgid "Error retrieving source directories"
-msgstr ""
+msgstr "Hämtning av källmappar misslyckades"
 
 #: components/transfer/views.py:262
 msgid "Updated path was not provided."
-msgstr ""
+msgstr "Uppdaterad sökväg angavs ej."
 
 #: components/transfer/views.py:265
 msgid "Unable to update transfer metadata set: contact administrator."
 msgstr ""
+"Kunde inte uppdatera överföringens metadataset: kontakta administratör."
 
 #: contrib/utils.py:64
 msgid "(Unnamed)"
-msgstr ""
+msgstr "(Namnlös)"
 
 #: installer/forms.py:29
 msgid "Site URL"
@@ -1121,15 +1208,17 @@ msgid ""
 "Error creating pipeline: is the storage server running? Please contact an "
 "administrator."
 msgstr ""
+"Fel under skapelse av pipeline: Är lagringsservern igång? Var god kontakta "
+"en administratör."
 
 #: main/models.py:194 templates/ingest/normalization_report.html:60
 #: templates/ingest/normalization_report.html:100
 msgid "N/A"
-msgstr "No disponible"
+msgstr "N/A"
 
 #: main/models.py:203
 msgid "Part of AIC"
-msgstr ""
+msgstr "Del av AIC"
 
 #: main/models.py:203
 msgid "Optional: leave blank if unsure"
@@ -1145,17 +1234,17 @@ msgstr ""
 
 #: main/models.py:227
 msgid "Untitled"
-msgstr "Sin título"
+msgstr "Utan titel"
 
 #: main/models.py:264
 #, python-format
 msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
-msgstr ""
+msgstr "%(type)s händekse på %(file_uuid)s (%(detail)s)"
 
 #: main/models.py:286
 #, python-format
 msgid "%(derived)s derived from %(src)s in %(event)s"
-msgstr ""
+msgstr "%(derived)s  bearbetad från %(src)s i %(event)s"
 
 #: main/models.py:311
 msgid "SIP"
@@ -1163,7 +1252,7 @@ msgstr ""
 
 #: main/models.py:312 templates/archival_storage/search.html:59
 msgid "AIC"
-msgstr ""
+msgstr "AIC"
 
 #: main/models.py:313
 msgid "Reingested AIP"
@@ -1176,7 +1265,7 @@ msgstr ""
 #: main/models.py:326
 #, python-brace-format
 msgid "SIP: {path}"
-msgstr ""
+msgstr "SIP: {path}"
 
 #: main/models.py:370
 msgid "Arranged SIPs"
@@ -1185,7 +1274,7 @@ msgstr ""
 #: main/models.py:373
 #, python-format
 msgid "%(original)s -> %(arrange)s"
-msgstr ""
+msgstr "%(original)s -> %(arrange)s"
 
 #: main/models.py:403
 msgid "Identifier Type"
@@ -1204,33 +1293,33 @@ msgstr ""
 #: main/models.py:452
 #, python-format
 msgid "File %(uuid)s: %(originallocation)s now at %(currentlocation)s"
-msgstr ""
+msgstr "File %(uuid)s: %(originallocation)s nu på %(currentlocation)s"
 
 #: main/models.py:480
 #, python-format
 msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
-msgstr ""
+msgstr "Sökväg %(uuid)s: %(originallocation)s nu på %(currentlocation)s"
 
 #: main/models.py:543 templates/archival_storage/search.html:78
 #: templates/main/tasks.html:34
 msgid "Unknown"
-msgstr "Desconocido"
+msgstr "Okänd"
 
 #: main/models.py:544
 msgid "Awaiting decision"
-msgstr "Esperando decisión"
+msgstr ""
 
 #: main/models.py:545
 msgid "Completed successfully"
-msgstr "Completado"
+msgstr ""
 
 #: main/models.py:546
 msgid "Executing command(s)"
-msgstr "Ejecutando comando(s)"
+msgstr ""
 
 #: main/models.py:547
 msgid "Failed"
-msgstr "Fallido"
+msgstr ""
 
 #: main/models.py:588
 msgid "Agent Identifier Type"
@@ -1266,41 +1355,41 @@ msgstr ""
 #: templates/rights/rights_edit.html:101 templates/rights/rights_edit.html:153
 #: templates/rights/rights_edit.html:203 templates/rights/rights_edit.html:251
 msgid "Type"
-msgstr "Tipo"
+msgstr "Typ"
 
 #: main/models.py:627 templates/rights/rights_edit.html:105
 #: templates/rights/rights_edit.html:157 templates/rights/rights_edit.html:207
 #: templates/rights/rights_edit.html:255
 msgid "Value"
-msgstr "Valor"
+msgstr "Värde"
 
 #: main/models.py:628
 msgid "Rights holder"
-msgstr "Titular de derechos"
+msgstr "Rättighetsinnehavare"
 
 #: main/models.py:630
 msgid "Copyright"
-msgstr "Derechos de autor"
+msgstr "Upphovsrätt"
 
 #: main/models.py:631
 msgid "Statute"
-msgstr "Normativa"
+msgstr "Regelverk"
 
 #: main/models.py:632
 msgid "License"
-msgstr "Licencia"
+msgstr "Licens"
 
 #: main/models.py:633
 msgid "Donor"
-msgstr "Donador"
+msgstr "Donator"
 
 #: main/models.py:634
 msgid "Policy"
-msgstr "Política"
+msgstr "Policy"
 
 #: main/models.py:637 templates/rights/rights_list.html:34
 msgid "Basis"
-msgstr "Fundamento"
+msgstr "Grund"
 
 #: main/models.py:642
 msgid "Rights Statement"
@@ -1309,7 +1398,7 @@ msgstr ""
 #: main/models.py:645
 #, python-format
 msgid "%(basis)s for %(unit)s (%(id)s)"
-msgstr ""
+msgstr "%(basis)s för %(unit)s (%(id)s)"
 
 #: main/models.py:656
 msgid "copyrighted"
@@ -1325,11 +1414,11 @@ msgstr ""
 
 #: main/models.py:660
 msgid "Copyright status"
-msgstr "Régimen de derechos de autor"
+msgstr "Upphovsrättsstatus"
 
 #: main/models.py:661
 msgid "Copyright jurisdiction"
-msgstr "Ley del estado aplicable"
+msgstr "Upphovsrättsgrund"
 
 #: main/models.py:662
 msgid "Copyright determination date"
@@ -1381,7 +1470,7 @@ msgstr ""
 
 #: main/models.py:687 templates/rights/rights_edit.html:116
 msgid "Copyright note"
-msgstr "Nota sobre los derechos de autor"
+msgstr "Upphovsrättsnotering"
 
 #: main/models.py:691
 msgid "Rights: Copyright: Note"
@@ -1389,7 +1478,7 @@ msgstr ""
 
 #: main/models.py:697
 msgid "License terms"
-msgstr "Términos de licencia"
+msgstr "Licensvillkor"
 
 #: main/models.py:698
 msgid "License start date"
@@ -1421,7 +1510,7 @@ msgstr ""
 
 #: main/models.py:722 templates/rights/rights_edit.html:218
 msgid "License note"
-msgstr "Nota sobre la licencia"
+msgstr "Licensanmärkning"
 
 #: main/models.py:726
 msgid "Rights: License: Note"
@@ -1429,11 +1518,11 @@ msgstr ""
 
 #: main/models.py:733 templates/rights/rights_list.html:36
 msgid "Start"
-msgstr "Inicio"
+msgstr "Start"
 
 #: main/models.py:734 templates/rights/rights_list.html:37
 msgid "End"
-msgstr "Fin"
+msgstr "Slut"
 
 #: main/models.py:739
 msgid "Rights: Granted"
@@ -1453,15 +1542,15 @@ msgstr ""
 
 #: main/models.py:765
 msgid "Statute jurisdiction"
-msgstr "Organismo que ha dictado la norma"
+msgstr "Rättsgrund för regelverk"
 
 #: main/models.py:766
 msgid "Statute citation"
-msgstr "Cita de la normativa"
+msgstr "Citering för regelverk"
 
 #: main/models.py:767
 msgid "Statute determination date"
-msgstr "Fecha de entrada en vigor"
+msgstr "Beslutsdatum för regelverk"
 
 #: main/models.py:768
 msgid "Statute start date"
@@ -1477,7 +1566,7 @@ msgstr ""
 
 #: main/models.py:780 templates/rights/rights_edit.html:168
 msgid "Statute note"
-msgstr "Nota sobre la normativa"
+msgstr "Regelverksanmärkning"
 
 #: main/models.py:784
 msgid "Rights: Statute: Note"
@@ -1554,17 +1643,17 @@ msgstr ""
 #: main/models.py:858
 #, python-format
 msgid "MicroServiceChain ID: %(uuid)s; %(desc)s"
-msgstr ""
+msgstr "MicroServiceChain ID: %(uuid)s; %(desc)s"
 
 #: main/models.py:878
 #, python-format
 msgid "MicroServiceChainLink ID: %(id)s"
-msgstr ""
+msgstr "MicroServiceChainLink ID: %(id)s"
 
 #: main/models.py:905
 #, python-format
 msgid "MicroServiceChainChoice ID: %(uuid)s (%(chain)s at %(choice)s)"
-msgstr ""
+msgstr "MicroServiceChainChoice ID: %(uuid)s (%(chain)s på %(choice)s)"
 
 #: main/models.py:915 templates/administration/locations.html:27
 #: templates/ingest/as/resource_component.html:16
@@ -1572,15 +1661,15 @@ msgstr ""
 #: templates/ingest/atk/resource_component.html:15
 #: templates/ingest/atk/resource_component.html:26
 msgid "Description"
-msgstr "Descripción"
+msgstr "Beskrivning"
 
 #: main/models.py:916
 msgid "Configuration"
-msgstr "Configuración"
+msgstr "Konfigurering"
 
 #: main/models.py:925 main/models.py:927
 msgid "Invalid syntax."
-msgstr "Sintaxis incorrecta."
+msgstr "Ogiltig syntax."
 
 #: main/models.py:945 main/models.py:963
 #, python-format
@@ -1615,35 +1704,35 @@ msgstr ""
 #: main/models.py:1192
 #, python-format
 msgid "%(sortorder)s: %(name)s"
-msgstr ""
+msgstr "%(sortorder)s: %(name)s"
 
 #: main/templatetags/user.py:14
 msgid "<no API key generated>"
-msgstr ""
+msgstr "<no API key generated>"
 
 #: main/views.py:301
 msgid "Added."
-msgstr "Añadido."
+msgstr "Tillagd."
 
 #: main/views.py:306
 msgid "Error: no delete ID supplied."
-msgstr ""
+msgstr "Fel: ingen raderings ID angavs."
 
 #: main/views.py:324
 msgid "Incorrect type."
-msgstr "Tipo incorrecto."
+msgstr "Felaktig typ."
 
 #: settings/base.py:159
 msgid "English"
-msgstr "Inglés"
+msgstr "Engelska"
 
 #: settings/base.py:160
 msgid "French"
-msgstr "Francés"
+msgstr "Franska"
 
 #: settings/base.py:161
 msgid "Spanish"
-msgstr "Español"
+msgstr "Spanska"
 
 #: settings/base.py:162
 msgid "Japanese"
@@ -1651,7 +1740,7 @@ msgstr ""
 
 #: settings/base.py:163
 msgid "Portuguese"
-msgstr "Portugués"
+msgstr "Portugisiska"
 
 #: settings/base.py:164
 msgid "Brazilian Portuguese"
@@ -1666,6 +1755,8 @@ msgid ""
 "Select \"Approve transfer\" to begin processing or \"Reject transfer\" to "
 "start over again."
 msgstr ""
+"Välj \"Godkänn överföring\" för att påbörja bearbetning eller \"Avslå "
+"överföring\" för att starta om."
 
 #: settings/base.py:425
 msgid ""
@@ -1673,12 +1764,17 @@ msgid ""
 "interrupted or fail. The transfer will automatically be deleted once the AIP"
 " has been moved into storage."
 msgstr ""
+"Skapa en komplett säkerhetskopiering i det fall transfer/ingest avbryts "
+"eller misslyckas. Denna transfer kommer automatiskt raderas när AIP:n har "
+"flyttats till lagring."
 
 #: settings/base.py:426
 msgid ""
 "If desired, quarantine transfer to allow definitions in anti-virus software "
 "to be updated."
 msgstr ""
+"Om så önskas, sätt transfer i karantän för att tillåta definitioner i anti-"
+"virus mjukvaran att uppdateras."
 
 #: settings/base.py:427
 msgid ""
@@ -1686,10 +1782,13 @@ msgid ""
 "immediately. Otherwise, wait until the quarantine period has expired and the"
 " transfer will be removed automatically."
 msgstr ""
+"Om så önskas, välj \"Ta ur karantän\" för att ta bort transfern från "
+"karantän omedelbart. Vänta annars till karantinperioden har expirerat och "
+"transfern kommer tas bort automatiskt."
 
 #: settings/base.py:428
 msgid "Create a SIP from the transfer."
-msgstr ""
+msgstr "Skapa SIP från transfern."
 
 #: settings/base.py:429
 msgid ""
@@ -1697,6 +1796,9 @@ msgid ""
 "any appraisal and physical arrangement, select \"SIP creation complete\" to "
 "start ingest micro-services."
 msgstr ""
+"När du har lagt till filer från transfern till SIP:en och har fullföljt "
+"bevarande- och gallringsprocess och fysiskt ordnande välj \"SIP skapelse "
+"fullföljd\" för att starta de micro-servicerna kopplade till ingest."
 
 #: settings/base.py:430
 msgid ""
@@ -1704,6 +1806,9 @@ msgid ""
 "access copies will result in a DIP being generated for upload into an access"
 " system."
 msgstr ""
+"Skapa bevarande- och/eller åtkomstkopior om så önskas. Att skapa "
+"åtkomstkopior kommer leda till att en DIP genereras för uppladdning till ett"
+" åtkomstsystem."
 
 #: settings/base.py:431
 msgid ""
@@ -1713,60 +1818,68 @@ msgid ""
 "\"Preservation normalization failed\" or \"Access normalization failed\" to "
 "view the tool output and error message."
 msgstr ""
+"Om så önskas, tryck på \"granska\" för att visa de normaliserade filerna. "
+"För att se en rapport som sammanfattar resultatet av normalisering kan du "
+"klicka på rapport-ikonen bredvid listrutan för Åtgärder. Om normaliseringen "
+"har misslyckats, klicka på \"Ja\" under \"Normaliserning för bevarande "
+"misslyckades\" eller \"Normalisering för åtkomst misslyckades\" för att se "
+"verktygets output och felmeddelande."
 
 #: settings/base.py:432
 msgid ""
 "If desired, click \"review\" to view AIP contents. Select \"Store AIP\" to "
 "move the AIP into archival storage."
 msgstr ""
+"Om så önskas kan du klicka på \"Granska\" för visa innehållet i AIP:n. Välj "
+"\"Lagra AIP\" för att flytta AIP:n till arkivförvaring."
 
 #: settings/base.py:433
 msgid "If desired, select \"Upload DIP\" to upload the DIP to the access system."
 msgstr ""
+"Om så önskas kan du välja \"Ladda upp DIP\" för att ladda upp DIP:n till "
+"åtkomstsystemet"
 
 #: templates/404.html:6
 msgid "Page not found"
-msgstr "Página no encontrada"
+msgstr "Sidan kunde tyvärr inte hittas"
 
 #: templates/404.html:9
 msgid "Sorry! The page that you are trying to view is not here."
-msgstr ""
-"La página que está intentando visualizar no ha sido encontrada, sentimos las"
-" molestias."
+msgstr "Sidan du försökte visa finns inte här."
 
 #: templates/500.html:6
 msgid "Internal server error"
-msgstr ""
+msgstr "Internt serverfel"
 
 #: templates/500.html:9
 msgid ""
 "Sorry! Something wrong happened. Please, contact with your administrator."
-msgstr ""
+msgstr "Ett fel uppstod. Var god kontakta administratör."
 
 #: templates/_fpr_update_button.html:4
 msgid "Update"
-msgstr "Actualizar"
+msgstr "Uppdatera"
 
 #: templates/_pager.html:9
 msgid "First"
-msgstr "Primera"
+msgstr "Först"
 
 #: templates/_pager.html:13 templates/ingest/normalization_report.html:115
 msgid "Previous"
-msgstr "Previa"
+msgstr "Föregående"
 
 #: templates/_pager.html:35 templates/ingest/normalization_report.html:121
 #: templates/rights/rights_edit.html:287
 msgid "Next"
-msgstr "Siguiente"
+msgstr "Nästa"
 
 #: templates/_pager.html:39
 msgid "Last"
-msgstr "Última"
+msgstr "Sist"
 
 #: templates/_pager.html:54
 msgid "Jump to"
-msgstr "Saltar a"
+msgstr "Gå till"
 
 #: templates/_pager.html:60
 #, python-format
@@ -1775,26 +1888,29 @@ msgid ""
 "      Found %(count)s entries. Showing %(start_index)s to %(end_index)s.\n"
 "    "
 msgstr ""
+"\n"
+"      Hittade %(count)s poster. Visar %(start_index)s till %(end_index)s.\n"
+"    "
 
 #: templates/accounts/add.html:5 templates/accounts/add.html.py:6
 msgid "Users - Add new"
-msgstr "Usuarios - Añadir nuevo"
+msgstr "Användare - Lägg till ny"
 
 #: templates/accounts/add.html:20 templates/accounts/edit.html:21
 #: templates/accounts/list.html:4 templates/accounts/list.html.py:5
 #: templates/accounts/list.html:18 templates/administration/sidebar.html:49
 msgid "Users"
-msgstr "Usuarios"
+msgstr "Användare"
 
 #: templates/accounts/add.html:21
 msgid "Add new user"
-msgstr "Agregar nuevo usuario"
+msgstr "Lägg till ny användare"
 
 #: templates/accounts/add.html:33 templates/ingest/metadata_edit.html:64
 #: templates/installer/welcome.html:49
 #: templates/transfer/metadata_edit.html:63
 msgid "Create"
-msgstr "Crear"
+msgstr "Skapa"
 
 #: templates/accounts/add.html:34 templates/accounts/edit.html:38
 #: templates/accounts/profile.html:47
@@ -1807,12 +1923,12 @@ msgstr "Crear"
 #: templates/rights/rights_grants_edit.html:113
 #: templates/simple_confirm.html:10 templates/transfer/metadata_edit.html:65
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Avbryt"
 
 #: templates/accounts/edit.html:6 templates/accounts/edit.html.py:7
 #, python-format
 msgid "Users - Edit %(user)s"
-msgstr "Usuarios - Editar %(user)s"
+msgstr "Användare - Redigera %(user)s"
 
 #: templates/accounts/edit.html:37 templates/accounts/profile.html:46
 #: templates/administration/api.html:36
@@ -1830,29 +1946,29 @@ msgstr "Usuarios - Editar %(user)s"
 #: templates/transfer/component.html:54
 #: templates/transfer/metadata_edit.html:61
 msgid "Save"
-msgstr "Grabar"
+msgstr "Spara"
 
 #: templates/accounts/list.html:23 templates/accounts/profile.html:29
 msgid "Username"
-msgstr "Nombre de usuario"
+msgstr "Användarnamn"
 
 #: templates/accounts/list.html:24 templates/accounts/profile.html:31
 #: templates/administration/atom_levels_of_description.html:36
 #: templates/administration/reports/failures.html:26
 msgid "Name"
-msgstr "Nombre"
+msgstr "Namn"
 
 #: templates/accounts/list.html:25 templates/accounts/profile.html:33
 msgid "E-mail"
-msgstr "Correo electrónico"
+msgstr "E-post"
 
 #: templates/accounts/list.html:26
 msgid "Administrator"
-msgstr "Administrador"
+msgstr "Administratör"
 
 #: templates/accounts/list.html:27
 msgid "Active"
-msgstr "Activo"
+msgstr "Aktiv"
 
 #: templates/accounts/list.html:41 templates/administration/processing.html:27
 #: templates/ingest/metadata_edit.html:33 templates/rights/rights_edit.html:19
@@ -1861,7 +1977,7 @@ msgstr "Activo"
 #: templates/rights/rights_list.html:57 templates/transfer/detail.html:50
 #: templates/transfer/metadata_edit.html:32
 msgid "Edit"
-msgstr "Editar"
+msgstr "Redigera"
 
 #: templates/accounts/list.html:42
 #: templates/administration/atom_levels_of_description.html:44
@@ -1874,31 +1990,31 @@ msgstr "Editar"
 #: templates/main/access.html:25 templates/rights/rights_list.html:55
 #: templates/rights/rights_list.html:58
 msgid "Delete"
-msgstr "Eliminar"
+msgstr "Radera"
 
 #: templates/accounts/list.html:51
 msgid "Add new"
-msgstr "Agregar nuevo"
+msgstr "Lägg till ny"
 
 #: templates/accounts/logged_out.html:9
 msgid "You are logged out."
-msgstr ""
+msgstr "Du är utloggad."
 
 #: templates/accounts/logged_out.html:13
 msgid "Log in again"
-msgstr ""
+msgstr "Logga in igen"
 
 #: templates/accounts/login.html:21
 msgid "Forgot your password?"
-msgstr "¿Has olvidado tu contraseña?"
+msgstr "Glömt lösenord?"
 
 #: templates/accounts/login.html:22
 msgid "Log in"
-msgstr "Iniciar sesión"
+msgstr "Logga in"
 
 #: templates/accounts/profile.html:35
 msgid "Admin"
-msgstr "Administrador"
+msgstr "Admin"
 
 #: templates/administration/api.html:5 templates/administration/api.html:6
 #: templates/administration/atom_levels_of_description.html:6
@@ -1936,57 +2052,61 @@ msgstr "Administrador"
 #: templates/administration/terms.html:5 templates/administration/terms.html:6
 #: templates/layout.html:68
 msgid "Administration"
-msgstr "Administración"
+msgstr "Administration"
 
 #: templates/administration/api.html:25
 msgid "REST API configuration"
-msgstr "Configuración del API REST"
+msgstr "Inställningar för REST API"
 
 #: templates/administration/api.html:27
 msgid "IP whitelist"
-msgstr "Lista blanca de direcciones IP"
+msgstr "Lista över godkända IP-adresser"
 
 #: templates/administration/api.html:29
 msgid ""
 "Enter a whitespace-separated list of IPs or hostnames permitted to use the "
 "API."
 msgstr ""
+"Mata in en lista, separerad av blanksteg, med IP eller värddatornamn som har"
+" tillåtelse att använda API:n."
 
 #: templates/administration/api.html:30
 msgid "If the whitelist is left empty, all IPs and hostnames will be allowed."
 msgstr ""
+"Om listan med godkända IP-adresser lämnas tom så kommer alla IP-adresser och"
+" värddatornamn tillåtas."
 
 #: templates/administration/atom_levels_of_description.html:25
 msgid "Fetch from AtoM"
-msgstr ""
+msgstr "Hämta från AtoM"
 
 #: templates/administration/atom_levels_of_description.html:28
 msgid "AtoM Levels of Description"
-msgstr ""
+msgstr "AtoM Beskrivningsnivåer"
 
 #: templates/administration/atom_levels_of_description.html:45
 msgid "Promote"
-msgstr "Promover"
+msgstr "Höj upp"
 
 #: templates/administration/atom_levels_of_description.html:46
 msgid "Demote"
-msgstr "Degradar"
+msgstr "Degradera"
 
 #: templates/administration/atom_levels_of_description.html:54
 msgid "No levels found."
-msgstr ""
+msgstr "Inga nivåer funna"
 
 #: templates/administration/dips_as_edit.html:25
 msgid "ArchivesSpace DIP upload"
-msgstr ""
+msgstr "Uppladdning av ArchivesSpace-DIP"
 
 #: templates/administration/dips_atk_edit.html:25
 msgid "Archivists Toolkit DIP upload"
-msgstr ""
+msgstr "Uppladdning av Archivists Toolkit-DIP"
 
 #: templates/administration/dips_atom_edit.html:32
 msgid "Levels of Description"
-msgstr ""
+msgstr "Beskrivningsnivåer"
 
 #: templates/administration/dips_atom_edit.html:37
 msgid "AtoM/Binder DIP upload"
@@ -2003,18 +2123,21 @@ msgid ""
 "            <b>Dashboard UUID</b> %(uuid)s\n"
 "          "
 msgstr ""
+"\n"
+"            <b>Översiktsvys UUID</b> %(uuid)s\n"
+"          "
 
 #: templates/administration/general.html:33
 msgid "General configuration"
-msgstr "Configuración general"
+msgstr "Allmän konfigurering"
 
 #: templates/administration/general.html:39
 msgid "Storage Service options"
-msgstr ""
+msgstr "Inställningar för lagringstjänst"
 
 #: templates/administration/general.html:43
 msgid "Checksum algorithm"
-msgstr ""
+msgstr "Chucksum algoritm"
 
 #: templates/administration/general.html:47
 msgid "Elasticsearch Indexing"
@@ -2038,16 +2161,16 @@ msgstr ""
 
 #: templates/administration/handle_config.html:19
 msgid "Handle Configuration for Persistent Identifier (PID) Binding"
-msgstr ""
+msgstr "Hantera inställningar för låsande av Persistent Identifier (PID)"
 
 #: templates/administration/language.html:19
 #: templates/administration/sidebar.html:54
 msgid "Language"
-msgstr "Idioma"
+msgstr "Språk"
 
 #: templates/administration/language.html:30
 msgid "Select one of the following languages available:"
-msgstr "Selecciona uno de los idiomas disponibles a continuación:"
+msgstr "Välj ett av följande tillgängliga språk:"
 
 #: templates/administration/language.html:44
 msgid ""
@@ -2057,46 +2180,47 @@ msgstr ""
 
 #: templates/administration/language.html:50
 msgid "Change"
-msgstr "Cambiar"
+msgstr "Ändra"
 
 #: templates/administration/locations.html:28
 #: templates/administration/usage.html:24
 msgid "Path"
-msgstr "Ruta"
+msgstr "§"
 
 #: templates/administration/locations.html:41
 msgid "No available locations."
-msgstr ""
+msgstr "Inga tillgängliga lagerställen."
 
 #: templates/administration/premis_agent.html:19
 #: templates/administration/sidebar.html:44
 msgid "PREMIS agent"
-msgstr ""
+msgstr "PREMIS-agent"
 
 #: templates/administration/processing.html:18
 #: templates/administration/processing_edit.html:18
 #: templates/administration/sidebar.html:23
 msgid "Processing configuration"
-msgstr "Configuración del procesamiento"
+msgstr "Bearbetningskonfiguration"
 
 #: templates/administration/processing.html:28
 #: templates/archival_storage/view.html:85
 msgid "Download"
-msgstr "Descargas"
+msgstr "Ladda ner"
 
 #: templates/administration/processing.html:30
 msgid "Reset"
-msgstr "Reiniciar"
+msgstr "Återställ"
 
 #: templates/administration/processing.html:42
 msgid "No processing configuration file found (*ProcessingMCP.xml)."
 msgstr ""
+"Ingen konfigurations-fil för bearbetning kunde hittas (*ProcessingMCP.xml)."
 
 #: templates/administration/processing.html:49
 msgid ""
 "The following files are being ignored because they don't meet the "
 "requirements."
-msgstr ""
+msgstr "Följande filer ignoreras då de inte når kraven."
 
 #: templates/administration/processing.html:59 templates/ingest/detail.html:43
 #: templates/ingest/detail.html.py:49 templates/ingest/metadata_edit.html:34
@@ -2107,7 +2231,7 @@ msgstr ""
 #: templates/transfer/detail.html.py:57
 #: templates/transfer/metadata_edit.html:33
 msgid "Add"
-msgstr "Añadir"
+msgstr "Lägg till"
 
 #: templates/administration/reports/failure_detail.html:18
 #, python-format
@@ -2116,22 +2240,25 @@ msgid ""
 "          Failure report: %(name)s\n"
 "        "
 msgstr ""
+"\n"
+"          Rapport över misslyckaden: %(name)s\n"
+"        "
 
 #: templates/administration/reports/failures.html:18
 msgid "Failure report"
-msgstr ""
+msgstr "Rapport över misslyckanden"
 
 #: templates/administration/reports/failures.html:24
 msgid "Date"
-msgstr "Fecha"
+msgstr "Datum"
 
 #: templates/administration/reports/failures.html:56
 msgid "No reports found."
-msgstr ""
+msgstr "Inga rapporter funna"
 
 #: templates/administration/search.html:23
 msgid "Search administration"
-msgstr ""
+msgstr "Sök igenom administration"
 
 #: templates/administration/search.html:26
 #, python-format
@@ -2140,31 +2267,34 @@ msgid ""
 "          %(count)s AIP files indexed.\n"
 "        "
 msgstr ""
+"\n"
+"          %(count)s AIP filer indexerades.\n"
+"        "
 
 #: templates/administration/search.html:33
 msgid "Flush AIP Index"
-msgstr "Limpiar el índice de AIPs"
+msgstr "Rensa AIP-index"
 
 #: templates/administration/sidebar.html:25
 msgid "General"
-msgstr "General"
+msgstr "Allmän"
 
 #: templates/administration/sidebar.html:27
 msgid "Failures"
-msgstr "Fallos"
+msgstr "Misslyckade"
 
 #: templates/administration/sidebar.html:29
 msgid "Transfer source locations"
-msgstr "Ubicaciones de orígenes de transferencias"
+msgstr "Transfers ursprungsplatser"
 
 #: templates/administration/sidebar.html:31
 msgid "AIP storage locations"
-msgstr "Ubicaciones de almacenamiento AIP"
+msgstr "AIP lagringsplatser"
 
 #: templates/administration/sidebar.html:33
 #: templates/administration/usage.html:19
 msgid "Processing storage usage"
-msgstr "Uso del almacén de procesamiento"
+msgstr "Bearbetar lagringsanvändning"
 
 #: templates/administration/sidebar.html:36 templates/ingest/as/match.html:61
 #: templates/ingest/as/resource_component.html:13
@@ -2175,7 +2305,7 @@ msgstr "Uso del almacén de procesamiento"
 #: templates/ingest/atk/resource_detail.html:13
 #: templates/ingest/atk/resource_list.html:13
 msgid "DIP upload"
-msgstr "DIP upload"
+msgstr "DIP-uppladdning"
 
 #: templates/administration/sidebar.html:38
 msgid "AtoM/Binder"
@@ -2187,74 +2317,74 @@ msgstr "ArchivesSpace"
 
 #: templates/administration/sidebar.html:40
 msgid "Archivists’ Toolkit"
-msgstr ""
+msgstr "Archivists' toolkit"
 
 #: templates/administration/sidebar.html:46
 msgid "REST API"
-msgstr "API REST"
+msgstr "REST API"
 
 #: templates/administration/sidebar.html:52
 msgid "Handle server config"
-msgstr ""
+msgstr "Hantera server inställningar"
 
 #: templates/administration/sidebar.html:56
 #: templates/administration/version.html:5
 #: templates/administration/version.html:6
 #: templates/administration/version.html:23
 msgid "Version"
-msgstr "Versión"
+msgstr "Version"
 
 #: templates/administration/taxonomy.html:19
 msgid "Taxonomies"
-msgstr "Taxonomías"
+msgstr "Taxonomier"
 
 #: templates/administration/taxonomy.html:29
 #: templates/administration/terms.html:33 templates/main/_tasks_pager.html:5
 msgid "Previous page"
-msgstr "Página anterior"
+msgstr "Föregående sida"
 
 #: templates/administration/taxonomy.html:35
 #: templates/administration/terms.html:39 templates/main/_tasks_pager.html:11
 msgid "Next page"
-msgstr "Página siguiente"
+msgstr "Nästa sida"
 
 #: templates/administration/term_detail.html:20
 #: templates/administration/terms.html:20
 msgid "Taxonomy"
-msgstr "Taxonomía"
+msgstr "Taxonomi"
 
 #: templates/administration/usage.html:5 templates/administration/usage.html:6
 #: templates/administration/usage.html:25
 msgid "Usage"
-msgstr "Uso"
+msgstr "Användning"
 
 #: templates/administration/usage.html:23
 msgid "Purpose"
-msgstr "Objetivo"
+msgstr "Syfte"
 
 #: templates/administration/usage.html:26
 #: templates/archival_storage/list.html:70
 #: templates/archival_storage/search.html:56
 #: templates/archival_storage/view.html:67
 msgid "Size"
-msgstr "Tamaño"
+msgstr "Storlek"
 
 #: templates/administration/usage.html:40
 msgid "Clear"
-msgstr "Limpiar"
+msgstr "Rensa"
 
 #: templates/administration/version.html:19
 msgid "About Archivematica"
-msgstr "Sobre Archivematica"
+msgstr "Om Archivematica"
 
 #: templates/administration/version.html:27
 msgid "Agent code"
-msgstr "Código del agente"
+msgstr "Agent-kod"
 
 #: templates/appraisal/appraisal.html:4 templates/appraisal/appraisal.html:5
 #: templates/layout.html:60
 msgid "Appraisal"
-msgstr "Evaluación"
+msgstr "Bevarande- och gallringsprocess"
 
 #: templates/appraisal/appraisal.html:30
 #: templates/archival_storage/list.html:132 templates/backlog/backlog.html:30
@@ -2271,15 +2401,15 @@ msgstr ""
 #: templates/archival_storage/_archival_storage_search_form.html:7
 #: templates/ingest/backlog/_search_form.html:9
 msgid "Show files?"
-msgstr "¿Mostrar ficheros?"
+msgstr "Visa filer?"
 
 #: templates/archival_storage/_archival_storage_search_form.html:9
 msgid "Show AICs?"
-msgstr "¿Mostrar AICs?"
+msgstr "Visa AIC:er?"
 
 #: templates/archival_storage/_archival_storage_search_form.html:11
 msgid "Search archival storage"
-msgstr ""
+msgstr "Sök efter arkivförvaring"
 
 #: templates/archival_storage/list.html:6
 #: templates/archival_storage/list.html:7
@@ -2291,18 +2421,18 @@ msgstr ""
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:50 templates/layout.html:64
 msgid "Archival storage"
-msgstr "Almacén archivístico"
+msgstr "Arkivförvaring"
 
 #: templates/archival_storage/list.html:32
 #: templates/archival_storage/search.html:30
 #: templates/ingest/as/_search_form.html:6
 #: templates/ingest/atk/_search_form.html:6
 msgid "Search"
-msgstr "Búsqueda"
+msgstr "Sök"
 
 #: templates/archival_storage/list.html:42
 msgid "Browse archival storage"
-msgstr ""
+msgstr "Bläddra i arkivförvaring"
 
 #: templates/archival_storage/list.html:45
 #, python-format
@@ -2325,7 +2455,7 @@ msgstr ""
 #: templates/ingest/aip_browse.html:6 templates/ingest/aip_browse.html.py:7
 #: templates/main/access.html:12
 msgid "AIP"
-msgstr ""
+msgstr "AIP"
 
 #: templates/archival_storage/list.html:64
 #: templates/archival_storage/list.html:65
@@ -2334,41 +2464,41 @@ msgstr ""
 #: templates/archival_storage/list.html:83
 #: templates/archival_storage/list.html:84
 msgid "Sort"
-msgstr "Ordenar"
+msgstr "Sortera"
 
 #: templates/archival_storage/list.html:82
 #: templates/archival_storage/search.html:62
 #: templates/archival_storage/view.html:71
 msgid "Date stored"
-msgstr ""
+msgstr "Datum lagrad"
 
 #: templates/archival_storage/list.html:89
 #: templates/archival_storage/search.html:63
 #: templates/archival_storage/view.html:75
 msgid "Status"
-msgstr "Estado de elaboración"
+msgstr "Status"
 
 #: templates/archival_storage/list.html:94
 #: templates/archival_storage/search.html:64
 #: templates/archival_storage/view.html:79
 msgid "Encrypted"
-msgstr ""
+msgstr "Krypterad"
 
 #: templates/archival_storage/list.html:99
 #: templates/archival_storage/search.html:65
 #: templates/archival_storage/view.html:98 templates/main/access.html:16
 msgid "Actions"
-msgstr "Acciones"
+msgstr "Åtgärder"
 
 #: templates/archival_storage/list.html:112
 #: templates/archival_storage/search.html:99
 #: templates/archival_storage/view.html:92
 msgid "View"
-msgstr "Ver"
+msgstr "Visa"
 
 #: templates/archival_storage/list.html:125
 msgid "Archival storage is empty."
-msgstr ""
+msgstr "Arkivförvaring är tom."
 
 #: templates/archival_storage/list.html:133
 msgid ""
@@ -2379,16 +2509,16 @@ msgstr ""
 
 #: templates/archival_storage/search.html:42
 msgid "Create an AIC"
-msgstr ""
+msgstr "Skapa en AIC"
 
 #: templates/archival_storage/search.html:61
 msgid "Files"
-msgstr ""
+msgstr "Filer"
 
 #: templates/archival_storage/search.html:72
 #: templates/archival_storage/search.html:129
 msgid "view raw"
-msgstr ""
+msgstr "visa utan bearbetning"
 
 #: templates/archival_storage/search.html:87
 #, python-format
@@ -2397,57 +2527,60 @@ msgid ""
 "                    Part of %(item)s\n"
 "                  "
 msgstr ""
+"\n"
+"Del av %(item)s\n"
+" "
 
 #: templates/archival_storage/search.html:108
 msgid "File(s)"
-msgstr ""
+msgstr "Fil(er)"
 
 #: templates/archival_storage/search.html:109
 msgid "AIP(s)"
-msgstr ""
+msgstr "AIP(er)"
 
 #: templates/archival_storage/search.html:132
 #, python-format
 msgid "AIP %(uuid)s details missing from database."
-msgstr ""
+msgstr "Detaljer för AIP %(uuid)s saknas från databasen."
 
 #: templates/archival_storage/search.html:144
 msgid "No results, please try another search."
-msgstr ""
+msgstr "Inga resultat, vänligen försök med en annan sökning."
 
 #: templates/archival_storage/view.html:57
 msgid "Archival Information Package"
-msgstr ""
+msgstr "Archival Information Package"
 
 #: templates/archival_storage/view.html:83
 #: templates/ingest/normalization_report.html:31
 msgid "Location"
-msgstr "Localización"
+msgstr "Plats"
 
 #: templates/archival_storage/view.html:90
 msgid "Pointer file"
-msgstr ""
+msgstr "Pointer-fil"
 
 #: templates/archival_storage/view.html:104
 #: templates/archival_storage/view.html:133
 msgid "Re-ingest"
-msgstr ""
+msgstr "Återingestera"
 
 #: templates/archival_storage/view.html:115
 msgid "Metadata-only DIP upload to AtoM"
-msgstr "Transferencia de DIP a AtoM con solo metadatos"
+msgstr "Ladda upp DIP med enbart metadata till AtoM"
 
 #: templates/archival_storage/view.html:119 templates/ingest/grid.html:264
 msgid "Upload"
-msgstr "Subir"
+msgstr "Ladda upp"
 
 #: templates/archival_storage/view.html:129
 msgid "Choose type of re-ingest"
-msgstr ""
+msgstr "Välj typ av återingestering"
 
 #: templates/archival_storage/view.html:143
 msgid "Are you sure that you want to delete this AIP"
-msgstr ""
+msgstr "Är du säker på att du vill radera denna AIP?"
 
 #: templates/archival_storage/view.html:144 templates/delete_request.html:8
 msgid ""
@@ -2457,10 +2590,15 @@ msgid ""
 "the administrator denies the request, the package will remain in storage and"
 " the administrator will contact you."
 msgstr ""
+"Att välja att radera detta paket kommer skicka en förfrågan till din "
+"arkivförvarings administratör. Om administratören godkänner din förfrågan så"
+" kommer ditt paket raderas från arkivförvaringen och ditt index kommer "
+"uppdateras. Om administratören förnekar din förfrågan så kommer paket vara "
+"kvar i förvaringen och administratören kommer kontakta dig."
 
 #: templates/backlog/backlog.html:5 templates/backlog/backlog.html.py:6
 msgid "Backlog search"
-msgstr "Búsqueda en cola"
+msgstr "Sök igenom backloggen"
 
 #: templates/backlog/backlog.html:31
 msgid ""
@@ -2471,11 +2609,11 @@ msgstr ""
 
 #: templates/delete_request.html:14
 msgid "Reason for deletion:"
-msgstr ""
+msgstr "Orsak till radering:"
 
 #: templates/elasticsearch_error.html:6
 msgid "Elasticsearch error"
-msgstr ""
+msgstr "Elasticsearcfel"
 
 #: templates/elasticsearch_error.html:9
 #, python-format
@@ -2484,28 +2622,31 @@ msgid ""
 "        Exception type: %(exception_type)s\n"
 "    "
 msgstr ""
+"\n"
+"        Undantagstyp: %(exception_type)s\n"
+"    "
 
 #: templates/elasticsearch_error.html:15
 #: templates/elasticsearch_not_found.html:11
 msgid "Sorry! The page that you are trying to view is not available."
-msgstr ""
+msgstr "Sidan du försökte visa är inte tillgänglig."
 
 #: templates/elasticsearch_error.html:16
 #: templates/elasticsearch_not_found.html:12
 msgid "Please contact an administrator."
-msgstr ""
+msgstr "Vänligen kontakta en administratör."
 
 #: templates/elasticsearch_not_found.html:6
 msgid "ElasticSearch server issue"
-msgstr ""
+msgstr "Problem med ElastiSearchservern"
 
 #: templates/forbidden.html:6
 msgid "Forbidden"
-msgstr "Prohibido"
+msgstr "Förbjuden"
 
 #: templates/forbidden.html:9
 msgid "Sorry! You do not have enough access privileges for this operation."
-msgstr ""
+msgstr "Du har tyvärr inte tillräckliga åtkomstbehörigheter för denna åtgärd."
 
 #: templates/ingest/aip_browse.html:38 templates/ingest/detail.html:10
 #: templates/ingest/grid.html:5 templates/ingest/grid.html.py:6
@@ -2516,12 +2657,12 @@ msgstr ""
 #: templates/rights/rights_grants_edit.html:16
 #: templates/rights/rights_list.html:9
 msgid "Ingest"
-msgstr "Incorporación"
+msgstr "Ingest"
 
 #: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:215
 #: templates/transfer/grid.html:139
 msgid "Initializing..."
-msgstr "Inicializando..."
+msgstr "Initialiserar..."
 
 #: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
 #: templates/ingest/as/match.html.py:119
@@ -2535,7 +2676,7 @@ msgstr "Inicializando..."
 #: templates/ingest/atk/resource_detail.html:37
 #: templates/ingest/atk/resource_list.html:27
 msgid "Title"
-msgstr "Título"
+msgstr "Titel"
 
 #: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
 #: templates/ingest/as/match.html.py:120
@@ -2543,7 +2684,7 @@ msgstr "Título"
 #: templates/ingest/atk/_search_form.html:5 templates/ingest/atk/match.html:77
 #: templates/ingest/atk/match.html.py:95 templates/ingest/grid.html:256
 msgid "Identifier"
-msgstr "Identificador"
+msgstr "Signum"
 
 #: templates/ingest/as/match.html:6 templates/ingest/as/match.html.py:7
 #: templates/ingest/as/resource_component.html:5
@@ -2558,33 +2699,33 @@ msgstr "Identificador"
 #: templates/ingest/atk/resource_list.html:5
 #: templates/ingest/atk/resource_list.html:6
 msgid "Match"
-msgstr ""
+msgstr "Matchning"
 
 #: templates/ingest/as/match.html:48 templates/ingest/atk/match.html:33
 msgid "Filter objects"
-msgstr ""
+msgstr "Filtrera objekt"
 
 #: templates/ingest/as/match.html:53 templates/ingest/atk/match.html:38
 msgid "Filter resources"
-msgstr ""
+msgstr "Filtrera resurser"
 
 #: templates/ingest/as/match.html:57 templates/ingest/atk/match.html:42
 msgid "Pair"
-msgstr ""
+msgstr "Koppla"
 
 #: templates/ingest/as/match.html:62
 #: templates/ingest/as/resource_component.html:15
 msgid "Parent record"
-msgstr ""
+msgstr "Föräldrapost"
 
 #: templates/ingest/as/match.html:63 templates/ingest/as/match.html.py:70
 #: templates/ingest/atk/match.html:47
 msgid "Assign objects"
-msgstr ""
+msgstr "Förordna objekt"
 
 #: templates/ingest/as/match.html:71 templates/ingest/atk/match.html:54
 msgid "Assign objects to descriptions"
-msgstr ""
+msgstr "Förordna objekt till beskrivningar"
 
 #: templates/ingest/as/match.html:75 templates/ingest/as/match.html.py:77
 #: templates/ingest/as/resource_component.html:37
@@ -2595,7 +2736,7 @@ msgstr ""
 #: templates/ingest/as/resource_list.html:27
 #: templates/ingest/as/review_matches.html:20
 msgid "Restart matching"
-msgstr ""
+msgstr "Starta om matchning"
 
 #: templates/ingest/as/match.html:79
 #: templates/ingest/as/resource_component.html:41
@@ -2604,25 +2745,25 @@ msgstr ""
 #: templates/ingest/as/review_matches.html:6
 #: templates/ingest/as/review_matches.html:7
 msgid "Review matches"
-msgstr ""
+msgstr "Kontrollera matchningar"
 
 #: templates/ingest/as/match.html:88 templates/ingest/atk/match.html:64
 msgid "Objects"
-msgstr ""
+msgstr "Objekt"
 
 #: templates/ingest/as/match.html:90
 msgid "Select all"
-msgstr ""
+msgstr "Markera alla"
 
 #: templates/ingest/as/match.html:95 templates/ingest/atk/match.html:70
 msgid "Resources"
-msgstr ""
+msgstr "Resurser"
 
 #: templates/ingest/as/match.html:100 templates/ingest/as/match.html.py:118
 #: templates/ingest/as/review_matches.html:28
 #: templates/ingest/atk/match.html:75 templates/ingest/atk/match.html.py:93
 msgid "Level"
-msgstr "Nivel"
+msgstr "Nivå"
 
 #: templates/ingest/as/match.html:103 templates/ingest/as/match.html.py:121
 #: templates/ingest/as/resource_component.html:53
@@ -2634,25 +2775,25 @@ msgstr "Nivel"
 #: templates/ingest/atk/resource_detail.html:38
 #: templates/ingest/atk/resource_list.html:28
 msgid "Dates"
-msgstr "Fechas"
+msgstr "Datum"
 
 #: templates/ingest/as/match.html:112 templates/ingest/atk/match.html:87
 msgid "Pairs"
-msgstr ""
+msgstr "Par"
 
 #: templates/ingest/as/match.html:117
 #: templates/ingest/as/review_matches.html:27
 #: templates/ingest/atk/match.html:92
 msgid "File"
-msgstr "Unidad documental compuesta"
+msgstr "Fil"
 
 #: templates/ingest/as/match.html:128 templates/ingest/atk/match.html:103
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr "Bekräfta"
 
 #: templates/ingest/as/match.html:158 templates/ingest/atk/match.html:133
 msgid "Delete match"
-msgstr ""
+msgstr "Radera matchning"
 
 #: templates/ingest/as/resource_component.html:14
 #: templates/ingest/as/resource_detail.html:14
@@ -2660,50 +2801,50 @@ msgstr ""
 #: templates/ingest/atk/resource_detail.html:14
 #: templates/ingest/atk/resource_detail.html:24
 msgid "Collection"
-msgstr "Colección"
+msgstr "Samling"
 
 #: templates/ingest/as/resource_component.html:42
 #: templates/ingest/atk/resource_component.html:30
 msgid "Assign DIP objects to this level of description"
-msgstr ""
+msgstr "Tilldela DIP-objekt till denna beskrivningsnivå"
 
 #: templates/ingest/as/resource_component.html:51
 #: templates/ingest/as/resource_detail.html:41
 #: templates/ingest/atk/resource_component.html:39
 msgid "Level of description"
-msgstr "Nivel de descripción"
+msgstr "Beskrivningsnivå"
 
 #: templates/ingest/as/resource_component.html:69
 #: templates/ingest/as/resource_detail.html:59
 #: templates/ingest/atk/resource_component.html:57
 #: templates/ingest/atk/resource_detail.html:54
 msgid "No child descriptions found."
-msgstr ""
+msgstr "Hittade inga underordnade beskrivningar."
 
 #: templates/ingest/as/resource_detail.html:32
 msgid "Assign DIP objects to this resource"
-msgstr ""
+msgstr "Tilldela DIP-objekt till denna resurs"
 
 #: templates/ingest/as/resource_list.html:18
 #: templates/ingest/atk/resource_list.html:18
 msgid "Collections"
-msgstr ""
+msgstr "Samlingar"
 
 #: templates/ingest/as/review_matches.html:21
 msgid "Finish matching"
-msgstr ""
+msgstr "Avsluta matchning"
 
 #: templates/ingest/atk/resource_detail.html:36
 msgid "Level of sescription"
-msgstr ""
+msgstr "Beskrivningsnivå"
 
 #: templates/ingest/backlog/_search_form.html:7
 msgid "Search transfer backlog"
-msgstr ""
+msgstr "Sök i överföringarnas backlogg"
 
 #: templates/ingest/detail.html:16 templates/ingest/grid.html:99
 msgid "Submission Information Package"
-msgstr "SIP"
+msgstr "Submission Information Package"
 
 #: templates/ingest/detail.html:21 templates/transfer/detail.html:22
 #, python-format
@@ -2712,19 +2853,22 @@ msgid ""
 "          <strong>UUID:</strong> %(uuid)s\n"
 "        "
 msgstr ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
 
 #: templates/ingest/detail.html:28
 msgid "There are micro-services awaiting user decisions."
-msgstr ""
+msgstr "Det finns micro-servicear som inväntar användarval."
 
 #: templates/ingest/detail.html:30
 msgid "View micro-services"
-msgstr ""
+msgstr "Visa micro-servicear"
 
 #: templates/ingest/detail.html:35 templates/ingest/microservices.html:12
 #: templates/transfer/detail.html:36 templates/transfer/microservices.html:11
 msgid "Microservices"
-msgstr "Microservicios"
+msgstr "Micro-servicear"
 
 #: templates/ingest/detail.html:37 templates/ingest/detail.html.py:42
 #: templates/ingest/detail.html:48 templates/transfer/detail.html:38
@@ -2736,80 +2880,79 @@ msgstr "Lista"
 #: templates/rights/rights_grants_edit.html:17
 #: templates/rights/rights_list.html:10 templates/transfer/detail.html:41
 msgid "Rights"
-msgstr "Derechos"
+msgstr "Rättigheter"
 
 #: templates/ingest/detail.html:46 templates/ingest/metadata_edit.html:32
 #: templates/transfer/detail.html:54 templates/transfer/grid.html:106
 #: templates/transfer/metadata_edit.html:31
 msgid "Metadata"
-msgstr "Metadatos"
+msgstr "Metadata"
 
 #: templates/ingest/detail.html:50
 msgid "Manual normalization event detail"
-msgstr ""
+msgstr "Detaljer över manuell normaliserings-händelse"
 
 #: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:32
 msgid "Add metadata files"
-msgstr "Añadir ficheros con metadatos"
+msgstr "Lägg till metadatafiler"
 
 #: templates/ingest/grid.html:77
 msgid "View file"
-msgstr "Ver fichero"
+msgstr "Visa fil"
 
 #: templates/ingest/grid.html:78
 msgid "Hide"
-msgstr "Ocultar"
+msgstr "Dölj"
 
 #: templates/ingest/grid.html:84
 msgid "Add directory"
-msgstr "Añadir directorio"
+msgstr "Lägg till mapp"
 
 #: templates/ingest/grid.html:85 templates/ingest/grid.html.py:135
 msgid "Edit metadata"
-msgstr "Editar metadatos"
+msgstr "Redigera metadata"
 
 #: templates/ingest/grid.html:87
 msgid "Create SIP"
-msgstr "Crear SIP"
+msgstr "Skapa SIP"
 
 #: templates/ingest/grid.html:101
 msgid "Ingest start time"
-msgstr "Fecha de comienzo de incorporación"
+msgstr "Starttid för ingest"
 
 #: templates/ingest/grid.html:104 templates/transfer/grid.html:82
 msgid "Remove all completed"
-msgstr ""
+msgstr "Ta bort alla avklarade"
 
 #: templates/ingest/grid.html:142
 msgid "AtoM level of description"
-msgstr "Niveles de descripción en AtoM"
+msgstr "AtoM beskrivningsnivå"
 
 #: templates/ingest/grid.html:156
 msgid "No AtoM levels of description found. Please contact an administrator."
 msgstr ""
-"No se han encontrado niveles de descripción en AtoM. Por favor contacte a su"
-" administrador."
+"Inga AtoM beskrivningsnivåer funna. Vänligen kontakta en administratör."
 
 #: templates/ingest/grid.html:179
 msgid "Metadatos"
-msgstr ""
+msgstr "Metadata"
 
 #: templates/ingest/grid.html:180 templates/transfer/grid.html:107
 msgid "Remove"
-msgstr "Eliminar"
+msgstr "Ta bort"
 
 #: templates/ingest/grid.html:189 templates/transfer/grid.html:116
 msgid "Microservice"
-msgstr "Microservicio"
+msgstr "Micro-service"
 
 #: templates/ingest/grid.html:195 templates/transfer/grid.html:122
 msgid "Job"
-msgstr "Trabajo"
+msgstr "Jobb"
 
 #: templates/ingest/grid.html:209 templates/main/tasks.html:16
 #: templates/transfer/grid.html:133
 msgid "Tasks"
-msgstr "Tareas"
+msgstr "Uppgifter"
 
 #: templates/ingest/grid.html:249
 msgid ""
@@ -2835,37 +2978,37 @@ msgstr ""
 
 #: templates/ingest/metadata_add_files.html:47
 msgid "Select a directory"
-msgstr "Seleccionar un directorio"
+msgstr "Välj en mapp"
 
 #: templates/ingest/metadata_edit.html:77
 #: templates/transfer/metadata_edit.html:76
 msgid "A name given to the resource."
-msgstr ""
+msgstr "Ett namn för denna resurs"
 
 #: templates/ingest/metadata_edit.html:81
 #: templates/transfer/metadata_edit.html:80
 msgid "An entity primarily responsible for making the resource."
-msgstr ""
+msgstr "En entitet som är huvudsakligt ansvarig för att skapa resursen."
 
 #: templates/ingest/metadata_edit.html:85
 #: templates/transfer/metadata_edit.html:84
 msgid "The topic of the resource."
-msgstr ""
+msgstr "Resursens ämne."
 
 #: templates/ingest/metadata_edit.html:89
 #: templates/transfer/metadata_edit.html:88
 msgid "An account of the resource."
-msgstr ""
+msgstr "En redogörelse för resursen."
 
 #: templates/ingest/metadata_edit.html:93
 #: templates/transfer/metadata_edit.html:92
 msgid "An entity responsible for making the resource available."
-msgstr ""
+msgstr "En entitet som ansvarar för att göra resursen tillgänglig."
 
 #: templates/ingest/metadata_edit.html:97
 #: templates/transfer/metadata_edit.html:96
 msgid "An entity responsible for making contributions to the resource."
-msgstr ""
+msgstr "En entitet som ansvarar för att bidra till resursen."
 
 #: templates/ingest/metadata_edit.html:101
 #: templates/transfer/metadata_edit.html:100
@@ -2873,11 +3016,13 @@ msgid ""
 "A point or period of time associated with an event in the lifecycle of the "
 "resource."
 msgstr ""
+"En punkt eller period av tid som associeras med en händelse i resursens "
+"livscykel."
 
 #: templates/ingest/metadata_edit.html:106
 #: templates/transfer/metadata_edit.html:105
 msgid "The nature or genre of the resource."
-msgstr ""
+msgstr "Resursens karaktär eller genre."
 
 #: templates/ingest/metadata_edit.html:108
 #: templates/transfer/metadata_edit.html:107
@@ -2886,11 +3031,14 @@ msgid ""
 "        You may wish to use the DCMI type vocabulary provided here: <a href=\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore.org/documents/dcmi-type-vocabulary/</a>\n"
 "      "
 msgstr ""
+"\n"
+"        Du kommer eventuellt vilja använda det vokabulär över DCMI-typer som ges här  <a href=\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore.org/documents/dcmi-type-vocabulary/</a>\n"
+"      "
 
 #: templates/ingest/metadata_edit.html:116
 #: templates/transfer/metadata_edit.html:115
 msgid "The file format, physical medium, or dimensions of the resource."
-msgstr ""
+msgstr "Filformat, fysiskt medium eller dimensioner som resursen har."
 
 #: templates/ingest/metadata_edit.html:118
 #: templates/transfer/metadata_edit.html:117
@@ -2899,26 +3047,29 @@ msgid ""
 "        Best practice is to use a controlled vocabulary such as the list of Internet Media Types [MIME] provided here: <a href=\"http://www.iana.org/assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/media-types/</a>\n"
 "      "
 msgstr ""
+"\n"
+"        God praxis är att använda ett kontrollerat vokabulär så som listan på Internet Media Typer [MIME] som ges här: <a href=\"http://www.iana.org/assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/media-types/</a>\n"
+"      "
 
 #: templates/ingest/metadata_edit.html:125
 #: templates/transfer/metadata_edit.html:124
 msgid "An unambiguous reference to the resource within a given context."
-msgstr ""
+msgstr "En entydig referens till resursen inom en given kontext."
 
 #: templates/ingest/metadata_edit.html:129
 #: templates/transfer/metadata_edit.html:128
 msgid "A related resource from which the described resource is derived."
-msgstr ""
+msgstr "En relaterad resurs från vilken den beskrivna resursen är bearbetad."
 
 #: templates/ingest/metadata_edit.html:133
 #: templates/transfer/metadata_edit.html:132
 msgid "A related resource."
-msgstr ""
+msgstr "En relaterad resurs."
 
 #: templates/ingest/metadata_edit.html:137
 #: templates/transfer/metadata_edit.html:136
 msgid "A language of the resource."
-msgstr ""
+msgstr "Ett språk för denna resurs."
 
 #: templates/ingest/metadata_edit.html:141
 #: templates/transfer/metadata_edit.html:140
@@ -2926,55 +3077,57 @@ msgid ""
 "The spatial or temporal topic of the resource, the spatial applicability of "
 "the resource, or the jurisdiction under which the resource is relevant."
 msgstr ""
+"Resursens rumsliga eller den tidsmässiga tema, resursens rumsliga "
+"tillämplighet, eller den jurisdiktion under vilken resursen är relevant."
 
 #: templates/ingest/metadata_edit.html:145
 #: templates/transfer/metadata_edit.html:144
 msgid "Information about rights held in and over the resource."
-msgstr ""
+msgstr "Information om rättigheter som lagras i och över resursen."
 
 #: templates/ingest/normalization_report.html:14 templates/main/tasks.html:36
 msgid "File name"
-msgstr "Nombre de fichero"
+msgstr "Filnamn"
 
 #: templates/ingest/normalization_report.html:15
 msgid "File format"
-msgstr ""
+msgstr "Filformat"
 
 #: templates/ingest/normalization_report.html:16
 msgid "Preservation normalization attempted"
-msgstr ""
+msgstr "Ett försök till normalisering för bevarande utfört"
 
 #: templates/ingest/normalization_report.html:17
 msgid "Preservation normalization failed"
-msgstr ""
+msgstr "Normalisering för bevarande misslyckades"
 
 #: templates/ingest/normalization_report.html:18
 msgid "Preservation conformance check"
-msgstr ""
+msgstr "Kontroll av överensstämmelse med bevarandeformat"
 
 #: templates/ingest/normalization_report.html:19
 msgid "Already in preservation format"
-msgstr ""
+msgstr "Redan i bevarandeformat"
 
 #: templates/ingest/normalization_report.html:20
 msgid "Access normalization attempted"
-msgstr ""
+msgstr "Försök till normalisering för åtkomst utfört"
 
 #: templates/ingest/normalization_report.html:21
 msgid "Access normalization failed"
-msgstr ""
+msgstr "Normalisering för åtkomst misslyckades"
 
 #: templates/ingest/normalization_report.html:22
 msgid "Already in access format"
-msgstr ""
+msgstr "Redan i åtkomstformat."
 
 #: templates/ingest/normalization_report.html:23
 msgid "Access conformance check"
-msgstr ""
+msgstr "Kontroll av överenstämmelse med åtkomstformat"
 
 #: templates/ingest/normalization_report.html:32
 msgid "Format"
-msgstr "Formato"
+msgstr "Format"
 
 #: templates/ingest/normalization_report.html:39
 #: templates/ingest/normalization_report.html:45
@@ -2984,14 +3137,14 @@ msgstr "Formato"
 #: templates/ingest/normalization_report.html:80
 #: templates/ingest/normalization_report.html:85
 msgid "Yes,No"
-msgstr "Sí,No"
+msgstr "Ja,Nej"
 
 #: templates/ingest/normalization_report.html:55
 #: templates/ingest/normalization_report.html:57
 #: templates/ingest/normalization_report.html:95
 #: templates/ingest/normalization_report.html:97
 msgid "Failed,Passed"
-msgstr ""
+msgstr "Misslyckades,Lyckades"
 
 #: templates/ingest/normalization_report.html:110
 #, python-format
@@ -3000,36 +3153,41 @@ msgid ""
 "      Showing %(start_index)s-%(end_index)s of %(total_items)s\n"
 "    "
 msgstr ""
+"\n"
+"      Visar %(start_index)s-%(end_index)s av %(total_items)s\n"
+"    "
 
 #: templates/installer/storagesetup.html:25
 msgid "Register this pipeline in the Storage Service"
-msgstr ""
+msgstr "Registrera den pipeline i Lagringstjänsten"
 
 #: templates/installer/storagesetup.html:30
 msgid "Dashboard UUID"
-msgstr ""
+msgstr "Översiktsvys UUID"
 
 #: templates/installer/storagesetup.html:39
 msgid "Register"
-msgstr ""
+msgstr "Registrera"
 
 #: templates/installer/welcome.html:5 templates/installer/welcome.html.py:6
 msgid "Welcome"
-msgstr ""
+msgstr "Välkommen"
 
 #: templates/installer/welcome.html:40
 msgid "Welcome!"
-msgstr ""
+msgstr "Välkommen!"
 
 #: templates/installer/welcome.html:41
 msgid ""
 "Archivematica has been installed successfully. Please take a minute to enter"
 " some details into the system."
 msgstr ""
+"Installering av Archivematica lyckad. Var god och ta lite tid för att mata "
+"in vissa detaljer i systemet."
 
 #: templates/layout.html:9
 msgid "Archivematica Dashboard"
-msgstr "Archivematica Dashboard"
+msgstr "Archivematica översiktsvy"
 
 #: templates/layout.html:57 templates/rights/rights_edit.html:18
 #: templates/rights/rights_grants_edit.html:18
@@ -3039,88 +3197,88 @@ msgstr "Archivematica Dashboard"
 #: templates/transfer/metadata_edit.html:30
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
-msgstr "Transferencia"
+msgstr "Transfer"
 
 #: templates/layout.html:59
 msgid "Backlog"
-msgstr "Cola"
+msgstr "Backlogg"
 
 #: templates/layout.html:66
 msgid "Preservation planning"
-msgstr "Planificación de la preservación"
+msgstr "Bevarandeplanering"
 
 #: templates/layout.html:67 templates/main/access.html:4
 #: templates/main/access.html.py:5
 msgid "Access"
-msgstr "Acceso"
+msgstr "Åtkomst"
 
 #: templates/layout.html:76
 msgid "Your profile"
-msgstr "Tu perfil"
+msgstr "Din profil"
 
 #: templates/layout.html:78
 msgid "Log out"
-msgstr "cerrar sesión"
+msgstr "Logga ut"
 
 #: templates/main/access.html:13
 msgid "DIP URL"
-msgstr ""
+msgstr "DIP URL"
 
 #: templates/main/access.html:14
 msgid "Upload date"
-msgstr ""
+msgstr "Uppladdningsdatum"
 
 #: templates/main/access.html:15
 msgid "Upload status"
-msgstr ""
+msgstr "Upladdningsstatus"
 
 #: templates/main/tasks.html:9
 #, python-format
 msgid "Transfer %(uuid)s"
-msgstr ""
+msgstr "Transfer %(uuid)s"
 
 #: templates/main/tasks.html:11
 #, python-format
 msgid "DIP %(uuid)s"
-msgstr ""
+msgstr "DIP %(uuid)s"
 
 #: templates/main/tasks.html:13
 #, python-format
 msgid "SIP %(uuid)s"
-msgstr ""
+msgstr "SIP %(uuid)s"
 
 #: templates/main/tasks.html:33
 msgid "File UUID"
-msgstr ""
+msgstr "Filens UUID"
 
 #: templates/main/tasks.html:39
 msgid "Client"
-msgstr ""
+msgstr "Klient"
 
 #: templates/main/tasks.html:42
 msgid "Exit code"
-msgstr ""
+msgstr "Utgångskod"
 
 #: templates/main/tasks.html:54
 msgid "Start time"
-msgstr ""
+msgstr "Starttid"
 
 #: templates/main/tasks.html:57
 msgid "End time"
-msgstr ""
+msgstr "Sluttid"
 
 #: templates/main/tasks.html:60
 msgid "Created time"
-msgstr ""
+msgstr "Tid vid uprrättande"
 
 #: templates/main/tasks.html:63
 msgid "Duration"
-msgstr ""
+msgstr "Varaktighet"
 
 #: templates/main/tasks.html:64
 #, python-format
 msgid "%(duration)s seconds(s)"
-msgstr ""
+msgstr "%(duration)s sekund(er)"
 
 #: templates/main/tasks.html:72
 #, python-format
@@ -3129,18 +3287,21 @@ msgid ""
 "                Module %(module)s\n"
 "              "
 msgstr ""
+"\n"
+"                Modul %(module)s\n"
+"              "
 
 #: templates/main/tasks.html:83
 msgid "Standard streams"
-msgstr ""
+msgstr "Standard streams"
 
 #: templates/main/tasks.html:89
 msgid "Standard output (stdout)"
-msgstr ""
+msgstr "Standard output (stdout)"
 
 #: templates/main/tasks.html:100
 msgid "Standard error (stderr)"
-msgstr ""
+msgstr "Standard error (stderr)"
 
 #: templates/not_found.html:7
 #, python-format
@@ -3149,6 +3310,9 @@ msgid ""
 "      %(content_type)s not found\n"
 "    "
 msgstr ""
+"\n"
+"      %(content_type)s kunde inte hittas\n"
+"    "
 
 #: templates/not_found.html:14
 #, python-format
@@ -3157,19 +3321,22 @@ msgid ""
 "        Sorry! The %(content_type)s that you are trying to %(verb)s is not here.\n"
 "      "
 msgstr ""
+"\n"
+"        Tyvärr! Den %(content_type)s som du försöker %(verb)s är inte här.\n"
+"      "
 
 #: templates/rights/rights_edit.html:47
 #: templates/rights/rights_grants_edit.html:46
 msgid "Saved"
-msgstr ""
+msgstr "Sparad"
 
 #: templates/rights/rights_edit.html:51
 msgid "An error has occurred."
-msgstr ""
+msgstr "Ett fel har uppstått."
 
 #: templates/rights/rights_edit.html:59
 msgid "New content added."
-msgstr ""
+msgstr "Nytt innehåll tillagt."
 
 #: templates/rights/rights_edit.html:62
 #, python-format
@@ -3178,82 +3345,87 @@ msgid ""
 "                  New content added: %(type)s.\n"
 "                "
 msgstr ""
+"\n"
+"                  Nytt innehåll tillagt: %(type)s.\n"
+"                "
 
 #: templates/rights/rights_edit.html:96
 msgid "Copyright documentation identifier:"
-msgstr ""
+msgstr "Copyrightdokumentations-identifierare:"
 
 #: templates/rights/rights_edit.html:109 templates/rights/rights_edit.html:161
 #: templates/rights/rights_edit.html:211 templates/rights/rights_edit.html:259
 msgid "Role"
-msgstr ""
+msgstr "Roll"
 
 #: templates/rights/rights_edit.html:147
 msgid "Statute documentation identifier:"
-msgstr ""
+msgstr "Regelverksdokumentations-identifierare:"
 
 #: templates/rights/rights_edit.html:197
 msgid "License documentation identifier:"
-msgstr ""
+msgstr "Licensdokumentations-identifierare:"
 
 #: templates/rights/rights_edit.html:245
 msgid "Documentation identifier"
-msgstr ""
+msgstr "Dokumentationssignum"
 
 #: templates/rights/rights_edit.html:266
 msgid "Note"
-msgstr "Notas"
+msgstr "Anmärkning"
 
 #: templates/rights/rights_grants_edit.html:53
 msgid ""
 "You may now add additional information such as document identifers and "
 "notes."
 msgstr ""
+"Du kan nu lägga till yttreligare information så som dokumentidentifierare "
+"och kommentarer."
 
 #: templates/rights/rights_grants_edit.html:79
 msgid "Allow"
-msgstr "Permitir"
+msgstr "Tillåt"
 
 #: templates/rights/rights_grants_edit.html:80
 msgid "Disallow"
-msgstr "No permitir"
+msgstr "Neka"
 
 #: templates/rights/rights_grants_edit.html:81
 msgid "Conditional"
-msgstr "Condicional"
+msgstr "Villkorlig"
 
 #: templates/rights/rights_grants_edit.html:87
 msgid "Grant/restriction note"
-msgstr ""
+msgstr "Anmärkning om anslag/begränsning"
 
 #: templates/rights/rights_grants_edit.html:108
 msgid "Done"
-msgstr "Hecho"
+msgstr "Avslutad"
 
 #: templates/rights/rights_list.html:33
 msgid "Act"
-msgstr "Acción"
+msgstr "Akt"
 
 #: templates/rights/rights_list.html:35
 msgid "Restriction(s)"
-msgstr ""
+msgstr "Begränsning(ar)"
 
 #: templates/transfer/component.html:11
 msgid "Component metadata"
-msgstr "Metadatos de componente"
+msgstr "Komponentmetadata"
 
 #: templates/transfer/detail.html:29
 msgid "There are microservices awaiting user decisions."
-msgstr ""
+msgstr "Det finns micro-servicear som inväntar användarval."
 
 #: templates/transfer/detail.html:31
 msgid "View microservices"
-msgstr ""
+msgstr "Visa micro-servicear"
 
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
-msgstr "Metadatos de transferencia"
+msgstr "Överföringens metadata"
 
 #: templates/transfer/grid.html:80
 msgid "Transfer start time"
-msgstr "Fecha de inicio"
+msgstr "Överföringens starttid"
