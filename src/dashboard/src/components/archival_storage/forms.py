@@ -36,7 +36,7 @@ class UploadMetadataOnlyAtomForm(forms.Form):
         client = get_atom_client()
         try:
             client.find_parent_id_for_component(slug)
-        except (Timeout, ConnectionError) as e:
+        except (Timeout, ConnectionError):
             raise forms.ValidationError(_('Connection establishment failed: AtoM server cannot be reached.'))
         except CommunicationError as e:
             if '404' in e.message:
