@@ -4,11 +4,13 @@ import logging
 import os
 import platform
 import requests
-from requests.auth import AuthBase
 import urllib
 import time
 
 from django.conf import settings as django_settings
+from requests.auth import AuthBase
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
@@ -26,6 +28,18 @@ class ResourceNotFound(Error):
 
 class WaitForAsyncError(Error):
     pass
+
+
+# The default retry for idempotent endpoints.
+DEFAULT_RETRY = Retry(total=4, backoff_factor=1)
+
+# This retry can be used in POST requests where we want to make multiple
+# attempts in case of communication errors. It is advisable not to use this
+# retry unless you can afford having the endpoint run more than once.
+DEFAULT_RETRY_FOR_NON_IDEMPOTENT_POST = Retry(
+    total=None, connect=4, read=4, redirect=0, status=0,
+    method_whitelist=("POST",), backoff_factor=1,
+    raise_on_redirect=True, raise_on_status=True)
 
 
 # ####################### INTERFACE WITH STORAGE API #########################
@@ -57,11 +71,16 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT):
+def _storage_api_session(
+        timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT,
+        max_retries=None):
     """Return a requests.Session with a customized adapter with timeout support."""
-    class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
-        def __init__(self, timeout=None, *args, **kwargs):
+    class HTTPAdapterWithTimeout(HTTPAdapter):
+        def __init__(self, timeout=None, max_retries=None, *args, **kwargs):
             self.timeout = timeout
+            if max_retries is None:
+                max_retries = requests.adapters.DEFAULT_RETRIES
+            kwargs["max_retries"] = max_retries
             super(HTTPAdapterWithTimeout, self).__init__(*args, **kwargs)
 
         def send(self, *args, **kwargs):
@@ -70,8 +89,9 @@ def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TI
 
     session = requests.session()
     session.auth = ApiKeyAuth()
-    session.mount('http://', HTTPAdapterWithTimeout(timeout=timeout))
-    session.mount('https://', HTTPAdapterWithTimeout(timeout=timeout))
+    adapter = HTTPAdapterWithTimeout(timeout=timeout, max_retries=max_retries)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
     return session
 
 
@@ -219,7 +239,8 @@ def wait_for_async(response, poll_seconds=2, poll_timeout_seconds=600):
     poll_url = response.headers['Location']
     while True:
         poll_response = _storage_api_session(
-            timeout=poll_timeout_seconds).get(poll_url)
+            timeout=poll_timeout_seconds,
+            max_retries=DEFAULT_RETRY).get(poll_url)
         poll_response.raise_for_status()
         payload = poll_response.json()
         if not payload['completed']:
@@ -264,11 +285,20 @@ def copy_files(source_location, destination_location, files):
                 pass
 
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/async/'
+    LOGGER.debug("Sending async request to Storage Service to copy/move files"
+                 " between locations (url=%s, files=%s)", url, move_files)
     try:
-        response = _storage_api_session().post(url, json=move_files)
+        response = _storage_api_session(
+            max_retries=DEFAULT_RETRY_FOR_NON_IDEMPOTENT_POST).post(
+                url, json=move_files)
+    except requests.exceptions.RequestException as e:
+        LOGGER.warning("Unable to move/copy files: %s", e)
+        return (None, e)
+    LOGGER.debug("Files are being moved/copied by Storage Service, polling...")
+    try:
         return (wait_for_async(response), None)
     except requests.exceptions.RequestException as e:
-        LOGGER.warning("Unable to move files with %s because %s", move_files, e)
+        LOGGER.warning("Unable to move/copy files: %s", e)
         return (None, e)
 
 
