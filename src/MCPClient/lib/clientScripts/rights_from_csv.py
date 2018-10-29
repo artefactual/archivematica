@@ -42,7 +42,6 @@ class RightCsvReader(object):
 
     metadata_applies_to_type = None
     current_row = None
-    object_basis_act_usage = {}
     rows_processed = 0
 
     required_column_names = [
@@ -77,6 +76,7 @@ class RightCsvReader(object):
         self.transfer_uuid = transfer_uuid
         self.rights_csv_filepath = rights_csv_filepath
         self.job = job
+        self.object_basis_act_usage = {}
 
     def parse(self):
         """Read and parse rights CSV file."""
