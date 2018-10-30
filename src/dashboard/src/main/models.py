@@ -224,7 +224,7 @@ class DublinCore(models.Model):
         if self.title:
             return u'%s' % self.title
         else:
-            return _('Untitled')
+            return six.text_type(_('Untitled'))
 
 
 class MetadataAppliesToType(models.Model):
@@ -261,11 +261,11 @@ class Event(models.Model):
         db_table = u'Events'
 
     def __unicode__(self):
-        return _('%(type)s event on %(file_uuid)s (%(detail)s)') % {
+        return six.text_type(_('%(type)s event on %(file_uuid)s (%(detail)s)') % {
             'type': self.even_type,
             'file_uuid': self.file_uuid,
             'detail': self.event_detail
-        }
+        })
 
 
 class Derivation(models.Model):
@@ -283,11 +283,11 @@ class Derivation(models.Model):
         db_table = u'Derivations'
 
     def __unicode__(self):
-        return _('%(derived)s derived from %(src)s in %(event)s') % {
+        return six.text_type(_('%(derived)s derived from %(src)s in %(event)s') % {
             'derived': self.derived_file,
             'src': self.source_file,
             'event': self.event
-        }
+        })
 
 
 class UnitHiddenManager(models.Manager):
@@ -323,7 +323,7 @@ class SIP(models.Model):
         db_table = u'SIPs'
 
     def __unicode__(self):
-        return _('SIP: {path}') % {'path': self.currentpath}
+        return six.text_type(_('SIP: {path}') % {'path': self.currentpath})
 
 
 class TransferManager(models.Manager):
@@ -370,10 +370,10 @@ class SIPArrange(models.Model):
         verbose_name = _("Arranged SIPs")
 
     def __unicode__(self):
-        return _('%(original)s -> %(arrange)s') % {
+        return six.text_type(_('%(original)s -> %(arrange)s') % {
             'original': self.original_path,
             'arrange': self.arrange_path
-        }
+        })
 
 
 class SIPArrangeAccessMapping(models.Model):
@@ -449,11 +449,12 @@ class File(models.Model):
         db_table = u'Files'
 
     def __unicode__(self):
-        return _('File %(uuid)s: %(originallocation)s now at %(currentlocation)s') % {
-            'uuid': self.uuid,
-            'originallocation': self.originallocation,
-            'currentlocation': self.currentlocation
-        }
+        return six.text_type(
+            _('File %(uuid)s:%(originallocation)s'
+              ' now at %(currentlocation)s') % {
+                'uuid': self.uuid,
+                'originallocation': self.originallocation,
+                'currentlocation': self.currentlocation})
 
 
 class Directory(models.Model):
@@ -477,11 +478,12 @@ class Directory(models.Model):
         db_table = u'Directories'
 
     def __unicode__(self):
-        return _('Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s') % {
-            'uuid': self.uuid,
-            'originallocation': self.originallocation,
-            'currentlocation': self.currentlocation
-        }
+        return six.text_type(_(
+            'Directory %(uuid)s: %(originallocation)s'
+            ' now at %(currentlocation)s') % {
+                'uuid': self.uuid,
+                'originallocation': self.originallocation,
+                'currentlocation': self.currentlocation})
 
     @classmethod
     def create_many(cls, dir_paths_uuids, unit_mdl, unit_type='transfer'):
@@ -520,10 +522,10 @@ class FileFormatVersion(models.Model):
         db_table = u'FilesIdentifiedIDs'
 
     def __unicode__(self):
-        return u'%(file)s is %(format)s' % {
+        return six.text_type(_('%(file)s is %(format)s') % {
             'file': self.file_uuid,
             'format': self.format_version
-        }
+        })
 
 
 class Job(models.Model):
@@ -642,11 +644,11 @@ class RightsStatement(models.Model):
         verbose_name = _('Rights Statement')
 
     def __unicode__(self):
-        return _('%(basis)s for %(unit)s (%(id)s)') % {
+        return six.text_type(_('%(basis)s for %(unit)s (%(id)s)') % {
             'basis': self.rightsbasis,
             'unit': self.metadataappliestoidentifier,
             'id': self.id
-        }
+        })
 
 
 class RightsStatementCopyright(models.Model):
@@ -855,10 +857,10 @@ class MicroServiceChain(models.Model):
         db_table = u'MicroServiceChains'
 
     def __unicode__(self):
-        return _('MicroServiceChain ID: %(uuid)s; %(desc)s') % {
+        return six.text_type(_('MicroServiceChain ID: %(uuid)s; %(desc)s') % {
             'uuid': self.id,
             'desc': self.description
-        }
+        })
 
 
 class MicroServiceChainLink(models.Model):
@@ -875,7 +877,8 @@ class MicroServiceChainLink(models.Model):
         db_table = u'MicroServiceChainLinks'
 
     def __unicode__(self):
-        return _('MicroServiceChainLink ID: %(id)s') % {'id': self.id}
+        return six.text_type(
+            _('MicroServiceChainLink ID: %(id)s') % {'id': self.id})
 
 
 class MicroServiceChainLinkExitCode(models.Model):
@@ -902,11 +905,12 @@ class MicroServiceChainChoice(models.Model):
         db_table = u'MicroServiceChainChoice'
 
     def __unicode__(self):
-        return _('MicroServiceChainChoice ID: %(uuid)s (%(chain)s at %(choice)s)') % {
-            'uuid': self.id,
-            'chain': self.chainavailable,
-            'choice': self.choiceavailableatlink
-        }
+        return six.text_type(
+            _('MicroServiceChainChoice ID: %(uuid)s'
+              ' (%(chain)s at %(choice)s)') % {
+                'uuid': self.id,
+                'chain': self.chainavailable,
+                'choice': self.choiceavailableatlink})
 
 
 class MicroServiceChoiceReplacementDic(models.Model):
@@ -942,10 +946,10 @@ class TaskType(models.Model):
         db_table = 'TaskTypes'
 
     def __unicode__(self):
-        return _('TaskType ID: %(id)s, desc: %(desc)s') % {
+        return six.text_type(_('TaskType ID: %(id)s, desc: %(desc)s') % {
             'id': self.id,
             'desc': self.description
-        }
+        })
 
 
 class TaskConfig(models.Model):
@@ -1162,7 +1166,8 @@ class FPCommandOutput(models.Model):
     # Table name is main_fpcommandoutput
 
     def __unicode__(self):
-        return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])
+        return u'<file: {file}; rule: {rule}; content: {content}'.format(
+            file=self.file, rule=self.rule, content=self.content[:20])
 
 
 class FileID(models.Model):
@@ -1189,7 +1194,7 @@ class LevelOfDescription(models.Model):
     sortorder = models.IntegerField(default=0, db_column='sortOrder')
 
     def __unicode__(self):
-        return _('%(sortorder)s: %(name)s') % {
+        return six.text_type(_('%(sortorder)s: %(name)s') % {
             'sortorder': self.sortorder,
             'name': self.name
-        }
+        })
