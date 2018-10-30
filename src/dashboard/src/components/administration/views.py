@@ -461,7 +461,8 @@ def general(request):
 
     forms = (general_form, storage_form, checksum_form)
     if all(map(lambda form: form.is_valid(), forms)):
-        map(lambda form: form.save(), forms)
+        for item in forms:
+            item.save()
         messages.info(request, _('Saved.'))
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
