@@ -267,8 +267,15 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
             filepath = os.path.join(temp_dir, target)
 
         transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, '', 1)
-        copy_from_transfer_sources([path], transfer_relative)
         filepath = archivematicaFunctions.unicodeToStr(filepath)
+
+        error, message = copy_from_transfer_sources([path], transfer_relative)
+
+        if error:
+            shutil.rmtree(temp_dir)
+            logger.exception("Error copying %s from transfer source: %s", filepath, message)
+            raise storage_service.StorageServiceError('Error copying {} from transfer source.'.format(filepath))
+
         try:
             destination = copy_to_start_transfer(
                 filepath=filepath,
