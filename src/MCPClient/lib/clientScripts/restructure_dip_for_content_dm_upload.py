@@ -171,6 +171,9 @@ def generate_project_client_package(job, output_dir, package_type, structmap, dm
             dmdsecpair = splitDmdSecs(job, [dmdsecs[dmdid] for dmdid in dmdids])
             dmdsecpair['dc'] = addAipUuidToDcMetadata(dipuuid, dmdsecpair['dc'])
             metadata = dmdsecpair['nonDc'] or dmdsecpair['dc']
+            # Skip dmdSecs without metadata
+            if not metadata:
+                continue
             # Create csv_header and csv_values from the dmdSec metadata
             csv_header = []
             csv_values = []
