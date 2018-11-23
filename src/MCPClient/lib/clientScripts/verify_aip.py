@@ -165,6 +165,7 @@ def verify_checksums(job, bag, sip_uuid):
         for file_ in File.objects.filter(sip_id=sip_uuid):
             if (
                 os.path.basename(file_.originallocation) in removableFiles or
+                file_.removedtime or
                 not file_.currentlocation.startswith(
                     '%SIPDirectory%objects/') or
                 file_.filegrpuse == 'manualNormalization'
