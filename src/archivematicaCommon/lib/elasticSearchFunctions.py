@@ -407,17 +407,20 @@ def index_aip_and_files(
     mets_data = _rename_dict_keys_with_child_dicts(
         _normalize_dict_values(xmltodict.parse(xml))
     )
-    # Pull the create time from the METS header
-    mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
-    mets_created_attr = mets_hdr.get("CREATEDATE")
+
+    # Pull the create time from the METS header.
+    # Old METS did not use `metsHdr`.
     created = time.time()
-    if mets_created_attr:
-        try:
-            created = calendar.timegm(
-                time.strptime(mets_created_attr, "%Y-%m-%dT%H:%M:%S")
-            )
-        except ValueError:
-            printfn("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
+    mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
+    if mets_hdr:
+        mets_created_attr = mets_hdr.get("CREATEDATE")
+        if mets_created_attr:
+            try:
+                created = calendar.timegm(
+                    time.strptime(mets_created_attr, "%Y-%m-%dT%H:%M:%S"))
+            except ValueError:
+                printfn("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
+
     aip_data = {
         "uuid": uuid,
         "name": name,
