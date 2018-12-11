@@ -35,6 +35,7 @@ FAIL_CODE = 1
 
 
 def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
+    """Entry point for policy checker."""
     setup_dicts(mcpclient_settings)
 
     policy_checker = PolicyChecker(
@@ -46,7 +47,8 @@ logger = get_script_logger("archivematica.mcp.client.policyCheck")
 
 
 class PolicyChecker(object):
-    """Checks whether a given file conforms to all of the MediaConch policies
+    """Checks a file against one or more policies.
+    Checks whether a given file conforms to all of the MediaConch policies
     that the system is configured to run against that type of file, given the
     file's format and its purpose, i.e., whether it is intended for access or
     preservation. Usage involves initializing on a file and then calling the
@@ -54,7 +56,7 @@ class PolicyChecker(object):
     """
 
     def __init__(self, job, file_path, file_uuid, sip_uuid, shared_path, file_type):
-
+        """Initiate a new policy check."""
         self.job = job
         self.file_path = file_path
         self.file_uuid = file_uuid
@@ -162,7 +164,7 @@ class PolicyChecker(object):
         return False
 
     def _file_is_for_access(self):
-        """Returns ``True`` if the file with UUID ``self.file_uuid`` is "for"
+        """Return ``True`` if the file with UUID ``self.file_uuid`` is "for"
         access.
         """
         if (self.is_manually_normalized_access_derivative or
@@ -230,8 +232,8 @@ class PolicyChecker(object):
             output = json.loads(stdout)
         except ValueError:
             logger.exception(
-                'Unable to load an object from the malformed JSON in\n%s',
-                stdout)
+                'Unable to load an object from the malformed JSON: \n%s',
+                stderr)
             raise
         if self.file_type in ('preservation', 'original'):
             self._save_to_logs_dir(output)
@@ -248,12 +250,14 @@ class PolicyChecker(object):
                         ' version="{tool.version}"'.format(
                             tool=rule.command.tool))
         if output.get('eventOutcomeInformation') != 'pass':
-            self.job.print_error('Command {descr} returned a non-pass outcome for the policy'
-                                 ' check;\n\noutcome: {outcome}\n\ndetails: {details}.'
+            self.job.print_error('Command {descr} returned a non-pass outcome '
+                                 'for the policy check;\n\noutcome: '
+                                 '{outcome}\n\ndetails: {details}.'
                                  .format(
                                      descr=rule.command.description,
                                      outcome=output.get('eventOutcomeInformation'),
-                                     details=output.get('eventOutcomeDetailNote')))
+                                     details=output.get('eventOutcomeDetailNote'),
+                                 ))
             result = 'failed'
         self.job.pyprint(
             'Creating policy checking event for {} ({})'.format(
