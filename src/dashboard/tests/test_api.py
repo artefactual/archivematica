@@ -118,6 +118,23 @@ class TestAPI(TestCase):
         assert status['status'] == 'COMPLETE'
         assert len(completed) == 1
 
+    def test_get_unit_status_completed_sip_issue_262_workaround(self):
+        """Test get unit status for a completed SIP when the job with the latest
+        created time is not the last in the microservice chain
+        (i.e, job with jobtype 'Remove the processing directory' is not the one with
+        latest created time)
+        It should return COMPLETE."""
+        # Setup fixtures
+        load_fixture(['jobs-processing.json', 'jobs-transfer-complete.json', 'jobs-sip-complete-clean-up-last.json'])
+        # Test
+        status = views.get_unit_status('4060ee97-9c3f-4822-afaf-ebdf838284c3', 'unitSIP')
+        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        # Verify
+        assert len(status) == 2
+        assert 'microservice' in status
+        assert status['status'] == 'COMPLETE'
+        assert len(completed) == 1
+
 
 class TestProcessingConfigurationAPI(TestCase):
     fixture_files = ['test_user.json']
