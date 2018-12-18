@@ -82,7 +82,11 @@ def get_unit_status(unit_uuid, unit_type):
     :return: Dict with status info.
     """
     ret = {}
-    job = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')[0]
+    # get jobs for the current unit ordered by created time
+    unit_jobs = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')
+    # tentatively choose the job with the latest created time to be the current/last for the unit
+    job = unit_jobs[0]
+
     ret['microservice'] = job.jobtype
     if job.currentstep == 'Awaiting decision':
         ret['status'] = 'USER_INPUT'
@@ -103,6 +107,19 @@ def get_unit_status(unit_uuid, unit_type):
         ret['sip_uuid'] = 'BACKLOG'
     else:
         ret['status'] = 'PROCESSING'
+
+    # The job with the latest created time is not always the last/current
+    # (Ref. https://github.com/archivematica/Issues/issues/262)
+    # As a workaround for SIPs, in case the job with latest created time
+    # is not the one that closes the chain, check if there could be a job
+    # that does so
+    # (a better fix would be to try to use microchain links related tables
+    # to obtain the actual last/current job, but this adds too much complexity)
+    if unit_type == 'unitSIP' and ret['status'] == 'PROCESSING':
+        for x in unit_jobs:
+            if x.jobtype == 'Remove the processing directory':
+                ret['status'] = 'COMPLETE'
+                break
 
     return ret
 
