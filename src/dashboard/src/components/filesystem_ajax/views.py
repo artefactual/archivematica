@@ -255,9 +255,9 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
                 type=transfer_type, accession=accession,
                 access_id=access_id,
                 transfer_metadata_set_row_uuid=row_id)
-        except Exception:
-            logger.exception("Error copying %s to start of transfer", filepath)
-            raise storage_service.StorageServiceError('Error copying {} to start of transfer.'.format(filepath))
+        except Exception as e:
+            logger.exception('Error starting transfer {}: {}'.format(filepath, e))
+            raise Exception('Error starting transfer {}: {}'.format(filepath, e))
 
     shutil.rmtree(temp_dir)
     return {'message': _('Copy successful.'), 'path': destination}
