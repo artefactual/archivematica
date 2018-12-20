@@ -1,0 +1,343 @@
+[
+  {
+    "fields": {
+      "slug": "convert-667-9",
+      "version": "6.6.7-9",
+      "enabled": false,
+      "uuid": "8d81cd4f-20ee-4a82-9eca-455699509cd5",
+      "description": "convert"
+    },
+    "model": "fpr.fptool",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "slug": "fits-061",
+      "version": "0.6.1",
+      "enabled": false,
+      "uuid": "c5465b07-8dc7-475e-a5c9-ccb2ba2ed083",
+      "description": "FITS"
+    },
+    "model": "fpr.fptool",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "slug": "test-597",
+      "version": "5.97",
+      "enabled": false,
+      "uuid": "12e11ac5-d96d-412f-ab15-362ed5283d46",
+      "description": "test"
+    },
+    "model": "fpr.fptool",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "slug": "echo-gnu-coreutils-812197-032bb",
+      "version": "GNU coreutils 8.12.197-032bb",
+      "enabled": false,
+      "uuid": "2385486a-35e2-42e4-bae9-3bfa1995dda4",
+      "description": "echo"
+    },
+    "model": "fpr.fptool",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "slug": "ffmpeg-0106-60106-0ubuntu0jon1precise1",
+      "version": "2.3-1",
+      "enabled": false,
+      "uuid": "307d4e6d-9cfc-414e-8354-f41fe1247e12",
+      "description": "ffmpeg"
+    },
+    "model": "fpr.fptool",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "slug": "ghostscript-905-2012-02-08",
+      "version": "9.05 (2012-02-08)",
+      "enabled": false,
+      "uuid": "ef6c5539-b803-4d26-9e09-a5b984bf0bf5",
+      "description": "Ghostscript"
+    },
+    "model": "fpr.fptool",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "slug": "inkscape-04831-r9886-jan-29-2013",
+      "version": "0.48.3.1 r9886 (Jan 29 2013)",
+      "enabled": false,
+      "uuid": "06523365-9061-4ac7-a7f5-3e7e5f06ffac",
+      "description": "inkscape"
+    },
+    "model": "fpr.fptool",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "slug": "ps2pdf-905-2012-02-08",
+      "version": "9.05 (2012-02-08)",
+      "enabled": false,
+      "uuid": "18102743-3a25-4510-bf09-976421d5a646",
+      "description": "ps2pdf"
+    },
+    "model": "fpr.fptool",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "slug": "cp-gnu-coreutils-820",
+      "version": "(GNU coreutils) 8.20",
+      "enabled": false,
+      "uuid": "57864018-63d0-4786-8ce5-55393d3ab5a1",
+      "description": "cp"
+    },
+    "model": "fpr.fptool",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "slug": "7zip-920",
+      "version": "9.20",
+      "enabled": true,
+      "uuid": "7d1f8bb1-7915-4b45-a0d5-34e0aab8d6fc",
+      "description": "7Zip"
+    },
+    "model": "fpr.fptool",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "slug": "archivematica-script-10",
+      "version": "1.0",
+      "enabled": true,
+      "uuid": "efa8474a-8526-48c3-8279-e5a76bdc0995",
+      "description": "Archivematica Script"
+    },
+    "model": "fpr.fptool",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "slug": "unrar-free-001",
+      "version": "0.0.1",
+      "enabled": true,
+      "uuid": "52621750-1f8f-410d-aa1b-eb0a34103d51",
+      "description": "unrar-free"
+    },
+    "model": "fpr.fptool",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "slug": "ffprobe-220",
+      "version": "2.2.0",
+      "enabled": false,
+      "uuid": "467a5875-f9ef-49ac-ac93-29f4bac3dbae",
+      "description": "FFprobe"
+    },
+    "model": "fpr.fptool",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "slug": "exiftool-927",
+      "version": "9.70",
+      "enabled": false,
+      "uuid": "bb957e1d-ee63-4354-a209-a41d23881e3e",
+      "description": "ExifTool"
+    },
+    "model": "fpr.fptool",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "slug": "mediainfo-0752",
+      "version": "0.7.52",
+      "enabled": false,
+      "uuid": "e0d7abce-39fd-49f7-ab98-aef1bdb0378f",
+      "description": "MediaInfo"
+    },
+    "model": "fpr.fptool",
+    "pk": 15
+  },
+  {
+    "fields": {
+      "slug": "sleuthkit-413",
+      "version": "4.1.3",
+      "enabled": true,
+      "uuid": "0a78f98a-9484-431a-9759-59e5d1d09281",
+      "description": "Sleuthkit"
+    },
+    "model": "fpr.fptool",
+    "pk": 16
+  },
+  {
+    "fields": {
+      "slug": "tesseract-302",
+      "version": "3.02",
+      "enabled": false,
+      "uuid": "765335d5-70b7-4a02-816e-a293a1bc1b6c",
+      "description": "Tesseract"
+    },
+    "model": "fpr.fptool",
+    "pk": 17
+  },
+  {
+    "fields": {
+      "slug": "jhove-16",
+      "version": "1.6",
+      "enabled": true,
+      "uuid": "085d8690-93b7-4d31-84f7-2c5f4cbf6735",
+      "description": "JHOVE"
+    },
+    "model": "fpr.fptool",
+    "pk": 18
+  },
+  {
+    "fields": {
+      "slug": "tesseract-303",
+      "version": "3.03",
+      "enabled": true,
+      "uuid": "246ad3d4-6a5d-466b-a35c-26c1323d198e",
+      "description": "Tesseract"
+    },
+    "model": "fpr.fptool",
+    "pk": 19
+  },
+  {
+    "fields": {
+      "slug": "mediainfo-0767",
+      "version": "0.7.67",
+      "enabled": true,
+      "uuid": "23e90197-a00e-4e37-a0cc-77f01aec9309",
+      "description": "MediaInfo"
+    },
+    "model": "fpr.fptool",
+    "pk": 20
+  },
+  {
+    "fields": {
+      "slug": "exiftool-1010",
+      "version": "10.10",
+      "enabled": true,
+      "uuid": "5c7b4362-6efa-4a02-9105-2048646bb829",
+      "description": "ExifTool"
+    },
+    "model": "fpr.fptool",
+    "pk": 21
+  },
+  {
+    "fields": {
+      "slug": "ffprobe-302",
+      "version": "3.0.2",
+      "enabled": true,
+      "uuid": "f6c8eb8f-b16d-44f8-b629-8650cf0af42b",
+      "description": "FFprobe"
+    },
+    "model": "fpr.fptool",
+    "pk": 22
+  },
+  {
+    "fields": {
+      "slug": "cp-gnu-coreutils-821",
+      "version": "(GNU coreutils) 8.21",
+      "enabled": true,
+      "uuid": "0efc346e-6373-4799-819d-17cc0f21f827",
+      "description": "cp"
+    },
+    "model": "fpr.fptool",
+    "pk": 23
+  },
+  {
+    "fields": {
+      "slug": "ps2pdf-910",
+      "version": "9.10",
+      "enabled": true,
+      "uuid": "6cdb2890-ac93-44ae-9b13-22f419bec5d0",
+      "description": "ps2pdf"
+    },
+    "model": "fpr.fptool",
+    "pk": 24
+  },
+  {
+    "fields": {
+      "slug": "inkscape-0484",
+      "version": "0.48.4",
+      "enabled": true,
+      "uuid": "34afccc3-2cfd-4780-ba56-06221f1bfe18",
+      "description": "inkscape"
+    },
+    "model": "fpr.fptool",
+    "pk": 25
+  },
+    {
+    "fields": {
+      "slug": "echo-gnu-coreutils-821",
+      "version": "(GNU coreutils) 8.21",
+      "enabled": true,
+      "uuid": "0b9913b2-19de-4782-ac8b-ebd11b12e9a6",
+      "description": "echo"
+    },
+    "model": "fpr.fptool",
+    "pk": 26
+  },
+  {
+    "fields": {
+      "slug": "ffmpeg-302",
+      "version": "3.0.2",
+      "enabled": true,
+      "uuid": "fcc4e6d7-d956-40e9-af92-0e544895eb1f",
+      "description": "ffmpeg"
+    },
+    "model": "fpr.fptool",
+    "pk": 27
+  },
+  {
+    "fields": {
+      "slug": "ghostscript-910",
+      "version": "9.10",
+      "enabled": true,
+      "uuid": "04a47b58-0bb3-4efd-9668-b5075dd9153f",
+      "description": "Ghostscript"
+    },
+    "model": "fpr.fptool",
+    "pk": 28
+  },
+  {
+    "fields": {
+      "slug": "convert-677-10",
+      "version": "6.7.7-10",
+      "enabled": true,
+      "uuid": "4a24b1ea-e357-48cc-bd32-a75420592d14",
+      "description": "convert"
+    },
+    "model": "fpr.fptool",
+    "pk": 29
+  },
+  {
+    "fields": {
+      "slug": "fits-084",
+      "version": "0.8.4",
+      "enabled": true,
+      "uuid": "1e13b3ca-c7b4-46a1-a1e9-a66220581c2d",
+      "description": "FITS"
+    },
+    "model": "fpr.fptool",
+    "pk": 30
+  },
+  {
+    "fields": {
+      "slug": "test-821",
+      "version": "(GNU coreutils) 8.21",
+      "enabled": true,
+      "uuid": "815daad4-ff73-4a6a-bd29-e7fcec8e3666",
+      "description": "test"
+    },
+    "model": "fpr.fptool",
+    "pk": 31
+  }
+]

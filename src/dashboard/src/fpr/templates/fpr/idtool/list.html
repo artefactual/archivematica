@@ -1,0 +1,58 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Identification tools" %}{% endblock title %}
+{% block page_title %}{% trans "Identification tools" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Identification tools" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'idtool_create' %}">{% trans "Create new tool" %}</a></p>
+    {% endif %}
+
+    {% if idtools %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Version" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for idtool in idtools %}
+          <tr>
+            <td><a href="{% url 'idtool_detail' idtool.slug %}">{{ idtool.description }}</a></td>
+            <td><a href="{% url 'idtool_detail' idtool.slug %}">{{ idtool.version }}</a></td>
+            <td>
+              <a href="{% url 'idtool_detail' idtool.slug %}">{% trans "View" %}</a>
+              {% if request.user.is_superuser %}
+                |
+                <a href="{% url 'idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans "No identification tools exist." %}</p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

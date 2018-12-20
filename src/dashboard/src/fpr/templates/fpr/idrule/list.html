@@ -1,0 +1,63 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Identification rules" %}{% endblock title %}
+{% block page_title %}{% trans "Identification rules" %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Identification rules" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+  {% if request.user.is_superuser %}
+  <p><a href="{% url 'idrule_create' %}">{% trans "Create new rule" %}</a></p>
+  {% endif %}
+
+{% if idrules %}
+  <table class="datatable">
+    <thead>
+      <tr>
+        <th>{% trans "Format" %}</th>
+        <th>{% trans "Command" %}</th>
+        <th>{% trans "Output" %}</th>
+        <th>{% trans "Tools" %}</th>
+        <th>{% trans "Enabled" %}</th>
+        <th>{% trans "Actions" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for idrule in idrules %}
+      <tr>
+        <td><a href="{% url 'format_detail' idrule.format.format.slug %}">{{ idrule.format }}</a></td>
+        <td><a href="{% url 'idcommand_detail' idrule.command.uuid %}">{{ idrule.command.description }}</a></td>
+        <td><a href="{% url 'idrule_detail' idrule.uuid %}">{{ idrule.command_output }}</a></td>
+        <td><a href="{% url 'idtool_detail' idrule.command.tool.slug %}">{{ idrule.command.tool }}</a></td>
+        <td>{{ idrule.enabled|yesno:_('Yes,No') }}</td>
+        <td>
+          <a href="{% url 'idrule_detail' idrule.uuid %}">{% trans "View" %}</a>
+          {% if request.user.is_superuser %}
+            | <a href="{% url 'idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a>
+            | <a href="{% url 'idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>{% trans "No identification rules exist." %}</p>
+{% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

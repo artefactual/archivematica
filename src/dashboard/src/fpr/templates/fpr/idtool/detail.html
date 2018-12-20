@@ -1,0 +1,85 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% blocktrans with description=idtool.description %}Identification tool {{ description }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=idtool.description %}Identification tool {{ description }}{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'idtool_list' %}">{% trans "Identification tools" %}</a></li>
+<li>{{ idtool.description }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='format'>
+      <dl>
+        <dt>{% trans "UUID" %}</dt>
+        <dd>{{ idtool.uuid }}</dd>
+        <dt>{% trans "Description" %}</dt>
+        <dd>{{ idtool.description }}</dd>
+        <dt>{% trans "Version" %}</dt>
+        <dd>{{ idtool.version }}</dd>
+        <dt>{% trans "Enabled" %}</dt>
+        <dd>{{ idtool.enabled|yesno:_('Yes,No') }}</dd>
+        {% if request.user.is_superuser %}
+          <dt>{% trans "Actions" %}</dt>
+          <dd><a href="{% url 'idtool_edit' idtool.slug %}">{% trans "Edit" %}</a></dd>
+        {% endif %}
+      </dl>
+    </div>
+
+    <h3>{% trans "Commands" %}</h3>
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'idcommand_create' %}?parent={{ idtool.uuid }}">{% trans "Create new command" %}</a></p>
+    {% endif %}
+
+    {% if idcommands %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Configuration" %}</th>
+            <th>{% trans "Identifier" %}</th>
+            <th>{% trans "Command" %}</th>
+            <th>{% trans "Enabled" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for command in idcommands %}
+          <tr>
+            <td>{{ command.get_config_display }}</td>
+            <td>{{ command.description }}</td>
+            <td>{{ command.script|truncatechars:100 }}</td>
+            <td>{{ command.enabled|yesno:_('Yes,No') }}</td>
+            <td>
+              <a href="{% url 'idcommand_detail' command.uuid  %}">{% trans "View" %}</a>
+              {% if request.user.is_superuser %}
+                | <a href="{% url 'idcommand_edit' command.uuid %}">{% trans "Replace" %}</a>
+                | <a href="{% url 'idcommand_delete' command.uuid %}">{% trans "Disable" %}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>
+        {% blocktrans with description=idtool.description %}
+          No commands exist for {{ description }}.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

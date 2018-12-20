@@ -1,0 +1,798 @@
+[
+    {
+        "fields": {
+            "slug": "high-efficiency-image-file-format",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "7960e5c5-4ef6-4696-a86f-f6314fb6cee4",
+            "description": "High Efficiency Image File Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "uuencoded-file",
+            "group": "5b14d57c-d6f1-4807-b98d-0a574d6bf8fc",
+            "uuid": "39f76e57-7ca6-4fc3-8255-6b1983c36d1e",
+            "description": "Uuencoded File"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "autocad-hatch-pattern",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "7ae13d51-3b0c-4c16-99e4-f4af017183a0",
+            "description": "AutoCAD Hatch Pattern"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "seattle-filmworks-sfw-image-format",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "409d3125-70e2-4b57-a8ec-c66f928f2b35",
+            "description": "Seattle FilmWorks SFW Image Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "hierarchical-file-system",
+            "group": "84362779-5e64-442d-9394-1d42ea961240",
+            "uuid": "96f8ae5f-5607-4a3c-ad3c-98061f45e136",
+            "description": "Hierarchical File System"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "jupyter-python-notebook",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "uuid": "a15d7dc8-41b7-4f0b-bf66-2e1d308bffd8",
+            "description": "Jupyter Python Notebook"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "diffracplus-raw-data-file-format",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "uuid": "09c17878-1b46-4df3-9d7d-28485df23471",
+            "description": "DIFFRACplus Raw Data File Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "vamas-surface-chemical-analysis-standard-data-tran",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "uuid": "19b477db-5fca-4002-9f69-67ec7ff3fcbd",
+            "description": "VAMAS Surface Chemical Analysis Standard Data Transfer Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "origin-project-format",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "uuid": "cf6ea57a-7731-43d7-8fcd-0a7a1b73771e",
+            "description": "Origin Project Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "jasco-jws-format",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "uuid": "070ea840-c87b-4880-96f9-bf05cf51bbc2",
+            "description": "JASCO JWS Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "sony-sr2-raw-image-file",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "fb5fa919-9935-4cd3-a957-a8ae59e73395",
+            "description": "Sony SR2 RAW Image File"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "sony-arw-raw-image-file",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "0b9ba339-14fc-46f2-8a06-561c63fdd7c6",
+            "description": "Sony ARW RAW Image File"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "progressive-graphics-file",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "84170459-2453-46da-b6b4-241a6aa57824",
+            "description": "Progressive Graphics File"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "pdf-20-portable-document-format",
+            "group": "dce50306-3638-412d-a015-6df3ae9ad4e3",
+            "uuid": "f08a4e9f-fc46-4cdb-9079-85cfbdc4e791",
+            "description": "PDF 2.0 - Portable Document Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "c3d-file-format",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "uuid": "56c3dd5d-6589-4232-a056-eff2694fe397",
+            "description": "C3D File Format"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "slug": "gatan-digital-micrograph-file-format-dm3",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "uuid": "917ccafd-b45e-4a73-b253-8f8fb4c00d15",
+            "description": "Gatan Digital Micrograph File Format (DM3)"
+        },
+        "model": "fpr.format"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "6fdfc554-be9b-48c7-89cc-5f24c4037564",
+            "format": "7960e5c5-4ef6-4696-a86f-f6314fb6cee4",
+            "lastmodified": "2018-08-29T00:02:13.291Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "heif",
+            "pronom_id": "fmt/1101",
+            "description": "HEIF"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "3965d5b1-9bcb-481a-94de-6ab8cc211613",
+            "format": "39f76e57-7ca6-4fc3-8255-6b1983c36d1e",
+            "lastmodified": "2018-08-29T00:02:13.305Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "uuencoded-file",
+            "pronom_id": "fmt/1102",
+            "description": "Uuencoded File"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "8a23ff45-a242-4903-a4ce-c890bc24b986",
+            "format": "7ae13d51-3b0c-4c16-99e4-f4af017183a0",
+            "lastmodified": "2018-08-29T00:02:13.320Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "autocad-hatch-pattern",
+            "pronom_id": "fmt/1103",
+            "description": "AutoCAD Hatch Pattern"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "1ca63c57-d939-4e78-b645-ba308f82ae6b",
+            "format": "409d3125-70e2-4b57-a8ec-c66f928f2b35",
+            "lastmodified": "2018-08-29T00:02:13.342Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "seattle-filmworks-image",
+            "pronom_id": "fmt/1104",
+            "description": "Seattle FilmWorks Image"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "a9af79c4-7604-4a87-85c0-96384282417e",
+            "format": "96f8ae5f-5607-4a3c-ad3c-98061f45e136",
+            "lastmodified": "2018-08-29T00:02:13.365Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "hfs",
+            "pronom_id": "fmt/1105",
+            "description": "HFS"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "0c425ebe-93cc-4754-8550-bfc252f0ec98",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.382Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.0",
+            "slug": "pyc-20",
+            "pronom_id": "fmt/1106",
+            "description": "PYC 2.0"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "60108ba6-637e-4e0c-98fe-c44228a5156a",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.397Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.1",
+            "slug": "pyc-21",
+            "pronom_id": "fmt/1107",
+            "description": "PYC 2.1"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "c6ab0f62-7a4f-4e3c-a9e0-e6a047ce2167",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.414Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.2",
+            "slug": "pyc-22",
+            "pronom_id": "fmt/1108",
+            "description": "PYC 2.2"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "35eee8c9-47fd-4589-aec0-95d456da42a9",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.429Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.3",
+            "slug": "pyc-23",
+            "pronom_id": "fmt/1109",
+            "description": "PYC 2.3"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "ce344dd5-04e3-48a3-baa6-cb761f9941e3",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.439Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.4",
+            "slug": "pyc-24",
+            "pronom_id": "fmt/1110",
+            "description": "PYC 2.4"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "fbf5ca65-2c9b-4785-a5c3-ff0ee124f0e4",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.450Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.5",
+            "slug": "pyc-25",
+            "pronom_id": "fmt/1111",
+            "description": "PYC 2.5"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "9ea8efed-58fc-4ed8-be19-5a7a4dbbafb9",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.462Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.6",
+            "slug": "pyc-26",
+            "pronom_id": "fmt/1112",
+            "description": "PYC 2.6"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "2ed66013-63d0-4a32-a80f-4f36252030c9",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.473Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.0",
+            "slug": "pyc-30",
+            "pronom_id": "fmt/1113",
+            "description": "PYC 3.0"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "aec826de-750f-4ebf-ad67-14743ea7a554",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.497Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.1",
+            "slug": "pyc-31",
+            "pronom_id": "fmt/1114",
+            "description": "PYC 3.1"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "b7a66cee-e963-475d-b896-28c4f87c3ab6",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.517Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.2",
+            "slug": "pyc-32",
+            "pronom_id": "fmt/1115",
+            "description": "PYC 3.2"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "d53c26c3-13b8-4eaa-834b-958829cc319e",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.531Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.3",
+            "slug": "pyc-33",
+            "pronom_id": "fmt/1116",
+            "description": "PYC 3.3"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "b290d8ab-ce60-4867-9ce5-4383f0222e14",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.544Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.5",
+            "slug": "pyc-35",
+            "pronom_id": "fmt/1117",
+            "description": "PYC 3.5"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "3626ea73-f50e-49b1-85fe-cb8c8634d1ec",
+            "format": "97b61063-eb03-4310-83cf-6df81f7d1c3f",
+            "lastmodified": "2018-08-29T00:02:13.559Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3.6",
+            "slug": "pyc-36",
+            "pronom_id": "fmt/1118",
+            "description": "PYC 3.6"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "54de5301-ca7e-4ca5-85b9-b0eb531aa457",
+            "format": "a15d7dc8-41b7-4f0b-bf66-2e1d308bffd8",
+            "lastmodified": "2018-08-29T00:02:13.576Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "jupyter-python-notebook",
+            "pronom_id": "fmt/1119",
+            "description": "Jupyter Python Notebook"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "d3e76282-3e47-40f4-972a-d490d977dbf5",
+            "format": "09c17878-1b46-4df3-9d7d-28485df23471",
+            "lastmodified": "2018-08-29T00:02:13.591Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "1",
+            "slug": "diffracplus-raw-data-file-format-1",
+            "pronom_id": "fmt/1120",
+            "description": "DIFFRACplus Raw Data File Format 1"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "8026ce75-0c34-4fa3-b380-5ef5e6103c05",
+            "format": "09c17878-1b46-4df3-9d7d-28485df23471",
+            "lastmodified": "2018-08-29T00:02:13.601Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2",
+            "slug": "diffracplus-raw-data-file-format-2",
+            "pronom_id": "fmt/1121",
+            "description": "DIFFRACplus Raw Data File Format 2"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "f38780e8-f358-4753-a732-61b5b68dfffb",
+            "format": "19b477db-5fca-4002-9f69-67ec7ff3fcbd",
+            "lastmodified": "2018-08-29T00:02:13.615Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "vamas-surface-chemical-analysis-standard-data-tran",
+            "pronom_id": "fmt/1122",
+            "description": "VAMAS Surface Chemical Analysis Standard Data Transfer Format"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "c2896c5e-2a6b-4def-85e3-044e19067e08",
+            "format": "cf6ea57a-7731-43d7-8fcd-0a7a1b73771e",
+            "lastmodified": "2018-08-29T00:02:13.630Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "",
+            "slug": "origin-project-format-non-unicode",
+            "pronom_id": "fmt/1123",
+            "description": "Origin Project Format Non-Unicode"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "816d0e5c-fa96-4172-9cdb-597479b16785",
+            "format": "cf6ea57a-7731-43d7-8fcd-0a7a1b73771e",
+            "lastmodified": "2018-08-29T00:02:13.642Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "Unicode",
+            "slug": "origin-project-format-unicode",
+            "pronom_id": "fmt/1124",
+            "description": "Origin Project Format Unicode"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "e6ab7cf2-47c0-40f6-b586-a8ce8402daae",
+            "format": "070ea840-c87b-4880-96f9-bf05cf51bbc2",
+            "lastmodified": "2018-08-29T00:02:13.665Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "OLE2",
+            "slug": "jasco-jws-format",
+            "pronom_id": "fmt/1125",
+            "description": "JASCO JWS Format"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "36f8495a-f1d5-47c2-b15e-a2a826d2ca8c",
+            "format": "fb5fa919-9935-4cd3-a957-a8ae59e73395",
+            "lastmodified": "2018-08-29T00:02:13.682Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "sony-sr2",
+            "pronom_id": "fmt/1126",
+            "description": "Sony SR2"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "f446e519-b410-4727-9b4c-982357af6227",
+            "format": "0b9ba339-14fc-46f2-8a06-561c63fdd7c6",
+            "lastmodified": "2018-08-29T00:02:13.698Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.x",
+            "slug": "sony-arw-2x",
+            "pronom_id": "fmt/1127",
+            "description": "Sony ARW 2.x"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "18f9d421-0cc4-4720-98ec-6ab48b6c86fa",
+            "format": "84170459-2453-46da-b6b4-241a6aa57824",
+            "lastmodified": "2018-08-29T00:02:13.714Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "progressive-graphics-file",
+            "pronom_id": "fmt/1128",
+            "description": "Progressive Graphics File"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "a9716916-f368-4a3a-94b0-58b3266a48cd",
+            "format": "f08a4e9f-fc46-4cdb-9079-85cfbdc4e791",
+            "lastmodified": "2018-08-29T00:02:13.736Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "2.0",
+            "slug": "pdf-20",
+            "pronom_id": "fmt/1129",
+            "description": "PDF 2.0"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "d88cdd04-2455-4779-8c98-f9d3a05b6ede",
+            "format": "56c3dd5d-6589-4232-a056-eff2694fe397",
+            "lastmodified": "2018-08-29T00:02:13.756Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": null,
+            "slug": "c3d",
+            "pronom_id": "fmt/1130",
+            "description": "C3D"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "e64e8666-3495-45b7-8fb2-681f6a492290",
+            "format": "917ccafd-b45e-4a73-b253-8f8fb4c00d15",
+            "lastmodified": "2018-08-29T00:02:13.777Z",
+            "enabled": true,
+            "access_format": false,
+            "preservation_format": false,
+            "version": "3",
+            "slug": "gatan-digital-micrograph-3",
+            "pronom_id": "fmt/1131",
+            "description": "Gatan Digital Micrograph 3"
+        },
+        "model": "fpr.formatversion"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "2d782626-19b0-4e83-922e-48ba817a7aaa",
+            "format": "6fdfc554-be9b-48c7-89cc-5f24c4037564",
+            "lastmodified": "2018-08-29T00:02:13.296Z",
+            "enabled": true,
+            "command_output": ".heic",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "f659ffe9-fa37-4b96-a225-01b4ff989390",
+            "format": "3965d5b1-9bcb-481a-94de-6ab8cc211613",
+            "lastmodified": "2018-08-29T00:02:13.311Z",
+            "enabled": true,
+            "command_output": ".uue",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "4163b6fd-6415-4c7f-bf89-dd2be5c78840",
+            "format": "1ca63c57-d939-4e78-b645-ba308f82ae6b",
+            "lastmodified": "2018-08-29T00:02:13.350Z",
+            "enabled": true,
+            "command_output": ".sfw",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "11178a78-6e2f-45f1-9c04-62e2d65a1f95",
+            "format": "54de5301-ca7e-4ca5-85b9-b0eb531aa457",
+            "lastmodified": "2018-08-29T00:02:13.581Z",
+            "enabled": true,
+            "command_output": ".ipynb",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "5e901981-a3e3-4c07-ad32-de253f7f9b33",
+            "format": "8026ce75-0c34-4fa3-b380-5ef5e6103c05",
+            "lastmodified": "2018-08-29T00:02:13.607Z",
+            "enabled": true,
+            "command_output": ".raw",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "6dd08c9a-6acd-428f-ab5f-523e8b06a399",
+            "format": "f38780e8-f358-4753-a732-61b5b68dfffb",
+            "lastmodified": "2018-08-29T00:02:13.621Z",
+            "enabled": true,
+            "command_output": ".vms",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "fdef5a37-8680-4c79-a650-b6ecedeca632",
+            "format": "c2896c5e-2a6b-4def-85e3-044e19067e08",
+            "lastmodified": "2018-08-29T00:02:13.636Z",
+            "enabled": true,
+            "command_output": ".opj",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "fdf6a602-1288-49cf-9349-e9df558c43ad",
+            "format": "816d0e5c-fa96-4172-9cdb-597479b16785",
+            "lastmodified": "2018-08-29T00:02:13.651Z",
+            "enabled": true,
+            "command_output": ".opju",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "bc123eee-d332-40f9-898f-f9babc8025ed",
+            "format": "e6ab7cf2-47c0-40f6-b586-a8ce8402daae",
+            "lastmodified": "2018-08-29T00:02:13.672Z",
+            "enabled": true,
+            "command_output": ".jws",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "768b694d-264f-44b3-8a63-00dac611ab39",
+            "format": "36f8495a-f1d5-47c2-b15e-a2a826d2ca8c",
+            "lastmodified": "2018-08-29T00:02:13.687Z",
+            "enabled": true,
+            "command_output": ".sr2",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "493dd20e-0fab-40fc-90ef-affb2a0710dc",
+            "format": "18f9d421-0cc4-4720-98ec-6ab48b6c86fa",
+            "lastmodified": "2018-08-29T00:02:13.722Z",
+            "enabled": true,
+            "command_output": ".pgf",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "874de413-dab7-470e-b893-cd4c85c43183",
+            "format": "d88cdd04-2455-4779-8c98-f9d3a05b6ede",
+            "lastmodified": "2018-08-29T00:02:13.763Z",
+            "enabled": true,
+            "command_output": ".c3d",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    },
+    {
+        "fields": {
+            "replaces": null,
+            "uuid": "a04853eb-cd1a-4951-81cc-120df29c7557",
+            "format": "e64e8666-3495-45b7-8fb2-681f6a492290",
+            "lastmodified": "2018-08-29T00:02:13.785Z",
+            "enabled": true,
+            "command_output": ".dm3",
+            "command": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+        },
+        "model": "fpr.idrule"
+    }
+]

@@ -299,8 +299,6 @@ INSTALLED_APPS = [
     'main',
     'components.mcp',
     'components.administration',
-
-    # FPR
     'fpr',
 
     # For REST API

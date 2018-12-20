@@ -1,0 +1,56 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Revisions" %}{% endblock title %}
+{% block page_title %}{% blocktrans with revision_type=revision_type %}{{ revision_type }} revision history{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Revisions" %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% if revision %}
+      <table class='table'>
+        <thead>
+          <tr>
+            <th>{% trans "UUID" %}</th>
+            <th>{% trans "Last modified" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for descendant in descendants %}
+          <tr>
+            <td><a href="{{ descendant.detail_url }}">{{ descendant.uuid }}</a></td>
+            <td>{{ descendant.lastmodified }}</td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <td><b>&raquo; <a href="{{ revision.detail_url }}">{{ revision.uuid }}</a></b></td>
+          <td>{{ revision.lastmodified }}</td>
+        </tr>
+        {% for ancestor in ancestors %}
+          <tr>
+            <td><a href="{{ ancestor.detail_url }}">{{ ancestor.uuid }}</a></td>
+            <td>{{ ancestor.lastmodified }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans "No revisions exist." %}</p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}
