@@ -13,7 +13,7 @@ See the [LICENSE](LICENSE) file for details.
 
 ## Installation
 
-* [Production installation](https://www.archivematica.org/docs/latest/admin-manual/installation/installation/)
+* [Production installation](https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/)
 * [Development installation](https://wiki.archivematica.org/Getting_started#Installation)
 
 
