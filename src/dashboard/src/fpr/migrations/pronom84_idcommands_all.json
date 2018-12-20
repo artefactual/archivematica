@@ -1,0 +1,77 @@
+[
+  {
+    "fields": {
+      "replaces": null,
+      "uuid": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9",
+      "script": "import os.path\r\nimport subprocess\r\nimport sys\r\n\r\ndef file_tool(path):\r\n    return subprocess.check_output(['file', path]).strip()\r\n\r\n(_, extension) = os.path.splitext(sys.argv[1])\r\nif extension:\r\n    print extension.lower()\r\nelse:\r\n    # Plaintext files frequently have no extension, but are common to identify.\r\n    # file is pretty smart at figuring these out.\r\n    file_output = file_tool(sys.argv[1])\r\n    if 'text' in file_output:\r\n        print '.txt'",
+      "lastmodified": "2013-10-18T22:31:29Z",
+      "tool": "115bc526-c75b-4d2a-9fb9-090c5b49620f",
+      "enabled": true,
+      "script_type": "pythonScript",
+      "config": "ext",
+      "description": "Identify by File Extension"
+    },
+    "model": "fpr.idcommand",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "replaces": null,
+      "uuid": "1c7dd02f-dfd8-46cb-af68-5b305aea1d6e",
+      "script": "import os.path\r\nimport re\r\nimport subprocess\r\nimport sys\r\n\r\ndef file_tool(path):\r\n    return subprocess.check_output(['file', path]).strip()\r\n\r\nclass FidoFailed(Exception):\r\n    def __init__(self, stdout, stderr, retcode):\r\n        message = \"\"\" \r\nFido exited {retcode} and no format was found.\r\nstdout: {stdout}\r\n---\r\nstderr: {stderr}\r\n\"\"\".format(stdout=stdout, stderr=stderr, retcode=retcode)\r\n        super(FidoFailed, self).__init__(message)\r\n\r\ndef identify(file_):\r\n    # The default buffer size fido uses, 256KB, is too small to be able to detect certain formats\r\n    # Formats like office documents and Adobe Illustrator .ai files will be identified as other, less-specific formats\r\n    # This larger buffer size is a bit slower and consumes more RAM, so some users may wish to customize this to reduce the buffer size\r\n    # See: https://projects.artefactual.com/issues/5941, https://projects.artefactual.com/issues/5731\r\n    cmd = ['fido', '-bufsize', '1048576', os.path.abspath(file_)]\r\n    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)\r\n    stdout, stderr = process.communicate()\r\n\r\n    try:\r\n        results = stdout.split('\\n')[0].split(',')\r\n    except:\r\n        raise FidoFailed(stdout, stderr, process.returncode)\r\n\r\n    if process.returncode != 0 or results[-1] == '\"fail\"':\r\n        raise FidoFailed(stdout, stderr, process.returncode)\r\n    else:\r\n        puid = results[2]\r\n        if re.match('(.+)?fmt\\/\\d+', puid):\r\n            return puid\r\n        else:\r\n            print >> sys.stderr, \"File identified as non-standard Fido code: {id}\".format(id=puid)\r\n            return \"\" \r\n\r\ndef main(argv):\r\n    try:\r\n        print identify(argv[1])\r\n        return 0\r\n    except FidoFailed as e:\r\n        file_output = file_tool(argv[1])\r\n        # FIDO can't currently identify text files with no extension, and this\r\n        # is a common enough usecase to special-case it\r\n        if 'text' in file_output:\r\n            print 'x-fmt/111'\r\n        else:\r\n            return e\r\n    except Exception as e:\r\n        return e\r\n\r\nif __name__ == '__main__':\r\n    exit(main(sys.argv))",
+      "lastmodified": "2013-11-15T18:57:44Z",
+      "tool": "8f04f36d-8d43-43c2-92f9-da64c5530106",
+      "enabled": false,
+      "script_type": "pythonScript",
+      "config": "PUID",
+      "description": "Identify using Fido"
+    },
+    "model": "fpr.idcommand",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "replaces": "1c7dd02f-dfd8-46cb-af68-5b305aea1d6e",
+      "uuid": "a8e45bc1-eb35-4545-885c-dd552f1fde9a",
+      "script": "import os.path\nimport re\nimport subprocess\nimport sys\n\ndef file_tool(path):\n    return subprocess.check_output(['file', path]).strip()\n\nclass FidoFailed(Exception):\n    def __init__(self, stdout, stderr, retcode):\n        message = \"\"\" \nFido exited {retcode} and no format was found.\nstdout: {stdout}\n---\nstderr: {stderr}\n\"\"\".format(stdout=stdout, stderr=stderr, retcode=retcode)\n        super(FidoFailed, self).__init__(message)\n\ndef identify(file_):\n    # The default buffer size fido uses, 256KB, is too small to be able to detect certain formats\n    # Formats like office documents and Adobe Illustrator .ai files will be identified as other, less-specific formats\n    # This larger buffer size is a bit slower and consumes more RAM, so some users may wish to customize this to reduce the buffer size\n    # See: https://projects.artefactual.com/issues/5941, https://projects.artefactual.com/issues/5731\n    cmd = ['fido', '-bufsize', '1048576',\n           '-loadformats', '/usr/lib/archivematica/archivematicaCommon/externals/fido/archivematica_format_extensions.xml',\n           os.path.abspath(file_)]\n    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)\n    stdout, stderr = process.communicate()\n\n    try:\n        results = stdout.split('\\n')[0].split(',')\n    except:\n        raise FidoFailed(stdout, stderr, process.returncode)\n\n    if process.returncode != 0 or results[-1] == '\"fail\"':\n        raise FidoFailed(stdout, stderr, process.returncode)\n    else:\n        puid = results[2]\n        if re.match('(.+)?fmt\\/\\d+', puid):\n            return puid\n        else:\n            print >> sys.stderr, \"File identified as non-standard Fido code: {id}\".format(id=puid)\n            return \"\" \n\ndef main(argv):\n    try:\n        print identify(argv[1])\n        return 0\n    except FidoFailed as e:\n        file_output = file_tool(argv[1])\n        # FIDO can't currently identify text files with no extension, and this\n        # is a common enough usecase to special-case it\n        if 'text' in file_output:\n            print 'x-fmt/111'\n        else:\n            return e\n    except Exception as e:\n        return e\n\nif __name__ == '__main__':\n    exit(main(sys.argv))",
+      "lastmodified": "2014-09-16T00:00:00Z",
+      "tool": "8f04f36d-8d43-43c2-92f9-da64c5530106",
+      "enabled": true,
+      "script_type": "pythonScript",
+      "config": "PUID",
+      "description": "Identify using Fido"
+    },
+    "model": "fpr.idcommand",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "replaces": null,
+      "uuid": "8cc792b4-362d-4002-8981-a4e808c04b24",
+      "script": "from __future__ import print_function\r\n\r\nimport json\r\nimport subprocess\r\nimport sys\r\n\r\n\r\nclass IdToolError(Exception):\r\n    pass\r\n\r\n\r\nclass ParseError(IdToolError):\r\n    def __init__(self, message=None):\r\n        IdToolError.__init__(self, message or 'Siegfried returned unexpected output')\r\n\r\n\r\ndef sf_tool(path):\r\n    return subprocess.check_output(['sf', '-json', path])\r\n\r\n\r\ndef file_tool(path):\r\n    return subprocess.check_output(['file', path]).strip()\r\n\r\n\r\ndef file_fallback(path):\r\n    if 'text' in file_tool(path):\r\n        return 'x-fmt/111'\r\n    raise Exception('No format was found.')\r\n\r\n\r\ndef find_puid(sf_output):\r\n    result = json.loads(sf_output)\r\n    try:\r\n        matches = result['files'][0]['matches']\r\n    except KeyError as e:\r\n        raise ParseError('Siegfried returned unexpected output. KeyError: {}.'.format(e))\r\n\r\n    if len(matches) == 0:\r\n        raise ParseError('No matches found.')\r\n\r\n    match = matches[0]\r\n    puid = None\r\n\r\n    if 'puid' in match:\r\n        puid = match['puid']\r\n    elif 'id' in match:\r\n        puid = match['id']\r\n    else:\r\n        raise ParseError\r\n\r\n    if puid == 'UNKNOWN':\r\n        raise IdToolError('Siegfried determined that the file format is UNKNOWN.')\r\n\r\n    return puid\r\n\r\n\r\ndef main(path):\r\n    try:\r\n        print(find_puid(sf_tool(path)))\r\n    except IdToolError:\r\n        print(file_fallback(path))\r\n\r\n\r\nif __name__ == '__main__':\r\n    sys.exit(main(sys.argv[1]))\r\n",
+      "lastmodified": "2015-04-16T17:36:22Z",
+      "tool": "ea5274a2-9866-439c-a68c-5c8aadf6d3cd",
+      "enabled": false,
+      "script_type": "pythonScript",
+      "config": "PUID",
+      "description": "Identify using Siegfried"
+    },
+    "model": "fpr.idcommand",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "replaces": "8cc792b4-362d-4002-8981-a4e808c04b24",
+      "uuid": "9d2cefc1-2bd2-44e4-8d55-6cf8151eecff",
+      "script": "from __future__ import print_function\r\n\r\nimport json\r\nimport subprocess\r\nimport sys\r\n\r\n\r\nclass IdToolError(Exception):\r\n    pass\r\n\r\n\r\nclass ParseError(IdToolError):\r\n    PREFIX = 'The output produced by siegfried could not be parsed'\r\n    def __init__(self, message=None):\r\n        message = self.PREFIX if message is None else '{}: {}'.format(self.PREFIX, message)\r\n        Exception.__init__(self, message)\r\n\r\n\r\ndef sf_tool(path):\r\n    return subprocess.check_output(['sf', '-json', path])\r\n\r\n\r\ndef find_puid(sf_output):\r\n    result = json.loads(sf_output)\r\n    try:\r\n        matches = result['files'][0]['matches']\r\n    except KeyError as e:\r\n        raise ParseError('error matching key {}'.format(e))\r\n\r\n    if len(matches) == 0:\r\n        raise ParseError('no matches found')\r\n\r\n    match = matches[0]\r\n    puid = None\r\n\r\n    if 'puid' in match:\r\n        puid = match['puid']\r\n    elif 'id' in match:\r\n        puid = match['id']\r\n    else:\r\n        raise ParseError\r\n\r\n    if puid == 'UNKNOWN':\r\n        raise IdToolError('siegfried determined that the file format is UNKNOWN')\r\n\r\n    return puid\r\n\r\n\r\ndef main(path):\r\n    try:\r\n        print(find_puid(sf_tool(path)))\r\n    except IdToolError as e:\r\n        print(e, file=sys.stderr)\r\n        return 1\r\n    return 0\r\n\r\n\r\nif __name__ == '__main__':\r\n    sys.exit(main(sys.argv[1]))\r\n",
+      "lastmodified": "2016-06-02T10:02:42Z",
+      "tool": "454df69d-5cc0-49fc-93e4-6fbb6ac659e7",
+      "enabled": true,
+      "script_type": "pythonScript",
+      "config": "PUID",
+      "description": "Identify using Siegfried"
+    },
+    "model": "fpr.idcommand",
+    "pk": 5
+  }
+]

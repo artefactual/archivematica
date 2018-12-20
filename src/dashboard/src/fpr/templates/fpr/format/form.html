@@ -1,0 +1,79 @@
+{% extends "fpr/app_layout.html" %}
+{% load bootstrap_tags %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ title }}{% endblock title %}
+{% block page_title %}{{ title }}{% endblock page_title %}
+
+{% block extra_css %}
+{{ block.super }}
+<style type="text/css">
+#format_group_form {
+  margin-left: 2em;
+}
+</style>
+{% endblock extra_css %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+<li>{{ title }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='format'>
+
+      {% if format %}
+      <form action="{% url 'format_edit' format.slug %}" method="post" id='format_form'>
+      {% else %}
+      <form action="{% url 'format_create' %}" method="post" id='format_form'>
+      {% endif %}
+        {% csrf_token %}
+        <p>
+          {{ form.group.errors }}
+          {{ form.group.label_tag }} {{ form.group }}
+        </p>
+        <div id='format_group_form'>
+          {{ format_group_form|as_bootstrap }}
+        </div>
+        <p>
+          {{ form.description.errors }}
+          {{ form.description.label_tag }} {{ form.description }}
+        </p>
+        <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary" />
+      </form>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script type="text/javascript">
+
+function display_extra_form() {
+  val = $("#id_f-group option:selected").val();
+  if (val == 'new') {
+    $('#format_group_form').show();
+  } else {
+    $('#format_group_form').hide();
+  }
+}
+
+$(document).ready(function () {
+  display_extra_form();
+  $("#id_f-group").change(function () {display_extra_form();});
+
+});
+
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,66 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Format policy rules " %}{% endblock title %}
+{% block page_title %}{% trans "Format policy rules " %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>{% trans "Format policy rules " %}</li>
+<li>{% trans "List" %}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% if request.user.is_superuser %}
+    <p><a href="{% url 'fprule_create' %}">{% trans 'Create new rule' %}</a></p>
+    {% endif %}
+
+    {% if fprules %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Purpose" %}</th>
+            <th>{% trans "Format" %}</th>
+            <th>{% trans "Command" %}</th>
+            <th>{% trans "Success" %}</th>
+            <th>{% trans "Enabled" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for fprule in fprules %}
+          <tr>
+            <td><a href="{% url 'fprule_detail' fprule.uuid %}">{{ fprule.get_purpose_display }}</a></td>
+            <td>{{ fprule.format.description }}</td>
+            <td>{{ fprule.command.description }}</td>
+            <td>{{ fprule.count_okay }} out of {{ fprule.count_attempts }}</td>
+            <td>{{ fprule.enabled|yesno:_('Yes,No') }}</td>
+            <td>
+              <a href="{% url 'fprule_detail' fprule.uuid %}">{% trans "View" %}</a>
+              {% if request.user.is_superuser %}
+                |
+                <a href="{% url 'fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a>
+                |
+                <a href="{% url 'fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans "No format policy rules exist." %}</p>
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

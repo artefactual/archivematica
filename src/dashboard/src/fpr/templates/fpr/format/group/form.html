@@ -1,0 +1,73 @@
+{% extends "fpr/app_layout.html" %}
+{% load bootstrap_tags %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ title }}{% endblock title %}
+{% block page_title %}{{ title }}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'formatgroup_list' %}">{% trans "Groups" %}</a></li>
+<li>{{ title }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    <div class='format'>
+
+      {% if group %}
+      <form action="{% url 'formatgroup_edit' group.slug %}" method="post" id='format_group_form'>
+      {% else %}
+      <form action="{% url 'formatgroup_create' %}" method="post" id='format_group_form'>
+      {% endif %}
+        {% csrf_token %}
+        {{ form|as_bootstrap }}
+        <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary" />
+      </form>
+    </div>
+
+    {% if group %}
+    <h2>{% trans "Formats" %}</h2>
+
+    <p><a href="{% url 'format_create' %}">{% trans "Create new format" %}</a></p>
+
+      {% if group_formats %}
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for format in group_formats %}
+          <tr>
+            <td><a href="{% url 'format_detail' format.slug %}">{{ format.description }}</a></td>
+            <td><a href="{% url 'format_edit' format.slug %}">{% trans "Edit" %}</a> </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>
+        {% blocktrans with description=group.description %}
+          No formats exist for {{ description }}.
+        {% endblocktrans %}
+      </p>
+      {% endif %}
+    {% endif %}
+
+  </div> <!-- /col-xs-10 -->
+
+
+</div> <!-- /row -->
+
+
+{% endblock app_content %}

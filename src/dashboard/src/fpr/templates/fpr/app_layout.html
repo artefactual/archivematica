@@ -1,0 +1,60 @@
+{% extends "layout_fluid.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Format Policy Registry" %}{% endblock title %}
+
+{%comment%}Format {{format.description}}{%endcomment%}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style type="text/css"> th { resize: both; overflow: auto; } </style>
+  <link href="{% static 'vendor/datatables/css/jquery.dataTables.css' %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block content %}
+
+  <ul class="breadcrumb">
+    {% block breadcrumbs %}{% endblock breadcrumbs %}
+  </ul>
+
+  <h1>{% block page_title %}{% endblock page_title %}</h1>
+
+  {% block app_content %}{% endblock app_content %}
+
+{% endblock content %}
+
+{% block extra_js %}
+  <script src="{% static 'vendor/datatables/js/jquery.dataTables.min.js' %}"></script>
+  <script>
+    $(document).ready(function() {
+      $('.datatable').DataTable({
+        // Requires DataTables 1.10 or newer, it's noop in 1.9.
+        "language": {
+          "decimal":               "",
+          "emptyTable":            "{% trans 'No data available in table' context 'DataTable - emptyTable' %}",
+          "info":                  "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' context 'DataTable - info' %}",
+          "infoEmpty":             "{% trans 'Showing 0 to 0 of 0 entries' context 'DataTable - infoEmpty' %}",
+          "infoFiltered":          "{% trans '(filtered from _MAX_ total entries)' context 'DataTable - infoFiltered' %}",
+          "infoPostFix":           "",
+          "thousands":             "{% trans ',' context 'DataTable - thousands' %}",
+          "lengthMenu":            "{% trans 'Show _MENU_ entries' context 'DataTable - lengthMenu' %}",
+          "loadingRecords":        "{% trans 'Loading...' context 'DataTable - loadingRecords' %}",
+          "processing":            "{% trans 'Processing...' context 'DataTable - processing' %}",
+          "search":                "{% trans 'Search:' context 'DataTable - search' %}",
+          "zeroRecords":           "{% trans 'No matching records found' context 'DataTable - zeroRecords' %}",
+          "paginate": {
+              "first":             "{% trans 'First' context 'DataTable - first' %}",
+              "last":              "{% trans 'Last' context 'DataTable - last' %}",
+              "next":              "{% trans 'Next' context 'DataTable - next' %}",
+              "previous":          "{% trans 'Previous' context 'DataTable - previous' %}"
+          },
+          "aria": {
+              "sortAscending":     "{% trans ': activate to sort column ascending' context 'DataTable - sortAscending' %}",
+              "sortDescending":    "{% trans ': activate to sort column descending' context 'DataTable - sortDescending' %}"
+          }
+        }
+      });
+    });
+  </script>
+{% endblock extra_js %}

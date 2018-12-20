@@ -1,0 +1,52 @@
+{% extends "fpr/app_layout.html" %}
+{% load i18n %}
+{% load revisions_link %}
+
+{% block title %}{{ block.super }} - {% blocktrans with description=idcommand.description %}Identification command {{ description }}{% endblocktrans %}{% endblock title %}
+{% block page_title %}{% blocktrans with description=idcommand.description %}Identification command {{ description }}{% endblocktrans %}{% endblock page_title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'idcommand_list' %}">{% trans "Identification commands" %}</a></li>
+<li>{{ idcommand.description }}</li>
+{% endblock breadcrumbs %}
+
+{% block app_content %}
+
+<div class="row">
+
+  {% include 'fpr/_sidebar.html' %}
+
+  <div class="col-xs-10">
+
+    {% revisions_link "idcommand" idcommand.uuid %}
+
+    <div class='format'>
+      <dl>
+        <dt>{% trans "UUID" %}</dt>
+          <dd>{{ idcommand.uuid }}</dd>
+        <dt>{% trans "Tool" %}</dt>
+          <dd>{{ idcommand.tool }}
+        <dt>{% trans "Description" %}</dt>
+          <dd>{{ idcommand.description }}</dd>
+        <dt>{% trans "Mode" %}</dt>
+          <dd>{{ idcommand.config }}</dd>
+        <dt>{% trans "Script" %}</dt>
+          <dd><pre>{{ idcommand.script }}</pre></dd>
+        <dt>{% trans "Script type" %}</dt>
+          <dd>{{ idcommand.get_script_type_display }}</dd>
+        <dt>{% trans "Enabled" %}</dt>
+          <dd>{{ idcommand.enabled|yesno:_('Yes,No') }}</dd>
+        {% if request.user.is_superuser %}
+        <dt>{% trans "Actions" %}</dt>
+          <dd><a href="{% url 'idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a></dd>
+          <dd><a href="{% url 'idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
+        {% endif %}
+      </dl>
+    </div>
+
+  </div> <!-- /col-xs-10 -->
+
+</div> <!-- /row -->
+
+{% endblock app_content %}

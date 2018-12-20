@@ -1,0 +1,57 @@
+[
+  {
+    "fields": {
+      "slug": "file-extension-01",
+      "version": "0.1",
+      "enabled": true,
+      "uuid": "115bc526-c75b-4d2a-9fb9-090c5b49620f",
+      "description": "File Extension"
+    },
+    "model": "fpr.idtool",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "slug": "fido-1",
+      "version": "1",
+      "enabled": false,
+      "uuid": "8f04f36d-8d43-43c2-92f9-da64c5530106",
+      "description": "Fido"
+    },
+    "model": "fpr.idtool",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "slug": "siegfried-100",
+      "version": "1.0.0",
+      "enabled": false,
+      "uuid": "ea5274a2-9866-439c-a68c-5c8aadf6d3cd",
+      "description": "Siegfried"
+    },
+    "model": "fpr.idtool",
+    "pk": 3
+  },
+    {
+    "fields": {
+      "slug": "fido-134",
+      "version": "1.3.4",
+      "enabled": true,
+      "uuid": "c33c9d4d-121f-4db1-aa31-3d248c705e44",
+      "description": "Fido"
+    },
+    "model": "fpr.idtool",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "slug": "siegfried-150",
+      "version": "1.5.0",
+      "enabled": true,
+      "uuid": "454df69d-5cc0-49fc-93e4-6fbb6ac659e7",
+      "description": "Siegfried"
+    },
+    "model": "fpr.idtool",
+    "pk": 5
+  }
+]
