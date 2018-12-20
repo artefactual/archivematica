@@ -223,30 +223,6 @@ class IDCommand(VersionedModel, models.Model):
             'command': self.description,
         }
 
-    def save(self, *args, **kwargs):
-        super(IDCommand, self).save(*args, **kwargs)
-        # If part of archivematica, create user choice replacement dict
-        try:
-            from main.models import MicroServiceChoiceReplacementDic
-        except ImportError:
-            return
-        # Remove existing object
-        MicroServiceChoiceReplacementDic.objects.filter(replacementdic__contains=self.uuid).delete()
-        if self.enabled:
-            # Add replacement to MicroServiceChoiceReplacementDic
-            at_link_transfer = 'f09847c2-ee51-429a-9478-a860477f6b8d'
-            at_link_ingest = '7a024896-c4f7-4808-a240-44c87c762bc5'
-            at_link_submissiondocs = '087d27be-c719-47d8-9bbb-9a7d8b609c44'
-            # {"%IDCommand%": self.command.uuid}
-            replace = '{{"%IDCommand%":"{0}"}}'.format(self.uuid)
-            for link in (at_link_transfer, at_link_ingest, at_link_submissiondocs):
-                MicroServiceChoiceReplacementDic.objects.create(
-                    id=str(uuid.uuid4()),
-                    choiceavailableatlink_id=link,
-                    description=self.description,
-                    replacementdic=replace,
-                )
-
 
 class IDRule(VersionedModel, models.Model):
     """ Mapping between an IDCommand output and a FormatVersion. """
