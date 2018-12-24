@@ -23,14 +23,12 @@
   { "name": "fits", "state": "latest"},
   { "name": "gearman", "state": "latest"},
   { "name": "ghostscript", "state": "latest"},
-  { "name": "hashdeep", "state": "latest"},
   { "name": "imagemagick", "state": "latest"},
   { "name": "inkscape", "state": "latest"},
   { "name": "jhove", "state": "latest"},
   { "name": "libimage-exiftool-perl", "state": "latest"},
   { "name": "libxml2-utils", "state": "latest"},
   { "name": "logapp", "state": "latest"},
-  { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
   { "name": "mediaconch", "state": "latest"},
   { "name": "nailgun", "state": "latest"},
@@ -48,6 +46,8 @@
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
+  { "name": "uuid", "state": "latest"},
+  { "name": "coreutils", "state": "latest"},
+  { "name": "ack", "state": "latest"}
   ]
 }

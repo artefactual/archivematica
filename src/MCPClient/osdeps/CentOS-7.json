@@ -42,7 +42,6 @@
   { "name": "libpst", "state": "latest"},
   { "name": "libraw1394", "state": "latest"},
   { "name": "libvpx", "state": "latest"},
-  { "name": "md5deep", "state": "latest"},
   { "name": "mediainfo", "state": "latest"},
   { "name": "mediaconch", "state": "latest"},
   { "name": "nfs-utils", "state": "latest"},
@@ -59,7 +58,9 @@
   { "name": "tesseract", "state": "latest"},
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
+  { "name": "uuid", "state": "latest"},
+  { "name": "coreutils", "state": "latest"},
+  { "name": "ack", "state": "latest"}
   ]
 }
 

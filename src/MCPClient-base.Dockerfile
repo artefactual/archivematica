@@ -37,7 +37,7 @@ RUN set -ex \
 		clamav \
 		ffmpeg \
 		ghostscript \
-		hashdeep \
+		coreutils \
 		libavcodec-extra \
 		fits \
 		imagemagick \
@@ -62,6 +62,7 @@ RUN set -ex \
 		ufraw \
 		unrar-free \
 		uuid \
+		ack \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
