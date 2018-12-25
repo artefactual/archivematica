@@ -39,6 +39,26 @@ class AtomMetadataUploadError(Exception):
     pass
 
 
+def _load_premis(data, mwfile):
+    """Update ``data`` dictionary with relevant ``PREMIS:OBJECT`` attrs."""
+    try:
+        premis_object = mwfile.get_premis_objects()[0]
+    except IndexError:
+        return
+    props = (
+        'size', 'format_name', 'format_version',
+        'format_registry_name', 'format_registry_key',)
+    for prop in props:
+        try:
+            val = getattr(premis_object, prop)
+        except AttributeError:
+            continue
+        if not val:
+            continue
+        logger.debug('Extracted property %s from METS: %s', prop, val)
+        data[prop] = val
+
+
 def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
     """
     Write to a AtoM's resource (parent_slug) the metadata of the objects of a
@@ -70,18 +90,6 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
         except (AtomError, CommunicationError):
             raise AtomMetadataUploadError
 
-        def add_prop_from_xml(dict_, name, el, xpath):
-            """
-            Write to a dictionary a new pair with the given key and the value
-            taken from the text attribute of the element matched by the given
-            XPath query.
-            """
-            res = el.find(xpath)
-            if res is not None and res.text:
-                dict_[name] = res.text
-                logger.debug("Extracted property %s from METS: %s", name, res.text)
-            logger.debug("Failed to extract property %s from METS: not found", name)
-
         # Add objects
         for item in mw.all_files():
             if item.type == "Directory" or item.use != "original":
@@ -92,39 +100,8 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
                 "file_uuid": item.file_uuid,
                 "aip_uuid": aip_uuid,
             }
-            amdsec = item.amdsecs[0].serialize()
-            add_prop_from_xml(
-                attrs,
-                "size",
-                amdsec,
-                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}size",
-            )
-            add_prop_from_xml(
-                attrs,
-                "format_name",
-                amdsec,
-                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatName",
-            )
-            add_prop_from_xml(
-                attrs,
-                "format_version",
-                amdsec,
-                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatVersion",
-            )
-            add_prop_from_xml(
-                attrs,
-                "format_registry_name",
-                amdsec,
-                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryName",
-            )
-            add_prop_from_xml(
-                attrs,
-                "format_registry_key",
-                amdsec,
-                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryKey",
-            )
+            _load_premis(attrs, item)
             title = os.path.basename(item.path)
-
             try:
                 logger.info("Creating child with title %s", title)
                 slug = client.add_child(

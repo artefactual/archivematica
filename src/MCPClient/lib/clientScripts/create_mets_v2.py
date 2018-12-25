@@ -242,24 +242,26 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-    object_elem = etree.SubElement(
-        xmlData, ns.premisV3BNS + "object", nsmap={"premis": ns.premisV3NS}
-    )
+    object_elem = etree.SubElement(xmlData, ns.premisBNS + "object",
+                                   nsmap={'premis': ns.premisNS})
     object_elem.set(ns.xsiBNS + "type", "premis:intellectualEntity")
     object_elem.set(
         ns.xsiBNS + "schemaLocation",
-        ns.premisV3NS + " http://www.loc.gov/standards/premis/v3/premis.xsd",
-    )
+        ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
     object_elem.set("version", "3.0")
     # Add the directory's UUID and any other identifiers as
     # <premis:objectIdentifier> children of <premis:object>.
-    for identifier in chain((("UUID", dir_uuid),), _get_mdl_identifiers(dir_mdl)):
-        object_elem = _add_identifier(object_elem, identifier, bns=ns.premisV3BNS)
+    for identifier in chain((('UUID', dir_uuid),),
+                            _get_mdl_identifiers(dir_mdl)):
+        object_elem = _add_identifier(
+            object_elem, identifier, bns=ns.premisBNS)
     try:
         original_name = escape(dir_mdl.originallocation)
     except AttributeError:  # SIP model won't have originallocation
         original_name = escape(relativeDirectoryPath)
-    etree.SubElement(object_elem, ns.premisV3BNS + "originalName").text = original_name
+    etree.SubElement(
+        object_elem,
+        ns.premisBNS + "originalName").text = original_name
     return ret
 
 
@@ -505,11 +507,8 @@ def create_premis_object(fileUUID):
     # PREMIS:OBJECT
     object_elem = etree.Element(ns.premisBNS + "object", nsmap={"premis": ns.premisNS})
     object_elem.set(ns.xsiBNS + "type", "premis:file")
-    object_elem.set(
-        ns.xsiBNS + "schemaLocation",
-        ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd",
-    )
-    object_elem.set("version", "2.2")
+    object_elem.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
+    object_elem.set("version", "3.0")
 
     # Add the UUID and any additional file identifiers, e.g., PIDs or
     # PURLs/URIs, to the XML.
@@ -587,11 +586,8 @@ def create_premis_object_formats(fileUUID):
 
 
 def create_premis_object_characteristics_extensions(fileUUID):
-    objectCharacteristicsExtension = etree.Element(
-        ns.premisBNS + "objectCharacteristicsExtension"
-    )
-    elements = [objectCharacteristicsExtension]
-
+    elements = []
+    objectCharacteristicsExtension = etree.Element(ns.premisBNS + "objectCharacteristicsExtension")
     parser = etree.XMLParser(remove_blank_text=True)
     documents = FPCommandOutput.objects.filter(
         file_id=fileUUID,
@@ -603,6 +599,8 @@ def create_premis_object_characteristics_extensions(fileUUID):
         # encoding declaration.
         output = etree.XML(document.encode("utf-8"), parser)
         objectCharacteristicsExtension.append(output)
+    if len(objectCharacteristicsExtension):
+        elements.append(objectCharacteristicsExtension)
 
     return elements
 
@@ -615,32 +613,16 @@ def create_premis_object_derivations(fileUUID):
     )
     for derivation in derivations:
         relationship = etree.Element(ns.premisBNS + "relationship")
-        etree.SubElement(
-            relationship, ns.premisBNS + "relationshipType"
-        ).text = "derivation"
-        etree.SubElement(
-            relationship, ns.premisBNS + "relationshipSubType"
-        ).text = "is source of"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "is source of"
 
-        relatedObjectIdentification = etree.SubElement(
-            relationship, ns.premisBNS + "relatedObjectIdentification"
-        )
-        etree.SubElement(
-            relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType"
-        ).text = "UUID"
-        etree.SubElement(
-            relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue"
-        ).text = derivation.derived_file_id
+        relatedObjectIdentifier = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentifier")
+        etree.SubElement(relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
+        etree.SubElement(relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierValue").text = derivation.derived_file_id
 
-        relatedEventIdentification = etree.SubElement(
-            relationship, ns.premisBNS + "relatedEventIdentification"
-        )
-        etree.SubElement(
-            relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType"
-        ).text = "UUID"
-        etree.SubElement(
-            relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue"
-        ).text = derivation.event_id
+        relatedEventIdentifier = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentifier")
+        etree.SubElement(relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
+        etree.SubElement(relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
         elements.append(relationship)
 
@@ -649,32 +631,16 @@ def create_premis_object_derivations(fileUUID):
     )
     for derivation in derivations:
         relationship = etree.Element(ns.premisBNS + "relationship")
-        etree.SubElement(
-            relationship, ns.premisBNS + "relationshipType"
-        ).text = "derivation"
-        etree.SubElement(
-            relationship, ns.premisBNS + "relationshipSubType"
-        ).text = "has source"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "has source"
 
-        relatedObjectIdentification = etree.SubElement(
-            relationship, ns.premisBNS + "relatedObjectIdentification"
-        )
-        etree.SubElement(
-            relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType"
-        ).text = "UUID"
-        etree.SubElement(
-            relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue"
-        ).text = derivation.source_file_id
+        relatedObjectIdentifier = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentifier")
+        etree.SubElement(relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
+        etree.SubElement(relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierValue").text = derivation.source_file_id
 
-        relatedEventIdentification = etree.SubElement(
-            relationship, ns.premisBNS + "relatedEventIdentification"
-        )
-        etree.SubElement(
-            relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType"
-        ).text = "UUID"
-        etree.SubElement(
-            relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue"
-        ).text = derivation.event_id
+        relatedEventIdentifier = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentifier")
+        etree.SubElement(relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
+        etree.SubElement(relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
         elements.append(relationship)
 
@@ -722,12 +688,9 @@ def createDigiprovMD(fileUUID, state):
 
 def createEvent(event_record):
     """ Returns a PREMIS Event. """
-    event = etree.Element(ns.premisBNS + "event", nsmap={"premis": ns.premisNS})
-    event.set(
-        ns.xsiBNS + "schemaLocation",
-        ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd",
-    )
-    event.set("version", "2.2")
+    event = etree.Element(ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
+    event.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
+    event.set("version", "3.0")
 
     eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
     etree.SubElement(
@@ -738,25 +701,15 @@ def createEvent(event_record):
     ).text = event_record.event_id
 
     etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
-    etree.SubElement(
-        event, ns.premisBNS + "eventDateTime"
-    ).text = event_record.event_datetime.isoformat()
-    etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(
-        event_record.event_detail
-    )
+    etree.SubElement(event, ns.premisBNS + "eventDateTime").text = event_record.event_datetime.isoformat()
 
-    eventOutcomeInformation = etree.SubElement(
-        event, ns.premisBNS + "eventOutcomeInformation"
-    )
-    etree.SubElement(
-        eventOutcomeInformation, ns.premisBNS + "eventOutcome"
-    ).text = event_record.event_outcome
-    eventOutcomeDetail = etree.SubElement(
-        eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail"
-    )
-    etree.SubElement(
-        eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote"
-    ).text = escape(event_record.event_outcome_detail)
+    eventDetailInformation = etree.SubElement(event, ns.premisBNS + "eventDetailInformation")
+    etree.SubElement(eventDetailInformation, ns.premisBNS + "eventDetail").text = escape(event_record.event_detail)
+
+    eventOutcomeInformation = etree.SubElement(event, ns.premisBNS + "eventOutcomeInformation")
+    etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = event_record.event_outcome
+    eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
+    etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(event_record.event_outcome_detail)
 
     # linkingAgentIdentifier
     for agent in event_record.agents.all():
@@ -774,12 +727,9 @@ def createEvent(event_record):
 
 def createAgent(agent_record):
     """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
-    agent = etree.Element(ns.premisBNS + "agent", nsmap={"premis": ns.premisNS})
-    agent.set(
-        ns.xsiBNS + "schemaLocation",
-        ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd",
-    )
-    agent.set("version", "2.2")
+    agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
+    agent.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
+    agent.set("version", "3.0")
 
     agentIdentifier = etree.SubElement(agent, ns.premisBNS + "agentIdentifier")
     etree.SubElement(

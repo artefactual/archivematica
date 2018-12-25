@@ -49,7 +49,7 @@ from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
 
 import metsrw
-
+import namespaces as ns
 
 logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
 
@@ -110,9 +110,7 @@ def get_file_info_from_mets(job, sip_directory, file_path_relative_to_sip):
         if item.subsection == "techMD":
             techmd = item
     pobject = techmd.contents.document  # Element
-    original_path = pobject.findtext(
-        "premis:originalName", namespaces=metsrw.utils.NAMESPACES
-    )
+    original_path = ns.xml_findtext_premis(pobject, 'premis:originalName')
 
     return {
         "uuid": entry.file_uuid,

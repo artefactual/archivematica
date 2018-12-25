@@ -34,19 +34,14 @@ def parse_format_version(job, element):
     format_version = None
     try:
         # Looks for PRONOM ID first
-        if (
-            element.findtext(".//premis:formatRegistryName", namespaces=ns.NSMAP)
-            == "PRONOM"
-        ):
-            puid = element.findtext(".//premis:formatRegistryKey", namespaces=ns.NSMAP)
-            job.pyprint("PUID", puid)
+        format_registry_name = ns.xml_findtext_premis(element, './/premis:formatRegistryName')
+        if format_registry_name == 'PRONOM':
+            puid = ns.xml_findtext_premis(element, './/premis:formatRegistryKey')
+            job.pyprint('PUID', puid)
             format_version = fpr_models.FormatVersion.active.get(pronom_id=puid)
-        elif (
-            element.findtext(".//premis:formatRegistryName", namespaces=ns.NSMAP)
-            == "Archivematica Format Policy Registry"
-        ):
-            key = element.findtext(".//premis:formatRegistryKey", namespaces=ns.NSMAP)
-            job.pyprint("FPR key", key)
+        elif format_registry_name == 'Archivematica Format Policy Registry':
+            key = ns.xml_findtext_premis(element, './/premis:formatRegistryKey')
+            job.pyprint('FPR key', key)
             format_version = fpr_models.IDRule.active.get(command_output=key).format
     except fpr_models.FormatVersion.DoesNotExist:
         pass
@@ -68,16 +63,12 @@ def parse_files(job, root):
             namespaces=ns.NSMAP,
         )[0]
 
-        file_uuid = current_techmd.findtext(
-            ".//premis:objectIdentifierValue", namespaces=ns.NSMAP
-        )
-        job.pyprint("file_uuid", file_uuid)
+        file_uuid = ns.xml_findtext_premis(current_techmd, './/premis:objectIdentifierValue')
+        job.pyprint('file_uuid', file_uuid)
 
-        original_path = current_techmd.findtext(
-            ".//premis:originalName", namespaces=ns.NSMAP
-        )
-        original_path = original_path.replace("%transferDirectory%", "%SIPDirectory%")
-        job.pyprint("original_path", original_path)
+        original_path = ns.xml_findtext_premis(current_techmd, './/premis:originalName')
+        original_path = original_path.replace('%transferDirectory%', '%SIPDirectory%')
+        job.pyprint('original_path', original_path)
 
         current_path = fe.find("mets:FLocat", namespaces=ns.NSMAP).get(
             ns.xlinkBNS + "href"
@@ -85,18 +76,14 @@ def parse_files(job, root):
         current_path = "%SIPDirectory%" + current_path
         job.pyprint("current_path", current_path)
 
-        checksum = current_techmd.findtext(
-            ".//premis:messageDigest", namespaces=ns.NSMAP
-        )
-        job.pyprint("checksum", checksum)
+        checksum = ns.xml_findtext_premis(current_techmd, './/premis:messageDigest')
+        job.pyprint('checksum', checksum)
 
-        checksumtype = current_techmd.findtext(
-            ".//premis:messageDigestAlgorithm", namespaces=ns.NSMAP
-        )
-        job.pyprint("checksumtype", checksumtype)
+        checksumtype = ns.xml_findtext_premis(current_techmd, './/premis:messageDigestAlgorithm')
+        job.pyprint('checksumtype', checksumtype)
 
-        size = current_techmd.findtext(".//premis:size", namespaces=ns.NSMAP)
-        job.pyprint("size", size)
+        size = ns.xml_findtext_premis(current_techmd, './/premis:size')
+        job.pyprint('size', size)
 
         # FormatVersion
         format_version = parse_format_version(job, current_techmd)
@@ -104,19 +91,13 @@ def parse_files(job, root):
 
         # Derivation
         derivation = derivation_event = None
-        event = current_techmd.findtext(
-            ".//premis:relatedEventIdentifierValue", namespaces=ns.NSMAP
-        )
-        job.pyprint("derivation event", event)
-        related_uuid = current_techmd.findtext(
-            ".//premis:relatedObjectIdentifierValue", namespaces=ns.NSMAP
-        )
-        job.pyprint("related_uuid", related_uuid)
-        rel = current_techmd.findtext(
-            ".//premis:relationshipSubType", namespaces=ns.NSMAP
-        )
-        job.pyprint("relationship", rel)
-        if rel == "is source of":
+        event = ns.xml_findtext_premis(current_techmd, './/premis:relatedEventIdentifierValue')
+        job.pyprint('derivation event', event)
+        related_uuid = ns.xml_findtext_premis(current_techmd, './/premis:relatedObjectIdentifierValue')
+        job.pyprint('related_uuid', related_uuid)
+        rel = ns.xml_findtext_premis(current_techmd, './/premis:relationshipSubType')
+        job.pyprint('relationship', rel)
+        if rel == 'is source of':
             derivation = related_uuid
             derivation_event = event
 
@@ -297,15 +278,12 @@ def parse_rights(job, sip_uuid, root):
         amd = amds[0]
         # Get rightsMDs
         # METS from original AIPs will not have @STATUS, and reingested AIPs will have only one @STATUS that is 'current'
-        rights_stmts = amd.xpath(
-            'mets:rightsMD[not(@STATUS) or @STATUS="current"]/mets:mdWrap[@MDTYPE="PREMIS:RIGHTS"]/*/premis:rightsStatement',
-            namespaces=ns.NSMAP,
-        )
+        rights_stmts = ns.xml_xpath_premis(amd, 'mets:rightsMD[not(@STATUS) or @STATUS="current"]/mets:mdWrap[@MDTYPE="PREMIS:RIGHTS"]/*/premis:rightsStatement')
 
         # Parse to DB
         for statement in rights_stmts:
-            rights_basis = statement.findtext("premis:rightsBasis", namespaces=ns.NSMAP)
-            job.pyprint("rights_basis", rights_basis)
+            rights_basis = ns.xml_findtext_premis(statement, 'premis:rightsBasis')
+            job.pyprint('rights_basis', rights_basis)
             # Don't parse identifier type/value so if it's modified the new one gets unique identifiers
             rights = models.RightsStatement.objects.create(
                 metadataappliestotype_id=MD_TYPE_SIP_ID,
@@ -315,38 +293,12 @@ def parse_rights(job, sip_uuid, root):
                 rightsbasis=rights_basis,
                 status=models.METADATA_STATUS_REINGEST,
             )
-            if rights_basis == "Copyright":
-                status = (
-                    statement.findtext(".//premis:copyrightStatus", namespaces=ns.NSMAP)
-                    or ""
-                )
-                jurisdiction = (
-                    statement.findtext(
-                        ".//premis:copyrightJurisdiction", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
-                det_date = (
-                    statement.findtext(
-                        ".//premis:copyrightStatusDeterminationDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                start_date = (
-                    statement.findtext(
-                        ".//premis:copyrightApplicableDates/premis:startDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                end_date = (
-                    statement.findtext(
-                        ".//premis:copyrightApplicableDates/premis:endDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
+            if rights_basis == 'Copyright':
+                status = ns.xml_findtext_premis(statement, './/premis:copyrightStatus')
+                jurisdiction = ns.xml_findtext_premis(statement, './/premis:copyrightJurisdiction')
+                det_date = ns.xml_findtext_premis(statement, './/premis:copyrightStatusDeterminationDate')
+                start_date = ns.xml_findtext_premis(statement, './/premis:copyrightApplicableDates/premis:startDate')
+                end_date = ns.xml_findtext_premis(statement, './/premis:copyrightApplicableDates/premis:endDate')
                 end_open = False
                 if end_date == "OPEN":
                     end_open = True
@@ -360,58 +312,23 @@ def parse_rights(job, sip_uuid, root):
                     copyrightapplicableenddate=end_date,
                     copyrightenddateopen=end_open,
                 )
-                id_type = (
-                    statement.findtext(
-                        ".//premis:copyrightDocumentationIdentifierType",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_value = (
-                    statement.findtext(
-                        ".//premis:copyrightDocumentationIdentifierValue",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_role = (
-                    statement.findtext(
-                        ".//premis:copyrightDocumentationRole", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
+                id_type = ns.xml_findtext_premis(statement, './/premis:copyrightDocumentationIdentifierType')
+                id_value = ns.xml_findtext_premis(statement, './/premis:copyrightDocumentationIdentifierValue')
+                id_role = ns.xml_findtext_premis(statement, './/premis:copyrightDocumentationRole')
                 models.RightsStatementCopyrightDocumentationIdentifier.objects.create(
                     rightscopyright=cr,
                     copyrightdocumentationidentifiertype=id_type,
                     copyrightdocumentationidentifiervalue=id_value,
                     copyrightdocumentationidentifierrole=id_role,
                 )
-                note = (
-                    statement.findtext(".//premis:copyrightNote", namespaces=ns.NSMAP)
-                    or ""
-                )
+                note = ns.xml_findtext_premis(statement, './/premis:copyrightNote')
                 models.RightsStatementCopyrightNote.objects.create(
                     rightscopyright=cr, copyrightnote=note
                 )
-            elif rights_basis == "License":
-                terms = (
-                    statement.findtext(".//premis:licenseTerms", namespaces=ns.NSMAP)
-                    or ""
-                )
-                start_date = (
-                    statement.findtext(
-                        ".//premis:licenseApplicableDates/premis:startDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                end_date = (
-                    statement.findtext(
-                        ".//premis:licenseApplicableDates/premis:endDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
+            elif rights_basis == 'License':
+                terms = ns.xml_findtext_premis(statement, './/premis:licenseTerms')
+                start_date = ns.xml_findtext_premis(statement, './/premis:licenseApplicableDates/premis:startDate')
+                end_date = ns.xml_findtext_premis(statement, './/premis:licenseApplicableDates/premis:endDate')
                 end_open = False
                 if end_date == "OPEN":
                     end_open = True
@@ -423,26 +340,9 @@ def parse_rights(job, sip_uuid, root):
                     licenseapplicableenddate=end_date,
                     licenseenddateopen=end_open,
                 )
-                id_type = (
-                    statement.findtext(
-                        ".//premis:licenseDocumentationIdentifierType",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_value = (
-                    statement.findtext(
-                        ".//premis:licenseDocumentationIdentifierValue",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_role = (
-                    statement.findtext(
-                        ".//premis:licenseDocumentationRole", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
+                id_type = ns.xml_findtext_premis(statement, './/premis:licenseDocumentationIdentifierType')
+                id_value = ns.xml_findtext_premis(statement, './/premis:licenseDocumentationIdentifierValue')
+                id_role = ns.xml_findtext_premis(statement, './/premis:licenseDocumentationRole')
                 models.RightsStatementLicenseDocumentationIdentifier.objects.create(
                     rightsstatementlicense=li,
                     licensedocumentationidentifiertype=id_type,
@@ -454,40 +354,15 @@ def parse_rights(job, sip_uuid, root):
                     or ""
                 )
                 models.RightsStatementLicenseNote.objects.create(
-                    rightsstatementlicense=li, licensenote=note
+                    rightsstatementlicense=li,
+                    licensenote=note,
                 )
-            elif rights_basis == "Statute":
-                jurisdiction = (
-                    statement.findtext(
-                        ".//premis:statuteJurisdiction", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
-                citation = (
-                    statement.findtext(".//premis:statuteCitation", namespaces=ns.NSMAP)
-                    or ""
-                )
-                det_date = (
-                    statement.findtext(
-                        ".//premis:statuteInformationDeterminationDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                start_date = (
-                    statement.findtext(
-                        ".//premis:statuteApplicableDates/premis:startDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                end_date = (
-                    statement.findtext(
-                        ".//premis:statuteApplicableDates/premis:endDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
+            elif rights_basis == 'Statute':
+                jurisdiction = ns.xml_findtext_premis(statement, './/premis:statuteJurisdiction')
+                citation = ns.xml_findtext_premis(statement, './/premis:statuteCitation')
+                det_date = ns.xml_findtext_premis(statement, './/premis:statuteInformationDeterminationDate')
+                start_date = ns.xml_findtext_premis(statement, './/premis:statuteApplicableDates/premis:startDate')
+                end_date = ns.xml_findtext_premis(statement, './/premis:statuteApplicableDates/premis:endDate')
                 end_open = False
                 if end_date == "OPEN":
                     end_open = True
@@ -501,62 +376,25 @@ def parse_rights(job, sip_uuid, root):
                     statuteapplicableenddate=end_date,
                     statuteenddateopen=end_open,
                 )
-                id_type = (
-                    statement.findtext(
-                        ".//premis:statuteDocumentationIdentifierType",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_value = (
-                    statement.findtext(
-                        ".//premis:statuteDocumentationIdentifierValue",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_role = (
-                    statement.findtext(
-                        ".//premis:statuteDocumentationRole", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
+                id_type = ns.xml_findtext_premis(statement, './/premis:statuteDocumentationIdentifierType')
+                id_value = ns.xml_findtext_premis(statement, './/premis:statuteDocumentationIdentifierValue')
+                id_role = ns.xml_findtext_premis(statement, './/premis:statuteDocumentationRole')
                 models.RightsStatementStatuteDocumentationIdentifier.objects.create(
                     rightsstatementstatute=st,
                     statutedocumentationidentifiertype=id_type,
                     statutedocumentationidentifiervalue=id_value,
                     statutedocumentationidentifierrole=id_role,
                 )
-                note = (
-                    statement.findtext(".//premis:statuteNote", namespaces=ns.NSMAP)
-                    or ""
-                )
+                note = ns.xml_findtext_premis(statement, './/premis:statuteNote')
                 models.RightsStatementStatuteInformationNote.objects.create(
                     rightsstatementstatute=st, statutenote=note
                 )
-            elif rights_basis in ("Donor", "Policy", "Other"):
-                other_basis = (
-                    statement.findtext(
-                        ".//premis:otherRightsBasis", namespaces=ns.NSMAP
-                    )
-                    or "Other"
-                )
+            elif rights_basis in ('Donor', 'Policy', 'Other'):
+                other_basis = ns.xml_findtext_premis(statement, './/premis:otherRightsBasis', default='Other')
                 rights.rightsbasis = other_basis
                 rights.save()
-                start_date = (
-                    statement.findtext(
-                        ".//premis:otherRightsApplicableDates/premis:startDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                end_date = (
-                    statement.findtext(
-                        ".//premis:otherRightsApplicableDates/premis:endDate",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
+                start_date = ns.xml_findtext_premis(statement, './/premis:otherRightsApplicableDates/premis:startDate')
+                end_date = ns.xml_findtext_premis(statement, './/premis:otherRightsApplicableDates/premis:endDate')
                 end_open = False
                 if end_date == "OPEN":
                     end_open = True
@@ -568,59 +406,25 @@ def parse_rights(job, sip_uuid, root):
                     otherrightsapplicableenddate=end_date,
                     otherrightsenddateopen=end_open,
                 )
-                id_type = (
-                    statement.findtext(
-                        ".//premis:otherRightsDocumentationIdentifierType",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_value = (
-                    statement.findtext(
-                        ".//premis:otherRightsDocumentationIdentifierValue",
-                        namespaces=ns.NSMAP,
-                    )
-                    or ""
-                )
-                id_role = (
-                    statement.findtext(
-                        ".//premis:otherRightsDocumentationRole", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
+                id_type = ns.xml_findtext_premis(statement, './/premis:otherRightsDocumentationIdentifierType')
+                id_value = ns.xml_findtext_premis(statement, './/premis:otherRightsDocumentationIdentifierValue')
+                id_role = ns.xml_findtext_premis(statement, './/premis:otherRightsDocumentationRole')
                 models.RightsStatementOtherRightsDocumentationIdentifier.objects.create(
                     rightsstatementotherrights=ot,
                     otherrightsdocumentationidentifiertype=id_type,
                     otherrightsdocumentationidentifiervalue=id_value,
                     otherrightsdocumentationidentifierrole=id_role,
                 )
-                note = (
-                    statement.findtext(".//premis:otherRightsNote", namespaces=ns.NSMAP)
-                    or ""
-                )
+                note = ns.xml_findtext_premis(statement, './/premis:otherRightsNote')
                 models.RightsStatementOtherRightsInformationNote.objects.create(
                     rightsstatementotherrights=ot, otherrightsnote=note
                 )
 
             # Parse rightsGranted
-            for rightsgranted_elem in statement.findall(
-                ".//premis:rightsGranted", namespaces=ns.NSMAP
-            ):
-                rights_act = (
-                    rightsgranted_elem.findtext("premis:act", namespaces=ns.NSMAP) or ""
-                )
-                rights_start_date = (
-                    rightsgranted_elem.findtext(
-                        ".//premis:startDate", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
-                rights_end_date = (
-                    rightsgranted_elem.findtext(
-                        ".//premis:endDate", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
+            for rightsgranted_elem in ns.xml_findall_premis(statement, './/premis:rightsGranted'):
+                rights_act = ns.xml_findtext_premis(rightsgranted_elem, 'premis:act')
+                rights_start_date = ns.xml_findtext_premis(rightsgranted_elem, './/premis:startDate')
+                rights_end_date = ns.xml_findtext_premis(rightsgranted_elem, './/premis:endDate')
                 rights_end_open = False
                 if rights_end_date == "OPEN":
                     rights_end_date = None
@@ -637,24 +441,14 @@ def parse_rights(job, sip_uuid, root):
                     enddateopen=rights_end_open,
                 )
 
-                rights_note = (
-                    rightsgranted_elem.findtext(
-                        "premis:rightsGrantedNote", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
-                job.pyprint("rights_note", rights_note)
+                rights_note = ns.xml_findtext_premis(rightsgranted_elem, 'premis:rightsGrantedNote')
+                job.pyprint('rights_note', rights_note)
                 models.RightsStatementRightsGrantedNote.objects.create(
                     rightsgranted=rights_granted, rightsgrantednote=rights_note
                 )
 
-                rights_restriction = (
-                    rightsgranted_elem.findtext(
-                        "premis:restriction", namespaces=ns.NSMAP
-                    )
-                    or ""
-                )
-                job.pyprint("rights_restriction", rights_restriction)
+                rights_restriction = ns.xml_findtext_premis(rightsgranted_elem, 'premis:restriction')
+                job.pyprint('rights_restriction', rights_restriction)
                 models.RightsStatementRightsGrantedRestriction.objects.create(
                     rightsgranted=rights_granted, restriction=rights_restriction
                 )

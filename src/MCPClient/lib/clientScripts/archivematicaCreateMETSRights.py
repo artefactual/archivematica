@@ -59,13 +59,8 @@ def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
 
 
 def createRightsStatement(job, statement, fileUUID, state):
-    rightsStatement = etree.Element(
-        ns.premisBNS + "rightsStatement", nsmap={"premis": ns.premisNS}
-    )
-    rightsStatement.set(
-        ns.xsiBNS + "schemaLocation",
-        ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd",
-    )
+    rightsStatement = etree.Element(ns.premisBNS + "rightsStatement", nsmap={'premis': ns.premisNS})
+    rightsStatement.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
 
     # rightsStatement.set("version", "2.1") # cvc-complex-type.3.2.2: Attribute 'version' is not allowed to appear in element 'rightsStatement'.
 
@@ -127,9 +122,9 @@ def createRightsStatement(job, statement, fileUUID, state):
                 copyrightInformation, ns.premisBNS + "copyrightApplicableDates"
             )
             if copyright.copyrightapplicablestartdate:
-                etree.SubElement(
-                    copyrightApplicableDates, ns.premisBNS + "startDate"
-                ).text = formatDate(copyright.copyrightapplicablestartdate)
+                etree.SubElement(copyrightApplicableDates, ns.premisBNS + "startDate").text = formatDate(copyright.copyrightapplicablestartdate)
+            else:
+                etree.SubElement(copyrightApplicableDates, ns.premisBNS + "startDate").text = ""
             if copyright.copyrightenddateopen:
                 etree.SubElement(
                     copyrightApplicableDates, ns.premisBNS + "endDate"
