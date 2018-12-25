@@ -248,7 +248,7 @@ def get_events_from_db(uuid):
     for event_mdl in Event.objects.filter(file_uuid_id=uuid):
         event = [
             'event',
-            premisrw.PREMIS_META,
+            premisrw.PREMIS_3_0_META,
             (
                 'event_identifier',
                 ('event_identifier_type', 'UUID'),
@@ -284,7 +284,7 @@ def get_agents_from_db(uuid):
     for agent_mdl in Agent.objects.filter(event__file_uuid_id=uuid).distinct():
         agents.append((
             'agent',
-            premisrw.PREMIS_META,
+            premisrw.PREMIS_3_0_META,
             (
                 'agent_identifier',
                 ('agent_identifier_type', agent_mdl.identifiertype),

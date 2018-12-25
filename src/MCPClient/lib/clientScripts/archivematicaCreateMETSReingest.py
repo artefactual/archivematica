@@ -14,6 +14,52 @@ import namespaces as ns
 from main import models
 
 
+def _create_premis_container(premis_type):
+    """Return new PREMIS element container (``lxml._Element`` instance).
+
+    It uses the latest version of PREMIS available and the ``premis`` prefix.
+    """
+    types = ('object', 'event', 'agent', 'rights',)
+    if premis_type not in types:
+        raise ValueError("type_ used is not listed in premisComplexType")
+    return etree.Element(
+        ns.premisBNS + premis_type,
+        {
+            etree.QName(ns.xsiNS, "schemaLocation"): "%s %s" % (
+                ns.premisNS, "https://www.loc.gov/standards/premis/premis.xsd"),
+            "{http://www.w3.org/2001/XMLSchema-instance}type":
+                "premis:%s" % premis_type,
+            "version": "3.0",
+        },
+        nsmap={"premis": ns.premisNS}
+    )
+
+
+def _update_premis_container(premis_elem, premis_type):
+    """Ensure that a PREMIS container uses the latest version of PREMIS.
+
+    If PREMIS 2 is found, a new container is returned instead using PREMIS 3.
+    The contents from the original element are transferred and updated.
+    """
+    if premis_elem.tag == ns.premisBNS + premis_type:
+        return premis_elem
+    if premis_elem.tag != ns.premisBNS_V2 + premis_type:
+        raise ValueError("elem has an unexpected tag name")
+    new_elem = _create_premis_container(premis_type)
+    # Update namespace in descendants.
+    premis_bns_v2_len = len(ns.premisBNS_V2)
+    for child in premis_elem.iter():
+        if child.prefix != "premis":
+            continue
+        if not child.tag.startswith(ns.premisBNS_V2):
+            continue
+        child.tag = ns.premisBNS + child.tag[premis_bns_v2_len:]
+    # Transfer contents.
+    for child in premis_elem.iterchildren():
+        new_elem.append(child)
+    return new_elem
+
+
 def update_object(job, mets):
     """
     Updates PREMIS:OBJECT.
@@ -33,7 +79,8 @@ def update_object(job, mets):
             if t.subsection == 'techMD' and (not t.status or t.status == 'current'):
                 old_techmd = t
                 break
-        new_techmd_contents = copy.deepcopy(old_techmd.contents.document)
+        new_techmd_contents = _update_premis_container(
+            copy.deepcopy(old_techmd.contents.document), "object")
         modified = False
 
         # TODO do this with metsrw & PREMIS plugin
@@ -161,10 +208,17 @@ def update_rights(job, mets, sip_uuid, state):
                 continue
             if r.status == 'superseded':
                 continue
-            rightsbasis = r.contents.document.findtext('.//premis:rightsBasis', namespaces=ns.NSMAP)
-            if rightsbasis == 'Other':
-                rightsbasis = r.contents.document.findtext('.//premis:otherRightsBasis', namespaces=ns.NSMAP)
-            db_rights = rightsmds_db[rightsbasis]
+            rightsbasis = ns.xml_find_premis(
+                r.contents.document, './/premis:rightsBasis')
+            if rightsbasis is None:
+                continue
+            basis = rightsbasis.text
+            if basis == 'Other':
+                otherrightsbasis = ns.xml_find_premis(
+                    r.contents.document, './/premis:otherRightsBasis')
+                if otherrightsbasis is not None:
+                    basis = otherrightsbasis.text
+            db_rights = rightsmds_db[basis]
             if not db_rights:  # TODO this may need to be more robust for RightsStatementRightsGranted
                 job.pyprint('Rights', r.id_string(), 'looks deleted - making superseded')
                 r.status = 'superseded'
@@ -212,11 +266,11 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                 superseded = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
                 superseded = sorted(superseded, key=lambda x: x.created)
                 # NOTE sort(..., reverse=True) behaves differently with unsortable elements like '' and None
-                for s in superseded[::-1]:
-                    job.pyprint('created', s.created)
-                    if s.serialize().xpath('.//premis:rightsBasis[text()="' + rights.rightsbasis + '"]', namespaces=ns.NSMAP):
-                        s.replace_with(new_rightsmd)
-                        job.pyprint('rightsMD', new_rightsmd.id_string(), 'replaces rightsMD', s.id_string())
+                for rightmd in superseded[::-1]:
+                    job.pyprint('created', rightmd.created)
+                    if ns.xml_xpath_premis(rightmd.serialize(), './/premis:rightsBasis[text()="' + rights.rightsbasis + '"]'):
+                        rightmd.replace_with(new_rightsmd)
+                        job.pyprint('rightsMD', new_rightsmd.id_string(), 'replaces rightsMD', rightmd.id_string())
                         break
 
 
