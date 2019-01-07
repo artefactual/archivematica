@@ -36,7 +36,7 @@ RUN set -ex \
 		clamav \
 		ffmpeg \
 		ghostscript \
-		hashdeep \
+		coreutils \
 		libavcodec-extra \
 		fits \
 		imagemagick \

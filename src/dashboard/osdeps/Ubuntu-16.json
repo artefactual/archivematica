@@ -46,6 +46,10 @@
     {
       "name": "unar",
       "state": "latest"
+    },
+    {
+      "name": "coreutils",
+      "state": "latest"
     }
   ]
 }
