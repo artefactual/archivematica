@@ -210,24 +210,13 @@ def transfer_metadata_edit(request, uuid, id=None):
                 metadataappliestoidentifier=uuid
             )
 
-    fields = ['title', 'creator', 'subject', 'description', 'publisher',
-              'contributor', 'date', 'type', 'format', 'identifier',
-              'source', 'relation', 'language', 'coverage', 'rights']
-
     if request.method == 'POST':
-        form = DublinCoreMetadataForm(request.POST)
+        form = DublinCoreMetadataForm(request.POST, instance=dc)
         if form.is_valid():
-            for item in fields:
-                if item not in form.cleaned_data:
-                    continue
-                setattr(dc, item, form.cleaned_data[item])
-            dc.save()
+            dc = form.save()
             return redirect('components.transfer.views.transfer_metadata_list', uuid)
     else:
-        initial = {}
-        for item in fields:
-            initial[item] = getattr(dc, item)
-        form = DublinCoreMetadataForm(initial=initial)
+        form = DublinCoreMetadataForm(instance=dc)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
         name = utils.get_directory_name_from_job(jobs)
 
