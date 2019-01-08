@@ -29,7 +29,7 @@ from django.conf import settings as django_settings
 from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
 from dicts import ReplacementDict
-from main.models import StandardTaskConfig, UnitVariable
+from main.models import UnitVariable
 
 from taskGroupRunner import TaskGroupRunner
 from taskGroup import TaskGroup
@@ -46,11 +46,10 @@ BATCH_SIZE = django_settings.BATCH_SIZE
 
 
 class linkTaskManagerFiles(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)
+    def __init__(self, jobChainLink, unit):
+        super(linkTaskManagerFiles, self).__init__(jobChainLink, unit)
 
-        if jobChainLink.reloadFileList:
-            unit.reloadFileList()
+        unit.reloadFileList()
 
         # The list of task groups we'll be executing for this batch of files
         self.taskGroupsLock = threading.Lock()
@@ -62,16 +61,22 @@ class linkTaskManagerFiles(LinkTaskManager):
 
         self.clearToNextLink = False
 
-        stc = StandardTaskConfig.objects.get(id=str(pk))
+        config = self.jobChainLink.link.config
         # These three may be concatenated/compared with other strings,
         # so they need to be bytestrings here
-        filterFileEnd = str(stc.filter_file_end) if stc.filter_file_end else ''
-        filterFileStart = str(stc.filter_file_start) if stc.filter_file_start else ''
-        filterSubDir = str(stc.filter_subdir) if stc.filter_subdir else ''
-        self.standardOutputFile = stc.stdout_file
-        self.standardErrorFile = stc.stderr_file
-        self.execute = stc.execute
-        self.arguments = stc.arguments
+        filterFileEnd = str(config["filter_file_end"]) \
+            if config["filter_file_end"] else ''
+        filterFileStart = str(config["filter_file_start"]) \
+            if config["filter_file_start"] else ''
+        filterSubDir = str(config["filter_subdir"]) \
+            if config["filter_subdir"] else ''
+        self.standardOutputFile = config["stdout_file"]
+        self.standardErrorFile = config["stderr_file"]
+        self.execute = config["execute"]
+        self.arguments = config["arguments"]
+
+        # Used by ``TaskGroup._log_task``.
+        self.execute = config["execute"]
 
         outputLock = threading.Lock()
 

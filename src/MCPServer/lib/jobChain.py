@@ -25,7 +25,7 @@ from jobChainLink import jobChainLink
 
 from dicts import ReplacementDict
 
-from main.models import MicroServiceChain, UnitVariable
+from main.models import UnitVariable
 
 # Holds:
 # -UNIT
@@ -55,18 +55,18 @@ def fetchUnitVariableForUnit(unit_uuid):
 
 
 class jobChain:
-    def __init__(self, unit, chain_id, starting_link_id=None):
+    def __init__(self, unit, chain, workflow, starting_link=None):
         """Create an instance of a chain from the MicroServiceChains table"""
-        LOGGER.debug('Creating jobChain %s for chain %s', unit, chain_id)
-        if chain_id is None:
+        LOGGER.debug('Creating jobChain %s for chain %s', unit, chain.id)
+        if chain is None:
             return None
         self.unit = unit
+        self.workflow = workflow
 
-        chain = MicroServiceChain.objects.get(id=str(chain_id))
         LOGGER.debug('Chain: %s', chain)
 
-        if starting_link_id is None:
-            starting_link_id = chain.startinglink_id
+        if starting_link is None:
+            starting_link = chain.link
 
         # Migrate over unit variables containing replacement dicts from
         # previous chains but prioritize any values contained in passVars
@@ -74,11 +74,11 @@ class jobChain:
         rd = fetchUnitVariableForUnit(unit.UUID)
 
         # Run!
-        jobChainLink(self, starting_link_id, unit, passVar=rd)
+        jobChainLink(self, starting_link, workflow, unit, passVar=rd)
 
-    def nextChainLink(self, link_id, passVar=None):
+    def nextChainLink(self, link, passVar=None):
         """Proceed to next link."""
-        if link_id is None:
+        if link is None:
             LOGGER.debug('Done with unit %s', self.unit.UUID)
             return
-        jobChainLink(self, link_id, self.unit, passVar=passVar)
+        jobChainLink(self, link, self.workflow, self.unit, passVar=passVar)

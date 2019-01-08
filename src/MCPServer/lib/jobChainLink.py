@@ -19,98 +19,81 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 import logging
+import string
 import uuid
 
-from django.utils import six
-
 from utils import log_exceptions
-from linkTaskManagerDirectories import linkTaskManagerDirectories
-from linkTaskManagerFiles import linkTaskManagerFiles
-from linkTaskManagerChoice import linkTaskManagerChoice
-from linkTaskManagerReplacementDicFromChoice import linkTaskManagerReplacementDicFromChoice
-from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
-from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
-from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
-from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 
-from databaseFunctions import auto_close_db, logJobCreatedSQL, getUTCDate
+from databaseFunctions import auto_close_db, getUTCDate
 
-from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode
+from main.models import Job
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-# This is basically a dump of TaskTypes. It's not worth loading this from the
-# database since it's going to be gone very soon anyways.
-TASK_TYPES = {
-    "36b2e239-4a57-4aa5-8ebc-7a29139baca6": linkTaskManagerDirectories,
-    "a6b1c323-7d36-428e-846a-e7e819423577": linkTaskManagerFiles,
-    "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c": linkTaskManagerChoice,
-    "9c84b047-9a6d-463f-9836-eafa49743b84": linkTaskManagerReplacementDicFromChoice,
-    "a19bfd9f-9989-4648-9351-013a10b382ed": linkTaskManagerGetMicroserviceGeneratedListInStdOut,
-    "01b748fe-2e9d-44e4-ae5d-113f74c9a0ba": linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList,
-    "6f0b612c-867f-4dfd-8e43-5b35b7f882d7": linkTaskManagerSetUnitVariable,
-    "c42184a3-1a7f-4c4d-b380-15d8d97fdd11": linkTaskManagerUnitVariableLinkPull,
-}
-
 
 class jobChainLink:
-    def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None):
-        if jobChainLinkPK is None:
+    def __init__(self, jobChain, link, workflow, unit, passVar=None):
+        if link is None:
             return None
+
         self.UUID = uuid.uuid4().__str__()
         self.jobChain = jobChain
+        self.workflow = workflow
         self.unit = unit
         self.passVar = passVar
-        self.createdDate = getUTCDate()
-
-        # Depending on the path that led to this, jobChainLinkPK may
-        # either be a UUID or a MicroServiceChainLink instance
-        if isinstance(jobChainLinkPK, six.string_types):
-            try:
-                link = MicroServiceChainLink.objects.get(id=str(jobChainLinkPK))
-            # This will sometimes return no values
-            except MicroServiceChainLink.DoesNotExist:
-                return
-        else:
-            link = jobChainLinkPK
-
         self.pk = link.id
-
-        self.currentTask = link.currenttask_id
-        self.defaultNextChainLink = link.defaultnextchainlink_id
-        taskType = link.currenttask.tasktype_id
-        taskTypePKReference = link.currenttask.tasktypepkreference
-        self.description = link.currenttask.description
-        self.reloadFileList = link.reloadfilelist
-        self.defaultExitMessage = link.defaultexitmessage
-        self.microserviceGroup = link.microservicegroup
+        self.link = link
+        self.workflow = workflow
+        self.created_at = getUTCDate()
+        self.group = link.get_label("group", "en")
+        self.description = link.get_label("description", "en")
 
         LOGGER.info('Running %s (unit %s)', self.description, self.unit.UUID)
         self.unit.reload()
 
-        logJobCreatedSQL(self)
+        self._create_job()
+        self._run_task_manager()
 
-        if self.run_task_manager(taskType, taskTypePKReference) is None:
-            self.getNextChainLinkPK(None)
-            # can't have none represent end of chain, and no tasks to process.
-            # could return negative?
-
-    def run_task_manager(self, taskType, taskTypePKReference):
+    def _run_task_manager(self):
         """Execute the task manager corresponding to this link."""
         try:
-            manager = TASK_TYPES[taskType]
-        except KeyError:
-            LOGGER.exception('Unsupported task type %s', taskType)
+            manager = self.link.manager
+        except Exception as err:
+            LOGGER.exception('Unsupported task type: %s', err)
             return
-        manager(self, taskTypePKReference, self.unit)
+        manager(self, self.unit)
 
-    def getNextChainLinkPK(self, exitCode):
-        if exitCode is not None:
-            try:
-                return MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).nextmicroservicechainlink_id
-            except (MicroServiceChainLinkExitCode.DoesNotExist, MicroServiceChainLinkExitCode.MultipleObjectsReturned):
-                return self.defaultNextChainLink
+    def _create_job(self):
+        """Persist job in the database."""
+        try:
+            if self.unit.owningUnit is not None:
+                unit_id = self.unit.owningUnit.UUID
+        except AttributeError:
+            unit_id = self.unit.UUID
+        return Job.objects.create(
+            jobuuid=self.UUID,
+            jobtype=self.description,
+            directory=self.unit.currentPath,
+            sipuuid=unit_id,
+            currentstep=Job.STATUS_EXECUTING_COMMANDS,
+            unittype=self.unit.__class__.__name__,
+            microservicegroup=self.group,
+            createdtime=self.created_at,
+            createdtimedec=self._created_at_dec,
+            microservicechainlink=self.pk)
+
+    @property
+    def _created_at_dec(self):
+        # Microseconds are always 6 digits.
+        # The number returned may have a leading 0 which needs to be preserved.
+        date = "." + str(self.created_at.microsecond).zfill(6)
+        valid = "." + string.digits
+        ret = ""
+        for c in date:
+            if c in valid:
+                ret += c
+        return str("{:10.10f}".format(float(ret)))
 
     @log_exceptions
     @auto_close_db
@@ -132,28 +115,19 @@ class jobChainLink:
             status_code = 0
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=status_code)
 
-    def updateExitMessage(self, exitCode):
-        """
-        Assign a status to the current job after the exit code. The
-        corresponding status code is described in
-        MicroServiceChainLink.defaultexitmessage unless it's been listed in
-        MicroServiceChainLinkExitCode.exitmessage.
-        """
-        status_code = self.defaultExitMessage
-        if exitCode is not None:
-            try:
-                status_code = MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).exitmessage
-            except MicroServiceChainLinkExitCode.DoesNotExist:
-                pass
-        if status_code is not None:
-            self.setExitMessage(status_code)
-        else:
-            LOGGER.debug('No exit message')
-
     @log_exceptions
     @auto_close_db
-    def linkProcessingComplete(self, exitCode, passVar=None, next_link_id=None):
-        self.updateExitMessage(exitCode)
-        if next_link_id is None:
-            next_link_id = self.getNextChainLinkPK(exitCode)
-        self.jobChain.nextChainLink(next_link_id, passVar=passVar)
+    def linkProcessingComplete(self, exitCode, passVar=None, next_link=None):
+        """Link completion callback.
+
+        It continues the workflow running the next chain link which is looked
+        up in the workflow data unless determined by `next_link_id`. Before
+        starting, the status of the job associated to this link is updated.
+        """
+        self.setExitMessage(self.link.get_status_id(exitCode))
+        if next_link is None:
+            try:
+                next_link = self.link.get_next_link(exitCode)
+            except KeyError:
+                return
+        self.jobChain.nextChainLink(next_link, passVar=passVar)

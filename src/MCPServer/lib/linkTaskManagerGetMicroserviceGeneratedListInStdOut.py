@@ -27,7 +27,6 @@ import os
 from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
 from dicts import ChoicesDict, ReplacementDict
-from main.models import StandardTaskConfig
 
 from taskGroup import TaskGroup
 from taskGroupRunner import TaskGroupRunner
@@ -36,15 +35,18 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink, pk, unit)
-        stc = StandardTaskConfig.objects.get(id=str(pk))
-        filterSubDir = stc.filter_subdir
-        standardOutputFile = stc.stdout_file
-        standardErrorFile = stc.stderr_file
-        execute = stc.execute
-        self.execute = execute
-        arguments = stc.arguments
+    def __init__(self, jobChainLink, unit):
+        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut,
+              self).__init__(jobChainLink, unit)
+        config = self.jobChainLink.link.config
+        filterSubDir = config["filter_subdir"]
+        standardOutputFile = config["stdout_file"]
+        standardErrorFile = config["stderr_file"]
+        execute = config["execute"]
+        arguments = config["arguments"]
+
+        # Used by ``TaskGroup._log_task``.
+        self.execute = config["execute"]
 
         if filterSubDir:
             directory = os.path.join(unit.currentPath, filterSubDir)

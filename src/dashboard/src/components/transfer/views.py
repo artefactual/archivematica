@@ -15,21 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import calendar
 import json
 import logging
-from lxml import etree
-import os
 from uuid import uuid4
 
-from django.db.models import Max
 from django.conf import settings as django_settings
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 
 from contrib.mcp.client import MCPClient
-from contrib import utils
 
 from main import models
 from components import helpers
@@ -45,10 +40,11 @@ logger = logging.getLogger('archivematica.dashboard')
 
 
 def grid(request):
-    polling_interval = django_settings.POLLING_INTERVAL
-    microservices_help = django_settings.MICROSERVICES_HELP
-    uid = request.user.id
-    return render(request, 'transfer/grid.html', locals())
+    return render(request, 'transfer/grid.html', {
+        "polling_interval": django_settings.POLLING_INTERVAL,
+        "microservices_help": django_settings.MICROSERVICES_HELP,
+        "job_statuses": dict(models.Job.STATUS),
+    })
 
 
 def transfer_source_locations(request):
@@ -128,58 +124,15 @@ def component(request, uuid):
 
 
 def status(request, uuid=None):
-    # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').order_by('-timestamp')
-    mcp_available = False
+    response = {"objects": {}, "mcp": False}
     try:
-        client = MCPClient()
-        mcp_status = etree.XML(client.list())
-        mcp_available = True
+        client = MCPClient(request.user)
+        response["objects"] = client.get_transfers_statuses()
     except Exception:
         pass
-
-    def encoder(obj):
-        items = []
-        for item in obj:
-            # Check if hidden (TODO: this method is slow)
-            if models.Transfer.objects.is_hidden(item['sipuuid']):
-                continue
-            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
-            item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs))
-            item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
-            item['uuid'] = item['sipuuid']
-            item['id'] = item['sipuuid']
-            del item['sipuuid']
-            item['jobs'] = []
-            for job in jobs:
-                newJob = {}
-                item['jobs'].append(newJob)
-                newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype
-                newJob['link_id'] = job.microservicechainlink.pk
-                newJob['microservicegroup'] = job.microservicegroup
-                newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep
-                newJob['currentstep_label'] = job.get_currentstep_display()
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try:
-                    mcp_status
-                except NameError:
-                    pass
-                else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
-                    if xml_unit:
-                        xml_unit_choices = xml_unit[0].findall('choices/choice')
-                        choices = {}
-                        for choice in xml_unit_choices:
-                            choices[choice.find("chainAvailable").text] = choice.find("description").text
-                        newJob['choices'] = choices
-            items.append(item)
-        return items
-    response = {}
-    response['objects'] = objects
-    response['mcp'] = mcp_available
-    return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
+    else:
+        response['mcp'] = True
+    return HttpResponse(json.dumps(response), content_type='application/json')
 
 
 def transfer_metadata_type_id():
@@ -218,7 +171,7 @@ def transfer_metadata_edit(request, uuid, id=None):
     else:
         form = DublinCoreMetadataForm(instance=dc)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-        name = utils.get_directory_name_from_job(jobs)
+        name = jobs.get_directory_name()
 
     return render(request, 'transfer/metadata_edit.html', locals())
 

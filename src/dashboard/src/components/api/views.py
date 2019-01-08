@@ -464,9 +464,9 @@ def approve_transfer(request):
         db_transfer_path = os.path.join(modified_transfer_path, directory, "")
 
     try:
-        client = MCPClient()
+        client = MCPClient(request.user)
         unit_uuid = client.approve_transfer_by_path(
-            db_transfer_path, transfer_type, request.user.id)
+            db_transfer_path, transfer_type)
     except Exception as err:
         msg = "Unable to start the transfer."
         LOGGER.error("%s %s (db_transfer_path=%s)",
@@ -503,7 +503,7 @@ def reingest_approve(request):
     if sip_uuid is None:
         return _error_response('"uuid" is required.')
     try:
-        client = MCPClient()
+        client = MCPClient(request.user)
         client.approve_partial_reingest(sip_uuid, request.user.id)
     except Exception as err:
         msg = "Unable to approve the partial reingest."
@@ -767,7 +767,7 @@ def _package_create(request):
     if processing_config is not None:
         kwargs['processing_config'] = processing_config
     try:
-        client = MCPClient()
+        client = MCPClient(request.user)
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
         msg = 'Package cannot be created'

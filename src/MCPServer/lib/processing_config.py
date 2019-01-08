@@ -7,13 +7,8 @@ ability to establish predefined choices via the user interface.
 from collections import OrderedDict
 
 from django.conf import settings as django_settings
-from django.db import connection
 
-from abilities import choice_is_available
-from main.models import (
-    MicroServiceChainChoice,
-    MicroServiceChoiceReplacementDic
-)
+from workflow_abilities import choice_is_available
 
 
 # Types of processing fields:
@@ -164,42 +159,44 @@ processing_fields['cd844b6e-ab3c-4bc6-b34f-7103f88715de'] = {
 }
 
 
-def get_processing_fields():
+def get_processing_fields(workflow):
     """Return the list of known processing configuration fields.
 
     It uses `processing_fields`` defined in this module as a base and extended
     after some workflow lookups.
     """
     for link_id, config in processing_fields.items():
+        link = workflow.get_link(link_id)
         if config['type'] == 'replace_dict':
-            config['options'] = _get_options_for_replace_dict(link_id)
+            config['options'] = _get_options_for_replace_dict(link)
         elif config['type'] == 'chain_choice':
             config['options'] = _get_options_for_chain_choice(
-                link_id, config.get('ignored_choices', []))
-            _populate_duplicates_chain_choice(config)
+                link, workflow, config.get('ignored_choices', []))
+            _populate_duplicates_chain_choice(workflow, link, config)
     return processing_fields
 
 
-def _get_options_for_replace_dict(link_id):
-    return list(MicroServiceChoiceReplacementDic.objects.filter(
-        choiceavailableatlink_id=link_id).values_list('id', 'description'))
+def _get_options_for_replace_dict(link):
+    return [
+        (item["id"], item["description"]["en"],)
+        for item in link.config["replacements"]
+    ]
 
 
-def _get_options_for_chain_choice(link_id, ignored_choices):
+def _get_options_for_chain_choice(link, workflow, ignored_choices):
     ret = []
-    chain_choices = MicroServiceChainChoice.objects.filter(
-        choiceavailableatlink_id=link_id)
-    for item in chain_choices:
-        chain = item.chainavailable
-        if chain.description in ignored_choices:
+    for chain_id in link.config["chain_choices"]:
+        chain = workflow.get_chain(chain_id)
+        label = chain.get_label("description")
+        if label in ignored_choices:
             continue
-        if not choice_is_available(item, django_settings):
+        if not choice_is_available(link, chain, django_settings):
             continue
-        ret.append((chain.pk, chain.description))
+        ret.append((chain_id, label))
     return ret
 
 
-def _populate_duplicates_chain_choice(config):
+def _populate_duplicates_chain_choice(workflow, link, config):
     """Find and populate chain choice duplicates.
 
     When the user chooses a value like "Normalize for preservation" in the
@@ -211,7 +208,7 @@ def _populate_duplicates_chain_choice(config):
         config[find_duplicates] = True
         config[label] = "Normalize"
         config[options] = [
-            (2b93cecd4-71f2-4e28-bc39-d32fd62c5a94", "Normalize for preservation and access")
+            (2b93cecd4-71f2-4e28-bc39-d32fd62c5a94", "Normalize ...")
             (2612e3609-ce9a-4df6-a9a3-63d634d2d934", ...)
             (2c34bd22a-d077-4180-bf58-01db35bdb644", ...)
             (289cb80dd-0636-464f-930d-57b61e3928b2", ...)
@@ -242,24 +239,17 @@ def _populate_duplicates_chain_choice(config):
           <goToChain>612e3609-ce9a-4df6-a9a3-63d634d2d934</goToChain>
         </preconfiguredChoice>
     """
-    if not config.get('find_duplicates', False):
+    if not config.get("find_duplicates", False):
         return
-    sql = """
-        SELECT
-            MicroServiceChainLinks.pk,
-            MicroServiceChains.pk
-        FROM TasksConfigs
-        LEFT JOIN MicroServiceChainLinks ON (MicroServiceChainLinks.currentTask = TasksConfigs.pk)
-        LEFT JOIN MicroServiceChainChoice ON (MicroServiceChainChoice.choiceAvailableAtLink = MicroServiceChainLinks.pk)
-        LEFT JOIN MicroServiceChains ON (MicroServiceChains.pk = MicroServiceChainChoice.chainAvailable)
-        WHERE
-            TasksConfigs.description = %s
-            AND MicroServiceChains.description = %s;
-    """
-    config['duplicates'] = {}
-    with connection.cursor() as cursor:
-        for chain_id, chain_desc in config['options']:
-            cursor.execute(sql, (config['label'], chain_desc))
-            results = cursor.fetchall()
-            if len(results) > 0:
-                config['duplicates'][chain_id] = (chain_desc, results)
+    config["duplicates"] = {}
+    for chain_id, chain_desc in config["options"]:
+        results = []
+        for link in workflow.get_links().values():
+            if config["label"] != link.get_label("description"):
+                continue
+            for chain_id in link.config["chain_choices"]:
+                chain = workflow.get_chain(chain_id)
+                if chain_desc != chain.get_label("description"):
+                    continue
+                results.append((link.id, chain.id))
+        config["duplicates"][chain_id] = (chain_desc, results)

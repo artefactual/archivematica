@@ -93,10 +93,11 @@ class archivematicaWatchDirectory:
     def event(self, path, variables, function):
         if not function:
             return
+        args = (path,) + tuple(variables)
         if os.path.isdir(path) and self.alertOnDirectories:
-            function(path, variables)
+            function(*args)
         if os.path.isfile(path) and self.alertOnFiles:
-            function(path, variables)
+            function(*args)
 
     def stop(self):
         self.run = False

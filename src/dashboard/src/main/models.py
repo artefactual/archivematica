@@ -20,11 +20,10 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 
 # stdlib, alphabetical by import source
-import ast
 import logging
+import re
 
 # Core Django, alphabetical by import source
-from django import forms
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models.signals import post_save
@@ -34,10 +33,6 @@ from django.utils import six
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
-
-# This project, alphabetical by import source
-from contrib import utils
-import main
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 
@@ -187,11 +182,7 @@ class Access(models.Model):
         db_table = u'Accesses'
 
     def get_title(self):
-        try:
-            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
-            return utils.get_directory_name_from_job(jobs)
-        except:
-            return _('N/A')
+        return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
 
 
 class DublinCore(models.Model):
@@ -528,6 +519,24 @@ class FileFormatVersion(models.Model):
         })
 
 
+class JobQuerySet(models.QuerySet):
+
+    def get_directory_name(self):
+        """Return the directory name of a unit.
+
+        This is a convenience manager method to obtain the directory name of a
+        specific unit from a QuerySet of jobs associated to that unit.
+
+        TODO(sevein): why is the name not a property of the unit?
+        """
+        try:
+            job = self.first()
+        # No jobs yet, e.g. not started; there will be no directory name yet.
+        except IndexError:
+            return _("(Unnamed)")
+        return job.get_directory_name()
+
+
 class Job(models.Model):
     jobuuid = UUIDField(db_column='jobUUID', primary_key=True)
     jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
@@ -551,11 +560,29 @@ class Job(models.Model):
     currentstep = models.IntegerField(db_column='currentStep', choices=STATUS, default=0, blank=False)
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
     hidden = models.BooleanField(default=False)
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', db_column='MicroServiceChainLinksPK', null=True, blank=True)
+    microservicechainlink = UUIDField(auto=False, null=True, blank=True, db_column='MicroServiceChainLinksPK')
     subjobof = models.CharField(max_length=36, db_column='subJobOf', blank=True)
+
+    objects = JobQuerySet.as_manager()
 
     class Meta:
         db_table = u'Jobs'
+
+    def get_directory_name(self, default=None):
+        if not self.directory:
+            return self.sipuuid
+        try:
+            return re.search(
+                r'^.*/(?P<directory>.*)-'
+                r'[\w]{8}(-[\w]{4})'
+                r'{3}-[\w]{12}[/]{0,1}$', self.directory).group('directory')
+        except Exception:
+            pass
+        try:
+            return re.search(
+                r'^.*/(?P<directory>.*)/$', self.directory).group('directory')
+        except Exception:
+            pass
 
 
 class Task(models.Model):
@@ -844,187 +871,19 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         verbose_name = _('Rights: Agent')
 
 
-# MCP data interoperability
-
-class MicroServiceChain(models.Model):
-    id = UUIDPkField()
-    startinglink = models.ForeignKey('MicroServiceChainLink', db_column='startingLink')
-    description = models.TextField(db_column='description')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'MicroServiceChains'
-
-    def __unicode__(self):
-        return six.text_type(_('MicroServiceChain ID: %(uuid)s; %(desc)s') % {
-            'uuid': self.id,
-            'desc': self.description
-        })
-
-
-class MicroServiceChainLink(models.Model):
-    id = UUIDPkField()
-    currenttask = models.ForeignKey('TaskConfig', db_column='currentTask')
-    defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink', null=True, blank=True)
-    microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
-    reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
-    defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'MicroServiceChainLinks'
-
-    def __unicode__(self):
-        return six.text_type(
-            _('MicroServiceChainLink ID: %(id)s') % {'id': self.id})
-
-
-class MicroServiceChainLinkExitCode(models.Model):
-    id = UUIDPkField()
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='exit_codes', db_column='microServiceChainLink')
-    exitcode = models.IntegerField(db_column='exitCode', default=0)
-    nextmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='parent_exit_codes+', db_column='nextMicroServiceChainLink', null=True, blank=True)
-    exitmessage = models.CharField(max_length=50, db_column='exitMessage', default='Completed successfully')
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'MicroServiceChainLinksExitCodes'
-
-
-class MicroServiceChainChoice(models.Model):
-    id = UUIDPkField()
-    choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
-    chainavailable = models.ForeignKey('MicroServiceChain', db_column='chainAvailable')
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'MicroServiceChainChoice'
-
-    def __unicode__(self):
-        return six.text_type(
-            _('MicroServiceChainChoice ID: %(uuid)s'
-              ' (%(chain)s at %(choice)s)') % {
-                'uuid': self.id,
-                'chain': self.chainavailable,
-                'choice': self.choiceavailableatlink})
-
-
-class MicroServiceChoiceReplacementDic(models.Model):
-    id = UUIDPkField()
-    choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
-    description = models.TextField(db_column='description', verbose_name=_('Description'))
-    replacementdic = models.TextField(db_column='replacementDic', verbose_name=_('Configuration'))
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    def clean(self):
-        error = None
-        try:
-            config = ast.literal_eval(self.replacementdic)
-        except (ValueError, SyntaxError):
-            error = _('Invalid syntax.')
-        if error is None and not isinstance(config, dict):
-            error = _('Invalid syntax.')
-        if error is not None:
-            raise forms.ValidationError(error)
-
-    class Meta:
-        db_table = u'MicroServiceChoiceReplacementDic'
-
-
-class TaskType(models.Model):
-    id = UUIDPkField()
-    description = models.TextField(blank=True)
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = 'TaskTypes'
-
-    def __unicode__(self):
-        return six.text_type(_('TaskType ID: %(id)s, desc: %(desc)s') % {
-            'id': self.id,
-            'desc': self.description
-        })
-
-
-class TaskConfig(models.Model):
-    id = UUIDPkField()
-    tasktype = models.ForeignKey('TaskType', db_column='taskType')
-    tasktypepkreference = models.CharField(max_length=36, db_column='taskTypePKReference', null=True, blank=True, default=None)  # Foreign key to table depending on TaskType
-    description = models.TextField(db_column='description')
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'TasksConfigs'
-
-    def __unicode__(self):
-        return _('TaskType ID: %(id)s, desc: %(desc)s') % {
-            'id': self.id,
-            'desc': self.description
-        }
-
-
-class StandardTaskConfig(models.Model):
-    id = UUIDPkField()
-    execute = models.CharField(max_length=250, null=True, db_column='execute')
-    arguments = models.TextField(null=True, db_column='arguments')
-    filter_subdir = models.CharField(max_length=50, db_column='filterSubDir', null=True, blank=True)
-    filter_file_start = models.CharField(max_length=50, db_column='filterFileStart', null=True, blank=True)
-    filter_file_end = models.CharField(max_length=50, db_column='filterFileEnd', null=True, blank=True)
-    stdout_file = models.CharField(max_length=250, db_column='standardOutputFile', null=True, blank=True)
-    stderr_file = models.CharField(max_length=250, db_column='standardErrorFile', null=True, blank=True)
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta:
-        db_table = u'StandardTasksConfigs'
-
-
-class TaskConfigSetUnitVariable(models.Model):
-    id = UUIDPkField()
-    variable = models.TextField(blank=True)
-    variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='microServiceChainLink')
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
-
-    class Meta(object):
-        db_table = u'TasksConfigsSetUnitVariable'
-
-
-class TaskConfigUnitVariableLinkPull(models.Model):
-    id = UUIDPkField()
-    variable = models.TextField(blank=True)
-    variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
-    defaultmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='defaultMicroServiceChainLink')
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
-
-    class Meta(object):
-        db_table = u'TasksConfigsUnitVariableLinkPull'
-
-
 class UnitVariable(models.Model):
     id = UUIDPkField()
     unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
     unituuid = models.CharField(max_length=36, null=True, help_text=_('Semantically a foreign key to SIP or Transfer'), db_column='unitUUID')
     variable = models.TextField(null=True, db_column='variable')
     variablevalue = models.TextField(null=True, db_column='variableValue')
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, blank=True, help_text=_('UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull'), db_column='microServiceChainLink')
+    microservicechainlink = UUIDField(auto=False, null=True, blank=True, db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
 
     class Meta:
         db_table = u'UnitVariables'
 
-
-# END MCP data interoperability
 
 class AtkDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -1133,29 +992,6 @@ class TaxonomyTerm(models.Model):
 
     def __unicode__(self):
         return self.term
-
-
-class WatchedDirectory(models.Model):
-    id = UUIDPkField()
-    watched_directory_path = models.TextField(null=True, blank=True, db_column='watchedDirectoryPath')
-    chain = models.ForeignKey('MicroServiceChain', null=True, db_column='chain')
-    only_act_on_directories = models.BooleanField(default=True, db_column='onlyActOnDirectories')
-    expected_type = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='expectedType')
-    replaces = models.ForeignKey('WatchedDirectory', null=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta(object):
-        db_table = u"WatchedDirectories"
-
-
-class WatchedDirectoryExpectedType(models.Model):
-    id = UUIDPkField()
-    description = models.TextField(null=True)
-    replaces = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
-
-    class Meta(object):
-        db_table = u"WatchedDirectoriesExpectedTypes"
 
 
 class FPCommandOutput(models.Model):

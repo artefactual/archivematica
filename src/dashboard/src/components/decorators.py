@@ -20,7 +20,6 @@ from django.http import Http404
 from django.utils.functional import wraps
 from django.template import RequestContext
 
-from contrib import utils
 from main import models
 
 
@@ -32,7 +31,7 @@ def load_jobs(view):
         if 0 == jobs.count:
             raise Http404
         kwargs['jobs'] = jobs
-        kwargs['name'] = utils.get_directory_name_from_job(jobs)
+        kwargs['name'] = jobs.get_directory_name()
         return view(request, uuid, *args, **kwargs)
     return inner
 

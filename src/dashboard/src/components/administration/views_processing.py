@@ -63,7 +63,8 @@ def edit(request, name=None):
 
     # Initialize form.
     try:
-        form = ProcessingConfigurationForm(request.POST or None)
+        form = ProcessingConfigurationForm(
+            request.POST or None, user=request.user)
     except Exception as err:
         return _report_error(
             err, _("Unable to load processing configuration page."))

@@ -169,6 +169,9 @@ Sip = Backbone.Model.extend({
       this.jobs.each(function(job)
         {
           job.sip = self;
+
+          label = window.job_statuses[job.get("currentstep")];
+          job.set({"currentstep_label": label});
         });
     }
 });
@@ -303,7 +306,6 @@ var BaseSipView = Backbone.View.extend({
         var group = new MicroserviceGroupView({
           name: group,
           jobs: groups[group],
-          uid: this.uid
         });
         group.template = _.template(
           $('#microservice-group-template').html()
@@ -433,7 +435,6 @@ var MicroserviceGroupView = Backbone.View.extend({
     {
       this.name = this.options.name || '';
       this.jobs = this.options.jobs || new JobCollection();
-      this.uid  = this.options.uid;
     },
 
   render: function()
@@ -462,14 +463,8 @@ var MicroserviceGroupView = Backbone.View.extend({
       }
 
       this.jobs.each(function(job) {
-
-        // Skip subjobs
-        if (job.attributes.subjobof != '') {
-          return;
-        }
-
         // Render job
-        var view = new JobView({ model: job, uid: self.uid });
+        var view = new JobView({ model: job });
         jobDiv.append(view.render().el);
 
         // Add link to browse SIP before it's made into an AIP
@@ -508,7 +503,6 @@ var BaseJobView = Backbone.View.extend({
       _.bindAll(this, 'render');
       this.model.bind('change', this.render);
       this.model.view = this;
-      this.uid = this.options.uid;
     },
 
   taskDialog: function(data, options)
@@ -683,7 +677,6 @@ BaseAppView = Backbone.View.extend({
   initialize: function(options)
     {
       this.statusUrl = options.statusUrl;
-      this.uid       = options.uid;
 
       _.bindAll(this, 'add', 'remove');
       Sips.bind('add', this.add);
@@ -698,7 +691,6 @@ BaseAppView = Backbone.View.extend({
     {
       var view = new SipView({
         model: sip,
-        uid: this.uid
       });
       var $new = $(view.render().el).hide();
 

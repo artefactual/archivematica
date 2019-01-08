@@ -27,10 +27,9 @@ from dicts import ReplacementDict
 class LinkTaskManager(object):
     """ Common manager for MicroServiceChainLinks of different task types. """
 
-    def __init__(self, jobChainLink, pk, unit):
+    def __init__(self, jobChainLink, unit):
         """ Initalize common variables. """
         self.jobChainLink = jobChainLink
-        self.pk = pk
         self.unit = unit
         self.UUID = str(uuid.uuid4())
 

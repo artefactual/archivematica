@@ -47,12 +47,18 @@
         window.Sips = new SipCollection;
         window.App = new AppView({
           statusUrl: '/ingest/status/',
-          uid: {{ uid }}
         });
       });
 
     window.microservices_help = {
       {% for x, y in microservices_help.iteritems %}
+        '{{ x }}': '{{ y }}',
+      {% endfor %}
+    };
+
+    {# TODO: use json_script #}
+    window.job_statuses = {
+      {% for x, y in job_statuses.iteritems %}
         '{{ x }}': '{{ y }}',
       {% endfor %}
     };

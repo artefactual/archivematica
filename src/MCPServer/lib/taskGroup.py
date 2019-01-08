@@ -27,6 +27,9 @@ import cPickle
 import logging
 import os
 
+from databaseFunctions import getUTCDate
+from main.models import Task
+
 from django.db import transaction
 from django.utils import six, timezone
 
@@ -83,12 +86,36 @@ class TaskGroup():
             def insertTasks():
                 with transaction.atomic():
                     for task in self.groupTasks:
-                        databaseFunctions.logTaskCreatedSQL(self.linkTaskManager,
-                                                            task.commandReplacementDic,
-                                                            task.UUID,
-                                                            task.arguments)
+                        self._log_task(self.linkTaskManager,
+                                       task.commandReplacementDic,
+                                       task.UUID,
+                                       task.arguments)
 
             databaseFunctions.retryOnFailure("Insert tasks", insertTasks)
+
+    def _log_task(self, taskManager, commandReplacementDic, taskUUID, arguments):
+        """
+        Creates a new entry in the Tasks table using the supplied data.
+
+        :param MCPServer.linkTaskManager taskManager: A linkTaskManager subclass instance.
+        :param ReplacementDict commandReplacementDic: A ReplacementDict or dict instance. %fileUUID% and %relativeLocation% variables will be looked up from this dict.
+        :param str taskUUID: The UUID to be used for this Task in the database.
+        :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
+        """
+        jobUUID = taskManager.jobChainLink.UUID
+        fileUUID = ""
+        if "%fileUUID%" in commandReplacementDic:
+            fileUUID = commandReplacementDic["%fileUUID%"]
+        taskexec = taskManager.execute
+        fileName = os.path.basename(os.path.abspath(commandReplacementDic["%relativeLocation%"]))
+
+        Task.objects.create(taskuuid=taskUUID,
+                            job_id=jobUUID,
+                            fileuuid=fileUUID,
+                            filename=fileName,
+                            execution=taskexec,
+                            arguments=arguments,
+                            createdtime=getUTCDate())
 
     def calculateExitCode(self):
         """

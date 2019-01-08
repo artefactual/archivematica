@@ -20,7 +20,7 @@ import django.http
 from django.shortcuts import render
 
 from components import helpers
-from contrib import utils
+from contrib.mcp.client import MCPClient
 from main import models
 
 LOGGER = logging.getLogger('archivematica.dashboard')
@@ -34,7 +34,7 @@ def detail(request, unit_type, unit_uuid):
     :param unit_uuid: UUID of the Transfer or SIP
     """
     jobs = models.Job.objects.filter(sipuuid=unit_uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs)
+    name = jobs.get_directory_name()
     is_waiting = jobs.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).count() > 0
     context = {
         'name': name,
@@ -56,13 +56,13 @@ def microservices(request, unit_type, unit_uuid):
     :param unit_uuid: UUID of the Transfer or SIP
 
     """
-    jobs = models.Job.objects.filter(sipuuid=unit_uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs)
+    client = MCPClient(request.user)
+    resp = client.get_unit_status(unit_uuid)
     return render(request, unit_type + '/microservices.html', {
-        'jobs': jobs,
-        'name': name,
         'uuid': unit_uuid,
         'unit_type': unit_type,
+        'name': resp.get("name"),
+        'jobs': resp.get("jobs"),
     })
 
 

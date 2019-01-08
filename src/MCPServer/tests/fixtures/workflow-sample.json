@@ -1,0 +1,47 @@
+{
+  "chains": {
+    "03df8d8c-34d3-4924-86d4-f4e706c1522b": {
+      "description": {
+        "en": "Chain test"
+      },
+      "link_id": "03df8d8c-34d3-4924-86d4-f4e706c1522b"
+    }
+  },
+  "links": {
+    "03df8d8c-34d3-4924-86d4-f4e706c1522b": {
+      "config": {
+        "@manager": "linkTaskManagerFiles",
+        "@model": "StandardTaskConfig",
+        "execute": "command",
+        "arguments": "--debug",
+        "filter_file_start": null,
+        "filter_file_end": null,
+        "filter_subdir": null,
+        "stdout_file": null,
+        "stderr_file": null
+      },
+      "description": {
+        "en": "Go!"
+      },
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully",
+          "link_id": null
+        }
+      },
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Group"
+      }
+    }
+  },
+  "watched_directories": [
+    {
+      "chain_id": "03df8d8c-34d3-4924-86d4-f4e706c1522b",
+      "only_dirs": true,
+      "path": "/approveNormalization/",
+      "unit_type": "SIP"
+    }
+  ]
+}

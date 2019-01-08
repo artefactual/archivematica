@@ -21,8 +21,10 @@ ABILITIES = (
 )
 
 
-def choice_is_available(choice, settings):
-    """Return ``True`` if the ``MicroServiceChainChoice`` instance ``choice``
+def choice_is_available(link, chain, settings):
+    """Determine if a choice should be presented to the user.
+
+    Return ``True`` if the ``MicroServiceChainChoice`` instance ``choice``
     should be presented to the user, given ``ABILITIES`` and the configuration
     object ``settings``. If the ability ``enabled_condition`` is set to ``in``,
     check that the ``enabled_value`` is included in the ``enabled_attr`` value.
@@ -37,8 +39,8 @@ def choice_is_available(choice, settings):
             feature_enabled = getattr(settings, enabled_attr, False)
         if not feature_enabled:
             choice_tuple = (
-                choice.choiceavailableatlink.currenttask.description,
-                choice.chainavailable.description)
+                link.get_label("description"),
+                chain.get_label("description"))
             if choice_tuple in ability['dependencies']:
                 return False
     return True

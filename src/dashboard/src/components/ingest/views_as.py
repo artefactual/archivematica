@@ -223,10 +223,9 @@ def complete_matching(request, uuid):
     if request.method != 'POST':
         return HttpResponse(status=405)
     try:
-        client = MCPClient()
+        client = MCPClient(request.user)
         client.execute_unit(
             uuid,
-            uid=request.user.id,
             # Microservice: Upload DIP
             mscl_id="92879a29-45bf-4f0b-ac43-e64474f0f2f9",
             # Chain: Upload DIP to ArchivesSpace

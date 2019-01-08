@@ -23,16 +23,16 @@ from lxml import etree
 def execute(request):
     result = ''
     if request.POST.get('uuid'):
-        client = MCPClient()
+        client = MCPClient(request.user)
         result = client.execute(
             request.POST.get('uuid'),
             request.POST.get('choice', ''),
-            request.POST.get('uid', ''))
+        )
     return HttpResponse(result, content_type='text/plain')
 
 
 def list(request):
-    client = MCPClient()
+    client = MCPClient(request.user)
     jobs = etree.XML(client.list())
     response = ''
     if 0 < len(jobs):

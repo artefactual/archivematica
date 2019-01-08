@@ -280,8 +280,9 @@ class ProcessingConfigurationForm(forms.Form):
     name.widget.attrs['class'] = 'form-control'
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user")
         super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
-        self._load_processing_config_fields()
+        self._load_processing_config_fields(user)
         for choice_uuid, field in self.processing_fields.items():
             ftype = field['type']
             opts = self.DEFAULT_FIELD_OPTS.copy()
@@ -313,8 +314,8 @@ class ProcessingConfigurationForm(forms.Form):
             self.fields[choice_uuid] = forms.ChoiceField(
                 widget=Select(attrs={'class': 'form-control'}), **opts)
 
-    def _load_processing_config_fields(self):
-        client = MCPClient()
+    def _load_processing_config_fields(self, user):
+        client = MCPClient(user)
         self.processing_fields = client.get_processing_config_fields()
         for choice_uuid, field in self.processing_fields.items():
             field['label'] = self.LABELS[choice_uuid]
@@ -363,10 +364,31 @@ class ProcessingConfigurationForm(forms.Form):
                 delay = str(float(value) * (24 * 60 * 60))
                 config.add_choice(choice_uuid, fprops['chain'], delay_duration=delay, comment=fprops['label'])
             elif fprops['type'] == 'chain_choice' and 'duplicates' in fprops:
-                desc, matches = fprops['duplicates'][value]
-                for i, match in enumerate(matches):
-                    comment = '{} (match {} for "{}")'.format(fprops['label'], i + 1, desc)
-                    config.add_choice(match[0], match[1], comment=comment)
+                # If we have more than one chain (duplicates) then we need to
+                # add them all, e.g.::
+                #
+                #    <!-- Normalize (match 1 for "Normalize for access") -->
+                #    <preconfiguredChoice>
+                #      <appliesTo>...</appliesTo>
+                #      <goToChain>...</goToChain>
+                #    </preconfiguredChoice>
+                #    <!-- Normalize (match 2 for "Normalize for access") -->
+                #    <preconfiguredChoice>
+                #      <appliesTo>...</appliesTo>
+                #      <goToChain>...</goToChain>
+                #    </preconfiguredChoice>
+                #
+                # Otherwise, when `KeyError` is raised, add single entry.
+                try:
+                    desc, matches = fprops['duplicates'][value]
+                except KeyError:
+                    config.add_choice(
+                        choice_uuid, value, comment=fprops['label'])
+                else:
+                    for i, match in enumerate(matches):
+                        comment = '{} (match {} for "{}")'.format(
+                            fprops['label'], i + 1, desc)
+                        config.add_choice(match[0], match[1], comment=comment)
             else:
                 config.add_choice(choice_uuid, value, comment=fprops['label'])
         config.save(config_path)

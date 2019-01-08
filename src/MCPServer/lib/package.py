@@ -162,10 +162,10 @@ _default_location_uuid = None
 
 
 def _default_transfer_source_location_uuid():
+    global _default_location_uuid
     if _default_location_uuid is not None:
         return _default_location_uuid
     location = storage_service.get_default_location('TS')
-    global _default_location_uuid
     _default_location_uuid = location['uuid']
     return _default_location_uuid
 
@@ -254,7 +254,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
 
 
 def create_package(name, type_, accession, access_system_id, path,
-                   metadata_set_id, auto_approve=True,
+                   metadata_set_id, workflow, auto_approve=True,
                    wait_until_complete=False, processing_config=None):
     """Launch transfer and return its object immediately.
 
@@ -304,6 +304,7 @@ def create_package(name, type_, accession, access_system_id, path,
                 starting_point, processing_config
             )
             if auto_approve:
+                params = params + (workflow,)
                 _start_package_transfer_with_auto_approval(*params)
             else:
                 _start_package_transfer(*params)
@@ -367,7 +368,8 @@ def _determine_transfer_paths(name, path, tmpdir):
 
 @_capture_transfer_failure
 def _start_package_transfer_with_auto_approval(
-        transfer, name, path, tmpdir, starting_point, processing_config):
+        transfer, name, path, tmpdir, starting_point,
+        processing_config, workflow):
     """Start a new transfer the new way.
 
     This method does not rely on the activeTransfer watched directory. It
@@ -392,7 +394,8 @@ def _start_package_transfer_with_auto_approval(
 
     logger.debug('Package %s: starting workflow processing', transfer.pk)
     unit = unitTransfer(path, transfer.pk)
-    jobChain(unit, starting_point.chain, starting_point.link)
+    jobChain(unit, workflow.get_chain(starting_point.chain),
+             workflow, workflow.get_link(starting_point.link))
 
 
 @_capture_transfer_failure

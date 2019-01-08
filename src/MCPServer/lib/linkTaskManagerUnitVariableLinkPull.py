@@ -21,30 +21,37 @@
 
 from linkTaskManager import LinkTaskManager
 
-choicesAvailableForUnits = {}
+from main.models import UnitVariable
 
-from main.models import TaskConfigUnitVariableLinkPull
+choicesAvailableForUnits = {}
 
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink,
-                                                                  pk, unit)
-
-        # Look up the variable entry in the workflow data.
-        var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
-
-        # Determine the next link.
-        link = self.unit.getmicroServiceChainLink(
-            var.variable,
-            var.variablevalue,
-            var.defaultmicroservicechainlink)
-
-        if link is None:
-            return
-
-        # Mark as complete and continue.
+    def __init__(self, jobChainLink, unit):
+        super(linkTaskManagerUnitVariableLinkPull, self).__init__(
+            jobChainLink, unit)
+        next_link = self._get_next_link()
+        if next_link is None:
+            raise Exception(
+                "linkTaskManagerUnitVariableLinkPull could not find next link")
         self.jobChainLink.linkProcessingComplete(
             exitCode=0,
             passVar=self.jobChainLink.passVar,
-            next_link_id=link.id)
+            next_link=next_link)
+
+    def _get_next_link(self):
+        """Look up next chain link in UnitVariable."""
+        link = self.jobChainLink.link
+        try:
+            unitvar = UnitVariable.objects.get(
+                unittype=self.unit.unitType, unituuid=self.unit.UUID,
+                variable=link.config["variable"])
+        except UnitVariable.DoesNotExist:
+            link_id = link.config["chain_id"]
+        else:
+            link_id = unitvar.microservicechainlink
+        try:
+            link = self.jobChainLink.workflow.get_link(link_id)
+        except KeyError:
+            return
+        return link

@@ -21,14 +21,17 @@
         <small>{{ name }}</small>
       </h1>
 
-      {% regroup jobs by microservicegroup as groups %}
+      {% regroup jobs by group as groups %}
 
       {% for item in groups %}
         <div>
           {{ item.grouper }}<br />
           <ul>
             {% for i in item.list %}
-              <li><strong>{{ i.jobtype }}:</strong> {{ i.currentstep|job_status }}</li>
+              <li>
+                <strong>{{ i.description }}:</strong>
+                {{ i.status|job_status }}
+              </li>
             {% endfor %}
           </ul>
         </div>

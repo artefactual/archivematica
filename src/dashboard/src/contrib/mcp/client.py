@@ -19,6 +19,7 @@ import cPickle
 import logging
 
 from django.conf import settings
+from django.utils.translation import get_language
 import gearman
 
 from main.models import Job
@@ -89,8 +90,10 @@ INFLIGHT_POLL_TIMEOUT = 5.0
 class MCPClient(object):
     """MCPServer client (RPC via Gearman)."""
 
-    def __init__(self):
+    def __init__(self, user):
         self.server = settings.GEARMAN_SERVER
+        self.user = user
+        self.lang = get_language() or "en"
 
     def _rpc_sync_call(self, ability, data=None, timeout=INFLIGHT_POLL_TIMEOUT):
         """Invoke remote method synchronously and with a deadline.
@@ -102,6 +105,8 @@ class MCPClient(object):
         """
         if data is None:
             data = b""
+        elif "user_id" not in data:
+            data["user_id"] = self.user.id
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             ability, cPickle.dumps(data),
@@ -117,18 +122,19 @@ class MCPClient(object):
             raise RPCServerError(payload)
         return payload
 
-    def execute(self, uuid, choice, uid=None):
+    def execute(self, uuid, choice):
         gm_client = gearman.GearmanClient([self.server])
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
-        if uid is not None:
-            data["uid"] = uid
+        # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
+        # to be added manually here.
+        data["user_id"] = self.user.id
         gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         gm_client.shutdown()
         return
 
-    def execute_unit(self, unit_id, choice, mscl_id=None, uid=None):
+    def execute_unit(self, unit_id, choice, mscl_id=None):
         """Execute the jobs awaiting for approval associated to a given unit.
 
         Use ``mscl_id`` to pass the ID of the chain link to restrict the
@@ -139,12 +145,12 @@ class MCPClient(object):
             "sipuuid": unit_id,
         }
         if mscl_id is not None:
-            kwargs["microservicechainlink_id"] = mscl_id
+            kwargs["microservicechainlink"] = mscl_id
         jobs = Job.objects.filter(**kwargs)
         if len(jobs) < 1:
             raise NoJobFoundError()
         for item in jobs:
-            self.execute(item.pk, choice, uid)
+            self.execute(item.pk, choice)
 
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
@@ -153,15 +159,6 @@ class MCPClient(object):
             return cPickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
-
-    def notifications(self):
-        gm_client = gearman.GearmanClient([self.server])
-        completed_job_request = gm_client.submit_job("getNotifications", "", None)
-        gm_client.shutdown()
-        if completed_job_request.state == gearman.JOB_COMPLETE:
-            return cPickle.loads(completed_job_request.result)
-        elif completed_job_request.state == gearman.JOB_FAILED:
-            raise RPCError("getNotifications failed (check MCPServer logs)")
 
     def create_package(self, name, type_, accession, access_system_id, path,
                        metadata_set_id, auto_approve=True,
@@ -180,20 +177,32 @@ class MCPClient(object):
             data["processing_config"] = processing_config
         return self._rpc_sync_call("packageCreate", data)
 
-    def approve_transfer_by_path(self, db_transfer_path,
-                                 transfer_type, user_id):
+    def approve_transfer_by_path(self, db_transfer_path, transfer_type):
         """Approve a transfer given its path and transfer type."""
         data = {
             "db_transfer_path": db_transfer_path,
             "transfer_type": transfer_type,
-            "user_id": user_id,
         }
         return self._rpc_sync_call("approveTransferByPath", data)
 
-    def approve_partial_reingest(self, sip_uuid, user_id):
+    def approve_partial_reingest(self, sip_uuid):
         """Approve a partial reingest awaiting for approval."""
-        data = {"sip_uuid": sip_uuid, "user_id": user_id}
+        data = {"sip_uuid": sip_uuid}
         return self._rpc_sync_call("approvePartialReingest", data)
 
     def get_processing_config_fields(self):
         return self._rpc_sync_call("getProcessingConfigFields")
+
+    def _get_units_statuses(self, type_):
+        data = {"type": type_, "lang": self.lang}
+        return self._rpc_sync_call("getUnitsStatuses", data)
+
+    def get_transfers_statuses(self):
+        return self._get_units_statuses(type_="Transfer")
+
+    def get_sips_statuses(self):
+        return self._get_units_statuses(type_="SIP")
+
+    def get_unit_status(self, unit_id):
+        data = {"id": unit_id, "lang": self.lang}
+        return self._rpc_sync_call("getUnitStatus", data)

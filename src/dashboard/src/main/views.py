@@ -75,7 +75,7 @@ def home(request):
 
 # TODO: hide removed elements
 def status(request):
-    client = MCPClient()
+    client = MCPClient(request.user)
     xml = etree.XML(client.list())
 
     sip_count = len(xml.xpath('//choicesAvailableForUnits/choicesAvailableForUnit/unit/type[text()="SIP"]'))
@@ -132,9 +132,6 @@ def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
 
-    if (len(objects) == 0):
-        return tasks_subjobs(request, uuid)
-
     # Filenames can be any encoding - we want to be able to display
     # unicode, while just displaying unicode replacement characters
     # for any other encoding present.
@@ -152,22 +149,6 @@ def tasks(request, uuid):
         object.duration = helpers.task_duration_in_seconds(object)
 
     return render(request, 'main/tasks.html', locals())
-
-
-def tasks_subjobs(request, uuid):
-    jobs = []
-    possible_jobs = models.Job.objects.filter(subjobof=uuid)
-
-    for job in possible_jobs:
-        subjobs = models.Job.objects.filter(subjobof=job.jobuuid)
-        job.total_subjobs = len(subjobs)
-        job.path_to_file = job.directory.replace('%SIPDirectory%', '', 1)
-        jobs.append(job)
-
-    if len(jobs) == 1:
-        return tasks(request, jobs[0].jobuuid)
-    else:
-        return render(request, 'main/tasks_subjobs.html', locals())
 
 
 def formdata_delete(request, type, parent_id, delete_id):

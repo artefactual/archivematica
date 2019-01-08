@@ -49,8 +49,6 @@ $(function()
 
       initialize: function()
         {
-          this.uid = this.options.uid;
-
           _.bindAll(this, 'render', 'update', 'updateIcon');
           this.model.view = this;
           this.model.bind('change:timestamp', this.update);

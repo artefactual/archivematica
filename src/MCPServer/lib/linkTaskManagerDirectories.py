@@ -25,21 +25,22 @@ import os
 
 import archivematicaFunctions
 from dicts import ReplacementDict
-from main.models import StandardTaskConfig
 
 from taskGroupRunner import TaskGroupRunner
 
 
 class linkTaskManagerDirectories(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
-        stc = StandardTaskConfig.objects.get(id=str(pk))
-        filterSubDir = stc.filter_subdir
-        standardOutputFile = stc.stdout_file
-        standardErrorFile = stc.stderr_file
-        execute = stc.execute
-        self.execute = execute
-        arguments = stc.arguments
+    def __init__(self, jobChainLink, unit):
+        super(linkTaskManagerDirectories, self).__init__(jobChainLink, unit)
+        config = self.jobChainLink.link.config
+        filterSubDir = config["filter_subdir"]
+        standardOutputFile = config["stdout_file"]
+        standardErrorFile = config["stderr_file"]
+        execute = config["execute"]
+        arguments = config["arguments"]
+
+        # Used by ``TaskGroup._log_task``.
+        self.execute = config["execute"]
 
         if filterSubDir:
             directory = os.path.join(unit.currentPath, filterSubDir)
