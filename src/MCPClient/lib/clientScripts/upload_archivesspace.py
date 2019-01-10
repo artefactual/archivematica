@@ -203,8 +203,7 @@ def call(jobs):
     INHERIT_NOTES_CHOICES = ['yes', 'y', 'true', '1']
 
     parser = argparse.ArgumentParser(description='A program to take digital objects from a DIP and upload them to an ArchivesSpace db')
-    parser.add_argument('--host', default='localhost', dest='host', metavar='host', help='Hostname of ArchivesSpace')
-    parser.add_argument('--port', type=int, default=8089, dest='port', metavar='port', help='Port used by ArchivesSpace backend API')
+    parser.add_argument('--base-url', default='http://localhost:8089', dest='base_url', metavar='base_url', help='Hostname of ArchivesSpace')
     parser.add_argument('--user', dest='user', help='Administrative user')
     parser.add_argument('--passwd', dest='passwd', help='Administrative user password')
     parser.add_argument('--dip_location', help='DIP location')
@@ -228,7 +227,7 @@ def call(jobs):
 
                 args.inherit_notes = args.inherit_notes.lower() in INHERIT_NOTES_CHOICES
 
-                client = ArchivesSpaceClient(host=args.host, port=args.port, user=args.user, passwd=args.passwd)
+                client = ArchivesSpaceClient(host=args.base_url, user=args.user, passwd=args.passwd)
 
                 try:
                     files = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)

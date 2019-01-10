@@ -25,8 +25,7 @@ EAD_SHOW_CHOICES = [
 
 
 class ArchivesSpaceConfigForm(forms.Form):
-    host = forms.CharField(label=_('ArchivesSpace host'), help_text=_('Do not include http:// or www. Example: aspace.test.org'))
-    port = forms.IntegerField(label=_('ArchivesSpace backend port'), help_text=_('Example: 8089'), initial=8089)
+    base_url = forms.CharField(label=_('ArchivesSpace base URL'), help_text=_('Example: http://aspace.test.org:8089'))
     user = forms.CharField(label=_('ArchivesSpace administrative user'), help_text=_('Example: admin'))
     passwd = forms.CharField(required=False, label=_('ArchivesSpace administrative user password'), help_text=_('Password for user set above. Re-enter this password every time changes are made.'))
     restrictions = forms.ChoiceField(choices=PREMIS_CHOICES, label=_('Restrictions apply'), initial='yes')
