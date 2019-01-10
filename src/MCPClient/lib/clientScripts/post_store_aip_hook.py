@@ -3,7 +3,6 @@
 from __future__ import print_function
 import argparse
 import sys
-
 import requests
 
 import django
@@ -17,11 +16,22 @@ from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 
+from agentarchives.archivesspace import ArchivesSpaceClient
+
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
 COMPLETED = 0
 NO_ACTION = 1
 ERROR = 2
+
+
+def _build_base_url(host, port):
+    """Parse ``host`` and ``port`` to build ``base_url``.
+
+    ``ArchivesSpaceClient`` is not entirely used in this script but it's a
+    change expected to happen in future releases.
+    """
+    return ArchivesSpaceClient.__dict__['_build_base_url'](None, host, port)
 
 
 def dspace_handle_to_archivesspace(sip_uuid):
@@ -48,7 +58,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     # POST Dspace handle to ArchivesSpace
     # Get ArchivesSpace config
     config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
-    archivesspace_url = 'http://' + config['host'] + ':' + str(config['port'])
+    archivesspace_url = _build_base_url(config['host'], config['port'])
 
     # Log in
     url = archivesspace_url + '/users/' + config['user'] + '/login'
