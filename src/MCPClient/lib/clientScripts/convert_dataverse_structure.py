@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-"""Given a transfer type Dataverse, read the metadata submission object
+"""Convert Dataverse Structure
+
+Given a transfer type Dataverse, read the metadata submission object
 ``dataset.json`` to generate a Dataverse METS.xml file. This METS file will
 then later be used to create a Transfer METS.xml document as part of the
 Archivematica submission information package (SIP).
@@ -13,17 +15,23 @@ created by Dataverse to enable the data to be interacted with using as wide a
 range of tools as possible. These Derivatives are transcribed to the Dataverse
 METS.xml.
 
-More information about Dataverse in Archivematica can be found here:
+The module will also extract a minimal Data Documentation Initiative (DDI) XML
+structure from the dataset metadata.
+
+More information about Dataverse in Archivematica can be found in the
+Archivematica documentation:
+
 https://wiki.archivematica.org/Dataverse
 """
 
 import json
 import os
+import sys
 import uuid
 
 from lxml import etree
 
-# databaseFunctions requires Django to be set up
+# Database functions requires Django to be set up.
 import django
 django.setup()
 
@@ -57,40 +65,71 @@ EXTENSION_MAPPING = {
 }
 
 
-def get_ddi_title_author(dataset_md_latest):
-    """Retrieve the title and the author of the dataset for the DDI XML
-    snippet to be included in the METS file.
+def output_ddi_elems_info(job, ddi_elems):
+    """Cycle through the DDI elements retrieved from the dataset.json file.
+    Output information about the dataset to the user.
     """
-    title_text = author_text = None
+    draft = False
+    job.pyprint("Fields retrieved from Dataverse:")
+    for ddi_k, ddi_v in ddi_elems.iteritems():
+        if ddi_k == "Version Type" and ddi_v == "DRAFT":
+            draft = True
+        job.pyprint("{}: {}".format(ddi_k, ddi_v))
+    # Provide information to the user where data in the Dataverse may cause the
+    # transfer to fail, e.g. when transferred in a DRAFT state.
+    if draft:
+        job.pyprint(
+            "Dataset is in a DRAFT state and may not transfer correctly",
+            file=sys.stderr)
+
+
+def get_ddi_title(dataset_md_latest):
+    """Retrieve the title of the dataset for the DDI XML snippet."""
     citation = dataset_md_latest.get("metadataBlocks", {}).get("citation")
     fields = citation.get("fields", None)
     if fields:
         for field in fields:
             if field.get("typeName") == "title":
-                title_text = field.get("value")
-            if field.get("typeName") == "author":
-                author_text = field.get("value")[0].get("authorName")\
-                    .get("value")
-        return title_text.strip(), author_text.strip()
+                return field.get("value", "").strip()
     raise ConvertDataverseError(
-        "Unable to retrieve MD fields from dataset.json")
+        "Unable to retrieve DDI metadata fields from dataset.json")
+
+
+def get_ddi_author(dataset_md_latest):
+    """Retrieve the authors of the the dataset for the DDI XML snippet.
+    Importantly for the reader, the information is captured in an array of
+    dictionaries. The array preserves order which is important in academic
+    publishing.
+    """
+    authors = []
+    citation = dataset_md_latest.get("metadataBlocks", {}).get("citation")
+    fields = citation.get("fields", None)
+    if fields:
+        for field in fields:
+            if field.get("typeName") == "author":
+                author_list = field.get("value")
+                for author in author_list:
+                    entry = {}
+                    entry["affiliation"] = \
+                        author.get("authorAffiliation", {}).get("value", "")\
+                        .strip()
+                    entry["name"] = \
+                        author.get("authorName", {}).get("value", "").strip()
+                    authors.append(entry)
+        return authors
+    raise ConvertDataverseError(
+        "Unable to retrieve DDI metadata fields from dataset.json")
 
 
 def create_ddi(job, json_metadata, dataset_md_latest):
     """Create the DDI dmdSec from the JSON metadata."""
     ddi_elems = {}
-
     try:
-        ddi_elems["Title"], \
-            ddi_elems["Author"] = get_ddi_title_author(dataset_md_latest)
-    except TypeError as err:
-        logger.error(
-            "Unable to gather citation data from dataset.json: %s", err)
-        return None
+        ddi_elems["Title"] = get_ddi_title(dataset_md_latest)
+        ddi_elems["Author"] = get_ddi_author(dataset_md_latest)
     except ConvertDataverseError as err:
         logger.error(err)
-        return None
-
+        raise
     ddi_elems["PID Type"] = json_metadata.get("protocol", "")
     ddi_elems["IDNO"] = json_metadata.get("persistentUrl", "")
     ddi_elems["Version Date"] = dataset_md_latest.get("releaseTime", "")
@@ -102,18 +141,8 @@ def create_ddi(job, json_metadata, dataset_md_latest):
     ddi_elems["Restriction Text"] = dataset_md_latest.get("termsOfUse", "")
     ddi_elems["Distributor Text"] = json_metadata.get("publisher", "")
 
-    draft = False
-    job.pyprint("Fields retrieved from Dataverse:")
-    for ddi_k, ddi_v in ddi_elems.iteritems():
-        if ddi_k == "Version Type" and ddi_v == "DRAFT":
-            draft = True
-        job.pyprint("{}: {}".format(ddi_k, ddi_v))
-
-    if draft:
-        job.pyprint(
-            "Dataset is in a DRAFT state and may not transfer correctly")
-        logger.error(
-            "Dataset is in a DRAFT state and may not transfer correctly")
+    # Provide some log information to the user.
+    output_ddi_elems_info(job, ddi_elems)
 
     # Create XML.
     nsmap = {"ddi": "http://www.icpsr.umich.edu/DDI"}
@@ -141,8 +170,12 @@ def create_ddi(job, json_metadata, dataset_md_latest):
         = ddi_elems["IDNO"]
 
     rspstmt = etree.SubElement(citation, ddins + "rspStmt")
-    etree.SubElement(rspstmt, ddins + "AuthEnty").text \
-        = ddi_elems["Author"]
+
+    for auth in ddi_elems["Author"]:
+        etree.SubElement(
+            rspstmt, ddins + "AuthEnty",
+            affiliation=auth.get("affiliation", "")).text = \
+            auth.get('name', "")
 
     diststmt = etree.SubElement(citation, ddins + "distStmt")
     etree.SubElement(diststmt, ddins + "distrbtr").text \
@@ -477,7 +510,7 @@ def convert_dataverse_to_mets(
     # Create METS
     try:
         sip = metsrw.FSEntry(
-            path="None", label=get_ddi_title_author(dataset_md_latest)[0],
+            path="None", label=get_ddi_title(dataset_md_latest),
             use=None, type="Directory"
         )
     except TypeError as err:

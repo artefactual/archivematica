@@ -19,70 +19,110 @@ sys.path.append(
 
 import convert_dataverse_structure
 
-# List of dataverse metadata fixtures. We use a namedtuple to provide some
+# List of Dataverse metadata fixtures. We use a named-tuple to provide some
 # structure to this index so that we can keep track of information regarding
-# dataverse over time, e.g. dataverse version number, the dataset uri and so
+# Dataverse over time, e.g. Dataverse version number, the dataset URI and so
 # forth.
-DataverseMDIndex = namedtuple('DataverseMDIndex',
-                              'dv_version, ddi_title, pid_value, pid_type, '
-                              'fname, all_file_count, dir_count, item_count, '
-                              'ddi_count')
+DataverseMDIndex = namedtuple(
+    'DataverseMDIndex', 'dv_version, ddi_title, pid_value, pid_type, '
+    'fname, all_file_count, dir_count, item_count, ddi_count, author_count, '
+    'author_list'
+)
 
-dv_1 = DataverseMDIndex("4.8.6",
-                        "Test Dataset",
-                        "http://dx.doi.org/10.5072/FK2/XSAZXH",
-                        "doi",
-                        "web_ui_demo.dataverse.org.doi.10.5072.1.json",
-                        14, 3, 11, 1)
-dv_2 = DataverseMDIndex("4.8.6",
-                        "Bala Parental Alienation Study: Canada, United "
-                        "Kingdom, and Australia 1984-2012 [test]",
-                        "https://doi.org/10.5072/FK2/UNMEZF",
-                        "doi",
-                        "web_ui_demo.dataverse.org.doi.10.5072.2.json",
-                        47, 6, 41, 5)
-dv_3 = DataverseMDIndex("4.8.6",
-                        "A study with restricted data",
-                        "https://doi.org/10.5072/FK2/WZTJWN",
-                        "doi",
-                        "web_ui_demo.dataverse.org.doi.10.5072.3.json",
-                        5, 2, 3, 1)
-dv_4 = DataverseMDIndex("4.8.6",
-                        "A study of my afternoon drinks",
-                        "https://doi.org/10.5072/FK2/6PPJ6Y",
-                        "doi",
-                        "api_demo.dataverse.org.doi.10.5072.4.json",
-                        11, 3, 8, 2)
-dv_5 = DataverseMDIndex("4.8.6",
-                        "Botanical Test",
-                        "https://doi.org/10.5072/FK2/8KDUHM",
-                        "doi",
-                        "api_demo.dataverse.org.doi.10.5072.5.json",
-                        11, 2, 9, 1)
-dv_6 = DataverseMDIndex("4.8.6",
-                        "Research Data Management (RDM) Survey of Queen's "
-                        "University's Engineering and Science Departments",
-                        "https://hdl.handle.net/10864/11651",
-                        "hdl",
-                        "api_demo.dataverse.org.doi.10.5072.6.json",
-                        19, 3, 16, 2)
-dv_7 = DataverseMDIndex("4.8.6",
-                        "A study of my afternoon drinks",
-                        "https://doi.org/10.5072/FK2/6PPJ6Y",
-                        "doi",
-                        "api_demo.dataverse.org.doi.10.5072.7.json",
-                        11, 3, 8, 2)
-dv_8 = DataverseMDIndex("4.8.6",
-                        "Depress",
-                        "https://doi.org/10.5072/FK2/NNTESQ",
-                        "doi",
-                        "api_demo.dataverse.org.doi.10.5072.8.json",
-                        11, 3, 8, 2)
+dv_1 = DataverseMDIndex(
+    "4.8.6",
+    "Test Dataset",
+    "http://dx.doi.org/10.5072/FK2/XSAZXH",
+    "doi",
+    "web_ui_demo.dataverse.org.doi.10.5072.1.json",
+    14, 3, 11, 1, 1,
+    [{"name": "Admin, Dataverse", "affiliation": "Dataverse.org"}])
+
+dv_2 = DataverseMDIndex(
+    "4.8.6",
+    "Bala Parental Alienation Study: Canada, United Kingdom, and Australia "
+    "1984-2012 [test]",
+    "https://doi.org/10.5072/FK2/UNMEZF",
+    "doi",
+    "web_ui_demo.dataverse.org.doi.10.5072.2.json",
+    47, 6, 41, 5, 5,
+    [{"name": "Nicolas Bala", "affiliation": "Queen's University"},
+     {"name": "Suzanne Hunt", "affiliation": ""},
+     {"name": "Carrie McCarney", "affiliation": ""},
+     {"name": "Erin Gwynne", "affiliation": ""},
+     {"name": "Christine Ashborne", "affiliation": ""},
+     ])
+
+dv_3 = DataverseMDIndex(
+    "4.8.6",
+    "A study with restricted data",
+    "https://doi.org/10.5072/FK2/WZTJWN",
+    "doi",
+    "web_ui_demo.dataverse.org.doi.10.5072.3.json",
+    5, 2, 3, 1, 1,
+    [{"name": "Tester, Archivematica", "affiliation": "Artefactual"}])
+
+dv_4 = DataverseMDIndex(
+    "4.8.6",
+    "A study of my afternoon drinks",
+    "https://doi.org/10.5072/FK2/6PPJ6Y",
+    "doi",
+    "api_demo.dataverse.org.doi.10.5072.4.json",
+    11, 3, 8, 2, 1,
+    [{"name": "Tester, Archivematica", "affiliation": "Artefactual"}])
+
+dv_5 = DataverseMDIndex(
+    "4.8.6",
+    "Botanical Test",
+    "https://doi.org/10.5072/FK2/8KDUHM",
+    "doi",
+    "api_demo.dataverse.org.doi.10.5072.5.json",
+    11, 2, 9, 1, 1,
+    [{"name": "Admin, Dataverse", "affiliation": "OTHER"}])
+
+dv_6 = DataverseMDIndex(
+    "4.8.6",
+    "Research Data Management (RDM) Survey of Queen's "
+    "University's Engineering and Science Departments",
+    "https://hdl.handle.net/10864/11651",
+    "hdl",
+    "api_demo.dataverse.org.doi.10.5072.6.json",
+    19, 3, 16, 2, 5,
+    [{"name": "Tatiana Zaraiskaya",
+      "affiliation": "Queen's University Library. Engineering &amp; Science "
+      "Library"},
+     {"name": "Alexandra Cooper",
+      "affiliation": "Queen's University Library. Data Services"},
+     {"name": "Jeff Moon",
+      "affiliation": "Queen's University Library. Data Services"},
+     {"name": "Sharon Murphy",
+      "affiliation": "Queen's University Library. Academic Services"},
+     {"name": "Nasser Saleh",
+      "affiliation": "Queen's University Library. Engineering &amp; Science "
+      "Library"},
+     ])
+
+dv_7 = DataverseMDIndex(
+    "4.8.6",
+    "A study of my afternoon drinks",
+    "https://doi.org/10.5072/FK2/6PPJ6Y",
+    "doi",
+    "api_demo.dataverse.org.doi.10.5072.7.json",
+    11, 3, 8, 2, 1,
+    [{"name": "Tester, Archivematica", "affiliation": "Artefactual"}])
+
+dv_8 = DataverseMDIndex(
+    "4.8.6",
+    "Depress",
+    "https://doi.org/10.5072/FK2/NNTESQ",
+    "doi",
+    "api_demo.dataverse.org.doi.10.5072.8.json",
+    11, 3, 8, 2, 1,
+    [{"name": "Manuel, Kevin", "affiliation": "Ryerson University"}])
 
 
 class TestDataverseExample(object):
     """Dataverse test runner class."""
-
     write_dir = "fixtures/dataverse/dataverse_sources/dataverse_mets/"
     fixture_path = "fixtures/dataverse/dataverse_sources"
 
@@ -111,7 +151,7 @@ class TestDataverseExample(object):
 
         try:
             mets = metsrw.METSDocument.fromfile(mets_path)
-        except mets.MetsError:
+        except metsrw.MetsError:
             pytest.fail("Could not parse mets {}".format(mets_path))
 
         assert len(mets.all_files()) == \
@@ -149,12 +189,12 @@ class TestDataverseExample(object):
 
         try:
             mets = metsrw.METSDocument.fromfile(mets_path)
-        except mets.MetsError:
+        except metsrw.MetsError:
             pytest.fail("Could not parse mets {}".format(mets_path))
 
         mets_root = mets.serialize()
 
-        # Setup namespaces to search for in the document.
+        # Set up namespaces to search for in the document.
         namespace = {'ddi': 'http://www.icpsr.umich.edu/DDI'}
 
         # Test for a single instance of the ddi codebook.
@@ -211,3 +251,31 @@ class TestDataverseExample(object):
                 pytest.fail("Unexpected MDREF found in metadata: {}"
                             .format(ref.get("LABEL")))
         assert dataset_json is True
+
+    @pytest.mark.parametrize(
+        "fixture", [dv_1, dv_2, dv_3, dv_4, dv_5, dv_6, dv_7, dv_8])
+    def test_ddi_authors(self, fixture, tmpdir):
+        """Test that we have retrieved the correct number of authors and that
+        the list compares 1:1 in order.
+        """
+        mets_path = self._create_mets(fixture.fname, tmpdir)
+        if not os.path.isfile(mets_path):
+            pytest.fail("Fixtures were not previously setup correctly.")
+
+        try:
+            mets = metsrw.METSDocument.fromfile(mets_path)
+        except metsrw.MetsError:
+            pytest.fail("Could not parse mets {}".format(mets_path))
+
+        mets_root = mets.serialize()
+
+        # Set up namespaces to search for in the document.
+        namespace = {'ddi': 'http://www.icpsr.umich.edu/DDI'}
+
+        authors = mets_root.findall('.//ddi:AuthEnty', namespace)
+        auth_list = []
+        for auth in authors:
+            auth_list.append(
+                {"name": auth.text, "affiliation": auth.get("affiliation")})
+        assert len(authors) == fixture.author_count
+        assert auth_list == fixture.author_list
