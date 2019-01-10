@@ -30,8 +30,7 @@ def create_archivesspace_client():
 
     try:
         client = archivesspace.ArchivesSpaceClient(
-            host=config['host'],
-            port=config['port'],
+            host=config['base_url'],
             user=config['user'],
             passwd=config['passwd'],
             repository=config['repository']
