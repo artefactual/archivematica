@@ -8,27 +8,68 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
     <!-- Select compression level -->
     <preconfiguredChoice>
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
-      <goToChain>ecfad581-b007-4612-a0e0-fcc551f4057f</goToChain>
+      <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
+    </preconfiguredChoice>
+    <!-- Remove from quarantine after (days) -->
+    <preconfiguredChoice>
+      <appliesTo>19adb668-b19a-4fcb-8938-f49d7485eaf3</appliesTo>
+      <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
+      <delay unitCtime="yes">2419200.0</delay>
     </preconfiguredChoice>
     <!-- Select file format identification command (Submission documentation & metadata) -->
     <preconfiguredChoice>
       <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
       <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
     </preconfiguredChoice>
+    <!-- Bind PIDs -->
+    <preconfiguredChoice>
+      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
+      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+    </preconfiguredChoice>
+    <!-- Generate transfer structure report -->
+    <preconfiguredChoice>
+      <appliesTo>56eebd45-5600-4768-a8c2-ec0114555a3d</appliesTo>
+      <goToChain>df54fec1-dae1-4ea6-8d17-a839ee7ac4a7</goToChain>
+    </preconfiguredChoice>
+    <!-- Perform policy checks on originals -->
+    <preconfiguredChoice>
+      <appliesTo>70fc7040-d4fb-4d19-a0e6-792387ca1006</appliesTo>
+      <goToChain>3e891cc4-39d2-4989-a001-5107a009a223</goToChain>
+    </preconfiguredChoice>
+    <!-- Generate thumbnails -->
+    <preconfiguredChoice>
+      <appliesTo>498f7a6d-1b8c-431a-aa5d-83f14f3c5e65</appliesTo>
+      <goToChain>c318b224-b718-4535-a911-494b1af6ff26</goToChain>
+    </preconfiguredChoice>
     <!-- Select compression algorithm -->
     <preconfiguredChoice>
       <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
       <goToChain>9475447c-9889-430c-9477-6287a9574c5b</goToChain>
     </preconfiguredChoice>
-    <!-- Delete packages after extraction -->
+    <!-- Perform policy checks on access derivatives -->
     <preconfiguredChoice>
-      <appliesTo>f19926dd-8fb5-4c79-8ade-c83f61f55b40</appliesTo>
-      <goToChain>85b1e45d-8f98-4cae-8336-72f40e12cbef</goToChain>
+      <appliesTo>8ce07e94-6130-4987-96f0-2399ad45c5c2</appliesTo>
+      <goToChain>76befd52-14c3-44f9-838f-15a4e01624b0</goToChain>
     </preconfiguredChoice>
     <!-- Select file format identification command (Ingest) -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
       <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
+    </preconfiguredChoice>
+    <!-- Perform policy checks on preservation derivatives -->
+    <preconfiguredChoice>
+      <appliesTo>153c5f41-3cfb-47ba-9150-2dd44ebc27df</appliesTo>
+      <goToChain>b7ce05f0-9d94-4b3e-86cc-d4b2c6dba546</goToChain>
+    </preconfiguredChoice>
+    <!-- Assign UUIDs to directories -->
+    <preconfiguredChoice>
+      <appliesTo>bd899573-694e-4d33-8c9b-df0af802437d</appliesTo>
+      <goToChain>891f60d0-1ba8-48d3-b39e-dd0934635d29</goToChain>
+    </preconfiguredChoice>
+    <!-- Document empty directories -->
+    <preconfiguredChoice>
+      <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
+      <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
     <!-- Send transfer to quarantine -->
     <preconfiguredChoice>
