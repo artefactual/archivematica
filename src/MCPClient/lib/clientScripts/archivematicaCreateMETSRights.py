@@ -44,6 +44,30 @@ def formatDate(date):
     return date
 
 
+def _add_start_end_date_complex_type(
+        name, elem, start_date, end_date, end_date_open):
+    """Add new ``startAndEndDateComplexType`` subelement to ``elem``.
+
+    The following elements in PREMIS use it:
+
+      - ``copyrightApplicableDates``
+      - ``licenseApplicableDates``
+      - ``otherRightsApplicableDates``
+      - ``statuteApplicableDates``
+      - ``termOfGrant``
+      - ``termOfRestriction``
+
+    """
+    if not any([start_date, end_date, end_date_open]):
+        return
+    dates = etree.SubElement(elem, ns.premisBNS + name)
+    etree.SubElement(dates, ns.premisBNS + "startDate").text = \
+        formatDate(start_date) if start_date else ""
+    end_date = "OPEN" if end_date_open else formatDate(end_date)
+    if end_date:
+        etree.SubElement(dates, ns.premisBNS + "endDate").text = end_date
+
+
 def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
     """[(fileUUID, fileUUIDTYPE), (sipUUID, sipUUIDTYPE), (transferUUID, transferUUIDType)]"""
     ret = []
@@ -118,21 +142,11 @@ def createRightsStatement(job, statement, fileUUID, state):
             # RightsStatementCopyrightDocumentationIdentifier
             getDocumentationIdentifier(copyright, copyrightInformation)
 
-            copyrightApplicableDates = etree.SubElement(
-                copyrightInformation, ns.premisBNS + "copyrightApplicableDates"
-            )
-            if copyright.copyrightapplicablestartdate:
-                etree.SubElement(copyrightApplicableDates, ns.premisBNS + "startDate").text = formatDate(copyright.copyrightapplicablestartdate)
-            else:
-                etree.SubElement(copyrightApplicableDates, ns.premisBNS + "startDate").text = ""
-            if copyright.copyrightenddateopen:
-                etree.SubElement(
-                    copyrightApplicableDates, ns.premisBNS + "endDate"
-                ).text = "OPEN"
-            elif copyright.copyrightapplicableenddate:
-                etree.SubElement(
-                    copyrightApplicableDates, ns.premisBNS + "endDate"
-                ).text = formatDate(copyright.copyrightapplicableenddate)
+            _add_start_end_date_complex_type(
+                "copyrightApplicableDates", copyrightInformation,
+                copyright.copyrightapplicablestartdate,
+                copyright.copyrightapplicableenddate,
+                copyright.copyrightenddateopen)
 
     elif statement.rightsbasis.lower() in ["license"]:
         for license in statement.rightsstatementlicense_set.all():
@@ -168,21 +182,11 @@ def createRightsStatement(job, statement, fileUUID, state):
                     licenseInformation, ns.premisBNS + "licenseNote"
                 ).text = note.licensenote
 
-            licenseApplicableDates = etree.SubElement(
-                licenseInformation, ns.premisBNS + "licenseApplicableDates"
-            )
-            if license.licenseapplicablestartdate:
-                etree.SubElement(
-                    licenseApplicableDates, ns.premisBNS + "startDate"
-                ).text = formatDate(license.licenseapplicablestartdate)
-            if license.licenseenddateopen:
-                etree.SubElement(
-                    licenseApplicableDates, ns.premisBNS + "endDate"
-                ).text = "OPEN"
-            elif license.licenseapplicableenddate:
-                etree.SubElement(
-                    licenseApplicableDates, ns.premisBNS + "endDate"
-                ).text = formatDate(license.licenseapplicableenddate)
+            _add_start_end_date_complex_type(
+                "licenseApplicableDates", licenseInformation,
+                license.licenseapplicablestartdate,
+                license.licenseapplicableenddate,
+                license.licenseenddateopen)
 
     elif statement.rightsbasis.lower() in ["statute"]:
         # 4.1.5 statuteInformation (O, R)
@@ -224,22 +228,11 @@ def createRightsStatement(job, statement, fileUUID, state):
                 otherRightsInformation, ns.premisBNS + "otherRightsBasis"
             ).text = otherRightsBasis
 
-            if info.otherrightsapplicablestartdate or info.otherrightsapplicableenddate:
-                otherRightsApplicableDates = etree.SubElement(
-                    otherRightsInformation, ns.premisBNS + "otherRightsApplicableDates"
-                )
-                if info.otherrightsapplicablestartdate:
-                    etree.SubElement(
-                        otherRightsApplicableDates, ns.premisBNS + "startDate"
-                    ).text = formatDate(info.otherrightsapplicablestartdate)
-                if info.otherrightsenddateopen:
-                    etree.SubElement(
-                        otherRightsApplicableDates, ns.premisBNS + "endDate"
-                    ).text = "OPEN"
-                elif info.otherrightsapplicableenddate:
-                    etree.SubElement(
-                        otherRightsApplicableDates, ns.premisBNS + "endDate"
-                    ).text = formatDate(info.otherrightsapplicableenddate)
+            _add_start_end_date_complex_type(
+                "otherRightsApplicableDates", otherRightsInformation,
+                info.otherrightsapplicablestartdate,
+                info.otherrightsapplicableenddate,
+                info.otherrightsenddateopen)
 
             # otherRightsNote Repeatable
             for note in info.rightsstatementotherrightsinformationnote_set.all():
@@ -321,29 +314,11 @@ def getstatuteInformation(statement, parent):
                 ns.premisBNS + "statuteDocumentationRole",
             ).text = identifier.statutedocumentationidentifierrole
 
-        statuteapplicablestartdate = statute.statuteapplicablestartdate
-        statuteapplicableenddate = statute.statuteapplicableenddate
-        statuteApplicableEndDateOpen = statute.statuteenddateopen
-        if (
-            statuteapplicablestartdate
-            or statuteapplicableenddate
-            or statuteApplicableEndDateOpen
-        ):
-            statuteApplicableDates = etree.SubElement(
-                statuteInformation, ns.premisBNS + "statuteApplicableDates"
-            )
-            if statuteapplicablestartdate:
-                etree.SubElement(
-                    statuteApplicableDates, ns.premisBNS + "startDate"
-                ).text = formatDate(statuteapplicablestartdate)
-            if statuteApplicableEndDateOpen:
-                etree.SubElement(
-                    statuteApplicableDates, ns.premisBNS + "endDate"
-                ).text = "OPEN"
-            elif statuteapplicableenddate:
-                etree.SubElement(
-                    statuteApplicableDates, ns.premisBNS + "endDate"
-                ).text = formatDate(statuteapplicableenddate)
+        _add_start_end_date_complex_type(
+            "statuteApplicableDates", statuteInformation,
+            statute.statuteapplicablestartdate,
+            statute.statuteapplicableenddate,
+            statute.statuteenddateopen)
 
 
 def getrightsGranted(job, statement, parent, state):
@@ -366,32 +341,20 @@ def getrightsGranted(job, statement, parent, state):
             ).text = restriction
 
         if granted.startdate or granted.enddate or granted.enddateopen:
-            if restriction.lower() in ["allow"]:
-                termOfGrant = etree.SubElement(
-                    rightsGranted, ns.premisBNS + "termOfGrant"
-                )
-            elif restriction.lower() in ["disallow", "conditional"]:
-                termOfGrant = etree.SubElement(
-                    rightsGranted, ns.premisBNS + "termOfRestriction"
-                )
+            restriction = restriction.lower()
+            if restriction in ("allow",):
+                term = "termOfGrant"
+            elif restriction in ("disallow", "conditional",):
+                term = "termOfRestriction"
             else:
                 job.pyprint(
-                    "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'",
-                    file=sys.stderr,
-                )
+                    "The value of element restriction must be: 'Allow', "
+                    "'Disallow', or 'Conditional'", file=sys.stderr)
                 state.error_accumulator.error_count += 1
                 continue
-
-            if granted.startdate:
-                etree.SubElement(
-                    termOfGrant, ns.premisBNS + "startDate"
-                ).text = formatDate(granted.startdate)
-            if granted.enddateopen:
-                etree.SubElement(termOfGrant, ns.premisBNS + "endDate").text = "OPEN"
-            elif granted.enddate:
-                etree.SubElement(
-                    termOfGrant, ns.premisBNS + "endDate"
-                ).text = formatDate(granted.enddate)
+            _add_start_end_date_complex_type(
+                term, rightsGranted,
+                granted.startdate, granted.enddate, granted.enddateopen)
 
         # 4.1.6.4 rightsGrantedNote (O, R)
         for note in granted.notes.all():
