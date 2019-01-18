@@ -541,13 +541,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
     # TODO add a conditional to toggle this
     remove_tool_output_from_mets(tree)
 
-    # get SIP-wide dmdSec
-    dmdSec = root.findall("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)
-    dmdSecData = {}
-    for item in dmdSec:
-        xml = ElementTree.tostring(item)
-        dmdSecData = xmltodict.parse(xml)
-
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = root.find('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
     aic_identifier = None
@@ -571,7 +564,7 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         'isPartOf': is_part_of,
         'AICID': aic_identifier,
         'METS': {
-            'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
+            'dmdSec': {},
             'amdSec': {},
         },
         'origin': get_dashboard_uuid(),
@@ -610,6 +603,32 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
             xml = ElementTree.tostring(amdSecInfo)
             indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
+        # Get the parent division for the file pointer
+        # by searching the physical structural map section (structMap)
+        file_id = file_.attrib.get('ID', None)
+        file_pointer_division = root.find(
+            "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
+                file_id
+            ),
+            namespaces=ns.NSMAP
+        )
+        if file_pointer_division is not None:
+            # If the parent division has a DMDID attribute then index
+            # its data from the descriptive metadata section (dmdSec)
+            dmd_section_id = file_pointer_division.attrib.get('DMDID', None)
+            if dmd_section_id is not None:
+                dmd_section_info = root.find(
+                    "mets:dmdSec[@ID='{}']/mets:mdWrap/mets:xmlData".format(
+                        dmd_section_id
+                    ),
+                    namespaces=ns.NSMAP
+                )
+                xml = ElementTree.tostring(dmd_section_info)
+                data = rename_dict_keys_with_child_dicts(
+                    normalize_dict_values(xmltodict.parse(xml))
+                )
+                indexData['METS']['dmdSec'] = data
+
         indexData['FILEUUID'] = fileUUID
 
         # Get file path from FLocat and extension
@@ -623,9 +642,11 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         wait_for_cluster_yellow_status(client)
         try_to_index(client, indexData, index, type_)
 
-        # Reset fileData['METS']['amdSec'], since it is updated in the loop
-        # above. See http://stackoverflow.com/a/3975388 for explanation
+        # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
+        # since they are updated in the loop above.
+        # See http://stackoverflow.com/a/3975388 for explanation
         fileData['METS']['amdSec'] = {}
+        fileData['METS']['dmdSec'] = {}
 
     print('Indexed AIP files and corresponding METS XML.')
 

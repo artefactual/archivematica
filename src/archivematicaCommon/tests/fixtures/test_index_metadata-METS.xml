@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  This METS file is a cut-down version of the AIP METS produced
+  using the SampleTransfers/DemoTransfer
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd">
+  <mets:metsHdr CREATEDATE="2019-01-11T09:23:21"/>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Morning view from lookout over Queenstown towards the Remarkables in spring</dc:title>
+          <dc:creator>Pseudopanax at English Wikipedia</dc:creator>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_3">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Beihai, Guanxi, China, 1988</dc:title>
+          <dc:creator>NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan ASTER Science Team</dc:creator>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_4">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>14000 Caen, France - Bird in my garden</dc:title>
+          <dc:creator>Nicolas Germain</dc:creator>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_5">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>OCR image</dc:title>
+          <dc:creator>Tesseract</dc:creator>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_2">
+    <mets:techMD ID="techMD_2">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>a5ce06a3-63dd-4c9e-8b72-46dd28fddec5</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Raw JPEG Stream</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_4">
+    <mets:techMD ID="techMD_4">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>040e2611-8704-4912-a5f9-d59ecf8699c9</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Tagged Image File Format</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_6">
+    <mets:techMD ID="techMD_6">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>0c747ac1-16c6-44d0-a261-c7d986e67bb0</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>MPEG 1/2 Audio Layer 3</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_7">
+    <mets:techMD ID="techMD_7">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>13764a44-a1ba-49a1-828a-25fcec3ef070</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>MD5 File</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_8">
+    <mets:techMD ID="techMD_8">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>94c5cc3d-1889-4154-8dde-2870649ec7ad</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>SHA1 File</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_9">
+    <mets:techMD ID="techMD_9">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>df0d4c55-e982-4ff4-b5ae-ccce9362a75f</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>SHA256 File</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_10">
+    <mets:techMD ID="techMD_10">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>5f696fd1-c743-41da-b9a6-718e5e0d269f</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>JSON Data Interchange Format</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_11">
+    <mets:techMD ID="techMD_11">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>5be0629b-bb18-4ca1-b453-727beeda6ce8</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Plain Text</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_12">
+    <mets:techMD ID="techMD_12">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>2f92b6ee-ebff-4730-8533-4c33cf7e49c4</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>CSV</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_13">
+    <mets:techMD ID="techMD_13">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>3e551f57-6524-4f1f-bc83-ab624f768e87</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>CSV</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_15">
+    <mets:techMD ID="techMD_15">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>8cdee555-fef5-4c4e-bf15-6a3fdc2c8fc4</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Portable Network Graphics</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_16">
+    <mets:techMD ID="techMD_16">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>38a11b35-8b55-4361-9244-90d5089a765d</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Plain Text</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-a5ce06a3-63dd-4c9e-8b72-46dd28fddec5" ID="file-a5ce06a3-63dd-4c9e-8b72-46dd28fddec5" ADMID="amdSec_2">
+        <mets:FLocat xlink:href="objects/View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-040e2611-8704-4912-a5f9-d59ecf8699c9" ID="file-040e2611-8704-4912-a5f9-d59ecf8699c9" ADMID="amdSec_4">
+        <mets:FLocat xlink:href="objects/beihai.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-0c747ac1-16c6-44d0-a261-c7d986e67bb0" ID="file-0c747ac1-16c6-44d0-a261-c7d986e67bb0" ADMID="amdSec_6">
+        <mets:FLocat xlink:href="objects/bird.mp3" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-8cdee555-fef5-4c4e-bf15-6a3fdc2c8fc4" ID="file-8cdee555-fef5-4c4e-bf15-6a3fdc2c8fc4" ADMID="amdSec_15">
+        <mets:FLocat xlink:href="objects/ocr-image.png" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-38a11b35-8b55-4361-9244-90d5089a765d" ID="file-38a11b35-8b55-4361-9244-90d5089a765d" ADMID="amdSec_16">
+        <mets:FLocat xlink:href="objects/piiTestDataCreditCardNumbers.txt" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="metadata">
+      <mets:file GROUPID="Group-13764a44-a1ba-49a1-828a-25fcec3ef070" ID="file-13764a44-a1ba-49a1-828a-25fcec3ef070" ADMID="amdSec_7">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/checksum.md5" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-94c5cc3d-1889-4154-8dde-2870649ec7ad" ID="file-94c5cc3d-1889-4154-8dde-2870649ec7ad" ADMID="amdSec_8">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/checksum.sha1" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-df0d4c55-e982-4ff4-b5ae-ccce9362a75f" ID="file-df0d4c55-e982-4ff4-b5ae-ccce9362a75f" ADMID="amdSec_9">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/checksum.sha256" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-5f696fd1-c743-41da-b9a6-718e5e0d269f" ID="file-5f696fd1-c743-41da-b9a6-718e5e0d269f" ADMID="amdSec_10">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/dc.json" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-5be0629b-bb18-4ca1-b453-727beeda6ce8" ID="file-5be0629b-bb18-4ca1-b453-727beeda6ce8" ADMID="amdSec_11">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/directory_tree.txt" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-2f92b6ee-ebff-4730-8533-4c33cf7e49c4" ID="file-2f92b6ee-ebff-4730-8533-4c33cf7e49c4" ADMID="amdSec_12">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/metadata.csv" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-3e551f57-6524-4f1f-bc83-ab624f768e87" ID="file-3e551f57-6524-4f1f-bc83-ab624f768e87" ADMID="amdSec_13">
+        <mets:FLocat xlink:href="objects/metadata/transfers/DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4/rights.csv" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="DemoTransfer-f42a260a-9b53-4555-847e-8a4329c81662" TYPE="Directory">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring.jpg" TYPE="Item" DMDID="dmdSec_2">
+          <mets:fptr FILEID="file-a5ce06a3-63dd-4c9e-8b72-46dd28fddec5"/>
+        </mets:div>
+        <mets:div LABEL="beihai.tif" TYPE="Item" DMDID="dmdSec_3">
+          <mets:fptr FILEID="file-040e2611-8704-4912-a5f9-d59ecf8699c9"/>
+        </mets:div>
+        <mets:div LABEL="bird.mp3" TYPE="Item" DMDID="dmdSec_4">
+          <mets:fptr FILEID="file-0c747ac1-16c6-44d0-a261-c7d986e67bb0"/>
+        </mets:div>
+        <mets:div LABEL="metadata" TYPE="Directory">
+          <mets:div LABEL="transfers" TYPE="Directory">
+            <mets:div LABEL="DemoTransfer-771aa252-7930-4e68-b73e-f91416b1d4a4" TYPE="Directory">
+              <mets:div LABEL="checksum.md5" TYPE="Item">
+                <mets:fptr FILEID="file-13764a44-a1ba-49a1-828a-25fcec3ef070"/>
+              </mets:div>
+              <mets:div LABEL="checksum.sha1" TYPE="Item">
+                <mets:fptr FILEID="file-94c5cc3d-1889-4154-8dde-2870649ec7ad"/>
+              </mets:div>
+              <mets:div LABEL="checksum.sha256" TYPE="Item">
+                <mets:fptr FILEID="file-df0d4c55-e982-4ff4-b5ae-ccce9362a75f"/>
+              </mets:div>
+              <mets:div LABEL="dc.json" TYPE="Item">
+                <mets:fptr FILEID="file-5f696fd1-c743-41da-b9a6-718e5e0d269f"/>
+              </mets:div>
+              <mets:div LABEL="directory_tree.txt" TYPE="Item">
+                <mets:fptr FILEID="file-5be0629b-bb18-4ca1-b453-727beeda6ce8"/>
+              </mets:div>
+              <mets:div LABEL="metadata.csv" TYPE="Item">
+                <mets:fptr FILEID="file-2f92b6ee-ebff-4730-8533-4c33cf7e49c4"/>
+              </mets:div>
+              <mets:div LABEL="rights.csv" TYPE="Item">
+                <mets:fptr FILEID="file-3e551f57-6524-4f1f-bc83-ab624f768e87"/>
+              </mets:div>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="ocr-image.png" TYPE="Item" DMDID="dmdSec_5">
+          <mets:fptr FILEID="file-8cdee555-fef5-4c4e-bf15-6a3fdc2c8fc4"/>
+        </mets:div>
+        <mets:div LABEL="piiTestDataCreditCardNumbers.txt" TYPE="Item">
+          <mets:fptr FILEID="file-38a11b35-8b55-4361-9244-90d5089a765d"/>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

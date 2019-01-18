@@ -1,5 +1,6 @@
 import os
 
+import mock
 import pytest
 import unittest
 import vcr
@@ -88,3 +89,116 @@ class TestElasticSearchFunctions(unittest.TestCase):
     def test_set_tags_fails_when_file_cant_be_found(self):
         with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
             elasticSearchFunctions.set_file_tags(self.client, 'no_such_file', [])
+
+    @mock.patch('elasticSearchFunctions.get_dashboard_uuid')
+    @mock.patch('elasticSearchFunctions.wait_for_cluster_yellow_status')
+    @mock.patch('elasticSearchFunctions.try_to_index')
+    def test_index_mets_file_metadata(
+            self,
+            dummy_try_to_index,
+            dummy_wait_for_cluster_yellow_status,
+            dummy_get_dashboard_uuid,
+    ):
+        # Set up mocked functions
+        dummy_get_dashboard_uuid.return_value = 'test-uuid'
+        indexed_data = {}
+
+        def get_dublincore_metadata(client, indexData, index, type_):
+            try:
+                dmd_section = indexData['METS']['dmdSec']
+                metadata_container = dmd_section['ns0:xmlData_dict_list'][0]
+                dc = metadata_container['ns1:dublincore_dict_list'][0]
+            except (KeyError, IndexError):
+                dc = None
+            indexed_data[indexData['filePath']] = dc
+        dummy_try_to_index.side_effect = get_dublincore_metadata
+
+        # This METS file is a cut-down version of the AIP METS produced
+        # using the SampleTransfers/DemoTransfer
+        mets_file_path = os.path.join(
+            THIS_DIR, 'fixtures', 'test_index_metadata-METS.xml'
+        )
+        mets_object_id = '771aa252-7930-4e68-b73e-f91416b1d4a4'
+        index = 'aips'
+        type_ = 'aipfile'
+        uuid = 'f42a260a-9b53-4555-847e-8a4329c81662'
+        sipName = 'DemoTransfer-{}'.format(uuid)
+        identifiers = []
+        indexed_files_count = elasticSearchFunctions.index_mets_file_metadata(
+            client=self.client,
+            uuid=uuid,
+            metsFilePath=mets_file_path,
+            index=index,
+            type_=type_,
+            sipName=sipName,
+            identifiers=identifiers,
+        )
+
+        # ES should have indexed 12 files
+        # - 5 content files
+        # - 5 checksum and csv files in the metadata directory
+        # - 2 files generated in the transfer process
+        assert indexed_files_count == 12
+        assert dummy_try_to_index.call_count == 12
+
+        # Metadata should have been indexed only for these content
+        # files because they are listed in the metadata.csv file
+        content_files_with_metadata = (
+            {
+                'path': ('objects/View_from_lookout_over_Queenstown_'
+                         'towards_the_Remarkables_in_spring.jpg'),
+                'title': ('Morning view from lookout over Queenstown '
+                          'towards the Remarkables in spring'),
+                'creator': 'Pseudopanax at English Wikipedia',
+            },
+            {
+                'path': 'objects/beihai.tif',
+                'title': 'Beihai, Guanxi, China, 1988',
+                'creator': ('NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan '
+                            'ASTER Science Team'),
+            },
+            {
+                'path': 'objects/bird.mp3',
+                'title': '14000 Caen, France - Bird in my garden',
+                'creator': 'Nicolas Germain',
+            },
+            {
+                'path': 'objects/ocr-image.png',
+                'title': 'OCR image',
+                'creator': 'Tesseract',
+            },
+        )
+        for file_metadata in content_files_with_metadata:
+            dc = indexed_data[file_metadata['path']]
+            assert dc['dc:title'] == file_metadata['title']
+            assert dc['dc:creator'] == file_metadata['creator']
+
+        # There is no metadata for this content file because
+        # it was not listed in the metadata.csv file
+        assert indexed_data['objects/piiTestDataCreditCardNumbers.txt'] is None
+
+        # Checksum and csv files in the metadata directory
+        # won't have dublin core metadata indexed
+        files_in_metadata_directory = (
+            'checksum.md5',
+            'checksum.sha1',
+            'checksum.sha256',
+            'metadata.csv',
+            'rights.csv',
+        )
+        for filename in files_in_metadata_directory:
+            path = 'objects/metadata/transfers/DemoTransfer-{}/{}'.format(
+                mets_object_id, filename
+            )
+            assert indexed_data[path] is None
+
+        # Neither will the generated files during the transfer process
+        generated_files = (
+            'dc.json',
+            'directory_tree.txt',
+        )
+        for filename in generated_files:
+            path = 'objects/metadata/transfers/DemoTransfer-{}/{}'.format(
+                mets_object_id, filename
+            )
+            assert indexed_data[path] is None
