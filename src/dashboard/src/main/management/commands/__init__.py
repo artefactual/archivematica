@@ -12,6 +12,9 @@ class DashboardCommand(BaseCommand):
     def warning(self, message):
         self.stdout.write(self.style.WARNING(message))
 
+    def info(self, message):
+        self.stdout.write(message)
+
 
 def boolean_input(question, default=None):
     question += '\n\nType "yes" to continue, or "no" to cancel: '

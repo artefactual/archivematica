@@ -7,6 +7,11 @@ import vcr
 
 import elasticSearchFunctions
 
+try:
+    from unittest.mock import ANY, patch
+except ImportError:
+    from mock import ANY, patch
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -14,76 +19,57 @@ class TestElasticSearchFunctions(unittest.TestCase):
 
     @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_elasticsearch_setup.yaml'))
     def setUp(self):
-        hosts = os.environ.get('ELASTICSEARCH_SERVER', '127.0.0.1:9200')
-        elasticSearchFunctions.setup(hosts)
+        elasticSearchFunctions.setup('elasticsearch:9200')
         self.client = elasticSearchFunctions.get_client()
-        self.aip_uuid = 'a1ee611a-a4f5-4ba9-b7ce-b92695746514'
+        self.aip_uuid = 'b34521a3-1c63-43dd-b901-584416f36c91'
+        self.file_uuid = '268421a7-a986-4fa0-95c1-54176e508210'
 
     @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_delete_aip.yaml'))
     def test_delete_aip(self):
         # Verify AIP exists
         results = self.client.search(
             index='aips',
-            doc_type='aip',
             body={'query': {'term': {'uuid': self.aip_uuid}}},
-            fields='uuid',
+            _source='uuid',
         )
         assert results['hits']['total'] == 1
-        assert results['hits']['hits'][0]['fields']['uuid'] == [self.aip_uuid]
+        assert results['hits']['hits'][0]['_source']['uuid'] == self.aip_uuid
         # Delete AIP
-        success = elasticSearchFunctions.delete_aip(self.client, self.aip_uuid)
+        elasticSearchFunctions.delete_aip(self.client, self.aip_uuid)
         # Verify AIP gone
-        assert success is True
         results = self.client.search(
             index='aips',
-            doc_type='aip',
             body={'query': {'term': {'uuid': self.aip_uuid}}},
-            fields='uuid',
+            _source='uuid',
         )
         assert results['hits']['total'] == 0
 
     @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_delete_aip_files.yaml'))
     def test_delete_aip_files(self):
-        # Verify AIP exists
+        # Verify AIP files exist
         results = self.client.search(
-            index='aips',
-            doc_type='aipfile',
+            index='aipfiles',
             body={'query': {'term': {'AIPUUID': self.aip_uuid}}},
-            fields='AIPUUID,FILEUUID',
-            sort='FILEUUID:desc',
         )
-        assert results['hits']['total'] == 3
-        assert results['hits']['hits'][0]['fields']['AIPUUID'] == [self.aip_uuid]
-        assert results['hits']['hits'][0]['fields']['FILEUUID'] == ['b8bd3cdd-f224-4237-b0d7-99c217ff8e67']
-        assert results['hits']['hits'][1]['fields']['AIPUUID'] == [self.aip_uuid]
-        assert results['hits']['hits'][1]['fields']['FILEUUID'] == ['68babd3e-7e6b-40e5-99f6-00ea724d4ce8']
-        assert results['hits']['hits'][2]['fields']['AIPUUID'] == [self.aip_uuid]
-        assert results['hits']['hits'][2]['fields']['FILEUUID'] == ['547bbd92-d8a0-4624-a9d3-69ba706eacee']
-        # Delete AIP
-        success = elasticSearchFunctions.delete_aip_files(self.client, self.aip_uuid)
-        # Verify AIP gone
-        assert success is True
+        assert results['hits']['total'] == 2
+        # Delete AIP files
+        elasticSearchFunctions.delete_aip_files(self.client, self.aip_uuid)
+        # Verify AIP files gone
         results = self.client.search(
-            index='aips',
-            doc_type='aipfile',
+            index='aipfiles',
             body={'query': {'term': {'AIPUUID': self.aip_uuid}}},
-            fields='AIPUUID,FILEUUID',
         )
         assert results['hits']['total'] == 0
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_list_tags.yaml'))
-    def test_list_tags(self):
-        assert elasticSearchFunctions.get_file_tags(self.client, 'a410501b-64ac-4b81-92ca-efa9e815366d') == ['test1']
+    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_set_get_tags.yaml'))
+    def test_set_get_tags(self):
+        elasticSearchFunctions.set_file_tags(self.client, self.file_uuid, ['test'])
+        assert elasticSearchFunctions.get_file_tags(self.client, self.file_uuid) == ['test']
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_list_tags_no_matches.yaml'))
+    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_get_tags_no_matches.yaml'))
     def test_list_tags_fails_when_file_cant_be_found(self):
         with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
             elasticSearchFunctions.get_file_tags(self.client, 'no_such_file')
-
-    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_set_tags.yaml'))
-    def test_set_tags(self):
-        elasticSearchFunctions.set_file_tags(self.client, '2101fa74-bc27-405b-8e29-614ebd9d5a89', ['test'])
-        assert elasticSearchFunctions.get_file_tags(self.client, '2101fa74-bc27-405b-8e29-614ebd9d5a89') == ['test']
 
     @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_set_tags_no_matches.yaml'))
     def test_set_tags_fails_when_file_cant_be_found(self):
@@ -91,8 +77,8 @@ class TestElasticSearchFunctions(unittest.TestCase):
             elasticSearchFunctions.set_file_tags(self.client, 'no_such_file', [])
 
     @mock.patch('elasticSearchFunctions.get_dashboard_uuid')
-    @mock.patch('elasticSearchFunctions.wait_for_cluster_yellow_status')
-    @mock.patch('elasticSearchFunctions.try_to_index')
+    @mock.patch('elasticSearchFunctions._wait_for_cluster_yellow_status')
+    @mock.patch('elasticSearchFunctions._try_to_index')
     def test_index_mets_file_metadata(
             self,
             dummy_try_to_index,
@@ -103,7 +89,7 @@ class TestElasticSearchFunctions(unittest.TestCase):
         dummy_get_dashboard_uuid.return_value = 'test-uuid'
         indexed_data = {}
 
-        def get_dublincore_metadata(client, indexData, index, type_):
+        def get_dublincore_metadata(client, indexData, index, printfn):
             try:
                 dmd_section = indexData['METS']['dmdSec']
                 metadata_container = dmd_section['ns0:xmlData_dict_list'][0]
@@ -119,18 +105,14 @@ class TestElasticSearchFunctions(unittest.TestCase):
             THIS_DIR, 'fixtures', 'test_index_metadata-METS.xml'
         )
         mets_object_id = '771aa252-7930-4e68-b73e-f91416b1d4a4'
-        index = 'aips'
-        type_ = 'aipfile'
         uuid = 'f42a260a-9b53-4555-847e-8a4329c81662'
         sipName = 'DemoTransfer-{}'.format(uuid)
         identifiers = []
-        indexed_files_count = elasticSearchFunctions.index_mets_file_metadata(
+        indexed_files_count = elasticSearchFunctions._index_aip_files(
             client=self.client,
             uuid=uuid,
-            metsFilePath=mets_file_path,
-            index=index,
-            type_=type_,
-            sipName=sipName,
+            mets_path=mets_file_path,
+            name=sipName,
             identifiers=identifiers,
         )
 
@@ -202,3 +184,52 @@ class TestElasticSearchFunctions(unittest.TestCase):
                 mets_object_id, filename
             )
             assert indexed_data[path] is None
+
+    @patch('elasticSearchFunctions.create_indexes_if_needed')
+    def test_default_setup(self, patch):
+        elasticSearchFunctions.setup('elasticsearch:9200')
+        patch.assert_called_with(
+            ANY, ['aips', 'aipfiles', 'transfers', 'transferfiles'])
+
+    @patch('elasticSearchFunctions.create_indexes_if_needed')
+    def test_only_aips_setup(self, patch):
+        elasticSearchFunctions.setup('elasticsearch:9200', enabled=['aips'])
+        patch.assert_called_with(
+            ANY, ['aips', 'aipfiles'])
+
+    @patch('elasticSearchFunctions.create_indexes_if_needed')
+    def test_only_transfers_setup(self, patch):
+        elasticSearchFunctions.setup(
+            'elasticsearch:9200', enabled=['transfers'])
+        patch.assert_called_with(
+            ANY, ['transfers', 'transferfiles'])
+
+    @patch('elasticSearchFunctions.create_indexes_if_needed')
+    def test_no_indexes_setup(self, patch):
+        elasticSearchFunctions.setup('elasticsearch:9200', enabled=[])
+        elasticSearchFunctions.setup('elasticsearch:9200', enabled=['unknown'])
+        patch.assert_not_called()
+
+    @patch('elasticsearch.client.indices.IndicesClient.create')
+    @patch('elasticsearch.client.indices.IndicesClient.exists',
+           return_value=True)
+    def test_create_indexes_already_created(self, mock, patch):
+        elasticSearchFunctions.create_indexes_if_needed(
+            self.client, ['aips', 'aipfiles', 'transfers', 'transferfiles'])
+        patch.assert_not_called()
+
+    @patch('elasticsearch.client.indices.IndicesClient.create')
+    @patch('elasticsearch.client.indices.IndicesClient.exists',
+           return_value=False)
+    def test_create_indexes_creation_calls(self, mock, patch):
+        elasticSearchFunctions.create_indexes_if_needed(
+            self.client, ['aips', 'aipfiles', 'transfers', 'transferfiles'])
+        assert patch.call_count == 4
+
+    @patch('elasticsearch.client.indices.IndicesClient.create')
+    @patch('elasticsearch.client.indices.IndicesClient.exists',
+           return_value=False)
+    def test_create_indexes_wrong_index(self, mock, patch):
+        elasticSearchFunctions.create_indexes_if_needed(
+            self.client, ['aips', 'aipfiles', 'unknown'])
+        assert patch.call_count == 2

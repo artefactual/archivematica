@@ -52,4 +52,7 @@ def call(jobs):
 
                 elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
                 client = elasticSearchFunctions.get_client()
-                job.set_status(elasticSearchFunctions.index_files(client, 'transfers', 'transferfile', transfer_uuid, transfer_path, status=status, printfn=job.pyprint))
+                job.set_status(elasticSearchFunctions.index_transfer_and_files(
+                    client, transfer_uuid, transfer_path,
+                    status=status, printfn=job.pyprint,
+                ))

@@ -593,19 +593,15 @@ def transfer_backlog(request, ui):
         backlog_filter = elasticSearchFunctions.BACKLOG_FILTER_NO_MD_LOGS
 
     if 'query' not in request.GET:
-        query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
-        query['filter'] = backlog_filter
+        # Use backlog boolean filter as boolean query
+        query = {'query': backlog_filter}
     else:
         queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
         try:
             query = advanced_search.assemble_query(
-                es_client,
-                queries,
-                ops,
-                fields,
-                types,
-                filters=backlog_filter,
+                queries, ops, fields, types,
+                filters=[backlog_filter],
             )
         except:
             logger.exception('Error accessing index.')
@@ -616,8 +612,7 @@ def transfer_backlog(request, ui):
         results = elasticSearchFunctions.search_all_results(
             es_client,
             body=query,
-            index='transfers',
-            doc_type='transferfile',
+            index='transferfiles',
         )
     except:
         logger.exception('Error accessing index.')

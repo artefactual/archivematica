@@ -157,26 +157,20 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
 
     aip_info = storage_service.get_file_info(uuid=aip_uuid)
 
-    if aip_info:
-        elasticSearchFunctions.index_aip(
-            client=es_client,
-            uuid=aip_uuid,
-            name=aip_name,
-            filePath=path,
-            pathToMETS=path_to_mets,
-            aips_in_aic=aips_in_aic,
-            identifiers=[],  # TODO get these
-            size=aip_info[0]['size'],
-        )
-        elasticSearchFunctions.index_mets_file_metadata(
-            client=es_client,
-            uuid=aip_uuid,
-            metsFilePath=path_to_mets,
-            index='aips',
-            type_='aipfile',
-            sipName=aip_name,
-            identifiers=[],  # TODO get these
-        )
+    if not aip_info:
+        print('Information not found in Storage Service for AIP UUID: ', aip_uuid)
+        return 1
+
+    return elasticSearchFunctions.index_aip_and_files(
+        client=es_client,
+        uuid=aip_uuid,
+        path=path,
+        mets_path=path_to_mets,
+        name=aip_name,
+        size=aip_info[0]['size'],
+        aips_in_aic=aips_in_aic,
+        identifiers=[],  # TODO get these
+    )
 
 
 def is_hex(string):
@@ -214,6 +208,16 @@ class Command(DashboardCommand):
             metavar='PATH')
 
     def handle(self, *args, **options):
+        # Check that the `aips` part of the search is enabled
+        if 'aips' not in django_settings.SEARCH_ENABLED:
+            print(
+                "The AIPs indexes are not enabled. Please, make sure to "
+                "set the *_SEARCH_ENABLED environment variables to `true` "
+                "to enable the AIPs and Transfers indexes, or to `aips` "
+                "to only enable the AIPs indexes."
+            )
+            sys.exit(1)
+
         # Check root directory exists
         if not os.path.isdir(options['rootdir']):
             print("AIP store location doesn't exist.")
@@ -234,8 +238,9 @@ class Command(DashboardCommand):
         if options['delete_all']:
             print('Deleting all AIPs in the AIP index')
             time.sleep(3)  # Time for the user to panic and kill the process
-            es_client.indices.delete('aips', ignore=404)
-            elasticSearchFunctions.create_indexes_if_needed(es_client)
+            indexes = ['aips', 'aipfiles']
+            es_client.indices.delete(','.join(indexes), ignore=404)
+            elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
 
         if not options['uuid']:
             print("Rebuilding AIPS index from AIPS in", options['rootdir'])
@@ -267,8 +272,7 @@ class Command(DashboardCommand):
                 if options['uuid'] and \
                         options['uuid'].lower() not in directory.lower():
                     continue
-                count += 1
-                processAIPThenDeleteMETSFile(
+                ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, directory),
                     temp_dir=temp_dir,
                     es_client=es_client,
@@ -276,6 +280,9 @@ class Command(DashboardCommand):
                 )
                 # Don't recurse into this directory
                 directories = directories.remove(directory)
+                # Update count on successful index
+                if ret == 0:
+                    count += 1
 
             # Compressed AIPs
             for filename in files:
@@ -287,16 +294,18 @@ class Command(DashboardCommand):
                 if options['uuid'] and \
                         options['uuid'].lower() not in filename.lower():
                     continue
-                count += 1
-                processAIPThenDeleteMETSFile(
+                ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, filename),
                     temp_dir=temp_dir,
                     es_client=es_client,
                     delete_existing_data=options['delete'],
                 )
+                # Update count on successful index
+                if ret == 0:
+                    count += 1
 
         print("Cleaning up")
 
         shutil.rmtree(temp_dir)
 
-        print("Indexing complete. Indexed", count, "AIPs")
+        print("Indexing complete. Indexed", count, "AIP(s).")

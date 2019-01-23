@@ -17,30 +17,30 @@
                 "ns0:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:xmlData_dict_list": {
                       "properties": {
                         "ns4:object_dict_list": {
                           "properties": {
                             "ns4:originalName": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@xsi:type": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns4:objectCharacteristics_dict_list": {
                               "properties": {
                                 "ns4:size": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:fixity_dict_list": {
                                   "properties": {
                                     "ns4:messageDigestAlgorithm": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:messageDigest": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
@@ -49,45 +49,45 @@
                                     "ns4:formatRegistry_dict_list": {
                                       "properties": {
                                         "ns4:formatRegistryName": {
-                                          "type": "string"
+                                          "type": "text"
                                         },
                                         "ns4:formatRegistryKey": {
-                                          "type": "string"
+                                          "type": "text"
                                         }
                                       }
                                     },
                                     "ns4:formatDesignation_dict_list": {
                                       "properties": {
                                         "ns4:formatVersion": {
-                                          "type": "string"
+                                          "type": "text"
                                         },
                                         "ns4:formatName": {
-                                          "type": "string"
+                                          "type": "text"
                                         }
                                       }
                                     }
                                   }
                                 },
                                 "ns4:compositionLevel": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:objectIdentifier_dict_list": {
                               "properties": {
                                 "ns4:objectIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:objectIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "@version": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@xsi:schemaLocation": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         }
@@ -96,7 +96,7 @@
                   }
                 },
                 "@ID": {
-                  "type": "string"
+                  "type": "text"
                 }
               }
             },
@@ -105,7 +105,7 @@
                 "ns0:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:xmlData_dict_list": {
                       "properties": {
@@ -116,49 +116,49 @@
                               "format": "dateOptionalTime"
                             },
                             "imaging_process_notes": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "examiner": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "imaging_software": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "media_number": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "imaging_date": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "media_format": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "serial_number": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "imaging_interface": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "source_filesystem": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "label_text": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "media_manufacture": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "media_density": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "image_fixity": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "image_format": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "imaging_success": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         }
@@ -167,19 +167,19 @@
                   }
                 },
                 "@ID": {
-                  "type": "string"
+                  "type": "text"
                 }
               }
             },
             "@ID": {
-              "type": "string"
+              "type": "text"
             },
             "ns0:rightsMD_dict_list": {
               "properties": {
                 "ns0:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:xmlData_dict_list": {
                       "properties": {
@@ -188,37 +188,37 @@
                             "ns4:copyrightInformation_dict_list": {
                               "properties": {
                                 "ns4:copyrightJurisdiction": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:copyrightStatusDeterminationDate": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:copyrightStatus": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:copyrightNote": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:copyrightApplicableDates_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:copyrightDocumentationIdentifier_dict_list": {
                                   "properties": {
                                     "ns4:copyrightDocumentationIdentifierType": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:copyrightDocumentationRole": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:copyrightDocumentationIdentifierValue": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 }
@@ -229,164 +229,164 @@
                                 "ns4:licenseDocumentationIdentifier_dict_list": {
                                   "properties": {
                                     "ns4:licenseDocumentationIdentifierType": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:licenseDocumentationRole": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:licenseDocumentationIdentifierValue": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:licenseApplicableDates_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:licenseTerms": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:licenseNote": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:rightsGranted_dict_list": {
                               "properties": {
                                 "ns4:restriction": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:termOfRestriction_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:termOfGrant_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:rightsGrantedNote": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:act": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:rightsStatementIdentifier_dict_list": {
                               "properties": {
                                 "ns4:rightsStatementIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:rightsStatementIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:rightsBasis": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns4:otherRightsInformation_dict_list": {
                               "properties": {
                                 "ns4:otherRightsNote": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:otherRightsApplicableDates_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:otherRightsDocumentationIdentifier_dict_list": {
                                   "properties": {
                                     "ns4:otherRightsDocumentationIdentifierValue": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:otherRightsDocumentationRole": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:otherRightsDocumentationIdentifierType": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:otherRightsBasis": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:linkingObjectIdentifier_dict_list": {
                               "properties": {
                                 "ns4:linkingObjectIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:linkingObjectIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:statuteInformation_dict_list": {
                               "properties": {
                                 "ns4:statuteInformationDeterminationDate": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:statuteNote": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:statuteDocumentationIdentifier_dict_list": {
                                   "properties": {
                                     "ns4:statuteDocumentationIdentifierValue": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:statuteDocumentationIdentifierType": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:statuteDocumentationRole": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:statuteJurisdiction": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:statuteCitation": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:statuteApplicableDates_dict_list": {
                                   "properties": {
                                     "ns4:endDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "ns4:startDate": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 }
                               }
                             },
                             "@xsi:schemaLocation": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         }
@@ -395,7 +395,7 @@
                   }
                 },
                 "@ID": {
-                  "type": "string"
+                  "type": "text"
                 }
               }
             },
@@ -404,7 +404,7 @@
                 "ns0:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:xmlData_dict_list": {
                       "properties": {
@@ -415,38 +415,38 @@
                                 "ns4:eventOutcomeDetail_dict_list": {
                                   "properties": {
                                     "ns4:eventOutcomeDetailNote": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "ns4:eventOutcome": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:eventType": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns4:eventDetail": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns4:linkingAgentIdentifier_dict_list": {
                               "properties": {
                                 "ns4:linkingAgentIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:linkingAgentIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:eventIdentifier_dict_list": {
                               "properties": {
                                 "ns4:eventIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:eventIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
@@ -455,10 +455,10 @@
                               "format": "dateOptionalTime"
                             },
                             "@version": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@xsi:schemaLocation": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         },
@@ -467,24 +467,24 @@
                             "ns4:agentIdentifier_dict_list": {
                               "properties": {
                                 "ns4:agentIdentifierType": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns4:agentIdentifierValue": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "ns4:agentName": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@version": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@xsi:schemaLocation": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns4:agentType": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         }
@@ -493,91 +493,91 @@
                   }
                 },
                 "@ID": {
-                  "type": "string"
+                  "type": "text"
                 }
               }
             }
           }
         },
         "@xmlns:ns0": {
-          "type": "string"
+          "type": "text"
         },
         "@xmlns:ns2": {
-          "type": "string"
+          "type": "text"
         },
         "@xmlns:ns5": {
-          "type": "string"
+          "type": "text"
         },
         "@xmlns:ns4": {
-          "type": "string"
+          "type": "text"
         },
         "ns0:dmdSec_dict_list": {
           "properties": {
             "ns0:mdWrap_dict_list": {
               "properties": {
                 "@MDTYPE": {
-                  "type": "string"
+                  "type": "text"
                 },
                 "ns0:xmlData_dict_list": {
                   "properties": {
                     "date_available": {
-                        "type": "string"
+                        "type": "text"
                     },
                     "ns2:dublincore_dict_list": {
                       "properties": {
                         "dc:available": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:contributor": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:source": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:coverage": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:provenance": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:creator": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:subject": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:identifier": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:language": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "@xsi:schemaLocation": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:relation": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:date": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:publisher": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:format": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:title": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:description": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dc:rights": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "dcterms:isPartOf": {
-                          "type": "string"
+                          "type": "text"
                         }
                       }
                     }
@@ -586,108 +586,108 @@
               }
             },
             "@ID": {
-              "type": "string"
+              "type": "text"
             }
           }
         },
         "@xmlns:xsi": {
-          "type": "string"
+          "type": "text"
         },
         "ns0:structMap_dict_list": {
           "properties": {
             "@LABEL": {
-              "type": "string"
+              "type": "text"
             },
             "@ID": {
-              "type": "string"
+              "type": "text"
             },
             "@TYPE": {
-              "type": "string"
+              "type": "text"
             },
             "ns0:div_dict_list": {
               "properties": {
                 "@LABEL": {
-                  "type": "string"
+                  "type": "text"
                 },
                 "@TYPE": {
-                  "type": "string"
+                  "type": "text"
                 },
                 "ns0:div_dict_list": {
                   "properties": {
                     "@ADMID": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "@LABEL": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "@TYPE": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "@DMDID": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:div_dict_list": {
                       "properties": {
                         "ns0:fptr_dict_list": {
                           "properties": {
                             "@FILEID": {
-                              "type": "string"
+                              "type": "text"
                             }
                           }
                         },
                         "@LABEL": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "@TYPE": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "@DMDID": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "ns0:div_dict_list": {
                           "properties": {
                             "ns0:fptr_dict_list": {
                               "properties": {
                                 "@FILEID": {
-                                  "type": "string"
+                                  "type": "text"
                                 }
                               }
                             },
                             "@LABEL": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "@TYPE": {
-                              "type": "string"
+                              "type": "text"
                             },
                             "ns0:div_dict_list": {
                               "properties": {
                                 "ns0:fptr_dict_list": {
                                   "properties": {
                                     "@FILEID": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 },
                                 "@LABEL": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "@TYPE": {
-                                  "type": "string"
+                                  "type": "text"
                                 },
                                 "ns0:div_dict_list": {
                                   "properties": {
                                     "ns0:fptr_dict_list": {
                                       "properties": {
                                         "@FILEID": {
-                                          "type": "string"
+                                          "type": "text"
                                         }
                                       }
                                     },
                                     "@LABEL": {
-                                      "type": "string"
+                                      "type": "text"
                                     },
                                     "@TYPE": {
-                                      "type": "string"
+                                      "type": "text"
                                     }
                                   }
                                 }
@@ -704,10 +704,10 @@
           }
         },
         "@xsi:schemaLocation": {
-          "type": "string"
+          "type": "text"
         },
         "@xmlns:dc": {
-          "type": "string"
+          "type": "text"
         },
         "ns0:fileSec_dict_list": {
           "properties": {
@@ -716,31 +716,31 @@
                 "ns0:file_dict_list": {
                   "properties": {
                     "@ADMID": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "@GROUPID": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "@ID": {
-                      "type": "string"
+                      "type": "text"
                     },
                     "ns0:FLocat_dict_list": {
                       "properties": {
                         "@OTHERLOCTYPE": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "@LOCTYPE": {
-                          "type": "string"
+                          "type": "text"
                         },
                         "@ns5:href": {
-                          "type": "string"
+                          "type": "text"
                         }
                       }
                     }
                   }
                 },
                 "@USE": {
-                  "type": "string"
+                  "type": "text"
                 }
               }
             }

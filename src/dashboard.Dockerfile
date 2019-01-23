@@ -18,6 +18,7 @@ RUN set -ex \
 		nodejs \
 		locales \
 		locales-all \
+		unar \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set the locale

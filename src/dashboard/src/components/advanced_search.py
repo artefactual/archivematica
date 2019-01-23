@@ -40,12 +40,12 @@ def search_parameter_prep(request):
     types = request.GET.getlist('type')
     other_fields = request.GET.getlist('fieldName')
 
-    # prepend default op arg as first op can't be set manually
-    # if there are no entries, insert the first as "or" (e.g. a "should" clause);
-    # otherwise copy the existing first entry
-    # this ensures that if the second clause is a "must," the first entry will be too, etc.
+    # Prepend default op arg as first op can't be set manually, if there are no
+    # entries, insert the first as "and" (a "must" clause). Otherwise copy
+    # the existing first entry. This ensures that if the second clause is a
+    # "should" the first entry will be too, etc.
     if len(ops) == 0:
-        ops.insert(0, 'or')
+        ops.insert(0, 'and')
     else:
         ops.insert(0, ops[0])
 
@@ -53,9 +53,9 @@ def search_parameter_prep(request):
         queries = ['*']
         fields = ['']
     else:
-        # make sure each query has field/ops set
+        # Make sure each query has field/ops set
         for index, query in enumerate(queries):
-            # a blank query makes ES error
+            # A blank query makes ES error
             if queries[index] == '':
                 queries[index] = '*'
 
@@ -67,19 +67,22 @@ def search_parameter_prep(request):
             try:
                 ops[index]
             except:
-                ops.insert(index, 'or')
+                ops.insert(index, 'and')
+
+            if ops[index] == '':
+                ops[index] = 'and'
 
             try:
                 types[index]
             except:
                 types.insert(index, '')
 
-        # For "other" fields, the actual title of the subfield is located in a second array;
-        # search for any such fields and replace the placeholder value in the `fields` array
-        # with the full name.
+        # For "other" fields, the actual title of the subfield is located in a
+        # second array. Search for any such fields and replace the placeholder
+        # value in the `fields` array with the full name.
         # In Elasticsearch, "." is used to search subdocuments; for example,
-        # transferMetadata.Bagging-Date would be used to search for the value of Bagging-Date
-        # in this nested object:
+        # transferMetadata.Bagging-Date would be used to search for the value
+        # of Bagging-Date in this nested object:
         # {
         #   "transferMetadata": {
         #     "Start-Date": 0000-00-00,
@@ -92,11 +95,9 @@ def search_parameter_prep(request):
 
     return queries, ops, fields, types
 
-# these are used in templates to prevent query params
-
 
 def extract_url_search_params_from_request(request):
-    # set pagination-related variables
+    # Set pagination-related variables
     search_params = ''
     try:
         search_params = request.get_full_path().split('?')[1]
@@ -107,16 +108,15 @@ def extract_url_search_params_from_request(request):
     return search_params
 
 
-def assemble_query(es_client, queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
-    must_haves = kwargs.get('must_haves', [])
-    filters = kwargs.get('filters', {})
+def assemble_query(queries, ops, fields, types, filters=[]):
+    must_haves = []
     should_haves = []
     must_not_haves = []
     index = 0
 
     for query in queries:
         if queries[index] != '':
-            clause = query_clause(es_client, index, queries, ops, fields, types, search_index=search_index, doc_type=doc_type)
+            clause = _query_clause(index, queries, ops, fields, types)
             if clause:
                 if ops[index] == 'not':
                     must_not_haves.append(clause)
@@ -127,13 +127,26 @@ def assemble_query(es_client, queries, ops, fields, types, search_index=None, do
 
         index = index + 1
 
+    # Return match all query if no clauses
+    if len(must_haves + must_not_haves + should_haves + filters) == 0:
+        return elasticSearchFunctions.MATCH_ALL_QUERY
+
+    # TODO: Fix boolean query build:
+    # Should clauses will only influence the weight of the results if
+    # a must/must not/filter is present, but they will have no impact
+    # on the returned results. When a should clause is parsed, it should
+    # be added inside an extra boolean query with two should clauses,
+    # one with the existing must and other with the new should, that
+    # new boolean query has to be added as a the must in the final
+    # boolean query. This should be done in orther instead of in the
+    # end to reflect the input order in the boolean query.
     return {
-        "filter": filters,
         "query": {
             "bool": {
                 "must": must_haves,
                 "must_not": must_not_haves,
                 "should": should_haves,
+                "filter": filters,
             }
         },
     }
@@ -143,9 +156,13 @@ def _fix_object_fields(fields):
     """
     Adjusts field names for nested object fields.
 
-    Elasticsearch is able to search through nested object fields, provided that the field name is specified appropriately in the query.
-    Appending .* to the field name (for example, transferMetadata.*) causes Elasticsearch to consider any of the values within key/value pairs nested in the object being searched.
-    Without doing this, Elasticsearch will attempt to match the value of transferMetadata itself, which will always fail since it's an object and not a string.
+    Elasticsearch is able to search through nested object fields, provided that
+    the field name is specified appropriately in the query. Appending .* to the
+    field name (for example, transferMetadata.*) causes Elasticsearch to
+    consider any of the values within key/value pairs nested in the object
+    being searched. Without doing this, Elasticsearch will attempt to match the
+    value of transferMetadata itself, which will always fail since it's an
+    object and not a string.
     """
     return [field + '.*' if field in OBJECT_FIELDS else field for field in fields]
 
@@ -170,68 +187,35 @@ def _normalize_date(date):
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
 
-def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
-    """
-    Given search fields which search nested documents with wildcards (such as "transferMetadata.*"), returns a list of subfields filtered to contain only string-type fields.
+def _query_clause(index, queries, ops, fields, types):
+    # Ignore empty queries
+    if (queries[index] in ('', '*')):
+        return
 
-    When searching all fields of nested documents of mixed types using query_string queries, query_string queries may fail because the way the query string is interpreted depends on the type of the field being searched.
-    For example, given a nested document containing a string field and a date field, a query_string of "foo" would fail when Elasticsearch attempts to parse it as a date to match it against the date field.
-    This function uses the actual current mapping, so it supports automatically-mapped fields.
-
-    Sample input and output, given a nested document containing three fields, "Bagging-Date" (date), "Bag-Name" (string), and "Bag-Type" (string):
-    ["transferMetadata.*"] #=> ["transferMetadata.Bag-Name", "transferMetadata.Bag-Type"]
-
-    :param Elasticsearch es_client: Elasticsearch client
-    :param list search_fields: A list of strings representing nested object names.
-    :param str index: The name of the search index, used to look up the mapping document.
-        If not provided, the original search_fields is returned unmodified.
-    :param str doc_type: The name of the document type within the search index, used to look up the mapping document.
-        If not provided, the original search_fields is returned unmodified.
-    """
-    if index is None or doc_type is None:
-        return search_fields
-
-    new_fields = []
-    for field in search_fields:
-        # Not a wildcard nested document search, so just add to the list as-is
-        if not field.endswith('.*'):
-            new_fields.append(field)
-            continue
-        try:
-            field_name = field.rsplit('.', 1)[0]
-            mapping = elasticSearchFunctions.get_type_mapping(es_client, index, doc_type)
-            subfields = mapping[doc_type]['properties'][field_name]['properties']
-        except KeyError:
-            # The requested field doesn't exist in the index, so don't worry about validating subfields
-            new_fields.append(field)
-        else:
-            for subfield, field_properties in subfields.items():
-                if field_properties['type'] == 'string':
-                    new_fields.append(field_name + '.' + subfield)
-
-    return new_fields
-
-
-def query_clause(es_client, index, queries, ops, fields, types, search_index=None, doc_type=None):
+    # Normalize fields
     if fields[index] == '':
         search_fields = []
     else:
-        search_fields = filter_search_fields(es_client, _fix_object_fields([fields[index]]), index=search_index, doc_type=doc_type)
+        search_fields = _fix_object_fields([fields[index]])
 
+    # Build query based on type
+    query = None
     if types[index] == 'term':
-        # a blank term should be ignored because it prevents any results: you
-        # can never find a blank term
-        #
-        # TODO: add condition to deal with a query with no clauses because all have
-        #       been ignored
-        if (queries[index] in ('', '*')):
-            return
-        else:
-            if len(search_fields) == 0:
-                search_fields = ['_all']
-            return {'multi_match': {'query': queries[index], 'fields': search_fields}}
+        query = {
+            'multi_match': {
+                'query': queries[index],
+            }
+        }
+        if len(search_fields) > 0:
+            query['multi_match']['fields'] = search_fields
     elif types[index] == 'string':
-        return {'query_string': {'query': queries[index], 'fields': search_fields}}
+        query = {
+            'query_string': {
+                'query': queries[index],
+            }
+        }
+        if len(search_fields) > 0:
+            query['query_string']['fields'] = search_fields
     elif types[index] == 'range':
         start, end = _parse_date_range(queries[index])
         try:
@@ -240,13 +224,13 @@ def query_clause(es_client, index, queries, ops, fields, types, search_index=Non
         except ValueError as e:
             logger.info(str(e))
             return
-        return {'range': {fields[index]: {'gte': start, 'lte': end}}}
+        query = {'range': {fields[index]: {'gte': start, 'lte': end}}}
+
+    return query
 
 
-def indexed_count(es_client, index, types=None, query=None):
-    if types is not None:
-        types = ','.join(types)
+def indexed_count(es_client, index, query=None):
     try:
-        return es_client.count(index=index, doc_type=types, body=query)['count']
+        return es_client.count(index=index, body=query)['count']
     except:
         return 0

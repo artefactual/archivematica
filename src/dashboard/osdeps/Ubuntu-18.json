@@ -42,6 +42,10 @@
     {
       "name": "libldap2-dev",
       "state": "latest"
+    },
+    {
+      "name": "unar",
+      "state": "latest"
     }
   ]
 }

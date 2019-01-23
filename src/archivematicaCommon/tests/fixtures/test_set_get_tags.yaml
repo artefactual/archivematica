@@ -1,0 +1,41 @@
+interactions:
+- request:
+    body: !!python/unicode '{"query":{"term":{"fileuuid":"268421a7-a986-4fa0-95c1-54176e508210"}}}'
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+    method: GET
+    uri: http://elasticsearch:9200/transferfiles/_search?size=10000
+  response:
+    body: {string: !!python/unicode '{"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":1,"max_score":0.6931472,"hits":[{"_index":"transferfiles","_type":"_doc","_id":"mBsZBWgBn49OAVhMh-OV","_score":0.6931472,"_source":{"accessionid":"","status":"backlog","sipuuid":"17b168b6-cbba-4f43-8838-a53360238acb","tags":[],"file_extension":"jpg","relative_path":"test-17b168b6-cbba-4f43-8838-a53360238acb/objects/Landing_zone.jpg","bulk_extractor_reports":[],"origin":"1a14043f-68ef-4bfe-a129-e2e4cdbe391b","size":1.2982568740844727,"modification_date":"2018-12-11","created":1546273029.7313669,"format":[],"ingestdate":"2018-12-31","filename":"Landing_zone.jpg","fileuuid":"268421a7-a986-4fa0-95c1-54176e508210"}}]}}'}
+    headers:
+      content-length: ['725']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"doc":{"tags":["test"]}}'
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+    method: POST
+    uri: http://elasticsearch:9200/transferfiles/_doc/mBsZBWgBn49OAVhMh-OV/_update
+  response:
+    body: {string: !!python/unicode '{"_index":"transferfiles","_type":"_doc","_id":"mBsZBWgBn49OAVhMh-OV","_version":2,"result":"updated","forced_refresh":true,"_shards":{"total":2,"successful":1,"failed":0},"_seq_no":2,"_primary_term":1}'}
+    headers:
+      content-length: ['202']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"query":{"term":{"fileuuid":"268421a7-a986-4fa0-95c1-54176e508210"}}}'
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+    method: GET
+    uri: http://elasticsearch:9200/transferfiles/_search?_source=tags
+  response:
+    body: {string: !!python/unicode '{"took":2,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":1,"max_score":0.47000363,"hits":[{"_index":"transferfiles","_type":"_doc","_id":"mBsZBWgBn49OAVhMh-OV","_score":0.47000363,"_source":{"tags":["test"]}}]}}'}
+    headers:
+      content-length: ['258']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1

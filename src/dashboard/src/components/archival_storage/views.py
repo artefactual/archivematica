@@ -95,27 +95,24 @@ def search(request):
     # perform search
     es_client = elasticSearchFunctions.get_client()
     results = None
-    query = advanced_search.assemble_query(es_client, queries, ops, fields, types, search_index='aips', doc_type='aipfile')
+    query = advanced_search.assemble_query(queries, ops, fields, types)
     try:
-        # use all results to pull transfer facets if not in file mode
+        # Use all results to pull transfer facets if not in file mode
         # pulling only one field (we don't need field data as we augment
-        # the results using separate queries)
+        # the results using separate queries).
         if not file_mode:
             # Fetch all unique AIP UUIDs in the returned set of files
-            query['aggs'] = {'aip_uuids': {'terms': {'field': 'AIPUUID', 'size': 0}}}
+            # ES query will limit to 10 aggregation results by default,
+            # add size parameter in terms to override.
+            # TODO: Use composite aggregation when it gets out of beta.
+            query['aggs'] = {'aip_uuids': {'terms': {'field': 'AIPUUID', 'size': '10000'}}}
             # Don't return results, just the aggregation
             query['size'] = 0
             # Searching for AIPs still actually searches type 'aipfile', and
             # returns the UUID of the AIP the files are a part of.  To search
             # for an attribute of an AIP, the aipfile must index that
-            # information about their AIP in
-            # elasticSearchFunctions.index_mets_file_metadata
-            results = es_client.search(
-                body=query,
-                index='aips',
-                doc_type='aipfile',
-                sort='sipName:desc',
-            )
+            # information about their AIP.
+            results = es_client.search(body=query, index='aipfiles')
             # Given these AIP UUIDs, now fetch the actual information we want from aips/aip
             buckets = results['aggregations']['aip_uuids']['buckets']
             uuids = [bucket['key'] for bucket in buckets]
@@ -128,14 +125,12 @@ def search(request):
                 },
             }
             index = 'aips'
-            doc_type = 'aip'
             fields = 'name,uuid,size,created,status,AICID,isPartOf,countAIPsinAIC,encrypted'
-            sort = 'name:desc'
+            sort = 'name.raw:desc'
         else:
-            index = 'aips'
-            doc_type = 'aipfile'
+            index = 'aipfiles'
             fields = 'AIPUUID,filePath,FILEUUID,encrypted'
-            sort = 'sipName:desc'
+            sort = 'sipName.raw:desc'
 
         # To reduce amount of data fetched from ES, use LazyPagedSequence
         def es_pager(page, page_size):
@@ -152,15 +147,17 @@ def search(request):
                 from_=start,
                 size=page_size,
                 index=index,
-                doc_type=doc_type,
-                fields=fields,
+                _source=fields,
                 sort=sort,
             )
             if file_mode:
                 return search_augment_file_results(es_client, results)
             else:
                 return search_augment_aip_results(results, uuid_file_counts)
-        count = es_client.count(index=index, doc_type=doc_type, body={'query': query['query']})['count']
+        count = es_client.count(
+            index=index,
+            body={'query': query['query']}
+        )['count']
         results = LazyPagedSequence(es_pager, items_per_page, count)
 
     except ElasticsearchException:
@@ -190,19 +187,19 @@ def search(request):
 def _get_es_field(record, field, default=None):
     if field not in record or not record[field]:
         return default
-    return record[field][0]
+    return record[field]
 
 
 def search_augment_aip_results(raw_results, counts):
     modified_results = []
 
     for item in raw_results['hits']['hits']:
-        fields = item['fields']
+        fields = item['_source']
         new_item = {
-            'name': fields['name'][0],
-            'uuid': fields['uuid'][0],
-            'count': counts[fields['uuid'][0]],
-            'created': fields['created'][0],
+            'name': fields['name'],
+            'uuid': fields['uuid'],
+            'count': counts[fields['uuid']],
+            'created': fields['created'],
             'isPartOf': _get_es_field(fields, 'isPartOf'),
             'AICID': _get_es_field(fields, 'AICID'),
             'countAIPsinAIC': _get_es_field(fields, 'countAIPsinAIC', '(unknown)'),
@@ -223,10 +220,10 @@ def search_augment_file_results(es_client, raw_results):
     modifiedResults = []
 
     for item in raw_results['hits']['hits']:
-        if 'fields' not in item:
+        if '_source' not in item:
             continue
 
-        clone = {k: v[0] for k, v in item['fields'].copy().items()}
+        clone = item['_source'].copy()
 
         # try to find AIP details in database
         try:
@@ -234,9 +231,9 @@ def search_augment_file_results(es_client, raw_results):
             aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'], fields='uuid,name,filePath,size,origin,created,encrypted')
 
             # augment result data
-            clone['sipname'] = aip['fields']['name'][0]
+            clone['sipname'] = aip['_source']['name']
             clone['fileuuid'] = clone['FILEUUID']
-            clone['href'] = aip['fields']['filePath'][0].replace(AIPSTOREPATH + '/', "AIPsStore/")
+            clone['href'] = aip['_source']['filePath'].replace(AIPSTOREPATH + '/', "AIPsStore/")
 
         except:
             aip = None
@@ -270,8 +267,7 @@ def create_aic(request, *args, **kwargs):
         results = es_client.search(
             body=query,
             index='aips',
-            doc_type='aip',
-            fields='uuid,name',
+            _source='uuid,name',
             size=elasticSearchFunctions.MAX_QUERY_SIZE,  # return all records
         )
 
@@ -296,10 +292,10 @@ def create_aic(request, *args, **kwargs):
 
         # Create files with filename = AIP UUID, and contents = AIP name
         for aip in results['hits']['hits']:
-            filepath = os.path.join(destination, aip['fields']['uuid'][0])
+            filepath = os.path.join(destination, aip['_source']['uuid'])
             with open(filepath, 'w') as f:
                 os.chmod(filepath, 0o660)
-                f.write(str(aip['fields']['name'][0]))
+                f.write(str(aip['_source']['name']))
 
         return redirect('components.ingest.views.aic_metadata_add', temp_uuid)
     else:
@@ -322,7 +318,7 @@ def aip_file_download(request, uuid):
     sipuuid = helpers.get_file_sip_uuid(uuid)
     es_client = elasticSearchFunctions.get_client()
     aip = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
-    aip_filepath = aip['fields']['filePath'][0]
+    aip_filepath = aip['_source']['filePath']
 
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
@@ -343,7 +339,7 @@ def aip_file_download(request, uuid):
         file_basename
     )
 
-    redirect_url = storage_service.extract_file_url(aip['fields']['uuid'][0], file_relative_path)
+    redirect_url = storage_service.extract_file_url(aip['_source']['uuid'], file_relative_path)
     return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
 
 
@@ -413,23 +409,16 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
 
 def aip_file_count(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('AIPUUID')
-    return advanced_search.indexed_count(es_client, 'aips', ['aipfile'], query)
+    return advanced_search.indexed_count(es_client, 'aipfiles', query)
 
 
 def total_size_of_aips(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
-    query['fields'] = 'size'
-    query['facets'] = {
-        'total': {
-            'statistical': {
-                'field': 'size'
-            }
-        }
-    }
-
-    results = es_client.search(body=query, doc_type='aip', index='aips')
+    query['_source'] = 'size'
+    query['aggs'] = {'total': {'sum': {'field': 'size'}}}
+    results = es_client.search(body=query, index='aips')
     # TODO handle the return object
-    total_size = results['facets']['total']['total']
+    total_size = results['aggregations']['total']['value']
     total_size = '{0:.2f}'.format(total_size)
     return total_size
 
@@ -446,16 +435,22 @@ def list_display(request):
     aip_indexed_file_count = aip_file_count(es_client)
 
     # get AIPs
-    order_by = request.GET.get('order_by', 'name_unanalyzed')
+    order_by = request.GET.get('order_by', 'name')
     sort_by = request.GET.get('sort_by', 'up')
 
-    if sort_by == 'down':
-        sort_direction = 'desc'
-    else:
-        sort_direction = 'asc'
-
-    sort_specification = order_by + ':' + sort_direction
     sort_params = 'order_by=' + order_by + '&sort_by=' + sort_by
+
+    # use raw subfield to sort by name
+    if order_by == 'name':
+        order_by = order_by + '.raw'
+
+    # change sort_by param to ES sort directions
+    if sort_by == 'down':
+        sort_by = 'desc'
+    else:
+        sort_by = 'asc'
+
+    sort_specification = order_by + ':' + sort_by
 
     # get list of UUIDs of AIPs that are deleted or pending deletion
     aips_deleted_or_pending_deletion = []
@@ -473,11 +468,10 @@ def list_display(request):
     deleted_aip_results = es_client.search(
         body=query,
         index='aips',
-        doc_type='aip',
-        fields='uuid,status'
+        _source='uuid,status'
     )
     for deleted_aip in deleted_aip_results['hits']['hits']:
-        aips_deleted_or_pending_deletion.append(deleted_aip['fields']['uuid'][0])
+        aips_deleted_or_pending_deletion.append(deleted_aip['_source']['uuid'])
 
     # Fetch results and paginate
     def es_pager(page, page_size):
@@ -491,20 +485,19 @@ def list_display(request):
         start = (page - 1) * page_size
         results = es_client.search(
             index='aips',
-            doc_type='aip',
             body=elasticSearchFunctions.MATCH_ALL_QUERY,
-            fields='origin,uuid,filePath,created,name,size,encrypted',
+            _source='origin,uuid,filePath,created,name,size,encrypted',
             sort=sort_specification,
             size=page_size,
             from_=start,
         )
-        # normalize results - each of the fields contains a single value,
-        # but is returned from the ES API as a single-length array
-        # e.g. {"fields": {"uuid": ["abcd"], "name": ["aip"] ...}}
-        return [elasticSearchFunctions.normalize_results_dict(d) for d in results['hits']['hits']]
+        return [d['_source'] for d in results['hits']['hits']]
 
     items_per_page = 10
-    count = es_client.count(index='aips', doc_type='aip', body=elasticSearchFunctions.MATCH_ALL_QUERY)['count']
+    count = es_client.count(
+        index='aips',
+        body=elasticSearchFunctions.MATCH_ALL_QUERY,
+    )['count']
     results = LazyPagedSequence(es_pager, page_size=items_per_page, length=count)
 
     # Paginate
@@ -596,7 +589,7 @@ def view_aip(request, uuid):
     except IndexError:
         raise Http404
 
-    name = _get_es_field(es_aip_doc['fields'], 'name')
+    name = _get_es_field(es_aip_doc['_source'], 'name')
     active_tab = None
 
     form_upload = forms.UploadMetadataOnlyAtomForm(prefix='upload')
@@ -645,11 +638,11 @@ def view_aip(request, uuid):
     context = {
         'uuid': uuid,
         'name': name,
-        'created': _get_es_field(es_aip_doc['fields'], 'created'),
-        'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(es_aip_doc['fields'], 'status', 'UPLOADED')],
-        'encrypted': _get_es_field(es_aip_doc['fields'], 'encrypted', False),
-        'size': '{0:.2f} MB'.format(_get_es_field(es_aip_doc['fields'], 'size', 0)),
-        'location_basename': os.path.basename(_get_es_field(es_aip_doc['fields'], 'filePath')),
+        'created': _get_es_field(es_aip_doc['_source'], 'created'),
+        'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(es_aip_doc['_source'], 'status', 'UPLOADED')],
+        'encrypted': _get_es_field(es_aip_doc['_source'], 'encrypted', False),
+        'size': '{0:.2f} MB'.format(_get_es_field(es_aip_doc['_source'], 'size', 0)),
+        'location_basename': os.path.basename(_get_es_field(es_aip_doc['_source'], 'filePath')),
         'active_tab': active_tab,
         'forms': {
             'upload': form_upload,

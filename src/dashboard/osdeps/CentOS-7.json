@@ -18,6 +18,7 @@
   { "name": "libxslt-devel", "state": "latest"},
   { "name": "openssl-devel", "state": "latest"},
   { "name": "python-devel", "state": "latest"},
-  { "name": "openldap-devel", "state": "latest"}
+  { "name": "openldap-devel", "state": "latest"},
+  { "name": "unar", "state": "latest"}
   ]
 }

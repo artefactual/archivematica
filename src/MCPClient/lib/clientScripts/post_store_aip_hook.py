@@ -119,7 +119,7 @@ def post_store_hook(job, sip_uuid):
                 reason_for_deletion='All files in Transfer are now in AIPs.'
             )
             if update_es:
-                elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
+                elasticSearchFunctions.remove_sip_transfer_files(client, transfer_uuid)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(job, sip_uuid)

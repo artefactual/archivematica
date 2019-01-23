@@ -5,9 +5,9 @@ interactions:
       connection: [keep-alive]
       content-type: [application/json]
     method: GET
-    uri: http://elasticsearch:9200/transferfiles/_search?size=10000
+    uri: http://elasticsearch:9200/transferfiles/_search?_source=tags
   response:
-    body: {string: !!python/unicode '{"took":0,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}
+    body: {string: !!python/unicode '{"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}
     headers:
       content-length: ['134']
       content-type: [application/json; charset=UTF-8]

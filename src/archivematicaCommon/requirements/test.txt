@@ -1,5 +1,6 @@
 -r base.txt
 
+mock
 pytest>=2,<3
 pytest-django>=2,<3
 pytest-pythonpath

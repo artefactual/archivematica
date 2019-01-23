@@ -60,12 +60,11 @@ def check_and_remove_deleted_transfers(es_client):
     deletion_pending_results = es_client.search(
         body=query,
         index='transfers',
-        doc_type='transfer',
-        fields='uuid,status'
+        _source='uuid,status'
     )
 
     for hit in deletion_pending_results['hits']['hits']:
-        transfer_uuid = hit['fields']['uuid'][0]
+        transfer_uuid = hit['_source']['uuid']
 
         api_results = storage_service.get_file_info(uuid=transfer_uuid)
         try:
@@ -103,8 +102,8 @@ def get_es_property_from_column_index(index, file_mode):
     :return: The ES document property name corresponding to the column index in the data table.
     """
     table_columns = (
-        ('name', 'uuid', 'file_count', 'ingest_date', None),     # Transfers are being displayed
-        ('filename', 'sipuuid', None)                            # Transfer files are being displayed
+        ('name.raw', 'uuid', 'file_count', 'ingest_date', None),  # Transfers are being displayed
+        ('filename.raw', 'sipuuid', None)                         # Transfer files are being displayed
     )
 
     if index < 0 or index >= len(table_columns[file_mode]):
@@ -137,46 +136,49 @@ def search(request):
         queries, ops, fields, types = (['*'], ['or'], [''], ['term'])
 
     query = advanced_search.assemble_query(
-        es_client, queries, ops, fields, types, search_index='transfers',
-        doc_type='transferfile', filters={'term': {'status': 'backlog'}}
+        queries, ops, fields, types,
+        filters=[{'term': {'status': 'backlog'}}],
     )
 
     try:
         if file_mode:
-            doc_type = 'transferfile'
+            index = 'transferfiles'
             source = 'filename,sipuuid,relative_path'
-        else:  # Transfer mode
-            # Query to transfers/transferfile, but only fetch & aggregrate transfer UUIDs
-            # Based on transfer UUIDs, query to transfers/transfer
-            # ES query will limit to 10 aggregation results by default, add size parameter in terms to override
-            # (https://stackoverflow.com/questions/22927098/show-all-elasticsearch-aggregation-results-buckets-and-not-just-10)
+        else:
+            # Transfer mode:
+            # Query to transferfile, but only fetch & aggregrate transfer UUIDs.
+            # Based on transfer UUIDs, query to transfers.
+            # ES query will limit to 10 aggregation results by default,
+            # add size parameter in terms to override.
+            # TODO: Use composite aggregation when it gets out of beta.
             query['aggs'] = {'transfer_uuid': {'terms': {'field': 'sipuuid', 'size': '10000'}}}
             hits = es_client.search(
-                index='transfers',
-                doc_type='transferfile',
+                index='transferfiles',
                 body=query,
                 size=0,  # Don't return results, only aggregation
             )
             uuids = [x['key'] for x in hits['aggregations']['transfer_uuid']['buckets']]
 
-            query['query'] = {
-                'terms': {
-                    'uuid': uuids,
+            # Recreate query to search over transfers
+            query = {
+                'query': {
+                    'terms': {
+                        'uuid': uuids,
+                    },
                 },
             }
-            doc_type = 'transfer'
+            index = 'transfers'
             source = 'name,uuid,file_count,ingest_date'
 
-        hit_count = es_client.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
         hits = es_client.search(
-            index='transfers',
-            doc_type=doc_type,
+            index=index,
             body=query,
             from_=start,
             size=page_size,
             sort=order_by + ':' + sort_direction if order_by else '',
             _source=source,
         )
+        hit_count = hits['hits']['total']
 
     except Exception:
         err_desc = 'Error accessing transfers index'

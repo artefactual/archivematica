@@ -50,6 +50,16 @@ class Command(DashboardCommand):
 
     def handle(self, *args, **options):
         """Entry point of the rebuild_transfer_backlog command."""
+        # Check that the `transfers` part of the search is enabled
+        if 'transfers' not in django_settings.SEARCH_ENABLED:
+            print(
+                "The Transfers indexes are not enabled. Please, make sure to "
+                "set the *_SEARCH_ENABLED environment variables to `true` "
+                "to enable the Transfers and AIPs indexes, or to `transfers` "
+                "to only enable the Transfers indexes."
+            )
+            sys.exit(1)
+
         if not self.confirm(options['no_prompt']):
             sys.exit(0)
 
@@ -71,9 +81,10 @@ class Command(DashboardCommand):
             self.success('Connected to Elasticsearch node {} (v{}).'.format(
                 es_info['name'], es_info['version']['number']))
 
-        self.delete_index(es_client)
-        self.create_index(es_client)
-        self.populate_index(es_client, transfer_backlog_dir)
+        indexes = ['transfers', 'transferfiles']
+        self.delete_indexes(es_client, indexes)
+        self.create_indexes(es_client, indexes)
+        self.populate_indexes(es_client, transfer_backlog_dir)
         self.success('Indexing complete!')
 
     def confirm(self, no_prompt):
@@ -92,19 +103,22 @@ class Command(DashboardCommand):
         if tail != suffix:
             return os.path.join(path, suffix)
 
-    def delete_index(self, es_client):
-        """Delete search index."""
-        self.stdout.write('Deleting all transfers in the "transfers" index...')
+    def delete_indexes(self, es_client, indexes):
+        """Delete search indexes."""
+        self.stdout.write(
+            'Deleting all transfers and transfer files '
+            'in the "transfers" and "transferfiles" indexes ...'
+        )
         time.sleep(3)  # Time for the user to panic and kill the process.
-        es_client.indices.delete('transfers', ignore=404)
+        es_client.indices.delete(','.join(indexes), ignore=404)
 
-    def create_index(self, es_client):
-        """Create search index."""
-        self.stdout.write('Creating index...')
-        elasticSearchFunctions.create_transfers_index(es_client)
+    def create_indexes(self, es_client, indexes):
+        """Create search indexes."""
+        self.stdout.write('Creating indexes ...')
+        elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
 
-    def populate_index(self, es_client, transfer_backlog_dir):
-        """Populate search index."""
+    def populate_indexes(self, es_client, transfer_backlog_dir):
+        """Populate search indexes."""
         for directory in os.listdir(transfer_backlog_dir):
             if directory == '.gitignore':
                 continue
@@ -122,16 +136,17 @@ class Command(DashboardCommand):
             self.stdout.write('Indexing {} ({})'.format(
                 transfer_uuid, transfer_dir))
 
-            self.index_files(es_client,
-                             os.path.join(transfer_backlog_dir, directory),
-                             transfer_uuid)
-            storageService.reindex_file(transfer_uuid)
+            elasticSearchFunctions.index_transfer_and_files(
+                es_client,
+                transfer_uuid,
+                os.path.join(transfer_backlog_dir, directory, ''),
+                status='backlog',
+            )
 
-    def index_files(self, es_client, transfer_path, transfer_uuid):
-        transfer_path = elasticSearchFunctions.index_files(
-            es_client,
-            'transfers',
-            'transferfile',
-            transfer_uuid,
-            os.path.join(transfer_path, ''),  # Expected by index_files().
-            status='backlog')
+            try:
+                storageService.reindex_file(transfer_uuid)
+            except Exception:
+                self.warning(
+                    'Could not reindex Transfer in the Storage Service, '
+                    'UUID: %s' % transfer_uuid
+                )

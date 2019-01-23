@@ -55,7 +55,6 @@ def index_aip(job):
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
-    job.pyprint('SIP UUID:', sip_uuid)
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     job.pyprint('AIP info:', aip_info)
     aip_info = aip_info[0]
@@ -76,44 +75,33 @@ def index_aip(job):
         except UnitVariable.DoesNotExist:
             pass
 
-    job.pyprint('Indexing AIP info')
     # Delete ES index before creating new one if reingesting
     if 'REIN' in sip_type:
         job.pyprint('Deleting outdated entry for AIP and AIP files with UUID', sip_uuid, 'from archival storage')
         elasticSearchFunctions.delete_aip(client, sip_uuid)
         elasticSearchFunctions.delete_aip_files(client, sip_uuid)
 
-    # Index AIP
-    elasticSearchFunctions.index_aip(
-        client,
-        sip_uuid,
-        sip_name,
-        aip_info['current_full_path'],
-        mets_path,
-        size=aip_info['size'],
-        aips_in_aic=aips_in_aic,
-        identifiers=identifiers,
-        encrypted=aip_info['encrypted'])
-
-    # Index AIP files
-    job.pyprint('Indexing AIP files')
+    job.pyprint('Indexing AIP and AIP files')
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
     # aips/aipfile index.
-    exitCode = elasticSearchFunctions.index_files(
-        client,
-        index='aips',
-        type_='aipfile',
+    ret = elasticSearchFunctions.index_aip_and_files(
+        client=client,
         uuid=sip_uuid,
-        pathToArchive=sip_path,
+        path=aip_info['current_full_path'],
+        mets_path=mets_path,
+        name=sip_name,
+        size=aip_info['size'],
+        aips_in_aic=aips_in_aic,
         identifiers=identifiers,
-        sipName=sip_name,
+        encrypted=aip_info['encrypted'],
+        printfn=job.pyprint,
     )
-    if exitCode == 1:
-        job.pyprint('Error indexing AIP files', file=sys.stderr)
-        return 1
 
-    return 0
+    if ret == 1:
+        job.pyprint('Error indexing AIP and AIP files', file=sys.stderr)
+
+    return ret
 
 
 def filter_status_code(status_code):
