@@ -49,41 +49,6 @@ from elasticsearch import Elasticsearch, ImproperlyConfigured
 
 logger = logging.getLogger('archivematica.common')
 
-MATCH_ALL_QUERY = {
-    "query": {
-        "match_all": {}
-    }
-}
-
-# Returns files which are in the backlog; *omits* files without UUIDs,
-# e.g. administrative files (AM metadata and logs directories).
-BACKLOG_FILTER_NO_MD_LOGS = {
-    'bool': {
-        'must': {
-            'term': {
-                'status': 'backlog',
-            },
-        },
-        'must_not': {
-            'term': {
-                'fileuuid': '',
-            }
-        }
-    },
-}
-
-# Returns files which are in the backlog; *includes* files without UUIDs,
-# e.g. administrative files (AM metadata and logs directories).
-BACKLOG_FILTER = {
-    'bool': {
-        'must': {
-            'term': {
-                'status': 'backlog',
-            },
-        }
-    }
-}
-
 
 class ElasticsearchError(Exception):
     """ Not operational errors. """

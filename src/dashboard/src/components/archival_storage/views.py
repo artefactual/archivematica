@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
-import copy
 import httplib
 import json
 import logging
@@ -400,9 +399,7 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
             }
         }
     else:
-        # Return a deepcopy of MATCH_ALL_QUERY because it can be modified by the
-        # caller and we don't want those modifications to persist
-        query = copy.deepcopy(elasticSearchFunctions.MATCH_ALL_QUERY)
+        query = {"query": {"match_all": {}}}
 
     return query
 
@@ -485,7 +482,7 @@ def list_display(request):
         start = (page - 1) * page_size
         results = es_client.search(
             index='aips',
-            body=elasticSearchFunctions.MATCH_ALL_QUERY,
+            body={"query": {"match_all": {}}},
             _source='origin,uuid,filePath,created,name,size,encrypted',
             sort=sort_specification,
             size=page_size,
@@ -496,7 +493,7 @@ def list_display(request):
     items_per_page = 10
     count = es_client.count(
         index='aips',
-        body=elasticSearchFunctions.MATCH_ALL_QUERY,
+        body={"query": {"match_all": {}}},
     )['count']
     results = LazyPagedSequence(es_pager, page_size=items_per_page, length=count)
 

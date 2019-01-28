@@ -19,8 +19,6 @@ import logging
 
 import dateutil.parser
 
-import elasticSearchFunctions
-
 logger = logging.getLogger("archivematica.dashboard.advanced_search")
 
 OBJECT_FIELDS = (
@@ -129,7 +127,7 @@ def assemble_query(queries, ops, fields, types, filters=[]):
 
     # Return match all query if no clauses
     if len(must_haves + must_not_haves + should_haves + filters) == 0:
-        return elasticSearchFunctions.MATCH_ALL_QUERY
+        return {"query": {"match_all": {}}}
 
     # TODO: Fix boolean query build:
     # Should clauses will only influence the weight of the results if

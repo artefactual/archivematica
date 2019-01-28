@@ -581,17 +581,29 @@ def transfer_backlog(request, ui):
     AJAX endpoint to query for and return transfer backlog items.
     """
     es_client = elasticSearchFunctions.get_client()
-
-    # Get search parameters from request
     results = None
 
-    # GET params in SIP arrange can control whether files in metadata/ and
-    # logs/ are returned. Appraisal tab always hides these dirs and their files
-    # (for now).
-    backlog_filter = elasticSearchFunctions.BACKLOG_FILTER
+    # Return files which are in the backlog
+    backlog_filter = {
+        'bool': {
+            'must': {
+                'term': {
+                    'status': 'backlog',
+                }
+            }
+        }
+    }
+    # Omit files without UUIDs (metadata and logs directories):
+    # - When the `hidemetadatalogs` param is sent from SIP arrange.
+    # - Always from the appraisal tab.
     if ui == 'appraisal' or request.GET.get('hidemetadatalogs'):
-        backlog_filter = elasticSearchFunctions.BACKLOG_FILTER_NO_MD_LOGS
+        backlog_filter['bool']['must_not'] = {
+            'term': {
+                'fileuuid': '',
+            }
+        }
 
+    # Get search parameters from request
     if 'query' not in request.GET:
         # Use backlog boolean filter as boolean query
         query = {'query': backlog_filter}
