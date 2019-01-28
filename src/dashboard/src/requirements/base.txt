@@ -1,6 +1,6 @@
 # Base requirements - for all installations
 agentarchives==0.5.0
-brotli==0.5.2  # Better compression library for WhiteNoise
+brotli==1.0.7  # Better compression library for WhiteNoise
 Django>=1.8,<1.9
 django-autoslug==1.9.3  # used by fpr
 django-braces==1.0.0
