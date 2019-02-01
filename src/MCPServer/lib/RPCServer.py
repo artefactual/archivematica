@@ -34,14 +34,13 @@ import re
 import time
 
 from django.conf import settings as django_settings
-from django.db import connection
+from django.db import close_old_connections, connection
 from django.utils.six.moves import configparser
 from django.utils.six import StringIO
 from gearman import GearmanWorker
 from gearman.errors import ServerUnavailable
 from lxml import etree
 
-from databaseFunctions import auto_close_db
 from linkTaskManagerChoice import (
     choicesAvailableForUnits,
     choicesAvailableForUnitsLock,
@@ -170,7 +169,6 @@ class RPCServer(GearmanWorker):
             "expect_payload": "payload" in inspect.getargspec(handler).args,
         }
 
-    @auto_close_db
     def _wrap_handler_method(self, name, handler, **opts):
         def wrap(worker, job):
             args = [worker, job]
@@ -193,6 +191,8 @@ class RPCServer(GearmanWorker):
                     "handler": name,
                     "message": str(err),
                 }
+            finally:
+                close_old_connections()
             return cPickle.dumps(resp)
         return wrap
 
