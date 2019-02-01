@@ -27,7 +27,7 @@ def concurrent_instances():
 
 
 def insert_transcription_event(status, file_uuid, rule, relative_location):
-    outcome = "transcribed" if status is 0 else "not transcribed"
+    outcome = "transcribed" if status == 0 else "not transcribed"
 
     tool = rule.command.tool
     event_detail = u"program={}; version={}; command=\"{}\"".format(tool.description, tool.version, rule.command.command.replace('"', r'\"'))

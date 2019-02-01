@@ -564,7 +564,7 @@ def rights_list(request, uuid, section):
     # When listing ingest rights we also want to show transfer rights
     # The only way I've found to get the related transfer of a SIP is looking into the File table
     transfer_grants = None
-    if section is "ingest":
+    if section == "ingest":
         try:
             transfer_uuids = models.File.objects.filter(sip_id=uuid, removedtime__isnull=True, transfer_id__isnull=False).values_list('transfer', flat=True).distinct()
             transfer_grants = models.RightsStatementRightsGranted.objects.filter(

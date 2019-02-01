@@ -10,21 +10,21 @@ def test_capture_output():
 
     # Test that stdout and stderr are not captured by default
     ret, std_out, std_err = execsub.launchSubProcess(['ls', '/tmp'])
-    assert std_out is ''
-    assert std_err is ''
+    assert std_out == ''
+    assert std_err == ''
 
     # Test that stdout and stderr are captured when `capture_output` is
     # enabled.
     ret, std_out, std_err = execsub.launchSubProcess(
         ['ls', '/tmp'], capture_output=True)
-    assert std_out is not '' or std_err is not ''
+    assert std_out != '' or std_err != ''
 
     # Test that stdout and stderr are not captured when `capture_output` is
     # not enabled.
     ret, std_out, std_err = execsub.launchSubProcess(
         ['ls', '/tmp'], capture_output=False)
-    assert std_out is ''
-    assert std_err is ''
+    assert std_out == ''
+    assert std_err == ''
 
     # Test that when `capture_output` is `False`, then stdout is never returned
     # and stderr is only returned when the exit code is non-zero.
@@ -33,12 +33,12 @@ def test_capture_output():
 
     ret, std_out, std_err = execsub.launchSubProcess(
         shlex.split(cmd1), capture_output=False)
-    assert std_out.strip() is ''
+    assert std_out.strip() == ''
     assert std_err.strip() == 'error'
 
     ret, std_out, std_err = execsub.launchSubProcess(
         shlex.split(cmd0), capture_output=False)
-    assert std_out.strip() is ''
+    assert std_out.strip() == ''
     assert std_err.strip() == ''
 
     ret, std_out, std_err = execsub.launchSubProcess(

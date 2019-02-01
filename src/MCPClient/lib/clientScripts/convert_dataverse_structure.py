@@ -387,7 +387,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
     zipped_file = False
 
     # Signal to users that this transfer might consist of metadata only.
-    if len(files) is 0:
+    if len(files) == 0:
         logger.info(
             "Metadata only transfer? There are no file entries in this "
             "transfer's metadata.")
