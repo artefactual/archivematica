@@ -108,7 +108,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         """
         try:
             link = self.jobChainLink.workflow.get_link(
-                self.jobChainLink.link.config["fallback_link_id"])
+                self.jobChainLink.link["fallback_link_id"])
         except KeyError:
             return
         execute = link.config["execute"]
