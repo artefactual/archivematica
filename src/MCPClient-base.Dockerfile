@@ -60,6 +60,7 @@ RUN set -ex \
 		ufraw \
 		unrar-free \
 		uuid \
+		unzip \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures

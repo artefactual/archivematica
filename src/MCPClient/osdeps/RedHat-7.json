@@ -58,7 +58,8 @@
   { "name": "tesseract", "state": "latest"},
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
+  { "name": "uuid", "state": "latest"},
+  { "name": "unzip", "state": "latest"}
   ]
 }
 
