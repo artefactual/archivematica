@@ -125,20 +125,6 @@ def setup_reading_from_conf(settings):
     )
 
 
-def get_host():
-    """Return one of the Elasticsearch hosts configured in our client.
-
-    In the future this function could look it up in the Elasticsearch client
-    instead of using the module attribute _es_hosts, because in an Elasticsearch
-    cluster, nodes can be added or removed dynamically.
-    """
-    if not _es_hosts:
-        raise ImproperlyConfigured('The Elasticsearch client has not been set up yet, please call setup() first.')
-    if isinstance(_es_hosts, (list, tuple)):
-        return _es_hosts[0]
-    return _es_hosts
-
-
 def get_client():
     """Obtain the current Elasticsearch client.
 

@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
-import httplib
 import json
 import logging
 import os
@@ -561,22 +560,21 @@ def list_display(request):
                   )
 
 
-def document_json_response(document_id_modified, type):
+def document_json_response(document_id_modified, index):
     document_id = document_id_modified.replace('____', '-')
-    es_client = httplib.HTTPConnection(elasticSearchFunctions.get_host())
-    es_client.request("GET", "/aips/" + type + "/" + document_id)
-    response = es_client.getresponse()
-    data = response.read()
-    pretty_json = json.dumps(json.loads(data), sort_keys=True, indent=2)
+    es_client = elasticSearchFunctions.get_client()
+    data = es_client.get(
+        index=index, doc_type=elasticSearchFunctions.DOC_TYPE, id=document_id)
+    pretty_json = json.dumps(data, sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
 
 
 def file_json(request, document_id_modified):
-    return document_json_response(document_id_modified, 'aipfile')
+    return document_json_response(document_id_modified, 'aipfiles')
 
 
 def aip_json(request, document_id_modified):
-    return document_json_response(document_id_modified, 'aip')
+    return document_json_response(document_id_modified, 'aips')
 
 
 def view_aip(request, uuid):
