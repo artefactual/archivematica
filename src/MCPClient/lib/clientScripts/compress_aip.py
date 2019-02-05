@@ -92,7 +92,19 @@ def compress_aip(
             'algorithm="{}"\; '
             'version="$((pbzip2 -V) 2>&1)"'.format(compression_algorithm)
         )
-
+    elif program == "zip":
+        compressed_location = uncompressed_location + ".zip"
+        command = '/usr/bin/7z a -bd -tzip -y -mm={algorithm} -mx={level} -mtc=on -mmt=on "{compressed_location}" "{uncompressed_location}"'.format(
+            algorithm=compression_algorithm,
+            level=compression_level,
+            uncompressed_location=uncompressed_location,
+            compressed_location=compressed_location,
+        )
+        tool_info_command = (
+            'echo program="7z"\; '
+            'algorithm="{}"\; '
+            'version="`7z | grep Version`"'.format(compression_algorithm)
+        )
     else:
         msg = "Program {} not recognized, exiting script prematurely.".format(program)
         job.pyprint(msg, file=sys.stderr)

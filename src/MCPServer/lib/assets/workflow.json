@@ -1066,6 +1066,20 @@
                         "items": {
                             "AIPCompressionAlgorithm": "pbzip2-"
                         }
+                    },
+                    {
+                        "description": {
+                            "en": "Zip using deflate",
+                            "es": "zip usando deflate",
+                            "fr": "zip utilisant deflate",
+                            "ja": "zip（deflateを利用）",
+                            "pt_BR": "zip usando deflate",
+                            "sv": "zip användande deflate"
+                        },
+                        "id": "b7eb3afb-5d42-480c-9718-fa1e78bac881",
+                        "items": {
+                            "AIPCompressionAlgorithm": "zip-deflate"
+                        }
                     }
                 ]
             },
