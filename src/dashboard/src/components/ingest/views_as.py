@@ -22,11 +22,18 @@ logger = logging.getLogger('archivematica.dashboard')
 def get_as_system_client():
     config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
 
-    if not config['host']:
-        raise ArchivesSpaceError("ArchivesSpace host string has not been set")
+    config_err = ArchivesSpaceError(
+        "ArchivesSpace has not been configured properly"
+        " - base URL is missing")
+    try:
+        base_url = config['base_url']
+    except KeyError:
+        raise config_err
+    if not base_url:
+        raise config_err
 
     return ArchivesSpaceClient(
-        host=config['base_url'],
+        host=base_url,
         user=config['user'],
         passwd=config['passwd'],
         repository=config['repository']
