@@ -161,8 +161,7 @@ def ingest_metadata_add_files(request, sip_uuid):
         if not source_directories:
             messages.warning(request, _("No transfer source locations are available. Please contact an administrator."))
     # Get name of SIP from directory name of most recent job
-    # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
-    jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
+    jobs = models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')
     name = jobs.get_directory_name()
 
     return render(request, 'ingest/metadata_add_files.html', locals())
@@ -223,8 +222,7 @@ def ingest_metadata_event_detail(request, uuid):
         form.derived_file = form.instance.file_uuid.derived_file_set.filter(derived_file__filegrpuse='preservation').get().derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
 
     # Get name of SIP from directory name of most recent job
-    # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
-    jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = jobs.get_directory_name()
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
