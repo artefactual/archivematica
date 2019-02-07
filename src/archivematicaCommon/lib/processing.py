@@ -16,15 +16,20 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
       <delay unitCtime="yes">2419200.0</delay>
     </preconfiguredChoice>
-    <!-- Select file format identification command (Submission documentation & metadata) -->
+    <!-- Perform file format identification (Submission documentation & metadata) -->
     <preconfiguredChoice>
       <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
-      <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
+      <goToChain>4dec164b-79b0-4459-8505-8095af9655b5</goToChain>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
       <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
       <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+    </preconfiguredChoice>
+    <!-- Perform file format identification (Transfer) -->
+    <preconfiguredChoice>
+      <appliesTo>f09847c2-ee51-429a-9478-a860477f6b8d</appliesTo>
+      <goToChain>d97297c7-2b49-4cfe-8c9f-0613d63ed763</goToChain>
     </preconfiguredChoice>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
@@ -51,10 +56,10 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>8ce07e94-6130-4987-96f0-2399ad45c5c2</appliesTo>
       <goToChain>76befd52-14c3-44f9-838f-15a4e01624b0</goToChain>
     </preconfiguredChoice>
-    <!-- Select file format identification command (Ingest) -->
+    <!-- Perform file format identification (Ingest) -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
-      <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
+      <goToChain>5b3c8268-5b33-4b70-b1aa-0e4540fe03d1</goToChain>
     </preconfiguredChoice>
     <!-- Perform policy checks on preservation derivatives -->
     <preconfiguredChoice>
@@ -97,10 +102,10 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>accea2bf-ba74-4a3a-bb97-614775c74459</appliesTo>
       <goToChain>e0a39199-c62a-4a2f-98de-e9d1116460a8</goToChain>
     </preconfiguredChoice>
-    <!-- Select file format identification command (Submission documentation & metadata) -->
+    <!-- Perform file format identification (Submission documentation & metadata) -->
     <preconfiguredChoice>
       <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
-      <goToChain>25a91595-37f0-4373-a89a-56a757353fb8</goToChain>
+      <goToChain>4dec164b-79b0-4459-8505-8095af9655b5</goToChain>
     </preconfiguredChoice>
     <!-- Normalize (match 1 for "Normalize for preservation") -->
     <preconfiguredChoice>
@@ -132,10 +137,10 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
       <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
     </preconfiguredChoice>
-    <!-- Select file format identification command (Transfer) -->
+    <!-- Perform file format identification (Transfer) -->
     <preconfiguredChoice>
       <appliesTo>f09847c2-ee51-429a-9478-a860477f6b8d</appliesTo>
-      <goToChain>bed4eeb1-d654-4d97-b98d-40eb51d3d4bb</goToChain>
+      <goToChain>d97297c7-2b49-4cfe-8c9f-0613d63ed763</goToChain>
     </preconfiguredChoice>
     <!-- Store DIP location -->
     <preconfiguredChoice>
@@ -177,10 +182,10 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>8ce07e94-6130-4987-96f0-2399ad45c5c2</appliesTo>
       <goToChain>76befd52-14c3-44f9-838f-15a4e01624b0</goToChain>
     </preconfiguredChoice>
-    <!-- Select file format identification command (Ingest) -->
+    <!-- Perform file format identification (Ingest) -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
-      <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
+      <goToChain>5b3c8268-5b33-4b70-b1aa-0e4540fe03d1</goToChain>
     </preconfiguredChoice>
     <!-- Perform policy checks on preservation derivatives -->
     <preconfiguredChoice>

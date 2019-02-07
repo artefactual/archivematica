@@ -93,17 +93,31 @@ def write_file_id(file_uuid, format, output):
     )
 
 
-def main(job, command_uuid, file_path, file_uuid, disable_reidentify):
-    job.print_output("IDCommand UUID:", command_uuid)
-    job.print_output("File: ({}) {}".format(file_uuid, file_path))
-    if command_uuid == "None":
+def _default_idcommand():
+    """Retrieve the default ``fpr.IDCommand``.
+
+    We only expect to find one command enabled/active.
+    """
+    return IDCommand.active.first()
+
+
+def main(job, enabled, file_path, file_uuid, disable_reidentify):
+    enabled = True if enabled == "True" else False
+    if not enabled:
         job.print_output("Skipping file format identification")
         return 0
-    try:
-        command = IDCommand.active.get(uuid=command_uuid)
-    except IDCommand.DoesNotExist:
-        job.write_error("IDCommand with UUID {} does not exist.\n".format(command_uuid))
+
+    command = _default_idcommand()
+    if command is None:
+        job.write_error("Unable to determine IDCommand.\n")
         return 255
+
+    command_uuid = command.uuid
+    job.print_output("IDCommand:", command.description)
+    job.print_output("IDCommand UUID:", command.uuid)
+    job.print_output("IDTool:", command.tool.description)
+    job.print_output("IDTool UUID:", command.tool.uuid)
+    job.print_output("File: ({}) {}".format(file_uuid, file_path))
 
     file_ = File.objects.get(uuid=file_uuid)
 
@@ -159,7 +173,13 @@ def main(job, command_uuid, file_path, file_uuid, disable_reidentify):
 
 def call(jobs):
     parser = argparse.ArgumentParser(description='Identify file formats.')
+
+    # Since AM19 the accepted values are "True" or "False" since the ability to
+    # choose the command from the workflow has been removed. Instead, this
+    # script will look up in FPR what's the preferred command.
+    # This argument may be renamed later.
     parser.add_argument('idcommand', type=str, help='%IDCommand%')
+
     parser.add_argument('file_path', type=str, help='%relativeLocation%')
     parser.add_argument('file_uuid', type=str, help='%fileUUID%')
     parser.add_argument('--disable-reidentify', action='store_true', help='Disable identification if it has already happened for this file.')

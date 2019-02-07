@@ -366,7 +366,6 @@ def idcommand_edit(request, uuid=None):
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def idcommand_delete(request, uuid):
     command = get_object_or_404(fprmodels.IDCommand, uuid=uuid)
-    dependent_objects = utils.dependent_objects(command)
     breadcrumbs = [
         {'text': _('Identification commands'), 'link': reverse('idcommand_list')},
         {'text': command.description, 'link': reverse('idcommand_detail', args=[command.uuid])},
@@ -375,9 +374,6 @@ def idcommand_delete(request, uuid):
         if 'disable' in request.POST:
             command.enabled = False
             messages.info(request, _('Disabled.'))
-            for obj in dependent_objects:
-                obj['value'].enabled = False
-                obj['value'].save()
         if 'enable' in request.POST:
             command.enabled = True
             messages.info(request, _('Enabled.'))
@@ -385,7 +381,6 @@ def idcommand_delete(request, uuid):
         return redirect('idcommand_detail', command.uuid)
     return render(request, 'fpr/disable.html', context({
         'breadcrumbs': breadcrumbs,
-        'dependent_objects': dependent_objects,
         'form_url': reverse('idcommand_delete', args=[command.uuid]),
         'toggle_label': _('Enable/disable identification command'),
         'object': command,

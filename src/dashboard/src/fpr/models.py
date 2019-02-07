@@ -223,6 +223,19 @@ class IDCommand(VersionedModel, models.Model):
             'command': self.description,
         }
 
+    def save(self, *args, **kwargs):
+        """Override save() to ensure that only one command is enabled."""
+        if self.enabled:
+            try:
+                cmd = IDCommand.objects.get(enabled=True)
+            except IDCommand.DoesNotExist:
+                pass
+            else:
+                if cmd != self:
+                    cmd.enabled = False
+                    cmd.save()
+        super(IDCommand, self).save(*args, **kwargs)
+
 
 class IDRule(VersionedModel, models.Model):
     """ Mapping between an IDCommand output and a FormatVersion. """

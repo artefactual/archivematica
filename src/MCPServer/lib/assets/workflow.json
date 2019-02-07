@@ -1360,61 +1360,34 @@
                 "replacements": [
                     {
                         "description": {
-                            "en": "Identify using Siegfried",
-                            "es": "Identificar usando Siegfried",
-                            "fr": "Identifier en utilisant Siegfried",
-                            "pt_BR": "Identifique usando Siegfried",
-                            "sv": "Identifiera med hjälp av Sigfried"
+                            "en": "Yes",
+                            "es": "Sí",
+                            "fr": "Oui",
+                            "ja": "はい",
+                            "pt_BR": "Sim",
+                            "sv": "Ja"
                         },
-                        "id": "25a91595-37f0-4373-a89a-56a757353fb8",
+                        "id": "4dec164b-79b0-4459-8505-8095af9655b5",
                         "items": {
-                            "IDCommand": "75290b14-2931-455f-bdde-3b4b3f8b7f15"
+                            "IDCommand": "True"
                         }
                     },
                     {
                         "description": {
-                            "en": "Identify using Fido",
-                            "es": "Identificar usando FIDO",
-                            "fr": "Identifier en utilisant Fido",
-                            "pt_BR": "Identifique usando Fido",
-                            "sv": "Identifiera med hjälp av Fido"
-                        },
-                        "id": "6f9bfd67-f598-400a-aa2e-12b2657962fc",
-                        "items": {
-                            "IDCommand": "213d1589-c255-474f-81ac-f0a618181e40"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify by File Extension",
-                            "fr": "Identifier par extensions de fichier",
-                            "pt_BR": "Identificar por extensão de arquivo",
-                            "sv": "Identifiera efter filändelse"
-                        },
-                        "id": "724b17a2-668b-4ef6-9f3b-860d8dfcbb29",
-                        "items": {
-                            "IDCommand": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Skip File Identification",
-                            "fr": "Passer l'identification du fichier",
-                            "pt_BR": "Ignorar Identificação de Arquivo",
-                            "sv": "Hoppa över filidentifikation"
+                            "en": "No",
+                            "fr": "Non",
+                            "ja": "いいえ",
+                            "sv": "Nej"
                         },
                         "id": "782bbf56-e220-48b5-9eb6-6610583f2072",
                         "items": {
-                            "IDCommand": "None"
+                            "IDCommand": "False"
                         }
                     }
                 ]
             },
             "description": {
-                "en": "Select file format identification command",
-                "fr": "Sélectionner la commande d'identification de format de fichier",
-                "pt_BR": "Selecione o comando de identificação de formato de arquivo",
-                "sv": "Välj kommando för identifikation av filformat"
+                "en": "Do you want to perform file format identification?"
             },
             "exit_codes": {
                 "0": {
@@ -7171,61 +7144,32 @@
                 "replacements": [
                     {
                         "description": {
-                            "en": "Use existing data",
-                            "fr": "Utiliser des données existantes",
-                            "ja": "既存のデータを使用する",
-                            "pt_BR": "Use dados existentes",
-                            "sv": "Använd existerande data"
+                            "en": "Yes",
+                            "es": "Sí",
+                            "fr": "Oui",
+                            "ja": "はい",
+                            "pt_BR": "Sim",
+                            "sv": "Ja"
+                        },
+                        "id": "5b3c8268-5b33-4b70-b1aa-0e4540fe03d1",
+                        "items": {
+                            "IDCommand": "True"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "No, use existing data",
+                            "es": "No, usa los datos existentes"
                         },
                         "id": "3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b",
                         "items": {
-                            "IDCommand": "None"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify using Fido",
-                            "es": "Identificar usando FIDO",
-                            "fr": "Identifier en utilisant Fido",
-                            "pt_BR": "Identifique usando Fido",
-                            "sv": "Identifiera med hjälp av Fido"
-                        },
-                        "id": "56345ae4-08d1-42df-a2f9-9ba37689d9c3",
-                        "items": {
-                            "IDCommand": "213d1589-c255-474f-81ac-f0a618181e40"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify using Siegfried",
-                            "es": "Identificar usando Siegfried",
-                            "fr": "Identifier en utilisant Siegfried",
-                            "pt_BR": "Identifique usando Siegfried",
-                            "sv": "Identifiera med hjälp av Sigfried"
-                        },
-                        "id": "664cbde3-e658-4288-87db-bd28266d83f5",
-                        "items": {
-                            "IDCommand": "75290b14-2931-455f-bdde-3b4b3f8b7f15"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify by File Extension",
-                            "fr": "Identifier par extensions de fichier",
-                            "pt_BR": "Identificar por extensão de arquivo",
-                            "sv": "Identifiera efter filändelse"
-                        },
-                        "id": "93a4d4ee-d974-4d81-8fc7-af135f1836d3",
-                        "items": {
-                            "IDCommand": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+                            "IDCommand": "False"
                         }
                     }
                 ]
             },
             "description": {
-                "en": "Select pre-normalize file format identification command",
-                "pt_BR": "Selecione pré-normalizar o comando de identificação de formato de arquivo",
-                "sv": "Välj förnormaliserat filformatidentifierings-kommando"
+                "en": "Do yo want to perform file format identification?"
             },
             "exit_codes": {
                 "0": {
@@ -12416,61 +12360,34 @@
                 "replacements": [
                     {
                         "description": {
-                            "en": "Identify using Fido",
-                            "es": "Identificar usando FIDO",
-                            "fr": "Identifier en utilisant Fido",
-                            "pt_BR": "Identifique usando Fido",
-                            "sv": "Identifiera med hjälp av Fido"
+                            "en": "Yes",
+                            "es": "Sí",
+                            "fr": "Oui",
+                            "ja": "はい",
+                            "pt_BR": "Sim",
+                            "sv": "Ja"
                         },
-                        "id": "0db6372b-f507-4db0-9993-e745044a69f9",
+                        "id": "d97297c7-2b49-4cfe-8c9f-0613d63ed763",
                         "items": {
-                            "IDCommand": "213d1589-c255-474f-81ac-f0a618181e40"
+                            "IDCommand": "True"
                         }
                     },
                     {
                         "description": {
-                            "en": "Skip File Identification",
-                            "fr": "Passer l'identification du fichier",
-                            "pt_BR": "Ignorar Identificação de Arquivo",
-                            "sv": "Hoppa över filidentifikation"
+                            "en": "No",
+                            "fr": "Non",
+                            "ja": "いいえ",
+                            "sv": "Nej"
                         },
                         "id": "1f77af0a-2f7a-468f-af8c-653a9e61ca4f",
                         "items": {
-                            "IDCommand": "None"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify using Siegfried",
-                            "es": "Identificar usando Siegfried",
-                            "fr": "Identifier en utilisant Siegfried",
-                            "pt_BR": "Identifique usando Siegfried",
-                            "sv": "Identifiera med hjälp av Sigfried"
-                        },
-                        "id": "bed4eeb1-d654-4d97-b98d-40eb51d3d4bb",
-                        "items": {
-                            "IDCommand": "75290b14-2931-455f-bdde-3b4b3f8b7f15"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Identify by File Extension",
-                            "fr": "Identifier par extensions de fichier",
-                            "pt_BR": "Identificar por extensão de arquivo",
-                            "sv": "Identifiera efter filändelse"
-                        },
-                        "id": "e2dc96b2-eff5-432c-9e7c-66d7f02267da",
-                        "items": {
-                            "IDCommand": "41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"
+                            "IDCommand": "False"
                         }
                     }
                 ]
             },
             "description": {
-                "en": "Select file format identification command",
-                "fr": "Sélectionner la commande d'identification de format de fichier",
-                "pt_BR": "Selecione o comando de identificação de formato de arquivo",
-                "sv": "Välj kommando för identifikation av filformat"
+                "en": "Do you want to perform file format identification?"
             },
             "exit_codes": {
                 "0": {
