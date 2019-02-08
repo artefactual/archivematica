@@ -7169,7 +7169,7 @@
                 ]
             },
             "description": {
-                "en": "Do yo want to perform file format identification?"
+                "en": "Do you want to perform file format identification?"
             },
             "exit_codes": {
                 "0": {
