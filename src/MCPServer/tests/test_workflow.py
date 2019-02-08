@@ -44,6 +44,14 @@ def test_translation_label(mocker):
     assert tr.get_label(lang="yy") == workflow._UNKNOWN_TRANSLATION_LABEL
 
 
+def test_translation_label_with_prepared_codes(mocker):
+    mocker.patch("workflow._FALLBACK_LANG", "en")
+    tr = workflow.TranslationLabel({"en": "dog", "pt_BR": "cão"})
+    assert tr.get_label(lang="en") == "dog"
+    assert tr.get_label(lang="pt-br") == "cão"
+    assert tr.get_label(lang="pt_BR") == "cão"
+
+
 def test_translation_label_string(mocker):
     mocker.patch("workflow._FALLBACK_LANG", "en")
     tr = workflow.TranslationLabel("cat")

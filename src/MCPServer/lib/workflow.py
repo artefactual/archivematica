@@ -99,6 +99,12 @@ class TranslationLabel(object):
     def __getitem__(self, lang):
         return self.get_label(lang)
 
+    def _prepare_lang(self, lang):
+        parts = lang.partition('-')
+        if parts[1] == '-':
+            return "{}_{}".format(parts[0], parts[2].upper())
+        return lang
+
     def get_label(self, lang=_FALLBACK_LANG, fallback_label=None):
         """Get the translation of a message.
 
@@ -107,6 +113,7 @@ class TranslationLabel(object):
         available in the language given. As a last resort, it returns
         ``_UNKNOWN_TRANSLATION_LABEL``.
         """
+        lang = self._prepare_lang(lang)
         if lang in self._src:
             return self._src[lang]
         if fallback_label is not None:
