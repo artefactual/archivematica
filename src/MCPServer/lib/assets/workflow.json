@@ -4527,7 +4527,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"create\" \"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"logs/\" \"objects/\" \"METS.%SIPUUID%.xml\" \"README.html\" \"thumbnails/\" \"metadata/\" --writer \"filesystem\"",
+                "arguments": "\"create\" \"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"logs/\" \"objects/\" \"METS.%SIPUUID%.xml\" \"README.html\" \"thumbnails/\" \"metadata/\" --writer \"filesystem\" --sipUUID \"%SIPUUID%\"",
                 "execute": "bagit_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
