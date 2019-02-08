@@ -70,7 +70,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
-        fields = ('title', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')  # Removed 'is_part_of'
+        fields = ('title', 'is_part_of', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')
         widgets = DublinCoreMetadataForm.Meta.widgets.copy()
 
     def __init__(self, *args, **kwargs):
