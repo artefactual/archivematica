@@ -247,8 +247,8 @@ def _populate_duplicates_chain_choice(workflow, link, config):
         for link in workflow.get_links().values():
             if config["label"] != link.get_label("description"):
                 continue
-            for chain_id in link.config["chain_choices"]:
-                chain = workflow.get_chain(chain_id)
+            for cid in link.config["chain_choices"]:
+                chain = workflow.get_chain(cid)
                 if chain_desc != chain.get_label("description"):
                     continue
                 results.append((link.id, chain.id))
