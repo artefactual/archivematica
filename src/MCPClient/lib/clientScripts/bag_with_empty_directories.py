@@ -22,7 +22,9 @@
 
 import argparse
 import os
+import shutil
 import sys
+import tempfile
 
 import django
 django.setup()
@@ -83,7 +85,8 @@ def create_directories(base_dir, dir_list):
             pass
 
 
-def bag_with_empty_directories(job, operation, destination, sip_directory, payload_entries, writer, algorithm):
+def bag_with_empty_directories(job, operation, destination, sip_directory,
+                               payload_entries, writer, algorithm, sip_uuid):
     """ Run bagit create bag command, and create any empty directories from the SIP. """
     # Get list of directories in SIP
     dir_list = get_sip_directories(job, sip_directory)
@@ -102,9 +105,18 @@ def bag_with_empty_directories(job, operation, destination, sip_directory, paylo
     bagit_args.extend(payload_entries)
     bagit_args.extend(['--writer', writer, '--payloadmanifestalgorithm', algorithm])
 
+    tmp_dir = tempfile.mkdtemp()
+    baginfo_filename = os.path.join(tmp_dir, 'bag-info.txt')
+    with open(baginfo_filename, 'a') as baginfo_file:
+        baginfo_file.write('External-Identifier: %s\n' % sip_uuid)
+
+    bagit_args.extend(['--baginfotxt', baginfo_filename])
+
     # Run bagit bag creator
     run_bag(job, bagit_args)
     create_directories(os.path.join(destination, "data"), dir_list)
+
+    shutil.rmtree(tmp_dir)
 
 
 def call(jobs):
@@ -116,6 +128,7 @@ def call(jobs):
     parser.add_argument('payload_entries', metavar='Payload', nargs='+',
                         help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')
+    parser.add_argument('--sipUUID', dest='sip_uuid')
 
     algorithm = get_setting(
         'checksum_type', mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM)
@@ -124,6 +137,10 @@ def call(jobs):
         with job.JobContext():
             try:
                 args = parser.parse_args(job.args[1:])
-                bag_with_empty_directories(job, args.operation, args.destination, args.sip_directory, args.payload_entries, args.writer, algorithm)
+                bag_with_empty_directories(
+                    job, args.operation, args.destination,
+                    args.sip_directory, args.payload_entries, args.writer,
+                    algorithm, args.sip_uuid)
+
             except BagException:
                 pass
