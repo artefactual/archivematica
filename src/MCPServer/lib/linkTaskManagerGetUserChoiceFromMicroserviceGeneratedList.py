@@ -70,11 +70,14 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             if isinstance(item, ChoicesDict):
                 # For display, convert the ChoicesDict passVar into a list
                 # of tuples: (index, description, replacement dict string)
-                for description, value in item.items():
-                    description = TranslationLabel(description)
+                for _, value in item.items():
+                    description = TranslationLabel(value["description"])
                     self.choices.append(
-                        (index, description, str({key: value})))
+                        (index, description, str({key: value["uri"]})))
                     index += 1
+                # We don't need to maintain state, and we can't easily update
+                # or use the passVar list below in proceedWithChoice if we do.
+                self.jobChainLink.passVar.remove(item)
                 break
         else:
             errmsg = "ChoicesDict not found in passVar: {}".format(

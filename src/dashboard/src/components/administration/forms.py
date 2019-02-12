@@ -310,7 +310,10 @@ class ProcessingConfigurationForm(forms.Form):
                     _('Default location'))
                 )
                 for loc in get_storage_locations(purpose=field['purpose']):
-                    choices.append((loc['resource_uri'], loc['description']))
+                    label = loc['description']
+                    if not label:
+                        label = loc['relative_path']
+                    choices.append((loc['resource_uri'], label))
             self.fields[choice_uuid] = forms.ChoiceField(
                 widget=Select(attrs={'class': 'form-control'}), **opts)
 
