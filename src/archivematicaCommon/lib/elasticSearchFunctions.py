@@ -390,18 +390,15 @@ def index_aip_and_files(
     # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
     is_part_of = None
-    dublincore = root.find(
-        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore", namespaces=ns.NSMAP
-    )
+    dublincore = ns.xml_find_premis(root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore")
     if dublincore is not None:
-        aip_type = dublincore.findtext(
-            "dc:type", namespaces=ns.NSMAP
-        ) or dublincore.findtext("dcterms:type", namespaces=ns.NSMAP)
+        aip_type = (ns.xml_findtext_premis(dublincore, "dc:type") or
+                    ns.xml_findtext_premis(dublincore, "dcterms:type"))
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext(
-                "dc:identifier", namespaces=ns.NSMAP
-            ) or dublincore.findtext("dcterms:identifier", namespaces=ns.NSMAP)
-        is_part_of = dublincore.findtext("dcterms:isPartOf", namespaces=ns.NSMAP)
+            aic_identifier = (ns.xml_findtext_premis(dublincore, "dc:identifier") or
+                              ns.xml_findtext_premis(dublincore, "dcterms:identifier"))
+        is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
+
     # Convert METS XML to dict
     xml = ElementTree.tostring(root)
     mets_data = _rename_dict_keys_with_child_dicts(
@@ -411,7 +408,7 @@ def index_aip_and_files(
     # Pull the create time from the METS header.
     # Old METS did not use `metsHdr`.
     created = time.time()
-    mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
+    mets_hdr = ns.xml_find_premis(root, "mets:metsHdr")
     if mets_hdr:
         mets_created_attr = mets_hdr.get("CREATEDATE")
         if mets_created_attr:
@@ -471,21 +468,17 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
     _remove_tool_output_from_mets(tree)
 
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
-    dublincore = root.find(
-        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore", namespaces=ns.NSMAP
-    )
+    dublincore = ns.xml_find_premis(root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore")
     aic_identifier = None
     is_part_of = None
     if dublincore is not None:
-        aip_type = dublincore.findtext(
-            "dc:type", namespaces=ns.NSMAP
-        ) or dublincore.findtext("dcterms:type", namespaces=ns.NSMAP)
+        aip_type = (ns.xml_findtext_premis(dublincore, "dc:type") or
+                    ns.xml_findtext_premis(dublincore, "dcterms:type"))
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext(
-                "dc:identifier", namespaces=ns.NSMAP
-            ) or dublincore.findtext("dcterms:identifier", namespaces=ns.NSMAP)
+            aic_identifier = (ns.xml_findtext_premis(dublincore, "dc:identifier") or
+                              ns.xml_findtext_premis(dublincore, "dcterms:identifier"))
         elif aip_type == "Archival Information Package":
-            is_part_of = dublincore.findtext("dcterms:isPartOf", namespaces=ns.NSMAP)
+            is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
 
     # Establish structure to be indexed for each file item
     fileData = {
@@ -505,12 +498,8 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'
-    original_files = root.findall(
-        "mets:fileSec/mets:fileGrp[@USE='original']/mets:file", namespaces=ns.NSMAP
-    )
-    metadata_files = root.findall(
-        "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file", namespaces=ns.NSMAP
-    )
+    original_files = ns.xml_findall_premis(root, "mets:fileSec/mets:fileGrp[@USE='original']/mets:file")
+    metadata_files = ns.xml_findall_premis(root, "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file")
     files = original_files + metadata_files
 
     # Index AIC METS file if it exists
@@ -532,13 +521,8 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
             if len(set(uuids)) == 1:
                 fileUUID = uuids[0]
         else:
-            amdSecInfo = root.find(
-                "mets:amdSec[@ID='{}']".format(admID), namespaces=ns.NSMAP
-            )
-            fileUUID = amdSecInfo.findtext(
-                "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
-                namespaces=ns.NSMAP,
-            )
+            amdSecInfo = ns.xml_find_premis(root, "mets:amdSec[@ID='{}']".format(admID))
+            fileUUID = ns.xml_findtext_premis(amdSecInfo, "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue")
 
             # Index amdSec information
             xml = ElementTree.tostring(amdSecInfo)
@@ -548,24 +532,16 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
 
         # Get the parent division for the file pointer
         # by searching the physical structural map section (structMap)
-        file_id = file_.attrib.get("ID", None)
-        file_pointer_division = root.find(
-            "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
-                file_id
-            ),
-            namespaces=ns.NSMAP,
-        )
+        file_id = file_.attrib.get('ID', None)
+        file_pointer_division = ns.xml_find_premis(
+            root, "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(file_id))
         if file_pointer_division is not None:
             # If the parent division has a DMDID attribute then index
             # its data from the descriptive metadata section (dmdSec)
             dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
             if dmd_section_id is not None:
-                dmd_section_info = root.find(
-                    "mets:dmdSec[@ID='{}']/mets:mdWrap/mets:xmlData".format(
-                        dmd_section_id
-                    ),
-                    namespaces=ns.NSMAP,
-                )
+                dmd_section_info = ns.xml_find_premis(
+                    root, "mets:dmdSec[@ID='{}']/mets:mdWrap/mets:xmlData".format(dmd_section_id))
                 xml = ElementTree.tostring(dmd_section_info)
                 data = _rename_dict_keys_with_child_dicts(
                     _normalize_dict_values(xmltodict.parse(xml))
@@ -575,9 +551,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
         indexData["FILEUUID"] = fileUUID
 
         # Get file path from FLocat and extension
-        filePath = file_.find("mets:FLocat", namespaces=ns.NSMAP).attrib[
-            "{http://www.w3.org/1999/xlink}href"
-        ]
+        filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib["{http://www.w3.org/1999/xlink}href"]
         indexData["filePath"] = filePath
         _, fileExtension = os.path.splitext(filePath)
         if fileExtension:
@@ -776,10 +750,7 @@ def _remove_tool_output_from_mets(doc):
     root = doc.getroot()
 
     # Remove tool output nodes
-    toolNodes = root.findall(
-        "mets:amdSec/mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectCharacteristics/premis:objectCharacteristicsExtension",
-        namespaces=ns.NSMAP,
-    )
+    toolNodes = ns.xml_findall_premis(root, "mets:amdSec/mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectCharacteristics/premis:objectCharacteristicsExtension")
 
     for parent in toolNodes:
         parent.clear()
@@ -788,13 +759,8 @@ def _remove_tool_output_from_mets(doc):
 
 
 def _extract_transfer_metadata(doc):
-    return [
-        xmltodict.parse(ElementTree.tostring(el))["transfer_metadata"]
-        for el in doc.findall(
-            "mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/transfer_metadata",
-            namespaces=ns.NSMAP,
-        )
-    ]
+    return [xmltodict.parse(ElementTree.tostring(el))['transfer_metadata']
+            for el in ns.xml_findall_premis(doc, "mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/transfer_metadata")]
 
 
 def _rename_dict_keys_with_child_dicts(data):
