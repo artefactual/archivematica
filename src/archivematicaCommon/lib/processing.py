@@ -26,11 +26,6 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
       <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
     </preconfiguredChoice>
-    <!-- Perform file format identification (Transfer) -->
-    <preconfiguredChoice>
-      <appliesTo>f09847c2-ee51-429a-9478-a860477f6b8d</appliesTo>
-      <goToChain>d97297c7-2b49-4cfe-8c9f-0613d63ed763</goToChain>
-    </preconfiguredChoice>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
       <appliesTo>56eebd45-5600-4768-a8c2-ec0114555a3d</appliesTo>
@@ -59,7 +54,7 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
     <!-- Perform file format identification (Ingest) -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
-      <goToChain>5b3c8268-5b33-4b70-b1aa-0e4540fe03d1</goToChain>
+      <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
     </preconfiguredChoice>
     <!-- Perform policy checks on preservation derivatives -->
     <preconfiguredChoice>
