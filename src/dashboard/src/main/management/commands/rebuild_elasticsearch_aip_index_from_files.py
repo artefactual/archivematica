@@ -42,13 +42,7 @@ from lxml import etree
 from main.management.commands import DashboardCommand
 import storageService as storage_service
 import elasticSearchFunctions
-
-
-NSMAP = {
-    "dc": "http://purl.org/dc/terms/",
-    "m": "http://www.loc.gov/METS/",
-    "x": "http://www.w3.org/1999/xlink",
-}
+import namespaces as ns
 
 
 def extract_file(archive_path, destination_dir, relative_path):
@@ -78,10 +72,12 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
     # Find name of AIC METS file
     try:
         # aic_mets_filename includes metadata/
-        aic_mets_filename = mets_root.find(
-            "m:fileSec/m:fileGrp[@USE='metadata']/m:file/m:FLocat", namespaces=NSMAP
-        ).get("{" + NSMAP["x"] + "}href")
-        aip_dirname = mets_root.find("m:structMap/m:div", namespaces=NSMAP).get("LABEL")
+        aic_mets_filename = ns.xml_find_premis(
+            mets_root,
+            "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat").get(
+            '{' + ns.NSMAP['xlink'] + '}href')
+        aip_dirname = ns.xml_find_premis(
+            mets_root, "mets:structMap/mets:div").get('LABEL')
     except Exception:
         # Catch any parsing errors
         return None
@@ -95,9 +91,9 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
 
     # Parse for number of AIPs
     aic_root = etree.parse(aic_mets_path)
-    extent = aic_root.find(
-        "m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:extent", namespaces=NSMAP
-    )
+    extent = ns.xml_find_premis(
+        aic_root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent")
+
     try:
         aips_in_aic = re.search("\d+", extent.text).group()
     except AttributeError:
@@ -146,9 +142,8 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
     aips_in_aic = None
     root = etree.parse(path_to_mets)
     try:
-        aip_type = root.find(
-            "m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:type", namespaces=NSMAP
-        ).text
+        aip_type = ns.xml_find_premis(
+            root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:type").text
     except AttributeError:
         pass
     else:
