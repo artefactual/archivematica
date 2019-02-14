@@ -31,7 +31,7 @@ import os
 import re
 import sys
 import time
-from xml.etree import ElementTree
+from lxml import etree as ElementTree
 
 from django.db.models import Q
 from django.utils.six.moves import xrange

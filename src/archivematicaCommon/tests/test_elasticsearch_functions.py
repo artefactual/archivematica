@@ -97,8 +97,8 @@ class TestElasticSearchFunctions(unittest.TestCase):
         def get_dublincore_metadata(client, indexData, index, printfn):
             try:
                 dmd_section = indexData["METS"]["dmdSec"]
-                metadata_container = dmd_section["ns0:xmlData_dict_list"][0]
-                dc = metadata_container["ns1:dublincore_dict_list"][0]
+                metadata_container = dmd_section["mets:xmlData_dict_list"][0]
+                dc = metadata_container["dcterms:dublincore_dict_list"][0]
             except (KeyError, IndexError):
                 dc = None
             indexed_data[indexData["filePath"]] = dc
