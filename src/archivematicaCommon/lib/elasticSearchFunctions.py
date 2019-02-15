@@ -409,7 +409,7 @@ def index_aip_and_files(
     # Old METS did not use `metsHdr`.
     created = time.time()
     mets_hdr = ns.xml_find_premis(root, "mets:metsHdr")
-    if mets_hdr:
+    if mets_hdr is not None:
         mets_created_attr = mets_hdr.get("CREATEDATE")
         if mets_created_attr:
             try:
