@@ -29,7 +29,6 @@ from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
 from lazy_paged_sequence import LazyPagedSequence
 
-from main import models
 from components.archival_storage import forms
 from components.archival_storage.atom import (
     upload_dip_metadata_to_atom,
@@ -313,17 +312,15 @@ def aip_download(request, uuid):
 
 
 def aip_file_download(request, uuid):
-    # get file basename
-    file = models.File.objects.get(uuid=uuid)
-    file_basename = os.path.basename(file.currentlocation)
+    es_client = elasticSearchFunctions.get_client()
+
+    # get AIP file properties
+    aipfile = elasticSearchFunctions.get_aipfile_data(es_client, uuid, fields='filePath,FILEUUID,AIPUUID')
 
     # get file's AIP's properties
-    sipuuid = helpers.get_file_sip_uuid(uuid)
-    es_client = elasticSearchFunctions.get_client()
-    aip = elasticSearchFunctions.get_aip_data(
-        es_client, sipuuid, fields="uuid,name,filePath,size,origin,created"
-    )
-    aip_filepath = aip["_source"]["filePath"]
+    sipuuid = aipfile['_source']['AIPUUID']
+    aip = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
+    aip_filepath = aip['_source']['filePath']
 
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
@@ -334,15 +331,10 @@ def aip_file_download(request, uuid):
     else:
         subdir = os.path.splitext(aip_archive_filename)[0]
 
-    # Strip %Directory% from the path
-    path_to_file_within_aip_data_dir = os.path.dirname(
-        file.currentlocation.replace("%transferDirectory%", "").replace(
-            "%SIPDirectory%", ""
-        )
-    )
-
     file_relative_path = os.path.join(
-        subdir, "data", path_to_file_within_aip_data_dir, file_basename
+        subdir,
+        'data',
+        aipfile['_source']['filePath']
     )
 
     redirect_url = storage_service.extract_file_url(
@@ -362,7 +354,9 @@ def aip_pointer_file_download(request, uuid):
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
-    sipuuid = helpers.get_file_sip_uuid(fileuuid)
+    es_client = elasticSearchFunctions.get_client()
+    aipfile = elasticSearchFunctions.get_aipfile_data(es_client, fileuuid, fields='AIPUUID')
+    sipuuid = aipfile['_source']['AIPUUID']
 
     thumbnail_path = os.path.join(
         settings.SHARED_DIRECTORY, "www", "thumbnails", sipuuid, fileuuid + ".jpg"

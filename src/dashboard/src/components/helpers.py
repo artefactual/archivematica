@@ -141,11 +141,6 @@ def pager(objects, items_per_page, current_page_number):
     return page
 
 
-def get_file_sip_uuid(fileuuid):
-    file = models.File.objects.get(uuid=fileuuid)
-    return file.sip.uuid
-
-
 def task_duration_in_seconds(task):
     if task.endtime is not None:
         duration = int(format(task.endtime, "U")) - int(format(task.starttime, "U"))

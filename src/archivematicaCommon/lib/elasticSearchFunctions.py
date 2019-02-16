@@ -901,6 +901,22 @@ def get_aip_data(client, uuid, fields=None):
     return aips["hits"]["hits"][0]
 
 
+def get_aipfile_data(client, uuid, fields=None):
+    search_params = {
+        'body': {
+            'query': {'term': {'FILEUUID': uuid}}
+        },
+        'index': 'aipfiles'
+    }
+
+    if fields:
+        search_params['_source'] = fields
+
+    aipfiles = client.search(**search_params)
+
+    return aipfiles['hits']['hits'][0]
+
+
 def _document_ids_from_field_query(client, index, field, value):
     document_ids = []
 
