@@ -20,16 +20,16 @@ def concurrent_instances():
     return multiprocessing.cpu_count()
 
 
-def save_idtool(file_, value):
+def _save_id_preference(file_, value):
     """
-    Saves the chosen ID tool's UUID in a unit variable, which allows it to be
-    refetched by a later chain.
+    Saves whether file format identification is being used.
 
     This is necessary in order to allow post-extraction identification to work.
     The replacement dict will be saved to the special 'replacementDict' unit
     variable, which will be transformed back into a passVar when a new chain in
     the same unit is begun.
     """
+    value = str(value)
 
     # The unit_uuid foreign key can point to a transfer or SIP, and this tool
     # runs in both.
@@ -126,8 +126,9 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
         job.print_output('This file has already been identified, and re-identification is disabled. Skipping.')
         return 0
 
-    # Save the selected ID command for use in a later chain
-    save_idtool(file_, command_uuid)
+    # Save whether identification was enabled by the user for use in a later
+    # chain.
+    _save_id_preference(file_, enabled)
 
     exitcode, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False,
                                        capture_output=True)
