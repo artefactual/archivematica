@@ -2588,7 +2588,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPUUID%'' ''%SIPDirectory%metadata/rights.csv",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/rights.csv\"",
                 "execute": "rightsFromCSV_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -3874,7 +3874,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%processingDirectory%\"  %sharedPath%",
+                "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%processingDirectory%\" \"%sharedPath%\"",
                 "execute": "extractBagTransfer_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -3943,7 +3943,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPUUID% %SIPDirectory%",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
                 "execute": "parseMETStoDB_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -4527,7 +4527,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "create \"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"logs/\" \"objects/\" \"METS.%SIPUUID%.xml\" \"README.html\" \"thumbnails/\" \"metadata/\" --writer filesystem",
+                "arguments": "\"create\" \"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"logs/\" \"objects/\" \"METS.%SIPUUID%.xml\" \"README.html\" \"thumbnails/\" \"metadata/\" --writer \"filesystem\"",
                 "execute": "bagit_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -5776,7 +5776,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "access \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"service\"",
+                "arguments": "\"access\" \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"service\"",
                 "execute": "normalize_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -6358,7 +6358,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "--url=\"%url%\"  --email=\"%email%\" --password=\"%password%\" --uuid=\"%SIPUUID%\" --debug=\"%debug%\" --version=\"%version%\" --rsync-command=\"%rsync_command%\" --rsync-target=\"%rsync_target%\"",
+                "arguments": "--url=\"%url%\" --email=\"%email%\" --password=\"%password%\" --uuid=\"%SIPUUID%\" --debug=\"%debug%\" --version=\"%version%\" --rsync-command=\"%rsync_command%\" --rsync-target=\"%rsync_target%\"",
                 "execute": "upload-qubit_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -6469,7 +6469,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPUUID% \"%SIPDirectory%\"",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
                 "execute": "parseExternalMETS",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -8655,7 +8655,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPDirectory%",
+                "arguments": "\"%SIPDirectory%\"",
                 "execute": "convertDataverseStructure_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -9812,7 +9812,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPUUID%",
+                "arguments": "\"%SIPUUID%\"",
                 "execute": "hasPackages_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -10060,7 +10060,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPUUID%",
+                "arguments": "\"%SIPUUID%\"",
                 "execute": "hasPackages_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -11080,7 +11080,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%AIPCompressionAlgorithm% %AIPCompressionLevel% %SIPDirectory% %SIPName% %SIPUUID%",
+                "arguments": "\"%AIPCompressionAlgorithm%\" \"%AIPCompressionLevel%\" \"%SIPDirectory%\" \"%SIPName%\" \"%SIPUUID%\"",
                 "execute": "compressAIP_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -12250,7 +12250,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "access \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
+                "arguments": "\"access\" \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
                 "execute": "normalize_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -13101,7 +13101,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "%SIPDirectory% %SIPUUID%",
+                "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
                 "execute": "parseDataverse_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
