@@ -26,7 +26,7 @@ function repeatingDocumentationIdentifierRecordsSchema(dataType) {
   };
 
   schema[dataType + 'documentationidentifiervalue'] = {
-    'label': gettext('Vype'),
+    'label': gettext('Value'),
     'type': 'input'
   };
 
@@ -260,7 +260,7 @@ function appendRevealButton($list, dataType) {
     $list.last().hide();
 
     // make toggle button
-    var message = interpolate(gettext('Create new %(type)?'), [dataType]);
+    var message = interpolate(gettext('Create new %s?'), [dataType]);
     var $toggleButton = $('<h3 class="btn btn-default" style="float:right">' + message + '</h3>');
 
     $toggleButton.click(function() {
