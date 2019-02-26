@@ -14,7 +14,7 @@
   "osdeps_repos": [
     { "name": "archivematica-extras",
       "description": "archivematica extras",
-      "baseurl": "https://packages.archivematica.org/1.8.x/centos-extras",
+      "baseurl": "https://packages.archivematica.org/1.9.x/centos-extras",
       "gpgcheck": "no",
       "enabled": "yes"
     }
