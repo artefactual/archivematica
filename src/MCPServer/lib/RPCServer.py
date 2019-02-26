@@ -241,6 +241,7 @@ class RPCServer(GearmanWorker):
             payload.get("access_system_id"),
             payload.get("path"),
             payload.get("metadata_set_id"),
+            payload.get("user_id"),
             self.workflow,
         )
         kwargs = {
