@@ -253,7 +253,7 @@ class Event(models.Model):
 
     def __unicode__(self):
         return six.text_type(_('%(type)s event on %(file_uuid)s (%(detail)s)') % {
-            'type': self.even_type,
+            'type': self.event_type,
             'file_uuid': self.file_uuid,
             'detail': self.event_detail
         })
