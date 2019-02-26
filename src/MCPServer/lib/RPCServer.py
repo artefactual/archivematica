@@ -366,8 +366,11 @@ class RPCServer(GearmanWorker):
             jobs = Job.objects.filter(sipuuid=unit_id).order_by("-createdtime")
             if jobs:
                 item["directory"] = jobs[0].get_directory_name()
-            # Embed accession ID in status data (for DRMC customization)
-            if isinstance(model, Transfer):
+            # Embed "Access System ID" in status data (used in Upload DIP).
+            # `access_system_id` is a property of the Transfer model - the
+            # only way we have at the moment to look up the Transfer is by
+            # using the files in common.
+            if model is SIP:
                 try:
                     trfs = Transfer.objects.filter(
                         file__sip_id=item["uuid"]).distinct()
