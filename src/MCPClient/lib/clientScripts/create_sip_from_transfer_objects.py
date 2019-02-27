@@ -28,7 +28,7 @@ import django
 django.setup()
 from django.db import transaction
 # dashboard
-from main.models import File, Directory, SIP, Transfer
+from main.models import File, Directory, SIP, Transfer, UnitVariable, Agent
 
 # archivematicaCommon
 import archivematicaFunctions
@@ -84,6 +84,24 @@ def call(jobs):
                     sip_uuid = databaseFunctions.createSIP(
                         lookup_path, UUID=sip_uuid, sip_type=sip_type, diruuids=diruuids, printfn=job.pyprint)
                     sip = SIP.objects.get(uuid=sip_uuid)
+
+                # Set activeAgent using the value in Transfer. This ensures
+                # that events generated in Ingest can fall to this value in
+                # scenarios where the processing config does not require user
+                # interfactions, e.g. in the "automated" processing config.
+                try:
+                    unit_variable = UnitVariable.objects.get(
+                        unittype="Transfer", unituuid=transferUUID,
+                        variable="activeAgent")
+                except UnitVariable.DoesNotExist:
+                    unit_variable = None
+                if unit_variable:
+                    try:
+                        agent = Agent.objects.get(id=unit_variable.variablevalue)
+                    except Agent.DoesNotExist:
+                        pass
+                    else:
+                        sip.update_active_agent(agent.userprofile.user_id)
 
                 # Move the objects to the SIPDir
                 for item in os.listdir(objectsDirectory):

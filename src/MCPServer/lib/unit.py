@@ -77,6 +77,8 @@ class unit:
         upsert `UnitVariable` rows for this unit. This is triggered by
         execution of a workflow chain link of type
         'linkTaskManagerSetUnitVariable'.
+
+        TODO: use Transfer/SIP model methods.
         """
         if not variableValue:
             variableValue = ""

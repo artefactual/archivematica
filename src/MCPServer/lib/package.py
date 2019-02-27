@@ -25,13 +25,12 @@ from tempfile import mkdtemp
 from uuid import uuid4
 
 from django.conf import settings as django_settings
-from django.utils import six
 
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
 from executor import Executor
 from jobChain import jobChain
-from main.models import Transfer, TransferMetadataSet, UnitVariable
+from main.models import Transfer, TransferMetadataSet
 import storageService as storage_service
 from unitTransfer import unitTransfer
 
@@ -293,10 +292,8 @@ def create_package(name, type_, accession, access_system_id, path,
         except TransferMetadataSet.DoesNotExist:
             pass
     transfer = Transfer.objects.create(**kwargs)
+    transfer.update_active_agent(user_id)
     logger.debug('Transfer object created: %s', transfer.pk)
-    UnitVariable.objects.create(
-        unittype="Transfer", unituuid=transfer.uuid,
-        variable="activeAgent", variablevalue=six.text_type(user_id))
 
     @auto_close_db
     def _start(transfer, name, type_, path):
