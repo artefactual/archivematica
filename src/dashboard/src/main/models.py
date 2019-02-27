@@ -316,6 +316,9 @@ class SIP(models.Model):
     def __unicode__(self):
         return six.text_type(_('SIP: {path}') % {'path': self.currentpath})
 
+    def update_active_agent(self, user_id):
+        UnitVariable.objects.update_active_agent("SIP", self.uuid, user_id)
+
 
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
@@ -344,6 +347,10 @@ class Transfer(models.Model):
 
     class Meta:
         db_table = u'Transfers'
+
+    def update_active_agent(self, user_id):
+        UnitVariable.objects.update_active_agent(
+            "Transfer", self.uuid, user_id)
 
 
 class SIPArrange(models.Model):
@@ -871,6 +878,27 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         verbose_name = _('Rights: Agent')
 
 
+class UnitVariableManager(models.Manager):
+
+    def update_variable(self, unit_type, unit_uuid,
+                        variable, value, link_id=None):
+        """Persist unit variable."""
+        defaults = {
+            "variablevalue": value,
+            "microservicechainlink": link_id,
+        }
+        return self.get_queryset().update_or_create(
+            unittype=unit_type, unituuid=unit_uuid,
+            variable=variable, defaults=defaults)
+
+    def update_active_agent(self, unit_type, unit_id, user_id):
+        """Persist active agent given the user ID."""
+        agent_id = User.objects.select_related(
+            'userprofile').get(id=user_id).userprofile.agent_id
+        return self.update_variable(
+            unit_type, unit_id, "activeAgent", agent_id)
+
+
 class UnitVariable(models.Model):
     id = UUIDPkField()
     unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
@@ -880,6 +908,8 @@ class UnitVariable(models.Model):
     microservicechainlink = UUIDField(auto=False, null=True, blank=True, db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+
+    objects = UnitVariableManager()
 
     class Meta:
         db_table = u'UnitVariables'
