@@ -3,7 +3,7 @@ import angular from 'angular';
 angular.module('previewController', ['route-segment', 'selectedFilesService']).
 
 // Used to populate the preview pane, which displays:
-// * the file in an iframe;
+// * the file in an img element;
 // * the filename;
 // * a download link
 //

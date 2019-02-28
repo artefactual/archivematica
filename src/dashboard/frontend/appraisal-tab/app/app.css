@@ -66,12 +66,7 @@ fieldset {
   margin: 5px;
 }
 
-.preview-frame {
-  resize: both;
-  overflow: auto;
-}
-
-.preview-frame > iframe {
+.preview-frame > img {
   width: 100%;
   height: 100%;
 }
