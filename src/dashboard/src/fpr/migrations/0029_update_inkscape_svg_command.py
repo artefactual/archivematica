@@ -60,11 +60,14 @@ def data_migration_down(apps, schema_editor):
     FPCommand = apps.get_model('fpr', 'FPCommand')
     FPRule = apps.get_model('fpr', 'FPRule')
 
-    FPCommand.objects.filter(uuid=NEW_INKSCAPE_CMD_UUID).delete()
-
+    # The order matters. We make sure that the rules point to the previous
+    # command before the latter is deleted. Otherwise our rules would be
+    # deleted by Django's on cascade mechanism.
     FPRule.objects \
         .filter(uuid__in=INKSCAPE_SVG_RULES) \
         .update(command_id=OLD_INKSCAPE_CMD_UUID)
+
+    FPCommand.objects.filter(uuid=NEW_INKSCAPE_CMD_UUID).delete()
 
 
 class Migration(migrations.Migration):
