@@ -84,6 +84,7 @@ verifyandrestructuretransferbag_v0.0 = verify_and_restructure_transfer_bag
 verifysipcompliance_v0.0 = verify_sip_compliance
 verifytransfercompliance_v0.0 = verify_transfer_compliance
 createmets_v0.0 = create_mets_v0
+createtransfermets_v1.0 = create_transfer_mets
 createmets_v2.0 = create_mets_v2
 characterizefile_v0.0 = characterize_file
 copytransfersubmissiondocumentation_v0.0 = copy_transfer_submission_documentation
