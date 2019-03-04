@@ -38,7 +38,7 @@ from django.db import close_old_connections, connection
 from django.utils.six.moves import configparser
 from django.utils.six import StringIO
 from gearman import GearmanWorker
-from gearman.errors import ServerUnavailable
+import gearman
 from lxml import etree
 
 from linkTaskManagerChoice import (
@@ -476,13 +476,15 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
 
 def start(workflow):
     worker = RPCServer(workflow)
-    failMaxSleep = 30
-    failSleep = 1
-    failSleepIncrementor = 2
+    fail_max_sleep = 30
+    fail_sleep = 1
+    fail_sleep_incrementor = 2
     while True:
         try:
             worker.work()
-        except ServerUnavailable:
-            time.sleep(failSleep)
-            if failSleep < failMaxSleep:
-                failSleep += failSleepIncrementor
+        except gearman.errors.ServerUnavailable as inst:
+            logger.error('Gearman server is unavailable: %s. Retrying in %d'
+                         ' seconds.', inst.args, fail_sleep)
+            time.sleep(fail_sleep)
+            if fail_sleep < fail_max_sleep:
+                fail_sleep += fail_sleep_incrementor
