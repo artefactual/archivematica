@@ -1,3 +1,5 @@
+'use strict';
+
 import '../../app/services/source_locations.service';
 
 describe('SourceLocations', () => {

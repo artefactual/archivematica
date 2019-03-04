@@ -1,3 +1,5 @@
+'use strict';
+
 import '../../app/services/browse.service';
 
 describe('Browse', () => {
