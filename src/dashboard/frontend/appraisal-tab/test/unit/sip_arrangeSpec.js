@@ -1,6 +1,7 @@
 'use strict';
 
 import '../../app/services/sip_arrange.service.js';
+import '../../app/vendor/angular-tree-control/demo/jquery.2.0.3.js';
 
 describe('SipArrange', function() {
   beforeEach(angular.mock.module('sipArrangeService'));
@@ -57,9 +58,11 @@ describe('SipArrange', function() {
     var parent = {title: '/a/parent/node'};
     SipArrange.list_contents('/arrange/child/', parent).then(function(entries) {
       expect(entries.length).toEqual(2);
-      expect(entries[0].has_children).toBe(false);
-      expect(entries[0].title).toEqual('file');
-      expect(entries[1].has_children).toBe(true);
+      // directories are listed before files
+      // https://github.com/artefactual-labs/archivematica-browse-helpers/pull/2
+      expect(entries[0].has_children).toBe(true);
+      expect(entries[1].has_children).toBe(false);
+      expect(entries[1].title).toEqual('file');
     });
     _$httpBackend_.flush();
   }));

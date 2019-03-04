@@ -4,18 +4,29 @@ module.exports = function(config){
     basePath : '../',
 
     files : [
-      'test/tests.webpack.js',
-      'app/vendor/base64.js',
+      'test/tests.webpack.js'
     ],
 
     autoWatch : true,
 
     frameworks: ['jasmine'],
 
-    browsers : ['Chrome'],
+    browsers : ['ChromeHeadless', 'FirefoxHeadless'],
+
+    customLaunchers: {
+        ChromeHeadless: {
+            base: 'Chrome',
+            flags: ['--no-sandbox', '--headless', '--disable-gpu', '--remote-debugging-port=9222']
+        },
+        FirefoxHeadless: {
+            base: 'Firefox',
+            flags: ['--headless']
+        }
+    },
 
     plugins : [
             'karma-chrome-launcher',
+            'karma-firefox-launcher',
             'karma-jasmine',
             'karma-webpack',
             ],
