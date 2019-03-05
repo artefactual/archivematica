@@ -30,8 +30,6 @@ django.setup()
 from django.db import transaction
 from main.models import Transfer, SIP
 
-from verify_bag import verify_bag
-
 # archivematicaCommon
 from archivematicaFunctions import (
     create_structured_directory,
@@ -41,6 +39,8 @@ from archivematicaFunctions import (
 )
 
 from custom_handlers import get_script_logger
+import bag
+
 
 logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 
@@ -161,10 +161,9 @@ def call(jobs):
 
                     if transfer and transfer.type == "Archivematica AIP":
                         logger.info("Archivematica AIP detected, verifying bag...")
-                        exit_code = verify_bag(job, sip_path)
-                        if exit_code > 0:
+                        if not bag.is_valid(sip_path, job.pyprint):
                             logger.info("Archivematica AIP: bag verification failed!")
-                            job.set_status(exit_code)
+                            job.set_status(1)
                             continue
                         logger.info(
                             "Restructuring transfer (Archivematica AIP re-ingest)..."

@@ -32,7 +32,6 @@ RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		atool \
-		bagit \
 		bulk-extractor \
 		clamav \
 		ffmpeg \

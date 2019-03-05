@@ -4,7 +4,7 @@
     "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file",
     "consider to put clamav related pkgs separately (install with a different playbook, like ES or the mysql server)",
     "epel-release nux-dextop-release cert-forensic-tools on top of package list because they enable repos to be able to install other packages",
-    "archivematica-extras: siegfried fits bagit-java atool jhove",
+    "archivematica-extras: siegfried fits atool jhove",
     "nux-dextop-release: ffmpeg ufraw",
     "cert-forensic-tools: bulk_extractor sleuthkit libewf",
     "fido is not required here anymore, it is installed with pip (opf-fido)"
@@ -28,7 +28,6 @@
   ],
   "osdeps_packages_3": [
   { "name": "atool", "state": "latest"},
-  { "name": "bagit-java", "state": "latest"},
   { "name": "bulk_extractor", "state": "latest"},
   { "name": "ffmpeg", "state": "latest"},
   { "name": "fits", "state": "latest"},

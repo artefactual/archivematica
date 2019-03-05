@@ -21,10 +21,9 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import argparse
+import multiprocessing
 import os
 import shutil
-import sys
-import tempfile
 
 import django
 
@@ -33,32 +32,8 @@ from django.conf import settings as mcpclient_settings
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
-from executeOrRunSubProcess import executeOrRun
 
-
-class BagException(Exception):
-    pass
-
-
-def run_bag(job, arguments):
-    """ Run Bagit's create bag command. """
-    command = "/usr/share/bagit/bin/bag"
-    job.pyprint("Command to run:", command, "Arguments: ", arguments)
-    exit_code, std_out, std_err = executeOrRun(
-        "command", [command], arguments=arguments, printing=False, capture_output=True
-    )
-    if exit_code != 0:
-        job.pyprint("Error with command: ", command, file=sys.stderr)
-        job.pyprint("Standard OUT:", file=sys.stderr)
-        job.pyprint(std_out, file=sys.stderr)
-        job.pyprint("Standard Error:", file=sys.stderr)
-        job.pyprint(std_err, file=sys.stderr)
-
-        job.set_status(exit_code)
-        raise BagException()
-    else:
-        job.pyprint(std_out)
-        job.pyprint(std_err, file=sys.stderr)
+from bagit import make_bag
 
 
 def get_sip_directories(job, sip_dir):
@@ -87,62 +62,45 @@ def create_directories(base_dir, dir_list):
             pass
 
 
-def bag_with_empty_directories(
-    job,
-    operation,
-    destination,
-    sip_directory,
-    payload_entries,
-    writer,
-    algorithm,
-    sip_uuid,
-):
-    """ Run bagit create bag command, and create any empty directories from the SIP. """
+_PAYLOAD_ENTRIES = (
+    "logs/",
+    "objects/",
+    "METS.%SIPUUID%.xml",
+    "README.html",
+    "thumbnails/",
+    "metadata/",
+)
+
+
+def bag_with_empty_directories(job, destination, sip_directory, sip_uuid, algorithm):
+    """Create BagIt and include any empty directories from the SIP."""
     # Get list of directories in SIP
     dir_list = get_sip_directories(job, sip_directory)
-
     # These are passed to this script as paths relative to their location in
     # the SIP; passing the full SIP location each time has the potential to
     # overflow the 1000-character limit the job's command has in the database,
     # especially with long SIP names.
-    full_paths = [os.path.join(sip_directory, p) for p in payload_entries]
+    full_paths = [os.path.join(sip_directory, p) for p in _PAYLOAD_ENTRIES]
     # Ensure all payload items actually exist
     payload_entries = [e for e in full_paths if os.path.exists(e)]
-
-    # Reconstruct bagit arguments
-    # Goal: bagit <operation> <destination> <flattened payload list> <optional args>
-    bagit_args = [operation, destination]
-    bagit_args.extend(payload_entries)
-    bagit_args.extend(["--writer", writer, "--payloadmanifestalgorithm", algorithm])
-
-    tmp_dir = tempfile.mkdtemp()
-    baginfo_filename = os.path.join(tmp_dir, "bag-info.txt")
-    with open(baginfo_filename, "a") as baginfo_file:
-        baginfo_file.write("External-Identifier: %s\n" % sip_uuid)
-
-    bagit_args.extend(["--baginfotxt", baginfo_filename])
-
-    # Run bagit bag creator
-    run_bag(job, bagit_args)
+    os.mkdir(destination)
+    for item in payload_entries:
+        shutil.move(item, destination)
+    make_bag(
+        destination,
+        processes=multiprocessing.cpu_count(),
+        bag_info={"External-Identifier": sip_uuid},
+        checksums=[algorithm],
+    )
     create_directories(os.path.join(destination, "data"), dir_list)
-
-    shutil.rmtree(tmp_dir)
 
 
 def call(jobs):
     # Parse arguments
     parser = argparse.ArgumentParser(description="Convert folder into a bag.")
-    parser.add_argument("operation")
     parser.add_argument("destination")
     parser.add_argument("sip_directory")
-    parser.add_argument(
-        "payload_entries",
-        metavar="Payload",
-        nargs="+",
-        help="All the files/folders that should go in the bag.",
-    )
-    parser.add_argument("--writer", dest="writer")
-    parser.add_argument("--sipUUID", dest="sip_uuid")
+    parser.add_argument("sip_uuid")
 
     algorithm = get_setting(
         "checksum_type", mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM
@@ -150,18 +108,7 @@ def call(jobs):
 
     for job in jobs:
         with job.JobContext():
-            try:
-                args = parser.parse_args(job.args[1:])
-                bag_with_empty_directories(
-                    job,
-                    args.operation,
-                    args.destination,
-                    args.sip_directory,
-                    args.payload_entries,
-                    args.writer,
-                    algorithm,
-                    args.sip_uuid,
-                )
-
-            except BagException:
-                pass
+            args = parser.parse_args(job.args[1:])
+            bag_with_empty_directories(
+                job, args.destination, args.sip_directory, args.sip_uuid, algorithm
+            )

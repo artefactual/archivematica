@@ -32,10 +32,9 @@ from main.models import File
 
 # archivematicaCommon
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+import bag
 import fileOperations
 from databaseFunctions import insertIntoEvents
-
-from verify_bag import verify_bag
 
 
 def restructureBagForComplianceFileUUIDsAssigned(
@@ -145,12 +144,11 @@ def call(jobs):
             with job.JobContext():
                 target = job.args[1]
                 transferUUID = job.args[2]
-                exitCode = verify_bag(job, target)
-                if exitCode != 0:
+                if not bag.is_valid(target, printfn=job.pyprint):
                     job.pyprint(
                         "Failed bagit compliance. Not restructuring.", file=sys.stderr
                     )
-                    job.set_status(exitCode)
+                    job.set_status(1)
                 else:
                     try:
                         restructureBagForComplianceFileUUIDsAssigned(
@@ -172,5 +170,3 @@ def call(jobs):
                             eventDetail="Bagit - verifypayloadmanifests",
                             eventOutcome="Pass",
                         )
-
-                    job.set_status(exitCode)
