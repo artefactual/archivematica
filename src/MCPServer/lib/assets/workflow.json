@@ -421,7 +421,7 @@
                 "pt_BR": "Enviar para o backlog",
                 "sv": "Skicka till backlogg"
             },
-            "link_id": "d46f6af8-bc4e-4369-a808-c0fedb439fef"
+            "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
         },
         "76befd52-14c3-44f9-838f-15a4e01624b0": {
             "description": {
@@ -5571,41 +5571,6 @@
                 "sv": "Karantän"
             }
         },
-        "561bbb52-d95c-4004-b0d3-739c0a65f406": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"placement in backlog\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create placement in backlog PREMIS events",
-                "es": "Crear eventos PREMIS de localización en cola",
-                "pt_BR": "Crie a localização em eventos PREMIS de backlog",
-                "sv": "Skapa placering i backloggens PREMIS händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
-            }
-        },
         "56da7758-913a-4cd2-a815-be140ed09357": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -9078,7 +9043,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\" \"%jobCreatedDate%\"",
                 "execute": "moveToBacklog_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -9095,7 +9060,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "561bbb52-d95c-4004-b0d3-739c0a65f406"
+                    "link_id": null
                 }
             },
             "fallback_job_status": "Failed",
@@ -11038,42 +11003,6 @@
                 "fr": "Renommer avec l'UUID du transfert",
                 "pt_BR": "Renomear com transferência UUID",
                 "sv": "Byt namn med överförings UUID"
-            }
-        },
-        "d46f6af8-bc4e-4369-a808-c0fedb439fef": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"backlog\"",
-                "execute": "elasticSearchIndex_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Index transfer contents",
-                "es": "Indexar los contenidos de la transferencia",
-                "fr": "Indexer le contenu des transferts",
-                "pt_BR": "Conteúdos de transferência de índice",
-                "sv": "Indexera överföringsinnehåll"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "d55b42c8-c7c5-4a40-b626-d248d2bd883f": {

@@ -607,14 +607,13 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
     return len(files)
 
 
-def index_transfer_and_files(client, uuid, path, status="", printfn=print):
+def index_transfer_and_files(client, uuid, path, printfn=print):
     """Indexes Transfer and Transfer files with UUID `uuid` at path `path`.
 
     :param client: The ElasticSearch client.
     :param uuid: The UUID of the transfer we're indexing.
     :param path: path on disk, including the transfer directory and a
                  trailing / but not including objects/.
-    :param status: optional Transfer status.
     :param printfn: optional print funtion.
     :return: 0 is succeded, 1 otherwise.
     """
@@ -624,6 +623,9 @@ def index_transfer_and_files(client, uuid, path, status="", printfn=print):
         logger.error(error_message)
         printfn(error_message, file=sys.stderr)
         return 1
+
+    # Default status of a transfer file document in the index.
+    status = "backlog"
 
     printfn("Transfer UUID: " + uuid)
     printfn("Indexing Transfer files ...")
@@ -687,26 +689,28 @@ def _index_transfer_files(client, uuid, path, status="", printfn=print):
 
     for filepath in _list_files_in_dir(path):
         if os.path.isfile(filepath):
-            # Get file UUID
-            file_uuid = ""
-            modification_date = ""
-            relative_path = filepath.replace(path, "%transferDirectory%")
+            # We need to account for the possibility of dealing with a BagIt
+            # transfer package - the new default in Archivematica.
+            # The BagIt is created when the package is sent to backlog hence
+            # the locations in the database do not reflect the BagIt paths.
+            # Strip the "data/" part when looking up the file entry.
+            currentlocation = "%transferDirectory%" + os.path.relpath(
+                filepath, path
+            ).lstrip("data/")
             try:
-                f = File.objects.get(currentlocation=relative_path, transfer_id=uuid)
+                f = File.objects.get(currentlocation=currentlocation, transfer_id=uuid)
                 file_uuid = f.uuid
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(path, file_uuid)
                 if f.modificationtime is not None:
                     modification_date = f.modificationtime.strftime("%Y-%m-%d")
             except File.DoesNotExist:
-                file_uuid = ""
+                file_uuid, modification_date = "", ""
                 formats = []
                 bulk_extractor_reports = []
 
             # Get file path info
-            relative_path = relative_path.replace(
-                "%transferDirectory%", transfer_name + "/"
-            )
+            relative_path = filepath.replace(path, transfer_name + "/")
             file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
             # Size in megabytes

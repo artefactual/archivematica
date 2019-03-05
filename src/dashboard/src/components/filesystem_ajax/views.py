@@ -39,6 +39,8 @@ import archivematicaFunctions
 import databaseFunctions
 import storageService as storage_service
 
+from bagit import Bag, BagError
+
 # for unciode sorting support
 import locale
 
@@ -274,10 +276,10 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
             filepath = os.path.join(temp_dir, target)
 
         transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, "", 1)
-        copy_from_transfer_sources([path], transfer_relative)
+        _copy_from_transfer_sources([path], transfer_relative)
         filepath = archivematicaFunctions.unicodeToStr(filepath)
         try:
-            destination = copy_to_start_transfer(
+            destination = _copy_to_start_transfer(
                 filepath=filepath,
                 type=transfer_type,
                 accession=accession,
@@ -292,7 +294,7 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
     return {"message": _("Copy successful."), "path": destination}
 
 
-def copy_to_start_transfer(
+def _copy_to_start_transfer(
     filepath="", type="", accession="", access_id="", transfer_metadata_set_row_uuid=""
 ):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
@@ -368,7 +370,7 @@ def _source_transfers_gave_uuids_to_directories(files):
     ).exists()
 
 
-def create_arranged_sip(staging_sip_path, files, sip_uuid):
+def _create_arranged_sip(staging_sip_path, files, sip_uuid):
     shared_dir = django_settings.SHARED_DIRECTORY
     staging_sip_path = staging_sip_path.lstrip("/")
     staging_abs_path = os.path.join(shared_dir, staging_sip_path)
@@ -457,14 +459,14 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
         f.writelines(log)
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
-    logger.info("create_arranged_sip: move from %s to %s", staging_abs_path, sip_path)
+    logger.info("_create_arranged_sip: move from %s to %s", staging_abs_path, sip_path)
     shutil.move(src=staging_abs_path, dst=sip_path)
 
 
 def copy_from_arrange_to_completed(
     request, filepath=None, sip_uuid=None, sip_name=None
 ):
-    """ Create a SIP from the information stored in the SIPArrange table.
+    """Create a SIP from the information stored in the SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
     move to the processing space.  Create needed database entries for the SIP
@@ -477,13 +479,13 @@ def copy_from_arrange_to_completed(
     if sip_uuid is None:
         sip_uuid = request.POST.get("uuid")
 
-    status_code, response = copy_from_arrange_to_completed_common(
+    status_code, response = _copy_from_arrange_to_completed_common(
         filepath, sip_uuid, sip_name
     )
     return helpers.json_response(response, status_code=status_code)
 
 
-def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
+def _copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
     """Create a SIP from SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
@@ -530,6 +532,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
 
         # Collect file and directory information. Change path to be in staging, not arrange
         files = []
+        bagit_transfers = {}  # To check bags only once.
         for arranged_file in arrange_files:
             destination = arranged_file.arrange_path.replace(
                 filepath, staging_sip_path, 1
@@ -545,12 +548,24 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             transfer_name = arranged_file.original_path.replace(
                 DEFAULT_BACKLOG_PATH, "", 1
             ).split("/", 1)[0]
+            transfer_dir = os.path.join(ORIGINAL_DIR, transfer_name)
+            # Determine if the transfer is a BagIt package
+            is_bagit = bagit_transfers.get(transfer_dir)
+            if is_bagit is None:
+                try:
+                    Bag(transfer_dir)
+                except BagError:
+                    is_bagit = False
+                else:
+                    is_bagit = True
+                bagit_transfers[transfer_dir] = is_bagit
             # Copy metadata & logs to completedTransfers, where later scripts expect
             for directory in ("logs", "metadata"):
+                source = [DEFAULT_BACKLOG_PATH, transfer_name, directory]
+                if is_bagit:
+                    source.insert(2, "data")
                 file_ = {
-                    "source": os.path.join(
-                        DEFAULT_BACKLOG_PATH, transfer_name, directory, "."
-                    ),
+                    "source": os.path.join(os.path.sep.join(source), "."),
                     "destination": os.path.join(
                         "watchedDirectories",
                         "SIPCreation",
@@ -571,7 +586,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             # Create SIP object
             if sip_uuid is None:
                 sip_uuid = str(uuid.uuid4())
-            error = create_arranged_sip(staging_sip_path, files, sip_uuid)
+            error = _create_arranged_sip(staging_sip_path, files, sip_uuid)
 
         if error is None:
             for arranged_entry in arrange:
@@ -601,14 +616,13 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
 
 
 def create_arrange_directory(path):
-    if path.startswith(DEFAULT_ARRANGE_PATH):
-        models.SIPArrange.objects.get_or_create(
-            original_path=None,
-            arrange_path=os.path.join(path, ""),  # ensure ends with /
-            file_uuid=None,
-        )
-    else:
+    if not path.startswith(DEFAULT_ARRANGE_PATH):
         raise ValueError(_("Directory is not within the arrange directory."))
+    models.SIPArrange.objects.get_or_create(
+        original_path=None,
+        arrange_path=os.path.join(path, ""),  # ensure ends with /
+        file_uuid=None,
+    )
 
 
 def create_directory_within_arrange(request):
@@ -636,7 +650,7 @@ def create_directory_within_arrange(request):
     return helpers.json_response(response, status_code=status_code)
 
 
-def move_files_within_arrange(sourcepath, destination):
+def _move_files_within_arrange(sourcepath, destination):
     if not (
         sourcepath.startswith(DEFAULT_ARRANGE_PATH)
         and destination.startswith(DEFAULT_ARRANGE_PATH)
@@ -681,7 +695,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     for entry in entries:
         if entry not in ("processingMCP.xml"):
             path = os.path.join(original_path, entry)
-            relative_path = path.replace(DEFAULT_BACKLOG_PATH, "", 1)
+            relative_path = (path.replace(DEFAULT_BACKLOG_PATH, "", 1),)
             try:
                 file_info = storage_service.get_file_metadata(
                     relative_path=relative_path
@@ -725,7 +739,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     return ret
 
 
-def copy_files_to_arrange(
+def _copy_files_to_arrange(
     sourcepath, destination, fetch_children=False, backlog_uuid=None
 ):
     sourcepath = sourcepath.lstrip("/")  # starts with 'originals/', not '/originals/'
@@ -897,7 +911,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     try:
         for source, dest in zip(sources, destinations):
             if action == "copy":
-                copy_files_to_arrange(
+                _copy_files_to_arrange(
                     source,
                     dest,
                     fetch_children=fetch_children,
@@ -906,7 +920,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
                 response = {"message": _("Files added to the SIP.")}
                 status_code = 201
             elif action == "move":
-                move_files_within_arrange(source, dest)
+                _move_files_within_arrange(source, dest)
                 response = {"message": _("SIP files successfully moved.")}
                 status_code = 200
     except ValueError as e:
@@ -920,16 +934,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     return helpers.json_response(response, status_code=status_code)
 
 
-def copy_metadata_files_logged_in(request):
-    """
-    Endpoint for adding metadata files to a SIP if logged in and calling from the dashboard.
-    """
-    sip_uuid = request.POST.get("sip_uuid")
-    paths = request.POST.getlist("source_paths[]")
-    return copy_metadata_files(sip_uuid, paths)
-
-
-def copy_metadata_files(sip_uuid, paths):
+def copy_metadata_files(request, sip_uuid, paths):
     """
     Copy files from list `source_paths` to sip_uuid's metadata folder.
 
@@ -937,6 +942,8 @@ def copy_metadata_files(sip_uuid, paths):
     paths: List of files to be copied, base64 encoded, in the format
         'source_location_uuid:full_path'
     """
+    sip_uuid = request.POST.get("sip_uuid")
+    paths = request.POST.getlist("source_paths[]")
     if not sip_uuid or not paths:
         response = {
             "error": True,
@@ -949,7 +956,7 @@ def copy_metadata_files(sip_uuid, paths):
     relative_path = sip.currentpath.replace("%sharedPath%", "", 1)
     relative_path = os.path.join(relative_path, "metadata")
 
-    error, message = copy_from_transfer_sources(paths, relative_path)
+    error, message = _copy_from_transfer_sources(paths, relative_path)
 
     if not error:
         message = _("Metadata files added successfully.")
@@ -961,7 +968,7 @@ def copy_metadata_files(sip_uuid, paths):
     return helpers.json_response(response, status_code=status_code)
 
 
-def copy_from_transfer_sources(paths, relative_destination):
+def _copy_from_transfer_sources(paths, relative_destination):
     """
     Helper to copy files from transfer source locations to the currently processing location.
 
