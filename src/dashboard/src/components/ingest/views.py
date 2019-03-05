@@ -21,6 +21,7 @@ import cPickle
 import json
 import logging
 import os
+import re
 import requests
 import shutil
 from urlparse import urljoin
@@ -415,12 +416,31 @@ def ingest_browse(request, browse_type, jobuuid):
     return render(request, "ingest/aip_browse.html", locals())
 
 
+_REGEX_BAGIT_MANIFESTS = re.compile(
+    r"""^(
+           (tag)?manifest-\w+ |
+           bag(it|-info)
+         )\.txt$
+    """,
+    re.VERBOSE,
+)
+
+
+def _is_hidden(part):
+    """Return whether a string must be hidden in the treeview."""
+    if part in ("logs", "metadata"):
+        return True
+    if _REGEX_BAGIT_MANIFESTS.match(part):
+        return True
+    return False
+
+
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
     # Paths MUST be input in sorted order
     # Otherwise the same directory might end up with multiple entries
     parts = path.split("/", 1)
-    if parts[0] in ("logs", "metadata"):
+    if _is_hidden(parts[0]):
         not_draggable = True
     if len(parts) == 1:  # path is a file
         return_list.append(
@@ -494,7 +514,7 @@ def _es_results_to_appraisal_tab_format(
         node_parts = node.split("/")
         is_transfer = len(node_parts) == 1
         if not is_transfer:
-            node_not_draggable = not_draggable or node_parts[1] in ("logs", "metadata")
+            node_not_draggable = not_draggable or _is_hidden(node_parts[1])
         else:
             node_not_draggable = not_draggable
 
@@ -524,7 +544,7 @@ def _es_results_to_appraisal_tab_format(
 
     dir_parts = dir.split("/")
     if len(dir_parts) > 1:
-        dir_not_draggable = not_draggable or dir_parts[1] in ("logs", "metadata")
+        dir_not_draggable = not_draggable or _is_hidden(dir_parts[1])
     else:
         dir_not_draggable = not_draggable
 

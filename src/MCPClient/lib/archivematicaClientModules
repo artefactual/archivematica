@@ -128,7 +128,6 @@ remove_v0.0 = cmd_rm
 setfilepermission_v0.0 = cmd_chmod
 test_v0.0 = cmd_test
 storeaip_v0.0 = store_aip
-elasticsearchindex_v0.0 = elastic_search_index_process_transfer
 restructuredipforcontentdmupload_v0.0 = restructure_dip_for_content_dm_upload
 upload-qubit_v0.0 = upload_qubit
 upload-archivesspace_v0.0 = upload_archivesspace
