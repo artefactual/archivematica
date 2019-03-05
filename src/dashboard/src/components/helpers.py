@@ -32,7 +32,6 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
-from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from main import models
 from tastypie.models import ApiKey
@@ -242,17 +241,6 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args=args)
     params = urllib.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
-
-
-def send_file_or_return_error_response(
-    request, filepath, content_type, verb="download"
-):
-    if os.path.exists(filepath):
-        return send_file(request, filepath)
-    else:
-        return render(
-            request, "not_found.html", {"content_type": content_type, "verb": verb}
-        )
 
 
 def send_file(request, filepath, force_download=False):
