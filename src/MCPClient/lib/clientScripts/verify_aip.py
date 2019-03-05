@@ -17,6 +17,8 @@ from executeOrRunSubProcess import executeOrRun
 
 from main.models import File, SIP
 
+from bagit import Bag, BagError
+
 
 class VerifyChecksumsError(Exception):
     """Checksum verification has failed."""
@@ -62,46 +64,6 @@ def write_premis_event(
         return event_outcome_detail_note
 
 
-def get_manifest_path(job, bag, sip_uuid, checksum_type):
-    """Raise exception if if the Bag manifest file is not a file."""
-    manifest_path = os.path.join(bag, "manifest-{algo}.txt".format(algo=checksum_type))
-    if not os.path.isfile(manifest_path):
-        event_outcome_detail_note = (
-            "Unable to perform AIP-level fixity check on AIP {aip_uuid} because"
-            " unable to find a Bag manifest file at expected path"
-            " {manifest_path}.".format(aip_uuid=sip_uuid, manifest_path=manifest_path)
-        )
-        raise VerifyChecksumsError(
-            write_premis_event(
-                job, sip_uuid, checksum_type, "Fail", event_outcome_detail_note
-            )
-        )
-    return manifest_path
-
-
-def parse_manifest(job, manifest_path, sip_uuid, checksum_type):
-    """Raise exception if the Bag manifest file cannot be parsed."""
-    with open(manifest_path) as filei:
-        try:
-            return {
-                k.replace("data/", "", 1): v
-                for k, v in dict(reversed(line.split()) for line in filei).items()
-            }
-        except Exception as err:
-            event_outcome_detail_note = (
-                "Unable to perform AIP-level fixity check on AIP {aip_uuid}"
-                " because unable to parse manifest file at path"
-                " {manifest_path}. Error:\n{error}".format(
-                    aip_uuid=sip_uuid, manifest_path=manifest_path, error=err
-                )
-            )
-            raise VerifyChecksumsError(
-                write_premis_event(
-                    job, sip_uuid, checksum_type, "Fail", event_outcome_detail_note
-                )
-            )
-
-
 def assert_checksum_types_match(job, file_, sip_uuid, settings_checksum_type):
     """Raise exception if checksum types (i.e., algorithms, e.g., 'sha256') of
     the file and the settings do not match.
@@ -124,32 +86,23 @@ def assert_checksum_types_match(job, file_, sip_uuid, settings_checksum_type):
 
 
 def get_expected_checksum(
-    job,
-    file_,
-    sip_uuid,
-    checksum_type,
-    path2checksum,
-    file_path,
-    manifest_path,
-    is_reingest,
+    job, bag, file_, sip_uuid, checksum_type, file_path, is_reingest
 ):
     """Raise an exception if an expected checksum cannot be found in the
     Bag manifest.
     """
     try:
-        return path2checksum[file_path]
+        return bag.entries[file_path][checksum_type]
     except KeyError:
         if is_reingest:
             return None
         event_outcome_detail_note = (
             "Unable to find expected path {expected_path} for file"
             " {file_uuid} in the following mapping from file paths to"
-            " checksums that was extracted from Bag manifest file"
-            " {manifest_file}: {mapping}".format(
+            " checksums: {mapping}:".format(
                 expected_path=file_path,
                 file_uuid=file_.uuid,
-                manifest_file=manifest_path,
-                mapping=pformat(path2checksum),
+                mapping=pformat(bag.entries),
             )
         )
         raise VerifyChecksumsError(
@@ -189,8 +142,6 @@ def verify_checksums(job, bag, sip_uuid):
     )
     removableFiles = [e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")]
     try:
-        manifest_path = get_manifest_path(job, bag, sip_uuid, checksum_type)
-        path2checksum = parse_manifest(job, manifest_path, sip_uuid, checksum_type)
         verification_count = 0
         verification_skipped_because_reingest = 0
         for file_ in File.objects.filter(sip_id=sip_uuid):
@@ -201,17 +152,12 @@ def verify_checksums(job, bag, sip_uuid):
                 or file_.filegrpuse == "manualNormalization"
             ):
                 continue
-            file_path = file_.currentlocation.replace("%SIPDirectory%", "", 1)
+            file_path = os.path.join(
+                "data", file_.currentlocation.replace("%SIPDirectory%", "", 1)
+            )
             assert_checksum_types_match(job, file_, sip_uuid, checksum_type)
             expected_checksum = get_expected_checksum(
-                job,
-                file_,
-                sip_uuid,
-                checksum_type,
-                path2checksum,
-                file_path,
-                manifest_path,
-                is_reingest,
+                job, bag, file_, sip_uuid, checksum_type, file_path, is_reingest
             )
             if expected_checksum is None:
                 verification_skipped_because_reingest += 1
@@ -263,11 +209,11 @@ def verify_aip(job):
     is_uncompressed_aip = os.path.isdir(aip_path)
 
     if is_uncompressed_aip:
-        bag = aip_path
+        bag_path = aip_path
     else:
         try:
             extract_dir = os.path.join(temp_dir, sip_uuid)
-            bag = extract_aip(job, aip_path, extract_dir)
+            bag_path = extract_aip(job, aip_path, extract_dir)
         except Exception as err:
             job.print_error(repr(err))
             job.pyprint(
@@ -275,24 +221,15 @@ def verify_aip(job):
             )
             return 1
 
-    verification_commands = [
-        '/usr/share/bagit/bin/bag verifyvalid "{}"'.format(bag),
-        '/usr/share/bagit/bin/bag checkpayloadoxum "{}"'.format(bag),
-        '/usr/share/bagit/bin/bag verifycomplete "{}"'.format(bag),
-        '/usr/share/bagit/bin/bag verifypayloadmanifests "{}"'.format(bag),
-        '/usr/share/bagit/bin/bag verifytagmanifests "{}"'.format(bag),
-    ]
     return_code = 0
-    for command in verification_commands:
-        job.pyprint("Running test: ", command)
-        exit_code, stdout, stderr = executeOrRun(
-            "command", command, printing=True, capture_output=True
-        )
-        job.write_output(stdout)
-        job.write_error(stderr)
-        if exit_code != 0:
-            job.pyprint("Failed test: ", command, file=sys.stderr)
-            return_code = 1
+    try:
+        # Only validate completeness since we're going to verify checksums
+        # later against what we have in the database via `verify_checksums`.
+        bag = Bag(bag_path)
+        bag.validate(completeness_only=True)
+    except BagError as err:
+        job.print_error("Error validating BagIt package: {}".format(err))
+        return_code = 1
 
     if return_code == 0:
         try:

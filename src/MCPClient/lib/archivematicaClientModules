@@ -81,7 +81,6 @@ trimverifymanifest_v0.0 = trim_verify_manifest
 verifychecksumsinfilesecofdspacemetsfiles_v0.0 = verify_checksums_in_file_sec_of_dspace_mets_files
 verifyaip_v1.0 = verify_aip
 verifyandrestructuretransferbag_v0.0 = verify_and_restructure_transfer_bag
-verifybag_v0.0 = verify_bag
 verifysipcompliance_v0.0 = verify_sip_compliance
 verifytransfercompliance_v0.0 = verify_transfer_compliance
 createmets_v0.0 = create_mets_v0

@@ -17,7 +17,6 @@
   ],
   "osdeps_packages": [
   { "name": "atool", "state": "latest"},
-  { "name": "bagit", "state": "latest"},
   { "name": "bulk-extractor", "state": "latest"},
   { "name": "ffmpeg", "state": "latest"},
   { "name": "fits", "state": "latest"},
