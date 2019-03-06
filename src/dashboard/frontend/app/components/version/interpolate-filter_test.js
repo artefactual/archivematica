@@ -1,7 +1,7 @@
 'use strict';
 
-describe('appraisalTab.version module', function() {
-  beforeEach(module('appraisalTab.version'));
+describe('dashboard.version module', function() {
+  beforeEach(module('dashboard.version'));
 
   describe('interpolate filter', function() {
     beforeEach(module(function($provide) {

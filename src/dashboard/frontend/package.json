@@ -1,8 +1,8 @@
 {
-  "name": "appraisal-tab",
+  "name": "dashboard",
   "private": true,
   "version": "0.0.0",
-  "description": "Appraisal tab component for Archivematica",
+  "description": "Dashboard components (Appraisal tab) for Archivematica",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",

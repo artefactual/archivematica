@@ -4,27 +4,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Project-Id-Version: \n"
 
-#: ./app/front_page/content.html:45
+#: ./app/front_page/appraisal_tab.html:45
 msgid "1 object selected"
 msgid_plural "{{$count}} objects selected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ./app/front_page/content.html:44
+#: ./app/front_page/appraisal_tab.html:44
 msgid "1 transfer"
 msgid_plural "{{$count}} transfers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ./app/front_page/content.html:293
+#: ./app/front_page/appraisal_tab.html:293
 msgid "Add directory"
 msgstr ""
 
-#: ./app/front_page/content.html:208
+#: ./app/front_page/appraisal_tab.html:208
 msgid "Add new child record"
 msgstr ""
 
-#: ./app/front_page/content.html:214
+#: ./app/front_page/appraisal_tab.html:214
 msgid "Add new digital object"
 msgstr ""
 
@@ -32,35 +32,35 @@ msgstr ""
 msgid "Add tag to checked files"
 msgstr ""
 
-#: ./app/front_page/content.html:50
+#: ./app/front_page/appraisal_tab.html:50
 msgid "Add tag to selected files"
 msgstr ""
 
-#: ./app/front_page/content.html:18
+#: ./app/front_page/appraisal_tab.html:18
 msgid "All"
 msgstr ""
 
-#: ./app/front_page/content.html:80
+#: ./app/front_page/appraisal_tab.html:80
 msgid "Analysis"
 msgstr ""
 
-#: ./app/front_page/content.html:191
-#: ./app/front_page/content.html:194
+#: ./app/front_page/appraisal_tab.html:191
+#: ./app/front_page/appraisal_tab.html:194
 msgid "ArchivesSpace"
 msgstr ""
 
-#: ./app/front_page/content.html:231
-#: ./app/front_page/content.html:303
+#: ./app/front_page/appraisal_tab.html:231
+#: ./app/front_page/appraisal_tab.html:303
 msgid "Are you sure you want to delete this?"
 msgstr ""
 
-#: ./app/front_page/content.html:283
-#: ./app/front_page/content.html:286
+#: ./app/front_page/appraisal_tab.html:283
+#: ./app/front_page/appraisal_tab.html:286
 msgid "Arrangement"
 msgstr ""
 
-#: ./app/front_page/content.html:38
-#: ./app/front_page/content.html:41
+#: ./app/front_page/appraisal_tab.html:38
+#: ./app/front_page/appraisal_tab.html:41
 msgid "Backlog"
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ./app/front_page/content.html:55
+#: ./app/front_page/appraisal_tab.html:55
 msgid "Collapse all"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Count"
 msgstr ""
 
-#: ./app/front_page/content.html:311
+#: ./app/front_page/appraisal_tab.html:311
 msgid "Create SIP"
 msgstr ""
 
@@ -105,24 +105,24 @@ msgstr ""
 msgid "Date expression:"
 msgstr ""
 
-#: ./app/front_page/content.html:120
+#: ./app/front_page/appraisal_tab.html:120
 msgid "Date range end"
 msgstr ""
 
-#: ./app/front_page/content.html:113
+#: ./app/front_page/appraisal_tab.html:113
 msgid "Date range start"
 msgstr ""
 
-#: ./app/front_page/content.html:128
+#: ./app/front_page/appraisal_tab.html:128
 msgid "Dates:"
 msgstr ""
 
-#: ./app/front_page/content.html:233
-#: ./app/front_page/content.html:305
+#: ./app/front_page/appraisal_tab.html:233
+#: ./app/front_page/appraisal_tab.html:305
 msgid "Delete selected"
 msgstr ""
 
-#: ./app/front_page/content.html:54
+#: ./app/front_page/appraisal_tab.html:54
 msgid "Deselect all"
 msgstr ""
 
@@ -130,15 +130,15 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: ./app/front_page/content.html:298
+#: ./app/front_page/appraisal_tab.html:298
 msgid "Edit Metadata"
 msgstr ""
 
-#: ./app/front_page/content.html:226
+#: ./app/front_page/appraisal_tab.html:226
 msgid "Edit metadata"
 msgstr ""
 
-#: ./app/front_page/content.html:219
+#: ./app/front_page/appraisal_tab.html:219
 msgid "Edit rights metadata"
 msgstr ""
 
@@ -146,11 +146,11 @@ msgstr ""
 msgid "End date:"
 msgstr ""
 
-#: ./app/front_page/content.html:91
+#: ./app/front_page/appraisal_tab.html:91
 msgid "Examine contents"
 msgstr ""
 
-#: ./app/front_page/content.html:56
+#: ./app/front_page/appraisal_tab.html:56
 msgid "Expand all"
 msgstr ""
 
@@ -158,17 +158,17 @@ msgstr ""
 msgid "Failed to copy files to SIP arrange; check Dashboard logs."
 msgstr ""
 
-#: ./app/front_page/content.html:102
-#: ./app/front_page/content.html:105
+#: ./app/front_page/appraisal_tab.html:102
+#: ./app/front_page/appraisal_tab.html:105
 msgid "File list"
 msgstr ""
 
-#: ./app/front_page/content.html:109
+#: ./app/front_page/appraisal_tab.html:109
 msgid "File list is empty."
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:45
-#: ./app/front_page/content.html:159
+#: ./app/front_page/appraisal_tab.html:159
 msgid "Filename"
 msgstr ""
 
@@ -176,7 +176,7 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: ./app/front_page/content.html:239
+#: ./app/front_page/appraisal_tab.html:239
 msgid "Finalize arrangement"
 msgstr ""
 
@@ -207,15 +207,15 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
-#: ./app/front_page/content.html:145
+#: ./app/front_page/appraisal_tab.html:145
 msgid "Hide path"
 msgstr ""
 
-#: ./app/front_page/content.html:198
+#: ./app/front_page/appraisal_tab.html:198
 msgid "Identifier"
 msgstr ""
 
-#: ./app/front_page/content.html:162
+#: ./app/front_page/appraisal_tab.html:162
 msgid "Last modified"
 msgstr ""
 
@@ -247,7 +247,7 @@ msgstr ""
 msgid "Number of files"
 msgstr ""
 
-#: ./app/front_page/content.html:85
+#: ./app/front_page/appraisal_tab.html:85
 msgid "Objects"
 msgstr ""
 
@@ -265,7 +265,7 @@ msgstr ""
 msgid "PUID"
 msgstr ""
 
-#: ./app/front_page/content.html:160
+#: ./app/front_page/appraisal_tab.html:160
 msgid "Path"
 msgstr ""
 
@@ -274,7 +274,7 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: ./app/front_page/content.html:94
+#: ./app/front_page/appraisal_tab.html:94
 msgid "Preview file"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 msgid "Previewing {{ file.title }}"
 msgstr ""
 
-#: ./app/front_page/content.html:316
+#: ./app/front_page/appraisal_tab.html:316
 msgid "Reload"
 msgstr ""
 
@@ -302,11 +302,11 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ./app/front_page/content.html:199
+#: ./app/front_page/appraisal_tab.html:199
 msgid "Search ArchivesSpace"
 msgstr ""
 
-#: ./app/front_page/content.html:5
+#: ./app/front_page/appraisal_tab.html:5
 msgid "Search transfer backlog"
 msgstr ""
 
@@ -314,11 +314,11 @@ msgstr ""
 msgid "Select all"
 msgstr ""
 
-#: ./app/front_page/content.html:144
+#: ./app/front_page/appraisal_tab.html:144
 msgid "Show path"
 msgstr ""
 
-#: ./app/front_page/content.html:161
+#: ./app/front_page/appraisal_tab.html:161
 #: ./app/report/format.html:7
 msgid "Size"
 msgstr ""
@@ -336,13 +336,13 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
-#: ./app/front_page/content.html:16
-#: ./app/front_page/content.html:163
-#: ./app/front_page/content.html:88
+#: ./app/front_page/appraisal_tab.html:16
+#: ./app/front_page/appraisal_tab.html:163
+#: ./app/front_page/appraisal_tab.html:88
 msgid "Tags"
 msgstr ""
 
-#: ./app/front_page/content.html:197
+#: ./app/front_page/appraisal_tab.html:197
 msgid "Title"
 msgstr ""
 

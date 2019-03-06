@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('appraisalTab.version.interpolate-filter', [])
+angular.module('dashboard.version.interpolate-filter', [])
 
 .filter('interpolate', ['version', function(version) {
   return function(text) {

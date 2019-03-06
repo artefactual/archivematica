@@ -4,7 +4,7 @@ module.exports = {
   context:  __dirname + '/app',
   output: {
     path:  __dirname + '/../src/media/js/build',
-    filename: 'appraisal_tab.js',
+    filename: 'dashboard.js',
   },
   module: {
     loaders: [

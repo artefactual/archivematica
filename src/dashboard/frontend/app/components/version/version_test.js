@@ -1,7 +1,7 @@
 'use strict';
 
-describe('appraisalTab.version module', function() {
-  beforeEach(module('appraisalTab.version'));
+describe('dashboard.version module', function() {
+  beforeEach(module('dashboard.version'));
 
   describe('version service', function() {
     it('should return current version', inject(function(version) {

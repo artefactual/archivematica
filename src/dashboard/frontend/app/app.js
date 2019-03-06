@@ -12,7 +12,7 @@ import 'ng-cache?prefix=[dir]!./analysis/analysis.html';
 import 'ng-cache?prefix=[dir]!./archivesspace/form.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/examine_contents.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/file_info.html';
-import 'ng-cache?prefix=[dir]!./front_page/content.html';
+import 'ng-cache?prefix=[dir]!./front_page/appraisal_tab.html';
 import 'ng-cache?prefix=[dir]!./preview/preview.html';
 import 'ng-cache?prefix=[dir]!./report/format.html';
 import 'ng-cache?prefix=[dir]!./report/tags.html';
@@ -73,7 +73,7 @@ import './components/version/version-directive.js';
 import './components/version/version.js';
 
 // Declare app level module which depends on views, and components
-module.exports = angular.module('appraisalTab', [
+module.exports = angular.module('dashboard', [
   'ngRoute',
   'gettext',
   'route-segment',
@@ -83,7 +83,7 @@ module.exports = angular.module('appraisalTab', [
   'treeControl',
   'ui.bootstrap',
   'ui.validate',
-  'appraisalTab.version',
+  'dashboard.version',
   'checklistDirective',
   'treeDirectives',
   'uiDirectives',

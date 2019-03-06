@@ -1,20 +1,15 @@
-# Archivematica appraisal tab prototype
+# Archivematica dashboard frontend components
 
 Getting started
 ---------------
 
 This application uses npm to manage its dependencies; dependencies used in the browser are bundled together using [webpack](https://webpack.github.io).
-When first installing or updating the application, run `npm install` in the terminal to install all dependencies and build a copy of the bundled app in app/appraisal_tab.js.
+When first installing or updating the application, run `npm install` in the terminal to install all dependencies and build a copy of the bundled app.
 
 Running a server
 ----------------
 
 This application currently can't be run standalone; it can only be run as a part of an Archivematica installation, since it depends on some external JavaScript and some backend APIs.
-To deploy within Archivematica, use the following steps:
-
-1. Run `npm install` to generate a bundled asset.
-2. Copy the `app/index.html` and `app/appraisal_tab.js` files into an Archivematica installation's static file directory.
-   (In future versions of Archivematica, these files will be deployed to the /media/appraisal directory.)
 
 Application architecture
 ------------------------
@@ -273,7 +268,7 @@ Prefer using template strings over catting multiple strings together, unless the
 
 ES6 provides support for classes with constructors, alongside existing prototype-based objects.
 It turns out to be quite easy to define Angular services and controllers as objects, and this makes some stuff quite a bit cleaner.
-For example, instance methods on controller objects can be easily referenced from templates, which obviates the need to assign functions to properties as older versions of the appraisal tab have.
+For example, instance methods on controller objects can be easily referenced from templates, which obviates the need to assign functions to properties.
 
 Here's a good guide that covers over how this works: http://angular-tips.com/blog/2015/06/using-angular-1-dot-x-with-es6-and-webpack/
 
@@ -293,7 +288,7 @@ This has a few implications:
 * Within modules, it's not necessary to worry about polluting the global object: variables are no longer being magically attached to `window`. This means IIFEs are unnecessary.
 * Make sure that all dependencies get imported in the places they're used, instead of relying on global `<script>` tags in the HTML page.
 
-Prefer using the ES2015 `import` syntax over the `require` function when writing code in the appraisal tab.
+Prefer using the ES2015 `import` syntax over the `require` function when writing code.
 
 
 Translations
@@ -309,7 +304,6 @@ it is a build dependency.
 Extract messages:
 
     # Attention, this is going to include the dist file - please remove before you run this command!
-    rm app/appraisal_tab.js
     angular-gettext-cli --files "./app/**/*.+(js|html)" --dest "./app/locale/extract.pot" --marker-name "i18n"
 
 Push messages to Transifex:
@@ -322,6 +316,6 @@ Pull translations from Transifex:
 
 Compile messages:
 
-    angular-gettext-cli --compile --files "app/locale/*.po" --dest "app/locale/translations.json" --format "json" --module "appraisalTab"
+    angular-gettext-cli --compile --files "app/locale/*.po" --dest "app/locale/translations.json" --format "json" --module "dashboard"
 
 The contents of `app/locale` should be tracked in git.
