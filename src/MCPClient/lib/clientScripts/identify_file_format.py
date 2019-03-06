@@ -139,7 +139,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
     # chain.
     _save_id_preference(file_, enabled)
 
-    exitcode, output, _ = executeOrRun(
+    exitcode, output, err = executeOrRun(
         command.script_type,
         command.script,
         arguments=[file_path],
@@ -152,6 +152,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
         job.print_error(
             "Error: IDCommand with UUID {} exited non-zero.".format(command_uuid)
         )
+        job.print_error("Error: {}".format(err))
         return 255
 
     job.print_output("Command output:", output)
