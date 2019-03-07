@@ -67,10 +67,10 @@
                    filter-comparator="filter_comparator"
                    expanded-nodes="transfers.expanded_nodes">
         <span tree-draggable file-type="backlog" uuid="{{ node.id }}" ng-if="!node.not_draggable">
-          {{ node.title }} <span class="tag" ng-repeat="tag in node.tags">{{ tag }}</span>
+          {{ node.title }} <span class="tag" ng-repeat="tag in node.tags">{{ tag }} <span ng-click="remove_tag($event, node.id, tag)"><i class="fa fa-minus-square remove-button"></i></span></span>
         </span>
         <span class="disabled" ng-if="node.not_draggable">
-          {{ node.title }} <span class="tag" ng-repeat="tag in node.tags">{{ tag }}</span>
+          {{ node.title }} <span class="tag" ng-repeat="tag in node.tags">{{ tag }} <span ng-click="remove_tag($event, node.id, tag)"><i class="fa fa-minus-square remove-button"></i></span></span>
         </span>
       </treecontrol>
     </div>
@@ -180,7 +180,7 @@
           <td>{{ file.size | number }} MB</td>
           <td>{{ file.last_modified }}</td>
           <td>
-            <span class="tag" ng-repeat="tag in file.tags">{{ tag }} <span ng-click="vm.remove_tag(file.id, tag)"><i class="fa fa-minus-square"></i></span></span>
+            <span class="tag" ng-repeat="tag in file.tags">{{ tag }} <span ng-click="vm.remove_tag(file.id, tag)"><i class="fa fa-minus-square remove-button"></i></span></span>
           </td>
         </tr>
       </table>

@@ -22,8 +22,10 @@ controller('TreeController', ['$scope', 'SelectedFiles', 'Transfer', function($s
   $scope.filter_expression = {display: true};
   $scope.filter_comparator = true;
 
-  $scope.remove_tag = function(id, tag) {
+  $scope.remove_tag = function($event, id, tag) {
     Transfer.remove_tag(id, tag);
+    // Avoid to select/deselect the leaf after removing the tag
+    $event.stopPropagation();
   };
 
   // These functions add/remove files from the SelectedFiles service we use
