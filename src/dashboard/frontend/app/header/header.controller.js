@@ -1,12 +1,12 @@
 import angular from 'angular';
 
-import '../services/transfer.service';
+import '../services/transfer_browser_transfer.service';
 
 // Controller for the header component, allowing metadata
 // entry and starting transfers.
 class HeaderController {
-  constructor(Transfer) {
-    this.transfer = Transfer;
+  constructor(TransferBrowserTransfer) {
+    this.transfer = TransferBrowserTransfer;
   }
 
   // Creates or fetches the metadata row ID for the pending transfer component,
@@ -49,8 +49,8 @@ class HeaderController {
   }
 }
 
-export default angular.module('controllers.header', ['services.transfer']).
+export default angular.module('controllers.header', ['services.transfer_browser_transfer']).
   controller('HeaderController', HeaderController).
   name;
 
-HeaderController.$inject = ['Transfer'];
+HeaderController.$inject = ['TransferBrowserTransfer'];

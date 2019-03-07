@@ -7,7 +7,7 @@ import Base64 from 'base64-helpers';
 // Supports creating transfers by:
 // a) Tracking metadata of the current transfer-in-progress; and
 // b) Interacting with the Archivematica API to start a transfer and perform supporting functions.
-class Transfer {
+class TransferBrowserTransfer {
   constructor() {
     this.empty_properties();
   }
@@ -85,6 +85,6 @@ class Transfer {
   }
 }
 
-export default angular.module('services.transfer', []).
-  service('Transfer', Transfer).
+export default angular.module('services.transfer_browser_transfer', []).
+  service('TransferBrowserTransfer', TransferBrowserTransfer).
   name;

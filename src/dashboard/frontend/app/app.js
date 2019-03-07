@@ -1,5 +1,6 @@
 // Styles
 import './app.css';
+import './browser.css';
 import 'font-awesome/css/font-awesome.min.css';
 import './vendor/angular-tree-control/css/tree-control.css';
 import './vendor/angular-tree-control/css/tree-control-attribute.css';
@@ -13,6 +14,7 @@ import 'ng-cache?prefix=[dir]!./archivesspace/form.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/examine_contents.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/file_info.html';
 import 'ng-cache?prefix=[dir]!./front_page/appraisal_tab.html';
+import 'ng-cache?prefix=[dir]!./front_page/transfer_browser.html';
 import 'ng-cache?prefix=[dir]!./preview/preview.html';
 import 'ng-cache?prefix=[dir]!./report/format.html';
 import 'ng-cache?prefix=[dir]!./report/tags.html';
@@ -39,9 +41,11 @@ import './alert/alert.controller.js';
 import './analysis/analysis.controller.js';
 import './archivesspace/archivesspace.controller.js';
 import './arrangement/arrangement.controller.js';
+import './browse/browse.controller';
 import './examine_contents/examine_contents.controller.js';
 import './facet_selector/facet_selector.controller.js';
 import './file_list/file_list.controller.js';
+import './header/header.controller';
 import './preview/preview.controller.js';
 import './report/report.controller.js';
 import './search/search.controller.js';
@@ -60,12 +64,15 @@ import './filters/facet.filter.js';
 // Services
 import './services/alert.service.js';
 import './services/archivesspace.service.js';
+import './services/browse.service.js';
 import './services/facet.service.js';
 import './services/file.service.js';
 import './services/selected.service.js';
 import './services/sip_arrange.service.js';
+import './services/source_locations.service.js';
 import './services/tag.service.js';
 import './services/transfer.service.js';
+import './services/transfer_browser_transfer.service.js';
 
 // Misc
 import './components/version/interpolate-filter.js';
@@ -109,6 +116,11 @@ module.exports = angular.module('dashboard', [
   'searchController',
   'treeController',
   'visualizationsController',
+  'services.browse',
+  'services.source_locations',
+  'services.transfer_browser_transfer',
+  'controllers.browse',
+  'controllers.header',
 ]).
 
 run(function ($window, gettextCatalog) {

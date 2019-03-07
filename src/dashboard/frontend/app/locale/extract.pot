@@ -16,6 +16,18 @@ msgid_plural "{{$count}} transfers"
 msgstr[0] ""
 msgstr[1] ""
 
+#: ./app/front_page/transfer_browser.html:28
+msgid "Access system ID"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:23
+msgid "Accession no."
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:97
+msgid "Add"
+msgstr ""
+
 #: ./app/front_page/appraisal_tab.html:293
 msgid "Add directory"
 msgstr ""
@@ -26,6 +38,10 @@ msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:214
 msgid "Add new digital object"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:53
+msgid "Add next"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:31
@@ -42,6 +58,10 @@ msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:80
 msgid "Analysis"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:43
+msgid "Approve automatically"
 msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:191
@@ -62,6 +82,10 @@ msgstr ""
 #: ./app/front_page/appraisal_tab.html:38
 #: ./app/front_page/appraisal_tab.html:41
 msgid "Backlog"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:37
+msgid "Browse"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:48
@@ -101,6 +125,14 @@ msgstr ""
 msgid "Credit card numbers"
 msgstr ""
 
+#: ./app/front_page/transfer_browser.html:9
+msgid "DSpace"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:11
+msgid "Dataverse"
+msgstr ""
+
 #: ./app/archivesspace/form.html:31
 msgid "Date expression:"
 msgstr ""
@@ -124,6 +156,10 @@ msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:54
 msgid "Deselect all"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:10
+msgid "Disk image"
 msgstr ""
 
 #: ./app/preview/preview.html:4
@@ -221,6 +257,10 @@ msgstr ""
 
 #: ./app/archivesspace/form.html:8
 msgid "Level of description:"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:52
+msgid "Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved."
 msgstr ""
 
 #: ./app/arrangement/arrangement.controller.js:51
@@ -323,8 +363,16 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
+#: ./app/front_page/transfer_browser.html:6
+msgid "Standard"
+msgstr ""
+
 #: ./app/archivesspace/form.html:21
 msgid "Start date:"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:41
+msgid "Start transfer"
 msgstr ""
 
 #: ./app/archivesspace/archivesspace.controller.js:555
@@ -351,7 +399,12 @@ msgid "Title:"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:46
+#: ./app/front_page/transfer_browser.html:18
 msgid "Transfer name"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:13
+msgid "Transfer type"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:11
@@ -398,8 +451,16 @@ msgstr ""
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 
+#: ./app/front_page/transfer_browser.html:7
+msgid "Unzipped bag"
+msgstr ""
+
 #: ./app/analysis/analysis.html:6
 msgid "Visualizations"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:8
+msgid "Zipped bag"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:15

@@ -4,11 +4,11 @@ import angular from 'angular';
 // This uses the SourceLocations service to reference all of the available
 // source locations.
 class BrowseController {
-  constructor(Browse, SourceLocations, Transfer) {
+  constructor(Browse, SourceLocations, TransferBrowserTransfer) {
     let vm = this;
 
     vm.browser = Browse;
-    vm.transfer = Transfer;
+    vm.transfer = TransferBrowserTransfer;
     vm.source_location_browser = SourceLocations;
     vm.source_locations = {};
     // Fetches the available source locations from the service at startup.
@@ -88,8 +88,8 @@ class BrowseController {
   }
 }
 
-export default angular.module('controllers.browse', ['services.browse', 'services.source_locations', 'services.transfer']).
+export default angular.module('controllers.browse', ['services.browse', 'services.source_locations', 'services.transfer_browser_transfer']).
   controller('BrowseController', BrowseController).
   name;
 
-BrowseController.$inject = ['Browse', 'SourceLocations', 'Transfer'];
+BrowseController.$inject = ['Browse', 'SourceLocations', 'TransferBrowserTransfer'];

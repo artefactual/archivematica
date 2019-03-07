@@ -306,14 +306,6 @@ Extract messages:
     # Attention, this is going to include the dist file - please remove before you run this command!
     angular-gettext-cli --files "./app/**/*.+(js|html)" --dest "./app/locale/extract.pot" --marker-name "i18n"
 
-Push messages to Transifex:
-
-    tx push -s
-
-Pull translations from Transifex:
-
-    tx pull -a
-
 Compile messages:
 
     angular-gettext-cli --compile --files "app/locale/*.po" --dest "app/locale/translations.json" --format "json" --module "dashboard"
