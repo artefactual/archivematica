@@ -59,10 +59,13 @@ describe('Transfer', function() {
 
   it('should be able to remove tags for a given file', inject(function(Transfer) {
     var ruby = Transfer.id_map['042340ba-e682-4454-aa26-a9230de79c5f'];
-    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test', true);
-    expect(ruby.tags.length).toEqual(1);
-    Transfer.remove_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test', true);
-    expect(ruby.tags.length).toEqual(0);
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test1', true);
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test2', true);
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test3', true);
+    expect(ruby.tags.length).toEqual(3);
+    Transfer.remove_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test2', true);
+    expect(ruby.tags.length).toEqual(2);
+    expect(ruby.tags).toEqual(['test1', 'test3']);
   }));
 
   it('should be able to remove all tags for a given file if no tag is specified', inject(function(Transfer) {

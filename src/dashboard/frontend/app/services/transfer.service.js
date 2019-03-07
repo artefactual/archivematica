@@ -171,7 +171,7 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
         $log.warn('Tried to remove tag for file with ID ' + String(id) + ' but no tags are specified for that file');
         return;
       }
-      record.tags.pop(tag);
+      record.tags = record.tags.filter(record_tag => record_tag !== tag);
 
       // If this is the last occurrence of this tag, delete it from the tag list
       remove_tag_if_necessary(this, tag);
