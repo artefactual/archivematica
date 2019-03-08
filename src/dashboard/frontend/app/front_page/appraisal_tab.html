@@ -281,11 +281,27 @@
 </ui-minimize-panel>
 
 <ui-minimize-panel title="{{ 'Arrangement' | translate }}">
-<div class='panel panel-default'>
+<div class='panel panel-default' ng-controller="ArrangementController as vm">
   <div class='panel-heading'>
     {{ "Arrangement" | translate }}
+    <div class='facet-box panel-body form'>
+      <form ng-submit="vm.create_sip_from_tag()" class="form-inline">
+        <fieldset>
+          <label for='tag-facet-arrangement'>{{ "Tags" | translate }}</label>
+          <select ng-model="vm.create_sip_tag" class='form-control' id='tag-facet-arrangement'>
+            <option value="">{{ "None" | translate }}</option>
+            <option ng-repeat="tag in vm.transfer.tags" value="{{ tag }}">{{ tag }}</option>
+          </select>
+          <input type="submit"
+                 id="arrangement-submit"
+                 value="Create SIP"
+                 ng-disabled="!vm.create_sip_tag"
+                 class='btn btn-primary'>
+        </fieldset>
+      </form>
+    </div>
   </div>
-  <div class="transfer-tree panel-body" ng-controller="ArrangementController as vm">
+  <div class="transfer-tree panel-body">
     <input type="button"
            class="btn btn-primary"
            id="add_directory"

@@ -1,3 +1,4 @@
+var path = require('path');
 import angular from 'angular';
 
 angular.module('arrangementController', ['sipArrangeService']).
@@ -44,6 +45,8 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
         // if the file is loaded in the Backlog pane
         // use the Transfer service to remove the tag
         vm.transfer.remove_tag(file_uuid, tag);
+        // refresh the node's parent
+        vm.update_element_tags([node], vm.transfer.tag_updates);
       } catch(err) {
         // otherwise calculate the new tags and
         // submit them using the Tag service
@@ -56,6 +59,95 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
         Tag.submit(file_uuid, new_tags);
       }
     }
+  };
+
+  vm.create_sip_from_tag = function() {
+    // if there's a SIP already started ask for confirmation
+    if (vm.data.length > 0) {
+      if (!confirm(gettextCatalog.getString('Are you sure you want to discard the current directory?'))) {
+        return;
+      }
+      // delete existing UI data
+      vm.data.forEach(directory => {
+        vm.delete_directory(directory);
+      });
+    }
+    const tag = vm.create_sip_tag;
+    if (!tag) {
+      return;
+    }
+    // TODO: sanitize tag
+    const title = tag;
+    const full_path = tag;
+    SipArrange.create_directory('/arrange/' + full_path, title, undefined).then(result => {
+      // look for files containing the tag in all the transfers and
+      // store all the promises to create directories and copy files
+      let create_directory_promises = [];
+      let copy_to_arrange_promises = [];
+      let files_grouped_by_directory = {};
+      angular.forEach(vm.transfer.id_map, file => {
+        if (file.type === 'file' &&
+            file.tags !== undefined &&
+            file.tags.includes(tag)) {
+          let parent_path = path.dirname(file.relative_path);
+          if (!(parent_path in files_grouped_by_directory)) {
+            files_grouped_by_directory[parent_path] = [];
+          }
+          files_grouped_by_directory[parent_path].push(file);
+        }
+      });
+      // filter directories to get only the deepest leaves
+      let unique_directories = Object.keys(files_grouped_by_directory).filter(function(directory, i, arr) {
+        let is_repeated = false;
+        arr.forEach(function(other_directory) {
+          if (other_directory !== directory && other_directory.startsWith(directory)) {
+            is_repeated = true;
+          }
+        });
+        return !(is_repeated);
+      });
+      // create promises for creating each unique directory
+      unique_directories.forEach(directory => {
+        let directory_arrange_path = '/arrange/' + full_path + '/' + directory + '/';
+        let promise = SipArrange.create_directory(directory_arrange_path, directory, undefined);
+        create_directory_promises.push(promise);
+      });
+      // create promises for copying each file
+      Object.keys(files_grouped_by_directory).forEach(directory => {
+        let directory_arrange_path = '/arrange/' + full_path + '/' + directory + '/';
+        files_grouped_by_directory[directory].forEach(file => {
+          let paths = generate_files_list(file, '/originals/', directory_arrange_path);
+          let promise = SipArrange.copy_to_arrange(paths.source, paths.destination).then(on_copy_success, on_copy_failure);
+          copy_to_arrange_promises.push(promise);
+        });
+      });
+      let on_success = success => {
+        Alert.alerts.push({
+          'type': 'success',
+          'message': gettextCatalog.getString('SIP successfully started!'),
+        });
+      };
+      let on_failure = error => {
+        Alert.alerts.push({
+          'type': 'danger',
+          'message': gettextCatalog.getString('SIP could not be started! Check dashboard logs.'),
+        });
+      };
+      // wait that all the promises for creating directories resolve first
+      // then wait for all the promises to copy file
+      // and finally start creating the SIP
+      Promise.all(create_directory_promises).then(function() {
+        Promise.all(copy_to_arrange_promises).then(function() {
+            SipArrange.start_sip('/arrange/' + full_path + '/').then(on_success, on_failure).then(function() {
+              // hide elements from the UI so user
+              // doesn't try to start it again
+              vm.data = {};
+            });
+        });
+      });
+      // reset the tags dropdown value
+      vm.create_sip_tag = '';
+    });
   };
 
   var load_data = () => {
