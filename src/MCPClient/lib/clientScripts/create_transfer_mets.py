@@ -26,6 +26,7 @@ import os
 from optparse import OptionParser
 
 import django
+import scandir
 from django.db.models import Prefetch
 
 django.setup()
@@ -83,19 +84,17 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
         parent_path = os.path.basename(path)
         parent = metsrw.FSEntry(path=parent_path, type="Directory")
 
-    for item_name in sorted(os.listdir(path)):
-        item_full_path = os.path.join(path, item_name)
-        is_directory = os.path.isdir(item_full_path)
-
-        if is_directory:
-            fsentry = metsrw.FSEntry(path=item_name, type="Directory")
+    dir_entries = sorted(scandir.scandir(path))
+    for dir_entry in dir_entries:
+        if dir_entry.is_dir():
+            fsentry = metsrw.FSEntry(path=dir_entry.name, type="Directory")
         else:
-            item_relative_path = os.path.relpath(item_full_path, start=root_path)
-            file_obj = lookup_file_data(item_relative_path, db_base_path, lookup_kwargs)
+            relative_path = os.path.relpath(dir_entry.path, start=root_path)
+            file_obj = lookup_file_data(relative_path, db_base_path, lookup_kwargs)
             if file_obj is None:
                 continue
             fsentry = metsrw.FSEntry(
-                path=item_name,
+                path=dir_entry.name,
                 type="Item",
                 file_uuid=file_obj.uuid,
                 checksum=file_obj.checksum,
@@ -110,9 +109,9 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
 
         parent.add_child(fsentry)
 
-        if is_directory:
+        if dir_entry.is_dir():
             build_fsentries_tree(
-                item_full_path, root_path, db_base_path, lookup_kwargs, parent=fsentry
+                dir_entry.path, root_path, db_base_path, lookup_kwargs, parent=fsentry
             )
 
     return parent
