@@ -83,7 +83,7 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
         parent_path = os.path.basename(path)
         parent = metsrw.FSEntry(path=parent_path, type="Directory")
 
-    for item_name in os.listdir(path):
+    for item_name in sorted(os.listdir(path)):
         item_full_path = os.path.join(path, item_name)
         is_directory = os.path.isdir(item_full_path)
 
