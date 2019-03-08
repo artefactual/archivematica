@@ -306,6 +306,11 @@ Extract messages:
     # Attention, this is going to include the dist file - please remove before you run this command!
     angular-gettext-cli --files "./app/**/*.+(js|html)" --dest "./app/locale/extract.pot" --marker-name "i18n"
 
+Merge extracted messages with existing language files:
+
+    cd app/locale
+    msgmerge -qUN translations.es.po extract.pot
+
 Compile messages:
 
     angular-gettext-cli --compile --files "app/locale/*.po" --dest "app/locale/translations.json" --format "json" --module "dashboard"
