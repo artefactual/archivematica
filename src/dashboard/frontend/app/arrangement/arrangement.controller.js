@@ -3,9 +3,60 @@ import angular from 'angular';
 angular.module('arrangementController', ['sipArrangeService']).
 
 // This controller is responsible for the appraisal tab's implementation of SIP arrange.
-// It doesn't have its own partial, and its scope is located in front_page/content.html
-controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Transfer', 'SipArrange', function($scope, gettextCatalog, Alert, Transfer, SipArrange) {
+// It doesn't have its own partial, and its scope is located in front_page/appraisal_tab.html
+controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Transfer', 'SipArrange', 'Tag', function($scope, gettextCatalog, Alert, Transfer, SipArrange, Tag) {
   var vm = this;
+
+  // Watch the object with tag updates shared by the Transfer service
+  // and update the vm.data structure accordingly
+  vm.transfer = Transfer;
+  $scope.$watch('vm.transfer.tag_updates', tag_updates => {
+    if (tag_updates) {
+      Object.keys(tag_updates).forEach(key => {
+        if (vm.data !== undefined) {
+          // TODO: profile this, reloading the whole tree
+          // for a single tag update might be expensive
+          vm.update_element_tags(vm.data, tag_updates);
+        }
+      });
+    }
+  }, true);
+
+  vm.update_element_tags = function(elements, tag_updates) {
+    elements.forEach(element => {
+      const {file_uuid, tags} = element.properties;
+      if (file_uuid !== undefined &&
+          file_uuid in tag_updates &&
+          tags !== tag_updates[file_uuid]) {
+        element.properties.tags = tag_updates[file_uuid];
+      }
+      if (element.has_children) {
+        vm.update_element_tags(element.children, tag_updates);
+      }
+    });
+  };
+
+  vm.remove_tag = ($event, node, tag) => {
+    $event.stopPropagation();
+    if (node.properties.file_uuid !== undefined) {
+      var file_uuid = node.properties.file_uuid;
+      try {
+        // if the file is loaded in the Backlog pane
+        // use the Transfer service to remove the tag
+        vm.transfer.remove_tag(file_uuid, tag);
+      } catch(err) {
+        // otherwise calculate the new tags and
+        // submit them using the Tag service
+        var tags = node.properties.tags || [];
+        var new_tags = tags.filter(record_tag => record_tag !== tag);
+        var tag_updates = {};
+        tag_updates[file_uuid] = new_tags;
+        // refresh the node's parent
+        vm.update_element_tags([node], tag_updates);
+        Tag.submit(file_uuid, new_tags);
+      }
+    }
+  };
 
   var load_data = () => {
     SipArrange.list_contents().then(directories => {
@@ -35,6 +86,14 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
   var load_element_children = node => {
     var path = '/arrange/' + node.path;
     SipArrange.list_contents(path, node).then(entries => {
+      // if the entry has a file_uuid load its tags in the properties
+      entries.forEach(function(entry) {
+        if (entry.properties.file_uuid !== undefined) {
+          Tag.get(entry.properties.file_uuid).then(function(tags) {
+            entry.properties.tags = tags;
+          });
+        }
+      });
       node.children = entries;
       node.children_fetched = true;
     });

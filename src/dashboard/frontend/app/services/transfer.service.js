@@ -130,6 +130,7 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
         return;
       }
       record.tags.push(tag);
+      this.tag_updates[id] = record.tags;
 
       // Add this tag to the flat list of current tags if not already present
       if (this.tags.indexOf(tag) === -1) {
@@ -163,7 +164,7 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
         if (!skip_submit) {
           Tag.remove(id);
         }
-
+        this.tag_updates[id] = record.tags;
         return;
       }
 
@@ -172,6 +173,7 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
         return;
       }
       record.tags = record.tags.filter(record_tag => record_tag !== tag);
+      this.tag_updates[id] = record.tags;
 
       // If this is the last occurrence of this tag, delete it from the tag list
       remove_tag_if_necessary(this, tag);
@@ -206,6 +208,8 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
     },
     expand_all_nodes: function() {
       expand_children(this, this.data);
-    }
+    },
+    // Share tag updates with the other controllers
+    tag_updates: {},
   };
 }]);

@@ -83,4 +83,32 @@ describe('Transfer', function() {
     Transfer.add_tag('c3908e0d-3ac7-4603-8d0b-9b26a0df9c64', 'test2');
     expect(Transfer.tags).toEqual(['test1', 'test2']);
   }));
+
+  it('should track an object with tag updates', inject(function(Transfer) {
+    expect(Transfer.tag_updates).toEqual({});
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test1', true);
+    expect(Transfer.tag_updates).toEqual({
+      '042340ba-e682-4454-aa26-a9230de79c5f': ['test1']
+    });
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test2', true);
+    expect(Transfer.tag_updates).toEqual({
+      '042340ba-e682-4454-aa26-a9230de79c5f': ['test1', 'test2']
+    });
+    Transfer.add_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test2', true);
+    Transfer.add_tag('c3908e0d-3ac7-4603-8d0b-9b26a0df9c64', 'test2', true);
+    expect(Transfer.tag_updates).toEqual({
+      '042340ba-e682-4454-aa26-a9230de79c5f': ['test1', 'test2'],
+      'c3908e0d-3ac7-4603-8d0b-9b26a0df9c64': ['test2']
+    });
+    Transfer.remove_tag('042340ba-e682-4454-aa26-a9230de79c5f', 'test1', true);
+    expect(Transfer.tag_updates).toEqual({
+      '042340ba-e682-4454-aa26-a9230de79c5f': ['test2'],
+      'c3908e0d-3ac7-4603-8d0b-9b26a0df9c64': ['test2']
+    });
+    Transfer.remove_tag('042340ba-e682-4454-aa26-a9230de79c5f', null, true);
+    expect(Transfer.tag_updates).toEqual({
+      '042340ba-e682-4454-aa26-a9230de79c5f': [],
+      'c3908e0d-3ac7-4603-8d0b-9b26a0df9c64': ['test2']
+    });
+  }));
 });

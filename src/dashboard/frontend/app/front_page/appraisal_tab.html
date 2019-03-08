@@ -327,7 +327,7 @@
         {{ node.title }} <span ng-if="node.properties">({{ node.properties.display_string }})</span>
       </span>
       <span tree-draggable file-type="arrange" file-path="{{ node.path }}" ng-if="!node.directory">
-        {{ node.title }}
+        <span>{{ node.title }} <span class="tag" ng-repeat="tag in node.properties.tags">{{ tag }} <span ng-click="vm.remove_tag($event, node, tag)"><i class="fa fa-minus-square remove-button"></i></span></span></span>
       </span>
     </treecontrol>
   </div>

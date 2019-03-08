@@ -175,6 +175,9 @@ def arrange_contents(request, path=None):
             properties[entry] = properties.get(entry, {})  # Default empty dict
             # Don't overwrite if already exists
             properties[entry]['levelOfDescription'] = properties[entry].get('levelOfDescription') or item.level_of_description
+        if item.file_uuid:
+            properties[entry] = properties.get(entry, {})  # Default empty dict
+            properties[entry]['file_uuid'] = item.file_uuid
         if len(path_parts) > 1:  # Path is a directory
             directories.add(entry)
             # Don't add directories to the object count
