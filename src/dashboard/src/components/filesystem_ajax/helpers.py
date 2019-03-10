@@ -22,10 +22,6 @@ import logging
 import archivematicaFunctions
 from components import helpers
 
-# for unciode sorting support
-import locale
-
-locale.setlocale(locale.LC_ALL, "")
 
 logger = logging.getLogger("archivematica.dashboard")
 
