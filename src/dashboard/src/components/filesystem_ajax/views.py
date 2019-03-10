@@ -41,10 +41,6 @@ import storageService as storage_service
 
 from bagit import Bag, BagError
 
-# for unciode sorting support
-import locale
-
-locale.setlocale(locale.LC_ALL, "")
 
 logger = logging.getLogger("archivematica.dashboard")
 
