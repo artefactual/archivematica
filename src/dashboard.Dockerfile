@@ -19,7 +19,6 @@ RUN set -ex \
 		locales \
 		locales-all \
 		unar \
-		wget \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set the locale
@@ -32,7 +31,7 @@ ENV LC_ALL en_US.UTF-8
 #
 
 ARG CHROME_VERSION="google-chrome-beta"
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
 	&& echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
 	&& apt-get update -qqy \
 	&& apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable} \
@@ -40,11 +39,11 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG CHROME_DRIVER_VERSION="latest"
-RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \
+RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(curl -sL https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \
 	&& echo "Using chromedriver version: "$CD_VERSION \
-	&& wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CD_VERSION/chromedriver_linux64.zip \
+	&& curl -so /tmp/chromedriver_linux64.zip -L https://chromedriver.storage.googleapis.com/$CD_VERSION/chromedriver_linux64.zip \
 	&& rm -rf /opt/selenium/chromedriver \
-	&& unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
+	&& unar /tmp/chromedriver_linux64.zip -o /opt/selenium \
 	&& rm /tmp/chromedriver_linux64.zip \
 	&& mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CD_VERSION \
 	&& chmod 755 /opt/selenium/chromedriver-$CD_VERSION \
@@ -58,7 +57,7 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 	&& apt-get update -qqy \
 	&& apt-get -qqy --no-install-recommends install iceweasel \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-	&& wget --no-verbose -O /tmp/firefox.tar.bz2 $FIREFOX_DOWNLOAD_URL \
+	&& curl -so /tmp/firefox.tar.bz2 -L $FIREFOX_DOWNLOAD_URL \
 	&& apt-get -y purge iceweasel \
 	&& rm -rf /opt/firefox \
 	&& tar -C /opt -xjf /tmp/firefox.tar.bz2 \
@@ -67,9 +66,9 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 	&& ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
 
 ARG GECKODRIVER_VERSION=0.24.0
-RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo $(wget -qO- "https://api.github.com/repos/mozilla/geckodriver/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([0-9.]+)".*/\1/'); else echo $GECKODRIVER_VERSION; fi) \
+RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo $(curl -sL "https://api.github.com/repos/mozilla/geckodriver/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([0-9.]+)".*/\1/'); else echo $GECKODRIVER_VERSION; fi) \
 	&& echo "Using GeckoDriver version: "$GK_VERSION \
-	&& wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GK_VERSION/geckodriver-v$GK_VERSION-linux64.tar.gz \
+	&& curl -so /tmp/geckodriver.tar.gz -L https://github.com/mozilla/geckodriver/releases/download/v$GK_VERSION/geckodriver-v$GK_VERSION-linux64.tar.gz \
 	&& rm -rf /opt/geckodriver \
 	&& tar -C /opt -zxf /tmp/geckodriver.tar.gz \
 	&& rm /tmp/geckodriver.tar.gz \
@@ -92,13 +91,9 @@ RUN set -ex \
 	&& mkdir -p $internalDirs \
 	&& chown -R archivematica:archivematica $internalDirs
 
-COPY dashboard/frontend/transfer-browser/ /src/dashboard/frontend/transfer-browser/
-RUN chown -R archivematica:archivematica /src/dashboard/frontend/transfer-browser \
-	&& su -l archivematica -c "cd /src/dashboard/frontend/transfer-browser && npm install"
-
-COPY dashboard/frontend/appraisal-tab/ /src/dashboard/frontend/appraisal-tab/
-RUN chown -R archivematica:archivematica /src/dashboard/frontend/appraisal-tab \
-	&& su -l archivematica -c "cd /src/dashboard/frontend/appraisal-tab && npm install"
+COPY dashboard/frontend/ /src/dashboard/frontend/
+RUN chown -R archivematica:archivematica /src/dashboard/frontend \
+	&& su -l archivematica -c "cd /src/dashboard/frontend && npm install"
 
 COPY archivematicaCommon/ /src/archivematicaCommon/
 COPY dashboard/ /src/dashboard/
