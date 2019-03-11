@@ -14,15 +14,19 @@ from main.models import Event, File, Transfer
 
 from job import Job
 import sanitize_object_names
+from . import TempDirMixin
 
 
-class TestSanitize(TestCase):
+class TestSanitize(TempDirMixin, TestCase):
     """Test sanitizeNames, sanitize_object_names & sanitizeSipName."""
 
     fixture_files = ["transfer.json", "files-transfer-unicode.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+
+    def setUp(self):
+        super(TestSanitize, self).setUp()
 
     def test_sanitize_object_names(self):
         """Test sanitize_object_names.
@@ -35,7 +39,7 @@ class TestSanitize(TestCase):
         # Create files
         transfer = Transfer.objects.get(uuid=self.transfer_uuid)
         transfer_path = transfer.currentlocation.replace(
-            "%sharedPath%currentlyProcessing", THIS_DIR
+            "%sharedPath%currentlyProcessing", str(self.tmpdir)
         )
         for f in File.objects.filter(transfer_id=self.transfer_uuid):
             path = f.currentlocation.replace("%transferDirectory%", transfer_path)

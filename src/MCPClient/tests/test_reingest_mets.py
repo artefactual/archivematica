@@ -1,7 +1,9 @@
 # -*- coding: utf8
 from lxml import etree
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 
 from django.core.management import call_command
@@ -12,6 +14,11 @@ from main import models
 from job import Job
 
 import metsrw
+
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
@@ -1432,64 +1439,66 @@ class TestAddingNewFiles(TestCase):
     def test_no_new_files(self):
         """ It should not modify the fileSec or structMap if there are no new files. """
         # Make sure directory is empty
-        sip_dir = os.path.join(FIXTURES_DIR, "emptysip", "")
+        sip_dir = Path(tempfile.mkdtemp()) / "emptysip"
         try:
-            os.remove(
-                os.path.join(sip_dir, "objects", "metadata", "transfers", ".gitignore")
+            shutil.copytree(
+                os.path.join(THIS_DIR, "fixtures", "emptysip"), str(sip_dir)
             )
-        except OSError:
-            pass
-        mets = metsrw.METSDocument.fromfile(
-            os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
-        )
-        assert len(mets.tree.findall("mets:amdSec", namespaces=NSMAP)) == 3
-        assert len(mets.tree.findall("mets:fileSec//mets:file", namespaces=NSMAP)) == 3
-        assert (
-            mets.tree.find(
-                'mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP
+            # Make sure directory is empty
+            (sip_dir / "objects/metadata/transfers/.gitignore").unlink()
+
+            mets = metsrw.METSDocument.fromfile(
+                os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
             )
-            is None
-        )
-        assert (
-            len(
-                mets.tree.findall(
-                    'mets:structMap[@TYPE="physical"]//mets:div', namespaces=NSMAP
+            assert len(mets.tree.findall("mets:amdSec", namespaces=NSMAP)) == 3
+            assert (
+                len(mets.tree.findall("mets:fileSec//mets:file", namespaces=NSMAP)) == 3
+            )
+            assert (
+                mets.tree.find(
+                    'mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP
                 )
+                is None
             )
-            == 10
-        )
-
-        mets = archivematicaCreateMETSReingest.add_new_files(
-            Job("stub", "stub", []), mets, self.sip_uuid, sip_dir
-        )
-        root = mets.serialize()
-        assert len(root.findall("mets:amdSec", namespaces=NSMAP)) == 3
-        assert len(root.findall("mets:fileSec//mets:file", namespaces=NSMAP)) == 3
-        assert (
-            root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP)
-            is None
-        )
-
-        # There used to be 10 <mets:div> elements under the physical structMap.
-        # However, now metsrw does not list empty directories (or directories
-        # that only contain empty directories) in the physical structMap.
-        # Therefore, the directories in the following path will not be
-        # documented after metsrw has re-serialized:
-        # metadata/transfers/no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/
-        assert (
-            len(
-                root.findall(
-                    'mets:structMap[@TYPE="physical"]//mets:div', namespaces=NSMAP
+            assert (
+                len(
+                    mets.tree.findall(
+                        'mets:structMap[@TYPE="physical"]//mets:div', namespaces=NSMAP
+                    )
                 )
+                == 10
             )
-            == 7
-        )
 
-        # Reverse deletion
-        with open(
-            os.path.join(sip_dir, "objects", "metadata", "transfers", ".gitignore"), "w"
-        ):
-            pass
+            mets = archivematicaCreateMETSReingest.add_new_files(
+                Job("stub", "stub", []), mets, self.sip_uuid, str(sip_dir)
+            )
+            root = mets.serialize()
+            assert len(root.findall("mets:amdSec", namespaces=NSMAP)) == 3
+            assert len(root.findall("mets:fileSec//mets:file", namespaces=NSMAP)) == 3
+            assert (
+                root.find(
+                    'mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP
+                )
+                is None
+            )
+
+            # There used to be 10 <mets:div> elements under the physical structMap.
+            # However, now metsrw does not list empty directories (or directories
+            # that only contain empty directories) in the physical structMap.
+            # Therefore, the directories in the following path will not be
+            # documented after metsrw has re-serialized:
+            # metadata/transfers/no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/
+            assert (
+                len(
+                    root.findall(
+                        'mets:structMap[@TYPE="physical"]//mets:div', namespaces=NSMAP
+                    )
+                )
+                == 7
+            )
+
+        finally:
+            shutil.rmtree(str(sip_dir.parent))
 
     def test_add_metadata_csv(self):
         """

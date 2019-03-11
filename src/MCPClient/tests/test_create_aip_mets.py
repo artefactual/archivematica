@@ -4,6 +4,7 @@ import csv
 import os
 import shutil
 import sys
+import tempfile
 import unittest
 
 from django.test import TestCase
@@ -18,6 +19,12 @@ import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights
 
 from main.models import RightsStatement
+from . import TempDirMixin
+
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
 NSMAP = {
     "dc": "http://purl.org/dc/elements/1.1/",
@@ -27,36 +34,37 @@ NSMAP = {
 }
 
 
-class TestNormativeStructMap(TestCase):
+class TestNormativeStructMap(TempDirMixin, TestCase):
     """Test creation of normative structMap."""
 
     fixture_files = []
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-    sip_dir = os.path.join(THIS_DIR, "fixtures", "create_aip_mets") + "/"
-    sip_object_dir = os.path.join(THIS_DIR, "fixtures", "create_aip_mets") + "/objects"
+
+    def setUp(self):
+        super(TestNormativeStructMap, self).setUp()
+        self.sip_dir = self.tmpdir / "sip"
+        self.sip_object_dir = self.sip_dir / "objects"
+        shutil.copytree(
+            os.path.join(THIS_DIR, "fixtures", "create_aip_mets", ""), str(self.sip_dir)
+        )
 
     def test_path_to_fsitems(self):
         """It should return 4 tuple instances"""
-        empty_dir = os.path.join(self.sip_object_dir, "empty_dir")
-        try:
-            # Class tempfile.TemporaryDirectory only available in Py3.
-            os.mkdir(empty_dir)
-            fsitems = create_mets_v2.get_paths_as_fsitems(
-                self.sip_dir, self.sip_object_dir
-            )
-            assert len(fsitems) == 4
-            assert isinstance(fsitems[0], tuple)
-            assert isinstance(fsitems[1], tuple)
-            assert isinstance(fsitems[2], tuple)
-            assert isinstance(fsitems[3], tuple)
-        finally:
-            shutil.rmtree(empty_dir)
+        (self.sip_object_dir / "empty_dir").mkdir()
+        fsitems = create_mets_v2.get_paths_as_fsitems(
+            str(self.sip_dir) + os.sep, str(self.sip_object_dir)
+        )
+        assert len(fsitems) == 4
+        assert isinstance(fsitems[0], tuple)
+        assert isinstance(fsitems[1], tuple)
+        assert isinstance(fsitems[2], tuple)
+        assert isinstance(fsitems[3], tuple)
 
     def test_normative_structmap_creation(self):
         """It should return an etree Element instance."""
         state = create_mets_v2.MetsState()
         normativeStructMap = create_mets_v2.get_normative_structmap(
-            self.sip_dir, self.sip_object_dir, {}, state
+            str(self.sip_dir) + os.sep, str(self.sip_object_dir), {}, state
         )
         assert isinstance(normativeStructMap, etree._Element)
 
@@ -150,37 +158,24 @@ class TestDublinCore(TestCase):
     def test_create_dc_dmdsec_no_dc_no_transfers(self):
         """It should not fail if no dublincore.xml exists from transfers."""
         badsipuuid = "dnednedn-5bd2-4249-84a1-2f00f725b981"
-        empty_transfers_sip = os.path.join(THIS_DIR, "fixtures", "emptysip")
-        state = create_mets_v2.MetsState()
-        # Make sure directory is empty
+        sip_dir = Path(tempfile.mkdtemp()) / "emptysip"
         try:
-            os.remove(
-                os.path.join(
-                    empty_transfers_sip,
-                    "objects",
-                    "metadata",
-                    "transfers",
-                    ".gitignore",
-                )
+            shutil.copytree(
+                os.path.join(THIS_DIR, "fixtures", "emptysip"), str(sip_dir)
             )
-        except OSError:
-            pass
-        dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(
-            Job("stub", "stub", []),
-            self.siptypeuuid,
-            badsipuuid,
-            empty_transfers_sip,
-            state,
-        )
-        assert dmdsec_elem is None
-        # Reset directory state
-        with open(
-            os.path.join(
-                empty_transfers_sip, "objects", "metadata", "transfers", ".gitignore"
-            ),
-            "w",
-        ):
-            pass
+            # Make sure directory is empty
+            (sip_dir / "objects/metadata/transfers/.gitignore").unlink()
+            state = create_mets_v2.MetsState()
+            dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(
+                Job("stub", "stub", []),
+                self.siptypeuuid,
+                badsipuuid,
+                str(sip_dir),
+                state,
+            )
+            assert dmdsec_elem is None
+        finally:
+            shutil.rmtree(str(sip_dir.parent))
 
     @unittest.expectedFailure
     def test_create_dc_dmdsec_no_dc_transfer_dc_xml(self):
@@ -436,12 +431,12 @@ class TestDublinCore(TestCase):
         assert xmldata[1].text == u"雪 ユキ"
 
 
-class TestCSVMetadata(TestCase):
+class TestCSVMetadata(TempDirMixin, TestCase):
     """Test parsing the metadata.csv."""
 
-    def tearDown(self):
-        if os.path.exists("metadata.csv"):
-            os.remove("metadata.csv")
+    def setUp(self):
+        super(TestCSVMetadata, self).setUp()
+        self.metadata_file = self.tmpdir / "metadata.csv"
 
     def test_parse_metadata_csv(self):
         """It should parse the metadata.csv into a dict."""
@@ -451,14 +446,14 @@ class TestCSVMetadata(TestCase):
             ["objects/foo.jpg", "Foo", "2000", "Taken on a sunny day"],
             ["objects/bar/", "Bar", "2000", "All taken on a rainy day"],
         ]
-        with open("metadata.csv", "wb") as f:
+        with self.metadata_file.open("wb") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), "metadata.csv"
+            Job("stub", "stub", []), str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -495,14 +490,14 @@ class TestCSVMetadata(TestCase):
             ["Filename", "dc.title", "dc.type", "dc.type", "dc.type"],
             ["objects/foo.jpg", "Foo", "Photograph", "Still image", "Picture"],
         ]
-        with open("metadata.csv", "wb") as f:
+        with self.metadata_file.open("wb") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), "metadata.csv"
+            Job("stub", "stub", []), str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -521,14 +516,14 @@ class TestCSVMetadata(TestCase):
         """It should parse unicode."""
         # Create metadata.csv
         data = [["Filename", "dc.title"], ["objects/foo.jpg", u"元気です".encode("utf8")]]
-        with open("metadata.csv", "wb") as f:
+        with self.metadata_file.open("wb") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), "metadata.csv"
+            Job("stub", "stub", []), str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -544,14 +539,14 @@ class TestCSVMetadata(TestCase):
             ["objects/foo.jpg", "Foo", "Photograph", "Still image", "Picture"],
             [],
         ]
-        with open("metadata.csv", "wb") as f:
+        with self.metadata_file.open("wb") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), "metadata.csv"
+            Job("stub", "stub", []), str(self.metadata_file)
         )
         # Verify
         assert dc
