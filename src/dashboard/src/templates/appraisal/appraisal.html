@@ -16,14 +16,14 @@
 {% block js %}
 <script src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
 <script src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
-<script src="{{ STATIC_URL }}js/build/appraisal_tab.js"></script>
+<script src="{{ STATIC_URL }}js/build/dashboard.js"></script>
 {% endblock %}
 
 {% block content %}
 {% if search_transfers_enabled %}
   {% verbatim %}
-  <div ng-app="appraisalTab">
-    <ng-include src="'front_page/content.html'"></ng-include>
+  <div ng-app="dashboard">
+    <ng-include src="'front_page/appraisal_tab.html'"></ng-include>
   </div>
   {% endverbatim %}
 {% else %}
