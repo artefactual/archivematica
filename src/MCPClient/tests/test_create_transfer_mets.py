@@ -42,7 +42,7 @@ class TestCreateTransferMETS(TestCase):
             removedtime=None,
             size=113318,
             checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
-            checksumtype="SHA-256",
+            checksumtype="sha256",
         )
         cls.event = Event.objects.create(
             event_id=uuid.uuid4(),

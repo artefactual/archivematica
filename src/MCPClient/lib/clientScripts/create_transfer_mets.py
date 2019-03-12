@@ -61,6 +61,8 @@ def write_mets(
         identifier_uuid: The UUID for the identifier group lookup
     """
     transfer_dir_path = os.path.expanduser(transfer_dir_path)
+    transfer_dir_path = os.path.normpath(transfer_dir_path)
+
     db_base_path = r"%{}%".format(base_path_placeholder)
     lookup_kwargs = {identifier_group: identifier_uuid}
 
@@ -69,8 +71,19 @@ def write_mets(
         transfer_dir_path, transfer_dir_path, db_base_path, lookup_kwargs
     )
     mets.append_file(root_fsentry)
+    mets.write(mets_path, pretty_print=True)
 
-    mets.write(mets_path)
+
+def convert_to_premis_hash_function(hash_type):
+    """
+    Returns a PREMIS valid hash function name, if possible.
+    """
+    if hash_type.lower().startswith('sha') and '-' not in hash_type:
+        hash_type = 'SHA-' + hash_type.upper()[3:]
+    elif hash_type.lower() == 'md5':
+        return 'MD5'
+
+    return hash_type
 
 
 def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=None):
@@ -84,21 +97,23 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
         parent_path = os.path.basename(path)
         parent = metsrw.FSEntry(path=parent_path, type="Directory")
 
-    dir_entries = sorted(scandir.scandir(path))
+    dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
     for dir_entry in dir_entries:
         if dir_entry.is_dir():
-            fsentry = metsrw.FSEntry(path=dir_entry.name, type="Directory")
+            fsentry = metsrw.FSEntry(path=dir_entry.name, label=dir_entry.name, type="Directory")
         else:
             relative_path = os.path.relpath(dir_entry.path, start=root_path)
             file_obj = lookup_file_data(relative_path, db_base_path, lookup_kwargs)
             if file_obj is None:
                 continue
+            checksum_type = convert_to_premis_hash_function(file_obj.checksumtype)
             fsentry = metsrw.FSEntry(
                 path=dir_entry.name,
+                label=dir_entry.name,
                 type="Item",
                 file_uuid=file_obj.uuid,
                 checksum=file_obj.checksum,
-                checksumtype=file_obj.checksumtype,
+                checksumtype=checksum_type,
             )
 
             premis_object = file_obj_to_premis(file_obj)
@@ -230,6 +245,7 @@ def file_obj_to_premis(file_obj):
         metsrw.plugins.premisrw.premis.PREMISObject
     """
 
+    premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
     premis_data = (
         "object",
         metsrw.plugins.premisrw.PREMIS_2_2_META,
@@ -243,7 +259,7 @@ def file_obj_to_premis(file_obj):
             ("composition_level", "0"),
             (
                 "fixity",
-                ("message_digest_algorithm", file_obj.checksumtype.upper()),
+                ("message_digest_algorithm", premis_digest_algorithm),
                 ("message_digest", file_obj.checksum),
             ),
             ("size", str(file_obj.size)),
