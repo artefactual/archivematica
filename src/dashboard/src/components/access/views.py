@@ -12,40 +12,27 @@ from django.shortcuts import redirect
 from django.utils import timezone
 
 # External dependencies, alphabetical
-import MySQLdb  # for ATK exceptions
-from agentarchives.archivists_toolkit import ArchivistsToolkitError
 from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
 
 # This project, alphabetical by import source
 from components import helpers
-from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
 from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDigitalObject, DublinCore
 
 logger = logging.getLogger('archivematica.dashboard')
 
+
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Access
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-
-def _get_client_by_type(system):
-    if system == "archivesspace":
-        return get_as_system_client()
-    elif system == "atk":
-        return get_atk_system_client()
-    else:
-        raise ValueError("Unrecognized access system: {}".format(system))
-
-
 def _authenticate_to_archivesspace(func):
+    """Append the client onto the positional argument list."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            system = kwargs['system']
-            # append the client onto the positional argument list
-            client = _get_client_by_type(system)
+            client = get_as_system_client()
         except AuthenticationError:
             response = {
                 "success": False,
@@ -60,14 +47,6 @@ def _authenticate_to_archivesspace(func):
             }
             return django.http.HttpResponseServerError(json.dumps(response),
                                                        content_type="application/json")
-        except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
-            response = {
-                "success": False,
-                "message": "Unable to connect to Archivist's Toolkit database; failed with error: {}".format(e),
-            }
-            return django.http.HttpResponseServerError(json.dumps(response),
-                                                       content_type="application/json")
-
         return func(client, *args, **kwargs)
     return wrapper
 
@@ -151,7 +130,7 @@ def record(client, request, system='', record_id=''):
 
         try:
             client.edit_record(new_record)
-        except (ArchivesSpaceError, ArchivistsToolkitError) as e:
+        except (ArchivesSpaceError) as e:
             return helpers.json_response({
                 'sucess': False,
                 'message': str(e),
@@ -202,13 +181,6 @@ def record_children(client, request, system='', record_id=''):
                 'message': str(e),
             }
             return helpers.json_response(response, status_code=400)
-        except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
-            response = {
-                'success': False,
-                'message': 'MySQL error encountered while communicating with Archivist\'s Toolkit: ' + str(e),
-            }
-            return helpers.json_response(response, status_code=400)
-
         response = {
             'success': True,
             'id': new_id,

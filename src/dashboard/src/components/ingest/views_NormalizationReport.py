@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 # This file is part of Archivematica.
@@ -156,11 +155,3 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     cursor.execute(sql, (sipUUID, sipUUID))
     objects = helpers.dictfetchall(cursor)
     return objects
-
-
-if __name__ == '__main__':
-    import sys
-    uuid = "'%s'" % (sys.argv[1])
-    print("testing normalization report")
-    sql = getNormalizationReportQuery(sipUUID=uuid)
-    print(sql)

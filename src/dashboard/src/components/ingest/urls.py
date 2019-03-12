@@ -18,7 +18,6 @@
 from django.conf.urls import url
 from django.conf import settings
 from components.ingest import views
-from components.ingest import views_atk
 from components.ingest import views_as
 
 urlpatterns = [
@@ -42,17 +41,6 @@ urlpatterns = [
     url(r'^backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', views.transfer_file_download),
     url(r'^backlog/$', views.transfer_backlog, {'ui': 'legacy'}),
     url(r'^appraisal_list/$', views.transfer_backlog, {'ui': 'appraisal'}),
-]
-
-# Archivists Toolkit
-urlpatterns += [
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resource/(?P<resource_id>\d+)/$', views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resourcecomponent/(?P<resource_component_id>\d+)/$', views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resource/(?P<resource_id>\d+)/$', views_atk.ingest_upload_atk_resource),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resourcecomponent/(?P<resource_component_id>\d+)/$', views_atk.ingest_upload_atk_resource_component),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/save/$', views_atk.ingest_upload_atk_save),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/reset/$', views_atk.ingest_upload_atk_reset),
-    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', views_atk.ingest_upload_atk)
 ]
 
 # ArchivesSpace
