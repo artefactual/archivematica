@@ -44,24 +44,18 @@ matrix:
       env: TOXENV=py36-flake8
 
     # Dashboard JS
+
     - language: node_js
       node_js: "8"
       cache: npm
       before_install:
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
-        - sleep 3 # give xvfb some time to start
         - cd ./src/dashboard/frontend/
       install: npm install
       before_script:
         - '' # override global before_script
       script: npm run "test-single-run"
       addons:
-        apt:
-          sources:
-            - google-chrome
-          packages:
-            - google-chrome-stable
+        chrome: stable
 
   allow_failures:
 

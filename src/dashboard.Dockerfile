@@ -27,7 +27,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 #
-# Chrome for Karma JS tests
+# Chrome and Firefox for Karma JS tests
 #
 
 ARG CHROME_VERSION="google-chrome-beta"
@@ -38,20 +38,6 @@ RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
 	&& rm /etc/apt/sources.list.d/google-chrome.list \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-ARG CHROME_DRIVER_VERSION="latest"
-RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(curl -sL https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \
-	&& echo "Using chromedriver version: "$CD_VERSION \
-	&& curl -so /tmp/chromedriver_linux64.zip -L https://chromedriver.storage.googleapis.com/$CD_VERSION/chromedriver_linux64.zip \
-	&& rm -rf /opt/selenium/chromedriver \
-	&& unar /tmp/chromedriver_linux64.zip -o /opt/selenium \
-	&& rm /tmp/chromedriver_linux64.zip \
-	&& mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CD_VERSION \
-	&& chmod 755 /opt/selenium/chromedriver-$CD_VERSION \
-	&& ln -fs /opt/selenium/chromedriver-$CD_VERSION /usr/bin/chromedriver
-
-#
-# Firefox for Karma JS tests
-#
 ARG FIREFOX_VERSION=65.0.1
 RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ]; then echo "https://download.mozilla.org/?product=firefox-$FIREFOX_VERSION-ssl&os=linux64&lang=en-US"; else echo "https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2"; fi) \
 	&& apt-get update -qqy \
@@ -64,17 +50,6 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 	&& rm /tmp/firefox.tar.bz2 \
 	&& mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
 	&& ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
-
-ARG GECKODRIVER_VERSION=0.24.0
-RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo $(curl -sL "https://api.github.com/repos/mozilla/geckodriver/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([0-9.]+)".*/\1/'); else echo $GECKODRIVER_VERSION; fi) \
-	&& echo "Using GeckoDriver version: "$GK_VERSION \
-	&& curl -so /tmp/geckodriver.tar.gz -L https://github.com/mozilla/geckodriver/releases/download/v$GK_VERSION/geckodriver-v$GK_VERSION-linux64.tar.gz \
-	&& rm -rf /opt/geckodriver \
-	&& tar -C /opt -zxf /tmp/geckodriver.tar.gz \
-	&& rm /tmp/geckodriver.tar.gz \
-	&& mv /opt/geckodriver /opt/geckodriver-$GK_VERSION \
-	&& chmod 755 /opt/geckodriver-$GK_VERSION \
-	&& ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
