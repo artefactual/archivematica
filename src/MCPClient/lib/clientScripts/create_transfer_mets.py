@@ -39,7 +39,8 @@ from archivematicaFunctions import escape
 from main.models import Derivation, File
 
 
-PREMIS_VERSION = metsrw.plugins.premisrw.PREMIS_2_2_META
+PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
+
 logger = logging.getLogger(__name__)
 
 
@@ -78,10 +79,10 @@ def convert_to_premis_hash_function(hash_type):
     """
     Returns a PREMIS valid hash function name, if possible.
     """
-    if hash_type.lower().startswith('sha') and '-' not in hash_type:
-        hash_type = 'SHA-' + hash_type.upper()[3:]
-    elif hash_type.lower() == 'md5':
-        return 'MD5'
+    if hash_type.lower().startswith("sha") and "-" not in hash_type:
+        hash_type = "SHA-" + hash_type.upper()[3:]
+    elif hash_type.lower() == "md5":
+        return "MD5"
 
     return hash_type
 
@@ -100,7 +101,9 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
     dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
     for dir_entry in dir_entries:
         if dir_entry.is_dir():
-            fsentry = metsrw.FSEntry(path=dir_entry.name, label=dir_entry.name, type="Directory")
+            fsentry = metsrw.FSEntry(
+                path=dir_entry.name, label=dir_entry.name, type="Directory"
+            )
         else:
             relative_path = os.path.relpath(dir_entry.path, start=root_path)
             file_obj = lookup_file_data(relative_path, db_base_path, lookup_kwargs)
@@ -248,7 +251,7 @@ def file_obj_to_premis(file_obj):
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
     premis_data = (
         "object",
-        metsrw.plugins.premisrw.PREMIS_2_2_META,
+        PREMIS_META,
         (
             "object_identifier",
             ("object_identifier_type", "UUID"),
@@ -277,7 +280,9 @@ def file_obj_to_premis(file_obj):
         file_obj.related_is_source_of, file_obj.related_has_source
     )
 
-    return metsrw.plugins.premisrw.data_to_premis(premis_data)
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=PREMIS_META["version"]
+    )
 
 
 def event_to_premis(event):
@@ -289,7 +294,7 @@ def event_to_premis(event):
     """
     premis_data = (
         "event",
-        metsrw.plugins.premisrw.PREMIS_2_2_META,
+        PREMIS_META,
         (
             "event_identifier",
             ("event_identifier_type", "UUID"),
@@ -316,7 +321,9 @@ def event_to_premis(event):
             ),
         )
 
-    return metsrw.plugins.premisrw.data_to_premis(premis_data)
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=PREMIS_META["version"]
+    )
 
 
 def call(jobs):
