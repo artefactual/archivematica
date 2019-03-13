@@ -21,9 +21,9 @@
 # @subpackage archivematicaClientScript
 from __future__ import unicode_literals
 
+import argparse
 import logging
 import os
-from optparse import OptionParser
 
 import django
 import scandir
@@ -327,32 +327,24 @@ def event_to_premis(event):
 
 
 def call(jobs):
-    parser = OptionParser()
-    parser.add_option("-s", "--basePath", action="store", dest="basePath", default="")
-    parser.add_option(
-        "-b",
-        "--basePathString",
-        action="store",
-        dest="basePathString",
-        default="SIPDirectory",
-    )  # transferDirectory
-    parser.add_option(
-        "-f",
-        "--fileGroupIdentifier",
-        action="store",
-        dest="fileGroupIdentifier",
-        default="sipUUID",
-    )  # transferUUID
-    parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
-    parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--basePath", dest="base_path")
+    parser.add_argument(
+        "-b", "--basePathString", dest="base_path_string", default="SIPDirectory"
+    )
+    parser.add_argument(
+        "-f", "--fileGroupIdentifier", dest="file_group_identifier", default="sipUUID"
+    )
+    parser.add_argument("-S", "--sipUUID", dest="sip_uuid")
+    parser.add_argument("-x", "--xmlFile", dest="xml_file")
 
     for job in jobs:
         with job.JobContext(logger=logger):
-            (opts, args) = parser.parse_args(job.args[1:])
+            args = parser.parse_args(job.args[1:])
             write_mets(
-                opts.xmlFile,
-                opts.basePath,
-                opts.basePathString,
-                opts.fileGroupIdentifier,
-                opts.sipUUID,
+                args.xml_file,
+                args.base_path,
+                args.base_path_string,
+                args.file_group_identifier,
+                args.sip_uuid,
             )
