@@ -23,21 +23,21 @@ import components.helpers as helpers
 from re import compile as re_compile
 
 
-EXEMPT_URLS = [re_compile(settings.LOGIN_URL.lstrip('/'))]
-if hasattr(settings, 'LOGIN_EXEMPT_URLS'):
+EXEMPT_URLS = [re_compile(settings.LOGIN_URL.lstrip("/"))]
+if hasattr(settings, "LOGIN_EXEMPT_URLS"):
     EXEMPT_URLS += [re_compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
 
 
 class ConfigurationCheckMiddleware:
     def process_request(self, request):
         # The presence of the UUID is an indicator of whether we've already set up.
-        dashboard_uuid = helpers.get_setting('dashboard_uuid')
+        dashboard_uuid = helpers.get_setting("dashboard_uuid")
         if not dashboard_uuid:
             # Start off the installer
-            if reverse('installer.views.welcome') != request.path_info:
-                return redirect('installer.views.welcome')
+            if reverse("installer.views.welcome") != request.path_info:
+                return redirect("installer.views.welcome")
         elif not request.user.is_authenticated():
             # Installation already happened - make sure the user is logged in.
-            path = request.path_info.lstrip('/')
+            path = request.path_info.lstrip("/")
             if not any(m.match(path) for m in EXEMPT_URLS):
                 return redirect(settings.LOGIN_URL)

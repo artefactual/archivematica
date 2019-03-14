@@ -23,38 +23,38 @@ from main import views
 
 urlpatterns = [
     # Index
-    url(r'^$', views.home),
-
+    url(r"^$", views.home),
     # JavaScript i18n catalog
-    url(r'^jsi18n/$', views.cached_javascript_catalog, {'domain': 'djangojs'}, name='javascript-catalog'),
-
+    url(
+        r"^jsi18n/$",
+        views.cached_javascript_catalog,
+        {"domain": "djangojs"},
+        name="javascript-catalog",
+    ),
     # Forbidden
-    url(r'forbidden/$', views.forbidden),
-
+    url(r"forbidden/$", views.forbidden),
     # Jobs and tasks (is part of ingest)
-    url(r'tasks/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.tasks),
-    url(r'task/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.task),
-
+    url(r"tasks/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.tasks),
+    url(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task),
     # Access
-    url(r'access/$', views.access_list),
-    url(r'access/(?P<id>\d+)/delete/$', views.access_delete),
-
+    url(r"access/$", views.access_list),
+    url(r"access/(?P<id>\d+)/delete/$", views.access_delete),
     # JSON feeds
-    url(r'status/$', views.status),
-    url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', views.formdata_delete),
-    url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', views.formdata),
-
+    url(r"status/$", views.status),
+    url(
+        r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$",
+        views.formdata_delete,
+    ),
+    url(r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$", views.formdata),
 ]
 
-if 'shibboleth' in settings.INSTALLED_APPS:
+if "shibboleth" in settings.INSTALLED_APPS:
     # Simulate a shibboleth urls module (so our custom Shibboleth logout view
     # matches the same namespaced URL name as the standard logout view from
     # the shibboleth lib)
     class shibboleth_urls:
         urlpatterns = [
-            url(r'^logout/$', views.CustomShibbolethLogoutView.as_view(), name='logout'),
+            url(r"^logout/$", views.CustomShibbolethLogoutView.as_view(), name="logout")
         ]
 
-    urlpatterns += [
-        url(r'^shib/', include(shibboleth_urls, namespace='shibboleth')),
-    ]
+    urlpatterns += [url(r"^shib/", include(shibboleth_urls, namespace="shibboleth"))]

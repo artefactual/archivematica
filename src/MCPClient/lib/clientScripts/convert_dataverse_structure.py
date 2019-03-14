@@ -33,6 +33,7 @@ from lxml import etree
 
 # Database functions requires Django to be set up.
 import django
+
 django.setup()
 
 from custom_handlers import get_script_logger
@@ -80,7 +81,8 @@ def output_ddi_elems_info(job, ddi_elems):
     if draft:
         job.pyprint(
             "Dataset is in a DRAFT state and may not transfer correctly",
-            file=sys.stderr)
+            file=sys.stderr,
+        )
 
 
 def get_ddi_title(dataset_md_latest):
@@ -92,7 +94,8 @@ def get_ddi_title(dataset_md_latest):
             if field.get("typeName") == "title":
                 return field.get("value", "").strip()
     raise ConvertDataverseError(
-        "Unable to retrieve DDI metadata fields from dataset.json")
+        "Unable to retrieve DDI metadata fields from dataset.json"
+    )
 
 
 def get_ddi_author(dataset_md_latest):
@@ -110,15 +113,17 @@ def get_ddi_author(dataset_md_latest):
                 author_list = field.get("value")
                 for author in author_list:
                     entry = {}
-                    entry["affiliation"] = \
-                        author.get("authorAffiliation", {}).get("value", "")\
-                        .strip()
-                    entry["name"] = \
+                    entry["affiliation"] = (
+                        author.get("authorAffiliation", {}).get("value", "").strip()
+                    )
+                    entry["name"] = (
                         author.get("authorName", {}).get("value", "").strip()
+                    )
                     authors.append(entry)
         return authors
     raise ConvertDataverseError(
-        "Unable to retrieve DDI metadata fields from dataset.json")
+        "Unable to retrieve DDI metadata fields from dataset.json"
+    )
 
 
 def create_ddi(job, json_metadata, dataset_md_latest):
@@ -136,7 +141,7 @@ def create_ddi(job, json_metadata, dataset_md_latest):
     ddi_elems["Version Type"] = dataset_md_latest.get("versionState", "")
     ddi_elems["Version Number"] = "{}.{}".format(
         dataset_md_latest.get("versionNumber", ""),
-        dataset_md_latest.get("versionMinorNumber", "")
+        dataset_md_latest.get("versionMinorNumber", ""),
     )
     ddi_elems["Restriction Text"] = dataset_md_latest.get("termsOfUse", "")
     ddi_elems["Distributor Text"] = json_metadata.get("publisher", "")
@@ -162,35 +167,33 @@ def create_ddi(job, json_metadata, dataset_md_latest):
     citation = etree.SubElement(stdydscr, ddins + "citation", nsmap=nsmap)
 
     titlstmt = etree.SubElement(citation, ddins + "titlStmt", nsmap=nsmap)
-    etree.SubElement(titlstmt, ddins + "titl", nsmap=nsmap).text \
-        = ddi_elems["Title"]
+    etree.SubElement(titlstmt, ddins + "titl", nsmap=nsmap).text = ddi_elems["Title"]
 
     etree.SubElement(
-        titlstmt, ddins + "IDNo", agency=ddi_elems["PID Type"]).text \
-        = ddi_elems["IDNO"]
+        titlstmt, ddins + "IDNo", agency=ddi_elems["PID Type"]
+    ).text = ddi_elems["IDNO"]
 
     rspstmt = etree.SubElement(citation, ddins + "rspStmt")
 
     for auth in ddi_elems["Author"]:
         etree.SubElement(
-            rspstmt, ddins + "AuthEnty",
-            affiliation=auth.get("affiliation", "")).text = \
-            auth.get('name', "")
+            rspstmt, ddins + "AuthEnty", affiliation=auth.get("affiliation", "")
+        ).text = auth.get("name", "")
 
     diststmt = etree.SubElement(citation, ddins + "distStmt")
-    etree.SubElement(diststmt, ddins + "distrbtr").text \
-        = ddi_elems["Distributor Text"]
+    etree.SubElement(diststmt, ddins + "distrbtr").text = ddi_elems["Distributor Text"]
 
     verstmt = etree.SubElement(citation, ddins + "verStmt")
     etree.SubElement(
-        verstmt, ddins + "version", date=ddi_elems["Version Date"],
-        type=ddi_elems["Version Type"]
+        verstmt,
+        ddins + "version",
+        date=ddi_elems["Version Date"],
+        type=ddi_elems["Version Type"],
     ).text = ddi_elems["Version Number"]
 
     dataaccs = etree.SubElement(stdydscr, ddins + "dataAccs")
     usestmt = etree.SubElement(dataaccs, ddins + "useStmt")
-    etree.SubElement(usestmt, ddins + "restrctn").text \
-        = ddi_elems["Restriction Text"]
+    etree.SubElement(usestmt, ddins + "restrctn").text = ddi_elems["Restriction Text"]
 
     return ddi_root
 
@@ -200,8 +203,10 @@ def display_checksum_for_user(job, fname, checksum_value, checksum_type="MD5"):
     this script is doing in the Dataverse workflow.
     """
     job.pyprint(
-        "Checksum for '{}' retrieved from dataset.json: {} ({})"
-        .format(fname, checksum_value, checksum_type))
+        "Checksum for '{}' retrieved from dataset.json: {} ({})".format(
+            fname, checksum_value, checksum_type
+        )
+    )
 
 
 def create_bundle(job, tabfile_json):
@@ -223,24 +228,23 @@ def create_bundle(job, tabfile_json):
         return None
 
     # Else, continue processing.
-    job.pyprint("Creating entries for tabfile bundle {}"
-                .format(tabfile_name))
+    job.pyprint("Creating entries for tabfile bundle {}".format(tabfile_name))
     base_name = tabfile_name[:-4]
     bundle = metsrw.FSEntry(path=base_name, type="Directory")
     # Find the original file and add it to the METS FS Entries.
     tabfile_datafile = tabfile_json.get("dataFile")
     fname = None
     ext = EXTENSION_MAPPING.get(
-        tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN")
+        tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN"
+    )
     logger.info("Retrieved extension mapping value: %s", ext)
     logger.info(
         "Original file format listed as %s",
-        tabfile_datafile.get("originalFileFormat", "None"))
+        tabfile_datafile.get("originalFileFormat", "None"),
+    )
     if ext == "UNKNOWN":
         fname = tabfile_datafile.get("filename")
-        logger.info(
-            "Original Format Label is UNKNOWN, using filename: %s",
-            fname)
+        logger.info("Original Format Label is UNKNOWN, using filename: %s", fname)
     if fname is None:
         fname = "{}{}".format(base_name, ext)
     checksum_value = tabfile_datafile.get("md5")
@@ -334,7 +338,7 @@ def test_if_zip_in_name(fname):
     as we go.
     """
     ext_ = os.path.splitext(fname)[1]
-    if ext_.lower() == '.zip':
+    if ext_.lower() == ".zip":
         return True
     return False
 
@@ -367,8 +371,7 @@ def add_md_dir_to_structmap(sip):
     sip.add_child(md_dir)
     # Add dataset.json to the fileSec output.
     fsentry = metsrw.FSEntry(
-        path="metadata/dataset.json", use="metadata",
-        file_uuid=str(uuid.uuid4())
+        path="metadata/dataset.json", use="metadata", file_uuid=str(uuid.uuid4())
     )
     # Add dataset.json to the metadata fileSec group.
     md_dir.add_child(fsentry)
@@ -379,7 +382,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
     """Add file entries to the Dataverse METS document."""
 
     # Add original files to the METS document.
-    files = dataset_md_latest.get('files')
+    files = dataset_md_latest.get("files")
     if not files:
         return None
 
@@ -390,14 +393,16 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
     if len(files) == 0:
         logger.info(
             "Metadata only transfer? There are no file entries in this "
-            "transfer's metadata.")
+            "transfer's metadata."
+        )
 
     for file_json in files:
         is_restricted = file_json.get("restricted")
         if is_restricted is True and contact_information:
             logger.error(
-                "Restricted dataset files may not have transferred "
-                "correctly: %s", contact_information)
+                "Restricted dataset files may not have transferred " "correctly: %s",
+                contact_information,
+            )
 
         data_file = file_json.get("dataFile", {})
         if data_file.get("filename", "").endswith(".tab"):
@@ -409,8 +414,9 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
                 sip.add_child(bundle)
             else:
                 logger.error(
-                    "Create Dataverse transfer METS failed. "
-                    "Bundle returned: %s", bundle)
+                    "Create Dataverse transfer METS failed. " "Bundle returned: %s",
+                    bundle,
+                )
                 return None
         else:
             path_ = None
@@ -422,8 +428,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
                     # dataset we're processing.
                     if not zipped_file:
                         zipped_file = True
-                        logger.info(
-                            "Non-bundle .zip file found in the dataset.")
+                        logger.info("Non-bundle .zip file found in the dataset.")
                 checksum_value = data_file.get("md5")
                 if checksum_value is None:
                     return None
@@ -439,7 +444,10 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
             else:
                 logger.error(
                     "Problem retrieving filename from metadata, returned "
-                    "datafile: %s, path: %s", data_file, path_)
+                    "datafile: %s, path: %s",
+                    data_file,
+                    path_,
+                )
                 return None
     return sip
 
@@ -463,10 +471,15 @@ def write_mets_to_file(sip, unit_path, output_md_path, output_md_name):
     # package.
     mets_f = metsrw.METSDocument()
     mets_f.append_file(sip)
-    with open(mets_path, 'w') as xml_file:
-        xml_file.write(etree.tostring(
-            mets_f.serialize(), pretty_print=True, encoding="utf-8",
-            xml_declaration=True))
+    with open(mets_path, "w") as xml_file:
+        xml_file.write(
+            etree.tostring(
+                mets_f.serialize(),
+                pretty_print=True,
+                encoding="utf-8",
+                xml_declaration=True,
+            )
+        )
 
 
 def load_md_and_return_json(unit_path, dataset_md_name):
@@ -484,21 +497,25 @@ def load_md_and_return_json(unit_path, dataset_md_name):
 
 
 def convert_dataverse_to_mets(
-        job, unit_path, dataset_md_name="dataset.json", output_md_path=None,
-        output_md_name=None):
+    job,
+    unit_path,
+    dataset_md_name="dataset.json",
+    output_md_path=None,
+    output_md_name=None,
+):
     """Create a transfer METS file from a Dataverse's dataset.json file"""
     logger.info(
-        "Convert Dataverse structure called with '%s' unit directory",
-        unit_path)
+        "Convert Dataverse structure called with '%s' unit directory", unit_path
+    )
 
     json_metadata = load_md_and_return_json(unit_path, dataset_md_name)
     if json_metadata is None:
-        raise ConvertDataverseError(
-            "Unable to the load Dataverse metadata file")
+        raise ConvertDataverseError("Unable to the load Dataverse metadata file")
     dataset_md_latest = get_latest_version_metadata(json_metadata)
     if dataset_md_latest is None:
         raise ConvertDataverseError(
-            "Unable to find the dataset metadata section from dataset.json")
+            "Unable to find the dataset metadata section from dataset.json"
+        )
 
     # If a dataset is restricted we may not have access to all the files. We
     # may also want to flag this dataset to the users of this service. We
@@ -510,12 +527,13 @@ def convert_dataverse_to_mets(
     # Create METS
     try:
         sip = metsrw.FSEntry(
-            path="None", label=get_ddi_title(dataset_md_latest),
-            use=None, type="Directory"
+            path="None",
+            label=get_ddi_title(dataset_md_latest),
+            use=None,
+            type="Directory",
         )
     except TypeError as err:
-        citation_msg = (
-            "Unable to gather citation data from dataset.json: %s", err)
+        citation_msg = ("Unable to gather citation data from dataset.json: %s", err)
         logger.error(citation_msg)
         raise ConvertDataverseError(citation_msg)
 
@@ -523,11 +541,9 @@ def convert_dataverse_to_mets(
     if sip is None:
         raise ConvertDataverseError("Error creating SIP from Dataverse DDI")
 
-    sip = add_metadata_ref(
-        sip, dataset_md_name, "metadata/{}".format(dataset_md_name))
+    sip = add_metadata_ref(sip, dataset_md_name, "metadata/{}".format(dataset_md_name))
 
-    sip = add_dataset_files_to_md(
-        job, sip, dataset_md_latest, contact_information)
+    sip = add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information)
     if sip is None:
         raise ConvertDataverseError("Error adding Dataset files to METS")
 
@@ -551,7 +567,8 @@ def get_latest_version_metadata(json_metadata):
         logger.info(
             "Dataset seems to have been downloaded from the Dataverse Web UI."
             "Some features of this method may be incompatible with "
-            "Archivematica at present.")
+            "Archivematica at present."
+        )
         return dataset_version
     return json_metadata.get("latestVersion")
 
@@ -565,9 +582,9 @@ def init_convert_dataverse(job):
         logger.info("Convert Dataverse Structure with dir: '%s'", transfer_dir)
         return convert_dataverse_to_mets(job, unit_path=transfer_dir)
     except IndexError:
-        convert_dv_msg = (
-            "Problem with the supplied arguments to the function len: {}"
-            .format(len(job.args)))
+        convert_dv_msg = "Problem with the supplied arguments to the function len: {}".format(
+            len(job.args)
+        )
         logger.error(convert_dv_msg)
         raise ConvertDataverseError(convert_dv_msg)
 

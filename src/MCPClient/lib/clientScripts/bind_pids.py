@@ -48,27 +48,32 @@ import os
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
 from lxml import etree
+
 # dashboard
 from main.models import DashboardSetting, Directory, Identifier, SIP
+
 # archivematicaCommon
 from archivematicaFunctions import str2bool
 from bindpid import bind_pid, BindPIDException
 from custom_handlers import get_script_logger
 import namespaces as ns
 
-logger = get_script_logger('archivematica.mcp.client.bind_pids')
+logger = get_script_logger("archivematica.mcp.client.bind_pids")
 
 
 class BindPIDsException(Exception):
     """If I am raised, return 1."""
+
     exit_code = 1
 
 
 class BindPIDsWarning(Exception):
     """If I am raised, return 0."""
+
     exit_code = 0
 
 
@@ -76,19 +81,21 @@ def exit_on_known_exception(func):
     """Decorator that makes this module's ``main`` function cleaner by handling
     early exiting by catching particular exceptions.
     """
+
     @wraps(func)
     def wrapped(*_args, **kwargs):
         try:
             func(*_args, **kwargs)
         except (BindPIDsException, BindPIDsWarning) as exc:
             return exc.exit_code
+
     return wrapped
 
 
 def _exit_if_not_bind_pids(bind_pids_switch):
     """Quit processing if bind_pids_switch is not truthy."""
     if not bind_pids_switch:
-        logger.info('Configuration indicates that PIDs should not be bound.')
+        logger.info("Configuration indicates that PIDs should not be bound.")
         raise BindPIDsWarning
 
 
@@ -97,10 +104,10 @@ def _add_pid_to_mdl_identifiers(mdl, config):
     an identifier in its m2m ``identifiers`` attribute. Also add the PURL (URL
     constructed out of the PID) as a URI-type identifier.
     """
-    pid = '{}/{}'.format(config['naming_authority'], config['desired_pid'])
-    purl = '{}/{}'.format(config['handle_resolver_url'].rstrip('/'), pid)
-    hdl_identifier = Identifier.objects.create(type='hdl', value=pid)
-    purl_identifier = Identifier.objects.create(type='URI', value=purl)
+    pid = "{}/{}".format(config["naming_authority"], config["desired_pid"])
+    purl = "{}/{}".format(config["handle_resolver_url"].rstrip("/"), pid)
+    hdl_identifier = Identifier.objects.create(type="hdl", value=pid)
+    purl_identifier = Identifier.objects.create(type="URI", value=purl)
     mdl.identifiers.add(hdl_identifier)
     mdl.identifiers.add(purl_identifier)
 
@@ -115,20 +122,23 @@ def _get_sip(sip_uuid):
 def _is_transfer_name(fname):
     """Return ``True`` only if ``fname`` is a possible transfer name, e.g.,
     something like ``'transfer-dingo-d90d427a-4475-4f2f-b117-0d8835ed1ac3'``."""
-    return (fname.startswith('transfer-') and
-            [len(x) for x in fname.split('-')[-5:]] == [8, 4, 4, 4, 12])
+    return fname.startswith("transfer-") and [
+        len(x) for x in fname.split("-")[-5:]
+    ] == [8, 4, 4, 4, 12]
 
 
 def _get_unique_transfer_mets_path(current_path):
     """Return the path to the METS file of the unique transfer contained within
     this SIP's directory; return ``None`` if there is no unique transfer.
     """
-    transfers_path = os.path.join(current_path, 'objects',
-                                  'submissionDocumentation')
-    transfer_paths = [os.path.join(transfers_path, fname) for fname in
-                      os.listdir(transfers_path) if _is_transfer_name(fname)]
+    transfers_path = os.path.join(current_path, "objects", "submissionDocumentation")
+    transfer_paths = [
+        os.path.join(transfers_path, fname)
+        for fname in os.listdir(transfers_path)
+        if _is_transfer_name(fname)
+    ]
     if len(transfer_paths) == 1:
-        transfer_mets_path = os.path.join(transfer_paths[0], 'METS.xml')
+        transfer_mets_path = os.path.join(transfer_paths[0], "METS.xml")
         if os.path.isfile(transfer_mets_path):
             return transfer_mets_path
     return None
@@ -139,8 +149,7 @@ def _get_accession_no(transfer_mets_path):
     if there is no applicable element.
     """
     mets_doc = etree.parse(transfer_mets_path)
-    return mets_doc.findtext('mets:metsHdr/mets:altRecordID',
-                             namespaces=ns.NSMAP)
+    return mets_doc.findtext("mets:metsHdr/mets:altRecordID", namespaces=ns.NSMAP)
 
 
 def _get_unique_acc_no(sip_mdl, shared_path):
@@ -148,7 +157,7 @@ def _get_unique_acc_no(sip_mdl, shared_path):
     SIP represented by model ``sip_mdl``; if there is not such a unique
     transfer, or if it does not have an accession number, return ``None``.
     """
-    current_path = sip_mdl.currentpath.replace('%sharedPath%', shared_path)
+    current_path = sip_mdl.currentpath.replace("%sharedPath%", shared_path)
     unique_transfer_mets_path = _get_unique_transfer_mets_path(current_path)
     if unique_transfer_mets_path:
         accession_no = _get_accession_no(unique_transfer_mets_path)
@@ -162,12 +171,15 @@ def _get_desired_pid(job, mdl, is_sip, shared_path, pid_source):
     configured the accession number to be used for an AIP's PID, then we will
     try to use that here, if there is a unique one.
     """
-    if is_sip and pid_source == 'accession_no':
+    if is_sip and pid_source == "accession_no":
         unique_acc_no = _get_unique_acc_no(mdl, shared_path)
         if unique_acc_no:
             return unique_acc_no
-        msg = ('Unable to find a unique accession number for SIP %s. Using its'
-               ' UUID as the PID instead', mdl.uuid)
+        msg = (
+            "Unable to find a unique accession number for SIP %s. Using its"
+            " UUID as the PID instead",
+            mdl.uuid,
+        )
         logger.warning(msg)
         job.pyprint(msg)
     return mdl.uuid
@@ -181,13 +193,14 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
     successful, adds the PID to the model's ``identifiers`` attribute.
     """
     is_sip = isinstance(mdl, SIP)
-    entity_type = 'unit' if is_sip else 'file'  # bindpid treats directories and files equivalently
+    entity_type = (
+        "unit" if is_sip else "file"
+    )  # bindpid treats directories and files equivalently
     # Desired PID is usually model's UUID, but can be accession number
     desired_pid = _get_desired_pid(
-        job,
-        mdl, is_sip, shared_path, config['handle_archive_pid_source'])
-    config.update({'entity_type': entity_type,
-                   'desired_pid': desired_pid})
+        job, mdl, is_sip, shared_path, config["handle_archive_pid_source"]
+    )
+    config.update({"entity_type": entity_type, "desired_pid": desired_pid})
     try:
         msg = bind_pid(**config)
         _add_pid_to_mdl_identifiers(mdl, config)
@@ -207,32 +220,43 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     ``True``.
     """
     _exit_if_not_bind_pids(bind_pids_switch)
-    handle_config = DashboardSetting.objects.get_dict('handle')
-    handle_config['pid_request_verify_certs'] = str2bool(
-        handle_config.get('pid_request_verify_certs', 'True'))
-    for mdl in chain([_get_sip(sip_uuid)],
-                     Directory.objects.filter(sip_id=sip_uuid).all()):
+    handle_config = DashboardSetting.objects.get_dict("handle")
+    handle_config["pid_request_verify_certs"] = str2bool(
+        handle_config.get("pid_request_verify_certs", "True")
+    )
+    for mdl in chain(
+        [_get_sip(sip_uuid)], Directory.objects.filter(sip_id=sip_uuid).all()
+    ):
         _bind_pid_to_model(job, mdl, shared_path, handle_config)
 
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument('sip_uuid', type=str,
-                        help='The UUID of the SIP to bind a PID for; any'
-                             ' directories associated to this SIP will have'
-                             ' PIDs bound as well.')
-    parser.add_argument('shared_path', type=str,
-                        help='The shared directory where SIPs are stored.')
-    parser.add_argument('--bind-pids', action='store', type=str2bool,
-                        dest="bind_pids_switch", default='No')
+    parser.add_argument(
+        "sip_uuid",
+        type=str,
+        help="The UUID of the SIP to bind a PID for; any"
+        " directories associated to this SIP will have"
+        " PIDs bound as well.",
+    )
+    parser.add_argument(
+        "shared_path", type=str, help="The shared directory where SIPs are stored."
+    )
+    parser.add_argument(
+        "--bind-pids",
+        action="store",
+        type=str2bool,
+        dest="bind_pids_switch",
+        default="No",
+    )
 
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
-                if args.sip_uuid == 'None':
+                if args.sip_uuid == "None":
                     job.set_status(0)
                     continue
 
-                logger.info('bind_pids called with args: %s', vars(args))
+                logger.info("bind_pids called with args: %s", vars(args))
                 job.set_status(main(job, **vars(args)))

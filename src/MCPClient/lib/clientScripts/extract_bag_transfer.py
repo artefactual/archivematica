@@ -25,8 +25,10 @@ import os
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import Transfer
 
@@ -39,21 +41,25 @@ def extract(job, target, destinationDirectory):
 
     exitC = 0
 
-    if file_extension != '.tgz' and file_extension != '.gz':
-        job.pyprint('Unzipping...')
+    if file_extension != ".tgz" and file_extension != ".gz":
+        job.pyprint("Unzipping...")
 
         command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
-        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False, capture_output=True)
+        exitC, stdOut, stdErr = executeOrRun(
+            "command", command, printing=False, capture_output=True
+        )
         if exitC != 0:
             job.pyprint(stdOut)
             job.pyprint("Failed extraction: ", command, "\r\n", stdErr, file=sys.stderr)
     else:
-        job.pyprint('Untarring...')
+        job.pyprint("Untarring...")
 
         parent_dir = os.path.abspath(os.path.join(destinationDirectory, os.pardir))
-        file_extension = ''
+        file_extension = ""
         command = ("tar zxvf " + target + ' --directory="%s"') % (parent_dir)
-        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False, capture_output=True)
+        exitC, stdOut, stdErr = executeOrRun(
+            "command", command, printing=False, capture_output=True
+        )
         if exitC != 0:
             job.pyprint(stdOut)
             job.pyprint("Failed to untar: ", command, "\r\n", stdErr, file=sys.stderr)
@@ -71,18 +77,20 @@ def call(jobs):
                 sharedPath = job.args[4]
 
                 basename = os.path.basename(target)
-                basename = basename[:basename.rfind(".")]
+                basename = basename[: basename.rfind(".")]
 
                 destinationDirectory = os.path.join(processingDirectory, basename)
 
                 # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
                 try:
-                    tar_extension_position = destinationDirectory.rindex('.tar')
+                    tar_extension_position = destinationDirectory.rindex(".tar")
                     destinationDirectory = destinationDirectory[:tar_extension_position]
                 except ValueError:
                     pass
 
-                zipLocation = os.path.join(processingDirectory, os.path.basename(target))
+                zipLocation = os.path.join(
+                    processingDirectory, os.path.basename(target)
+                )
 
                 # move to processing directory
                 shutil.move(target, zipLocation)
@@ -102,12 +110,18 @@ def call(jobs):
                     temp = destinationDirectory + "-tmp"
                     shutil.move(destinationDirectory, temp)
                     # destinationDirectory = os.path.join(processingDirectory, internalBagName)
-                    shutil.move(os.path.join(temp, internalBagName), destinationDirectory)
+                    shutil.move(
+                        os.path.join(temp, internalBagName), destinationDirectory
+                    )
                     os.rmdir(temp)
 
                 # update transfer
-                destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
-                Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
+                destinationDirectoryDB = destinationDirectory.replace(
+                    sharedPath, "%sharedPath%", 1
+                )
+                Transfer.objects.filter(uuid=transferUUID).update(
+                    currentlocation=destinationDirectoryDB
+                )
 
                 # remove bag
                 os.remove(zipLocation)

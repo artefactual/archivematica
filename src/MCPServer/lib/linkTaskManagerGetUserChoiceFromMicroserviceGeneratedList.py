@@ -35,13 +35,14 @@ from workflow import TranslationLabel
 from django.conf import settings as django_settings
 from django.utils.six import text_type
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
-        super(linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList,
-              self).__init__(jobChainLink, unit)
+        super(linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList, self).__init__(
+            jobChainLink, unit
+        )
 
         self._populate_choices()
 
@@ -59,21 +60,20 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         self.choices = []
         if not isinstance(self.jobChainLink.passVar, list):
             errmsg = "passVar is {} instead of expected list".format(
-                type(self.jobChainLink.passVar))
+                type(self.jobChainLink.passVar)
+            )
             LOGGER.error(errmsg)
             raise Exception(errmsg)
         key = self.jobChainLink.link.config["execute"]
         index = 0
         for item in self.jobChainLink.passVar:
-            LOGGER.debug('%s is ChoicesDict: %s',
-                         item, isinstance(item, ChoicesDict))
+            LOGGER.debug("%s is ChoicesDict: %s", item, isinstance(item, ChoicesDict))
             if isinstance(item, ChoicesDict):
                 # For display, convert the ChoicesDict passVar into a list
                 # of tuples: (index, description, replacement dict string)
                 for _, value in item.items():
                     description = TranslationLabel(value["description"])
-                    self.choices.append(
-                        (index, description, str({key: value["uri"]})))
+                    self.choices.append((index, description, str({key: value["uri"]})))
                     index += 1
                 # We don't need to maintain state, and we can't easily update
                 # or use the passVar list below in proceedWithChoice if we do.
@@ -81,7 +81,8 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                 break
         else:
             errmsg = "ChoicesDict not found in passVar: {}".format(
-                self.jobChainLink.passVar)
+                self.jobChainLink.passVar
+            )
             LOGGER.error(errmsg)
             raise Exception(errmsg)
 
@@ -92,13 +93,17 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         sharedPath = django_settings.SHARED_DIRECTORY
         xmlFilePath = os.path.join(
             self.unit.currentPath.replace("%sharedPath%", sharedPath, 1),
-            django_settings.PROCESSING_XML_FILE
+            django_settings.PROCESSING_XML_FILE,
         )
         try:
             tree = etree.parse(xmlFilePath)
             root = tree.getroot()
         except (etree.LxmlError, IOError):
-            LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
+            LOGGER.warning(
+                "Error parsing xml at %s for pre-configured choice",
+                xmlFilePath,
+                exc_info=True,
+            )
             return None
         for choice in root.findall(".//preconfiguredChoice"):
             # Find the choice whose text matches this link's description

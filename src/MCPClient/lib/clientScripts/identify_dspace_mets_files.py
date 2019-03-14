@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import django
+
 django.setup()
 # dashboard
 from main.models import File
@@ -33,4 +34,4 @@ def call(jobs):
         for job in jobs:
             with job.JobContext():
                 metsFileUUID = job.args[1]
-                File.objects.filter(uuid=metsFileUUID).update(filegrpuse='DSPACEMETS')
+                File.objects.filter(uuid=metsFileUUID).update(filegrpuse="DSPACEMETS")

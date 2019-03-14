@@ -8,7 +8,7 @@ from django.db import migrations
 def data_migration(apps, schema_editor):
     """ Create rules for Apple ProRes. """
 
-    FPRule = apps.get_model('fpr', 'FPRule')
+    FPRule = apps.get_model("fpr", "FPRule")
 
     format_apple_prores_id = "9dd2784d-fb57-44de-83b2-5cc54703476b"
 
@@ -42,13 +42,13 @@ def data_migration(apps, schema_editor):
             "purpose": "characterization",
             # MediaInfo
             "command": "114c9525-d676-4fac-9962-4672faa924bb",
-        }
+        },
     ]
     for item in rules:
         FPRule.objects.create(
-            uuid=item['uuid'],
-            purpose=item['purpose'],
-            command_id=item['command'],
+            uuid=item["uuid"],
+            purpose=item["purpose"],
+            command_id=item["command"],
             format_id=format_apple_prores_id,
             enabled=True,
         )
@@ -56,10 +56,6 @@ def data_migration(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('fpr', '0012_mediaconch_policy_checks'),
-    ]
+    dependencies = [("fpr", "0012_mediaconch_policy_checks")]
 
-    operations = [
-        migrations.RunPython(data_migration),
-    ]
+    operations = [migrations.RunPython(data_migration)]

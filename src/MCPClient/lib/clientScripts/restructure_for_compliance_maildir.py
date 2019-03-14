@@ -32,9 +32,7 @@ REQUIRED_DIRECTORIES = (
     "objects/Maildir",
 )
 
-OPTIONAL_FILES = (
-    "processingMCP.xml",
-)
+OPTIONAL_FILES = ("processingMCP.xml",)
 
 
 def restructureMaildirDirectory(job, unitPath):

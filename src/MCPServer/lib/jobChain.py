@@ -35,7 +35,7 @@ from main.models import UnitVariable
 # potentialToHold/getFromDB
 # -previous chain links
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 def fetchUnitVariableForUnit(unit_uuid):
@@ -45,9 +45,11 @@ def fetchUnitVariableForUnit(unit_uuid):
     """
 
     results = ReplacementDict()
-    variables = UnitVariable.objects.filter(unituuid=unit_uuid, variable="replacementDict").values_list('variablevalue')
+    variables = UnitVariable.objects.filter(
+        unituuid=unit_uuid, variable="replacementDict"
+    ).values_list("variablevalue")
 
-    for replacement_dict, in variables:
+    for (replacement_dict,) in variables:
         rd = ReplacementDict.fromstring(replacement_dict)
         results.update(rd)
 
@@ -57,13 +59,13 @@ def fetchUnitVariableForUnit(unit_uuid):
 class jobChain:
     def __init__(self, unit, chain, workflow, starting_link=None):
         """Create an instance of a chain from the MicroServiceChains table"""
-        LOGGER.debug('Creating jobChain %s for chain %s', unit, chain.id)
+        LOGGER.debug("Creating jobChain %s for chain %s", unit, chain.id)
         if chain is None:
             return None
         self.unit = unit
         self.workflow = workflow
 
-        LOGGER.debug('Chain: %s', chain)
+        LOGGER.debug("Chain: %s", chain)
 
         if starting_link is None:
             starting_link = chain.link
@@ -79,6 +81,6 @@ class jobChain:
     def nextChainLink(self, link, passVar=None):
         """Proceed to next link."""
         if link is None:
-            LOGGER.debug('Done with unit %s', self.unit.UUID)
+            LOGGER.debug("Done with unit %s", self.unit.UUID)
             return
         jobChainLink(self, link, self.workflow, self.unit, passVar=passVar)

@@ -18,7 +18,4 @@
 from django.conf.urls import url
 from components.mcp import views
 
-urlpatterns = [
-    url(r'execute/$', views.execute),
-    url(r'list/$', views.list),
-]
+urlpatterns = [url(r"execute/$", views.execute), url(r"list/$", views.list)]

@@ -25,6 +25,7 @@ import re
 import shutil
 
 import django
+
 django.setup()
 from django.db import transaction
 from main.models import Transfer, SIP
@@ -36,20 +37,20 @@ from archivematicaFunctions import (
     create_structured_directory,
     reconstruct_empty_directories,
     REQUIRED_DIRECTORIES,
-    OPTIONAL_FILES
+    OPTIONAL_FILES,
 )
 
 from custom_handlers import get_script_logger
 
-logger = get_script_logger('archivematica.mcp.client.restructureForCompliance')
+logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 
 
 def _move_file(job, src, dst, exit_on_error=True):
-    logger.info('Moving %s to %s', src, dst)
+    logger.info("Moving %s to %s", src, dst)
     try:
         shutil.move(src, dst)
     except IOError:
-        job.pyprint('Could not move', src)
+        job.pyprint("Could not move", src)
         if exit_on_error:
             raise
 
@@ -61,7 +62,7 @@ def restructure_transfer(job, unit_path):
     # Move everything else to the objects directory
     for item in os.listdir(unit_path):
         src = os.path.join(unit_path, item)
-        dst = os.path.join(unit_path, "objects", '.')
+        dst = os.path.join(unit_path, "objects", ".")
         if os.path.isdir(src) and item not in REQUIRED_DIRECTORIES:
             _move_file(job, src, dst)
         elif os.path.isfile(src) and item not in OPTIONAL_FILES:
@@ -72,12 +73,12 @@ def restructure_transfer_aip(job, unit_path):
     """
     Restructure a transfer that comes from re-ingesting an Archivematica AIP.
     """
-    old_bag = os.path.join(unit_path, 'old_bag', '')
+    old_bag = os.path.join(unit_path, "old_bag", "")
     os.makedirs(old_bag)
 
     # Move everything to old_bag
     for item in os.listdir(unit_path):
-        if item == 'old_bag':
+        if item == "old_bag":
             continue
         src = os.path.join(unit_path, item)
         _move_file(job, src, old_bag)
@@ -89,20 +90,20 @@ def restructure_transfer_aip(job, unit_path):
     create_structured_directory(unit_path, printing=True, printfn=job.pyprint)
 
     # Move /old_bag/data/METS.<UUID>.xml => /metadata/METS.<UUID>.xml
-    p = re.compile(r'^METS\..*\.xml$', re.IGNORECASE)
-    src = os.path.join(old_bag, 'data')
+    p = re.compile(r"^METS\..*\.xml$", re.IGNORECASE)
+    src = os.path.join(old_bag, "data")
     for item in os.listdir(src):
         m = p.match(item)
         if m:
             break  # Stop trying after the first match
     src = os.path.join(src, m.group())
-    dst = os.path.join(unit_path, 'metadata')
+    dst = os.path.join(unit_path, "metadata")
     mets_file_path = dst
     _move_file(job, src, dst)
 
     # Move /old_bag/data/objects/metadata/* => /metadata/
-    src = os.path.join(old_bag, 'data', 'objects', 'metadata')
-    dst = os.path.join(unit_path, 'metadata')
+    src = os.path.join(old_bag, "data", "objects", "metadata")
+    dst = os.path.join(unit_path, "metadata")
     if os.path.isdir(src):
         for item in os.listdir(src):
             item_path = os.path.join(src, item)
@@ -110,23 +111,23 @@ def restructure_transfer_aip(job, unit_path):
         shutil.rmtree(src)
 
     # Move /old_bag/data/objects/submissionDocumentation/* => /metadata/submissionDocumentation/
-    src = os.path.join(old_bag, 'data', 'objects', 'submissionDocumentation')
-    dst = os.path.join(unit_path, 'metadata', 'submissionDocumentation')
+    src = os.path.join(old_bag, "data", "objects", "submissionDocumentation")
+    dst = os.path.join(unit_path, "metadata", "submissionDocumentation")
     for item in os.listdir(src):
         item_path = os.path.join(src, item)
         _move_file(job, item_path, dst)
     shutil.rmtree(src)
 
     # Move /old_bag/data/objects/* => /objects/
-    src = os.path.join(old_bag, 'data', 'objects')
-    objects_path = dst = os.path.join(unit_path, 'objects')
+    src = os.path.join(old_bag, "data", "objects")
+    objects_path = dst = os.path.join(unit_path, "objects")
     for item in os.listdir(src):
         item_path = os.path.join(src, item)
         _move_file(job, item_path, dst)
 
     # Move /old_bag/processingMCP.xml => /processingMCP.xml
-    src = os.path.join(old_bag, 'processingMCP.xml')
-    dst = os.path.join(unit_path, 'processingMCP.xml')
+    src = os.path.join(old_bag, "processingMCP.xml")
+    dst = os.path.join(unit_path, "processingMCP.xml")
     if os.path.isfile(src):
         _move_file(job, src, dst)
 
@@ -154,21 +155,23 @@ def call(jobs):
                         sip = SIP.objects.get(uuid=sip_uuid)
 
                     if transfer:
-                        logger.info('Transfer.type=%s', transfer.type)
+                        logger.info("Transfer.type=%s", transfer.type)
                     else:
-                        logger.info('SIP.sip_type=%s', sip.sip_type)
+                        logger.info("SIP.sip_type=%s", sip.sip_type)
 
-                    if transfer and transfer.type == 'Archivematica AIP':
-                        logger.info('Archivematica AIP detected, verifying bag...')
+                    if transfer and transfer.type == "Archivematica AIP":
+                        logger.info("Archivematica AIP detected, verifying bag...")
                         exit_code = verify_bag(job, sip_path)
                         if exit_code > 0:
-                            logger.info('Archivematica AIP: bag verification failed!')
+                            logger.info("Archivematica AIP: bag verification failed!")
                             job.set_status(exit_code)
                             continue
-                        logger.info('Restructuring transfer (Archivematica AIP re-ingest)...')
+                        logger.info(
+                            "Restructuring transfer (Archivematica AIP re-ingest)..."
+                        )
                         restructure_transfer_aip(job, sip_path)
                     else:
-                        logger.info('Restructuring transfer...')
+                        logger.info("Restructuring transfer...")
                         restructure_transfer(job, sip_path)
                 except IOError as err:
                     job.pyprint(repr(err))

@@ -62,6 +62,7 @@ from socket import gethostname
 import time
 
 import django
+
 django.setup()
 from django.conf import settings as django_settings
 import gearman
@@ -78,12 +79,12 @@ from databaseFunctions import auto_close_db
 import fork_runner
 from job import Job
 
-logger = logging.getLogger('archivematica.mcp.client')
+logger = logging.getLogger("archivematica.mcp.client")
 
 replacement_dict = {
-    '%sharedPath%': django_settings.SHARED_DIRECTORY,
-    '%clientScriptsDirectory%': django_settings.CLIENT_SCRIPTS_DIRECTORY,
-    '%clientAssetsDirectory%': django_settings.CLIENT_ASSETS_DIRECTORY,
+    "%sharedPath%": django_settings.SHARED_DIRECTORY,
+    "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
+    "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
 
 
@@ -94,7 +95,9 @@ def get_supported_modules(file_):
     supported_modules = {}
     supported_modules_config = ConfigParser.RawConfigParser()
     supported_modules_config.read(file_)
-    for client_script, module_name in supported_modules_config.items('supportedBatchCommands'):
+    for client_script, module_name in supported_modules_config.items(
+        "supportedBatchCommands"
+    ):
         supported_modules[client_script] = module_name
     return supported_modules
 
@@ -106,39 +109,50 @@ def handle_batch_task(gearman_job, supported_modules):
 
     utc_date = getUTCDate()
     jobs = []
-    for task_uuid in gearman_data['tasks']:
-        task_data = gearman_data['tasks'][task_uuid]
-        arguments = task_data['arguments']
+    for task_uuid in gearman_data["tasks"]:
+        task_data = gearman_data["tasks"][task_uuid]
+        arguments = task_data["arguments"]
         if isinstance(arguments, six.text_type):
-            arguments = arguments.encode('utf-8')
+            arguments = arguments.encode("utf-8")
 
-        replacements = (replacement_dict.items() +
-                        {'%date%': utc_date.isoformat(),
-                         '%taskUUID%': task_uuid,
-                         '%jobCreatedDate%': task_data['createdDate']}.items())
+        replacements = (
+            replacement_dict.items()
+            + {
+                "%date%": utc_date.isoformat(),
+                "%taskUUID%": task_uuid,
+                "%jobCreatedDate%": task_data["createdDate"],
+            }.items()
+        )
 
         for var, val in replacements:
             arguments = arguments.replace(var, val)
 
-        job = Job(gearman_job.task,
-                  task_data['uuid'],
-                  _parse_command_line(arguments),
-                  caller_wants_output=task_data['wants_output'])
+        job = Job(
+            gearman_job.task,
+            task_data["uuid"],
+            _parse_command_line(arguments),
+            caller_wants_output=task_data["wants_output"],
+        )
         jobs.append(job)
 
     # Set their start times.  If we collide with the MCP Server inserting new
     # Tasks (which can happen under heavy concurrent load), retry as needed.
     def set_start_times():
-        Task.objects.filter(
-            taskuuid__in=[item.UUID for item in jobs]).update(starttime=utc_date)
+        Task.objects.filter(taskuuid__in=[item.UUID for item in jobs]).update(
+            starttime=utc_date
+        )
 
     retryOnFailure("Set task start times", set_start_times)
 
     module = importlib.import_module("clientScripts." + module_name)
 
     # Our module can indicate that it should be run concurrently...
-    if hasattr(module, 'concurrent_instances'):
-        fork_runner.call("clientScripts." + module_name, jobs, task_count=module.concurrent_instances())
+    if hasattr(module, "concurrent_instances"):
+        fork_runner.call(
+            "clientScripts." + module_name,
+            jobs,
+            task_count=module.concurrent_instances(),
+        )
     else:
         module.call(jobs)
 
@@ -153,7 +167,7 @@ def _parse_command_line(s):
 # character.  Shlex doesn't do this but bash unescaping does, and we
 # want to remain compatible.
 def _shlex_unescape(s):
-    return ''.join(c1 for c1, c2 in zip(s, s[1:] + '.') if (c1, c2) != ('\\', '`'))
+    return "".join(c1 for c1, c2 in zip(s, s[1:] + ".") if (c1, c2) != ("\\", "`"))
 
 
 def fail_all_tasks(gearman_job, reason):
@@ -165,11 +179,12 @@ def fail_all_tasks(gearman_job, reason):
     # we got to this point because the DB is unavailable this isn't going to
     # work...
     try:
+
         def fail_all_tasks_callback():
-            for task_uuid in gearman_data['tasks']:
-                Task.objects.filter(taskuuid=task_uuid).update(stderror=str(reason),
-                                                               exitcode=1,
-                                                               endtime=getUTCDate())
+            for task_uuid in gearman_data["tasks"]:
+                Task.objects.filter(taskuuid=task_uuid).update(
+                    stderror=str(reason), exitcode=1, endtime=getUTCDate()
+                )
 
             retryOnFailure("Fail all tasks", fail_all_tasks_callback)
 
@@ -177,10 +192,10 @@ def fail_all_tasks(gearman_job, reason):
         logger.exception("Failed to update tasks in DB: %s", e)
 
     # But we can at least send an exit code back to Gearman
-    for task_uuid in gearman_data['tasks']:
-        result[task_uuid] = {'exitCode': 1}
+    for task_uuid in gearman_data["tasks"]:
+        result[task_uuid] = {"exitCode": 1}
 
-    return cPickle.dumps({'task_results': result})
+    return cPickle.dumps({"task_results": result})
 
 
 @auto_close_db
@@ -199,18 +214,14 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                 for job in jobs:
                     logger.info("\n\n*** Completed job: %s", job.dump())
 
-                    kwargs = {
-                        'exitcode': job.get_exit_code(),
-                        'endtime': getUTCDate(),
-                    }
+                    kwargs = {"exitcode": job.get_exit_code(), "endtime": getUTCDate()}
                     if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
-                        kwargs.update({
-                            'stdout': job.get_stdout(),
-                            'stderror': job.get_stderr(),
-                        })
+                        kwargs.update(
+                            {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
+                        )
                     Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
-                    results[job.UUID] = {'exitCode': job.get_exit_code()}
+                    results[job.UUID] = {"exitCode": job.get_exit_code()}
 
                     if job.caller_wants_output:
                         # Send back stdout/stderr so it can be written to files.
@@ -218,14 +229,17 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                         # enough), but the ones that do are coordinated through the
                         # MCP Server so that multiple MCP Client instances don't try
                         # to write the same file at the same time.
-                        results[job.UUID]['stdout'] = job.get_stdout()
-                        results[job.UUID]['stderror'] = job.get_stderr()
+                        results[job.UUID]["stdout"] = job.get_stdout()
+                        results[job.UUID]["stderror"] = job.get_stderr()
 
         retryOnFailure("Write task results", write_task_results_callback)
 
-        return cPickle.dumps({'task_results': results})
+        return cPickle.dumps({"task_results": results})
     except SystemExit:
-        logger.error("IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!", gearman_job.task)
+        logger.error(
+            "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
+            gearman_job.task,
+        )
         return fail_all_tasks(gearman_job, "Module attempted exit")
     except Exception as e:
         logger.exception("Exception while processing task %s: %s", gearman_job.task, e)
@@ -235,11 +249,11 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
-    host_id = '{}_{}'.format(gethostname(), os.getpid())
+    host_id = "{}_{}".format(gethostname(), os.getpid())
     gm_worker.set_client_id(host_id)
     task_handler = partial(execute_command, supported_modules)
     for client_script in supported_modules:
-        logger.info('Registering: %s', client_script)
+        logger.info("Registering: %s", client_script)
         gm_worker.register_task(client_script, task_handler)
     fail_max_sleep = 30
     fail_sleep = 1
@@ -248,8 +262,11 @@ def start_gearman_worker(supported_modules):
         try:
             gm_worker.work()
         except gearman.errors.ServerUnavailable as inst:
-            logger.error('Gearman server is unavailable: %s. Retrying in %d'
-                         ' seconds.', inst.args, fail_sleep)
+            logger.error(
+                "Gearman server is unavailable: %s. Retrying in %d" " seconds.",
+                inst.args,
+                fail_sleep,
+            )
             time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
@@ -257,16 +274,19 @@ def start_gearman_worker(supported_modules):
             # Generally execute_command should have caught and dealt with any
             # errors gracefully, but we should never let an exception take down
             # the whole process, so one last catch-all.
-            logger.exception('Unexpected error while handling gearman job: %s.'
-                             ' Retrying in %d seconds.', e, fail_sleep)
+            logger.exception(
+                "Unexpected error while handling gearman job: %s."
+                " Retrying in %d seconds.",
+                e,
+                fail_sleep,
+            )
             time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
-        start_gearman_worker(
-            get_supported_modules(django_settings.CLIENT_MODULES_FILE))
+        start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))
     except (KeyboardInterrupt, SystemExit):
-        logger.info('Received keyboard interrupt, quitting.')
+        logger.info("Received keyboard interrupt, quitting.")

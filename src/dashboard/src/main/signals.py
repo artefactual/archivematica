@@ -12,7 +12,7 @@ def delete_rights_statement(sender, **kwargs):
     Rights are displayed in the GUI based on their RightsGranted, but the RightsStatement tracks their reingest status.
     When a RightsGranted is deleted, also delete the RightsStatement if this was the last RightsGranted.
     """
-    instance = kwargs.get('instance')
+    instance = kwargs.get("instance")
     try:
         # If the statement has no other RightsGranted delete the RightsStatement
         if not instance.rightsstatement.rightsstatementrightsgranted_set.all():

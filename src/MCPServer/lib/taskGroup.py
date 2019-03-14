@@ -33,11 +33,10 @@ from main.models import Task
 from django.db import transaction
 from django.utils import six, timezone
 
-LOGGER = logging.getLogger('archivematica.mcp.server.taskGroup')
+LOGGER = logging.getLogger("archivematica.mcp.server.taskGroup")
 
 
-class TaskGroup():
-
+class TaskGroup:
     def __init__(self, linkTaskManager, execute):
         self.linkTaskManager = linkTaskManager
         self.execute = execute.encode("utf-8")
@@ -54,20 +53,30 @@ class TaskGroup():
     def name(self):
         return self.execute.lower()
 
-    def addTask(self,
-                arguments, standardOutputFile, standardErrorFile,
-                outputLock=threading.Lock(),
-                commandReplacementDic={}, wants_output=False):
+    def addTask(
+        self,
+        arguments,
+        standardOutputFile,
+        standardErrorFile,
+        outputLock=threading.Lock(),
+        commandReplacementDic={},
+        wants_output=False,
+    ):
         """Add a task to this group"""
         with self.groupTasksLock:
             if self.finalised:
                 raise Exception("Cannot add a task to a finalized TaskGroup")
 
-            self.groupTasks.append(self.Task(arguments,
-                                             standardOutputFile, standardErrorFile,
-                                             outputLock,
-                                             commandReplacementDic,
-                                             wants_output))
+            self.groupTasks.append(
+                self.Task(
+                    arguments,
+                    standardOutputFile,
+                    standardErrorFile,
+                    outputLock,
+                    commandReplacementDic,
+                    wants_output,
+                )
+            )
 
     def count(self):
         """The number of tasks in this group"""
@@ -86,10 +95,12 @@ class TaskGroup():
             def insertTasks():
                 with transaction.atomic():
                     for task in self.groupTasks:
-                        self._log_task(self.linkTaskManager,
-                                       task.commandReplacementDic,
-                                       task.UUID,
-                                       task.arguments)
+                        self._log_task(
+                            self.linkTaskManager,
+                            task.commandReplacementDic,
+                            task.UUID,
+                            task.arguments,
+                        )
 
             databaseFunctions.retryOnFailure("Insert tasks", insertTasks)
 
@@ -107,15 +118,19 @@ class TaskGroup():
         if "%fileUUID%" in commandReplacementDic:
             fileUUID = commandReplacementDic["%fileUUID%"]
         taskexec = taskManager.execute
-        fileName = os.path.basename(os.path.abspath(commandReplacementDic["%relativeLocation%"]))
+        fileName = os.path.basename(
+            os.path.abspath(commandReplacementDic["%relativeLocation%"])
+        )
 
-        Task.objects.create(taskuuid=taskUUID,
-                            job_id=jobUUID,
-                            fileuuid=fileUUID,
-                            filename=fileName,
-                            execution=taskexec,
-                            arguments=arguments,
-                            createdtime=getUTCDate())
+        Task.objects.create(
+            taskuuid=taskUUID,
+            job_id=jobUUID,
+            fileuuid=fileUUID,
+            filename=fileName,
+            execution=taskexec,
+            arguments=arguments,
+            createdtime=getUTCDate(),
+        )
 
     def calculateExitCode(self):
         """
@@ -125,8 +140,8 @@ class TaskGroup():
         result = 0
 
         for task in self.groupTasks:
-            if task.results['exitCode'] > result:
-                result = task.results['exitCode']
+            if task.results["exitCode"] > result:
+                result = task.results["exitCode"]
 
         return result
 
@@ -134,16 +149,16 @@ class TaskGroup():
         """
         Serialize this TaskGroup into something suitable for MCP Client.
         """
-        result = {'tasks': {}}
+        result = {"tasks": {}}
 
         for task in self.groupTasks:
             task_data = {}
             task_data["uuid"] = task.UUID
-            task_data["createdDate"] = timezone.now().isoformat(' ')
+            task_data["createdDate"] = timezone.now().isoformat(" ")
             task_data["arguments"] = task.arguments
             task_data["wants_output"] = task.wants_output
 
-            result['tasks'][task.UUID] = task_data
+            result["tasks"][task.UUID] = task_data
 
         return cPickle.dumps(result)
 
@@ -156,11 +171,11 @@ class TaskGroup():
         if not all((path, contents)):
             return
         try:
-            with open(path, 'a') as f:
+            with open(path, "a") as f:
                 f.write(contents)
             os.chmod(path, 0o750)
         except Exception as err:
-            LOGGER.warning('Unable to write to: %s: %s', path, err)
+            LOGGER.warning("Unable to write to: %s: %s", path, err)
 
     def write_output(self):
         """
@@ -170,23 +185,27 @@ class TaskGroup():
         for task in self.groupTasks:
             with task.outputLock:
                 self._write_file_to_disk(
-                    task.standardOutputFile,
-                    six.binary_type(task.results['stdout']))
+                    task.standardOutputFile, six.binary_type(task.results["stdout"])
+                )
                 self._write_file_to_disk(
-                    task.standardErrorFile,
-                    six.binary_type(task.results['stderror']))
+                    task.standardErrorFile, six.binary_type(task.results["stderror"])
+                )
 
-    class Task():
+    class Task:
         """
         Captures the detail of a single task.  The `results` map is filled out by
         TaskGroupRunner on completion of the task.
         """
-        def __init__(self,
-                     arguments,
-                     standardOutputFile, standardErrorFile,
-                     outputLock,
-                     commandReplacementDic,
-                     wants_output):
+
+        def __init__(
+            self,
+            arguments,
+            standardOutputFile,
+            standardErrorFile,
+            outputLock,
+            commandReplacementDic,
+            wants_output,
+        ):
             self.arguments = arguments
             self.standardOutputFile = standardOutputFile
             self.standardErrorFile = standardErrorFile
@@ -194,14 +213,8 @@ class TaskGroup():
             self.UUID = str(uuid.uuid4())
             self.commandReplacementDic = commandReplacementDic
 
-            self.wants_output = any((
-                wants_output,
-                standardOutputFile,
-                standardErrorFile,
-            ))
+            self.wants_output = any(
+                (wants_output, standardOutputFile, standardErrorFile)
+            )
 
-            self.results = {
-                'exitCode': 0,
-                'stdout': '',
-                'stderror': '',
-            }
+            self.results = {"exitCode": 0, "stdout": "", "stderror": ""}

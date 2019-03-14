@@ -13,9 +13,9 @@ except ImportError:
 from django.db import migrations
 
 
-_AS_DICTNAME = 'upload-archivesspace_v0.0'
+_AS_DICTNAME = "upload-archivesspace_v0.0"
 
-_AS_UPLOAD_STC = '10a0f352-aeb7-4c13-8e9e-e81bda9bca29'
+_AS_UPLOAD_STC = "10a0f352-aeb7-4c13-8e9e-e81bda9bca29"
 
 
 def _load_config(DashboardSetting):
@@ -78,8 +78,8 @@ def _get_host_and_port(base_url):
 
 def data_migration_up(apps, schema_editor):
     """Restore `base_url`."""
-    DashboardSetting = apps.get_model('main', 'DashboardSetting')
-    StandardTaskConfig = apps.get_model('main', 'StandardTaskConfig')
+    DashboardSetting = apps.get_model("main", "DashboardSetting")
+    StandardTaskConfig = apps.get_model("main", "StandardTaskConfig")
 
     config = _load_config(DashboardSetting)
     host, port = config.pop("host", None), config.pop("port", None)
@@ -88,28 +88,30 @@ def data_migration_up(apps, schema_editor):
 
     # Use new command-line arguments ``--base-url``.
     StandardTaskConfig.objects.filter(
-        id=_AS_UPLOAD_STC, execute='upload-archivesspace_v0.0').update(
-            arguments='--base-url "%base_url%" '
-                      '--user "%user%" '
-                      '--passwd "%passwd%" '
-                      '--dip_location "%SIPDirectory%" '
-                      '--dip_name "%SIPName%" '
-                      '--dip_uuid "%SIPUUID%" '
-                      '--restrictions "%restrictions%" '
-                      '--object_type "%object_type%" '
-                      '--xlink_actuate "%xlink_actuate%" '
-                      '--xlink_show "%xlink_show%" '
-                      '--use_statement "%use_statement%" '
-                      '--uri_prefix "%uri_prefix%" '
-                      '--access_conditions "%access_conditions%" '
-                      '--use_conditions "%use_conditions%" '
-                      '--inherit_notes "%inherit_notes%"')
+        id=_AS_UPLOAD_STC, execute="upload-archivesspace_v0.0"
+    ).update(
+        arguments='--base-url "%base_url%" '
+        '--user "%user%" '
+        '--passwd "%passwd%" '
+        '--dip_location "%SIPDirectory%" '
+        '--dip_name "%SIPName%" '
+        '--dip_uuid "%SIPUUID%" '
+        '--restrictions "%restrictions%" '
+        '--object_type "%object_type%" '
+        '--xlink_actuate "%xlink_actuate%" '
+        '--xlink_show "%xlink_show%" '
+        '--use_statement "%use_statement%" '
+        '--uri_prefix "%uri_prefix%" '
+        '--access_conditions "%access_conditions%" '
+        '--use_conditions "%use_conditions%" '
+        '--inherit_notes "%inherit_notes%"'
+    )
 
 
 def data_migration_down(apps, schema_editor):
     """Restore `host` and `port`."""
-    DashboardSetting = apps.get_model('main', 'DashboardSetting')
-    StandardTaskConfig = apps.get_model('main', 'StandardTaskConfig')
+    DashboardSetting = apps.get_model("main", "DashboardSetting")
+    StandardTaskConfig = apps.get_model("main", "StandardTaskConfig")
 
     config = _load_config(DashboardSetting)
     base_url = config.pop("base_url", None)
@@ -118,30 +120,28 @@ def data_migration_down(apps, schema_editor):
 
     # Restore previous command-line arguments ``--host`` and ``--port``.
     StandardTaskConfig.objects.filter(
-        id=_AS_UPLOAD_STC, execute='upload-archivesspace_v0.0').update(
-            arguments='--host "%host%" '
-                      '--port "%port%" '
-                      '--user "%user%" '
-                      '--passwd "%passwd%" '
-                      '--dip_location "%SIPDirectory%" '
-                      '--dip_name "%SIPName%" '
-                      '--dip_uuid "%SIPUUID%" '
-                      '--restrictions "%restrictions%" '
-                      '--object_type "%object_type%" '
-                      '--xlink_actuate "%xlink_actuate%" '
-                      '--xlink_show "%xlink_show%" '
-                      '--use_statement "%use_statement%" '
-                      '--uri_prefix "%uri_prefix%" '
-                      '--access_conditions "%access_conditions%" '
-                      '--use_conditions "%use_conditions%" '
-                      '--inherit_notes "%inherit_notes%"')
+        id=_AS_UPLOAD_STC, execute="upload-archivesspace_v0.0"
+    ).update(
+        arguments='--host "%host%" '
+        '--port "%port%" '
+        '--user "%user%" '
+        '--passwd "%passwd%" '
+        '--dip_location "%SIPDirectory%" '
+        '--dip_name "%SIPName%" '
+        '--dip_uuid "%SIPUUID%" '
+        '--restrictions "%restrictions%" '
+        '--object_type "%object_type%" '
+        '--xlink_actuate "%xlink_actuate%" '
+        '--xlink_show "%xlink_show%" '
+        '--use_statement "%use_statement%" '
+        '--uri_prefix "%uri_prefix%" '
+        '--access_conditions "%access_conditions%" '
+        '--use_conditions "%use_conditions%" '
+        '--inherit_notes "%inherit_notes%"'
+    )
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ('main', '0065_version_number'),
-    ]
+    dependencies = [("main", "0065_version_number")]
 
-    operations = [
-        migrations.RunPython(data_migration_up, data_migration_down)
-    ]
+    operations = [migrations.RunPython(data_migration_up, data_migration_down)]

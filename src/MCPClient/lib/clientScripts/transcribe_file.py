@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import django
 from django.db import transaction
+
 django.setup()
 # dashboard
 from django.utils import timezone
@@ -30,7 +31,9 @@ def insert_transcription_event(status, file_uuid, rule, relative_location):
     outcome = "transcribed" if status == 0 else "not transcribed"
 
     tool = rule.command.tool
-    event_detail = u"program={}; version={}; command=\"{}\"".format(tool.description, tool.version, rule.command.command.replace('"', r'\"'))
+    event_detail = u'program={}; version={}; command="{}"'.format(
+        tool.description, tool.version, rule.command.command.replace('"', r"\"")
+    )
 
     event_uuid = str(uuid4())
 
@@ -40,13 +43,15 @@ def insert_transcription_event(status, file_uuid, rule, relative_location):
         eventType="transcription",
         eventDetail=event_detail,
         eventOutcome=outcome,
-        eventOutcomeDetailNote=relative_location
+        eventOutcomeDetailNote=relative_location,
     )
 
     return event_uuid
 
 
-def insert_file_into_database(task_uuid, file_uuid, sip_uuid, event_uuid, rule, output_path, relative_path):
+def insert_file_into_database(
+    task_uuid, file_uuid, sip_uuid, event_uuid, rule, output_path, relative_path
+):
     transcription_uuid = str(uuid4())
     today = timezone.now()
     fileOperations.addFileToSIP(
@@ -56,28 +61,26 @@ def insert_file_into_database(task_uuid, file_uuid, sip_uuid, event_uuid, rule, 
         task_uuid,
         today,
         sourceType="creation",
-        use="text/ocr"
+        use="text/ocr",
     )
 
     fileOperations.updateSizeAndChecksum(
-        transcription_uuid,
-        output_path,
-        today,
-        str(uuid4())
+        transcription_uuid, output_path, today, str(uuid4())
     )
 
     databaseFunctions.insertIntoDerivations(
         sourceFileUUID=file_uuid,
         derivedFileUUID=transcription_uuid,
-        relatedEventUUID=event_uuid
+        relatedEventUUID=event_uuid,
     )
 
 
 def fetch_rules_for(file_):
     try:
         format = FileFormatVersion.objects.get(file_uuid=file_)
-        return FPRule.objects.filter(format=format.format_version,
-                                     purpose='transcription')
+        return FPRule.objects.filter(
+            format=format.format_version, purpose="transcription"
+        )
     except FileFormatVersion.DoesNotExist:
         return []
 
@@ -87,7 +90,7 @@ def fetch_rules_for_derivatives(file_):
     for deriv in derivs:
         derived_file = deriv.derived_file
         # Don't bother OCRing thumbnails
-        if derived_file.filegrpuse == 'thumbnail':
+        if derived_file.filegrpuse == "thumbnail":
             continue
 
         rules = fetch_rules_for(derived_file)
@@ -112,7 +115,7 @@ def main(job, task_uuid, file_uuid):
     #
     # Skip derivatives to avoid double-scanning them; only look at them as a fallback.
     if file_.filegrpuse != "original":
-        job.print_error('{} is not an original; not transcribing'.format(file_uuid))
+        job.print_error("{} is not an original; not transcribing".format(file_uuid))
         return 0
 
     rules = fetch_rules_for(file_)
@@ -120,39 +123,51 @@ def main(job, task_uuid, file_uuid):
         file_, rules = fetch_rules_for_derivatives(file_)
 
     if not rules:
-        job.print_error('No rules found for file {} and its derivatives; not transcribing'.format(file_uuid))
+        job.print_error(
+            "No rules found for file {} and its derivatives; not transcribing".format(
+                file_uuid
+            )
+        )
         return 0
     else:
         if file_.filegrpuse == "original":
             noun = "original"
         else:
             noun = file_.filegrpuse + " derivative"
-        job.print_error('Transcribing {} {}'.format(noun, file_.uuid))
+        job.print_error("Transcribing {} {}".format(noun, file_.uuid))
 
-    rd = ReplacementDict.frommodel(file_=file_, type_='file')
+    rd = ReplacementDict.frommodel(file_=file_, type_="file")
 
     for rule in rules:
         script = rule.command.command
-        if rule.command.script_type in ('bashScript', 'command'):
+        if rule.command.script_type in ("bashScript", "command"):
             script, = rd.replace(script)
             args = []
         else:
             args = rd.to_gnu_options
 
-        exitstatus, stdout, stderr = executeOrRun(rule.command.script_type,
-                                                  script, arguments=args,
-                                                  capture_output=True)
+        exitstatus, stdout, stderr = executeOrRun(
+            rule.command.script_type, script, arguments=args, capture_output=True
+        )
         job.write_output(stdout)
         job.write_error(stderr)
         if exitstatus != 0:
             succeeded = False
 
         output_path = rd.replace(rule.command.output_location)[0]
-        relative_path = output_path.replace(rd['%SIPDirectory%'], '%SIPDirectory%')
+        relative_path = output_path.replace(rd["%SIPDirectory%"], "%SIPDirectory%")
         event = insert_transcription_event(exitstatus, file_uuid, rule, relative_path)
 
         if os.path.isfile(output_path):
-            insert_file_into_database(task_uuid, file_uuid, rd['%SIPUUID%'], event, rule, output_path, relative_path)
+            insert_file_into_database(
+                task_uuid,
+                file_uuid,
+                rd["%SIPUUID%"],
+                event,
+                rule,
+                output_path,
+                relative_path,
+            )
 
     return 0 if succeeded else 1
 
@@ -165,8 +180,8 @@ def call(jobs):
                 file_uuid = job.args[2]
                 transcribe = job.args[3]
 
-                if transcribe == 'False':
-                    job.print_output('Skipping transcription')
+                if transcribe == "False":
+                    job.print_output("Skipping transcription")
                     job.set_status(0)
                 else:
                     job.set_status(main(job, task_uuid, file_uuid))

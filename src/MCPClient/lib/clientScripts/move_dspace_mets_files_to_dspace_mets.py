@@ -24,14 +24,24 @@ import os
 
 # fileOperations requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
+
 # archivematicaCommon
 from fileOperations import updateFileLocation
 from fileOperations import rename
 
 
-def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
+def verifyMetsFileSecChecksums(
+    job,
+    metsFile,
+    date,
+    taskUUID,
+    transferDirectory,
+    transferUUID,
+    relativeDirectory="./",
+):
     job.pyprint(metsFile)
     DSpaceMets = "metadata/submissionDocumentation/DSpaceMets"
     try:
@@ -59,8 +69,16 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory,
     src = metsFile.replace(transferDirectory, "%transferDirectory%")
     dst = dest.replace(transferDirectory, "%transferDirectory%")
     eventDetail = ""
-    eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-    updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
+    eventOutcomeDetailNote = 'moved from="' + src + '"; moved to="' + dst + '"'
+    updateFileLocation(
+        src,
+        dst,
+        "movement",
+        date,
+        eventDetail,
+        transferUUID=transferUUID,
+        eventOutcomeDetailNote=eventOutcomeDetailNote,
+    )
 
     return exitCode
 
@@ -75,5 +93,13 @@ def call(jobs):
                 transferDirectory = job.args[4]
                 transferUUID = job.args[5]
 
-                ret = verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
+                ret = verifyMetsFileSecChecksums(
+                    job,
+                    metsFile,
+                    date,
+                    taskUUID,
+                    transferDirectory,
+                    transferUUID,
+                    relativeDirectory=os.path.dirname(metsFile) + "/",
+                )
                 job.set_status(ret)

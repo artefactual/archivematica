@@ -31,5 +31,4 @@ class Executor(object):
 
         It returns an instance of `ApplyResult`.
         """
-        return Executor._instance.pool.apply_async(
-            func, args, kwds, callback)
+        return Executor._instance.pool.apply_async(func, args, kwds, callback)

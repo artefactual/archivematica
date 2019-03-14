@@ -47,10 +47,7 @@ REQUIRED_DIRECTORIES = (
     "objects",
 )
 
-OPTIONAL_FILES = (
-    "processingMCP.xml",
-    "README.html",
-)
+OPTIONAL_FILES = ("processingMCP.xml", "README.html")
 
 MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/access",
@@ -58,7 +55,7 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
 ]
 
 
-def get_setting(setting, default=''):
+def get_setting(setting, default=""):
     """Get Dashboard setting from database model."""
     try:
         return DashboardSetting.objects.get(name=setting).value
@@ -68,7 +65,7 @@ def get_setting(setting, default=''):
 
 def get_dashboard_uuid():
     """Get Dashboard uuid via the Dashboard database mode."""
-    return get_setting('dashboard_uuid', default=None)
+    return get_setting("dashboard_uuid", default=None)
 
 
 class OrderedListsDict(collections.OrderedDict):
@@ -76,6 +73,7 @@ class OrderedListsDict(collections.OrderedDict):
     OrderedDict where all keys are lists, and elements are appended
     automatically.
     """
+
     def __setitem__(self, key, value):
         # When inserting, insert into a list of items with the same key
         try:
@@ -96,12 +94,12 @@ def strToUnicode(string, obstinate=False):
     """Convert string to Unicode format."""
     if isinstance(string, six.binary_type):
         try:
-            string = string.decode('utf8')
+            string = string.decode("utf8")
         except UnicodeDecodeError:
             if obstinate:
                 # Obstinately get a Unicode instance by replacing
                 # indecipherable bytes.
-                string = string.decode('utf8', 'replace')
+                string = string.decode("utf8", "replace")
             else:
                 raise
     return string
@@ -109,7 +107,7 @@ def strToUnicode(string, obstinate=False):
 
 def get_locale_encoding():
     """Return the default locale of the machine calling this function."""
-    default = 'UTF-8'
+    default = "UTF-8"
     try:
         return locale.getdefaultlocale()[1] or default
     except IndexError:
@@ -141,7 +139,7 @@ def escapeForCommand(string):
     ret = string
     if isinstance(ret, six.string_types):
         ret = ret.replace("\\", "\\\\")
-        ret = ret.replace("\"", "\\\"")
+        ret = ret.replace('"', '\\"')
         ret = ret.replace("`", "\`")
         # ret = ret.replace("'", "\\'")
         # ret = ret.replace("$", "\\$")
@@ -154,7 +152,7 @@ def escape(string):
     be valid unicode to begin with.
     """
     if isinstance(string, six.binary_type):
-        string = string.decode('utf-8', errors='replace')
+        string = string.decode("utf-8", errors="replace")
     return string
 
 
@@ -163,14 +161,14 @@ def normalizeNonDcElementName(string):
     in transfer's metadata.csv files.
     """
     # Convert non-alphanumerics to _, remove extra _ from ends of string.
-    normalized_string = re.sub(r"\W+", '_', string)
-    normalized_string = normalized_string.strip('_')
+    normalized_string = re.sub(r"\W+", "_", string)
+    normalized_string = normalized_string.strip("_")
     # Lower case string.
     normalized_string = normalized_string.lower()
     return normalized_string
 
 
-def get_file_checksum(filename, algorithm='sha256'):
+def get_file_checksum(filename, algorithm="sha256"):
     """
     Perform a checksum on the specified file.
 
@@ -182,8 +180,8 @@ def get_file_checksum(filename, algorithm='sha256'):
     :return: Returns a checksum string for the specified file.
     """
     hash_ = hashlib.new(algorithm)
-    with open(filename, 'rb') as file_:
-        for chunk in iter(lambda: file_.read(1024 * hash_.block_size), b''):
+    with open(filename, "rb") as file_:
+        for chunk in iter(lambda: file_.read(1024 * hash_.block_size), b""):
             hash_.update(chunk)
     return hash_.hexdigest()
 
@@ -205,8 +203,7 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
     """
     paths = []
     # Check transfer metadata.
-    transfers_md_path = os.path.join(sip_path, 'objects',
-                                     'metadata', 'transfers')
+    transfers_md_path = os.path.join(sip_path, "objects", "metadata", "transfers")
     try:
         transfers = os.listdir(transfers_md_path)
     except OSError:
@@ -217,14 +214,13 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
             paths.append(path)
     # Check the SIP metadata dir.
     if not only_transfers:
-        path = os.path.join(sip_path, 'objects', 'metadata', filename)
+        path = os.path.join(sip_path, "objects", "metadata", filename)
         if os.path.isfile(path):
             paths.append(path)
     return paths
 
 
-def create_directories(directories, basepath='',
-                       printing=False, printfn=print):
+def create_directories(directories, basepath="", printing=False, printfn=print):
     """Create arbitrary directory structures given an iterable list of directory
     paths.
     """
@@ -233,24 +229,25 @@ def create_directories(directories, basepath='',
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
             if printing:
-                printfn('Creating directory', dir_path)
+                printfn("Creating directory", dir_path)
 
 
-def create_structured_directory(basepath,
-                                manual_normalization=False,
-                                printing=False, printfn=print):
+def create_structured_directory(
+    basepath, manual_normalization=False, printing=False, printfn=print
+):
     """Wrapper for create_directories for various structures required by
     Archivematica.
     """
-    create_directories(REQUIRED_DIRECTORIES,
-                       basepath=basepath,
-                       printing=printing,
-                       printfn=printfn)
+    create_directories(
+        REQUIRED_DIRECTORIES, basepath=basepath, printing=printing, printfn=printfn
+    )
     if manual_normalization:
-        create_directories(MANUAL_NORMALIZATION_DIRECTORIES,
-                           basepath=basepath,
-                           printing=printing,
-                           printfn=printfn)
+        create_directories(
+            MANUAL_NORMALIZATION_DIRECTORIES,
+            basepath=basepath,
+            printing=printing,
+            printfn=printfn,
+        )
 
 
 def get_dir_uuids(dir_paths, logger=None, printfn=print):
@@ -260,13 +257,13 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
-        msg = u'Assigning UUID {} to directory path {}'.format(
-            strToUnicode(dir_uuid), strToUnicode(dir_path))
+        msg = u"Assigning UUID {} to directory path {}".format(
+            strToUnicode(dir_uuid), strToUnicode(dir_path)
+        )
         printfn(msg)
         if logger:
             logger.info(msg)
-        yield {"currentLocation": dir_path,
-               "uuid": dir_uuid}
+        yield {"currentLocation": dir_path, "uuid": dir_uuid}
 
 
 def format_subdir_path(dir_path, path_prefix_to_repl):
@@ -274,28 +271,29 @@ def format_subdir_path(dir_path, path_prefix_to_repl):
     ``path_prefix_to_repl`` with a placeholder. Used when creating
     ``originallocation`` attributes for ``Directory`` models.
     """
-    return os.path.join(dir_path, '').replace(
-        path_prefix_to_repl, '%transferDirectory%', 1)
+    return os.path.join(dir_path, "").replace(
+        path_prefix_to_repl, "%transferDirectory%", 1
+    )
 
 
 def str2bool(val):
     """'True' is ``True``; aught else is ``False."""
-    if val == 'True':
+    if val == "True":
         return True
     return False
 
 
-NORMATIVE_STRUCTMAP_LABEL = 'Normative Directory Structure'
+NORMATIVE_STRUCTMAP_LABEL = "Normative Directory Structure"
 
 
-def div_el_to_dir_paths(div_el, parent='', include=True):
+def div_el_to_dir_paths(div_el, parent="", include=True):
     """Recursively extract the list of filesystem directory paths encoded in
     <mets:div> element ``div_el``.
     """
     paths = []
     path = parent
-    dir_name = div_el.get('LABEL')
-    if parent == '' and dir_name in ('metadata', 'submissionDocumentation'):
+    dir_name = div_el.get("LABEL")
+    if parent == "" and dir_name in ("metadata", "submissionDocumentation"):
         return []
     if include:
         path = os.path.join(parent, dir_name)
@@ -313,35 +311,45 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         on disk.
     :returns None:
     """
-    if (not os.path.isfile(mets_file_path) or
-            not os.path.isdir(objects_path)):
+    if not os.path.isfile(mets_file_path) or not os.path.isdir(objects_path):
         if logger:
-            logger.info(u'Unable to construct empty directories, either because'
-                        ' there is no METS file at {} or because there is no'
-                        ' objects/ directory at {}'.format(strToUnicode(mets_file_path),
-                                                           strToUnicode(objects_path)))
+            logger.info(
+                u"Unable to construct empty directories, either because"
+                " there is no METS file at {} or because there is no"
+                " objects/ directory at {}".format(
+                    strToUnicode(mets_file_path), strToUnicode(objects_path)
+                )
+            )
         return
     doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
     logical_struct_map_el = doc.find(
         'mets:structMap[@TYPE="logical"][@LABEL="{}"]'.format(
-            NORMATIVE_STRUCTMAP_LABEL), NSMAP)
+            NORMATIVE_STRUCTMAP_LABEL
+        ),
+        NSMAP,
+    )
     if logical_struct_map_el is None:
         if logger:
-            logger.info(u'Unable to locate a logical structMap labelled {}.'
-                        ' Aborting attempt to reconstruct empty'
-                        ' directories.'.format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL)))
+            logger.info(
+                u"Unable to locate a logical structMap labelled {}."
+                " Aborting attempt to reconstruct empty"
+                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+            )
         return
     root_div_el = logical_struct_map_el.find(
-        'mets:div/mets:div[@LABEL="objects"]', NSMAP)
+        'mets:div/mets:div[@LABEL="objects"]', NSMAP
+    )
     if root_div_el is None:
         if logger:
-            logger.info(u'Unable to locate a logical structMap labelled {}.'
-                        ' Aborting attempt to reconstruct empty'
-                        ' directories.'.format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL)))
+            logger.info(
+                u"Unable to locate a logical structMap labelled {}."
+                " Aborting attempt to reconstruct empty"
+                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+            )
         return
     paths = div_el_to_dir_paths(root_div_el, include=False)
     if logger:
-        logger.info('paths extracted from METS file:')
+        logger.info("paths extracted from METS file:")
         logger.info(pprint.pformat(paths))
     for path in paths:
         path = os.path.join(objects_path, path)

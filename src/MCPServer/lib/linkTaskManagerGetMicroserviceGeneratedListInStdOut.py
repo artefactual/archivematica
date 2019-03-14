@@ -31,13 +31,14 @@ from dicts import ChoicesDict, ReplacementDict
 from taskGroup import TaskGroup
 from taskGroupRunner import TaskGroupRunner
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
-        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut,
-              self).__init__(jobChainLink, unit)
+        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(
+            jobChainLink, unit
+        )
         config = self.jobChainLink.link.config
         filterSubDir = config["filter_subdir"]
         standardOutputFile = config["stdout_file"]
@@ -58,21 +59,31 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
                     if isinstance(passVar, ReplacementDict):
-                        arguments, standardOutputFile, standardErrorFile = passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                        arguments, standardOutputFile, standardErrorFile = passVar.replace(
+                            arguments, standardOutputFile, standardErrorFile
+                        )
             elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(
+                    arguments, standardOutputFile, standardErrorFile
+                )
 
         # Apply unit (SIP/Transfer) replacement values
         commandReplacementDic = unit.getReplacementDic(directory)
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
+        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(
+            arguments, standardOutputFile, standardErrorFile
+        )
 
         group = TaskGroup(self, execute)
         group.addTask(
-            arguments, standardOutputFile, standardErrorFile,
-            commandReplacementDic=commandReplacementDic, wants_output=True)
+            arguments,
+            standardOutputFile,
+            standardErrorFile,
+            commandReplacementDic=commandReplacementDic,
+            wants_output=True,
+        )
         group.logTaskCreatedSQL()
         TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
@@ -82,15 +93,15 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         stdout = None
         tasks = finishedTaskGroup.tasks()
         try:
-            stdout = tasks[0].results['stdout']
+            stdout = tasks[0].results["stdout"]
         except KeyError:
             pass
-        LOGGER.debug('stdout emitted by client: %s', stdout)
+        LOGGER.debug("stdout emitted by client: %s", stdout)
 
         try:
             choices = ChoicesDict.fromstring(stdout)
         except Exception:
-            LOGGER.exception('Unable to create dic from output %s', stdout)
+            LOGGER.exception("Unable to create dic from output %s", stdout)
             choices = ChoicesDict({})
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
@@ -105,4 +116,6 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         else:
             self.jobChainLink.passVar = [choices]
 
-        self.jobChainLink.linkProcessingComplete(finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar)
+        self.jobChainLink.linkProcessingComplete(
+            finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar
+        )

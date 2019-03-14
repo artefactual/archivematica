@@ -43,7 +43,7 @@ class AJAXSimpleExceptionResponseMiddleware:
 class SpecificExceptionErrorPageResponseMiddleware:
     def process_exception(self, request, exception):
         if settings.DEBUG and isinstance(exception, TemplateDoesNotExist):
-            return HttpResponseServerError('Missing template: ' + str(exception))
+            return HttpResponseServerError("Missing template: " + str(exception))
 
 
 class ElasticsearchMiddleware:
@@ -56,6 +56,7 @@ class ElasticsearchMiddleware:
     mainly because users frequently experience Elasticsearch node crashes when
     running them with not enough memory.
     """
+
     EXCEPTIONS = (
         elasticsearch.ElasticsearchException,
         elasticsearch.ImproperlyConfigured,
@@ -65,11 +66,15 @@ class ElasticsearchMiddleware:
         if settings.DEBUG:
             return
         if isinstance(exception, self.EXCEPTIONS):
-            return render(request, 'elasticsearch_error.html', {'exception_type': str(type(exception))})
+            return render(
+                request,
+                "elasticsearch_error.html",
+                {"exception_type": str(type(exception))},
+            )
 
 
 SHIBBOLETH_REMOTE_USER_HEADER = getattr(
-    settings, 'SHIBBOLETH_REMOTE_USER_HEADER', 'REMOTE_USER'
+    settings, "SHIBBOLETH_REMOTE_USER_HEADER", "REMOTE_USER"
 )
 
 
@@ -80,6 +85,7 @@ class CustomShibbolethRemoteUserMiddleware(ShibbolethRemoteUserMiddleware):
     THe aim of this is to provide a custom header name that is expected
     to identify the remote Shibboleth user
     """
+
     header = SHIBBOLETH_REMOTE_USER_HEADER
 
     def make_profile(self, user, shib_meta):
@@ -88,6 +94,6 @@ class CustomShibbolethRemoteUserMiddleware(ShibbolethRemoteUserMiddleware):
         already covered by the attribute map)
         """
         # Make the user an administrator if they are in the designated admin group
-        entitlements = shib_meta['entitlement'].split(';')
+        entitlements = shib_meta["entitlement"].split(";")
         user.is_superuser = settings.SHIBBOLETH_ADMIN_ENTITLEMENT in entitlements
         user.save()

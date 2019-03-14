@@ -25,8 +25,10 @@ import os
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import File
 
@@ -41,8 +43,10 @@ def recursivelyRemoveEmptyDirectories(job, dir):
             try:
                 os.rmdir(os.path.join(root, directory))
             except OSError as e:
-                job.pyprint("{0} could not be deleted: {1}".format(
-                    directory, e.args), file=sys.stderr)
+                job.pyprint(
+                    "{0} could not be deleted: {1}".format(directory, e.args),
+                    file=sys.stderr,
+                )
                 error_count += 1
     return error_count
 
@@ -52,30 +56,42 @@ def call(jobs):
         for job in jobs:
             with job.JobContext():
                 SIPDirectory = job.args[1]
-                manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")
+                manual_normalization_dir = os.path.join(
+                    SIPDirectory, "objects", "manualNormalization"
+                )
 
                 errorCount = 0
 
                 if os.path.isdir(manual_normalization_dir):
                     # Delete normalization.csv if present
-                    normalization_csv = os.path.join(manual_normalization_dir, 'normalization.csv')
+                    normalization_csv = os.path.join(
+                        manual_normalization_dir, "normalization.csv"
+                    )
                     if os.path.isfile(normalization_csv):
                         os.remove(normalization_csv)
                         # Need SIP UUID to get file UUID to remove file in DB
                         sipUUID = SIPDirectory[-37:-1]  # Account for trailing /
 
-                        f = File.objects.get(removedtime__isnull=True,
-                                             originallocation__endswith='normalization.csv',
-                                             sip_id=sipUUID)
+                        f = File.objects.get(
+                            removedtime__isnull=True,
+                            originallocation__endswith="normalization.csv",
+                            sip_id=sipUUID,
+                        )
                         databaseFunctions.fileWasRemoved(f.uuid)
 
                     # Recursively delete empty manual normalization dir
                     try:
-                        errorCount += recursivelyRemoveEmptyDirectories(job, manual_normalization_dir)
+                        errorCount += recursivelyRemoveEmptyDirectories(
+                            job, manual_normalization_dir
+                        )
                         os.rmdir(manual_normalization_dir)
                     except OSError as e:
-                        job.pyprint("{0} could not be deleted: {1}".format(
-                            manual_normalization_dir, e.args), file=sys.stderr)
+                        job.pyprint(
+                            "{0} could not be deleted: {1}".format(
+                                manual_normalization_dir, e.args
+                            ),
+                            file=sys.stderr,
+                        )
                         errorCount += 1
 
                 job.set_status(errorCount)

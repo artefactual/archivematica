@@ -19,6 +19,6 @@ from django.conf.urls import url
 from installer import views
 
 urlpatterns = [
-    url(r'welcome/$', views.welcome),
-    url(r'storagesetup/$', views.storagesetup),
+    url(r"welcome/$", views.welcome),
+    url(r"storagesetup/$", views.storagesetup),
 ]

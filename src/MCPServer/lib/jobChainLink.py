@@ -29,7 +29,7 @@ from databaseFunctions import auto_close_db, getUTCDate
 from main.models import Job
 
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class jobChainLink:
@@ -49,7 +49,7 @@ class jobChainLink:
         self.group = link.get_label("group", "en")
         self.description = link.get_label("description", "en")
 
-        LOGGER.info('Running %s (unit %s)', self.description, self.unit.UUID)
+        LOGGER.info("Running %s (unit %s)", self.description, self.unit.UUID)
         self.unit.reload()
 
         self._create_job()
@@ -60,7 +60,7 @@ class jobChainLink:
         try:
             manager = self.link.manager
         except Exception as err:
-            LOGGER.exception('Unsupported task type: %s', err)
+            LOGGER.exception("Unsupported task type: %s", err)
             return
         manager(self, self.unit)
 
@@ -81,7 +81,8 @@ class jobChainLink:
             microservicegroup=self.group,
             createdtime=self.created_at,
             createdtimedec=self._created_at_dec,
-            microservicechainlink=self.pk)
+            microservicechainlink=self.pk,
+        )
 
     @property
     def _created_at_dec(self):

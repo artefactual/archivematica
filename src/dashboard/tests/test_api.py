@@ -18,25 +18,28 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def load_fixture(fixtures):
-    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixtures]
-    call_command('loaddata', *fixtures, **{'verbosity': 0})
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixtures]
+    call_command("loaddata", *fixtures, **{"verbosity": 0})
 
 
 def e2e(fn):
     """Use this decorator when your test uses the HTTP client."""
+
     def _wrapper(self, *args):
-        load_fixture(['test_user.json'])
+        load_fixture(["test_user.json"])
         self.client = Client()
-        self.client.login(username='test', password='test')
-        helpers.set_setting('dashboard_uuid', 'test-uuid')
+        self.client.login(username="test", password="test")
+        helpers.set_setting("dashboard_uuid", "test-uuid")
         return fn(self, *args)
+
     return _wrapper
 
 
 class TestAPI(TestCase):
     """Test API endpoints."""
-    fixture_files = ['transfer.json', 'sip.json']
-    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    fixture_files = ["transfer.json", "sip.json"]
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def _test_api_error(self, response, message=None, status_code=None):
         payload = json.loads(response.content)
@@ -51,94 +54,130 @@ class TestAPI(TestCase):
     def test_get_unit_status_processing(self):
         """It should return PROCESSING."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json'])
+        load_fixture(["jobs-processing.json"])
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'PROCESSING'
+        assert "microservice" in status
+        assert status["status"] == "PROCESSING"
         assert len(completed) == 0
 
     def test_get_unit_status_user_input(self):
         """It should return USER_INPUT."""
         # Setup fixtures
-        load_fixture(['job-processing.json', 'jobs-user-input.json'])
+        load_fixture(["job-processing.json", "jobs-user-input.json"])
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'USER_INPUT'
+        assert "microservice" in status
+        assert status["status"] == "USER_INPUT"
         assert len(completed) == 0
 
     def test_get_unit_status_failed(self):
         """It should return FAILED."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-failed.json'])
+        load_fixture(["jobs-processing.json", "jobs-failed.json"])
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'FAILED'
+        assert "microservice" in status
+        assert status["status"] == "FAILED"
         assert len(completed) == 1
 
     def test_get_unit_status_rejected(self):
         """It should return REJECTED."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-rejected.json'])
+        load_fixture(["jobs-processing.json", "jobs-rejected.json"])
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'REJECTED'
+        assert "microservice" in status
+        assert status["status"] == "REJECTED"
         assert len(completed) == 0
 
     def test_get_unit_status_completed_transfer(self):
         """It should return COMPLETE and the new SIP UUID."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-transfer-complete.json', 'files.json'])
+        load_fixture(
+            ["jobs-processing.json", "jobs-transfer-complete.json", "files.json"]
+        )
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 3
-        assert 'microservice' in status
-        assert status['status'] == 'COMPLETE'
-        assert status['sip_uuid'] == '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+        assert "microservice" in status
+        assert status["status"] == "COMPLETE"
+        assert status["sip_uuid"] == "4060ee97-9c3f-4822-afaf-ebdf838284c3"
         assert len(completed) == 1
 
     def test_get_unit_status_backlog(self):
         """It should return COMPLETE and in BACKLOG."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-transfer-backlog.json'])
+        load_fixture(["jobs-processing.json", "jobs-transfer-backlog.json"])
         # Test
-        status = views.get_unit_status('3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e', 'unitTransfer')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 3
-        assert 'microservice' in status
-        assert status['status'] == 'COMPLETE'
-        assert status['sip_uuid'] == 'BACKLOG'
+        assert "microservice" in status
+        assert status["status"] == "COMPLETE"
+        assert status["sip_uuid"] == "BACKLOG"
         assert len(completed) == 1
 
     def test_get_unit_status_completed_sip(self):
         """It should return COMPLETE."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-transfer-complete.json', 'jobs-sip-complete.json'])
+        load_fixture(
+            [
+                "jobs-processing.json",
+                "jobs-transfer-complete.json",
+                "jobs-sip-complete.json",
+            ]
+        )
         # Test
-        status = views.get_unit_status('4060ee97-9c3f-4822-afaf-ebdf838284c3', 'unitSIP')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'COMPLETE'
+        assert "microservice" in status
+        assert status["status"] == "COMPLETE"
         assert len(completed) == 1
 
     def test_get_unit_status_completed_sip_issue_262_workaround(self):
@@ -148,21 +187,32 @@ class TestAPI(TestCase):
         latest created time)
         It should return COMPLETE."""
         # Setup fixtures
-        load_fixture(['jobs-processing.json', 'jobs-transfer-complete.json', 'jobs-sip-complete-clean-up-last.json'])
+        load_fixture(
+            [
+                "jobs-processing.json",
+                "jobs-transfer-complete.json",
+                "jobs-sip-complete-clean-up-last.json",
+            ]
+        )
         # Test
-        status = views.get_unit_status('4060ee97-9c3f-4822-afaf-ebdf838284c3', 'unitSIP')
-        completed = helpers.completed_units_efficient(unit_type='transfer', include_failed=True)
+        status = views.get_unit_status(
+            "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
+        )
+        completed = helpers.completed_units_efficient(
+            unit_type="transfer", include_failed=True
+        )
         # Verify
         assert len(status) == 2
-        assert 'microservice' in status
-        assert status['status'] == 'COMPLETE'
+        assert "microservice" in status
+        assert status["status"] == "COMPLETE"
         assert len(completed) == 1
 
     @e2e
     def test_status(self):
-        load_fixture(['jobs-transfer-complete.json'])
+        load_fixture(["jobs-transfer-complete.json"])
         resp = self.client.get(
-            '/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e')
+            "/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        )
         assert resp.status_code == 200
         payload = json.loads(resp.content)
         assert payload["status"] == "COMPLETE"
@@ -174,20 +224,25 @@ class TestAPI(TestCase):
         """It should return a 400 error as the status cannot be determined."""
         bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
         Transfer.objects.create(uuid=bogus_transfer_id)
-        resp = self.client.get(
-            "/api/transfer/status/{}".format(bogus_transfer_id))
-        self._test_api_error(resp, status_code=400, message=(
-            "Unable to determine the status of the unit {}".format(
-                bogus_transfer_id)))
+        resp = self.client.get("/api/transfer/status/{}".format(bogus_transfer_id))
+        self._test_api_error(
+            resp,
+            status_code=400,
+            message=(
+                "Unable to determine the status of the unit {}".format(
+                    bogus_transfer_id
+                )
+            ),
+        )
 
     def test__completed_units(self):
-        load_fixture(['jobs-transfer-complete.json'])
+        load_fixture(["jobs-transfer-complete.json"])
         completed = views._completed_units()
         assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
 
     def test__completed_units_with_bogus_unit(self):
         """Bogus units should be excluded and handled gracefully."""
-        load_fixture(['jobs-transfer-complete.json'])
+        load_fixture(["jobs-transfer-complete.json"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         try:
             completed = views._completed_units()
@@ -197,7 +252,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_completed_transfers(self):
-        load_fixture(['jobs-transfer-complete.json'])
+        load_fixture(["jobs-transfer-complete.json"])
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
         payload = json.loads(resp.content)
@@ -209,7 +264,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_transfers_with_bogus_transfer(self):
         """Bogus transfers should be excluded and handled gracefully."""
-        load_fixture(['jobs-transfer-complete.json'])
+        load_fixture(["jobs-transfer-complete.json"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
@@ -221,7 +276,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_completed_ingests(self):
-        load_fixture(['jobs-sip-complete.json'])
+        load_fixture(["jobs-sip-complete.json"])
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
         payload = json.loads(resp.content)
@@ -233,7 +288,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_ingests_with_bogus_sip(self):
         """Bogus ingests should be excluded and handled gracefully."""
-        load_fixture(['jobs-sip-complete.json'])
+        load_fixture(["jobs-sip-complete.json"])
         SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
@@ -245,63 +300,65 @@ class TestAPI(TestCase):
 
 
 class TestProcessingConfigurationAPI(TestCase):
-    fixture_files = ['test_user.json']
-    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+    fixture_files = ["test_user.json"]
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def setUp(self):
         self.client = Client()
-        self.client.login(username='test', password='test')
-        helpers.set_setting('dashboard_uuid', 'test-uuid')
+        self.client.login(username="test", password="test")
+        helpers.set_setting("dashboard_uuid", "test-uuid")
         settings.SHARED_DIRECTORY = tempfile.gettempdir()
         self.config_path = os.path.join(
             settings.SHARED_DIRECTORY,
-            'sharedMicroServiceTasksConfigs/processingMCPConfigs/'
+            "sharedMicroServiceTasksConfigs/processingMCPConfigs/",
         )
         if not os.path.exists(self.config_path):
             os.makedirs(self.config_path)
-        install_builtin_config('default')
+        install_builtin_config("default")
 
     def test_get_existing_processing_config(self):
         response = self.client.get(
-            reverse('processing_configuration', args=['default']),
-            HTTP_ACCEPT='xml'
+            reverse("processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
         )
         assert response.status_code == 200
-        assert etree.fromstring(response.content).xpath('.//preconfiguredChoice')
+        assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
     def test_delete_and_regenerate(self):
         response = self.client.delete(
-            reverse('processing_configuration', args=['default']),
+            reverse("processing_configuration", args=["default"])
         )
         assert response.status_code == 200
-        assert not os.path.exists(os.path.join(self.config_path, 'defaultProcessingMCP.xml'))
+        assert not os.path.exists(
+            os.path.join(self.config_path, "defaultProcessingMCP.xml")
+        )
 
         response = self.client.get(
-            reverse('processing_configuration', args=['default']),
-            HTTP_ACCEPT='xml'
+            reverse("processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
         )
         assert response.status_code == 200
-        assert etree.fromstring(response.content).xpath('.//preconfiguredChoice')
-        assert os.path.exists(os.path.join(self.config_path, 'defaultProcessingMCP.xml'))
+        assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
+        assert os.path.exists(
+            os.path.join(self.config_path, "defaultProcessingMCP.xml")
+        )
 
     def test_404_for_non_existent_config(self):
         response = self.client.get(
-            reverse('processing_configuration', args=['nonexistent']),
-            HTTP_ACCEPT='xml'
+            reverse("processing_configuration", args=["nonexistent"]), HTTP_ACCEPT="xml"
         )
         assert response.status_code == 404
 
     def test_404_for_delete_non_existent_config(self):
         response = self.client.delete(
-            reverse('processing_configuration', args=['nonexistent']),
+            reverse("processing_configuration", args=["nonexistent"])
         )
         assert response.status_code == 404
 
 
 class TestAPI2(TestCase):
     """Test API endpoints."""
-    fixture_files = ['units.json']
-    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    fixture_files = ["units.json"]
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_get_unit_status_multiple(self):
         """When the database contains 5 units of the following types:
@@ -313,11 +370,12 @@ class TestAPI2(TestCase):
         then ``completed_units_efficient`` should return 3: the failed,
         the completed, and the in-backlog transfer.
         """
-        load_fixture(['jobs-various.json'])
+        load_fixture(["jobs-various.json"])
         completed = helpers.completed_units_efficient(
-            unit_type='transfer', include_failed=True)
+            unit_type="transfer", include_failed=True
+        )
         print(completed)
         assert len(completed) == 3
-        assert '85216028-1150-4321-abb3-31ea570a341b' in completed
-        assert '5d0ab97f-a45b-4e0f-9cb6-90ee3a404549' in completed
-        assert 'b949773d-7cf7-4c1e-aea5-ccbf65b70ccd' in completed
+        assert "85216028-1150-4321-abb3-31ea570a341b" in completed
+        assert "5d0ab97f-a45b-4e0f-9cb6-90ee3a404549" in completed
+        assert "b949773d-7cf7-4c1e-aea5-ccbf65b70ccd" in completed

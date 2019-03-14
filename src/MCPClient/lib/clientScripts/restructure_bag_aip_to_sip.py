@@ -34,11 +34,11 @@ logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
 
 
 def _move_file(job, src, dst, exit_on_error=True):
-    job.pyprint('Moving', src, 'to', dst)
+    job.pyprint("Moving", src, "to", dst)
     try:
         shutil.move(src, dst)
     except IOError:
-        job.pyprint('Could not move', src)
+        job.pyprint("Could not move", src)
         if exit_on_error:
             raise
 
@@ -50,37 +50,42 @@ def call(jobs):
                 sip_path = job.args[1]
 
                 # Move everything out of data directory
-                for item in os.listdir(os.path.join(sip_path, 'data')):
-                    src = os.path.join(sip_path, 'data', item)
+                for item in os.listdir(os.path.join(sip_path, "data")):
+                    src = os.path.join(sip_path, "data", item)
                     dst = os.path.join(sip_path, item)
                     _move_file(job, src, dst)
 
-                os.rmdir(os.path.join(sip_path, 'data'))
+                os.rmdir(os.path.join(sip_path, "data"))
 
                 # Move metadata and logs out of objects if they exist
-                objects_path = os.path.join(sip_path, 'objects')
-                src = os.path.join(objects_path, 'metadata')
-                dst = os.path.join(sip_path, 'metadata')
+                objects_path = os.path.join(sip_path, "objects")
+                src = os.path.join(objects_path, "metadata")
+                dst = os.path.join(sip_path, "metadata")
                 _move_file(job, src, dst, exit_on_error=False)
 
-                src = os.path.join(objects_path, 'logs')
-                dst = os.path.join(sip_path, 'logs')
+                src = os.path.join(objects_path, "logs")
+                dst = os.path.join(sip_path, "logs")
                 _move_file(job, src, dst, exit_on_error=False)
 
                 # Move anything unexpected to submission documentation
                 # Leave objects, metadata, etc
                 # Original METS ends up in submissionDocumentation
                 subm_doc_path = os.path.join(
-                    sip_path, 'metadata', 'submissionDocumentation')
+                    sip_path, "metadata", "submissionDocumentation"
+                )
                 os.makedirs(subm_doc_path)
                 mets_file_path = None
                 for item in os.listdir(sip_path):
                     # Leave SIP structure
-                    if item in archivematicaFunctions.OPTIONAL_FILES + archivematicaFunctions.REQUIRED_DIRECTORIES:
+                    if (
+                        item
+                        in archivematicaFunctions.OPTIONAL_FILES
+                        + archivematicaFunctions.REQUIRED_DIRECTORIES
+                    ):
                         continue
                     src = os.path.join(sip_path, item)
                     dst = os.path.join(subm_doc_path, item)
-                    if item.startswith('METS.') and item.endswith('.xml'):
+                    if item.startswith("METS.") and item.endswith(".xml"):
                         mets_file_path = dst
                     _move_file(job, src, dst)
 
@@ -88,12 +93,20 @@ def call(jobs):
                 # logical structMap labelled "Normative Directory Structure"
                 if mets_file_path:
                     archivematicaFunctions.reconstruct_empty_directories(
-                        mets_file_path, objects_path, logger=logger)
+                        mets_file_path, objects_path, logger=logger
+                    )
                 else:
-                    logger.info('Unable to reconstruct empty directories: no METS file'
-                                ' could be found in {}'.format(sip_path))
+                    logger.info(
+                        "Unable to reconstruct empty directories: no METS file"
+                        " could be found in {}".format(sip_path)
+                    )
 
-                archivematicaFunctions.create_structured_directory(sip_path, manual_normalization=True, printing=True, printfn=job.pyprint)
+                archivematicaFunctions.create_structured_directory(
+                    sip_path,
+                    manual_normalization=True,
+                    printing=True,
+                    printfn=job.pyprint,
+                )
             except IOError as err:
                 job.print_error(repr(err))
                 job.set_status(1)

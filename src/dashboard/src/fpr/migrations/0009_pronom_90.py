@@ -8,16 +8,12 @@ from django.db import migrations
 
 
 def data_migration(apps, schema_editor):
-    fixture_file = os.path.join(os.path.dirname(__file__), 'pronom_90.json')
-    call_command('loaddata', fixture_file, app_label='fpr')
+    fixture_file = os.path.join(os.path.dirname(__file__), "pronom_90.json")
+    call_command("loaddata", fixture_file, app_label="fpr")
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('fpr', '0008_update_django_autoslug'),
-    ]
+    dependencies = [("fpr", "0008_update_django_autoslug")]
 
-    operations = [
-        migrations.RunPython(data_migration),
-    ]
+    operations = [migrations.RunPython(data_migration)]

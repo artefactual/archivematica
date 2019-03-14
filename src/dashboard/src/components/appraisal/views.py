@@ -8,7 +8,7 @@ from django.shortcuts import render
 
 # This project, alphabetical by import source
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Appraisal
@@ -16,4 +16,4 @@ logger = logging.getLogger('archivematica.dashboard')
 
 
 def appraisal(request):
-    return render(request, 'appraisal/appraisal.html')
+    return render(request, "appraisal/appraisal.html")

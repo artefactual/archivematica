@@ -38,7 +38,7 @@ def transliterate(basename):
     # We get a more meaningful name sanitization if UTF-8 names
     # are correctly decoded to unistrings instead of str
     try:
-        return unidecode(basename.decode('utf-8'))
+        return unidecode(basename.decode("utf-8"))
     except UnicodeDecodeError:
         return unidecode(basename)
 
@@ -51,7 +51,7 @@ def sanitizeName(basename):
             ret += c
         else:
             ret += replacementChar
-    return ret.encode('utf-8')
+    return ret.encode("utf-8")
 
 
 class RenameFailed(Exception):
@@ -72,7 +72,9 @@ def sanitizePath(job, path):
         sanitizedName = os.path.join(dirname, fileTitle + fileExtension)
 
         while os.path.exists(sanitizedName):
-            sanitizedName = os.path.join(dirname, fileTitle + replacementChar + str(n) + fileExtension)
+            sanitizedName = os.path.join(
+                dirname, fileTitle + replacementChar + str(n) + fileExtension
+            )
             n += 1
         exit_status = rename(path, sanitizedName)
         if exit_status:
@@ -87,12 +89,13 @@ def sanitizeRecursively(job, path):
 
     sanitizedName = sanitizePath(job, path)
     if sanitizedName != path:
-        path_key = unicodeToStr(
-            unicodedata.normalize('NFC', path.decode('utf8')))
+        path_key = unicodeToStr(unicodedata.normalize("NFC", path.decode("utf8")))
         sanitizations[path_key] = sanitizedName
     if os.path.isdir(sanitizedName):
         for f in os.listdir(sanitizedName):
-            sanitizations.update(sanitizeRecursively(job, os.path.join(sanitizedName, f)))
+            sanitizations.update(
+                sanitizeRecursively(job, os.path.join(sanitizedName, f))
+            )
 
     return sanitizations
 
@@ -110,6 +113,8 @@ def call(jobs):
                 sanitizations = sanitizeRecursively(job, path)
                 for oldfile, newfile in sanitizations.items():
                     job.pyprint(oldfile, " -> ", newfile)
-                job.pyprint("TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE", file=sys.stderr)
+                job.pyprint(
+                    "TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE", file=sys.stderr
+                )
             except RenameFailed as e:
                 job.set_status(e.code)

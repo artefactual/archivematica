@@ -55,7 +55,21 @@ def get_user_input(job):
     use_statement = raw_input("Use Statement:")
 
     uri_prefix = raw_input("prefix for uri:")
-    return atdbhost, atdbport, atdbuser, atpass, atdb, dip_location, dip_name, atuser, object_type, ead_actuate, ead_show, use_statement, uri_prefix
+    return (
+        atdbhost,
+        atdbport,
+        atdbuser,
+        atpass,
+        atdb,
+        dip_location,
+        dip_name,
+        atuser,
+        object_type,
+        ead_actuate,
+        ead_show,
+        use_statement,
+        uri_prefix,
+    )
 
 
 def get_files_from_dip(dip_location, dip_name, dip_uuid):
@@ -78,39 +92,65 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
 
 def get_pairs(dip_uuid):
     # make a set of pairs from pairs table
-    return {pair.fileuuid: {'rid': pair.resourceid, 'rcid': pair.resourceComponentId}
-            for pair in AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid)}
+    return {
+        pair.fileuuid: {"rid": pair.resourceid, "rcid": pair.resourceComponentId}
+        for pair in AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid)
+    }
 
 
 def delete_pairs(dip_uuid):
     AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid).delete()
 
 
-def upload_to_atk(args, mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
-    logger.info("inputs: actuate '{}' show '{}' type '{}'  use_statement '{}' use_conditions '{}'".format(ead_actuate, ead_show, object_type, use_statement, use_conditions))
-    if not uri_prefix.endswith('/'):
-        uri_prefix += '/'
+def upload_to_atk(
+    args,
+    mylist,
+    atuser,
+    ead_actuate,
+    ead_show,
+    object_type,
+    use_statement,
+    uri_prefix,
+    dip_uuid,
+    access_conditions,
+    use_conditions,
+    restrictions,
+    dip_location,
+):
+    logger.info(
+        "inputs: actuate '{}' show '{}' type '{}'  use_statement '{}' use_conditions '{}'".format(
+            ead_actuate, ead_show, object_type, use_statement, use_conditions
+        )
+    )
+    if not uri_prefix.endswith("/"):
+        uri_prefix += "/"
 
     # get mets object if needed
     mets = None
-    if restrictions == 'premis' or len(access_conditions) == 0 or len(use_conditions) == 0:
+    if (
+        restrictions == "premis"
+        or len(access_conditions) == 0
+        or len(use_conditions) == 0
+    ):
         try:
             logger.debug("looking for mets: {}".format(dip_uuid))
-            mets_source = dip_location + 'METS.' + dip_uuid + '.xml'
+            mets_source = dip_location + "METS." + dip_uuid + ".xml"
             mets = mets_file(mets_source)
             logger.debug("found mets file")
         except Exception:
             return 4
 
-    client = ArchivistsToolkitClient(args.atdbhost, args.atdbuser, args.atdbpass, args.atdb)
+    client = ArchivistsToolkitClient(
+        args.atdbhost, args.atdbuser, args.atdbpass, args.atdb
+    )
 
     pairs = get_pairs(dip_uuid)
     # TODO test to make sure we got some pairs
 
     for f in mylist:
-        logger.info('using ' + f)
+        logger.info("using " + f)
         file_name = os.path.basename(f)
-        logger.info('file_name is ' + file_name)
+        logger.info("file_name is " + file_name)
         uuid = file_name[0:36]
         access_restrictions = None
         access_rightsGrantedNote = None
@@ -118,51 +158,67 @@ def upload_to_atk(args, mylist, atuser, ead_actuate, ead_show, object_type, use_
         use_rightsGrantedNote = None
         if mets and mets[uuid]:
             # get premis info from mets
-            for premis in mets[uuid]['premis']:
-                logger.debug("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'], mets[uuid]['premis'][premis]['rightsGrantedNote']))
-                if premis == 'disseminate':
-                    access_restrictions = mets[uuid]['premis']['disseminate']['restriction']
-                    access_rightsGrantedNote = mets[uuid]['premis']['disseminate']['rightsGrantedNote']
-                if premis == 'publish':
-                    use_restrictions = mets[uuid]['premis']['publish']['restriction']
-                    use_rightsGrantedNote = mets[uuid]['premis']['publish']['rightsGrantedNote']
+            for premis in mets[uuid]["premis"]:
+                logger.debug(
+                    "{} rights = {}, note={}".format(
+                        premis,
+                        mets[uuid]["premis"][premis]["restriction"],
+                        mets[uuid]["premis"][premis]["rightsGrantedNote"],
+                    )
+                )
+                if premis == "disseminate":
+                    access_restrictions = mets[uuid]["premis"]["disseminate"][
+                        "restriction"
+                    ]
+                    access_rightsGrantedNote = mets[uuid]["premis"]["disseminate"][
+                        "rightsGrantedNote"
+                    ]
+                if premis == "publish":
+                    use_restrictions = mets[uuid]["premis"]["publish"]["restriction"]
+                    use_rightsGrantedNote = mets[uuid]["premis"]["publish"][
+                        "rightsGrantedNote"
+                    ]
         logger.debug("determine restrictions")
         # determine restrictions
-        if restrictions == 'no':
+        if restrictions == "no":
             restrictions_apply = False
-        elif restrictions == 'yes':
+        elif restrictions == "yes":
             restrictions_apply = True
             ead_actuate = "none"
             ead_show = "none"
-        elif restrictions == 'premis':
+        elif restrictions == "premis":
             logger.debug("premis restrictions")
-            if access_restrictions == 'Allow' and use_restrictions == 'Allow':
+            if access_restrictions == "Allow" and use_restrictions == "Allow":
                 restrictions_apply = False
             else:
                 restrictions_apply = True
                 ead_actuate = "none"
                 ead_show = "none"
 
-        if len(use_conditions) == 0 or restrictions == 'premis':
+        if len(use_conditions) == 0 or restrictions == "premis":
             if use_rightsGrantedNote:
                 use_conditions = use_rightsGrantedNote
 
-        if len(access_conditions) == 0 or restrictions == 'premis':
+        if len(access_conditions) == 0 or restrictions == "premis":
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
 
         file_uri = uri_prefix + file_name
 
         if uuid in pairs:
-            resource_id = pairs[uuid]['rcid'] if pairs[uuid]['rcid'] > 0 else pairs[uuid]['rid']
-            client.add_digital_object(resource_id,
-                                      uuid,
-                                      uri=file_uri,
-                                      restricted=restrictions_apply,
-                                      xlink_actuate=ead_actuate,
-                                      xlink_show=ead_show,
-                                      location_of_originals=dip_uuid,
-                                      inherit_dates=True)
+            resource_id = (
+                pairs[uuid]["rcid"] if pairs[uuid]["rcid"] > 0 else pairs[uuid]["rid"]
+            )
+            client.add_digital_object(
+                resource_id,
+                uuid,
+                uri=file_uri,
+                restricted=restrictions_apply,
+                xlink_actuate=ead_actuate,
+                xlink_show=ead_show,
+                location_of_originals=dip_uuid,
+                inherit_dates=True,
+            )
 
     delete_pairs(dip_uuid)
     logger.info("completed upload successfully")
@@ -171,32 +227,65 @@ def upload_to_atk(args, mylist, atuser, ead_actuate, ead_show, object_type, use_
 
 
 def call(jobs):
-    RESTRICTIONS_CHOICES = ['yes', 'no', 'premis']
-    EAD_SHOW_CHOICES = ['embed', 'new', 'none', 'other', 'replace']
-    EAD_ACTUATE_CHOICES = ['none', 'onLoad', 'other', 'onRequest']
+    RESTRICTIONS_CHOICES = ["yes", "no", "premis"]
+    EAD_SHOW_CHOICES = ["embed", "new", "none", "other", "replace"]
+    EAD_ACTUATE_CHOICES = ["none", "onLoad", "other", "onRequest"]
 
-    parser = argparse.ArgumentParser(description="A program to take digital objects from a DIP and upload them to an archivists toolkit db")
-    parser.add_argument('--host', default="localhost", dest="atdbhost",
-                        metavar="host", help="hostname or ip of archivists toolkit db")
-    parser.add_argument('--port', type=int, default=3306, dest='atdbport',
-                        metavar="port", help="port used by archivists toolkit mysql db")
-    parser.add_argument('--dbname', dest='atdb', metavar="db",
-                        help="name of mysql database used by archivists toolkit")
-    parser.add_argument('--dbuser', dest='atdbuser', metavar="db user")
-    parser.add_argument('--dbpass', dest='atdbpass', metavar="db password")
-    parser.add_argument('--dip_location', metavar="dip location")
-    parser.add_argument('--dip_name', metavar="dip name")
-    parser.add_argument('--dip_uuid', metavar="dip uuid")
-    parser.add_argument('--atuser', metavar="at user")
-    parser.add_argument('--restrictions', metavar="restrictions apply", default="premis", choices=RESTRICTIONS_CHOICES)
-    parser.add_argument('--object_type', metavar="object type", default="")
-    parser.add_argument('--ead_actuate', metavar="ead actuate", default="onRequest", choices=EAD_ACTUATE_CHOICES)
-    parser.add_argument('--ead_show', metavar="ead show", default="new", choices=EAD_SHOW_CHOICES)
-    parser.add_argument('--use_statement', metavar="use statement")
-    parser.add_argument('--uri_prefix', metavar="uri prefix")
-    parser.add_argument('--access_conditions', metavar="conditions governing access", default="")
-    parser.add_argument('--use_conditions', metavar="conditions governing use", default="")
-    parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
+    parser = argparse.ArgumentParser(
+        description="A program to take digital objects from a DIP and upload them to an archivists toolkit db"
+    )
+    parser.add_argument(
+        "--host",
+        default="localhost",
+        dest="atdbhost",
+        metavar="host",
+        help="hostname or ip of archivists toolkit db",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=3306,
+        dest="atdbport",
+        metavar="port",
+        help="port used by archivists toolkit mysql db",
+    )
+    parser.add_argument(
+        "--dbname",
+        dest="atdb",
+        metavar="db",
+        help="name of mysql database used by archivists toolkit",
+    )
+    parser.add_argument("--dbuser", dest="atdbuser", metavar="db user")
+    parser.add_argument("--dbpass", dest="atdbpass", metavar="db password")
+    parser.add_argument("--dip_location", metavar="dip location")
+    parser.add_argument("--dip_name", metavar="dip name")
+    parser.add_argument("--dip_uuid", metavar="dip uuid")
+    parser.add_argument("--atuser", metavar="at user")
+    parser.add_argument(
+        "--restrictions",
+        metavar="restrictions apply",
+        default="premis",
+        choices=RESTRICTIONS_CHOICES,
+    )
+    parser.add_argument("--object_type", metavar="object type", default="")
+    parser.add_argument(
+        "--ead_actuate",
+        metavar="ead actuate",
+        default="onRequest",
+        choices=EAD_ACTUATE_CHOICES,
+    )
+    parser.add_argument(
+        "--ead_show", metavar="ead show", default="new", choices=EAD_SHOW_CHOICES
+    )
+    parser.add_argument("--use_statement", metavar="use statement")
+    parser.add_argument("--uri_prefix", metavar="uri prefix")
+    parser.add_argument(
+        "--access_conditions", metavar="conditions governing access", default=""
+    )
+    parser.add_argument(
+        "--use_conditions", metavar="conditions governing use", default=""
+    )
+    parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
 
     for job in jobs:
         with job.JobContext(logger=logger):
@@ -206,7 +295,9 @@ def call(jobs):
 
             try:
                 try:
-                    mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
+                    mylist = get_files_from_dip(
+                        args.dip_location, args.dip_name, args.dip_uuid
+                    )
                 except ValueError:
                     job.set_status(2)
                     continue
@@ -214,7 +305,23 @@ def call(jobs):
                     job.set_status(3)
                     continue
 
-                job.set_status(upload_to_atk(args, mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location))
+                job.set_status(
+                    upload_to_atk(
+                        args,
+                        mylist,
+                        args.atuser,
+                        args.ead_actuate,
+                        args.ead_show,
+                        args.object_type,
+                        args.use_statement,
+                        args.uri_prefix,
+                        args.dip_uuid,
+                        args.access_conditions,
+                        args.use_conditions,
+                        args.restrictions,
+                        args.dip_location,
+                    )
+                )
 
             except Exception as err:
                 job.print_error("Unable to upload DIPs to Archivist's Toolkit")

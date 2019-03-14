@@ -11,6 +11,7 @@
 from __future__ import print_function
 import email
 import sys
+
 # According to the original blogpost, StringIO was chosen over cStringIO because PIL
 # required native Python types.
 # TODO: Look at using cStringIO instead, as it's faster, and we're not using PIL
@@ -26,13 +27,13 @@ def parse_attachment(message_part, state, attachments=None):
     Returns the content, content type, size, and create/modification/read dates
     for the attachment.
     """
-    params = message_part.get_params(None, 'Content-Disposition')
+    params = message_part.get_params(None, "Content-Disposition")
     if params:
         # If a 'part' has a Content-Disposition, we assume it is an attachment
         try:
             params = dict(params)
-            print('\tContent-Disposition (for following email)', params)
-            if 'attachment' in params:
+            print("\tContent-Disposition (for following email)", params)
+            if "attachment" in params:
                 # Not sure what's going on here
                 # Why get payload with decode, then try again and reparse?
                 # See details at
@@ -50,10 +51,10 @@ def parse_attachment(message_part, state, attachments=None):
 
                 attachment = StringIO(file_data)
                 attachment.content_type = message_part.get_content_type()
-                attachment.size = params.get('size', len(file_data))
-                attachment.create_date = params.get('create-date')
-                attachment.mod_date = params.get('modification-date')
-                attachment.read_date = params.get('read-date')
+                attachment.size = params.get("size", len(file_data))
+                attachment.create_date = params.get("create-date")
+                attachment.mod_date = params.get("modification-date")
+                attachment.read_date = params.get("read-date")
                 # TODO convert dates to datetime
 
                 filename = message_part.get_filename(None)
@@ -62,12 +63,23 @@ def parse_attachment(message_part, state, attachments=None):
                     # If so, convert to unicode
                     name, encoding = email.header.decode_header(filename)[0]
                     if encoding:
-                        print('\t{filename} encoded with {encoding}, converting to unicode'.format(filename=filename, encoding=encoding))
+                        print(
+                            "\t{filename} encoded with {encoding}, converting to unicode".format(
+                                filename=filename, encoding=encoding
+                            )
+                        )
                         filename = name.decode(encoding)
                 else:  # filename not in Content-Disposition
-                    print("""Warning, no filename found in: [{%s}%s] Content-Disposition: %s or Content-Type""" % (state.sourceFileUUID, state.sourceFilePath, params), file=sys.stderr)
+                    print(
+                        """Warning, no filename found in: [{%s}%s] Content-Disposition: %s or Content-Type"""
+                        % (state.sourceFileUUID, state.sourceFilePath, params),
+                        file=sys.stderr,
+                    )
                     filename = six.text_type(uuid.uuid4())
-                    print("Attempting extraction with random filename: %s" % (filename), file=sys.stderr)
+                    print(
+                        "Attempting extraction with random filename: %s" % (filename),
+                        file=sys.stderr,
+                    )
                 # Remove newlines from filename because that breaks everything
                 filename = filename.replace("\r", "").replace("\n", "")
 
@@ -77,7 +89,11 @@ def parse_attachment(message_part, state, attachments=None):
         except Exception as inst:
             print(type(inst), file=sys.stderr)
             print(inst.args, file=sys.stderr)
-            print("Error parsing: file: {%s}%s" % (state.sourceFileUUID, state.sourceFilePath), file=sys.stderr)
+            print(
+                "Error parsing: file: {%s}%s"
+                % (state.sourceFileUUID, state.sourceFilePath),
+                file=sys.stderr,
+            )
             print("Error parsing: Content-Disposition: ", params, file=sys.stderr)
             print(file=sys.stderr)
             state.error_count += 1
@@ -96,14 +112,14 @@ def parse(content, state):
 
 
 def parse2(msgobj, state, attachments=None):
-    if msgobj['Subject'] is not None:
-        decodefrag = email.header.decode_header(msgobj['Subject'])
+    if msgobj["Subject"] is not None:
+        decodefrag = email.header.decode_header(msgobj["Subject"])
         subj_fragments = []
         for s, enc in decodefrag:
             if enc:
                 s = s.decode(enc)
             subj_fragments.append(s)
-        subject = ''.join(subj_fragments)
+        subject = "".join(subj_fragments)
     else:
         subject = None
 
@@ -114,9 +130,9 @@ def parse2(msgobj, state, attachments=None):
         if attachment:
             attachments.append(attachment)
     return {
-        'subject': subject,
-        'from': email.utils.parseaddr(msgobj.get('From'))[1],  # 名前は除いてメールアドレスのみ抽出
-        'to': email.utils.parseaddr(msgobj.get('To'))[1],  # 名前は除いてメールアドレスのみ抽出
-        'attachments': attachments,
-        'msgobj': msgobj,
+        "subject": subject,
+        "from": email.utils.parseaddr(msgobj.get("From"))[1],  # 名前は除いてメールアドレスのみ抽出
+        "to": email.utils.parseaddr(msgobj.get("To"))[1],  # 名前は除いてメールアドレスのみ抽出
+        "attachments": attachments,
+        "msgobj": msgobj,
     }

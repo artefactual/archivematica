@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 from django.db import migrations
 
 
-BCKLG_RMVL_EVT_UUID = '463e5d1c-d680-47fa-a27a-7efd4f702355'
+BCKLG_RMVL_EVT_UUID = "463e5d1c-d680-47fa-a27a-7efd4f702355"
 
 
 def data_migration(apps, schema_editor):
@@ -15,18 +15,12 @@ def data_migration(apps, schema_editor):
             SET filterSubDir=NULL
             WHERE pk='463e5d1c-d680-47fa-a27a-7efd4f702355';
     """
-    StandardTaskConfig = apps.get_model('main', 'StandardTaskConfig')
-    StandardTaskConfig.objects\
-        .filter(id=BCKLG_RMVL_EVT_UUID)\
-        .update(filter_subdir=None)
+    StandardTaskConfig = apps.get_model("main", "StandardTaskConfig")
+    StandardTaskConfig.objects.filter(id=BCKLG_RMVL_EVT_UUID).update(filter_subdir=None)
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('main', '0028_version_number'),
-    ]
+    dependencies = [("main", "0028_version_number")]
 
-    operations = [
-        migrations.RunPython(data_migration),
-    ]
+    operations = [migrations.RunPython(data_migration)]

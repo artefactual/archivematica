@@ -59,6 +59,6 @@ def call(jobs):
             root = etree.parse(mets_path, parser)
 
             version = get_version_from_mets(root)
-            job.pyprint('Version found in METSt:', version)
+            job.pyprint("Version found in METSt:", version)
 
             job.set_status(VERSION_MAP.get(version, 0))

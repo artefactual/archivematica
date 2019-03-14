@@ -25,8 +25,10 @@ import csv
 import os
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import File
 
@@ -45,7 +47,7 @@ def call(jobs):
                     continue
 
                 # use universal newline mode to support unusual newlines, like \r
-                with open(fileLabels, 'rbU') as f:
+                with open(fileLabels, "rbU") as f:
                     reader = csv.reader(f)
                     for row in reader:
                         if labelFirst:
@@ -55,4 +57,6 @@ def call(jobs):
                             label = row[1]
                             filePath = row[0]
                         filePath = os.path.join("%transferDirectory%objects/", filePath)
-                        File.objects.filter(originallocation=filePath, transfer_id=transferUUID).update(label=label)
+                        File.objects.filter(
+                            originallocation=filePath, transfer_id=transferUUID
+                        ).update(label=label)

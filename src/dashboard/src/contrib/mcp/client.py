@@ -25,7 +25,7 @@ import gearman
 from main.models import Job
 
 
-LOGGER = logging.getLogger('archivematica.dashboard.mcp.client')
+LOGGER = logging.getLogger("archivematica.dashboard.mcp.client")
 
 
 class RPCGearmanClientError(Exception):
@@ -42,6 +42,7 @@ class RPCServerError(RPCGearmanClientError):
     When the worker processes the job successfully but the response includes
     an error.
     """
+
     GENERIC_ERROR_MSG = "The server failed to process the request"
 
     def __init__(self, payload=None):
@@ -70,6 +71,7 @@ class TimeoutError(RPCGearmanClientError):
 
     At this point we give up and raise this exception.
     """
+
     def __init__(self, timeout=None):
         message = "Deadline exceeded"
         if timeout is not None:
@@ -109,9 +111,12 @@ class MCPClient(object):
             data["user_id"] = self.user.id
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
-            ability, cPickle.dumps(data),
-            background=False, wait_until_complete=True,
-            poll_timeout=timeout)
+            ability,
+            cPickle.dumps(data),
+            background=False,
+            wait_until_complete=True,
+            poll_timeout=timeout,
+        )
         client.shutdown()
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
@@ -140,10 +145,7 @@ class MCPClient(object):
         Use ``mscl_id`` to pass the ID of the chain link to restrict the
         execution to a single microservice.
         """
-        kwargs = {
-            "currentstep": Job.STATUS_AWAITING_DECISION,
-            "sipuuid": unit_id,
-        }
+        kwargs = {"currentstep": Job.STATUS_AWAITING_DECISION, "sipuuid": unit_id}
         if mscl_id is not None:
             kwargs["microservicechainlink"] = mscl_id
         jobs = Job.objects.filter(**kwargs)
@@ -154,15 +156,26 @@ class MCPClient(object):
 
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
-        completed_job_request = gm_client.submit_job("getJobsAwaitingApproval", "", None)
+        completed_job_request = gm_client.submit_job(
+            "getJobsAwaitingApproval", "", None
+        )
         if completed_job_request.state == gearman.JOB_COMPLETE:
             return cPickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 
-    def create_package(self, name, type_, accession, access_system_id, path,
-                       metadata_set_id, auto_approve=True,
-                       wait_until_complete=False, processing_config=None):
+    def create_package(
+        self,
+        name,
+        type_,
+        accession,
+        access_system_id,
+        path,
+        metadata_set_id,
+        auto_approve=True,
+        wait_until_complete=False,
+        processing_config=None,
+    ):
         data = {
             "name": name,
             "type": type_,
@@ -179,10 +192,7 @@ class MCPClient(object):
 
     def approve_transfer_by_path(self, db_transfer_path, transfer_type):
         """Approve a transfer given its path and transfer type."""
-        data = {
-            "db_transfer_path": db_transfer_path,
-            "transfer_type": transfer_type,
-        }
+        data = {"db_transfer_path": db_transfer_path, "transfer_type": transfer_type}
         return self._rpc_sync_call("approveTransferByPath", data)
 
     def approve_partial_reingest(self, sip_uuid):

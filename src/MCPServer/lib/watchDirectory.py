@@ -29,21 +29,24 @@ from databaseFunctions import auto_close_db
 
 from utils import log_exceptions
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class archivematicaWatchDirectory:
     """Watches for new files/directories to process in a watched directory. Directories are defined in the WatchedDirectoriesTable."""
 
-    def __init__(self, directory,
-                 variablesAdded=None,
-                 callBackFunctionAdded=None,
-                 variablesRemoved=None,
-                 callBackFunctionRemoved=None,
-                 alertOnDirectories=True,
-                 alertOnFiles=True,
-                 interval=1,
-                 threaded=True):
+    def __init__(
+        self,
+        directory,
+        variablesAdded=None,
+        callBackFunctionAdded=None,
+        variablesRemoved=None,
+        callBackFunctionRemoved=None,
+        alertOnDirectories=True,
+        alertOnFiles=True,
+        interval=1,
+        threaded=True,
+    ):
         self.run = False
         self.variablesAdded = variablesAdded
         self.callBackFunctionAdded = callBackFunctionAdded
@@ -69,7 +72,9 @@ class archivematicaWatchDirectory:
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True
-        LOGGER.info('Watching directory %s (Files: %s)', self.directory, self.alertOnFiles)
+        LOGGER.info(
+            "Watching directory %s (Files: %s)", self.directory, self.alertOnFiles
+        )
         before = dict([(f, None) for f in os.listdir(self.directory)])
         while self.run:
             time.sleep(self.interval)
@@ -77,17 +82,25 @@ class archivematicaWatchDirectory:
             added = [f for f in after if f not in before]
             removed = [f for f in before if f not in after]
             if added:
-                LOGGER.debug('Added %s', added)
+                LOGGER.debug("Added %s", added)
                 for i in added:
                     i = unicodeToStr(i)
                     directory = unicodeToStr(self.directory)
-                    self.event(os.path.join(directory, i), self.variablesAdded, self.callBackFunctionAdded)
+                    self.event(
+                        os.path.join(directory, i),
+                        self.variablesAdded,
+                        self.callBackFunctionAdded,
+                    )
             if removed:
-                LOGGER.debug('Removed %s', removed)
+                LOGGER.debug("Removed %s", removed)
                 for i in removed:
                     i = unicodeToStr(i)
                     directory = unicodeToStr(self.directory)
-                    self.event(os.path.join(directory, i), self.variablesRemoved, self.callBackFunctionRemoved)
+                    self.event(
+                        os.path.join(directory, i),
+                        self.variablesRemoved,
+                        self.callBackFunctionRemoved,
+                    )
             before = after
 
     def event(self, path, variables, function):

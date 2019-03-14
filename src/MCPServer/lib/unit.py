@@ -30,7 +30,7 @@ from main.models import File, UnitVariable
 
 from django.conf import settings as django_settings
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class unit:
@@ -45,7 +45,12 @@ class unit:
         self.fileList = {}
         # currentPath must be a string to return all filenames as bytestrings,
         # and to safely concatenate with other bytestrings
-        currentPath = os.path.join(self.currentPath.replace("%sharedPath%", django_settings.SHARED_DIRECTORY, 1), "").encode('utf-8')
+        currentPath = os.path.join(
+            self.currentPath.replace(
+                "%sharedPath%", django_settings.SHARED_DIRECTORY, 1
+            ),
+            "",
+        ).encode("utf-8")
         try:
             for directory, subDirectories, files in os.walk(currentPath):
                 directory = directory.replace(currentPath, self.pathString, 1)
@@ -66,10 +71,15 @@ class unit:
                     self.fileList[currentlocation].UUID = f.uuid
                     self.fileList[currentlocation].fileGrpUse = f.filegrpuse
                 else:
-                    LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
-                                   self.unitType, self.UUID, f.uuid, f.currentlocation)
+                    LOGGER.warning(
+                        "%s %s has file (%s) %s in the database, but file does not exist in the file system",
+                        self.unitType,
+                        self.UUID,
+                        f.uuid,
+                        f.currentlocation,
+                    )
         except Exception:
-            LOGGER.exception('Error reloading file list for %s', currentPath)
+            LOGGER.exception("Error reloading file list for %s", currentPath)
             exit(1)
 
     def setVariable(self, variable, variableValue, microServiceChainLink):
@@ -82,24 +92,34 @@ class unit:
         """
         if not variableValue:
             variableValue = ""
-        variables = UnitVariable.objects.filter(unittype=self.unitType,
-                                                unituuid=self.UUID,
-                                                variable=variable)
+        variables = UnitVariable.objects.filter(
+            unittype=self.unitType, unituuid=self.UUID, variable=variable
+        )
         if variables:
-            LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL'
-                        ' %s)', variable, self.UUID, variableValue,
-                        microServiceChainLink)
+            LOGGER.info(
+                "Existing UnitVariables %s for %s updated to %s (MSCL" " %s)",
+                variable,
+                self.UUID,
+                variableValue,
+                microServiceChainLink,
+            )
             for var in variables:
                 var.variablevalue = variableValue
                 var.microservicechainlink = microServiceChainLink
                 var.save()
         else:
-            LOGGER.info('New UnitVariable %s created for %s: %s (MSCL: %s)',
-                        variable, self.UUID, variableValue,
-                        microServiceChainLink)
+            LOGGER.info(
+                "New UnitVariable %s created for %s: %s (MSCL: %s)",
+                variable,
+                self.UUID,
+                variableValue,
+                microServiceChainLink,
+            )
             var = UnitVariable(
-                unittype=self.unitType, unituuid=self.UUID,
-                variable=variable, variablevalue=variableValue,
-                microservicechainlink=microServiceChainLink
+                unittype=self.unitType,
+                unituuid=self.UUID,
+                variable=variable,
+                variablevalue=variableValue,
+                microservicechainlink=microServiceChainLink,
             )
             var.save()

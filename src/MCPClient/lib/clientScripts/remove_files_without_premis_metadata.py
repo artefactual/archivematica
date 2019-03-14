@@ -25,6 +25,7 @@ import argparse
 import os
 
 import django
+
 django.setup()
 from main.models import File
 
@@ -32,14 +33,18 @@ from main.models import File
 def verifyFileUUID(job, fileUUID, filePath, sipDirectory):
     if fileUUID == "None":
         relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)
-        job.print_output('Deleting', relativeFilePath, 'because it is not in the database.')
+        job.print_output(
+            "Deleting", relativeFilePath, "because it is not in the database."
+        )
         os.remove(filePath)
         return
     file_ = File.objects.get(uuid=fileUUID)
-    if file_.filegrpuse == 'deleted':
+    if file_.filegrpuse == "deleted":
         if os.path.exists(filePath):
             relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)
-            job.print_output('Deleting', relativeFilePath, 'because it is marked as deleted')
+            job.print_output(
+                "Deleting", relativeFilePath, "because it is marked as deleted"
+            )
             os.remove(filePath)
 
 

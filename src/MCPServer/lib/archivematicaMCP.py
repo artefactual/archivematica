@@ -43,6 +43,7 @@ import threading
 import time
 
 import django
+
 django.setup()
 from django.conf import settings as django_settings
 from django.db.models import Q
@@ -78,7 +79,8 @@ dbWaitSleep = 2
 stopSignalReceived = False  # Tracks whether a sigkill has been received or not
 
 ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(os.path.join(__file__))), "assets")
+    os.path.dirname(os.path.abspath(os.path.join(__file__))), "assets"
+)
 
 DEFAULT_WORKFLOW = os.path.join(ASSETS_DIR, "workflow.json")
 
@@ -86,11 +88,11 @@ DEFAULT_WORKFLOW = os.path.join(ASSETS_DIR, "workflow.json")
 def fetchUUIDFromPath(path):
     # find UUID on end of SIP path
     uuidLen = -36
-    if valid_uuid(path[uuidLen - 1:-1]):
-        return path[uuidLen - 1:-1]
+    if valid_uuid(path[uuidLen - 1 : -1]):
+        return path[uuidLen - 1 : -1]
 
 
-def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
+def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     path = path.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%", 1)
 
@@ -115,13 +117,17 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         # Darn: we must have multiple SIPs with the same path in the database.
         # We have no reasonable way to recover from this condition.
         if count > 1:
-            logger.error('More than one SIP for path %s and/or UUID %s, using first result', path, UUID)
+            logger.error(
+                "More than one SIP for path %s and/or UUID %s, using first result",
+                path,
+                UUID,
+            )
     if count > 0:
         sip = sips[0]
         UUID = sip.uuid
-        logger.info('Using existing SIP %s at %s', UUID, path)
+        logger.info("Using existing SIP %s at %s", UUID, path)
     else:
-        logger.info('Not using existing SIP %s at %s', UUID, path)
+        logger.info("Not using existing SIP %s at %s", UUID, path)
 
     if sip is None:
         # Create it
@@ -129,10 +135,10 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         # and returned by the function; otherwise it returns the
         # value that was passed in.
         UUID = createSIP(path, UUID=UUID)
-        logger.info('Creating SIP %s at %s', UUID, path)
+        logger.info("Creating SIP %s at %s", UUID, path)
     else:
         current_path = sip.currentpath
-        if current_path != path and unit_type == 'SIP':
+        if current_path != path and unit_type == "SIP":
             # Ensure path provided matches path in DB
             sip.currentpath = path
             sip.save()
@@ -146,7 +152,7 @@ def createUnitAndJobChain(path, watched_dir, workflow):
     path = unicodeToStr(path)
     if os.path.isdir(path):
         path = path + "/"
-    logger.debug('Starting chain for %s', path)
+    logger.debug("Starting chain for %s", path)
     if not os.path.exists(path):
         return
     unit = None
@@ -156,7 +162,7 @@ def createUnitAndJobChain(path, watched_dir, workflow):
             UUID = findOrCreateSipInDB(path)
             unit = unitSIP(path, UUID)
         elif unit_type == "DIP":
-            UUID = findOrCreateSipInDB(path, unit_type='DIP')
+            UUID = findOrCreateSipInDB(path, unit_type="DIP")
             unit = unitDIP(path, UUID)
         elif unit_type == "Transfer":
             unit = unitTransfer(path)
@@ -170,19 +176,18 @@ def createUnitAndJobChain(path, watched_dir, workflow):
 
 def createUnitAndJobChainThreaded(path, watched_dir, workflow):
     try:
-        logger.debug('Watching path %s', path)
-        Executor.apply_async(
-            createUnitAndJobChain, [path, watched_dir, workflow])
+        logger.debug("Watching path %s", path)
+        Executor.apply_async(createUnitAndJobChain, [path, watched_dir, workflow])
     except Exception:
-        logger.exception('Error creating threads to watch directories')
+        logger.exception("Error creating threads to watch directories")
 
 
 def watchDirectories(workflow):
     """Start watching the watched directories defined in the workflow."""
     for watched_dir in workflow.get_wdirs():
         directory = os.path.join(
-            django_settings.WATCH_DIRECTORY,
-            watched_dir.path.lstrip(os.path.sep))
+            django_settings.WATCH_DIRECTORY, watched_dir.path.lstrip(os.path.sep)
+        )
         if not os.path.isdir(directory):
             os.makedirs(directory)
         for item in os.listdir(directory):
@@ -198,17 +203,18 @@ def watchDirectories(workflow):
             variablesAdded=(watched_dir, workflow),
             callBackFunctionAdded=createUnitAndJobChainThreaded,
             alertOnFiles=not watched_dir["only_dirs"],
-            interval=django_settings.WATCH_DIRECTORY_INTERVAL)
+            interval=django_settings.WATCH_DIRECTORY_INTERVAL,
+        )
 
 
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
-    logger.info('Recieved signal %s in frame %s', signalReceived, frame)
+    logger.info("Recieved signal %s in frame %s", signalReceived, frame)
     global stopSignalReceived
     stopSignalReceived = True
     threads = threading.enumerate()
     for thread in threads:
-        logger.warning('Not stopping %s %s', type(thread), thread)
+        logger.warning("Not stopping %s %s", type(thread), thread)
     sys.stdout.flush()
     sys.stderr.flush()
     sys.exit(0)
@@ -220,8 +226,8 @@ def signal_handler(signalReceived, frame):
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     while True:
-        logger.debug('Debug monitor: datetime: %s', getUTCDate())
-        logger.debug('Debug monitor: thread count: %s', threading.activeCount())
+        logger.debug("Debug monitor: datetime: %s", getUTCDate())
+        logger.debug("Debug monitor: thread count: %s", threading.activeCount())
         time.sleep(3600)
 
 
@@ -236,8 +242,12 @@ def flushOutputs():
 
 def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
-    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(currentstep=Job.STATUS_FAILED)
-    Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
+    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(
+        currentstep=Job.STATUS_FAILED
+    )
+    Task.objects.filter(exitcode=None).update(
+        exitcode=-1, stderror="MCP shut down while processing."
+    )
 
 
 def created_shared_directory_structure():
@@ -296,13 +306,13 @@ def created_shared_directory_structure():
         "www/AIPsStore/transferBacklog",
         "www/AIPsStore/transferBacklog/arrange",
         "www/AIPsStore/transferBacklog/originals",
-        "www/DIPsStore"
+        "www/DIPsStore",
     )
     for d in dirs:
         d = os.path.join(django_settings.SHARED_DIRECTORY, d)
         if os.path.isdir(d):
             continue
-        logger.info('Creating directory: %s', d)
+        logger.info("Creating directory: %s", d)
         os.makedirs(d, mode=0o770)
 
     # Populate processing configurations
@@ -310,12 +320,15 @@ def created_shared_directory_structure():
         processing.install_builtin_config(config)
 
 
-naiveip_re = re.compile(r"""^(?:
+naiveip_re = re.compile(
+    r"""^(?:
 (?P<addr>
     (?P<ipv4>\d{1,3}(?:\.\d{1,3}){3}) |         # IPv4 address
     (?P<ipv6>\[[a-fA-F0-9:]+\]) |               # IPv6 address
     (?P<fqdn>[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*) # FQDN
-):)?(?P<port>\d+)$""", re.X)
+):)?(?P<port>\d+)$""",
+    re.X,
+)
 
 
 def start_prometheus_http_server(addrport):
@@ -323,19 +336,22 @@ def start_prometheus_http_server(addrport):
         return
     m = re.match(naiveip_re, addrport)
     if m is None:
-        logger.error('[prometheus_http_server]'
-                     ' "%s" is not a valid port number or address:port pair.',
-                     addrport)
+        logger.error(
+            "[prometheus_http_server]"
+            ' "%s" is not a valid port number or address:port pair.',
+            addrport,
+        )
         return
     addr, _ipv4, _ipv6, _fqdn, port = m.groups()
     try:
         port = int(port)
     except ValueError:
-        logger.error('[prometheus_http_server]'
-                     ' "%r" is not a valid port number.', port)
+        logger.error(
+            "[prometheus_http_server]" ' "%r" is not a valid port number.', port
+        )
         return
     if addr is None:
-        addr = '127.0.0.1'
+        addr = "127.0.0.1"
     start_http_server(*(port, addr))
 
 
@@ -348,7 +364,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Replace exception handler with one that logs exceptions
     sys.excepthook = _except_hook_log_everything
@@ -356,8 +372,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    logger.info('This PID: %s', os.getpid())
-    logger.info('User: %s', getpass.getuser())
+    logger.info("This PID: %s", os.getpid())
+    logger.info("User: %s", getpass.getuser())
 
     start_prometheus_http_server(django_settings.PROMETHEUS_HTTP_SERVER)
 

@@ -19,13 +19,13 @@ xlinkBNS = "{" + xlinkNS + "}"
 xsiBNS = "{" + xsiNS + "}"
 
 NSMAP = {
-    'dc': dcNS,
-    'dcterms': dctermsNS,
-    'dim': dspaceNS,
-    'fits': fitsNS,
-    'mets': metsNS,
-    'premis': premisNS,
-    'premisv3': premisV3NS,
-    'xlink': xlinkNS,
-    'xsi': xsiNS,
+    "dc": dcNS,
+    "dcterms": dctermsNS,
+    "dim": dspaceNS,
+    "fits": fitsNS,
+    "mets": metsNS,
+    "premis": premisNS,
+    "premisv3": premisV3NS,
+    "xlink": xlinkNS,
+    "xsi": xsiNS,
 }

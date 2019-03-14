@@ -26,6 +26,7 @@ import re
 import shutil
 
 import django
+
 django.setup()
 # dashboard
 from main.models import File, SIP
@@ -38,28 +39,49 @@ def call(jobs):
             submissionDocumentationDirectory = job.args[2]
             sharedPath = job.args[3]
 
-            transfer_locations = File.objects.filter(removedtime__isnull=True, sip_id=sipUUID, transfer__currentlocation__isnull=False).values_list('transfer__currentlocation', flat=True).distinct()
+            transfer_locations = (
+                File.objects.filter(
+                    removedtime__isnull=True,
+                    sip_id=sipUUID,
+                    transfer__currentlocation__isnull=False,
+                )
+                .values_list("transfer__currentlocation", flat=True)
+                .distinct()
+            )
 
             sip = SIP.objects.get(uuid=sipUUID)
-            aip_mets_name = 'METS.' + sipUUID + '.xml'
+            aip_mets_name = "METS." + sipUUID + ".xml"
 
             for transferLocation in transfer_locations:
                 transferLocation = transferLocation.replace("%sharedPath%", sharedPath)
                 transferNameUUID = os.path.basename(os.path.abspath(transferLocation))
-                src = os.path.join(transferLocation, "metadata", "submissionDocumentation")
-                dst = os.path.join(submissionDocumentationDirectory, "transfer-%s" % (transferNameUUID))
+                src = os.path.join(
+                    transferLocation, "metadata", "submissionDocumentation"
+                )
+                dst = os.path.join(
+                    submissionDocumentationDirectory, "transfer-%s" % (transferNameUUID)
+                )
 
                 # For reingest, ignore this transfer's submission docs, only copy submission docs from the original Transfer
-                if 'REIN' in sip.sip_type:
+                if "REIN" in sip.sip_type:
                     # Copy original AIP's METS if it exists. There should only ever be one of these in all source transfers.
-                    aip_src = os.path.join(transferLocation, 'metadata', aip_mets_name)
-                    aip_dst = os.path.join(submissionDocumentationDirectory, aip_mets_name)
+                    aip_src = os.path.join(transferLocation, "metadata", aip_mets_name)
+                    aip_dst = os.path.join(
+                        submissionDocumentationDirectory, aip_mets_name
+                    )
                     shutil.copy(aip_src, aip_dst)
-                    job.pyprint("copied original AIP METS to submissionDocumentation: ", aip_src, " -> ", aip_dst)
+                    job.pyprint(
+                        "copied original AIP METS to submissionDocumentation: ",
+                        aip_src,
+                        " -> ",
+                        aip_dst,
+                    )
 
                     # Only copy previous transfers and old AIP METS
                     for item in os.listdir(src):
-                        if re.match(r'^transfer-.+-[\w]{8}(-[\w]{4}){3}-[\w]{12}$', item):
+                        if re.match(
+                            r"^transfer-.+-[\w]{8}(-[\w]{4}){3}-[\w]{12}$", item
+                        ):
                             item_path = os.path.join(src, item)
                             dst = os.path.join(submissionDocumentationDirectory, item)
                             job.pyprint(item_path, " -> ", dst)

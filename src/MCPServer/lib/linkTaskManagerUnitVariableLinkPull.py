@@ -28,24 +28,25 @@ choicesAvailableForUnits = {}
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
-        super(linkTaskManagerUnitVariableLinkPull, self).__init__(
-            jobChainLink, unit)
+        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, unit)
         next_link = self._get_next_link()
         if next_link is None:
             raise Exception(
-                "linkTaskManagerUnitVariableLinkPull could not find next link")
+                "linkTaskManagerUnitVariableLinkPull could not find next link"
+            )
         self.jobChainLink.linkProcessingComplete(
-            exitCode=0,
-            passVar=self.jobChainLink.passVar,
-            next_link=next_link)
+            exitCode=0, passVar=self.jobChainLink.passVar, next_link=next_link
+        )
 
     def _get_next_link(self):
         """Look up next chain link in UnitVariable."""
         link = self.jobChainLink.link
         try:
             unitvar = UnitVariable.objects.get(
-                unittype=self.unit.unitType, unituuid=self.unit.UUID,
-                variable=link.config["variable"])
+                unittype=self.unit.unitType,
+                unituuid=self.unit.UUID,
+                variable=link.config["variable"],
+            )
         except UnitVariable.DoesNotExist:
             link_id = link.config["chain_id"]
         else:

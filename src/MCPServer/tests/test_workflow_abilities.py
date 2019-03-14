@@ -7,8 +7,8 @@ from workflow_abilities import choice_is_available
 
 
 ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(
-        os.path.join(__file__, os.pardir))), "lib", "assets")
+    os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))), "lib", "assets"
+)
 
 
 CREATE_SIP_LINK_ID = "bb194013-597c-4e4a-8493-b36d190f8717"
@@ -24,7 +24,7 @@ def _workflow():
 
 def test_choice_is_available__enabled(settings, _workflow):
     """<Send to backlog> is going to be shown to the user."""
-    settings.SEARCH_ENABLED = ("transfers, aips")
+    settings.SEARCH_ENABLED = "transfers, aips"
     link = _workflow.get_link(CREATE_SIP_LINK_ID)
     chain = _workflow.get_chain(SEND_TO_BACKLOG_CHAIN_ID)
     assert choice_is_available(link, chain, settings) is True
@@ -32,7 +32,7 @@ def test_choice_is_available__enabled(settings, _workflow):
 
 def test_choice_is_available__disabled(settings, _workflow):
     """<Send to backlog> is not going to be shown to the user."""
-    settings.SEARCH_ENABLED = ("aips")
+    settings.SEARCH_ENABLED = "aips"
     link = _workflow.get_link(CREATE_SIP_LINK_ID)
     chain = _workflow.get_chain(SEND_TO_BACKLOG_CHAIN_ID)
     assert choice_is_available(link, chain, settings) is False

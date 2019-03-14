@@ -35,7 +35,16 @@ from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 from main.models import File, Transfer
 
 
-def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSize=None, checksum=None, checksumType=None, add_event=True):
+def updateSizeAndChecksum(
+    fileUUID,
+    filePath,
+    date,
+    eventIdentifierUUID,
+    fileSize=None,
+    checksum=None,
+    checksumType=None,
+    add_event=True,
+):
     """
     Update a File with its size, checksum and checksum type. These are
     parameters that can be either generated or provided via keywords.
@@ -46,57 +55,90 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSiz
     if not fileSize:
         fileSize = os.path.getsize(filePath)
     if not checksumType:
-        checksumType = get_setting('checksum_type', 'sha256')
+        checksumType = get_setting("checksum_type", "sha256")
     if not checksum:
         checksum = get_file_checksum(filePath, checksumType)
 
-    File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)
+    File.objects.filter(uuid=fileUUID).update(
+        size=fileSize, checksum=checksum, checksumtype=checksumType
+    )
 
     if add_event:
-        insertIntoEvents(fileUUID=fileUUID,
-                         eventType='message digest calculation',
-                         eventDateTime=date,
-                         eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
-                         eventOutcomeDetailNote=checksum)
+        insertIntoEvents(
+            fileUUID=fileUUID,
+            eventType="message digest calculation",
+            eventDateTime=date,
+            eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
+            eventOutcomeDetailNote=checksum,
+        )
 
 
-def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID,
-                      date, sourceType="ingestion", eventDetail="",
-                      use="original", originalLocation=None):
+def addFileToTransfer(
+    filePathRelativeToSIP,
+    fileUUID,
+    transferUUID,
+    taskUUID,
+    date,
+    sourceType="ingestion",
+    eventDetail="",
+    use="original",
+    originalLocation=None,
+):
     if not originalLocation:
         originalLocation = filePathRelativeToSIP
     insertIntoFiles(
-        fileUUID, filePathRelativeToSIP, date,
-        transferUUID=transferUUID, use=use, originalLocation=originalLocation)
-    insertIntoEvents(fileUUID=fileUUID,
-                     eventType=sourceType,
-                     eventDateTime=date,
-                     eventDetail=eventDetail,
-                     eventOutcome="",
-                     eventOutcomeDetailNote="")
+        fileUUID,
+        filePathRelativeToSIP,
+        date,
+        transferUUID=transferUUID,
+        use=use,
+        originalLocation=originalLocation,
+    )
+    insertIntoEvents(
+        fileUUID=fileUUID,
+        eventType=sourceType,
+        eventDateTime=date,
+        eventDetail=eventDetail,
+        eventOutcome="",
+        eventOutcomeDetailNote="",
+    )
     addAccessionEvent(fileUUID, transferUUID, date)
 
 
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
-        eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(transfer.accessionid)
-        insertIntoEvents(fileUUID=fileUUID,
-                         eventType="registration",
-                         eventDateTime=date,
-                         eventDetail="",
-                         eventOutcome="",
-                         eventOutcomeDetailNote=eventOutcomeDetailNote)
+        eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(
+            transfer.accessionid
+        )
+        insertIntoEvents(
+            fileUUID=fileUUID,
+            eventType="registration",
+            eventDateTime=date,
+            eventDetail="",
+            eventOutcome="",
+            eventOutcomeDetailNote=eventOutcomeDetailNote,
+        )
 
 
-def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
+def addFileToSIP(
+    filePathRelativeToSIP,
+    fileUUID,
+    sipUUID,
+    taskUUID,
+    date,
+    sourceType="ingestion",
+    use="original",
+):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
-    insertIntoEvents(fileUUID=fileUUID,
-                     eventType=sourceType,
-                     eventDateTime=date,
-                     eventDetail="",
-                     eventOutcome="",
-                     eventOutcomeDetailNote="")
+    insertIntoEvents(
+        fileUUID=fileUUID,
+        eventType=sourceType,
+        eventDateTime=date,
+        eventDetail="",
+        eventOutcome="",
+        eventOutcomeDetailNote="",
+    )
 
 
 def rename(source, destination, printfn=print, should_exit=False):
@@ -111,7 +153,9 @@ def rename(source, destination, printfn=print, should_exit=False):
             exit(exitCode)
 
 
-def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
+def updateDirectoryLocation(
+    src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith
+):
     srcDB = src.replace(unitPath, unitPathReplaceWith)
     if not srcDB.endswith("/") and srcDB != unitPathReplaceWith:
         srcDB += "/"
@@ -122,7 +166,7 @@ def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierTy
     kwargs = {
         "removedtime__isnull": True,
         "currentlocation__startswith": srcDB,
-        unitIdentifierType: unitIdentifier
+        unitIdentifierType: unitIdentifier,
     }
     files = File.objects.filter(**kwargs)
 
@@ -143,7 +187,15 @@ class UpdateFileLocationFailed(Exception):
         self.code = code
 
 
-def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=print):
+def updateFileLocation2(
+    src,
+    dst,
+    unitPath,
+    unitIdentifier,
+    unitIdentifierType,
+    unitPathReplaceWith,
+    printfn=print,
+):
     """Dest needs to be the actual full destination path with filename."""
     srcDB = src.replace(unitPath, unitPathReplaceWith)
     dstDB = dst.replace(unitPath, unitPathReplaceWith)
@@ -151,7 +203,7 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     kwargs = {
         "removedtime__isnull": True,
         "currentlocation": srcDB,
-        unitIdentifierType: unitIdentifier
+        unitIdentifierType: unitIdentifier,
     }
 
     try:
@@ -161,18 +213,36 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
             message = "no results found"
         else:
             message = "multiple results found"
-        printfn('ERROR: file information not found:', message, "for arguments:", repr(kwargs), file=sys.stderr)
+        printfn(
+            "ERROR: file information not found:",
+            message,
+            "for arguments:",
+            repr(kwargs),
+            file=sys.stderr,
+        )
         raise UpdateFileLocationFailed(4)
 
     # Move the file
-    printfn("Moving", src, 'to', dst)
+    printfn("Moving", src, "to", dst)
     shutil.move(src, dst)
     # Update the DB
     f.currentlocation = dstDB
     f.save()
 
 
-def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="", eventIdentifierUUID=uuid.uuid4().__str__(), fileUUID="None", sipUUID=None, transferUUID=None, eventOutcomeDetailNote="", createEvent=True):
+def updateFileLocation(
+    src,
+    dst,
+    eventType="",
+    eventDateTime="",
+    eventDetail="",
+    eventIdentifierUUID=uuid.uuid4().__str__(),
+    fileUUID="None",
+    sipUUID=None,
+    transferUUID=None,
+    eventOutcomeDetailNote="",
+    createEvent=True,
+):
     """
     Updates file location in the database, and optionally writes an event for the sanitization to the database.
     Note that this does not actually move a file on disk.
@@ -184,17 +254,16 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
     dst = unicodeToStr(dst)
     fileUUID = unicodeToStr(fileUUID)
     if not fileUUID or fileUUID == "None":
-        kwargs = {
-            "removedtime__isnull": True,
-            "currentlocation": src
-        }
+        kwargs = {"removedtime__isnull": True, "currentlocation": src}
 
         if sipUUID:
             kwargs["sip_id"] = sipUUID
         elif transferUUID:
             kwargs["transfer_id"] = transferUUID
         else:
-            raise ValueError("One of fileUUID, sipUUID, or transferUUID must be provided")
+            raise ValueError(
+                "One of fileUUID, sipUUID, or transferUUID must be provided"
+            )
 
         f = File.objects.get(**kwargs)
     else:
@@ -208,24 +277,35 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" % (src, dst)
+        eventOutcomeDetailNote = 'Original name="%s"; cleaned up name="%s"' % (src, dst)
     # CREATE THE EVENT
-    insertIntoEvents(fileUUID=f.uuid, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
+    insertIntoEvents(
+        fileUUID=f.uuid,
+        eventType=eventType,
+        eventDateTime=eventDateTime,
+        eventDetail=eventDetail,
+        eventOutcome="",
+        eventOutcomeDetailNote=eventOutcomeDetailNote,
+    )
 
 
-def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
+def getFileUUIDLike(
+    filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith
+):
     """Dest needs to be the actual full destination path with filename."""
     srcDB = filePath.replace(unitPath, unitPathReplaceWith)
     kwargs = {
         "removedtime__isnull": True,
         "currentlocation__contains": srcDB,
-        unitIdentifierType: unitIdentifier
+        unitIdentifierType: unitIdentifier,
     }
     return {f.currentlocation: f.uuid for f in File.objects.filter(**kwargs)}
 
 
 def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
-    File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse, filegrpuuid=fileGrpUUID)
+    File.objects.filter(uuid=fileUUID).update(
+        filegrpuse=fileGrpUse, filegrpuuid=fileGrpUUID
+    )
 
 
 def updateFileGrpUse(fileUUID, fileGrpUse):
@@ -237,7 +317,9 @@ class FindFileInNormalizatonCSVError(Exception):
         self.code = code
 
 
-def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip_uuid, printfn=print):
+def findFileInNormalizationCSV(
+    csv_path, commandClassification, target_file, sip_uuid, printfn=print
+):
     """ Returns the original filename or None for a manually normalized file.
 
     :param str csv_path: absolute path to normalization.csv
@@ -248,21 +330,35 @@ def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip
     :returns: Path to the origin file for `target_file`. Note this is the path from normalization.csv, so will be the original location.
     """
     # use universal newline mode to support unusual newlines, like \r
-    with open(csv_path, 'rbU') as csv_file:
+    with open(csv_path, "rbU") as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
         # Get original name of target file, to handle sanitized names
         try:
-            f = File.objects.get(removedtime__isnull=True,
-                                 currentlocation__endswith=target_file,
-                                 sip_id=sip_uuid)
+            f = File.objects.get(
+                removedtime__isnull=True,
+                currentlocation__endswith=target_file,
+                sip_id=sip_uuid,
+            )
         except File.MultipleObjectsReturned:
-            printfn("More than one result found for {} file ({}) in DB.".format(commandClassification, target_file), file=sys.stderr)
+            printfn(
+                "More than one result found for {} file ({}) in DB.".format(
+                    commandClassification, target_file
+                ),
+                file=sys.stderr,
+            )
             raise FindFileInNormalizatonCSVError(2)
         except File.DoesNotExist:
-            printfn("{} file ({}) not found in DB.".format(commandClassification, target_file), file=sys.stderr)
+            printfn(
+                "{} file ({}) not found in DB.".format(
+                    commandClassification, target_file
+                ),
+                file=sys.stderr,
+            )
             raise FindFileInNormalizatonCSVError(2)
-        target_file = f.originallocation.replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
+        target_file = f.originallocation.replace(
+            "%transferDirectory%objects/", "", 1
+        ).replace("%SIPDirectory%objects/", "", 1)
         try:
             for row in reader:
                 if not row:
@@ -271,14 +367,29 @@ def findFileInNormalizationCSV(csv_path, commandClassification, target_file, sip
                     continue
                 original, access, preservation = row
                 if commandClassification == "access" and access == target_file:
-                    printfn("Found access file ({0}) for original ({1})".format(access, original))
+                    printfn(
+                        "Found access file ({0}) for original ({1})".format(
+                            access, original
+                        )
+                    )
                     return original
-                if commandClassification == "preservation" and preservation == target_file:
-                    printfn("Found preservation file ({0}) for original ({1})".format(preservation, original))
+                if (
+                    commandClassification == "preservation"
+                    and preservation == target_file
+                ):
+                    printfn(
+                        "Found preservation file ({0}) for original ({1})".format(
+                            preservation, original
+                        )
+                    )
                     return original
             else:
                 return None
         except csv.Error:
-            printfn("Error reading {filename} on line {linenum}".format(
-                filename=csv_path, linenum=reader.line_num), file=sys.stderr)
+            printfn(
+                "Error reading {filename} on line {linenum}".format(
+                    filename=csv_path, linenum=reader.line_num
+                ),
+                file=sys.stderr,
+            )
             raise FindFileInNormalizatonCSVError(2)

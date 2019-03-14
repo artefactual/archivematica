@@ -31,43 +31,39 @@ from processing import install_builtin_config
 from .forms import ProcessingConfigurationForm
 
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 
 def list(request):
     files = []
     ignored = []
-    for item in iglob('{}/*ProcessingMCP.xml'.format(helpers.processing_config_path())):
+    for item in iglob("{}/*ProcessingMCP.xml".format(helpers.processing_config_path())):
         basename = os.path.basename(item)
-        name = re.sub('ProcessingMCP\.xml$', '', basename)
-        if re.match(r'^\w{1,16}$', name) is None:
+        name = re.sub("ProcessingMCP\.xml$", "", basename)
+        if re.match(r"^\w{1,16}$", name) is None:
             ignored.append((basename, name, item))
             continue
         files.append((basename, name, item))
-    return render(request, 'administration/processing.html', {'files': files, 'ignored': ignored})
+    return render(
+        request, "administration/processing.html", {"files": files, "ignored": ignored}
+    )
 
 
 def edit(request, name=None):
-
     def _report_error(error=None, error_msg=None):
         if error is not None:
             logger.exception("{} {}".format(error_msg, error))
             messages.error(request, error_msg)
-        return redirect(
-            'components.administration.views_processing.list')
+        return redirect("components.administration.views_processing.list")
 
     def _render_form():
-        return render(
-            request, 'administration/processing_edit.html',
-            {'form': form})
+        return render(request, "administration/processing_edit.html", {"form": form})
 
     # Initialize form.
     try:
-        form = ProcessingConfigurationForm(
-            request.POST or None, user=request.user)
+        form = ProcessingConfigurationForm(request.POST or None, user=request.user)
     except Exception as err:
-        return _report_error(
-            err, _("Unable to load processing configuration page."))
+        return _report_error(err, _("Unable to load processing configuration page."))
 
     # Process form post.
     if request.method == "POST":
@@ -76,10 +72,9 @@ def edit(request, name=None):
         try:
             form.save_config()
         except Exception as err:
-            return _report_error(
-                err, _("Failed to save processing configuration."))
-        messages.info(request, _('Saved!'))
-        return redirect('components.administration.views_processing.list')
+            return _report_error(err, _("Failed to save processing configuration."))
+        messages.info(request, _("Saved!"))
+        return redirect("components.administration.views_processing.list")
 
     # New configuration.
     if name is None:
@@ -91,24 +86,27 @@ def edit(request, name=None):
     except IOError:
         raise Http404
     except Exception as err:
-        return _report_error(
-            err, _("Failed to load processing configuration."))
+        return _report_error(err, _("Failed to load processing configuration."))
     return _render_form()
 
 
 def delete(request, name):
-    if name == 'default':
-        return redirect('components.administration.views_processing.list')
-    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    if name == "default":
+        return redirect("components.administration.views_processing.list")
+    config_path = os.path.join(
+        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+    )
     try:
         os.remove(config_path)
     except OSError:
         pass
-    return redirect('components.administration.views_processing.list')
+    return redirect("components.administration.views_processing.list")
 
 
 def download(request, name):
-    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    config_path = os.path.join(
+        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+    )
     if not os.path.isfile(config_path):
         raise Http404
     return helpers.send_file(request, config_path, force_download=True)
@@ -123,4 +121,4 @@ def reset(request, name):
         logger.exception(msg)
         messages.error(request, msg)
 
-    return redirect('components.administration.views_processing.list')
+    return redirect("components.administration.views_processing.list")

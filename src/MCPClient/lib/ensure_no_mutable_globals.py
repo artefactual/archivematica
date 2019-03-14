@@ -89,9 +89,9 @@ def collect_globals(attr, val, module, module_name, global2modules_funcs_3):
     those keys a list of the functions (or methods), i.e., named ``attr``
     reverencing object ``val``, that access said globals.
     """
-    module_func = '{}:{}'.format(module_name, attr)
+    module_func = "{}:{}".format(module_name, attr)
     for fg_attr in get_globals(val, module):
-        key = '{}, {}'.format(fg_attr, type(getattr(module, fg_attr)))
+        key = "{}, {}".format(fg_attr, type(getattr(module, fg_attr)))
         global2modules_funcs_3.setdefault(key, []).append(module_func)
     return global2modules_funcs_3
 
@@ -105,17 +105,21 @@ def analyze_module(module_name):
     module = importlib.import_module("clientScripts." + module_name)
     for attr in dir(module):
         val = getattr(module, attr)
-        if attr.startswith('__'):
+        if attr.startswith("__"):
             continue
         if isinstance(val, (types.TypeType, types.ClassType)):
             for class_attr in dir(val):
                 global2modules_funcs_2 = collect_globals(
-                    '{}.{}'.format(attr, class_attr),
-                    getattr(val, class_attr), module, module_name,
-                    global2modules_funcs_2)
+                    "{}.{}".format(attr, class_attr),
+                    getattr(val, class_attr),
+                    module,
+                    module_name,
+                    global2modules_funcs_2,
+                )
         elif isinstance(val, types.FunctionType):
             global2modules_funcs_2 = collect_globals(
-                attr, val, module, module_name, global2modules_funcs_2)
+                attr, val, module, module_name, global2modules_funcs_2
+            )
     return global2modules_funcs_2
 
 
@@ -146,24 +150,24 @@ def print_mutable_globals_usage(supported_modules):
             global2modules_funcs.setdefault(global_, [])
             global2modules_funcs[global_] += modules_funcs
     worrisome = {
-        k: v for k, v in global2modules_funcs.items() if
-        k.split(',')[0] == k.split(',')[0].upper() and
-        k.split(',')[1].strip() == "<type 'dict'>"}
-    unacceptable = {
-        k: v for k, v in global2modules_funcs.items() if k not in worrisome}
+        k: v
+        for k, v in global2modules_funcs.items()
+        if k.split(",")[0] == k.split(",")[0].upper()
+        and k.split(",")[1].strip() == "<type 'dict'>"
+    }
+    unacceptable = {k: v for k, v in global2modules_funcs.items() if k not in worrisome}
     if worrisome:
-        print('\nWorrisome:')
+        print("\nWorrisome:")
         pprint.pprint(worrisome)
     if unacceptable:
-        print('\nUnacceptable:')
+        print("\nUnacceptable:")
         pprint.pprint(unacceptable)
         return 1
     if not worrisome:
-        print('No mutable globals accessed in client scripts.')
+        print("No mutable globals accessed in client scripts.")
     return 0
 
 
-if __name__ == '__main__':
-    config_path = 'src/MCPClient/lib/archivematicaClientModules'
-    sys.exit(print_mutable_globals_usage(
-        get_supported_modules(config_path)))
+if __name__ == "__main__":
+    config_path = "src/MCPClient/lib/archivematicaClientModules"
+    sys.exit(print_mutable_globals_usage(get_supported_modules(config_path)))

@@ -27,6 +27,7 @@ import uuid
 
 # fileOperations, databaseFunctions requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
 
@@ -49,17 +50,25 @@ def call(jobs):
                 fileCount = 0
                 exitCode = 0
 
-                for line in open(os.path.join(transferPath, "manifest.txt"), 'r'):
+                for line in open(os.path.join(transferPath, "manifest.txt"), "r"):
                     if line.startswith(" Directory of "):
                         if topDirectory is None:
                             topDirectory = line.strip()
                             currentDirectory = transferPath
-                            originalTransferName = topDirectory.split('\\')[-1]
+                            originalTransferName = topDirectory.split("\\")[-1]
                             if originalTransferName != transferName:
-                                job.pyprint("Warning, transfer was renamed from: ", originalTransferName, file=sys.stderr)
+                                job.pyprint(
+                                    "Warning, transfer was renamed from: ",
+                                    originalTransferName,
+                                    file=sys.stderr,
+                                )
 
                         else:
-                            currentDirectory = line.strip().replace(topDirectory + '\\', transferPath, 1).replace('\\', '/')
+                            currentDirectory = (
+                                line.strip()
+                                .replace(topDirectory + "\\", transferPath, 1)
+                                .replace("\\", "/")
+                            )
 
                     # file/dir lines aren't and don't start with whitespace.
                     if not line.strip():
@@ -68,10 +77,10 @@ def call(jobs):
                         continue
 
                     isDir = False
-                    if line.find('<DIR>') != -1:
+                    if line.find("<DIR>") != -1:
                         isDir = True
 
-                    sections = re.split('\s+', line.strip())
+                    sections = re.split("\s+", line.strip())
                     baseName = sections[-1]  # assumes no spaces in file name
                     path = os.path.join(transferPath, currentDirectory, baseName)
 
@@ -81,54 +90,98 @@ def call(jobs):
                             continue
                         # check if directory exists
                         if os.path.isdir(path):
-                            job.pyprint("Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%"))
+                            job.pyprint(
+                                "Verified directory exists: ",
+                                path.replace(transferPath, "%TransferDirectory%"),
+                            )
                         else:
-                            job.pyprint("Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
+                            job.pyprint(
+                                "Directory does not exists: ",
+                                path.replace(transferPath, "%TransferDirectory%"),
+                                file=sys.stderr,
+                            )
                             exitCode += 1
                     else:
                         if os.path.isfile(path):
-                            job.pyprint("Verified file exists: ", path.replace(transferPath, "%TransferDirectory%"))
+                            job.pyprint(
+                                "Verified file exists: ",
+                                path.replace(transferPath, "%TransferDirectory%"),
+                            )
                             fileCount += 1
-                            fileID = getFileUUIDLike(path, transferPath, transferUUID, "transfer", "%transferDirectory%")
+                            fileID = getFileUUIDLike(
+                                path,
+                                transferPath,
+                                transferUUID,
+                                "transfer",
+                                "%transferDirectory%",
+                            )
                             if not len(fileID):
-                                job.pyprint("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
+                                job.pyprint(
+                                    "Could not find fileUUID for: ",
+                                    path.replace(transferPath, "%TransferDirectory%"),
+                                    file=sys.stderr,
+                                )
                                 exitCode += 1
                             for paths, fileUUID in fileID.items():
-                                eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
+                                eventDetail = 'program="archivematica"; module="trimVerifyManifest"'
                                 eventOutcome = "Pass"
                                 eventOutcomeDetailNote = "Verified file exists"
                                 eventIdentifierUUID = uuid.uuid4().__str__()
-                                databaseFunctions.insertIntoEvents(fileUUID=fileUUID,
-                                                                   eventIdentifierUUID=eventIdentifierUUID,
-                                                                   eventType="manifest check",
-                                                                   eventDateTime=date,
-                                                                   eventOutcome=eventOutcome,
-                                                                   eventOutcomeDetailNote=eventOutcomeDetailNote,
-                                                                   eventDetail=eventDetail)
+                                databaseFunctions.insertIntoEvents(
+                                    fileUUID=fileUUID,
+                                    eventIdentifierUUID=eventIdentifierUUID,
+                                    eventType="manifest check",
+                                    eventDateTime=date,
+                                    eventOutcome=eventOutcome,
+                                    eventOutcomeDetailNote=eventOutcomeDetailNote,
+                                    eventDetail=eventDetail,
+                                )
                         else:
                             i = path.rfind(".")
                             path2 = path[:i] + path[i:].lower()
                             if i != -1 and os.path.isfile(path2):
-                                job.pyprint("Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
+                                job.pyprint(
+                                    "Warning, verified file exists, but with implicit extension case: ",
+                                    path.replace(transferPath, "%TransferDirectory%"),
+                                    file=sys.stderr,
+                                )
                                 fileCount += 1
-                                fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transfer", "%transferDirectory%")
+                                fileID = getFileUUIDLike(
+                                    path2,
+                                    transferPath,
+                                    transferUUID,
+                                    "transfer",
+                                    "%transferDirectory%",
+                                )
                                 if not len(fileID):
-                                    job.pyprint("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
+                                    job.pyprint(
+                                        "Could not find fileUUID for: ",
+                                        path.replace(
+                                            transferPath, "%TransferDirectory%"
+                                        ),
+                                        file=sys.stderr,
+                                    )
                                     exitCode += 1
                                 for paths, fileUUID in fileID.items():
-                                    eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
+                                    eventDetail = 'program="archivematica"; module="trimVerifyManifest"'
                                     eventOutcome = "Pass"
                                     eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
                                     eventIdentifierUUID = uuid.uuid4().__str__()
-                                    databaseFunctions.insertIntoEvents(fileUUID=fileUUID,
-                                                                       eventIdentifierUUID=eventIdentifierUUID,
-                                                                       eventType="manifest check",
-                                                                       eventDateTime=date,
-                                                                       eventOutcome=eventOutcome,
-                                                                       eventOutcomeDetailNote=eventOutcomeDetailNote,
-                                                                       eventDetail=eventDetail)
+                                    databaseFunctions.insertIntoEvents(
+                                        fileUUID=fileUUID,
+                                        eventIdentifierUUID=eventIdentifierUUID,
+                                        eventType="manifest check",
+                                        eventDateTime=date,
+                                        eventOutcome=eventOutcome,
+                                        eventOutcomeDetailNote=eventOutcomeDetailNote,
+                                        eventDetail=eventDetail,
+                                    )
                             else:
-                                job.pyprint("File does not exists: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
+                                job.pyprint(
+                                    "File does not exists: ",
+                                    path.replace(transferPath, "%TransferDirectory%"),
+                                    file=sys.stderr,
+                                )
                                 exitCode += 1
                 if fileCount:
                     job.set_status(exitCode)

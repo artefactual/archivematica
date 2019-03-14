@@ -17,7 +17,7 @@ from main import models
 import elasticSearchFunctions
 import storageService as storage_service
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 
 class TransferFileTags(View):
@@ -36,10 +36,7 @@ class TransferFileTags(View):
             es_client = elasticSearchFunctions.get_client()
             tags = elasticSearchFunctions.get_file_tags(es_client, fileuuid)
         except elasticSearchFunctions.ElasticsearchError as e:
-            response = {
-                'success': False,
-                'message': str(e),
-            }
+            response = {"success": False, "message": str(e)}
             if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
                 status_code = 404
             else:
@@ -59,14 +56,14 @@ class TransferFileTags(View):
             tags = json.load(request)
         except ValueError:
             response = {
-                'success': False,
-                'message': 'No JSON document could be decoded from the request.'
+                "success": False,
+                "message": "No JSON document could be decoded from the request.",
             }
             return helpers.json_response(response, status_code=400)
         if not isinstance(tags, list):
             response = {
-                'success': False,
-                'message': 'The request body must be an array.'
+                "success": False,
+                "message": "The request body must be an array.",
             }
             return helpers.json_response(response, status_code=400)
 
@@ -74,16 +71,13 @@ class TransferFileTags(View):
             es_client = elasticSearchFunctions.get_client()
             elasticSearchFunctions.set_file_tags(es_client, fileuuid, tags)
         except elasticSearchFunctions.ElasticsearchError as e:
-            response = {
-                'success': False,
-                'message': str(e),
-            }
+            response = {"success": False, "message": str(e)}
             if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
                 status_code = 404
             else:
                 status_code = 400
             return helpers.json_response(response, status_code=status_code)
-        return helpers.json_response({'success': True})
+        return helpers.json_response({"success": True})
 
     def delete(self, request, fileuuid):
         """
@@ -94,16 +88,13 @@ class TransferFileTags(View):
             es_client = elasticSearchFunctions.get_client()
             elasticSearchFunctions.set_file_tags(es_client, fileuuid, [])
         except elasticSearchFunctions.ElasticsearchError as e:
-            response = {
-                'success': False,
-                'message': str(e),
-            }
+            response = {"success": False, "message": str(e)}
             if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
                 status_code = 404
             else:
                 status_code = 400
             return helpers.json_response(response, status_code=status_code)
-        return helpers.json_response({'success': True})
+        return helpers.json_response({"success": True})
 
 
 def bulk_extractor(request, fileuuid):
@@ -128,31 +119,27 @@ def bulk_extractor(request, fileuuid):
         }
     It will have one key for each parsed report, with each report's list of features containing zero or more objects.
     """
-    reports = request.GET.get('reports', 'ccn,pii').split(',')
+    reports = request.GET.get("reports", "ccn,pii").split(",")
 
     if len(reports) == 0:
-        response = {
-            'success': False,
-            'message': 'No reports were requested.'
-        }
+        response = {"success": False, "message": "No reports were requested."}
         return helpers.json_response(response, status_code=400)
 
     try:
         es_client = elasticSearchFunctions.get_client()
-        record = elasticSearchFunctions.get_transfer_file_info(es_client, 'fileuuid', fileuuid)
+        record = elasticSearchFunctions.get_transfer_file_info(
+            es_client, "fileuuid", fileuuid
+        )
     except elasticSearchFunctions.ElasticsearchError as e:
         message = str(e)
-        response = {
-            'success': False,
-            'message': message,
-        }
-        if 'no exact results' in message:
+        response = {"success": False, "message": message}
+        if "no exact results" in message:
             status_code = 404
         else:
             status_code = 500
         return helpers.json_response(response, status_code=status_code)
 
-    bulk_extractor_reports = record.get('bulk_extractor_reports', [])
+    bulk_extractor_reports = record.get("bulk_extractor_reports", [])
     missing_reports = []
     for report in reports:
         if report not in bulk_extractor_reports:
@@ -160,8 +147,9 @@ def bulk_extractor(request, fileuuid):
 
     if len(missing_reports) > 0:
         response = {
-            'success': False,
-            'message': 'Requested file is missing the following requested reports: ' + ', '.join(missing_reports),
+            "success": False,
+            "message": "Requested file is missing the following requested reports: "
+            + ", ".join(missing_reports),
         }
         return helpers.json_response(response, status_code=400)
 
@@ -169,17 +157,21 @@ def bulk_extractor(request, fileuuid):
     features = {}
 
     for report in reports:
-        relative_path = os.path.join('logs', 'bulk-' + fileuuid, report + '.txt')
+        relative_path = os.path.join("logs", "bulk-" + fileuuid, report + ".txt")
         url = storage_service.extract_file_url(f.transfer_id, relative_path)
-        response = requests.get(url, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT)
+        response = requests.get(
+            url, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT
+        )
 
         if response.status_code != 200:
-            message = 'Unable to retrieve ' + report + ' report for file with UUID ' + fileuuid
-            logger.error(message + '; response: %s', (response.text,))
-            response = {
-                'success': False,
-                'message': message,
-            }
+            message = (
+                "Unable to retrieve "
+                + report
+                + " report for file with UUID "
+                + fileuuid
+            )
+            logger.error(message + "; response: %s", (response.text,))
+            response = {"success": False, "message": message}
             helpers.json_response(response, status_code=500)
 
         features[report] = _parse_bulk_extractor_report(response.text)
@@ -188,36 +180,39 @@ def bulk_extractor(request, fileuuid):
 
 
 def _parse_bulk_extractor_report(data):
-    headers = ['offset', 'content', 'context']
-    return [dict(zip(headers, l.split('\t'))) for l in data.splitlines() if not l.startswith('#')]
+    headers = ["offset", "content", "context"]
+    return [
+        dict(zip(headers, l.split("\t")))
+        for l in data.splitlines()
+        if not l.startswith("#")
+    ]
 
 
 def file_details(request, fileuuid):
     try:
         es_client = elasticSearchFunctions.get_client()
-        source = elasticSearchFunctions.get_transfer_file_info(es_client, 'fileuuid', fileuuid)
+        source = elasticSearchFunctions.get_transfer_file_info(
+            es_client, "fileuuid", fileuuid
+        )
     except elasticSearchFunctions.ElasticsearchError as e:
         message = str(e)
-        response = {
-            'success': False,
-            'message': message,
-        }
-        if 'no exact results' in message:
+        response = {"success": False, "message": message}
+        if "no exact results" in message:
             status_code = 404
         else:
             status_code = 500
         return helpers.json_response(response, status_code=status_code)
 
-    format_info = source.get('format', [{}])[0]
+    format_info = source.get("format", [{}])[0]
     record = {
-        'id': source['fileuuid'],
-        'type': 'file',
-        'title': source['filename'],
-        'size': source['size'],
-        'bulk_extractor_reports': source.get('bulk_extractor_reports', []),
-        'tags': source.get('tags', []),
-        'format': format_info.get('format'),
-        'group': format_info.get('group'),
-        'puid': format_info.get('puid'),
+        "id": source["fileuuid"],
+        "type": "file",
+        "title": source["filename"],
+        "size": source["size"],
+        "bulk_extractor_reports": source.get("bulk_extractor_reports", []),
+        "tags": source.get("tags", []),
+        "format": format_info.get("format"),
+        "group": format_info.get("group"),
+        "puid": format_info.get("puid"),
     }
     return helpers.json_response(record)
