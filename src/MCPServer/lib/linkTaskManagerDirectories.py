@@ -52,24 +52,36 @@ class linkTaskManagerDirectories(LinkTaskManager):
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
                     if isinstance(passVar, ReplacementDict):
-                        arguments, standardOutputFile, standardErrorFile = passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                        arguments, standardOutputFile, standardErrorFile = passVar.replace(
+                            arguments, standardOutputFile, standardErrorFile
+                        )
             elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(
+                    arguments, standardOutputFile, standardErrorFile
+                )
 
         # Apply unit (SIP/Transfer) replacement values
         commandReplacementDic = unit.getReplacementDic(directory)
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
             commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
+        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(
+            arguments, standardOutputFile, standardErrorFile
+        )
 
         group = TaskGroup(self, execute)
-        group.addTask(arguments, standardOutputFile, standardErrorFile,
-                      commandReplacementDic=commandReplacementDic)
+        group.addTask(
+            arguments,
+            standardOutputFile,
+            standardErrorFile,
+            commandReplacementDic=commandReplacementDic,
+        )
         group.logTaskCreatedSQL()
         TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
     def taskGroupFinished(self, finishedTaskGroup):
         finishedTaskGroup.write_output()
 
-        self.jobChainLink.linkProcessingComplete(finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar)
+        self.jobChainLink.linkProcessingComplete(
+            finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar
+        )

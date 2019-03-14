@@ -29,7 +29,7 @@ from dicts import ReplacementDict
 
 from django.conf import settings as django_settings
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class UnitDIPError(Exception):
@@ -45,28 +45,31 @@ class unitDIP(unit):
         self.unitType = "DIP"
 
     def __str__(self):
-        return 'unitDIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
+        return "unitDIP: <UUID: {u.UUID}, path: {u.currentPath}>".format(u=self)
 
     def reload(self):
         pass
 
     def getReplacementDic(self, target):
-        ret = ReplacementDict.frommodel(
-            type_='sip',
-            sip=self.UUID
-        )
+        ret = ReplacementDict.frommodel(type_="sip", sip=self.UUID)
 
         # augment the dict here, because DIP is a special case whose paths are
         # not entirely based on data from the database - the locations need to
         # be overridden.
-        sip_directory = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
-        relative_directory_location = target.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
+        sip_directory = self.currentPath.replace(
+            django_settings.SHARED_DIRECTORY, "%sharedPath%"
+        )
+        relative_directory_location = target.replace(
+            django_settings.SHARED_DIRECTORY, "%sharedPath%"
+        )
 
         ret["%SIPLogsDirectory%"] = os.path.join(sip_directory, "logs", "")
         ret["%SIPObjectsDirectory%"] = os.path.join(sip_directory, "objects", "")
         ret["%SIPDirectory%"] = sip_directory
         ret["%SIPDirectoryBasename"] = os.path.basename(os.path.abspath(sip_directory))
-        ret["%relativeLocation%"] = target.replace(self.currentPath, relative_directory_location, 1)
+        ret["%relativeLocation%"] = target.replace(
+            self.currentPath, relative_directory_location, 1
+        )
         ret["%unitType%"] = "DIP"
         return ret
 
@@ -75,5 +78,7 @@ class unitDIP(unit):
         etree.SubElement(ret, "type").text = "DIP"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
+        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(
+            django_settings.SHARED_DIRECTORY, "%sharedPath%"
+        )
         return ret

@@ -24,7 +24,7 @@ class CustomLDAPBackend(LDAPBackend):
 
     def ldap_to_django_username(self, username):
         # Replaces user creation in get_ldap_users
-        return re.sub(self._username_suffix + '$', '', username)
+        return re.sub(self._username_suffix + "$", "", username)
 
     def django_to_ldap_username(self, username):
         # Replaces user creation in get_ldap_users

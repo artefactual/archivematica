@@ -24,13 +24,13 @@ def update_object(job, mets):
     # Iterate through original files
     for fsentry in mets.all_files():
         # Only update original files
-        if fsentry.use != 'original' or fsentry.type != 'Item' or not fsentry.file_uuid:
+        if fsentry.use != "original" or fsentry.type != "Item" or not fsentry.file_uuid:
             continue
 
         # Copy techMD
         old_techmd = None
         for t in fsentry.amdsecs[0].subsections:
-            if t.subsection == 'techMD' and (not t.status or t.status == 'current'):
+            if t.subsection == "techMD" and (not t.status or t.status == "current"):
                 old_techmd = t
                 break
         new_techmd_contents = copy.deepcopy(old_techmd.contents.document)
@@ -38,47 +38,73 @@ def update_object(job, mets):
 
         # TODO do this with metsrw & PREMIS plugin
         # If checksum recalculated event exists, update checksum
-        if models.Event.objects.filter(file_uuid_id=fsentry.file_uuid, event_type='message digest calculation').exists():
-            job.pyprint('Updating checksum for', fsentry.file_uuid)
+        if models.Event.objects.filter(
+            file_uuid_id=fsentry.file_uuid, event_type="message digest calculation"
+        ).exists():
+            job.pyprint("Updating checksum for", fsentry.file_uuid)
             modified = True
             f = models.File.objects.get(uuid=fsentry.file_uuid)
-            fixity = new_techmd_contents.find('.//premis:fixity', namespaces=ns.NSMAP)
-            fixity.find('premis:messageDigestAlgorithm', namespaces=ns.NSMAP).text = f.checksumtype
-            fixity.find('premis:messageDigest', namespaces=ns.NSMAP).text = f.checksum
+            fixity = new_techmd_contents.find(".//premis:fixity", namespaces=ns.NSMAP)
+            fixity.find(
+                "premis:messageDigestAlgorithm", namespaces=ns.NSMAP
+            ).text = f.checksumtype
+            fixity.find("premis:messageDigest", namespaces=ns.NSMAP).text = f.checksum
 
         # If FileID exists, update file ID
         if models.FileID.objects.filter(file_id=fsentry.file_uuid):
-            job.pyprint('Updating format for', fsentry.file_uuid)
+            job.pyprint("Updating format for", fsentry.file_uuid)
             modified = True
             # Delete old formats
-            for f in new_techmd_contents.findall('premis:objectCharacteristics/premis:format', namespaces=ns.NSMAP):
+            for f in new_techmd_contents.findall(
+                "premis:objectCharacteristics/premis:format", namespaces=ns.NSMAP
+            ):
                 f.getparent().remove(f)
             # Insert new formats after size
             formats = createmets2.create_premis_object_formats(fsentry.file_uuid)
-            size_elem = new_techmd_contents.find('premis:objectCharacteristics/premis:size', namespaces=ns.NSMAP)
+            size_elem = new_techmd_contents.find(
+                "premis:objectCharacteristics/premis:size", namespaces=ns.NSMAP
+            )
             for f in formats:
                 size_elem.addnext(f)
 
         # If FPCommand output exists, update objectCharacteristicsExtension
-        if models.FPCommandOutput.objects.filter(file_id=fsentry.file_uuid, rule__purpose__in=['characterization', 'default_characterization']).exists():
-            job.pyprint('Updating objectCharacteristicsExtension for', fsentry.file_uuid)
+        if models.FPCommandOutput.objects.filter(
+            file_id=fsentry.file_uuid,
+            rule__purpose__in=["characterization", "default_characterization"],
+        ).exists():
+            job.pyprint(
+                "Updating objectCharacteristicsExtension for", fsentry.file_uuid
+            )
             modified = True
             # Delete old objectCharacteristicsExtension
-            for oce in new_techmd_contents.findall('premis:objectCharacteristics/premis:objectCharacteristicsExtension', namespaces=ns.NSMAP):
+            for oce in new_techmd_contents.findall(
+                "premis:objectCharacteristics/premis:objectCharacteristicsExtension",
+                namespaces=ns.NSMAP,
+            ):
                 oce.getparent().remove(oce)
-            new_oce = createmets2.create_premis_object_characteristics_extensions(fsentry.file_uuid)
-            oc_elem = new_techmd_contents.find('premis:objectCharacteristics', namespaces=ns.NSMAP)
+            new_oce = createmets2.create_premis_object_characteristics_extensions(
+                fsentry.file_uuid
+            )
+            oc_elem = new_techmd_contents.find(
+                "premis:objectCharacteristics", namespaces=ns.NSMAP
+            )
             for oce in new_oce:
                 oc_elem.append(oce)
 
         # If Derivation exists, update relationships
-        if models.Derivation.objects.filter(source_file_id=fsentry.file_uuid, event__isnull=False):
-            job.pyprint('Updating relationships for', fsentry.file_uuid)
+        if models.Derivation.objects.filter(
+            source_file_id=fsentry.file_uuid, event__isnull=False
+        ):
+            job.pyprint("Updating relationships for", fsentry.file_uuid)
             modified = True
             # Delete old relationships
-            for r in new_techmd_contents.findall('premis:relationship', namespaces=ns.NSMAP):
+            for r in new_techmd_contents.findall(
+                "premis:relationship", namespaces=ns.NSMAP
+            ):
                 r.getparent().remove(r)
-            derivations = createmets2.create_premis_object_derivations(fsentry.file_uuid)
+            derivations = createmets2.create_premis_object_derivations(
+                fsentry.file_uuid
+            )
             for r in derivations:
                 new_techmd_contents.append(r)
 
@@ -104,31 +130,39 @@ def update_dublincore(job, mets, sip_uuid):
     untouched = models.DublinCore.objects.filter(
         metadataappliestoidentifier=sip_uuid,
         metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
-        status=models.METADATA_STATUS_REINGEST).exists()
+        status=models.METADATA_STATUS_REINGEST,
+    ).exists()
     if untouched:
         # No new or updated DC found - return early
-        job.pyprint('No updated or new DC metadata found')
+        job.pyprint("No updated or new DC metadata found")
         return mets
 
     # Get structMap element related to SIP DC info
-    objects_div = mets.get_file(label='objects', type='Directory')
-    job.pyprint('Existing dmdIds for DC metadata:', objects_div.dmdids)
+    objects_div = mets.get_file(label="objects", type="Directory")
+    job.pyprint("Existing dmdIds for DC metadata:", objects_div.dmdids)
 
     # Create element
     dc_elem = createmets2.getDublinCore(createmets2.SIPMetadataAppliesToType, sip_uuid)
 
     if dc_elem is None:
         if objects_div.dmdsecs:
-            job.pyprint('DC metadata was deleted')
+            job.pyprint("DC metadata was deleted")
             # Create 'deleted' DC element
-            dc_elem = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, 'dc': ns.dcNS})
-            dc_elem.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+            dc_elem = etree.Element(
+                ns.dctermsBNS + "dublincore",
+                nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS},
+            )
+            dc_elem.set(
+                ns.xsiBNS + "schemaLocation",
+                ns.dctermsNS
+                + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
+            )
         else:
             # No new or updated DC found - return early
-            job.pyprint('No updated or new DC metadata found')
+            job.pyprint("No updated or new DC metadata found")
             return mets
     dmdsec = objects_div.add_dublin_core(dc_elem)
-    job.pyprint('Adding new DC in dmdSec with ID', dmdsec.id_string())
+    job.pyprint("Adding new DC in dmdSec with ID", dmdsec.id_string())
     if len(objects_div.dmdsecs) > 1:
         objects_div.dmdsecs[-2].replace_with(dmdsec)
 
@@ -140,7 +174,7 @@ def update_rights(job, mets, sip_uuid, state):
     Add rightsMDs for updated PREMIS Rights.
     """
     # Get original files to add rights to
-    original_files = [f for f in mets.all_files() if f.use == 'original']
+    original_files = [f for f in mets.all_files() if f.use == "original"]
 
     # Check for deleted rights - exist in METS but not in DB
     # Cache rightsbasis in DB
@@ -154,29 +188,39 @@ def update_rights(job, mets, sip_uuid, state):
         ).exclude(status=models.METADATA_STATUS_ORIGINAL)
 
     for fsentry in original_files:
-        rightsmds = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
+        rightsmds = [
+            s for s in fsentry.amdsecs[0].subsections if s.subsection == "rightsMD"
+        ]
         for r in rightsmds:
             # Don't follow MDRef pointers (see #1083 for more details).
             if isinstance(r.contents, metsrw.metadata.MDRef):
                 continue
-            if r.status == 'superseded':
+            if r.status == "superseded":
                 continue
-            rightsbasis = r.contents.document.findtext('.//premis:rightsBasis', namespaces=ns.NSMAP)
-            if rightsbasis == 'Other':
-                rightsbasis = r.contents.document.findtext('.//premis:otherRightsBasis', namespaces=ns.NSMAP)
+            rightsbasis = r.contents.document.findtext(
+                ".//premis:rightsBasis", namespaces=ns.NSMAP
+            )
+            if rightsbasis == "Other":
+                rightsbasis = r.contents.document.findtext(
+                    ".//premis:otherRightsBasis", namespaces=ns.NSMAP
+                )
             db_rights = rightsmds_db[rightsbasis]
-            if not db_rights:  # TODO this may need to be more robust for RightsStatementRightsGranted
-                job.pyprint('Rights', r.id_string(), 'looks deleted - making superseded')
-                r.status = 'superseded'
+            if (
+                not db_rights
+            ):  # TODO this may need to be more robust for RightsStatementRightsGranted
+                job.pyprint(
+                    "Rights", r.id_string(), "looks deleted - making superseded"
+                )
+                r.status = "superseded"
 
     # Check for newly added rights
     rights_list = models.RightsStatement.objects.filter(
         metadataappliestoidentifier=sip_uuid,
         metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
-        status=models.METADATA_STATUS_ORIGINAL
+        status=models.METADATA_STATUS_ORIGINAL,
     )
     if not rights_list:
-        job.pyprint('No new rights added')
+        job.pyprint("No new rights added")
     else:
         add_rights_elements(job, rights_list, original_files, state)
 
@@ -184,10 +228,10 @@ def update_rights(job, mets, sip_uuid, state):
     rights_list = models.RightsStatement.objects.filter(
         metadataappliestoidentifier=sip_uuid,
         metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
-        status=models.METADATA_STATUS_UPDATED
+        status=models.METADATA_STATUS_UPDATED,
     )
     if not rights_list:
-        job.pyprint('No updated rights found')
+        job.pyprint("No updated rights found")
     else:
         add_rights_elements(job, rights_list, original_files, state, updated=True)
 
@@ -202,21 +246,44 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
     for fsentry in files:
         for rights in rights_list:
             # Create element
-            new_rightsmd = fsentry.add_premis_rights(createmetsrights.createRightsStatement(job, rights, fsentry.file_uuid, state))
-            job.pyprint('Adding rightsMD', new_rightsmd.id_string(), 'to amdSec with ID', fsentry.amdsecs[0].id_string(), 'for file', fsentry.file_uuid)
+            new_rightsmd = fsentry.add_premis_rights(
+                createmetsrights.createRightsStatement(
+                    job, rights, fsentry.file_uuid, state
+                )
+            )
+            job.pyprint(
+                "Adding rightsMD",
+                new_rightsmd.id_string(),
+                "to amdSec with ID",
+                fsentry.amdsecs[0].id_string(),
+                "for file",
+                fsentry.file_uuid,
+            )
 
             if updated:
                 # Mark as replacing another rightsMD
                 # rightsBasis is semantically unique (though not currently enforced in code). Assume that this replaces a rightsMD with the same basis
                 # Find the most ce
-                superseded = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
+                superseded = [
+                    s
+                    for s in fsentry.amdsecs[0].subsections
+                    if s.subsection == "rightsMD"
+                ]
                 superseded = sorted(superseded, key=lambda x: x.created)
                 # NOTE sort(..., reverse=True) behaves differently with unsortable elements like '' and None
                 for s in superseded[::-1]:
-                    job.pyprint('created', s.created)
-                    if s.serialize().xpath('.//premis:rightsBasis[text()="' + rights.rightsbasis + '"]', namespaces=ns.NSMAP):
+                    job.pyprint("created", s.created)
+                    if s.serialize().xpath(
+                        './/premis:rightsBasis[text()="' + rights.rightsbasis + '"]',
+                        namespaces=ns.NSMAP,
+                    ):
                         s.replace_with(new_rightsmd)
-                        job.pyprint('rightsMD', new_rightsmd.id_string(), 'replaces rightsMD', s.id_string())
+                        job.pyprint(
+                            "rightsMD",
+                            new_rightsmd.id_string(),
+                            "replaces rightsMD",
+                            s.id_string(),
+                        )
                         break
 
 
@@ -229,31 +296,48 @@ def add_events(job, mets, sip_uuid):
 
     # Get Agent
     try:
-        agent = models.Agent.objects.get(identifiertype="preservation system", name="Archivematica", agenttype="software")
+        agent = models.Agent.objects.get(
+            identifiertype="preservation system",
+            name="Archivematica",
+            agenttype="software",
+        )
     except models.Agent.DoesNotExist:
         agent = None
     except models.Agent.MultipleObjectsReturned:
         agent = None
-        job.pyprint('WARNING multiple agents found for Archivematica')
+        job.pyprint("WARNING multiple agents found for Archivematica")
 
     needs_agent = set()
 
     for event in events:
-        job.pyprint('Adding', event.event_type, 'event to file', event.file_uuid_id)
+        job.pyprint("Adding", event.event_type, "event to file", event.file_uuid_id)
         fsentry = mets.get_file(file_uuid=event.file_uuid_id)
         if fsentry is None:
-            job.pyprint('File with UUID', event.file_uuid_id, 'not in METS file, skipping adding', event.event_type, 'event.')
+            job.pyprint(
+                "File with UUID",
+                event.file_uuid_id,
+                "not in METS file, skipping adding",
+                event.event_type,
+                "event.",
+            )
             continue
         fsentry.add_premis_event(createmets2.createEvent(event))
 
         amdsec = fsentry.amdsecs[0]
 
         # Add agent if it's not already in this amdSec
-        if agent and not mets.tree.xpath('mets:amdSec[@AMDID="' + amdsec.id_string() + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="' + agent.identifiervalue + '"]', namespaces=ns.NSMAP):
+        if agent and not mets.tree.xpath(
+            'mets:amdSec[@AMDID="'
+            + amdsec.id_string()
+            + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="'
+            + agent.identifiervalue
+            + '"]',
+            namespaces=ns.NSMAP,
+        ):
             needs_agent.add(fsentry)
 
     for fsentry in needs_agent:
-        job.pyprint('Adding Agent for', agent.identifiervalue)
+        job.pyprint("Adding Agent for", agent.identifiervalue)
         fsentry.add_premis_agent(createmets2.createAgent(agent))
 
     return mets
@@ -274,46 +358,51 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
-    objects_dir = os.path.join(sip_dir, 'objects')
+    objects_dir = os.path.join(sip_dir, "objects")
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
             current_loc = os.path.join(dirpath, filename).replace(
-                sip_dir, '%SIPDirectory%', 1)
-            rel_path = current_loc.replace('%SIPDirectory%', '', 1)
-            job.pyprint('Looking for', rel_path, 'in METS')
+                sip_dir, "%SIPDirectory%", 1
+            )
+            rel_path = current_loc.replace("%SIPDirectory%", "", 1)
+            job.pyprint("Looking for", rel_path, "in METS")
             fsentry = mets.get_file(path=rel_path)
             if fsentry is None:
                 # If not in METS (and is not old METS), get File object and
                 # store for later
                 if rel_path != old_mets_rel_path:
-                    job.pyprint(rel_path, 'not found in METS, must be new file')
+                    job.pyprint(rel_path, "not found in METS, must be new file")
                     f = models.File.objects.get(
-                        currentlocation=current_loc, sip_id=sip_uuid)
+                        currentlocation=current_loc, sip_id=sip_uuid
+                    )
                     new_files.append(f)
-                    if rel_path == 'objects/metadata/metadata.csv':
+                    if rel_path == "objects/metadata/metadata.csv":
                         metadata_csv = f
             else:
-                job.pyprint(rel_path, 'found in METS, no further work needed')
+                job.pyprint(rel_path, "found in METS, no further work needed")
 
     if not new_files:
         return mets
 
     # Set global counters so getAMDSec will work
     state = createmets2.MetsState(
-        globalAmdSecCounter=int(mets.tree.xpath('count(mets:amdSec)',
-                                                namespaces=ns.NSMAP)),
-        globalTechMDCounter=int(mets.tree.xpath('count(mets:amdSec/mets:techMD)',
-                                                namespaces=ns.NSMAP)),
-        globalDigiprovMDCounter=int(mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)',
-                                    namespaces=ns.NSMAP))
+        globalAmdSecCounter=int(
+            mets.tree.xpath("count(mets:amdSec)", namespaces=ns.NSMAP)
+        ),
+        globalTechMDCounter=int(
+            mets.tree.xpath("count(mets:amdSec/mets:techMD)", namespaces=ns.NSMAP)
+        ),
+        globalDigiprovMDCounter=int(
+            mets.tree.xpath("count(mets:amdSec/mets:digiprovMD)", namespaces=ns.NSMAP)
+        ),
     )
 
-    objects_fsentry = mets.get_file(label='objects', type='Directory')
+    objects_fsentry = mets.get_file(label="objects", type="Directory")
 
     for f in new_files:
         # Create amdSecs
-        job.pyprint('Adding amdSec for', f.currentlocation, '(', f.uuid, ')')
+        job.pyprint("Adding amdSec for", f.currentlocation, "(", f.uuid, ")")
         amdsec, amdid = createmets2.getAMDSec(
             job,
             fileUUID=f.uuid,
@@ -326,19 +415,17 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
             baseDirectoryPath=sip_dir,
             state=state,
         )
-        job.pyprint(f.uuid, 'has amdSec with ID', amdid)
+        job.pyprint(f.uuid, "has amdSec with ID", amdid)
 
         # Create parent directories if needed
-        dirs = os.path.dirname(f.currentlocation.replace('%SIPDirectory%objects/', '', 1)).split('/')
+        dirs = os.path.dirname(
+            f.currentlocation.replace("%SIPDirectory%objects/", "", 1)
+        ).split("/")
         parent_fsentry = objects_fsentry
         for dirname in (d for d in dirs if d):
-            child = mets.get_file(type='Directory', label=dirname)
+            child = mets.get_file(type="Directory", label=dirname)
             if child is None:
-                child = metsrw.FSEntry(
-                    path=None,
-                    type='Directory',
-                    label=dirname,
-                )
+                child = metsrw.FSEntry(path=None, type="Directory", label=dirname)
                 parent_fsentry.add_child(child)
             parent_fsentry = child
 
@@ -347,9 +434,9 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
             original_f = f.original_file_set.get().source_file
             derived_from = mets.get_file(file_uuid=original_f.uuid)
         entry = metsrw.FSEntry(
-            path=f.currentlocation.replace('%SIPDirectory%', '', 1),
+            path=f.currentlocation.replace("%SIPDirectory%", "", 1),
             use=f.filegrpuse,
-            type='Item',
+            type="Item",
             file_uuid=f.uuid,
             derived_from=derived_from,
         )
@@ -371,68 +458,70 @@ def delete_files(mets, sip_uuid):
     Add a deletion event, update fileGrp USE to deleted, and remove FLocat.
     """
     deleted_files = models.File.objects.filter(
-        sip_id=sip_uuid,
-        event__event_type='deletion',
-    ).values_list('uuid', flat=True)
+        sip_id=sip_uuid, event__event_type="deletion"
+    ).values_list("uuid", flat=True)
     for file_uuid in deleted_files:
         df = mets.get_file(file_uuid=file_uuid)
-        df.use = 'deleted'
+        df.use = "deleted"
         df.path = None
         df.label = None
     return mets
 
 
 def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
-    job.pyprint('Parse new metadata.csv')
-    full_path = metadata_csv.currentlocation.replace('%SIPDirectory%', sip_dir, 1)
+    job.pyprint("Parse new metadata.csv")
+    full_path = metadata_csv.currentlocation.replace("%SIPDirectory%", sip_dir, 1)
     csvmetadata = createmetscsv.parseMetadataCSV(job, full_path)
 
     # FIXME This doesn't support having both DC and non-DC metadata in dmdSecs
     # If createDmdSecsFromCSVParsedMetadata returns more than 1 dmdSec, behaviour is undefined
     for f, md in csvmetadata.items():
         # Verify file is in AIP
-        job.pyprint('Looking for', f, 'from metadata.csv in SIP')
+        job.pyprint("Looking for", f, "from metadata.csv in SIP")
         # Find File with original or current locationg matching metadata.csv
         # Prepend % to match the end of %SIPDirectory% or %transferDirectory%
         try:
-            file_obj = models.File.objects.get(sip_id=sip_uuid, originallocation__endswith='%' + f)
+            file_obj = models.File.objects.get(
+                sip_id=sip_uuid, originallocation__endswith="%" + f
+            )
         except models.File.DoesNotExist:
             try:
-                file_obj = models.File.objects.get(sip_id=sip_uuid, currentlocation__endswith='%' + f)
+                file_obj = models.File.objects.get(
+                    sip_id=sip_uuid, currentlocation__endswith="%" + f
+                )
             except models.File.DoesNotExist:
-                job.pyprint(f, 'not found in database')
+                job.pyprint(f, "not found in database")
                 continue
-        job.pyprint(f, 'found in database')
+        job.pyprint(f, "found in database")
 
         fsentry = mets.get_file(file_uuid=file_obj.uuid)
-        job.pyprint(f, 'was associated with', fsentry.dmdids)
+        job.pyprint(f, "was associated with", fsentry.dmdids)
 
         # Create dmdSec
         new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(job, md, state)
         # Add both
         for new_dmdsec in new_dmdsecs:
             # need to strip new_d to just the DC part
-            new_dc = new_dmdsec.find('.//dcterms:dublincore', namespaces=ns.NSMAP)
+            new_dc = new_dmdsec.find(".//dcterms:dublincore", namespaces=ns.NSMAP)
             new_metsrw_dmdsec = fsentry.add_dublin_core(new_dc)
             if len(fsentry.dmdsecs) > 1:
                 fsentry.dmdsecs[-2].replace_with(new_metsrw_dmdsec)
 
-        job.pyprint(f, 'now associated with', fsentry.dmdids)
+        job.pyprint(f, "now associated with", fsentry.dmdids)
 
     return mets
 
 
 def _get_old_mets_rel_path(sip_uuid):
     return os.path.join(
-        'objects',
-        'submissionDocumentation',
-        'METS.' + sip_uuid + '.xml')
+        "objects", "submissionDocumentation", "METS." + sip_uuid + ".xml"
+    )
 
 
 def update_mets(job, sip_dir, sip_uuid, state, keep_normative_structmap=True):
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
-    job.pyprint('Looking for old METS at path', old_mets_path)
+    job.pyprint("Looking for old METS at path", old_mets_path)
 
     # Parse old METS
     mets = metsrw.METSDocument.fromfile(old_mets_path)
@@ -448,7 +537,9 @@ def update_mets(job, sip_dir, sip_uuid, state, keep_normative_structmap=True):
     if not keep_normative_structmap:
         # Remove normative structMap
         structmaps = serialized.findall(
-            'mets:structMap[@LABEL="Normative Directory Structure"]', namespaces=ns.NSMAP)
+            'mets:structMap[@LABEL="Normative Directory Structure"]',
+            namespaces=ns.NSMAP,
+        )
         for structmap in structmaps:
             structmap.getparent().remove(structmap)
             job.pyprint("Removed normative structMap")

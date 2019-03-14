@@ -15,6 +15,7 @@ import storageService as storage_service
 import identifier_functions
 
 import django
+
 django.setup()
 
 from django.conf import settings as mcpclient_settings
@@ -27,16 +28,16 @@ def get_identifiers(job, sip_path):
     identifiers = []
 
     # MODS
-    mods_paths = glob('{}/submissionDocumentation/**/mods/*.xml'.format(sip_path))
+    mods_paths = glob("{}/submissionDocumentation/**/mods/*.xml".format(sip_path))
     for mods in mods_paths:
         identifiers.extend(identifier_functions.extract_identifiers_from_mods(mods))
 
     # Islandora identifier
-    islandora_path = glob('{}/submissionDocumentation/**/*-METS.xml'.format(sip_path))
+    islandora_path = glob("{}/submissionDocumentation/**/*-METS.xml".format(sip_path))
     for mets in islandora_path:
         identifiers.extend(identifier_functions.extract_identifier_from_islandora(mets))
 
-    job.pyprint('Indexing additional identifiers %s', identifiers)
+    job.pyprint("Indexing additional identifiers %s", identifiers)
 
     return identifiers
 
@@ -48,18 +49,18 @@ def index_aip(job):
     sip_path = job.args[3]  # %SIPDirectory%
     sip_type = job.args[4]  # %SIPType%
 
-    if 'aips' not in mcpclient_settings.SEARCH_ENABLED:
-        logger.info('Skipping indexing: AIPs indexing is currently disabled.')
+    if "aips" not in mcpclient_settings.SEARCH_ENABLED:
+        logger.info("Skipping indexing: AIPs indexing is currently disabled.")
         return 0
 
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
-    job.pyprint('AIP info:', aip_info)
+    job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
 
-    mets_name = 'METS.{}.xml'.format(sip_uuid)
+    mets_name = "METS.{}.xml".format(sip_uuid)
     mets_path = os.path.join(sip_path, mets_name)
 
     identifiers = get_identifiers(job, sip_path)
@@ -68,38 +69,42 @@ def index_aip(job):
     aips_in_aic = None
     if sip_type == "AIC":
         try:
-            uv = UnitVariable.objects.get(unittype="SIP",
-                                          unituuid=sip_uuid,
-                                          variable="AIPsinAIC")
+            uv = UnitVariable.objects.get(
+                unittype="SIP", unituuid=sip_uuid, variable="AIPsinAIC"
+            )
             aips_in_aic = uv.variablevalue
         except UnitVariable.DoesNotExist:
             pass
 
     # Delete ES index before creating new one if reingesting
-    if 'REIN' in sip_type:
-        job.pyprint('Deleting outdated entry for AIP and AIP files with UUID', sip_uuid, 'from archival storage')
+    if "REIN" in sip_type:
+        job.pyprint(
+            "Deleting outdated entry for AIP and AIP files with UUID",
+            sip_uuid,
+            "from archival storage",
+        )
         elasticSearchFunctions.delete_aip(client, sip_uuid)
         elasticSearchFunctions.delete_aip_files(client, sip_uuid)
 
-    job.pyprint('Indexing AIP and AIP files')
+    job.pyprint("Indexing AIP and AIP files")
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
     # aips/aipfile index.
     ret = elasticSearchFunctions.index_aip_and_files(
         client=client,
         uuid=sip_uuid,
-        path=aip_info['current_full_path'],
+        path=aip_info["current_full_path"],
         mets_path=mets_path,
         name=sip_name,
-        size=aip_info['size'],
+        size=aip_info["size"],
         aips_in_aic=aips_in_aic,
         identifiers=identifiers,
-        encrypted=aip_info['encrypted'],
+        encrypted=aip_info["encrypted"],
         printfn=job.pyprint,
     )
 
     if ret == 1:
-        job.pyprint('Error indexing AIP and AIP files', file=sys.stderr)
+        job.pyprint("Error indexing AIP and AIP files", file=sys.stderr)
 
     return ret
 

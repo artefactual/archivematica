@@ -23,6 +23,7 @@
 
 # elasticSearchFunctions requires Django to be set up
 import django
+
 django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -38,12 +39,12 @@ def call(jobs):
         with job.JobContext(logger=logger):
             aip_uuid = job.args[1]
 
-            if 'aips' not in mcpclient_settings.SEARCH_ENABLED:
-                logger.info('Skipping. AIPs indexing is currently disabled.')
+            if "aips" not in mcpclient_settings.SEARCH_ENABLED:
+                logger.info("Skipping. AIPs indexing is currently disabled.")
                 return
 
             elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
             client = elasticSearchFunctions.get_client()
 
-            logger.info('Removing indexed files for AIP %s...', aip_uuid)
+            logger.info("Removing indexed files for AIP %s...", aip_uuid)
             elasticSearchFunctions.delete_aip_files(client, aip_uuid)

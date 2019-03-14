@@ -27,6 +27,7 @@ from optparse import OptionParser
 
 import django
 from django.db import transaction
+
 django.setup()
 # dashboard
 from main.models import File
@@ -37,7 +38,16 @@ from fileOperations import updateFileLocation
 from fileOperations import rename
 
 
-def something(job, SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy=False):
+def something(
+    job,
+    SIPDirectory,
+    accessDirectory,
+    objectsDirectory,
+    DIPDirectory,
+    SIPUUID,
+    date,
+    copy=False,
+):
     # exitCode = 435
     exitCode = 179
     job.pyprint(SIPDirectory)
@@ -50,28 +60,54 @@ def something(job, SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory
             objectNameExtensionIndex = objectName.rfind(".")
 
             if objectNameExtensionIndex != -1:
-                objectName = objectName[:objectNameExtensionIndex + 1]
-                objectNameLike = os.path.join(os.path.dirname(objectPath), objectName).replace(SIPDirectory, "%SIPDirectory%", 1)
+                objectName = objectName[: objectNameExtensionIndex + 1]
+                objectNameLike = os.path.join(
+                    os.path.dirname(objectPath), objectName
+                ).replace(SIPDirectory, "%SIPDirectory%", 1)
 
-                files = File.objects.filter(removedtime__isnull=True,
-                                            currentlocation__startswith=objectNameLike,
-                                            sip_id=SIPUUID)
+                files = File.objects.filter(
+                    removedtime__isnull=True,
+                    currentlocation__startswith=objectNameLike,
+                    sip_id=SIPUUID,
+                )
                 if not files.exists():
-                    job.pyprint("No corresponding object for:", accessPath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
+                    job.pyprint(
+                        "No corresponding object for:",
+                        accessPath.replace(SIPDirectory, "%SIPDirectory%", 1),
+                        file=sys.stderr,
+                    )
                     exitCode = 1
                 update = []
-                for objectUUID, objectPath in files.values_list('uuid', 'currentlocation'):
+                for objectUUID, objectPath in files.values_list(
+                    "uuid", "currentlocation"
+                ):
                     objectExtension = objectPath.replace(objectNameLike, "", 1)
-                    job.pyprint(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
+                    job.pyprint(
+                        objectName[objectNameExtensionIndex + 1 :],
+                        objectExtension,
+                        "\t",
+                        end=" ",
+                    )
                     if objectExtension.find(".") != -1:
                         continue
-                    job.pyprint(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
-                    dipPath = os.path.join(DIPDirectory, "objects", "%s-%s" % (objectUUID, os.path.basename(accessPath)))
+                    job.pyprint(
+                        objectName[objectNameExtensionIndex + 1 :],
+                        objectExtension,
+                        "\t",
+                        end=" ",
+                    )
+                    dipPath = os.path.join(
+                        DIPDirectory,
+                        "objects",
+                        "%s-%s" % (objectUUID, os.path.basename(accessPath)),
+                    )
                     if copy:
                         job.pyprint("TODO - copy not supported yet")
                     else:
                         dest = dipPath
-                        rename_status = rename(accessPath, dest, printfn=job.pyprint, should_exit=False)
+                        rename_status = rename(
+                            accessPath, dest, printfn=job.pyprint, should_exit=False
+                        )
                         if rename_status:
                             return rename_status
 
@@ -80,21 +116,39 @@ def something(job, SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory
                         update.append((src, dst))
                 for src, dst in update:
                     eventDetail = ""
-                    eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-                    updateFileLocation(src, dst, "movement", date, eventDetail, sipUUID=SIPUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
+                    eventOutcomeDetailNote = (
+                        'moved from="' + src + '"; moved to="' + dst + '"'
+                    )
+                    updateFileLocation(
+                        src,
+                        dst,
+                        "movement",
+                        date,
+                        eventDetail,
+                        sipUUID=SIPUUID,
+                        eventOutcomeDetailNote=eventOutcomeDetailNote,
+                    )
     return exitCode
 
 
 def call(jobs):
     parser = OptionParser()
     # '--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
-    parser.add_option("-s", "--SIPDirectory", action="store", dest="SIPDirectory", default="")
+    parser.add_option(
+        "-s", "--SIPDirectory", action="store", dest="SIPDirectory", default=""
+    )
     parser.add_option("-u", "--SIPUUID", action="store", dest="SIPUUID", default="")
-    parser.add_option("-a", "--accessDirectory", action="store", dest="accessDirectory", default="")
-    parser.add_option("-o", "--objectsDirectory", action="store", dest="objectsDirectory", default="")
-    parser.add_option("-d", "--DIPDirectory", action="store", dest="DIPDirectory", default="")
+    parser.add_option(
+        "-a", "--accessDirectory", action="store", dest="accessDirectory", default=""
+    )
+    parser.add_option(
+        "-o", "--objectsDirectory", action="store", dest="objectsDirectory", default=""
+    )
+    parser.add_option(
+        "-d", "--DIPDirectory", action="store", dest="DIPDirectory", default=""
+    )
     parser.add_option("-t", "--date", action="store", dest="date", default="")
-    parser.add_option('-c', '--copy', dest='copy', action='store_true')
+    parser.add_option("-c", "--copy", dest="copy", action="store_true")
 
     with transaction.atomic():
         for job in jobs:
@@ -122,5 +176,14 @@ def call(jobs):
                 except:
                     job.pyprint("error creating DIP directory")
 
-                exitCode = something(job, SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy)
+                exitCode = something(
+                    job,
+                    SIPDirectory,
+                    accessDirectory,
+                    objectsDirectory,
+                    DIPDirectory,
+                    SIPUUID,
+                    date,
+                    copy,
+                )
                 job.set_status(exitCode)

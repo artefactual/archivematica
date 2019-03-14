@@ -6,18 +6,20 @@ from django.conf import settings
 
 
 def data_migration(apps, schema_editor):
-    Agent = apps.get_model('main', 'Agent')
-    Event = apps.get_model('main', 'Event')
-    UserProfile = apps.get_model('main', 'UserProfile')
-    User = apps.get_model('auth', 'User')
+    Agent = apps.get_model("main", "Agent")
+    Event = apps.get_model("main", "Event")
+    UserProfile = apps.get_model("main", "UserProfile")
+    User = apps.get_model("auth", "User")
 
     # Create Agents for all Users
     for u in User.objects.all():
         agent = Agent.objects.create(
-            identifiertype='Archivematica user pk',
+            identifiertype="Archivematica user pk",
             identifiervalue=str(u.id),
-            name='username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(u=u),
-            agenttype='Archivematica user',
+            name='username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(
+                u=u
+            ),
+            agenttype="Archivematica user",
         )
         UserProfile.objects.create(user=u, agent=agent)
 
@@ -36,34 +38,34 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('main', '0025_copyrightstatus_controlled_vocab'),
+        ("main", "0025_copyrightstatus_controlled_vocab"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='agents',
-            field=models.ManyToManyField(to='main.Agent'),
+            model_name="event",
+            name="agents",
+            field=models.ManyToManyField(to="main.Agent"),
             preserve_default=True,
         ),
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('agent', models.OneToOneField(to='main.Agent')),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("agent", models.OneToOneField(to="main.Agent")),
+                ("user", models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-                'db_table': 'main_userprofile',
-            },
+            options={"db_table": "main_userprofile"},
             bases=(models.Model,),
         ),
-
         migrations.RunPython(data_migration),
-
-        migrations.RemoveField(
-            model_name='event',
-            name='linking_agent',
-        ),
-
+        migrations.RemoveField(model_name="event", name="linking_agent"),
     ]

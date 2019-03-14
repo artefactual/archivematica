@@ -25,6 +25,7 @@ import uuid
 
 # databaseFunctions requires Django to be set up
 import django
+
 django.setup()
 # archivematicaCommon
 from databaseFunctions import insertIntoEvents
@@ -35,11 +36,29 @@ def call(jobs):
     parser = OptionParser()
     parser.add_option("-i", "--fileUUID", action="store", dest="fileUUID", default="")
     parser.add_option("-t", "--eventType", action="store", dest="eventType", default="")
-    parser.add_option("-d", "--eventDateTime", action="store", dest="eventDateTime", default="")
-    parser.add_option("-e", "--eventDetail", action="store", dest="eventDetail", default="")
-    parser.add_option("-o", "--eventOutcome", action="store", dest="eventOutcome", default="")
-    parser.add_option("-n", "--eventOutcomeDetailNote", action="store", dest="eventOutcomeDetailNote", default="")
-    parser.add_option("-u", "--eventIdentifierUUID", action="store", dest="eventIdentifierUUID", default="")
+    parser.add_option(
+        "-d", "--eventDateTime", action="store", dest="eventDateTime", default=""
+    )
+    parser.add_option(
+        "-e", "--eventDetail", action="store", dest="eventDetail", default=""
+    )
+    parser.add_option(
+        "-o", "--eventOutcome", action="store", dest="eventOutcome", default=""
+    )
+    parser.add_option(
+        "-n",
+        "--eventOutcomeDetailNote",
+        action="store",
+        dest="eventOutcomeDetailNote",
+        default="",
+    )
+    parser.add_option(
+        "-u",
+        "--eventIdentifierUUID",
+        action="store",
+        dest="eventIdentifierUUID",
+        default="",
+    )
 
     with transaction.atomic():
         for job in jobs:
@@ -54,11 +73,13 @@ def call(jobs):
                 # case "removal from backlog" events will, contrary to desire, not be
                 # created. Therefore, we make sure that there is a file UUID value prior to
                 # creating an event.
-                if opts.fileUUID and opts.fileUUID != 'None':
-                    insertIntoEvents(fileUUID=opts.fileUUID,
-                                     eventIdentifierUUID=str(uuid.uuid4()),
-                                     eventType=opts.eventType,
-                                     eventDateTime=opts.eventDateTime,
-                                     eventDetail=opts.eventDetail,
-                                     eventOutcome=opts.eventOutcome,
-                                     eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
+                if opts.fileUUID and opts.fileUUID != "None":
+                    insertIntoEvents(
+                        fileUUID=opts.fileUUID,
+                        eventIdentifierUUID=str(uuid.uuid4()),
+                        eventType=opts.eventType,
+                        eventDateTime=opts.eventDateTime,
+                        eventDetail=opts.eventDetail,
+                        eventOutcome=opts.eventOutcome,
+                        eventOutcomeDetailNote=opts.eventOutcomeDetailNote,
+                    )

@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import os
+
 exitInidcatingThereAreObjects = 179
 
 

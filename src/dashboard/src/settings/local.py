@@ -25,9 +25,6 @@ from .base import *
 
 
 DEBUG = True
-TEMPLATES[0]['OPTIONS']['debug'] = True
+TEMPLATES[0]["OPTIONS"]["debug"] = True
 
-FIXTURE_DIRS = (
-    'tests/fixtures/',
-    '../archivematicaCommon/tests/fixtures/'
-)
+FIXTURE_DIRS = ("tests/fixtures/", "../archivematicaCommon/tests/fixtures/")

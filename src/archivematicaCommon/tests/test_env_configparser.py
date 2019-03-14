@@ -20,7 +20,7 @@ class TestConfigReader(TestCase):
     def tearDown(self):
         self.environ = None
 
-    def read_test_config(self, test_config, prefix=''):
+    def read_test_config(self, test_config, prefix=""):
         buf = StringIO.StringIO(test_config)
         config = EnvConfigParser(env=self.environ, prefix=prefix)
         config.readfp(buf)
@@ -30,28 +30,30 @@ class TestConfigReader(TestCase):
         """
         Note that the environment precedes the configuration.
         """
-        self.environ['ARCHIVEMATICA_NICESERVICE_QUEUE_MAX_SIZE'] = '100'
+        self.environ["ARCHIVEMATICA_NICESERVICE_QUEUE_MAX_SIZE"] = "100"
         config = self.read_test_config(
-            prefix='ARCHIVEMATICA_NICESERVICE',
+            prefix="ARCHIVEMATICA_NICESERVICE",
             test_config="""
 [queue]
 max_size = 500
-""")
-        assert config.getint('queue', 'max_size') == 100
+""",
+        )
+        assert config.getint("queue", "max_size") == 100
 
     def test_env_lookup_nosection_bool(self):
         """
         The environment string matches the option even though the corresponding
         section was not included.
         """
-        self.environ['ARCHIVEMATICA_NICESERVICE_TLS'] = 'off'
+        self.environ["ARCHIVEMATICA_NICESERVICE_TLS"] = "off"
         config = self.read_test_config(
-            prefix='ARCHIVEMATICA_NICESERVICE',
+            prefix="ARCHIVEMATICA_NICESERVICE",
             test_config="""
 [network]
 tls = on
-""")
-        assert config.getboolean('network', 'tls') is False
+""",
+        )
+        assert config.getboolean("network", "tls") is False
 
     def test_unknown_section(self):
         """
@@ -62,9 +64,10 @@ tls = on
             """
 [main]
 foo = bar
-""")
+"""
+        )
         with pytest.raises(ConfigParser.NoSectionError):
-            assert config.get('undefined_section', 'foo')
+            assert config.get("undefined_section", "foo")
 
     def test_unknown_option(self):
         """
@@ -75,9 +78,10 @@ foo = bar
             """
 [main]
 foo = bar
-""")
+"""
+        )
         with pytest.raises(ConfigParser.NoOptionError):
-            assert config.get('main', 'undefined_option')
+            assert config.get("main", "undefined_option")
 
     def test_unknown_option_with_fallback(self):
         """
@@ -88,6 +92,10 @@ foo = bar
             """
 [main]
 foo = bar
-""")
-        assert config.getboolean('main', 'undefined_option', fallback=True) is True
-        assert config.getint('undefined_section', 'undefined_option', fallback=12345) == 12345
+"""
+        )
+        assert config.getboolean("main", "undefined_option", fallback=True) is True
+        assert (
+            config.getint("undefined_section", "undefined_option", fallback=12345)
+            == 12345
+        )

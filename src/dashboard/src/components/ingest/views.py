@@ -53,7 +53,7 @@ import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
@@ -64,12 +64,21 @@ def ingest_grid(request):
     try:
         storage_service.get_location(purpose="BL")
     except:
-        messages.warning(request, _('Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.'))
-    return render(request, 'ingest/grid.html', {
-        "polling_interval": django_settings.POLLING_INTERVAL,
-        "microservices_help": django_settings.MICROSERVICES_HELP,
-        "job_statuses": dict(models.Job.STATUS),
-    })
+        messages.warning(
+            request,
+            _(
+                "Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator."
+            ),
+        )
+    return render(
+        request,
+        "ingest/grid.html",
+        {
+            "polling_interval": django_settings.POLLING_INTERVAL,
+            "microservices_help": django_settings.MICROSERVICES_HELP,
+            "job_statuses": dict(models.Job.STATUS),
+        },
+    )
 
 
 class SipsView(View):
@@ -78,10 +87,7 @@ class SipsView(View):
         Creates a new stub SIP object, and returns its UUID in a JSON response.
         """
         sip = models.SIP.objects.create(uuid=str(uuid.uuid4()), currentpath=None)
-        return helpers.json_response({
-            "success": True,
-            "id": sip.uuid,
-        })
+        return helpers.json_response({"success": True, "id": sip.uuid})
 
 
 def ingest_status(request, uuid=None):
@@ -92,12 +98,12 @@ def ingest_status(request, uuid=None):
     except Exception:
         pass
     else:
-        response['mcp'] = True
-    return HttpResponse(json.dumps(response), content_type='application/json')
+        response["mcp"] = True
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 def ingest_sip_metadata_type_id():
-    return helpers.get_metadata_type_id_by_description('SIP')
+    return helpers.get_metadata_type_id_by_description("SIP")
 
 
 @decorators.load_jobs  # Adds jobs, name
@@ -105,10 +111,10 @@ def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
         metadataappliestotype=ingest_sip_metadata_type_id(),
-        metadataappliestoidentifier__exact=uuid
+        metadataappliestoidentifier__exact=uuid,
     )
 
-    return render(request, 'ingest/metadata_list.html', locals())
+    return render(request, "ingest/metadata_list.html", locals())
 
 
 def ingest_metadata_edit(request, uuid, id=None):
@@ -122,62 +128,70 @@ def ingest_metadata_edit(request, uuid, id=None):
         sip_type_id = ingest_sip_metadata_type_id()
         try:
             dc = models.DublinCore.objects.get(
-                metadataappliestotype=sip_type_id,
-                metadataappliestoidentifier=uuid)
+                metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+            )
             id = dc.id
         except models.DublinCore.DoesNotExist:
             dc = models.DublinCore(
-                metadataappliestotype=sip_type_id,
-                metadataappliestoidentifier=uuid)
+                metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+            )
 
     # If the SIP is an AIC, use the AIC metadata form
-    if 'AIC' in models.SIP.objects.get(uuid=uuid).sip_type:
-        form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None,
-                                                      instance=dc)
+    if "AIC" in models.SIP.objects.get(uuid=uuid).sip_type:
+        form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None, instance=dc)
         dc_type = "Archival Information Collection"
     else:
-        form = ingest_forms.DublinCoreMetadataForm(request.POST or None,
-                                                   instance=dc)
+        form = ingest_forms.DublinCoreMetadataForm(request.POST or None, instance=dc)
         dc_type = "Archival Information Package"
 
     if form.is_valid():
         dc = form.save()
         dc.type = dc_type
         dc.save()
-        return redirect('components.ingest.views.ingest_metadata_list', uuid)
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+        return redirect("components.ingest.views.ingest_metadata_list", uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
     name = jobs.get_directory_name()
 
-    return render(request, 'ingest/metadata_edit.html', locals())
+    return render(request, "ingest/metadata_edit.html", locals())
 
 
 def ingest_metadata_add_files(request, sip_uuid):
     try:
         source_directories = storage_service.get_location(purpose="TS")
     except:
-        messages.warning(request, _('Error retrieving source directories: is the storage server running? Please contact an administrator.'))
+        messages.warning(
+            request,
+            _(
+                "Error retrieving source directories: is the storage server running? Please contact an administrator."
+            ),
+        )
     else:
         logging.debug("Source directories found: {}".format(source_directories))
         if not source_directories:
-            messages.warning(request, _("No transfer source locations are available. Please contact an administrator."))
+            messages.warning(
+                request,
+                _(
+                    "No transfer source locations are available. Please contact an administrator."
+                ),
+            )
     # Get name of SIP from directory name of most recent job
-    jobs = models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')
+    jobs = models.Job.objects.filter(sipuuid=sip_uuid, subjobof="")
     name = jobs.get_directory_name()
 
-    return render(request, 'ingest/metadata_add_files.html', locals())
+    return render(request, "ingest/metadata_add_files.html", locals())
 
 
 def aic_metadata_add(request, uuid):
     sip_type_id = ingest_sip_metadata_type_id()
     try:
         dc = models.DublinCore.objects.get(
-            metadataappliestotype=sip_type_id,
-            metadataappliestoidentifier=uuid)
+            metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+        )
         id = dc.id
     except models.DublinCore.DoesNotExist:
         dc = models.DublinCore(
-            metadataappliestotype=sip_type_id,
-            metadataappliestoidentifier=uuid)
+            metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+        )
 
     form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None, instance=dc)
     if form.is_valid():
@@ -188,69 +202,94 @@ def aic_metadata_add(request, uuid):
 
         # Start the MicroServiceChainLink for the AIC
         shared_dir = django_settings.SHARED_DIRECTORY
-        source = os.path.join(shared_dir, 'tmp', uuid)
+        source = os.path.join(shared_dir, "tmp", uuid)
 
         watched_dir = django_settings.WATCH_DIRECTORY
         name = dc.title if dc.title else dc.identifier
-        name = slugify(name).replace('-', '_')
-        dir_name = '{name}-{uuid}'.format(name=name, uuid=uuid)
-        destination = os.path.join(watched_dir, 'system', 'createAIC', dir_name)
+        name = slugify(name).replace("-", "_")
+        dir_name = "{name}-{uuid}".format(name=name, uuid=uuid)
+        destination = os.path.join(watched_dir, "system", "createAIC", dir_name)
 
-        destination_db = destination.replace(shared_dir, '%sharedPath%') + '/'
+        destination_db = destination.replace(shared_dir, "%sharedPath%") + "/"
         models.SIP.objects.filter(uuid=uuid).update(currentpath=destination_db)
         shutil.move(source, destination)
-        return redirect('ingest_index')
+        return redirect("ingest_index")
 
     name = dc.title or "New AIC"
     aic = True
-    return render(request, 'ingest/metadata_edit.html', locals())
+    return render(request, "ingest/metadata_edit.html", locals())
 
 
 def ingest_metadata_event_detail(request, uuid):
-    EventDetailFormset = modelformset_factory(models.Event, form=forms.EventDetailForm, extra=0)
-    manual_norm_files = models.File.objects.filter(sip=uuid).filter(originallocation__icontains='manualNormalization/preservation')
-    events = models.Event.objects.filter(derivation__derived_file__in=manual_norm_files).order_by('file_uuid__currentlocation')
+    EventDetailFormset = modelformset_factory(
+        models.Event, form=forms.EventDetailForm, extra=0
+    )
+    manual_norm_files = models.File.objects.filter(sip=uuid).filter(
+        originallocation__icontains="manualNormalization/preservation"
+    )
+    events = models.Event.objects.filter(
+        derivation__derived_file__in=manual_norm_files
+    ).order_by("file_uuid__currentlocation")
     formset = EventDetailFormset(request.POST or None, queryset=events)
 
     if formset.is_valid():
         formset.save()
-        return redirect('components.unit.views.detail', unit_type='ingest', unit_uuid=uuid)
+        return redirect(
+            "components.unit.views.detail", unit_type="ingest", unit_uuid=uuid
+        )
 
     # Add path for original and derived files to each form
     for form in formset:
-        form.original_file = form.instance.file_uuid.originallocation.replace("%transferDirectory%objects/", "", 1)
-        form.derived_file = form.instance.file_uuid.derived_file_set.filter(derived_file__filegrpuse='preservation').get().derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
+        form.original_file = form.instance.file_uuid.originallocation.replace(
+            "%transferDirectory%objects/", "", 1
+        )
+        form.derived_file = (
+            form.instance.file_uuid.derived_file_set.filter(
+                derived_file__filegrpuse="preservation"
+            )
+            .get()
+            .derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
+        )
 
     # Get name of SIP from directory name of most recent job
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
     name = jobs.get_directory_name()
-    return render(request, 'ingest/metadata_event_detail.html', locals())
+    return render(request, "ingest/metadata_event_detail.html", locals())
 
 
 def delete_context(request, uuid, id):
     cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
-    return RequestContext(request, {'action': 'Delete', 'prompt': _('Are you sure you want to delete this metadata?'), 'cancel_url': cancel_url})
+    return RequestContext(
+        request,
+        {
+            "action": "Delete",
+            "prompt": _("Are you sure you want to delete this metadata?"),
+            "cancel_url": cancel_url,
+        },
+    )
 
 
-@decorators.confirm_required('simple_confirm.html', delete_context)
+@decorators.confirm_required("simple_confirm.html", delete_context)
 def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
-        messages.info(request, _('Deleted.'))
-        return redirect('components.ingest.views.ingest_metadata_list', uuid)
+        messages.info(request, _("Deleted."))
+        return redirect("components.ingest.views.ingest_metadata_list", uuid)
     except:
         raise Http404
 
 
 def ingest_upload_destination_url_check(request):
-    settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
-    url = settings.get('url')
+    settings = models.DashboardSetting.objects.get_dict("upload-qubit_v0.0")
+    url = settings.get("url")
 
     # add target to URL
-    url = urljoin(url, request.GET.get('target', ''))
+    url = urljoin(url, request.GET.get("target", ""))
 
     # make request for URL
-    response = requests.request('GET', url, timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
+    response = requests.request(
+        "GET", url, timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT
+    )
 
     # return resulting status code from request
     return HttpResponse(response.status_code)
@@ -266,19 +305,17 @@ def ingest_upload(request, uuid):
     if not models.SIP.objects.filter(uuid__exact=uuid).exists():
         raise Http404
 
-    if request.method == 'POST':
-        if 'target' in request.POST:
+    if request.method == "POST":
+        if "target" in request.POST:
             try:
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = cPickle.dumps({
-                "target": request.POST['target']
-            })
+            access.target = cPickle.dumps({"target": request.POST["target"]})
             access.save()
-            response = {'ready': True}
+            response = {"ready": True}
             return helpers.json_response(response)
-    elif request.method == 'GET':
+    elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
             data = cPickle.loads(str(access.target))
@@ -286,7 +323,7 @@ def ingest_upload(request, uuid):
             raise Http404
         return helpers.json_response(data)
 
-    return HttpResponseNotAllowed(['GET', 'POST'])
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 def derivative_validation_report(obj):
@@ -298,19 +335,19 @@ def derivative_validation_report(obj):
     ::param dict obj:: encodes information about a specific file and any
         normalization and derivative validation events performed on it.
     """
-    file_id = obj['fileID']
-    preservation_failed, preservation_attempted = \
-        derivative_validation_report_by_purpose(
-            obj['preservation_derivative_validation_task_exitCode'],
-            file_id)
-    access_failed, access_attempted = \
-        derivative_validation_report_by_purpose(
-            obj['access_derivative_validation_task_exitCode'],
-            file_id)
-    return (preservation_attempted,
-            preservation_failed,
-            access_attempted,
-            access_failed)
+    file_id = obj["fileID"]
+    preservation_failed, preservation_attempted = derivative_validation_report_by_purpose(
+        obj["preservation_derivative_validation_task_exitCode"], file_id
+    )
+    access_failed, access_attempted = derivative_validation_report_by_purpose(
+        obj["access_derivative_validation_task_exitCode"], file_id
+    )
+    return (
+        preservation_attempted,
+        preservation_failed,
+        access_attempted,
+        access_failed,
+    )
 
 
 def derivative_validation_report_by_purpose(exit_code, file_id):
@@ -325,23 +362,27 @@ def derivative_validation_report_by_purpose(exit_code, file_id):
         elif exit_code in (2, None):
             return 0, 0
         else:
-            raise ValueError('Derivative validation client script returned an'
-                             ' exit code not in 0, 1, 2: %s' % exit_code)
+            raise ValueError(
+                "Derivative validation client script returned an"
+                " exit code not in 0, 1, 2: %s" % exit_code
+            )
     else:
         return 0, 0
 
 
 def ingest_normalization_report(request, uuid, current_page=None):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
     sipname = jobs.get_directory_name()
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
-        o['location'] = archivematicaFunctions.escape(o['location'])
-        (o['preservation_derivative_validation_attempted'],
-         o['preservation_derivative_validation_failed'],
-         o['access_derivative_validation_attempted'],
-         o['access_derivative_validation_failed']) = derivative_validation_report(o)
+        o["location"] = archivematicaFunctions.escape(o["location"])
+        (
+            o["preservation_derivative_validation_attempted"],
+            o["preservation_derivative_validation_failed"],
+            o["access_derivative_validation_attempted"],
+            o["access_derivative_validation_failed"],
+        ) = derivative_validation_report(o)
 
     results_per_page = 10
 
@@ -351,65 +392,78 @@ def ingest_normalization_report(request, uuid, current_page=None):
     page = helpers.pager(objects, results_per_page, current_page)
     hit_count = len(objects)
 
-    return render(request, 'ingest/normalization_report.html', locals())
+    return render(request, "ingest/normalization_report.html", locals())
 
 
 def ingest_browse(request, browse_type, jobuuid):
     watched_dir = django_settings.WATCH_DIRECTORY
-    if browse_type == 'normalization':
-        title = _('Review normalization')
-        directory = os.path.join(watched_dir, 'approveNormalization')
-    elif browse_type == 'aip':
-        title = _('Review AIP')
-        directory = os.path.join(watched_dir, 'storeAIP')
-    elif browse_type == 'dip':
-        title = _('Review DIP')
-        directory = os.path.join(watched_dir, 'uploadedDIPs')
+    if browse_type == "normalization":
+        title = _("Review normalization")
+        directory = os.path.join(watched_dir, "approveNormalization")
+    elif browse_type == "aip":
+        title = _("Review AIP")
+        directory = os.path.join(watched_dir, "storeAIP")
+    elif browse_type == "dip":
+        title = _("Review DIP")
+        directory = os.path.join(watched_dir, "uploadedDIPs")
     else:
         raise Http404
 
-    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
+    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof="")
     name = jobs.get_directory_name()
 
-    return render(request, 'ingest/aip_browse.html', locals())
+    return render(request, "ingest/aip_browse.html", locals())
 
 
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
     # Paths MUST be input in sorted order
     # Otherwise the same directory might end up with multiple entries
-    parts = path.split('/', 1)
-    if parts[0] in ('logs', 'metadata'):
+    parts = path.split("/", 1)
+    if parts[0] in ("logs", "metadata"):
         not_draggable = True
     if len(parts) == 1:  # path is a file
-        return_list.append({
-            'name': base64.b64encode(parts[0]),
-            'properties': {'not_draggable': not_draggable}})
+        return_list.append(
+            {
+                "name": base64.b64encode(parts[0]),
+                "properties": {"not_draggable": not_draggable},
+            }
+        )
     else:
         node, others = parts
         node = base64.b64encode(node)
-        if not return_list or return_list[-1]['name'] != node:
-            return_list.append({
-                'name': node,
-                'properties': {'not_draggable': not_draggable, 'object count': 0},
-                'children': []})
+        if not return_list or return_list[-1]["name"] != node:
+            return_list.append(
+                {
+                    "name": node,
+                    "properties": {"not_draggable": not_draggable, "object count": 0},
+                    "children": [],
+                }
+            )
         this_node = return_list[-1]
         # Populate children list
-        _es_results_to_directory_tree(others, this_node['children'],
-                                      not_draggable=not_draggable)
+        _es_results_to_directory_tree(
+            others, this_node["children"], not_draggable=not_draggable
+        )
 
         # Generate count of all non-directory objects in this tree
-        object_count = sum(e['properties'].get('object count', 0) for e in this_node['children'])
-        object_count += len([e for e in this_node['children'] if not e.get('children')])
+        object_count = sum(
+            e["properties"].get("object count", 0) for e in this_node["children"]
+        )
+        object_count += len([e for e in this_node["children"] if not e.get("children")])
 
-        this_node['properties']['object count'] = object_count
-        this_node['properties']['display_string'] = '{} objects'.format(object_count)
+        this_node["properties"]["object count"] = object_count
+        this_node["properties"]["display_string"] = "{} objects".format(object_count)
         # If any children of a dir are draggable, the whole dir should be
         # Otherwise, directories have the draggability of their first child
-        this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
+        this_node["properties"]["not_draggable"] = (
+            this_node["properties"]["not_draggable"] and not_draggable
+        )
 
 
-def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_draggable=False):
+def _es_results_to_appraisal_tab_format(
+    record, record_map, directory_list, not_draggable=False
+):
     """
     Given a set of records from Elasticsearch, produces a list of records suitable for use with the appraisal tab.
     This function mutates a provided `directory_list`; it does not return a value.
@@ -425,35 +479,35 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         This will be appended to by this function in lieu of returning a value.
     :param bool not_draggable: This property determines whether or not a given file should be able to be dragged in the user interface; passing this will override the default logic for determining if a file is draggable.
     """
-    dir, fn = record['relative_path'].rsplit('/', 1)
+    dir, fn = record["relative_path"].rsplit("/", 1)
 
     # Recursively create elements for this item's parent directory,
     # if not already present in the record map
-    components = dir.split('/')
+    components = dir.split("/")
     directories = []
     while len(components) > 0:
-        directories.insert(0, '/'.join(components))
+        directories.insert(0, "/".join(components))
         components.pop(-1)
 
     parent = None
     for node in directories:
-        node_parts = node.split('/')
+        node_parts = node.split("/")
         is_transfer = len(node_parts) == 1
         if not is_transfer:
-            node_not_draggable = not_draggable or node_parts[1] in ('logs', 'metadata')
+            node_not_draggable = not_draggable or node_parts[1] in ("logs", "metadata")
         else:
             node_not_draggable = not_draggable
 
         if node not in record_map:
             dir_record = {
-                'type': 'transfer' if is_transfer else 'directory',
+                "type": "transfer" if is_transfer else "directory",
                 # have to artificially create directory IDs, since we don't assign those
-                'id': str(uuid.uuid4()),
-                'title': base64.b64encode(os.path.basename(node)),
-                'relative_path': base64.b64encode(node),
-                'not_draggable': node_not_draggable,
-                'object_count': 0,
-                'children': [],
+                "id": str(uuid.uuid4()),
+                "title": base64.b64encode(os.path.basename(node)),
+                "relative_path": base64.b64encode(node),
+                "not_draggable": node_not_draggable,
+                "object_count": 0,
+                "children": [],
             }
             record_map[node] = dir_record
             # directory_list should consist only of top-level records
@@ -462,40 +516,40 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         else:
             dir_record = record_map[node]
 
-        if parent is not None and dir_record not in parent['children']:
-            parent['children'].append(dir_record)
-            parent['object_count'] += 1
+        if parent is not None and dir_record not in parent["children"]:
+            parent["children"].append(dir_record)
+            parent["object_count"] += 1
 
         parent = dir_record
 
-    dir_parts = dir.split('/')
+    dir_parts = dir.split("/")
     if len(dir_parts) > 1:
-        dir_not_draggable = not_draggable or dir_parts[1] in ('logs', 'metadata')
+        dir_not_draggable = not_draggable or dir_parts[1] in ("logs", "metadata")
     else:
         dir_not_draggable = not_draggable
 
     child = {
-        'type': 'file',
-        'id': record['fileuuid'],
-        'title': base64.b64encode(fn),
-        'relative_path': base64.b64encode(record['relative_path']),
-        'size': record['size'],
-        'tags': record['tags'],
-        'bulk_extractor_reports': record['bulk_extractor_reports'],
-        'not_draggable': dir_not_draggable
+        "type": "file",
+        "id": record["fileuuid"],
+        "title": base64.b64encode(fn),
+        "relative_path": base64.b64encode(record["relative_path"]),
+        "size": record["size"],
+        "tags": record["tags"],
+        "bulk_extractor_reports": record["bulk_extractor_reports"],
+        "not_draggable": dir_not_draggable,
     }
 
-    if record['modification_date']:
-        child['last_modified'] = record['modification_date']
+    if record["modification_date"]:
+        child["last_modified"] = record["modification_date"]
 
-    if record['format']:
-        format = record['format'][0]  # TODO handle multiple format identifications
-        child['format'] = format['format']
-        child['group'] = format['group']
-        child['puid'] = format['puid']
+    if record["format"]:
+        format = record["format"][0]  # TODO handle multiple format identifications
+        child["format"] = format["format"]
+        child["group"] = format["group"]
+        child["puid"] = format["puid"]
 
-    record_map[dir]['children'].append(child)
-    record_map[dir]['object_count'] += 1
+    record_map[dir]["children"].append(child)
+    record_map[dir]["object_count"] += 1
 
 
 def transfer_backlog(request, ui):
@@ -506,51 +560,36 @@ def transfer_backlog(request, ui):
     results = None
 
     # Return files which are in the backlog
-    backlog_filter = {
-        'bool': {
-            'must': {
-                'term': {
-                    'status': 'backlog',
-                }
-            }
-        }
-    }
+    backlog_filter = {"bool": {"must": {"term": {"status": "backlog"}}}}
     # Omit files without UUIDs (metadata and logs directories):
     # - When the `hidemetadatalogs` param is sent from SIP arrange.
     # - Always from the appraisal tab.
-    if ui == 'appraisal' or request.GET.get('hidemetadatalogs'):
-        backlog_filter['bool']['must_not'] = {
-            'term': {
-                'fileuuid': '',
-            }
-        }
+    if ui == "appraisal" or request.GET.get("hidemetadatalogs"):
+        backlog_filter["bool"]["must_not"] = {"term": {"fileuuid": ""}}
 
     # Get search parameters from request
-    if 'query' not in request.GET:
+    if "query" not in request.GET:
         # Use backlog boolean filter as boolean query
-        query = {'query': backlog_filter}
+        query = {"query": backlog_filter}
     else:
         queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
         try:
             query = advanced_search.assemble_query(
-                queries, ops, fields, types,
-                filters=[backlog_filter],
+                queries, ops, fields, types, filters=[backlog_filter]
             )
         except:
-            logger.exception('Error accessing index.')
-            return HttpResponse('Error accessing index.')
+            logger.exception("Error accessing index.")
+            return HttpResponse("Error accessing index.")
 
     # perform search
     try:
         results = elasticSearchFunctions.search_all_results(
-            es_client,
-            body=query,
-            index='transferfiles',
+            es_client, body=query, index="transferfiles"
         )
     except:
-        logger.exception('Error accessing index.')
-        return HttpResponse('Error accessing index.')
+        logger.exception("Error accessing index.")
+        return HttpResponse("Error accessing index.")
 
     # Convert results into a more workable form
     results = elasticSearchFunctions.augment_raw_search_results(results)
@@ -572,25 +611,27 @@ def transfer_backlog(request, ui):
     return_list = []
     directory_map = {}
     # _es_results_to_directory_tree requires that paths MUST be sorted
-    results.sort(key=lambda x: x['relative_path'])
+    results.sort(key=lambda x: x["relative_path"])
     for path in results:
         # If a path is in SIPArrange.original_path, then it shouldn't be draggable
         not_draggable = False
         if models.SIPArrange.objects.filter(
-                original_path__endswith=path['relative_path']).exists():
+            original_path__endswith=path["relative_path"]
+        ).exists():
             not_draggable = True
-        if ui == 'legacy':
-            _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
+        if ui == "legacy":
+            _es_results_to_directory_tree(
+                path["relative_path"], return_list, not_draggable=not_draggable
+            )
         else:
-            _es_results_to_appraisal_tab_format(path, directory_map, return_list, not_draggable=not_draggable)
+            _es_results_to_appraisal_tab_format(
+                path, directory_map, return_list, not_draggable=not_draggable
+            )
 
-    if ui == 'legacy':
+    if ui == "legacy":
         response = return_list
     else:
-        response = {
-            'formats': [],  # TODO populate this
-            'transfers': return_list,
-        }
+        response = {"formats": [], "transfers": return_list}  # TODO populate this
 
     # return JSON response
     return helpers.json_response(response)
@@ -605,6 +646,8 @@ def transfer_file_download(request, uuid):
 
     shared_directory_path = django_settings.SHARED_DIRECTORY
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
-    path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
-    path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)
+    path_to_transfer = transfer.currentlocation.replace(
+        "%sharedPath%", shared_directory_path
+    )
+    path_to_file = file.currentlocation.replace("%transferDirectory%", path_to_transfer)
     return helpers.send_file(request, path_to_file)

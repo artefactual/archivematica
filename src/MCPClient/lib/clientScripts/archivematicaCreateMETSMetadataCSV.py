@@ -28,6 +28,7 @@ import collections
 import csv
 import sys
 import traceback
+
 # archivematicaCommon
 import archivematicaFunctions
 
@@ -45,7 +46,7 @@ def parseMetadata(job, SIPPath, state):
     :return: {<filename>: OrderedDict(key: [values]) }
     """
     all_metadata = {}
-    metadata_csvs = archivematicaFunctions.find_metadata_files(SIPPath, 'metadata.csv')
+    metadata_csvs = archivematicaFunctions.find_metadata_files(SIPPath, "metadata.csv")
 
     for metadataCSVFilePath in metadata_csvs:
         try:
@@ -59,7 +60,15 @@ def parseMetadata(job, SIPPath, state):
         # Not using all_metadata.update(csv_metadata) because of that
         for entry, values in csv_metadata.items():
             if entry in all_metadata and all_metadata[entry] != values:
-                job.pyprint('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
+                job.pyprint(
+                    "Metadata for",
+                    entry,
+                    "being updated. Old:",
+                    all_metadata[entry],
+                    "New:",
+                    values,
+                    file=sys.stderr,
+                )
             existing = all_metadata.get(entry, collections.OrderedDict())
             existing.update(values)
             all_metadata[entry] = existing
@@ -89,7 +98,7 @@ def parseMetadataCSV(job, metadataCSVFilePath):
     """
     metadata = {}
     # use universal newline mode to support unusual newlines, like \r
-    with open(metadataCSVFilePath, 'rbU') as f:
+    with open(metadataCSVFilePath, "rbU") as f:
         reader = csv.reader(f)
         # Parse first row as header
         header = next(reader)
@@ -106,7 +115,15 @@ def parseMetadataCSV(job, metadataCSVFilePath):
             row = row[1:]
             values = archivematicaFunctions.OrderedListsDict(zip(header, row))
             if entry_name in metadata and metadata[entry_name] != values:
-                job.pyprint('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
+                job.pyprint(
+                    "Metadata for",
+                    entry_name,
+                    "being overwritten. Old:",
+                    metadata[entry_name],
+                    "New:",
+                    values,
+                    file=sys.stderr,
+                )
             metadata[entry_name] = values
 
     return collections.OrderedDict(metadata)  # Return a normal OrderedDict

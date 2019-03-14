@@ -37,11 +37,12 @@ from django.utils.translation import ugettext as _
 from main import models
 from tastypie.models import ApiKey
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 
 class AtomError(Exception):
     pass
+
 
 # Used for debugging
 
@@ -49,20 +50,18 @@ class AtomError(Exception):
 def pr(object):
     return pprint.pformat(object)
 
+
 # Used for raw SQL queries to return data in dictionaries instead of lists
 
 
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
+    return [dict(zip([col[0] for col in desc], row)) for row in cursor.fetchall()]
 
 
 def keynat(string):
-    r'''A natural sort helper function for sort() and sorted()
+    r"""A natural sort helper function for sort() and sorted()
     without using regular expressions or exceptions.
 
     >>> items = ('Z', 'a', '10th', '1st', '9')
@@ -70,7 +69,7 @@ def keynat(string):
     ['10th', '1st', '9', 'Z', 'a']
     >>> sorted(items, key=keynat)
     ['1st', '9', '10th', 'a', 'Z']
-    '''
+    """
     it = type(1)
     r = []
     for c in string:
@@ -87,9 +86,7 @@ def keynat(string):
 
 def json_response(data, status_code=200):
     return HttpResponse(
-        json.dumps(data),
-        content_type='application/json',
-        status=status_code,
+        json.dumps(data), content_type="application/json", status=status_code
     )
 
 
@@ -152,11 +149,11 @@ def get_file_sip_uuid(fileuuid):
 
 def task_duration_in_seconds(task):
     if task.endtime is not None:
-        duration = int(format(task.endtime, 'U')) - int(format(task.starttime, 'U'))
+        duration = int(format(task.endtime, "U")) - int(format(task.starttime, "U"))
     else:
-        duration = ''
+        duration = ""
     if duration == 0:
-        duration = '< 1'
+        duration = "< 1"
     return duration
 
 
@@ -164,7 +161,7 @@ def get_metadata_type_id_by_description(description):
     return models.MetadataAppliesToType.objects.get(description=description)
 
 
-def get_setting(setting, default=''):
+def get_setting(setting, default=""):
     try:
         setting = models.DashboardSetting.objects.get(name=setting)
         return setting.value
@@ -172,15 +169,15 @@ def get_setting(setting, default=''):
         return default
 
 
-def get_boolean_setting(setting, default=''):
+def get_boolean_setting(setting, default=""):
     setting = get_setting(setting, default)
-    if setting == 'False':
+    if setting == "False":
         return False
     else:
         return bool(setting)
 
 
-def set_setting(setting, value=''):
+def set_setting(setting, value=""):
     try:
         setting_data = models.DashboardSetting.objects.get(name=setting)
     except:
@@ -189,7 +186,7 @@ def set_setting(setting, value=''):
     # ``DashboardSetting.value`` is a string-based field. The empty string is
     # the way to represent the lack of data, therefore NULL values are avoided.
     if value is None:
-        value = ''
+        value = ""
     setting_data.value = value
     setting_data.save()
 
@@ -203,31 +200,39 @@ def get_atom_levels_of_description(clear=True):
     :param bool clear: When True, deletes all existing levels of description from the Archivematica database before fetching; otherwise, the fetched levels of description will be appended to the already-stored values.
     :raises AtomError: if no AtoM URL or authentication credentials are defined in the settings, or if the levels of description cannot be fetched for another reason
     """
-    settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
+    settings = models.DashboardSetting.objects.get_dict("upload-qubit_v0.0")
 
-    url = settings.get('url')
+    url = settings.get("url")
     if not url:
         raise AtomError(_("AtoM URL not defined!"))
 
-    email = settings.get('email')
-    password = settings.get('password')
+    email = settings.get("email")
+    password = settings.get("password")
     if not email or not password:
         raise AtomError(_("AtoM authentication settings not defined!"))
     auth = (email, password)
 
     # taxonomy 34 is "level of description"
-    dest = urljoin(url, 'api/taxonomies/34')
-    response = requests.get(dest, params={'culture': 'en'}, auth=auth, timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
+    dest = urljoin(url, "api/taxonomies/34")
+    response = requests.get(
+        dest,
+        params={"culture": "en"},
+        auth=auth,
+        timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT,
+    )
     if response.status_code == 200:
         base = 1
         if clear:
             models.LevelOfDescription.objects.all().delete()
         else:
             # Add after existing LoD
-            base = models.LevelOfDescription.objects.aggregate(max=Max('sortorder'))['max'] + 1
+            base = (
+                models.LevelOfDescription.objects.aggregate(max=Max("sortorder"))["max"]
+                + 1
+            )
         levels = response.json()
         for idx, level in enumerate(levels):
-            lod = models.LevelOfDescription(name=level['name'], sortorder=base + idx)
+            lod = models.LevelOfDescription(name=level["name"], sortorder=base + idx)
             lod.save()
     else:
         raise AtomError(_("Unable to fetch levels of description from AtoM!"))
@@ -239,14 +244,15 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     return HttpResponseRedirect(url + "?%s" % params)
 
 
-def send_file_or_return_error_response(request, filepath, content_type, verb='download'):
+def send_file_or_return_error_response(
+    request, filepath, content_type, verb="download"
+):
     if os.path.exists(filepath):
         return send_file(request, filepath)
     else:
-        return render(request, 'not_found.html', {
-            'content_type': content_type,
-            'verb': verb
-        })
+        return render(
+            request, "not_found.html", {"content_type": content_type, "verb": verb}
+        )
 
 
 def send_file(request, filepath, force_download=False):
@@ -262,21 +268,21 @@ def send_file(request, filepath, force_download=False):
     response = HttpResponse(wrapper)
 
     # force download for certain filetypes
-    extensions_to_download = ['.7z', '.zip']
+    extensions_to_download = [".7z", ".zip"]
 
     if force_download or (extension in extensions_to_download):
-        response['Content-Type'] = 'application/force-download'
-        response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+        response["Content-Type"] = "application/force-download"
+        response["Content-Disposition"] = 'attachment; filename="' + filename + '"'
     else:
-        response['Content-type'] = mimetypes.guess_type(filename)[0]
+        response["Content-type"] = mimetypes.guess_type(filename)[0]
 
-    response['Content-Length'] = os.path.getsize(filepath)
+    response["Content-Length"] = os.path.getsize(filepath)
     return response
 
 
 def file_is_an_archive(file):
     file = file.lower()
-    return file.endswith('.zip') or file.endswith('.tgz') or file.endswith('.tar.gz')
+    return file.endswith(".zip") or file.endswith(".tgz") or file.endswith(".tar.gz")
 
 
 def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
@@ -285,45 +291,47 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
     attempt = attempt + 1
     if os.path.exists(filepath):
         if os.path.isdir(filepath):
-            return pad_destination_filepath_if_it_already_exists(original + '_' + str(attempt), original, attempt)
+            return pad_destination_filepath_if_it_already_exists(
+                original + "_" + str(attempt), original, attempt
+            )
         else:
             # need to work out basename
             basedirectory = os.path.dirname(original)
             basename = os.path.basename(original)
             # do more complex padding to preserve file extension
-            period_position = basename.index('.')
+            period_position = basename.index(".")
             non_extension = basename[0:period_position]
             extension = basename[period_position:]
-            new_basename = non_extension + '_' + str(attempt) + extension
+            new_basename = non_extension + "_" + str(attempt) + extension
             new_filepath = os.path.join(basedirectory, new_basename)
-            return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
+            return pad_destination_filepath_if_it_already_exists(
+                new_filepath, original, attempt
+            )
     return filepath
 
 
 def processing_config_path():
     return os.path.join(
         django_settings.SHARED_DIRECTORY,
-        'sharedMicroServiceTasksConfigs/processingMCPConfigs'
+        "sharedMicroServiceTasksConfigs/processingMCPConfigs",
     )
 
 
-def stream_file_from_storage_service(url,
-                                     error_message='Remote URL returned {}',
-                                     preview_file=False):
+def stream_file_from_storage_service(
+    url, error_message="Remote URL returned {}", preview_file=False
+):
     # Repetetive or constant values to use below when seeting the headers.
-    header_content_disposition = 'Content-Disposition'
-    content_disposition_inline = 'inline'
+    header_content_disposition = "Content-Disposition"
+    content_disposition_inline = "inline"
     storage_timeout = django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT
-    stream = requests.get(url,
-                          stream=True,
-                          timeout=storage_timeout)
+    stream = requests.get(url, stream=True, timeout=storage_timeout)
     if stream.status_code == 200:
-        content_type = stream.headers.get('content-type', 'text/plain')
+        content_type = stream.headers.get("content-type", "text/plain")
         response = StreamingHttpResponse(stream, content_type=content_type)
 
         # Provide a content-disposition so the browser knows how to handles
         # the response.
-        content_disposition = stream.headers.get('content-disposition')
+        content_disposition = stream.headers.get("content-disposition")
         if preview_file:
             response[header_content_disposition] = content_disposition_inline
         elif content_disposition:
@@ -331,13 +339,13 @@ def stream_file_from_storage_service(url,
         return response
     else:
         response = {
-            'success': False,
-            'message': error_message.format(stream.status_code)
+            "success": False,
+            "message": error_message.format(stream.status_code),
         }
         return json_response(response, status_code=400)
 
 
-def completed_units_efficient(unit_type='transfer', include_failed=True):
+def completed_units_efficient(unit_type="transfer", include_failed=True):
     """Returns a list of unit UUIDs corresponding to the non-hidden completed
     units. Uses a single database request. If ``include_failed`` is ``True``,
     failed units will be included in the returned list. Note that the criteria
@@ -345,18 +353,21 @@ def completed_units_efficient(unit_type='transfer', include_failed=True):
     intended to coincide exactly with the criteria used by
     api/views.py::get_unit_status
     """
-    table_name = 'Transfers'
-    pk_name = 'transferUUID'
-    if unit_type != 'transfer':
-        table_name = 'SIPs'
-        pk_name = 'sipUUID'
-    q = ('SELECT u.{pk_name}, j.jobType, j.microserviceGroup'
-         ' FROM {table_name} as u'
-         ' INNER JOIN Jobs as j'
-         ' ON j.SIPUUID = u.{pk_name}'
-         ' WHERE u.hidden = 0'
-         ' ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;'.format(
-             table_name=table_name, pk_name=pk_name))
+    table_name = "Transfers"
+    pk_name = "transferUUID"
+    if unit_type != "transfer":
+        table_name = "SIPs"
+        pk_name = "sipUUID"
+    q = (
+        "SELECT u.{pk_name}, j.jobType, j.microserviceGroup"
+        " FROM {table_name} as u"
+        " INNER JOIN Jobs as j"
+        " ON j.SIPUUID = u.{pk_name}"
+        " WHERE u.hidden = 0"
+        " ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;".format(
+            table_name=table_name, pk_name=pk_name
+        )
+    )
     completed = set()
     current_uuid = None
     with connection.cursor() as cursor:
@@ -367,11 +378,16 @@ def completed_units_efficient(unit_type='transfer', include_failed=True):
             else:
                 first = True
             current_uuid = uuid
-            if ((job_type in ('Create SIP from transfer objects',
-                              'Move transfer to backlog')) or
-                    (first and
-                        (job_type == 'Remove the processing directory' or
-                         'failed' in ms_group.lower()))):
+            if (
+                job_type
+                in ("Create SIP from transfer objects", "Move transfer to backlog")
+            ) or (
+                first
+                and (
+                    job_type == "Remove the processing directory"
+                    or "failed" in ms_group.lower()
+                )
+            ):
                 completed.add(uuid)
     return list(completed)
 

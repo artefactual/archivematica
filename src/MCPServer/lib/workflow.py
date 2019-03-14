@@ -83,15 +83,14 @@ class TranslationLabel(object):
         'köttur'
 
     """
+
     def __init__(self, translations):
         if not isinstance(translations, dict):
             translations = {_FALLBACK_LANG: text_type(translations)}
         self._src = translations
 
     def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__,
-            pprint.saferepr(self._src))
+        return "{}({})".format(self.__class__.__name__, pprint.saferepr(self._src))
 
     def __str__(self):
         return self.get_label()
@@ -100,8 +99,8 @@ class TranslationLabel(object):
         return self.get_label(lang)
 
     def _prepare_lang(self, lang):
-        parts = lang.partition('-')
-        if parts[1] == '-':
+        parts = lang.partition("-")
+        if parts[1] == "-":
             return "{}_{}".format(parts[0], parts[2].upper())
         return lang
 
@@ -131,7 +130,8 @@ class Workflow(object):
 
     def __str__(self):
         return "Chains {}, links {}, watched directories: {}".format(
-            len(self.chains), len(self.links), len(self.wdirs))
+            len(self.chains), len(self.links), len(self.wdirs)
+        )
 
     def _decode_chains(self):
         self.chains = {}
@@ -195,8 +195,7 @@ class Chain(BaseLink):
         return self._src[key]
 
     def _decode_translations(self):
-        self._src["description"] = self._decode_translation(
-            self._src["description"])
+        self._src["description"] = self._decode_translation(self._src["description"])
 
     @property
     def link(self):
@@ -225,21 +224,17 @@ class Link(BaseLink):
         method decodes the statuses so it becomes easier to work with them
         internally.
         """
-        self._src["fallback_job_status"] = \
-            _STATUSES[self._src["fallback_job_status"]]
+        self._src["fallback_job_status"] = _STATUSES[self._src["fallback_job_status"]]
         for obj in self._src["exit_codes"].values():
             obj["job_status"] = _STATUSES[obj["job_status"]]
 
     def _decode_translations(self):
-        self._src["description"] = self._decode_translation(
-            self._src["description"])
-        self._src["group"] = self._decode_translation(
-            self._src["group"])
+        self._src["description"] = self._decode_translation(self._src["description"])
+        self._src["group"] = self._decode_translation(self._src["group"])
         config = self._src["config"]
         if config["@manager"] == "linkTaskManagerReplacementDicFromChoice":
             for item in config["replacements"]:
-                item["description"] = self._decode_translation(
-                    item["description"])
+                item["description"] = self._decode_translation(item["description"])
 
     @property
     def manager(self):
@@ -309,9 +304,7 @@ class SchemaValidationError(ValidationError):
 def _validate(blob):
     """Decode and validate the JSON document."""
     try:
-        validate(
-            json.loads(blob), _get_schema(),
-            format_checker=FormatChecker())
+        validate(json.loads(blob), _get_schema(), format_checker=FormatChecker())
     except ValidationError as err:
         raise SchemaValidationError(**err._contents())
 

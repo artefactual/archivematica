@@ -32,15 +32,15 @@ REQUIRED_DIRECTORIES = (
     "metadata/submissionDocumentation",
 )
 
-ALLOWABLE_FILES = (
-    "processingMCP.xml",
-)
+ALLOWABLE_FILES = ("processingMCP.xml",)
 
 
 def verifyDirectoriesExist(job, SIPDir, ret=0):
     for directory in REQUIRED_DIRECTORIES:
         if not os.path.isdir(os.path.join(SIPDir, directory)):
-            job.pyprint("Required Directory Does Not Exist: " + directory, file=sys.stderr)
+            job.pyprint(
+                "Required Directory Does Not Exist: " + directory, file=sys.stderr
+            )
             ret += 1
     return ret
 
@@ -76,5 +76,6 @@ def call(jobs):
             ret = verifyThereAreFiles(job, SIPDir, ret)
             if ret != 0:
                 import time
+
                 time.sleep(10)
             job.set_status(ret)

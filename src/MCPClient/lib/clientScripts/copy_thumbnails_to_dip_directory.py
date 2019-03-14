@@ -30,9 +30,12 @@ def call(jobs):
             thumbnailDirectory = job.args[1]
             dipDirectory = job.args[2]
 
-            destinationDirectory = os.path.join(dipDirectory, 'thumbnails')
+            destinationDirectory = os.path.join(dipDirectory, "thumbnails")
 
             if os.path.isdir(thumbnailDirectory):
                 shutil.copytree(thumbnailDirectory, destinationDirectory)
             else:
-                job.pyprint('Nothing to copy as thumbnail directory does not exist: %s', thumbnailDirectory)
+                job.pyprint(
+                    "Nothing to copy as thumbnail directory does not exist: %s",
+                    thumbnailDirectory,
+                )

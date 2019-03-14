@@ -28,6 +28,7 @@ import uuid
 
 # fileOperations, databaseFunctions requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
 
@@ -53,48 +54,69 @@ def call(jobs):
                         continue
                     for transfer_file in os.listdir(dirPath):
                         filePath = os.path.join(dirPath, transfer_file)
-                        if transfer_file == 'ContainerMetadata.xml' or transfer_file.endswith('Metadata.xml') or not os.path.isfile(filePath):
+                        if (
+                            transfer_file == "ContainerMetadata.xml"
+                            or transfer_file.endswith("Metadata.xml")
+                            or not os.path.isfile(filePath)
+                        ):
                             continue
 
-                        i = transfer_file.rfind('.')
+                        i = transfer_file.rfind(".")
                         if i != -1:
-                            xmlFile = transfer_file[:i] + '_Metadata.xml'
+                            xmlFile = transfer_file[:i] + "_Metadata.xml"
                         else:
-                            xmlFile = transfer_file + '_Metadata.xml'
+                            xmlFile = transfer_file + "_Metadata.xml"
                         xmlFilePath = os.path.join(dirPath, xmlFile)
                         try:
                             tree = etree.parse(xmlFilePath)
                             root = tree.getroot()
 
-                            xmlMD5 = root.find('Document/MD5').text
+                            xmlMD5 = root.find("Document/MD5").text
                         except:
-                            job.pyprint('Error parsing: ', xmlFilePath, file=sys.stderr)
+                            job.pyprint("Error parsing: ", xmlFilePath, file=sys.stderr)
                             exitCode += 1
                             continue
 
-                        objectMD5 = get_file_checksum(filePath, 'md5')
+                        objectMD5 = get_file_checksum(filePath, "md5")
 
                         if objectMD5 == xmlMD5:
-                            job.pyprint('File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%'))
+                            job.pyprint(
+                                "File OK: ",
+                                xmlMD5,
+                                filePath.replace(transferPath, "%TransferDirectory%"),
+                            )
 
-                            fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transfer', '%transferDirectory%')
+                            fileID = getFileUUIDLike(
+                                filePath,
+                                transferPath,
+                                transferUUID,
+                                "transfer",
+                                "%transferDirectory%",
+                            )
                             for path, fileUUID in fileID.items():
                                 eventDetail = 'program="python"; module="hashlib.md5()"'
-                                eventOutcome = 'Pass'
-                                eventOutcomeDetailNote = '%s %s' % (xmlFile.__str__(), 'verified')
+                                eventOutcome = "Pass"
+                                eventOutcomeDetailNote = "%s %s" % (
+                                    xmlFile.__str__(),
+                                    "verified",
+                                )
                                 eventIdentifierUUID = uuid.uuid4().__str__()
 
                                 databaseFunctions.insertIntoEvents(
                                     fileUUID=fileUUID,
                                     eventIdentifierUUID=eventIdentifierUUID,
-                                    eventType='fixity check',
+                                    eventType="fixity check",
                                     eventDateTime=date,
                                     eventOutcome=eventOutcome,
                                     eventOutcomeDetailNote=eventOutcomeDetailNote,
-                                    eventDetail=eventDetail
+                                    eventDetail=eventDetail,
                                 )
                         else:
-                            job.pyprint('Checksum mismatch: ', filePath.replace(transferPath, '%TransferDirectory%'), file=sys.stderr)
+                            job.pyprint(
+                                "Checksum mismatch: ",
+                                filePath.replace(transferPath, "%TransferDirectory%"),
+                                file=sys.stderr,
+                            )
                             exitCode += 1
 
                 job.set_status(exitCode)

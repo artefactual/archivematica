@@ -21,59 +21,54 @@ import dateutil.parser
 
 logger = logging.getLogger("archivematica.dashboard.advanced_search")
 
-OBJECT_FIELDS = (
-    "mets",
-    "transferMetadata",
-)
+OBJECT_FIELDS = ("mets", "transferMetadata")
 
-OTHER_FIELDS = (
-    "transferMetadataOther"
-)
+OTHER_FIELDS = "transferMetadataOther"
 
 
 def search_parameter_prep(request):
-    queries = request.GET.getlist('query')
-    ops = request.GET.getlist('op')
-    fields = request.GET.getlist('field')
-    types = request.GET.getlist('type')
-    other_fields = request.GET.getlist('fieldName')
+    queries = request.GET.getlist("query")
+    ops = request.GET.getlist("op")
+    fields = request.GET.getlist("field")
+    types = request.GET.getlist("type")
+    other_fields = request.GET.getlist("fieldName")
 
     # Prepend default op arg as first op can't be set manually, if there are no
     # entries, insert the first as "and" (a "must" clause). Otherwise copy
     # the existing first entry. This ensures that if the second clause is a
     # "should" the first entry will be too, etc.
     if len(ops) == 0:
-        ops.insert(0, 'and')
+        ops.insert(0, "and")
     else:
         ops.insert(0, ops[0])
 
     if len(queries) == 0:
-        queries = ['*']
-        fields = ['']
+        queries = ["*"]
+        fields = [""]
     else:
         # Make sure each query has field/ops set
         for index, query in enumerate(queries):
             # A blank query makes ES error
-            if queries[index] == '':
-                queries[index] = '*'
+            if queries[index] == "":
+                queries[index] = "*"
 
             try:
                 fields[index]
             except:
-                fields.insert(index, '')
+                fields.insert(index, "")
 
             try:
                 ops[index]
             except:
-                ops.insert(index, 'and')
+                ops.insert(index, "and")
 
-            if ops[index] == '':
-                ops[index] = 'and'
+            if ops[index] == "":
+                ops[index] = "and"
 
             try:
                 types[index]
             except:
-                types.insert(index, '')
+                types.insert(index, "")
 
         # For "other" fields, the actual title of the subfield is located in a
         # second array. Search for any such fields and replace the placeholder
@@ -89,17 +84,17 @@ def search_parameter_prep(request):
         # }
         for index, field in enumerate(fields):
             if field == "transferMetadataOther":
-                fields[index] = 'transferMetadata.' + other_fields[index]
+                fields[index] = "transferMetadata." + other_fields[index]
 
     return queries, ops, fields, types
 
 
 def extract_url_search_params_from_request(request):
     # Set pagination-related variables
-    search_params = ''
+    search_params = ""
     try:
-        search_params = request.get_full_path().split('?')[1]
-        end_of_search_params = search_params.index('&page')
+        search_params = request.get_full_path().split("?")[1]
+        end_of_search_params = search_params.index("&page")
         search_params = search_params[:end_of_search_params]
     except:
         pass
@@ -113,12 +108,12 @@ def assemble_query(queries, ops, fields, types, filters=[]):
     index = 0
 
     for query in queries:
-        if queries[index] != '':
+        if queries[index] != "":
             clause = _query_clause(index, queries, ops, fields, types)
             if clause:
-                if ops[index] == 'not':
+                if ops[index] == "not":
                     must_not_haves.append(clause)
-                elif ops[index] == 'and':
+                elif ops[index] == "and":
                     must_haves.append(clause)
                 else:
                     should_haves.append(clause)
@@ -146,7 +141,7 @@ def assemble_query(queries, ops, fields, types, filters=[]):
                 "should": should_haves,
                 "filter": filters,
             }
-        },
+        }
     }
 
 
@@ -162,7 +157,7 @@ def _fix_object_fields(fields):
     value of transferMetadata itself, which will always fail since it's an
     object and not a string.
     """
-    return [field + '.*' if field in OBJECT_FIELDS else field for field in fields]
+    return [field + ".*" if field in OBJECT_FIELDS else field for field in fields]
 
 
 def _parse_date_range(field):
@@ -172,49 +167,41 @@ def _parse_date_range(field):
     Expects data in the following format:
         start:end
     """
-    if ':' not in field:
-        return ('', field)
+    if ":" not in field:
+        return ("", field)
 
-    return field.split(':')[:2]
+    return field.split(":")[:2]
 
 
 def _normalize_date(date):
     try:
-        return dateutil.parser.parse(date).strftime('%Y-%m-%d')
+        return dateutil.parser.parse(date).strftime("%Y-%m-%d")
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
 
 def _query_clause(index, queries, ops, fields, types):
     # Ignore empty queries
-    if (queries[index] in ('', '*')):
+    if queries[index] in ("", "*"):
         return
 
     # Normalize fields
-    if fields[index] == '':
+    if fields[index] == "":
         search_fields = []
     else:
         search_fields = _fix_object_fields([fields[index]])
 
     # Build query based on type
     query = None
-    if types[index] == 'term':
-        query = {
-            'multi_match': {
-                'query': queries[index],
-            }
-        }
+    if types[index] == "term":
+        query = {"multi_match": {"query": queries[index]}}
         if len(search_fields) > 0:
-            query['multi_match']['fields'] = search_fields
-    elif types[index] == 'string':
-        query = {
-            'query_string': {
-                'query': queries[index],
-            }
-        }
+            query["multi_match"]["fields"] = search_fields
+    elif types[index] == "string":
+        query = {"query_string": {"query": queries[index]}}
         if len(search_fields) > 0:
-            query['query_string']['fields'] = search_fields
-    elif types[index] == 'range':
+            query["query_string"]["fields"] = search_fields
+    elif types[index] == "range":
         start, end = _parse_date_range(queries[index])
         try:
             start = _normalize_date(start)
@@ -222,13 +209,13 @@ def _query_clause(index, queries, ops, fields, types):
         except ValueError as e:
             logger.info(str(e))
             return
-        query = {'range': {fields[index]: {'gte': start, 'lte': end}}}
+        query = {"range": {fields[index]: {"gte": start, "lte": end}}}
 
     return query
 
 
 def indexed_count(es_client, index, query=None):
     try:
-        return es_client.count(index=index, body=query)['count']
+        return es_client.count(index=index, body=query)["count"]
     except:
         return 0

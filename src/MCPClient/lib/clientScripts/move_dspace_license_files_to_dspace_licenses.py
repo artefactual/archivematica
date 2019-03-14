@@ -26,14 +26,24 @@ import lxml.etree as etree
 
 # fileOperations requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
+
 # archivematicaCommon
 from fileOperations import updateFileLocation
 from fileOperations import rename
 
 
-def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
+def verifyMetsFileSecChecksums(
+    job,
+    metsFile,
+    date,
+    taskUUID,
+    transferDirectory,
+    transferUUID,
+    relativeDirectory="./",
+):
     job.pyprint(metsFile)
     DspaceLicenses = "metadata/submissionDocumentation/DspaceLicenses"
     try:
@@ -45,7 +55,9 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory,
     exitCode = 0
     tree = etree.parse(metsFile)
     root = tree.getroot()
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp"):
+    for item in root.findall(
+        "{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp"
+    ):
         # print etree.tostring(item)
         # print item
 
@@ -55,19 +67,42 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory,
                 if item2.tag == "{http://www.loc.gov/METS/}file":
                     for item3 in item2:
                         if item3.tag == "{http://www.loc.gov/METS/}FLocat":
-                            fileLocation = item3.get("{http://www.w3.org/1999/xlink}href")
+                            fileLocation = item3.get(
+                                "{http://www.w3.org/1999/xlink}href"
+                            )
                             fileFullPath = os.path.join(relativeDirectory, fileLocation)
-                            dest = os.path.join(transferDirectory, DspaceLicenses, os.path.basename(fileLocation))
+                            dest = os.path.join(
+                                transferDirectory,
+                                DspaceLicenses,
+                                os.path.basename(fileLocation),
+                            )
                             rename(fileFullPath, dest)
-                            rename_status = rename(fileFullPath, dest, printfn=job.pyprint, should_exit=False)
+                            rename_status = rename(
+                                fileFullPath,
+                                dest,
+                                printfn=job.pyprint,
+                                should_exit=False,
+                            )
                             if rename_status:
                                 return rename_status
 
-                            src = fileFullPath.replace(transferDirectory, "%transferDirectory%")
+                            src = fileFullPath.replace(
+                                transferDirectory, "%transferDirectory%"
+                            )
                             dst = dest.replace(transferDirectory, "%transferDirectory%")
                             eventDetail = ""
-                            eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-                            updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
+                            eventOutcomeDetailNote = (
+                                'moved from="' + src + '"; moved to="' + dst + '"'
+                            )
+                            updateFileLocation(
+                                src,
+                                dst,
+                                "movement",
+                                date,
+                                eventDetail,
+                                transferUUID=transferUUID,
+                                eventOutcomeDetailNote=eventOutcomeDetailNote,
+                            )
     return exitCode
 
 
@@ -81,5 +116,13 @@ def call(jobs):
                 transferDirectory = job.args[4]
                 transferUUID = job.args[5]
 
-                ret = verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
+                ret = verifyMetsFileSecChecksums(
+                    job,
+                    metsFile,
+                    date,
+                    taskUUID,
+                    transferDirectory,
+                    transferUUID,
+                    relativeDirectory=os.path.dirname(metsFile) + "/",
+                )
                 job.set_status(ret)

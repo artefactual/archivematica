@@ -44,10 +44,10 @@ import math
 from django.conf import settings as django_settings
 from prometheus_client import Gauge
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
-class TaskGroupRunner():
+class TaskGroupRunner:
 
     # How often our background thread will wake up and do its thing
     POLL_DELAY_SECONDS = 0.2
@@ -64,7 +64,9 @@ class TaskGroupRunner():
     # TaskGroupRunner (even though they'll spend most of their time here).  For
     # example, they might be sitting in a watched directory waiting to be picked
     # up to run on a new chain, or currently being processed by the MCP Server.
-    RUNNING_UNIT_SAMPLES = int(math.ceil(NOTIFICATION_INTERVAL_SECONDS / float(POLL_DELAY_SECONDS)))
+    RUNNING_UNIT_SAMPLES = int(
+        math.ceil(NOTIFICATION_INTERVAL_SECONDS / float(POLL_DELAY_SECONDS))
+    )
 
     # Our singleton instance
     _instance = None
@@ -74,7 +76,7 @@ class TaskGroupRunner():
     #
     # (not to be confused with a Gearman Job, which is a handle to a task
     # Gearman is currently handling for us...)
-    TaskGroupJob = collections.namedtuple('Job', ['task_group', 'finished_callback'])
+    TaskGroupJob = collections.namedtuple("Job", ["task_group", "finished_callback"])
 
     @staticmethod
     def init():
@@ -87,7 +89,9 @@ class TaskGroupRunner():
         """
         Submit a task group to be run.  Call `finished_callback` when it completes.
         """
-        TaskGroupRunner._instance.submit(TaskGroupRunner.TaskGroupJob(task_group, finished_callback))
+        TaskGroupRunner._instance.submit(
+            TaskGroupRunner.TaskGroupJob(task_group, finished_callback)
+        )
 
     @staticmethod
     def activeUnitCount():
@@ -107,8 +111,9 @@ class TaskGroupRunner():
         self.activeUnitCounts = [0] * TaskGroupRunner.RUNNING_UNIT_SAMPLES
         self.activeUnitCountsIdx = 0
         self.activeUnitGauge = Gauge(
-            'task_group_runner_active_units',
-            'Number of units currently being processed')
+            "task_group_runner_active_units",
+            "Number of units currently being processed",
+        )
 
         # Used to run completed callbacks off the main thread.
         self.pool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
@@ -131,6 +136,7 @@ class TaskGroupRunner():
         Start an event loop that will submit TaskGroups to MCP Client and monitor
         the status of running Gearman jobs.
         """
+
         def event_loop():
             gm_client = gearman.GearmanClient([django_settings.GEARMAN_SERVER])
 
@@ -139,7 +145,12 @@ class TaskGroupRunner():
                     time.sleep(TaskGroupRunner.POLL_DELAY_SECONDS)
                     self._poll(gm_client)
                 except Exception as e:
-                    LOGGER.error("\n\n*** Uncaught error in event loop: " + str(e) + ": " + str(type(e)))
+                    LOGGER.error(
+                        "\n\n*** Uncaught error in event loop: "
+                        + str(e)
+                        + ": "
+                        + str(type(e))
+                    )
                     LOGGER.exception(traceback)
                     LOGGER.error("\n\n\n")
                     time.sleep(5)
@@ -186,9 +197,13 @@ class TaskGroupRunner():
                         unique=task_group.UUID,
                         wait_until_complete=False,
                         background=False,
-                        max_retries=10)
+                        max_retries=10,
+                    )
                 except Exception as e:
-                    LOGGER.warning("Retrying submit for job %s...: %s: %s" % (task_group.UUID, str(e), str(type(e))))
+                    LOGGER.warning(
+                        "Retrying submit for job %s...: %s: %s"
+                        % (task_group.UUID, str(e), str(type(e)))
+                    )
                     LOGGER.exception(e)
                     time.sleep(5)
 
@@ -227,21 +242,35 @@ class TaskGroupRunner():
             self._handle_gearman_response(finished_job)
 
         for finished_job in finished_jobs:
-            task_group_job = self.task_group_jobs_by_uuid.pop(finished_job.gearman_job.unique)
+            task_group_job = self.task_group_jobs_by_uuid.pop(
+                finished_job.gearman_job.unique
+            )
             self.pool.apply_async(self._finish_task_group_job, [task_group_job])
 
         now = time.time()
-        if (now - self.last_notification_time) > TaskGroupRunner.NOTIFICATION_INTERVAL_SECONDS:
-            LOGGER.debug("%d jobs pending; %d jobs running; %d known task groups",
-                         len(self.pending_task_group_jobs),
-                         len(self.running_gearman_jobs),
-                         len(self.task_group_jobs_by_uuid))
+        if (
+            now - self.last_notification_time
+        ) > TaskGroupRunner.NOTIFICATION_INTERVAL_SECONDS:
+            LOGGER.debug(
+                "%d jobs pending; %d jobs running; %d known task groups",
+                len(self.pending_task_group_jobs),
+                len(self.running_gearman_jobs),
+                len(self.task_group_jobs_by_uuid),
+            )
             self.last_notification_time = now
 
-        active_count = len(set([task_group.task_group.unit_uuid()
-                                for task_group in self.task_group_jobs_by_uuid.values()]))
+        active_count = len(
+            set(
+                [
+                    task_group.task_group.unit_uuid()
+                    for task_group in self.task_group_jobs_by_uuid.values()
+                ]
+            )
+        )
         self.activeUnitCounts[self.activeUnitCountsIdx] = active_count
-        self.activeUnitCountsIdx = (self.activeUnitCountsIdx + 1) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
+        self.activeUnitCountsIdx = (
+            self.activeUnitCountsIdx + 1
+        ) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
         self.activeUnitGauge.set(self.activeUnitCount())
 
     def _handle_gearman_response(self, job_request):
@@ -257,7 +286,10 @@ class TaskGroupRunner():
         and update its value.
         """
         if job_request.gearman_job.unique not in self.task_group_jobs_by_uuid:
-            LOGGER.error("Couldn't find task group '%s' in the list of running jobs", job_request.gearman_job.unique)
+            LOGGER.error(
+                "Couldn't find task group '%s' in the list of running jobs",
+                job_request.gearman_job.unique,
+            )
             return
 
         task_group_job = self.task_group_jobs_by_uuid[job_request.gearman_job.unique]
@@ -272,36 +304,47 @@ class TaskGroupRunner():
 
             job_result = cPickle.loads(job_request.result)
 
-            if 'task_results' not in job_result:
-                LOGGER.debug("Expected a map containing 'task_results', but got: %s" % (job_result))
+            if "task_results" not in job_result:
+                LOGGER.debug(
+                    "Expected a map containing 'task_results', but got: %s"
+                    % (job_result)
+                )
                 return
 
-            task_results = job_result['task_results']
+            task_results = job_result["task_results"]
 
             for task in task_group.tasks():
                 result = task_results.get(task.UUID, None)
 
                 if result is None:
-                    LOGGER.debug("Warning: Couldn't find a task with UUID: %s in our results" % (task.UUID))
+                    LOGGER.debug(
+                        "Warning: Couldn't find a task with UUID: %s in our results"
+                        % (task.UUID)
+                    )
                     continue
 
-                task.results['exitCode'] = result['exitCode']
-                task.results['exitStatus'] = result.get('exitStatus', '')
-                task.results['stdout'] = result.get('stdout', '')
-                task.results['stderr'] = result.get('stderr', '')
+                task.results["exitCode"] = result["exitCode"]
+                task.results["exitStatus"] = result.get("exitStatus", "")
+                task.results["stdout"] = result.get("stdout", "")
+                task.results["stderr"] = result.get("stderr", "")
 
-                LOGGER.debug('Task %s finished! Result %s - %s', job_request.job.unique, job_request.state, result['exitCode'])
+                LOGGER.debug(
+                    "Task %s finished! Result %s - %s",
+                    job_request.job.unique,
+                    job_request.state,
+                    result["exitCode"],
+                )
         else:
             # If the entire task failed, we'll propagate the failure to all tasks in the batch.
             msg = ""
 
             if job_request.timed_out:
-                msg = 'Task %s timed out!' % (job_request.unique)
+                msg = "Task %s timed out!" % (job_request.unique)
             elif job_request.state == gearman.client.JOB_UNKNOWN:
-                msg = 'Task %s connection failed!' % (job_request.unique)
+                msg = "Task %s connection failed!" % (job_request.unique)
             else:
-                msg = 'Task %s failed!' % (job_request.unique)
+                msg = "Task %s failed!" % (job_request.unique)
 
             LOGGER.error(msg)
             for task in task_group.tasks():
-                task.results['exitCode'] = 1
+                task.results["exitCode"] = 1

@@ -27,12 +27,12 @@ from storageService import extract_file
 
 from main.models import DashboardSetting
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 
 def get_atom_client():
-    settings = DashboardSetting.objects.get_dict('upload-qubit_v0.0')
-    return AtomClient(settings.get('url'), settings.get('key'))
+    settings = DashboardSetting.objects.get_dict("upload-qubit_v0.0")
+    return AtomClient(settings.get("url"), settings.get("key"))
 
 
 class AtomMetadataUploadError(Exception):
@@ -47,8 +47,8 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
     """
     with tempfile.NamedTemporaryFile() as temp:
         # Download METS file
-        mets_path = '{}-{}/data/METS.{}.xml'.format(aip_name, aip_uuid, aip_uuid)
-        logger.debug('Extracting file %s into %s', mets_path, temp.name)
+        mets_path = "{}-{}/data/METS.{}.xml".format(aip_name, aip_uuid, aip_uuid)
+        logger.debug("Extracting file %s into %s", mets_path, temp.name)
         try:
             extract_file(aip_uuid, mets_path, temp.name)
         except requests.exceptions.RequestException:
@@ -59,8 +59,14 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
 
         # Create file container
         try:
-            logger.info('Creating file container with slug %s and title %s', parent_slug, aip_name)
-            file_slug = client.add_child(parent_slug=parent_slug, title=aip_name, level='File')
+            logger.info(
+                "Creating file container with slug %s and title %s",
+                parent_slug,
+                aip_name,
+            )
+            file_slug = client.add_child(
+                parent_slug=parent_slug, title=aip_name, level="File"
+            )
         except (AtomError, CommunicationError):
             raise AtomMetadataUploadError
 
@@ -73,31 +79,58 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
             res = el.find(xpath)
             if res is not None and res.text:
                 dict_[name] = res.text
-                logger.debug('Extracted property %s from METS: %s', name, res.text)
-            logger.debug('Failed to extract property %s from METS: not found', name)
+                logger.debug("Extracted property %s from METS: %s", name, res.text)
+            logger.debug("Failed to extract property %s from METS: not found", name)
 
         # Add objects
         for item in mw.all_files():
-            if item.type == 'Directory' or item.use != 'original':
+            if item.type == "Directory" or item.use != "original":
                 continue
             attrs = {
-                'title': os.path.basename(item.path),
-                'usage': 'Offline',
-                'file_uuid': item.file_uuid,
-                'aip_uuid': aip_uuid,
+                "title": os.path.basename(item.path),
+                "usage": "Offline",
+                "file_uuid": item.file_uuid,
+                "aip_uuid": aip_uuid,
             }
             amdsec = item.amdsecs[0].serialize()
-            add_prop_from_xml(attrs, 'size', amdsec, './/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}size')
-            add_prop_from_xml(attrs, 'format_name', amdsec, './/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatName')
-            add_prop_from_xml(attrs, 'format_version', amdsec, './/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatVersion')
-            add_prop_from_xml(attrs, 'format_registry_name', amdsec, './/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryName')
-            add_prop_from_xml(attrs, 'format_registry_key', amdsec, './/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryKey')
+            add_prop_from_xml(
+                attrs,
+                "size",
+                amdsec,
+                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}size",
+            )
+            add_prop_from_xml(
+                attrs,
+                "format_name",
+                amdsec,
+                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatName",
+            )
+            add_prop_from_xml(
+                attrs,
+                "format_version",
+                amdsec,
+                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatDesignation/{info:lc/xmlns/premis-v2}formatVersion",
+            )
+            add_prop_from_xml(
+                attrs,
+                "format_registry_name",
+                amdsec,
+                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryName",
+            )
+            add_prop_from_xml(
+                attrs,
+                "format_registry_key",
+                amdsec,
+                ".//{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}format/{info:lc/xmlns/premis-v2}formatRegistry/{info:lc/xmlns/premis-v2}formatRegistryKey",
+            )
             title = os.path.basename(item.path)
 
             try:
-                logger.info('Creating child with title %s', title)
-                slug = client.add_child(parent_slug=file_slug, title=title, level='Item')
-                logger.info('Adding digital object to new child with slug %s', slug)
+                logger.info("Creating child with title %s", title)
+                slug = client.add_child(
+                    parent_slug=file_slug, title=title, level="Item"
+                )
+                logger.info("Adding digital object to new child with slug %s", slug)
                 client.add_digital_object(slug, **attrs)
             except (AtomError, CommunicationError):
                 raise AtomMetadataUploadError

@@ -26,6 +26,7 @@ import sys
 import shutil
 
 import django
+
 django.setup()
 from django.db import transaction
 
@@ -49,9 +50,13 @@ def call(jobs):
 
                 basename = os.path.basename(unitPath[:-1])
                 uuidLen = 36
-                originalSIPName = basename[:-(uuidLen + 1) * 2]
-                originalSIPUUID = basename[:-(uuidLen + 1)][-uuidLen:]
-                METSPath = os.path.join(unitPath, "metadata/submissionDocumentation/data/", "METS.%s.xml" % (originalSIPUUID))
+                originalSIPName = basename[: -(uuidLen + 1) * 2]
+                originalSIPUUID = basename[: -(uuidLen + 1)][-uuidLen:]
+                METSPath = os.path.join(
+                    unitPath,
+                    "metadata/submissionDocumentation/data/",
+                    "METS.%s.xml" % (originalSIPUUID),
+                )
                 if not os.path.isfile(METSPath):
                     job.pyprint("Mets file not found: ", METSPath, file=sys.stderr)
                     job.set_status(255)
@@ -64,7 +69,10 @@ def call(jobs):
 
                 # Move DIP
                 src = os.path.join(unitPath, "DIP")
-                dst = os.path.join("/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/", originalSIPName + "-" + originalSIPUUID)
+                dst = os.path.join(
+                    "/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/",
+                    originalSIPName + "-" + originalSIPUUID,
+                )
                 shutil.move(src, dst)
 
                 try:
@@ -72,9 +80,11 @@ def call(jobs):
                 except SIP.DoesNotExist:
                     # otherwise doesn't appear in dashboard
                     createSIP(unitPath, UUID=originalSIPUUID, printfn=job.pyprint)
-                    Job.objects.create(jobtype="Hack to make DIP Jobs appear",
-                                       directory=unitPath,
-                                       sip_id=originalSIPUUID,
-                                       currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
-                                       unittype="unitSIP",
-                                       microservicegroup="Upload DIP")
+                    Job.objects.create(
+                        jobtype="Hack to make DIP Jobs appear",
+                        directory=unitPath,
+                        sip_id=originalSIPUUID,
+                        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+                        unittype="unitSIP",
+                        microservicegroup="Upload DIP",
+                    )

@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import django
+
 django.setup()
 # dashboard
 from main.models import Transfer
@@ -40,4 +41,6 @@ def call(jobs):
                 transferUUID = job.args[1]
                 transferType = job.args[2]
 
-                Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(type="Archivematica AIP").update(type=transferType)
+                Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(
+                    type="Archivematica AIP"
+                ).update(type=transferType)

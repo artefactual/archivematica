@@ -26,8 +26,8 @@ from main.models import DashboardSetting
 
 
 site_url_field = forms.CharField(
-    label=_('Site URL'),
-    help_text=_('This is the public URL of your Archivematica dashboard.'),
+    label=_("Site URL"),
+    help_text=_("This is the public URL of your Archivematica dashboard."),
     required=False,
     widget=TextInput(attrs=settings.INPUT_ATTRS),
 )
@@ -36,16 +36,35 @@ site_url_field = forms.CharField(
 class SuperUserCreationForm(UserCreationForm):
     site_url = site_url_field
     email = forms.EmailField(required=True)
-    org_name = forms.CharField(label=_('Organization name'), help_text=_('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_('Organization identifier'), help_text=_('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(
+        label=_("Organization name"),
+        help_text=_("PREMIS agent name"),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS),
+    )
+    org_identifier = forms.CharField(
+        label=_("Organization identifier"),
+        help_text=_("PREMIS agent identifier"),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS),
+    )
 
     class Meta:
         model = User
-        fields = ['org_name', 'org_identifier', 'username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+        fields = [
+            "org_name",
+            "org_identifier",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+        ]
 
     def __init__(self, *args, **kwargs):
         super(SuperUserCreationForm, self).__init__(*args, **kwargs)
-        load_site_url(self.fields['site_url'])
+        load_site_url(self.fields["site_url"])
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
@@ -63,23 +82,34 @@ class OrganizationForm(forms.Form):
     """
     Simplified version of the superuser form - simply ask for organisation info
     """
+
     site_url = site_url_field
-    org_name = forms.CharField(label=_('Organization name'), help_text=_('PREMIS agent name'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    org_identifier = forms.CharField(label=_('Organization identifier'), help_text=_('PREMIS agent identifier'), required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_name = forms.CharField(
+        label=_("Organization name"),
+        help_text=_("PREMIS agent name"),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS),
+    )
+    org_identifier = forms.CharField(
+        label=_("Organization identifier"),
+        help_text=_("PREMIS agent identifier"),
+        required=False,
+        widget=TextInput(attrs=settings.INPUT_ATTRS),
+    )
 
     def __init__(self, *args, **kwargs):
         super(OrganizationForm, self).__init__(*args, **kwargs)
-        load_site_url(self.fields['site_url'])
+        load_site_url(self.fields["site_url"])
 
 
 def load_site_url(site_url_field):
     """Update form field with the application site URL."""
     if settings.SITE_URL:
         site_url_field.initial = settings.SITE_URL
-        site_url_field.widget.attrs['readonly'] = True
+        site_url_field.widget.attrs["readonly"] = True
         return
     try:
-        setting = DashboardSetting.objects.get(name='site_url')
+        setting = DashboardSetting.objects.get(name="site_url")
     except DashboardSetting.DoesNotExist:
         pass
     else:

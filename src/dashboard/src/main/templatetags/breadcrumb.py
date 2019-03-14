@@ -21,7 +21,7 @@ from django.utils.encoding import smart_unicode
 from django.template.defaulttags import url
 from django.template import VariableDoesNotExist
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 register = Library()
 
 
@@ -63,7 +63,7 @@ def breadcrumb_url(parser, token):
 
     # Extract our extra title parameter
     title = bits.pop(1)
-    token.contents = ' '.join(bits)
+    token.contents = " ".join(bits)
 
     url_node = url(parser, token)
 
@@ -82,7 +82,7 @@ class BreadcrumbNode(Node):
                 val = self.vars[0]
                 title = val.resolve(context)
             except:
-                title = ''
+                title = ""
 
         else:
             title = title.strip("'").strip('"')
@@ -95,7 +95,7 @@ class BreadcrumbNode(Node):
             try:
                 url = val.resolve(context)
             except VariableDoesNotExist:
-                logger.error('URL does not exist: %s', val)
+                logger.error("URL does not exist: %s", val)
                 url = None
 
         return create_crumb(title, url)
@@ -114,7 +114,7 @@ class UrlBreadcrumbNode(Node):
                 val = self.title
                 title = val.resolve(context)
             except:
-                title = ''
+                title = ""
         else:
             title = title.strip("'").strip('"')
             title = smart_unicode(title)

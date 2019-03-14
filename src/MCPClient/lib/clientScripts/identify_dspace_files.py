@@ -28,24 +28,26 @@ import namespaces
 
 import django
 from django.db import transaction
+
 django.setup()
 # dashboard
 from main.models import File
 
 
-def identify_dspace_files(job, mets_file, transfer_dir, transfer_uuid, relative_dir="./"):
+def identify_dspace_files(
+    job, mets_file, transfer_dir, transfer_uuid, relative_dir="./"
+):
     job.print_output(mets_file)
-    nsmap = {
-        'm': namespaces.metsNS,
-        'x': namespaces.xlinkNS,
-    }
+    nsmap = {"m": namespaces.metsNS, "x": namespaces.xlinkNS}
     tree = etree.parse(mets_file)
     root = tree.getroot()
     for item in root.findall("m:fileSec/m:fileGrp", namespaces=nsmap):
         use = item.get("USE")
-        if use in ('TEXT', 'LICENSE'):
+        if use in ("TEXT", "LICENSE"):
             try:
-                filename = item.find('m:file/m:FLocat', namespaces=nsmap).get(namespaces.xlinkBNS + 'href')
+                filename = item.find("m:file/m:FLocat", namespaces=nsmap).get(
+                    namespaces.xlinkBNS + "href"
+                )
             except AttributeError:  # Element not found
                 continue
             if filename is None:  # Filename not an attribute
@@ -53,15 +55,17 @@ def identify_dspace_files(job, mets_file, transfer_dir, transfer_uuid, relative_
             job.write_output("File: %s Use: %s\n" % (filename, use))
             full_path = os.path.join(relative_dir, filename)
             db_location = full_path.replace(transfer_dir, "%transferDirectory%")
-            if use == 'TEXT':
-                db_use = 'text/ocr'
-            elif use == 'LICENSE':
-                db_use = 'license'
+            if use == "TEXT":
+                db_use = "text/ocr"
+            elif use == "LICENSE":
+                db_use = "license"
             else:
                 job.write_error("Unexpected usage %s\n" % (use))
                 continue
 
-            File.objects.filter(currentlocation=db_location, transfer_id=transfer_uuid).update(filegrpuse=db_use)
+            File.objects.filter(
+                currentlocation=db_location, transfer_id=transfer_uuid
+            ).update(filegrpuse=db_use)
 
 
 def call(jobs):
@@ -72,4 +76,10 @@ def call(jobs):
                 transfer_dir = job.args[2]
                 transfer_uuid = job.args[3]
 
-                identify_dspace_files(job, mets_file, transfer_dir, transfer_uuid, relative_dir=os.path.dirname(mets_file) + "/")
+                identify_dspace_files(
+                    job,
+                    mets_file,
+                    transfer_dir,
+                    transfer_uuid,
+                    relative_dir=os.path.dirname(mets_file) + "/",
+                )

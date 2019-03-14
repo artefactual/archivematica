@@ -6,9 +6,9 @@ def get_version():
     # Inspired by Django's get_version
     version = ARCHIVEMATICA_VERSION
     parts = 2 if version[2] == 0 else 3
-    main = '.'.join(str(x) for x in version[:parts])
+    main = ".".join(str(x) for x in version[:parts])
     return main
 
 
 def get_full_version():
-    return '.'.join(str(x) for x in ARCHIVEMATICA_VERSION)
+    return ".".join(str(x) for x in ARCHIVEMATICA_VERSION)

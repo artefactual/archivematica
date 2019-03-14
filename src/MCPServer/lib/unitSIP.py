@@ -30,7 +30,7 @@ from dicts import ReplacementDict
 
 from django.conf import settings as django_settings
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class unitSIP(unit):
@@ -43,7 +43,7 @@ class unitSIP(unit):
         self.aipFilename = ""
 
     def __str__(self):
-        return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
+        return "unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>".format(u=self)
 
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)
@@ -54,10 +54,7 @@ class unitSIP(unit):
 
     def getReplacementDic(self, target):
         """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
-        ret = ReplacementDict.frommodel(
-            type_='sip',
-            sip=self.UUID
-        )
+        ret = ReplacementDict.frommodel(type_="sip", sip=self.UUID)
         ret["%AIPFilename%"] = self.aipFilename
         ret["%unitType%"] = self.unitType
         ret["%SIPType%"] = self.sipType
@@ -68,5 +65,7 @@ class unitSIP(unit):
         etree.SubElement(ret, "type").text = "SIP"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
+        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(
+            django_settings.SHARED_DIRECTORY, "%sharedPath%"
+        )
         return ret

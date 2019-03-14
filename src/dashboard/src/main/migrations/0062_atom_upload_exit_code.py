@@ -10,7 +10,7 @@ from django.db import migrations
 from main.models import Job
 
 
-ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO = 'c9e90d83-533f-44c3-8220-083a6eb91751'
+ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO = "c9e90d83-533f-44c3-8220-083a6eb91751"
 
 
 def data_migration_up(apps, schema_editor):
@@ -21,28 +21,26 @@ def data_migration_up(apps, schema_editor):
     status ID (``Job.STATUS_COMPLETED_SUCCESSFULLY``).
     """
     MicroServiceChainLinkExitCode = apps.get_model(
-        'main', 'MicroServiceChainLinkExitCode')
+        "main", "MicroServiceChainLinkExitCode"
+    )
 
     MicroServiceChainLinkExitCode.objects.filter(
-        id=ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO).update(
-            exitmessage=Job.STATUS_COMPLETED_SUCCESSFULLY)
+        id=ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO
+    ).update(exitmessage=Job.STATUS_COMPLETED_SUCCESSFULLY)
 
 
 def data_migration_down(apps, schema_editor):
     MicroServiceChainLinkExitCode = apps.get_model(
-        'main', 'MicroServiceChainLinkExitCode')
+        "main", "MicroServiceChainLinkExitCode"
+    )
 
     MicroServiceChainLinkExitCode.objects.filter(
-        id=ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO).update(
-            exitmessage='Completed successfully')
+        id=ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO
+    ).update(exitmessage="Completed successfully")
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('main', '0061_create_dataverse_transfer_type'),
-    ]
+    dependencies = [("main", "0061_create_dataverse_transfer_type")]
 
-    operations = [
-        migrations.RunPython(data_migration_up, data_migration_down),
-    ]
+    operations = [migrations.RunPython(data_migration_up, data_migration_down)]

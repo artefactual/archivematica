@@ -25,15 +25,23 @@ import os
 
 # fileOperations requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
+
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES
 import fileOperations
 
 
-def restructureTRIMForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, unitIdentifierType="transfer", unitPathReplaceWith="%transferDirectory%"):
+def restructureTRIMForComplianceFileUUIDsAssigned(
+    job,
+    unitPath,
+    unitIdentifier,
+    unitIdentifierType="transfer",
+    unitPathReplaceWith="%transferDirectory%",
+):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unitPath)
 
@@ -51,11 +59,25 @@ def restructureTRIMForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier,
             for item2 in os.listdir(src):
                 itemPath = os.path.join(src, item2)
                 dst = os.path.join(objectsDir, item2)
-                fileOperations.updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=job.pyprint)
+                fileOperations.updateFileLocation2(
+                    itemPath,
+                    dst,
+                    unitPath,
+                    unitIdentifier,
+                    unitIdentifierType,
+                    unitPathReplaceWith,
+                    printfn=job.pyprint,
+                )
 
                 if item2.endswith("Metadata.xml"):
-                    TRIMfileID = os.path.join(item, item2[:-1 - len("Metadata.xml")])
-                    files = fileOperations.getFileUUIDLike('%' + TRIMfileID + '%', unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+                    TRIMfileID = os.path.join(item, item2[: -1 - len("Metadata.xml")])
+                    files = fileOperations.getFileUUIDLike(
+                        "%" + TRIMfileID + "%",
+                        unitPath,
+                        unitIdentifier,
+                        unitIdentifierType,
+                        unitPathReplaceWith,
+                    )
                     fileUUID = None
                     fileGrpUUID = None
                     for key, value in files.items():
@@ -65,17 +87,31 @@ def restructureTRIMForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier,
                             fileGrpUUID = value
                     if fileUUID and fileGrpUUID:
                         fileGrpUse = "TRIM file metadata"
-                        fileOperations.updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID)
+                        fileOperations.updateFileGrpUsefileGrpUUID(
+                            fileUUID, fileGrpUse, fileGrpUUID
+                        )
                     elif fileUUID and not fileGrpUUID:
-                        fileOperations.updateFileGrpUse(fileUUID, "TRIM container metadata")
+                        fileOperations.updateFileGrpUse(
+                            fileUUID, "TRIM container metadata"
+                        )
             os.removedirs(src)
         else:
             destDir = "metadata"
             if item == "manifest.txt":
                 destDir = "metadata/submissionDocumentation"
             dst = os.path.join(unitPath, destDir, item)
-            fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith, printfn=job.pyprint)
-            files = fileOperations.getFileUUIDLike(dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            fileOperations.updateFileLocation2(
+                src,
+                dst,
+                unitPath,
+                unitIdentifier,
+                unitIdentifierType,
+                unitPathReplaceWith,
+                printfn=job.pyprint,
+            )
+            files = fileOperations.getFileUUIDLike(
+                dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith
+            )
             for key, value in files.items():
                 fileUUID = value
                 fileOperations.updateFileGrpUse(fileUUID, "TRIM metadata")
@@ -89,6 +125,8 @@ def call(jobs):
                 # transferName = job.args[2] # unused?
                 transferPath = job.args[3]
                 try:
-                    restructureTRIMForComplianceFileUUIDsAssigned(job, transferPath, transferUUID)
+                    restructureTRIMForComplianceFileUUIDsAssigned(
+                        job, transferPath, transferUUID
+                    )
                 except fileOperations.UpdateFileLocationFailed as e:
                     job.set_status(e.code)

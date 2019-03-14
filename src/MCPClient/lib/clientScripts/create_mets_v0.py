@@ -27,8 +27,10 @@ import lxml.etree as etree
 from xml.sax.saxutils import quoteattr
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import File
 
@@ -39,12 +41,12 @@ import namespaces as ns
 
 
 def createMetsHdr(sip_uuid):
-    header = etree.Element(ns.metsBNS + "metsHdr",
-                           CREATEDATE=getUTCDate().strftime("%Y-%m-%dT%H:%M:%S"))
-    agent = etree.SubElement(header, ns.metsBNS + "agent",
-                             ROLE="CREATOR",
-                             TYPE="OTHER",
-                             OTHERTYPE="SOFTWARE")
+    header = etree.Element(
+        ns.metsBNS + "metsHdr", CREATEDATE=getUTCDate().strftime("%Y-%m-%dT%H:%M:%S")
+    )
+    agent = etree.SubElement(
+        header, ns.metsBNS + "agent", ROLE="CREATOR", TYPE="OTHER", OTHERTYPE="SOFTWARE"
+    )
     name = etree.SubElement(agent, ns.metsBNS + "name")
     name.text = get_dashboard_uuid()
     note = etree.SubElement(agent, ns.metsBNS + "note")
@@ -52,8 +54,9 @@ def createMetsHdr(sip_uuid):
 
     accession_number = getAccessionNumberFromTransfer(sip_uuid)
     if accession_number:
-        alt_id = etree.SubElement(header, ns.metsBNS + "altRecordID",
-                                  TYPE="Accession number")
+        alt_id = etree.SubElement(
+            header, ns.metsBNS + "altRecordID", TYPE="Accession number"
+        )
         alt_id.text = accession_number
 
     return header
@@ -102,14 +105,14 @@ def each_child(job, path, file_group_identifier, base_path, base_path_name, sip_
 
                 pathSTR = itempath.replace(base_path, base_path_name, 1)
                 kwargs = {
-                    'removedtime__isnull': True,
+                    "removedtime__isnull": True,
                     file_group_identifier: sip_uuid,
-                    'currentlocation': pathSTR
+                    "currentlocation": pathSTR,
                 }
                 try:
                     yield File.objects.get(**kwargs)
                 except File.DoesNotExist:
-                    job.pyprint("No uuid for file: \"", pathSTR, "\"", file=sys.stderr)
+                    job.pyprint('No uuid for file: "', pathSTR, '"', file=sys.stderr)
 
 
 # Do /SIP-UUID/
@@ -117,7 +120,16 @@ def each_child(job, path, file_group_identifier, base_path, base_path_name, sip_
 doneFirstRun = False
 
 
-def createFileSec(job, path, file_group_identifier, base_path, base_path_name, parentBranch, structMapParent, sip_uuid):
+def createFileSec(
+    job,
+    path,
+    file_group_identifier,
+    base_path,
+    base_path_name,
+    parentBranch,
+    structMapParent,
+    sip_uuid,
+):
     job.pyprint("createFileSec: ", path, parentBranch, structMapParent, file=sys.stderr)
     doneFirstRun = True
     pathSTR = path.__str__()
@@ -134,7 +146,16 @@ def createFileSec(job, path, file_group_identifier, base_path, base_path_name, p
         # currentBranch.set("USE", "directory")
         # structMap directory
         div = newChild(structMapParent, ns.metsBNS + "div")
-        createFileSec(job, os.path.join(path, "objects/"), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
+        createFileSec(
+            job,
+            os.path.join(path, "objects/"),
+            file_group_identifier,
+            base_path,
+            base_path_name,
+            parentBranch,
+            div,
+            sip_uuid,
+        )
         doneFirstRun = False
     filename = os.path.basename(pathSTR)
 
@@ -142,9 +163,11 @@ def createFileSec(job, path, file_group_identifier, base_path, base_path_name, p
     structMapParent.set("LABEL", escape(filename))
 
     if doneFirstRun:
-        for item in each_child(job, path, file_group_identifier, base_path, base_path_name, sip_uuid):
+        for item in each_child(
+            job, path, file_group_identifier, base_path, base_path_name, sip_uuid
+        ):
             if isinstance(item, File):
-                pathSTR = item.currentlocation.replace('%transferDirectory%', "", 1)
+                pathSTR = item.currentlocation.replace("%transferDirectory%", "", 1)
 
                 ID = "file-" + item.uuid.__str__()
 
@@ -155,11 +178,13 @@ def createFileSec(job, path, file_group_identifier, base_path, base_path_name, p
 
                 # If the file already exists in the fileSec, don't create
                 # a second entry.
-                fileI = parentBranch.find('./mets:file[@ID="{}"]'.format(ID), namespaces=ns.NSMAP)
+                fileI = parentBranch.find(
+                    './mets:file[@ID="{}"]'.format(ID), namespaces=ns.NSMAP
+                )
                 if fileI is None:
                     fileI = etree.SubElement(parentBranch, ns.metsBNS + "file")
 
-                    filename = ''.join(quoteattr(pathSTR).split("\"")[1:-1])
+                    filename = "".join(quoteattr(pathSTR).split('"')[1:-1])
 
                     fileI.set("ID", escape(ID))
 
@@ -174,15 +199,37 @@ def createFileSec(job, path, file_group_identifier, base_path, base_path_name, p
 
             else:
                 div = newChild(structMapParent, ns.metsBNS + "div")
-                createFileSec(job, os.path.join(path, item), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
+                createFileSec(
+                    job,
+                    os.path.join(path, item),
+                    file_group_identifier,
+                    base_path,
+                    base_path_name,
+                    parentBranch,
+                    div,
+                    sip_uuid,
+                )
 
 
 def call(jobs):
     from optparse import OptionParser
+
     parser = OptionParser()
     parser.add_option("-s", "--basePath", action="store", dest="basePath", default="")
-    parser.add_option("-b", "--basePathString", action="store", dest="basePathString", default="SIPDirectory")  # transferDirectory
-    parser.add_option("-f", "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="sipUUID")  # transferUUID
+    parser.add_option(
+        "-b",
+        "--basePathString",
+        action="store",
+        dest="basePathString",
+        default="SIPDirectory",
+    )  # transferDirectory
+    parser.add_option(
+        "-f",
+        "--fileGroupIdentifier",
+        action="store",
+        dest="fileGroupIdentifier",
+        default="sipUUID",
+    )  # transferUUID
     parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
     parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
 
@@ -192,13 +239,15 @@ def call(jobs):
                 (opts, args) = parser.parse_args(job.args[1:])
                 job.pyprint(opts)
 
-                root = etree.Element(ns.metsBNS + "mets",
-                                     nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
-                                     attrib={
-                                         ns.xsiBNS + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
-                                         "OBJID": opts.sipUUID
-                                     }
-                                     )
+                root = etree.Element(
+                    ns.metsBNS + "mets",
+                    nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
+                    attrib={
+                        ns.xsiBNS
+                        + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
+                        "OBJID": opts.sipUUID,
+                    },
+                )
 
                 root.append(createMetsHdr(opts.sipUUID))
 
@@ -221,10 +270,24 @@ def call(jobs):
 
                 basePathString = "%%%s%%" % (opts.basePathString)
                 try:
-                    createFileSec(job, path, opts.fileGroupIdentifier, opts.basePath, basePathString, sipFileGrp, structMapDiv, opts.sipUUID)
+                    createFileSec(
+                        job,
+                        path,
+                        opts.fileGroupIdentifier,
+                        opts.basePath,
+                        basePathString,
+                        sipFileGrp,
+                        structMapDiv,
+                        opts.sipUUID,
+                    )
 
                     tree = etree.ElementTree(root)
-                    tree.write(opts.xmlFile, pretty_print=True, xml_declaration=True, encoding='utf-8')
+                    tree.write(
+                        opts.xmlFile,
+                        pretty_print=True,
+                        xml_declaration=True,
+                        encoding="utf-8",
+                    )
                 except ValueError as e:
                     job.print_error(str(e))
                     job.set_status(1)

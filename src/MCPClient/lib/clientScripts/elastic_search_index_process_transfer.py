@@ -23,23 +23,27 @@
 
 # elasticSearchFunctions requires Django to be set up
 import django
+
 django.setup()
 from django.db import transaction
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
 from django.conf import settings as mcpclient_settings
 
-logger = get_script_logger('archivematica.mcp.client.elasticSearchIndexProcessTransfer')
+logger = get_script_logger("archivematica.mcp.client.elasticSearchIndexProcessTransfer")
 
 
 def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
-                if 'transfers' not in mcpclient_settings.SEARCH_ENABLED:
-                    logger.info('Skipping indexing: Transfers indexing is currently disabled.')
+                if "transfers" not in mcpclient_settings.SEARCH_ENABLED:
+                    logger.info(
+                        "Skipping indexing: Transfers indexing is currently disabled."
+                    )
                     job.set_status(0)
                     continue
 
@@ -48,11 +52,16 @@ def call(jobs):
                 try:
                     status = job.args[3]
                 except IndexError:
-                    status = ''
+                    status = ""
 
                 elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
                 client = elasticSearchFunctions.get_client()
-                job.set_status(elasticSearchFunctions.index_transfer_and_files(
-                    client, transfer_uuid, transfer_path,
-                    status=status, printfn=job.pyprint,
-                ))
+                job.set_status(
+                    elasticSearchFunctions.index_transfer_and_files(
+                        client,
+                        transfer_uuid,
+                        transfer_path,
+                        status=status,
+                        printfn=job.pyprint,
+                    )
+                )

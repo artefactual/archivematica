@@ -23,8 +23,10 @@
 import os
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import Transfer
 
@@ -62,4 +64,6 @@ def call(jobs):
                 dst = job.args[2]
                 transferUUID = job.args[3]
                 sharedDirectoryPath = job.args[4]
-                job.set_status(moveSIP(job, src, dst, transferUUID, sharedDirectoryPath))
+                job.set_status(
+                    moveSIP(job, src, dst, transferUUID, sharedDirectoryPath)
+                )

@@ -27,11 +27,17 @@ import uuid
 import errno
 
 import django
+
 django.setup()
 from django.db import transaction
 from django.conf import settings as mcpclient_settings
 
-from clamd import ClamdUnixSocket, ClamdNetworkSocket, BufferTooLongError, ConnectionError
+from clamd import (
+    ClamdUnixSocket,
+    ClamdNetworkSocket,
+    BufferTooLongError,
+    ConnectionError,
+)
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
 from main.models import Event, File
@@ -55,7 +61,7 @@ def clamav_version_parts(ver):
 
     Both elements may be None if the matching failed.
     """
-    parts = ver.split('/')
+    parts = ver.split("/")
     n = len(parts)
     if n == 1:
         version = parts[0]
@@ -63,7 +69,7 @@ def clamav_version_parts(ver):
             return version, None
     elif n == 3:
         version, defs, date = parts
-        return version, '{}/{}'.format(defs, date)
+        return version, "{}/{}".format(defs, date)
     return None, None
 
 
@@ -107,10 +113,10 @@ class ClamdScanner(ScannerBase):
 
     def scan(self, path):
         if self.stream:
-            method_name = 'pass_by_stream'
-            result_key = 'stream'
+            method_name = "pass_by_stream"
+            result_key = "stream"
         else:
-            method_name = 'pass_by_reference'
+            method_name = "pass_by_reference"
             result_key = path
 
         passed, state, details = (False, None, None)
@@ -120,7 +126,7 @@ class ClamdScanner(ScannerBase):
         except Exception as err:
             passed = ClamdScanner.clamd_exception_handler(err)
         finally:
-            if state == 'OK':
+            if state == "OK":
                 passed = True
             return passed, state, details
 
@@ -133,22 +139,25 @@ class ClamdScanner(ScannerBase):
         if isinstance(err, IOError):
             if err.errno == errno.EPIPE:
                 logger.error(
-                    '[Errno 32] Broken pipe. File not scanned. Check Clamd '
-                    'StreamMaxLength')
+                    "[Errno 32] Broken pipe. File not scanned. Check Clamd "
+                    "StreamMaxLength"
+                )
                 return None
         elif isinstance(err, BufferTooLongError):
             logger.error(
-                'Clamd BufferTooLongError. File not scanned. Check Clamd '
-                'StreamMaxLength')
+                "Clamd BufferTooLongError. File not scanned. Check Clamd "
+                "StreamMaxLength"
+            )
             return None
         elif isinstance(err, ConnectionError):
             logger.error(
-                'Clamd ConnectionError. File not scanned. Check Clamd '
-                'output: %s', err)
+                "Clamd ConnectionError. File not scanned. Check Clamd " "output: %s",
+                err,
+            )
             return None
         # Return False and provide some information to the user for all other
         # failures.
-        logger.error('Virus scanning failed: %s', err, exc_info=True)
+        logger.error("Virus scanning failed: %s", err, exc_info=True)
         return False
 
     def version_attrs(self):
@@ -159,17 +168,16 @@ class ClamdScanner(ScannerBase):
         return self._version_attrs
 
     def get_client(self):
-        if ':' not in self.addr:
+        if ":" not in self.addr:
             return ClamdUnixSocket(path=self.addr)
-        host, port = self.addr.split(':')
-        return ClamdNetworkSocket(
-            host=host,
-            port=int(port),
-            timeout=self.timeout)
+        host, port = self.addr.split(":")
+        return ClamdNetworkSocket(host=host, port=int(port), timeout=self.timeout)
 
     def pass_by_reference(self, path):
-        logger.info("File being being read by Clamdscan from filesystem \
-            reference.")
+        logger.info(
+            "File being being read by Clamdscan from filesystem \
+            reference."
+        )
         return self.client.scan(path)
 
     def pass_by_stream(self, path):
@@ -178,28 +186,29 @@ class ClamdScanner(ScannerBase):
 
 
 class ClamScanner(ScannerBase):
-    PROGRAM = 'ClamAV (clamscan)'
-    COMMAND = 'clamscan'
+    PROGRAM = "ClamAV (clamscan)"
+    COMMAND = "clamscan"
 
     def _call(self, *args):
         return subprocess.check_output((self.COMMAND,) + args)
 
     def scan(self, path):
-        passed, state, details = (False, 'ERROR', None)
+        passed, state, details = (False, "ERROR", None)
         try:
-            max_file_size = "--max-filesize=%dM" % \
-                mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE
-            max_scan_size = "--max-scansize=%dM" % \
-                mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE
+            max_file_size = (
+                "--max-filesize=%dM" % mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE
+            )
+            max_scan_size = (
+                "--max-scansize=%dM" % mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE
+            )
             self._call(max_file_size, max_scan_size, path)
         except subprocess.CalledProcessError as err:
             if err.returncode == 1:
-                state = 'FOUND'
+                state = "FOUND"
             else:
-                logger.error(
-                    'Virus scanning failed: %s', err.output, exc_info=True)
+                logger.error("Virus scanning failed: %s", err.output, exc_info=True)
         else:
-            passed, state = (True, 'OK')
+            passed, state = (True, "OK")
         return passed, state, details
 
     def version_attrs(self):
@@ -207,62 +216,53 @@ class ClamScanner(ScannerBase):
             self._version_attrs
         except AttributeError:
             try:
-                self._version_attrs = clamav_version_parts(self._call('-V'))
+                self._version_attrs = clamav_version_parts(self._call("-V"))
             except subprocess.CalledProcessError:
                 self._version_attrs = (None, None)
         return self._version_attrs
 
 
 def file_already_scanned(file_uuid):
-    return 0 < Event.objects.filter(
-        file_uuid_id=file_uuid,
-        event_type='virus check').count()
+    return (
+        0
+        < Event.objects.filter(file_uuid_id=file_uuid, event_type="virus check").count()
+    )
 
 
 def queue_event(file_uuid, date, scanner, passed, queue):
     if passed is None or file_uuid == "None":
         return
 
-    event_detail = ''
+    event_detail = ""
     if scanner is not None:
-        event_detail = 'program="{}"; version="{}"; virusDefinitions="{}"' \
-            .format(
-                scanner.program(),
-                scanner.version(),
-                scanner.virus_definitions(),
-            )
+        event_detail = 'program="{}"; version="{}"; virusDefinitions="{}"'.format(
+            scanner.program(), scanner.version(), scanner.virus_definitions()
+        )
 
-    outcome = 'Pass' if passed else 'Fail'
-    logger.info(
-        'Recording new event for file %s (outcome: %s)', file_uuid, outcome)
+    outcome = "Pass" if passed else "Fail"
+    logger.info("Recording new event for file %s (outcome: %s)", file_uuid, outcome)
 
-    queue.append({
-        'fileUUID': file_uuid,
-        'eventIdentifierUUID': str(uuid.uuid4()),
-        'eventType': "virus check",
-        'eventDateTime': date,
-        'eventDetail': event_detail,
-        'eventOutcome': outcome
-    })
+    queue.append(
+        {
+            "fileUUID": file_uuid,
+            "eventIdentifierUUID": str(uuid.uuid4()),
+            "eventType": "virus check",
+            "eventDateTime": date,
+            "eventDetail": event_detail,
+            "eventOutcome": outcome,
+        }
+    )
 
 
 def get_parser():
     """ Return a ``Namespace`` with the parsed arguments. """
     parser = argparse.ArgumentParser()
+    parser.add_argument("file_uuid", metavar="fileUUID")
+    parser.add_argument("path", metavar="PATH", help="File or directory location")
+    parser.add_argument("date", metavar="DATE")
     parser.add_argument(
-        'file_uuid',
-        metavar='fileUUID')
-    parser.add_argument(
-        'path',
-        metavar='PATH',
-        help='File or directory location')
-    parser.add_argument(
-        'date',
-        metavar='DATE')
-    parser.add_argument(
-        'task_uuid',
-        metavar='taskUUID',
-        help='Currently unused, feel free to ignore.')
+        "task_uuid", metavar="taskUUID", help="Currently unused, feel free to ignore."
+    )
     return parser
 
 
@@ -280,9 +280,11 @@ def get_scanner():
     choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
     if choice not in SCANNERS_NAMES:
 
-        logger.warning('Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):'
-                       ' "%s"; using %s.',
-                       choice, DEFAULT_SCANNER.__name__)
+        logger.warning(
+            "Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):" ' "%s"; using %s.',
+            choice,
+            DEFAULT_SCANNER.__name__,
+        )
         return DEFAULT_SCANNER()
     return SCANNERS[SCANNERS_NAMES.index(choice)]()
 
@@ -303,7 +305,7 @@ def get_size(file_uuid, path):
 
 def scan_file(event_queue, file_uuid, path, date, task_uuid):
     if file_already_scanned(file_uuid):
-        logger.info('Virus scan already performed, not running scan again')
+        logger.info("Virus scan already performed, not running scan again")
         return 0
 
     scanner, passed = None, False
@@ -311,49 +313,53 @@ def scan_file(event_queue, file_uuid, path, date, task_uuid):
     try:
         size = get_size(file_uuid, path)
         if size is None:
-            logger.error('Getting file size returned: %s', size)
+            logger.error("Getting file size returned: %s", size)
             return 1
 
-        max_file_size = (
-            mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE * 1024 * 1024)
-        max_scan_size = (
-            mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE * 1024 * 1024)
+        max_file_size = mcpclient_settings.CLAMAV_CLIENT_MAX_FILE_SIZE * 1024 * 1024
+        max_scan_size = mcpclient_settings.CLAMAV_CLIENT_MAX_SCAN_SIZE * 1024 * 1024
 
         valid_scan = True
 
         if size > max_file_size:
             logger.info(
-                'File will not be scanned. Size %s bytes greater than scanner '
-                'max file size %s bytes', size, max_file_size)
+                "File will not be scanned. Size %s bytes greater than scanner "
+                "max file size %s bytes",
+                size,
+                max_file_size,
+            )
             valid_scan = False
         elif size > max_scan_size:
             logger.info(
-                'File will not be scanned. Size %s bytes greater than scanner '
-                'max scan size %s bytes', size, max_scan_size)
+                "File will not be scanned. Size %s bytes greater than scanner "
+                "max scan size %s bytes",
+                size,
+                max_scan_size,
+            )
             valid_scan = False
 
         if valid_scan:
             scanner = get_scanner()
             logger.info(
-                'Using scanner %s (%s - %s)',
+                "Using scanner %s (%s - %s)",
                 scanner.program(),
                 scanner.version(),
-                scanner.virus_definitions())
+                scanner.virus_definitions(),
+            )
 
             passed, state, details = scanner.scan(path)
         else:
             passed, state, details = None, None, None
 
     except:
-        logger.error('Unexpected error scanning file %s', path, exc_info=True)
+        logger.error("Unexpected error scanning file %s", path, exc_info=True)
         return 1
     else:
         # record pass or fail, but not None if the file hasn't
         # been scanned, e.g. Max File Size thresholds being too low.
         if passed is not None:
-            logger.info('File %s scanned!', path)
-            logger.debug('passed=%s state=%s details=%s',
-                         passed, state, details)
+            logger.info("File %s scanned!", path)
+            logger.debug("passed=%s state=%s details=%s", passed, state, details)
     finally:
         queue_event(file_uuid, date, scanner, passed, event_queue)
 

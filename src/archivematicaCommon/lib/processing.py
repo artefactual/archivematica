@@ -227,8 +227,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
 """
 
 BUILTIN_CONFIGS = {
-    'default': DEFAULT_PROCESSING_CONFIG,
-    'automated': AUTOMATED_PROCESSING_CONFIG,
+    "default": DEFAULT_PROCESSING_CONFIG,
+    "automated": AUTOMATED_PROCESSING_CONFIG,
 }
 
 
@@ -237,13 +237,13 @@ def install_builtin_config(name, force=False):
     Install the original version of a builtin processing configuration
     """
     if name in BUILTIN_CONFIGS:
-        config = BUILTIN_CONFIGS[name].encode('utf-8')
+        config = BUILTIN_CONFIGS[name].encode("utf-8")
         path = os.path.join(
             django_settings.SHARED_DIRECTORY,
-            'sharedMicroServiceTasksConfigs/processingMCPConfigs',
-            '%sProcessingMCP.xml' % name
+            "sharedMicroServiceTasksConfigs/processingMCPConfigs",
+            "%sProcessingMCP.xml" % name,
         )
         if force or not os.path.isfile(path):
-            with open(path, 'w') as fd:
+            with open(path, "w") as fd:
                 fd.write(config)
         return config

@@ -12,11 +12,11 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('agent-code')
-        parser.add_argument('--pk', default=1, type=int)
+        parser.add_argument("agent-code")
+        parser.add_argument("--pk", default=1, type=int)
 
     def handle(self, *args, **options):
         try:
-            set_agent_code(options['agent-code'], options['pk'])
+            set_agent_code(options["agent-code"], options["pk"])
         except Agent.DoesNotExist:
             self.stderr.write("Agent not found")

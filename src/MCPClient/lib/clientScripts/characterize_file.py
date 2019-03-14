@@ -11,6 +11,7 @@ from lxml import etree
 import multiprocessing
 
 import django
+
 django.setup()
 from django.db import transaction
 from django.conf import settings as mcpclient_settings
@@ -47,35 +48,43 @@ def main(job, file_path, file_uuid, sip_uuid):
         rules = format = None
 
     if format:
-        rules = FPRule.active.filter(format=format.uuid,
-                                     purpose='characterization')
+        rules = FPRule.active.filter(format=format.uuid, purpose="characterization")
 
     # Characterization always occurs - if nothing is specified, get one or more
     # defaults specified in the FPR.
     if not rules:
-        rules = FPRule.active.filter(purpose='default_characterization')
+        rules = FPRule.active.filter(purpose="default_characterization")
 
     for rule in rules:
-        if rule.command.script_type == 'bashScript' or rule.command.script_type == 'command':
+        if (
+            rule.command.script_type == "bashScript"
+            or rule.command.script_type == "command"
+        ):
             args = []
-            command_to_execute = replace_string_values(rule.command.command,
-                                                       file_=file_uuid, sip=sip_uuid, type_='file')
+            command_to_execute = replace_string_values(
+                rule.command.command, file_=file_uuid, sip=sip_uuid, type_="file"
+            )
         else:
-            rd = ReplacementDict.frommodel(file_=file_uuid,
-                                           sip=sip_uuid, type_='file')
+            rd = ReplacementDict.frommodel(file_=file_uuid, sip=sip_uuid, type_="file")
             args = rd.to_gnu_options()
             command_to_execute = rule.command.command
 
-        exitstatus, stdout, stderr = executeOrRun(rule.command.script_type,
-                                                  command_to_execute,
-                                                  arguments=args,
-                                                  capture_output=True)
+        exitstatus, stdout, stderr = executeOrRun(
+            rule.command.script_type,
+            command_to_execute,
+            arguments=args,
+            capture_output=True,
+        )
 
         job.write_output(stdout)
         job.write_error(stderr)
 
         if exitstatus != 0:
-            job.write_error('Command {} failed with exit status {}; stderr:'.format(rule.command.description, exitstatus))
+            job.write_error(
+                "Command {} failed with exit status {}; stderr:".format(
+                    rule.command.description, exitstatus
+                )
+            )
             failed = True
             continue
         # fmt/101 is XML - we want to collect and package any XML output, while
@@ -83,16 +92,31 @@ def main(job, file_path, file_uuid, sip_uuid):
         # output in the event that they are writing their output to disk.
         # FPCommandOutput can have multiple rows for a given file,
         # distinguished by the rule that produced it.
-        if rule.command.output_format and rule.command.output_format.pronom_id == 'fmt/101':
+        if (
+            rule.command.output_format
+            and rule.command.output_format.pronom_id == "fmt/101"
+        ):
             try:
                 etree.fromstring(stdout)
                 insertIntoFPCommandOutput(file_uuid, stdout, rule.uuid)
-                job.write_output('Saved XML output for command "{}" ({})'.format(rule.command.description, rule.command.uuid))
+                job.write_output(
+                    'Saved XML output for command "{}" ({})'.format(
+                        rule.command.description, rule.command.uuid
+                    )
+                )
             except etree.XMLSyntaxError:
                 failed = True
-                job.write_error('XML output for command "{}" ({}) was not valid XML; not saving to database'.format(rule.command.description, rule.command.uuid))
+                job.write_error(
+                    'XML output for command "{}" ({}) was not valid XML; not saving to database'.format(
+                        rule.command.description, rule.command.uuid
+                    )
+                )
         else:
-            job.write_error('Tool output for command "{}" ({}) is not XML; not saving to database'.format(rule.command.description, rule.command.uuid))
+            job.write_error(
+                'Tool output for command "{}" ({}) is not XML; not saving to database'.format(
+                    rule.command.description, rule.command.uuid
+                )
+            )
 
     if failed:
         return 255

@@ -41,10 +41,7 @@ from gearman import GearmanWorker
 from gearman.errors import ServerUnavailable
 from lxml import etree
 
-from linkTaskManagerChoice import (
-    choicesAvailableForUnits,
-    choicesAvailableForUnitsLock,
-)
+from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 from package import create_package, get_approve_transfer_chain_id
 from processing_config import get_processing_fields
 from main.models import Job, SIP, Transfer
@@ -113,10 +110,11 @@ class RPCServer(GearmanWorker):
        data sent by the client.
 
     """
+
     # Regular expression to match handler configurations in method docstrings.
     ability_regex = re.compile(
-        r"(?P<docstring>.*)(?P<config>\[config\].*)$",
-        re.DOTALL | re.MULTILINE)
+        r"(?P<docstring>.*)(?P<config>\[config\].*)$", re.DOTALL | re.MULTILINE
+    )
 
     # To some extent, application logic in Archivematica is coupled to certain
     # values in our workflow data. This is mostly true to things related to
@@ -125,8 +123,7 @@ class RPCServer(GearmanWorker):
     APPROVE_AIP_REINGEST_CHAIN_ID = "9520386f-bb6d-4fb9-a6b6-5845ef39375f"
 
     def __init__(self, workflow):
-        super(RPCServer, self).__init__(
-            host_list=[django_settings.GEARMAN_SERVER])
+        super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
         self.workflow = workflow
         self._register_tasks()
         self.set_client_id(gethostname() + "_MCPServer")
@@ -156,18 +153,20 @@ class RPCServer(GearmanWorker):
             config = match.group("config")
         except IndexError:
             raise err
-        parser = configparser.SafeConfigParser({
-            "name": None, "raise_exc": False,
-        })
+        parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
         parser.readfp(StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
-                "handler {} is missing the `name` attribute", handler.__name__)
-        return name, {
-            "raise_exc": parser.getboolean("config", "raise_exc"),
-            "expect_payload": "payload" in inspect.getargspec(handler).args,
-        }
+                "handler {} is missing the `name` attribute", handler.__name__
+            )
+        return (
+            name,
+            {
+                "raise_exc": parser.getboolean("config", "raise_exc"),
+                "expect_payload": "payload" in inspect.getargspec(handler).args,
+            },
+        )
 
     def _wrap_handler_method(self, name, handler, **opts):
         def wrap(worker, job):
@@ -182,18 +181,19 @@ class RPCServer(GearmanWorker):
             except Exception as err:
                 # Errors that are familiar will not be logged in detail.
                 known_err = isinstance(err, RPCServerError)
-                logger.error("Exception raised by handler %s: %s", name, err,
-                             exc_info=not known_err)
+                logger.error(
+                    "Exception raised by handler %s: %s",
+                    name,
+                    err,
+                    exc_info=not known_err,
+                )
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
-                resp = {
-                    "error": True,
-                    "handler": name,
-                    "message": str(err),
-                }
+                resp = {"error": True, "handler": name, "message": str(err)}
             finally:
                 close_old_connections()
             return cPickle.dumps(resp)
+
         return wrap
 
     #
@@ -264,15 +264,13 @@ class RPCServer(GearmanWorker):
         transfer_type = payload.get("transfer_type", "standard")
         user_id = payload.get("user_id")
         job = Job.objects.filter(
-            directory=db_transfer_path,
-            currentstep=Job.STATUS_AWAITING_DECISION
+            directory=db_transfer_path, currentstep=Job.STATUS_AWAITING_DECISION
         ).first()
         if not job:
             raise NotFoundError("There is no job awaiting a decision.")
         chain_id = get_approve_transfer_chain_id(transfer_type)
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(
-                chain_id, user_id)
+            choicesAvailableForUnits[job.pk].proceedWithChoice(chain_id, user_id)
         except IndexError:
             raise NotFoundError("Could not find choice for unit")
         return job.sipuuid
@@ -299,16 +297,15 @@ class RPCServer(GearmanWorker):
         if not job:  # No job to be found.
             raise NotFoundError(
                 'There is no "Reingest AIP" job awaiting a'
-                " decision for SIP {}".format(sip_uuid))
-        not_found = NotFoundError(
-            "Could not find choice for approve AIP reingest")
+                " decision for SIP {}".format(sip_uuid)
+            )
+        not_found = NotFoundError("Could not find choice for approve AIP reingest")
         try:
             chain = self.workflow.get_chain(self.APPROVE_AIP_REINGEST_CHAIN_ID)
         except KeyError:
             raise not_found
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(
-                chain.id, user_id)
+            choicesAvailableForUnits[job.pk].proceedWithChoice(chain.id, user_id)
         except IndexError:
             raise not_found
 
@@ -333,10 +330,7 @@ class RPCServer(GearmanWorker):
         name = getUnitsStatuses
         raise_exc = False
         """
-        unit_types = {
-            "SIP": (SIP, "unitSIP"),
-            "Transfer": (Transfer, "unitTransfer"),
-        }
+        unit_types = {"SIP": (SIP, "unitSIP"), "Transfer": (Transfer, "unitTransfer")}
         try:
             model_attrs = unit_types[payload["type"]]
             lang = payload["lang"]
@@ -358,7 +352,8 @@ class RPCServer(GearmanWorker):
         objects = []
         for unit_id, timestamp in sipuuids_and_timestamps:
             item = {
-                "id": unit_id, "uuid": unit_id,
+                "id": unit_id,
+                "uuid": unit_id,
                 "timestamp": float(timestamp),
                 "jobs": [],
             }
@@ -373,8 +368,7 @@ class RPCServer(GearmanWorker):
             # using the files in common.
             if model is SIP:
                 try:
-                    trfs = Transfer.objects.filter(
-                        file__sip_id=item["uuid"]).distinct()
+                    trfs = Transfer.objects.filter(file__sip_id=item["uuid"]).distinct()
                     if trfs:
                         item["access_system_id"] = trfs[0].access_system_id
                 except Exception:
@@ -391,12 +385,14 @@ class RPCServer(GearmanWorker):
                 new_job["currentstep"] = job_.currentstep
                 new_job["timestamp"] = "%d.%s" % (
                     calendar.timegm(job_.createdtime.timetuple()),
-                    str(job_.createdtimedec).split(".")[-1])
+                    str(job_.createdtimedec).split(".")[-1],
+                )
                 new_job["microservicegroup"] = link.get_label("group", lang)
                 new_job["type"] = link.get_label("description", lang)
                 try:
                     new_job["choices"] = _pull_choices(
-                        job_.jobuuid, lang, jobs_awaiting_for_approval)
+                        job_.jobuuid, lang, jobs_awaiting_for_approval
+                    )
                 except JobNotWaitingForApprovalError:
                     pass
                 item["jobs"].append(new_job)
@@ -423,24 +419,23 @@ class RPCServer(GearmanWorker):
         if not jobs_qs:
             raise NotFoundError("Unit not found")
         microservices = jobs_qs.values(
-            "jobuuid", "currentstep", "microservicechainlink")
+            "jobuuid", "currentstep", "microservicechainlink"
+        )
         jobs = []
         for item in microservices:
             try:
-                link = self.workflow.get_link(
-                    item.get("microservicechainlink"))
+                link = self.workflow.get_link(item.get("microservicechainlink"))
             except KeyError:
                 continue
-            jobs.append({
-                "id": item.get("jobuuid"),
-                "description": link.get_label("description", lang),
-                "status": item.get("currentstep"),
-                "group": link.get_label("group", lang),
-            })
-        return {
-            "name": jobs_qs.get_directory_name(),
-            "jobs": jobs,
-        }
+            jobs.append(
+                {
+                    "id": item.get("jobuuid"),
+                    "description": link.get_label("description", lang),
+                    "status": item.get("currentstep"),
+                    "group": link.get_label("group", lang),
+                }
+            )
+        return {"name": jobs_qs.get_directory_name(), "jobs": jobs}
 
 
 class JobNotWaitingForApprovalError(Exception):

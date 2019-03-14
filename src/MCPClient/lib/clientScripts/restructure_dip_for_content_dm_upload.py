@@ -34,7 +34,7 @@ import archivematicaFunctions
 import namespaces as ns
 
 
-def parseDmdSec(dmdSec, label='[Placeholder title]'):
+def parseDmdSec(dmdSec, label="[Placeholder title]"):
     """
     Parses a dmdSec into a dict with child tag names and their values
 
@@ -46,29 +46,31 @@ def parseDmdSec(dmdSec, label='[Placeholder title]'):
     # in the dashboard, and there was no metadata.csv or other metadata file
     # in the transfer), return a placeholder title.
     if dmdSec is None:
-        return collections.OrderedDict([('title', [label])])
+        return collections.OrderedDict([("title", [label])])
     elementsDict = archivematicaFunctions.OrderedListsDict()
 
     # If we are dealing with a DOM object representing the Dublin Core metadata,
     # check to see if there is a title (required by CONTENTdm). If not, assign a
     # placeholder title.
-    mdType = dmdSec.xpath('mets:mdWrap/@MDTYPE', namespaces=ns.NSMAP)
-    if mdType == 'DC':
-        dcTitlesDom = dmdSec.findall('.//dcterms:title', namespaces=ns.NSMAP)
+    mdType = dmdSec.xpath("mets:mdWrap/@MDTYPE", namespaces=ns.NSMAP)
+    if mdType == "DC":
+        dcTitlesDom = dmdSec.findall(".//dcterms:title", namespaces=ns.NSMAP)
         if not dcTitlesDom:
-            elementsDict['title'] = label
+            elementsDict["title"] = label
 
     # Iterate over all descendants and put in the return dict
     # Key is the element's tag name, value is a list of the element's text
-    xmldata = dmdSec.find('.//mets:xmlData', namespaces=ns.NSMAP)
+    xmldata = dmdSec.find(".//mets:xmlData", namespaces=ns.NSMAP)
     for element in xmldata.iterdescendants():
         tagname = element.tag
         # Strip namespace prefix
         # TODO can tag names be unicode?
-        tagname = re.sub(r'{\S+}', '', tagname)  # \S = non whitespace
-        if tagname in ('dublincore', ):
+        tagname = re.sub(r"{\S+}", "", tagname)  # \S = non whitespace
+        if tagname in ("dublincore",):
             continue
-        elementsDict[tagname] = element.text or ''  # OrderedListsDict appends to lists as needed
+        elementsDict[tagname] = (
+            element.text or ""
+        )  # OrderedListsDict appends to lists as needed
 
     return collections.OrderedDict(elementsDict)
 
@@ -83,16 +85,16 @@ def getItemCountType(structMap):
     :param structMap: structMap element from the METS file
     :return: String 'simple', 'compound-dirs' or 'compound-files'
     """
-    divs_with_dmdsecs = structMap.findall('.//mets:div[@DMDID]', namespaces=ns.NSMAP)
+    divs_with_dmdsecs = structMap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
     # If any are TYPE Directory, then it is compound
-    if any([e.get('TYPE') == 'Directory' for e in divs_with_dmdsecs]):
+    if any([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
         # If all are TYPE Directory then it is bulk
-        if all([e.get('TYPE') == 'Directory' for e in divs_with_dmdsecs]):
-            return 'compound-dirs'
+        if all([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
+            return "compound-dirs"
         else:
-            return 'compound-files'
+            return "compound-files"
     else:
-        return 'simple'
+        return "simple"
 
 
 def splitDmdSecs(job, dmdSecs):
@@ -106,19 +108,19 @@ def splitDmdSecs(job, dmdSecs):
     :return: Dict with {'dc': <dmdSec or None>, 'nonDc': <dmdSec or None>}
     """
     lenDmdSecs = len(dmdSecs)
-    dmdSecPair = {'dc': None, 'nonDc': None}
+    dmdSecPair = {"dc": None, "nonDc": None}
     if lenDmdSecs > 2:
-        job.pyprint('Error splitting dmdSecs, more than 2 provided', file=sys.stderr)
+        job.pyprint("Error splitting dmdSecs, more than 2 provided", file=sys.stderr)
         return dmdSecPair
     for dmdSec in dmdSecs:
-        mdWrap = dmdSec.find('mets:mdWrap', namespaces=ns.NSMAP)
-        if mdWrap.get('MDTYPE') == 'OTHER':
-            dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
-        if mdWrap.get('MDTYPE') == 'DC':
-            dmdSecPair['dc'] = parseDmdSec(dmdSec)
+        mdWrap = dmdSec.find("mets:mdWrap", namespaces=ns.NSMAP)
+        if mdWrap.get("MDTYPE") == "OTHER":
+            dmdSecPair["nonDc"] = parseDmdSec(dmdSec)
+        if mdWrap.get("MDTYPE") == "DC":
+            dmdSecPair["dc"] = parseDmdSec(dmdSec)
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
-        dmdSecPair['dc'] = parseDmdSec(None)
+        dmdSecPair["dc"] = parseDmdSec(None)
 
     return dmdSecPair
 
@@ -132,14 +134,16 @@ def addAipUuidToDcMetadata(dipUuid, dcMetadata):
     """
     if not dcMetadata:
         return None
-    if 'identifier' not in dcMetadata:
-        dcMetadata['identifier'] = [dipUuid]
+    if "identifier" not in dcMetadata:
+        dcMetadata["identifier"] = [dipUuid]
     else:
-        dcMetadata['identifier'].append(dipUuid)
+        dcMetadata["identifier"].append(dipUuid)
     return dcMetadata
 
 
-def generate_project_client_package(job, output_dir, package_type, structmap, dmdsecs, dipuuid):
+def generate_project_client_package(
+    job, output_dir, package_type, structmap, dmdsecs, dipuuid
+):
     """
     Generates a simple.txt or compound.txt from the METS of a DIP
 
@@ -148,29 +152,29 @@ def generate_project_client_package(job, output_dir, package_type, structmap, dm
     :param dmdsecs: Dict of {<DMDID>: OrderedDict{column name: value} or <dmdSec element>? }
     :param dipuuid: UUID of the DIP
     """
-    job.pyprint('DIP UUID:', dipuuid)
+    job.pyprint("DIP UUID:", dipuuid)
 
-    if 'compound' in package_type:
-        csv_path = os.path.join(output_dir, 'compound.txt')
+    if "compound" in package_type:
+        csv_path = os.path.join(output_dir, "compound.txt")
     else:
-        csv_path = os.path.join(output_dir, 'simple.txt')
+        csv_path = os.path.join(output_dir, "simple.txt")
 
-    job.pyprint('Package type:', package_type)
-    job.pyprint('Path to the output tabfile', csv_path)
+    job.pyprint("Package type:", package_type)
+    job.pyprint("Path to the output tabfile", csv_path)
 
-    divs_with_dmdsecs = structmap.findall('.//mets:div[@DMDID]', namespaces=ns.NSMAP)
+    divs_with_dmdsecs = structmap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
     with open(csv_path, "wb") as csv_file:
-        writer = csv.writer(csv_file, delimiter='\t')
+        writer = csv.writer(csv_file, delimiter="\t")
 
         # Iterate through every div and create a row for each
         csv_header_ref = None
         for div in divs_with_dmdsecs:
             # Find associated dmdSecs
-            dmdids = div.get('DMDID').split()
+            dmdids = div.get("DMDID").split()
             # Take nonDC dmdSec, fallback to DC dmdSec
             dmdsecpair = splitDmdSecs(job, [dmdsecs[dmdid] for dmdid in dmdids])
-            dmdsecpair['dc'] = addAipUuidToDcMetadata(dipuuid, dmdsecpair['dc'])
-            metadata = dmdsecpair['nonDc'] or dmdsecpair['dc']
+            dmdsecpair["dc"] = addAipUuidToDcMetadata(dipuuid, dmdsecpair["dc"])
+            metadata = dmdsecpair["nonDc"] or dmdsecpair["dc"]
             # Skip dmdSecs without metadata
             if not metadata:
                 continue
@@ -179,57 +183,70 @@ def generate_project_client_package(job, output_dir, package_type, structmap, dm
             csv_values = []
             for header, value in metadata.items():
                 csv_header.append(header)
-                value = '; '.join(value).replace('\r', '').replace('\n', '')
+                value = "; ".join(value).replace("\r", "").replace("\n", "")
                 csv_values.append(archivematicaFunctions.unicodeToStr(value))
 
             # Add AIP UUID
-            csv_header.append('AIP UUID')
+            csv_header.append("AIP UUID")
             csv_values.append(dipuuid)
 
             # Add file UUID
-            csv_header.append('file UUID')
-            if 'dirs' in package_type:
+            csv_header.append("file UUID")
+            if "dirs" in package_type:
                 # Directories have no file UUID
-                csv_values.append('')
+                csv_values.append("")
             else:
-                file_uuid = ''
-                fptr = div.find('mets:fptr', namespaces=ns.NSMAP)
+                file_uuid = ""
+                fptr = div.find("mets:fptr", namespaces=ns.NSMAP)
                 # Only files have fptrs as direct children
                 if fptr is not None:
                     # File UUID is last 36 characters of FILEID
-                    file_uuid = fptr.get('FILEID')[-36:]
+                    file_uuid = fptr.get("FILEID")[-36:]
                 csv_values.append(file_uuid)
 
             # Add file or directory name
-            name = div.attrib['LABEL']  # Fallback if LABEL doesn't exist?
-            if 'dirs' in package_type:
-                csv_header.insert(0, 'Directory name')
+            name = div.attrib["LABEL"]  # Fallback if LABEL doesn't exist?
+            if "dirs" in package_type:
+                csv_header.insert(0, "Directory name")
                 csv_values.insert(0, name)
             else:
-                csv_header.append('Filename')
+                csv_header.append("Filename")
                 csv_values.append(name)
 
             # Compare csv_header, if diff ERROR (first time set, write to file)
             if csv_header_ref and csv_header_ref != csv_header:
-                job.pyprint('ERROR headers differ,', csv_path, 'almost certainly invalid', file=sys.stderr)
-                job.pyprint('Reference header:', csv_header_ref, file=sys.stderr)
-                job.pyprint('Differing header:', csv_header, file=sys.stderr)
+                job.pyprint(
+                    "ERROR headers differ,",
+                    csv_path,
+                    "almost certainly invalid",
+                    file=sys.stderr,
+                )
+                job.pyprint("Reference header:", csv_header_ref, file=sys.stderr)
+                job.pyprint("Differing header:", csv_header, file=sys.stderr)
                 return 1
             # If first time through, write out header
             if not csv_header_ref:
                 csv_header_ref = csv_header
                 writer.writerow(csv_header_ref)
-                job.pyprint('Tabfile header:', csv_header)
+                job.pyprint("Tabfile header:", csv_header)
             # Write csv_row
             writer.writerow(csv_values)
-            job.pyprint('Values:', csv_values)
+            job.pyprint("Values:", csv_values)
     return 0
 
 
 def call(jobs):
-    parser = argparse.ArgumentParser(description='restructure')
-    parser.add_argument('--uuid', action="store", dest='uuid', metavar='UUID', help='%SIPUUID%')
-    parser.add_argument('--dipDir', action="store", dest='dipDir', metavar='dipDir', help='%SIPDirectory%')
+    parser = argparse.ArgumentParser(description="restructure")
+    parser.add_argument(
+        "--uuid", action="store", dest="uuid", metavar="UUID", help="%SIPUUID%"
+    )
+    parser.add_argument(
+        "--dipDir",
+        action="store",
+        dest="dipDir",
+        metavar="dipDir",
+        help="%SIPDirectory%",
+    )
 
     for job in jobs:
         with job.JobContext():
@@ -237,17 +254,17 @@ def call(jobs):
 
             # Perform some preliminary validation on the argument values.
             if not os.path.isdir(args.dipDir):
-                job.pyprint("Can't find", args.dipDir, ', exiting.')
+                job.pyprint("Can't find", args.dipDir, ", exiting.")
                 job.set_status(1)
                 continue
 
             # Read and parse the METS file.
-            metsFile = os.path.join(args.dipDir, 'METS.' + args.uuid + '.xml')
+            metsFile = os.path.join(args.dipDir, "METS." + args.uuid + ".xml")
             root = etree.parse(metsFile)
 
             # If there is a user-submitted structMap (i.e., len(structMapts) is 2, use that one.
             # QUESTION why not use physical structMap always?
-            structMaps = root.findall('mets:structMap', namespaces=ns.NSMAP)
+            structMaps = root.findall("mets:structMap", namespaces=ns.NSMAP)
             archivematica_structmap = structMaps[0]
             if len(structMaps) == 2:
                 itemCountType = getItemCountType(structMaps[1])
@@ -255,6 +272,17 @@ def call(jobs):
                 itemCountType = getItemCountType(archivematica_structmap)
 
             # Get the dmdSec nodes from the METS file.
-            dmdsecs = {e.get('ID'): e for e in root.findall('mets:dmdSec', namespaces=ns.NSMAP)}
+            dmdsecs = {
+                e.get("ID"): e for e in root.findall("mets:dmdSec", namespaces=ns.NSMAP)
+            }
 
-            job.set_status(generate_project_client_package(job, os.path.join(args.dipDir, 'objects'), itemCountType, archivematica_structmap, dmdsecs, args.uuid))
+            job.set_status(
+                generate_project_client_package(
+                    job,
+                    os.path.join(args.dipDir, "objects"),
+                    itemCountType,
+                    archivematica_structmap,
+                    dmdsecs,
+                    args.uuid,
+                )
+            )

@@ -33,5 +33,5 @@ DATABASES = {
         "PASSWORD": "",
         "HOST": "",
         "PORT": "",
-    },
+    }
 }

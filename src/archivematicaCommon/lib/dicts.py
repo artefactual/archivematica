@@ -36,10 +36,10 @@ config = {}
 
 
 def setup(shared_directory, processing_directory, watch_directory, rejected_directory):
-    config['shared_directory'] = shared_directory
-    config['processing_directory'] = processing_directory
-    config['watch_directory'] = watch_directory
-    config['rejected_directory'] = rejected_directory
+    config["shared_directory"] = shared_directory
+    config["processing_directory"] = processing_directory
+    config["watch_directory"] = watch_directory
+    config["rejected_directory"] = rejected_directory
 
 
 def replace_string_values(string, **kwargs):
@@ -67,8 +67,8 @@ class ReplacementDict(dict):
         return ReplacementDict(ast.literal_eval(s))
 
     @staticmethod
-    def frommodel(type_='file', sip=None, file_=None, expand_path=True):
-        '''
+    def frommodel(type_="file", sip=None, file_=None, expand_path=True):
+        """
         Creates a new ReplacementDict option with the standard variables
         populated based on values taken from the models passed in.
         SIP and File instances can be passed as arguments, using the sip
@@ -89,7 +89,7 @@ class ReplacementDict(dict):
         type_ keyword argument must be used to indicate the context
         in which the dict is being created. Supported values are 'file',
         'sip', and 'transfer'. The default is 'file'.
-        '''
+        """
 
         # Currently, MCPServer does not use the Django ORM.
         # In order to make this code accessible to MCPServer,
@@ -104,7 +104,7 @@ class ReplacementDict(dict):
             except:
                 sip = models.Transfer.objects.get(uuid=sip)
 
-        shared_path = config['shared_directory']
+        shared_path = config["shared_directory"]
 
         # We still want to set SIP variables, even if no SIP or Transfer
         # was passed in, so try to fetch it from the file
@@ -122,60 +122,64 @@ class ReplacementDict(dict):
             else:
                 relative_location = sip.currentpath
             if expand_path:
-                sipdir = relative_location.replace('%sharedPath%', shared_path)
+                sipdir = relative_location.replace("%sharedPath%", shared_path)
             else:
                 sipdir = relative_location
 
-            rd['%SIPUUID%'] = sip.uuid
-            sip_name = os.path.basename(sipdir.rstrip('/')).replace('-' + sip.uuid, '')
-            rd['%SIPName%'] = sip_name
-            rd['%currentPath%'] = sipdir
-            rd['%SIPDirectory%'] = sipdir
-            rd['%SIPDirectoryBasename%'] = os.path.basename(os.path.abspath(sipdir))
-            rd['%SIPLogsDirectory%'] = os.path.join(sipdir, 'logs', '')
-            rd['%SIPObjectsDirectory%'] = os.path.join(sipdir, 'objects', '')
-            if type_ == 'sip':
-                rd['%relativeLocation%'] = relative_location
-            elif type_ == 'transfer':
-                rd['%transferDirectory%'] = sipdir
-                rd['%relativeLocation%'] = relative_location
+            rd["%SIPUUID%"] = sip.uuid
+            sip_name = os.path.basename(sipdir.rstrip("/")).replace("-" + sip.uuid, "")
+            rd["%SIPName%"] = sip_name
+            rd["%currentPath%"] = sipdir
+            rd["%SIPDirectory%"] = sipdir
+            rd["%SIPDirectoryBasename%"] = os.path.basename(os.path.abspath(sipdir))
+            rd["%SIPLogsDirectory%"] = os.path.join(sipdir, "logs", "")
+            rd["%SIPObjectsDirectory%"] = os.path.join(sipdir, "objects", "")
+            if type_ == "sip":
+                rd["%relativeLocation%"] = relative_location
+            elif type_ == "transfer":
+                rd["%transferDirectory%"] = sipdir
+                rd["%relativeLocation%"] = relative_location
 
         if file_:
-            rd['%fileUUID%'] = file_.uuid
+            rd["%fileUUID%"] = file_.uuid
             try:
                 base_location = file_.sip.currentpath
             except:
                 base_location = file_.transfer.currentlocation
 
             if expand_path and sipdir is not None:
-                base_location = base_location.replace('%sharedPath%', shared_path)
+                base_location = base_location.replace("%sharedPath%", shared_path)
                 # If the original location contains non-unicode characters,
                 # using base_location as retrieved from the DB will raise.
-                origin = file_.originallocation.replace('%transferDirectory%', base_location.encode("utf-8"))
-                current_location = file_.currentlocation.replace('%transferDirectory%', base_location)
-                current_location = current_location.replace('%SIPDirectory%', sipdir)
+                origin = file_.originallocation.replace(
+                    "%transferDirectory%", base_location.encode("utf-8")
+                )
+                current_location = file_.currentlocation.replace(
+                    "%transferDirectory%", base_location
+                )
+                current_location = current_location.replace("%SIPDirectory%", sipdir)
             else:
                 origin = file_.originallocation
                 current_location = file_.currentlocation
-            rd['%originalLocation%'] = origin
-            rd['%currentLocation%'] = current_location
-            rd['%fileDirectory%'] = os.path.dirname(current_location)
-            rd['%fileGrpUse%'] = file_.filegrpuse
-            if type_ == 'file':
-                rd['%relativeLocation%'] = current_location
+            rd["%originalLocation%"] = origin
+            rd["%currentLocation%"] = current_location
+            rd["%fileDirectory%"] = os.path.dirname(current_location)
+            rd["%fileGrpUse%"] = file_.filegrpuse
+            if type_ == "file":
+                rd["%relativeLocation%"] = current_location
 
             # These synonyms were originally defined by the Normalize microservice
-            rd['%inputFile%'] = current_location
-            rd['%fileFullName%'] = current_location
+            rd["%inputFile%"] = current_location
+            rd["%fileFullName%"] = current_location
             name, ext = os.path.splitext(current_location)
-            rd['%fileName%'] = os.path.basename(name)
-            rd['%fileExtension%'] = ext[1:]
-            rd['%fileExtensionWithDot%'] = ext
+            rd["%fileName%"] = os.path.basename(name)
+            rd["%fileExtension%"] = ext[1:]
+            rd["%fileExtensionWithDot%"] = ext
 
-        rd['%tmpDirectory%'] = os.path.join(config['shared_directory'], 'tmp', '')
-        rd['%processingDirectory%'] = config['processing_directory']
-        rd['%watchDirectoryPath%'] = config['watch_directory']
-        rd['%rejectedDirectory%'] = config['rejected_directory']
+        rd["%tmpDirectory%"] = os.path.join(config["shared_directory"], "tmp", "")
+        rd["%processingDirectory%"] = config["processing_directory"]
+        rd["%watchDirectoryPath%"] = config["watch_directory"]
+        rd["%rejectedDirectory%"] = config["rejected_directory"]
 
         return rd
 
@@ -224,8 +228,8 @@ class ReplacementDict(dict):
         """
         args = []
         for key, value in self.items():
-            optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
-            opt = '--{k}={v}'.format(k=optname, v=value)
+            optname = re.sub(r"([A-Z]+)", r"-\1", key[1:-1]).lower()
+            opt = "--{k}={v}".format(k=optname, v=value)
             args.append(opt)
 
         return args

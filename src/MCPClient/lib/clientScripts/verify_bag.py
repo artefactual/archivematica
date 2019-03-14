@@ -24,19 +24,23 @@ import sys
 from executeOrRunSubProcess import executeOrRun
 
 PRINT_SUBPROCESS_OUTPUT = True
-BAG = '/usr/share/bagit/bin/bag'
-BAG_INFO = 'bag-info.txt'
+BAG = "/usr/share/bagit/bin/bag"
+BAG_INFO = "bag-info.txt"
 
 
 def verify_bag(job, bag):
     verification_commands = [
         ["/usr/share/bagit/bin/bag", "verifyvalid", bag],  # Validity
         ["/usr/share/bagit/bin/bag", "verifycomplete", bag],  # Completness
-        ["/usr/share/bagit/bin/bag", "verifypayloadmanifests", bag],  # Checksums in manifests
+        [
+            "/usr/share/bagit/bin/bag",
+            "verifypayloadmanifests",
+            bag,
+        ],  # Checksums in manifests
     ]
     bag_info = os.path.join(bag, "bag-info.txt")
     if os.path.isfile(bag_info):
-        for line in open(bag_info, 'r'):
+        for line in open(bag_info, "r"):
             if line.startswith("Payload-Oxum"):
                 # Generate Payload-Oxum and check against Payload-Oxum in bag-info.txt.
                 verification_commands.append(

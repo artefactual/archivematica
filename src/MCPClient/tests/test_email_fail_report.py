@@ -10,17 +10,25 @@ from django.core import mail
 import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
+sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from email_fail_report import send_email
 
 
-def fake_send_email_with_exception(subject, message, from_email, recipient_list,
-                                   fail_silently=False, auth_user=None,
-                                   auth_password=None, connection=None,
-                                   html_message=None):
+def fake_send_email_with_exception(
+    subject,
+    message,
+    from_email,
+    recipient_list,
+    fail_silently=False,
+    auth_user=None,
+    auth_password=None,
+    connection=None,
+    html_message=None,
+):
     from smtplib import SMTPException
-    raise SMTPException('Something really bad happened!')
+
+    raise SMTPException("Something really bad happened!")
 
 
 def test_send_email_ok(settings):
@@ -38,7 +46,8 @@ def test_send_email_ok(settings):
 
 
 def test_send_email_err(monkeypatch):
-    monkeypatch.setattr('django.core.mail.send_mail.func_code',
-                        fake_send_email_with_exception.func_code)
+    monkeypatch.setattr(
+        "django.core.mail.send_mail.func_code", fake_send_email_with_exception.func_code
+    )
     with pytest.raises(SMTPException):
         send_email("Foobar", ["to@domain.tld"], "<html>...</html>")

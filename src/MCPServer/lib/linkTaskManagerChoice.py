@@ -43,7 +43,7 @@ from django.utils.six import text_type
 
 waitingOnTimer = "waitingOnTimer"
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
+LOGGER = logging.getLogger("archivematica.mcp.server")
 
 
 class linkTaskManagerChoice(LinkTaskManager):
@@ -77,16 +77,17 @@ class linkTaskManagerChoice(LinkTaskManager):
                 chain = self.jobChainLink.workflow.get_chain(chain_id)
             except KeyError:
                 continue
-            if not choice_is_available(self.jobChainLink.link, chain,
-                                       django_settings):
+            if not choice_is_available(self.jobChainLink.link, chain, django_settings):
                 continue
             self.choices.append((chain_id, chain["description"], None))
 
     def checkForPreconfiguredXML(self):
         desiredChoice = None
         xmlFilePath = os.path.join(
-            self.unit.currentPath.replace("%sharedPath%", django_settings.SHARED_DIRECTORY, 1),
-            django_settings.PROCESSING_XML_FILE
+            self.unit.currentPath.replace(
+                "%sharedPath%", django_settings.SHARED_DIRECTORY, 1
+            ),
+            django_settings.PROCESSING_XML_FILE,
         )
         xmlFilePath = unicodeToStr(xmlFilePath)
         if os.path.isfile(xmlFilePath):
@@ -96,7 +97,10 @@ class linkTaskManagerChoice(LinkTaskManager):
                 tree = etree.parse(xmlFilePath)
                 root = tree.getroot()
                 for preconfiguredChoice in root.findall(".//preconfiguredChoice"):
-                    if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.pk:
+                    if (
+                        preconfiguredChoice.find("appliesTo").text
+                        == self.jobChainLink.pk
+                    ):
                         desiredChoice = preconfiguredChoice.find("goToChain").text
                         try:
                             # <delay unitAtime="yes">30</delay>
@@ -105,31 +109,51 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 unitAtimeXML = delayXML.get("unitCtime")
                             else:
                                 unitAtimeXML = None
-                            if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
+                            if (
+                                unitAtimeXML is not None
+                                and unitAtimeXML.lower() != "no"
+                            ):
                                 delaySeconds = int(delayXML.text)
                                 unitTime = os.path.getmtime(
                                     self.unit.currentPath.replace(
                                         "%sharedPath%",
                                         django_settings.SHARED_DIRECTORY,
-                                        1)
+                                        1,
+                                    )
                                 )
                                 nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
-                                LOGGER.info('Time to go: %s', timeToGo)
-                                self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
+                                LOGGER.info("Time to go: %s", timeToGo)
+                                self.jobChainLink.setExitMessage(
+                                    "Waiting till: "
+                                    + datetime.datetime.fromtimestamp(
+                                        (nowTime + timeToGo)
+                                    ).ctime()
+                                )
 
-                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart": True})
+                                t = threading.Timer(
+                                    timeToGo,
+                                    self.proceedWithChoice,
+                                    args=[desiredChoice, None],
+                                    kwargs={"delayTimerStart": True},
+                                )
                                 t.daemon = True
                                 self.delayTimer = t
                                 t.start()
                                 return None
 
                         except Exception:
-                            LOGGER.info('Error parsing XML', exc_info=True)
+                            LOGGER.info("Error parsing XML", exc_info=True)
             except Exception:
-                LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
-        LOGGER.info('Using preconfigured choice %s for %s', desiredChoice, self.jobChainLink.pk)
+                LOGGER.warning(
+                    "Error parsing xml at %s for pre-configured choice",
+                    xmlFilePath,
+                    exc_info=True,
+                )
+        LOGGER.info(
+            "Using preconfigured choice %s for %s", desiredChoice, self.jobChainLink.pk
+        )
         return desiredChoice
 
     def xmlify(self):
@@ -161,6 +185,6 @@ class linkTaskManagerChoice(LinkTaskManager):
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
         self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
-        LOGGER.info('Using user selected chain %s', chain_id)
+        LOGGER.info("Using user selected chain %s", chain_id)
         chain = self.jobChainLink.workflow.get_chain(chain_id)
         jobChain.jobChain(self.unit, chain, self.jobChainLink.workflow)

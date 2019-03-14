@@ -35,7 +35,7 @@ def call(jobs):
             if os.listdir(target) == []:
                 job.pyprint("Directory is empty: ", target, file=sys.stderr)
                 fileName = os.path.join(target, "submissionDocumentation.log")
-                f = open(fileName, 'a')
+                f = open(fileName, "a")
                 f.write("No submission documentation added")
                 f.close()
                 os.chmod(fileName, 488)

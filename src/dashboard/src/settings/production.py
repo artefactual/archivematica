@@ -24,6 +24,6 @@ from __future__ import absolute_import
 from .base import *
 
 
-ALLOWED_HOSTS = config.get('allowed_hosts').split(',')
+ALLOWED_HOSTS = config.get("allowed_hosts").split(",")
 
-SECRET_KEY = config.get('secret_key')
+SECRET_KEY = config.get("secret_key")

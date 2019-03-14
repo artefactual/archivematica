@@ -26,9 +26,9 @@ choicesAvailableForUnits = {}
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
-        super(linkTaskManagerSetUnitVariable, self).__init__(
-            jobChainLink, unit)
+        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink, unit)
         config = self.jobChainLink.link.config
         self.unit.setVariable(
-            config["variable"], config["variable_value"], config["chain_id"])
+            config["variable"], config["variable_value"], config["chain_id"]
+        )
         self.jobChainLink.linkProcessingComplete(exitCode=0)

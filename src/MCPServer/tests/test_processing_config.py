@@ -12,8 +12,8 @@ from workflow import load
 
 
 ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(
-        os.path.join(__file__, os.pardir))), "lib", "assets")
+    os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))), "lib", "assets"
+)
 
 
 @pytest.fixture
@@ -33,7 +33,8 @@ def test__populate_duplicates_chain_choice(_workflow):
     link = _workflow.get_link(link_id)
     config = processing_fields[link_id]
     config["options"] = _get_options_for_chain_choice(
-        link, _workflow, config.get("ignored_choices"))
+        link, _workflow, config.get("ignored_choices")
+    )
     _populate_duplicates_chain_choice(_workflow, link, config)
     duplicates = config["duplicates"]
     assert len(duplicates) > 0

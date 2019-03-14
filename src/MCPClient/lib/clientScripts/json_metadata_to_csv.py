@@ -34,12 +34,12 @@ def fetch_keys(objects):
     # "filename" and "parts" must be column 0.
     # (They are mutually exclusive.)
     keys = sorted(list(keys))
-    if 'filename' in keys:
-        keys.remove('filename')
-        keys.insert(0, 'filename')
-    elif 'parts' in keys:
-        keys.remove('parts')
-        keys.insert(0, 'parts')
+    if "filename" in keys:
+        keys.remove("filename")
+        keys.insert(0, "filename")
+    elif "parts" in keys:
+        keys.remove("parts")
+        keys.insert(0, "parts")
 
     # now we need to update the list to ensure there are the right numbers
     # of occurrences.
@@ -69,9 +69,9 @@ def encode_item(item):
     if not item:  # Handle case where json contains null.
         return
     elif isinstance(item, six.string_types):
-        return item.encode('utf-8')
+        return item.encode("utf-8")
     elif isinstance(item, (list, tuple)):
-        return [i.encode('utf-8') if i else '' for i in item]
+        return [i.encode("utf-8") if i else "" for i in item]
     else:
         return item
 
@@ -82,7 +82,7 @@ def fix_encoding(row):
     keys or values passed to writerow(). This encodes them all to
     UTF-8 bytestrings.
     """
-    return {key.encode('utf-8'): encode_item(value) for key, value in row.items()}
+    return {key.encode("utf-8"): encode_item(value) for key, value in row.items()}
 
 
 def object_to_row(row, headers):
@@ -104,7 +104,9 @@ def object_to_row(row, headers):
                 header_idx[header] = idx + 1
             else:
                 ret.append(val)
-                del row[header]  # so we don't repeat a scalar value that corresponds to an array of scalars in another object
+                del row[
+                    header
+                ]  # so we don't repeat a scalar value that corresponds to an array of scalars in another object
         except KeyError:
             ret.append(None)
     return ret
@@ -120,9 +122,9 @@ def main(job, sip_uuid, json_metadata):
         parsed = json.load(data)
 
     basename, _ = os.path.splitext(json_metadata)
-    output = basename + '.csv'
+    output = basename + ".csv"
 
-    with open(output, 'w') as dest:
+    with open(output, "w") as dest:
         # Note that we unfortunately can't use DictWriter here because of
         # the unusual way in which we deal with repeated items.
         # The JSON handles multiple occurrences of a subject via an array,
