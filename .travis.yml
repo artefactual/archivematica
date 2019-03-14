@@ -1,6 +1,7 @@
 ---
 
 sudo: false
+dist: xenial
 
 language: python
 cache: pip
@@ -42,11 +43,8 @@ matrix:
 
     # Linters
 
-    - python: "2.7"
-      env: TOXENV=py27-flake8
-
-    - python: "3.6"
-      env: TOXENV=py36-flake8
+    - python: "3.7"
+      env: TOXENV=linting
 
     # Dashboard JS
 
