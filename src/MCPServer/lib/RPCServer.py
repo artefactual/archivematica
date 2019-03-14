@@ -26,7 +26,6 @@ the client is ready to handle application-level exceptions.
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import calendar
-import cPickle
 import inspect
 import logging
 from socket import gethostname
@@ -35,8 +34,7 @@ import time
 
 from django.conf import settings as django_settings
 from django.db import close_old_connections, connection
-from django.utils.six.moves import configparser
-from django.utils.six import StringIO
+from django.utils.six.moves import configparser, StringIO, cPickle
 from gearman import GearmanWorker
 import gearman
 from lxml import etree

@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 import os
-import StringIO
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.six.moves import StringIO
 import pytest
 
 from appconfig import Config, process_search_enabled
@@ -33,12 +33,10 @@ CONFIG_MAPPING = {
     ],
 )
 def test_mapping_list_config_file(option, value, expect):
-    config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
-    config.read_defaults(
-        StringIO.StringIO(
-            "[Dashboard]\n" "{option} = {value}".format(option=option, value=value)
-        )
-    )
+    config = Config(env_prefix='ARCHIVEMATICA_DASHBOARD', attrs=CONFIG_MAPPING)
+    config.read_defaults(StringIO(
+        '[Dashboard]\n'
+        '{option} = {value}'.format(option=option, value=value)))
     if isinstance(expect, list):
         assert sorted(config.get("search_enabled")) == sorted(expect)
     else:

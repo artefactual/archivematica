@@ -1,9 +1,8 @@
 from __future__ import absolute_import
 import os
-import StringIO
-import ConfigParser
 
 from django.test import TestCase
+from django.utils.six.moves import StringIO, configparser
 import pytest
 
 from env_configparser import EnvConfigParser
@@ -20,8 +19,8 @@ class TestConfigReader(TestCase):
     def tearDown(self):
         self.environ = None
 
-    def read_test_config(self, test_config, prefix=""):
-        buf = StringIO.StringIO(test_config)
+    def read_test_config(self, test_config, prefix=''):
+        buf = StringIO(test_config)
         config = EnvConfigParser(env=self.environ, prefix=prefix)
         config.readfp(buf)
         return config
@@ -64,10 +63,9 @@ tls = on
             """
 [main]
 foo = bar
-"""
-        )
-        with pytest.raises(ConfigParser.NoSectionError):
-            assert config.get("undefined_section", "foo")
+""")
+        with pytest.raises(configparser.NoSectionError):
+            assert config.get('undefined_section', 'foo')
 
     def test_unknown_option(self):
         """
@@ -78,10 +76,9 @@ foo = bar
             """
 [main]
 foo = bar
-"""
-        )
-        with pytest.raises(ConfigParser.NoOptionError):
-            assert config.get("main", "undefined_option")
+""")
+        with pytest.raises(configparser.NoOptionError):
+            assert config.get('main', 'undefined_option')
 
     def test_unknown_option_with_fallback(self):
         """

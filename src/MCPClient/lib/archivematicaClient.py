@@ -53,8 +53,6 @@ task to run next).
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
 
-import ConfigParser
-import cPickle
 from functools import partial
 import logging
 import os
@@ -65,6 +63,7 @@ import django
 
 django.setup()
 from django.conf import settings as django_settings
+from django.utils.six.moves import cPickle
 import gearman
 
 from main.models import Task
@@ -72,6 +71,7 @@ from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
 from django.utils import six
+from django.utils.six.moves import configparser
 import shlex
 import importlib
 
@@ -93,7 +93,7 @@ def get_supported_modules(file_):
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
     supported_modules = {}
-    supported_modules_config = ConfigParser.RawConfigParser()
+    supported_modules_config = configparser.RawConfigParser()
     supported_modules_config.read(file_)
     for client_script, module_name in supported_modules_config.items(
         "supportedBatchCommands"

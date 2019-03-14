@@ -13,7 +13,6 @@ function (indicating that it supports being run as a subprocess).
 """
 
 
-import cPickle
 import importlib
 import logging
 import multiprocessing
@@ -21,6 +20,8 @@ import os
 import sys
 import tempfile
 import traceback
+
+from django.utils.six.moves import cPickle
 
 from databaseFunctions import auto_close_db
 from executeOrRunSubProcess import launchSubProcess

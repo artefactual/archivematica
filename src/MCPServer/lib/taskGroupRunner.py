@@ -33,7 +33,6 @@ The big idea:
 
 import threading
 import gearman
-import cPickle
 import logging
 from multiprocessing.pool import ThreadPool
 import time
@@ -42,6 +41,7 @@ import collections
 import math
 
 from django.conf import settings as django_settings
+from django.utils.six.moves import cPickle
 from prometheus_client import Gauge
 
 LOGGER = logging.getLogger("archivematica.mcp.server")

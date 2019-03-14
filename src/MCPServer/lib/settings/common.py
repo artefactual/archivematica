@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
 import json
 import logging
 import logging.config
 import os
+
+from django.utils.six.moves import StringIO
 
 from appconfig import Config, process_search_enabled
 import email_settings
@@ -152,16 +153,12 @@ timeout = 300
 #server_email =
 """
 
-
-config = Config(env_prefix="ARCHIVEMATICA_MCPSERVER", attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
-config.read_files(
-    [
-        "/etc/archivematica/archivematicaCommon/dbsettings",
-        "/etc/archivematica/MCPServer/serverConfig.conf",
-    ]
-)
-
+config = Config(env_prefix='ARCHIVEMATICA_MCPSERVER', attrs=CONFIG_MAPPING)
+config.read_defaults(StringIO(CONFIG_DEFAULTS))
+config.read_files([
+    '/etc/archivematica/archivematicaCommon/dbsettings',
+    '/etc/archivematica/MCPServer/serverConfig.conf',
+])
 
 DATABASES = {
     "default": {
