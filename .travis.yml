@@ -5,6 +5,11 @@ sudo: false
 language: python
 cache: pip
 
+branches:
+  only:
+    - qa/1.x
+    - /^stable\/\d+\.\d+\.x$/
+
 before_script:
   - pip install tox
 
