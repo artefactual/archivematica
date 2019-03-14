@@ -56,7 +56,7 @@ def get_globals(func, module):
     EXTENDED_ARG = opmap["EXTENDED_ARG"]
     func = getattr(func, "im_func", func)
     try:
-        code = func.func_code
+        code = func.__code__
     except AttributeError:
         return []
     names = code.co_names
