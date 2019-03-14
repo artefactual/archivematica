@@ -231,15 +231,22 @@ community style guidelines. Newly-written code should conform to PEP-8 style.
 PEP8 is a daunting document, but there are very good linters available that you
 can run to check style in your code.
 
+* The [Black](https://github.com/ambv/black) tool formats the code
+  automatically. The output is deterministic for any given input. Editor
+  integration is possible.
+
 * The [flake8](https://pypi.python.org/pypi/flake8) tool checks for style
   problems as well as errors and complexity. It can be used at the command line
   or as a plugin in your preferred text editor/IDE. The Archivematica
   [continuous integration system](https://travis-ci.org/artefactual/archivematica)
   will currently check code for compliance against flake8.
 
-* Additionally [Pylint](https://www.pylint.org/) is used by developers
-  internally at Artefactual to highlight other potential areas of improvement
-  during code-review.
+We have integrated these tools with our CI, i.e. pull requests will fail to
+build when the tools above report errors.
+
+Additionally [Pylint](https://www.pylint.org/) is used by developers internally
+at Artefactual to highlight other potential areas of improvement during
+code-review.
 
 #### Some extra notes
 
