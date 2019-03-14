@@ -14,10 +14,10 @@ import sys
 # According to the original blogpost, StringIO was chosen over cStringIO because PIL
 # required native Python types.
 # TODO: Look at using cStringIO instead, as it's faster, and we're not using PIL
-from StringIO import StringIO
 import uuid
 
 from django.utils import six
+from django.utils.six.moves import StringIO
 
 
 def parse_attachment(message_part, state, attachments=None):

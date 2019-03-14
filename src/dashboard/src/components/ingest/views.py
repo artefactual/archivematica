@@ -17,13 +17,11 @@
 
 # Standard library, alphabetical by import source
 import base64
-import cPickle
 import json
 import logging
 import os
 import requests
 import shutil
-from urlparse import urljoin
 import uuid
 
 # Django Core, alphabetical by import source
@@ -34,6 +32,8 @@ from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django.template import RequestContext
+from django.utils.six.moves.urllib.parse import urljoin
+from django.utils.six.moves import cPickle
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import View

@@ -13,9 +13,8 @@ Alternatively, they can include the 'section' and a 'process_function' callback
 where a specific parsing process can be defined. Those callbacks must accept the
 current appconfig Config object and the section.
 """
-import ConfigParser
-
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.six.moves import configparser
 
 from env_configparser import EnvConfigParser
 
@@ -62,7 +61,7 @@ class Config(object):
 
         try:
             return getattr(self.config, getter)(**kwargs)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             raise ImproperlyConfigured(self.UNDEFINED_ATTR_MSG % attr)
 
     def get_from_opts_list(self, attr, attr_opts_list, default=None):
@@ -81,7 +80,8 @@ class Config(object):
                 kwargs['fallback'] = attr_opts['default']
             try:
                 return getattr(self.config, getter)(**kwargs)
-            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError, ValueError):
+            except (configparser.NoSectionError, configparser.NoOptionError, ValueError):
+
                 pass
         raise ImproperlyConfigured(self.UNDEFINED_ATTR_MSG % attr)
 
@@ -90,7 +90,7 @@ def process_search_enabled(config, section):
     """
     The 'search_enabled' attribute accepts four options and its value
     may be a boolean or a string containing a list of enabled parts
-    separated by comma after it's obtained from the ConfigParser.
+    separated by comma after it's obtained from the configparser.
     This function normalizes and verifies the value to always return a list
     with the enabled parts. It may raise ImproperlyConfigured if the
     string value is empty or it contains an unrecognized search part.

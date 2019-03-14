@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import cPickle
 import getpass
 import optparse
 import os
@@ -38,6 +37,7 @@ import django
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.db import transaction
+from django.utils.six.moves import cPickle
 # dashboard
 import main.models as models
 

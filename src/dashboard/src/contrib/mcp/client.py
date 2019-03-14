@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import cPickle
 import logging
 
 from django.conf import settings
+from django.utils.six.moves import cPickle
 from django.utils.translation import get_language
 import gearman
 

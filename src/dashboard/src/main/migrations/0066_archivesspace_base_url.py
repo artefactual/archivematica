@@ -5,13 +5,8 @@
 """
 from __future__ import unicode_literals
 
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-
 from django.db import migrations
-
+from django.utils.six.moves.urllib.parse import urlparse
 
 _AS_DICTNAME = 'upload-archivesspace_v0.0'
 

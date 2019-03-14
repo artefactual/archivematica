@@ -23,7 +23,6 @@
 import threading
 import databaseFunctions
 import uuid
-import cPickle
 import logging
 import os
 
@@ -32,6 +31,7 @@ from main.models import Task
 
 from django.db import transaction
 from django.utils import six, timezone
+from django.utils.six.moves import cPickle
 
 LOGGER = logging.getLogger('archivematica.mcp.server.taskGroup')
 

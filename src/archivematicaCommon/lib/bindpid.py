@@ -135,16 +135,13 @@ Example::
 from __future__ import print_function, unicode_literals
 
 import argparse
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
 import os
 
 try:
     from jinja2 import Template
 except ImportError:
     from django.template import Context, Template
+from django.utils.six.moves import configparser
 import requests
 
 

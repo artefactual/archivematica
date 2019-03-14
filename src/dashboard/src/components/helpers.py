@@ -21,7 +21,6 @@ import os
 import pprint
 import requests
 import urllib
-from urlparse import urljoin
 import json
 
 from django.conf import settings as django_settings
@@ -34,6 +33,7 @@ from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
+from django.utils.six.moves.urllib.parse import urljoin
 from main import models
 from tastypie.models import ApiKey
 
