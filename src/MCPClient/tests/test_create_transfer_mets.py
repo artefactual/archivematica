@@ -74,6 +74,13 @@ class TestCreateTransferMETS(TestCase):
         )
         self.mets_doc = metsrw.METSDocument.fromfile(mets_path)
 
+    def test_transfer_mets_objid(self):
+        mets_xml = self.mets_doc.serialize()
+        objids = mets_xml.xpath("/*/@OBJID", namespaces=mets_xml.nsmap)
+
+        assert len(objids) == 1
+        assert objids[0] == str(self.transfer.uuid)
+
     def test_transfer_mets_structmap_format(self):
         mets_xml = self.mets_doc.serialize()
 

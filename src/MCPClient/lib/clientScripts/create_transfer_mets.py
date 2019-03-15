@@ -68,6 +68,8 @@ def write_mets(
     lookup_kwargs = {identifier_group: identifier_uuid}
 
     mets = metsrw.METSDocument()
+    mets.objid = str(identifier_uuid)
+
     root_fsentry = build_fsentries_tree(
         transfer_dir_path, transfer_dir_path, db_base_path, lookup_kwargs
     )
