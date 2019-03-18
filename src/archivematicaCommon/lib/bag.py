@@ -11,7 +11,7 @@ def is_valid(path, completeness_only=False, printfn=print):
     try:
         bag = Bag(path)
         bag.validate(
-            processes=multiprocessing.count(), completeness_only=completeness_only
+            processes=multiprocessing.cpu_count(), completeness_only=completeness_only
         )
     except BagError as err:
         printfn("Error validating BagIt package:", err, file=sys.stderr)
