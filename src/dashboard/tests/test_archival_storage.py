@@ -31,13 +31,13 @@ FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
 
 def test__load_premis():
-    mw = metsrw.METSDocument.fromfile(
-        os.path.join(FIXTURES_DIR, "mets_two_files.xml"))
+    mw = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, "mets_two_files.xml"))
 
     # Load from PREMIS2
     data = {"foo": "bar"}
     atom._load_premis(
-        data, mw.get_file(file_uuid="ae8d4290-fe52-4954-b72a-0f591bee2e2f"))
+        data, mw.get_file(file_uuid="ae8d4290-fe52-4954-b72a-0f591bee2e2f")
+    )
     assert data == {
         "foo": "bar",
         "format_name": "JPEG 1.02",
@@ -50,7 +50,8 @@ def test__load_premis():
     # Load from PREMIS3
     data = {"foo": "bar"}
     atom._load_premis(
-        data, mw.get_file(file_uuid="4583c44a-046c-4324-9584-345e8b8d82dd"))
+        data, mw.get_file(file_uuid="4583c44a-046c-4324-9584-345e8b8d82dd")
+    )
     assert data == {
         "foo": "bar",
         "format_name": "Format name",

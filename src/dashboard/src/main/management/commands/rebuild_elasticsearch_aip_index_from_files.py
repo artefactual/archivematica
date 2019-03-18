@@ -74,10 +74,11 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
         # aic_mets_filename includes metadata/
         aic_mets_filename = ns.xml_find_premis(
             mets_root,
-            "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat").get(
-            '{' + ns.NSMAP['xlink'] + '}href')
-        aip_dirname = ns.xml_find_premis(
-            mets_root, "mets:structMap/mets:div").get('LABEL')
+            "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat",
+        ).get("{" + ns.NSMAP["xlink"] + "}href")
+        aip_dirname = ns.xml_find_premis(mets_root, "mets:structMap/mets:div").get(
+            "LABEL"
+        )
     except Exception:
         # Catch any parsing errors
         return None
@@ -92,7 +93,9 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
     # Parse for number of AIPs
     aic_root = etree.parse(aic_mets_path)
     extent = ns.xml_find_premis(
-        aic_root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent")
+        aic_root,
+        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
+    )
 
     try:
         aips_in_aic = re.search("\d+", extent.text).group()
@@ -143,7 +146,8 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
     root = etree.parse(path_to_mets)
     try:
         aip_type = ns.xml_find_premis(
-            root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:type").text
+            root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:type"
+        ).text
     except AttributeError:
         pass
     else:

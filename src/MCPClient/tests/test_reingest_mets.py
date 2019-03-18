@@ -116,11 +116,21 @@ class TestUpdateObject(TestCase):
         )
         # Verify old techMD
         old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
-        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
-        assert old_techmd.attrib['STATUS'] == 'superseded'
+        old_techmd = root.xpath(
+            'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP
+        )[0]
+        assert old_techmd.attrib["STATUS"] == "superseded"
         namespaces = nsmap_for_premis2()
-        assert old_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=namespaces) == 'sha256'
-        assert old_techmd.findtext('.//premis:messageDigest', namespaces=namespaces) == 'd2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92'
+        assert (
+            old_techmd.findtext(
+                ".//premis:messageDigestAlgorithm", namespaces=namespaces
+            )
+            == "sha256"
+        )
+        assert (
+            old_techmd.findtext(".//premis:messageDigest", namespaces=namespaces)
+            == "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92"
+        )
         # Verify new techMD
         new_techmd = root.xpath(
             'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP
@@ -182,12 +192,23 @@ class TestUpdateObject(TestCase):
         )
         # Verify old techMD
         old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
-        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
-        assert old_techmd.attrib['STATUS'] == 'superseded'
+        old_techmd = root.xpath(
+            'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP
+        )[0]
+        assert old_techmd.attrib["STATUS"] == "superseded"
         namespaces = nsmap_for_premis2()
-        assert old_techmd.findtext('.//premis:formatName', namespaces=namespaces) == 'JPEG 1.02'
-        assert old_techmd.findtext('.//premis:formatVersion', namespaces=namespaces) == '1.02'
-        assert old_techmd.findtext('.//premis:formatRegistryKey', namespaces=namespaces) == 'fmt/44'
+        assert (
+            old_techmd.findtext(".//premis:formatName", namespaces=namespaces)
+            == "JPEG 1.02"
+        )
+        assert (
+            old_techmd.findtext(".//premis:formatVersion", namespaces=namespaces)
+            == "1.02"
+        )
+        assert (
+            old_techmd.findtext(".//premis:formatRegistryKey", namespaces=namespaces)
+            == "fmt/44"
+        )
         # Verify new techMD
         new_techmd = root.xpath(
             'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP
@@ -245,13 +266,30 @@ class TestUpdateObject(TestCase):
             Job("stub", "stub", []), mets
         )
         root = mets.serialize()
-        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        assert (
+            len(
+                root.findall(
+                    'mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]',
+                    namespaces=NSMAP,
+                )
+            )
+            == 2
+        )
         # Verify old techMD - fall back to PREMIS 2
         old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
-        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
-        assert old_techmd.attrib['STATUS'] == 'superseded'
+        old_techmd = root.xpath(
+            'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP
+        )[0]
+        assert old_techmd.attrib["STATUS"] == "superseded"
         namespaces = nsmap_for_premis2()
-        assert len(old_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=namespaces)) == 3
+        assert (
+            len(
+                old_techmd.find(
+                    ".//premis:objectCharacteristicsExtension", namespaces=namespaces
+                )
+            )
+            == 3
+        )
         # Verify new techMD
         new_techmd = root.xpath(
             'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP
@@ -317,11 +355,23 @@ class TestUpdateObject(TestCase):
         )
         # Verify old techMD
         old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
-        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
-        assert old_techmd.attrib['STATUS'] == 'superseded'
+        old_techmd = root.xpath(
+            'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP
+        )[0]
+        assert old_techmd.attrib["STATUS"] == "superseded"
         namespaces = nsmap_for_premis2()
-        assert old_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=namespaces) == '8140ebe5-295c-490b-a34a-83955b7c844e'
-        assert old_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=namespaces) == '0ce13092-911f-4a89-b9e1-0e61921a03d4'
+        assert (
+            old_techmd.findtext(
+                ".//premis:relatedObjectIdentifierValue", namespaces=namespaces
+            )
+            == "8140ebe5-295c-490b-a34a-83955b7c844e"
+        )
+        assert (
+            old_techmd.findtext(
+                ".//premis:relatedEventIdentifierValue", namespaces=namespaces
+            )
+            == "0ce13092-911f-4a89-b9e1-0e61921a03d4"
+        )
         # Verify new techMD
         new_techmd = root.xpath(
             'mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP
@@ -481,27 +531,31 @@ class TestUpdateObject(TestCase):
 
     def test__update_premis_object(self):
         mets = metsrw.METSDocument.fromfile(
-            os.path.join(FIXTURES_DIR, 'mets_no_namespaces.xml'))
+            os.path.join(FIXTURES_DIR, "mets_no_namespaces.xml")
+        )
         root = mets.serialize()
 
         for i in range(1, 4):
-            path = ('.//mets:techMD[@ID="techMD_{}"]'
-                    '/mets:mdWrap/mets:xmlData/premis:object'.format(i))
+            path = (
+                './/mets:techMD[@ID="techMD_{}"]'
+                "/mets:mdWrap/mets:xmlData/premis:object".format(i)
+            )
             premis_object = root.find(path, namespaces=nsmap_for_premis2())
             # This is what we're trying to avoid: PREMIS as the default ns.
             assert premis_object.nsmap[None] == "info:lc/xmlns/premis-v2"
             new = archivematicaCreateMETSReingest._update_premis_object(
-                premis_object, "file")
+                premis_object, "file"
+            )
             # Previous element has been emptied.
             assert len(premis_object.getchildren()) == 0
             # It should not have a default namespace anymore.
             assert None not in new.nsmap
             # PREMIS should be using the ``premis`` prefix.
-            assert new.nsmap['premis'] == "http://www.loc.gov/premis/v3"
+            assert new.nsmap["premis"] == "http://www.loc.gov/premis/v3"
             # Children have been incorporated into the new object.
             assert len(new.getchildren())
             # Subelements are prefixed too.
-            assert len(new.find('.//premis:fixity', namespaces=NSMAP)) == 2
+            assert len(new.find(".//premis:fixity", namespaces=NSMAP)) == 2
 
 
 class TestUpdateDublinCore(TestCase):
@@ -1238,11 +1292,35 @@ class TestAddEvents(TestCase):
             != []
         )
         # Original object
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
         namespaces = nsmap_for_premis2()
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]', namespaces=namespaces) != []
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]', namespaces=namespaces) != []
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]', namespaces=namespaces) != []
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
         # Transfer METS
         assert (
             root.xpath(
@@ -1323,12 +1401,42 @@ class TestAddEvents(TestCase):
             != []
         )
         # Original
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
         namespaces = nsmap_for_premis2()
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]', namespaces=namespaces) != []
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]', namespaces=namespaces) != []
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]', namespaces=namespaces) != []
-        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]',
+                namespaces=namespaces,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
         # Transfer METS
         assert (
             root.xpath(

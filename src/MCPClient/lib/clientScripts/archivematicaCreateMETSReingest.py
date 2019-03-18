@@ -19,20 +19,20 @@ def _create_premis_object(premis_object_type):
 
     It uses the latest version of PREMIS available and the ``premis`` prefix.
     """
-    allowed_types = (
-        'file', 'representation', 'bitstream', 'intellectualEntity',)
+    allowed_types = ("file", "representation", "bitstream", "intellectualEntity")
     if premis_object_type not in allowed_types:
         raise ValueError("Object type used is not listed in objectComplexType")
     return etree.Element(
         ns.premisBNS + "object",
         {
-            etree.QName(ns.xsiNS, "schemaLocation"): "%s %s" % (
-                ns.premisNS, "https://www.loc.gov/standards/premis/premis.xsd"),
-            "{http://www.w3.org/2001/XMLSchema-instance}type":
-                "premis:{}".format(premis_object_type),
+            etree.QName(ns.xsiNS, "schemaLocation"): "%s %s"
+            % (ns.premisNS, "https://www.loc.gov/standards/premis/premis.xsd"),
+            "{http://www.w3.org/2001/XMLSchema-instance}type": "premis:{}".format(
+                premis_object_type
+            ),
             "version": "3.0",
         },
-        nsmap={"premis": ns.premisNS}
+        nsmap={"premis": ns.premisNS},
     )
 
 
@@ -83,7 +83,8 @@ def update_object(job, mets):
                 old_techmd = t
                 break
         new_techmd_contents = _update_premis_object(
-            copy.deepcopy(old_techmd.contents.document), "file")
+            copy.deepcopy(old_techmd.contents.document), "file"
+        )
         modified = False
 
         # TODO do this with metsrw & PREMIS plugin
@@ -248,19 +249,25 @@ def update_rights(job, mets, sip_uuid, state):
             if r.status == "superseded":
                 continue
             rightsbasis = ns.xml_find_premis(
-                r.contents.document, './/premis:rightsBasis')
+                r.contents.document, ".//premis:rightsBasis"
+            )
             if rightsbasis is None:
                 continue
             basis = rightsbasis.text
-            if basis == 'Other':
+            if basis == "Other":
                 otherrightsbasis = ns.xml_find_premis(
-                    r.contents.document, './/premis:otherRightsBasis')
+                    r.contents.document, ".//premis:otherRightsBasis"
+                )
                 if otherrightsbasis is not None:
                     basis = otherrightsbasis.text
             db_rights = rightsmds_db[basis]
-            if not db_rights:  # TODO this may need to be more robust for RightsStatementRightsGranted
-                job.pyprint('Rights', r.id_string(), 'looks deleted - making superseded')
-                r.status = 'superseded'
+            if (
+                not db_rights
+            ):  # TODO this may need to be more robust for RightsStatementRightsGranted
+                job.pyprint(
+                    "Rights", r.id_string(), "looks deleted - making superseded"
+                )
+                r.status = "superseded"
 
     # Check for newly added rights
     rights_list = models.RightsStatement.objects.filter(
@@ -321,10 +328,18 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                 superseded = sorted(superseded, key=lambda x: x.created)
                 # NOTE sort(..., reverse=True) behaves differently with unsortable elements like '' and None
                 for rightmd in superseded[::-1]:
-                    job.pyprint('created', rightmd.created)
-                    if ns.xml_xpath_premis(rightmd.serialize(), './/premis:rightsBasis[text()="' + rights.rightsbasis + '"]'):
+                    job.pyprint("created", rightmd.created)
+                    if ns.xml_xpath_premis(
+                        rightmd.serialize(),
+                        './/premis:rightsBasis[text()="' + rights.rightsbasis + '"]',
+                    ):
                         rightmd.replace_with(new_rightsmd)
-                        job.pyprint('rightsMD', new_rightsmd.id_string(), 'replaces rightsMD', rightmd.id_string())
+                        job.pyprint(
+                            "rightsMD",
+                            new_rightsmd.id_string(),
+                            "replaces rightsMD",
+                            rightmd.id_string(),
+                        )
                         break
 
 

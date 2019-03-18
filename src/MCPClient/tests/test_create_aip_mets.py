@@ -27,10 +27,10 @@ except ImportError:
     from pathlib2 import Path
 
 NSMAP = {
-    'dc': 'http://purl.org/dc/elements/1.1/',
-    'dcterms': 'http://purl.org/dc/terms/',
-    'mets': 'http://www.loc.gov/METS/',
-    'premis': 'http://www.loc.gov/premis/v3',
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "mets": "http://www.loc.gov/METS/",
+    "premis": "http://www.loc.gov/premis/v3",
 }
 
 
@@ -573,40 +573,132 @@ class TestCreateDigiprovMD(TestCase):
         )
         assert len(ret) == 9
         # Events
-        assert ret[0][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[0].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'ingestion'
-        assert len(ret[0].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
-        assert ret[1][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[1].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'message digest calculation'
-        assert len(ret[1].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
-        assert ret[2][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[2].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'virus check'
-        assert len(ret[2].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
-        assert ret[3][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[3].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'name cleanup'
-        assert len(ret[3].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
-        assert ret[4][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[4].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'format identification'
-        assert len(ret[4].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
-        assert ret[5][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
-        assert ret[5].find('.//{http://www.loc.gov/premis/v3}eventType').text == 'validation'
-        assert len(ret[5].findall('.//{http://www.loc.gov/premis/v3}linkingAgentIdentifier')) == 3
+        assert ret[0][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[0].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "ingestion"
+        )
+        assert (
+            len(
+                ret[0].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
+        assert ret[1][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[1].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "message digest calculation"
+        )
+        assert (
+            len(
+                ret[1].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
+        assert ret[2][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[2].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "virus check"
+        )
+        assert (
+            len(
+                ret[2].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
+        assert ret[3][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[3].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "name cleanup"
+        )
+        assert (
+            len(
+                ret[3].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
+        assert ret[4][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[4].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "format identification"
+        )
+        assert (
+            len(
+                ret[4].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
+        assert ret[5][0].attrib["MDTYPE"] == "PREMIS:EVENT"
+        assert (
+            ret[5].find(".//{http://www.loc.gov/premis/v3}eventType").text
+            == "validation"
+        )
+        assert (
+            len(
+                ret[5].findall(
+                    ".//{http://www.loc.gov/premis/v3}linkingAgentIdentifier"
+                )
+            )
+            == 3
+        )
         # Agents
-        assert ret[6][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
-        assert ret[6].find('.//{http://www.loc.gov/premis/v3}agentIdentifierType').text == 'preservation system'
-        assert ret[6].find('.//{http://www.loc.gov/premis/v3}agentIdentifierValue').text == 'Archivematica-1.4.0'
-        assert ret[6].find('.//{http://www.loc.gov/premis/v3}agentName').text == 'Archivematica'
-        assert ret[6].find('.//{http://www.loc.gov/premis/v3}agentType').text == 'software'
-        assert ret[7][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
-        assert ret[7].find('.//{http://www.loc.gov/premis/v3}agentIdentifierType').text == 'repository code'
-        assert ret[7].find('.//{http://www.loc.gov/premis/v3}agentIdentifierValue').text == 'demo'
-        assert ret[7].find('.//{http://www.loc.gov/premis/v3}agentName').text == 'demo'
-        assert ret[7].find('.//{http://www.loc.gov/premis/v3}agentType').text == 'organization'
-        assert ret[8][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
-        assert ret[8].find('.//{http://www.loc.gov/premis/v3}agentIdentifierType').text == 'Archivematica user pk'
-        assert ret[8].find('.//{http://www.loc.gov/premis/v3}agentIdentifierValue').text == '1'
-        assert ret[8].find('.//{http://www.loc.gov/premis/v3}agentName').text == 'username="kmindelan", first_name="Keladry", last_name="Mindelan"'
-        assert ret[8].find('.//{http://www.loc.gov/premis/v3}agentType').text == 'Archivematica user'
+        assert ret[6][0].attrib["MDTYPE"] == "PREMIS:AGENT"
+        assert (
+            ret[6].find(".//{http://www.loc.gov/premis/v3}agentIdentifierType").text
+            == "preservation system"
+        )
+        assert (
+            ret[6].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text
+            == "Archivematica-1.4.0"
+        )
+        assert (
+            ret[6].find(".//{http://www.loc.gov/premis/v3}agentName").text
+            == "Archivematica"
+        )
+        assert (
+            ret[6].find(".//{http://www.loc.gov/premis/v3}agentType").text == "software"
+        )
+        assert ret[7][0].attrib["MDTYPE"] == "PREMIS:AGENT"
+        assert (
+            ret[7].find(".//{http://www.loc.gov/premis/v3}agentIdentifierType").text
+            == "repository code"
+        )
+        assert (
+            ret[7].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text
+            == "demo"
+        )
+        assert ret[7].find(".//{http://www.loc.gov/premis/v3}agentName").text == "demo"
+        assert (
+            ret[7].find(".//{http://www.loc.gov/premis/v3}agentType").text
+            == "organization"
+        )
+        assert ret[8][0].attrib["MDTYPE"] == "PREMIS:AGENT"
+        assert (
+            ret[8].find(".//{http://www.loc.gov/premis/v3}agentIdentifierType").text
+            == "Archivematica user pk"
+        )
+        assert (
+            ret[8].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text
+            == "1"
+        )
+        assert (
+            ret[8].find(".//{http://www.loc.gov/premis/v3}agentName").text
+            == 'username="kmindelan", first_name="Keladry", last_name="Mindelan"'
+        )
+        assert (
+            ret[8].find(".//{http://www.loc.gov/premis/v3}agentType").text
+            == "Archivematica user"
+        )
 
 
 class TestRights(TestCase):
@@ -617,7 +709,10 @@ class TestRights(TestCase):
 
     def test_create_rights_granted(self):
         # Setup
-        elem = etree.Element("{http://www.loc.gov/premis/v3}rightsStatement", nsmap={'premis': NSMAP['premis']})
+        elem = etree.Element(
+            "{http://www.loc.gov/premis/v3}rightsStatement",
+            nsmap={"premis": NSMAP["premis"]},
+        )
         statement = RightsStatement.objects.get(id=1)
         # Test
         state = create_mets_v2.MetsState()
@@ -627,25 +722,25 @@ class TestRights(TestCase):
         # Verify
         assert len(elem) == 1
         rightsgranted = elem[0]
-        assert rightsgranted.tag == '{http://www.loc.gov/premis/v3}rightsGranted'
+        assert rightsgranted.tag == "{http://www.loc.gov/premis/v3}rightsGranted"
         assert len(rightsgranted.attrib) == 0
         assert len(rightsgranted) == 4
-        assert rightsgranted[0].tag == '{http://www.loc.gov/premis/v3}act'
-        assert rightsgranted[0].text == 'Disseminate'
+        assert rightsgranted[0].tag == "{http://www.loc.gov/premis/v3}act"
+        assert rightsgranted[0].text == "Disseminate"
         assert len(rightsgranted[0].attrib) == 0
         assert len(rightsgranted[0]) == 0
-        assert rightsgranted[1].tag == '{http://www.loc.gov/premis/v3}restriction'
-        assert rightsgranted[1].text == 'Allow'
+        assert rightsgranted[1].tag == "{http://www.loc.gov/premis/v3}restriction"
+        assert rightsgranted[1].text == "Allow"
         assert len(rightsgranted[1].attrib) == 0
         assert len(rightsgranted[1]) == 0
-        assert rightsgranted[2].tag == '{http://www.loc.gov/premis/v3}termOfGrant'
+        assert rightsgranted[2].tag == "{http://www.loc.gov/premis/v3}termOfGrant"
         assert len(rightsgranted[2].attrib) == 0
         assert len(rightsgranted[2]) == 2
-        assert rightsgranted[2][0].tag == '{http://www.loc.gov/premis/v3}startDate'
-        assert rightsgranted[2][0].text == '2000'
-        assert rightsgranted[2][1].tag == '{http://www.loc.gov/premis/v3}endDate'
-        assert rightsgranted[2][1].text == 'OPEN'
-        assert rightsgranted[3].tag == '{http://www.loc.gov/premis/v3}rightsGrantedNote'
-        assert rightsgranted[3].text == 'Attribution required'
+        assert rightsgranted[2][0].tag == "{http://www.loc.gov/premis/v3}startDate"
+        assert rightsgranted[2][0].text == "2000"
+        assert rightsgranted[2][1].tag == "{http://www.loc.gov/premis/v3}endDate"
+        assert rightsgranted[2][1].text == "OPEN"
+        assert rightsgranted[3].tag == "{http://www.loc.gov/premis/v3}rightsGrantedNote"
+        assert rightsgranted[3].text == "Attribution required"
         assert len(rightsgranted[3].attrib) == 0
         assert len(rightsgranted[3]) == 0

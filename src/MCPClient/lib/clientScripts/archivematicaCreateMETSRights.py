@@ -44,8 +44,7 @@ def formatDate(date):
     return date
 
 
-def _add_start_end_date_complex_type(
-        name, elem, start_date, end_date, end_date_open):
+def _add_start_end_date_complex_type(name, elem, start_date, end_date, end_date_open):
     """Add new ``startAndEndDateComplexType`` subelement to ``elem``.
 
     The following elements in PREMIS use it:
@@ -61,8 +60,9 @@ def _add_start_end_date_complex_type(
     if not any([start_date, end_date, end_date_open]):
         return
     dates = etree.SubElement(elem, ns.premisBNS + name)
-    etree.SubElement(dates, ns.premisBNS + "startDate").text = \
+    etree.SubElement(dates, ns.premisBNS + "startDate").text = (
         formatDate(start_date) if start_date else ""
+    )
     end_date = "OPEN" if end_date_open else formatDate(end_date)
     if end_date:
         etree.SubElement(dates, ns.premisBNS + "endDate").text = end_date
@@ -83,8 +83,13 @@ def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
 
 
 def createRightsStatement(job, statement, fileUUID, state):
-    rightsStatement = etree.Element(ns.premisBNS + "rightsStatement", nsmap={'premis': ns.premisNS})
-    rightsStatement.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd")
+    rightsStatement = etree.Element(
+        ns.premisBNS + "rightsStatement", nsmap={"premis": ns.premisNS}
+    )
+    rightsStatement.set(
+        ns.xsiBNS + "schemaLocation",
+        ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd",
+    )
 
     # rightsStatement.set("version", "2.1") # cvc-complex-type.3.2.2: Attribute 'version' is not allowed to appear in element 'rightsStatement'.
 
@@ -143,10 +148,12 @@ def createRightsStatement(job, statement, fileUUID, state):
             getDocumentationIdentifier(copyright, copyrightInformation)
 
             _add_start_end_date_complex_type(
-                "copyrightApplicableDates", copyrightInformation,
+                "copyrightApplicableDates",
+                copyrightInformation,
                 copyright.copyrightapplicablestartdate,
                 copyright.copyrightapplicableenddate,
-                copyright.copyrightenddateopen)
+                copyright.copyrightenddateopen,
+            )
 
     elif statement.rightsbasis.lower() in ["license"]:
         for license in statement.rightsstatementlicense_set.all():
@@ -183,10 +190,12 @@ def createRightsStatement(job, statement, fileUUID, state):
                 ).text = note.licensenote
 
             _add_start_end_date_complex_type(
-                "licenseApplicableDates", licenseInformation,
+                "licenseApplicableDates",
+                licenseInformation,
                 license.licenseapplicablestartdate,
                 license.licenseapplicableenddate,
-                license.licenseenddateopen)
+                license.licenseenddateopen,
+            )
 
     elif statement.rightsbasis.lower() in ["statute"]:
         # 4.1.5 statuteInformation (O, R)
@@ -229,10 +238,12 @@ def createRightsStatement(job, statement, fileUUID, state):
             ).text = otherRightsBasis
 
             _add_start_end_date_complex_type(
-                "otherRightsApplicableDates", otherRightsInformation,
+                "otherRightsApplicableDates",
+                otherRightsInformation,
                 info.otherrightsapplicablestartdate,
                 info.otherrightsapplicableenddate,
-                info.otherrightsenddateopen)
+                info.otherrightsenddateopen,
+            )
 
             # otherRightsNote Repeatable
             for note in info.rightsstatementotherrightsinformationnote_set.all():
@@ -315,10 +326,12 @@ def getstatuteInformation(statement, parent):
             ).text = identifier.statutedocumentationidentifierrole
 
         _add_start_end_date_complex_type(
-            "statuteApplicableDates", statuteInformation,
+            "statuteApplicableDates",
+            statuteInformation,
             statute.statuteapplicablestartdate,
             statute.statuteapplicableenddate,
-            statute.statuteenddateopen)
+            statute.statuteenddateopen,
+        )
 
 
 def getrightsGranted(job, statement, parent, state):
@@ -344,17 +357,23 @@ def getrightsGranted(job, statement, parent, state):
             restriction = restriction.lower()
             if restriction in ("allow",):
                 term = "termOfGrant"
-            elif restriction in ("disallow", "conditional",):
+            elif restriction in ("disallow", "conditional"):
                 term = "termOfRestriction"
             else:
                 job.pyprint(
                     "The value of element restriction must be: 'Allow', "
-                    "'Disallow', or 'Conditional'", file=sys.stderr)
+                    "'Disallow', or 'Conditional'",
+                    file=sys.stderr,
+                )
                 state.error_accumulator.error_count += 1
                 continue
             _add_start_end_date_complex_type(
-                term, rightsGranted,
-                granted.startdate, granted.enddate, granted.enddateopen)
+                term,
+                rightsGranted,
+                granted.startdate,
+                granted.enddate,
+                granted.enddateopen,
+            )
 
         # 4.1.6.4 rightsGrantedNote (O, R)
         for note in granted.notes.all():

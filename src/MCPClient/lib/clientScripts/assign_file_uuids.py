@@ -110,7 +110,7 @@ def get_file_info_from_mets(job, sip_directory, file_path_relative_to_sip):
         if item.subsection == "techMD":
             techmd = item
     pobject = techmd.contents.document  # Element
-    original_path = ns.xml_findtext_premis(pobject, 'premis:originalName')
+    original_path = ns.xml_findtext_premis(pobject, "premis:originalName")
 
     return {
         "uuid": entry.file_uuid,

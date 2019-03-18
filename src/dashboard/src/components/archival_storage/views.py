@@ -315,12 +315,16 @@ def aip_file_download(request, uuid):
     es_client = elasticSearchFunctions.get_client()
 
     # get AIP file properties
-    aipfile = elasticSearchFunctions.get_aipfile_data(es_client, uuid, fields='filePath,FILEUUID,AIPUUID')
+    aipfile = elasticSearchFunctions.get_aipfile_data(
+        es_client, uuid, fields="filePath,FILEUUID,AIPUUID"
+    )
 
     # get file's AIP's properties
-    sipuuid = aipfile['_source']['AIPUUID']
-    aip = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
-    aip_filepath = aip['_source']['filePath']
+    sipuuid = aipfile["_source"]["AIPUUID"]
+    aip = elasticSearchFunctions.get_aip_data(
+        es_client, sipuuid, fields="uuid,name,filePath,size,origin,created"
+    )
+    aip_filepath = aip["_source"]["filePath"]
 
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
@@ -331,11 +335,7 @@ def aip_file_download(request, uuid):
     else:
         subdir = os.path.splitext(aip_archive_filename)[0]
 
-    file_relative_path = os.path.join(
-        subdir,
-        'data',
-        aipfile['_source']['filePath']
-    )
+    file_relative_path = os.path.join(subdir, "data", aipfile["_source"]["filePath"])
 
     redirect_url = storage_service.extract_file_url(
         aip["_source"]["uuid"], file_relative_path
@@ -355,8 +355,10 @@ def aip_pointer_file_download(request, uuid):
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
     es_client = elasticSearchFunctions.get_client()
-    aipfile = elasticSearchFunctions.get_aipfile_data(es_client, fileuuid, fields='AIPUUID')
-    sipuuid = aipfile['_source']['AIPUUID']
+    aipfile = elasticSearchFunctions.get_aipfile_data(
+        es_client, fileuuid, fields="AIPUUID"
+    )
+    sipuuid = aipfile["_source"]["AIPUUID"]
 
     thumbnail_path = os.path.join(
         settings.SHARED_DIRECTORY, "www", "thumbnails", sipuuid, fileuuid + ".jpg"

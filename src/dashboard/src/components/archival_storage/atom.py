@@ -46,8 +46,12 @@ def _load_premis(data, mwfile):
     except IndexError:
         return
     props = (
-        'size', 'format_name', 'format_version',
-        'format_registry_name', 'format_registry_key',)
+        "size",
+        "format_name",
+        "format_version",
+        "format_registry_name",
+        "format_registry_key",
+    )
     for prop in props:
         try:
             val = getattr(premis_object, prop)
@@ -55,7 +59,7 @@ def _load_premis(data, mwfile):
             continue
         if not val:
             continue
-        logger.debug('Extracted property %s from METS: %s', prop, val)
+        logger.debug("Extracted property %s from METS: %s", prop, val)
         data[prop] = val
 
 
