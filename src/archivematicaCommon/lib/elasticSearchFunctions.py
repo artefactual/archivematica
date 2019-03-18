@@ -861,8 +861,8 @@ def _get_file_formats(f):
         "format_version__description",
         "format_version__format__group__description",
     ]
-    for puid, format, group in f.fileformatversion_set.all().values_list(*fields):
-        formats.append({"puid": puid, "format": format, "group": group})
+    for puid, fmt, group in f.fileformatversion_set.all().values_list(*fields):
+        formats.append({"puid": puid, "format": fmt, "group": group})
 
     return formats
 

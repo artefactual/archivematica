@@ -14,19 +14,32 @@ location is stored.
 Copied from https://git.io/vN6v6.
 """
 
+from __future__ import unicode_literals
+
+import multiprocessing
 import logging
 import os
 import sys
 import time
 
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
 from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 
+from fileOperations import addFileToTransfer
 import elasticSearchFunctions
+import metsrw
 import storageService
-from main.management.commands import boolean_input, DashboardCommand
-from main.models import Transfer
 
+from fpr.models import FormatVersion
+from main.management.commands import boolean_input, DashboardCommand
+from main.models import Transfer, FileFormatVersion, FileID
+
+import bagit
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -126,32 +139,138 @@ class Command(DashboardCommand):
 
     def populate_indexes(self, es_client, transfer_backlog_dir):
         """Populate search indexes."""
-        for directory in os.listdir(transfer_backlog_dir):
-            if directory == ".gitignore":
+        transfer_backlog_dir = Path(transfer_backlog_dir)
+        for transfer_dir in transfer_backlog_dir.glob("*"):
+            if transfer_dir.name == ".gitignore" or transfer_dir.is_file():
                 continue
-
-            transfer_uuid = directory[-36:]
-            transfer_dir = os.path.basename(directory)
-
             try:
-                Transfer.objects.get(uuid=transfer_uuid)
-            except Transfer.DoesNotExist:
-                self.warning("Skipping transfer {}: not found!".format(transfer_uuid))
-                continue
-
-            self.stdout.write("Indexing {} ({})".format(transfer_uuid, transfer_dir))
-
-            elasticSearchFunctions.index_transfer_and_files(
-                es_client,
-                transfer_uuid,
-                os.path.join(transfer_backlog_dir, directory, ""),
-                status="backlog",
-            )
-
-            try:
-                storageService.reindex_file(transfer_uuid)
-            except Exception:
-                self.warning(
-                    "Could not reindex Transfer in the Storage Service, "
-                    "UUID: %s" % transfer_uuid
+                bag = bagit.Bag(str(transfer_dir))
+                bag.validate(
+                    processes=multiprocessing.cpu_count(), completeness_only=True
                 )
+            except bagit.BagError:
+                self.stdout.write(
+                    "Skipping transfer {} - not a valid bag!".format(transfer_dir)
+                )
+            transfer_uuid = transfer_dir.name[-36:]
+            if "External-Identifier" in bag.info:
+                _import_self_describing_transfer(
+                    es_client, self.stdout, transfer_dir, transfer_uuid
+                )
+            else:
+                _import_pipeline_dependant_transfer(
+                    es_client, self.stdout, transfer_dir, transfer_uuid
+                )
+
+
+def _import_file_from_fsentry(fsentry, transfer_uuid):
+    ingestion_date = None
+    for evt in fsentry.get_premis_events():
+        if evt.event_type == "ingestion":
+            ingestion_date = evt.event_date_time
+            break
+
+    file_obj = addFileToTransfer(
+        filePathRelativeToSIP="%transferDirectory%{}".format(fsentry.path),
+        fileUUID=fsentry.file_uuid,
+        transferUUID=transfer_uuid,
+        taskUUID=None,  # Unused?
+        date=ingestion_date,
+        sourceType="ingestion",
+        use="original",
+    )
+
+    try:
+        premis_object = fsentry.get_premis_objects()[0]
+    except IndexError:
+        return
+
+    # Populate extra attributes in the File object.
+    file_obj.checksum = premis_object.message_digest
+    file_obj.checksumtype = premis_object.message_digest_algorithm
+    file_obj.size = premis_object.size
+    file_obj.save()
+
+    # Populate format details of the File object.
+    if premis_object.format_registry_name != "PRONOM":
+        return
+    try:
+        format_version = FormatVersion.active.get(pronom_id=premis_object.format_registry_key)
+    except FormatVersion.DoesNotExist:
+        return
+    FileFormatVersion.objects.create(file_uuid=file_obj, format_version=format_version)
+    FileID.objects.create(
+        file=file_obj,
+        format_name=format_version.format.description,
+        format_version=format_version.version or "",
+        format_registry_name=premis_object.format_registry_name,
+        format_registry_key=premis_object.format_registry_key,
+    )
+
+
+def _import_dir_from_fsentry(fsentry, transfer_uuid):
+    pass
+
+
+def _import_self_describing_transfer(es_client, stdout, transfer_dir, transfer_uuid):
+    """Import a self-describing transfer.
+
+    Knowledge of this transfer is not required in the transfer. If missing,
+    this function will populate the necessary state so arrangement and ingest
+    work as expected.
+
+    TODO:
+    - What is the active agent of a new transfer?
+    - How can I determine the type of the transfer? Does it matter?
+    - Transfer attributes like accessionId
+    """
+    transfer, created = Transfer.objects.get_or_create(
+        uuid=transfer_uuid,
+        defaults=dict(
+            type="Standard",
+            diruuids=False,
+            currentlocation="%sharedPath%www/AIPsStore/originals/" + str(transfer_dir.name) + "/",
+        ),
+    )
+
+    # The transfer did not exist, we need to populate everything else.
+    if created:
+        mets = metsrw.METSDocument.fromfile(
+            str(transfer_dir / "data/metadata/submissionDocumentation/METS.xml")
+        )
+        for fsentry in mets.all_files():
+            if fsentry.type == "Item":
+                _import_file_from_fsentry(fsentry, transfer_uuid)
+            elif fsentry.type == "Directory":
+                _import_dir_from_fsentry(fsentry, transfer_uuid)
+
+    elasticSearchFunctions.index_transfer_and_files(
+        es_client, transfer_uuid, str(transfer_dir) + "/"
+    )
+
+
+def _import_pipeline_dependant_transfer(es_client, stdout, transfer_dir, transfer_uuid):
+    """Import a pipeline-dependant transfer.
+
+    We can only import pipeline-dependant transfers from backlog if the
+    pipeline has records of it, e.g. the Transfer object exists in the
+    database.
+    """
+    try:
+        Transfer.objects.get(uuid=transfer_uuid)
+    except Transfer.DoesNotExist:
+        stdout.write(
+            "Skipping transfer {} - not found in the database!".format(transfer_uuid)
+        )
+        return
+    stdout.write("Indexing {} ({})".format(transfer_uuid, transfer_dir))
+    elasticSearchFunctions.index_transfer_and_files(
+        es_client, transfer_uuid, str(transfer_dir) + "/"
+    )
+    try:
+        storageService.reindex_file(transfer_uuid)
+    except Exception as err:
+        self.stdout.write(
+            "Could not reindex Transfer in the Storage Service, UUID: %s (%s)"
+            % (transfer_uuid, err)
+        )
