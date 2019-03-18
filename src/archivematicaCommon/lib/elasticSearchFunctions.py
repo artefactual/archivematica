@@ -351,10 +351,10 @@ def _get_index_settings():
 def index_aip_and_files(
     client,
     uuid,
-    path,
-    mets_path,
+    aip_stored_path,
+    mets_staging_path,
     name,
-    size=None,
+    aip_size,
     aips_in_aic=None,
     identifiers=[],
     encrypted=False,
@@ -364,35 +364,28 @@ def index_aip_and_files(
 
     :param client: The ElasticSearch client.
     :param uuid: The UUID of the AIP we're indexing.
-    :param path: path on disk where the AIP is located.
-    :param path: path on disk where the AIP's METS file is located.
+    :param aip_stored_path: path on disk where the AIP is located.
+    :param mets_staging_path: path on disk where the AIP METS file is located.
     :param name: AIP name.
-    :param size: optional AIP size.
+    :param aip_size: AIP size.
     :param aips_in_aic: optional number of AIPs stored in AIC.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param identifiers: optional AIP encrypted boolean (defaults to `False`).
     :param printfn: optional print funtion.
     :return: 0 is succeded, 1 otherwise.
     """
-    # Stop if AIP or METS file don't not exist
+    # Stop if METS file is not at staging path.
     error_message = None
-    if not os.path.exists(path):
-        error_message = "AIP does not exist at: " + path
-    if not os.path.exists(mets_path):
-        error_message = "METS file does not exist at: " + mets_path
+    if not os.path.exists(mets_staging_path):
+        error_message = "METS file does not exist at: " + mets_staging_path
     if error_message:
         logger.error(error_message)
         printfn(error_message, file=sys.stderr)
         return 1
-
     printfn("AIP UUID: " + uuid)
     printfn("Indexing AIP ...")
-
-    tree = ElementTree.parse(mets_path)
-
-    # TODO: Add a conditional to toggle this
+    tree = ElementTree.parse(mets_staging_path)
     _remove_tool_output_from_mets(tree)
-
     root = tree.getroot()
     # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
@@ -409,19 +402,15 @@ def index_aip_and_files(
                 "dc:identifier", namespaces=ns.NSMAP
             ) or dublincore.findtext("dcterms:identifier", namespaces=ns.NSMAP)
         is_part_of = dublincore.findtext("dcterms:isPartOf", namespaces=ns.NSMAP)
-
     # Convert METS XML to dict
     xml = ElementTree.tostring(root)
     mets_data = _rename_dict_keys_with_child_dicts(
         _normalize_dict_values(xmltodict.parse(xml))
     )
-
     # Pull the create time from the METS header
     mets_hdr = root.find("mets:metsHdr", namespaces=ns.NSMAP)
     mets_created_attr = mets_hdr.get("CREATEDATE")
-
     created = time.time()
-
     if mets_created_attr:
         try:
             created = calendar.timegm(
@@ -429,12 +418,11 @@ def index_aip_and_files(
             )
         except ValueError:
             printfn("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
-
     aip_data = {
         "uuid": uuid,
         "name": name,
-        "filePath": path,
-        "size": (size or os.path.getsize(path)) / 1024 / 1024,
+        "filePath": aip_stored_path,
+        "size": aip_size,
         "mets": mets_data,
         "origin": get_dashboard_uuid(),
         "created": created,
@@ -448,17 +436,15 @@ def index_aip_and_files(
     _wait_for_cluster_yellow_status(client)
     _try_to_index(client, aip_data, "aips", printfn=printfn)
     printfn("Done.")
-
     printfn("Indexing AIP files ...")
     files_indexed = _index_aip_files(
         client=client,
         uuid=uuid,
-        mets_path=mets_path,
+        mets_path=mets_staging_path,
         name=name,
         identifiers=identifiers,
         printfn=printfn,
     )
-
     printfn("Files indexed: " + str(files_indexed))
     return 0
 

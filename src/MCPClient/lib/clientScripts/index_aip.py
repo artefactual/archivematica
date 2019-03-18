@@ -43,28 +43,21 @@ def get_identifiers(job, sip_path):
 
 
 def index_aip(job):
-    """ Write AIP information to ElasticSearch. """
+    """Write AIP information to ElasticSearch. """
     sip_uuid = job.args[1]  # %SIPUUID%
     sip_name = job.args[2]  # %SIPName%
-    sip_path = job.args[3]  # %SIPDirectory%
+    sip_staging_path = job.args[3]  # %SIPDirectory%
     sip_type = job.args[4]  # %SIPType%
-
     if "aips" not in mcpclient_settings.SEARCH_ENABLED:
         logger.info("Skipping indexing: AIPs indexing is currently disabled.")
         return 0
-
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
-
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
-
-    mets_name = "METS.{}.xml".format(sip_uuid)
-    mets_path = os.path.join(sip_path, mets_name)
-
-    identifiers = get_identifiers(job, sip_path)
-
+    mets_staging_path = os.path.join(sip_staging_path, "METS.{}.xml".format(sip_uuid))
+    identifiers = get_identifiers(job, sip_staging_path)
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None
     if sip_type == "AIC":
@@ -75,7 +68,6 @@ def index_aip(job):
             aips_in_aic = uv.variablevalue
         except UnitVariable.DoesNotExist:
             pass
-
     # Delete ES index before creating new one if reingesting
     if "REIN" in sip_type:
         job.pyprint(
@@ -85,7 +77,6 @@ def index_aip(job):
         )
         elasticSearchFunctions.delete_aip(client, sip_uuid)
         elasticSearchFunctions.delete_aip_files(client, sip_uuid)
-
     job.pyprint("Indexing AIP and AIP files")
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
@@ -93,19 +84,17 @@ def index_aip(job):
     ret = elasticSearchFunctions.index_aip_and_files(
         client=client,
         uuid=sip_uuid,
-        path=aip_info["current_full_path"],
-        mets_path=mets_path,
+        aip_stored_path=aip_info["current_full_path"],
+        mets_staging_path=mets_staging_path,
         name=sip_name,
-        size=aip_info["size"],
+        aip_size=aip_info["size"],
         aips_in_aic=aips_in_aic,
         identifiers=identifiers,
         encrypted=aip_info["encrypted"],
         printfn=job.pyprint,
     )
-
     if ret == 1:
         job.pyprint("Error indexing AIP and AIP files", file=sys.stderr)
-
     return ret
 
 
