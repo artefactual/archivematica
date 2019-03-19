@@ -141,6 +141,28 @@ def test_transfer_mets_structmap_format(
 
 
 @pytest.mark.django_db
+def test_transfer_mets_filegrp_format(
+    tmp_path, transfer, file_obj, subdir_path, empty_subdir_path, file_path
+):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(
+        str(mets_path), str(tmp_path), "transferDirectory", "transfer_id", transfer.uuid
+    )
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    file_entries = mets_xml.xpath(
+        ".//mets:fileGrp/mets:file", namespaces=mets_xml.nsmap
+    )
+    expected_file_path = subdir_path.relative_to(tmp_path) / file_path.name
+
+    assert file_entries[0].get("ID") == "file-{}".format(file_obj.uuid)
+    assert file_entries[0][0].get("{http://www.w3.org/1999/xlink}href") == str(
+        expected_file_path
+    )
+
+
+@pytest.mark.django_db
 def test_transfer_mets_objid(tmp_path, transfer):
     mets_path = tmp_path / "METS.xml"
     write_mets(

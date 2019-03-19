@@ -103,18 +103,19 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
 
     dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
     for dir_entry in dir_entries:
+        relative_path = os.path.relpath(dir_entry.path, start=root_path)
+
         if dir_entry.is_dir():
             fsentry = metsrw.FSEntry(
-                path=dir_entry.name, label=dir_entry.name, type="Directory"
+                path=relative_path, label=dir_entry.name, type="Directory"
             )
         else:
-            relative_path = os.path.relpath(dir_entry.path, start=root_path)
             file_obj = lookup_file_data(relative_path, db_base_path, lookup_kwargs)
             if file_obj is None:
                 continue
             checksum_type = convert_to_premis_hash_function(file_obj.checksumtype)
             fsentry = metsrw.FSEntry(
-                path=dir_entry.name,
+                path=relative_path,
                 label=dir_entry.name,
                 type="Item",
                 file_uuid=file_obj.uuid,
