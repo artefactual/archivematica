@@ -2,16 +2,15 @@
 from __future__ import unicode_literals
 
 import os
-import shutil
 import sys
-import tempfile
 import uuid
 
 import metsrw
 import pytest
-from django.test import TestCase
+from lxml import etree
 
-from main.models import Agent, Event, File, Transfer
+from fpr.models import FPRule
+from main.models import Agent, Event, File, FPCommandOutput, Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
@@ -78,9 +77,22 @@ def event(db, file_obj):
     event_agent = Agent.objects.create(
         identifiertype="preservation system", identifiervalue="Archivematica-1.9"
     )
-    event.agents.add(cls.event_agent)
+    event.agents.add(event_agent)
 
     return event
+
+
+@pytest.fixture()
+def fpcommand_output(db, file_obj):
+    # This rule is assumed to be present in fixtures.
+    # TODO: create the required data
+    rule = FPRule.objects.filter(purpose="characterization").first()
+
+    return FPCommandOutput.objects.create(
+        file=file_obj,
+        rule=rule,
+        content='<?xml version="1.0" encoding="UTF-8"?><hello>World</hello>',
+    )
 
 
 @pytest.mark.django_db
@@ -140,3 +152,27 @@ def test_transfer_mets_objid(tmp_path, transfer):
 
     assert len(objids) == 1
     assert objids[0] == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+def test_transfer_mets_includes_fpcommand_output(
+    tmp_path, transfer, file_obj, fpcommand_output
+):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(
+        str(mets_path), str(tmp_path), "transferDirectory", "transfer_id", transfer.uuid
+    )
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    expected_embed = etree.fromstring(fpcommand_output.content.encode("utf-8"))
+
+    extensions = mets_xml.xpath(
+        ".//premis:objectCharacteristicsExtension",
+        namespaces={"premis": "http://www.loc.gov/premis/v3"},
+    )
+
+    assert len(extensions) == 1
+
+    assert extensions[0][0].tag == expected_embed.tag
+    assert extensions[0][0].text == expected_embed.text

@@ -27,6 +27,7 @@ import os
 
 import django
 import scandir
+from lxml import etree
 from django.db.models import Prefetch
 
 django.setup()
@@ -36,7 +37,7 @@ import metsrw
 from archivematicaFunctions import escape
 
 # dashboard
-from main.models import Derivation, File
+from main.models import Derivation, File, FPCommandOutput
 
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
@@ -151,6 +152,9 @@ def lookup_file_data(relative_path, db_base_path, lookup_kwargs):
 
     # We need to do a lot of lookups here, so batch as much as possible.
     derivations_with_events = Derivation.objects.filter(event__isnull=False)
+    characterization_commands = FPCommandOutput.objects.filter(
+        rule__purpose__in=["characterization", "default_characterization"]
+    )
     prefetches = [
         "event_set",
         "event_set__agents",
@@ -164,6 +168,11 @@ def lookup_file_data(relative_path, db_base_path, lookup_kwargs):
             "derived_file_set",
             queryset=derivations_with_events,
             to_attr="related_is_source_of",
+        ),
+        Prefetch(
+            "fpcommandoutput_set",
+            queryset=characterization_commands,
+            to_attr="characterization_documents",
         ),
     ]
     try:
@@ -242,6 +251,21 @@ def get_premis_relationship_data(derivations, originals):
     return relationship_data
 
 
+def get_premis_object_characteristics_extension(documents):
+    extensions = ()
+
+    for document in documents:
+        # lxml will complain if we pass unicode, even if the XML
+        # is UTF-8 encoded.
+        # See https://lxml.de/parsing.html#python-unicode-strings
+        # This only covers the UTF-8 and ASCII cases.
+        xml_element = etree.fromstring(document.content.encode("utf-8"))
+
+        extensions += ("object_characteristics_extension", xml_element)
+
+    return extensions
+
+
 def file_obj_to_premis(file_obj):
     """
     Converts an File model object to a PREMIS event object via metsrw.
@@ -251,6 +275,36 @@ def file_obj_to_premis(file_obj):
     """
 
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
+    format_data = get_premis_format_data(file_obj.fileid_set.all())
+    original_name = escape(file_obj.originallocation)
+    object_characteristics_extensions = get_premis_object_characteristics_extension(
+        file_obj.characterization_documents
+    )
+    relationship_data = get_premis_relationship_data(
+        file_obj.related_is_source_of, file_obj.related_has_source
+    )
+
+    object_characteristics = (
+        "object_characteristics",
+        ("composition_level", "0"),
+        (
+            "fixity",
+            ("message_digest_algorithm", premis_digest_algorithm),
+            ("message_digest", file_obj.checksum),
+        ),
+        ("size", str(file_obj.size)),
+        format_data,
+        (
+            "creating_application",
+            (
+                "date_created_by_application",
+                file_obj.modificationtime.strftime("%Y-%m-%d"),
+            ),
+        ),
+    )
+    if object_characteristics_extensions:
+        object_characteristics += (object_characteristics_extensions,)
+
     premis_data = (
         "object",
         PREMIS_META,
@@ -259,28 +313,9 @@ def file_obj_to_premis(file_obj):
             ("object_identifier_type", "UUID"),
             ("object_identifier_value", file_obj.uuid),
         ),
-        (
-            "object_characteristics",
-            ("composition_level", "0"),
-            (
-                "fixity",
-                ("message_digest_algorithm", premis_digest_algorithm),
-                ("message_digest", file_obj.checksum),
-            ),
-            ("size", str(file_obj.size)),
-            get_premis_format_data(file_obj.fileid_set.all()),
-            (
-                "creating_application",
-                (
-                    "date_created_by_application",
-                    file_obj.modificationtime.strftime("%Y-%m-%d"),
-                ),
-            ),
-        ),
-        ("original_name", escape(file_obj.originallocation)),
-    ) + get_premis_relationship_data(
-        file_obj.related_is_source_of, file_obj.related_has_source
-    )
+        object_characteristics,
+        ("original_name", original_name),
+    ) + relationship_data
 
     return metsrw.plugins.premisrw.data_to_premis(
         premis_data, premis_version=PREMIS_META["version"]
