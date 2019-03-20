@@ -62,30 +62,25 @@ def create_directories(base_dir, dir_list):
             pass
 
 
-_PAYLOAD_ENTRIES = (
-    "logs/",
-    "objects/",
-    "METS.%SIPUUID%.xml",
-    "README.html",
-    "thumbnails/",
-    "metadata/",
-)
+_PAYLOAD_ENTRIES = ("logs/", "objects/", "README.html", "thumbnails/", "metadata/")
 
 
 def bag_with_empty_directories(job, destination, sip_directory, sip_uuid, algorithm):
     """Create BagIt and include any empty directories from the SIP."""
     # Get list of directories in SIP
     dir_list = get_sip_directories(job, sip_directory)
-    # These are passed to this script as paths relative to their location in
-    # the SIP; passing the full SIP location each time has the potential to
-    # overflow the 1000-character limit the job's command has in the database,
-    # especially with long SIP names.
-    full_paths = [os.path.join(sip_directory, p) for p in _PAYLOAD_ENTRIES]
-    # Ensure all payload items actually exist
-    payload_entries = [e for e in full_paths if os.path.exists(e)]
+    payload_entries = _PAYLOAD_ENTRIES + ("METS.%s.xml" % sip_uuid,)
     os.mkdir(destination)
     for item in payload_entries:
-        shutil.move(item, destination)
+        item = os.path.join(sip_directory, item)
+        # Omit payload items that don't exist
+        if not os.path.exists(item):
+            continue
+        if os.path.isfile(item):
+            shutil.copy(item, destination)
+        else:
+            dst = os.path.join(destination, os.path.basename(os.path.dirname(item)))
+            shutil.copytree(item, dst)
     make_bag(
         destination,
         processes=multiprocessing.cpu_count(),
