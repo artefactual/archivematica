@@ -419,7 +419,7 @@ def index_aip_and_files(
         'uuid': uuid,
         'name': name,
         'filePath': aip_stored_path,
-        'size': aip_size,
+        'size': aip_size / (1024 * 1024),
         'mets': mets_data,
         'origin': get_dashboard_uuid(),
         'created': created,
