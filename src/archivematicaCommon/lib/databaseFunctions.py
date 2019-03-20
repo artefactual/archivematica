@@ -31,15 +31,7 @@ import uuid
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import six, timezone
-from main.models import (
-    Agent,
-    Derivation,
-    Event,
-    File,
-    FPCommandOutput,
-    SIP,
-    UnitVariable,
-)
+from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -138,8 +130,6 @@ def getAMAgentsForFile(fileUUID):
 
     :returns: A list of Agent IDs
     """
-    agents = []
-
     try:
         f = File.objects.get(uuid=fileUUID)
     except File.DoesNotExist:
@@ -151,27 +141,14 @@ def getAMAgentsForFile(fileUUID):
 
     # Fetch Agent for the User
     if f.sip:
-        try:
-            var = UnitVariable.objects.get(
-                unittype="SIP", unituuid=f.sip_id, variable="activeAgent"
-            )
-            agents.append(int(var.variablevalue))
-        except UnitVariable.DoesNotExist:
-            pass
-    if f.transfer and not agents:  # agent hasn't been found yet
-        try:
-            var = UnitVariable.objects.get(
-                unittype="Transfer", unituuid=f.transfer_id, variable="activeAgent"
-            )
-            agents.append(int(var.variablevalue))
-        except UnitVariable.DoesNotExist:
-            pass
+        return f.sip.agents.values_list("pk", flat=True)
+    elif f.transfer:
+        return f.transfer.agents.values_list("pk", flat=True)
+
     # Fetch other Archivematica Agents
-    am_agents = Agent.objects.filter(
+    return Agent.objects.filter(
         Q(identifiertype="repository code") | Q(identifiertype="preservation system")
     ).values_list("pk", flat=True)
-    agents.extend(am_agents)
-    return agents
 
 
 def insertIntoEvents(

@@ -20,7 +20,7 @@ django.setup()
 
 from main.models import Directory, File, SIP
 
-from sanitize_names import sanitizeName
+from sanitize_names import sanitize_name
 
 
 class DeclarePIDsException(Exception):
@@ -72,8 +72,7 @@ class DeclarePIDs(object):
         return "{}{}".format(
             self.SIP_DIRECTORY,
             os.path.join(
-                "",
-                *[sanitizeName(name.encode("utf8")) for name in path.split(os.path.sep)]
+                "", *[sanitize_name(name) for name in path.split(os.path.sep)]
             ),
         )
 
