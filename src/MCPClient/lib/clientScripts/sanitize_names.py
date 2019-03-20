@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-
+# -*- coding: utf8
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -21,100 +21,74 @@
 # @subpackage MCPClient
 # @author Joseph Perry <joseph@artefactual.com>
 
-import string
 import os
-from shutil import move as rename
-import sys
-import unicodedata
+import re
+import shutil
+
+from scandir import scandir
 from unidecode import unidecode
-from archivematicaFunctions import unicodeToStr
+
+from archivematicaFunctions import strToUnicode
 
 VERSION = "1.10." + "$Id$".split(" ")[1]
-valid = "-_.()" + string.ascii_letters + string.digits
-replacementChar = "_"
+
+# Letters, digits and a few punctuation characters
+ALLOWED_CHARS = re.compile(r"[^a-zA-Z0-9\-_.\(\)]")
+REPLACEMENT_CHAR = "_"
 
 
-def transliterate(basename):
-    # We get a more meaningful name sanitization if UTF-8 names
-    # are correctly decoded to unistrings instead of str
-    try:
-        return unidecode(basename.decode("utf-8"))
-    except UnicodeDecodeError:
-        return unidecode(basename)
+def sanitize_name(basename):
+    unicode_name = unidecode(strToUnicode(basename))
+    # Handle the case where '' is returned by unidecode
+    if unicode_name == "":
+        unicode_name = strToUnicode(basename)
+    return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, unicode_name)
 
 
-def sanitizeName(basename):
-    ret = ""
-    basename = transliterate(basename)
-    for c in basename:
-        if c in valid:
-            ret += c
-        else:
-            ret += replacementChar
-    return ret.encode("utf-8")
-
-
-class RenameFailed(Exception):
-    def __init__(self, code):
-        self.code = code
-
-
-def sanitizePath(job, path):
+def sanitize_path(path):
     basename = os.path.basename(path)
-    dirname = os.path.dirname(path)
-    sanitizedName = sanitizeName(basename)
+    sanitized_name = sanitize_name(basename)
 
-    if basename == sanitizedName:
+    if basename == sanitized_name:
         return path
-    else:
-        n = 1
-        fileTitle, fileExtension = os.path.splitext(sanitizedName)
-        sanitizedName = os.path.join(dirname, fileTitle + fileExtension)
 
-        while os.path.exists(sanitizedName):
-            sanitizedName = os.path.join(
-                dirname, fileTitle + replacementChar + str(n) + fileExtension
-            )
-            n += 1
-        exit_status = rename(path, sanitizedName)
-        if exit_status:
-            raise RenameFailed(exit_status)
+    dirname = os.path.dirname(path)
 
-        return sanitizedName
+    n = 1
+    file_title, file_extension = os.path.splitext(sanitized_name)
+    sanitized_name = os.path.join(dirname, file_title + file_extension)
 
+    while os.path.exists(sanitized_name):
+        sanitized_name = os.path.join(
+            dirname, file_title + REPLACEMENT_CHAR + str(n) + file_extension
+        )
+        n += 1
+    shutil.move(path, sanitized_name)
 
-def sanitizeRecursively(job, path):
-    path = os.path.abspath(path)
-    sanitizations = {}
-
-    sanitizedName = sanitizePath(job, path)
-    if sanitizedName != path:
-        path_key = unicodeToStr(unicodedata.normalize("NFC", path.decode("utf8")))
-        sanitizations[path_key] = sanitizedName
-    if os.path.isdir(sanitizedName):
-        for f in os.listdir(sanitizedName):
-            sanitizations.update(
-                sanitizeRecursively(job, os.path.join(sanitizedName, f))
-            )
-
-    return sanitizations
+    return sanitized_name
 
 
-def call(jobs):
-    for job in jobs:
-        with job.JobContext():
-            try:
-                path = job.args[1]
-                if not os.path.isdir(path):
-                    job.pyprint("Not a directory: " + path, file=sys.stderr)
-                    job.set_status(255)
-                    continue
-                job.pyprint("Scanning: ", path)
-                sanitizations = sanitizeRecursively(job, path)
-                for oldfile, newfile in sanitizations.items():
-                    job.pyprint(oldfile, " -> ", newfile)
-                job.pyprint(
-                    "TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE", file=sys.stderr
-                )
-            except RenameFailed as e:
-                job.set_status(e.code)
+def sanitize_tree(start_path, old_start_path):
+    """
+    Recursive generator to sanitize all filesystem entries under the start
+    path given.
+
+    Yields once for each file name sanitized, each dir sanitized, and
+    everything contained in each sanitized dir (e.g. if /foo/bår is
+    sanitized, /foo/bår/test will also be yielded.)
+    """
+    start_path = os.path.abspath(start_path)
+
+    for dir_entry in scandir(start_path):
+        is_dir = dir_entry.is_dir()  # cache is_dir before rename
+
+        sanitized_name = sanitize_path(dir_entry.path)
+        sanitized_path = os.path.join(start_path, sanitized_name)
+        old_path = os.path.join(old_start_path, dir_entry.name)
+
+        if sanitized_path != old_path:
+            yield old_path, sanitized_path, is_dir
+
+        if is_dir:
+            for result in sanitize_tree(sanitized_path, old_path):
+                yield result
