@@ -439,7 +439,7 @@
                 "ja": "いいえ",
                 "sv": "Nej"
             },
-            "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+            "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
         },
         "816f28cd-6af1-4d26-97f3-e61645eb881b": {
             "description": {
@@ -3773,7 +3773,7 @@
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
                 "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createProcessedStructmap_v0.0",
+                "execute": "createTransferMETS_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -3781,25 +3781,28 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Add processed structMap to METS.xml document",
-                "fr": "Ajouter le structMap traité au document METS.xml",
-                "ja": "処理済みのstructMapをMETS.xmlドキュメントに追加する",
-                "pt_BR": "Adicionar documento processado structMap para METS.xml",
-                "sv": "Lägg till processad structMap i METS.xml dokument"
+                "en": "Generate METS.xml document",
+                "es": "Generar METS.xml",
+                "fr": "Générer un document METS.xml",
+                "ja": "METS.xml文書 を生成",
+                "pt_BR": "Gerar documentos METS.xml",
+                "sv": "Skapa METS.xml dokument"
             },
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
+                    "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
                 }
             },
             "fallback_job_status": "Failed",
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
-                "en": "Update METS.xml document",
-                "fr": "Mettre à jour un document METS.xml",
-                "pt_BR": "Atualize documento METS.xml",
-                "sv": "Uppdatera METS.xm dokument"
+                "en": "Generate METS.xml document",
+                "es": "Generar METS.xml",
+                "fr": "Générer un document METS.xml",
+                "ja": "METS.xml文書 を生成",
+                "pt_BR": "Gerar documentos METS.xml",
+                "sv": "Skapa METS.xml dokument"
             }
         },
         "31abe664-745e-4fef-a669-ff41514e0083": {
@@ -4005,43 +4008,6 @@
                 "fr": "Traiter la documentation de soumission",
                 "pt_BR": "Processar documentação de submissão",
                 "sv": "Bearbeta leveransdokumentation"
-            }
-        },
-        "3409b898-e532-49d3-98ff-a2a1f9d988fa": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
             }
         },
         "3467d003-1603-49e3-b085-e58aa693afed": {
@@ -5466,11 +5432,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa",
+            "fallback_link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac",
             "group": {
                 "en": "Approve transfer",
                 "es": "Aprobar transferencia",
@@ -5921,7 +5887,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "b6c9de5a-4a9f-41e1-a524-360bdca39893"
+                    "link_id": "a6e97805-a420-41af-b708-2a56de5b47a6"
                 }
             },
             "fallback_job_status": "Failed",
@@ -7308,7 +7274,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "df957421-6bba-4ad7-8580-0fc04a54efd4"
+                    "link_id": "b2552a90-e674-4a40-a482-687c046407d3"
                 }
             },
             "fallback_job_status": "Failed",
@@ -8829,7 +8795,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
+                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
                 }
             },
             "fallback_job_status": "Failed",
@@ -9701,43 +9667,6 @@
                 "sv": "Bearbeta metadatamapp"
             }
         },
-        "b6c9de5a-4a9f-41e1-a524-360bdca39893": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "a6e97805-a420-41af-b708-2a56de5b47a6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml",
-                "es": "Generar METS.xml",
-                "fr": "Générer METS.xml",
-                "ja": "METS.xml を生成",
-                "pt_BR": "Gerar METS.xml",
-                "sv": "Skapa METS.xml"
-            }
-        },
         "b7cf0d9a-504f-4f4e-9930-befa817d67ff": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -9799,7 +9728,7 @@
                 },
                 "1": {
                     "job_status": "Completed successfully",
-                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
                 }
             },
             "fallback_job_status": "Failed",
@@ -10047,7 +9976,7 @@
                 },
                 "1": {
                     "job_status": "Completed successfully",
-                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
                 }
             },
             "fallback_job_status": "Failed",
@@ -11552,43 +11481,6 @@
                 "sv": "Karantän"
             }
         },
-        "df957421-6bba-4ad7-8580-0fc04a54efd4": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "b2552a90-e674-4a40-a482-687c046407d3"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            }
-        },
         "e10a31c3-56df-4986-af7e-2794ddfe8686": {
             "config": {
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
@@ -12481,7 +12373,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac"
                 }
             },
             "fallback_job_status": "Failed",
@@ -13015,11 +12907,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa",
+            "fallback_link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac",
             "group": {
                 "en": "TRIM transfer",
                 "fr": "Transfert TRIM",
