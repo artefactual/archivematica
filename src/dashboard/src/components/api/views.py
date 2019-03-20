@@ -46,6 +46,7 @@ from main import models
 from processing import install_builtin_config
 
 LOGGER = logging.getLogger("archivematica.dashboard")
+SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 UUID_REGEX = re.compile(
     r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
@@ -252,7 +253,9 @@ def status(request, unit_uuid, unit_type):
             json.dumps(response), content_type="application/json"
         )
     directory = unit.currentpath if unit_type == "unitSIP" else unit.currentlocation
-    response["path"] = directory.replace("%sharedPath%", SHARED_DIRECTORY_ROOT, 1)
+    response["path"] = directory.replace(
+        SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT, 1
+    )
     response["directory"] = os.path.basename(os.path.normpath(directory))
     response["name"] = response["directory"].replace("-" + unit_uuid, "", 1)
     response["uuid"] = unit_uuid
@@ -349,7 +352,6 @@ def start_transfer_api(request):
     paths = request.POST.getlist("paths[]", [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist("row_ids[]", [""])
-
     try:
         response = filesystem_ajax_views.start_transfer(
             transfer_name, transfer_type, accession, access_id, paths, row_ids
@@ -481,20 +483,21 @@ def approve_transfer(request):
     if not directory:
         return _error_response("Please specify a transfer directory.", status_code=500)
     directory = archivematicaFunctions.unicodeToStr(directory)
-
     transfer_type = request.POST.get("type", "standard")
     if not transfer_type:
         return _error_response("Please specify a transfer type.", status_code=500)
-
     modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
     if modified_transfer_path is None:
         return _error_response("Invalid transfer type.", status_code=500)
-
-    if transfer_type == "zipped bag":
-        db_transfer_path = os.path.join(modified_transfer_path, directory)
+    watched_path = os.path.join(modified_transfer_path, directory)
+    transfer_file = watched_path.replace(
+        SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT
+    )
+    if transfer_type in ("zipped bag", "dspace") and os.path.isfile(transfer_file):
+        db_transfer_path = watched_path
     else:
-        db_transfer_path = os.path.join(modified_transfer_path, directory, "")
-
+        # Append a slash to complete the directory path.
+        db_transfer_path = os.path.join(watched_path, "")
     try:
         client = MCPClient(request.user)
         unit_uuid = client.approve_transfer_by_path(db_transfer_path, transfer_type)
@@ -508,14 +511,14 @@ def approve_transfer(request):
 def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(django_settings.WATCH_DIRECTORY, "activeTransfers")
     if transfer_type is None:
-        return path.replace(SHARED_DIRECTORY_ROOT, "%sharedPath%", 1)
+        return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
     try:
         path = os.path.join(
             path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type]
         )
     except KeyError:
         return None
-    return path.replace(SHARED_DIRECTORY_ROOT, "%sharedPath%", 1)
+    return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
 
 
 @_api_endpoint(expected_methods=["POST"])
@@ -607,7 +610,8 @@ def reingest(request, target):
 
         # Persist transfer record in the database
         tdetails = {
-            "currentlocation": "%sharedPath%" + dest[len(shared_directory_path) :],
+            "currentlocation": SHARED_PATH_TEMPLATE_VAL
+            + dest[len(shared_directory_path) :],
             "uuid": str(uuid.uuid4()),
             "type": "Archivematica AIP",
         }
