@@ -10,7 +10,7 @@ import pytest
 from lxml import etree
 
 from fpr.models import FPRule
-from main.models import Agent, Event, File, FPCommandOutput, Transfer
+from main.models import Agent, DashboardSetting, Event, File, FPCommandOutput, Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
@@ -95,6 +95,14 @@ def fpcommand_output(db, file_obj):
     )
 
 
+@pytest.fixture()
+def dashboard_uuid(db):
+    setting, _ = DashboardSetting.objects.get_or_create(
+        name="dashboard_uuid", defaults={"value": str(uuid.uuid4())}
+    )
+    return setting.value
+
+
 @pytest.mark.django_db
 def test_transfer_mets_structmap_format(
     tmp_path, transfer, file_obj, subdir_path, empty_subdir_path, file_path
@@ -174,6 +182,27 @@ def test_transfer_mets_objid(tmp_path, transfer):
 
     assert len(objids) == 1
     assert objids[0] == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+def test_transfer_mets_header(tmp_path, transfer, file_obj, dashboard_uuid):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(
+        str(mets_path), str(tmp_path), "transferDirectory", "transfer_id", transfer.uuid
+    )
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    header = mets_xml.find(".//mets:metsHdr", namespaces=mets_xml.nsmap)
+    agent = header.find("mets:agent", namespaces=mets_xml.nsmap)
+    agent_name = agent.find("mets:name", namespaces=mets_xml.nsmap)
+    agent_note = agent.find("mets:note", namespaces=mets_xml.nsmap)
+
+    assert agent.get("ROLE") == "CREATOR"
+    assert agent.get("TYPE") == "OTHER"
+    assert agent.get("OTHERTYPE") == "SOFTWARE"
+    assert agent_name.text == dashboard_uuid
+    assert agent_note.text == "Archivematica dashboard UUID"
 
 
 @pytest.mark.django_db

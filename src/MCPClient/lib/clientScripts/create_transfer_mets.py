@@ -34,7 +34,7 @@ django.setup()
 import metsrw
 
 # archivematicaCommon
-from archivematicaFunctions import escape
+from archivematicaFunctions import get_dashboard_uuid, escape
 
 # dashboard
 from main.models import Derivation, File, FPCommandOutput
@@ -70,6 +70,18 @@ def write_mets(
 
     mets = metsrw.METSDocument()
     mets.objid = str(identifier_uuid)
+
+    dashboard_uuid = get_dashboard_uuid()
+    if dashboard_uuid:
+        agent = metsrw.Agent(
+            "CREATOR",
+            type="SOFTWARE",
+            name=str(dashboard_uuid),
+            notes=["Archivematica dashboard UUID"],
+        )
+        mets.agents.append(agent)
+
+        # TODO: accession number
 
     root_fsentry = build_fsentries_tree(
         transfer_dir_path, transfer_dir_path, db_base_path, lookup_kwargs
