@@ -164,10 +164,10 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
     return elasticSearchFunctions.index_aip_and_files(
         client=es_client,
         uuid=aip_uuid,
-        path=path,
-        mets_path=path_to_mets,
+        aip_stored_path=path,
+        mets_staging_path=path_to_mets,
         name=aip_name,
-        size=aip_info[0]['size'],
+        aip_size=aip_info[0]["size"],
         aips_in_aic=aips_in_aic,
         identifiers=[],  # TODO get these
     )
