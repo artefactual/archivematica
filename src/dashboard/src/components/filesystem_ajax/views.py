@@ -39,6 +39,7 @@ import archivematicaFunctions
 import databaseFunctions
 import storageService as storage_service
 
+from bag import is_bag
 from bagit import Bag, BagError
 
 
@@ -1095,7 +1096,7 @@ def download_by_uuid(request, uuid, preview_file=False):
     will be set in the stream_file_from_storage_service to 'inline'.
     """
     try:
-        f = models.File.objects.get(uuid=uuid)
+        f = models.File.objects.select_related("transfer").get(uuid=uuid)
     except models.File.DoesNotExist:
         response = {
             "success": False,
@@ -1103,7 +1104,13 @@ def download_by_uuid(request, uuid, preview_file=False):
             % {"uuid": uuid},
         }
         return helpers.json_response(response, status_code=404)
-    relative_path = f.currentlocation.replace("%transferDirectory%", "")
+    # check if the transfer is in the backlog and if it's a bag
+    transfer_name = os.path.basename(f.transfer.currentlocation.rstrip("/"))
+    transfer_dir = os.path.join(ORIGINAL_DIR, transfer_name)
+    if os.path.isdir(transfer_dir) and is_bag(transfer_dir):
+        relative_path = f.currentlocation.replace("%transferDirectory%", "data/")
+    else:
+        relative_path = f.currentlocation.replace("%transferDirectory%", "")
     redirect_url = storage_service.extract_file_url(f.transfer_id, relative_path)
     return helpers.stream_file_from_storage_service(
         redirect_url, "Storage service returned {}; check logs?", preview_file

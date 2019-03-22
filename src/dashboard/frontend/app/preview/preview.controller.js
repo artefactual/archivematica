@@ -1,4 +1,5 @@
 import angular from 'angular';
+import Base64 from 'base64-helpers';
 
 angular.module('previewController', ['route-segment', 'selectedFilesService']).
 
@@ -14,9 +15,24 @@ controller('PreviewController', ['$scope', 'gettextCatalog', '$routeSegment', 'A
   var vm = this;
 
   vm.set_file_data = file => {
+    var url;
     $scope.file = file;
-    $scope.download = '/filesystem/' + file.id + '/download';
-    $scope.preview = '/filesystem/' + file.id + '/preview';
+    try {
+      // log/metadata files use their encoded paths as identifiers
+      if (file.id === Base64.encode(file.relative_path)) {
+        // it's a log/metadata file, use direct download from the SS
+        url = '/filesystem/download_ss/?filepath=' + encodeURIComponent(Base64.encode('/originals/' + file.relative_path));
+        $scope.download = url;
+        $scope.preview = url;
+      } else {
+        // shouldn't get here ever!
+        throw 'to use regular preview';
+      }
+    } catch(err) {
+      // it's a SIP file, use regular preview
+      $scope.download = '/filesystem/' + file.id + '/download';
+      $scope.preview = '/filesystem/' + file.id + '/preview';
+    }
   };
 
   $scope.$routeSegment = $routeSegment;

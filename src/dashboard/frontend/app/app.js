@@ -11,6 +11,7 @@ import 'angular';
 // Partials
 import 'ng-cache?prefix=[dir]!./analysis/analysis.html';
 import 'ng-cache?prefix=[dir]!./archivesspace/form.html';
+import 'ng-cache?prefix=[dir]!./arrangement/edit_metadata_form.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/examine_contents.html';
 import 'ng-cache?prefix=[dir]!./examine_contents/file_info.html';
 import 'ng-cache?prefix=[dir]!./front_page/appraisal_tab.html';

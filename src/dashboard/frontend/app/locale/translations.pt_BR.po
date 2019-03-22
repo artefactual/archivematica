@@ -14,13 +14,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: app/front_page/appraisal_tab.html:45
+#: app/front_page/appraisal_tab.html:47
 msgid "1 object selected"
 msgid_plural "{{$count}} objects selected"
 msgstr[0] "1 objeto selecionado"
 msgstr[1] "{{$count}} objetos selecionados"
 
-#: app/front_page/appraisal_tab.html:44
+#: app/front_page/appraisal_tab.html:46
 msgid "1 transfer"
 msgid_plural "{{$count}} transfers"
 msgstr[0] "1 transfer"
@@ -38,15 +38,15 @@ msgstr "Registro de entrada n."
 msgid "Add"
 msgstr "Adicionar"
 
-#: app/front_page/appraisal_tab.html:309
+#: app/front_page/appraisal_tab.html:311
 msgid "Add directory"
 msgstr "Adicionar diretório"
 
-#: app/front_page/appraisal_tab.html:208
+#: app/front_page/appraisal_tab.html:210
 msgid "Add new child record"
 msgstr "Adicionar novos níveis subordinados"
 
-#: app/front_page/appraisal_tab.html:214
+#: app/front_page/appraisal_tab.html:216
 msgid "Add new digital object"
 msgstr "Adicionar novo objeto digital"
 
@@ -58,15 +58,15 @@ msgstr "Adicionar próximo"
 msgid "Add tag to checked files"
 msgstr "Adicionar marcação para verificar arquivos"
 
-#: app/front_page/appraisal_tab.html:50
+#: app/front_page/appraisal_tab.html:52
 msgid "Add tag to selected files"
 msgstr "Adicionar marcação para arquivos selecionados"
 
-#: app/front_page/appraisal_tab.html:18
+#: app/front_page/appraisal_tab.html:20
 msgid "All"
 msgstr "Todos"
 
-#: app/front_page/appraisal_tab.html:80
+#: app/front_page/appraisal_tab.html:82
 msgid "Analysis"
 msgstr "Análise"
 
@@ -74,23 +74,23 @@ msgstr "Análise"
 msgid "Approve automatically"
 msgstr "Aprovar automaticamente"
 
-#: app/front_page/appraisal_tab.html:191 app/front_page/appraisal_tab.html:194
+#: app/front_page/appraisal_tab.html:193 app/front_page/appraisal_tab.html:196
 msgid "ArchivesSpace"
 msgstr "ArchivesSpace"
 
-#: app/front_page/appraisal_tab.html:231 app/front_page/appraisal_tab.html:319
+#: app/front_page/appraisal_tab.html:233 app/front_page/appraisal_tab.html:322
 msgid "Are you sure you want to delete this?"
 msgstr "Tem certeza que quer excluir? "
 
-#: app/arrangement/arrangement.controller.js:67
+#: app/arrangement/arrangement.controller.js:68
 msgid "Are you sure you want to discard the current directory?"
 msgstr ""
 
-#: app/front_page/appraisal_tab.html:283 app/front_page/appraisal_tab.html:286
+#: app/front_page/appraisal_tab.html:285 app/front_page/appraisal_tab.html:288
 msgid "Arrangement"
 msgstr "Arranjo"
 
-#: app/front_page/appraisal_tab.html:38 app/front_page/appraisal_tab.html:41
+#: app/front_page/appraisal_tab.html:40 app/front_page/appraisal_tab.html:43
 msgid "Backlog"
 msgstr "Backlog"
 
@@ -103,11 +103,11 @@ msgstr "Navegador"
 msgid "Bulk extractor logs"
 msgstr "Bulk extractor logs"
 
-#: app/archivesspace/form.html:37
+#: app/archivesspace/form.html:37 app/arrangement/edit_metadata_form.html:10
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: app/front_page/appraisal_tab.html:55
+#: app/front_page/appraisal_tab.html:57
 msgid "Collapse all"
 msgstr "Ocultar todos"
 
@@ -127,7 +127,7 @@ msgstr "Contexto"
 msgid "Count"
 msgstr "Contagem"
 
-#: app/front_page/appraisal_tab.html:327
+#: app/front_page/appraisal_tab.html:330
 msgid "Create SIP"
 msgstr "Criar SIP"
 
@@ -147,23 +147,23 @@ msgstr "Dataverse"
 msgid "Date expression:"
 msgstr "Expressão de data:"
 
-#: app/front_page/appraisal_tab.html:120
+#: app/front_page/appraisal_tab.html:122
 msgid "Date range end"
 msgstr "Data-limite final"
 
-#: app/front_page/appraisal_tab.html:113
+#: app/front_page/appraisal_tab.html:115
 msgid "Date range start"
 msgstr "Data-limite inicial"
 
-#: app/front_page/appraisal_tab.html:128
+#: app/front_page/appraisal_tab.html:130
 msgid "Dates:"
 msgstr "Datas:"
 
-#: app/front_page/appraisal_tab.html:233 app/front_page/appraisal_tab.html:321
+#: app/front_page/appraisal_tab.html:235 app/front_page/appraisal_tab.html:324
 msgid "Delete selected"
 msgstr "Deletar selecionados"
 
-#: app/front_page/appraisal_tab.html:54
+#: app/front_page/appraisal_tab.html:56
 msgid "Deselect all"
 msgstr "Desmarcar todos"
 
@@ -175,15 +175,15 @@ msgstr "Imagem do disco"
 msgid "Download"
 msgstr "Downloads"
 
-#: app/front_page/appraisal_tab.html:314
+#: app/front_page/appraisal_tab.html:317
 msgid "Edit Metadata"
 msgstr "Editar metadados"
 
-#: app/front_page/appraisal_tab.html:226
+#: app/front_page/appraisal_tab.html:228
 msgid "Edit metadata"
 msgstr "Editar metadado"
 
-#: app/front_page/appraisal_tab.html:219
+#: app/front_page/appraisal_tab.html:221
 msgid "Edit rights metadata"
 msgstr "Editar metadados de direitos"
 
@@ -191,29 +191,33 @@ msgstr "Editar metadados de direitos"
 msgid "End date:"
 msgstr "Data final"
 
-#: app/front_page/appraisal_tab.html:91
+#: app/arrangement/arrangement.controller.js:372
+msgid "Error fetching levels of description"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:93
 msgid "Examine contents"
 msgstr "Examinar conteúdos"
 
-#: app/front_page/appraisal_tab.html:56
+#: app/front_page/appraisal_tab.html:58
 msgid "Expand all"
 msgstr "Expandir todos"
 
-#: app/arrangement/arrangement.controller.js:300
+#: app/arrangement/arrangement.controller.js:382
 msgid "Failed to copy files to SIP arrange; check Dashboard logs."
 msgstr ""
 "Falha ao copiar arquivos para o arranjo SIP; Verifique os logs do Painel."
 
-#: app/front_page/appraisal_tab.html:102 app/front_page/appraisal_tab.html:105
+#: app/front_page/appraisal_tab.html:104 app/front_page/appraisal_tab.html:107
 msgid "File list"
 msgstr "Lista de arquivos"
 
-#: app/front_page/appraisal_tab.html:109
+#: app/front_page/appraisal_tab.html:111
 msgid "File list is empty."
 msgstr "Lista de arquivos vazia"
 
 #: app/examine_contents/examine_contents.html:45
-#: app/front_page/appraisal_tab.html:159
+#: app/front_page/appraisal_tab.html:161
 msgid "Filename"
 msgstr "Nome do arquivo"
 
@@ -221,7 +225,7 @@ msgstr "Nome do arquivo"
 msgid "Files"
 msgstr "Arquivos"
 
-#: app/front_page/appraisal_tab.html:239
+#: app/front_page/appraisal_tab.html:241
 msgid "Finalize arrangement"
 msgstr "Finalizar arranjo"
 
@@ -251,19 +255,19 @@ msgstr "Notas gerais"
 msgid "Group"
 msgstr "Grupo"
 
-#: app/front_page/appraisal_tab.html:145
+#: app/front_page/appraisal_tab.html:147
 msgid "Hide path"
 msgstr "Ocultar caminho"
 
-#: app/front_page/appraisal_tab.html:198
+#: app/front_page/appraisal_tab.html:200
 msgid "Identifier"
 msgstr "Código de referência"
 
-#: app/front_page/appraisal_tab.html:162
+#: app/front_page/appraisal_tab.html:164
 msgid "Last modified"
 msgstr "Última modificaçao"
 
-#: app/archivesspace/form.html:8
+#: app/archivesspace/form.html:8 app/arrangement/edit_metadata_form.html:4
 msgid "Level of description:"
 msgstr "Nível de descrição"
 
@@ -277,7 +281,7 @@ msgstr ""
 "componente adicionado a essa transferência. Os dados não serão usados ​​se "
 "nenhum componente for adicionado depois que o formulário for salvo."
 
-#: app/arrangement/arrangement.controller.js:202
+#: app/arrangement/arrangement.controller.js:204
 msgid "Name of new directory?"
 msgstr "Nome do novo diretório?"
 
@@ -297,7 +301,7 @@ msgstr "Nenhuma informação encontrada para transferências selecionadas."
 msgid "No information found for selected files."
 msgstr "Nenhuma informação encontrada para os arquivos selecionados."
 
-#: app/front_page/appraisal_tab.html:292
+#: app/front_page/appraisal_tab.html:294
 msgid "None"
 msgstr ""
 
@@ -305,7 +309,7 @@ msgstr ""
 msgid "Number of files"
 msgstr "Número de arquivos"
 
-#: app/front_page/appraisal_tab.html:85
+#: app/front_page/appraisal_tab.html:87
 msgid "Objects"
 msgstr "Objetos"
 
@@ -323,7 +327,7 @@ msgstr "PII"
 msgid "PUID"
 msgstr "PUID"
 
-#: app/front_page/appraisal_tab.html:160
+#: app/front_page/appraisal_tab.html:162
 msgid "Path"
 msgstr "Caminho"
 
@@ -332,7 +336,7 @@ msgstr "Caminho"
 msgid "Preview"
 msgstr "Visualizar"
 
-#: app/front_page/appraisal_tab.html:94
+#: app/front_page/appraisal_tab.html:96
 msgid "Preview file"
 msgstr "Visualizar arquivo"
 
@@ -340,7 +344,7 @@ msgstr "Visualizar arquivo"
 msgid "Previewing {{ file.title }}"
 msgstr "Visualização {{ arquivo.titulo }}"
 
-#: app/front_page/appraisal_tab.html:332
+#: app/front_page/appraisal_tab.html:335
 msgid "Reload"
 msgstr "Recarregar"
 
@@ -348,21 +352,21 @@ msgstr "Recarregar"
 msgid "Report"
 msgstr "Relatório"
 
-#: app/arrangement/arrangement.controller.js:133
-#: app/arrangement/arrangement.controller.js:254
+#: app/arrangement/arrangement.controller.js:134
+#: app/arrangement/arrangement.controller.js:256
 msgid "SIP could not be started! Check dashboard logs."
 msgstr "SIP não pôde ser iniciado! Verifique os registros do painel."
 
-#: app/arrangement/arrangement.controller.js:127
-#: app/arrangement/arrangement.controller.js:247
+#: app/arrangement/arrangement.controller.js:128
+#: app/arrangement/arrangement.controller.js:249
 msgid "SIP successfully started!"
 msgstr "SIP foi iniciado com sucesso!"
 
-#: app/archivesspace/form.html:36
+#: app/archivesspace/form.html:36 app/arrangement/edit_metadata_form.html:9
 msgid "Save"
 msgstr "Salvar"
 
-#: app/front_page/appraisal_tab.html:199
+#: app/front_page/appraisal_tab.html:201
 msgid "Search ArchivesSpace"
 msgstr "Pesquisar ArchivesSpace"
 
@@ -374,11 +378,15 @@ msgstr "Pesquisar transferência do backlog"
 msgid "Select all"
 msgstr "Selecionar todos:"
 
-#: app/front_page/appraisal_tab.html:144
+#: app/front_page/appraisal_tab.html:6
+msgid "Show metadata & logs directories?"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:146
 msgid "Show path"
 msgstr "Mostrar caminho"
 
-#: app/front_page/appraisal_tab.html:161 app/report/format.html:7
+#: app/front_page/appraisal_tab.html:163 app/report/format.html:7
 msgid "Size"
 msgstr "Tamanho"
 
@@ -402,12 +410,12 @@ msgstr "Começou com sucesso o SIP do documento \"{{title}}\""
 msgid "Tag"
 msgstr "Etiqueta"
 
-#: app/front_page/appraisal_tab.html:16 app/front_page/appraisal_tab.html:163
-#: app/front_page/appraisal_tab.html:290 app/front_page/appraisal_tab.html:88
+#: app/front_page/appraisal_tab.html:165 app/front_page/appraisal_tab.html:18
+#: app/front_page/appraisal_tab.html:292 app/front_page/appraisal_tab.html:90
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: app/front_page/appraisal_tab.html:197
+#: app/front_page/appraisal_tab.html:199
 msgid "Title"
 msgstr "Título"
 
@@ -451,7 +459,7 @@ msgstr "Não é possível buscar o documento {{id}} do ArchivesSpace!"
 msgid "Unable to fetch record {{path}} from Arrangement!"
 msgstr "Não é possível buscar o documento {{path}} do Arranjo!"
 
-#: app/preview/preview.controller.js:37
+#: app/preview/preview.controller.js:53
 msgid "Unable to retrieve metadata for file with UUID {{id}}"
 msgstr "Não foi possível recuperar metadados para arquivo com UUID {{id}}"
 
@@ -470,6 +478,7 @@ msgstr ""
 "\"{{title}}\"."
 
 #: app/archivesspace/archivesspace.controller.js:162
+#: app/arrangement/arrangement.controller.js:356
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 "Não é possível enviar edições para o documento \"{{title}}\"; Verifique os "

@@ -32,13 +32,27 @@ describe('Transfer', function() {
             },
           ],
         },
+        {
+          'id': 'd5700e44-68f1-4eec-a7e4-c5a5c7da2374',
+          'title': 'SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yw==',
+          'relative_path': 'SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yw==',
+          'children': [
+            {
+              'id': 'SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yy9ydWJ5LnJi',
+              'title': 'cnVieS5yYg==',
+              'relative_path': 'SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yy9ydWJ5LnJi',
+              'tags': [],
+            },
+          ],
+        },
       ],
     });
   }));
 
   it('should be able to track a copy of fetched transfers on itself', inject(function(Transfer) {
-    expect(Transfer.data.length).toEqual(1);
+    expect(Transfer.data.length).toEqual(2);
     expect(Transfer.data[0].id).toEqual('d5700e44-68f1-4eec-a7e4-c5a5c7da2373');
+    expect(Transfer.data[1].id).toEqual('d5700e44-68f1-4eec-a7e4-c5a5c7da2374');
   }));
 
   it('should provide a flat map of all stored transfers using IDs as keys', inject(function(Transfer) {
@@ -110,5 +124,12 @@ describe('Transfer', function() {
       '042340ba-e682-4454-aa26-a9230de79c5f': [],
       'c3908e0d-3ac7-4603-8d0b-9b26a0df9c64': ['test2']
     });
+  }));
+
+  it('should not tag metadata files', inject(function(Transfer) {
+    var ruby = Transfer.id_map['SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yy9ydWJ5LnJi'];
+    expect(ruby.tags.length).toEqual(0);
+    Transfer.add_tag('SW1hZ2VzLTQ5YzQ3MzE5LTEzODctNDhjNC1hYWI3LTM4MTkyM2YwN2Y3Yy9ydWJ5LnJi', 'test', true);
+    expect(ruby.tags.length).toEqual(0);
   }));
 });

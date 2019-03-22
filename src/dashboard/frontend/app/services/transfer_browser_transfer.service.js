@@ -8,8 +8,9 @@ import Base64 from 'base64-helpers';
 // a) Tracking metadata of the current transfer-in-progress; and
 // b) Interacting with the Archivematica API to start a transfer and perform supporting functions.
 class TransferBrowserTransfer {
-  constructor() {
+  constructor($cookies) {
     this.empty_properties();
+    this.$cookies = $cookies;
   }
 
   empty_properties() {
@@ -41,12 +42,6 @@ class TransferBrowserTransfer {
     });
   }
 
-  getCookie(name) {
-    let value = "; " + document.cookie;
-    let parts = value.split("; " + name + "=");
-    if (parts.length == 2) return parts.pop().split(";").shift();
-  }
-
   // Starts a transfer using this service's current attributes.
   start() {
     // If this is a zipped bag, then there will be no transfer name;
@@ -71,7 +66,7 @@ class TransferBrowserTransfer {
 
       return jQuery.ajax('/api/v2beta/package/', {
         method: 'POST',
-        headers: {'X-CSRFToken': _self.getCookie('csrftoken')},
+        headers: {'X-CSRFToken': _self.$cookies.get('csrftoken')},
         cache: false,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
@@ -85,6 +80,6 @@ class TransferBrowserTransfer {
   }
 }
 
-export default angular.module('services.transfer_browser_transfer', []).
+export default angular.module('services.transfer_browser_transfer', [require('angular-cookies')]).
   service('TransferBrowserTransfer', TransferBrowserTransfer).
   name;

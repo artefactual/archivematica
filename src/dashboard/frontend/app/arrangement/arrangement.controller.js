@@ -1,11 +1,12 @@
 var path = require('path');
 import angular from 'angular';
+import '../vendor/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.14.3.min.js';
 
-angular.module('arrangementController', ['sipArrangeService']).
+angular.module('arrangementController', ['sipArrangeService', 'ui.bootstrap', require('angular-cookies')]).
 
 // This controller is responsible for the appraisal tab's implementation of SIP arrange.
 // It doesn't have its own partial, and its scope is located in front_page/appraisal_tab.html
-controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Transfer', 'SipArrange', 'Tag', function($scope, gettextCatalog, Alert, Transfer, SipArrange, Tag) {
+controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$cookies', 'Alert', 'Transfer', 'SipArrange', 'Tag', function($scope, gettextCatalog, $uibModal, $cookies, Alert, Transfer, SipArrange, Tag) {
   var vm = this;
 
   // Watch the object with tag updates shared by the Transfer service
@@ -180,7 +181,8 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
     SipArrange.list_contents(path, node).then(entries => {
       // if the entry has a file_uuid load its tags in the properties
       entries.forEach(function(entry) {
-        if (entry.properties.file_uuid !== undefined) {
+        if (entry.properties !== undefined &&
+            entry.properties.file_uuid !== undefined) {
           Tag.get(entry.properties.file_uuid).then(function(tags) {
             entry.properties.tags = tags;
           });
@@ -294,6 +296,86 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
     }
   };
 
+  vm.open_edit_metadata_modal = function(options, selected_option) {
+    return $uibModal.open({
+      templateUrl: 'arrangement/edit_metadata_form.html',
+      controller: 'ArrangementEditMetadataController',
+      controllerAs: 'form',
+      resolve: {
+        levels: () => {
+          return options
+        },
+        level: () => {
+          return selected_option;
+        }
+      }
+    });
+  };
+
+  vm.edit_metadata_handler = function(node) {
+    var node_title = node.title,
+      node_path = node.path,
+      node_level_of_description;
+    if (node.properties !== undefined &&
+        node.properties.levelOfDescription !== undefined) {
+      // this property represents the label of the level
+      // of description not its uuid
+      node_level_of_description = node.properties.levelOfDescription;
+    }
+    return function(levels_of_description) {
+      // levels_of_description is an array of {uuid: name} objects
+      // so we create an array of options to use in the form menu
+      // and a dictionary indexed by label
+      var node_option, menu_options = [];
+      levels_of_description.forEach(function(e) {
+        var option = {
+          'value': Object.keys(e)[0],
+          'label': Object.values(e)[0]
+        };
+        if (option.label === node_level_of_description) {
+          node_option = option;
+        };
+        menu_options.push(option);
+      });
+      // create edit metadata modal and open it
+      var form = vm.open_edit_metadata_modal(menu_options, node_option);
+      // handle form submission
+      form.result.then(form_submission => {
+        $.ajax({
+          url: '/api/filesystem/metadata/',
+          type: 'POST',
+          headers: {'X-CSRFToken': $cookies.get('csrftoken')},
+          cache: false,
+          data: {
+            'path': '/arrange/' + node_path,
+            'level_of_description': form_submission.level.value
+          },
+          error: error => {
+            Alert.alerts.push({
+             'type': 'danger',
+             'message': gettextCatalog.getString('Unable to submit edits to record "{{title}}"; check dashboard logs.', { title: node_title })
+            });
+          },
+          // always refresh the tree after submission
+          complete: () => vm.refresh()
+        });
+      });
+    };
+  };
+
+  vm.edit_metadata = function(node) {
+    SipArrange.get_atom_levels_of_description().then(
+      vm.edit_metadata_handler(node), // success
+      function() { // error
+        Alert.alerts.push({
+          'type': 'danger',
+          'message': gettextCatalog.getString('Error fetching levels of description')
+        });
+        vm.refresh();
+      }
+    );
+  };
+
   var on_copy_failure = error => {
     Alert.alerts.push({
       'type': 'danger',
@@ -329,4 +411,19 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', 'Alert', 'Trans
   };
 
   load_data();
+}]).
+
+controller('ArrangementEditMetadataController', ['$uibModalInstance', 'levels', 'level', function($uibModalInstance, levels, level) {
+  var vm = this;
+
+  vm.levels = levels;
+  vm.level = level;
+
+  vm.ok = function() {
+    $uibModalInstance.close(vm);
+  };
+  vm.cancel = function() {
+    $uibModalInstance.dismiss('cancel');
+  };
+
 }]);
