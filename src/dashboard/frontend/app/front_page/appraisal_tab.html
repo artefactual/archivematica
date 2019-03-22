@@ -1,8 +1,10 @@
 <div ng-controller="SearchController as vm">
-  <form id='search_form'>
+  <form id='search_form' class='form-inline'>
   <div id='search_form_container'></div>
   <div id='search_form_submit_container'>
     <input class='form-control btn-primary' type='button' id='search_submit' value='{{ "Search transfer backlog" | translate }}'>
+    <span style='margin-left: 10px'>{{ "Show metadata & logs directories?" | translate }}</span>
+    <span style='margin-left: 5px'><input id='id_show_metadata_logs' type='checkbox' /></span>
   </div>
   </form>
 
@@ -310,7 +312,8 @@
     <input type="button"
            class="btn btn-primary"
            id="edit_metadata_arrangement"
-           ng-disabled="true"
+           ng-disabled="!vm.selected"
+           ng-click="vm.edit_metadata(vm.selected)"
            value="{{ 'Edit Metadata' | translate }}">
     <input type="button"
            class="btn btn-primary"
@@ -343,7 +346,16 @@
         {{ node.title }} <span ng-if="node.properties">({{ node.properties.display_string }})</span>
       </span>
       <span tree-draggable file-type="arrange" file-path="{{ node.path }}" ng-if="!node.directory">
-        <span>{{ node.title }} <span class="tag" ng-repeat="tag in node.properties.tags">{{ tag }} <span ng-click="vm.remove_tag($event, node, tag)"><i class="fa fa-minus-square remove-button"></i></span></span></span>
+        <span>
+          {{ node.title }}&nbsp;
+          <span ng-if="node.properties.display_string">({{ node.properties.display_string }})</span>
+          <span class="tag" ng-repeat="tag in node.properties.tags">
+            {{ tag }}&nbsp;
+            <span ng-click="vm.remove_tag($event, node, tag)">
+              <i class="fa fa-minus-square remove-button"></i>
+            </span>
+          </span>
+        </span>
       </span>
     </treecontrol>
   </div>

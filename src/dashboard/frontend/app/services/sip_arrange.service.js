@@ -9,6 +9,11 @@ angular.module('sipArrangeService', ['restangular']).
 
 factory('SipArrange', ['Restangular', function(Restangular) {
   var SipArrange = Restangular.one('filesystem');
+  var Api = Restangular.one('api');
+
+  var get_atom_levels_of_description = function() {
+      return Api.one('filesystem').one('administration').one('dips').one('atom').one('levels').getList();
+  };
 
   // public
 
@@ -127,5 +132,6 @@ factory('SipArrange', ['Restangular', function(Restangular) {
     list_contents: list_contents,
     remove: remove,
     start_sip: start_sip,
+    get_atom_levels_of_description: get_atom_levels_of_description,
   };
 }]);

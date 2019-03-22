@@ -481,6 +481,22 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         )
 
 
+def _is_draggable(parts):
+    if parts[1] == "data":
+        # the transfer is a bag (contains a "data" directory)
+        if len(parts) > 2:
+            # check if the child of "data" is hidden
+            result = not _is_hidden(parts[2])
+        else:
+            # data is the final part and it's draggable
+            result = True
+    else:
+        # the transfer is not a bag
+        # check if the child of the transfer is hidden
+        result = not _is_hidden(parts[1])
+    return result
+
+
 def _es_results_to_appraisal_tab_format(
     record, record_map, directory_list, not_draggable=False
 ):
@@ -513,11 +529,7 @@ def _es_results_to_appraisal_tab_format(
     for node in directories:
         node_parts = node.split("/")
         is_transfer = len(node_parts) == 1
-        if not is_transfer:
-            node_not_draggable = not_draggable or _is_hidden(node_parts[1])
-        else:
-            node_not_draggable = not_draggable
-
+        draggable = _is_draggable(node_parts) if not is_transfer else not not_draggable
         if node not in record_map:
             dir_record = {
                 "type": "transfer" if is_transfer else "directory",
@@ -525,7 +537,7 @@ def _es_results_to_appraisal_tab_format(
                 "id": str(uuid.uuid4()),
                 "title": base64.b64encode(os.path.basename(node)),
                 "relative_path": base64.b64encode(node),
-                "not_draggable": node_not_draggable,
+                "not_draggable": not draggable,
                 "object_count": 0,
                 "children": [],
             }
@@ -543,10 +555,7 @@ def _es_results_to_appraisal_tab_format(
         parent = dir_record
 
     dir_parts = dir.split("/")
-    if len(dir_parts) > 1:
-        dir_not_draggable = not_draggable or _is_hidden(dir_parts[1])
-    else:
-        dir_not_draggable = not_draggable
+    draggable = _is_draggable(dir_parts) if (len(dir_parts) > 1) else not not_draggable
 
     child = {
         "type": "file",
@@ -556,7 +565,7 @@ def _es_results_to_appraisal_tab_format(
         "size": record["size"],
         "tags": record["tags"],
         "bulk_extractor_reports": record["bulk_extractor_reports"],
-        "not_draggable": dir_not_draggable,
+        "not_draggable": _is_hidden(fn) or not draggable,
     }
 
     if record["modification_date"]:
@@ -572,6 +581,21 @@ def _es_results_to_appraisal_tab_format(
     record_map[dir]["object_count"] += 1
 
 
+def adjust_non_draggable_nodes(nodes):
+    """
+    If a node contains a non draggable child, make it non_draggable too.
+    """
+    for node in nodes:
+        children = node.get("children", [])
+        if children:
+            if not node["not_draggable"]:
+                for child in children:
+                    if child["not_draggable"]:
+                        node["not_draggable"] = True
+                        break
+            adjust_non_draggable_nodes(children)
+
+
 def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
@@ -583,8 +607,7 @@ def transfer_backlog(request, ui):
     backlog_filter = {"bool": {"must": {"term": {"status": "backlog"}}}}
     # Omit files without UUIDs (metadata and logs directories):
     # - When the `hidemetadatalogs` param is sent from SIP arrange.
-    # - Always from the appraisal tab.
-    if ui == "appraisal" or request.GET.get("hidemetadatalogs"):
+    if request.GET.get("hidemetadatalogs"):
         backlog_filter["bool"]["must_not"] = {"term": {"fileuuid": ""}}
 
     # Get search parameters from request
@@ -651,6 +674,11 @@ def transfer_backlog(request, ui):
     if ui == "legacy":
         response = return_list
     else:
+        if not request.GET.get("hidemetadatalogs"):
+            # if metadata and log file are shown in the appraisal tab
+            # directories should not be draggable if they contain
+            # non draggable children
+            adjust_non_draggable_nodes(return_list)
         response = {"formats": [], "transfers": return_list}  # TODO populate this
 
     # return JSON response

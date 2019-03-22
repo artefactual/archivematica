@@ -24,6 +24,11 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
     }
 
     angular.forEach(records, record => {
+      if (record.id === '') {
+        // it's a log/metadata file
+        // use the encoded path to identify the node
+        record.id = record.relative_path;
+      }
       map[record.id] = record;
       create_flat_map(record.children, map);
     });
@@ -124,6 +129,11 @@ factory('Transfer', ['Facet', 'Tag', function(Facet, Tag) {
     // If `skip_submit` is `true`, doesn't submit the new tag to the Archivematica API.
     add_tag: function(id, tag, skip_submit) {
       var record = get_record.apply(this, [id]);
+      // log/metadata files use their encoded paths as identifiers
+      if (record.id === Base64.encode(record.relative_path)) {
+        // it's a log/metadata file and should not be tagged
+        return;
+      }
       record.tags = record.tags || [];
 
       if (record.tags.indexOf(tag) !== -1) {
