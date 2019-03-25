@@ -51,7 +51,7 @@ This CHANGELOG is not longer maintained. Please visit the Archivematica wiki for
 * ArchivesSpace DIP Upload enhancements (https://github.com/artefactual/archivematica/pull/308)
 * Add MySQL Connection Pooling (improve database performance) (https://github.com/artefactual/archivematica/pull/305)
 * Logging improvements (https://github.com/artefactual/archivematica/pull/303)
-* change uuid used in determing file format (https://github.com/artefactual/archivematica/pull/302)
+* change uuid used in determining file format (https://github.com/artefactual/archivematica/pull/302)
 * Logging: silence verbose libraries in client script logs (https://github.com/artefactual/archivematica/pull/298)
 * Django ORM fixes (https://github.com/artefactual/archivematica/pull/296)
 * ArchivesSpace: find_by_field uses new endpoint (https://github.com/artefactual/archivematica/pull/295)
