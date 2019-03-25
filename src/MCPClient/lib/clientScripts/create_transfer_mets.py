@@ -24,34 +24,31 @@ from __future__ import unicode_literals
 import argparse
 import logging
 import os
+import uuid
 
 import django
 import scandir
 from lxml import etree
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 django.setup()
 import metsrw
 
 # archivematicaCommon
 from archivematicaFunctions import get_dashboard_uuid, escape
+from countryCodes import getCodeForCountry
 
 # dashboard
-from main.models import Derivation, File, FPCommandOutput
+from main.models import Derivation, File, FPCommandOutput, RightsStatement
 
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
 
+
 logger = logging.getLogger(__name__)
 
 
-def write_mets(
-    mets_path,
-    transfer_dir_path,
-    base_path_placeholder,
-    identifier_group,
-    identifier_uuid,
-):
+def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uuid):
     """
     Writes a METS XML file to disk, containing all the data we can find.
 
@@ -60,16 +57,15 @@ def write_mets(
         transfer_dir_path: Location of the files on disk
         base_path_placeholder: The placeholder string for the base path, e.g. 'transferDirectory'
         identifier_group: The database column used to lookup file UUIDs, e.g. 'transfer_id'
-        identifier_uuid: The UUID for the identifier group lookup
+        transfer_uuid: The UUID for the transfer
     """
     transfer_dir_path = os.path.expanduser(transfer_dir_path)
     transfer_dir_path = os.path.normpath(transfer_dir_path)
 
     db_base_path = r"%{}%".format(base_path_placeholder)
-    lookup_kwargs = {identifier_group: identifier_uuid}
 
     mets = metsrw.METSDocument()
-    mets.objid = str(identifier_uuid)
+    mets.objid = str(transfer_uuid)
 
     dashboard_uuid = get_dashboard_uuid()
     if dashboard_uuid:
@@ -84,7 +80,7 @@ def write_mets(
         # TODO: accession number
 
     root_fsentry = build_fsentries_tree(
-        transfer_dir_path, transfer_dir_path, db_base_path, lookup_kwargs
+        transfer_dir_path, transfer_dir_path, db_base_path, transfer_uuid
     )
     mets.append_file(root_fsentry)
     mets.write(mets_path, pretty_print=True)
@@ -102,7 +98,15 @@ def convert_to_premis_hash_function(hash_type):
     return hash_type
 
 
-def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=None):
+def clean_date(date_string):
+    if date_string is None:
+        return ""
+
+    # Legacy dates may be slash seperated
+    return date_string.replace("/", "-")
+
+
+def build_fsentries_tree(path, root_path, db_base_path, transfer_uuid, parent=None):
     """
     Recursively builds a tree of metsrw.FSEntry objects from the path given.
 
@@ -122,9 +126,10 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
                 path=relative_path, label=dir_entry.name, type="Directory"
             )
         else:
-            file_obj = lookup_file_data(relative_path, db_base_path, lookup_kwargs)
+            file_obj = lookup_file_data(relative_path, db_base_path, transfer_uuid)
             if file_obj is None:
                 continue
+            file_rights = lookup_file_rights(file_obj.uuid, transfer_uuid)
             checksum_type = convert_to_premis_hash_function(file_obj.checksumtype)
             fsentry = metsrw.FSEntry(
                 path=relative_path,
@@ -140,18 +145,21 @@ def build_fsentries_tree(path, root_path, db_base_path, lookup_kwargs, parent=No
             for event in file_obj.event_set.all():
                 premis_event = event_to_premis(event)
                 fsentry.add_premis_event(premis_event)
+            for rights in file_rights:
+                premis_rights = rights_to_premis(rights, file_obj.uuid)
+                fsentry.add_premis_rights(premis_rights)
 
         parent.add_child(fsentry)
 
         if dir_entry.is_dir():
             build_fsentries_tree(
-                dir_entry.path, root_path, db_base_path, lookup_kwargs, parent=fsentry
+                dir_entry.path, root_path, db_base_path, transfer_uuid, parent=fsentry
             )
 
     return parent
 
 
-def lookup_file_data(relative_path, db_base_path, lookup_kwargs):
+def lookup_file_data(relative_path, db_base_path, transfer_uuid):
     """
     Given a file path, lookup everything we can from the database and cache it on the
     File object.
@@ -159,15 +167,18 @@ def lookup_file_data(relative_path, db_base_path, lookup_kwargs):
     Reads from File, FileFormatVersion, FormatVersion, Format and FPCommandOutput.
     """
     db_file_path = "".join([db_base_path, relative_path])
-    db_lookup = {"removedtime__isnull": True}
-    db_lookup.update(**lookup_kwargs)
-    db_lookup["currentlocation"] = db_file_path
+    db_lookup = {
+        "transfer_id": transfer_uuid,
+        "removedtime__isnull": True,
+        "currentlocation": db_file_path,
+    }
 
     # We need to do a lot of lookups here, so batch as much as possible.
     derivations_with_events = Derivation.objects.filter(event__isnull=False)
     characterization_commands = FPCommandOutput.objects.filter(
         rule__purpose__in=["characterization", "default_characterization"]
     )
+
     prefetches = [
         "event_set",
         "event_set__agents",
@@ -195,6 +206,33 @@ def lookup_file_data(relative_path, db_base_path, lookup_kwargs):
         return None
 
     return file_obj
+
+
+def lookup_file_rights(file_uuid, transfer_uuid):
+    TRANSFER_RIGHTS_LOOKUP_UUID = "45696327-44c5-4e78-849b-e027a189bf4d"
+    FILE_RIGHTS_LOOKUP_UUID = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
+
+    lookup = Q(
+        metadataappliestoidentifier=transfer_uuid,
+        metadataappliestotype_id=TRANSFER_RIGHTS_LOOKUP_UUID,
+    ) | Q(
+        metadataappliestoidentifier=file_uuid,
+        metadataappliestotype_id=FILE_RIGHTS_LOOKUP_UUID,
+    )
+
+    prefetches = [
+        "rightsstatementcopyright_set",
+        "rightsstatementcopyright_set__rightsstatementcopyrightnote_set",
+        "rightsstatementcopyright_set__rightsstatementcopyrightdocumentationidentifier_set",
+        "rightsstatementstatuteinformation_set",
+        "rightsstatementstatuteinformation_set__rightsstatementstatuteinformationnote_set",
+        "rightsstatementstatuteinformation_set__rightsstatementstatutedocumentationidentifier_set",
+        "rightsstatementrightsgranted_set",
+        "rightsstatementrightsgranted_set__restrictions",
+        "rightsstatementrightsgranted_set__notes",
+    ]
+
+    return RightsStatement.objects.prefetch_related(*prefetches).filter(lookup)
 
 
 def get_premis_format_data(file_ids):
@@ -279,12 +317,199 @@ def get_premis_object_characteristics_extension(documents):
     return extensions
 
 
+def get_premis_rights_documentation_identifiers(rights_type, identifiers):
+    if rights_type == "otherrights":
+        tag_name = "other_rights_documentation_identifier"
+        type_tag_name = "other_rights_documentation_identifier_type"
+        value_tag_name = "other_rights_documentation_identifier_value"
+        role_tag_name = "other_rights_documentation_role"
+    else:
+        tag_name = "{}_documentation_identifier".format(rights_type)
+        type_tag_name = "{}_documentation_identifier_type".format(rights_type)
+        value_tag_name = "{}_documentation_identifier_value".format(rights_type)
+        role_tag_name = "{}_documentation_role".format(rights_type)
+
+    data = ()
+    for identifier in identifiers:
+        identifier_type = getattr(
+            identifier, "{}documentationidentifiertype".format(rights_type)
+        )
+        identifier_value = getattr(
+            identifier, "{}documentationidentifiervalue".format(rights_type)
+        )
+        identifier_role = getattr(
+            identifier, "{}documentationidentifierrole".format(rights_type)
+        )
+
+        data += (
+            (
+                tag_name,
+                (type_tag_name, identifier_type),
+                (value_tag_name, identifier_value),
+                (role_tag_name, identifier_role),
+            ),
+        )
+
+    return data
+
+
+def get_premis_rights_applicable_dates(rights_type, rights_obj):
+    if rights_type == "otherrights":
+        tag_name = "other_rights_applicable_dates"
+    else:
+        tag_name = "{}_applicable_dates".format(rights_type)
+
+    start_date = getattr(rights_obj, "{}applicablestartdate".format(rights_type))
+    end_date_open = getattr(rights_obj, "{}enddateopen".format(rights_type), False)
+    if end_date_open:
+        end_date = "OPEN"
+    else:
+        end_date = getattr(rights_obj, "{}applicableenddate".format(rights_type))
+
+    data = (tag_name,)
+    if start_date:
+        data += (("start_date", clean_date(start_date)),)
+    if end_date:
+        data += (("end_date", clean_date(end_date)),)
+
+    return data
+
+
+def get_premis_copyright_information(rights):
+    premis_data = ()
+
+    for copyright_section in rights.rightsstatementcopyright_set.all():
+        copyright_jurisdiction_code = (
+            getCodeForCountry(str(copyright_section.copyrightjurisdiction).upper())
+            or ""
+        )
+        determination_date = clean_date(
+            copyright_section.copyrightstatusdeterminationdate
+        )
+
+        copyright_info = (
+            "copyright_information",
+            ("copyright_status", copyright_section.copyrightstatus),
+            ("copyright_jurisdiction", copyright_jurisdiction_code),
+            ("copyright_status_determination_date", determination_date),
+        )
+        for note in copyright_section.rightsstatementcopyrightnote_set.all():
+            copyright_info += (("copyright_note", note.copyrightnote),)
+        copyright_info += get_premis_rights_documentation_identifiers(
+            "copyright",
+            copyright_section.rightsstatementcopyrightdocumentationidentifier_set.all(),
+        )
+        copyright_info += (
+            get_premis_rights_applicable_dates("copyright", copyright_section),
+        )
+
+        premis_data += copyright_info
+
+    return premis_data
+
+
+def get_premis_license_information(rights):
+    premis_data = ()
+
+    for license_section in rights.rightsstatementlicense_set.all():
+        license_information = ("license_information",)
+        license_information += get_premis_rights_documentation_identifiers(
+            "license",
+            license_section.rightsstatementlicensedocumentationidentifier_set.all(),
+        )
+        license_information += (("license_terms", license_section.licenseterms),)
+        for note in license_section.rightsstatementlicensenote_set.all():
+            license_information += (("license_note", note.licensenote),)
+        license_information += (
+            get_premis_rights_applicable_dates("license", license_section),
+        )
+
+        premis_data += license_information
+
+    return premis_data
+
+
+def get_premis_statute_information(rights):
+    premis_data = ()
+
+    for statute_obj in rights.rightsstatementstatuteinformation_set.all():
+        determination_date = clean_date(statute_obj.statutedeterminationdate)
+        statute_info = (
+            "statute_information",
+            ("statute_jurisdiction", statute_obj.statutejurisdiction),
+            ("statute_citation", statute_obj.statutecitation),
+            ("statute_information_determination_date", determination_date),
+        )
+        for note in statute_obj.rightsstatementstatuteinformationnote_set.all():
+            statute_info += (("statute_note", note.statutenote),)
+        statute_info += get_premis_rights_documentation_identifiers(
+            "statute",
+            statute_obj.rightsstatementstatutedocumentationidentifier_set.all(),
+        )
+        statute_info += (get_premis_rights_applicable_dates("statute", statute_obj),)
+
+        premis_data += statute_info
+
+    return premis_data
+
+
+def get_premis_other_rights_information(rights):
+    premis_data = ()
+
+    for other_obj in rights.rightsstatementotherrightsinformation_set.all():
+        other_rights_basis = other_obj.otherrightsbasis or rights.rightsbasis
+        other_information = ("other_rights_information",)
+        other_information += get_premis_rights_documentation_identifiers(
+            "otherrights",
+            other_obj.rightsstatementotherrightsdocumentationidentifier_set.all(),
+        )
+        other_information += (("other_rights_basis", other_rights_basis),)
+        other_information += (
+            get_premis_rights_applicable_dates("otherrights", other_obj),
+        )
+
+        for note in other_obj.rightsstatementotherrightsinformationnote_set.all():
+            other_information += (("other_rights_note", note.otherrightsnote),)
+
+        premis_data += other_information
+
+    return premis_data
+
+
+def get_premis_rights_granted(rights):
+    rights_granted_info = ()
+    for rights_granted in rights.rightsstatementrightsgranted_set.all():
+
+        start_date = clean_date(rights_granted.startdate)
+        if rights_granted.enddateopen:
+            end_date = "OPEN"
+        else:
+            end_date = clean_date(rights_granted.enddate)
+
+        rights_granted_info += ("rights_granted", ("act", rights_granted.act))
+
+        for restriction in rights_granted.restrictions.all():
+            if restriction.restriction.lower() == "allow":
+                grant_tag = "term_of_grant"
+            else:
+                grant_tag = "term_of_restriction"
+            rights_granted_info += (
+                ("restriction", restriction.restriction),
+                (grant_tag, ("start_date", start_date), ("end_date", end_date)),
+            )
+
+        for note in rights_granted.notes.all():
+            rights_granted_info += (("rights_granted_note", note.rightsgrantednote),)
+
+    return rights_granted_info
+
+
 def file_obj_to_premis(file_obj):
     """
     Converts an File model object to a PREMIS event object via metsrw.
 
     Returns:
-        metsrw.plugins.premisrw.premis.PREMISObject
+        lxml.etree._Element
     """
 
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
@@ -340,7 +565,7 @@ def event_to_premis(event):
     Converts an Event model to a PREMIS event object via metsrw.
 
     Returns:
-        metsrw.plugins.premisrw.premis.PREMISEvent
+        lxml.etree._Element
     """
     premis_data = (
         "event",
@@ -376,6 +601,74 @@ def event_to_premis(event):
     )
 
 
+def rights_to_premis(rights, file_uuid):
+    """
+    Converts an RightsStatement model to a PREMIS event object via metsrw.
+
+    Returns:
+        lxml.etree._Element
+    """
+    VALID_RIGHTS_BASES = ["copyright", "institutional policy", "license", "statute"]
+
+    if rights.rightsstatementidentifiervalue:
+        id_type = rights.rightsstatementidentifiertype
+        id_value = rights.rightsstatementidentifiervalue
+    else:
+        id_type = "UUID"
+        id_value = str(uuid.uuid4())
+
+    # TODO: this logic should be in metsrw
+    if rights.rightsbasis.lower() in VALID_RIGHTS_BASES:
+        rights_basis = rights.rightsbasis
+    else:
+        rights_basis = "Other"
+
+    premis_data = (
+        "rights_statement",
+        PREMIS_META,
+        (
+            "rights_statement_identifier",
+            ("rights_statement_identifier_type", id_type),
+            ("rights_statement_identifier_value", id_value),
+        ),
+        ("rights_basis", rights_basis),
+    )
+
+    basis_type = rights_basis.lower()
+    if basis_type == "copyright":
+        copyright_info = get_premis_copyright_information(rights)
+        if copyright_info:
+            premis_data += (copyright_info,)
+    elif basis_type == "license":
+        license_info = get_premis_license_information(rights)
+        if license_info:
+            premis_data += (license_info,)
+    elif basis_type == "statute":
+        statute_info = get_premis_statute_information(rights)
+        if statute_info:
+            premis_data += (statute_info,)
+    elif basis_type == "other":
+        other_info = get_premis_other_rights_information(rights)
+        if other_info:
+            premis_data += (other_info,)
+
+    rights_info = get_premis_rights_granted(rights)
+    if rights_info:
+        premis_data += (rights_info,)
+
+    premis_data += (
+        (
+            "linking_object_identifier",
+            ("linking_object_identifier_type", "UUID"),
+            ("linking_object_identifier_value", file_uuid),
+        ),
+    )
+
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=PREMIS_META["version"]
+    )
+
+
 def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--basePath", dest="base_path")
@@ -392,9 +685,5 @@ def call(jobs):
         with job.JobContext(logger=logger):
             args = parser.parse_args(job.args[1:])
             write_mets(
-                args.xml_file,
-                args.base_path,
-                args.base_path_string,
-                args.file_group_identifier,
-                args.sip_uuid,
+                args.xml_file, args.base_path, args.base_path_string, args.sip_uuid
             )
