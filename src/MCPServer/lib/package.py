@@ -220,7 +220,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
         if reply is None:
             message.append(str(error))
     if message:
-        raise Exception('The following errors occured: %(message)s'
+        raise Exception('The following errors occurred: %(message)s'
                         % {'message': ', '.join(message)})
 
 

@@ -201,7 +201,7 @@ def _populate_duplicates_chain_choice(workflow, link, config):
 
     When the user chooses a value like "Normalize for preservation" in the
     "Normalize" processing config, this function makes sure that all the
-    matching chain links are listed so the user choise applies to all of them.
+    matching chain links are listed so the user choice applies to all of them.
 
     Given the following config item (see `processing_fields` in this module):
 

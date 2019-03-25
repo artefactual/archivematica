@@ -28,7 +28,7 @@ class LinkTaskManager(object):
     """ Common manager for MicroServiceChainLinks of different task types. """
 
     def __init__(self, jobChainLink, unit):
-        """ Initalize common variables. """
+        """ Initialize common variables. """
         self.jobChainLink = jobChainLink
         self.unit = unit
         self.UUID = str(uuid.uuid4())

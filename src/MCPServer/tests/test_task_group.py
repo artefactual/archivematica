@@ -8,7 +8,7 @@ def test__write_file_to_disk(mocker):
     mocker.patch("taskGroup.open", open_)
     chmod = mocker.patch("os.chmod")
 
-    # It does nothing when the parameters are not appropiate.
+    # It does nothing when the parameters are not appropriate.
     tg._write_file_to_disk(None, None)
     assert not open_.called
 

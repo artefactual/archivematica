@@ -10,7 +10,7 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All
+Archivematica components can be configured using multiple methods.  All
 components follow the same pattern:
 
 1. **Environment variables** - setting a configuration parameter with an

@@ -99,7 +99,7 @@ class jobChainLink:
     @auto_close_db
     def setExitMessage(self, status_code):
         """
-        Set the value of Job.currentstep, comming either from any
+        Set the value of Job.currentstep, coming either from any
         MicroServiceChainLinkExitCode.exitmessage or different code paths where
         a value is manually assigned based on different circunstances.
 
