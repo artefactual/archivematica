@@ -80,7 +80,7 @@ def addKeyFileToNormalizeMaildirOffOf(relativePathToRepresent, mirrorDir, transf
     basename = os.path.basename(mirrorDir)
     dirname = os.path.dirname(mirrorDir)
     outFile = os.path.join(dirname, basename + ".archivematicaMaildir")
-    content = """#This file is used in the archivematica system to represent a maildir dirctory, for normalization and permission purposes.
+    content = """#This file is used in the archivematica system to represent a maildir directory, for normalization and permission purposes.
 [archivematicaMaildir]
 path = %s
     """ % (relativePathToRepresent)

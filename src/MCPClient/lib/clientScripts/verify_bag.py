@@ -31,7 +31,7 @@ BAG_INFO = 'bag-info.txt'
 def verify_bag(job, bag):
     verification_commands = [
         ["/usr/share/bagit/bin/bag", "verifyvalid", bag],  # Validity
-        ["/usr/share/bagit/bin/bag", "verifycomplete", bag],  # Completness
+        ["/usr/share/bagit/bin/bag", "verifycomplete", bag],  # Completeness
         ["/usr/share/bagit/bin/bag", "verifypayloadmanifests", bag],  # Checksums in manifests
     ]
     bag_info = os.path.join(bag, "bag-info.txt")

@@ -101,7 +101,7 @@ class Command(object):
             self.job.print_output("Running event detail command", self.event_detail_command)
             self.event_detail_command.execute(skip_on_success=True)
 
-        # If unsuccesful
+        # If unsuccessful
         if self.exit_code != 0:
             self.job.print_error("Failed:", self.fpcommand)
             self.job.print_error("Standard out:", self.std_out)

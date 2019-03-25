@@ -377,7 +377,7 @@ def createDSpaceDMDSec(job, label, dspace_mets_path, directoryPathSTR, state):
     identifier = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="uri"]', namespaces=ns.NSMAP)
     part_of = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="isPartOf"]', namespaces=ns.NSMAP)
     if identifier is None or part_of is None:
-        job.pyprint('Unable to parse identifer and isPartOf from', dspace_mets_path, file=sys.stderr)
+        job.pyprint('Unable to parse identifier and isPartOf from', dspace_mets_path, file=sys.stderr)
         return {}
     metadata = {
         'dc.identifier': [identifier],
@@ -1378,7 +1378,7 @@ def call(jobs):
                         structMapDiv.set('DMDID', ID)
                     root.append(dmdSec)
 
-                # Look for Dataverse specific descriptive metatdata.
+                # Look for Dataverse specific descriptive metadata.
                 dv = create_dataverse_sip_dmdsec(job, baseDirectoryPath)
                 for dmdSec in dv:
                     dmdid = dmdSec.attrib['ID']

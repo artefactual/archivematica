@@ -108,7 +108,7 @@ class RightCsvReader(object):
         if restriction and restriction.lower() not in ["disallow", "conditional", "allow"]:
             raise RightsRowException("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", self)
 
-        # Initialize hash to note which basis/act combinations for file have alredy been imported
+        # Initialize hash to note which basis/act combinations for file have already been imported
         if filepath not in self.object_basis_act_usage:
             self.object_basis_act_usage[filepath] = {}
 

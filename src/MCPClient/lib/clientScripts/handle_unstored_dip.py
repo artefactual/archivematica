@@ -20,7 +20,7 @@
 
 """Handle Unstored DIP.
 
-This client script hanles an unstored DIP by moving it to the rejected/
+This client script handles an unstored DIP by moving it to the rejected/
 directory if it has *not* been uploaded and doing nothing otherwise.
 """
 

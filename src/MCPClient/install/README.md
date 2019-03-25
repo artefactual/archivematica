@@ -10,7 +10,7 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All
+Archivematica components can be configured using multiple methods.  All
 components follow the same pattern:
 
 1. **Environment variables** - setting a configuration parameter with an
@@ -81,7 +81,7 @@ This is the full list of variables supported by MCPClient:
     - **Default:** `/var/archivematica/sharedDirectory/`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROCESSINGDIRECTORY`**:
-    - **Description:** location of the Archivematica Currently Procesing Directory.
+    - **Description:** location of the Archivematica Currently Processing Directory.
     - **Config file example:** `MCPClient.processingDirectory`
     - **Type:** `string`
     - **Default:** `/var/archivematica/sharedDirectory/currentlyProcessing/`

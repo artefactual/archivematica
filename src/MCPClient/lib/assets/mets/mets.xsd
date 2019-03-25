@@ -150,7 +150,7 @@ mptr and area elements for mapping MPEG21 DII Identifier values
 	3. Add an MDTYPEVERSION attribute as a companion to the MDTYPE attribute in the mdRef and mdWrap elements.	
 	4. ID and STRUCTID attributes on the behavior element made optional.  Depending on whether the behavior applies to a transformFile element or div elements in the structMap, only one or the other of the attributes would pertain.
 	5. Documentation aligned with the METS Primer, and corrected.
-	6. xml:lang="en" atttribute value added to every <documentation> element
+	6. xml:lang="en" attribute value added to every <documentation> element
 	7. xlink:extendedLink support added to the <structLink> element by means of a new <smLinkGrp> element, and its child <smLocatorLink> and <smArcLink> elements.
 -->
 <!--February 2010: Version 1.9-->
