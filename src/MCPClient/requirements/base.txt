@@ -6,7 +6,7 @@ django-extensions==1.1.1
 mysqlclient==1.3.9
 gearman==2.0.2
 lxml==3.5.0
-metsrw==0.3.3
+metsrw==0.3.4
 requests==2.21.0
 unidecode==0.04.19
 opf-fido==1.3.10
