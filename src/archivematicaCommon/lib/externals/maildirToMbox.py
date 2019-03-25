@@ -14,7 +14,7 @@ your own risk.
 
 Uses Python's included mailbox library to convert mail archives from
 maildir [http://en.wikipedia.org/wiki/Maildir] to
-mbox [http://en.wikipedia.org/wiki/Mbox] format, icluding subfolder.
+mbox [http://en.wikipedia.org/wiki/Mbox] format, including subfolder.
 
 See http://docs.python.org/library/mailbox.html#mailbox.Mailbox for
 full documentation on this library.

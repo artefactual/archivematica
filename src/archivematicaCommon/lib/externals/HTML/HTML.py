@@ -84,7 +84,7 @@ __author__ = 'Philippe Lagadec'
 
 # Colors: http://www.w3.org/TR/html4/types.html#type-color
 
-# Columns alignement and style, one of the oldest and trickiest bugs in Mozilla:
+# Columns alignment and style, one of the oldest and trickiest bugs in Mozilla:
 # https://bugzilla.mozilla.org/show_bug.cgi?id=915
 
 
@@ -107,7 +107,7 @@ class TableCell (object):
     - header: bool, false for a normal data cell (TD), true for a header cell (TH)
     - bgcolor: str, background color
     - width: str, width
-    - align: str, horizontal alignement (left, center, right, justify or char)
+    - align: str, horizontal alignment (left, center, right, justify or char)
     - char: str, alignment character, decimal point if not specified
     - charoff: str, see HTML specs
     - valign: str, vertical alignment (top|middle|bottom|baseline)

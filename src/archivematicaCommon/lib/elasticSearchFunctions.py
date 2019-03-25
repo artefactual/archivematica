@@ -76,7 +76,7 @@ INDEXES = ['aips', 'aipfiles', 'transfers', 'transferfiles']
 # A doc type is still required in ES 6.x but it's limited to one per index.
 # It will be removed in ES 7.x, so we'll use the same for all indexes.
 DOC_TYPE = '_doc'
-# Maximun ES result window. Use the scroll API for a better way to get all
+# Maximum ES result window. Use the scroll API for a better way to get all
 # results or change `index.max_result_window` on each index settings.
 MAX_QUERY_SIZE = 10000
 
@@ -378,8 +378,8 @@ def index_aip_and_files(
     :param aips_in_aic: optional number of AIPs stored in AIC.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param identifiers: optional AIP encrypted boolean (defaults to `False`).
-    :param printfn: optional print funtion.
-    :return: 0 is succeded, 1 otherwise.
+    :param printfn: optional print function.
+    :return: 0 is succeeded, 1 otherwise.
     """
     # Stop if AIP or METS file don't not exist.
     error_message = None
@@ -454,7 +454,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
     :param mets_path: path on disk where the AIP's METS file is located.
     :param name: AIP name.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
-    :param printfn: optional print funtion.
+    :param printfn: optional print function.
     :return: number of files indexed.
     """
     # Parse XML
@@ -582,8 +582,8 @@ def index_transfer_and_files(client, uuid, path, status='', printfn=print):
     :param path: path on disk, including the transfer directory and a
                  trailing / but not including objects/.
     :param status: optional Transfer status.
-    :param printfn: optional print funtion.
-    :return: 0 is succeded, 1 otherwise.
+    :param printfn: optional print function.
+    :return: 0 is succeeded, 1 otherwise.
     """
     # Stop if Transfer does not exist
     if not os.path.exists(path):
@@ -635,7 +635,7 @@ def _index_transfer_files(client, uuid, path, status='', printfn=print):
     :param path: path on disk, including the transfer directory and a
                  trailing / but not including objects/.
     :param status: optional Transfer status.
-    :param printfn: optional print funtion.
+    :param printfn: optional print function.
     :return: number of files indexed.
     """
     files_indexed = 0
@@ -804,7 +804,7 @@ def _normalize_dict_values(data):
 
     Because an XML document node may include one or more children, conversion
     to a dict can result in the converted child being one of two types.
-    this causes problems in an Elasticsearch index as it expects consistant
+    this causes problems in an Elasticsearch index as it expects consistent
     types to be indexed.
     The below function recurses a dict and if a dict's value is another dict,
     it encases it in a list.

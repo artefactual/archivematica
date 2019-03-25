@@ -184,7 +184,7 @@ class ReplacementDict(dict):
         Iterates over a set of strings. Any keys in self found within
         the string will be replaced with their respective values.
         Returns an array of strings, regardless of the number of parameters
-        pased in. For example:
+        passed in. For example:
 
         >>> rd = ReplacementDict({"$foo": "bar"})
         >>> rd.replace('The value of the foo variable is: $foo')

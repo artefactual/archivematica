@@ -82,7 +82,7 @@ foo = bar
     def test_unknown_option_with_fallback(self):
         """
         A fallback keyword argument can be used to obtain a value from the
-        configuration even if it's undefiend.
+        configuration even if it's undefined.
         """
         config = self.read_test_config(
             """

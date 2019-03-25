@@ -232,7 +232,7 @@ def get_purl(pid, naming_authority, resolver_url):
 
 
 def get_qualified_purl(purl, qualifier):
-    """Not sure if this is a handle web API or an idiosyncracy of a wrapper
+    """Not sure if this is a handle web API or an idiosyncrasy of a wrapper
     around such.
     """
     return '{}?locatt=view:{}'.format(purl, qualifier)
