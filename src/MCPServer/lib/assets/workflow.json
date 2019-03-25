@@ -3772,7 +3772,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
+                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\"",
                 "execute": "createTransferMETS_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
