@@ -5,7 +5,8 @@ ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/MCPServer/lib/:/src/archivematicaCommon/lib/:/src/dashboard/src/
 ENV PYTHONUNBUFFERED 1
 
-RUN set -ex \
+RUN RUN RUN echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list \
+  && set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
