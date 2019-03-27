@@ -8,7 +8,7 @@ ENV AM_GUNICORN_BIND 0.0.0.0:8000
 ENV AM_GUNICORN_CHDIR /src/dashboard/src
 ENV FORWARDED_ALLOW_IPS *
 
-RUN RUN RUN echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list \
+RUN echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list \
   && set -ex \
 	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
 	&& apt-get install -y --no-install-recommends \
