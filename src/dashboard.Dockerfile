@@ -1,4 +1,4 @@
-FROM python:2.7-jessie
+FROM python:2.7-stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DJANGO_SETTINGS_MODULE settings.production
@@ -12,7 +12,7 @@ RUN set -ex \
 	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
 	&& apt-get install -y --no-install-recommends \
 		gettext \
-		libmysqlclient-dev \
+		default-libmysqlclient-dev \
 		libldap2-dev \
 		libsasl2-dev \
 		nodejs \
