@@ -30,7 +30,8 @@ import traceback
 import django
 
 django.setup()
-# dashboard
+
+from bag import is_bag
 from main.models import File, SIP
 
 
@@ -55,6 +56,14 @@ def main(
         try:
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
+
+            if is_bag(transferPath):
+                transfer_logs_dir = os.path.join(transferPath, "data", "logs")
+                transfer_md_dir = os.path.join(transferPath, "data", "metadata")
+            else:
+                transfer_logs_dir = os.path.join(transferPath, "logs")
+                transfer_md_dir = os.path.join(transferPath, "metadata")
+
             transferBasename = os.path.basename(os.path.abspath(transferPath))
 
             # Copy transfer metadata
@@ -69,7 +78,7 @@ def main(
                     transfersMetadataDirectory, transferBasename
                 )
                 os.makedirs(transferMetaDestDir)
-                transferMetadataDirectory = os.path.join(transferPath, "metadata")
+                transferMetadataDirectory = transfer_md_dir
             if not os.path.exists(transferMetadataDirectory):
                 continue
             for met in os.listdir(transferMetadataDirectory):
@@ -88,7 +97,7 @@ def main(
                 transfersLogsDirectory, transferBasename
             )
             os.makedirs(transfersLogsDestDir)
-            src = os.path.join(transferPath, "logs")
+            src = transfer_logs_dir
             dst = os.path.join(transfersLogsDestDir, "logs")
             shutil.copytree(src, dst)
             job.pyprint("copied: ", src, " -> ", dst)
