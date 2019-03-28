@@ -364,6 +364,22 @@ def test_transfer_mets_header(tmp_path, transfer, file_obj, dashboard_uuid):
 
 
 @pytest.mark.django_db
+def test_transfer_mets_premis_object_includes_type(
+    tmp_path, transfer, file_obj, fpcommand_output
+):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+    premis_objects = mets_xml.xpath(".//premis:object", namespaces=PREMIS_NAMESPACES)
+
+    assert len(premis_objects) == 1
+
+    attr = "{%s}type" % PREMIS_NAMESPACES["xsi"]
+    assert premis_objects[0].get(attr) == "premis:file"
+
+
+@pytest.mark.django_db
 def test_transfer_mets_includes_fpcommand_output(
     tmp_path, transfer, file_obj, fpcommand_output
 ):
