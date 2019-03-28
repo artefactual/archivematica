@@ -125,7 +125,7 @@ def insertIntoFiles(
             sipUUID + "-" + transferUUID,
         )
 
-    File.objects.create(**kwargs)
+    return File.objects.create(**kwargs)
 
 
 def getAMAgentsForFile(fileUUID):
