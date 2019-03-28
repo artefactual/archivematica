@@ -421,7 +421,7 @@
                 "pt_BR": "Enviar para o backlog",
                 "sv": "Skicka till backlogg"
             },
-            "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
+            "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
         },
         "76befd52-14c3-44f9-838f-15a4e01624b0": {
             "description": {
@@ -11799,6 +11799,40 @@
                 "en": "TRIM transfer",
                 "fr": "Transfert TRIM",
                 "pt_BR": "Transferência do TRIM "
+            }
+        },
+        "e6e553cf-85f5-4e2f-abf4-d276acd66f5a": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
+                "execute": "saveDublinCore_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Serialize Dublin Core metadata to disk",
+                "pt_BR": "Seriar os metadados Dublin Core para o disco",
+                "sv": "Sänd Dublin Core metadata till disk som serie"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85",
+            "group": {
+                "en": "Create SIP from Transfer",
+                "es": "Crear SIP a partir de la transferencia",
+                "fr": "Créer un SIP à partir du Transfert",
+                "ja": "転送からSIPを作成する",
+                "pt_BR": "Crie SIP a partir da transferência",
+                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "e76aec15-5dfa-4b14-9405-735863e3a6fa": {
