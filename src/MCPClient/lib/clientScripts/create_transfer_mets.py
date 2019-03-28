@@ -320,7 +320,7 @@ def get_premis_object_characteristics_extension(documents):
         # This only covers the UTF-8 and ASCII cases.
         xml_element = etree.fromstring(document.content.encode("utf-8"))
 
-        extensions += ("object_characteristics_extension", xml_element)
+        extensions += (("object_characteristics_extension", xml_element),)
 
     return extensions
 
@@ -548,8 +548,9 @@ def file_obj_to_premis(file_obj):
             ),
         ),
     )
+
     if object_characteristics_extensions:
-        object_characteristics += (object_characteristics_extensions,)
+        object_characteristics += object_characteristics_extensions
 
     # Add mandatory ``xsi:type`` attribute to instance.
     premis_meta = PREMIS_META.copy()
