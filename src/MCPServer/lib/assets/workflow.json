@@ -1027,23 +1027,21 @@
                     },
                     {
                         "description": {
-                            "en": "Uncompressed",
-                            "pt_BR": "Sem comprimir",
-                            "sv": "Okomprimerat"
-                        },
-                        "id": "dc04c4c0-07ea-4796-b643-66d967ed33a4",
-                        "items": {
-                            "AIPCompressionAlgorithm": "None-"
-                        }
-                    },
-                    {
-                        "description": {
                             "en": "7z without compression",
                             "pt_BR": "7z sem compressão"
                         },
                         "id": "e3906da0-41fb-4cb8-a598-6c73981b63e9",
                         "items": {
                             "AIPCompressionAlgorithm": "7z-copy"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "Gzipped tar"
+                        },
+                        "id": "9ce711ab-96d1-45dd-8708-de69698c1424",
+                        "items": {
+                            "AIPCompressionAlgorithm": "gzip-"
                         }
                     },
                     {
@@ -1056,6 +1054,17 @@
                         "id": "f61b00a1-ef2e-4dc4-9391-111c6f42b9a7",
                         "items": {
                             "AIPCompressionAlgorithm": "pbzip2-"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "Uncompressed",
+                            "pt_BR": "Sem comprimir",
+                            "sv": "Okomprimerat"
+                        },
+                        "id": "dc04c4c0-07ea-4796-b643-66d967ed33a4",
+                        "items": {
+                            "AIPCompressionAlgorithm": "None-"
                         }
                     }
                 ]
