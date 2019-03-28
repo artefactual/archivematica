@@ -86,7 +86,7 @@ def addFileToTransfer(
 ):
     if not originalLocation:
         originalLocation = filePathRelativeToSIP
-    insertIntoFiles(
+    file_obj = insertIntoFiles(
         fileUUID,
         filePathRelativeToSIP,
         date,
@@ -103,6 +103,7 @@ def addFileToTransfer(
         eventOutcomeDetailNote="",
     )
     addAccessionEvent(fileUUID, transferUUID, date)
+    return file_obj
 
 
 def addAccessionEvent(fileUUID, transferUUID, date):
