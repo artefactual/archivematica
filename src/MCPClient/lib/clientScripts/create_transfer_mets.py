@@ -551,9 +551,13 @@ def file_obj_to_premis(file_obj):
     if object_characteristics_extensions:
         object_characteristics += (object_characteristics_extensions,)
 
+    # Add mandatory ``xsi:type`` attribute to instance.
+    premis_meta = PREMIS_META.copy()
+    premis_meta["xsi:type"] = "premis:file"
+
     premis_data = (
         "object",
-        PREMIS_META,
+        premis_meta,
         (
             "object_identifier",
             ("object_identifier_type", "UUID"),
