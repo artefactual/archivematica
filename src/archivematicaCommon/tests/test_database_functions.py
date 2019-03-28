@@ -138,16 +138,3 @@ class TestDatabaseFunctions(TestCase):
         assert agents.get(id=1)
         assert agents.get(id=2)
         assert agents.get(id=5)
-
-    # getAccessionNumberFromTransfer
-
-    def test_get_accession_number_from_transfer(self):
-        accession_id = databaseFunctions.getAccessionNumberFromTransfer(
-            "5a8d0539-8e5a-4aa9-98d8-5e5053140398"
-        )
-        assert accession_id == "Accession ID"
-
-    def test_get_acession_number_from_transfer_raises(self):
-        with pytest.raises(ValueError) as excinfo:
-            databaseFunctions.getAccessionNumberFromTransfer("no such transfer")
-        assert "No Transfer found" in str(excinfo.value)

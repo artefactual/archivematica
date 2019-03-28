@@ -38,7 +38,6 @@ from main.models import (
     File,
     FPCommandOutput,
     SIP,
-    Transfer,
     UnitVariable,
 )
 
@@ -314,22 +313,6 @@ def createSIP(path, UUID=None, sip_type="SIP", diruuids=False, printfn=print):
     sip.save()
 
     return UUID
-
-
-def getAccessionNumberFromTransfer(UUID):
-    """
-    Fetches the accession number from a transfer, given its UUID.
-
-    :param str UUID: The UUID of the transfer, as a string.
-
-    :returns str: The accession number, as a string.
-    :raises ValueError: if the requested Transfer cannot be found.
-    """
-
-    try:
-        return Transfer.objects.get(uuid=UUID).accessionid
-    except Transfer.DoesNotExist:
-        raise ValueError("No Transfer found for UUID: {}".format(UUID))
 
 
 def deUnicode(unicode_string):

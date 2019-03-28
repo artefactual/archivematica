@@ -39,7 +39,7 @@ from archivematicaFunctions import get_dashboard_uuid, escape
 from countryCodes import getCodeForCountry
 
 # dashboard
-from main.models import Derivation, File, FPCommandOutput, RightsStatement
+from main.models import Derivation, File, FPCommandOutput, RightsStatement, Transfer
 
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
@@ -77,10 +77,18 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
         )
         mets.agents.append(agent)
 
-        # TODO: accession number
+    try:
+        transfer = Transfer.objects.get(uuid=transfer_uuid)
+    except Transfer.DoesNotExist:
+        logger.info("No record in database for transfer: %s", transfer_uuid)
+        raise
+
+    if transfer.accessionid:
+        alt_record_id = metsrw.AltRecordID(transfer.accessionid, type="Accession ID")
+        mets.alternate_ids.append(alt_record_id)
 
     root_fsentry = build_fsentries_tree(
-        transfer_dir_path, transfer_dir_path, db_base_path, transfer_uuid
+        transfer_dir_path, transfer_dir_path, db_base_path, transfer.uuid
     )
     mets.append_file(root_fsentry)
     mets.write(mets_path, pretty_print=True)
