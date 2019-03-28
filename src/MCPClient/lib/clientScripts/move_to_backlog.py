@@ -9,7 +9,6 @@ The local copy is removed.
 PREMIS events are created after this job runs as part of the workflow.
 """
 
-from copy import deepcopy
 import multiprocessing
 import os
 import pprint
@@ -150,7 +149,6 @@ def _record_backlog_event(transfer_id, transfer_path, created_at):
         transfer_path, "metadata", "submissionDocumentation", "METS.xml"
     )
     mets = metsrw.METSDocument().fromfile(mets_path)
-    hdr = deepcopy(mets.tree.find("mets:metsHdr", namespaces=metsrw.NAMESPACES))
 
     # Run all_files once, convert into a dict for faster lookups.
     fsentries = {entry.file_uuid: entry for entry in mets.all_files()}
@@ -175,15 +173,7 @@ def _record_backlog_event(transfer_id, transfer_path, created_at):
             agents=agents,
         )
 
-    # Ideally we would be doing something like the following::
-    #
-    #     >>> mets.write(mets_path, pretty_print=True)
-    #
-    # In practice, this is still not possible because metsrw is not performing
-    # roundtripping of ``metsHdr``. TODO: this needs to be fixed!
-    root = mets.serialize(fully_qualified=True)
-    root[0] = hdr  # metsHdr is the first element in the ``metsType`` sequence.
-    root.getroottree().write(mets_path, xml_declaration=True, pretty_print=True)
+    mets.write(mets_path, pretty_print=True)
 
 
 def main(job, transfer_id, transfer_path, created_at):
