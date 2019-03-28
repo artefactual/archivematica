@@ -28,7 +28,8 @@ import shutil
 import django
 
 django.setup()
-# dashboard
+
+from bag import is_bag
 from main.models import File, SIP
 
 
@@ -87,5 +88,12 @@ def call(jobs):
                             job.pyprint(item_path, " -> ", dst)
                             shutil.copytree(item_path, dst)
                 else:
+                    if is_bag(transferLocation):
+                        src = os.path.join(
+                            transferLocation,
+                            "data",
+                            "metadata",
+                            "submissionDocumentation",
+                        )
                     job.pyprint(src, " -> ", dst)
                     shutil.copytree(src, dst)
