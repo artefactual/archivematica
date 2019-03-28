@@ -332,6 +332,16 @@ def _import_self_describing_transfer(
         mets = metsrw.METSDocument.fromfile(
             str(transfer_dir / "data/metadata/submissionDocumentation/METS.xml")
         )
+
+        try:
+            alt_id = mets.alternate_ids[0]
+        except IndexError:
+            pass
+        else:
+            if alt_id.type == "Accession ID":
+                transfer.accessionid = alt_id.text
+            transfer.save()
+
         for fsentry in mets.all_files():
             try:
                 if fsentry.type == "Directory":

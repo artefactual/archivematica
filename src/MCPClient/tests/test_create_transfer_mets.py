@@ -329,6 +329,22 @@ def test_transfer_mets_objid(tmp_path, transfer):
 
 
 @pytest.mark.django_db
+def test_transfer_mets_accession_id(tmp_path, transfer):
+    transfer.accessionid = "12345"
+    transfer.save()
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+    alt_record_id = mets_xml.xpath(
+        ".//mets:metsHdr/mets:altRecordID", namespaces=mets_xml.nsmap
+    )[0]
+
+    assert alt_record_id.get("TYPE") == "Accession ID"
+    assert alt_record_id.text == "12345"
+
+
+@pytest.mark.django_db
 def test_transfer_mets_header(tmp_path, transfer, file_obj, dashboard_uuid):
     mets_path = tmp_path / "METS.xml"
     write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
