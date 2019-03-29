@@ -5,18 +5,6 @@ module, we load a ``premisrw.PREMISRights`` object into the database.
 
 This module does not use the ``__`` notation for accessors offered by
 ``premisrw``.
-
-TODO:
-  * !! premisrw - fix start_date/end_date issue
-  * !! premisrw - lack of support for "role" attribute in premisrw (doc identifiers)
-
-Nice to have:
-  * (rights_granted)   termOfRestriction is not supported in the model.
-  * (rights_granted)   premisrw - support many rights_granted.restriction
-  * (rights_granted)   premisrw - support many rights_granted.rights_granted_note
-  * (rights_statement) linkingObjectIdentifier (minOccurs="0" maxOccurs="unbounded")
-  * (rights_statement) linkingAgentIdentifier (minOccurs="0" maxOccurs="unbounded")
-  * (rights_statement) support many statute objects
 """
 
 from __future__ import unicode_literals
@@ -37,9 +25,9 @@ from main.models import (
 )
 
 
-def load_rights(obj, rights_statement):
+def load_rights(obj, rights):
     """Populate ``PREMISRights`` into the database."""
-    return _create_rights_statement(_mdtype(obj), obj.uuid, rights_statement)
+    return _create_rights_statement(_mdtype(obj), obj.uuid, rights.rights_statement[0])
 
 
 def _create_rights_statement(md_type, obj_id, rights_statement):
