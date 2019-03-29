@@ -256,9 +256,7 @@ def _load_event(file_obj, event):
 
     event_detail = None
     if event.premis_version == "3.0":
-        # It should be: ``event_detail_information__event_detail``
-        # TODO: update this once the tranfser METS is fixed
-        event_detail_attr = "event_detail"
+        event_detail_attr = "event_detail_information__event_detail"
     else:
         event_detail_attr = "event_detail"
     try:
