@@ -12,17 +12,13 @@ from components.rights import load
 from main.models import File, Transfer, SIP, MetadataAppliesToType
 
 
-_RIGHTS_STATEMENT_BASE = (
-    "rights_statement",
-    premisrw.PREMIS_META,
-    (
-        "rights_statement_identifier",
-        ("rights_statement_identifier_type", "UUID"),
-        ("rights_statement_identifier_value", "3a9838ac-ebe9-4ecb-ba46-c31ee1d6e7c2"),
-    ),
+RIGHTS_STATEMENT_IDENTIFIER = (
+    "rights_statement_identifier",
+    ("rights_statement_identifier_type", "UUID"),
+    ("rights_statement_identifier_value", "3a9838ac-ebe9-4ecb-ba46-c31ee1d6e7c2"),
 )
 
-_RIGHTS_STATEMENT_COPYRIGHT = (
+RIGHTS_STATEMENT_COPYRIGHT = (
     ("rights_basis", "Copyright"),
     (
         "copyright_information",
@@ -42,7 +38,7 @@ _RIGHTS_STATEMENT_COPYRIGHT = (
     ),
 )
 
-_RIGHTS_STATEMENT_LICENSE = (
+RIGHTS_STATEMENT_LICENSE = (
     ("rights_basis", "License"),
     (
         "license_information",
@@ -60,7 +56,7 @@ _RIGHTS_STATEMENT_LICENSE = (
     ),
 )
 
-_RIGHTS_STATEMENT_STATUTE = (
+RIGHTS_STATEMENT_STATUTE = (
     ("rights_basis", "Statute"),
     (
         "statute_information",
@@ -80,7 +76,7 @@ _RIGHTS_STATEMENT_STATUTE = (
     ),
 )
 
-_RIGHTS_STATEMENT_OTHER = (
+RIGHTS_STATEMENT_OTHER = (
     ("rights_basis", "Other"),
     (
         "other_rights_information",
@@ -98,81 +94,91 @@ _RIGHTS_STATEMENT_OTHER = (
     ),
 )
 
-_RIGHTS_STATEMENT_GRANTED_1 = (
-    (
-        "rights_granted",
-        ("act", "Disseminate"),
-        ("restriction", "Allow"),
-        ("term_of_grant", ("start_date", "2000"), ("end_date", "OPEN")),
-        ("rights_granted_note", "Attribution required"),
-    ),
+RIGHTS_STATEMENT_GRANTED_1 = (
+    "rights_granted",
+    ("act", "Disseminate"),
+    ("restriction", "Allow"),
+    ("term_of_grant", ("start_date", "2000"), ("end_date", "OPEN")),
+    ("rights_granted_note", "Attribution required"),
 )
 
-_RIGHTS_STATEMENT_GRANTED_2 = (
-    (
-        "rights_granted",
-        ("act", "Access"),
-        ("restriction", "Allow"),
-        ("term_of_grant", ("start_date", "1999"), ("end_date", "OPEN")),
-        ("rights_granted_note", "Access one year before dissemination"),
-    ),
+RIGHTS_STATEMENT_GRANTED_2 = (
+    "rights_granted",
+    ("act", "Access"),
+    ("restriction", "Allow"),
+    ("term_of_grant", ("start_date", "1999"), ("end_date", "OPEN")),
+    ("rights_granted_note", "Access one year before dissemination"),
 )
 
-_RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER = (
-    (
-        "linking_object_identifier",
-        ("linking_object_identifier_type", "UUID"),
-        ("linking_object_identifier_value", "c09903c4-bc29-4db4-92da-47355eec752f"),
-    ),
+RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER = (
+    "linking_object_identifier",
+    ("linking_object_identifier_type", "UUID"),
+    ("linking_object_identifier_value", "c09903c4-bc29-4db4-92da-47355eec752f"),
 )
 
 
 @pytest.fixture()
 def rights_statement_with_basis_copyright():
-    data = (
-        _RIGHTS_STATEMENT_BASE
-        + _RIGHTS_STATEMENT_COPYRIGHT
-        + _RIGHTS_STATEMENT_GRANTED_1
-        + _RIGHTS_STATEMENT_GRANTED_2
-        + _RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER
+    rights_statement = (
+        "rights_statement",
+        RIGHTS_STATEMENT_IDENTIFIER,
+        RIGHTS_STATEMENT_COPYRIGHT[0],
+        RIGHTS_STATEMENT_COPYRIGHT[1],
+        RIGHTS_STATEMENT_GRANTED_1,
+        RIGHTS_STATEMENT_GRANTED_2,
+        RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER,
     )
-    return premisrw.PREMISRights(data=data)
+    return premisrw.PREMISRights(
+        data=("rights", premisrw.PREMIS_META, rights_statement)
+    )
 
 
 @pytest.fixture()
 def rights_statement_with_basis_license():
-    data = (
-        _RIGHTS_STATEMENT_BASE
-        + _RIGHTS_STATEMENT_LICENSE
-        + _RIGHTS_STATEMENT_GRANTED_1
-        + _RIGHTS_STATEMENT_GRANTED_2
-        + _RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER
+    rights_statement = (
+        "rights_statement",
+        RIGHTS_STATEMENT_IDENTIFIER,
+        RIGHTS_STATEMENT_LICENSE[0],
+        RIGHTS_STATEMENT_LICENSE[1],
+        RIGHTS_STATEMENT_GRANTED_1,
+        RIGHTS_STATEMENT_GRANTED_2,
+        RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER,
     )
-    return premisrw.PREMISRights(data=data)
+    return premisrw.PREMISRights(
+        data=("rights", premisrw.PREMIS_META, rights_statement)
+    )
 
 
 @pytest.fixture()
 def rights_statement_with_basis_statute():
-    data = (
-        _RIGHTS_STATEMENT_BASE
-        + _RIGHTS_STATEMENT_STATUTE
-        + _RIGHTS_STATEMENT_GRANTED_1
-        + _RIGHTS_STATEMENT_GRANTED_2
-        + _RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER
+    rights_statement = (
+        "rights_statement",
+        RIGHTS_STATEMENT_IDENTIFIER,
+        RIGHTS_STATEMENT_STATUTE[0],
+        RIGHTS_STATEMENT_STATUTE[1],
+        RIGHTS_STATEMENT_GRANTED_1,
+        RIGHTS_STATEMENT_GRANTED_2,
+        RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER,
     )
-    return premisrw.PREMISRights(data=data)
+    return premisrw.PREMISRights(
+        data=("rights", premisrw.PREMIS_META, rights_statement)
+    )
 
 
 @pytest.fixture()
 def rights_statement_with_basis_other():
-    data = (
-        _RIGHTS_STATEMENT_BASE
-        + _RIGHTS_STATEMENT_OTHER
-        + _RIGHTS_STATEMENT_GRANTED_1
-        + _RIGHTS_STATEMENT_GRANTED_2
-        + _RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER
+    rights_statement = (
+        "rights_statement",
+        RIGHTS_STATEMENT_IDENTIFIER,
+        RIGHTS_STATEMENT_OTHER[0],
+        RIGHTS_STATEMENT_OTHER[1],
+        RIGHTS_STATEMENT_GRANTED_1,
+        RIGHTS_STATEMENT_GRANTED_2,
+        RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER,
     )
-    return premisrw.PREMISRights(data=data)
+    return premisrw.PREMISRights(
+        data=("rights", premisrw.PREMIS_META, rights_statement)
+    )
 
 
 @pytest.fixture()

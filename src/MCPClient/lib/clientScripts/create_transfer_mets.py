@@ -636,9 +636,8 @@ def rights_to_premis(rights, file_uuid):
     else:
         rights_basis = "Other"
 
-    premis_data = (
+    rights_statement = (
         "rights_statement",
-        PREMIS_META,
         (
             "rights_statement_identifier",
             ("rights_statement_identifier_type", id_type),
@@ -651,31 +650,33 @@ def rights_to_premis(rights, file_uuid):
     if basis_type == "copyright":
         copyright_info = get_premis_copyright_information(rights)
         if copyright_info:
-            premis_data += (copyright_info,)
+            rights_statement += (copyright_info,)
     elif basis_type == "license":
         license_info = get_premis_license_information(rights)
         if license_info:
-            premis_data += (license_info,)
+            rights_statement += (license_info,)
     elif basis_type == "statute":
         statute_info = get_premis_statute_information(rights)
         if statute_info:
-            premis_data += (statute_info,)
+            rights_statement += (statute_info,)
     elif basis_type == "other":
         other_info = get_premis_other_rights_information(rights)
         if other_info:
-            premis_data += (other_info,)
+            rights_statement += (other_info,)
 
     rights_info = get_premis_rights_granted(rights)
     if rights_info:
-        premis_data += (rights_info,)
+        rights_statement += (rights_info,)
 
-    premis_data += (
+    rights_statement += (
         (
             "linking_object_identifier",
             ("linking_object_identifier_type", "UUID"),
             ("linking_object_identifier_value", file_uuid),
         ),
     )
+
+    premis_data = ("rights", PREMIS_META, rights_statement)
 
     return metsrw.plugins.premisrw.data_to_premis(
         premis_data, premis_version=PREMIS_META["version"]
