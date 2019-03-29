@@ -590,7 +590,7 @@ def event_to_premis(event):
         ),
         ("event_type", event.event_type),
         ("event_date_time", event.event_datetime),
-        ("event_detail", event.event_detail),
+        ("event_detail_information", ("event_detail", event.event_detail)),
         (
             "event_outcome_information",
             ("event_outcome", event.event_outcome),
