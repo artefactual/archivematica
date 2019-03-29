@@ -79,6 +79,8 @@ DOC_TYPE = '_doc'
 # Maximun ES result window. Use the scroll API for a better way to get all
 # results or change `index.max_result_window` on each index settings.
 MAX_QUERY_SIZE = 10000
+# Maximun amount of fields per index (increased from the ES default of 1000).
+TOTAL_FIELDS_LIMIT = 10000
 
 
 def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=['aips', 'transfers']):
@@ -339,22 +341,25 @@ def _load_mets_mapping(index):
 def _get_index_settings():
     """Returns a dictionary with the settings used in all indexes."""
     return {
-        'analysis': {
-            'analyzer': {
-                # Use the char_group tokenizer to split paths and filenames,
-                # including file extensions, which avoids the overhead of the
-                # pattern tokenizer.
-                'file_path_and_name': {
-                    'tokenizer': 'char_tokenizer',
-                    'filter': ['lowercase'],
-                }
+        "index": {
+            "mapping": {"total_fields": {"limit": TOTAL_FIELDS_LIMIT}},
+            "analysis": {
+                "analyzer": {
+                    # Use the char_group tokenizer to split paths and filenames,
+                    # including file extensions, which avoids the overhead of
+                    # the pattern tokenizer.
+                    "file_path_and_name": {
+                        "tokenizer": "char_tokenizer",
+                        "filter": ["lowercase"],
+                    }
+                },
+                "tokenizer": {
+                    "char_tokenizer": {
+                        "type": "char_group",
+                        "tokenize_on_chars": ["-", "_", ".", "/", "\\"],
+                    }
+                },
             },
-            'tokenizer': {
-                'char_tokenizer': {
-                    'type': 'char_group',
-                    'tokenize_on_chars': ['-', '_', '.', '/', '\\'],
-                }
-            }
         }
     }
 
