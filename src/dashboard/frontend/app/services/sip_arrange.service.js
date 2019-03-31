@@ -39,7 +39,13 @@ factory('SipArrange', ['Restangular', function(Restangular) {
       };
     };
 
-    return post_form(SipArrange, 'create_directory_within_arrange', {path: Base64.encode(path)}).then(on_success);
+    if (typeof path === 'string') {
+      // When a single directory is passed the resulting promise needs to be
+      // handled to update the node in the UI
+      return post_form(SipArrange, 'create_directory_within_arrange', {paths: [Base64.encode(path)]}).then(on_success);
+    } else {
+      return post_form(SipArrange, 'create_directory_within_arrange', {paths: path.map(p => Base64.encode(p))});
+    }
   };
 
   // Copies files listed in `source` to `destination`.

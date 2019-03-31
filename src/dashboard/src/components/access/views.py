@@ -257,7 +257,7 @@ def get_digital_object_component_path(
         mapping.arrange_path, "digital_object_component_{}".format(component_id), ""
     )
     if create:
-        filesystem_views.create_arrange_directory(component_path)
+        filesystem_views.create_arrange_directories([component_path])
 
     return component_path
 
@@ -398,7 +398,7 @@ def create_arranged_directory(system, record_id):
             filepath = (
                 "/arrange/" + record_id + str(uuid.uuid4())
             )  # TODO: get this from the title?
-            filesystem_views.create_arrange_directory(filepath)
+            filesystem_views.create_arrange_directories([filepath])
         except ValueError:
             mapping.delete()
             return

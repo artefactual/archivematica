@@ -25,7 +25,6 @@ import tempfile
 import uuid
 
 from django.conf import settings as django_settings
-from django.db import IntegrityError
 import django.http
 import django.template.defaultfilters
 from django.utils.translation import ugettext as _, ungettext
@@ -65,6 +64,9 @@ TRANSFER_TYPE_DIRECTORIES = {
     "TRIM": "TRIM",
     "dataverse": "dataverseTransfer",
 }
+
+# How many objects are created through bulk_create in a single database query
+BULK_CREATE_BATCH_SIZE = 2000
 
 
 def _prepare_browse_response(response):
@@ -612,28 +614,34 @@ def _copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
     return status_code, response
 
 
-def create_arrange_directory(path):
-    if not path.startswith(DEFAULT_ARRANGE_PATH):
-        raise ValueError(_("Directory is not within the arrange directory."))
-    models.SIPArrange.objects.get_or_create(
-        original_path=None,
-        arrange_path=os.path.join(path, ""),  # ensure ends with /
-        file_uuid=None,
-    )
+def create_arrange_directories(paths):
+    for path in paths:
+        if not path.startswith(DEFAULT_ARRANGE_PATH):
+            raise ValueError(_("All directories must be within the arrange directory."))
+    arranges = [
+        models.SIPArrange(
+            original_path=None,
+            arrange_path=os.path.join(path, ""),  # ensure ends with /
+            file_uuid=None,
+        )
+        for path in paths
+    ]
+    models.SIPArrange.objects.bulk_create(arranges, BULK_CREATE_BATCH_SIZE)
 
 
 def create_directory_within_arrange(request):
-    """ Creates a directory entry in the SIPArrange table.
+    """Creates directory entries in the SIPArrange table.
 
-    path: GET parameter, path to directory in DEFAULT_ARRANGE_PATH to create
+    paths: POST parameter, a list of paths of directories in
+    DEFAULT_ARRANGE_PATH to create.
     """
     error = None
 
-    path = base64.b64decode(request.POST.get("path", ""))
+    paths = map(base64.b64decode, request.POST.getlist("paths", []))
 
-    if path:
+    if paths:
         try:
-            create_arrange_directory(path)
+            create_arrange_directories(paths)
         except ValueError as e:
             error = str(e)
 
@@ -829,20 +837,7 @@ def _copy_files_to_arrange(
     logger.info("arrange_path: %s", arrange_path)
     logger.debug("files to be added: %s", to_add)
 
-    for entry in to_add:
-        try:
-            # TODO enforce uniqueness on arrange panel?
-            models.SIPArrange.objects.create(
-                original_path=entry["original_path"],
-                arrange_path=entry["arrange_path"],
-                file_uuid=entry["file_uuid"],
-                transfer_uuid=entry["transfer_uuid"],
-            )
-        except IntegrityError:
-            # FIXME Expecting this to catch duplicate original_paths, which
-            # we want to ignore since a file can only be in one SIP.  Needs
-            # to be updated not to ignore other classes of IntegrityErrors.
-            logger.exception("Integrity error inserting: %s", entry)
+    return to_add
 
 
 def copy_to_arrange(request, sources=None, destinations=None, fetch_children=False):
@@ -905,21 +900,33 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
             }
         )
 
+    entries_to_copy = []
     try:
         for source, dest in zip(sources, destinations):
             if action == "copy":
-                _copy_files_to_arrange(
+                entries = _copy_files_to_arrange(
                     source,
                     dest,
                     fetch_children=fetch_children,
                     backlog_uuid=backlog_uuid,
                 )
-                response = {"message": _("Files added to the SIP.")}
-                status_code = 201
+                for entry in entries:
+                    entries_to_copy.append(
+                        models.SIPArrange(
+                            original_path=entry["original_path"],
+                            arrange_path=entry["arrange_path"],
+                            file_uuid=entry["file_uuid"],
+                            transfer_uuid=entry["transfer_uuid"],
+                        )
+                    )
             elif action == "move":
                 _move_files_within_arrange(source, dest)
                 response = {"message": _("SIP files successfully moved.")}
                 status_code = 200
+        if entries_to_copy:
+            models.SIPArrange.objects.bulk_create(
+                entries_to_copy, BULK_CREATE_BATCH_SIZE
+            )
     except ValueError as e:
         logger.exception("Failed copying %s to %s", source, dest)
         response = {"message": str(e), "error": True}

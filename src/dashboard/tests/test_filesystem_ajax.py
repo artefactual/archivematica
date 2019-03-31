@@ -139,7 +139,7 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode("toplevel") in response_dict["entries"]
         assert len(response_dict["entries"]) == 1
 
-    def test_create_arranged_directory(self):
+    def test_create_arranged_directories(self):
         # Verify does not exist already
         response = self.client.get(
             reverse("components.filesystem_ajax.views.arrange_contents"),
@@ -156,7 +156,7 @@ class TestSIPArrange(TestCase):
         # Create directory
         response = self.client.post(
             reverse("components.filesystem_ajax.views.create_directory_within_arrange"),
-            data={"path": base64.b64encode("/arrange/new_dir")},
+            data={"paths": base64.b64encode("/arrange/new_dir")},
             follow=True,
         )
         assert response.status_code == 201

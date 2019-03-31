@@ -11,13 +11,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: app/front_page/appraisal_tab.html:47
+#: app/front_page/appraisal_tab.html:48
 msgid "1 object selected"
 msgid_plural "{{$count}} objects selected"
 msgstr[0] "1 föremål valt"
 msgstr[1] "{{$count}} föremål valda"
 
-#: app/front_page/appraisal_tab.html:46
+#: app/front_page/appraisal_tab.html:47
 msgid "1 transfer"
 msgid_plural "{{$count}} transfers"
 msgstr[0] "1 överföring"
@@ -35,15 +35,15 @@ msgstr "Accessions nummer"
 msgid "Add"
 msgstr "Lägg till"
 
-#: app/front_page/appraisal_tab.html:311
+#: app/front_page/appraisal_tab.html:312
 msgid "Add directory"
 msgstr "Lägg till mapp"
 
-#: app/front_page/appraisal_tab.html:210
+#: app/front_page/appraisal_tab.html:211
 msgid "Add new child record"
 msgstr "Lägg till ny underordnad post"
 
-#: app/front_page/appraisal_tab.html:216
+#: app/front_page/appraisal_tab.html:217
 msgid "Add new digital object"
 msgstr "Lägg till nytt digitalt objekt"
 
@@ -55,7 +55,7 @@ msgstr "Lägg till nästa"
 msgid "Add tag to checked files"
 msgstr "Lägg till tagg till markerade filer"
 
-#: app/front_page/appraisal_tab.html:52
+#: app/front_page/appraisal_tab.html:53
 msgid "Add tag to selected files"
 msgstr "Lägg till tag till valda filer"
 
@@ -63,7 +63,7 @@ msgstr "Lägg till tag till valda filer"
 msgid "All"
 msgstr "Alla"
 
-#: app/front_page/appraisal_tab.html:82
+#: app/front_page/appraisal_tab.html:83
 msgid "Analysis"
 msgstr "Analys"
 
@@ -71,23 +71,23 @@ msgstr "Analys"
 msgid "Approve automatically"
 msgstr ""
 
-#: app/front_page/appraisal_tab.html:193 app/front_page/appraisal_tab.html:196
+#: app/front_page/appraisal_tab.html:194 app/front_page/appraisal_tab.html:197
 msgid "ArchivesSpace"
 msgstr "ArchivesSpace"
 
-#: app/front_page/appraisal_tab.html:233 app/front_page/appraisal_tab.html:322
+#: app/front_page/appraisal_tab.html:234 app/front_page/appraisal_tab.html:323
 msgid "Are you sure you want to delete this?"
 msgstr "Är du säker på att du vill radera detta?"
 
-#: app/arrangement/arrangement.controller.js:68
+#: app/arrangement/arrangement.controller.js:76
 msgid "Are you sure you want to discard the current directory?"
 msgstr ""
 
-#: app/front_page/appraisal_tab.html:285 app/front_page/appraisal_tab.html:288
+#: app/front_page/appraisal_tab.html:286 app/front_page/appraisal_tab.html:289
 msgid "Arrangement"
 msgstr "Ordningen"
 
-#: app/front_page/appraisal_tab.html:40 app/front_page/appraisal_tab.html:43
+#: app/front_page/appraisal_tab.html:41 app/front_page/appraisal_tab.html:44
 msgid "Backlog"
 msgstr "Backlogg"
 
@@ -104,7 +104,7 @@ msgstr "Loggar över samlade extraktioner"
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: app/front_page/appraisal_tab.html:57
+#: app/front_page/appraisal_tab.html:58
 msgid "Collapse all"
 msgstr "Minimera alla"
 
@@ -124,7 +124,7 @@ msgstr "Kontext"
 msgid "Count"
 msgstr "Antal"
 
-#: app/front_page/appraisal_tab.html:330
+#: app/front_page/appraisal_tab.html:331
 msgid "Create SIP"
 msgstr "Skapa SIP"
 
@@ -144,23 +144,23 @@ msgstr ""
 msgid "Date expression:"
 msgstr "Datumformat:"
 
-#: app/front_page/appraisal_tab.html:122
+#: app/front_page/appraisal_tab.html:123
 msgid "Date range end"
 msgstr "Datumintervalls slut"
 
-#: app/front_page/appraisal_tab.html:115
+#: app/front_page/appraisal_tab.html:116
 msgid "Date range start"
 msgstr "Datumintervalls start"
 
-#: app/front_page/appraisal_tab.html:130
+#: app/front_page/appraisal_tab.html:131
 msgid "Dates:"
 msgstr "Datum:"
 
-#: app/front_page/appraisal_tab.html:235 app/front_page/appraisal_tab.html:324
+#: app/front_page/appraisal_tab.html:236 app/front_page/appraisal_tab.html:325
 msgid "Delete selected"
 msgstr "Radera valda"
 
-#: app/front_page/appraisal_tab.html:56
+#: app/front_page/appraisal_tab.html:57
 msgid "Deselect all"
 msgstr "Avmarkera alla"
 
@@ -172,15 +172,15 @@ msgstr "Skiv- eller disk-avbild"
 msgid "Download"
 msgstr "Ladda ner"
 
-#: app/front_page/appraisal_tab.html:317
+#: app/front_page/appraisal_tab.html:318
 msgid "Edit Metadata"
 msgstr "Redigera metadata"
 
-#: app/front_page/appraisal_tab.html:228
+#: app/front_page/appraisal_tab.html:229
 msgid "Edit metadata"
 msgstr "Redigera metadata"
 
-#: app/front_page/appraisal_tab.html:221
+#: app/front_page/appraisal_tab.html:222
 msgid "Edit rights metadata"
 msgstr "Redigera rättighetsmetada"
 
@@ -188,33 +188,33 @@ msgstr "Redigera rättighetsmetada"
 msgid "End date:"
 msgstr "Slutdatum:"
 
-#: app/arrangement/arrangement.controller.js:372
+#: app/arrangement/arrangement.controller.js:393
 msgid "Error fetching levels of description"
 msgstr ""
 
-#: app/front_page/appraisal_tab.html:93
+#: app/front_page/appraisal_tab.html:94
 msgid "Examine contents"
 msgstr "Undersök innehåll"
 
-#: app/front_page/appraisal_tab.html:58
+#: app/front_page/appraisal_tab.html:59
 msgid "Expand all"
 msgstr "Expandera alla"
 
-#: app/arrangement/arrangement.controller.js:382
+#: app/arrangement/arrangement.controller.js:403
 msgid "Failed to copy files to SIP arrange; check Dashboard logs."
 msgstr ""
 "Misslyckades att kopiera filer till SIP arrangemang; se din översiktsvylogg."
 
-#: app/front_page/appraisal_tab.html:104 app/front_page/appraisal_tab.html:107
+#: app/front_page/appraisal_tab.html:105 app/front_page/appraisal_tab.html:108
 msgid "File list"
 msgstr "Fillista"
 
-#: app/front_page/appraisal_tab.html:111
+#: app/front_page/appraisal_tab.html:112
 msgid "File list is empty."
 msgstr "Fillistan är tom."
 
 #: app/examine_contents/examine_contents.html:45
-#: app/front_page/appraisal_tab.html:161
+#: app/front_page/appraisal_tab.html:162
 msgid "Filename"
 msgstr "Filnamn"
 
@@ -222,7 +222,7 @@ msgstr "Filnamn"
 msgid "Files"
 msgstr "Filer"
 
-#: app/front_page/appraisal_tab.html:241
+#: app/front_page/appraisal_tab.html:242
 msgid "Finalize arrangement"
 msgstr "Finalisera ordningen"
 
@@ -252,15 +252,15 @@ msgstr "Allmän anmärkning:"
 msgid "Group"
 msgstr "Grupp"
 
-#: app/front_page/appraisal_tab.html:147
+#: app/front_page/appraisal_tab.html:148
 msgid "Hide path"
 msgstr "Dölj sökväg"
 
-#: app/front_page/appraisal_tab.html:200
+#: app/front_page/appraisal_tab.html:201
 msgid "Identifier"
 msgstr "Signum"
 
-#: app/front_page/appraisal_tab.html:164
+#: app/front_page/appraisal_tab.html:165
 msgid "Last modified"
 msgstr "Senast ändrad"
 
@@ -278,7 +278,7 @@ msgstr ""
 "tillagd till detta överföringspaket. Datan kommer inte användas om inga fler "
 "komponenter läggs till efter formuläret sparas."
 
-#: app/arrangement/arrangement.controller.js:204
+#: app/arrangement/arrangement.controller.js:224
 msgid "Name of new directory?"
 msgstr "Den nya mappens namn?"
 
@@ -298,7 +298,7 @@ msgstr "Ingen information hittad för valda transfers."
 msgid "No information found for selected files."
 msgstr "Ingen information hittad rörande valda filer."
 
-#: app/front_page/appraisal_tab.html:294
+#: app/front_page/appraisal_tab.html:295
 msgid "None"
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 msgid "Number of files"
 msgstr "Antal filer"
 
-#: app/front_page/appraisal_tab.html:87
+#: app/front_page/appraisal_tab.html:88
 msgid "Objects"
 msgstr "Objekt"
 
@@ -324,16 +324,20 @@ msgstr "PII"
 msgid "PUID"
 msgstr "PUID"
 
-#: app/front_page/appraisal_tab.html:162
+#: app/front_page/appraisal_tab.html:163
 msgid "Path"
 msgstr "Sökväg"
+
+#: app/arrangement/arrangement.controller.js:68
+msgid "Please wait while the SIP is started"
+msgstr ""
 
 #: app/examine_contents/examine_contents.html:47
 #: app/examine_contents/examine_contents.html:68
 msgid "Preview"
 msgstr "Förhandsgranskning"
 
-#: app/front_page/appraisal_tab.html:96
+#: app/front_page/appraisal_tab.html:97
 msgid "Preview file"
 msgstr "Förhandsgranska fil"
 
@@ -341,7 +345,7 @@ msgstr "Förhandsgranska fil"
 msgid "Previewing {{ file.title }}"
 msgstr "Förhandsvisa {{ file.title }}"
 
-#: app/front_page/appraisal_tab.html:335
+#: app/front_page/appraisal_tab.html:336
 msgid "Reload"
 msgstr "Uppdatera"
 
@@ -349,13 +353,13 @@ msgstr "Uppdatera"
 msgid "Report"
 msgstr "Rapport"
 
-#: app/arrangement/arrangement.controller.js:134
-#: app/arrangement/arrangement.controller.js:256
+#: app/arrangement/arrangement.controller.js:154
+#: app/arrangement/arrangement.controller.js:276
 msgid "SIP could not be started! Check dashboard logs."
 msgstr "SIP kunde inte startas! Se din översiktsvylogg."
 
-#: app/arrangement/arrangement.controller.js:128
-#: app/arrangement/arrangement.controller.js:249
+#: app/arrangement/arrangement.controller.js:148
+#: app/arrangement/arrangement.controller.js:269
 msgid "SIP successfully started!"
 msgstr "Start av SIP lyckad!"
 
@@ -363,7 +367,7 @@ msgstr "Start av SIP lyckad!"
 msgid "Save"
 msgstr "Spara"
 
-#: app/front_page/appraisal_tab.html:201
+#: app/front_page/appraisal_tab.html:202
 msgid "Search ArchivesSpace"
 msgstr "Sök i ArchivesSpace"
 
@@ -379,11 +383,11 @@ msgstr "Markera alla"
 msgid "Show metadata & logs directories?"
 msgstr ""
 
-#: app/front_page/appraisal_tab.html:146
+#: app/front_page/appraisal_tab.html:147
 msgid "Show path"
 msgstr "Visa sökväg"
 
-#: app/front_page/appraisal_tab.html:163 app/report/format.html:7
+#: app/front_page/appraisal_tab.html:164 app/report/format.html:7
 msgid "Size"
 msgstr "Storlek"
 
@@ -407,12 +411,12 @@ msgstr "Start av SIP från post \"{{title}}\" lyckades"
 msgid "Tag"
 msgstr "Tagg"
 
-#: app/front_page/appraisal_tab.html:165 app/front_page/appraisal_tab.html:18
-#: app/front_page/appraisal_tab.html:292 app/front_page/appraisal_tab.html:90
+#: app/front_page/appraisal_tab.html:166 app/front_page/appraisal_tab.html:18
+#: app/front_page/appraisal_tab.html:293 app/front_page/appraisal_tab.html:91
 msgid "Tags"
 msgstr "Taggar"
 
-#: app/front_page/appraisal_tab.html:199
+#: app/front_page/appraisal_tab.html:200
 msgid "Title"
 msgstr "Titel"
 
@@ -471,7 +475,7 @@ msgstr ""
 "Kunde inte starta SIP; inga filer ordnade i arkivbeståndet \"{{title}}\"."
 
 #: app/archivesspace/archivesspace.controller.js:162
-#: app/arrangement/arrangement.controller.js:356
+#: app/arrangement/arrangement.controller.js:377
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 "Kunde inte göra gällande redigeringar till arkiv \"{{title}}\"; se din "
