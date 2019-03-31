@@ -6,7 +6,7 @@ import '../../app/vendor/angular-tree-control/demo/jquery.2.0.3.js';
 describe('SipArrange', function() {
   beforeEach(angular.mock.module('sipArrangeService'));
   beforeEach(angular.mock.inject(function(_$httpBackend_) {
-    _$httpBackend_.when('POST', '/filesystem/create_directory_within_arrange', 'path=L2FycmFuZ2UvYS9mdWxsL25ld19wYXRo').respond({'success': true});
+    _$httpBackend_.when('POST', '/filesystem/create_directory_within_arrange', 'paths%5B%5D=L2FycmFuZ2UvYS9mdWxsL25ld19wYXRo').respond({'success': true});
     _$httpBackend_.when('GET', '/filesystem/contents/arrange?path=').respond({
       'entries': [
         'VGVzdA==',

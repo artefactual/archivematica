@@ -62,6 +62,14 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
     }
   };
 
+  var show_wait_for_sip_alert = function() {
+    Alert.alerts.push({
+      'type': 'info',
+      'message': gettextCatalog.getString('Please wait while the SIP is started'),
+      'show_spinner': true,
+    });
+  };
+
   vm.create_sip_from_tag = function() {
     // if there's a SIP already started ask for confirmation
     if (vm.data.length > 0) {
@@ -73,6 +81,7 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
         vm.delete_directory(directory);
       });
     }
+    show_wait_for_sip_alert();
     const tag = vm.create_sip_tag;
     if (!tag) {
       return;
@@ -86,6 +95,8 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
       let create_directory_promises = [];
       let copy_to_arrange_promises = [];
       let files_grouped_by_directory = {};
+      let arrange_sources = [];
+      let arrange_destinations = [];
       angular.forEach(vm.transfer.id_map, file => {
         if (file.type === 'file' &&
             file.tags !== undefined &&
@@ -107,21 +118,30 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
         });
         return !(is_repeated);
       });
-      // create promises for creating each unique directory
-      unique_directories.forEach(directory => {
-        let directory_arrange_path = '/arrange/' + full_path + '/' + directory + '/';
-        let promise = SipArrange.create_directory(directory_arrange_path, directory, undefined);
-        create_directory_promises.push(promise);
-      });
-      // create promises for copying each file
+      // create a single promise for creating each unique directory
+      create_directory_promises.push(
+        SipArrange.create_directory(
+          unique_directories.map(directory => {
+            return '/arrange/' + full_path + '/' + directory + '/';
+          }),
+          undefined,
+          undefined
+        )
+      );
+      // get all the arrange sources and destinations in each directory
       Object.keys(files_grouped_by_directory).forEach(directory => {
         let directory_arrange_path = '/arrange/' + full_path + '/' + directory + '/';
         files_grouped_by_directory[directory].forEach(file => {
           let paths = generate_files_list(file, '/originals/', directory_arrange_path);
-          let promise = SipArrange.copy_to_arrange(paths.source, paths.destination).then(on_copy_success, on_copy_failure);
-          copy_to_arrange_promises.push(promise);
+          arrange_sources = arrange_sources.concat(paths.source);
+          arrange_destinations = arrange_destinations.concat(paths.destination);
         });
       });
+      // create a single promise with all the arrange sources and destinations
+      copy_to_arrange_promises.push(
+        SipArrange.copy_to_arrange(arrange_sources, arrange_destinations)
+          .then(on_copy_success, on_copy_failure)
+      );
       let on_success = success => {
         Alert.alerts.push({
           'type': 'success',
@@ -257,6 +277,7 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
       });
     };
 
+    show_wait_for_sip_alert();
     SipArrange.start_sip('/arrange/' + directory.path + '/').then(on_success, on_failure);
   };
 
