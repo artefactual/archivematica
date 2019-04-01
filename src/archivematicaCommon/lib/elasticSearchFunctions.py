@@ -82,6 +82,10 @@ DOC_TYPE = "_doc"
 MAX_QUERY_SIZE = 10000
 # Maximun amount of fields per index (increased from the ES default of 1000).
 TOTAL_FIELDS_LIMIT = 10000
+# Maximum index depth (increased from the ES default of 20). The way the
+# `structMap` element from the METS file is parsed may create a big depth
+# in documents for AIPs with a big directories hierarchy.
+DEPTH_LIMIT = 1000
 
 
 def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=["aips", "transfers"]):
@@ -326,7 +330,10 @@ def _get_index_settings():
     """Returns a dictionary with the settings used in all indexes."""
     return {
         "index": {
-            "mapping": {"total_fields": {"limit": TOTAL_FIELDS_LIMIT}},
+            "mapping": {
+                "total_fields": {"limit": TOTAL_FIELDS_LIMIT},
+                "depth": {"limit": DEPTH_LIMIT},
+            },
             "analysis": {
                 "analyzer": {
                     # Use the char_group tokenizer to split paths and filenames,
