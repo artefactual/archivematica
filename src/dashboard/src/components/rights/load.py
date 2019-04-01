@@ -118,6 +118,10 @@ def _create_rights_basis_copyright(db_stmt, copyright_information):
                 "copyrightdocumentationidentifiervalue",
                 "copyright_documentation_identifier_value",
             ),
+            (
+                "copyrightdocumentationidentifierrole",
+                "copyright_documentation_identifier_role",
+            ),
         ),
     )
 
@@ -179,6 +183,10 @@ def _create_rights_basis_license(db_stmt, license_information):
                 "licensedocumentationidentifiervalue",
                 "license_documentation_identifier_value",
             ),
+            (
+                "licensedocumentationidentifierrole",
+                "license_documentation_identifier_role",
+            ),
         ),
     )
 
@@ -239,6 +247,10 @@ def _create_rights_basis_statute(db_stmt, statute_information):
                 "statutedocumentationidentifiervalue",
                 "statute_information_documentation_identifier_value",
             ),
+            (
+                "statutedocumentationidentifierrole",
+                "statute_information_documentation_identifier_role",
+            ),
         ),
     )
 
@@ -289,6 +301,10 @@ def _create_rights_basis_other(db_stmt, other_rights):
             (
                 "otherrightsdocumentationidentifiervalue",
                 "other_rights_documentation_identifier_value",
+            ),
+            (
+                "otherrightsdocumentationidentifierrole",
+                "other_rights_documentation_identifier_role",
             ),
         ),
     )
