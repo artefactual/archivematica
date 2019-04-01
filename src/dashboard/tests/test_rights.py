@@ -1,9 +1,3 @@
-# from components.rights.load import load_rights
-#
-# for premis_rights in fsentry.get_premis_rights():
-#     load_rights(premis_rights)
-#
-
 from metsrw.plugins import premisrw
 import pytest
 import uuid
@@ -33,6 +27,7 @@ RIGHTS_STATEMENT_COPYRIGHT = (
                 "copyright_documentation_identifier_value",
                 "a59b5006-23c4-4195-bc1e-7d1855d555cc",
             ),
+            ("copyright_documentation_identifier_role", "role"),
         ),
         ("copyright_applicable_dates", ("start_date", "1999"), ("end_date", "OPEN")),
     ),
@@ -49,6 +44,7 @@ RIGHTS_STATEMENT_LICENSE = (
                 "license_documentation_identifier_value",
                 "a59b5006-23c4-4195-bc1e-7d1855d555cc",
             ),
+            ("license_documentation_identifier_role", "role"),
         ),
         ("license_terms", "Dummy license terms"),
         ("license_note", "Dummy note 1"),
@@ -71,6 +67,7 @@ RIGHTS_STATEMENT_STATUTE = (
                 "statute_information_documentation_identifier_value",
                 "a59b5006-23c4-4195-bc1e-7d1855d555cc",
             ),
+            ("statute_information_documentation_identifier_role", "role"),
         ),
         ("statute_applicable_dates", ("start_date", "1999"), ("end_date", "OPEN")),
     ),
@@ -87,6 +84,7 @@ RIGHTS_STATEMENT_OTHER = (
                 "other_rights_documentation_identifier_value",
                 "a59b5006-23c4-4195-bc1e-7d1855d555cc",
             ),
+            ("other_rights_documentation_identifier_role", "role"),
         ),
         ("other_rights_basis", "Foobar"),
         ("other_rights_applicable_dates", ("start_date", "1999"), ("end_date", "OPEN")),
@@ -253,6 +251,12 @@ def test_load_rights_with_basis_copyright(file, rights_statement_with_basis_copy
         .copyrightdocumentationidentifiervalue
         == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
     )
+    assert (
+        copyrights[0]
+        .rightsstatementcopyrightdocumentationidentifier_set.all()[0]
+        .copyrightdocumentationidentifierrole
+        == "role"
+    )
 
 
 @pytest.mark.django_db
@@ -277,6 +281,12 @@ def test_load_rights_with_basis_license(file, rights_statement_with_basis_licens
         .rightsstatementlicensedocumentationidentifier_set.all()[0]
         .licensedocumentationidentifiervalue
         == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+    )
+    assert (
+        license[0]
+        .rightsstatementlicensedocumentationidentifier_set.all()[0]
+        .licensedocumentationidentifierrole
+        == "role"
     )
 
 
@@ -306,6 +316,12 @@ def test_load_rights_with_basis_statute(file, rights_statement_with_basis_statut
         .statutedocumentationidentifiervalue
         == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
     )
+    assert (
+        statute[0]
+        .rightsstatementstatutedocumentationidentifier_set.all()[0]
+        .statutedocumentationidentifierrole
+        == "role"
+    )
 
 
 @pytest.mark.django_db
@@ -333,4 +349,10 @@ def test_load_rights_with_basis_other(file, rights_statement_with_basis_other):
         .rightsstatementotherrightsdocumentationidentifier_set.all()[0]
         .otherrightsdocumentationidentifiervalue
         == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+    )
+    assert (
+        otherrights[0]
+        .rightsstatementotherrightsdocumentationidentifier_set.all()[0]
+        .otherrightsdocumentationidentifierrole
+        == "role"
     )
