@@ -39,10 +39,21 @@ from archivematicaFunctions import get_dashboard_uuid, escape
 from countryCodes import getCodeForCountry
 
 # dashboard
-from main.models import Derivation, File, FPCommandOutput, RightsStatement, Transfer
+from main.models import (
+    Derivation,
+    Directory,
+    File,
+    FPCommandOutput,
+    RightsStatement,
+    Transfer,
+)
 
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
+FILE_PREMIS_META = PREMIS_META.copy()
+FILE_PREMIS_META["xsi:type"] = "premis:file"
+IE_PREMIS_META = PREMIS_META.copy()
+IE_PREMIS_META["xsi:type"] = "premis:intellectualEntity"
 
 
 logger = logging.getLogger(__name__)
@@ -133,6 +144,10 @@ def build_fsentries_tree(path, root_path, db_base_path, transfer_uuid, parent=No
             fsentry = metsrw.FSEntry(
                 path=relative_path, label=dir_entry.name, type="Directory"
             )
+            dir_obj = lookup_directory_data(relative_path, db_base_path, transfer_uuid)
+            if dir_obj:
+                premis_intellectual_entity = dir_obj_to_premis(dir_obj)
+                fsentry.add_premis_object(premis_intellectual_entity)
         else:
             file_obj = lookup_file_data(relative_path, db_base_path, transfer_uuid)
             if file_obj is None:
@@ -188,6 +203,7 @@ def lookup_file_data(relative_path, db_base_path, transfer_uuid):
     )
 
     prefetches = [
+        "identifiers",
         "event_set",
         "event_set__agents",
         "fileid_set",
@@ -214,6 +230,19 @@ def lookup_file_data(relative_path, db_base_path, transfer_uuid):
         return None
 
     return file_obj
+
+
+def lookup_directory_data(relative_path, db_base_path, transfer_uuid):
+    db_dir_path = "".join([db_base_path, relative_path, os.path.sep])
+    try:
+        dir_obj = Directory.objects.prefetch_related("identifiers").get(
+            currentlocation=db_dir_path, transfer_id=transfer_uuid
+        )
+    except Directory.DoesNotExist:
+        logger.info("No record in database for directory: %s", db_dir_path)
+        return None
+
+    return dir_obj
 
 
 def lookup_file_rights(file_uuid, transfer_uuid):
@@ -512,6 +541,26 @@ def get_premis_rights_granted(rights):
     return rights_granted_info
 
 
+def get_premis_object_identifiers(uuid, additional_identifiers):
+    object_identifiers = (
+        (
+            "object_identifier",
+            ("object_identifier_type", "UUID"),
+            ("object_identifier_value", uuid),
+        ),
+    )
+    for identifier in additional_identifiers:
+        object_identifiers += (
+            (
+                "object_identifier",
+                ("object_identifier_type", identifier.type),
+                ("object_identifier_value", identifier.value),
+            ),
+        )
+
+    return object_identifiers
+
+
 def file_obj_to_premis(file_obj):
     """
     Converts an File model object to a PREMIS event object via metsrw.
@@ -523,6 +572,9 @@ def file_obj_to_premis(file_obj):
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
     format_data = get_premis_format_data(file_obj.fileid_set.all())
     original_name = escape(file_obj.originallocation)
+    object_identifiers = get_premis_object_identifiers(
+        file_obj.uuid, file_obj.identifiers.all()
+    )
     object_characteristics_extensions = get_premis_object_characteristics_extension(
         file_obj.characterization_documents
     )
@@ -552,24 +604,38 @@ def file_obj_to_premis(file_obj):
     if object_characteristics_extensions:
         object_characteristics += object_characteristics_extensions
 
-    # Add mandatory ``xsi:type`` attribute to instance.
-    premis_meta = PREMIS_META.copy()
-    premis_meta["xsi:type"] = "premis:file"
-
     premis_data = (
-        "object",
-        premis_meta,
-        (
-            "object_identifier",
-            ("object_identifier_type", "UUID"),
-            ("object_identifier_value", file_obj.uuid),
-        ),
-        object_characteristics,
-        ("original_name", original_name),
-    ) + relationship_data
+        ("object", FILE_PREMIS_META)
+        + object_identifiers
+        + (object_characteristics, ("original_name", original_name))
+        + relationship_data
+    )
 
     return metsrw.plugins.premisrw.data_to_premis(
-        premis_data, premis_version=PREMIS_META["version"]
+        premis_data, premis_version=FILE_PREMIS_META["version"]
+    )
+
+
+def dir_obj_to_premis(dir_obj):
+    """
+    Converts an Directory model object to a PREMIS object via metsrw.
+
+    Returns:
+        lxml.etree._Element
+    """
+    original_name = escape(dir_obj.originallocation)
+    object_identifiers = get_premis_object_identifiers(
+        dir_obj.uuid, dir_obj.identifiers.all()
+    )
+
+    premis_data = (
+        ("object", IE_PREMIS_META)
+        + object_identifiers
+        + (("original_name", original_name),)
+    )
+
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=IE_PREMIS_META["version"]
     )
 
 

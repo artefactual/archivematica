@@ -15,6 +15,7 @@ from fpr.models import FPRule
 from main.models import (
     Agent,
     DashboardSetting,
+    Directory,
     Event,
     File,
     FPCommandOutput,
@@ -73,7 +74,7 @@ def file_obj(db, transfer, tmp_path, file_path):
     file_obj_path = "".join(
         [transfer.currentlocation, str(file_path.relative_to(tmp_path))]
     )
-    return File.objects.create(
+    file_obj = File.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
         originallocation=file_obj_path,
@@ -83,6 +84,9 @@ def file_obj(db, transfer, tmp_path, file_path):
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
         checksumtype="sha256",
     )
+    file_obj.identifiers.create(type="TEST FILE", value="233456")
+
+    return file_obj
 
 
 @pytest.fixture()
@@ -100,6 +104,22 @@ def file_obj2(db, transfer, tmp_path, file_path2):
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
         checksumtype="sha256",
     )
+
+
+@pytest.fixture()
+def dir_obj(db, transfer, tmp_path, subdir_path):
+    dir_obj_path = "".join(
+        [transfer.currentlocation, str(subdir_path.relative_to(tmp_path)), os.path.sep]
+    )
+    dir_obj = Directory.objects.create(
+        uuid=uuid.uuid4(),
+        transfer=transfer,
+        originallocation=dir_obj_path,
+        currentlocation=dir_obj_path,
+    )
+    dir_obj.identifiers.create(type="TEST ID", value="12345")
+
+    return dir_obj
 
 
 @pytest.fixture()
@@ -721,3 +741,44 @@ def test_transfer_mets_includes_other_rights(
     )
     assert state_date.text == other_rights_db_obj.otherrightsapplicablestartdate
     assert end_date.text == "OPEN"
+
+
+@pytest.mark.django_db
+def test_transfer_mets_directory_identifiers(tmp_path, transfer, dir_obj):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    expected_identifier = dir_obj.identifiers.first()
+    premis_ie = mets_xml.find(".//premis:object", namespaces=PREMIS_NAMESPACES)
+    identifiers = premis_ie.findall(
+        "premis:objectIdentifier", namespaces=PREMIS_NAMESPACES
+    )
+
+    namespaced_attr = "{%s}type" % PREMIS_NAMESPACES["xsi"]
+    assert premis_ie.get(namespaced_attr) == "premis:intellectualEntity"
+
+    assert identifiers[0][0].text == "UUID"
+    assert identifiers[0][1].text == str(dir_obj.uuid)
+    assert identifiers[1][0].text == expected_identifier.type
+    assert identifiers[1][1].text == expected_identifier.value
+
+
+@pytest.mark.django_db
+def test_transfer_mets_file_identifiers(tmp_path, transfer, file_obj):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    expected_identifier = file_obj.identifiers.first()
+    premis_obj = mets_xml.find(".//premis:object", namespaces=PREMIS_NAMESPACES)
+    identifiers = premis_obj.findall(
+        "premis:objectIdentifier", namespaces=PREMIS_NAMESPACES
+    )
+
+    assert identifiers[0][0].text == "UUID"
+    assert identifiers[0][1].text == str(file_obj.uuid)
+    assert identifiers[1][0].text == expected_identifier.type
+    assert identifiers[1][1].text == expected_identifier.value
