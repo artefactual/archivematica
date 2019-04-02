@@ -233,7 +233,7 @@ def lookup_file_data(relative_path, db_base_path, transfer_uuid):
 
 
 def lookup_directory_data(relative_path, db_base_path, transfer_uuid):
-    db_dir_path = "".join([db_base_path, relative_path, "/"])
+    db_dir_path = "".join([db_base_path, relative_path, os.path.sep])
     try:
         dir_obj = Directory.objects.prefetch_related("identifiers").get(
             currentlocation=db_dir_path, transfer_id=transfer_uuid

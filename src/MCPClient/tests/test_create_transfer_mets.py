@@ -109,7 +109,7 @@ def file_obj2(db, transfer, tmp_path, file_path2):
 @pytest.fixture()
 def dir_obj(db, transfer, tmp_path, subdir_path):
     dir_obj_path = "".join(
-        [transfer.currentlocation, str(subdir_path.relative_to(tmp_path)), "/"]
+        [transfer.currentlocation, str(subdir_path.relative_to(tmp_path)), os.path.sep]
     )
     dir_obj = Directory.objects.create(
         uuid=uuid.uuid4(),
