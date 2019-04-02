@@ -33,7 +33,7 @@ import sys
 import time
 from lxml import etree as ElementTree
 
-from django.db.models import Q
+from django.db.models import Min, Q
 from django.utils.six.moves import xrange
 from main.models import File, Transfer
 
@@ -628,25 +628,36 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     # Default status of a transfer file document in the index.
     status = "backlog"
 
+    transfer_name, ingest_date = "", str(datetime.date.today())
+    try:
+        transfer = Transfer.objects.get(uuid=uuid)
+    except Transfer.DoesNotExist:
+        pass
+    else:
+        transfer_name = transfer.currentlocation.split("/")[-2]
+        # It doesn't seem that Archivematica records the ingestion date
+        # associated with the Transfer but we can look at the earliest file
+        # entry instead - as long as there is a match which may not always be
+        # the case.
+        dt = File.objects.filter(transfer=transfer).aggregate(Min("enteredsystem"))[
+            "enteredsystem__min"
+        ]
+        if dt:
+            ingest_date = str(dt.date())
+
     printfn("Transfer UUID: " + uuid)
     printfn("Indexing Transfer files ...")
     files_indexed = _index_transfer_files(
-        client, uuid, path, status=status, printfn=printfn
+        client, uuid, path, ingest_date, status=status, printfn=printfn
     )
 
     printfn("Files indexed: " + str(files_indexed))
     printfn("Indexing Transfer ...")
 
-    try:
-        transfer = Transfer.objects.get(uuid=uuid)
-        transfer_name = transfer.currentlocation.split("/")[-2]
-    except Transfer.DoesNotExist:
-        transfer_name = ""
-
     transfer_data = {
         "name": transfer_name,
         "status": status,
-        "ingest_date": str(datetime.datetime.today())[0:10],
+        "ingest_date": ingest_date,
         "file_count": files_indexed,
         "uuid": uuid,
         "pending_deletion": False,
@@ -659,7 +670,7 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     return 0
 
 
-def _index_transfer_files(client, uuid, path, status="", printfn=print):
+def _index_transfer_files(client, uuid, path, ingest_date, status="", printfn=print):
     """Indexes files in the Transfer with UUID `uuid` at path `path`.
 
     :param client: ElasticSearch client.
@@ -671,7 +682,6 @@ def _index_transfer_files(client, uuid, path, status="", printfn=print):
     :return: number of files indexed.
     """
     files_indexed = 0
-    ingest_date = str(datetime.datetime.today())[0:10]
 
     # Some files should not be indexed.
     # This should match the basename of the file.
