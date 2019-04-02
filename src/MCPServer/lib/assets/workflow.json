@@ -421,7 +421,7 @@
                 "pt_BR": "Enviar para o backlog",
                 "sv": "Skicka till backlogg"
             },
-            "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
+            "link_id": "7e6330c6-0280-4b25-8bf8-4b8143b69bde"
         },
         "76befd52-14c3-44f9-838f-15a4e01624b0": {
             "description": {
@@ -8799,7 +8799,7 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "ec3c965c-c056-47e3-a551-ad1966e00824",
+            "fallback_link_id": "307edcde-ad10-401c-92c4-652917c993ed",
             "group": {
                 "en": "Validation",
                 "es": "Validación",
@@ -9003,6 +9003,41 @@
                 "ja": "SIP作成を承認",
                 "pt_BR": "Confirmar criação SIP",
                 "sv": "Godkänn skapande av SIP"
+            }
+        },
+        "7e6330c6-0280-4b25-8bf8-4b8143b69bde": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
+                "execute": "copy_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Add README file",
+                "ja": "READMEファイルを追加",
+                "pt_BR": "Adicionar arquivo README",
+                "sv": "Lägg till README-fil"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a",
+            "group": {
+                "en": "Create SIP from Transfer",
+                "es": "Crear SIP a partir de la transferencia",
+                "fr": "Créer un SIP à partir du Transfert",
+                "ja": "転送からSIPを作成する",
+                "pt_BR": "Crie SIP a partir da transferência",
+                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "abd6d60c-d50f-4660-a189-ac1b34fafe85": {

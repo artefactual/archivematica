@@ -432,6 +432,8 @@ def _is_hidden(part):
         return True
     if _REGEX_BAGIT_MANIFESTS.match(part):
         return True
+    if part == "README.html":
+        return True
     return False
 
 
