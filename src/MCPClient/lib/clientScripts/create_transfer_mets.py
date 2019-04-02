@@ -29,7 +29,7 @@ import uuid
 import django
 import scandir
 from lxml import etree
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch
 
 django.setup()
 import metsrw
@@ -98,10 +98,10 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
         alt_record_id = metsrw.AltRecordID(transfer.accessionid, type="Accession ID")
         mets.alternate_ids.append(alt_record_id)
 
-    root_fsentry = build_fsentries_tree(
-        transfer_dir_path, transfer_dir_path, db_base_path, transfer.uuid
-    )
-    mets.append_file(root_fsentry)
+    fsentry_tree = FSEntriesTree(transfer_dir_path, db_base_path, transfer)
+    fsentry_tree.scan()
+
+    mets.append_file(fsentry_tree.root_node)
     mets.write(mets_path, pretty_print=True)
 
 
@@ -125,139 +125,43 @@ def clean_date(date_string):
     return date_string.replace("/", "-")
 
 
-def build_fsentries_tree(path, root_path, db_base_path, transfer_uuid, parent=None):
+class FSEntriesTree(object):
     """
-    Recursively builds a tree of metsrw.FSEntry objects from the path given.
-
-    Returns:
-        The root metsrw.FSEntry
+    Builds a tree of FSEntry objects from the path given, and looks up required data
+    from the database.
     """
-    if parent is None:
-        parent_path = os.path.basename(path)
-        parent = metsrw.FSEntry(path=parent_path, type="Directory")
 
-    dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
-    for dir_entry in dir_entries:
-        relative_path = os.path.relpath(dir_entry.path, start=root_path)
+    QUERY_BATCH_SIZE = 2000
+    TRANSFER_RIGHTS_LOOKUP_UUID = "45696327-44c5-4e78-849b-e027a189bf4d"
+    FILE_RIGHTS_LOOKUP_UUID = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
 
-        if dir_entry.is_dir():
-            fsentry = metsrw.FSEntry(
-                path=relative_path, label=dir_entry.name, type="Directory"
-            )
-            dir_obj = lookup_directory_data(relative_path, db_base_path, transfer_uuid)
-            if dir_obj:
-                premis_intellectual_entity = dir_obj_to_premis(dir_obj)
-                fsentry.add_premis_object(premis_intellectual_entity)
-        else:
-            file_obj = lookup_file_data(relative_path, db_base_path, transfer_uuid)
-            if file_obj is None:
-                continue
-            file_rights = lookup_file_rights(file_obj.uuid, transfer_uuid)
-            checksum_type = convert_to_premis_hash_function(file_obj.checksumtype)
-            fsentry = metsrw.FSEntry(
-                path=relative_path,
-                label=dir_entry.name,
-                type="Item",
-                file_uuid=file_obj.uuid,
-                checksum=file_obj.checksum,
-                checksumtype=checksum_type,
-            )
-
-            premis_object = file_obj_to_premis(file_obj)
-            fsentry.add_premis_object(premis_object)
-            for event in file_obj.event_set.all():
-                premis_event = event_to_premis(event)
-                fsentry.add_premis_event(premis_event)
-            for rights in file_rights:
-                premis_rights = rights_to_premis(rights, file_obj.uuid)
-                fsentry.add_premis_rights(premis_rights)
-
-        parent.add_child(fsentry)
-
-        if dir_entry.is_dir():
-            build_fsentries_tree(
-                dir_entry.path, root_path, db_base_path, transfer_uuid, parent=fsentry
-            )
-
-    return parent
-
-
-def lookup_file_data(relative_path, db_base_path, transfer_uuid):
-    """
-    Given a file path, lookup everything we can from the database and cache it on the
-    File object.
-
-    Reads from File, FileFormatVersion, FormatVersion, Format and FPCommandOutput.
-    """
-    db_file_path = "".join([db_base_path, relative_path])
-    db_lookup = {
-        "transfer_id": transfer_uuid,
-        "removedtime__isnull": True,
-        "currentlocation": db_file_path,
-    }
-
-    # We need to do a lot of lookups here, so batch as much as possible.
-    derivations_with_events = Derivation.objects.filter(event__isnull=False)
-    characterization_commands = FPCommandOutput.objects.filter(
-        rule__purpose__in=["characterization", "default_characterization"]
-    )
-
-    prefetches = [
+    file_queryset_prefetches = [
         "identifiers",
         "event_set",
         "event_set__agents",
         "fileid_set",
         Prefetch(
             "original_file_set",
-            queryset=derivations_with_events,
+            queryset=Derivation.objects.filter(event__isnull=False),
             to_attr="related_has_source",
         ),
         Prefetch(
             "derived_file_set",
-            queryset=derivations_with_events,
+            queryset=Derivation.objects.filter(event__isnull=False),
             to_attr="related_is_source_of",
         ),
         Prefetch(
             "fpcommandoutput_set",
-            queryset=characterization_commands,
+            queryset=FPCommandOutput.objects.filter(
+                rule__purpose__in=["characterization", "default_characterization"]
+            ),
             to_attr="characterization_documents",
         ),
     ]
-    try:
-        file_obj = File.objects.prefetch_related(*prefetches).get(**db_lookup)
-    except File.DoesNotExist:
-        logger.info("No record in database for file: %s", db_file_path)
-        return None
-
-    return file_obj
-
-
-def lookup_directory_data(relative_path, db_base_path, transfer_uuid):
-    db_dir_path = "".join([db_base_path, relative_path, os.path.sep])
-    try:
-        dir_obj = Directory.objects.prefetch_related("identifiers").get(
-            currentlocation=db_dir_path, transfer_id=transfer_uuid
-        )
-    except Directory.DoesNotExist:
-        logger.info("No record in database for directory: %s", db_dir_path)
-        return None
-
-    return dir_obj
-
-
-def lookup_file_rights(file_uuid, transfer_uuid):
-    TRANSFER_RIGHTS_LOOKUP_UUID = "45696327-44c5-4e78-849b-e027a189bf4d"
-    FILE_RIGHTS_LOOKUP_UUID = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
-
-    lookup = Q(
-        metadataappliestoidentifier=transfer_uuid,
-        metadataappliestotype_id=TRANSFER_RIGHTS_LOOKUP_UUID,
-    ) | Q(
-        metadataappliestoidentifier=file_uuid,
-        metadataappliestotype_id=FILE_RIGHTS_LOOKUP_UUID,
+    file_queryset = File.objects.prefetch_related(*file_queryset_prefetches).order_by(
+        "currentlocation"
     )
-
-    prefetches = [
+    rights_prefetches = [
         "rightsstatementcopyright_set",
         "rightsstatementcopyright_set__rightsstatementcopyrightnote_set",
         "rightsstatementcopyright_set__rightsstatementcopyrightdocumentationidentifier_set",
@@ -268,8 +172,132 @@ def lookup_file_rights(file_uuid, transfer_uuid):
         "rightsstatementrightsgranted_set__restrictions",
         "rightsstatementrightsgranted_set__notes",
     ]
+    rights_queryset = RightsStatement.objects.prefetch_related(*rights_prefetches)
 
-    return RightsStatement.objects.prefetch_related(*prefetches).filter(lookup)
+    def __init__(self, root_path, db_base_path, transfer):
+        self.root_path = root_path
+        self.db_base_path = db_base_path
+        self.transfer = transfer
+        self.root_node = metsrw.FSEntry(
+            path=os.path.basename(root_path), type="Directory"
+        )
+        self.file_index = {}
+        self.dir_index = {}
+
+    def scan(self):
+        self.build_tree(self.root_path, parent=self.root_node)
+        self.load_file_data_from_db()
+        self.load_rights_data_from_db()
+        self.load_dir_uuids_from_db()
+        self.check_for_missing_file_uuids()
+
+    def get_relative_path(self, path):
+        return os.path.relpath(path, start=self.root_path)
+
+    def build_tree(self, path, parent=None):
+        dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
+        for dir_entry in dir_entries:
+            entry_relative_path = os.path.relpath(dir_entry.path, start=self.root_path)
+            if dir_entry.is_dir():
+                fsentry = metsrw.FSEntry(
+                    path=entry_relative_path, label=dir_entry.name, type="Directory"
+                )
+                db_path = "".join([self.db_base_path, entry_relative_path, os.path.sep])
+                self.dir_index[db_path] = fsentry
+                self.build_tree(dir_entry.path, parent=fsentry)
+            else:
+                fsentry = metsrw.FSEntry(
+                    path=entry_relative_path, label=dir_entry.name, type="Item"
+                )
+                db_path = "".join([self.db_base_path, entry_relative_path])
+                self.file_index[db_path] = fsentry
+
+            parent.add_child(fsentry)
+
+    def _batch_query(self, queryset):
+        offset, limit = 0, self.QUERY_BATCH_SIZE
+        total_count = queryset.count()
+
+        while offset < total_count:
+            batch = queryset[offset:limit]
+            for item in batch:
+                yield item
+            offset += self.QUERY_BATCH_SIZE
+            limit += self.QUERY_BATCH_SIZE
+
+    def load_file_data_from_db(self):
+        file_objs = self.file_queryset.filter(
+            transfer=self.transfer, removedtime__isnull=True
+        )
+
+        for file_obj in self._batch_query(file_objs):
+            try:
+                fsentry = self.file_index[file_obj.currentlocation]
+            except KeyError:
+                logger.info(
+                    "File is no longer present on the filesystem: %s",
+                    file_obj.currentlocation,
+                )
+                continue
+
+            fsentry.file_uuid = file_obj.uuid
+            fsentry.checksum = file_obj.checksum
+            fsentry.checksumtype = convert_to_premis_hash_function(
+                file_obj.checksumtype
+            )
+            premis_object = file_obj_to_premis(file_obj)
+            fsentry.add_premis_object(premis_object)
+
+    def load_rights_data_from_db(self):
+        transfer_rights = self.rights_queryset.filter(
+            metadataappliestoidentifier=self.transfer.uuid,
+            metadataappliestotype_id=self.TRANSFER_RIGHTS_LOOKUP_UUID,
+        )
+
+        for rights in transfer_rights:
+            for path, fsentry in self.file_index.iteritems():
+                premis_rights = rights_to_premis(rights, fsentry.file_uuid)
+                fsentry.add_premis_rights(premis_rights)
+
+        for path, fsentry in self.file_index.iteritems():
+            file_rights = self.rights_queryset.filter(
+                metadataappliestoidentifier=fsentry.file_uuid,
+                metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,
+            )
+
+            for rights in file_rights:
+                premis_rights = rights_to_premis(rights, fsentry.file_uuid)
+                fsentry.add_premis_rights(premis_rights)
+
+    def load_dir_uuids_from_db(self):
+        dir_objs = Directory.objects.prefetch_related("identifiers").filter(
+            transfer=self.transfer
+        )
+
+        for dir_obj in self._batch_query(dir_objs):
+            try:
+                fsentry = self.dir_index[dir_obj.currentlocation]
+            except KeyError:
+                logger.info(
+                    "Directory is no longer present on the filesystem: %s",
+                    dir_obj.currentlocation,
+                )
+            else:
+                premis_intellectual_entity = dir_obj_to_premis(dir_obj)
+                fsentry.add_premis_object(premis_intellectual_entity)
+
+    def check_for_missing_file_uuids(self):
+        missing = []
+        for path, fsentry in self.file_index.iteritems():
+            if fsentry.file_uuid is None:
+                logger.info("No record in database for file: %s", path)
+                missing.append(path)
+
+        # update our index after, so we don't modify the dict during iteration
+        for path in missing:
+            fsentry = self.file_index[path]
+            fsentry.parent.remove_child(fsentry)
+            del self.file_index[path]
 
 
 def get_premis_format_data(file_ids):
