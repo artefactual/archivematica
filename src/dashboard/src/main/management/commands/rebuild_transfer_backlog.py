@@ -136,14 +136,14 @@ class Command(DashboardCommand):
         """Delete search indexes."""
         self.stdout.write(
             "Deleting all transfers and transfer files "
-            'in the "transfers" and "transferfiles" indexes ...'
+            'in the "transfers" and "transferfiles" indexes...'
         )
         time.sleep(3)  # Time for the user to panic and kill the process.
         es_client.indices.delete(",".join(indexes), ignore=404)
 
     def create_indexes(self, es_client, indexes):
         """Create search indexes."""
-        self.stdout.write("Creating indexes ...")
+        self.stdout.write("Creating indexes...")
         elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
 
     def populate_data(self, es_client, transfer_backlog_dir):
@@ -159,11 +159,9 @@ class Command(DashboardCommand):
                     processes=multiprocessing.cpu_count(), completeness_only=True
                 )
             except bagit.BagError:
-                self.warning(
-                    "Skipping transfer {} - not a valid bag!".format(transfer_dir)
-                )
+                bag = None
             transfer_uuid = transfer_dir.name[-36:]
-            if "External-Identifier" in bag.info:
+            if bag and "External-Identifier" in bag.info:
                 self.info(
                     "Importing self-describing transfer {}.".format(transfer_uuid)
                 )
@@ -379,7 +377,6 @@ def _import_pipeline_dependant_transfer(
             "Skipping transfer {} - not found in the database!".format(transfer_uuid)
         )
         return
-    cmd.info("Indexing {} ({})".format(transfer_uuid, transfer_dir))
     elasticSearchFunctions.index_transfer_and_files(
         es_client,
         transfer_uuid,
