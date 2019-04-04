@@ -28,6 +28,7 @@ import re
 from django.db.models import Q
 import django.http
 from django.conf import settings as django_settings
+from django.utils import six
 
 # External dependencies, alphabetical
 from tastypie.authentication import (
@@ -44,6 +45,7 @@ from components.unit import views as unit_views
 from components import helpers
 from main import models
 from processing import install_builtin_config
+from . import validators
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
@@ -98,7 +100,10 @@ def _api_endpoint(expected_methods):
 
 def _ok_response(message, **kwargs):
     """Mixin to return API responses to the user."""
-    payload = {"message": message}
+    if isinstance(message, dict):
+        payload = message
+    else:
+        payload = {"message": message}
     status_code = kwargs.pop("status_code", 200)
     payload.update(kwargs)
     return helpers.json_response(payload, status_code=status_code)
@@ -824,3 +829,29 @@ def _package_create(request):
         LOGGER.error("{}: {}".format(msg, err))
         return helpers.json_response({"error": True, "message": msg}, 500)
     return helpers.json_response({"id": id_}, 202)
+
+
+@_api_endpoint(expected_methods=["POST"])
+def validate(request):
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        return _error_response("Unexpected request payload")
+    validator_name = body.get("validator")
+    payload = body.get("payload")
+    if not validator_name or not payload:
+        return _error_response("Missing parameters")
+    try:
+        validator = validators.validator(validator_name)
+    except validators.ValidatorNotAvailableError as err:
+        return _error_response(six.text_type(err))
+    try:
+        validator.validate(payload)
+    except validators.ValidationError as err:
+        return _ok_response({"valid": False, "reason": six.text_type(err)})
+    except Exception as err:
+        LOGGER.error("Validator {} failed: {}".format(validator_name, err))
+        return _error_response(
+            "Unexepected error in the validation process, see the logs for more details."
+        )
+    return _ok_response({"valid": True})
