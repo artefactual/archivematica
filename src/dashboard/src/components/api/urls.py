@@ -61,5 +61,5 @@ urlpatterns = [
         name="processing_configuration",
     ),
     url(r"v2beta/package", views.package),
-    url(r"v2beta/validate", views.validate),
+    url(r"v2beta/validate/([-\w]+)", views.validate, name="validate"),
 ]

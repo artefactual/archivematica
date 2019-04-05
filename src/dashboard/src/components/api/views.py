@@ -17,6 +17,7 @@
 
 # stdlib, alphabetical
 import base64
+from cgi import parse_header
 import json
 import shutil
 import logging
@@ -832,23 +833,25 @@ def _package_create(request):
 
 
 @_api_endpoint(expected_methods=["POST"])
-def validate(request):
+def validate(request, validator_name):
     try:
-        body = json.loads(request.body)
-    except Exception:
-        return _error_response("Unexpected request payload")
-    validator_name = body.get("validator")
-    payload = body.get("payload")
-    if not validator_name or not payload:
-        return _error_response("Missing parameters")
-    try:
-        validator = validators.validator(validator_name)
+        validator = validators.get_validator(validator_name)
     except validators.ValidatorNotAvailableError as err:
-        return _error_response(six.text_type(err))
+        return _error_response(six.text_type(err), status_code=404)
+
+    # We could leverage Content-Type so a validator knows the type of document
+    # and encoding that it's dealing with. For now, we're just enforcing that
+    # "text/csv; charset=utf-8" is used, which is used by Avalon's validator.
+    mime_type, props = parse_header(request.META.get("CONTENT_TYPE", ""))
+    if mime_type != "text/csv" or props.get("charset") != "utf-8":
+        return _error_response('Content type should be "text/csv; charset=utf-8"')
+
     try:
-        validator.validate(payload)
+        validator.validate(request.read())
     except validators.ValidationError as err:
-        return _ok_response({"valid": False, "reason": six.text_type(err)})
+        return _ok_response(
+            {"valid": False, "reason": six.text_type(err)}, status_code=400
+        )
     except Exception as err:
         LOGGER.error("Validator {} failed: {}".format(validator_name, err))
         return _error_response(

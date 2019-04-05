@@ -1,24 +1,32 @@
-"""Validation of transfer documents."""
+"""Validation of transfer documents.
 
-from base64 import b64decode
+Usage example::
+
+    >> validator = get_validator("avalon")
+    >> validator.validate(b"...")
+    True
+
+Expect the ``validate`` method to raise ``ValidationError`` when validation
+does not pass. The exception may include a message with more details.
+
+New validators must be added to the `` _VALIDATORS`` registry.
+"""
+
 import collections
 import csv
 from io import BytesIO
 
 
 class ValidationError(Exception):
-    pass
+    """Validators should raise this exception when the input is invalid."""
 
 
 class BaseValidator(object):
-    def _decode(self, s):
-        try:
-            return b64decode(s)
-        except Exception as err:  # Py3: binascii.Error?
-            raise ValidationError("Base64 decoding failed: {}".format(err))
+    def validate(self, string):
+        """Validator must implement this method.
 
-    def validate(self, s):
-        """Implementors are expected to raise ``ValidationError`` if needed."""
+        Raise ``ValidationError`` when a validation error occurs. Otherwise,
+        return ``True``."""
         raise NotImplementedError
 
 
@@ -206,9 +214,11 @@ class AvalonValidator(BaseValidator):
                         )
                     )
 
-    def validate(self, s):
-        csvr = csv.reader(BytesIO(super(AvalonValidator, self)._decode(s)))
+    def validate(self, string):
+        csvr = csv.reader(BytesIO(string))
+        empty = True
         for i, row in enumerate(csvr):
+            empty = False
             if i == 0:
                 self._check_admin_data(row)
             if i == 1:
@@ -219,12 +229,15 @@ class AvalonValidator(BaseValidator):
             if i >= 2:
                 self._check_file_exts(row, file_cols)
                 self._check_op_fields(row, op_cols)
+        if empty:
+            raise ValidationError("The document is empty.")
+        return True
 
 
 _VALIDATORS = {"avalon": AvalonValidator}
 
 
-class ValidatorNotAvailableError(Exception):
+class ValidatorNotAvailableError(ValueError):
     default = "Unknown validator. Accepted values: {}".format(
         ",".join(_VALIDATORS.keys())
     )
@@ -235,7 +248,7 @@ class ValidatorNotAvailableError(Exception):
         super(ValidatorNotAvailableError, self).__init__(*args, **kwargs)
 
 
-def validator(name):
+def get_validator(name):
     try:
         klass = _VALIDATORS[name]
     except KeyError:
