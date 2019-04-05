@@ -84,7 +84,7 @@ class NoJobFoundError(RPCGearmanClientError):
         super(NoJobFoundError, self).__init__(message)
 
 
-INFLIGHT_POLL_TIMEOUT = 5.0
+INFLIGHT_POLL_TIMEOUT = 30.0
 
 
 class MCPClient(object):
