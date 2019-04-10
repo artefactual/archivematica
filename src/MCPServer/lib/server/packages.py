@@ -57,6 +57,13 @@ PACKAGE_TYPE_STARTING_POINTS = {
         chain="6953950b-c101-4f4c-a0c3-0cd0684afe5e",
         link="045c43ae-d6cf-44f7-97d6-c8a602748565",
     ),
+    "zipfile": StartingPoint(
+        watched_dir=os.path.join(
+            django_settings.WATCH_DIRECTORY, "activeTransfers/zippedDirectory"
+        ),
+        chain="f3caceff-5ad5-4bad-b98c-e73f8cd03450",
+        link="541f5994-73b0-45bb-9cb5-367c06a21be7",
+    ),
     "unzipped bag": StartingPoint(
         watched_dir=os.path.join(
             settings.WATCH_DIRECTORY, "activeTransfers/baggitDirectory"

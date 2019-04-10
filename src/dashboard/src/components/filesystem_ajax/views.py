@@ -55,6 +55,7 @@ DEFAULT_ARRANGE_PATH = "/arrange/"
 
 TRANSFER_TYPE_DIRECTORIES = {
     "standard": "standardTransfer",
+    "zipfile": "zippedDirectory",
     "unzipped bag": "baggitDirectory",
     "zipped bag": "baggitZippedDirectory",
     "dspace": "Dspace",
