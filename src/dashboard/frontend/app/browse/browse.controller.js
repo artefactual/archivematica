@@ -78,7 +78,7 @@ class BrowseController {
   // Determines whether a given file can be added to the transfer,
   // depending on the transfer type.
   file_can_be_added(file) {
-    if (this.transfer.type === 'zipped bag') {
+    if (this.transfer.type === 'zipped bag' || this.transfer.type === 'zipfile') {
       return !file.directory && this.zip_filter(file);
     } else if (this.transfer.type === 'dspace') {
       return file.directory || this.zip_filter(file);
