@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+import argparse
 import shutil
 import os
 import sys
@@ -33,6 +34,7 @@ from django.db import transaction
 from main.models import Transfer
 
 # archivematicaCommon
+from archivematicaFunctions import str2bool
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -68,13 +70,22 @@ def extract(job, target, destinationDirectory):
 
 
 def call(jobs):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sip_directory", type=str)
+    parser.add_argument("sip_uuid", type=str)
+    parser.add_argument("processing_directory", type=str)
+    parser.add_argument("shared_path", type=str)
+    parser.add_argument("--bag", action="store_true")
+
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
-                target = job.args[1]
-                transferUUID = job.args[2]
-                processingDirectory = job.args[3]
-                sharedPath = job.args[4]
+                args = parser.parse_args(job.args[1:])
+                target = args.sip_directory
+                transferUUID = args.sip_uuid
+                processingDirectory = args.processing_directory
+                sharedPath = args.shared_path
+                isBag = args.bag
 
                 basename = os.path.basename(target)
                 basename = basename[: basename.rfind(".")]
@@ -102,18 +113,33 @@ def call(jobs):
                     job.set_status(exit_code)
                     continue
 
-                # checkForTopLevelBag
-                #listdir = os.listdir(destinationDirectory)
-                #if len(listdir) == 1:
-                #    internalBagName = listdir[0]
-                #    # print "ignoring BagIt internal name: ", internalBagName
-                #    temp = destinationDirectory + "-tmp"
-                #    shutil.move(destinationDirectory, temp)
-                #    # destinationDirectory = os.path.join(processingDirectory, internalBagName)
-                #    shutil.move(
-                #        os.path.join(temp, internalBagName), destinationDirectory
-                #    )
-                #    os.rmdir(temp)
+                # Ensure that the only thing in the destination dir is the
+                # top level directory from the extracted file, with the
+                # exception of certain files that may have been copied here
+                # previously. (For now this is just the processing config.)
+                # These files will need to be moved down a level.
+                if isBag:
+                    preexisting_files = {"processingMCP.xml"}
+                    listdir = set(os.listdir(destinationDirectory))
+                    to_move = listdir & preexisting_files
+                    listdir -= preexisting_files
+
+                    if len(listdir) == 1:
+                        internalBagName = listdir.pop()
+
+                        for filename in to_move:
+                            shutil.move(
+                                os.path.join(destinationDirectory, filename),
+                                os.path.join(destinationDirectory, internalBagName),
+                            )
+
+                        # print "ignoring BagIt internal name: ", internalBagName
+                        temp = destinationDirectory + "-tmp"
+                        shutil.move(destinationDirectory, temp)
+                        shutil.move(
+                            os.path.join(temp, internalBagName), destinationDirectory
+                        )
+                        os.rmdir(temp)
 
                 # update transfer
                 destinationDirectoryDB = destinationDirectory.replace(
