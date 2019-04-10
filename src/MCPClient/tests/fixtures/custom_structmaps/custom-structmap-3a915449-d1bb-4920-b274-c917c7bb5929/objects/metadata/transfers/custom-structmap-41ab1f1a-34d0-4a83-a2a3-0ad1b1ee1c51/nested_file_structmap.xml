@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div LABEL="Short Listen: Testing structmaps in Archivematica" TYPE="documentary">
+      <mets:div LABEL="Introduction" ORDER="1">
+        <mets:fptr FILEID="FILE001" CONTENTIDS="objects/nested_dir/nested_file.rdata">
+          <mets:area FILEID="FILE001" CONTENTIDS="objects/nested_dir/nested_file.rdata" BEGIN="00:00:00" END="00:00:17" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <mets:div LABEL="Archivematica's testing strategy" ORDER="2">
+        <mets:fptr FILEID="FILE002" CONTENTIDS="objects/nested_dir/nested_file.rdata">
+          <mets:area FILEID="FILE002" CONTENTIDS="objects/nested_dir/nested_file.rdata" BEGIN="00:00:18" END="00:01:13" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <mets:div LABEL="Outro" ORDER="3">
+        <mets:fptr FILEID="FILE003" CONTENTIDS="objects/nested_dir/nested_file.rdata">
+          <mets:area FILEID="FILE003" CONTENTIDS="objects/nested_dir/nested_file.rdata" BEGIN="00:01:14" END="00:01:33" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <!-- documentary -->
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

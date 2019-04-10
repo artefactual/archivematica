@@ -1,7 +1,9 @@
 # -*- coding: utf8
+from __future__ import unicode_literals
 import collections
 import csv
 import os
+import random
 import shutil
 import sys
 import tempfile
@@ -13,6 +15,10 @@ from lxml import etree
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
+sys.path.append(
+    os.path.abspath(os.path.join(THIS_DIR, "../../archivematicaCommon/lib"))
+)
+
 from job import Job
 import create_mets_v2
 import archivematicaCreateMETSMetadataCSV
@@ -21,11 +27,14 @@ import archivematicaCreateMETSRights
 from main.models import RightsStatement
 from . import TempDirMixin
 
+import namespaces as ns
+
 try:
     from pathlib import Path
 except ImportError:
     from pathlib2 import Path
 
+# XXX we can probably replace this given the am common import...
 NSMAP = {
     "dc": "http://purl.org/dc/elements/1.1/",
     "dcterms": "http://purl.org/dc/terms/",
@@ -192,7 +201,7 @@ class TestDublinCore(TestCase):
                 ("dc.subject", ["Glaives"]),
                 ("dc.description", ["Glaives are cool"]),
                 ("dc.publisher", ["Tortall Press"]),
-                ("dc.contributor", [u"雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["雪 ユキ".encode("utf8")]),
                 ("dc.date", ["2015"]),
                 ("dc.type", ["Archival Information Package"]),
                 ("dc.format", ["parchement"]),
@@ -236,7 +245,7 @@ class TestDublinCore(TestCase):
         assert dc_elem[4].tag == "{http://purl.org/dc/elements/1.1/}publisher"
         assert dc_elem[4].text == "Tortall Press"
         assert dc_elem[5].tag == "{http://purl.org/dc/elements/1.1/}contributor"
-        assert dc_elem[5].text == u"雪 ユキ"
+        assert dc_elem[5].text == "雪 ユキ"
         assert dc_elem[6].tag == "{http://purl.org/dc/elements/1.1/}date"
         assert dc_elem[6].text == "2015"
         assert dc_elem[7].tag == "{http://purl.org/dc/elements/1.1/}type"
@@ -261,7 +270,7 @@ class TestDublinCore(TestCase):
         data = collections.OrderedDict(
             [
                 ("Title", ["Yamani Weapons"]),
-                ("Contributor", [u"雪 ユキ".encode("utf8")]),
+                ("Contributor", ["雪 ユキ".encode("utf8")]),
                 (
                     "Long Description",
                     ["This is about how glaives are used in the Yamani Islands"],
@@ -292,7 +301,7 @@ class TestDublinCore(TestCase):
         assert xmldata[0].tag == "title"
         assert xmldata[0].text == "Yamani Weapons"
         assert xmldata[1].tag == "contributor"
-        assert xmldata[1].text == u"雪 ユキ"
+        assert xmldata[1].text == "雪 ユキ"
         assert xmldata[2].tag == "long_description"
         assert (
             xmldata[2].text
@@ -304,10 +313,10 @@ class TestDublinCore(TestCase):
         data = collections.OrderedDict(
             [
                 ("dc.title", ["Yamani Weapons"]),
-                ("dc.contributor", [u"雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["雪 ユキ".encode("utf8")]),
                 ("dcterms.isPartOf", ["AIC#42"]),
                 ("Title", ["Yamani Weapons"]),
-                ("Contributor", [u"雪 ユキ".encode("utf8")]),
+                ("Contributor", ["雪 ユキ".encode("utf8")]),
                 (
                     "Long Description",
                     ["This is about how glaives are used in the Yamani Islands"],
@@ -339,7 +348,7 @@ class TestDublinCore(TestCase):
         assert dc_elem[0].tag == "{http://purl.org/dc/elements/1.1/}title"
         assert dc_elem[0].text == "Yamani Weapons"
         assert dc_elem[1].tag == "{http://purl.org/dc/elements/1.1/}contributor"
-        assert dc_elem[1].text == u"雪 ユキ"
+        assert dc_elem[1].text == "雪 ユキ"
         assert dc_elem[2].tag == "{http://purl.org/dc/terms/}isPartOf"
         assert dc_elem[2].text == "AIC#42"
 
@@ -359,7 +368,7 @@ class TestDublinCore(TestCase):
         assert xmldata[0].tag == "title"
         assert xmldata[0].text == "Yamani Weapons"
         assert xmldata[1].tag == "contributor"
-        assert xmldata[1].text == u"雪 ユキ"
+        assert xmldata[1].text == "雪 ユキ"
         assert xmldata[2].tag == "long_description"
         assert (
             xmldata[2].text
@@ -381,8 +390,8 @@ class TestDublinCore(TestCase):
         """It should create multiple elements for repeated input."""
         data = collections.OrderedDict(
             [
-                ("dc.contributor", ["Yuki", u"雪 ユキ".encode("utf8")]),
-                ("Contributor", ["Yuki", u"雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["Yuki", "雪 ユキ".encode("utf8")]),
+                ("Contributor", ["Yuki", "雪 ユキ".encode("utf8")]),
             ]
         )
         # Test
@@ -410,7 +419,7 @@ class TestDublinCore(TestCase):
         assert dc_elem[0].tag == "{http://purl.org/dc/elements/1.1/}contributor"
         assert dc_elem[0].text == "Yuki"
         assert dc_elem[1].tag == "{http://purl.org/dc/elements/1.1/}contributor"
-        assert dc_elem[1].text == u"雪 ユキ"
+        assert dc_elem[1].text == "雪 ユキ"
 
         other_dmdsec = ret[1]
         assert other_dmdsec.tag == "{http://www.loc.gov/METS/}dmdSec"
@@ -428,7 +437,7 @@ class TestDublinCore(TestCase):
         assert xmldata[0].tag == "contributor"
         assert xmldata[0].text == "Yuki"
         assert xmldata[1].tag == "contributor"
-        assert xmldata[1].text == u"雪 ユキ"
+        assert xmldata[1].text == "雪 ユキ"
 
 
 class TestCSVMetadata(TempDirMixin, TestCase):
@@ -515,7 +524,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
     def test_parse_metadata_csv_non_ascii(self):
         """It should parse unicode."""
         # Create metadata.csv
-        data = [["Filename", "dc.title"], ["objects/foo.jpg", u"元気です".encode("utf8")]]
+        data = [["Filename", "dc.title"], ["objects/foo.jpg", "元気です".encode("utf8")]]
         with self.metadata_file.open("wb") as f:
             writer = csv.writer(f)
             for row in data:
@@ -529,7 +538,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
         assert dc
         assert "objects/foo.jpg" in dc
         assert "dc.title" in dc["objects/foo.jpg"]
-        assert dc["objects/foo.jpg"]["dc.title"] == [u"元気です".encode("utf8")]
+        assert dc["objects/foo.jpg"]["dc.title"] == ["元気です".encode("utf8")]
 
     def test_parse_metadata_csv_blank_rows(self):
         """It should skip blank rows."""
@@ -744,3 +753,242 @@ class TestRights(TestCase):
         assert rightsgranted[3].text == "Attribution required"
         assert len(rightsgranted[3].attrib) == 0
         assert len(rightsgranted[3]) == 0
+
+
+class TestCustomStructMap(TempDirMixin, TestCase):
+    """Test creation of custom structMap."""
+
+    fixture_files = [
+        os.path.join("custom_structmaps", "model", "sip.json"),
+        os.path.join("custom_structmaps", "model", "files.json"),
+    ]
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    mets_xsd_path = os.path.abspath(
+        os.path.join(THIS_DIR, "../lib/assets/mets/mets.xsd")
+    )
+
+    @staticmethod
+    def count_dir_objects(path):
+        """Count all objects on a given path tree."""
+        return sum([len(files) for _, dir_, files in os.walk(path)])
+
+    @staticmethod
+    def validate_mets(mets_xsd, mets_structmap):
+        """Validate the provided mets structmap."""
+        xmlschema = etree.XMLSchema(etree.parse(mets_xsd))
+        try:
+            xmlschema.assertValid(etree.parse(mets_structmap))
+        except TypeError:
+            rootName = etree.QName(ns.metsNS, "mets")
+            root = etree.Element(rootName, nsmap={"mets": ns.metsNS})
+            root.append(mets_structmap)
+            xmlschema.assertValid(
+                etree.fromstring(
+                    etree.tostring(root, encoding="utf-8", xml_declaration=True)
+                )
+            )
+
+    def _fixup_fileid_state(self):
+        """For items on-disk we have to mimic the filename cleanup process."""
+        for key, _ in dict(self.state.fileNameToFileID).items():
+            self.state.fileNameToFileID[
+                create_mets_v2._fixup_path_input_by_user(Job("stub", "stub", []), key)
+            ] = self.state.fileNameToFileID.pop(key)
+
+    def generate_aip_mets_v2_state(self):
+        """Generate fileSec state
+
+        State will be generated that we will help us to test the units involved
+        with creating a custom structmap in the AIP METS.
+        """
+        arbitrary_max_structmaps = 10
+        self.transfer_dir = os.path.join(
+            THIS_DIR,
+            "fixtures",
+            "custom_structmaps",
+            "custom-structmap-3a915449-d1bb-4920-b274-c917c7bb5929",
+            "",
+        )
+        self.objects_dir = os.path.join(self.transfer_dir, "objects")
+        structMap = etree.Element(
+            ns.metsBNS + "structMap",
+            TYPE="physical",
+            ID="structMap_1",
+            LABEL="Archivematica default",
+        )
+        # Input to create_file_sec:
+        #
+        # <ns0:div xmlns:ns0="http://www.loc.gov/METS/"
+        #          LABEL="3-031927e0-63bb-430c-8b37-fc799c132ca9"
+        #          TYPE="Directory"
+        #          DMDID="dmdSec_1"
+        # />
+        #
+        sip_dir_name = os.path.basename(self.objects_dir.rstrip(os.path.sep))
+        structMapDiv = etree.SubElement(
+            structMap, ns.metsBNS + "div", TYPE="Directory", LABEL=sip_dir_name
+        )
+        self.state = create_mets_v2.MetsState()
+        self.state.globalStructMapCounter = random.choice(
+            [x for x in range(arbitrary_max_structmaps)]
+        )
+        self.structmap_div_element = create_mets_v2.createFileSec(
+            job=Job("stub", "stub", []),
+            directoryPath=self.objects_dir,
+            parentDiv=structMapDiv,
+            baseDirectoryPath=self.transfer_dir,
+            baseDirectoryName="%SIPDirectory%",
+            fileGroupIdentifier="3a915449-d1bb-4920-b274-c917c7bb5929",
+            fileGroupType="sip_id",
+            directories={},
+            state=self.state,
+            includeAmdSec=True,
+        )
+
+    def test_create_file_sec(self):
+        """Test the output of a generating a fileSec
+
+        As we rely on the state created by generating a fileSec we might as
+        well do some additional testing along the way to ensure that what is
+        created aligns with what we're expecting and remains that.
+        """
+        self.generate_aip_mets_v2_state()
+        # Example output from createFileSec(...) to generate
+        # self.structmap_div_element.
+        #
+        # <ns0:div xmlns:ns0="http://www.loc.gov/METS/" LABEL="objects" TYPE="Directory">
+        #   <ns0:div LABEL="test_file.flac" TYPE="Item">
+        #       <ns0:fptr FILEID="file-e334a1d6-a068-4bf2-9f89-839af1a26763"/>
+        #   </ns0:div>
+        # </ns0:div>
+        #
+        labels = self.structmap_div_element.xpath(
+            '//mets:div[@TYPE="Item"]', namespaces=ns.NSMAP
+        )
+        fptrs = self.structmap_div_element.xpath(
+            "//mets:fptr[@FILEID]", namespaces=ns.NSMAP
+        )
+        fnames = [label.attrib["LABEL"] for label in labels]
+        uuids = [fptr.attrib["FILEID"] for fptr in fptrs]
+        assert isinstance(
+            self.structmap_div_element, etree._Element
+        ), "createFileSec didn't return an XML structure to work with"
+        assert self.count_dir_objects(self.objects_dir) == (
+            len(fnames) and len(uuids)
+        ), "Count of objects on disk and in fileSec do not match."
+        assert (
+            self.state.fileNameToFileID is not None
+        ), "fileNameToFileID mapping hasn't been generated"
+        assert self.count_dir_objects(self.objects_dir) == len(
+            self.state.fileNameToFileID
+        ), "State hasn't been generated for all objects on disk, duplicate names may not be counted for"
+
+    def test_get_included_structmap(self):
+        """Test the output of custom structmaps in create_mets_v2."""
+        self.generate_aip_mets_v2_state()
+        self._fixup_fileid_state()
+        default_structmap = "mets_structmap.xml"
+        Result = collections.namedtuple(
+            "Result", "structmap_name files replaced_count structmap_id broken"
+        )
+        results = [
+            Result(None, ["objects/test_file.flac"], 1, None, False),
+            Result("broken_structmap.xml", [], None, None, True),
+            Result(
+                "simple_book_structmap.xml",
+                ["objects/test_file.jpg", "objects/test_file.png"],
+                2,
+                None,
+                False,
+            ),
+            Result("mets_area_structmap.xml", ["test_file.mp3"], 6, None, False),
+            Result(
+                "unicode_simple_book_structmap.xml",
+                ["objects/página_de_prueba.jpg", "objects/página_de_prueba.png"],
+                2,
+                "custom_structmap",
+                False,
+            ),
+            Result(
+                "nested_file_structmap.xml",
+                ["objects/nested_dir/nested_file.rdata"],
+                6,
+                None,
+                False,
+            ),
+            Result(
+                "complex_book_structmap.xml",
+                [
+                    "objects/nested_dir/duplicate_file_name.png",
+                    "objects/duplicate_file_name.png",
+                ],
+                2,
+                None,
+                False,
+            ),
+            Result(
+                "path_with_spaces_structmap.xml",
+                ["objects/dir-with-dashes/file with spaces.bin"],
+                1,
+                None,
+                False,
+            ),
+        ]
+        for res in results:
+            structmap_path = os.path.join(
+                self.objects_dir,
+                "metadata",
+                "transfers",
+                "custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51",
+                (default_structmap if not res.structmap_name else res.structmap_name),
+            )
+            assert os.path.isfile(structmap_path)
+            assert os.path.isfile(self.mets_xsd_path)
+            if res.broken:
+                try:
+                    self.validate_mets(self.mets_xsd_path, structmap_path)
+                    assert False
+                except etree.DocumentInvalid:
+                    assert True
+                # Break out of the loop, nothing else to test here.
+                continue
+            else:
+                self.validate_mets(self.mets_xsd_path, structmap_path)
+            # Ensure that we test default behavior.
+            if not res.structmap_name:
+                custom_structmap = create_mets_v2.include_custom_structmap(
+                    job=Job("stub", "stub", []),
+                    baseDirectoryPath=self.transfer_dir,
+                    state=self.state,
+                )[0]
+            else:
+                # Expand the scope of testing to all our sample structmaps.
+                custom_structmap = create_mets_v2.include_custom_structmap(
+                    job=Job("stub", "stub", []),
+                    baseDirectoryPath=self.transfer_dir,
+                    state=self.state,
+                    custom_structmap=res.structmap_name,
+                )[0]
+            # All custom structmaps that are used and return from this function
+            # should remain valid.
+            self.validate_mets(self.mets_xsd_path, custom_structmap)
+            assert custom_structmap.tag == "{{{}}}structMap".format(ns.metsNS)
+            if not res.structmap_id:
+                assert custom_structmap.attrib["ID"].lower() == "structmap_{}".format(
+                    self.state.globalStructMapCounter
+                ), "structmap id is incorrect"
+            else:
+                assert (
+                    custom_structmap.attrib["ID"].lower() == res.structmap_id
+                ), "structmap id hasn't been maintained"
+            fids = custom_structmap.xpath(
+                "//*[@FILEID]", namespaces={"mets:": ns.metsNS}
+            )
+            assert len(fids) == res.replaced_count, "Count of FILEIDs is incorrect"
+            assert len(set([fid.attrib["FILEID"] for fid in fids])) == len(
+                res.files
+            ), "Uneven replacement of IDs for files in structmap"
+            for fileid in [fid.attrib["FILEID"] for fid in fids]:
+                assert (
+                    fileid in self.state.fileNameToFileID.values()
+                ), "Expected FILEID not in returned structmap"

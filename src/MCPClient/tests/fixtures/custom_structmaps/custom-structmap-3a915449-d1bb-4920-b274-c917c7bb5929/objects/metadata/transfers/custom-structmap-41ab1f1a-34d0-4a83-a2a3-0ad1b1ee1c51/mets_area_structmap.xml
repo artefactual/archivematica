@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div LABEL="Short Listen: Testing structmaps in Archivematica" TYPE="documentary">
+      <mets:div LABEL="Introduction" ORDER="1">
+        <mets:fptr FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3">
+          <mets:area FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3" BEGIN="00:00:00" END="00:00:17" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <mets:div LABEL="Archivematica's testing strategy" ORDER="2">
+        <mets:fptr FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3">
+          <mets:area FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3" BEGIN="00:00:18" END="00:01:13" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <mets:div LABEL="Outro" ORDER="3">
+        <mets:fptr FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3">
+          <mets:area FILEID="test_file.mp3" CONTENTIDS="objects/test_file.mp3" BEGIN="00:01:14" END="00:01:33" BETYPE="TIME"/>
+        </mets:fptr>
+      </mets:div>
+      <!-- documentary -->
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

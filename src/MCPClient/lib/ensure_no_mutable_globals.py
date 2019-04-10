@@ -133,7 +133,7 @@ def print_mutable_globals_usage(supported_modules):
           'create_mets_v2:call',
           'create_mets_v2:createDublincoreDMDSecFromDBData',
           'create_mets_v2:createFileSec',
-          'create_mets_v2:getIncludedStructMap',
+          'create_mets_v2:include_custom_structmap',
           'create_mets_v2:parseMetadata',
           'extract_maildir_attachments:handle_job',
           'extract_maildir_attachments:parse'],

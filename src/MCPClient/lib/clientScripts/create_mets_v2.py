@@ -73,6 +73,7 @@ from create_mets_dataverse_v2 import (
 )
 from custom_handlers import get_script_logger
 import namespaces as ns
+from sanitize_names import sanitizeName
 
 from bagit import Bag, BagError
 
@@ -872,39 +873,61 @@ def getAMDSec(
     return ret
 
 
-def getIncludedStructMap(job, baseDirectoryPath, state):
+def _fixup_path_input_by_user(job, path):
+    """Fix-up paths submitted by a user, e.g. in custom structmap examples so
+    that they don't have to anticipate the Archivematica normalization process.
+    """
+    return os.path.join(
+        "", *[sanitizeName(name.encode("utf8")) for name in path.split(os.path.sep)]
+    )
+
+
+def include_custom_structmap(
+    job, baseDirectoryPath, state, custom_structmap="mets_structmap.xml"
+):
+    """Enable users in submitting a structmap with a transfer and have that
+    included in the eventual AIP METS.
+    """
     ret = []
-    transferMetadata = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
+    transferMetadata = os.path.join(
+        baseDirectoryPath, os.path.join("objects", "metadata", "transfers")
+    )
     if not os.path.isdir(transferMetadata):
-        return []
+        return ret
     baseLocations = os.listdir(transferMetadata)
     baseLocations.append(baseDirectoryPath)
     for dir_ in baseLocations:
         dirPath = os.path.join(transferMetadata, dir_)
-        structMapXmlPath = os.path.join(dirPath, "mets_structmap.xml")
+        structMapXmlPath = os.path.join(dirPath, custom_structmap)
         if not os.path.isdir(dirPath):
             continue
         if os.path.isfile(structMapXmlPath):
             tree = etree.parse(structMapXmlPath)
-            root = (
-                tree.getroot()
-            )  # TDOD - not root to return, but sub element structMap
-            # print etree.tostring(root)
+            root = tree.getroot()
             structMap = root.find(ns.metsBNS + "structMap")
             id_ = structMap.get("ID")
             if not id_:
-                structMap.set("ID", "structMap_2")
+                state.globalStructMapCounter += 1
+                structMap.set("ID", "structMap_{}".format(state.globalStructMapCounter))
             ret.append(structMap)
-            for item in structMap.findall(".//" + ns.metsBNS + "fptr"):
-                fileName = item.get("FILEID")
-                if fileName in state.fileNameToFileID:
-                    # print fileName, " -> ", state.fileNameToFileID[fileName]
-                    item.set("FILEID", state.fileNameToFileID[fileName])
+            fileids = structMap.xpath(
+                "//*[@CONTENTIDS]", namespaces={"mets:": ns.metsNS}
+            )
+            for item in fileids:
+                file_path = item.get("CONTENTIDS")
+                normalized_path = _fixup_path_input_by_user(job, file_path)
+                if normalized_path in state.fileNameToFileID:
+                    item.set("FILEID", state.fileNameToFileID[normalized_path])
                 else:
-                    job.pyprint("error: no fileUUID for ", fileName, file=sys.stderr)
+                    job.pyprint(
+                        "Custom structmap error: no fileUUID for",
+                        file_path,
+                        normalized_path,
+                        file=sys.stderr,
+                    )
                     state.error_accumulator.error_count += 1
-    if state.trimStructMap is not None:
-        ret.append(state.trimStructMap)
+    if ret:
+        job.pyprint("Custom structmap will be included in AIP METS")
     return ret
 
 
@@ -1064,7 +1087,9 @@ def createFileSec(
                 structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE="Item"
             )
             etree.SubElement(fileDiv, ns.metsBNS + "fptr", FILEID=fileId)
-            state.fileNameToFileID[item] = fileId
+            # Pair items listed in custom structmaps. Strip leading path
+            # separator if it exists.
+            state.fileNameToFileID[directoryPathSTR] = fileId
 
             # Determine fileGrp @GROUPID based on the file's fileGrpUse and transfer type
             GROUPID = ""
@@ -1787,10 +1812,13 @@ def call(jobs):
                 if normativeStructMap is not None:
                     root.append(normativeStructMap)
 
-                for structMapIncl in getIncludedStructMap(
+                for custom_structmap in include_custom_structmap(
                     job, baseDirectoryPath, state
                 ):
-                    root.append(structMapIncl)
+                    root.append(custom_structmap)
+
+                if state.trimStructMap is not None:
+                    root.append(state.trimStructMap)
 
                 arranged_structmap = build_arranged_structmap(
                     job, structMap, fileGroupIdentifier

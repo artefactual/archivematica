@@ -7606,7 +7606,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
+                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
                 "execute": "archivematicaVerifyMets_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -10685,7 +10685,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
+                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
                 "execute": "archivematicaVerifyMets_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -10775,7 +10775,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
+                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
                 "execute": "archivematicaVerifyMets_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div TYPE="book" LABEL="How to create a hierarchical book">
+      <mets:div TYPE="page" LABEL="Cover">
+        <mets:fptr FILEID="test_file.png" CONTENTIDS="objects/test_file.png"/>
+      </mets:div>
+      <mets:div TYPE="chapter" LABEL="Chapter 1">
+        <mets:div TYPE="page" LABEL="Page 1">
+          <mets:fptr FILEID="test_file.jpg" CONTENTIDS="objects/test_file.jpg"/>
+        </mets:div>
+      </mets:div>
+      <!-- chapter -->
+    </mets:div>
+    <!-- book -->
+  </mets:structMap>
+</mets:mets>
