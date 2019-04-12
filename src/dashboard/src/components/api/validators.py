@@ -216,9 +216,7 @@ class AvalonValidator(BaseValidator):
 
     def validate(self, string):
         csvr = csv.reader(BytesIO(string))
-        empty = True
         for i, row in enumerate(csvr):
-            empty = False
             if i == 0:
                 self._check_admin_data(row)
             if i == 1:
@@ -229,8 +227,13 @@ class AvalonValidator(BaseValidator):
             if i >= 2:
                 self._check_file_exts(row, file_cols)
                 self._check_op_fields(row, op_cols)
-        if empty:
+        try:
+            i
+        except NameError:
             raise ValidationError("The document is empty.")
+        else:
+            if i < 2:
+                raise ValidationError("The document is incomplete.")
         return True
 
 
