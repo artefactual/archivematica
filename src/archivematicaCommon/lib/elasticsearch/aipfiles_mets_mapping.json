@@ -2,18 +2,18 @@
   "properties": {
     "dmdSec": {
       "properties": {
-        "ns0:xmlData_dict_list": {
+        "mets:xmlData_dict_list": {
           "properties": {
-            "@xmlns:ns1": {
+            "@xmlns:premis": {
               "type": "text"
             },
-            "@xmlns:ns0": {
+            "@xmlns:mets": {
               "type": "text"
             },
             "@xmlns:xsi": {
               "type": "text"
             },
-            "ns1:dublincore_dict_list": {
+            "premis:dublincore_dict_list": {
               "properties": {
                 "dc:available": {
                   "type": "text"
@@ -44,18 +44,18 @@
     },
     "amdSec": {
       "properties": {
-        "ns0:amdSec_dict_list": {
+        "mets:amdSec_dict_list": {
           "properties": {
-            "ns0:techMD_dict_list": {
+            "mets:techMD_dict_list": {
               "properties": {
-                "ns0:mdWrap_dict_list": {
+                "mets:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
                       "type": "text"
                     },
-                    "ns0:xmlData_dict_list": {
+                    "mets:xmlData_dict_list": {
                       "properties": {
-                        "ns1:object_dict_list": {
+                        "premis:object_dict_list": {
                           "properties": {
                             "@version": {
                               "type": "text"
@@ -63,42 +63,42 @@
                             "@xsi:type": {
                               "type": "text"
                             },
-                            "ns1:objectCharacteristics_dict_list": {
+                            "premis:objectCharacteristics_dict_list": {
                               "properties": {
-                                "ns1:compositionLevel": {
+                                "premis:compositionLevel": {
                                   "type": "text"
                                 },
-                                "ns1:size": {
+                                "premis:size": {
                                   "type": "text"
                                 },
-                                "ns1:fixity_dict_list": {
+                                "premis:fixity_dict_list": {
                                   "properties": {
-                                    "ns1:messageDigest": {
+                                    "premis:messageDigest": {
                                       "type": "text"
                                     },
-                                    "ns1:messageDigestAlgorithm": {
+                                    "premis:messageDigestAlgorithm": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:format_dict_list": {
+                                "premis:format_dict_list": {
                                   "properties": {
-                                    "ns1:formatDesignation_dict_list": {
+                                    "premis:formatDesignation_dict_list": {
                                       "properties": {
-                                        "ns1:formatName": {
+                                        "premis:formatName": {
                                           "type": "text"
                                         },
-                                        "ns1:formatVersion": {
+                                        "premis:formatVersion": {
                                           "type": "text"
                                         }
                                       }
                                     },
-                                    "ns1:formatRegistry_dict_list": {
+                                    "premis:formatRegistry_dict_list": {
                                       "properties": {
-                                        "ns1:formatRegistryKey": {
+                                        "premis:formatRegistryKey": {
                                           "type": "text"
                                         },
-                                        "ns1:formatRegistryName": {
+                                        "premis:formatRegistryName": {
                                           "type": "text"
                                         }
                                       }
@@ -107,15 +107,15 @@
                                 }
                               }
                             },
-                            "ns1:originalName": {
+                            "premis:originalName": {
                               "type": "text"
                             },
-                            "ns1:objectIdentifier_dict_list": {
+                            "premis:objectIdentifier_dict_list": {
                               "properties": {
-                                "ns1:objectIdentifierType": {
+                                "premis:objectIdentifierType": {
                                   "type": "text"
                                 },
-                                "ns1:objectIdentifierValue": {
+                                "premis:objectIdentifierValue": {
                                   "type": "text"
                                 }
                               }
@@ -134,10 +134,10 @@
                 }
               }
             },
-            "@xmlns:ns1": {
+            "@xmlns:premis": {
               "type": "text"
             },
-            "@xmlns:ns0": {
+            "@xmlns:mets": {
               "type": "text"
             },
             "@xmlns:xsi": {
@@ -146,213 +146,213 @@
             "@ID": {
               "type": "text"
             },
-            "ns0:rightsMD_dict_list": {
+            "mets:rightsMD_dict_list": {
               "properties": {
-                "ns0:mdWrap_dict_list": {
+                "mets:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
                       "type": "text"
                     },
-                    "ns0:xmlData_dict_list": {
+                    "mets:xmlData_dict_list": {
                       "properties": {
-                        "ns1:rightsStatement_dict_list": {
+                        "premis:rightsStatement_dict_list": {
                           "properties": {
-                            "ns1:otherRightsInformation_dict_list": {
+                            "premis:otherRightsInformation_dict_list": {
                               "properties": {
-                                "ns1:otherRightsDocumentationIdentifier_dict_list": {
+                                "premis:otherRightsDocumentationIdentifier_dict_list": {
                                   "properties": {
-                                    "ns1:otherRightsDocumentationIdentifierValue": {
+                                    "premis:otherRightsDocumentationIdentifierValue": {
                                       "type": "text"
                                     },
-                                    "ns1:otherRightsDocumentationIdentifierType": {
+                                    "premis:otherRightsDocumentationIdentifierType": {
                                       "type": "text"
                                     },
-                                    "ns1:otherRightsDocumentationRole": {
+                                    "premis:otherRightsDocumentationRole": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:otherRightsBasis": {
+                                "premis:otherRightsBasis": {
                                   "type": "text"
                                 },
-                                "ns1:otherRightsNote": {
+                                "premis:otherRightsNote": {
                                   "type": "text"
                                 },
-                                "ns1:otherRightsApplicableDates_dict_list": {
+                                "premis:otherRightsApplicableDates_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 }
                               }
                             },
-                            "ns1:rightsBasis": {
+                            "premis:rightsBasis": {
                               "type": "text"
                             },
-                            "ns1:licenseInformation_dict_list": {
+                            "premis:licenseInformation_dict_list": {
                               "properties": {
-                                "ns1:licenseNote": {
+                                "premis:licenseNote": {
                                   "type": "text"
                                 },
-                                "ns1:licenseTerms": {
+                                "premis:licenseTerms": {
                                   "type": "text"
                                 },
-                                "ns1:licenseDocumentationIdentifier_dict_list": {
+                                "premis:licenseDocumentationIdentifier_dict_list": {
                                   "properties": {
-                                    "ns1:licenseDocumentationRole": {
+                                    "premis:licenseDocumentationRole": {
                                       "type": "text"
                                     },
-                                    "ns1:licenseDocumentationIdentifierValue": {
+                                    "premis:licenseDocumentationIdentifierValue": {
                                       "type": "text"
                                     },
-                                    "ns1:licenseDocumentationIdentifierType": {
+                                    "premis:licenseDocumentationIdentifierType": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:licenseApplicableDates_dict_list": {
+                                "premis:licenseApplicableDates_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 }
                               }
                             },
-                            "ns1:rightsGranted_dict_list": {
+                            "premis:rightsGranted_dict_list": {
                               "properties": {
-                                "ns1:termOfRestriction_dict_list": {
+                                "premis:termOfRestriction_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:restriction": {
+                                "premis:restriction": {
                                   "type": "text"
                                 },
-                                "ns1:termOfGrant_dict_list": {
+                                "premis:termOfGrant_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:rightsGrantedNote": {
+                                "premis:rightsGrantedNote": {
                                   "type": "text"
                                 },
-                                "ns1:act": {
+                                "premis:act": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:rightsStatementIdentifier_dict_list": {
+                            "premis:rightsStatementIdentifier_dict_list": {
                               "properties": {
-                                "ns1:rightsStatementIdentifierType": {
+                                "premis:rightsStatementIdentifierType": {
                                   "type": "text"
                                 },
-                                "ns1:rightsStatementIdentifierValue": {
+                                "premis:rightsStatementIdentifierValue": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:statuteInformation_dict_list": {
+                            "premis:statuteInformation_dict_list": {
                               "properties": {
-                                "ns1:statuteNote": {
+                                "premis:statuteNote": {
                                   "type": "text"
                                 },
-                                "ns1:statuteApplicableDates_dict_list": {
+                                "premis:statuteApplicableDates_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:statuteDocumentationIdentifier_dict_list": {
+                                "premis:statuteDocumentationIdentifier_dict_list": {
                                   "properties": {
-                                    "ns1:statuteDocumentationIdentifierValue": {
+                                    "premis:statuteDocumentationIdentifierValue": {
                                       "type": "text"
                                     },
-                                    "ns1:statuteDocumentationRole": {
+                                    "premis:statuteDocumentationRole": {
                                       "type": "text"
                                     },
-                                    "ns1:statuteDocumentationIdentifierType": {
+                                    "premis:statuteDocumentationIdentifierType": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:statuteInformationDeterminationDate": {
+                                "premis:statuteInformationDeterminationDate": {
                                   "type": "text"
                                 },
-                                "ns1:statuteCitation": {
+                                "premis:statuteCitation": {
                                   "type": "text"
                                 },
-                                "ns1:statuteJurisdiction": {
+                                "premis:statuteJurisdiction": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:copyrightInformation_dict_list": {
+                            "premis:copyrightInformation_dict_list": {
                               "properties": {
-                                "ns1:copyrightDocumentationIdentifier_dict_list": {
+                                "premis:copyrightDocumentationIdentifier_dict_list": {
                                   "properties": {
-                                    "ns1:copyrightDocumentationIdentifierType": {
+                                    "premis:copyrightDocumentationIdentifierType": {
                                       "type": "text"
                                     },
-                                    "ns1:copyrightDocumentationIdentifierValue": {
+                                    "premis:copyrightDocumentationIdentifierValue": {
                                       "type": "text"
                                     },
-                                    "ns1:copyrightDocumentationRole": {
+                                    "premis:copyrightDocumentationRole": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:copyrightJurisdiction": {
+                                "premis:copyrightJurisdiction": {
                                   "type": "text"
                                 },
-                                "ns1:copyrightStatusDeterminationDate": {
+                                "premis:copyrightStatusDeterminationDate": {
                                   "type": "text"
                                 },
-                                "ns1:copyrightStatus": {
+                                "premis:copyrightStatus": {
                                   "type": "text"
                                 },
-                                "ns1:copyrightApplicableDates_dict_list": {
+                                "premis:copyrightApplicableDates_dict_list": {
                                   "properties": {
-                                    "ns1:startDate": {
+                                    "premis:startDate": {
                                       "type": "text"
                                     },
-                                    "ns1:endDate": {
+                                    "premis:endDate": {
                                       "type": "text"
                                     }
                                   }
                                 },
-                                "ns1:copyrightNote": {
+                                "premis:copyrightNote": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:linkingObjectIdentifier_dict_list": {
+                            "premis:linkingObjectIdentifier_dict_list": {
                               "properties": {
-                                "ns1:linkingObjectIdentifierValue": {
+                                "premis:linkingObjectIdentifierValue": {
                                   "type": "text"
                                 },
-                                "ns1:linkingObjectIdentifierType": {
+                                "premis:linkingObjectIdentifierType": {
                                   "type": "text"
                                 }
                               }
@@ -371,59 +371,59 @@
                 }
               }
             },
-            "ns0:digiprovMD_dict_list": {
+            "mets:digiprovMD_dict_list": {
               "properties": {
-                "ns0:mdWrap_dict_list": {
+                "mets:mdWrap_dict_list": {
                   "properties": {
                     "@MDTYPE": {
                       "type": "text"
                     },
-                    "ns0:xmlData_dict_list": {
+                    "mets:xmlData_dict_list": {
                       "properties": {
-                        "ns1:event_dict_list": {
+                        "premis:event_dict_list": {
                           "properties": {
-                            "ns1:eventOutcomeInformation_dict_list": {
+                            "premis:eventOutcomeInformation_dict_list": {
                               "properties": {
-                                "ns1:eventOutcome": {
+                                "premis:eventOutcome": {
                                   "type": "text"
                                 },
-                                "ns1:eventOutcomeDetail_dict_list": {
+                                "premis:eventOutcomeDetail_dict_list": {
                                   "properties": {
-                                    "ns1:eventOutcomeDetailNote": {
+                                    "premis:eventOutcomeDetailNote": {
                                       "type": "text"
                                     }
                                   }
                                 }
                               }
                             },
-                            "ns1:eventIdentifier_dict_list": {
+                            "premis:eventIdentifier_dict_list": {
                               "properties": {
-                                "ns1:eventIdentifierType": {
+                                "premis:eventIdentifierType": {
                                   "type": "text"
                                 },
-                                "ns1:eventIdentifierValue": {
+                                "premis:eventIdentifierValue": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:linkingAgentIdentifier_dict_list": {
+                            "premis:linkingAgentIdentifier_dict_list": {
                               "properties": {
-                                "ns1:linkingAgentIdentifierValue": {
+                                "premis:linkingAgentIdentifierValue": {
                                   "type": "text"
                                 },
-                                "ns1:linkingAgentIdentifierType": {
+                                "premis:linkingAgentIdentifierType": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:eventDateTime": {
+                            "premis:eventDateTime": {
                               "type": "date",
                               "format": "dateOptionalTime"
                             },
-                            "ns1:eventDetail": {
+                            "premis:eventDetail": {
                               "type": "text"
                             },
-                            "ns1:eventType": {
+                            "premis:eventType": {
                               "type": "text"
                             },
                             "@version": {
@@ -434,19 +434,19 @@
                             }
                           }
                         },
-                        "ns1:agent_dict_list": {
+                        "premis:agent_dict_list": {
                           "properties": {
-                            "ns1:agentIdentifier_dict_list": {
+                            "premis:agentIdentifier_dict_list": {
                               "properties": {
-                                "ns1:agentIdentifierType": {
+                                "premis:agentIdentifierType": {
                                   "type": "text"
                                 },
-                                "ns1:agentIdentifierValue": {
+                                "premis:agentIdentifierValue": {
                                   "type": "text"
                                 }
                               }
                             },
-                            "ns1:agentType": {
+                            "premis:agentType": {
                               "type": "text"
                             },
                             "@version": {
@@ -455,7 +455,7 @@
                             "@xsi:schemaLocation": {
                               "type": "text"
                             },
-                            "ns1:agentName": {
+                            "premis:agentName": {
                               "type": "text"
                             }
                           }
