@@ -213,7 +213,7 @@ def update_dublincore(job, mets, sip_uuid):
             job.pyprint("No updated or new DC metadata found")
             return mets
     dmdsec = objects_div.add_dublin_core(dc_elem)
-    job.pyprint("Adding new DC in dmdSec with ID", dmdsec.id_string())
+    job.pyprint("Adding new DC in dmdSec with ID", dmdsec.id_string)
     if len(objects_div.dmdsecs) > 1:
         objects_div.dmdsecs[-2].replace_with(dmdsec)
 
@@ -264,9 +264,7 @@ def update_rights(job, mets, sip_uuid, state):
             if (
                 not db_rights
             ):  # TODO this may need to be more robust for RightsStatementRightsGranted
-                job.pyprint(
-                    "Rights", r.id_string(), "looks deleted - making superseded"
-                )
+                job.pyprint("Rights", r.id_string, "looks deleted - making superseded")
                 r.status = "superseded"
 
     # Check for newly added rights
@@ -309,9 +307,9 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
             )
             job.pyprint(
                 "Adding rightsMD",
-                new_rightsmd.id_string(),
+                new_rightsmd.id_string,
                 "to amdSec with ID",
-                fsentry.amdsecs[0].id_string(),
+                fsentry.amdsecs[0].id_string,
                 "for file",
                 fsentry.file_uuid,
             )
@@ -336,9 +334,9 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                         rightmd.replace_with(new_rightsmd)
                         job.pyprint(
                             "rightsMD",
-                            new_rightsmd.id_string(),
+                            new_rightsmd.id_string,
                             "replaces rightsMD",
-                            rightmd.id_string(),
+                            rightmd.id_string,
                         )
                         break
 
@@ -384,7 +382,7 @@ def add_events(job, mets, sip_uuid):
         # Add agent if it's not already in this amdSec
         if agent and not mets.tree.xpath(
             'mets:amdSec[@AMDID="'
-            + amdsec.id_string()
+            + amdsec.id_string
             + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="'
             + agent.identifiervalue
             + '"]',
@@ -443,15 +441,9 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     # Set global counters so getAMDSec will work
     state = createmets2.MetsState(
-        globalAmdSecCounter=int(
-            mets.tree.xpath("count(mets:amdSec)", namespaces=ns.NSMAP)
-        ),
-        globalTechMDCounter=int(
-            mets.tree.xpath("count(mets:amdSec/mets:techMD)", namespaces=ns.NSMAP)
-        ),
-        globalDigiprovMDCounter=int(
-            mets.tree.xpath("count(mets:amdSec/mets:digiprovMD)", namespaces=ns.NSMAP)
-        ),
+        globalAmdSecCounter=metsrw.AMDSec.get_current_id_count(),
+        globalTechMDCounter=metsrw.SubSection.get_current_id_count("techMD"),
+        globalDigiprovMDCounter=metsrw.SubSection.get_current_id_count("digiprovMD"),
     )
 
     objects_fsentry = mets.get_file(label="objects", type="Directory")
