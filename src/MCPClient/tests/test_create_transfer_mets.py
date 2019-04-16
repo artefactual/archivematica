@@ -421,6 +421,54 @@ def test_transfer_mets_includes_fpcommand_output(
 
 
 @pytest.mark.django_db
+def test_transfer_mets_includes_events(tmp_path, transfer, event):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    premis_event = mets_xml.find(".//premis:event", namespaces=PREMIS_NAMESPACES)
+    premis_event_id_type = premis_event.findtext(
+        "premis:eventIdentifier/premis:eventIdentifierType",
+        namespaces=PREMIS_NAMESPACES,
+    )
+    premis_event_id_value = premis_event.findtext(
+        "premis:eventIdentifier/premis:eventIdentifierValue",
+        namespaces=PREMIS_NAMESPACES,
+    )
+    premis_event_type = premis_event.findtext(
+        "premis:eventType", namespaces=PREMIS_NAMESPACES
+    )
+    premis_event_date_time = premis_event.findtext(
+        "premis:eventDateTime", namespaces=PREMIS_NAMESPACES
+    )
+    premis_event_detail = premis_event.findtext(
+        "premis:eventDetailInformation/premis:eventDetail", namespaces=PREMIS_NAMESPACES
+    )
+    premis_event_outcome_note = premis_event.findtext(
+        "premis:eventOutcomeInformation/premis:eventOutcomeDetail/premis:eventOutcomeDetailNote",
+        namespaces=PREMIS_NAMESPACES,
+    )
+    premis_event_agent_id_type = premis_event.findtext(
+        "premis:linkingAgentIdentifier/premis:linkingAgentIdentifierType",
+        namespaces=PREMIS_NAMESPACES,
+    )
+    premis_event_agent_id_value = premis_event.findtext(
+        "premis:linkingAgentIdentifier/premis:linkingAgentIdentifierValue",
+        namespaces=PREMIS_NAMESPACES,
+    )
+
+    assert premis_event_id_type == "UUID"
+    assert premis_event_id_value == str(event.event_id)
+    assert premis_event_type == event.event_type
+    assert premis_event_date_time == str(event.event_datetime)
+    assert premis_event_detail == event.event_detail
+    assert premis_event_outcome_note == event.event_outcome_detail
+    assert premis_event_agent_id_type == event.agents.first().identifiertype
+    assert premis_event_agent_id_value == event.agents.first().identifiervalue
+
+
+@pytest.mark.django_db
 def test_transfer_mets_includes_basic_rights(
     tmp_path, transfer, file_obj, basic_rights_statement
 ):

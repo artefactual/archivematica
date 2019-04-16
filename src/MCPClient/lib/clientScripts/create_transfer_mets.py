@@ -248,6 +248,10 @@ class FSEntriesTree(object):
             premis_object = file_obj_to_premis(file_obj)
             fsentry.add_premis_object(premis_object)
 
+            for event in file_obj.event_set.all():
+                premis_event = event_to_premis(event)
+                fsentry.add_premis_event(premis_event)
+
     def load_rights_data_from_db(self):
         transfer_rights = self.rights_queryset.filter(
             metadataappliestoidentifier=self.transfer.uuid,
