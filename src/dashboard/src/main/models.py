@@ -409,6 +409,10 @@ class SIP(models.Model):
     def update_active_agent(self, user_id):
         UnitVariable.objects.update_active_agent("SIP", self.uuid, user_id)
 
+    def add_custom_identifier(self, scheme, value):
+        """Allow callers to add custom identifiers to the model's instance."""
+        self.identifiers.create(type=scheme, value=value)
+
 
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
@@ -570,6 +574,10 @@ class File(models.Model):
             }
         )
 
+    def add_custom_identifier(self, scheme, value):
+        """Allow callers to add custom identifiers to the model's instance."""
+        self.identifiers.create(type=scheme, value=value)
+
 
 class Directory(models.Model):
     """Information about Directories in units (Transfers, SIPs).
@@ -601,6 +609,10 @@ class Directory(models.Model):
                 "currentlocation": self.currentlocation,
             }
         )
+
+    def add_custom_identifier(self, scheme, value):
+        """Allow callers to add custom identifiers to the model's instance."""
+        self.identifiers.create(type=scheme, value=value)
 
     @classmethod
     def create_many(cls, dir_paths_uuids, unit_mdl, unit_type="transfer"):

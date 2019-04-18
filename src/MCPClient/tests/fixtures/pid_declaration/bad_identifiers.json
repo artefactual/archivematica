@@ -1,0 +1,15 @@
+[
+    {
+        "file": "",
+        "identifiers": [
+            {
+                "identiferType": "ULID",
+                "identifier": "01D9T8MJM9NEQ390H239VT50CQ"
+            },
+            {
+                "identiferType": "https://example.com/AIP/id/1348554167",
+                "identifier": "EX"
+            }
+        ]
+    },
+]

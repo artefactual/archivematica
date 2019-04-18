@@ -1267,6 +1267,36 @@
                 "sv": "Kontrollera överförings följsamhet"
             }
         },
+        "873b428f-2c86-42b6-b463-aeda925bf559": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
+                "execute": "declarepids_v0.0",
+                "filter_file_end": "",
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Persistent identifier (PID) declaration"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
+            "group": {
+                "en": "Bind PIDs",
+                "fr": "Lier les PIDs",
+                "pt_BR": "Vincular PIDs",
+                "sv": "Lås PID:er."
+            }
+        },
         "05357876-a095-4c11-86b5-a7fff01af668": {
             "config": {
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
@@ -6981,11 +7011,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
+                    "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "05357876-a095-4c11-86b5-a7fff01af668",
+            "fallback_link_id": "873b428f-2c86-42b6-b463-aeda925bf559",
             "group": {
                 "en": "Process metadata directory",
                 "es": "Procesar directorio de metadatos",

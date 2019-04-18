@@ -54,13 +54,14 @@ from django.db import transaction
 from lxml import etree
 
 # dashboard
-from main.models import DashboardSetting, Directory, Identifier, SIP
+from main.models import DashboardSetting, Directory, SIP
 
 # archivematicaCommon
 from archivematicaFunctions import str2bool
-from bindpid import bind_pid, BindPIDException
+from bindpid import bind_pid, BindPIDException, _validate
 from custom_handlers import get_script_logger
 import namespaces as ns
+
 
 logger = get_script_logger("archivematica.mcp.client.bind_pids")
 
@@ -106,10 +107,8 @@ def _add_pid_to_mdl_identifiers(mdl, config):
     """
     pid = "{}/{}".format(config["naming_authority"], config["desired_pid"])
     purl = "{}/{}".format(config["handle_resolver_url"].rstrip("/"), pid)
-    hdl_identifier = Identifier.objects.create(type="hdl", value=pid)
-    purl_identifier = Identifier.objects.create(type="URI", value=purl)
-    mdl.identifiers.add(hdl_identifier)
-    mdl.identifiers.add(purl_identifier)
+    mdl.add_custom_identifier(scheme="hdl", value=pid)
+    mdl.add_custom_identifier(scheme="URI", value=purl)
 
 
 def _get_sip(sip_uuid):
@@ -224,6 +223,11 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
     handle_config["pid_request_verify_certs"] = str2bool(
         handle_config.get("pid_request_verify_certs", "True")
     )
+    try:
+        _validate(handle_config)
+    except BindPIDException as err:
+        logger.info(err)
+        raise BindPIDsException
     for mdl in chain(
         [_get_sip(sip_uuid)], Directory.objects.filter(sip_id=sip_uuid).all()
     ):

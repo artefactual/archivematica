@@ -50,7 +50,7 @@ import django
 
 django.setup()
 # dashboard
-from main.models import DashboardSetting, File, Identifier
+from main.models import DashboardSetting, File
 
 # archivematicaCommon
 import bindpid
@@ -99,6 +99,7 @@ def _get_bind_pid_config(file_uuid):
     """Return dict to pass to ``bindpid`` function as keyword arguments."""
     _args = {"entity_type": "file", "desired_pid": file_uuid}
     _args.update(DashboardSetting.objects.get_dict("handle"))
+    bindpid._validate(_args)
     _args["pid_request_verify_certs"] = str2bool(
         _args.get("pid_request_verify_certs", "True")
     )
@@ -123,8 +124,7 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
             True for id_ in existing_ids if id_.type == id_type and id_.value == id_val
         ]
         if len(matches) == 0:
-            idfr = Identifier.objects.create(type=id_type, value=id_val)
-            file_mdl.identifiers.add(idfr)
+            file_mdl.add_custom_identifier(scheme=id_type, value=id_val)
 
 
 @exit_on_known_exception

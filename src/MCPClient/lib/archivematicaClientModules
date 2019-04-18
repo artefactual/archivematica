@@ -94,6 +94,7 @@ checktransferdirectoryforobjects_v0.0 = check_transfer_directory_for_objects
 checkforsubmissiondocumenation_v0.0 = check_for_submission_documentation
 checkforservicedirectory_v0.0 = check_for_service_directory
 checkforaccessdirectory_v0.0 = check_for_access_directory
+declarepids_v0.0 = pid_declaration
 bindpids_v0.0 = bind_pids
 extractbagtransfer_v0.0 = extract_bag_transfer
 assignuuidstodirectories_v0.0 = assign_uuids_to_directories

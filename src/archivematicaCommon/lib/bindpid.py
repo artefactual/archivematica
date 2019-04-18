@@ -332,7 +332,6 @@ def bind_pid(**kwargs):
       - If the Payload is invalid XML, then the response will have a 400 status
         code and the response body will be HTML.
     """
-    _validate(kwargs)
     resolve_url, qualified_resolve_urls, purl_map = _render_url_templates(kwargs)
     request_body = _render_request_body(kwargs, resolve_url, qualified_resolve_urls)
     response = requests.post(
