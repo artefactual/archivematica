@@ -27,7 +27,6 @@
   { "name": "inkscape", "state": "latest"},
   { "name": "jhove", "state": "latest"},
   { "name": "libimage-exiftool-perl", "state": "latest"},
-  { "name": "libxml2-utils", "state": "latest"},
   { "name": "logapp", "state": "latest"},
   { "name": "md5deep", "state": "latest"},
   { "name": "nailgun", "state": "latest"},

@@ -45,7 +45,6 @@ RUN set -ex \
 		libimage-exiftool-perl \
 		libevent-dev \
 		libjansson4 \
-		libxml2-utils \
 		mediainfo \
 		mediaconch \
 		nailgun \
