@@ -239,3 +239,102 @@ class TestElasticSearchFunctions(unittest.TestCase):
             self.client, ["aips", "aipfiles", "unknown"]
         )
         assert patch.call_count == 2
+
+
+fileuuid_premisv3 = (
+    {
+        "filePath": "objects/evelyn_s_photo.jpg",
+        "FILEUUID": "e9caf37c-93cb-4c37-ab5f-157c7d2611ac",
+    },
+    {
+        "filePath": "objects/metadata/transfers/evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d/directory_tree.txt",
+        "FILEUUID": "61e56606-a1d6-456d-9c97-406feaa13b85",
+    },
+)
+fileuuid_premisv2 = (
+    {
+        "filePath": "objects/metadata/transfers/MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1/directory_tree.txt",
+        "FILEUUID": "44d3aa6d-8bb0-4cfb-bd93-f1121c08916e",
+    },
+    {
+        "filePath": "objects/LEG1363.01.TIF",
+        "FILEUUID": "0552c02b-8626-456f-89cc-bc5f3ce8a112",
+    },
+)
+fileuuid_premisv2_no_ns = (
+    {
+        "filePath": "objects/AM68.csv",
+        "FILEUUID": "fc0e52ca-a688-41c0-a10b-c1d36e21e804",
+    },
+    {
+        "filePath": "objects/V00154.MPG",
+        "FILEUUID": "3a6a182a-40a0-4c2b-9752-fc7e91ac1edf",
+    },
+    {
+        "filePath": "objects/V00158.MPG",
+        "FILEUUID": "431913ba-4379-4373-8798-cc5f2b9dd769",
+    },
+)
+
+
+@pytest.mark.parametrize(
+    "metsfile,fileuuid_dict,aipuuid,aipname",
+    [
+        (
+            "test_index_fileuuid_METS_premisv3.xml",
+            fileuuid_premisv3,
+            "37abc30b-a258-4389-b1f2-67ccd330bc7e",
+            "evelynphotos",
+        ),
+        (
+            "test_index_fileuuid_METS_premisv2.xml",
+            fileuuid_premisv2,
+            "9559945a-52e8-4eb4-ac1a-e0e794e758fb",
+            "MAPS2015-AM641",
+        ),
+        (
+            "test_index_fileuuid_METS_premisv2_no_ns.xml",
+            fileuuid_premisv2_no_ns,
+            "bdcb560d-7ddd-4c13-8040-1e565b4eddff",
+            "AM68",
+        ),
+    ],
+)
+@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
+@mock.patch("elasticSearchFunctions._wait_for_cluster_yellow_status")
+@mock.patch("elasticSearchFunctions._try_to_index")
+def test_index_aipfile_fileuuid(
+    dummy_try_to_index,
+    dummy_wait_for_cluster_yellow_status,
+    dummy_get_dashboard_uuid,
+    metsfile,
+    fileuuid_dict,
+    aipuuid,
+    aipname,
+):
+    """Check AIP file uuids are being correctly parsed from METS files.
+
+    Mock _try_to_index() with a function that populates a dict
+    indexed_data, with the fileuuids that _index_aip_files() obtained
+    from the METS
+    """
+
+    dummy_get_dashboard_uuid.return_value = "test-uuid"
+
+    indexed_data = {}
+
+    def get_fileuuid(client, indexData, index, printfn):
+        indexed_data[indexData["filePath"]] = indexData["FILEUUID"]
+
+    dummy_try_to_index.side_effect = get_fileuuid
+
+    elasticSearchFunctions._index_aip_files(
+        client=None,
+        uuid=aipuuid,
+        mets_path=os.path.join(THIS_DIR, "fixtures", metsfile),
+        name="{}-{}".format(aipname, aipuuid),
+        identifiers=[],
+    )
+
+    for file_uuid in fileuuid_dict:
+        assert indexed_data[file_uuid["filePath"]] == file_uuid["FILEUUID"]
