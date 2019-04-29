@@ -1,3 +1,5 @@
+from xml.etree import ElementPath
+
 dcNS = "http://purl.org/dc/elements/1.1/"
 dctermsNS = "http://purl.org/dc/terms/"
 dspaceNS = "http://www.dspace.org/xmlns/dspace/dim"
@@ -41,10 +43,16 @@ def nsmap_for_premis2():
     return nsmap
 
 
+# The functions below require a cache clear, because the namespace maps
+# are being altered when falling back to PREMIS 2
+# (Ref. https://stackoverflow.com/a/24872696/1572895)
+
+
 def xml_find_premis(elem, path):
     """``find`` with PREMIS 2 fallback."""
     matches = elem.find(path, namespaces=NSMAP)
     if matches is None:
+        ElementPath._cache.clear()
         matches = elem.find(path, namespaces=nsmap_for_premis2())
     return matches
 
@@ -53,6 +61,7 @@ def xml_findall_premis(elem, path):
     """``findall`` with PREMIS 2 fallback."""
     matches = elem.findall(path, namespaces=NSMAP)
     if matches == []:
+        ElementPath._cache.clear()
         matches = elem.findall(path, namespaces=nsmap_for_premis2())
     return matches
 
@@ -61,6 +70,7 @@ def xml_findtext_premis(elem, path, default=""):
     """``findtext`` with PREMIS 2 fallback."""
     match = elem.findtext(path, namespaces=NSMAP)
     if match is None:
+        ElementPath._cache.clear()
         match = elem.findtext(path, namespaces=nsmap_for_premis2())
     return match or default
 
@@ -69,5 +79,6 @@ def xml_xpath_premis(elem, path):
     """``xpath`` with PREMIS 2 fallback."""
     matches = elem.xpath(path, namespaces=NSMAP)
     if not matches:
+        ElementPath._cache.clear()
         matches = elem.xpath(path, namespaces=nsmap_for_premis2())
     return matches
