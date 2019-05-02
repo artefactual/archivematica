@@ -39,7 +39,6 @@ import databaseFunctions
 import storageService as storage_service
 
 from bag import is_bag
-from bagit import Bag, BagError
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -531,7 +530,6 @@ def _copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
 
         # Collect file and directory information. Change path to be in staging, not arrange
         files = []
-        bagit_transfers = {}  # To check bags only once.
         for arranged_file in arrange_files:
             destination = arranged_file.arrange_path.replace(
                 filepath, staging_sip_path, 1
@@ -544,20 +542,12 @@ def _copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                 }
             )
             # Get transfer folder name
-            transfer_name = arranged_file.original_path.replace(
+            transfer_parts = arranged_file.original_path.replace(
                 DEFAULT_BACKLOG_PATH, "", 1
-            ).split("/", 1)[0]
-            transfer_dir = os.path.join(ORIGINAL_DIR, transfer_name)
+            ).split("/", 1)
+            transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
-            is_bagit = bagit_transfers.get(transfer_dir)
-            if is_bagit is None:
-                try:
-                    Bag(transfer_dir)
-                except BagError:
-                    is_bagit = False
-                else:
-                    is_bagit = True
-                bagit_transfers[transfer_dir] = is_bagit
+            is_bagit = True if transfer_parts[1].startswith(u"data/objects") else False
             # Copy metadata & logs to completedTransfers, where later scripts expect
             for directory in ("logs", "metadata"):
                 source = [DEFAULT_BACKLOG_PATH, transfer_name, directory]
