@@ -36,9 +36,8 @@ from main import models
 
 import archivematicaFunctions
 import databaseFunctions
+import elasticSearchFunctions
 import storageService as storage_service
-
-from bag import is_bag
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -1083,6 +1082,10 @@ def download_by_uuid(request, uuid, preview_file=False):
     so, unlike download_ss, this will work even if the Storage Service is
     not accessible to the requestor.
 
+    It looks up the full relative path in the ``transferfiles`` search index.
+    ``relative_path`` includes the ``data`` directory when the transfer package
+    uses the BagIt format.
+
     Returns 404 if a file with the requested UUID cannot be found. Otherwise
     the status code is returned via the call to
     ``stream_file_from_storage_service``
@@ -1092,23 +1095,39 @@ def download_by_uuid(request, uuid, preview_file=False):
     rendered. On receiving this instruction, the content-disposition header
     will be set in the stream_file_from_storage_service to 'inline'.
     """
-    try:
-        f = models.File.objects.select_related("transfer").get(uuid=uuid)
-    except models.File.DoesNotExist:
-        response = {
+    not_found_err = helpers.json_response(
+        {
             "success": False,
             "message": _("File with UUID %(uuid)s " "could not be found")
             % {"uuid": uuid},
-        }
-        return helpers.json_response(response, status_code=404)
-    # check if the transfer is in the backlog and if it's a bag
-    transfer_name = os.path.basename(f.transfer.currentlocation.rstrip("/"))
-    transfer_dir = os.path.join(ORIGINAL_DIR, transfer_name)
-    if os.path.isdir(transfer_dir) and is_bag(transfer_dir):
-        relative_path = f.currentlocation.replace("%transferDirectory%", "data/")
-    else:
-        relative_path = f.currentlocation.replace("%transferDirectory%", "")
-    redirect_url = storage_service.extract_file_url(f.transfer_id, relative_path)
+        },
+        status_code=404,
+    )
+
+    try:
+        record = elasticSearchFunctions.get_transfer_file_info(
+            elasticSearchFunctions.get_client(), "fileuuid", uuid
+        )
+    except elasticSearchFunctions.ElasticsearchError:
+        return not_found_err
+
+    try:
+        transfer_id, relpath = record["sipuuid"], record["relative_path"]
+    except KeyError:
+        logger.debug("Search document is missing required parameters")
+        return not_found_err
+
+    # E.g. from "<name>-<uuid>/data/objects/bird.mp3" we only need the path
+    # component not including transfer name or UUID.
+    try:
+        relpath = relpath.split("/", 1)[1]
+    except IndexError:
+        logger.debug(
+            "Relative path in search document has an unexpected form: %s", relpath
+        )
+        return not_found_err
+
+    redirect_url = storage_service.extract_file_url(transfer_id, relpath)
     return helpers.stream_file_from_storage_service(
         redirect_url, "Storage service returned {}; check logs?", preview_file
     )
