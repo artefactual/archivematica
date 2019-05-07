@@ -46,7 +46,13 @@ class TransferBrowserTransfer {
   start() {
     // If this is a zipped bag, then there will be no transfer name;
     // give it a dummy name instead.
-    let name = this.type === 'zipped bag' ? 'ZippedBag' : this.name;
+    let name = this.name;
+    if (this.type === 'zipped bag') {
+      name = 'ZippedBag';
+    } else if (this.type == 'zipfile') {
+      name = 'ZipFile';
+    }
+
     let _self = this;
 
     let payload = {
