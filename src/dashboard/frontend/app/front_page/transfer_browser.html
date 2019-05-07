@@ -14,7 +14,7 @@
   <div class="help-block">{{ "Transfer type" | translate }}</div>
   </div>
 
-  <div class="col-xs-2" ng-if="vm.transfer.type !== 'zipped bag'">
+  <div class="col-xs-2" ng-if="vm.transfer.type !== 'zipped bag' && vm.transfer.type !== 'zipfile'">
   <input class="form-control" ng-model="vm.transfer.name"/>
   <div class="help-block">{{ "Transfer name" | translate }}</div>
   </div>

@@ -31,7 +31,7 @@ class HeaderController {
   enable_submit_button() {
     // It's legal for "zipped bag" transfers to have no title,
     // since the final title is based on the name of the bag itself.
-    if (this.transfer.type !== 'zipped bag' && !this.transfer.name) {
+    if (this.transfer.type !== 'zipped bag' && this.transfer.type !== 'zipfile' && !this.transfer.name) {
       return false;
     }
 
