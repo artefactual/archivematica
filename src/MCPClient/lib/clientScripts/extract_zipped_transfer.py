@@ -34,7 +34,6 @@ from django.db import transaction
 from main.models import Transfer
 
 # archivematicaCommon
-from archivematicaFunctions import str2bool
 from executeOrRunSubProcess import executeOrRun
 
 
