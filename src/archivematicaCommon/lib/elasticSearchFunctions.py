@@ -572,17 +572,24 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
             # its data from the descriptive metadata section (dmdSec)
             dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
             if dmd_section_id is not None:
-                dmd_section_info = ns.xml_find_premis(
-                    root,
-                    "mets:dmdSec[@ID='{}']/mets:mdWrap/mets:xmlData".format(
-                        dmd_section_id
-                    ),
-                )
-                xml = ElementTree.tostring(dmd_section_info)
-                data = _rename_dict_keys_with_child_dicts(
-                    _normalize_dict_values(xmltodict.parse(xml))
-                )
-                indexData["METS"]["dmdSec"] = data
+                # dmd_section_id can contain one id (e.g., "dmdSec_2")
+                # or more than one (e.g., "dmdSec_2 dmdSec_3",
+                # when a file has both DC and non-DC metadata).
+                # Attempt to index only the DC dmdSec if available
+                for dmd_section_id_item in dmd_section_id.split():
+                    dmd_section_info = ns.xml_find_premis(
+                        root,
+                        "mets:dmdSec[@ID='{}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData".format(
+                            dmd_section_id_item
+                        ),
+                    )
+                    if dmd_section_info is not None:
+                        xml = ElementTree.tostring(dmd_section_info)
+                        data = _rename_dict_keys_with_child_dicts(
+                            _normalize_dict_values(xmltodict.parse(xml))
+                        )
+                        indexData["METS"]["dmdSec"] = data
+                        break
 
         indexData["FILEUUID"] = fileUUID
 
