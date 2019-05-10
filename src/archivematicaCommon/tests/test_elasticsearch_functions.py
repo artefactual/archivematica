@@ -338,3 +338,68 @@ def test_index_aipfile_fileuuid(
 
     for file_uuid in fileuuid_dict:
         assert indexed_data[file_uuid["filePath"]] == file_uuid["FILEUUID"]
+
+
+dmdsec_dconly = {
+    "filePath": "objects/lion.svg",
+    "dublincore_dict": {
+        "dc:language": "English",
+        "dc:title": "Test Title",
+        "dc:date": "2019-05-03",
+        "dc:description": "Test description",
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "metsfile,dmdsec_dict",
+    [
+        ("test_index_aipfile_dmdsec_METS_dconly.xml", dmdsec_dconly),
+        (
+            "test_index_aipfile_dmdsec_METS_mixed.xml",
+            dmdsec_dconly,  # non-DC metadata should be ignored without error
+        ),
+    ],
+)
+@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
+@mock.patch("elasticSearchFunctions._wait_for_cluster_yellow_status")
+@mock.patch("elasticSearchFunctions._try_to_index")
+def test_index_aipfile_dmdsec(
+    dummy_try_to_index,
+    dummy_wait_for_cluster_yellow_status,
+    dummy_get_dashboard_uuid,
+    metsfile,
+    dmdsec_dict,
+):
+    """Check AIP file dmdSec is correctly parsed from METS files.
+
+    Mock _try_to_index() with a function that populates a dict
+    indexed_data, with the dmdSec data that _index_aip_files() obtained
+    from the METS
+    """
+
+    dummy_get_dashboard_uuid.return_value = "test-uuid"
+
+    indexed_data = {}
+
+    def get_dublincore_metadata(client, indexData, index, printfn):
+        try:
+            dmd_section = indexData["METS"]["dmdSec"]
+            metadata_container = dmd_section["ns0:xmlData_dict_list"][0]
+            dc = metadata_container["ns1:dublincore_dict_list"][0]
+        except (KeyError, IndexError):
+            dc = None
+        indexed_data[indexData["filePath"]] = dc
+
+    dummy_try_to_index.side_effect = get_dublincore_metadata
+
+    elasticSearchFunctions._index_aip_files(
+        client=None,
+        uuid="DUMMYUUID",
+        mets_path=os.path.join(THIS_DIR, "fixtures", metsfile),
+        name="{}-{}".format("DUMMYNAME", "DUMMYUUID"),
+        identifiers=[],
+    )
+
+    for key, value in dmdsec_dict["dublincore_dict"].iteritems():
+        assert indexed_data[dmdsec_dict["filePath"]][key] == value
