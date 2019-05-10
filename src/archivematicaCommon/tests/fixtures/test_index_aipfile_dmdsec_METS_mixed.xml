@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  This METS file has been cut-down to reduce fixture size
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd">
+  <mets:metsHdr CREATEDATE="2019-05-03T19:34:45"/>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+      <mets:xmlData>
+        <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:intellectualEntity" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+          <premis:objectIdentifier>
+            <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+            <premis:objectIdentifierValue>917acb24-763d-4c97-a4ab-40b45ea556af</premis:objectIdentifierValue>
+          </premis:objectIdentifier>
+          <premis:originalName>test-metadata-mixed-917acb24-763d-4c97-a4ab-40b45ea556af</premis:originalName>
+        </premis:object>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Test Title</dc:title>
+          <dc:date>2019-05-03</dc:date>
+          <dc:description>Test description</dc:description>
+          <dc:language>English</dc:language>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_3">
+    <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="CUSTOM">
+      <mets:xmlData>
+        <fonds_collection>Test fonds</fonds_collection>
+        <source_of_title>Title taken from the document label and accompanying material</source_of_title>
+        <inventory_remarks>Some inventory remarks.</inventory_remarks>
+        <reformatting_remarks>Some reformatting remarks.</reformatting_remarks>
+        <reformatting_dates>preservation copy 2019-02-27</reformatting_dates>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>923e2e11-1497-4f93-995b-d932b7d580cd</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>18324</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Scalable Vector Graphics</premis:formatName>
+                  <premis:formatVersion>1.0</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/91</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-05-03</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/lion.svg</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+ <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-923e2e11-1497-4f93-995b-d932b7d580cd" ID="file-923e2e11-1497-4f93-995b-d932b7d580cd" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/lion.svg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+ </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="test-metadata-mixed-917acb24-763d-4c97-a4ab-40b45ea556af" TYPE="Directory" DMDID="dmdSec_1">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="lion.svg" TYPE="Item" DMDID="dmdSec_2 dmdSec_3">
+          <mets:fptr FILEID="file-923e2e11-1497-4f93-995b-d932b7d580cd"/>
+        </mets:div>
+     </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

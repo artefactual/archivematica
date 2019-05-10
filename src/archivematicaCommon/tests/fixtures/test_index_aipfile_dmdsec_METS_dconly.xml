@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  This METS file has been cut-down to reduce fixture size
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd">
+  <mets:metsHdr CREATEDATE="2019-05-09T18:23:26"/>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+      <mets:xmlData>
+        <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:intellectualEntity" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+          <premis:objectIdentifier>
+            <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+            <premis:objectIdentifierValue>399e20dd-5cc7-465c-a406-3c6afdebee76</premis:objectIdentifierValue>
+          </premis:objectIdentifier>
+          <premis:originalName>dconly-399e20dd-5cc7-465c-a406-3c6afdebee76</premis:originalName>
+        </premis:object>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Test Title</dc:title>
+          <dc:date>2019-05-03</dc:date>
+          <dc:description>Test description</dc:description>
+          <dc:language>English</dc:language>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>5c1af9c3-0edd-4f99-a681-8894309e9bf2</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>18324</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Unknown</premis:formatName>
+                </premis:formatDesignation>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-05-03</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/lion.svg</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+ <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-5c1af9c3-0edd-4f99-a681-8894309e9bf2" ID="file-5c1af9c3-0edd-4f99-a681-8894309e9bf2" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/lion.svg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+ </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="dconly-399e20dd-5cc7-465c-a406-3c6afdebee76" TYPE="Directory" DMDID="dmdSec_1">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="lion.svg" TYPE="Item" DMDID="dmdSec_2">
+          <mets:fptr FILEID="file-5c1af9c3-0edd-4f99-a681-8894309e9bf2"/>
+        </mets:div>
+     </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>
