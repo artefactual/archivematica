@@ -2971,7 +2971,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "d1018160-aaab-4d92-adce-d518880d7c7d"
+                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
                 }
             },
             "fallback_job_status": "Completed successfully",
@@ -7372,7 +7372,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "d1018160-aaab-4d92-adce-d518880d7c7d"
+                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
                 }
             },
             "fallback_job_status": "Failed",
@@ -10799,39 +10799,6 @@
                 "fr": "Identifier les fichiers DSpace",
                 "pt_BR": "Identifique os arquivos do DSpace",
                 "sv": "Identifiera DSpace-filer"
-            }
-        },
-        "d1018160-aaab-4d92-adce-d518880d7c7d": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
-                "execute": "archivematicaVerifyMets_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Verify mets_structmap.xml compliance",
-                "fr": "Vérifier la conformité mets_structmap.xml ",
-                "pt_BR": "Verificar a conformidade mets_structmap.xml",
-                "sv": "Kontrollera mets_structmap.xml följsamhet"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
-            "group": {
-                "en": "Verify transfer compliance",
-                "fr": "Vérifier la conformité du transfert",
-                "pt_BR": "Verificar a conformidade da transferência",
-                "sv": "Kontrollera överförings följsamhet"
             }
         },
         "d1b27e9e-73c8-4954-832c-36bd1e00c802": {
