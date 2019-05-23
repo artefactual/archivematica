@@ -33,4 +33,6 @@ class CustomLDAPBackend(LDAPBackend):
 
 @receiver(populate_user)
 def ldap_populate_user(sender, user, ldap_user, **kwargs):
-    generate_api_key(user)
+    if user.pk is None:
+        user.save()
+        generate_api_key(user)
