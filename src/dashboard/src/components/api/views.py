@@ -17,6 +17,7 @@
 
 # stdlib, alphabetical
 import base64
+from cgi import parse_header
 import json
 import shutil
 import logging
@@ -28,6 +29,7 @@ import re
 from django.db.models import Q
 import django.http
 from django.conf import settings as django_settings
+from django.utils import six
 
 # External dependencies, alphabetical
 from tastypie.authentication import (
@@ -44,6 +46,7 @@ from components.unit import views as unit_views
 from components import helpers
 from main import models
 from processing import install_builtin_config
+from . import validators
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
@@ -98,7 +101,10 @@ def _api_endpoint(expected_methods):
 
 def _ok_response(message, **kwargs):
     """Mixin to return API responses to the user."""
-    payload = {"message": message}
+    if isinstance(message, dict):
+        payload = message
+    else:
+        payload = {"message": message}
     status_code = kwargs.pop("status_code", 200)
     payload.update(kwargs)
     return helpers.json_response(payload, status_code=status_code)
@@ -824,3 +830,31 @@ def _package_create(request):
         LOGGER.error("{}: {}".format(msg, err))
         return helpers.json_response({"error": True, "message": msg}, 500)
     return helpers.json_response({"id": id_}, 202)
+
+
+@_api_endpoint(expected_methods=["POST"])
+def validate(request, validator_name):
+    try:
+        validator = validators.get_validator(validator_name)
+    except validators.ValidatorNotAvailableError as err:
+        return _error_response(six.text_type(err), status_code=404)
+
+    # We could leverage Content-Type so a validator knows the type of document
+    # and encoding that it's dealing with. For now, we're just enforcing that
+    # "text/csv; charset=utf-8" is used, which is used by Avalon's validator.
+    mime_type, props = parse_header(request.META.get("CONTENT_TYPE", ""))
+    if mime_type != "text/csv" or props.get("charset") != "utf-8":
+        return _error_response('Content type should be "text/csv; charset=utf-8"')
+
+    try:
+        validator.validate(request.read())
+    except validators.ValidationError as err:
+        return _ok_response(
+            {"valid": False, "reason": six.text_type(err)}, status_code=400
+        )
+    except Exception as err:
+        LOGGER.error("Validator {} failed: {}".format(validator_name, err))
+        return _error_response(
+            "Unexepected error in the validation process, see the logs for more details."
+        )
+    return _ok_response({"valid": True})
