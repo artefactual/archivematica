@@ -6,7 +6,6 @@ import platform
 import requests
 from requests.auth import AuthBase
 import urllib
-import time
 
 from django.conf import settings as django_settings
 
@@ -218,37 +217,6 @@ def browse_location(uuid, path):
     return browse
 
 
-def wait_for_async(response, poll_seconds=2, poll_timeout_seconds=600):
-    """
-    Poll for results on an async endpoint.
-
-    `response` should have a HTTP 202 (Accepted) status code, and is expected to
-    contain a Location header telling us where to get our results from.
-
-    `poll_seconds` controls how long we wait between poll requests.
-
-    `poll_timeout_seconds` controls how long we wait for a poll request to
-    complete before giving up and throwing an exception.
-
-    This function may raise exceptions. The caller can expect them to be
-    instances of ``requests.exceptions.RequestException``.
-    """
-    response.raise_for_status()
-    poll_url = response.headers["Location"]
-    while True:
-        poll_response = _storage_api_session(timeout=poll_timeout_seconds).get(poll_url)
-        poll_response.raise_for_status()
-        payload = poll_response.json()
-        if not payload["completed"]:
-            time.sleep(poll_seconds)
-            continue
-        if payload["was_error"]:
-            errmsg = "Failure storing file: {}".format(payload["error"])
-            LOGGER.warning(errmsg)
-            raise WaitForAsyncError(errmsg)
-        return payload["result"]
-
-
 def copy_files(source_location, destination_location, files):
     """
     Copies `files` from `source_location` to `destination_location` using SS.
@@ -280,12 +248,11 @@ def copy_files(source_location, destination_location, files):
             except UnicodeError:
                 pass
 
-    url = (
-        _storage_service_url() + "location/" + destination_location["uuid"] + "/async/"
-    )
+    url = _storage_service_url() + "location/" + destination_location["uuid"] + "/"
     try:
-        response = _storage_api_session().post(url, json=move_files)
-        return (wait_for_async(response), None)
+        response = _storage_api_slow_session().post(url, json=move_files)
+        response.raise_for_status()
+        return (response.json(), None)
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with %s because %s", move_files, e)
         return (None, e)
@@ -374,10 +341,11 @@ def create_file(
             ret = response.json()
     else:
         try:
-            session = _storage_api_session()
-            url = _storage_service_url() + "file/async/"
-            response = session.post(url, json=new_file, allow_redirects=False)
-            ret = wait_for_async(response)
+            session = _storage_api_slow_session()
+            url = _storage_service_url() + "file/"
+            response = session.post(url, json=new_file)
+            response.raise_for_status()
+            ret = response.json()
         except requests.exceptions.RequestException as err:
             LOGGER.warning(errmsg, new_file, err)
             raise
