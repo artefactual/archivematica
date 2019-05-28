@@ -1038,8 +1038,8 @@
                     },
                     {
                         "description": {
-                            "en": "7z without compression (Copy)",
-                            "pt_BR": "7z sem compressão (Cópia)"
+                            "en": "7z without compression",
+                            "pt_BR": "7z sem compressão"
                         },
                         "id": "e3906da0-41fb-4cb8-a598-6c73981b63e9",
                         "items": {
