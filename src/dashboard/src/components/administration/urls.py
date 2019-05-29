@@ -28,7 +28,6 @@ urlpatterns = [
     url(r"reports/failures/(?P<report_id>\w+)/$", views.failure_report),
     url(r"reports/failures/$", views.failure_report),
     url(r"dips/as/$", views_dip_upload.admin_as),
-    url(r"dips/atk/$", views_dip_upload.admin_atk),
     url(r"dips/atom/$", views_dip_upload.admin_atom),
     url(r"dips/atom/edit_levels/$", views.atom_levels_of_description),
     url(r"^i18n/", include("django.conf.urls.i18n")),

@@ -479,13 +479,8 @@ class SIPArrangeAccessMapping(models.Model):
     """ Maps directories within SIPArrange to descriptive objects in a remote archival management system. """
 
     ARCHIVESSPACE = "archivesspace"
-    ARCHIVISTS_TOOLKIT = "atk"
     ATOM = "atom"
-    SYSTEMS = (
-        (ARCHIVESSPACE, "ArchivesSpace"),
-        (ARCHIVISTS_TOOLKIT, "Archivist's Toolkit"),
-        (ATOM, "AtoM"),
-    )
+    SYSTEMS = ((ARCHIVESSPACE, "ArchivesSpace"), (ATOM, "AtoM"))
 
     arrange_path = models.CharField(max_length=255)
     system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
@@ -1330,17 +1325,6 @@ class UnitVariable(models.Model):
 
     class Meta:
         db_table = u"UnitVariables"
-
-
-class AtkDIPObjectResourcePairing(models.Model):
-    id = models.AutoField(primary_key=True, db_column="pk")
-    dipuuid = models.CharField(max_length=50, db_column="dipUUID")
-    fileuuid = models.CharField(max_length=50, db_column="fileUUID")
-    resourceid = models.IntegerField(db_column="resourceId")
-    resourcecomponentid = models.IntegerField(db_column="resourceComponentId")
-
-    class Meta:
-        db_table = u"AtkDIPObjectResourcePairing"
 
 
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):

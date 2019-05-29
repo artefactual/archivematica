@@ -86,33 +86,6 @@ class ArchivesSpaceConfigForm(forms.Form):
     )
 
 
-class ArchivistsToolkitConfigForm(forms.Form):
-    host = forms.CharField(label=_("Database host"))
-    port = forms.IntegerField(label=_("Database port"), initial=3306)
-    dbname = forms.CharField(label=_("Database name"))
-    dbuser = forms.CharField(label=_("Database user"))
-    dbpass = forms.CharField(required=False, label=_("Database password"))
-    atuser = forms.CharField(label=_("Archivists' Toolkit username"))
-    premis = forms.ChoiceField(
-        choices=PREMIS_CHOICES, label=_("Restrictions apply"), initial="yes"
-    )
-    ead_actuate = forms.ChoiceField(
-        choices=EAD_ACTUATE_CHOICES, label=_("EAD DAO actuate"), initial="none"
-    )
-    ead_show = forms.ChoiceField(
-        choices=EAD_SHOW_CHOICES, label=_("EAD DAO show"), initial="embed"
-    )
-    object_type = forms.CharField(required=False, label=_("Object type"))
-    use_statement = forms.CharField(label=_("Use statement"))
-    uri_prefix = forms.CharField(label=_("URL prefix"))
-    access_conditions = forms.CharField(
-        required=False, label=_("Conditions governing access")
-    )
-    use_conditions = forms.CharField(
-        required=False, label=_("Conditions governing use")
-    )
-
-
 class AtomConfigForm(forms.Form):
     url = forms.CharField(
         label=_("Upload URL"),

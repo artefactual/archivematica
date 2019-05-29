@@ -26,10 +26,7 @@ class TestAccessAPI(TestCase):
         response = self.client.post(
             reverse(
                 "components.access.views.access_create_directory",
-                kwargs={
-                    "system": "archivesspace",
-                    "record_id": record_id.replace("/", "-"),
-                },
+                kwargs={"record_id": record_id.replace("/", "-")},
             ),
             {},
             follow=True,
@@ -38,7 +35,7 @@ class TestAccessAPI(TestCase):
         response_dict = json.loads(response.content)
         assert response_dict["success"] is True
         mapping = models.SIPArrangeAccessMapping.objects.get(
-            system="archivesspace", identifier=record_id
+            system=models.SIPArrangeAccessMapping.ARCHIVESSPACE, identifier=record_id
         )
         assert models.SIPArrange.objects.get(arrange_path=mapping.arrange_path + "/")
 
@@ -47,10 +44,7 @@ class TestAccessAPI(TestCase):
         response = self.client.get(
             reverse(
                 "components.access.views.access_arrange_contents",
-                kwargs={
-                    "system": "archivesspace",
-                    "record_id": record_id.replace("/", "-"),
-                },
+                kwargs={"record_id": record_id.replace("/", "-")},
             ),
             follow=True,
         )

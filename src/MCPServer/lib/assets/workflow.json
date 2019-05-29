@@ -776,15 +776,6 @@
             },
             "link_id": "2584b25c-8d98-44b7-beca-2b3ea2ea2505"
         },
-        "f11409ad-cf3c-4e7f-b0d5-4be32d98229b": {
-            "description": {
-                "en": "Upload DIP to Archivists Toolkit",
-                "fr": "Télécharger le DIP dans Archivists' Toolkit",
-                "pt_BR": "Carregar DIP para o Archivists Toolkit",
-                "sv": "Ladda upp DIP till Archivists Toolkit"
-            },
-            "link_id": "7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1"
-        },
         "f1311d19-54c9-4484-9b3c-9bda40457559": {
             "description": {
                 "en": "Add README file",
@@ -7220,36 +7211,6 @@
                 "sv": "Normalisera"
             }
         },
-        "7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": []
-            },
-            "description": {
-                "en": "Choose Config for Archivists Toolkit DIP Upload",
-                "es": "Elegir configuración de Archivists' Toolkit",
-                "fr": "Choisir la configuration pour le Téléchargement DIP via Archivists' Toolkit",
-                "pt_BR": "Escolha Configuração para envio do Archivists Toolkit DIP ",
-                "sv": "Välj Config för Archivists Toolkit DIP-uppladdning"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1",
-            "group": {
-                "en": "Upload DIP",
-                "es": "Subir DIP",
-                "fr": "Télécharger le DIP",
-                "ja": "DIPをアップロード",
-                "pt_BR": "Carregar DIP",
-                "sv": "Ladda upp DIP"
-            }
-        },
         "7c44c454-e3cc-43d4-abe0-885f93d693c6": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -8330,7 +8291,6 @@
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
                     "526eded3-2280-4f10-ac86-eff6c464cc81",
-                    "f11409ad-cf3c-4e7f-b0d5-4be32d98229b",
                     "0fe9842f-9519-4067-a691-8a363132ae24",
                     "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa",
                     "3572f844-5e69-4000-a24b-4e32d3487f82"
@@ -9864,42 +9824,6 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
-        },
-        "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--host=\"%host%\" --port=\"%port%\" --dbname=\"%dbname%\" --dbuser=\"%dbuser%\" --dbpass=\"%dbpass%\" --atuser=\"%atuser%\" --dip_location=\"%SIPDirectory%\" --dip_name=\"%SIPName%\" --dip_uuid=\"%SIPUUID%\" --restrictions=\"%restrictions%\" --object_type=\"%object_type%\" --ead_actuate=\"%ead_actuate%\" --ead_show=\"%ead_show%\" --use_statement=\"%use_statement%\" --uri_prefix=\"%uri_prefix%\" --access_conditions=\"%access_conditions%\" --use_conditions=\"%use_conditions%\"",
-                "execute": "upload-archivistsToolkit_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Upload to Archivists Toolkit",
-                "fr": "Télécharger dans Archivists' Toolkit",
-                "ja": "Archivists Toolkitにアップロード",
-                "pt_BR": "Carregar para o Archivists Toolkit",
-                "sv": "Ladda upp till Archivists Toolkit"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "2e31580d-1678-474b-83e5-a53d97d150f6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "2e31580d-1678-474b-83e5-a53d97d150f6",
-            "group": {
-                "en": "Upload DIP",
-                "es": "Subir DIP",
-                "fr": "Télécharger le DIP",
-                "ja": "DIPをアップロード",
-                "pt_BR": "Carregar DIP",
-                "sv": "Ladda upp DIP"
             }
         },
         "bbfbecde-370c-4e26-8087-cfa751e72e6a": {

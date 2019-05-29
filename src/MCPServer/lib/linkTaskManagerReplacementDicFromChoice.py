@@ -55,7 +55,6 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         # replacements (``self.choices`` has zero elements at this point). This
         # is true for the following chain links:
         #
-        #   - ``Choose Config for Archivists Toolkit DIP Upload``
         #   - ``Choose config for AtoM DIP upload``
         #   - ``Choose Config for ArchivesSpace DIP Upload``
         #

@@ -8,7 +8,7 @@
 {% block page_id %}as_match{% endblock %}
 
 {% block extra_css %}
-  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/atk_match.css' %}" />
+  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/as_match.css' %}" />
 {% endblock %}
 
 {% block js %}
@@ -78,7 +78,7 @@
   {% endif %}
   <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
 
-  <div id='atk_matcher'></div>
+  <div id='as_matcher'></div>
 
   <!-- Templates -->
 
