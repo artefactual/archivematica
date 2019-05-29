@@ -199,7 +199,6 @@ $(function()
         'click .btn_show_tasks': 'showTasks',
         'click .btn_normalization_report': 'normalizationReport',
         'click .btn_as_upload': 'as_match',
-        'click .btn_atk_upload': 'atk_match',
         'change select': 'action'
       },
 
@@ -250,13 +249,6 @@ $(function()
             .append('<a class="btn_as_upload" href="#" title="' + message + '"><span>' + message + '</span>');
           }
 
-          // "Choose Config for Archivists Toolkit DIP Upload" chain link matched by its UUID.
-          if (linkId == '7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1')
-          {
-            this.$('.job-detail-actions')
-            .append('<a class="btn_atk_upload" href="#" title="' + message + '"><span>' + message + '</span>');
-          }
-
           this.$('.job-detail-microservice > a').tooltip();
 
           this.$('.job-detail-actions > a').tooltip();
@@ -304,8 +296,6 @@ $(function()
           var dipUploadWithMappingPage = {
             // "Upload DIP to ArchivesSpace" chain matched by its UUID.
             '3572f844-5e69-4000-a24b-4e32d3487f82': '/ingest/' + unitId + '/upload/as/',
-            // "Upload DIP to Archivists Toolkit" chain matched by its UUID.
-            'f11409ad-cf3c-4e7f-b0d5-4be32d98229b': '/ingest/' + unitId + '/upload/atk/',
           }
           if (chainId in dipUploadWithMappingPage) {
             $('body').html('<h1 style="text-align: center;">' + gettext('Loading...') + '</h1>');

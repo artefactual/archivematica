@@ -1,6 +1,6 @@
 ﻿function atkMatcherInitialize(DIPUUID, objectPaths, resourceData, matches) {
   var matcher = new ATKMatcherView({
-    'el':                       $('#atk_matcher'),
+    'el':                       $('#as_matcher'),
     'matcherLayoutTemplate':    $('#matcher-layout-template').html(),
     'objectPaneCSSId':          'object_pane',
     'objectPaneSearchCSSId':    'object_pane_search',

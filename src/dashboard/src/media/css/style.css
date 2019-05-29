@@ -368,7 +368,6 @@ li.user > a {
 .job-detail-actions > .btn_show_tasks { background-image: url(/media/images/cog.png); }
 .job-detail-actions > .btn_normalization_report { background-image: url(/media/images/table_edit.png); }
 .job-detail-actions > .btn_as_upload { background-image: url(/media/images/table_edit.png); }
-.job-detail-actions > .btn_atk_upload { background-image: url(/media/images/table_edit.png); }
 
 .job-detail-microservice > .title {
   -webkit-transform: rotate(-90deg);
