@@ -84,7 +84,7 @@
         {% endif %}
 
         {% if item.stdout|length > 0 %}
-          <div class="panel panel-default">
+          <div class="panel panel-info">
             <div class="panel-heading">
               <h3 class="panel-title">{% trans "Standard output (stdout)" %}</h3>
             </div>
@@ -95,7 +95,7 @@
         {% endif %}
 
         {% if item.stderror|length > 0 %}
-          <div class="panel panel-danger">
+          <div class="panel panel-info">
             <div class="panel-heading">
               <h3 class="panel-title">{% trans "Errors and diagnostics (stderr)" %}</h3>
             </div>
