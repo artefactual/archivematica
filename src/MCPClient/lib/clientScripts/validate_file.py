@@ -168,6 +168,11 @@ class Validator(object):
             self.job.print_output(
                 'Command "{}" was successful'.format(rule.command.description)
             )
+        elif output.get("eventOutcomeInformation") == "partial pass":
+            self.job.print_output(
+                'Command "{}" was partially successful'.format(
+                    rule.command.description)
+            )
         else:
             self.job.pyprint(
                 "Command {cmd_description} indicated failure with this"
