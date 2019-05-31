@@ -97,7 +97,7 @@
         {% if item.stderror|length > 0 %}
           <div class="panel panel-danger">
             <div class="panel-heading">
-              <h3 class="panel-title">{% trans "Standard error (stderr)" %}</h3>
+              <h3 class="panel-title">{% trans "Errors and diagnostics (stderr)" %}</h3>
             </div>
             <div class="panel-body shell-output">
               <pre>{{ item.stderror }}</pre>
