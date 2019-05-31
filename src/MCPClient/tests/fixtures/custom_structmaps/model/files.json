@@ -270,6 +270,24 @@
     }
 },
 {
+    "pk": "707696d4-5526-4908-b746-345356209bd3",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "size": 2600
+    }
+},
+{
     "pk": "f5f234d0-dcd4-461c-8943-d66862f42f5a",
     "model": "main.file",
     "fields": {
