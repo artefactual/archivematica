@@ -478,8 +478,11 @@ def start(workflow):
         try:
             worker.work()
         except gearman.errors.ServerUnavailable as inst:
-            logger.error('Gearman server is unavailable: %s. Retrying in %d'
-                         ' seconds.', inst.args, fail_sleep)
+            logger.error(
+                "Gearman server is unavailable: %s. Retrying in %d" " seconds.",
+                inst.args,
+                fail_sleep,
+            )
             time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
