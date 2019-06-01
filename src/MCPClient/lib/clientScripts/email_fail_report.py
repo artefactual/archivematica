@@ -45,7 +45,7 @@ COLORS = {
 
 
 def get_emails_from_dashboard_users():
-    return User.objects.filter(is_active=True).values_list('email', flat=True).exclude(email__in=['demo@example.com', ''])
+    return User.objects.filter(is_active=True, userprofile__system_emails=True).values_list('email', flat=True).exclude(email__in=['demo@example.com', ''])
 
 
 def send_email(subject, to, content):
