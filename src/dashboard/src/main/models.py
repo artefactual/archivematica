@@ -637,6 +637,7 @@ class UserProfile(models.Model):
     """ Extension of the User model for additional information. """
     user = models.OneToOneField(User)
     agent = models.OneToOneField(Agent)
+    system_emails = models.BooleanField(default=False)
 
     class Meta:
         db_table = u'main_userprofile'
