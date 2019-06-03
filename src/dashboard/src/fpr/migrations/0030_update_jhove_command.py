@@ -92,8 +92,7 @@ def data_migration_up(apps, schema_editor):
     FPCommand = apps.get_model("fpr", "FPCommand")
     FPRule = apps.get_model("fpr", "FPRule")
 
-    new_cmd = (
-"""
+    new_cmd = """
 import json
 import subprocess
 import sys
@@ -129,18 +128,18 @@ def get_outcome(status, format=None):
         return "partial pass"
 
     if status == "Well-Formed and valid":
-        return "pass" 
+        return "pass"
     elif status == "Well-Formed, but not valid":
-        return "partial pass" 
+        return "partial pass"
     else:
-        return "fail" 
+        return "fail"
 
 def get_format(doc):
     format = doc.find('.{http://hul.harvard.edu/ois/xml/ns/jhove}repInfo/{http://hul.harvard.edu/ois/xml/ns/jhove}format')
     version = doc.find('.{http://hul.harvard.edu/ois/xml/ns/jhove}repInfo/{http://hul.harvard.edu/ois/xml/ns/jhove}version')
 
     if format is None:
-        format = "Not detected" 
+        format = "Not detected"
     else:
         format = format.text
 
@@ -179,7 +178,6 @@ if __name__ == '__main__':
     target = sys.argv[1]
     sys.exit(main(target))
 """
-    )
 
     # Replace the existing command with the following.
     FPCommand.objects.create(
@@ -210,6 +208,7 @@ def data_migration_down(apps, schema_editor):
         command_id=OLD_JHOVE_CMD_UUID
     )
     FPCommand.objects.filter(uuid=NEW_JHOVE_CMD_UUID).delete()
+
 
 class Migration(migrations.Migration):
     dependencies = [("fpr", "0029_update_inkscape_svg_command")]
