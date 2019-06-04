@@ -14,7 +14,7 @@
   "osdeps_repos": [
     { "name": "archivematica-extras",
       "description": "archivematica extras",
-      "baseurl": "https://packages.archivematica.org/1.9.x/centos-extras",
+      "baseurl": "https://packages.archivematica.org/1.10.x/centos-extras",
       "gpgcheck": "no",
       "enabled": "yes"
     }
@@ -22,11 +22,7 @@
   "osdeps_packages": [
   { "name": "epel-release", "state": "latest"}
   ],
-    "osdeps_packages_2": [
-  { "name": "https://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm", "state": "present"},
-  { "name": "https://forensics.cert.org/cert-forensics-tools-release-el7.rpm", "state": "present"}
-  ],
-  "osdeps_packages_3": [
+  "osdeps_packages_2": [
   { "name": "atool", "state": "latest"},
   { "name": "bulk_extractor", "state": "latest"},
   { "name": "ffmpeg", "state": "latest"},
