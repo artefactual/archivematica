@@ -1,0 +1,6 @@
+agentarchives==0.5.0
+bagit==1.7.0
+Django>=1.8,<1.9
+elasticsearch>=6.0.0,<7.0.0
+requests==2.21.0
+python-dateutil==2.4.2
