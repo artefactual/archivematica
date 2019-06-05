@@ -154,18 +154,18 @@ class NameSanitizer(object):
             event.agents.add(*event_agents)
 
         if len(self.files_index) > 0:
-            logger.info("Sanitized batch of %s files", len(self.files_index))
+            logger.debug("Sanitized batch of %s files", len(self.files_index))
 
             self.files_index = {}
         else:
-            logger.info("No file sanitization required.")
+            logger.debug("No file sanitization required.")
 
     def apply_dir_updates(self):
         """
         Run a single batch of Directory updates.
         """
         if self.directory_queryset is None:
-            logger.info("No directory sanitization required.")
+            logger.debug("No directory sanitization required.")
             return
 
         # We pass through _all_ objects here, as they may not be normalized in
@@ -184,10 +184,10 @@ class NameSanitizer(object):
             # Is seems like they should.
 
         if len(self.dirs_index) > 0:
-            logger.info("Sanitized batch of %s directories", len(self.dirs_index))
+            logger.debug("Sanitized batch of %s directories", len(self.dirs_index))
             self.dirs_index = {}
         else:
-            logger.info("No directory sanitization required.")
+            logger.debug("No directory sanitization required.")
 
     def add_file_to_batch(self, old_path, new_path):
         """
@@ -228,14 +228,20 @@ class NameSanitizer(object):
         Iterate over the filesystem, sanitizing as we go. Updates made on disk
         are batched and then applied to the database in chunks of BATCH_SIZE.
         """
-        for old_path, new_path, is_dir in sanitize_names.sanitize_tree(
+        for old_path, new_path, is_dir, was_sanitized in sanitize_names.sanitize_tree(
             self.objects_directory, self.objects_directory
         ):
-            logger.debug("Sanitized path on disk: %s -> %s", old_path, new_path)
+            # We need to use job.pyprint here to log to stdout, otherwise the filename
+            # cleanup log file is not generated.
+            if not was_sanitized:
+                self.job.pyprint("No sanitization for", old_path)
+                continue
+
             if is_dir:
                 self.add_dir_to_batch(old_path, new_path)
             else:
                 self.add_file_to_batch(old_path, new_path)
+            self.job.pyprint("Sanitized name:", old_path, " -> ", new_path)
 
         # Catch the remainder afer all batches
         self.apply_file_updates()
