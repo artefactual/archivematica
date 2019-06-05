@@ -81,9 +81,9 @@ def sanitize_tree(start_path, old_start_path):
     Recursive generator to sanitize all filesystem entries under the start
     path given.
 
-    Yields once for each file name sanitized, each dir sanitized, and
-    everything contained in each sanitized dir (e.g. if /foo/bår is
-    sanitized, /foo/bår/test will also be yielded.)
+    Yields a tuple of (old_path, sanitized_path, is_dir, was_sanitized) once
+    for each file or dir within the start_path, everything contained in each
+    dir.
     """
     start_path = os.path.abspath(start_path)
 
@@ -94,8 +94,8 @@ def sanitize_tree(start_path, old_start_path):
         sanitized_path = os.path.join(start_path, sanitized_name)
         old_path = os.path.join(old_start_path, dir_entry.name)
 
-        if sanitized_path != old_path:
-            yield old_path, sanitized_path, is_dir
+        was_sanitized = sanitized_path != old_path
+        yield old_path, sanitized_path, is_dir, was_sanitized
 
         if is_dir:
             for result in sanitize_tree(sanitized_path, old_path):
