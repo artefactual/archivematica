@@ -267,6 +267,11 @@ def test_sanitize_name(basename, expected_name):
     assert sanitize_names.sanitize_name(basename) == expected_name
 
 
+def test_sanitize_name_raises_valueerror_on_empty_string():
+    with pytest.raises(ValueError):
+        sanitize_names.sanitize_name("")
+
+
 @pytest.mark.django_db
 def test_sanitize_transfer_with_multiple_files(
     monkeypatch, tmp_path, transfer, subdir_path, multiple_transfer_file_objs
