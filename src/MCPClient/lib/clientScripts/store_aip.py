@@ -287,7 +287,10 @@ def get_events_from_db(uuid):
             ("event_date_time", event_mdl.event_datetime.isoformat()),
             # String detailing the program and algorithm used and the program's
             # version (and any notable parameters passed).
-            ("event_detail", escape(event_mdl.event_detail)),
+            (
+                "event_detail_information",
+                ("event_detail", escape(event_mdl.event_detail)),
+            ),
             (
                 "event_outcome_information",
                 ("event_outcome", event_mdl.event_outcome),
