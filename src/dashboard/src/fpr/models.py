@@ -368,10 +368,7 @@ class IDTool(models.Model):
     active = Enabled()
 
     def __unicode__(self):
-        return _("%(description)s version %(version)s") % {
-            "description": self.description,
-            "version": self.version,
-        }
+        return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
         """ Returns string to be slugified. """
@@ -485,7 +482,11 @@ class FPCommand(VersionedModel, models.Model):
     )
     # ManyToManyField may not be the best choice here
     tool = models.ForeignKey(
-        "FPTool", to_field="uuid", null=True, verbose_name=_("the related tool")
+        "FPTool",
+        limit_choices_to={"enabled": True},
+        to_field="uuid",
+        null=True,
+        verbose_name=_("the related tool"),
     )
     description = models.CharField(_("description"), max_length=256)
     command = models.TextField(_("command"))
@@ -561,10 +562,7 @@ class FPTool(models.Model):
         verbose_name = _("Normalization tool")
 
     def __unicode__(self):
-        return _("%(description)s version %(version)s") % {
-            "description": self.description,
-            "version": self.version,
-        }
+        return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
         """ Returns string to be slugified. """
