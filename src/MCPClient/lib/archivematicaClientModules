@@ -44,6 +44,7 @@ validatefile_v1.0 = validate_file
 createsipfromtransferobjects_v0.0 = create_sip_from_transfer_objects
 jsonmetadatatocsv_v0.0 = json_metadata_to_csv
 loaddublincore_v0.0 = load_dublin_core
+loadeventsfromcsv_v1.0 = load_events_from_csv
 loadlabelsfromcsv_v0.0 = load_labels_from_csv
 manualnormalizationcheckformanualnormalizationdirectory_v0.0 = manual_normalization_check_for_manual_normalization_directory
 manualnormalizationremovemndirectories_v0.0 = manual_normalization_remove_mn_directories
