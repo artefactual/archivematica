@@ -1041,7 +1041,7 @@
                         },
                         "id": "9ce711ab-96d1-45dd-8708-de69698c1424",
                         "items": {
-                            "AIPCompressionAlgorithm": "gzip-"
+                            "AIPCompressionAlgorithm": "gzip-tar.gzip"
                         }
                     },
                     {
@@ -1053,7 +1053,7 @@
                         },
                         "id": "f61b00a1-ef2e-4dc4-9391-111c6f42b9a7",
                         "items": {
-                            "AIPCompressionAlgorithm": "pbzip2-"
+                            "AIPCompressionAlgorithm": "pbzip-tar.pbzip2"
                         }
                     },
                     {
