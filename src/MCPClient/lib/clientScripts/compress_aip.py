@@ -102,7 +102,7 @@ def compress_aip(
         )
         tool_info_command = (
             'echo program="gzip"\; '
-            'algorithm="gzip"\; '
+            'algorithm="{}"\; '
             'version="$((gzip -V) 2>&1)"'.format(compression_algorithm)
         )
     else:
