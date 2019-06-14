@@ -22,6 +22,7 @@ import sys
 import types
 
 import django
+from django.utils import six
 
 from archivematicaClient import get_supported_modules
 
@@ -31,17 +32,19 @@ from archivematicaClient import get_supported_modules
 # type since common practice is to use ``None`` as a default value for a global
 # and then reassign globally it to something mutable.
 GOOD_GLOBAL_TYPES = (
-    types.ModuleType,
-    types.FunctionType,
-    types.TypeType,
-    types.ClassType,
-    django.db.models.base.ModelBase,
-    logging.Logger,
-    int,
-    str,
-    tuple,
-    django.conf.LazySettings,
-    django.db.DefaultConnectionProxy,
+    (
+        types.ModuleType,
+        types.FunctionType,
+        types.TypeType,
+        django.db.models.base.ModelBase,
+        logging.Logger,
+        tuple,
+        django.conf.LazySettings,
+        django.db.DefaultConnectionProxy,
+    )
+    + six.class_types
+    + six.integer_types
+    + six.string_types
 )
 
 
