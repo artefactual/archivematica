@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import csv
+import datetime
 import logging
 import os
 
@@ -9,7 +10,7 @@ import django
 django.setup()  # NOQA
 
 from django.db import transaction
-from django.utils import dateparse
+from django.utils import dateparse, timezone
 
 from main.models import Agent, Event, File
 
@@ -18,6 +19,25 @@ logger = logging.getLogger(__name__)
 
 
 DB_BASE_PATH = r"%transferDirectory%"
+
+
+def _parse_datetime(value):
+    parsed_datetime = dateparse.parse_datetime(value)
+    # Check if we got a date
+    if parsed_datetime is None:
+        parsed_date = dateparse.parse_date(value)
+        if parsed_date is not None:
+            parsed_datetime = datetime.datetime.combine(
+                parsed_date, datetime.datetime.min.time()
+            )
+
+    # If we didn't get a timezone, use the one configured in Django settings
+    if parsed_datetime is not None and parsed_datetime.tzinfo is None:
+        parsed_datetime = parsed_datetime.replace(
+            tzinfo=timezone.get_default_timezone()
+        )
+
+    return parsed_datetime
 
 
 class EventReader(object):
@@ -85,18 +105,14 @@ class EventReader(object):
             elif column in self.EVENT_COLUMN_MAP:
                 event[self.EVENT_COLUMN_MAP[column]] = value
             elif column == "eventDateTime":
-                parsed_datetime = None
                 try:
-                    parsed_datetime = dateparse.parse_datetime(value)
-                    if parsed_datetime is None:
-                        parsed_datetime = dateparse.parse_date(value)
+                    event["event_datetime"] = _parse_datetime(value)
                 except ValueError:
                     logger.warning(
                         'Error parsing eventDateTime value "%s" on line %s',
                         value,
                         self.line_num,
                     )
-                event["event_datetime"] = parsed_datetime
             elif column in self.AGENT_COLUMN_MAP:
                 if agent is None:
                     agent = {}
@@ -119,6 +135,10 @@ def parse_events_csv(csv_path, file_queryset):
         reader = EventReader(csv_file)
 
         for filename, event_data, agents in reader:
+            if filename is None:
+                logger.warning("Row on line %s misssing filename", reader.line_num)
+                continue
+
             original_location = "".join([DB_BASE_PATH, filename])
             try:
                 file_obj = file_queryset.get(originallocation=original_location)
@@ -138,11 +158,12 @@ def parse_events_csv(csv_path, file_queryset):
             event = Event.objects.create(file_uuid=file_obj, **event_data)
             event.agents.add(*agent_objs)
 
-            # The event_datetime field is auto_now, which will ignore what we pass to create.
-            # Work around this with another query to update the row :(
-            Event.objects.filter(pk=event.pk).update(
-                event_datetime=event_data["event_datetime"]
-            )
+            # The event_datetime field is auto_now, which will ignore what we pass
+            # to create. Work around this with another query to update the row :(
+            event_datetime = event_data.get("event_datetime", None)
+            if event_datetime is not None:
+
+                Event.objects.filter(pk=event.pk).update(event_datetime=event_datetime)
 
             yield event, reader.line_num
 

@@ -1,3 +1,4 @@
+# -*- coding: utf8
 from __future__ import absolute_import, unicode_literals
 
 import datetime
@@ -20,11 +21,29 @@ objects/image1.jpg,creation,2019-05-30,Creation event detail,More details about 
 objects/image1.jpg,message digest calculation,2019-05-30,hashlib.sha256,,,383d349019ace0e235443c6cb8c5fa3174f00d562281947d36f5fd12aa263687,,,,,repository code,NHA,Norsk helsearkiv,organization
 """
 
+BAD_DATA_CSV = """filename,eventType,eventDateTime,eventDetail,eventDetailExtension,eventOutcome,eventOutcomeDetailNote,eventOutcomeDetailExtension,linkingObjectIdentifierType,linkingObjectIndentifierValue,linkingObjectRole,agentIdentifierType,agentIdentifierValue,agentName,agentType
+
+,,,
+objects/missing file.jpg,message digest calculation,2019-05-30,hashlib.sha256,,,383d349019ace0e235443c6cb8c5fa3174f00d562281947d36f5fd12aa263687,,,,,repository code,NHA,Norsk helsearkiv,organization
+objects/ïmågé1.jpg,message digest calculation,2019-05-30,hashlib.sha256,,,383d349019ace0e235443c6cb8c5fa3174f00d562281947d36f5fd12aa263687,,,,,repository code,NHA,Norsk helsearkiv,organization
+objects/image1.jpg,,,,,,,,,,,,,,
+objects/image1.jpg,,2010-04-30,,,,,,,,,,,,
+objects/image1.jpg,,0000-13-32,,,,,,,,,,,,
+"""
+
 
 @pytest.fixture()
 def basic_csv(tmp_path):
     csv_path = tmp_path / "events.csv"
     csv_path.write_text(BASIC_CSV)
+
+    return csv_path
+
+
+@pytest.fixture()
+def bad_data_csv(tmp_path):
+    csv_path = tmp_path / "events.csv"
+    csv_path.write_text(BAD_DATA_CSV)
 
     return csv_path
 
@@ -53,16 +72,16 @@ def file_obj(db, transfer):
 @pytest.mark.django_db
 def test_parse_events_csv(basic_csv, transfer, file_obj):
     # Iterate over the generator, even though we're not using the results here.
-    for event, line in parse_events_csv(
-        str(basic_csv), File.objects.filter(transfer=transfer)
-    ):
+    file_queryset = File.objects.filter(transfer=transfer)
+
+    for event, line in parse_events_csv(str(basic_csv), file_queryset):
         pass
 
     events = file_obj.event_set.all().order_by("pk")
 
     assert len(events) == 2
     assert events[0].event_datetime == datetime.datetime(
-        2019, 5, 30, 0, 0, 0, tzinfo=timezone.utc
+        2019, 5, 30, 0, 0, 0, tzinfo=timezone.get_default_timezone()
     )
     assert events[0].event_detail == "Creation event detail"
     assert events[0].event_outcome == "success"
@@ -74,3 +93,33 @@ def test_parse_events_csv(basic_csv, transfer, file_obj):
     assert agent.identifiervalue == "NHA"
     assert agent.name == "Norsk helsearkiv"
     assert agent.agenttype == "organization"
+
+
+@pytest.mark.django_db
+def test_parse_events_csv_with_missing_data(caplog, bad_data_csv, transfer, file_obj):
+    # Iterate over the generator, even though we're not using the results here.
+    file_queryset = File.objects.filter(transfer=transfer)
+
+    for event, line in parse_events_csv(str(bad_data_csv), file_queryset):
+        pass
+
+    events = file_obj.event_set.all().order_by("pk")
+
+    assert len(events) == 3
+
+    assert events[0].event_detail == ""
+    assert events[0].event_outcome == ""
+    assert events[0].event_outcome_detail == ""
+    assert events[0].agents.count() == 0
+
+    assert events[1].event_datetime == datetime.datetime(
+        2010, 4, 30, 0, 0, 0, tzinfo=timezone.get_default_timezone()
+    )
+
+    assert "Row on line 3 misssing filename" in caplog.text
+    assert (
+        'Filename "objects/missing file.jpg" referenced on line 4 not found'
+        in caplog.text
+    )
+    assert 'Filename "objects/ïmågé1.jpg" referenced on line 5 not found' in caplog.text
+    assert 'Error parsing eventDateTime value "0000-13-32" on line 8' in caplog.text
