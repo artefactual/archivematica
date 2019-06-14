@@ -16,6 +16,8 @@ from __future__ import absolute_import, print_function
 
 import json
 import sys
+
+import elasticsearch
 from django.conf import settings
 
 from main.management.commands import DashboardCommand
@@ -151,10 +153,14 @@ class Command(DashboardCommand):
             self.info("Reindexing %s:" % indexes_relation["dest_index"])
             try:
                 response = es_client.reindex(body=body)
-                self.info("Response:\n%s" % json.dumps(response, indent=4))
-            except Exception as e:
+            except elasticsearch.TransportError as exc:
                 fails += 1
-                self.error("Error %s:" % e)
+                self.error("Error: {}. Details:\n{}".format(exc, exc.info))
+            except Exception as exc:
+                fails += 1
+                self.error("Error: {}".format(exc))
+            else:
+                self.info("Response:\n%s" % json.dumps(response, indent=4))
 
         if fails > 0:
             self.error("%s reindex request(s) failed!" % fails)
