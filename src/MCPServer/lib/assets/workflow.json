@@ -2682,38 +2682,6 @@
                 "sv": "Karaktärisera och extrahera metadata"
             }
         },
-        "657b0b54-dc65-4e6c-bc90-ef0e3e753128": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/events.csv\"",
-                "execute": "loadEventsFromCSV_v1.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Load events from metadata/events.csv"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
-            "group": {
-                "en": "Characterize and extract metadata",
-                "es": "Caracterizar y extraer metadatos",
-                "fr": "Caractériser et extraire les métadonnées",
-                "ja": "メタデータの特徴付けと抽出",
-                "pt_BR": "Caracterizar e extrair metadados",
-                "sv": "Karaktärisera och extrahera metadata"
-            }
-        },
         "1b737a9b-b4c0-4230-aa92-1e88067534b9": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -6419,6 +6387,38 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
+            }
+        },
+        "657b0b54-dc65-4e6c-bc90-ef0e3e753128": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/events.csv\"",
+                "execute": "loadEventsFromCSV_v1.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Load events from metadata/events.csv"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "group": {
+                "en": "Characterize and extract metadata",
+                "es": "Caracterizar y extraer metadatos",
+                "fr": "Caractériser et extraire les métadonnées",
+                "ja": "メタデータの特徴付けと抽出",
+                "pt_BR": "Caracterizar e extrair metadados",
+                "sv": "Karaktärisera och extrahera metadata"
             }
         },
         "66c9c178-2224-41c6-9c0b-dcb60ff57b1a": {
