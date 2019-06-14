@@ -114,15 +114,6 @@ class EventReader(object):
         return filename, event, agents
 
 
-# @lru_cache.lru_cache()
-def get_or_create_agent(agent_data):
-    """Cache agent lookups in memory, as they'll typically be very repetitive.
-    """
-    agent, _ = Agent.objects.get_or_create(**agent_data)
-
-    return agent
-
-
 def parse_events_csv(csv_path, file_queryset):
     with open(csv_path, "rb") as csv_file:
         reader = EventReader(csv_file)
@@ -139,7 +130,11 @@ def parse_events_csv(csv_path, file_queryset):
                 )
                 continue
 
-            agent_objs = [get_or_create_agent(agent_data) for agent_data in agents]
+            agent_objs = []
+            for agent_data in agents:
+                agent, _ = Agent.objects.get_or_create(**agent_data)
+                agent_objs.append(agent)
+
             event = Event.objects.create(file_uuid=file_obj, **event_data)
             event.agents.add(*agent_objs)
 
