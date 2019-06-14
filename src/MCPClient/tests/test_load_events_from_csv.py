@@ -29,6 +29,7 @@ objects/ïmågé1.jpg,message digest calculation,2019-05-30,hashlib.sha256,,,383
 objects/image1.jpg,,,,,,,,,,,,,,
 objects/image1.jpg,,2010-04-30,,,,,,,,,,,,
 objects/image1.jpg,,0000-13-32,,,,,,,,,,,,
+objects/image1.jpg,,fffff
 """
 
 
@@ -105,7 +106,7 @@ def test_parse_events_csv_with_missing_data(caplog, bad_data_csv, transfer, file
 
     events = file_obj.event_set.all().order_by("pk")
 
-    assert len(events) == 3
+    assert len(events) == 4
 
     assert events[0].event_detail == ""
     assert events[0].event_outcome == ""
@@ -123,3 +124,4 @@ def test_parse_events_csv_with_missing_data(caplog, bad_data_csv, transfer, file
     )
     assert 'Filename "objects/ïmågé1.jpg" referenced on line 5 not found' in caplog.text
     assert 'Error parsing eventDateTime value "0000-13-32" on line 8' in caplog.text
+    assert 'Error parsing eventDateTime value "fffff" on line 9' in caplog.text

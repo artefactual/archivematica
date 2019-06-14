@@ -31,6 +31,9 @@ def _parse_datetime(value):
                 parsed_date, datetime.datetime.min.time()
             )
 
+    if value and parsed_datetime is None:
+        raise ValueError("Unable to parse '{}' as a datetime".format(value))
+
     # If we didn't get a timezone, use the one configured in Django settings
     if parsed_datetime is not None and parsed_datetime.tzinfo is None:
         parsed_datetime = parsed_datetime.replace(
