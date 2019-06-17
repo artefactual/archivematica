@@ -39,12 +39,16 @@ from multiprocessing.pool import ThreadPool
 import time
 import traceback
 import collections
-import math
 
 from django.conf import settings as django_settings
 from prometheus_client import Gauge
 
+
 LOGGER = logging.getLogger("archivematica.mcp.server")
+active_task_group_gauge = Gauge(
+    "archivematica_active_task_groups",
+    "Number of task groups currently being processed",
+)
 
 
 class TaskGroupRunner:
@@ -54,19 +58,6 @@ class TaskGroupRunner:
 
     # The frequency with which we'll log task stats
     NOTIFICATION_INTERVAL_SECONDS = 10
-
-    # How many samples to use when estimating the number of running units.
-    #
-    # By default we'll just assume NOTIFICATION_INTERVAL_SECONDS is a good
-    # sample size.
-    #
-    # We have to sample because running units aren't always registered with
-    # TaskGroupRunner (even though they'll spend most of their time here).  For
-    # example, they might be sitting in a watched directory waiting to be picked
-    # up to run on a new chain, or currently being processed by the MCP Server.
-    RUNNING_UNIT_SAMPLES = int(
-        math.ceil(NOTIFICATION_INTERVAL_SECONDS / float(POLL_DELAY_SECONDS))
-    )
 
     # Our singleton instance
     _instance = None
@@ -93,10 +84,6 @@ class TaskGroupRunner:
             TaskGroupRunner.TaskGroupJob(task_group, finished_callback)
         )
 
-    @staticmethod
-    def activeUnitCount():
-        return max(TaskGroupRunner._instance.activeUnitCounts)
-
     def __init__(self):
         # The list of TaskGroups that are ready to run but not yet submitted to
         # the MCP Client.
@@ -106,14 +93,6 @@ class TaskGroupRunner:
         # Gearman jobs that are currently waiting on the MCP Client
         self.running_gearman_jobs = []
         self.task_group_jobs_by_uuid = {}
-
-        # Track the number of units currently being processed
-        self.activeUnitCounts = [0] * TaskGroupRunner.RUNNING_UNIT_SAMPLES
-        self.activeUnitCountsIdx = 0
-        self.activeUnitGauge = Gauge(
-            "task_group_runner_active_units",
-            "Number of units currently being processed",
-        )
 
         # Used to run completed callbacks off the main thread.
         self.pool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
@@ -267,11 +246,7 @@ class TaskGroupRunner:
                 ]
             )
         )
-        self.activeUnitCounts[self.activeUnitCountsIdx] = active_count
-        self.activeUnitCountsIdx = (
-            self.activeUnitCountsIdx + 1
-        ) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
-        self.activeUnitGauge.set(self.activeUnitCount())
+        active_task_group_gauge.set(active_count)
 
     def _handle_gearman_response(self, job_request):
         """
