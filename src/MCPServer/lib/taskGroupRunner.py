@@ -41,13 +41,34 @@ import traceback
 import collections
 
 from django.conf import settings as django_settings
-from prometheus_client import Gauge
+from prometheus_client import Gauge, Histogram
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
 active_task_group_gauge = Gauge(
     "archivematica_active_task_groups",
     "Number of task groups currently being processed",
+)
+task_duration_histogram = Histogram(
+    "archivematica_task_duration_seconds",
+    "Histogram of task durations in seconds",
+    ["task_group_name", "task_name"],
+    buckets=(
+        0.1,
+        0.5,
+        1.0,
+        2.5,
+        5.0,
+        10.0,
+        30.0,
+        60.0,
+        120.0,
+        300.0,
+        600.0,
+        1800.0,
+        3600.0,
+        float("inf"),
+    ),
 )
 
 
@@ -303,12 +324,23 @@ class TaskGroupRunner:
                 task.results["stdout"] = result.get("stdout", "")
                 task.results["stderr"] = result.get("stderr", "")
 
+                finished_timestamp = result.get("finishedTimestamp")
+                if finished_timestamp:
+                    duration = (
+                        finished_timestamp - task.start_timestamp
+                    ).total_seconds()
+                    task_duration_histogram.labels(
+                        task_group.linkTaskManager.jobChainLink.group,
+                        task_group.linkTaskManager.jobChainLink.description,
+                    ).observe(duration)
+
                 LOGGER.debug(
                     "Task %s finished! Result %s - %s",
                     job_request.job.unique,
                     job_request.state,
                     result["exitCode"],
                 )
+
         else:
             # If the entire task failed, we'll propagate the failure to all tasks in the batch.
             msg = ""
