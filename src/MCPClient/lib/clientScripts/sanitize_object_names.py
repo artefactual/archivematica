@@ -51,6 +51,7 @@ class NameSanitizer(object):
         + sanitize_names.VERSION
         + '"'
     )
+    EVENT_OUTCOME_DETAIL = u'Original name="{}"; cleaned up name="{}"'
 
     def __init__(
         self, job, objects_directory, sip_uuid, date, group_type, group_sql, sip_path
@@ -142,6 +143,9 @@ class NameSanitizer(object):
                 event_type="name cleanup",
                 event_datetime=self.date,
                 event_detail=self.EVENT_DETAIL,
+                event_outcome_detail=self.EVENT_OUTCOME_DETAIL.format(
+                    old_location, sanitized_location
+                ),
             )
             events.append(sanitize_event)
 
