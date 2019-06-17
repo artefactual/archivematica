@@ -100,11 +100,14 @@ class TaskGroup:
                             task.commandReplacementDic,
                             task.UUID,
                             task.arguments,
+                            task.start_timestamp,
                         )
 
             databaseFunctions.retryOnFailure("Insert tasks", insertTasks)
 
-    def _log_task(self, taskManager, commandReplacementDic, taskUUID, arguments):
+    def _log_task(
+        self, taskManager, commandReplacementDic, taskUUID, arguments, startTimestamp
+    ):
         """
         Creates a new entry in the Tasks table using the supplied data.
 
@@ -112,6 +115,7 @@ class TaskGroup:
         :param ReplacementDict commandReplacementDic: A ReplacementDict or dict instance. %fileUUID% and %relativeLocation% variables will be looked up from this dict.
         :param str taskUUID: The UUID to be used for this Task in the database.
         :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
+        :param datetime startTimestamp: datetime logged for task start.
         """
         jobUUID = taskManager.jobChainLink.UUID
         fileUUID = ""
@@ -129,7 +133,7 @@ class TaskGroup:
             filename=fileName,
             execution=taskexec,
             arguments=arguments,
-            createdtime=getUTCDate(),
+            createdtime=startTimestamp,
         )
 
     def calculateExitCode(self):
@@ -218,3 +222,4 @@ class TaskGroup:
             )
 
             self.results = {"exitCode": 0, "stdout": "", "stderror": ""}
+            self.start_timestamp = getUTCDate()
