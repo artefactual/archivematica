@@ -5,8 +5,9 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 JHOVE_TOOL_UUID = "085d8690-93b7-4d31-84f7-2c5f4cbf6735"
+OLD_JHOVE_CMD_UUID = "fe9e3046-29fb-4cc6-b71c-db50b0aac127"
+NEW_JHOVE_CMD_UUID = "11036e14-78d9-4449-8360-e2da394279ad"
 
-# Normalization rules using `Transcoding to plain svg with inkscape`.
 VALIDATE_WITH_JHOVE_RULES = (
     "f4074907-c111-4e6c-91ae-9c0526475a9a",
     "085d5286-7616-4acd-88a4-ef65066362b9",
@@ -83,14 +84,16 @@ VALIDATE_WITH_JHOVE_RULES = (
     "42f3756b-7966-4a47-b029-59688bfc6e43",
 )
 
-OLD_JHOVE_CMD_UUID = "fe9e3046-29fb-4cc6-b71c-db50b0aac127"
-NEW_JHOVE_CMD_UUID = "11036e14-78d9-4449-8360-e2da394279ad"
-
 
 def data_migration_up(apps, schema_editor):
     """Update command to partial pass on bytestream results."""
+    FPTool = apps.get_model("fpr", "FPTool")
     FPCommand = apps.get_model("fpr", "FPCommand")
     FPRule = apps.get_model("fpr", "FPRule")
+
+    FPTool.objects.filter(uuid=JHOVE_TOOL_UUID).update(
+        version="1.20", slug="fido-120"
+    )
 
     new_cmd = """
 import json
@@ -196,10 +199,17 @@ if __name__ == '__main__':
         command_id=NEW_JHOVE_CMD_UUID
     )
 
+    old_jhove_command = FPCommand.objects.get(
+        uuid=OLD_JHOVE_CMD_UUID
+    )
+    old_jhove_command.enabled = False
+    old_jhove_command.save()
+
 
 def data_migration_down(apps, schema_editor):
     FPCommand = apps.get_model("fpr", "FPCommand")
     FPRule = apps.get_model("fpr", "FPRule")
+    FPTool = apps.get_model("fpr", "FPTool")
 
     # The order matters. We make sure that the rules point to the previous
     # command before the latter is deleted. Otherwise our rules would be
@@ -208,6 +218,9 @@ def data_migration_down(apps, schema_editor):
         command_id=OLD_JHOVE_CMD_UUID
     )
     FPCommand.objects.filter(uuid=NEW_JHOVE_CMD_UUID).delete()
+    FPTool.objects.filter(uuid="085d8690-93b7-4d31-84f7-2c5f4cbf6735").update(
+        version="1.6", slug="jhove-16"
+    )
 
 
 class Migration(migrations.Migration):
