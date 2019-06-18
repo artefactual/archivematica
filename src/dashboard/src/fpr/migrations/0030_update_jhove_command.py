@@ -91,9 +91,7 @@ def data_migration_up(apps, schema_editor):
     FPCommand = apps.get_model("fpr", "FPCommand")
     FPRule = apps.get_model("fpr", "FPRule")
 
-    FPTool.objects.filter(uuid=JHOVE_TOOL_UUID).update(
-        version="1.20", slug="fido-120"
-    )
+    FPTool.objects.filter(uuid=JHOVE_TOOL_UUID).update(version="1.20", slug="fido-120")
 
     new_cmd = """
 import json
@@ -199,9 +197,7 @@ if __name__ == '__main__':
         command_id=NEW_JHOVE_CMD_UUID
     )
 
-    old_jhove_command = FPCommand.objects.get(
-        uuid=OLD_JHOVE_CMD_UUID
-    )
+    old_jhove_command = FPCommand.objects.get(uuid=OLD_JHOVE_CMD_UUID)
     old_jhove_command.enabled = False
     old_jhove_command.save()
 
