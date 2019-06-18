@@ -41,7 +41,7 @@ import traceback
 import collections
 
 from django.conf import settings as django_settings
-from prometheus_client import Gauge, Histogram
+from prometheus_client import Gauge, Summary
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
@@ -49,26 +49,10 @@ active_task_group_gauge = Gauge(
     "archivematica_active_task_groups",
     "Number of task groups currently being processed",
 )
-task_duration_histogram = Histogram(
+task_duration_summary = Summary(
     "archivematica_task_duration_seconds",
-    "Histogram of task durations in seconds",
+    "Summary of task durations in seconds",
     ["task_group_name", "task_name"],
-    buckets=(
-        0.1,
-        0.5,
-        1.0,
-        2.5,
-        5.0,
-        10.0,
-        30.0,
-        60.0,
-        120.0,
-        300.0,
-        600.0,
-        1800.0,
-        3600.0,
-        float("inf"),
-    ),
 )
 
 
@@ -329,7 +313,7 @@ class TaskGroupRunner:
                     duration = (
                         finished_timestamp - task.start_timestamp
                     ).total_seconds()
-                    task_duration_histogram.labels(
+                    task_duration_summary.labels(
                         task_group.linkTaskManager.jobChainLink.group,
                         task_group.linkTaskManager.jobChainLink.description,
                     ).observe(duration)
