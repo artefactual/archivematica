@@ -41,19 +41,11 @@ import traceback
 import collections
 
 from django.conf import settings as django_settings
-from prometheus_client import Gauge, Summary
+
+import metrics
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
-active_task_group_gauge = Gauge(
-    "archivematica_active_task_groups",
-    "Number of task groups currently being processed",
-)
-task_duration_summary = Summary(
-    "archivematica_task_duration_seconds",
-    "Summary of task durations in seconds",
-    ["task_group_name", "task_name"],
-)
 
 
 class TaskGroupRunner:
@@ -243,15 +235,11 @@ class TaskGroupRunner:
             )
             self.last_notification_time = now
 
-        active_count = len(
-            set(
-                [
-                    task_group.task_group.unit_uuid()
-                    for task_group in self.task_group_jobs_by_uuid.values()
-                ]
-            )
+        metrics.update_job_status(
+            self.task_group_jobs_by_uuid,
+            self.running_gearman_jobs,
+            self.pending_task_group_jobs,
         )
-        active_task_group_gauge.set(active_count)
 
     def _handle_gearman_response(self, job_request):
         """
@@ -307,16 +295,9 @@ class TaskGroupRunner:
                 task.results["exitStatus"] = result.get("exitStatus", "")
                 task.results["stdout"] = result.get("stdout", "")
                 task.results["stderr"] = result.get("stderr", "")
+                task.finished_timestamp = result.get("finishedTimestamp")
 
-                finished_timestamp = result.get("finishedTimestamp")
-                if finished_timestamp:
-                    duration = (
-                        finished_timestamp - task.start_timestamp
-                    ).total_seconds()
-                    task_duration_summary.labels(
-                        task_group.linkTaskManager.jobChainLink.group,
-                        task_group.linkTaskManager.jobChainLink.description,
-                    ).observe(duration)
+                metrics.task_completed(task, task_group)
 
                 LOGGER.debug(
                     "Task %s finished! Result %s - %s",
@@ -339,3 +320,5 @@ class TaskGroupRunner:
             LOGGER.error(msg)
             for task in task_group.tasks():
                 task.results["exitCode"] = 1
+
+            metrics.task_failed(task, task_group)
