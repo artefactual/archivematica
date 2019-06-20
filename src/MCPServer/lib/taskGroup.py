@@ -223,3 +223,4 @@ class TaskGroup:
 
             self.results = {"exitCode": 0, "stdout": "", "stderror": ""}
             self.start_timestamp = getUTCDate()
+            self.finished_timestamp = None
