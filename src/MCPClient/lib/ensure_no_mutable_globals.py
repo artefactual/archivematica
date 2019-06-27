@@ -22,6 +22,7 @@ import sys
 import types
 
 import django
+import prometheus_client
 
 from archivematicaClient import get_supported_modules
 
@@ -42,6 +43,10 @@ GOOD_GLOBAL_TYPES = (
     tuple,
     django.conf.LazySettings,
     django.db.DefaultConnectionProxy,
+    prometheus_client.Counter,
+    prometheus_client.Gauge,
+    prometheus_client.Histogram,
+    prometheus_client.Summary,
 )
 
 
