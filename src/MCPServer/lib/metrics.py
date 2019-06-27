@@ -10,50 +10,46 @@ from prometheus_client import Counter, Gauge, Summary
 
 
 active_task_group_gauge = Gauge(
-    "archivematica_active_task_groups",
-    "Number of task groups currently being processed",
+    "mcpserver_active_task_groups", "Number of task groups currently being processed"
 )
 gearman_active_jobs_gauge = Gauge(
-    "archivematica_gearman_active_jobs",
-    "Number of gearman jobs currently being processed",
+    "mcpserver_gearman_active_jobs", "Number of gearman jobs currently being processed"
 )
 gearman_pending_jobs_gauge = Gauge(
-    "archivematica_gearman_pending_jobs", "Number of gearman jobs pending submission"
+    "mcpserver_gearman_pending_jobs", "Number of gearman jobs pending submission"
 )
 task_counter = Counter(
-    "archivematica_task_total",
+    "mcpserver_task_total",
     "Number of tasks processed",
     ["task_group_name", "task_name"],
 )
 task_error_counter = Counter(
-    "archivematica_task_error_total",
+    "mcpserver_task_error_total",
     "Number of failures processing tasks",
     ["task_group_name", "task_name"],
 )
 task_success_timestamp = Gauge(
-    "archivematica_task_success_timestamp",
+    "mcpserver_task_success_timestamp",
     "Most recent successfully processed task",
     ["task_group_name", "task_name"],
 )
 task_error_timestamp = Gauge(
-    "archivematica_task_error_timestamp",
+    "mcpserver_task_error_timestamp",
     "Most recent failure when processing a task",
     ["task_group_name", "task_name"],
 )
 task_duration_summary = Summary(
-    "archivematica_task_duration_seconds",
+    "mcpserver_task_duration_seconds",
     "Summary of task durations in seconds",
     ["task_group_name", "task_name"],
 )
-aips_stored_counter = Counter(
-    "archivematica_aips_stored_total", "Number of AIPs stored"
-)
+aips_stored_counter = Counter("mcpserver_aips_stored_total", "Number of AIPs stored")
 
 
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
     def wrapper(*args, **kwds):
-        if settings.PROMETHEUS_HTTP_SERVER:
+        if settings.PROMETHEUS_BIND_PORT is not None:
             return func(*args, **kwds)
         return None
 
