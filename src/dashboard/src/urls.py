@@ -47,3 +47,7 @@ urlpatterns = [
     url(r"^backlog/", include("components.backlog.urls")),
     url(r"", include("main.urls")),
 ]
+
+if settings.PROMETHEUS_ENABLED:
+    # Include prometheus metrics at /metrics
+    urlpatterns.append(url("", include("django_prometheus.urls")))
