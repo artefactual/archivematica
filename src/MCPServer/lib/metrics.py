@@ -49,7 +49,7 @@ aips_stored_counter = Counter("mcpserver_aips_stored_total", "Number of AIPs sto
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
     def wrapper(*args, **kwds):
-        if settings.PROMETHEUS_BIND_PORT is not None:
+        if settings.PROMETHEUS_ENABLED:
             return func(*args, **kwds)
         return None
 
