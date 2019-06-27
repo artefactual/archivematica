@@ -334,7 +334,9 @@ PROMETHEUS_BIND_ADDRESS = config.get("prometheus_bind_address")
 try:
     PROMETHEUS_BIND_PORT = int(config.get("prometheus_bind_port"))
 except ValueError:
-    PROMETHEUS_BIND_PORT = None
+    PROMETHEUS_ENABLED = False
+else:
+    PROMETHEUS_ENABLED = True
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

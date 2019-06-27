@@ -339,7 +339,7 @@ if __name__ == "__main__":
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
 
-    if django_settings.PROMETHEUS_BIND_PORT:
+    if django_settings.PROMETHEUS_ENABLED:
         start_prometheus_server(
             django_settings.PROMETHEUS_BIND_PORT,
             addr=django_settings.PROMETHEUS_BIND_ADDRESS,
