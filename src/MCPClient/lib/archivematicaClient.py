@@ -66,6 +66,11 @@ import django
 django.setup()
 from django.conf import settings as django_settings
 import gearman
+from prometheus_client import (
+    Counter,
+    Summary,
+    start_http_server as start_prometheus_server,
+)
 
 from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
@@ -88,6 +93,20 @@ replacement_dict = {
 }
 
 
+task_error_counter = Counter(
+    "mcpclient_task_error_total", "Number of failures processing tasks"
+)
+task_execution_time_summary = Summary(
+    "mcpclient_task_execution_time_seconds",
+    "Summary of worker task execution times in seconds",
+    ["script_name"],
+)
+waiting_for_gearman_time_summary = Summary(
+    "mcpclient_gearman_sleep_time_seconds",
+    "Summary of worker sleep after gearman error times in seconds",
+)
+
+
 def get_supported_modules(file_):
     """Create and return the ``supported_modules`` dict by parsing the MCPClient
     modules config file (typically MCPClient/lib/archivematicaClientModules).
@@ -104,59 +123,60 @@ def get_supported_modules(file_):
 
 @auto_close_db
 def handle_batch_task(gearman_job, supported_modules):
-    module_name = supported_modules.get(gearman_job.task)
-    gearman_data = cPickle.loads(gearman_job.data)
+    with task_execution_time_summary.labels(script_name=gearman_job.task).time():
+        module_name = supported_modules.get(gearman_job.task)
+        gearman_data = cPickle.loads(gearman_job.data)
 
-    utc_date = getUTCDate()
-    jobs = []
-    for task_uuid in gearman_data["tasks"]:
-        task_data = gearman_data["tasks"][task_uuid]
-        arguments = task_data["arguments"]
-        if isinstance(arguments, six.text_type):
-            arguments = arguments.encode("utf-8")
+        utc_date = getUTCDate()
+        jobs = []
+        for task_uuid in gearman_data["tasks"]:
+            task_data = gearman_data["tasks"][task_uuid]
+            arguments = task_data["arguments"]
+            if isinstance(arguments, six.text_type):
+                arguments = arguments.encode("utf-8")
 
-        replacements = (
-            replacement_dict.items()
-            + {
-                "%date%": utc_date.isoformat(),
-                "%taskUUID%": task_uuid,
-                "%jobCreatedDate%": task_data["createdDate"],
-            }.items()
-        )
+            replacements = (
+                replacement_dict.items()
+                + {
+                    "%date%": utc_date.isoformat(),
+                    "%taskUUID%": task_uuid,
+                    "%jobCreatedDate%": task_data["createdDate"],
+                }.items()
+            )
 
-        for var, val in replacements:
-            arguments = arguments.replace(var, val)
+            for var, val in replacements:
+                arguments = arguments.replace(var, val)
 
-        job = Job(
-            gearman_job.task,
-            task_data["uuid"],
-            _parse_command_line(arguments),
-            caller_wants_output=task_data["wants_output"],
-        )
-        jobs.append(job)
+            job = Job(
+                gearman_job.task,
+                task_data["uuid"],
+                _parse_command_line(arguments),
+                caller_wants_output=task_data["wants_output"],
+            )
+            jobs.append(job)
 
-    # Set their start times.  If we collide with the MCP Server inserting new
-    # Tasks (which can happen under heavy concurrent load), retry as needed.
-    def set_start_times():
-        Task.objects.filter(taskuuid__in=[item.UUID for item in jobs]).update(
-            starttime=utc_date
-        )
+        # Set their start times.  If we collide with the MCP Server inserting new
+        # Tasks (which can happen under heavy concurrent load), retry as needed.
+        def set_start_times():
+            Task.objects.filter(taskuuid__in=[item.UUID for item in jobs]).update(
+                starttime=utc_date
+            )
 
-    retryOnFailure("Set task start times", set_start_times)
+        retryOnFailure("Set task start times", set_start_times)
 
-    module = importlib.import_module("clientScripts." + module_name)
+        module = importlib.import_module("clientScripts." + module_name)
 
-    # Our module can indicate that it should be run concurrently...
-    if hasattr(module, "concurrent_instances"):
-        fork_runner.call(
-            "clientScripts." + module_name,
-            jobs,
-            task_count=module.concurrent_instances(),
-        )
-    else:
-        module.call(jobs)
+        # Our module can indicate that it should be run concurrently...
+        if hasattr(module, "concurrent_instances"):
+            fork_runner.call(
+                "clientScripts." + module_name,
+                jobs,
+                task_count=module.concurrent_instances(),
+            )
+        else:
+            module.call(jobs)
 
-    return jobs
+        return jobs
 
 
 def _parse_command_line(s):
@@ -252,6 +272,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
         return fail_all_tasks(gearman_job, e)
 
 
+@task_error_counter.count_exceptions()
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
@@ -273,7 +294,8 @@ def start_gearman_worker(supported_modules):
                 inst.args,
                 fail_sleep,
             )
-            time.sleep(fail_sleep)
+            with waiting_for_gearman_time_summary.time():
+                time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
         except Exception as e:
@@ -286,12 +308,19 @@ def start_gearman_worker(supported_modules):
                 e,
                 fail_sleep,
             )
-            time.sleep(fail_sleep)
+            with waiting_for_gearman_time_summary.time():
+                time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
 
 
 if __name__ == "__main__":
+    if django_settings.PROMETHEUS_BIND_PORT:
+        start_prometheus_server(
+            django_settings.PROMETHEUS_BIND_PORT,
+            addr=django_settings.PROMETHEUS_BIND_ADDRESS,
+        )
+
     try:
         start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))
     except (KeyboardInterrupt, SystemExit):

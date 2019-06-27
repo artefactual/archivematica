@@ -116,6 +116,16 @@ CONFIG_MAPPING = {
         "option": "agentarchives_client_timeout",
         "type": "float",
     },
+    "prometheus_bind_address": {
+        "section": "MCPClient",
+        "option": "prometheus_bind_address",
+        "type": "string",
+    },
+    "prometheus_bind_port": {
+        "section": "MCPClient",
+        "option": "prometheus_bind_port",
+        "type": "string",
+    },
     # [antivirus]
     "clamav_server": {
         "section": "MCPClient",
@@ -180,6 +190,8 @@ clamav_pass_by_stream = True
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
+prometheus_bind_ip =
+prometheus_bind_port =
 clamav_client_timeout = 86400
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
@@ -318,7 +330,11 @@ SEARCH_ENABLED = config.get("search_enabled")
 INDEX_AIP_CONTINUE_ON_ERROR = config.get("index_aip_continue_on_error")
 CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get("capture_client_script_output")
 DEFAULT_CHECKSUM_ALGORITHM = "sha256"
-
+PROMETHEUS_BIND_ADDRESS = config.get("prometheus_bind_address")
+try:
+    PROMETHEUS_BIND_PORT = int(config.get("prometheus_bind_port"))
+except ValueError:
+    PROMETHEUS_BIND_PORT = None
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
