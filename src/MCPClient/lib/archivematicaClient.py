@@ -66,6 +66,11 @@ import django
 django.setup()
 from django.conf import settings as django_settings
 import gearman
+from prometheus_client import (
+    Counter,
+    Summary,
+    start_http_server as start_prometheus_server,
+)
 
 from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
@@ -87,6 +92,20 @@ replacement_dict = {
     "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
     "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
+
+
+task_error_counter = Counter(
+    "mcpclient_task_error_total", "Number of failures processing tasks"
+)
+task_execution_time_summary = Summary(
+    "mcpclient_task_execution_time_seconds",
+    "Summary of worker task execution times in seconds",
+    ["script_name"],
+)
+waiting_for_gearman_time_summary = Summary(
+    "mcpclient_gearman_sleep_time_seconds",
+    "Summary of worker sleep after gearman error times in seconds",
+)
 
 
 def get_supported_modules(file_):
@@ -266,6 +285,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
             return fail_all_tasks(gearman_job, e)
 
 
+@task_error_counter.count_exceptions()
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
