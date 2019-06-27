@@ -182,6 +182,13 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `300`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED`**:
+    - **Description:** Determines if Prometheus metrics should be collected. Note that
+        this is currently not compativle with multiple Gunicorn workers.
+    - **Config file example:** `Dashboard.prometheus_enabled`
+    - **Type:** `boolean`
+    - **Default:** `False`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SITE_URL`**:
     - **Description:** the public address of this service.
     - **Config file example:** `Dashboard.site_url`
