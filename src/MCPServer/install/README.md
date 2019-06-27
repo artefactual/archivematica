@@ -139,10 +139,18 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `float`
     - **Default:** `5`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_HTTP_SERVER`**:
-    - **Description:** when set to a non-empty string, its value is parsed as the port number or `address:port` pair in order to start a HTTP server for Prometheus metrics as a daemon thread. Only two forms are accepted: `7999` (which results in address `127.0.0.1` and port `7999`) or  `0.0.0.0:7999` (which results in address `0.0.0.0` and port `7999`).
-    - **Config file example:** `MCPServer.prometheus_http_server`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS`**:
+    - **Description:** when set to a non-empty string, its value is parsed as the IP address on which to serve Prometheus metrics. If this value is not provided, but ``ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT`` is, then 127.0.0.1 will
+    be used.
+    - **Config file example:** `MCPServer.prometheus_bind_addresss`
     - **Type:** `string`
+    - **Default:** `""`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT`**:
+    - **Description:** The port on which to serve Prometheus metrics.
+    If this value is not provided, metrics will not be served.
+    - **Config file example:** `MCPServer.prometheus_bind_port`
+    - **Type:** `int`
     - **Default:** `""`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
