@@ -516,7 +516,6 @@ if LDAP_AUTHENTICATION:
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
 if PROMETHEUS_ENABLED:
-    # TODO: This config won't handle multiple gunicorn workers
     MIDDLEWARE_CLASSES = (
         ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
         + MIDDLEWARE_CLASSES
