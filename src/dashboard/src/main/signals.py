@@ -28,12 +28,14 @@ if settings.PROMETHEUS_ENABLED:
     # Count saves and deletes via Prometheus.
     # This is a bit of a flawed way to do it (it doesn't include bulk create,
     # update, etc), but is a good starting point.
+    # django-prometheus provides these counters via a model mixin, but signals
+    # are less invasive.
 
     model_save_count = Counter(
-        "dashboard_model_save_total", "Total model save calls", ["model"]
+        "django_model_save_total", "Total model save calls", ["model"]
     )
     model_delete_count = Counter(
-        "dashboard_model_delete_total", "Total model delete calls", ["model"]
+        "django_model_delete_total", "Total model delete calls", ["model"]
     )
 
     @receiver(post_save)
