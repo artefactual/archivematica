@@ -43,7 +43,7 @@ import django
 from django.db import transaction
 
 django.setup()
-from main.models import Event, File
+from main.models import Event, File, Transfer
 
 from custom_handlers import get_script_logger
 
@@ -232,8 +232,8 @@ def write_premis_event_per_file(file_uuids, transfer_uuid, event_detail):
     event_type = "fixity_check"
     event_outcome = "pass"
     events = []
+    agents = Transfer.objects.get(uuid=transfer_uuid).agents
     with transaction.atomic():
-
         for file_obj in file_uuids:
             checksum_event = Event(
                 file_uuid=file_obj,
@@ -247,6 +247,12 @@ def write_premis_event_per_file(file_uuids, transfer_uuid, event_detail):
         # All the events sit in memory at this point and are then written.
         # We could write this in batches if we need to optimize further.
         Event.objects.bulk_create(events)
+        # Adding many-to-many fields with bulk create is awkward, we have to
+        # loop through again.
+        for event in Event.objects.filter(
+            file_uuid__in=[event.file_uuid for event in events]
+        ):
+            event.agents.add(*agents)
 
 
 def run_hashsum_commands(job):
