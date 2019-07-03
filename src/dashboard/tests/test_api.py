@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import tempfile
@@ -7,11 +8,12 @@ from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.timezone import make_aware
 from lxml import etree
 
 from components.api import views
 from components import helpers
-from main.models import SIP, Transfer
+from main.models import Job, SIP, Task, Transfer
 from processing import install_builtin_config
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -297,6 +299,177 @@ class TestAPI(TestCase):
             "message": "Fetched completed ingests successfully.",
             "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
         }
+
+    @e2e
+    def test_unit_jobs_with_bogus_unit_uuid(self):
+        bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+        resp = self.client.get("/api/v2beta/jobs/{}".format(bogus_unit_uuid))
+        self._test_api_error(
+            resp,
+            status_code=400,
+            message=("No jobs found for unit: {}".format(bogus_unit_uuid)),
+        )
+
+    @e2e
+    def test_unit_jobs(self):
+        load_fixture(["jobs-transfer-backlog.json"])
+        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        # fixtures don't have any tasks
+        Task.objects.create(
+            taskuuid="12345678-1234-1234-1234-123456789012",
+            job=Job.objects.get(jobuuid="d2f99030-26b9-4746-b100-856779624934"),
+            createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+            starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+            endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
+            exitcode=0,
+        )
+        resp = self.client.get("/api/v2beta/jobs/{}".format(sip_uuid))
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        # payload contains a mapping for each job
+        assert len(payload) == 5
+        expected_job_uuids = [
+            "624581dc-ec01-4195-9da3-db0ab0ad1cc3",
+            "a39d74e4-c42e-404b-8c29-dde873ca48ad",
+            "bac0675d-44fe-4047-9713-f9ba9fe46eff",
+            "c763fa11-0e36-4b93-a8c8-6f008b74a96a",
+            "d2f99030-26b9-4746-b100-856779624934",
+        ]
+        # sort the payload results by job uuid
+        sorted_payload = sorted(payload, key=lambda job: job["uuid"])
+        assert [job["uuid"] for job in sorted_payload] == expected_job_uuids
+        # each payload mapping has information about the job and its tasks
+        job = sorted_payload[4]
+        assert job["uuid"] == "d2f99030-26b9-4746-b100-856779624934"
+        assert job["name"] == "Check transfer directory for objects"
+        assert job["status"] == "COMPLETE"
+        assert job["microservice"] == "Create SIP from Transfer"
+        assert job["link_uuid"] is None
+        assert job["tasks"] == [
+            {"uuid": "12345678-1234-1234-1234-123456789012", "exit_code": 0}
+        ]
+
+    @e2e
+    def test_unit_jobs_searching_for_microservice(self):
+        load_fixture(["jobs-rejected.json"])
+        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        resp = self.client.get(
+            "/api/v2beta/jobs/{}?microservice={}".format(sip_uuid, "Reject transfer")
+        )
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert len(payload) == 1
+        job = payload[0]
+        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+        assert job["name"] == "Move to the rejected directory"
+        assert job["status"] == "COMPLETE"
+        assert job["microservice"] == "Reject transfer"
+        assert job["link_uuid"] is None
+        assert job["tasks"] == []
+        # Test that microservice search also works with a "Microservice:" prefix
+        resp = self.client.get(
+            "/api/v2beta/jobs/{}?microservice={}".format(
+                sip_uuid, "Microservice: Reject transfer"
+            )
+        )
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert len(payload) == 1
+        job = payload[0]
+        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+
+    @e2e
+    def test_unit_jobs_searching_for_chain_link(self):
+        load_fixture(["jobs-rejected.json"])
+        # add chain links to the fixture jobs
+        job = Job.objects.get(jobuuid="59ace00b-4830-4314-a7d9-38fdbef64896")
+        job.microservicechainlink = "11111111-1111-1111-1111-111111111111"
+        job.save()
+        job = Job.objects.get(jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774")
+        job.microservicechainlink = "22222222-2222-2222-2222-222222222222"
+        job.save()
+        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        resp = self.client.get(
+            "/api/v2beta/jobs/{}?link_uuid={}".format(
+                sip_uuid, "11111111-1111-1111-1111-111111111111"
+            )
+        )
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert len(payload) == 1
+        job = payload[0]
+        assert job["uuid"] == "59ace00b-4830-4314-a7d9-38fdbef64896"
+        assert job["name"] == "Create SIP(s)"
+        assert job["status"] == "COMPLETE"
+        assert job["microservice"] == "Create SIP from Transfer"
+        assert job["link_uuid"] == "11111111-1111-1111-1111-111111111111"
+        assert job["tasks"] == []
+
+    @e2e
+    def test_unit_jobs_searching_for_name(self):
+        load_fixture(["jobs-rejected.json"])
+        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        resp = self.client.get(
+            "/api/v2beta/jobs/{}?name={}".format(
+                sip_uuid, "Move to the rejected directory"
+            )
+        )
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert len(payload) == 1
+        job = payload[0]
+        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+        assert job["name"] == "Move to the rejected directory"
+        assert job["status"] == "COMPLETE"
+        assert job["microservice"] == "Reject transfer"
+        assert job["link_uuid"] is None
+        assert job["tasks"] == []
+        # Test that name search also works with a "Job:" prefix
+        resp = self.client.get(
+            "/api/v2beta/jobs/{}?name={}".format(
+                sip_uuid, "Job: Move to the rejected directory"
+            )
+        )
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        assert len(payload) == 1
+        job = payload[0]
+        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+
+    @e2e
+    def test_task_with_bogus_task_uuid(self):
+        bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+        resp = self.client.get("/api/v2beta/task/{}".format(bogus_task_uuid))
+        self._test_api_error(
+            resp,
+            status_code=400,
+            message=("Task with UUID {} does not exist".format(bogus_task_uuid)),
+        )
+
+    @e2e
+    def test_task(self):
+        load_fixture(["jobs-transfer-backlog.json"])
+        # fixtures don't have any tasks
+        Task.objects.create(
+            taskuuid="12345678-1234-1234-1234-123456789012",
+            job=Job.objects.get(jobuuid="d2f99030-26b9-4746-b100-856779624934"),
+            createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
+            starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
+            endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 5)),
+            exitcode=0,
+        )
+        resp = self.client.get("/api/v2beta/task/12345678-1234-1234-1234-123456789012")
+        assert resp.status_code == 200
+        payload = json.loads(resp.content)
+        # payload is a mapping of task attributes
+        assert payload["uuid"] == "12345678-1234-1234-1234-123456789012"
+        assert payload["exit_code"] == 0
+        assert payload["file_uuid"] is None
+        assert payload["file_name"] == ""
+        assert payload["time_created"] == "2019-06-18T00:00:00"
+        assert payload["time_started"] == "2019-06-18T00:00:00"
+        assert payload["time_ended"] == "2019-06-18T00:00:05"
+        assert payload["duration"] == 5
 
 
 class TestProcessingConfigurationAPI(TestCase):

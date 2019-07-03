@@ -55,6 +55,13 @@ UUID_REGEX = re.compile(
     r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
     re.IGNORECASE,
 )
+JOB_STATUS_CODE_LABELS = {
+    models.Job.STATUS_UNKNOWN: "UNKNOWN",
+    models.Job.STATUS_AWAITING_DECISION: "USER_INPUT",
+    models.Job.STATUS_COMPLETED_SUCCESSFULLY: "COMPLETE",
+    models.Job.STATUS_EXECUTING_COMMANDS: "PROCESSING",
+    models.Job.STATUS_FAILED: "FAILED",
+}
 
 
 def _api_endpoint(expected_methods):
@@ -858,3 +865,78 @@ def validate(request, validator_name):
             "Unexepected error in the validation process, see the logs for more details."
         )
     return _ok_response({"valid": True})
+
+
+def format_datetime(value):
+    """Convert datetime to string"""
+    try:
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
+    except AttributeError:
+        pass
+
+
+def format_task(task, detailed_output=False):
+    """Format task attributes for endpoint response"""
+    result = {"uuid": task.taskuuid, "exit_code": task.exitcode}
+    if detailed_output:
+        result.update(
+            {
+                "file_uuid": task.fileuuid,
+                "file_name": task.filename,
+                "time_created": format_datetime(task.createdtime),
+                "time_started": format_datetime(task.starttime),
+                "time_ended": format_datetime(task.endtime),
+                "duration": helpers.task_duration_in_seconds(task),
+            }
+        )
+    return result
+
+
+def remove_prefix(s, prefix):
+    """Remove a prefix from a string"""
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s
+
+
+@_api_endpoint(expected_methods=["GET"])
+def unit_jobs(request, unit_uuid):
+    """Return jobs associated with a unit's UUID"""
+    jobs = models.Job.objects.filter(sipuuid=unit_uuid).order_by("createdtime")
+    if not jobs.count():
+        return _error_response("No jobs found for unit: {}".format(unit_uuid))
+    result = []
+    microservice = request.GET.get("microservice")
+    if microservice is not None:
+        microservice = remove_prefix(microservice, "Microservice:")
+        jobs = jobs.filter(microservicegroup=microservice.strip())
+    link_uuid = request.GET.get("link_uuid")
+    if link_uuid is not None:
+        jobs = jobs.filter(microservicechainlink=link_uuid.strip())
+    name = request.GET.get("name")
+    if name is not None:
+        name = remove_prefix(name, "Job:")
+        jobs = jobs.filter(jobtype=name.strip())
+    for job in jobs.prefetch_related("task_set"):
+        tasks = [format_task(task) for task in job.task_set.all()]
+        result.append(
+            {
+                "uuid": job.jobuuid,
+                "name": job.jobtype,
+                "status": JOB_STATUS_CODE_LABELS.get(job.currentstep),
+                "microservice": job.microservicegroup,
+                "link_uuid": job.microservicechainlink,
+                "tasks": tasks,
+            }
+        )
+    return helpers.json_response(result)
+
+
+@_api_endpoint(expected_methods=["GET"])
+def task(request, task_uuid):
+    """Return details of a task"""
+    try:
+        task = models.Task.objects.get(taskuuid=task_uuid)
+    except models.Task.DoesNotExist:
+        return _error_response("Task with UUID {} does not exist".format(task_uuid))
+    return helpers.json_response(format_task(task, detailed_output=True))
