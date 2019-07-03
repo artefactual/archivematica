@@ -8,7 +8,6 @@ import ast
 import collections
 import logging
 import os
-import shutil
 from tempfile import mkdtemp
 from uuid import UUID, uuid4
 
@@ -18,6 +17,7 @@ from django.utils import six
 
 import storageService as storage_service
 from archivematicaFunctions import unicodeToStr
+from fileOperations import get_extract_dir_name
 from main import models
 
 from server.db import auto_close_old_connections
@@ -244,7 +244,8 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     basename = os.path.basename(filepath)
     dest = _pad_destination_filepath_if_it_already_exists(os.path.join(dest, basename))
     # Ensure directories end with a trailing slash.
-    if os.path.isdir(filepath):
+    is_dir = os.path.isdir(filepath)
+    if is_dir:
         dest = os.path.join(dest, "")
     try:
         shutil.move(filepath, dest)
@@ -255,6 +256,29 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
             settings.SHARED_DIRECTORY, "%sharedPath%", 1
         )
         transfer.save()
+
+    if not is_dir:
+        # Transfer is not a directory so it is an uploaded zipfile.
+        # Precreate the extraction directory for the uploaded zipfile
+        extract_dir = get_extract_dir_name(dest)
+        try:
+            os.mkdir(extract_dir)
+        except OSError as e:
+            raise Exception("Error creating extraction dir %s (%s)", extract_dir, e)
+
+        # Move the processing config into the extraction directory so that it
+        # is preserved and used in the workflow
+        config_path = os.path.join(os.path.dirname(filepath), "processingMCP.xml")
+        if os.path.isfile(config_path):
+            try:
+                shutil.move(config_path, extract_dir)
+            except shutil.Error as e:
+                raise Exception(
+                    "Error moving processing config %s to %s (%s)",
+                    config_path,
+                    extract_dir,
+                    e,
+                )
 
 
 @auto_close_old_connections()
