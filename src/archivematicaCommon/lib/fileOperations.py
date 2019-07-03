@@ -401,3 +401,23 @@ def findFileInNormalizationCSV(
                 file=sys.stderr,
             )
             raise FindFileInNormalizatonCSVError(2)
+
+
+def get_extract_dir_name(filename):
+    """
+    Given the name of a compressed file, return the stem directory name into
+    which it should be extracted.
+
+    e.g. transfer1.zip will be extracted into transfer1
+         transfer2.tar.gz will be extracted into transfer2
+    """
+    extract_dir = filename[: filename.rfind(".")]
+
+    # trim off '.tar' if present
+    try:
+        tar_extension_position = extract_dir.rindex(".tar")
+        extract_dir = extract_dir[:tar_extension_position]
+    except ValueError:
+        pass
+
+    return extract_dir
