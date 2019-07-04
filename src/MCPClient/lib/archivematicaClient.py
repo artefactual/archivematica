@@ -66,11 +66,6 @@ import django
 django.setup()
 from django.conf import settings as django_settings
 import gearman
-from prometheus_client import (
-    Counter,
-    Summary,
-    start_http_server as start_prometheus_server,
-)
 
 from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
@@ -82,6 +77,7 @@ import importlib
 
 from databaseFunctions import auto_close_db
 import fork_runner
+import metrics
 from job import Job
 
 logger = logging.getLogger("archivematica.mcp.client")
@@ -91,20 +87,6 @@ replacement_dict = {
     "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
     "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
-
-
-task_error_counter = Counter(
-    "mcpclient_task_error_total", "Number of failures processing tasks"
-)
-task_execution_time_summary = Summary(
-    "mcpclient_task_execution_time_seconds",
-    "Summary of worker task execution times in seconds",
-    ["script_name"],
-)
-waiting_for_gearman_time_summary = Summary(
-    "mcpclient_gearman_sleep_time_seconds",
-    "Summary of worker sleep after gearman error times in seconds",
-)
 
 
 def get_supported_modules(file_):
@@ -123,7 +105,9 @@ def get_supported_modules(file_):
 
 @auto_close_db
 def handle_batch_task(gearman_job, supported_modules):
-    with task_execution_time_summary.labels(script_name=gearman_job.task).time():
+    with metrics.task_execution_time_summary.labels(
+        script_name=gearman_job.task
+    ).time():
         module_name = supported_modules.get(gearman_job.task)
         gearman_data = cPickle.loads(gearman_job.data)
 
@@ -258,6 +242,11 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                         results[job.UUID]["stdout"] = job.get_stdout()
                         results[job.UUID]["stderror"] = job.get_stderr()
 
+                    if exit_code == 0:
+                        metrics.job_completed(gearman_job.task)
+                    else:
+                        metrics.job_failed(gearman_job.task)
+
         retryOnFailure("Write task results", write_task_results_callback)
 
         return cPickle.dumps({"task_results": results})
@@ -272,7 +261,6 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
         return fail_all_tasks(gearman_job, e)
 
 
-@task_error_counter.count_exceptions()
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
@@ -294,7 +282,7 @@ def start_gearman_worker(supported_modules):
                 inst.args,
                 fail_sleep,
             )
-            with waiting_for_gearman_time_summary.time():
+            with metrics.waiting_for_gearman_time_summary.time():
                 time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
@@ -308,18 +296,14 @@ def start_gearman_worker(supported_modules):
                 e,
                 fail_sleep,
             )
-            with waiting_for_gearman_time_summary.time():
+            with metrics.waiting_for_gearman_time_summary.time():
                 time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
 
 
 if __name__ == "__main__":
-    if django_settings.PROMETHEUS_ENABLED:
-        start_prometheus_server(
-            django_settings.PROMETHEUS_BIND_PORT,
-            addr=django_settings.PROMETHEUS_BIND_ADDRESS,
-        )
+    metrics.start_prometheus_server()
 
     try:
         start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))
