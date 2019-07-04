@@ -6,7 +6,7 @@ from __future__ import absolute_import, unicode_literals
 import functools
 
 from django.conf import settings
-from prometheus_client import Counter, Gauge, Summary
+from prometheus_client import Counter, Gauge, Summary, start_http_server
 
 
 active_task_group_gauge = Gauge(
@@ -43,7 +43,6 @@ task_duration_summary = Summary(
     "Summary of task durations in seconds",
     ["task_group_name", "task_name"],
 )
-aips_stored_counter = Counter("mcpserver_aips_stored_total", "Number of AIPs stored")
 
 
 def skip_if_prometheus_disabled(func):
@@ -54,6 +53,13 @@ def skip_if_prometheus_disabled(func):
         return None
 
     return wrapper
+
+
+@skip_if_prometheus_disabled
+def start_prometheus_server():
+    return start_http_server(
+        settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
+    )
 
 
 @skip_if_prometheus_disabled
@@ -81,11 +87,6 @@ def task_completed(task, task_group):
     task_counter.labels(group_name, task_name).inc()
     task_success_timestamp.labels(group_name, task_name).set_to_current_time()
     task_duration_summary.labels(group_name, task_name).observe(duration)
-
-    # TODO: this is not a great way to measure AIP storage time - this should
-    # be tracked elsewhere (possibly in Storage Service)
-    if task_group.execute == "storeAIP_v0.0":
-        aips_stored_counter.inc()
 
 
 @skip_if_prometheus_disabled
