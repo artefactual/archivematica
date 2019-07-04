@@ -47,7 +47,6 @@ django.setup()
 from django.conf import settings as django_settings
 from django.db.models import Q
 from django.utils import six
-from prometheus_client import start_http_server as start_prometheus_server
 
 # This project, alphabetical by import source
 import watchDirectory
@@ -62,6 +61,7 @@ from unitDIP import unitDIP
 from unitTransfer import unitTransfer
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
+import metrics
 import RPCServer
 
 from archivematicaFunctions import unicodeToStr
@@ -339,11 +339,7 @@ if __name__ == "__main__":
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
 
-    if django_settings.PROMETHEUS_ENABLED:
-        start_prometheus_server(
-            django_settings.PROMETHEUS_BIND_PORT,
-            addr=django_settings.PROMETHEUS_BIND_ADDRESS,
-        )
+    metrics.start_prometheus_server()
 
     with open(DEFAULT_WORKFLOW) as workflow_file:
         try:
