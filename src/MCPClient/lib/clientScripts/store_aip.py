@@ -32,7 +32,6 @@ import django
 
 django.setup()
 from django.db import transaction
-from prometheus_client import Counter
 from metsrw.plugins import premisrw
 
 from main.models import UnitVariable, Event, Agent, DublinCore
@@ -42,10 +41,10 @@ from custom_handlers import get_script_logger
 import storageService as storage_service
 from archivematicaFunctions import escape
 
+import metrics
+
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
-aips_stored_counter = Counter("mcpclient_aips_stored_total", "Number of AIPs stored")
-dips_stored_counter = Counter("mcpclient_dips_stored_total", "Number of DIPs stored")
 
 
 class StorageServiceCreateFileError(Exception):
@@ -258,9 +257,9 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     rmtree_upload_dip_transitory_loc(package_type, aip_path)
 
     if "AIP" in package_type:
-        aips_stored_counter.inc()
+        metrics.aip_stored()
     elif "DIP" in package_type:
-        dips_stored_counter.inc()
+        metrics.dip_stored()
 
     return 0
 
