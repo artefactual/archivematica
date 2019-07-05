@@ -58,7 +58,12 @@ from main.models import DashboardSetting, Directory, SIP
 
 # archivematicaCommon
 from archivematicaFunctions import str2bool
-from bindpid import bind_pid, BindPIDException, _validate
+from bindpid import (
+    bind_pid,
+    BindPIDException,
+    _validate_handle_server_config,
+    _validate_entity_type_required_params,
+)
 from custom_handlers import get_script_logger
 import namespaces as ns
 
@@ -200,6 +205,7 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
         job, mdl, is_sip, shared_path, config["handle_archive_pid_source"]
     )
     config.update({"entity_type": entity_type, "desired_pid": desired_pid})
+    _validate_entity_type_required_params(config)
     try:
         msg = bind_pid(**config)
         _add_pid_to_mdl_identifiers(mdl, config)
@@ -224,7 +230,7 @@ def main(job, sip_uuid, shared_path, bind_pids_switch):
         handle_config.get("pid_request_verify_certs", "True")
     )
     try:
-        _validate(handle_config)
+        _validate_handle_server_config(handle_config)
     except BindPIDException as err:
         logger.info(err)
         raise BindPIDsException

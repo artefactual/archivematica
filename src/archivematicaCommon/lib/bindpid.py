@@ -151,14 +151,15 @@ import requests
 
 # Parameters required when requesting the binding of a handle PID.
 REQ_PARAMS = (
-    "entity_type",
-    "desired_pid",
     "naming_authority",
     "pid_web_service_endpoint",
     "pid_web_service_key",
     "handle_resolver_url",
     "pid_request_body_template",
 )
+
+# To bind a PID we require a model and a desired persistent identifier.
+REQ_ENTITY_PARAMS = ("entity_type", "desired_pid")
 
 # Parameters that may be specified in a config file instead of passed on the
 # command line.
@@ -207,8 +208,28 @@ class BindPIDException(Exception):
 
 
 def _validate(argdict):
-    """Validate the argument dictionary ``argdict`` passed to ``bind_pid``."""
+    """Call the validation functions on the separate aspects of the handle
+    server form elements.
+    """
+    _validate_handle_server_config(argdict)
+    _validate_entity_type_required_params(argdict)
+
+
+def _validate_handle_server_config(argdict):
+    """Validate the argument dictionary ``argdict`` passed to ``bind_pid`` and
+    ``bind_pids``.
+    """
     for param in REQ_PARAMS:
+        val = argdict.get(param)
+        if not val:
+            raise BindPIDException("A value for parameter {} is required".format(param))
+
+
+def _validate_entity_type_required_params(argdict):
+    """Validate entity types that we can bind PIDs to, e.g. file, unit. Ensure
+    that a URL template setting has been provided for generating that PID.
+    """
+    for param in REQ_ENTITY_PARAMS:
         val = argdict.get(param)
         if not val:
             raise BindPIDException("A value for parameter {} is required".format(param))

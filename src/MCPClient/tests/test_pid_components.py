@@ -122,6 +122,7 @@ class TestPIDComponents(object):
         An example scenario might be when the user has bind PIDs on in their
         processing configuration but no handle server information configured.
         """
+        DashboardSetting.objects.filter(scope="handle").delete()
         assert (
             bind_pids.main(self.job, None, None, True) == 1
         ), "Incorrect return value for bind_pids with incomplete configuration."
@@ -140,7 +141,9 @@ class TestPIDComponents(object):
         mocker.patch.object(
             bind_pids, "_get_unique_acc_no", return_value=self.package_uuid
         )
-        mocker.patch.object(bind_pids, "_validate", return_value=None)
+        mocker.patch.object(
+            bind_pids, "_validate_handle_server_config", return_value=None
+        )
         with vcr_cassettes.use_cassette(
             "test_bind_pids_to_sip_and_dirs.yaml"
         ) as cassette:
@@ -340,7 +343,9 @@ class TestPIDComponents(object):
         mocker.patch.object(
             bind_pids, "_get_unique_acc_no", return_value=self.package_uuid
         )
-        mocker.patch.object(bind_pids, "_validate", return_value=None)
+        mocker.patch.object(
+            bind_pids, "_validate_handle_server_config", return_value=None
+        )
         with vcr_cassettes.use_cassette(
             "test_bind_pids_to_sip_and_dirs.yaml"
         ) as cassette:
