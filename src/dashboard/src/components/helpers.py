@@ -36,6 +36,8 @@ from django.utils.translation import ugettext as _
 from main import models
 from tastypie.models import ApiKey
 
+from amclient import AMClient
+
 logger = logging.getLogger("archivematica.dashboard")
 
 
@@ -300,32 +302,76 @@ def processing_config_path():
     )
 
 
+def _prepare_stream_response(
+    payload, content_type, content_disposition, preview_file=False
+):
+    """Prepare the streaming response to return to the caller."""
+    if preview_file:
+        content_disposition = "inline"
+    response = StreamingHttpResponse(payload)
+    response["Content-Type"] = content_type
+    response["Content-Disposition"] = content_disposition
+    return response
+
+
+def stream_mets_from_storage_service(
+    transfer_name, sip_uuid, error_message="Unexpected error: {}"
+):
+    """Enable the streaming of an individual AIP METS file from the Storage
+    Service.
+    """
+    absolute_transfer_name = "{}-{}".format(transfer_name, sip_uuid)
+    mets_name = "METS.{}.xml".format(sip_uuid)
+    mets_path = "{}/data/{}".format(absolute_transfer_name, mets_name)
+    # We can't get a lot of debug information from AMClient yet, so we try to
+    # download and then open, returning an error if the file can't be accessed.
+    try:
+        response = AMClient(
+            ss_api_key=get_setting("storage_service_apikey", None),
+            ss_user_name=get_setting("storage_service_user", "test"),
+            ss_url=get_setting("storage_service_url", None).rstrip("/"),
+            package_uuid=sip_uuid,
+            relative_path=mets_path,
+            stream=True,
+        ).extract_file()
+    except requests.exceptions.ConnectionError as err:
+        err_response = {"success": False, "message": error_message.format(err)}
+        return json_response(err_response, status_code=503)
+    if response.status_code != 200:
+        err_response = {
+            "success": False,
+            "message": error_message.format(response.content),
+        }
+        return json_response(err_response, status_code=response.status_code)
+    content_type = "application/xml"
+    content_disposition = "attachment; filename={};".format(mets_name)
+    return _prepare_stream_response(
+        payload=response,
+        content_type=content_type,
+        content_disposition=content_disposition,
+    )
+
+
 def stream_file_from_storage_service(
     url, error_message="Remote URL returned {}", preview_file=False
 ):
     # Repetetive or constant values to use below when seeting the headers.
-    header_content_disposition = "Content-Disposition"
-    content_disposition_inline = "inline"
     storage_timeout = django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT
     stream = requests.get(url, stream=True, timeout=storage_timeout)
-    if stream.status_code == 200:
-        content_type = stream.headers.get("content-type", "text/plain")
-        response = StreamingHttpResponse(stream, content_type=content_type)
-
-        # Provide a content-disposition so the browser knows how to handles
-        # the response.
-        content_disposition = stream.headers.get("content-disposition")
-        if preview_file:
-            response[header_content_disposition] = content_disposition_inline
-        elif content_disposition:
-            response[header_content_disposition] = content_disposition
-        return response
-    else:
+    if stream.status_code != 200:
         response = {
             "success": False,
             "message": error_message.format(stream.status_code),
         }
         return json_response(response, status_code=400)
+    content_type = stream.headers.get("content-type", "text/plain")
+    content_disposition = stream.headers.get("content-disposition")
+    return _prepare_stream_response(
+        payload=stream,
+        content_type=content_type,
+        content_disposition=content_disposition,
+        preview_file=preview_file,
+    )
 
 
 def completed_units_efficient(unit_type="transfer", include_failed=True):

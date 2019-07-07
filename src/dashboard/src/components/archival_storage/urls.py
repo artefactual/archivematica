@@ -27,6 +27,10 @@ urlpatterns = [
         views.aip_file_download,
     ),
     url(
+        r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/mets_download/$",
+        views.aip_mets_file_download,
+    ),
+    url(
         r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/pointer_file/$",
         views.aip_pointer_file_download,
     ),

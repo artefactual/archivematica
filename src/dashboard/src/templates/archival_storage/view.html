@@ -87,6 +87,12 @@
         </td>
       </tr>
       <tr>
+        <th>{% trans "METS file" %}</th>
+        <td>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_mets_file_download' uuid %}">{% trans "View" %}</a>
+        </td>
+      </tr>
+      <tr>
         <th>{% trans "Pointer file" %}</th>
         <td>
           <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">{% trans "View" %}</a>

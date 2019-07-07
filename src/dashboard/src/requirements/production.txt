@@ -7,6 +7,7 @@
 -e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
 -e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername
 agentarchives==0.5.0
+amclient==1.1.1
 asn1crypto==0.24.0
 bagit==1.7.0
 brotli==0.5.2

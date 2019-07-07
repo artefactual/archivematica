@@ -344,6 +344,22 @@ def aip_file_download(request, uuid):
     )
 
 
+def aip_mets_file_download(request, uuid):
+    """Download an individual AIP METS file."""
+    es_client = elasticSearchFunctions.get_client()
+    try:
+        aip = elasticSearchFunctions.get_aip_data(es_client, uuid, fields="name")
+    except IndexError:
+        # TODO: 404 settings for the project do not display this to the user (only DEBUG).
+        raise Http404(
+            _("The AIP package containing the requested METS cannot be found")
+        )
+    transfer_name = aip["_source"]["name"]
+    return helpers.stream_mets_from_storage_service(
+        transfer_name=transfer_name, sip_uuid=uuid
+    )
+
+
 def aip_pointer_file_download(request, uuid):
     redirect_url = storage_service.pointer_file_url(uuid)
     return helpers.stream_file_from_storage_service(
