@@ -8,11 +8,20 @@ from requests.auth import AuthBase
 import urllib
 
 from django.conf import settings as django_settings
+from prometheus_client import Summary
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
 
+
 LOGGER = logging.getLogger("archivematica.common")
+
+
+ss_api_time_summary = Summary(
+    "common_ss_api_request_duration_seconds",
+    "Summary of time waiting on the Storage Service API in seconds",
+    ["function"],
+)
 
 
 class Error(requests.exceptions.RequestException):
@@ -57,7 +66,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT):
+def _storage_api_session(timeout=30.0):
     """Return a requests.Session with a customized adapter with timeout support."""
 
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
@@ -122,7 +131,8 @@ def create_pipeline(
     LOGGER.info("Creating pipeline in storage service with %s", pipeline)
     url = _storage_service_url() + "pipeline/"
     try:
-        response = _storage_api_session().post(url, json=pipeline)
+        with ss_api_time_summary.labels(function="create_pipeline").time():
+            response = _storage_api_session().post(url, json=pipeline)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning(
@@ -138,7 +148,8 @@ def create_pipeline(
 def get_pipeline(uuid):
     url = _storage_service_url() + "pipeline/" + uuid + "/"
     try:
-        response = _storage_api_session().get(url)
+        with ss_api_time_summary.labels(function="get_pipeline").time():
+            response = _storage_api_session().get(url)
         if response.status_code == 404:
             LOGGER.warning(
                 "This Archivematica instance is not registered with the storage service or has been disabled."
@@ -182,7 +193,8 @@ def get_location(path=None, purpose=None, space=None):
         "offset": 0,
     }
     while True:
-        response = _storage_api_session().get(url, params=params)
+        with ss_api_time_summary.labels(function="get_location").time():
+            response = _storage_api_session().get(url, params=params)
         locations = response.json()
         return_locations += locations["objects"]
         if not locations["meta"]["next"]:
@@ -195,7 +207,8 @@ def get_location(path=None, purpose=None, space=None):
 
 def get_default_location(purpose):
     url = _storage_service_url() + "location/default/{}".format(purpose)
-    response = _storage_api_session().get(url)
+    with ss_api_time_summary.labels(function="get_default_location").time():
+        response = _storage_api_session().get(url)
     response.raise_for_status()
     return response.json()
 
@@ -207,7 +220,8 @@ def browse_location(uuid, path):
     path = base64.b64encode(path)
     url = _storage_service_url() + "location/" + uuid + "/browse/"
     params = {"path": path}
-    response = _storage_api_session().get(url, params=params)
+    with ss_api_time_summary.labels(function="browse_location").time():
+        response = _storage_api_session().get(url, params=params)
     browse = response.json()
     browse["entries"] = map(base64.b64decode, browse["entries"])
     browse["directories"] = map(base64.b64decode, browse["directories"])
@@ -250,7 +264,8 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + "location/" + destination_location["uuid"] + "/"
     try:
-        response = _storage_api_slow_session().post(url, json=move_files)
+        with ss_api_time_summary.labels(function="copy_files").time():
+            response = _storage_api_slow_session().post(url, json=move_files)
         response.raise_for_status()
         return (response.json(), None)
     except requests.exceptions.RequestException as e:
@@ -332,7 +347,8 @@ def create_file(
             session = _storage_api_slow_session()
             new_file["reingest"] = pipeline["uuid"]
             url = _storage_service_url() + "file/" + uuid + "/"
-            response = session.put(url, json=new_file)
+            with ss_api_time_summary.labels(function="create_file").time():
+                response = session.put(url, json=new_file)
             response.raise_for_status()
         except requests.exceptions.RequestException as err:
             LOGGER.warning(errmsg, new_file, err)
@@ -341,7 +357,8 @@ def create_file(
             ret = response.json()
     else:
         try:
-            session = _storage_api_slow_session()
+            with ss_api_time_summary.labels(function="create_file").time():
+                session = _storage_api_slow_session()
             url = _storage_service_url() + "file/"
             response = session.post(url, json=new_file)
             response.raise_for_status()
@@ -384,7 +401,8 @@ def get_file_info(
         "offset": 0,
     }
     while True:
-        response = _storage_api_slow_session().get(url, params=params)
+        with ss_api_time_summary.labels(function="get_file_info").time():
+            response = _storage_api_slow_session().get(url, params=params)
         files = response.json()
         return_files += files["objects"]
         if not files["meta"]["next"]:
@@ -426,7 +444,8 @@ def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
     url = _storage_service_url() + "file/" + uuid + "/extract_file/"
     params = {"relative_path_to_file": relative_path}
-    response = _storage_api_slow_session().get(url, params=params, stream=True)
+    with ss_api_time_summary.labels(function="extract_file").time():
+        response = _storage_api_slow_session().get(url, params=params, stream=True)
     chunk_size = 1024 * 1024
     with open(save_path, "wb") as f:
         for chunk in response.iter_content(chunk_size):
@@ -462,7 +481,8 @@ def request_reingest(package_uuid, reingest_type, processing_config):
     }
     url = _storage_service_url() + "file/" + package_uuid + "/reingest/"
     try:
-        response = _storage_api_slow_session().post(url, json=api_request)
+        with ss_api_time_summary.labels(function="request_reingest").time():
+            response = _storage_api_slow_session().post(url, json=api_request)
     except requests.ConnectionError:
         LOGGER.exception("Could not connect to storage service")
         return {"error": True, "message": "Could not connect to storage service"}
@@ -485,13 +505,15 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
         "user_id": user_id,
     }
     url = _storage_service_url() + "file/" + uuid + "/delete_aip/"
-    response = _storage_api_session().post(url, json=api_request)
+    with ss_api_time_summary.labels(function="request_file_deletion").time():
+        response = _storage_api_session().post(url, json=api_request)
     return response.json()
 
 
 def post_store_aip_callback(uuid):
     url = _storage_service_url() + "file/" + uuid + "/send_callback/post_store/"
-    response = _storage_api_slow_session().get(url)
+    with ss_api_time_summary.labels(function="post_store_aip_callback").time():
+        response = _storage_api_slow_session().get(url)
     try:
         return response.json()
     except Exception:
@@ -500,7 +522,8 @@ def post_store_aip_callback(uuid):
 
 def get_file_metadata(**kwargs):
     url = _storage_service_url() + "file/metadata/"
-    response = _storage_api_slow_session().get(url, params=kwargs)
+    with ss_api_time_summary.labels(function="get_file_metadata").time():
+        response = _storage_api_slow_session().get(url, params=kwargs)
     if 400 <= response.status_code < 500:
         raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
     return response.json()
@@ -511,7 +534,8 @@ def remove_files_from_transfer(transfer_uuid):
 
     TODO: move tool to Dashboard management commands.
     """
-    url = _storage_service_url() + "file/" + transfer_uuid + "/contents/"
+    with ss_api_time_summary.labels(function="remove_files_from_transfer").time():
+        url = _storage_service_url() + "file/" + transfer_uuid + "/contents/"
     _storage_api_slow_session().delete(url)
 
 
@@ -521,13 +545,17 @@ def index_backlogged_transfer_contents(transfer_uuid, file_set):
     TODO: move tool to Dashboard management commands.
     """
     url = _storage_service_url() + "file/" + transfer_uuid + "/contents/"
-    response = _storage_api_slow_session().put(url, json=file_set)
+    with ss_api_time_summary.labels(
+        function="index_backlogged_transfer_contents"
+    ).time():
+        response = _storage_api_slow_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
         raise Error("Unable to add files to transfer: {}".format(response.text))
 
 
 def reindex_file(transfer_uuid):
     url = _storage_service_url() + "file/" + transfer_uuid + "/reindex/"
-    response = _storage_api_slow_session().post(url)
+    with ss_api_time_summary.labels(function="reindex_file").time():
+        response = _storage_api_slow_session().post(url)
     response.raise_for_status()
     return response.json()
