@@ -425,7 +425,7 @@ def get_extract_dir_name(filename):
     extract_dir = filename.parent / filename.stem
 
     # trim off '.tar' if present
-    if extract_dir.suffix in ('.tar', '.TAR'):
+    if extract_dir.suffix in (".tar", ".TAR"):
         extract_dir = extract_dir.stem
 
     return str(extract_dir)
