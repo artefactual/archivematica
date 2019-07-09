@@ -9,3 +9,4 @@ inotify_simple==1.1.8
 enum34==1.1.6; python_version < "3.4" # required by inotify_simple
 futures==3.3.0; python_version < "3.2"
 contextdecorator==0.10.0; python_version < "3.2"
+pathlib2==2.3.4 ; python_version < '3'
