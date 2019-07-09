@@ -13,7 +13,9 @@ elasticsearch==6.3.1
 idna==2.8
 mysqlclient==1.4.2.post1
 prometheus_client==0.7.1
+pathlib2==2.3.4 ; python_version < "3"
 python-dateutil==2.4.2
 requests==2.21.0
+scandir==1.10.0
 six==1.12.0
 urllib3==1.24.1

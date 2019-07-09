@@ -124,6 +124,14 @@ def _file_is_an_archive(filepath):
 
 
 def _pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
+    """
+    Return a version of the filepath that does not yet exist, padding with numbers
+    as necessary and reattempting until a non-existent filepath is found
+
+    :param filepath: `Path` or string of the desired destination filepath
+    :param original: `Path` or string of the original filepath (before padding attempts)
+    :param attempt: Number
+    """
     if original is None:
         original = filepath
     filepath = Path(filepath)
