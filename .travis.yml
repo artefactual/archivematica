@@ -13,6 +13,7 @@ branches:
 
 before_script:
   - pip install tox
+  - pip install coveralls
 
 script: tox
 
@@ -67,3 +68,6 @@ matrix:
 
     - python: "3.6"
       env: TOXENV=mcpserver
+
+after_success:
+  - coveralls
