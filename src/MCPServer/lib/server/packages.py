@@ -25,6 +25,11 @@ from server.jobs import JobChain
 from server.processing_config import copy_processing_config
 from server.utils import uuid_from_path
 
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
 
 logger = logging.getLogger("archivematica.mcp.server.packages")
 
@@ -121,22 +126,27 @@ def _file_is_an_archive(filepath):
 def _pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
     if original is None:
         original = filepath
+    filepath = Path(filepath)
+    original = Path(original)
+
     attempt = attempt + 1
-    if not os.path.exists(filepath):
+    if not filepath.exists():
         return filepath
-    if os.path.isdir(filepath):
+    if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            original + "_" + str(attempt), original, attempt
+            "{}_{}".format(original, attempt), original, attempt
         )
+
     # need to work out basename
-    basedirectory = os.path.dirname(original)
-    basename = os.path.basename(original)
+    basedirectory = original.parent
+    basename = original.name
+
     # do more complex padding to preserve file extension
     period_position = basename.index(".")
     non_extension = basename[0:period_position]
     extension = basename[period_position:]
     new_basename = "{}_{}{}".format(non_extension, attempt, extension)
-    new_filepath = os.path.join(basedirectory, new_basename)
+    new_filepath = basedirectory / new_basename
     return _pad_destination_filepath_if_it_already_exists(
         new_filepath, original, attempt
     )
@@ -373,7 +383,7 @@ def _capture_transfer_failure(fn):
 def _determine_transfer_paths(name, path, tmpdir):
     if _file_is_an_archive(path):
         transfer_dir = tmpdir
-        p = Path(path).path
+        p = LocationPath(path).path
         filepath = os.path.join(tmpdir, os.path.basename(p))
     else:
         path = os.path.join(path, ".")  # Copy contents of dir but not dir
@@ -478,7 +488,7 @@ def _start_package_transfer(
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
 
 
-class Path(object):
+class LocationPath(object):
     """Path wraps a path that is a pair of two values: UUID and path."""
 
     uuid, path = None, None
