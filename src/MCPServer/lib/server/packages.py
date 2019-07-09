@@ -131,6 +131,8 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
     :param filepath: `Path` or string of the desired destination filepath
     :param original: `Path` or string of the original filepath (before padding attempts)
     :param attempt: Number
+
+    :returns: `Path` object, padded as necessary
     """
     if original is None:
         original = filepath
@@ -258,19 +260,22 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     error = _check_filepath_exists(filepath)
     if error:
         raise Exception(error)
+
+    filepath = Path(filepath)
+    dest = Path(dest)
+
+    is_dir = filepath.is_dir()
+
     # Confine destination to subdir of originals.
-    basename = os.path.basename(filepath)
-    dest = _pad_destination_filepath_if_it_already_exists(os.path.join(dest, basename))
-    # Ensure directories end with a trailing slash.
-    is_dir = os.path.isdir(filepath)
-    if is_dir:
-        dest = os.path.join(dest, "")
+    basename = filepath.name
+    dest = _pad_destination_filepath_if_it_already_exists(dest / basename)
+
     try:
-        shutil.move(filepath, dest)
-    except (OSError, shutil.Error) as e:
+        filepath.rename(dest)
+    except OSError as e:
         raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
     else:
-        transfer.currentlocation = dest.replace(
+        transfer.currentlocation = str(dest).replace(
             settings.SHARED_DIRECTORY, "%sharedPath%", 1
         )
         transfer.save()
@@ -278,25 +283,28 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     if not is_dir:
         # Transfer is not a directory so it is an uploaded zipfile.
         # Precreate the extraction directory for the uploaded zipfile
-        extract_dir = get_extract_dir_name(dest)
+        extract_dir = Path(get_extract_dir_name(dest))
         try:
-            os.mkdir(extract_dir)
+            extract_dir.mkdir()
         except OSError as e:
             raise Exception("Error creating extraction dir %s (%s)", extract_dir, e)
 
         # Move the processing config into the extraction directory so that it
         # is preserved and used in the workflow
-        config_path = os.path.join(os.path.dirname(filepath), "processingMCP.xml")
-        if os.path.isfile(config_path):
+        processing_config = "processingMCP.xml"
+        config_path = filepath.parent / processing_config
+        if config_path.exists():
             try:
-                shutil.move(config_path, extract_dir)
-            except shutil.Error as e:
+                config_path.rename(extract_dir / processing_config)
+            except OSError as e:
                 raise Exception(
                     "Error moving processing config %s to %s (%s)",
                     config_path,
                     extract_dir,
                     e,
                 )
+
+
 
 
 @auto_close_old_connections()
