@@ -357,3 +357,6 @@ def test_sanitize_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
         not in sip_file_obj.currentlocation
     )
     assert u"file" in sip_file_obj.currentlocation
+
+def test_something_new():
+    assert True
