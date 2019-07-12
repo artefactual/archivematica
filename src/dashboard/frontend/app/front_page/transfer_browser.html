@@ -85,7 +85,7 @@
                  selected-node="vm.selected"
                  on-node-toggle="vm.on_toggle(node, expanded)">
       <span ng-class="{'disabled-file': !vm.file_can_be_added(node)}">
-        {{ node.title }} ({{ node.properties.display_string }})
+        {{ node.title }} <span ng-if="node.properties.display_string">({{ node.properties.display_string }})</span>
       </span>
     </treecontrol>
   </div> <!-- well -->
