@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage MCPServer
 
+import datetime
 import threading
 import databaseFunctions
 import uuid
@@ -27,7 +28,6 @@ import cPickle
 import logging
 import os
 
-from databaseFunctions import getUTCDate
 from main.models import Task
 
 from django.db import transaction
@@ -136,6 +136,10 @@ class TaskGroup:
             createdtime=startTimestamp,
         )
 
+    def update_task_results(self, task_uuid, **kwargs):
+        job_uuid = self.linkTaskManager.jobChainLink.UUID
+        Task.objects.filter(taskuuid=task_uuid, job_id=job_uuid).update(**kwargs)
+
     def calculateExitCode(self):
         """
         The exit code for this task group (defined as the largest exit code of any of
@@ -222,5 +226,6 @@ class TaskGroup:
             )
 
             self.results = {"exitCode": 0, "stdout": "", "stderror": ""}
-            self.start_timestamp = getUTCDate()
+            # Track start/end times in naive UTC time
+            self.start_timestamp = datetime.datetime.utcnow()
             self.finished_timestamp = None

@@ -190,14 +190,8 @@ clamav_pass_by_stream = True
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
-<<<<<<< HEAD
 prometheus_bind_address =
 prometheus_bind_port =
-||||||| merged common ancestors
-=======
-prometheus_bind_ip =
-prometheus_bind_port =
->>>>>>> Add prometheus support to MCPClient
 clamav_client_timeout = 86400
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB

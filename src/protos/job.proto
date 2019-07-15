@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Legacy compatible job status methods
+service JobService {
+  rpc CreatePackage (CreatePackageRequest) returns (CreatePackageResponse) {}
+  rpc ListSIPStatuses (SIPStatusesRequest) returns (SIPStatusesResponse) {}
+  rpc ListTransferStatuses (TransferStatusesRequest) returns (TransferStatusesResponse) {}
+  rpc GetUnitStatus (UnitStatusRequest) returns (UnitStatusResponse) {}
+  rpc GetProcessingConfig (google.protobuf.Empty) returns (GetProcessingConfigResponse) {}
+  rpc ApproveJob (ApproveJobRequest) returns (google.protobuf.Empty) {}
+  rpc ApproveTransfer (ApproveTransferRequest) returns (ApproveTransferResponse) {}
+  rpc ApprovePartialReingest (ApprovePartialReingestRequest) returns (google.protobuf.Empty) {}
+  rpc ListJobsAwaitingApproval (google.protobuf.Empty) returns (ListJobsAwaitingApprovalResponse) {}
+}
+
+message WorkflowLink {
+  string uuid = 1;
+  string group_name = 2;
+  string description = 3;
+}
+
+message JobStatusResponse {
+  string uuid = 1;
+  WorkflowLink workflow_link = 2;
+  int32 current_step = 3;
+  google.protobuf.Timestamp create_time = 4;
+  // Next step choices, for presentation in a select box.
+  map<string, string> choices = 5;
+}
+
+message CreatePackageRequest {
+  string name = 1;
+  // Package type, e.g. "standard", "disk image"
+  string type = 2;
+  string accession_id = 3;
+  string access_system_id = 4;
+  string path = 5;
+  string metadata_set_id = 6;
+  int32 user_id = 7;
+  bool auto_approve = 8;
+  string processing_config = 9;
+}
+
+message CreatePackageResponse {
+  string uuid = 1;
+}
+
+message ApproveJobRequest {
+  string job_uuid = 1;
+  string chain_uuid = 2;
+  int32 user_id = 3;
+}
+
+message SIPStatusesRequest {
+  string language = 1;
+}
+
+message SIPStatusesResponse {
+  message SIPStatus {
+    string uuid = 1;
+    google.protobuf.Timestamp update_time = 2;
+    string current_directory = 3;
+    string access_system_id = 4;
+    repeated JobStatusResponse jobs = 5;
+  }
+  repeated SIPStatus sips = 1;
+}
+
+
+message TransferStatusesRequest {
+  string language = 1;
+}
+
+message TransferStatusesResponse {
+  message TransferStatus {
+    string uuid = 1;
+    google.protobuf.Timestamp update_time = 2;
+    string current_directory = 3;
+    WorkflowLink workflow_link = 4;
+    repeated JobStatusResponse jobs = 5;
+  }
+  repeated TransferStatus transfers = 1;
+}
+
+message UnitStatusRequest {
+  string uuid = 1;
+  string language = 2;
+}
+
+message UnitStatusResponse {
+  string uuid = 1;
+  string current_directory = 2;
+  repeated JobStatusResponse jobs = 3;
+}
+
+message ListJobsAwaitingApprovalResponse {
+  repeated string job_xml = 1;
+}
+
+message GetProcessingConfigResponse {
+  message ProcessingField {
+    string uuid = 1;
+    string type = 2;
+    string name = 3;
+    string label = 4;
+    repeated string ignored_choices = 5;
+    bool find_duplicates = 6;
+    string yes_option_uuid = 7;
+    string no_option_uuid = 8;
+    string purpose = 9;
+    string chain_uuid = 10;
+    map<string, string> options = 11;
+  }
+  repeated ProcessingField fields = 1;
+}
+
+message ApproveTransferRequest {
+  string transfer_type = 1;
+  string db_transfer_path = 2;
+  int32 user_id = 3;
+}
+
+message ApproveTransferResponse {
+  string uuid = 1;
+}
+
+message ApprovePartialReingestRequest {
+  string uuid = 1;
+  int32 user_id = 2;
+}

@@ -40,7 +40,7 @@ from tastypie.authentication import (
 
 # This project, alphabetical
 import archivematicaFunctions
-from contrib.mcp.client import MCPClient
+import rpc
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
 from components import helpers
@@ -512,13 +512,14 @@ def approve_transfer(request):
         # Append a slash to complete the directory path.
         db_transfer_path = os.path.join(watched_path, "")
     try:
-        client = MCPClient(request.user)
-        unit_uuid = client.approve_transfer_by_path(db_transfer_path, transfer_type)
+        response = rpc.approve_transfer(
+            transfer_type, db_transfer_path, request.user.pk
+        )
     except Exception as err:
         msg = "Unable to start the transfer."
         LOGGER.error("%s %s (db_transfer_path=%s)", msg, err, db_transfer_path)
         return _error_response(msg, status_code=500)
-    return _ok_response("Approval successful.", uuid=unit_uuid)
+    return _ok_response("Approval successful.", uuid=response.uuid)
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
@@ -549,8 +550,7 @@ def reingest_approve(request):
     if sip_uuid is None:
         return _error_response('"uuid" is required.')
     try:
-        client = MCPClient(request.user)
-        client.approve_partial_reingest(sip_uuid, request.user.id)
+        rpc.approve_partial_reingest(sip_uuid, request.user.id)
     except Exception as err:
         msg = "Unable to approve the partial reingest."
         LOGGER.error("%s %s (sip_uuid=%s)", msg, err, sip_uuid)
@@ -821,22 +821,19 @@ def _package_create(request):
         payload.get("access_system_id"),
         path,
         payload.get("metadata_set_id"),
+        request.user.pk,
     )
-    kwargs = {
-        "auto_approve": payload.get("auto_approve", True),
-        "wait_until_complete": False,
-    }
+    kwargs = {"auto_approve": payload.get("auto_approve", True)}
     processing_config = payload.get("processing_config")
     if processing_config is not None:
         kwargs["processing_config"] = processing_config
     try:
-        client = MCPClient(request.user)
-        id_ = client.create_package(*args, **kwargs)
+        response = rpc.create_package(*args, **kwargs)
     except Exception as err:
         msg = "Package cannot be created"
         LOGGER.error("{}: {}".format(msg, err))
         return helpers.json_response({"error": True, "message": msg}, 500)
-    return helpers.json_response({"id": id_}, 202)
+    return helpers.json_response({"id": response.uuid}, 202)
 
 
 @_api_endpoint(expected_methods=["POST"])

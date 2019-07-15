@@ -13,7 +13,7 @@ from django.http import (
 )
 from django.utils.translation import ugettext as _
 
-from contrib.mcp.client import MCPClient
+import rpc
 from components import advanced_search
 from main import models
 
@@ -309,15 +309,21 @@ def complete_matching(request, uuid):
     """
     if request.method != "POST":
         return HttpResponse(status=405)
+
+    # Chain: Upload DIP to ArchivesSpace
+    CHOICE_UUID = "3572f844-5e69-4000-a24b-4e32d3487f82"
+    # Microservice: Upload DIP
+    MICROSERVICE_UUID = "92879a29-45bf-4f0b-ac43-e64474f0f2f9"
     try:
-        client = MCPClient(request.user)
-        client.execute_unit(
-            uuid,
-            # Microservice: Upload DIP
-            mscl_id="92879a29-45bf-4f0b-ac43-e64474f0f2f9",
-            # Chain: Upload DIP to ArchivesSpace
-            choice="3572f844-5e69-4000-a24b-4e32d3487f82",
+        jobs = models.Job.objects.filter(
+            currentstep=models.Job.STATUS_AWAITING_DECISION,
+            sipuuid=uuid,
+            microservicechainlink=MICROSERVICE_UUID,
         )
+        if len(jobs) < 1:
+            raise models.Job.DoesNotExist("No jobs found.")
+        for item in jobs:
+            rpc.approve_job(item.pk, CHOICE_UUID, request.user.id)
     except Exception as err:
         messages.error(
             request,

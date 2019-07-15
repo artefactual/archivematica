@@ -25,7 +25,7 @@ from django.views.decorators.http import last_modified
 from django.views.i18n import javascript_catalog
 from shibboleth.views import ShibbolethLogoutView, LOGOUT_SESSION_KEY
 
-from contrib.mcp.client import MCPClient
+import rpc
 from main import models
 from lxml import etree
 from components import helpers
@@ -77,8 +77,8 @@ def home(request):
 
 # TODO: hide removed elements
 def status(request):
-    client = MCPClient(request.user)
-    xml = etree.XML(client.list())
+    response = rpc.list_jobs_awaiting_approval()
+    xml = etree.XML("".join(response.job_xml))
 
     sip_count = len(
         xml.xpath(

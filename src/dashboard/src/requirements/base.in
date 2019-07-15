@@ -29,6 +29,9 @@ whitenoise==3.3.0
 -e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
 prometheus_client==0.7.1
 django-prometheus==1.0.15
+protobuf==3.9.0
+grpcio==1.22.0
+futures==3.2.0
 
 # Support for longer (>30 characters) usernames
 # Using a fork of the main package because this one provides Django (rather than South) migrations

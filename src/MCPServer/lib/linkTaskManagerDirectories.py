@@ -26,7 +26,7 @@ import os
 import archivematicaFunctions
 from dicts import ReplacementDict
 
-from taskGroupRunner import TaskGroupRunner
+from server import job_queue
 
 
 class linkTaskManagerDirectories(LinkTaskManager):
@@ -77,9 +77,15 @@ class linkTaskManagerDirectories(LinkTaskManager):
             commandReplacementDic=commandReplacementDic,
         )
         group.logTaskCreatedSQL()
-        TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
-    def taskGroupFinished(self, finishedTaskGroup):
+        future = job_queue.put(group)
+        future.add_done_callback(self.taskGroupFinished)
+
+    def taskGroupFinished(self, future):
+        if future.cancelled():
+            return
+
+        finishedTaskGroup = future.result()
         finishedTaskGroup.write_output()
 
         self.jobChainLink.linkProcessingComplete(

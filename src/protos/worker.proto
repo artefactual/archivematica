@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service WorkerService {
+  rpc RegisterWorker (RegisterWorkerRequest) returns (google.protobuf.Empty) {}
+  rpc UnregisterWorker (UnregisterWorkerRequest) returns (google.protobuf.Empty) {}
+  rpc UpdateStatus (UpdateStatusRequest) returns (google.protobuf.Empty) {}
+
+  rpc DequeueJob (google.protobuf.Empty) returns (Job) {}
+  rpc UpdateJob (JobResult) returns (google.protobuf.Empty) {}
+}
+
+// Register a worker on startup
+message RegisterWorkerRequest {
+  string uuid = 1;
+  google.protobuf.Timestamp start_time = 2;
+}
+
+// Unregister a worker on shutdown
+message UnregisterWorkerRequest {
+  string uuid = 1;
+}
+
+// Update worker status
+message UpdateStatusRequest {
+  enum WorkerStatus {
+    WORKER_STATUS_UNSPECIFIED = 0;
+    STARTED = 1;
+    SUSPENDED = 2;
+    BUSY = 3;
+    IDLE = 4;
+  }
+  string uuid = 1;
+  WorkerStatus status = 2;
+}
+
+// A job consists of multiple tasks, which are batched
+// by the worker.
+message Task {
+  string uuid = 1;
+  google.protobuf.Timestamp create_time = 2;
+  repeated string arguments = 3;
+}
+
+message TaskResult {
+  string uuid = 1;
+  enum TaskStatus {
+    TASK_STATUS_UNSPECIFIED = 0;
+    CREATED = 1;
+    QUEUED = 2;
+    PROCESSING = 3;
+    COMPLETED = 4;
+    ERRORED = 5;
+  }
+  TaskStatus status = 2;
+  // Exit code should be replaced by status code in future;
+  // However, exit codes are currently used to communicate things
+  // other than success and failure.
+  int32 exit_code = 3;
+  google.protobuf.Timestamp finish_time = 4;
+  repeated string output = 5;
+  repeated string errors = 6;
+}
+
+
+// Server response with available job for processing
+message Job {
+  string uuid = 1;
+  string name = 2;
+  google.protobuf.Timestamp create_time = 3;
+  repeated Task tasks = 4;
+}
+
+// Client request sent after processing, with job results
+message JobResult {
+  enum JobStatus {
+    JOB_STATUS_UNSPECIFIED = 0;
+    CREATED = 1;
+    QUEUED = 2;
+    PROCESSING = 3;
+    COMPLETED = 4;
+    ERRORED = 5;
+  }
+  string uuid = 1;
+  JobStatus status = 2;
+  google.protobuf.Timestamp complete_time = 3;
+  repeated TaskResult task_results = 5;
+}
+
+

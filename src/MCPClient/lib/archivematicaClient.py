@@ -61,29 +61,29 @@ import os
 from socket import gethostname
 import time
 
+import grpc
 import django
 
 django.setup()
 from django.conf import settings as django_settings
 import gearman
-from prometheus_client import (
-    Counter,
-    Summary,
-    start_http_server as start_prometheus_server,
-)
 
 from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
-from django.utils import six
 import shlex
 import importlib
+from google.protobuf.empty_pb2 import Empty
+from google.protobuf.timestamp_pb2 import Timestamp
 
 from databaseFunctions import auto_close_db
 import fork_runner
 import metrics
 from job import Job
+from rpcgen.worker_pb2 import JobResult, TaskResult
+from rpcgen.worker_pb2_grpc import WorkerServiceStub
+
 
 logger = logging.getLogger("archivematica.mcp.client")
 
@@ -92,20 +92,6 @@ replacement_dict = {
     "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
     "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
-
-
-task_error_counter = Counter(
-    "mcpclient_task_error_total", "Number of failures processing tasks"
-)
-task_execution_time_summary = Summary(
-    "mcpclient_task_execution_time_seconds",
-    "Summary of worker task execution times in seconds",
-    ["script_name"],
-)
-waiting_for_gearman_time_summary = Summary(
-    "mcpclient_gearman_sleep_time_seconds",
-    "Summary of worker sleep after gearman error times in seconds",
-)
 
 
 def get_supported_modules(file_):
@@ -123,37 +109,36 @@ def get_supported_modules(file_):
 
 
 @auto_close_db
-def handle_batch_task(gearman_job, supported_modules):
-    module_name = supported_modules.get(gearman_job.task)
-    gearman_data = cPickle.loads(gearman_job.data)
+def handle_batch_task(job_response, supported_modules):
+    with metrics.task_execution_time_summary.labels(
+        script_name=job_response.name
+    ).time():
+        module_name = supported_modules.get(job_response.name)
 
-    utc_date = getUTCDate()
-    jobs = []
-    for task_uuid in gearman_data["tasks"]:
-        task_data = gearman_data["tasks"][task_uuid]
-        arguments = task_data["arguments"]
-        if isinstance(arguments, six.text_type):
-            arguments = arguments.encode("utf-8")
+        utc_date = getUTCDate()
+        jobs = []
+        for task in job_response.tasks:
+            arguments = " ".join(task.arguments)
 
-        replacements = (
-            replacement_dict.items()
-            + {
-                "%date%": utc_date.isoformat(),
-                "%taskUUID%": task_uuid,
-                "%jobCreatedDate%": task_data["createdDate"],
-            }.items()
-        )
+            replacements = (
+                replacement_dict.items()
+                + {
+                    "%date%": utc_date.isoformat(),
+                    "%taskUUID%": task.uuid,
+                    "%jobCreatedDate%": task.create_time.ToDatetime().isoformat(),
+                }.items()
+            )
 
-        for var, val in replacements:
-            arguments = arguments.replace(var, val)
+            for var, val in replacements:
+                arguments = arguments.replace(var, val)
 
-        job = Job(
-            gearman_job.task,
-            task_data["uuid"],
-            _parse_command_line(arguments),
-            caller_wants_output=task_data["wants_output"],
-        )
-        jobs.append(job)
+            job = Job(
+                job_response.name,
+                task.uuid,
+                _parse_command_line(arguments),
+                caller_wants_output=True,
+            )
+            jobs.append(job)
 
     # Set their start times.  If we collide with the MCP Server inserting new
     # Tasks (which can happen under heavy concurrent load), retry as needed.
@@ -225,67 +210,63 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """
     logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
 
-    with metrics.task_execution_time_summary.labels(
-        script_name=gearman_job.task
-    ).time():
-        try:
-            jobs = handle_batch_task(gearman_job, supported_modules)
-            results = {}
+    try:
+        jobs = handle_batch_task(gearman_job, supported_modules)
+        results = {}
 
-            def write_task_results_callback():
-                with transaction.atomic():
-                    for job in jobs:
-                        logger.info("\n\n*** Completed job: %s", job.dump())
+        def write_task_results_callback():
+            with transaction.atomic():
+                for job in jobs:
+                    logger.info("\n\n*** Completed job: %s", job.dump())
 
-                        exit_code = job.get_exit_code()
-                        end_time = getUTCDate()
+                    exit_code = job.get_exit_code()
+                    end_time = getUTCDate()
 
-                        kwargs = {"exitcode": exit_code, "endtime": end_time}
-                        if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
-                            kwargs.update(
-                                {
-                                    "stdout": job.get_stdout(),
-                                    "stderror": job.get_stderr(),
-                                }
-                            )
-                        Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
+                    kwargs = {"exitcode": exit_code, "endtime": end_time}
+                    if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                        kwargs.update(
+                            {
+                                "stdout": job.get_stdout(),
+                                "stderror": job.get_stderr(),
+                            }
+                        )
+                    Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
-                        results[job.UUID] = {
-                            "exitCode": exit_code,
-                            "finishedTimestamp": end_time,
-                        }
+                    results[job.UUID] = {
+                        "exitCode": exit_code,
+                        "finishedTimestamp": end_time,
+                    }
 
-                        if job.caller_wants_output:
-                            # Send back stdout/stderr so it can be written to files.
-                            # Most cases don't require this (logging to the database is
-                            # enough), but the ones that do are coordinated through the
-                            # MCP Server so that multiple MCP Client instances don't try
-                            # to write the same file at the same time.
-                            results[job.UUID]["stdout"] = job.get_stdout()
-                            results[job.UUID]["stderror"] = job.get_stderr()
+                    if job.caller_wants_output:
+                        # Send back stdout/stderr so it can be written to files.
+                        # Most cases don't require this (logging to the database is
+                        # enough), but the ones that do are coordinated through the
+                        # MCP Server so that multiple MCP Client instances don't try
+                        # to write the same file at the same time.
+                        results[job.UUID]["stdout"] = job.get_stdout()
+                        results[job.UUID]["stderror"] = job.get_stderr()
 
-                        if exit_code == 0:
-                            metrics.job_completed(gearman_job.task)
-                        else:
-                            metrics.job_failed(gearman_job.task)
+                    if exit_code == 0:
+                        metrics.job_completed(gearman_job.task)
+                    else:
+                        metrics.job_failed(gearman_job.task)
 
-            retryOnFailure("Write task results", write_task_results_callback)
+        retryOnFailure("Write task results", write_task_results_callback)
 
-            return cPickle.dumps({"task_results": results})
-        except SystemExit:
-            logger.error(
-                "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
-                gearman_job.task,
-            )
-            return fail_all_tasks(gearman_job, "Module attempted exit")
-        except Exception as e:
-            logger.exception(
-                "Exception while processing task %s: %s", gearman_job.task, e
-            )
-            return fail_all_tasks(gearman_job, e)
+        return cPickle.dumps({"task_results": results})
+    except SystemExit:
+        logger.error(
+            "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
+            gearman_job.task,
+        )
+        return fail_all_tasks(gearman_job, "Module attempted exit")
+    except Exception as e:
+        logger.exception(
+            "Exception while processing task %s: %s", gearman_job.task, e
+        )
+        return fail_all_tasks(gearman_job, e)
 
 
-@task_error_counter.count_exceptions()
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
@@ -327,10 +308,57 @@ def start_gearman_worker(supported_modules):
                 fail_sleep += fail_sleep_incrementor
 
 
+def _get_protobuf_timestamp():
+    timestamp = Timestamp()
+    timestamp.GetCurrentTime()
+
+    return timestamp
+
+
 if __name__ == "__main__":
     metrics.start_prometheus_server()
 
-    try:
-        start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Received keyboard interrupt, quitting.")
+    channel = grpc.insecure_channel(django_settings.GEARMAN_SERVER)
+    stub = WorkerServiceStub(channel)
+    modules = get_supported_modules(django_settings.CLIENT_MODULES_FILE)
+
+    future = grpc.channel_ready_future(channel)
+    while True:
+        logger.info("Waiting for gRPC channel")
+        try:
+            future.result(timeout=5.0)
+        except grpc.FutureTimeoutError:
+            pass
+        else:
+            logger.info("gRPC channel connected")
+            break
+
+    # TODO: use signal here
+    while True:
+        job_response = stub.DequeueJob(Empty())
+        logger.info("Task received: %s (%s)", job_response.uuid, job_response.name)
+
+        batch_results = handle_batch_task(job_response, modules)
+
+        logger.info("Task completed: %s (%s)", job_response.uuid, job_response.name)
+        timestamp = _get_protobuf_timestamp()
+        task_results = [
+            TaskResult(
+                uuid=result.UUID,
+                status=TaskResult.TaskStatus.COMPLETED,
+                exit_code=result.get_exit_code(),
+                finish_time=timestamp,
+                output=[result.get_stdout()],
+                errors=[result.get_stderr()],
+            )
+            for result in batch_results
+        ]
+        job_result = JobResult(
+            uuid=job_response.uuid,
+            status=JobResult.JobStatus.COMPLETED,
+            complete_time=timestamp,
+            task_results=task_results,
+        )
+        metrics.job_completed(job_response.name)
+
+        stub.UpdateJob(job_result)

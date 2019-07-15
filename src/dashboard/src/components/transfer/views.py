@@ -24,8 +24,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 
-from contrib.mcp.client import MCPClient
-
+import rpc
 from main import models
 from components import helpers
 from components.ingest.forms import DublinCoreMetadataForm
@@ -123,14 +122,35 @@ def component(request, uuid):
 
 
 def status(request, uuid=None):
-    response = {"objects": {}, "mcp": False}
-    try:
-        client = MCPClient(request.user)
-        response["objects"] = client.get_transfers_statuses()
-    except Exception:
-        pass
-    else:
-        response["mcp"] = True
+    response = {"objects": [], "mcp": True}
+
+    transfer_statuses = rpc.get_transfer_statuses()
+
+    for status in transfer_statuses.transfers:
+        status_response = {
+            "id": status.uuid,
+            "uuid": status.uuid,
+            "timestamp": str(status.update_time.ToSeconds()),
+            "jobs": [],
+        }
+        if status.current_directory:
+            status_response["directory"] = status.current_directory
+
+        for job in status.jobs:
+            job_response = {
+                "uuid": job.uuid,
+                "link_id": job.workflow_link.uuid,
+                "type": job.workflow_link.description,
+                "microservicegroup": job.workflow_link.group_name,
+                "currentstep": job.current_step,
+                "timestamp": str(job.create_time.ToSeconds()),
+            }
+            if job.choices:
+                job_response["choices"] = dict(job.choices)
+            status_response["jobs"].append(job_response)
+
+        response["objects"].append(status_response)
+
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 

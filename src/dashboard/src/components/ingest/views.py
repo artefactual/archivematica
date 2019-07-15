@@ -42,7 +42,7 @@ from django.views.generic import View
 # External dependencies, alphabetical
 
 # This project, alphabetical by import source
-from contrib.mcp.client import MCPClient
+import rpc
 from components import advanced_search
 from components import helpers
 from components import decorators
@@ -92,14 +92,37 @@ class SipsView(View):
 
 
 def ingest_status(request, uuid=None):
-    response = {"objects": {}, "mcp": False}
-    try:
-        client = MCPClient(request.user)
-        response["objects"] = client.get_sips_statuses()
-    except Exception:
-        pass
-    else:
-        response["mcp"] = True
+    response = {"objects": [], "mcp": True}
+
+    sip_statuses = rpc.get_sip_statuses()
+
+    for status in sip_statuses.sips:
+        status_response = {
+            "id": status.uuid,
+            "uuid": status.uuid,
+            "timestamp": str(status.update_time.ToSeconds()),
+            "jobs": [],
+        }
+        if status.current_directory:
+            status_response["directory"] = status.current_directory
+        if status.access_system_id:
+            status_response["access_system_id"] = status.access_system_id
+
+        for job in status.jobs:
+            job_response = {
+                "uuid": job.uuid,
+                "link_id": job.workflow_link.uuid,
+                "type": job.workflow_link.description,
+                "microservicegroup": job.workflow_link.group_name,
+                "currentstep": job.current_step,
+                "timestamp": str(job.create_time.ToSeconds()),
+            }
+            if job.choices:
+                job_response["choices"] = dict(job.choices)
+            status_response["jobs"].append(job_response)
+
+        response["objects"].append(status_response)
+
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 

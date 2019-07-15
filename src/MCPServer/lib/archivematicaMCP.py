@@ -41,7 +41,9 @@ import sys
 import threading
 import time
 
+import concurrent.futures
 import django
+import grpc
 
 django.setup()
 from django.conf import settings as django_settings
@@ -53,9 +55,9 @@ import watchDirectory
 from utils import log_exceptions
 
 from executor import Executor
-from taskGroupRunner import TaskGroupRunner
 import processing
 from jobChain import jobChain
+from server import job_service, worker_service
 from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitTransfer import unitTransfer
@@ -366,7 +368,13 @@ if __name__ == "__main__":
     t.start()
 
     Executor.init()
-    TaskGroupRunner.init()
+
+    job_executor = concurrent.futures.ThreadPoolExecutor(max_workers=8)
+    server = grpc.server(job_executor)
+    worker_service.add_servicer(server)
+    job_service.add_servicer(server, workflow)
+    server.add_insecure_port("[::]:50051")
+    server.start()
 
     cleanupOldDbEntriesOnNewRun()
     watchDirectories(workflow)

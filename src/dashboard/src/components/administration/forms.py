@@ -17,6 +17,7 @@
 from __future__ import division
 
 import os
+from collections import OrderedDict
 from lxml import etree
 
 from django import forms
@@ -24,7 +25,7 @@ from django.conf import settings
 from django.forms.widgets import TextInput, Select
 from django.utils.translation import ugettext_lazy as _
 
-from contrib.mcp.client import MCPClient
+import rpc
 from components import helpers
 from installer.forms import site_url_field, load_site_url
 from main.models import Agent, TaxonomyTerm
@@ -361,10 +362,39 @@ class ProcessingConfigurationForm(forms.Form):
             )
 
     def _load_processing_config_fields(self, user):
-        client = MCPClient(user)
-        self.processing_fields = client.get_processing_config_fields()
-        for choice_uuid, field in self.processing_fields.items():
-            field["label"] = self.LABELS[choice_uuid]
+        field_response = rpc.get_processing_config_fields()
+        self.processing_fields = OrderedDict()
+
+        for field in field_response.fields:
+            field_data = {
+                "type": field.type,
+                "name": field.name,
+                "label": self.LABELS[field.uuid],
+            }
+
+            if field.type == "boolean":
+                field_data.update(
+                    {
+                        "yes_option": field.yes_option_uuid,
+                        "no_option": field.no_option_uuid,
+                    }
+                )
+            elif field.type == "storage_service":
+                field_data["purpose"] = field.purpose
+            elif field.type == "days":
+                field_data["chain"] = field.chain_uuid
+            elif field.type == "chain_choice":
+                field_data.update(
+                    {
+                        "ignored_choices": field.ignored_choices,
+                        "find_duplicates": field.find_duplicates,
+                    }
+                )
+
+            if field.type in ("chain_choice", "replace_dict"):
+                field_data["options"] = list(field.options.items())
+
+            self.processing_fields[field.uuid] = field_data
 
     def load_config(self, name):
         """

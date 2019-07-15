@@ -16,26 +16,26 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponse
-from contrib.mcp.client import MCPClient
 from lxml import etree
+
+import rpc
 
 
 def execute(request):
-    result = ""
     if request.POST.get("uuid"):
-        client = MCPClient(request.user)
-        result = client.execute(
-            request.POST.get("uuid"), request.POST.get("choice", "")
+        rpc.approve_job(
+            request.POST.get("uuid"), request.POST.get("choice", ""), request.user.pk
         )
-    return HttpResponse(result, content_type="text/plain")
+
+    return HttpResponse("", content_type="text/plain")
 
 
 def list(request):
-    client = MCPClient(request.user)
-    jobs = etree.XML(client.list())
-    response = ""
-    if 0 < len(jobs):
-        for job in jobs:
-            response += etree.tostring(job)
-    response = "<MCP>%s</MCP>" % response
-    return HttpResponse(response, content_type="text/xml")
+    response_xml = etree.Element("MCP")
+    awaiting_approval = rpc.list_jobs_awaiting_approval()
+    for element_str in awaiting_approval.job_xml:
+        element = etree.fromstring(element_str)
+        response_xml.append(element)
+
+    response_str = etree.tostring(response_xml, pretty_print=True)
+    return HttpResponse(response_str, content_type="text/xml")

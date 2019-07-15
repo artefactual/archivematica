@@ -31,7 +31,7 @@ import archivematicaFunctions
 from dicts import ReplacementDict
 from main.models import UnitVariable
 
-from taskGroupRunner import TaskGroupRunner
+from server import job_queue
 from taskGroup import TaskGroup
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
@@ -166,7 +166,9 @@ class linkTaskManagerFiles(LinkTaskManager):
 
         for taskGroup in self.taskGroups.values():
             taskGroup.logTaskCreatedSQL()
-            TaskGroupRunner.runTaskGroup(taskGroup, self.taskGroupFinished)
+
+            future = job_queue.put(taskGroup)
+            future.add_done_callback(self.taskGroupFinished)
 
         self.clearToNextLink = True
         self.taskGroupsLock.release()
@@ -176,7 +178,11 @@ class linkTaskManagerFiles(LinkTaskManager):
         if self.taskGroups == {}:
             self.jobChainLink.linkProcessingComplete(0)
 
-    def taskGroupFinished(self, finishedTaskGroup):
+    def taskGroupFinished(self, future):
+        if future.cancelled():
+            return
+
+        finishedTaskGroup = future.result()
         finishedTaskGroup.write_output()
 
         # Exit code is the maximum of all task groups (and each task group's

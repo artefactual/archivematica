@@ -19,8 +19,8 @@ import logging
 import django.http
 from django.shortcuts import render
 
+import rpc
 from components import helpers
-from contrib.mcp.client import MCPClient
 from main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
@@ -58,18 +58,22 @@ def microservices(request, unit_type, unit_uuid):
     :param unit_uuid: UUID of the Transfer or SIP
 
     """
-    client = MCPClient(request.user)
-    resp = client.get_unit_status(unit_uuid)
-    return render(
-        request,
-        unit_type + "/microservices.html",
-        {
-            "uuid": unit_uuid,
-            "unit_type": unit_type,
-            "name": resp.get("name"),
-            "jobs": resp.get("jobs"),
-        },
-    )
+    status = rpc.get_unit_status(unit_uuid)
+    context = {
+        "uuid": status.uuid,
+        "unit_type": unit_type,
+        "name": status.current_directory,
+        "jobs": [
+            {
+                "id": job.uuid,
+                "description": job.workflow_link.description,
+                "status": job.current_step,
+                "group": job.workflow_link.group_name,
+            }
+            for job in status.jobs
+        ],
+    }
+    return render(request, unit_type + "/microservices.html", context)
 
 
 def mark_hidden(request, unit_type, unit_uuid):

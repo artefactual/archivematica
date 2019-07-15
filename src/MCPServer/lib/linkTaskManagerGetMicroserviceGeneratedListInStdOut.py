@@ -28,8 +28,8 @@ from linkTaskManager import LinkTaskManager
 import archivematicaFunctions
 from dicts import ChoicesDict, ReplacementDict
 
+from server import job_queue
 from taskGroup import TaskGroup
-from taskGroupRunner import TaskGroupRunner
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
 
@@ -85,9 +85,15 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
             wants_output=True,
         )
         group.logTaskCreatedSQL()
-        TaskGroupRunner.runTaskGroup(group, self.taskGroupFinished)
 
-    def taskGroupFinished(self, finishedTaskGroup):
+        future = job_queue.put(group)
+        future.add_done_callback(self.taskGroupFinished)
+
+    def taskGroupFinished(self, future):
+        if future.cancelled():
+            return
+
+        finishedTaskGroup = future.result()
         finishedTaskGroup.write_output()
 
         stdout = None
