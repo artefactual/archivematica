@@ -35,10 +35,10 @@ ipaddress==1.0.22
 lazy-paged-sequence==0.3
 logutils==0.3.3
 lxml==3.5.0
-metsrw==0.3.8
+metsrw==0.3.11
 mysqlclient==1.3.7
 ndg-httpsclient==0.5.1
-pyasn1-modules==0.2.5     # via python-ldap
+pyasn1-modules==0.2.5
 pyasn1==0.4.5
 pycparser==2.19
 pyopenssl==19.0.0
