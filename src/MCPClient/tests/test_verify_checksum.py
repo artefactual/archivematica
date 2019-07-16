@@ -296,7 +296,7 @@ class TestHashsum(object):
         """
         # Values the job will write.
         algorithms = ["md5", "sha512", "b2"]
-        event_type = "fixity_check"
+        event_type = "fixity check"
         event_outcome = "pass"
         # Values we will write.
         detail = "suma de verificación validada: OK"

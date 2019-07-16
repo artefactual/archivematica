@@ -229,7 +229,7 @@ def get_file_queryset(transfer_uuid):
 
 def write_premis_event_per_file(file_uuids, transfer_uuid, event_detail):
     """Generate PREMIS events per File object verified in this transfer."""
-    event_type = "fixity_check"
+    event_type = "fixity check"
     event_outcome = "pass"
     events = []
     agents = Transfer.objects.get(uuid=transfer_uuid).agents
