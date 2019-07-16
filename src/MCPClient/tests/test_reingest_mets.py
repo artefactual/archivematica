@@ -1362,6 +1362,10 @@ class TestAddEvents(TestCase):
             )
             == 9
         )
+        models.Agent.objects.filter(
+            identifiertype="repository code", agenttype="organization"
+        ).update(identifiervalue="new-repo-code")
+        nsmap_v2 = nsmap_for_premis2()
         mets = archivematicaCreateMETSReingest.add_events(
             Job("stub", "stub", []), mets, self.sip_uuid
         )
@@ -1376,7 +1380,7 @@ class TestAddEvents(TestCase):
             len(
                 root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)
             )
-            == 12
+            == 15
         )
         # Preservation
         assert (
@@ -1400,6 +1404,20 @@ class TestAddEvents(TestCase):
             )
             != []
         )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="demo"]',
+                namespaces=nsmap_v2,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="new-repo-code"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
         # Original
         assert (
             root.xpath(
@@ -1408,31 +1426,44 @@ class TestAddEvents(TestCase):
             )
             != []
         )
-        namespaces = nsmap_for_premis2()
         assert (
             root.xpath(
                 'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]',
-                namespaces=namespaces,
+                namespaces=nsmap_v2,
             )
             != []
         )
         assert (
             root.xpath(
                 'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]',
-                namespaces=namespaces,
+                namespaces=nsmap_v2,
             )
             != []
         )
         assert (
             root.xpath(
                 'mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]',
-                namespaces=namespaces,
+                namespaces=nsmap_v2,
             )
             != []
         )
         assert (
             root.xpath(
                 'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="demo"]',
+                namespaces=nsmap_v2,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="new-repo-code"]',
                 namespaces=NSMAP,
             )
             != []
@@ -1448,6 +1479,20 @@ class TestAddEvents(TestCase):
         assert (
             root.xpath(
                 'mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                namespaces=NSMAP,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="demo"]',
+                namespaces=nsmap_v2,
+            )
+            != []
+        )
+        assert (
+            root.xpath(
+                'mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="new-repo-code"]',
                 namespaces=NSMAP,
             )
             != []
