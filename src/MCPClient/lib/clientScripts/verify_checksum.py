@@ -28,7 +28,6 @@ us to easily call each of the tools packaged against its different algorithms:
     * SHA1
     * SHA256
     * SHA512
-    * Blake2
 """
 
 from __future__ import print_function, unicode_literals
@@ -75,7 +74,6 @@ class Hashsum(object):
         "checksum.sha1": "sha1sum",
         "checksum.sha256": "sha256sum",
         "checksum.sha512": "sha512sum",
-        "checksum.b2": "b2sum",
     }
 
     OKAY_STRING = ": OK"

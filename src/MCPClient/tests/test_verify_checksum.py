@@ -80,12 +80,10 @@ class TestHashsum(object):
             ("metadata/checksum.sha1", True),
             ("metadata/checksum.sha256", True),
             ("metadata/checksum.sha512", True),
-            ("metadata/checksum.b2", True),
             ("metadata/checksum_md5", False),
             ("metadata/checksum_sha1", False),
             ("metadata/checksum_sha256", False),
             ("metadata/checksum_sha512", False),
-            ("metadata/checksum_b2", False),
         ],
     )
     def test_valid_initialisation(self, fixture):
@@ -135,7 +133,7 @@ class TestHashsum(object):
         then it should be practically impossible to write to the database and
         generate some form of false-positive.
         """
-        hash_file = "metadata/checksum.b2"
+        hash_file = "metadata/checksum.sha1"
         hashsum = self.setup_hashsum(hash_file, Job("stub", "stub", ["", ""]))
         try:
             hashsum.get_command_detail()
@@ -295,7 +293,7 @@ class TestHashsum(object):
         anticipated, writes its data, and that data can then be retrieved.
         """
         # Values the job will write.
-        algorithms = ["md5", "sha512", "b2"]
+        algorithms = ["md5", "sha512", "sha1"]
         event_type = "fixity check"
         event_outcome = "pass"
         # Values we will write.
