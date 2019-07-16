@@ -908,22 +908,43 @@ def include_custom_structmap(
                 state.globalStructMapCounter += 1
                 structMap.set("ID", "structMap_{}".format(state.globalStructMapCounter))
             ret.append(structMap)
-            fileids = structMap.xpath(
+            # CONTENTIDS will map to fptrs and area elements where present.
+            fptrs = root.xpath("//mets:fptr", namespaces={"mets": ns.metsNS})
+            area_elements = root.xpath("//mets:area", namespaces={"mets": ns.metsNS})
+            contentids = structMap.xpath(
                 "//*[@CONTENTIDS]", namespaces={"mets:": ns.metsNS}
             )
-            for item in fileids:
+            if not contentids:
+                state.error_accumulator.error_count += 1
+                logger.error(
+                    "No CONTENTIDS found in custom structMap. AIP METS cannot be generated"
+                )
+                return []
+            if len(contentids) < (len(fptrs) + len(area_elements)):
+                logger.error(
+                    "Mismatch of CONTENTID elements to elements we wish to replace. AIP METS cannot be generated"
+                )
+                state.error_accumulator.error_count += 1
+                return []
+            for item in contentids:
                 file_path = item.get("CONTENTIDS")
+                if not file_path:
+                    logger.error(
+                        "Empty file path in custom structMap. AIP METS cannot be generated"
+                    )
+                    state.error_accumulator.error_count += 1
+                    return []
                 normalized_path = _fixup_path_input_by_user(job, file_path)
                 if normalized_path in state.fileNameToFileID:
                     item.set("FILEID", state.fileNameToFileID[normalized_path])
                 else:
-                    job.pyprint(
-                        "Custom structmap error: no fileUUID for",
-                        file_path,
-                        normalized_path,
-                        file=sys.stderr,
-                    )
                     state.error_accumulator.error_count += 1
+                    logger.error(
+                        "No fileUUID for '%s'; original in custom structMap: %s",
+                        normalized_path,
+                        file_path,
+                    )
+                    return []
     if ret:
         job.pyprint("Custom structmap will be included in AIP METS")
     return ret

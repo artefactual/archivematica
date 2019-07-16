@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div TYPE="book" LABEL="How to create a hierarchical book">
+      <mets:div TYPE="page" LABEL="Cover">
+        <mets:fptr FILEID="cover.jpg" CONTENTIDS="objects/cover.jpg"/>
+      </mets:div>
+      <mets:div TYPE="page" LABEL="Inside cover">
+        <mets:fptr FILEID="inside_cover.jpg" CONTENTIDS="objects/inside_cover.jpg"/>
+      </mets:div>
+      <mets:div TYPE="chapter" LABEL="Chapter 1">
+        <mets:div TYPE="page" LABEL="Page 1">
+          <!-- Expecting a CONTENTID here to map to a FILEID UUID -->
+          <mets:fptr FILEID="page_01.jpg"/>
+        </mets:div>
+        <mets:div TYPE="subchapter" LABEL="Subchapter 1.1">
+          <mets:div TYPE="page" LABEL="Page 2">
+            <mets:fptr FILEID="page_02.jpg" CONTENTIDS="objects/page_02.jpg"/>
+          </mets:div>
+          <mets:div TYPE="page" LABEL="Page 3">
+            <mets:fptr FILEID="page_03.jpg" CONTENTIDS="objects/page_03.jpg"/>
+          </mets:div>
+          <mets:div TYPE="page" LABEL="Page 4">
+            <mets:fptr FILEID="page_04.jpg" CONTENTIDS="objects/page_04.jpg"/>
+          </mets:div>
+        </mets:div>
+        <!-- Subchapter 1.1 -->
+        <mets:div TYPE="subchapter" LABEL="Subchapter 1.2">
+          <mets:div TYPE="page" LABEL="Page 5">
+            <mets:fptr FILEID="page_05.jpg" CONTENTIDS="objects/page_05.jpg"/>
+          </mets:div>
+          <mets:div TYPE="page" LABEL="Page 6">
+            <mets:fptr FILEID="page_06.jpg" CONTENTIDS="objects/page_06.jpg"/>
+          </mets:div>
+          <mets:div TYPE="page" LABEL="Page 7">
+            <mets:fptr FILEID="page_07.jpg" CONTENTIDS="objects/page_07.jpg"/>
+          </mets:div>
+        </mets:div>
+        <!-- Subchapter 1.2 -->
+      </mets:div>
+      <!-- Chapter 1 -->
+      <!-- Chapters 2 and 3, each with their own subchapters as in Chapter 1, omitted from this example. -->
+      <mets:div TYPE="afterword" LABEL="Afterword">
+        <mets:div TYPE="page" LABEL="Page 20">
+          <mets:fptr FILEID="page_20.jpg" CONTENTIDS="objects/page_20.jpg"/>
+        </mets:div>
+      </mets:div>
+      <!-- afterword -->
+      <mets:div TYPE="index" LABEL="Index">
+        <mets:div TYPE="page" LABEL="Index, page 1">
+          <mets:fptr FILEID="index_01.jpg" CONTENTIDS="objects/index_01.jpg"/>
+        </mets:div>
+        <mets:div TYPE="page" LABEL="Index, page 2">
+          <mets:fptr FILEID="index_02.jpg" CONTENTIDS="objects/index_02.jpg"/>
+        </mets:div>
+      </mets:div>
+      <!-- index -->
+      <mets:div TYPE="page" LABEL="Back cover">
+        <mets:fptr FILEID="back_cover.jpg" CONTENTIDS="objects/back_cover.jpg"/>
+      </mets:div>
+      <!-- back cover -->
+    </mets:div>
+    <!-- book -->
+  </mets:structMap>
+</mets:mets>

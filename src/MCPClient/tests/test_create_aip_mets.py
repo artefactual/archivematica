@@ -883,38 +883,55 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             self.state.fileNameToFileID
         ), "State hasn't been generated for all objects on disk, duplicate names may not be counted for"
 
-    def test_get_included_structmap(self):
-        """Test the output of custom structmaps in create_mets_v2."""
+    def test_get_included_structmap_invalid_mets(self):
+        """Integration test ensuring that it is possible for the mets
+        validation to fail using the mets_xsd_path included with Archivematica.
+        """
+        self.generate_aip_mets_v2_state()
+        broken_structmap_path = os.path.join(
+            self.objects_dir,
+            "metadata",
+            "transfers",
+            "custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51",
+            "broken_structmap.xml",
+        )
+        assert os.path.isfile(broken_structmap_path)
+        assert os.path.isfile(self.mets_xsd_path)
+        try:
+            self.validate_mets(self.mets_xsd_path, broken_structmap_path)
+        except etree.DocumentInvalid:
+            assert (
+                True
+            ), "Expecting a validation error so that we know validation is working correctly"
+
+    def test_get_included_structmap_valid_mets(self):
+        """Test the valid output of custom structmaps in create_mets_v2."""
         self.generate_aip_mets_v2_state()
         self._fixup_fileid_state()
         default_structmap = "mets_structmap.xml"
         Result = collections.namedtuple(
-            "Result", "structmap_name files replaced_count structmap_id broken"
+            "Result", "structmap_name files replaced_count structmap_id"
         )
         results = [
-            Result(None, ["objects/test_file.flac"], 1, None, False),
-            Result("broken_structmap.xml", [], None, None, True),
+            Result(None, ["objects/test_file.flac"], 1, None),
             Result(
                 "simple_book_structmap.xml",
                 ["objects/test_file.jpg", "objects/test_file.png"],
                 2,
                 None,
-                False,
             ),
-            Result("mets_area_structmap.xml", ["test_file.mp3"], 6, None, False),
+            Result("mets_area_structmap.xml", ["test_file.mp3"], 6, None),
             Result(
                 "unicode_simple_book_structmap.xml",
                 ["objects/página_de_prueba.jpg", "objects/página_de_prueba.png"],
                 2,
                 "custom_structmap",
-                False,
             ),
             Result(
                 "nested_file_structmap.xml",
                 ["objects/nested_dir/nested_file.rdata"],
                 6,
                 None,
-                False,
             ),
             Result(
                 "complex_book_structmap.xml",
@@ -924,14 +941,12 @@ class TestCustomStructMap(TempDirMixin, TestCase):
                 ],
                 2,
                 None,
-                False,
             ),
             Result(
                 "path_with_spaces_structmap.xml",
                 ["objects/dir-with-dashes/file with spaces.bin"],
                 1,
                 None,
-                False,
             ),
         ]
         for res in results:
@@ -944,16 +959,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             )
             assert os.path.isfile(structmap_path)
             assert os.path.isfile(self.mets_xsd_path)
-            if res.broken:
-                try:
-                    self.validate_mets(self.mets_xsd_path, structmap_path)
-                    assert False
-                except etree.DocumentInvalid:
-                    assert True
-                # Break out of the loop, nothing else to test here.
-                continue
-            else:
-                self.validate_mets(self.mets_xsd_path, structmap_path)
+            self.validate_mets(self.mets_xsd_path, structmap_path)
             # Ensure that we test default behavior.
             if not res.structmap_name:
                 custom_structmap = create_mets_v2.include_custom_structmap(
@@ -992,3 +998,44 @@ class TestCustomStructMap(TempDirMixin, TestCase):
                 assert (
                     fileid in self.state.fileNameToFileID.values()
                 ), "Expected FILEID not in returned structmap"
+
+    def test_get_included_structmap_incomplete_mets(self):
+        """Test the output of custom structmaps in create_mets_v2 where the
+        structMap is incomplete.
+        """
+        self.generate_aip_mets_v2_state()
+        self._fixup_fileid_state()
+        default_structmap = "mets_structmap.xml"
+        Result = collections.namedtuple("Result", "structmap_name structmap_id")
+        results = [
+            Result("no-contentids.xml", "custom_structmap"),
+            Result("file_does_not_exist.xml", "custom_structmap"),
+            Result("empty_filenames.xml", "custom_structmap"),
+            Result("missing_contentid.xml", "custom_structmap"),
+        ]
+        for res in results:
+            self.state = create_mets_v2.MetsState()
+            structmap_path = os.path.join(
+                self.objects_dir,
+                "metadata",
+                "transfers",
+                "custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51",
+                (default_structmap if not res.structmap_name else res.structmap_name),
+            )
+            assert os.path.isfile(structmap_path)
+            assert os.path.isfile(self.mets_xsd_path)
+            self.validate_mets(self.mets_xsd_path, structmap_path)
+            custom_structmap = create_mets_v2.include_custom_structmap(
+                job=Job("stub", "stub", []),
+                baseDirectoryPath=self.transfer_dir,
+                state=self.state,
+                custom_structmap=res.structmap_name,
+            )
+            assert (
+                custom_structmap == []
+            ), "Return from include_custom_structmap should be an empty array: {}".format(
+                custom_structmap
+            )
+            assert (
+                self.state.error_accumulator.error_count == 1
+            ), "error counter should be incremented on error"

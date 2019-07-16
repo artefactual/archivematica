@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- structMap contains no CONTENTIDS which are required by the mechanism. -->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="lógico" ID="custom_structmap">
+    <mets:div TYPE="libro" LABEL="Cómo crear un libro jerárquico">
+      <mets:div TYPE="página" LABEL="Cubierta interior">
+        <mets:fptr FILEID="página_de_prueba.png" />
+      </mets:div>
+      <mets:div TYPE="capítulo" LABEL="Capítulo 1">
+        <mets:div TYPE="página" LABEL="Página 1">
+          <mets:fptr FILEID="página_de_prueba.jpg" />
+        </mets:div>
+      </mets:div>
+      <!-- capítulo 1 -->
+    </mets:div>
+    <!-- book -->
+  </mets:structMap>
+</mets:mets>
