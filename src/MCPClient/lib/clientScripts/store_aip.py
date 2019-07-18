@@ -257,9 +257,9 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     rmtree_upload_dip_transitory_loc(package_type, aip_path)
 
     if "AIP" in package_type:
-        metrics.aip_stored()
+        metrics.aip_stored(sip_uuid)
     elif "DIP" in package_type:
-        metrics.dip_stored()
+        metrics.dip_stored(sip_uuid)
 
     return 0
 
