@@ -6,7 +6,10 @@ from __future__ import absolute_import, unicode_literals
 import functools
 
 from django.conf import settings
+from django.utils import timezone
 from prometheus_client import Counter, Gauge, Summary, start_http_server
+
+from main.models import File
 
 
 job_counter = Counter(
@@ -43,6 +46,14 @@ aips_stored_timestamp = Gauge(
 dips_stored_timestamp = Gauge(
     "mcpclient_dips_stored_timestamp", "Timestamp of most recent DIP stored"
 )
+aip_processing_time_summary = Summary(
+    "mcpclient_aip_processing_seconds",
+    "AIP processing time, from first file recorded in DB to storage in SS",
+)
+dip_processing_time_summary = Summary(
+    "mcpclient_dip_processing_seconds",
+    "DIP processing time, from first file recorded in DB to storage in SS",
+)
 
 
 def skip_if_prometheus_disabled(func):
@@ -76,12 +87,28 @@ def job_failed(script_name):
 
 
 @skip_if_prometheus_disabled
-def aip_stored():
+def aip_stored(sip_uuid):
     aips_stored_counter.inc()
     aips_stored_timestamp.set_to_current_time()
 
+    try:
+        earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
+    except File.DoesNotExist:
+        pass
+    else:
+        duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
+        aip_processing_time_summary.observe(duration)
+
 
 @skip_if_prometheus_disabled
-def dip_stored():
+def dip_stored(sip_uuid):
     dips_stored_counter.inc()
     dips_stored_timestamp.set_to_current_time()
+
+    try:
+        earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
+    except File.DoesNotExist:
+        pass
+    else:
+        duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
+        dip_processing_time_summary.observe(duration)
