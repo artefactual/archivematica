@@ -40,8 +40,13 @@ task_error_timestamp = Gauge(
 )
 task_duration_summary = Summary(
     "mcpserver_task_duration_seconds",
-    "Summary of task durations in seconds",
+    "Summary of task processing durations in seconds",
     ["task_group_name", "task_name"],
+)
+chain_duration_summary = Summary(
+    "mcpserver_chain_duration_seconds",
+    "Summary of job chain processing durations in seconds",
+    ["unit_type"],
 )
 
 
@@ -97,3 +102,8 @@ def task_failed(task, task_group):
     task_error_timestamp.labels(group_name, task_name).set_to_current_time()
     task_error_counter.labels(group_name, task_name).inc()
     task_counter.labels(group_name, task_name).inc()
+
+
+@skip_if_prometheus_disabled
+def chain_completed(duration, unit_type):
+    chain_duration_summary.labels(unit_type).observe(duration)
