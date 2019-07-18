@@ -130,5 +130,5 @@ class jobChainLink:
             try:
                 next_link = self.link.get_next_link(exitCode)
             except KeyError:
-                return
+                pass
         self.jobChain.nextChainLink(next_link, passVar=passVar)

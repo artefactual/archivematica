@@ -21,6 +21,8 @@
 
 import logging
 
+import metrics
+from databaseFunctions import getUTCDate
 from jobChainLink import jobChainLink
 
 from dicts import ReplacementDict
@@ -64,6 +66,7 @@ class jobChain:
             return None
         self.unit = unit
         self.workflow = workflow
+        self.started_on = getUTCDate()
 
         LOGGER.debug("Chain: %s", chain)
 
@@ -82,5 +85,8 @@ class jobChain:
         """Proceed to next link."""
         if link is None:
             LOGGER.debug("Done with unit %s", self.unit.UUID)
+            completed_on = getUTCDate()
+            chain_duration = (completed_on - self.started_on).total_seconds()
+            metrics.chain_completed(chain_duration, self.unit.unitType)
             return
         jobChainLink(self, link, self.workflow, self.unit, passVar=passVar)
