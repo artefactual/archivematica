@@ -1,5 +1,3 @@
-import os
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -11,12 +9,9 @@ from components import helpers
 from components.ingest.views_as import get_as_system_client
 from main.models import DashboardSetting
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestIngest(TestCase):
-    fixture_files = ["test_user.json", "sip.json", "jobs-sip-complete.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user", "sip", "jobs-sip-complete"]
 
     def setUp(self):
         self.client = Client()

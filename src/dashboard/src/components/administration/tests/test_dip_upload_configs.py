@@ -1,5 +1,3 @@
-import os
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -7,13 +5,9 @@ from components import helpers
 from components.administration.views_dip_upload import _AS_DICTNAME, _ATOM_DICTNAME
 from main.models import DashboardSetting
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.abspath(os.path.join(THIS_DIR, "../../../../tests/fixtures"))
-
 
 class TestDipUploadAsConfig(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def setUp(self):
         self.client.login(username="test", password="test")
@@ -81,8 +75,7 @@ class TestDipUploadAsConfig(TestCase):
 
 
 class TestDipUploadAtomConfig(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def setUp(self):
         self.client.login(username="test", password="test")

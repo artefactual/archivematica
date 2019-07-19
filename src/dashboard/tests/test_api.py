@@ -16,11 +16,8 @@ from components import helpers
 from main.models import Job, SIP, Task, Transfer
 from processing import install_builtin_config
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 def load_fixture(fixtures):
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixtures]
     call_command("loaddata", *fixtures, **{"verbosity": 0})
 
 
@@ -28,7 +25,7 @@ def e2e(fn):
     """Use this decorator when your test uses the HTTP client."""
 
     def _wrapper(self, *args):
-        load_fixture(["test_user.json"])
+        load_fixture(["test_user"])
         self.client = Client()
         self.client.login(username="test", password="test")
         helpers.set_setting("dashboard_uuid", "test-uuid")
@@ -40,8 +37,7 @@ def e2e(fn):
 class TestAPI(TestCase):
     """Test API endpoints."""
 
-    fixture_files = ["transfer.json", "sip.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["transfer", "sip"]
 
     def _test_api_error(self, response, message=None, status_code=None):
         payload = json.loads(response.content)
@@ -56,7 +52,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_processing(self):
         """It should return PROCESSING."""
         # Setup fixtures
-        load_fixture(["jobs-processing.json"])
+        load_fixture(["jobs-processing"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -73,7 +69,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_user_input(self):
         """It should return USER_INPUT."""
         # Setup fixtures
-        load_fixture(["job-processing.json", "jobs-user-input.json"])
+        load_fixture(["job-processing", "jobs-user-input"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -90,7 +86,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_failed(self):
         """It should return FAILED."""
         # Setup fixtures
-        load_fixture(["jobs-processing.json", "jobs-failed.json"])
+        load_fixture(["jobs-processing", "jobs-failed"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -107,7 +103,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_rejected(self):
         """It should return REJECTED."""
         # Setup fixtures
-        load_fixture(["jobs-processing.json", "jobs-rejected.json"])
+        load_fixture(["jobs-processing", "jobs-rejected"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -124,9 +120,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_completed_transfer(self):
         """It should return COMPLETE and the new SIP UUID."""
         # Setup fixtures
-        load_fixture(
-            ["jobs-processing.json", "jobs-transfer-complete.json", "files.json"]
-        )
+        load_fixture(["jobs-processing", "jobs-transfer-complete", "files"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -144,7 +138,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_backlog(self):
         """It should return COMPLETE and in BACKLOG."""
         # Setup fixtures
-        load_fixture(["jobs-processing.json", "jobs-transfer-backlog.json"])
+        load_fixture(["jobs-processing", "jobs-transfer-backlog"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -162,13 +156,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_completed_sip(self):
         """It should return COMPLETE."""
         # Setup fixtures
-        load_fixture(
-            [
-                "jobs-processing.json",
-                "jobs-transfer-complete.json",
-                "jobs-sip-complete.json",
-            ]
-        )
+        load_fixture(["jobs-processing", "jobs-transfer-complete", "jobs-sip-complete"])
         # Test
         status = views.get_unit_status(
             "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
@@ -191,9 +179,9 @@ class TestAPI(TestCase):
         # Setup fixtures
         load_fixture(
             [
-                "jobs-processing.json",
-                "jobs-transfer-complete.json",
-                "jobs-sip-complete-clean-up-last.json",
+                "jobs-processing",
+                "jobs-transfer-complete",
+                "jobs-sip-complete-clean-up-last",
             ]
         )
         # Test
@@ -211,7 +199,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_status(self):
-        load_fixture(["jobs-transfer-complete.json"])
+        load_fixture(["jobs-transfer-complete"])
         resp = self.client.get(
             "/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         )
@@ -238,13 +226,13 @@ class TestAPI(TestCase):
         )
 
     def test__completed_units(self):
-        load_fixture(["jobs-transfer-complete.json"])
+        load_fixture(["jobs-transfer-complete"])
         completed = views._completed_units()
         assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
 
     def test__completed_units_with_bogus_unit(self):
         """Bogus units should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete.json"])
+        load_fixture(["jobs-transfer-complete"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         try:
             completed = views._completed_units()
@@ -254,7 +242,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_completed_transfers(self):
-        load_fixture(["jobs-transfer-complete.json"])
+        load_fixture(["jobs-transfer-complete"])
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
         payload = json.loads(resp.content)
@@ -266,7 +254,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_transfers_with_bogus_transfer(self):
         """Bogus transfers should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete.json"])
+        load_fixture(["jobs-transfer-complete"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
@@ -278,7 +266,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_completed_ingests(self):
-        load_fixture(["jobs-sip-complete.json"])
+        load_fixture(["jobs-sip-complete"])
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
         payload = json.loads(resp.content)
@@ -290,7 +278,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_ingests_with_bogus_sip(self):
         """Bogus ingests should be excluded and handled gracefully."""
-        load_fixture(["jobs-sip-complete.json"])
+        load_fixture(["jobs-sip-complete"])
         SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
@@ -312,7 +300,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_unit_jobs(self):
-        load_fixture(["jobs-transfer-backlog.json"])
+        load_fixture(["jobs-transfer-backlog"])
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         # fixtures don't have any tasks
         Task.objects.create(
@@ -351,7 +339,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_unit_jobs_searching_for_microservice(self):
-        load_fixture(["jobs-rejected.json"])
+        load_fixture(["jobs-rejected"])
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
             "/api/v2beta/jobs/{}?microservice={}".format(sip_uuid, "Reject transfer")
@@ -380,7 +368,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_unit_jobs_searching_for_chain_link(self):
-        load_fixture(["jobs-rejected.json"])
+        load_fixture(["jobs-rejected"])
         # add chain links to the fixture jobs
         job = Job.objects.get(jobuuid="59ace00b-4830-4314-a7d9-38fdbef64896")
         job.microservicechainlink = "11111111-1111-1111-1111-111111111111"
@@ -407,7 +395,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_unit_jobs_searching_for_name(self):
-        load_fixture(["jobs-rejected.json"])
+        load_fixture(["jobs-rejected"])
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
             "/api/v2beta/jobs/{}?name={}".format(
@@ -448,7 +436,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_task(self):
-        load_fixture(["jobs-transfer-backlog.json"])
+        load_fixture(["jobs-transfer-backlog"])
         # fixtures don't have any tasks
         Task.objects.create(
             taskuuid="12345678-1234-1234-1234-123456789012",
@@ -473,8 +461,7 @@ class TestAPI(TestCase):
 
 
 class TestProcessingConfigurationAPI(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def setUp(self):
         self.client = Client()
@@ -530,8 +517,7 @@ class TestProcessingConfigurationAPI(TestCase):
 class TestAPI2(TestCase):
     """Test API endpoints."""
 
-    fixture_files = ["units.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["units", "jobs-various"]
 
     def test_get_unit_status_multiple(self):
         """When the database contains 5 units of the following types:
@@ -543,7 +529,6 @@ class TestAPI2(TestCase):
         then ``completed_units_efficient`` should return 3: the failed,
         the completed, and the in-backlog transfer.
         """
-        load_fixture(["jobs-various.json"])
         completed = helpers.completed_units_efficient(
             unit_type="transfer", include_failed=True
         )

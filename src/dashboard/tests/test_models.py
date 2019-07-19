@@ -1,16 +1,10 @@
-import os
-
 from django.test import TestCase
 
 from main.models import SIP, Transfer, UnitVariable, User
 
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
 class TestActiveAgent(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def test_transfer_update_active_agent(self):
         user = User.objects.get(id=1)

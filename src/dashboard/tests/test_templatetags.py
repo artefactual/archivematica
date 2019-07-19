@@ -1,17 +1,12 @@
-import os
-
 from django.contrib.auth.models import User
 from django.test import TestCase
 from tastypie.models import ApiKey
 
 from main.templatetags.user import api_key, logout_link
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestAPIKeyTemplateTag(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def setUp(self):
         self.user = User.objects.get(username="test")

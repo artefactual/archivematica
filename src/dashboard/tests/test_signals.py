@@ -1,15 +1,10 @@
-import os
-
 from django.test import TestCase
 
 from main import models
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestSignals(TestCase):
-    fixture_files = ["metadata_type.json", "rights.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["metadata_type", "rights"]
 
     def test_delete_rights_statement(self):
         """It should delete all children."""

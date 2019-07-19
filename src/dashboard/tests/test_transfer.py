@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -9,12 +7,8 @@ from components import helpers
 from main.models import DublinCore
 
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
 class TestTransferViews(TestCase):
-    fixture_files = ["test_user.json", "transfer.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user", "transfer"]
 
     def setUp(self):
         self.client = Client()

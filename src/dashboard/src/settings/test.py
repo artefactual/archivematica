@@ -24,7 +24,8 @@ from __future__ import absolute_import
 import ldap
 from django_auth_ldap.config import LDAPSearch
 
-from .base import *
+# Import local settings (base settings + debug + fixture dirs)
+from .local import *
 
 
 # IN-MEMORY TEST DATABASE

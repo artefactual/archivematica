@@ -1,6 +1,5 @@
 import base64
 import json
-import os
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -9,12 +8,9 @@ from django.test.client import Client
 from main import models
 from components import helpers
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestAccessAPI(TestCase):
-    fixture_files = ["test_user.json", "access.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user", "access"]
 
     def setUp(self):
         self.client = Client()

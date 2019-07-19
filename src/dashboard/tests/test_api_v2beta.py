@@ -2,7 +2,6 @@
 
 import base64
 import json
-import os
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
@@ -10,9 +9,6 @@ import mock
 
 from components import helpers
 from components.api import validators
-
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class MCPClientMock(object):
@@ -36,8 +32,7 @@ class MCPClientMock(object):
 
 
 class TestAPIv2(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     # This is valid path value that we're going to pass to the API server.
     path = base64.b64encode(
@@ -105,8 +100,7 @@ class TestAPIv2(TestCase):
 
 
 class TestValidate(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     VALID_AVALON_CSV = u"""Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Label,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note

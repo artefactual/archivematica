@@ -1,5 +1,3 @@
-import os
-
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -7,13 +5,9 @@ from components import helpers
 
 import mock
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.abspath(os.path.join(THIS_DIR, "../../../../tests/fixtures"))
-
 
 class TestProcessingConfig(TestCase):
-    fixture_files = ["test_user.json"]
-    fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
+    fixtures = ["test_user"]
 
     def setUp(self):
         self.client.login(username="test", password="test")
