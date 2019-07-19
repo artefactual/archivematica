@@ -343,8 +343,13 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                         break
 
 
-def _orphan_agents(fsentry):
-    """Find linking agents used in events not listed as agents."""
+def _extract_event_agents(fsentry):
+    """Find linked agents that have not been described yet.
+
+    When altering PREMIS events for a filesystem entry, it is likely to end up
+    with an incomplete set of PREMIS agents. This function returns the linked
+    agents that have no corresponding PREMIS agents yet defined.
+    """
     agents, orphans = set(), set()
 
     for premis_agent in fsentry.get_premis_agents():
@@ -395,7 +400,7 @@ def add_events(job, mets, sip_uuid):
         fsentry.add_premis_event(createmets2.createEvent(event))
 
     for fsentry in six.itervalues(visited):
-        for identifier_type, identifier_value in _orphan_agents(fsentry):
+        for identifier_type, identifier_value in _extract_event_agents(fsentry):
             try:
                 agent = agents[(identifier_type, identifier_value)]
             except KeyError:
