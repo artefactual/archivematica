@@ -59,6 +59,7 @@ from functools import partial
 import logging
 import os
 from socket import gethostname
+import sys
 import time
 
 import grpc
@@ -315,32 +316,36 @@ def _get_protobuf_timestamp():
     return timestamp
 
 
-if __name__ == "__main__":
-    metrics.start_prometheus_server()
+class Worker(object):
+    def __init__(self, modules, channel_address):
+        self.modules = modules
+        self.channel = grpc.insecure_channel(channel_address)
+        self.stub = WorkerServiceStub(self.channel)
 
-    channel = grpc.insecure_channel(django_settings.MCP_SERVER)
-    stub = WorkerServiceStub(channel)
-    modules = get_supported_modules(django_settings.CLIENT_MODULES_FILE)
-
-    future = grpc.channel_ready_future(channel)
-    while True:
-        logger.info("Waiting for gRPC channel")
-        try:
-            future.result(timeout=5.0)
-        except grpc.FutureTimeoutError:
-            pass
-        else:
-            logger.info("gRPC channel connected")
-            break
-
-    # TODO: use signal here
-    while True:
-        job_response = stub.DequeueJob(Empty())
+    def dequeue_job(self):
+        """Get the next available job, blocking until one is available
+        """
+        job_response = self.stub.DequeueJob(Empty(), timeout=None)
         logger.info("Task received: %s (%s)", job_response.uuid, job_response.name)
 
-        batch_results = handle_batch_task(job_response, modules)
+        return job_response
 
-        logger.info("Task completed: %s (%s)", job_response.uuid, job_response.name)
+    def process_job(self, job):
+        try:
+            batch_results = handle_batch_task(job, self.modules)
+        except Exception:
+            return self.handle_job_failure(job)
+        else:
+            return self.handle_job_success(job, batch_results)
+
+    def handle_job_failure(self, job):
+        # TODO: tell the server
+        logger.error(
+            "Task failed: %s (%s)", job.uuid, job.name, exc_info=sys.exc_info()
+        )
+
+    def handle_job_success(self, job, results):
+        logger.info("Task completed: %s (%s)", job.uuid, job.name)
         timestamp = _get_protobuf_timestamp()
         task_results = [
             TaskResult(
@@ -351,14 +356,52 @@ if __name__ == "__main__":
                 output=[result.get_stdout()],
                 errors=[result.get_stderr()],
             )
-            for result in batch_results
+            for result in results
         ]
         job_result = JobResult(
-            uuid=job_response.uuid,
+            uuid=job.uuid,
             status=JobResult.JobStatus.COMPLETED,
             complete_time=timestamp,
             task_results=task_results,
         )
-        metrics.job_completed(job_response.name)
+        metrics.job_completed(job.name)
 
-        stub.UpdateJob(job_result)
+        self.stub.UpdateJob(job_result)
+
+    def wait_for_channel(self):
+        channel_ready = grpc.channel_ready_future(self.channel)
+
+        while True:
+            try:
+                channel_ready.result(timeout=5.0)
+            except grpc.FutureTimeoutError:
+                logger.info("Waiting for gRPC channel")
+            else:
+                logger.info("gRPC channel connected")
+                break
+
+    def work(self):
+        self.wait_for_channel()
+
+        while True:
+            try:
+                job = self.dequeue_job()
+            except grpc.RpcError as rpc_error:
+                if rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
+                    logger.warning("gRPC channel closed while waiting for a job")
+                    # Wait for the channel to come back
+                    self.wait_for_channel()
+                    continue
+                else:
+                    raise rpc_error
+
+            # TODO: rpc error handling for completed jobs
+            self.process_job(job)
+
+
+if __name__ == "__main__":
+    metrics.start_prometheus_server()
+    modules = get_supported_modules(django_settings.CLIENT_MODULES_FILE)
+    worker = Worker(modules, django_settings.MCP_SERVER)
+
+    worker.work()
