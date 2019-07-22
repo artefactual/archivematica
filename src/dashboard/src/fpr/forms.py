@@ -12,10 +12,7 @@ from fpr import models as fprmodels
 
 
 class FormatForm(forms.ModelForm):
-    group = forms.ChoiceField(
-        widget=forms.Select(attrs={"class": "form-control"}),
-        choices=fprmodels.FormatGroup.objects.all(),
-    )
+    group = forms.ChoiceField(widget=forms.Select(attrs={"class": "form-control"}))
 
     def __init__(self, *args, **kwargs):
         super(FormatForm, self).__init__(*args, **kwargs)
@@ -100,7 +97,7 @@ class IDRuleForm(forms.ModelForm):
 
 
 class FPRuleForm(forms.ModelForm):
-    command = forms.ChoiceField(choices=fprmodels.FPCommand.objects.all())
+    command = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
         super(FPRuleForm, self).__init__(*args, **kwargs)
