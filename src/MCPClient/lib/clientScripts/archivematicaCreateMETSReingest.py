@@ -13,6 +13,8 @@ import namespaces as ns
 # dashboard
 from main import models
 
+from django.utils import six
+
 
 def _create_premis_object(premis_object_type):
     """Return new PREMIS element container (``lxml._Element`` instance).
@@ -341,32 +343,50 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                         break
 
 
+def _extract_event_agents(fsentry):
+    """Find linked agents that have not been described yet.
+
+    When altering PREMIS events for a filesystem entry, it is likely to end up
+    with an incomplete set of PREMIS agents. This function returns the linked
+    agents that have no corresponding PREMIS agents yet defined.
+    """
+    agents, orphans = set(), set()
+
+    for premis_agent in fsentry.get_premis_agents():
+        for identifier in premis_agent.agent_identifier:
+            agents.add(
+                (identifier.agent_identifier_type, identifier.agent_identifier_value)
+            )
+
+    for premis_event in fsentry.get_premis_events():
+        for linking_agent in premis_event.linking_agent_identifier:
+            item = (
+                linking_agent.linking_agent_identifier_type,
+                linking_agent.linking_agent_identifier_value,
+            )
+            if item in agents:
+                continue
+            orphans.add(item)
+
+    return orphans
+
+
 def add_events(job, mets, sip_uuid):
     """
     Add reingest events for all existing files.
     """
-    # Get all events for files in this SIP
-    events = models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid)
+    fsentries = {item.file_uuid: item for item in mets.all_files()}
+    visited = {}  # Not using a set because FSEntry is not hashable.
+    agents = {
+        (agent.identifiertype, agent.identifiervalue): agent
+        for agent in models.Agent.objects.all()
+    }
 
-    # Get Agent
-    try:
-        agent = models.Agent.objects.get(
-            identifiertype="preservation system",
-            name="Archivematica",
-            agenttype="software",
-        )
-    except models.Agent.DoesNotExist:
-        agent = None
-    except models.Agent.MultipleObjectsReturned:
-        agent = None
-        job.pyprint("WARNING multiple agents found for Archivematica")
-
-    needs_agent = set()
-
-    for event in events:
+    for event in models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid).iterator():
         job.pyprint("Adding", event.event_type, "event to file", event.file_uuid_id)
-        fsentry = mets.get_file(file_uuid=event.file_uuid_id)
-        if fsentry is None:
+        try:
+            fsentry = fsentries[event.file_uuid_id]
+        except KeyError:
             job.pyprint(
                 "File with UUID",
                 event.file_uuid_id,
@@ -375,24 +395,18 @@ def add_events(job, mets, sip_uuid):
                 "event.",
             )
             continue
+        if fsentry.file_uuid not in visited:
+            visited[fsentry.file_uuid] = fsentry
         fsentry.add_premis_event(createmets2.createEvent(event))
 
-        amdsec = fsentry.amdsecs[0]
-
-        # Add agent if it's not already in this amdSec
-        if agent and not mets.tree.xpath(
-            'mets:amdSec[@AMDID="'
-            + amdsec.id_string
-            + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="'
-            + agent.identifiervalue
-            + '"]',
-            namespaces=ns.NSMAP,
-        ):
-            needs_agent.add(fsentry)
-
-    for fsentry in needs_agent:
-        job.pyprint("Adding Agent for", agent.identifiervalue)
-        fsentry.add_premis_agent(createmets2.createAgent(agent))
+    for fsentry in six.itervalues(visited):
+        for identifier_type, identifier_value in _extract_event_agents(fsentry):
+            try:
+                agent = agents[(identifier_type, identifier_value)]
+            except KeyError:
+                continue
+            job.pyprint("Adding Agent for", agent.identifiervalue)
+            fsentry.add_premis_agent(createmets2.createAgent(agent))
 
     return mets
 
