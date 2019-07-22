@@ -2,13 +2,15 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration files](#configuration-files)
-- [Parameter list](#parameter-list)
-  - [Application variables](#application-variables)
-  - [Gunicorn variables](#gunicorn-variables)
-- [Logging configuration](#logging-configuration)
+- [Dashboard Configuration](#dashboard-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration files](#configuration-files)
+  - [Parameter list](#parameter-list)
+    - [Application variables](#application-variables)
+    - [Gunicorn variables](#gunicorn-variables)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -146,11 +148,11 @@ variables or in the gunicorn configuration file.
     - **Type:** `boolean` or `string`
     - **Default:** `true`
 
-- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER`**:
-    - **Description:** address of the Gearman server.
-    - **Config file example:** `Dashboard.gearman_server`
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_MCP_SERVER`**:
+    - **Description:** address of the MCP server.
+    - **Config file example:** `Dashboard.mcp_server`
     - **Type:** `string`
-    - **Default:** `127.0.0.1:4730`
+    - **Default:** `127.0.0.1:50051`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHIBBOLETH_AUTHENTICATION`**:
     - **Description:** enables the Shibboleth authentication system.

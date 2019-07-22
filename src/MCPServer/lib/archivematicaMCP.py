@@ -64,7 +64,6 @@ from unitTransfer import unitTransfer
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
-import RPCServer
 
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db, createSIP, getUTCDate
@@ -373,11 +372,11 @@ if __name__ == "__main__":
     server = grpc.server(job_executor)
     worker_service.add_servicer(server)
     job_service.add_servicer(server, workflow)
-    server.add_insecure_port("[::]:50051")
+    server.add_insecure_port("[::]:{}".format(django_settings.RPC_LISTEN_PORT))
     server.start()
 
     cleanupOldDbEntriesOnNewRun()
     watchDirectories(workflow)
 
-    # This is blocking the main thread with the worker loop
-    RPCServer.start(workflow)
+    # Wait for termination via SIGINT / SIGTERM
+    signal.pause()

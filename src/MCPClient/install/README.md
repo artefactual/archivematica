@@ -2,11 +2,13 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration file](#configuration-file)
-- [Parameter list](#parameter-list)
-- [Logging configuration](#logging-configuration)
+- [MCPClient Configuration](#mcpclient-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration file](#configuration-file)
+  - [Parameter list](#parameter-list)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -117,10 +119,10 @@ This is the full list of variables supported by MCPClient:
     - **Default:** `true`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER`**:
-    - **Description:** address of the Gearman server.
+    - **Description:** address of the MCP server.
     - **Config file example:** `MCPClient.MCPArchivematicaServer`
     - **Type:** `string`
-    - **Default:** `localhost:4730`
+    - **Default:** `localhost:50051`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ARCHIVEMATICACLIENTMODULES`**:
     - **Description:** location of the client modules configuration file. This can be useful when the user wants to set up workers that can only work in a limited number of tasks, e.g. a worker exclusively dedicated to antivirus scanning or file identification.

@@ -36,10 +36,10 @@ CONFIG_MAPPING = {
         "option": "processingXMLFile",
         "type": "string",
     },
-    "gearman_server": {
+    "rpc_listen_port": {
         "section": "MCPServer",
-        "option": "MCPArchivematicaServer",
-        "type": "string",
+        "option": "rpcListenPort",
+        "type": "int",
     },
     "watch_directory": {
         "section": "MCPServer",
@@ -115,7 +115,7 @@ CONFIG_MAPPING = {
 CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
 
 CONFIG_DEFAULTS = """[MCPServer]
-MCPArchivematicaServer = localhost:4730
+rpcListenPort = 50051
 watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
 sharedDirectory = /var/archivematica/sharedDirectory/
 processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
@@ -242,7 +242,7 @@ WATCH_DIRECTORY = config.get("watch_directory")
 REJECTED_DIRECTORY = config.get("rejected_directory")
 PROCESSING_DIRECTORY = config.get("processing_directory")
 PROCESSING_XML_FILE = config.get("processing_xml_file")
-GEARMAN_SERVER = config.get("gearman_server")
+RPC_LISTEN_PORT = config.get("rpc_listen_port")
 WAIT_ON_AUTO_APPROVE = config.get("wait_on_auto_approve")
 WATCH_DIRECTORY_INTERVAL = config.get("watch_directory_interval")
 LIMIT_TASK_THREADS = config.get("limit_task_threads")

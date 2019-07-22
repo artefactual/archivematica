@@ -54,11 +54,7 @@ CONFIG_MAPPING = {
         "section": "Dashboard",
         "process_function": process_search_enabled,
     },
-    "gearman_server": {
-        "section": "Dashboard",
-        "option": "gearman_server",
-        "type": "string",
-    },
+    "mcp_server": {"section": "Dashboard", "option": "mcp_server", "type": "string"},
     "shibboleth_authentication": {
         "section": "Dashboard",
         "option": "shibboleth_authentication",
@@ -119,7 +115,7 @@ watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 search_enabled = true
-gearman_server = 127.0.0.1:4730
+mcp_server = 127.0.0.1:50051
 shibboleth_authentication = False
 ldap_authentication = False
 storage_service_client_timeout = 86400
@@ -420,7 +416,7 @@ else:
     DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 
 # Dashboard internal settings
-GEARMAN_SERVER = config.get("gearman_server")
+MCP_SERVER = config.get("mcp_server")
 POLLING_INTERVAL = 5  # Seconds
 STATUS_POLLING_INTERVAL = 5  # Seconds
 TASKS_PER_PAGE = 10  # for paging in tasks dialog

@@ -318,7 +318,7 @@ def _get_protobuf_timestamp():
 if __name__ == "__main__":
     metrics.start_prometheus_server()
 
-    channel = grpc.insecure_channel(django_settings.GEARMAN_SERVER)
+    channel = grpc.insecure_channel(django_settings.MCP_SERVER)
     stub = WorkerServiceStub(channel)
     modules = get_supported_modules(django_settings.CLIENT_MODULES_FILE)
 

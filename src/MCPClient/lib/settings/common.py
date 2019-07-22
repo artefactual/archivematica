@@ -56,7 +56,7 @@ CONFIG_MAPPING = {
         "option": "clientAssetsDirectory",
         "type": "string",
     },
-    "gearman_server": {
+    "mcp_server": {
         "section": "MCPClient",
         "option": "MCPArchivematicaServer",
         "type": "string",
@@ -170,7 +170,7 @@ CONFIG_MAPPING = {
 CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
 
 CONFIG_DEFAULTS = """[MCPClient]
-MCPArchivematicaServer = localhost:4730
+MCPArchivematicaServer = localhost:50051
 sharedDirectoryMounted = /var/archivematica/sharedDirectory/
 watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
 processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
@@ -309,7 +309,7 @@ REJECTED_DIRECTORY = config.get("rejected_directory")
 WATCH_DIRECTORY = config.get("watch_directory")
 CLIENT_SCRIPTS_DIRECTORY = config.get("client_scripts_directory")
 CLIENT_ASSETS_DIRECTORY = config.get("client_assets_directory")
-GEARMAN_SERVER = config.get("gearman_server")
+MCP_SERVER = config.get("mcp_server")
 CLIENT_MODULES_FILE = config.get("client_modules_file")
 REMOVABLE_FILES = config.get("removable_files")
 TEMP_DIRECTORY = config.get("temp_directory")

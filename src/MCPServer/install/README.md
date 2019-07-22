@@ -2,11 +2,13 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration file](#configuration-file)
-- [Parameter list](#parameter-list)
-- [Logging configuration](#logging-configuration)
+- [MCPServer Configuration](#mcpserver-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration file](#configuration-file)
+  - [Parameter list](#parameter-list)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -86,11 +88,11 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `string`
     - **Default:** `"processingMCP.xml"`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_MCPARCHIVEMATICASERVER`**:
-    - **Description:** address of the Gearman server.
-    - **Config file example:** `MCPServer.MCPArchivematicaServer`
-    - **Type:** `string`
-    - **Default:** `"localhost:4730"`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_RPC_LISTEN_PORT`**:
+    - **Description:** Port to bind to for RPC requests
+    - **Config file example:** `MCPServer.rpcListenPort`
+    - **Type:** `int`
+    - **Default:** `"50051"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORYPATH`**:
     - **Description:** location of the Archivematica Watched Directories.

@@ -5,8 +5,9 @@ import functools
 import gevent.monkey
 import grpc
 import grpc.experimental.gevent
-from google.protobuf.empty_pb2 import Empty
+from django.conf import settings
 from django.utils.translation import get_language
+from google.protobuf.empty_pb2 import Empty
 
 from rpcgen.job_pb2_grpc import JobServiceStub
 from rpcgen.job_pb2 import (
@@ -68,8 +69,7 @@ def wrap_grpc_errors(func):
 
 def _get_channel():
     # TODO: connection persistence
-    # TODO: server name setting
-    return grpc.insecure_channel("archivematica-mcp-server:50051")
+    return grpc.insecure_channel(settings.MCP_SERVER)
 
 
 def _get_job_service_stub():
