@@ -31,6 +31,9 @@ from main.models import Transfer
 from custom_handlers import get_script_logger
 from django.db import transaction
 
+import metrics
+
+
 logger = get_script_logger("archivematica.mcp.client.setTransferType")
 
 
@@ -44,3 +47,5 @@ def call(jobs):
                 Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(
                     type="Archivematica AIP"
                 ).update(type=transferType)
+
+    metrics.transfer_started(transferType)

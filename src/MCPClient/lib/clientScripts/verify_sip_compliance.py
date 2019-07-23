@@ -24,6 +24,9 @@
 import os
 import sys
 
+import metrics
+
+
 REQUIRED_DIRECTORIES = (
     "objects",
     "logs",
@@ -82,3 +85,5 @@ def call(jobs):
 
                 time.sleep(10)
             job.set_status(ret)
+
+    metrics.sip_started()

@@ -13,6 +13,9 @@ import storageService as storage_service
 
 from main.models import File, Transfer
 
+import metrics
+
+
 REJECTED = "reject"
 FAILED = "fail"
 
@@ -46,6 +49,9 @@ def main(job, fail_type, transfer_uuid, transfer_path):
     transfer = Transfer.objects.get(uuid=transfer_uuid)
     if transfer.type == "Archivematica AIP":
         File.objects.filter(transfer_id=transfer_uuid).delete()
+
+    metrics.transfer_failed(transfer.type, fail_type)
+
     return 0
 
 
