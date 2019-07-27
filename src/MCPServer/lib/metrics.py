@@ -41,7 +41,7 @@ task_error_timestamp = Gauge(
 task_duration_summary = Summary(
     "mcpserver_task_duration_seconds",
     "Summary of task processing durations in seconds",
-    ["task_group_name", "task_name"],
+    ["task_group_name", "task_name", "script_name"],
 )
 chain_duration_summary = Summary(
     "mcpserver_chain_duration_seconds",
@@ -86,12 +86,17 @@ def task_completed(task, task_group):
 
     group_name = task_group.linkTaskManager.jobChainLink.group
     task_name = task_group.linkTaskManager.jobChainLink.description
+    script_name = task_group.name()
     timediff = task.finished_timestamp - task.start_timestamp
     duration = timediff.total_seconds()
 
-    task_counter.labels(group_name, task_name).inc()
-    task_success_timestamp.labels(group_name, task_name).set_to_current_time()
-    task_duration_summary.labels(group_name, task_name).observe(duration)
+    task_counter.labels(task_group_name=group_name, task_name=task_name).inc()
+    task_success_timestamp.labels(
+        task_group_name=group_name, task_name=task_name
+    ).set_to_current_time()
+    task_duration_summary.labels(
+        task_group_name=group_name, task_name=task_name, script_name=script_name
+    ).observe(duration)
 
 
 @skip_if_prometheus_disabled
@@ -99,11 +104,13 @@ def task_failed(task, task_group):
     group_name = task_group.linkTaskManager.jobChainLink.group
     task_name = task_group.linkTaskManager.jobChainLink.description
 
-    task_error_timestamp.labels(group_name, task_name).set_to_current_time()
-    task_error_counter.labels(group_name, task_name).inc()
-    task_counter.labels(group_name, task_name).inc()
+    task_error_timestamp.labels(
+        task_group_name=group_name, task_name=task_name
+    ).set_to_current_time()
+    task_error_counter.labels(task_group_name=group_name, task_name=task_name).inc()
+    task_counter.labels(task_group_name=group_name, task_name=task_name).inc()
 
 
 @skip_if_prometheus_disabled
 def chain_completed(duration, unit_type):
-    chain_duration_summary.labels(unit_type).observe(duration)
+    chain_duration_summary.labels(unit_type=unit_type).observe(duration)
