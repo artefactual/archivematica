@@ -723,7 +723,7 @@ class Job(models.Model):
     )
     directory = models.TextField(blank=True)
     sipuuid = models.CharField(
-        max_length=36, db_column="SIPUUID"
+        max_length=36, db_column="SIPUUID", db_index=True
     )  # Foreign key to SIPs or Transfers
     unittype = models.CharField(max_length=50, db_column="unitType", blank=True)
     STATUS_UNKNOWN = 0
@@ -754,6 +754,12 @@ class Job(models.Model):
 
     class Meta:
         db_table = u"Jobs"
+        index_together = (
+            ("sipuuid", "createdtime", "createdtimedec"),
+            ("sipuuid", "jobtype", "createdtime", "createdtimedec"),
+            ("sipuuid", "currentstep", "microservicegroup", "microservicechainlink"),
+            ("jobtype", "currentstep"),
+        )
 
     def get_directory_name(self, default=None):
         if not self.directory:
