@@ -58,8 +58,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
             finished_timestamp = task_result.finish_time.ToDatetime()
             task.finished_timestamp = finished_timestamp
-            timezone = timezone.get_current_timezone()
-            end_time = finished_timestamp.replace(tzinfo=timezone)
+            tzinfo = timezone.get_current_timezone()
+            end_time = finished_timestamp.replace(tzinfo=tzinfo)
 
             task_group.update_task_results(
                 task_result.uuid,

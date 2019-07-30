@@ -141,26 +141,26 @@ def handle_batch_task(job_response, supported_modules):
             )
             jobs.append(job)
 
-    # Set their start times.  If we collide with the MCP Server inserting new
-    # Tasks (which can happen under heavy concurrent load), retry as needed.
-    def set_start_times():
-        Task.objects.filter(taskuuid__in=[item.UUID for item in jobs]).update(
-            starttime=utc_date
-        )
+        # Set their start times.  If we collide with the MCP Server inserting new
+        # Tasks (which can happen under heavy concurrent load), retry as needed.
+        def set_start_times():
+            Task.objects.filter(taskuuid__in=[item.UUID for item in jobs]).update(
+                starttime=utc_date
+            )
 
-    retryOnFailure("Set task start times", set_start_times)
+        retryOnFailure("Set task start times", set_start_times)
 
-    module = importlib.import_module("clientScripts." + module_name)
+        module = importlib.import_module("clientScripts." + module_name)
 
-    # Our module can indicate that it should be run concurrently...
-    if hasattr(module, "concurrent_instances"):
-        fork_runner.call(
-            "clientScripts." + module_name,
-            jobs,
-            task_count=module.concurrent_instances(),
-        )
-    else:
-        module.call(jobs)
+        # Our module can indicate that it should be run concurrently...
+        if hasattr(module, "concurrent_instances"):
+            fork_runner.call(
+                "clientScripts." + module_name,
+                jobs,
+                task_count=module.concurrent_instances(),
+            )
+        else:
+            module.call(jobs)
 
     return jobs
 
@@ -226,10 +226,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                     kwargs = {"exitcode": exit_code, "endtime": end_time}
                     if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
                         kwargs.update(
-                            {
-                                "stdout": job.get_stdout(),
-                                "stderror": job.get_stderr(),
-                            }
+                            {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
                         )
                     Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
@@ -262,9 +259,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
         )
         return fail_all_tasks(gearman_job, "Module attempted exit")
     except Exception as e:
-        logger.exception(
-            "Exception while processing task %s: %s", gearman_job.task, e
-        )
+        logger.exception("Exception while processing task %s: %s", gearman_job.task, e)
         return fail_all_tasks(gearman_job, e)
 
 
