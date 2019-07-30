@@ -127,7 +127,7 @@ def get_unit_job_log_html(sip_uuid):
     """
     parser = etree.HTMLParser(remove_blank_text=True)
     rows = (
-        Job.objects.filter(sipuuid=sip_uuid, subjobof="")
+        Job.objects.filter(sipuuid=sip_uuid)
         .exclude(jobtype="Email fail report")
         .order_by("-createdtime", "-createdtimedec")
         .values_list("jobtype", "currentstep", "createdtime")

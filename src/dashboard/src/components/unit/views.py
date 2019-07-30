@@ -33,7 +33,7 @@ def detail(request, unit_type, unit_uuid):
     :param unit_type: 'transfer' or 'ingest' for a Transfer or SIP respectively
     :param unit_uuid: UUID of the Transfer or SIP
     """
-    jobs = models.Job.objects.filter(sipuuid=unit_uuid, subjobof="")
+    jobs = models.Job.objects.filter(sipuuid=unit_uuid)
     name = jobs.get_directory_name()
     is_waiting = (
         jobs.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).count() > 0

@@ -150,7 +150,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc.type = dc_type
         dc.save()
         return redirect("components.ingest.views.ingest_metadata_list", uuid)
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
+    jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
 
     return render(request, "ingest/metadata_edit.html", locals())
@@ -176,7 +176,7 @@ def ingest_metadata_add_files(request, sip_uuid):
                 ),
             )
     # Get name of SIP from directory name of most recent job
-    jobs = models.Job.objects.filter(sipuuid=sip_uuid, subjobof="")
+    jobs = models.Job.objects.filter(sipuuid=sip_uuid)
     name = jobs.get_directory_name()
 
     return render(request, "ingest/metadata_add_files.html", locals())
@@ -253,7 +253,7 @@ def ingest_metadata_event_detail(request, uuid):
         )
 
     # Get name of SIP from directory name of most recent job
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
+    jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
     return render(request, "ingest/metadata_event_detail.html", locals())
 
@@ -372,7 +372,7 @@ def derivative_validation_report_by_purpose(exit_code, file_id):
 
 
 def ingest_normalization_report(request, uuid, current_page=None):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
+    jobs = models.Job.objects.filter(sipuuid=uuid)
     sipname = jobs.get_directory_name()
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
@@ -410,7 +410,7 @@ def ingest_browse(request, browse_type, jobuuid):
     else:
         raise Http404
 
-    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof="")
+    jobs = models.Job.objects.filter(jobuuid=jobuuid)
     name = jobs.get_directory_name()
 
     return render(request, "ingest/aip_browse.html", locals())
