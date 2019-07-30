@@ -174,7 +174,7 @@ def transfer_metadata_edit(request, uuid, id=None):
             return redirect("components.transfer.views.transfer_metadata_list", uuid)
     else:
         form = DublinCoreMetadataForm(instance=dc)
-        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
+        jobs = models.Job.objects.filter(sipuuid=uuid)
         name = jobs.get_directory_name()
 
     return render(request, "transfer/metadata_edit.html", locals())
