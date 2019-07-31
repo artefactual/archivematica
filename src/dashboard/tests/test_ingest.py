@@ -1,3 +1,5 @@
+import os
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -6,6 +8,7 @@ import pytest
 
 from agentarchives.archivesspace import ArchivesSpaceError
 from components import helpers
+from components.ingest.views import _es_results_to_appraisal_tab_format
 from components.ingest.views_as import get_as_system_client
 from main.models import DashboardSetting
 
@@ -76,3 +79,187 @@ class TestIngest(TestCase):
             ["<h1>", "  Add metadata files<br />", "  <small>test</small>", "</h1>"]
         )
         assert title in response.content
+
+
+def _assert_file_node_properties_match_record(file_node, record):
+    assert file_node["type"] == "file"
+    assert file_node["id"] == record["fileuuid"]
+    # the relative path of the node is encoded
+    assert file_node["relative_path"].decode("base64") == record["relative_path"]
+    # the node title is the encoded file name
+    assert file_node["title"].decode("base64") == os.path.basename(
+        record["relative_path"]
+    )
+    assert file_node["size"] == record["size"]
+    assert file_node["tags"] == record["tags"]
+    # files are draggable into arrangement by default
+    assert not file_node["not_draggable"]
+
+
+def test_appraisal_tab_node_formatter():
+    """Test the _es_results_to_appraisal_tab_format helper that formats
+    the ElasticSearch results to be used in the appraisal tab JS code.
+    """
+    record = {
+        "relative_path": "transfer-directory/data/objects/MARBLES.TGA",
+        "fileuuid": "ea7a98d4-dcb5-46b3-a9dd-82262bd983aa",
+        "size": 4.0,
+        "tags": ["tag1", "tag2"],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    # this parameter is modified in place and will contain
+    # formatted nodes for each transfer
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    # extract the only transfer node at the moment
+    transfer_node = nodes[0]
+    assert transfer_node["type"] == "transfer"
+    # there are child nodes for each directory in the path
+    data_dir_node = transfer_node["children"][0]
+    assert data_dir_node["type"] == "directory"
+    objects_dir_node = data_dir_node["children"][0]
+    assert objects_dir_node["type"] == "directory"
+    # and finally a node for the file
+    file_node = objects_dir_node["children"][0]
+    # check that the file node properties match the record properties
+    _assert_file_node_properties_match_record(file_node, record)
+
+
+def test_appraisal_tab_node_formatter_old_transfer_format():
+    """
+    Test the _es_results_to_appraisal_tab_format helper works with the
+    pre bag transfer layout (no data directory).
+    """
+    record = {
+        "relative_path": "transfer-directory/objects/MARBLES.TGA",
+        "fileuuid": "ea7a98d4-dcb5-46b3-a9dd-82262bd983aa",
+        "size": 4.0,
+        "tags": ["tag1", "tag2"],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    # this parameter is modified in place and will contain
+    # formatted nodes for each transfer
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    # extract the only transfer node at the moment
+    transfer_node = nodes[0]
+    assert transfer_node["type"] == "transfer"
+    # there are child nodes for each directory in the path
+    objects_dir_node = transfer_node["children"][0]
+    assert objects_dir_node["type"] == "directory"
+    # and finally a node for the file
+    file_node = objects_dir_node["children"][0]
+    # check that the file node properties match the record properties
+    _assert_file_node_properties_match_record(file_node, record)
+
+
+def test_appraisal_tab_node_draggability_logs():
+    """Test that the file nodes in the logs directory cannot be dragged"""
+    record = {
+        "relative_path": "transfer-directory/data/logs/arrange.log",
+        "fileuuid": "c58db760-3767-4284-a3a3-40b9cad61095",
+        "size": 1.0,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    transfer_node = nodes[0]
+    data_dir_node = transfer_node["children"][0]
+    # hidden directories can't be dragged either
+    logs_dir_node = data_dir_node["children"][0]
+    assert logs_dir_node["not_draggable"]
+    file_node = logs_dir_node["children"][0]
+    assert file_node["not_draggable"]
+
+
+def test_appraisal_tab_node_draggability_metadata():
+    """Test that the file nodes in the metadata directory cannot be dragged"""
+    record = {
+        "relative_path": "transfer-directory/data/metadata/directory_tree.txt",
+        "fileuuid": "c58db760-3767-4284-a3a3-40b9cad61095",
+        "size": 1.0,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    transfer_node = nodes[0]
+    data_dir_node = transfer_node["children"][0]
+    # hidden directories can't be dragged either
+    metadata_dir_node = data_dir_node["children"][0]
+    assert metadata_dir_node["not_draggable"]
+    file_node = metadata_dir_node["children"][0]
+    assert file_node["not_draggable"]
+
+
+def test_appraisal_tab_node_draggability_bagit_manifest_files():
+    """Test that the file nodes in the top level of the bag cannot be dragged"""
+    record = {
+        "relative_path": "transfer-directory/bag-info.txt",
+        "fileuuid": "2bff65bc-46c8-4c38-87c3-c4bbba304c40",
+        "size": 2.0,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    transfer_node = nodes[0]
+    file_node = transfer_node["children"][0]
+    assert file_node["not_draggable"]
+
+
+def test_appraisal_tab_node_draggability_readme():
+    """Test that the file node representing the transfer README cannot be dragged"""
+    record = {
+        "relative_path": "transfer-directory/data/README.html",
+        "fileuuid": "bb318011-fb1f-4c41-8641-b35be5873b03",
+        "size": 3.0,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes)
+    transfer_node = nodes[0]
+    data_dir_node = transfer_node["children"][0]
+    file_node = data_dir_node["children"][0]
+    assert file_node["not_draggable"]
+
+
+def test_appraisal_tab_node_draggability_explicit():
+    """Test that a file node can be marked as not draggable explicitly"""
+    record = {
+        "relative_path": "transfer-directory/data/objects/picture.jpg",
+        "fileuuid": "ea7a98d4-dcb5-46b3-a9dd-82262bd983aa",
+        "size": 4.0,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "modification_date": None,
+        "format": None,
+    }
+    mapping = {}
+    nodes = []
+    _es_results_to_appraisal_tab_format(record, mapping, nodes, not_draggable=True)
+    transfer_node = nodes[0]
+    data_dir_node = transfer_node["children"][0]
+    objects_dir_node = data_dir_node["children"][0]
+    file_node = objects_dir_node["children"][0]
+    assert file_node["not_draggable"]

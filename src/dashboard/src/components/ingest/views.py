@@ -531,7 +531,9 @@ def _es_results_to_appraisal_tab_format(
     for node in directories:
         node_parts = node.split("/")
         is_transfer = len(node_parts) == 1
-        draggable = _is_draggable(node_parts) if not is_transfer else not not_draggable
+        draggable = not not_draggable and (
+            _is_draggable(node_parts) if not is_transfer else not not_draggable
+        )
         if node not in record_map:
             dir_record = {
                 "type": "transfer" if is_transfer else "directory",
@@ -557,7 +559,9 @@ def _es_results_to_appraisal_tab_format(
         parent = dir_record
 
     dir_parts = dir.split("/")
-    draggable = _is_draggable(dir_parts) if (len(dir_parts) > 1) else not not_draggable
+    draggable = not not_draggable and (
+        _is_draggable(dir_parts) if (len(dir_parts) > 1) else not not_draggable
+    )
 
     child = {
         "type": "file",
