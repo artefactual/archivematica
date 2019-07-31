@@ -31,6 +31,7 @@ import archivematicaFunctions
 from dicts import ReplacementDict
 from main.models import UnitVariable
 
+import metrics
 from taskGroupRunner import TaskGroupRunner
 from taskGroup import TaskGroup
 
@@ -49,7 +50,8 @@ class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, unit)
 
-        unit.reloadFileList()
+        with metrics.reload_file_list_summary.time():
+            unit.reloadFileList()
 
         # The list of task groups we'll be executing for this batch of files
         self.taskGroupsLock = threading.Lock()
@@ -104,7 +106,8 @@ class linkTaskManagerFiles(LinkTaskManager):
         # Escape all values for shell
         for key, value in SIPReplacementDic.items():
             SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        self.taskGroupsLock.acquire()
+        with metrics.task_group_lock_summary.labels(function="__init__").time():
+            self.taskGroupsLock.acquire()
 
         currentTaskGroup = None
 
@@ -184,7 +187,11 @@ class linkTaskManagerFiles(LinkTaskManager):
         # way down)
         self.exitCode = max([finishedTaskGroup.calculateExitCode(), self.exitCode])
 
-        self.taskGroupsLock.acquire()
+        with metrics.task_group_lock_summary.labels(
+            function="taskGroupFinished"
+        ).time():
+            self.taskGroupsLock.acquire()
+
         if finishedTaskGroup.UUID in self.taskGroups:
             del self.taskGroups[finishedTaskGroup.UUID]
         else:

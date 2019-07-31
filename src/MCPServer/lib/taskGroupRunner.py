@@ -167,14 +167,15 @@ class TaskGroupRunner:
             job_request = None
             while job_request is None:
                 try:
-                    job_request = gm_client.submit_job(
-                        task=task_group.name(),
-                        data=task_group.serialize(),
-                        unique=task_group.UUID,
-                        wait_until_complete=False,
-                        background=False,
-                        max_retries=10,
-                    )
+                    with metrics.gearman_submit_job_summary.time():
+                        job_request = gm_client.submit_job(
+                            task=task_group.name(),
+                            data=task_group.serialize(),
+                            unique=task_group.UUID,
+                            wait_until_complete=False,
+                            background=False,
+                            max_retries=10,
+                        )
                 except Exception as e:
                     LOGGER.warning(
                         "Retrying submit for job %s...: %s: %s"
@@ -189,7 +190,8 @@ class TaskGroupRunner:
         statuses = []
         for job in self.running_gearman_jobs:
             try:
-                status = gm_client.get_job_status(job)
+                with metrics.gearman_status_summary.time():
+                    status = gm_client.get_job_status(job)
                 statuses.append(status)
             except KeyError:
                 # There seems to be a race condition here in the Gearman client.

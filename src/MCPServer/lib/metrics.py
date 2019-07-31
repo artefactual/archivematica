@@ -48,6 +48,23 @@ chain_duration_summary = Summary(
     "Summary of job chain processing durations in seconds",
     ["unit_type"],
 )
+reload_file_list_summary = Summary(
+    "mcpserver_reload_file_list_duration_seconds",
+    "Time spent reloading the file list in seconds",
+)
+task_group_lock_summary = Summary(
+    "mcpserver_task_group_lock_duration_seconds",
+    "Time spent waiting for the task group lock in seconds",
+    ["function"],
+)
+gearman_submit_job_summary = Summary(
+    "mcpserver_gearman_submit_duration_seconds",
+    "Time spent waiting for gearman job submission in seconds",
+)
+gearman_status_summary = Summary(
+    "mcpserver_gearman_status_duration_seconds",
+    "Time spent waiting for gearman job status in seconds",
+)
 
 
 def skip_if_prometheus_disabled(func):
