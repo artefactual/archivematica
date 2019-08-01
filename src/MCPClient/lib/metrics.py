@@ -3,6 +3,7 @@ Exposes various metrics via Prometheus.
 """
 from __future__ import absolute_import, unicode_literals
 
+import ConfigParser
 import functools
 
 from django.conf import settings
@@ -87,6 +88,14 @@ dip_processing_time_summary = Summary(
     "mcpclient_dip_processing_seconds",
     "DIP processing time, from first file recorded in DB to storage in SS",
 )
+aip_files_stored_counter = Counter(
+    "mcpclient_aip_files_stored_total", "Number of files stored in AIPs"
+)
+dip_files_stored_counter = Counter(
+    "mcpclient_dip_files_stored_total", "Number of files stored in DIPs"
+)
+aip_size_counter = Counter("mcpclient_aip_size_bytes", "Number of bytes stored in AIPs")
+dip_size_counter = Counter("mcpclient_dip_size_bytes", "Number of bytes stored in DIPs")
 
 
 def skip_if_prometheus_disabled(func):
@@ -99,8 +108,41 @@ def skip_if_prometheus_disabled(func):
     return wrapper
 
 
+def init_counter_labels():
+    # Zero our counters to start, by intializing all labels. Non-zero starting points
+    # cause problems when measuring rates.
+    modules_config = ConfigParser.RawConfigParser()
+    modules_config.read(settings.CLIENT_MODULES_FILE)
+    for script_name, _ in modules_config.items("supportedBatchCommands"):
+        job_counter.labels(script_name=script_name)
+        job_processed_timestamp.labels(script_name=script_name)
+        job_error_counter.labels(script_name=script_name)
+        job_error_timestamp.labels(script_name=script_name)
+        task_execution_time_summary.labels(script_name=script_name)
+
+    failure_types = ("fail", "reject")
+
+    for transfer_type in ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir"):
+        transfer_started_counter.labels(transfer_type=transfer_type)
+        transfer_started_timestamp.labels(transfer_type=transfer_type)
+
+        for failure_type in failure_types:
+            transfer_error_counter.labels(
+                transfer_type=transfer_type, failure_type=failure_type
+            )
+            transfer_error_timestamp.labels(
+                transfer_type=transfer_type, failure_type=failure_type
+            )
+
+    for failure_type in failure_types:
+        sip_error_counter.labels(failure_type=failure_type)
+        sip_error_timestamp.labels(failure_type=failure_type)
+
+
 @skip_if_prometheus_disabled
 def start_prometheus_server():
+    init_counter_labels()
+
     return start_http_server(
         settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
     )
@@ -120,9 +162,10 @@ def job_failed(script_name):
 
 
 @skip_if_prometheus_disabled
-def aip_stored(sip_uuid):
+def aip_stored(sip_uuid, size):
     aips_stored_counter.inc()
     aips_stored_timestamp.set_to_current_time()
+    aip_size_counter.inc(size)
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
@@ -132,11 +175,15 @@ def aip_stored(sip_uuid):
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         aip_processing_time_summary.observe(duration)
 
+    file_count = File.objects.filter(sip_id=sip_uuid).count()
+    aip_files_stored_counter.inc(file_count)
+
 
 @skip_if_prometheus_disabled
-def dip_stored(sip_uuid):
+def dip_stored(sip_uuid, size):
     dips_stored_counter.inc()
     dips_stored_timestamp.set_to_current_time()
+    dip_size_counter.inc(size)
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
@@ -145,6 +192,9 @@ def dip_stored(sip_uuid):
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         dip_processing_time_summary.observe(duration)
+
+    file_count = File.objects.filter(sip_id=sip_uuid).count()
+    dip_files_stored_counter.inc(file_count)
 
 
 @skip_if_prometheus_disabled
