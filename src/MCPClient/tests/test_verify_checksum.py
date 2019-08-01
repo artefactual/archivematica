@@ -147,6 +147,7 @@ class TestHashsum(object):
         job = Job("stub", "stub", ["", ""])
         hashsum = self.setup_hashsum(hash_file, job)
         toolname = "sha256sum"
+        objects_dir = "objects"
         output_string = (
             b"objects/file1.bin: OK\n"
             b"objects/file2.bin: FAILED\n"
@@ -166,7 +167,9 @@ class TestHashsum(object):
             returncode=1, cmd=toolname, output=output_string
         )
         ret = hashsum.compare_hashes("")
-        mock.assert_called_once_with("-c", "--strict", hash_file, transfer_dir="")
+        mock.assert_called_once_with(
+            "-c", "--strict", hash_file, transfer_dir=objects_dir
+        )
         assert ret == 1, self.assert_return_value.format(ret)
         assert (
             job.get_stderr().decode("utf8").strip() == exception_string
@@ -180,6 +183,7 @@ class TestHashsum(object):
         job = Job("stub", "stub", ["", ""])
         hashsum = self.setup_hashsum(hash_file, job)
         toolname = "sha1sum"
+        objects_dir = "objects"
         no_proper_output = (
             b"sha1sum: metadata/checksum.sha1: no properly formatted SHA1 "
             b"checksum lines found"
@@ -200,7 +204,9 @@ class TestHashsum(object):
             returncode=1, cmd=toolname, output=no_proper_output
         )
         ret = hashsum.compare_hashes("")
-        mock.assert_called_once_with("-c", "--strict", hash_file, transfer_dir="")
+        mock.assert_called_once_with(
+            "-c", "--strict", hash_file, transfer_dir=objects_dir
+        )
         assert (
             job.get_stderr().decode("utf8").strip() == except_string_no_proper_out
         ), self.assert_exception_string
@@ -215,7 +221,9 @@ class TestHashsum(object):
         assert (
             job.get_stderr().decode("utf8").strip() == except_string_improper_format
         ), self.assert_exception_string
-        mock.assert_called_once_with("-c", "--strict", hash_file, transfer_dir="")
+        mock.assert_called_once_with(
+            "-c", "--strict", hash_file, transfer_dir=objects_dir
+        )
         assert ret == 1, self.assert_return_value.format(ret)
 
     def test_line_comparison_fail(self, mocker):

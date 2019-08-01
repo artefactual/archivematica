@@ -125,10 +125,11 @@ class Hashsum(object):
 
     def compare_hashes(self, transfer_dir):
         """Compare transfer files with the checksum file provided."""
-        if not self.count_and_compare_lines(os.path.join(transfer_dir, "objects")):
+        objects_dir = os.path.join(transfer_dir, "objects")
+        if not self.count_and_compare_lines(objects_dir):
             return 1
         try:
-            self._call("-c", "--strict", self.hashfile, transfer_dir=transfer_dir)
+            self._call("-c", "--strict", self.hashfile, transfer_dir=objects_dir)
             return 0
         except subprocess.CalledProcessError as err:
             if self.EXIT_NON_ZERO in str(err):
