@@ -18,10 +18,8 @@ sets.
 
 from __future__ import unicode_literals
 
-import importlib
 import json
 import os
-import pprint
 
 from django.utils.six import text_type, python_2_unicode_compatible
 from jsonschema import validate, FormatChecker
@@ -29,12 +27,20 @@ from jsonschema.exceptions import ValidationError
 
 from main.models import Job
 
+from link_executor import (
+    ChoiceFromDashboardSettingLinkExecutor,
+    ChoiceFromOutputLinkExecutor,
+    ChoiceLinkExecutor,
+    DirectoryLinkExecutor,
+    FileLinkExecutor,
+    GetJobOutputLinkExecutor,
+    GetUnitVarLinkExecutor,
+    SetUnitVarLinkExecutor,
+)
+from translation import FALLBACK_LANG, TranslationLabel
+
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
-
-_UNKNOWN_TRANSLATION_LABEL = "<unknown>"
-
-_FALLBACK_LANG = "en"
 
 
 def _load_job_statuses():
@@ -51,73 +57,17 @@ def _load_job_statuses():
 # where we're using labels instead of IDs.
 _STATUSES = _load_job_statuses()
 
-
-@python_2_unicode_compatible
-class TranslationLabel(object):
-    """Mixin for easy access to translated messages.
-
-    The JSON-encoded workflow uses ``object`` (mapping type) to associate
-    messages for a particular property to language codes, e.g.::
-
-        {
-            "en": "cat",
-            "es": "gato"
-        }
-
-    ``json`` decodes it as a ``dict``. This class wraps the dictionary so it is
-    easier to access the translations. Usage example::
-
-        >>> message = {"en": "cat", "es": "gato"}
-        >>> tr = TranslationLabel(message)
-        >>> tr
-        TranslationLabel <{'en': 'cat', 'es': 'gato'}>
-        >>> str(tr)
-        'cat'
-        >>> tr["es"]
-        'gato'
-        >>> tr["foobar"]
-        'cat'
-        >>> tr.get_label(lang="es")
-        'gato'
-        >>> tr.get_label(lang="is", "köttur")
-        'köttur'
-
-    """
-
-    def __init__(self, translations):
-        if not isinstance(translations, dict):
-            translations = {_FALLBACK_LANG: text_type(translations)}
-        self._src = translations
-
-    def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, pprint.saferepr(self._src))
-
-    def __str__(self):
-        return self.get_label()
-
-    def __getitem__(self, lang):
-        return self.get_label(lang)
-
-    def _prepare_lang(self, lang):
-        parts = lang.partition("-")
-        if parts[1] == "-":
-            return "{}_{}".format(parts[0], parts[2].upper())
-        return lang
-
-    def get_label(self, lang=_FALLBACK_LANG, fallback_label=None):
-        """Get the translation of a message.
-
-        It defaults to ``_FALLBACK_LANG`` unless ``lang`` is used.
-        It accepts a ``fallback_label``,  used when the message is not
-        available in the language given. As a last resort, it returns
-        ``_UNKNOWN_TRANSLATION_LABEL``.
-        """
-        lang = self._prepare_lang(lang)
-        if lang in self._src:
-            return self._src[lang]
-        if fallback_label is not None:
-            return fallback_label
-        return self._src.get(_FALLBACK_LANG, _UNKNOWN_TRANSLATION_LABEL)
+# Map JSON manager names to link executor classes
+_LINK_MANAGERS = {
+    "linkTaskManagerChoice": ChoiceLinkExecutor,
+    "linkTaskManagerDirectories": DirectoryLinkExecutor,
+    "linkTaskManagerFiles": FileLinkExecutor,
+    "linkTaskManagerGetMicroserviceGeneratedListInStdOut": GetJobOutputLinkExecutor,
+    "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList": ChoiceFromOutputLinkExecutor,
+    "linkTaskManagerReplacementDicFromChoice": ChoiceFromDashboardSettingLinkExecutor,
+    "linkTaskManagerSetUnitVariable": SetUnitVarLinkExecutor,
+    "linkTaskManagerUnitVariableLinkPull": GetUnitVarLinkExecutor,
+}
 
 
 @python_2_unicode_compatible
@@ -169,7 +119,7 @@ class BaseLink(object):
     def __str__(self):
         return self.id
 
-    def get_label(self, key, lang=_FALLBACK_LANG, fallback_label=None):
+    def get_label(self, key, lang=FALLBACK_LANG, fallback_label=None):
         """Proxy to find translated attributes."""
         try:
             instance = self._src[key]
@@ -239,8 +189,7 @@ class Link(BaseLink):
     @property
     def manager(self):
         name = self._src["config"]["@manager"]
-        module = importlib.import_module(name)
-        return getattr(module, name)
+        return _LINK_MANAGERS[name]
 
     @property
     def config(self):

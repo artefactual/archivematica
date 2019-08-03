@@ -2,6 +2,7 @@
 dependencies across Archivematica components (i.e., dashboard, MCPServer, and
 MCPClient).
 """
+from django.conf import settings
 
 
 ABILITIES = (
@@ -19,7 +20,7 @@ ABILITIES = (
 )
 
 
-def choice_is_available(link, chain, settings):
+def choice_is_available(link, chain):
     """Determine if a choice should be presented to the user.
 
     Return ``True`` if the ``MicroServiceChainChoice`` instance ``choice``

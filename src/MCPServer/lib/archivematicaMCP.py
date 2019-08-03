@@ -50,14 +50,11 @@ from django.db.models import Q
 # This project, alphabetical by import source
 from utils import log_exceptions
 
-from executor import Executor
-from taskGroupRunner import TaskGroupRunner
 import processing
 from db import auto_close_old_connections
-from jobChain import jobChain
-from unitSIP import unitSIP
-from unitDIP import unitDIP
-from unitTransfer import unitTransfer
+from job import JobChain
+from package import DIP, Transfer, SIP
+from scheduler import package_scheduler
 from utils import valid_uuid
 from watch_dirs import watch_directories
 from workflow import load as load_workflow, SchemaValidationError
@@ -68,7 +65,7 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import createSIP, getUTCDate
 import dicts
 
-from main.models import Job, SIP, Task
+from main import models
 
 logger = logging.getLogger("archivematica.mcp.server")
 
@@ -105,7 +102,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     if UUID:
         query = query | Q(uuid=UUID)
 
-    sips = SIP.objects.filter(query)
+    sips = models.SIP.objects.filter(query)
     count = sips.count()
     if count > 1:
         # This might have happened because the UUID at the end of the directory
@@ -161,26 +158,20 @@ def createUnitAndJobChain(path, watched_dir, workflow):
     if os.path.isdir(path):
         if unit_type == "SIP":
             UUID = findOrCreateSipInDB(path)
-            unit = unitSIP(path, UUID)
+            unit = SIP(path, UUID)
         elif unit_type == "DIP":
             UUID = findOrCreateSipInDB(path, unit_type="DIP")
-            unit = unitDIP(path, UUID)
+            unit = DIP(path, UUID)
         elif unit_type == "Transfer":
-            unit = unitTransfer(path)
+            UUID = fetchUUIDFromPath(path)
+            unit = Transfer(path, UUID)
     elif os.path.isfile(path):
         if unit_type == "Transfer":
-            unit = unitTransfer(path)
+            unit = Transfer(path, None)
     else:
         return
-    jobChain(unit, watched_dir.chain, workflow)
-
-
-def createUnitAndJobChainThreaded(path, watched_dir, workflow):
-    try:
-        logger.debug("Watching path %s", path)
-        Executor.apply_async(createUnitAndJobChain, [path, watched_dir, workflow])
-    except Exception:
-        logger.exception("Error creating threads to watch directories")
+    job_chain = JobChain(unit, watched_dir.chain, workflow)
+    package_scheduler.schedule_job_chain(job_chain)
 
 
 def signal_handler(signalReceived, frame):
@@ -199,7 +190,7 @@ def signal_handler(signalReceived, frame):
 @log_exceptions
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
-    while True:
+    while not shutdown_event.is_set():
         logger.debug("Debug monitor: datetime: %s", getUTCDate())
         logger.debug("Debug monitor: thread count: %s", threading.activeCount())
         time.sleep(3600)
@@ -207,7 +198,7 @@ def debugMonitor():
 
 @log_exceptions
 def flushOutputs():
-    while True:
+    while not shutdown_event.is_set():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
@@ -215,11 +206,11 @@ def flushOutputs():
 
 @auto_close_old_connections
 def cleanupOldDbEntriesOnNewRun():
-    Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
-    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(
-        currentstep=Job.STATUS_FAILED
+    models.Job.objects.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).delete()
+    models.Job.objects.filter(currentstep=models.Job.STATUS_EXECUTING_COMMANDS).update(
+        currentstep=models.Job.STATUS_FAILED
     )
-    Task.objects.filter(exitcode=None).update(
+    models.Task.objects.filter(exitcode=None).update(
         exitcode=-1, stderror="MCP shut down while processing."
     )
 
@@ -303,18 +294,30 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
+def signal_handler(signal, frame):
+    """Used to handle the stop/kill command signals (SIGKILL)"""
+    logger.info("Recieved signal %s in frame %s", signal, frame)
+
+    shutdown_event.set()
+    package_scheduler.shutdown()
+
+    threads = threading.enumerate()
+    for thread in threads:
+        logger.warning("Not stopping %s %s", type(thread), thread)
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    sys.exit(0)
+    exit(0)
+
+
 if __name__ == "__main__":
-
-    # Replace exception handler with one that logs exceptions
-    sys.excepthook = _except_hook_log_everything
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
-
-    metrics.start_prometheus_server()
 
     with open(DEFAULT_WORKFLOW) as workflow_file:
         try:
@@ -322,6 +325,8 @@ if __name__ == "__main__":
         except SchemaValidationError as err:
             logger.error("Workflow validation error: %s", err)
             sys.exit(1)
+
+    metrics.start_prometheus_server()
 
     dicts.setup(
         shared_directory=django_settings.SHARED_DIRECTORY,
@@ -332,16 +337,16 @@ if __name__ == "__main__":
 
     created_shared_directory_structure()
 
-    t = threading.Thread(target=debugMonitor)
-    t.daemon = True
-    t.start()
+    debug_thread = threading.Thread(target=debugMonitor)
+    debug_thread.start()
 
-    t = threading.Thread(target=flushOutputs)
-    t.daemon = True
-    t.start()
+    output_flush_thread = threading.Thread(target=flushOutputs)
+    output_flush_thread.start()
 
-    Executor.init()
-    TaskGroupRunner.init()
+    rpc_thread = threading.Thread(
+        target=RPCServer.start, args=(workflow, shutdown_event)
+    )
+    rpc_thread.start()
 
     cleanupOldDbEntriesOnNewRun()
 
@@ -354,5 +359,5 @@ if __name__ == "__main__":
     )
     watch_dir_thread.start()
 
-    # This is blocking the main thread with the worker loop
-    RPCServer.start(workflow)
+    # Blocks until shutdown is called by a signal handler
+    package_scheduler.start()

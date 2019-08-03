@@ -35,13 +35,16 @@ import time
 
 from django.conf import settings as django_settings
 from django.db import close_old_connections, connection
+from django.utils import six
 from django.utils.six.moves import configparser
-from django.utils.six import StringIO
 from gearman import GearmanWorker
 import gearman
 from lxml import etree
 
-from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
+from link_executor import (
+    choices_available as choicesAvailableForUnits,
+    choices_available_lock as choicesAvailableForUnitsLock,
+)
 from package import create_package, get_approve_transfer_chain_id
 from processing_config import get_processing_fields
 from main.models import Job, SIP, Transfer
@@ -154,7 +157,7 @@ class RPCServer(GearmanWorker):
         except IndexError:
             raise err
         parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
-        parser.readfp(StringIO(config))
+        parser.readfp(six.StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
@@ -212,7 +215,7 @@ class RPCServer(GearmanWorker):
         user_id = str(payload["user_id"])
         logger.debug("Approving: %s %s %s", job_id, chain, user_id)
         if job_id in choicesAvailableForUnits:
-            choicesAvailableForUnits[job_id].proceedWithChoice(chain, user_id)
+            choicesAvailableForUnits[job_id].proceed_with_choice(chain, user_id)
         return "approving: ", job_id, chain
 
     def _job_awaiting_approval_handler(self, worker, job):
@@ -224,7 +227,23 @@ class RPCServer(GearmanWorker):
         """
         ret = etree.Element("choicesAvailableForUnits")
         for uuid, choice in choicesAvailableForUnits.items():
-            ret.append(choice.xmlify())
+            unit_choices = etree.SubElement(ret, "choicesAvailableForUnit")
+            etree.SubElement(unit_choices, "UUID").text = six.text_type(choice.job.uuid)
+            unit = etree.SubElement(unit_choices, "unit")
+            etree.SubElement(unit, "type").text = choice.unit.__class__.__name__
+            unitXML = etree.SubElement(unit, "unitXML")
+            etree.SubElement(unitXML, "UUID").text = six.text_type(choice.unit.uuid)
+            etree.SubElement(
+                unitXML, "currentPath"
+            ).text = choice.unit.current_path_for_db
+            choices = etree.SubElement(unit_choices, "choices")
+            for id_, description, __ in choice.choices:
+                choice = etree.SubElement(choices, "choice")
+                etree.SubElement(choice, "chainAvailable").text = six.text_type(id_)
+                etree.SubElement(choice, "description").text = six.text_type(
+                    description
+                )
+
         return etree.tostring(ret, pretty_print=True)
 
     def _package_create_handler(self, worker, job, payload):
@@ -244,10 +263,7 @@ class RPCServer(GearmanWorker):
             payload.get("user_id"),
             self.workflow,
         )
-        kwargs = {
-            "auto_approve": payload.get("auto_approve"),
-            "wait_until_complete": payload.get("wait_until_complete"),
-        }
+        kwargs = {"auto_approve": payload.get("auto_approve")}
         processing_config = payload.get("processing_config")
         if processing_config is not None:
             kwargs["processing_config"] = processing_config
@@ -270,7 +286,7 @@ class RPCServer(GearmanWorker):
             raise NotFoundError("There is no job awaiting a decision.")
         chain_id = get_approve_transfer_chain_id(transfer_type)
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(chain_id, user_id)
+            choicesAvailableForUnits[job.pk].proceed_with_choice(chain_id, user_id)
         except IndexError:
             raise NotFoundError("Could not find choice for unit")
         return job.sipuuid
@@ -305,7 +321,7 @@ class RPCServer(GearmanWorker):
         except KeyError:
             raise not_found
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(chain.id, user_id)
+            choicesAvailableForUnits[job.pk].proceed_with_choice(chain.id, user_id)
         except IndexError:
             raise not_found
 
@@ -469,12 +485,12 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
     return ret
 
 
-def start(workflow):
+def start(workflow, shutdown_event):
     worker = RPCServer(workflow)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2
-    while True:
+    while not shutdown_event.is_set():
         try:
             worker.work()
         except gearman.errors.ServerUnavailable as inst:
