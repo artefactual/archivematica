@@ -21,7 +21,6 @@
 
 import ast
 import logging
-import os
 import threading
 
 from django.conf import settings as django_settings
@@ -49,9 +48,6 @@ BATCH_SIZE = django_settings.BATCH_SIZE
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, unit)
-
-        with metrics.reload_file_list_summary.time():
-            unit.reloadFileList()
 
         # The list of task groups we'll be executing for this batch of files
         self.taskGroupsLock = threading.Lock()
@@ -86,8 +82,8 @@ class linkTaskManagerFiles(LinkTaskManager):
         # Check if filterSubDir has been overridden for this Transfer/SIP
         try:
             var = UnitVariable.objects.get(
-                unittype=self.unit.unitType,
-                unituuid=self.unit.UUID,
+                unittype=self.unit.UNIT_VARIABLE_TYPE,
+                unituuid=self.unit.uuid,
                 variable=self.execute,
             )
         except (UnitVariable.DoesNotExist, UnitVariable.MultipleObjectsReturned):
@@ -102,29 +98,39 @@ class linkTaskManagerFiles(LinkTaskManager):
             else:
                 filterSubDir = variableValue["filterSubDir"]
 
-        SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
+        SIPReplacementDic = unit.get_replacement_mapping()
         # Escape all values for shell
         for key, value in SIPReplacementDic.items():
             SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+
         with metrics.task_group_lock_summary.labels(function="__init__").time():
             self.taskGroupsLock.acquire()
 
         currentTaskGroup = None
 
-        for file, fileUnit in unit.fileList.items():
-            if filterFileEnd:
-                if not file.endswith(filterFileEnd):
-                    continue
-            if filterFileStart:
-                if not os.path.basename(file).startswith(filterFileStart):
-                    continue
-            if filterSubDir:
-                if not file.startswith(unit.pathString + filterSubDir):
-                    continue
-
+        for fileReplacements in unit.files(
+            filter_filename_start=filterFileStart,
+            filter_filename_end=filterFileEnd,
+            filter_subdir=filterSubDir,
+        ):
             standardOutputFile = self.standardOutputFile
             standardErrorFile = self.standardErrorFile
             arguments = self.arguments
+
+            # File replacement values take priority
+            commandReplacementDic = SIPReplacementDic.copy()
+            commandReplacementDic.update(fileReplacements)
+
+            # Apply file replacement values
+            for key, value in commandReplacementDic.items():
+                # Escape values for shell
+                escapedValue = archivematicaFunctions.escapeForCommand(value)
+                if arguments is not None:
+                    arguments = arguments.replace(key, escapedValue)
+                if standardOutputFile is not None:
+                    standardOutputFile = standardOutputFile.replace(key, escapedValue)
+                if standardErrorFile is not None:
+                    standardErrorFile = standardErrorFile.replace(key, escapedValue)
 
             # Apply passvar replacement values
             if self.jobChainLink.passVar is not None:
@@ -138,22 +144,6 @@ class linkTaskManagerFiles(LinkTaskManager):
                     arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(
                         arguments, standardOutputFile, standardErrorFile
                     )
-
-            # Apply file replacement values
-            commandReplacementDic = fileUnit.getReplacementDic()
-            for key, value in commandReplacementDic.items():
-                # Escape values for shell
-                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(
-                    value
-                )
-            arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(
-                arguments, standardOutputFile, standardErrorFile
-            )
-
-            # Apply unit (SIP/Transfer) replacement values
-            arguments, standardOutputFile, standardErrorFile = SIPReplacementDic.replace(
-                arguments, standardOutputFile, standardErrorFile
-            )
 
             if currentTaskGroup is None or currentTaskGroup.count() > BATCH_SIZE:
                 currentTaskGroup = TaskGroup(self, self.execute)

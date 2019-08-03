@@ -129,7 +129,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def checkForPreconfiguredXML(self):
         ret = None
         xmlFilePath = os.path.join(
-            self.unit.currentPath.replace(
+            self.unit.current_path.replace(
                 "%sharedPath%", django_settings.SHARED_DIRECTORY, 1
             )
             + "/",
@@ -178,7 +178,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                             ):
                                 delaySeconds = int(delayXML.text)
                                 unitTime = os.path.getmtime(
-                                    self.unit.currentPath.replace(
+                                    self.unit.current_path.replace(
                                         "%sharedPath%",
                                         django_settings.SHARED_DIRECTORY,
                                         1,
@@ -248,7 +248,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         if user_id:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
             agent_id = str(agent_id)
-            self.unit.setVariable("activeAgent", agent_id, None)
+            self.unit.set_variable("activeAgent", agent_id, None)
 
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]

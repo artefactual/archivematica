@@ -30,9 +30,9 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
 from executor import Executor
 from jobChain import jobChain
-from main.models import Transfer, TransferMetadataSet
+from main import models
 import storageService as storage_service
-from unitTransfer import unitTransfer
+from unit import Transfer
 
 
 logger = logging.getLogger("archivematica.mcp.server")
@@ -239,7 +239,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     The side effect of this function is to update the transfer object with the
     final location. This is important so other components can continue the
     processing. When relying on watched directories to start a transfer (see
-    _start_package_transfer), this also matters because unitTransfer is going
+    _start_package_transfer), this also matters because Transfer is going
     to look up the object in the database based on the location.
     """
     error = _check_filepath_exists(filepath)
@@ -305,12 +305,12 @@ def create_package(
         kwargs["access_system_id"] = unicodeToStr(access_system_id)
     if metadata_set_id is not None:
         try:
-            kwargs["transfermetadatasetrow"] = TransferMetadataSet.objects.get(
+            kwargs["transfermetadatasetrow"] = models.TransferMetadataSet.objects.get(
                 id=metadata_set_id
             )
-        except TransferMetadataSet.DoesNotExist:
+        except models.TransferMetadataSet.DoesNotExist:
             pass
-    transfer = Transfer.objects.create(**kwargs)
+    transfer = models.Transfer.objects.create(**kwargs)
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
@@ -347,30 +347,14 @@ def _capture_transfer_failure(fn):
     def wrap(*args, **kwargs):
         try:
             # Our decorated function isn't expected to return anything.
-            fn(*args, **kwargs)
+            return fn(*args, **kwargs)
         except Exception as err:
             # The main purpose of this decorator is to update the Transfer with
             # the new state (fail). If the Transfer does not exist we give up.
-            if isinstance(err, Transfer.DoesNotExist):
+            if isinstance(err, models.Transfer.DoesNotExist):
                 raise
-        else:
-            # No exceptions!
-            return
-        # At this point we know that the transfer has failed and we want to do
-        # our best effort to update the state without further interruptions.
-        try:
-            pass
-            #
-            # TODO: update state once we have a FSM.
-            # transfer = args[0]
-            #
-        except Exception:
-            pass
-        # Finally raised the exception and log it.
-        try:
-            logger.exception("Exception: %s", err, exc_info=True)
-        except NameError:
-            pass
+            else:
+                logger.exception("Exception occurred during transfer processing")
 
     return wrap
 
@@ -425,7 +409,7 @@ def _start_package_transfer_with_auto_approval(
     )
 
     logger.debug("Package %s: starting workflow processing", transfer.pk)
-    unit = unitTransfer(path, transfer.pk)
+    unit = Transfer(path, transfer.pk)
     jobChain(
         unit,
         workflow.get_chain(starting_point.chain),

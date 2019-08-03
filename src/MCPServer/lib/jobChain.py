@@ -76,7 +76,7 @@ class jobChain:
         # Migrate over unit variables containing replacement dicts from
         # previous chains but prioritize any values contained in passVars
         # passed in as kwargs.
-        rd = fetchUnitVariableForUnit(unit.UUID)
+        rd = fetchUnitVariableForUnit(unit.uuid)
 
         # Run!
         jobChainLink(self, starting_link, workflow, unit, passVar=rd)
@@ -84,9 +84,9 @@ class jobChain:
     def nextChainLink(self, link, passVar=None):
         """Proceed to next link."""
         if link is None:
-            LOGGER.debug("Done with unit %s", self.unit.UUID)
+            LOGGER.debug("Done with unit %s", self.unit.uuid)
             completed_on = getUTCDate()
             chain_duration = (completed_on - self.started_on).total_seconds()
-            metrics.chain_completed(chain_duration, self.unit.unitType)
+            metrics.chain_completed(chain_duration, self.unit.__class__.__name__)
             return
         jobChainLink(self, link, self.workflow, self.unit, passVar=passVar)

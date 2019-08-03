@@ -43,8 +43,8 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
         link = self.jobChainLink.link
         try:
             unitvar = UnitVariable.objects.get(
-                unittype=self.unit.unitType,
-                unituuid=self.unit.UUID,
+                unittype=self.unit.UNIT_VARIABLE_TYPE,
+                unituuid=self.unit.uuid,
                 variable=link.config["variable"],
             )
         except UnitVariable.DoesNotExist:

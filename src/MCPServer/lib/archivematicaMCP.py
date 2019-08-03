@@ -56,9 +56,7 @@ from executor import Executor
 from taskGroupRunner import TaskGroupRunner
 import processing
 from jobChain import jobChain
-from unitSIP import unitSIP
-from unitDIP import unitDIP
-from unitTransfer import unitTransfer
+from unit import DIP, Transfer, SIP
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
@@ -68,7 +66,7 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db, createSIP, getUTCDate
 import dicts
 
-from main.models import Job, SIP, Task
+from main import models
 
 logger = logging.getLogger("archivematica.mcp.server")
 
@@ -103,7 +101,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     if UUID:
         query = query | Q(uuid=UUID)
 
-    sips = SIP.objects.filter(query)
+    sips = models.SIP.objects.filter(query)
     count = sips.count()
     if count > 1:
         # This might have happened because the UUID at the end of the directory
@@ -159,15 +157,16 @@ def createUnitAndJobChain(path, watched_dir, workflow):
     if os.path.isdir(path):
         if unit_type == "SIP":
             UUID = findOrCreateSipInDB(path)
-            unit = unitSIP(path, UUID)
+            unit = SIP(path, UUID)
         elif unit_type == "DIP":
             UUID = findOrCreateSipInDB(path, unit_type="DIP")
-            unit = unitDIP(path, UUID)
+            unit = DIP(path, UUID)
         elif unit_type == "Transfer":
-            unit = unitTransfer(path)
+            UUID = fetchUUIDFromPath(path)
+            unit = Transfer(path, UUID)
     elif os.path.isfile(path):
         if unit_type == "Transfer":
-            unit = unitTransfer(path)
+            unit = Transfer(path, None)
     else:
         return
     jobChain(unit, watched_dir.chain, workflow)
@@ -240,11 +239,11 @@ def flushOutputs():
 
 
 def cleanupOldDbEntriesOnNewRun():
-    Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
-    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(
-        currentstep=Job.STATUS_FAILED
+    models.Job.objects.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).delete()
+    models.Job.objects.filter(currentstep=models.Job.STATUS_EXECUTING_COMMANDS).update(
+        currentstep=models.Job.STATUS_FAILED
     )
-    Task.objects.filter(exitcode=None).update(
+    models.Task.objects.filter(exitcode=None).update(
         exitcode=-1, stderror="MCP shut down while processing."
     )
 

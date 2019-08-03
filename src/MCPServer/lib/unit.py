@@ -1,125 +1,291 @@
-# This file is part of Archivematica.
-#
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Unit (or alternatively package) related logic.
+"""
+from __future__ import unicode_literals
 
-# @package Archivematica
-# @subpackage MCPServer
-# @author Joseph Perry <joseph@artefactual.com>
-
+import abc
 import logging
 import os
 
-import archivematicaFunctions
-
-from unitFile import unitFile
-
-from main.models import File, UnitVariable
-
+import scandir
 from django.conf import settings as django_settings
+from django.utils import six
+from lxml import etree
 
-LOGGER = logging.getLogger("archivematica.mcp.server")
+from main import models
 
 
-class unit:
-    """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
+logger = logging.getLogger("archivematica.mcp.server")
 
-    def __init__(self, currentPath, UUID):
-        self.currentPath = currentPath.__str__()
-        self.UUID = UUID
 
-    def reloadFileList(self):
-        """Match files to their UUID's via their location and the File table's currentLocation"""
-        self.fileList = {}
-        # currentPath must be a string to return all filenames as bytestrings,
-        # and to safely concatenate with other bytestrings
-        currentPath = os.path.join(
-            self.currentPath.replace(
-                "%sharedPath%", django_settings.SHARED_DIRECTORY, 1
-            ),
-            "",
-        ).encode("utf-8")
-        try:
-            for directory, subDirectories, files in os.walk(currentPath):
-                directory = directory.replace(currentPath, self.pathString, 1)
-                for file_ in files:
-                    if self.pathString != directory:
-                        filePath = os.path.join(directory, file_)
-                    else:
-                        filePath = directory + file_
-                    self.fileList[filePath] = unitFile(filePath, owningUnit=self)
+BASE_REPLACEMENTS = {
+    r"%tmpDirectory%": os.path.join(django_settings.SHARED_DIRECTORY, "tmp", ""),
+    r"%processingDirectory%": django_settings.PROCESSING_DIRECTORY,
+    r"%watchDirectoryPath%": django_settings.WATCH_DIRECTORY,
+    r"%rejectedDirectory%": django_settings.REJECTED_DIRECTORY,
+}
 
-            if self.unitType == "Transfer":
-                files = File.objects.filter(transfer_id=self.UUID)
-            else:
-                files = File.objects.filter(sip_id=self.UUID)
-            for f in files:
-                currentlocation = archivematicaFunctions.unicodeToStr(f.currentlocation)
-                if currentlocation in self.fileList:
-                    self.fileList[currentlocation].UUID = f.uuid
-                    self.fileList[currentlocation].fileGrpUse = f.filegrpuse
-                else:
-                    LOGGER.warning(
-                        "%s %s has file (%s) %s in the database, but file does not exist in the file system",
-                        self.unitType,
-                        self.UUID,
-                        f.uuid,
-                        f.currentlocation,
-                    )
-        except Exception:
-            LOGGER.exception("Error reloading file list for %s", currentPath)
-            exit(1)
 
-    def setVariable(self, variable, variableValue, microServiceChainLink):
-        """This gets called by linkTaskManagerSetUnitVariable.py in order to
-        upsert `UnitVariable` rows for this unit. This is triggered by
-        execution of a workflow chain link of type
-        'linkTaskManagerSetUnitVariable'.
+def get_file_replacement_mapping(file_obj, unit_directory):
+    mapping = BASE_REPLACEMENTS.copy()
+    dirname = os.path.dirname(file_obj.currentlocation)
+    name, ext = os.path.splitext(file_obj.currentlocation)
+    name = os.path.basename(name)
 
-        TODO: use Transfer/SIP model methods.
-        """
-        if not variableValue:
-            variableValue = ""
-        variables = UnitVariable.objects.filter(
-            unittype=self.unitType, unituuid=self.UUID, variable=variable
+    absolute_path = file_obj.currentlocation.replace(r"%SIPDirectory%", unit_directory)
+    absolute_path = absolute_path.replace(r"%transferDirectory%", unit_directory)
+
+    mapping.update(
+        {
+            r"%fileUUID%": file_obj.pk,
+            r"%originalLocation%": file_obj.originallocation,
+            r"%currentLocation%": file_obj.currentlocation,
+            r"%fileGrpUse%": file_obj.filegrpuse,
+            r"%fileDirectory%": dirname,
+            r"%fileName%": name,
+            r"%fileExtension%": ext[1:],
+            r"%fileExtensionWithDot%": ext,
+            r"%relativeLocation%": absolute_path,
+            # TODO: standardize duplicates
+            r"%inputFile%": absolute_path,
+            r"%fileFullName%": absolute_path,
+        }
+    )
+
+    return mapping
+
+
+@six.add_metaclass(abc.ABCMeta)
+class Unit(object):
+    """The end result of a workflow (AIP, SIP, etc.)
+    """
+
+    def __init__(self, current_path, uuid):
+        self._current_path = current_path.replace(
+            r"%sharedPath%", django_settings.SHARED_DIRECTORY
         )
-        if variables:
-            LOGGER.info(
-                "Existing UnitVariables %s for %s updated to %s (MSCL" " %s)",
-                variable,
-                self.UUID,
-                variableValue,
-                microServiceChainLink,
-            )
-            for var in variables:
-                var.variablevalue = variableValue
-                var.microservicechainlink = microServiceChainLink
-                var.save()
+        self.uuid = uuid
+
+    def __repr__(self):
+        return '{class_name}("{current_path}", {uuid})'.format(
+            class_name=self.__class__.__name__,
+            uuid=self.uuid,
+            current_path=self.current_path,
+        )
+
+    @property
+    def current_path(self):
+        return self._current_path
+
+    @current_path.setter
+    def current_path(self, value):
+        """Ensure that we always have a real (no shared dir vars) path.
+        """
+        self._current_path = value.replace(
+            r"%sharedPath%", django_settings.SHARED_DIRECTORY
+        )
+
+    @property
+    def current_path_for_db(self):
+        return self.current_path.replace(
+            django_settings.SHARED_DIRECTORY, "%sharedPath%", 1
+        )
+
+    @property
+    def package_name(self):
+        basename = os.path.basename(self.current_path.rstrip("/"))
+        return basename.replace("-" + self.uuid, "")
+
+    @property
+    def base_queryset(self):
+        return models.File.objects.filter(sip_id=self.uuid)
+
+    def reload(self):
+        raise NotImplementedError
+
+    def get_replacement_mapping(self, filter_subdir_path=None):
+        mapping = BASE_REPLACEMENTS.copy()
+        mapping.update(
+            {
+                r"%SIPUUID%": self.uuid,
+                r"%SIPName%": self.package_name,
+                r"%SIPLogsDirectory%": os.path.join(self.current_path, "logs", ""),
+                r"%SIPObjectsDirectory%": os.path.join(
+                    self.current_path, "objects", ""
+                ),
+                r"%SIPDirectory%": self.current_path,
+                r"%SIPDirectoryBasename": os.path.basename(
+                    os.path.abspath(self.current_path)
+                ),
+                r"%relativeLocation%": self.current_path_for_db,
+            }
+        )
+
+        return mapping
+
+    def xmlify(self):
+        ret = etree.Element("unit")
+        etree.SubElement(ret, "type").text = self.__class__.__name__
+        unitXML = etree.SubElement(ret, "unitXML")
+        etree.SubElement(unitXML, "UUID").text = self.uuid
+        etree.SubElement(unitXML, "currentPath").text = self.current_path_for_db
+
+        return ret
+
+    def files(
+        self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
+    ):
+        """Generator that yields all files associated with the package.
+        """
+        queryset = self.base_queryset
+
+        if filter_filename_start:
+            # TODO: regex filter
+            raise NotImplementedError("filter_filename_start is not implemented")
+        if filter_filename_end:
+            queryset = queryset.filter(currentlocation__endswith=filter_filename_end)
+        if filter_subdir:
+            filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
+            queryset = queryset.filter(currentlocation__startswith=filter_path)
+
+        # If we don't have any matching files in the database, we're in the process of
+        # generating file UUIDs, so walk the filesystem.
+        # TODO: restructure workflow to remove these cases.
+        if not queryset.exists():
+            start_path = self.current_path.encode("utf-8")  # use bytes to return bytes
+            if filter_subdir:
+                start_path = start_path + filter_subdir.encode("utf-8")
+
+            for basedir, subdirs, files in scandir.walk(start_path):
+                for file_name in files:
+                    if (
+                        filter_filename_start
+                        and not file_name.startswith(filter_filename_start)
+                    ) or (
+                        filter_filename_end
+                        and not file_name.endswith(filter_filename_end)
+                    ):
+                        continue
+
+                    file_path = os.path.join(basedir, file_name)
+                    yield {
+                        r"%relativeLocation%": file_path,
+                        r"%fileUUID%": "",
+                        r"%fileGrpUse%": "",
+                    }
         else:
-            LOGGER.info(
+            for file_obj in queryset.iterator():
+                yield get_file_replacement_mapping(file_obj, self.current_path)
+
+    def set_variable(self, key, value, chain_link_id):
+        """Sets a UnitVariable, which tracks choices made by users during processing.
+        """
+        # TODO: refactor this concept
+        if not value:
+            value = ""
+
+        unit_var, created = models.UnitVariable.objects.update_or_create(
+            unittype=self.UNIT_VARIABLE_TYPE,
+            unituuid=self.uuid,
+            variable=key,
+            defaults=dict(variablevalue=value, microservicechainlink=chain_link_id),
+        )
+        if created:
+            logger.info(
+                "Existing UnitVariables %s for %s updated to %s (MSCL" " %s)",
+                key,
+                self.uuid,
+                value,
+                chain_link_id,
+            )
+        else:
+            logger.info(
                 "New UnitVariable %s created for %s: %s (MSCL: %s)",
-                variable,
-                self.UUID,
-                variableValue,
-                microServiceChainLink,
+                key,
+                self.uuid,
+                value,
+                chain_link_id,
             )
-            var = UnitVariable(
-                unittype=self.unitType,
-                unituuid=self.UUID,
-                variable=variable,
-                variablevalue=variableValue,
-                microservicechainlink=microServiceChainLink,
+
+
+class DIP(Unit):
+    REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
+    UNIT_VARIABLE_TYPE = "DIP"
+    JOB_UNIT_TYPE = "unitDIP"
+
+    def reload(self):
+        """Reload is called for all unit types, but is a no-op for DIPs.
+        """
+        pass
+
+    def get_replacement_mapping(self, filter_subdir_path=None):
+        mapping = super(DIP, self).get_replacement_mapping(
+            filter_subdir_path=filter_subdir_path
+        )
+        mapping[r"%unitType%"] = "DIP"
+
+        if filter_subdir_path:
+            relative_location = filter_subdir_path.replace(
+                django_settings.SHARED_DIRECTORY, "%sharedPath%", 1
             )
-            var.save()
+            mapping[r"%relativeLocation%"] = relative_location
+
+        return mapping
+
+
+class Transfer(Unit):
+    REPLACEMENT_PATH_STRING = r"%transferDirectory%"
+    UNIT_VARIABLE_TYPE = "Transfer"
+    JOB_UNIT_TYPE = "unitTransfer"
+
+    @property
+    def base_queryset(self):
+        return models.File.objects.filter(transfer_id=self.uuid)
+
+    def reload(self):
+        transfer = models.Transfer.objects.get(uuid=self.uuid)
+        self.current_path = transfer.currentlocation
+
+    def get_replacement_mapping(self, filter_subdir_path=None):
+        mapping = super(Transfer, self).get_replacement_mapping(
+            filter_subdir_path=filter_subdir_path
+        )
+
+        mapping.update(
+            {self.REPLACEMENT_PATH_STRING: self.current_path, r"%unitType%": "Transfer"}
+        )
+
+        return mapping
+
+
+class SIP(Unit):
+    REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
+    UNIT_VARIABLE_TYPE = "SIP"
+    JOB_UNIT_TYPE = "unitSIP"
+
+    def __init__(self, *args, **kwargs):
+        super(SIP, self).__init__(*args, **kwargs)
+
+        self.aip_filename = None
+        self.sip_type = None
+
+    def reload(self):
+        sip = models.SIP.objects.get(uuid=self.uuid)
+        self.current_path = sip.currentpath
+        self.aip_filename = sip.aip_filename or ""
+        self.sip_type = sip.sip_type
+
+    def get_replacement_mapping(self, filter_subdir_path=None):
+        mapping = super(SIP, self).get_replacement_mapping(
+            filter_subdir_path=filter_subdir_path
+        )
+
+        mapping.update(
+            {
+                r"%unitType%": "SIP",
+                r"%AIPFilename%": self.aip_filename,
+                r"%SIPType%": self.sip_type,
+            }
+        )
+
+        return mapping

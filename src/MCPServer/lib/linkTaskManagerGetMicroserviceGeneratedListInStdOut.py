@@ -21,7 +21,6 @@
 
 # Stdlib, alphabetical by import source
 import logging
-import os
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
@@ -49,11 +48,6 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         # Used by ``TaskGroup._log_task``.
         self.execute = config["execute"]
 
-        if filterSubDir:
-            directory = os.path.join(unit.currentPath, filterSubDir)
-        else:
-            directory = unit.currentPath
-
         # Apply passvar replacement values
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
@@ -68,13 +62,18 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
                 )
 
         # Apply unit (SIP/Transfer) replacement values
-        commandReplacementDic = unit.getReplacementDic(directory)
+        commandReplacementDic = unit.get_replacement_mapping(
+            filter_subdir_path=filterSubDir
+        )
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
-            commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(
-            arguments, standardOutputFile, standardErrorFile
-        )
+            escapedValue = archivematicaFunctions.escapeForCommand(value)
+            if arguments is not None:
+                arguments = arguments.replace(key, escapedValue)
+            if standardOutputFile is not None:
+                standardOutputFile = standardOutputFile.replace(key, escapedValue)
+            if standardErrorFile is not None:
+                standardErrorFile = standardErrorFile.replace(key, escapedValue)
 
         group = TaskGroup(self, execute)
         group.addTask(

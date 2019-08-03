@@ -90,10 +90,8 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         """ Check the processing XML file for a pre-selected choice.
 
         Returns an index for self.choices if found, None otherwise. """
-        sharedPath = django_settings.SHARED_DIRECTORY
         xmlFilePath = os.path.join(
-            self.unit.currentPath.replace("%sharedPath%", sharedPath, 1),
-            django_settings.PROCESSING_XML_FILE,
+            self.unit.current_path, django_settings.PROCESSING_XML_FILE
         )
         try:
             tree = etree.parse(xmlFilePath)
@@ -133,7 +131,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         if user_id:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
             agent_id = str(agent_id)
-            self.unit.setVariable("activeAgent", agent_id, None)
+            self.unit.set_variable("activeAgent", agent_id, None)
 
         choicesAvailableForUnitsLock.acquire()
         try:

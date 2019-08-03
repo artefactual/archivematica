@@ -49,7 +49,7 @@ class jobChainLink:
         self.group = link.get_label("group", "en")
         self.description = link.get_label("description", "en")
 
-        LOGGER.info("Running %s (unit %s)", self.description, self.unit.UUID)
+        LOGGER.info("Running %s (unit %s)", self.description, self.unit.uuid)
         self.unit.reload()
 
         self._create_job()
@@ -66,18 +66,13 @@ class jobChainLink:
 
     def _create_job(self):
         """Persist job in the database."""
-        try:
-            if self.unit.owningUnit is not None:
-                unit_id = self.unit.owningUnit.UUID
-        except AttributeError:
-            unit_id = self.unit.UUID
         return Job.objects.create(
             jobuuid=self.UUID,
             jobtype=self.description,
-            directory=self.unit.currentPath,
-            sipuuid=unit_id,
+            directory=self.unit.current_path,
+            sipuuid=self.unit.uuid,
             currentstep=Job.STATUS_EXECUTING_COMMANDS,
-            unittype=self.unit.__class__.__name__,
+            unittype=self.unit.JOB_UNIT_TYPE,
             microservicegroup=self.group,
             createdtime=self.created_at,
             createdtimedec=self._created_at_dec,
