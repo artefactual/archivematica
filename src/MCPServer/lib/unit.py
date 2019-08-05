@@ -191,21 +191,11 @@ class Unit(object):
             defaults=dict(variablevalue=value, microservicechainlink=chain_link_id),
         )
         if created:
-            logger.info(
-                "Existing UnitVariables %s for %s updated to %s (MSCL" " %s)",
-                key,
-                self.uuid,
-                value,
-                chain_link_id,
-            )
+            message = ("New UnitVariable %s created for %s: %s (MSCL: %s)",)
         else:
-            logger.info(
-                "New UnitVariable %s created for %s: %s (MSCL: %s)",
-                key,
-                self.uuid,
-                value,
-                chain_link_id,
-            )
+            message = ("Existing UnitVariable %s for %s updated to %s (MSCL" " %s)",)
+
+        logger.info(message, key, self.uuid, value, chain_link_id)
 
 
 class DIP(Unit):
