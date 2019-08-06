@@ -18,7 +18,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import
-import StringIO
+from six import StringIO
 import json
 import logging
 import logging.config
@@ -150,7 +150,7 @@ timeout = 300
 """
 
 config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO.StringIO(CONFIG_DEFAULTS))
+config.read_defaults(StringIO(CONFIG_DEFAULTS))
 config.read_files(["/etc/archivematica/archivematicaCommon/dbsettings"])
 
 

@@ -18,7 +18,7 @@ import six.moves.configparser
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .env_configparser import EnvConfigParser
+from env_configparser import EnvConfigParser
 
 
 class Config(object):
