@@ -21,7 +21,8 @@ import logging
 
 from django.conf import settings
 from django.utils.translation import get_language
-import gearman
+
+# import gearman
 
 from main.models import Job
 
