@@ -134,12 +134,13 @@ Example::
 
 from __future__ import print_function, unicode_literals
 
+from __future__ import absolute_import
 import argparse
 
 try:
     import configparser
 except ImportError:
-    import ConfigParser as configparser
+    import six.moves.configparser as configparser
 import os
 
 try:

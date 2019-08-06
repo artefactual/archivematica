@@ -45,6 +45,7 @@ import version
 from externals import xmltodict
 
 from elasticsearch import Elasticsearch, ImproperlyConfigured
+from six.moves import range
 
 
 logger = logging.getLogger("archivematica.common")
@@ -773,7 +774,7 @@ def _try_to_index(
     exception = None
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
-    for _ in xrange(0, max_tries):
+    for _ in range(0, max_tries):
         try:
             client.index(body=data, index=index, doc_type=DOC_TYPE)
             return

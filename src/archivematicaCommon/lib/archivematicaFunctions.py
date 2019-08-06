@@ -24,6 +24,7 @@ different Archivematica modules.
 """
 
 from __future__ import print_function
+from __future__ import absolute_import
 import collections
 import hashlib
 import locale
@@ -36,7 +37,7 @@ from django.utils import six
 from lxml import etree
 
 from main.models import DashboardSetting
-from namespaces import NSMAP
+from .namespaces import NSMAP
 
 
 REQUIRED_DIRECTORIES = (

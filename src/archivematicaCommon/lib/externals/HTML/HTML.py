@@ -12,6 +12,7 @@ License: CeCILL (open-source GPL compatible), see source code for details.
          http://www.cecill.info
 """
 from __future__ import print_function
+from six.moves import range
 
 __version__ = "0.04"
 __date__ = "2009-07-28"

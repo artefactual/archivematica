@@ -13,11 +13,12 @@ Alternatively, they can include the 'section' and a 'process_function' callback
 where a specific parsing process can be defined. Those callbacks must accept the
 current appconfig Config object and the section.
 """
-import ConfigParser
+from __future__ import absolute_import
+import six.moves.configparser
 
 from django.core.exceptions import ImproperlyConfigured
 
-from env_configparser import EnvConfigParser
+from .env_configparser import EnvConfigParser
 
 
 class Config(object):
@@ -68,7 +69,10 @@ class Config(object):
 
         try:
             return getattr(self.config, getter)(**kwargs)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (
+            six.moves.configparser.NoSectionError,
+            six.moves.configparser.NoOptionError,
+        ):
             raise ImproperlyConfigured(self.UNDEFINED_ATTR_MSG % attr)
 
     def get_from_opts_list(self, attr, attr_opts_list, default=None):
@@ -88,8 +92,8 @@ class Config(object):
             try:
                 return getattr(self.config, getter)(**kwargs)
             except (
-                ConfigParser.NoSectionError,
-                ConfigParser.NoOptionError,
+                six.moves.configparser.NoSectionError,
+                six.moves.configparser.NoOptionError,
                 ValueError,
             ):
                 pass

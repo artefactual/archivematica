@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from xml.etree import ElementPath
 
 dcNS = "http://purl.org/dc/elements/1.1/"

@@ -9,6 +9,7 @@
 # date Aug 10 2010
 
 from __future__ import print_function
+from __future__ import absolute_import
 import email
 import sys
 

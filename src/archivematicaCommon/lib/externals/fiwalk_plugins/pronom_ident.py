@@ -8,6 +8,7 @@ from __future__ import print_function
 # https://github.com/anarchivist/fiwalk-dgi/blob/master/python/pronom_ident.py
 # Author  anarchivist
 
+from __future__ import absolute_import
 import os
 import sys
 import time
