@@ -31,4 +31,4 @@ class linkTaskManagerSetUnitVariable(LinkTaskManager):
         self.unit.set_variable(
             config["variable"], config["variable_value"], config["chain_id"]
         )
-        self.jobChainLink.linkProcessingComplete(exitCode=0)
+        self.jobChainLink.on_complete(0)

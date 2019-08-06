@@ -49,15 +49,15 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         self.execute = config["execute"]
 
         # Apply passvar replacement values
-        if self.jobChainLink.passVar is not None:
-            if isinstance(self.jobChainLink.passVar, list):
-                for passVar in self.jobChainLink.passVar:
+        if self.jobChainLink.pass_var is not None:
+            if isinstance(self.jobChainLink.pass_var, list):
+                for passVar in self.jobChainLink.pass_var:
                     if isinstance(passVar, ReplacementDict):
                         arguments, standardOutputFile, standardErrorFile = passVar.replace(
                             arguments, standardOutputFile, standardErrorFile
                         )
-            elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(
+            elif isinstance(self.jobChainLink.pass_var, ReplacementDict):
+                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.pass_var.replace(
                     arguments, standardOutputFile, standardErrorFile
                 )
 
@@ -102,19 +102,19 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         except Exception:
             LOGGER.exception("Unable to create dic from output %s", stdout)
             choices = ChoicesDict({})
-        if self.jobChainLink.passVar is not None:
-            if isinstance(self.jobChainLink.passVar, list):
-                for index, value in enumerate(self.jobChainLink.passVar):
+        if self.jobChainLink.pass_var is not None:
+            if isinstance(self.jobChainLink.pass_var, list):
+                for index, value in enumerate(self.jobChainLink.pass_var):
                     if isinstance(value, ChoicesDict):
-                        self.jobChainLink.passVar[index] = choices
+                        self.jobChainLink.pass_var[index] = choices
                         break
                 else:
-                    self.jobChainLink.passVar.append(choices)
+                    self.jobChainLink.pass_var.append(choices)
             else:
-                self.jobChainLink.passVar = [choices, self.jobChainLink.passVar]
+                self.jobChainLink.pass_var = [choices, self.jobChainLink.pass_var]
         else:
-            self.jobChainLink.passVar = [choices]
+            self.jobChainLink.pass_var = [choices]
 
-        self.jobChainLink.linkProcessingComplete(
-            finishedTaskGroup.calculateExitCode(), self.jobChainLink.passVar
+        self.jobChainLink.on_complete(
+            finishedTaskGroup.calculateExitCode(), self.jobChainLink.pass_var
         )

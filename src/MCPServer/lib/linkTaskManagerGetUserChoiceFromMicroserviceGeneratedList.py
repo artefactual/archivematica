@@ -29,7 +29,7 @@ from linkTaskManager import LinkTaskManager
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
 from dicts import ReplacementDict, ChoicesDict
-from main.models import UserProfile, Job
+from main.models import UserProfile
 from workflow import TranslationLabel
 
 from django.conf import settings as django_settings
@@ -48,25 +48,29 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
 
         preConfiguredIndex = self.checkForPreconfiguredXML()
         if preConfiguredIndex is not None:
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.update_job_status(
+                self.jobChainLink.STATUS_COMPLETED_SUCCESSFULLY
+            )
             self.proceedWithChoice(index=preConfiguredIndex, user_id=None)
         else:
             choicesAvailableForUnitsLock.acquire()
-            self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
-            choicesAvailableForUnits[self.jobChainLink.UUID] = self
+            self.jobChainLink.update_job_status(
+                self.jobChainLink.STATUS_AWAITING_DECISION
+            )
+            choicesAvailableForUnits[self.jobChainLink.uuid] = self
             choicesAvailableForUnitsLock.release()
 
     def _populate_choices(self):
         self.choices = []
-        if not isinstance(self.jobChainLink.passVar, list):
+        if not isinstance(self.jobChainLink.pass_var, list):
             errmsg = "passVar is {} instead of expected list".format(
-                type(self.jobChainLink.passVar)
+                type(self.jobChainLink.pass_var)
             )
             LOGGER.error(errmsg)
             raise Exception(errmsg)
         key = self.jobChainLink.link.config["execute"]
         index = 0
-        for item in self.jobChainLink.passVar:
+        for item in self.jobChainLink.pass_var:
             LOGGER.debug("%s is ChoicesDict: %s", item, isinstance(item, ChoicesDict))
             if isinstance(item, ChoicesDict):
                 # For display, convert the ChoicesDict passVar into a list
@@ -77,11 +81,11 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                     index += 1
                 # We don't need to maintain state, and we can't easily update
                 # or use the passVar list below in proceedWithChoice if we do.
-                self.jobChainLink.passVar.remove(item)
+                self.jobChainLink.pass_var.remove(item)
                 break
         else:
             errmsg = "ChoicesDict not found in passVar: {}".format(
-                self.jobChainLink.passVar
+                self.jobChainLink.pass_var
             )
             LOGGER.error(errmsg)
             raise Exception(errmsg)
@@ -118,7 +122,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
     def xmlify(self):
         """Returns an etree XML representation of the choices available."""
         ret = etree.Element("choicesAvailableForUnit")
-        etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
+        etree.SubElement(ret, "UUID").text = self.jobChainLink.uuid
         ret.append(self.unit.xmlify())
         choices = etree.SubElement(ret, "choices")
         for index, description, __ in self.choices:
@@ -135,7 +139,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
 
         choicesAvailableForUnitsLock.acquire()
         try:
-            del choicesAvailableForUnits[self.jobChainLink.UUID]
+            del choicesAvailableForUnits[self.jobChainLink.uuid]
         except KeyError:
             pass
         choicesAvailableForUnitsLock.release()
@@ -144,4 +148,4 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         __, __, replace_dict = self.choices[int(index)]
         rd = ReplacementDict.fromstring(replace_dict)
         self.update_passvar_replacement_dict(rd)
-        self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
+        self.jobChainLink.on_complete(0, pass_var=self.jobChainLink.pass_var)

@@ -35,7 +35,7 @@ from linkTaskManagerChoice import (
 )
 
 from dicts import ReplacementDict
-from main.models import DashboardSetting, Job, UserProfile
+from main.models import DashboardSetting, UserProfile
 from django.conf import settings as django_settings
 from django.utils.six import text_type
 
@@ -74,26 +74,26 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         if rdict and not self.choices:
             LOGGER.debug("Found Dashboard settings for this task, proceed.")
             self.update_passvar_replacement_dict(rdict)
-            self.jobChainLink.linkProcessingComplete(
-                0, passVar=self.jobChainLink.passVar
-            )
+            self.jobChainLink.on_complete(0, pass_var=self.jobChainLink.pass_var)
             return
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
             if preConfiguredChain != waitingOnTimer:
-                self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+                self.jobChainLink.update_job_status(
+                    self.jobChainLink.STATUS_COMPLETED_SUCCESSFULLY
+                )
                 rd = ReplacementDict(preConfiguredChain)
                 self.update_passvar_replacement_dict(rd)
-                self.jobChainLink.linkProcessingComplete(
-                    0, passVar=self.jobChainLink.passVar
-                )
+                self.jobChainLink.on_complete(0, pass_var=self.jobChainLink.pass_var)
             else:
                 LOGGER.info("Waiting on delay to resume processing on unit %s", unit)
         else:
             choicesAvailableForUnitsLock.acquire()
-            self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
-            choicesAvailableForUnits[self.jobChainLink.UUID] = self
+            self.jobChainLink.update_job_status(
+                self.jobChainLink.STATUS_AWAITING_DECISION
+            )
+            choicesAvailableForUnits[self.jobChainLink.uuid] = self
             choicesAvailableForUnitsLock.release()
 
     def _format_items(self, items):
@@ -188,24 +188,24 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info("Time to go: %s", timeToGo)
-                                self.jobChainLink.setExitMessage(
+                                self.jobChainLink.update_job_status(
                                     "Waiting till: "
                                     + datetime.datetime.fromtimestamp(
                                         (nowTime + timeToGo)
                                     ).ctime()
                                 )
                                 rd = ReplacementDict(ret)
-                                if self.jobChainLink.passVar is not None:
+                                if self.jobChainLink.pass_var is not None:
                                     if isinstance(
-                                        self.jobChainLink.passVar, ReplacementDict
+                                        self.jobChainLink.pass_var, ReplacementDict
                                     ):
                                         new = {}
-                                        new.update(self.jobChainLink.passVar.dic)
+                                        new.update(self.jobChainLink.pass_var.dic)
                                         new.update(rd.dic)
                                         rd.dic = new
                                 t = threading.Timer(
                                     timeToGo,
-                                    self.jobChainLink.linkProcessingComplete,
+                                    self.jobChainLink.on_complete,
                                     args=[0, rd],
                                     kwargs={},
                                 )
@@ -214,8 +214,10 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
 
                                 t2 = threading.Timer(
                                     timeToGo,
-                                    self.jobChainLink.setExitMessage,
-                                    args=[Job.STATUS_COMPLETED_SUCCESSFULLY],
+                                    self.jobChainLink.update_job_status,
+                                    args=[
+                                        self.jobChainLink.STATUS_COMPLETED_SUCCESSFULLY
+                                    ],
                                     kwargs={},
                                 )
                                 t2.start()
@@ -235,7 +237,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def xmlify(self):
         """Returns an etree XML representation of the choices available."""
         ret = etree.Element("choicesAvailableForUnit")
-        etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
+        etree.SubElement(ret, "UUID").text = self.jobChainLink.uuid
         ret.append(self.unit.xmlify())
         choices = etree.SubElement(ret, "choices")
         for index, description, __ in self.choices:
@@ -251,10 +253,10 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             self.unit.set_variable("activeAgent", agent_id, None)
 
         choicesAvailableForUnitsLock.acquire()
-        del choicesAvailableForUnits[self.jobChainLink.UUID]
+        del choicesAvailableForUnits[self.jobChainLink.uuid]
         choicesAvailableForUnitsLock.release()
 
         # get the one at index, and go with it.
         __, __, items = self.choices[int(index)]
         self.update_passvar_replacement_dict(ReplacementDict(items))
-        self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
+        self.jobChainLink.on_complete(0, pass_var=self.jobChainLink.pass_var)

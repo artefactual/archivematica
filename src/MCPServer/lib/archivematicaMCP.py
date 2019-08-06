@@ -55,7 +55,7 @@ from utils import log_exceptions
 from executor import Executor
 from taskGroupRunner import TaskGroupRunner
 import processing
-from jobChain import jobChain
+from job_chain import JobChain
 from unit import DIP, Transfer, SIP
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
@@ -169,7 +169,8 @@ def createUnitAndJobChain(path, watched_dir, workflow):
             unit = Transfer(path, None)
     else:
         return
-    jobChain(unit, watched_dir.chain, workflow)
+    job_chain = JobChain(unit, watched_dir.chain, workflow)
+    job_chain.start()
 
 
 def createUnitAndJobChainThreaded(path, watched_dir, workflow):

@@ -117,7 +117,7 @@ class TaskGroup:
         :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
         :param datetime startTimestamp: datetime logged for task start.
         """
-        jobUUID = taskManager.jobChainLink.UUID
+        jobUUID = taskManager.jobChainLink.uuid
         fileUUID = ""
         if "%fileUUID%" in commandReplacementDic:
             fileUUID = commandReplacementDic["%fileUUID%"]

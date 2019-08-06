@@ -27,7 +27,7 @@ import threading
 import time
 
 from linkTaskManager import LinkTaskManager
-import jobChain
+from job_chain import JobChain
 from utils import log_exceptions
 
 choicesAvailableForUnits = {}
@@ -37,7 +37,7 @@ from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
 from workflow_abilities import choice_is_available
 
-from main.models import UserProfile, Job
+from main.models import UserProfile
 from django.conf import settings as django_settings
 from django.utils.six import text_type
 
@@ -60,14 +60,19 @@ class linkTaskManagerChoice(LinkTaskManager):
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain is not None:
             time.sleep(django_settings.WAIT_ON_AUTO_APPROVE)
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+            self.jobChainLink.update_job_status(
+                self.jobChainLink.STATUS_COMPLETED_SUCCESSFULLY
+            )
             chain = self.jobChainLink.workflow.get_chain(preConfiguredChain)
-            jobChain.jobChain(self.unit, chain, jobChainLink.workflow)
+            job_chain = JobChain(self.unit, chain, jobChainLink.workflow)
+            job_chain.start()
         else:
             choicesAvailableForUnitsLock.acquire()
             if self.delayTimer is None:
-                self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
-            choicesAvailableForUnits[self.jobChainLink.UUID] = self
+                self.jobChainLink.update_job_status(
+                    self.jobChainLink.STATUS_AWAITING_DECISION
+                )
+            choicesAvailableForUnits[self.jobChainLink.uuid] = self
             choicesAvailableForUnitsLock.release()
 
     def _populate_choices(self):
@@ -116,7 +121,7 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info("Time to go: %s", timeToGo)
-                                self.jobChainLink.setExitMessage(
+                                self.jobChainLink.update_job_status(
                                     "Waiting till: "
                                     + datetime.datetime.fromtimestamp(
                                         (nowTime + timeToGo)
@@ -150,7 +155,7 @@ class linkTaskManagerChoice(LinkTaskManager):
     def xmlify(self):
         """Returns an etree XML representation of the choices available."""
         ret = etree.Element("choicesAvailableForUnit")
-        etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
+        etree.SubElement(ret, "UUID").text = self.jobChainLink.uuid
         ret.append(self.unit.xmlify())
         choices = etree.SubElement(ret, "choices")
         for id_, description, __ in self.choices:
@@ -168,14 +173,17 @@ class linkTaskManagerChoice(LinkTaskManager):
             self.unit.set_variable("activeAgent", agent_id, None)
 
         choicesAvailableForUnitsLock.acquire()
-        del choicesAvailableForUnits[self.jobChainLink.UUID]
+        del choicesAvailableForUnits[self.jobChainLink.uuid]
         self.delayTimerLock.acquire()
         if self.delayTimer is not None and not delayTimerStart:
             self.delayTimer.cancel()
             self.delayTimer = None
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
-        self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+        self.jobChainLink.update_job_status(
+            self.jobChainLink.STATUS_COMPLETED_SUCCESSFULLY
+        )
         LOGGER.info("Using user selected chain %s", chain_id)
         chain = self.jobChainLink.workflow.get_chain(chain_id)
-        jobChain.jobChain(self.unit, chain, self.jobChainLink.workflow)
+        job_chain = JobChain(self.unit, chain, self.jobChainLink.workflow)
+        job_chain.start()

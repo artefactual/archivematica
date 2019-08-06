@@ -34,8 +34,8 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
             raise Exception(
                 "linkTaskManagerUnitVariableLinkPull could not find next link"
             )
-        self.jobChainLink.linkProcessingComplete(
-            exitCode=0, passVar=self.jobChainLink.passVar, next_link=next_link
+        self.jobChainLink.on_complete(
+            0, pass_var=self.jobChainLink.pass_var, next_link=next_link
         )
 
     def _get_next_link(self):

@@ -133,15 +133,15 @@ class linkTaskManagerFiles(LinkTaskManager):
                     standardErrorFile = standardErrorFile.replace(key, escapedValue)
 
             # Apply passvar replacement values
-            if self.jobChainLink.passVar is not None:
-                if isinstance(self.jobChainLink.passVar, list):
-                    for passVar in self.jobChainLink.passVar:
+            if self.jobChainLink.pass_var is not None:
+                if isinstance(self.jobChainLink.pass_var, list):
+                    for passVar in self.jobChainLink.pass_var:
                         if isinstance(passVar, ReplacementDict):
                             arguments, standardOutputFile, standardErrorFile = passVar.replace(
                                 arguments, standardOutputFile, standardErrorFile
                             )
-                elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                    arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(
+                elif isinstance(self.jobChainLink.pass_var, ReplacementDict):
+                    arguments, standardOutputFile, standardErrorFile = self.jobChainLink.pass_var.replace(
                         arguments, standardOutputFile, standardErrorFile
                     )
 
@@ -167,7 +167,7 @@ class linkTaskManagerFiles(LinkTaskManager):
         # If the batch of files was empty, we can immediately proceed to the
         # next job in the chain.  Assume a successful status code.
         if self.taskGroups == {}:
-            self.jobChainLink.linkProcessingComplete(0)
+            self.jobChainLink.on_complete(0)
 
     def taskGroupFinished(self, finishedTaskGroup):
         finishedTaskGroup.write_output()
@@ -194,9 +194,7 @@ class linkTaskManagerFiles(LinkTaskManager):
 
         if self.clearToNextLink is True and self.taskGroups == {}:
             # All TaskGroups have been processed.  Proceed to next job in the chain.
-            LOGGER.debug("Proceeding to next link %s", self.jobChainLink.UUID)
-            self.jobChainLink.linkProcessingComplete(
-                self.exitCode, self.jobChainLink.passVar
-            )
+            LOGGER.debug("Proceeding to next link %s", self.jobChainLink.uuid)
+            self.jobChainLink.on_complete(self.exitCode, self.jobChainLink.pass_var)
 
         self.taskGroupsLock.release()

@@ -35,22 +35,22 @@ class LinkTaskManager(object):
 
     def update_passvar_replacement_dict(self, replace_dict):
         """ Update the ReplacementDict in the passVar, creating one if needed. """
-        if self.jobChainLink.passVar is not None:
-            if isinstance(self.jobChainLink.passVar, list):
+        if self.jobChainLink.pass_var is not None:
+            if isinstance(self.jobChainLink.pass_var, list):
                 # Search the list for a ReplacementDict, and update it if it
                 # exists, otherwise append to list
-                for passVar in self.jobChainLink.passVar:
+                for passVar in self.jobChainLink.pass_var:
                     if isinstance(passVar, ReplacementDict):
                         passVar.update(replace_dict)
                         break
                 else:
-                    self.jobChainLink.passVar.append(replace_dict)
-            elif isinstance(self.jobChainLink.passVar, ReplacementDict):
+                    self.jobChainLink.pass_var.append(replace_dict)
+            elif isinstance(self.jobChainLink.pass_var, ReplacementDict):
                 # passVar is a ReplacementDict that needs to be updated
-                self.jobChainLink.passVar.update(replace_dict)
+                self.jobChainLink.pass_var.update(replace_dict)
             else:
                 # Create list with existing passVar and replace_dict
-                self.jobChainLink.passVar = [replace_dict, self.jobChainLink.passVar]
+                self.jobChainLink.pass_var = [replace_dict, self.jobChainLink.pass_var]
         else:
             # PassVar is empty, create new list
-            self.jobChainLink.passVar = [replace_dict]
+            self.jobChainLink.pass_var = [replace_dict]

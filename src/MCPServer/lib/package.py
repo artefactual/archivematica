@@ -29,7 +29,7 @@ from django.conf import settings as django_settings
 from archivematicaFunctions import unicodeToStr
 from databaseFunctions import auto_close_db
 from executor import Executor
-from jobChain import jobChain
+from job_chain import JobChain
 from main import models
 import storageService as storage_service
 from unit import Transfer
@@ -410,12 +410,13 @@ def _start_package_transfer_with_auto_approval(
 
     logger.debug("Package %s: starting workflow processing", transfer.pk)
     unit = Transfer(path, transfer.pk)
-    jobChain(
+    job_chain = JobChain(
         unit,
         workflow.get_chain(starting_point.chain),
         workflow,
         workflow.get_link(starting_point.link),
     )
+    job_chain.start()
 
 
 @_capture_transfer_failure

@@ -4,6 +4,7 @@ Unit (or alternatively package) related logic.
 from __future__ import unicode_literals
 
 import abc
+import ast
 import logging
 import os
 
@@ -196,6 +197,32 @@ class Unit(object):
             message = ("Existing UnitVariable %s for %s updated to %s (MSCL" " %s)",)
 
         logger.info(message, key, self.uuid, value, chain_link_id)
+
+    def get_variable_values(self):
+        """
+        Returns a dict combining all of the replacementDict unit variables for the
+        unit.
+        """
+        unit_vars = dict()
+
+        # TODO: we shouldn't need one UnitVariable per chain, with all the same values
+        unit_vars_queryset = models.UnitVariable.objects.filter(
+            unituuid=self.uuid, variable="replacementDict"
+        )
+        # Distinct helps here, at least
+        unit_vars_queryset = unit_vars_queryset.values_list("variablevalue").distinct()
+        for unit_var_value in unit_vars_queryset:
+            # TODO: nope nope nope, fix eval usage
+            try:
+                unit_var = ast.literal_eval(unit_var_value[0])
+            except ValueError:
+                logger.exception(
+                    "Failed to eval unit variable value %s", unit_var_value[0]
+                )
+            else:
+                unit_vars.update(unit_var)
+
+        return unit_vars
 
 
 class DIP(Unit):
