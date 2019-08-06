@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="tool",
             field=models.ForeignKey(
                 verbose_name="the related tool",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.IDTool",
                 null=True,
             ),

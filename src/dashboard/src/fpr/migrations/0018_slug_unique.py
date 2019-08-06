@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name="slug",
             field=autoslug.fields.AutoSlugField(
                 editable=False,
-                populate_from=b"description",
+                populate_from="description",
                 unique=True,
                 verbose_name="slug",
             ),
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             name="slug",
             field=autoslug.fields.AutoSlugField(
                 editable=False,
-                populate_from=b"description",
+                populate_from="description",
                 unique=True,
                 verbose_name="slug",
             ),
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             model_name="fptool",
             name="slug",
             field=autoslug.fields.AutoSlugField(
-                editable=False, populate_from=b"_slug", unique=True, verbose_name="slug"
+                editable=False, populate_from="_slug", unique=True, verbose_name="slug"
             ),
         ),
         migrations.AlterField(
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             name="slug",
             field=autoslug.fields.AutoSlugField(
                 editable=False,
-                populate_from=b"_slug",
+                populate_from="_slug",
                 always_update=True,
                 unique=True,
                 verbose_name="slug",

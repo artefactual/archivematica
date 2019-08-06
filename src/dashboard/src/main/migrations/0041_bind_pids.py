@@ -271,7 +271,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         editable=False,
                         primary_key=True,
-                        db_column=b"pk",
+                        db_column="pk",
                     ),
                 ),
                 ("type", models.TextField(null=True, verbose_name="Identifier Type")),
@@ -304,6 +304,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="sip",
             name="diruuids",
-            field=models.BooleanField(default=False, db_column=b"dirUUIDs"),
+            field=models.BooleanField(default=False, db_column="dirUUIDs"),
         ),
     ]

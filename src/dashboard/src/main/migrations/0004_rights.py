@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatement",
             name="metadataappliestoidentifier",
             field=models.CharField(
-                max_length=36, db_column=b"metadataAppliesToidentifier", blank=True
+                max_length=36, db_column="metadataAppliesToidentifier", blank=True
             ),
             preserve_default=True,
         ),
@@ -22,17 +22,17 @@ class Migration(migrations.Migration):
             model_name="rightsstatement",
             name="rightsbasis",
             field=models.CharField(
-                default=b"Copyright",
+                default="Copyright",
                 max_length=64,
-                verbose_name=b"Basis",
-                db_column=b"rightsBasis",
+                verbose_name="Basis",
+                db_column="rightsBasis",
                 choices=[
-                    (b"Copyright", b"Copyright"),
-                    (b"Statute", b"Statute"),
-                    (b"License", b"License"),
-                    (b"Donor", b"Donor"),
-                    (b"Policy", b"Policy"),
-                    (b"Other", b"Other"),
+                    ("Copyright", "Copyright"),
+                    ("Statute", "Statute"),
+                    ("License", "License"),
+                    ("Donor", "Donor"),
+                    ("Policy", "Policy"),
+                    ("Other", "Other"),
                 ],
             ),
             preserve_default=True,
@@ -41,10 +41,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightapplicableenddate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Copyright end date",
-                db_column=b"copyrightApplicableEndDate",
+                verbose_name="Copyright end date",
+                db_column="copyrightApplicableEndDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -53,10 +53,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightapplicablestartdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Copyright start date",
-                db_column=b"copyrightApplicableStartDate",
+                verbose_name="Copyright start date",
+                db_column="copyrightApplicableStartDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -65,8 +65,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightjurisdiction",
             field=models.TextField(
-                verbose_name=b"Copyright jurisdiction",
-                db_column=b"copyrightJurisdiction",
+                verbose_name="Copyright jurisdiction", db_column="copyrightJurisdiction"
             ),
             preserve_default=True,
         ),
@@ -74,7 +73,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightstatus",
             field=models.TextField(
-                verbose_name=b"Copyright status", db_column=b"copyrightStatus"
+                verbose_name="Copyright status", db_column="copyrightStatus"
             ),
             preserve_default=True,
         ),
@@ -82,10 +81,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightstatusdeterminationdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Copyright determination date",
-                db_column=b"copyrightStatusDeterminationDate",
+                verbose_name="Copyright determination date",
+                db_column="copyrightStatusDeterminationDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -95,8 +94,8 @@ class Migration(migrations.Migration):
             name="copyrightdocumentationidentifierrole",
             field=models.TextField(
                 null=True,
-                verbose_name=b"Copyright document identification role",
-                db_column=b"copyrightDocumentationIdentifierRole",
+                verbose_name="Copyright document identification role",
+                db_column="copyrightDocumentationIdentifierRole",
                 blank=True,
             ),
             preserve_default=True,
@@ -105,8 +104,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyrightdocumentationidentifier",
             name="copyrightdocumentationidentifiertype",
             field=models.TextField(
-                verbose_name=b"Copyright document identification type",
-                db_column=b"copyrightDocumentationIdentifierType",
+                verbose_name="Copyright document identification type",
+                db_column="copyrightDocumentationIdentifierType",
             ),
             preserve_default=True,
         ),
@@ -114,8 +113,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyrightdocumentationidentifier",
             name="copyrightdocumentationidentifiervalue",
             field=models.TextField(
-                verbose_name=b"Copyright document identification value",
-                db_column=b"copyrightDocumentationIdentifierValue",
+                verbose_name="Copyright document identification value",
+                db_column="copyrightDocumentationIdentifierValue",
             ),
             preserve_default=True,
         ),
@@ -123,7 +122,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyrightnote",
             name="copyrightnote",
             field=models.TextField(
-                verbose_name=b"Copyright note", db_column=b"copyrightNote"
+                verbose_name="Copyright note", db_column="copyrightNote"
             ),
             preserve_default=True,
         ),
@@ -131,10 +130,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementlicense",
             name="licenseapplicableenddate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"License end date",
-                db_column=b"licenseApplicableEndDate",
+                verbose_name="License end date",
+                db_column="licenseApplicableEndDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -143,10 +142,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementlicense",
             name="licenseapplicablestartdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"License start date",
-                db_column=b"licenseApplicableStartDate",
+                verbose_name="License start date",
+                db_column="licenseApplicableStartDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -156,8 +155,8 @@ class Migration(migrations.Migration):
             name="licenseterms",
             field=models.TextField(
                 null=True,
-                verbose_name=b"License terms",
-                db_column=b"licenseTerms",
+                verbose_name="License terms",
+                db_column="licenseTerms",
                 blank=True,
             ),
             preserve_default=True,
@@ -167,8 +166,8 @@ class Migration(migrations.Migration):
             name="licensedocumentationidentifierrole",
             field=models.TextField(
                 null=True,
-                verbose_name=b"License document identification role",
-                db_column=b"licenseDocumentationIdentifierRole",
+                verbose_name="License document identification role",
+                db_column="licenseDocumentationIdentifierRole",
                 blank=True,
             ),
             preserve_default=True,
@@ -177,8 +176,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementlicensedocumentationidentifier",
             name="licensedocumentationidentifiertype",
             field=models.TextField(
-                verbose_name=b"License documentation identification type",
-                db_column=b"licenseDocumentationIdentifierType",
+                verbose_name="License documentation identification type",
+                db_column="licenseDocumentationIdentifierType",
             ),
             preserve_default=True,
         ),
@@ -186,8 +185,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementlicensedocumentationidentifier",
             name="licensedocumentationidentifiervalue",
             field=models.TextField(
-                verbose_name=b"License documentation identification value",
-                db_column=b"licenseDocumentationIdentifierValue",
+                verbose_name="License documentation identification value",
+                db_column="licenseDocumentationIdentifierValue",
             ),
             preserve_default=True,
         ),
@@ -195,7 +194,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementlicensenote",
             name="licensenote",
             field=models.TextField(
-                verbose_name=b"License note", db_column=b"licenseNote"
+                verbose_name="License note", db_column="licenseNote"
             ),
             preserve_default=True,
         ),
@@ -204,8 +203,8 @@ class Migration(migrations.Migration):
             name="otherrightsdocumentationidentifierrole",
             field=models.TextField(
                 null=True,
-                verbose_name=b"Other rights document identification role",
-                db_column=b"otherRightsDocumentationIdentifierRole",
+                verbose_name="Other rights document identification role",
+                db_column="otherRightsDocumentationIdentifierRole",
                 blank=True,
             ),
             preserve_default=True,
@@ -214,8 +213,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsdocumentationidentifier",
             name="otherrightsdocumentationidentifiertype",
             field=models.TextField(
-                verbose_name=b"Other rights document identification type",
-                db_column=b"otherRightsDocumentationIdentifierType",
+                verbose_name="Other rights document identification type",
+                db_column="otherRightsDocumentationIdentifierType",
             ),
             preserve_default=True,
         ),
@@ -223,8 +222,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsdocumentationidentifier",
             name="otherrightsdocumentationidentifiervalue",
             field=models.TextField(
-                verbose_name=b"Other right document identification value",
-                db_column=b"otherRightsDocumentationIdentifierValue",
+                verbose_name="Other right document identification value",
+                db_column="otherRightsDocumentationIdentifierValue",
             ),
             preserve_default=True,
         ),
@@ -232,10 +231,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsinformation",
             name="otherrightsapplicableenddate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Other rights end date",
-                db_column=b"otherRightsApplicableEndDate",
+                verbose_name="Other rights end date",
+                db_column="otherRightsApplicableEndDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -244,10 +243,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsinformation",
             name="otherrightsapplicablestartdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Other rights start date",
-                db_column=b"otherRightsApplicableStartDate",
+                verbose_name="Other rights start date",
+                db_column="otherRightsApplicableStartDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -256,9 +255,9 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsinformation",
             name="otherrightsbasis",
             field=models.TextField(
-                default=b"Other",
-                verbose_name=b"Other rights basis",
-                db_column=b"otherRightsBasis",
+                default="Other",
+                verbose_name="Other rights basis",
+                db_column="otherRightsBasis",
             ),
             preserve_default=True,
         ),
@@ -266,24 +265,24 @@ class Migration(migrations.Migration):
             model_name="rightsstatementotherrightsinformationnote",
             name="otherrightsnote",
             field=models.TextField(
-                verbose_name=b"Other rights note", db_column=b"otherRightsNote"
+                verbose_name="Other rights note", db_column="otherRightsNote"
             ),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="rightsstatementrightsgranted",
             name="act",
-            field=models.TextField(db_column=b"act"),
+            field=models.TextField(db_column="act"),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="rightsstatementrightsgranted",
             name="enddate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"End",
-                db_column=b"endDate",
+                verbose_name="End",
+                db_column="endDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -292,10 +291,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementrightsgranted",
             name="startdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Start",
-                db_column=b"startDate",
+                verbose_name="Start",
+                db_column="startDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -304,14 +303,14 @@ class Migration(migrations.Migration):
             model_name="rightsstatementrightsgrantednote",
             name="rightsgrantednote",
             field=models.TextField(
-                verbose_name=b"Rights note", db_column=b"rightsGrantedNote"
+                verbose_name="Rights note", db_column="rightsGrantedNote"
             ),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="rightsstatementrightsgrantedrestriction",
             name="restriction",
-            field=models.TextField(db_column=b"restriction"),
+            field=models.TextField(db_column="restriction"),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -319,8 +318,8 @@ class Migration(migrations.Migration):
             name="statutedocumentationidentifierrole",
             field=models.TextField(
                 null=True,
-                verbose_name=b"Statute document identification role",
-                db_column=b"statuteDocumentationIdentifierRole",
+                verbose_name="Statute document identification role",
+                db_column="statuteDocumentationIdentifierRole",
                 blank=True,
             ),
             preserve_default=True,
@@ -329,8 +328,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatutedocumentationidentifier",
             name="statutedocumentationidentifiertype",
             field=models.TextField(
-                verbose_name=b"Statute document identification type",
-                db_column=b"statuteDocumentationIdentifierType",
+                verbose_name="Statute document identification type",
+                db_column="statuteDocumentationIdentifierType",
             ),
             preserve_default=True,
         ),
@@ -338,8 +337,8 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatutedocumentationidentifier",
             name="statutedocumentationidentifiervalue",
             field=models.TextField(
-                verbose_name=b"Statute document identification value",
-                db_column=b"statuteDocumentationIdentifierValue",
+                verbose_name="Statute document identification value",
+                db_column="statuteDocumentationIdentifierValue",
             ),
             preserve_default=True,
         ),
@@ -347,10 +346,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformation",
             name="statuteapplicableenddate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Statute end date",
-                db_column=b"statuteApplicableEndDate",
+                verbose_name="Statute end date",
+                db_column="statuteApplicableEndDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -359,10 +358,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformation",
             name="statuteapplicablestartdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Statute start date",
-                db_column=b"statuteApplicableStartDate",
+                verbose_name="Statute start date",
+                db_column="statuteApplicableStartDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -371,7 +370,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformation",
             name="statutecitation",
             field=models.TextField(
-                verbose_name=b"Statute citation", db_column=b"statuteCitation"
+                verbose_name="Statute citation", db_column="statuteCitation"
             ),
             preserve_default=True,
         ),
@@ -379,10 +378,10 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformation",
             name="statutedeterminationdate",
             field=models.TextField(
-                help_text=b"Use ISO 8061 (YYYY-MM-DD)",
+                help_text="Use ISO 8061 (YYYY-MM-DD)",
                 null=True,
-                verbose_name=b"Statute determination date",
-                db_column=b"statuteInformationDeterminationDate",
+                verbose_name="Statute determination date",
+                db_column="statuteInformationDeterminationDate",
                 blank=True,
             ),
             preserve_default=True,
@@ -391,7 +390,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformation",
             name="statutejurisdiction",
             field=models.TextField(
-                verbose_name=b"Statute jurisdiction", db_column=b"statuteJurisdiction"
+                verbose_name="Statute jurisdiction", db_column="statuteJurisdiction"
             ),
             preserve_default=True,
         ),
@@ -399,7 +398,7 @@ class Migration(migrations.Migration):
             model_name="rightsstatementstatuteinformationnote",
             name="statutenote",
             field=models.TextField(
-                verbose_name=b"Statute note", db_column=b"statuteNote"
+                verbose_name="Statute note", db_column="statuteNote"
             ),
             preserve_default=True,
         ),

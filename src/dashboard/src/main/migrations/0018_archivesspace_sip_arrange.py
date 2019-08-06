@@ -29,13 +29,13 @@ class Migration(migrations.Migration):
                     "started",
                     models.BooleanField(
                         default=False,
-                        help_text=b"Whether or not a SIP has been started using files in this digital object.",
+                        help_text="Whether or not a SIP has been started using files in this digital object.",
                     ),
                 ),
                 (
                     "remoteid",
                     models.CharField(
-                        help_text=b"ID in the remote ArchivesSpace system, after digital object has been created.",
+                        help_text="ID in the remote ArchivesSpace system, after digital object has been created.",
                         max_length=150,
                         blank=True,
                     ),
@@ -59,12 +59,12 @@ class Migration(migrations.Migration):
                 (
                     "system",
                     models.CharField(
-                        default=b"atom",
+                        default="atom",
                         max_length=255,
                         choices=[
-                            (b"archivesspace", b"ArchivesSpace"),
-                            (b"atk", b"Archivist's Toolkit"),
-                            (b"atom", b"AtoM"),
+                            ("archivesspace", "ArchivesSpace"),
+                            ("atk", "Archivist's Toolkit"),
+                            ("atom", "AtoM"),
                         ],
                     ),
                 ),

@@ -15,15 +15,13 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.AutoField(
-                        serialize=False, primary_key=True, db_column=b"pk"
-                    ),
+                    models.AutoField(serialize=False, primary_key=True, db_column="pk"),
                 ),
-                ("dipuuid", models.CharField(max_length=50, db_column=b"dipUUID")),
-                ("fileuuid", models.CharField(max_length=50, db_column=b"fileUUID")),
+                ("dipuuid", models.CharField(max_length=50, db_column="dipUUID")),
+                ("fileuuid", models.CharField(max_length=50, db_column="fileUUID")),
                 (
                     "resourceid",
-                    models.CharField(max_length=150, db_column=b"resourceId"),
+                    models.CharField(max_length=150, db_column="resourceId"),
                 ),
             ],
             options={

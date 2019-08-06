@@ -14,13 +14,13 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightstatus",
             field=models.TextField(
-                default=b"unknown",
-                verbose_name=b"Copyright status",
-                db_column=b"copyrightStatus",
+                default="unknown",
+                verbose_name="Copyright status",
+                db_column="copyrightStatus",
                 choices=[
-                    (b"copyrighted", b"copyrighted"),
-                    (b"public domain", b"public domain"),
-                    (b"unknown", b"unknown"),
+                    ("copyrighted", "copyrighted"),
+                    ("public domain", "public domain"),
+                    ("unknown", "unknown"),
                 ],
             ),
         )

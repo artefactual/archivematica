@@ -26,9 +26,9 @@ class Migration(migrations.Migration):
             model_name="siparrangeaccessmapping",
             name="system",
             field=models.CharField(
-                default=b"atom",
+                default="atom",
                 max_length=255,
-                choices=[(b"archivesspace", b"ArchivesSpace"), (b"atom", b"AtoM")],
+                choices=[("archivesspace", "ArchivesSpace"), ("atom", "AtoM")],
             ),
         ),
     ]

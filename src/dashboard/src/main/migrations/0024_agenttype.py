@@ -14,10 +14,10 @@ class Migration(migrations.Migration):
             model_name="agent",
             name="agenttype",
             field=models.TextField(
-                default=b"organization",
-                help_text=b"Used for premis:agentType in the METS file.",
-                verbose_name=b"Agent Type",
-                db_column=b"agentType",
+                default="organization",
+                help_text="Used for premis:agentType in the METS file.",
+                verbose_name="Agent Type",
+                db_column="agentType",
             ),
         )
     ]

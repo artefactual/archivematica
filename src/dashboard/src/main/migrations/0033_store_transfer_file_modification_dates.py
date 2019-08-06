@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
             model_name="file",
             name="modificationtime",
             field=models.DateTimeField(
-                auto_now_add=True, null=True, db_column=b"modificationTime"
+                auto_now_add=True, null=True, db_column="modificationTime"
             ),
         ),
         migrations.RunPython(data_migration),

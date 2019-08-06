@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                     "id",
                     main.models.UUIDPkField(
                         primary_key=True,
-                        db_column=b"pk",
+                        db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                     "id",
                     main.models.UUIDPkField(
                         primary_key=True,
-                        db_column=b"pk",
+                        db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,

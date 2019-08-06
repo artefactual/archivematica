@@ -25,15 +25,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="file",
             name="checksumtype",
-            field=models.CharField(
-                max_length=36, db_column=b"checksumType", blank=True
-            ),
+            field=models.CharField(max_length=36, db_column="checksumType", blank=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="file",
             name="checksum",
-            field=models.CharField(max_length=128, db_column=b"checksum", blank=True),
+            field=models.CharField(max_length=128, db_column="checksum", blank=True),
             preserve_default=True,
         ),
         migrations.RunPython(data_migration),

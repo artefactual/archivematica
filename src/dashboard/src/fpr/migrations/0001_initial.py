@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                         max_length=36,
                         serialize=False,
                         primary_key=True,
-                        db_column=b"uuid",
+                        db_column="uuid",
                     ),
                 ),
                 ("agentIdentifierType", models.CharField(max_length=100)),
@@ -39,10 +39,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
                 ("commandUsage", models.CharField(max_length=15)),
@@ -51,31 +48,29 @@ class Migration(migrations.Migration):
                 ("eventDetailCommand", models.CharField(max_length=36, null=True)),
                 (
                     "supportedBy",
-                    models.CharField(
-                        max_length=36, null=True, db_column=b"supportedBy"
-                    ),
+                    models.CharField(max_length=36, null=True, db_column="supportedBy"),
                 ),
-                ("command", models.TextField(db_column=b"command")),
+                ("command", models.TextField(db_column="command")),
                 (
                     "outputLocation",
-                    models.TextField(null=True, db_column=b"outputLocation"),
+                    models.TextField(null=True, db_column="outputLocation"),
                 ),
-                ("description", models.TextField(db_column=b"description")),
+                ("description", models.TextField(db_column="description")),
                 (
                     "outputFileFormat",
-                    models.TextField(null=True, db_column=b"outputFileFormat"),
+                    models.TextField(null=True, db_column="outputFileFormat"),
                 ),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
                 (
                     "lastmodified",
-                    models.DateTimeField(null=True, db_column=b"lastModified"),
+                    models.DateTimeField(null=True, db_column="lastModified"),
                 ),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "Command"},
@@ -87,24 +82,21 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
                 (
                     "classification",
-                    models.TextField(null=True, db_column=b"classification"),
+                    models.TextField(null=True, db_column="classification"),
                 ),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "CommandClassification"},
@@ -116,20 +108,17 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
                 ("commandClassification", models.CharField(max_length=36)),
                 ("command", models.CharField(max_length=36, null=True)),
                 ("fileID", models.CharField(max_length=36, null=True)),
                 ("replaces", models.CharField(max_length=36, null=True)),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "CommandRelationship"},
@@ -141,21 +130,18 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
-                ("description", models.TextField(null=True, db_column=b"description")),
+                ("description", models.TextField(null=True, db_column="description")),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "CommandsSupportedBy"},
@@ -167,21 +153,18 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("type", models.TextField(db_column=b"type")),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("type", models.TextField(db_column="type")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "CommandType"},
@@ -193,39 +176,36 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
-                ("description", models.TextField(db_column=b"description")),
+                ("description", models.TextField(db_column="description")),
                 (
                     "validpreservationformat",
                     models.IntegerField(
-                        default=0, null=True, db_column=b"validPreservationFormat"
+                        default=0, null=True, db_column="validPreservationFormat"
                     ),
                 ),
                 (
                     "validaccessformat",
                     models.IntegerField(
-                        default=0, null=True, db_column=b"validAccessFormat"
+                        default=0, null=True, db_column="validAccessFormat"
                     ),
                 ),
                 (
                     "fileidtype",
                     models.CharField(
-                        max_length=36, null=True, db_column=b"fileidtype_id"
+                        max_length=36, null=True, db_column="fileidtype_id"
                     ),
                 ),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "FileID"},
@@ -237,24 +217,21 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
                 ("fileID", models.CharField(max_length=36, null=True)),
-                ("id", models.TextField(db_column=b"id")),
-                ("tool", models.TextField(db_column=b"tool")),
-                ("toolVersion", models.TextField(null=True, db_column=b"toolVersion")),
+                ("id", models.TextField(db_column="id")),
+                ("tool", models.TextField(db_column="tool")),
+                ("toolVersion", models.TextField(null=True, db_column="toolVersion")),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "FileIDsBySingleID"},
@@ -266,21 +243,18 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     models.CharField(
-                        max_length=36,
-                        serialize=False,
-                        primary_key=True,
-                        db_column=b"pk",
+                        max_length=36, serialize=False, primary_key=True, db_column="pk"
                     ),
                 ),
-                ("description", models.TextField(null=True, db_column=b"description")),
+                ("description", models.TextField(null=True, db_column="description")),
                 (
                     "replaces",
-                    models.CharField(max_length=36, null=True, db_column=b"replaces"),
+                    models.CharField(max_length=36, null=True, db_column="replaces"),
                 ),
-                ("lastmodified", models.DateTimeField(db_column=b"lastModified")),
+                ("lastmodified", models.DateTimeField(db_column="lastModified")),
                 (
                     "enabled",
-                    models.IntegerField(default=1, null=True, db_column=b"enabled"),
+                    models.IntegerField(default=1, null=True, db_column="enabled"),
                 ),
             ],
             options={"db_table": "FileIDType"},
@@ -301,7 +275,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -310,9 +284,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(
-                        help_text=b"Common name of format", max_length=128
-                    ),
+                    models.CharField(help_text="Common name of format", max_length=128),
                 ),
                 ("slug", autoslug.fields.AutoSlugField(editable=False)),
             ],
@@ -334,7 +306,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -343,7 +315,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(max_length=128, verbose_name=b"Format Group"),
+                    models.CharField(max_length=128, verbose_name="Format Group"),
                 ),
                 ("slug", autoslug.fields.AutoSlugField(editable=False)),
             ],
@@ -367,7 +339,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -379,7 +351,7 @@ class Migration(migrations.Migration):
                 (
                     "description",
                     models.CharField(
-                        help_text=b"Formal name to go in the METS file.",
+                        help_text="Formal name to go in the METS file.",
                         max_length=128,
                         null=True,
                         blank=True,
@@ -392,7 +364,7 @@ class Migration(migrations.Migration):
                     "format",
                     models.ForeignKey(
                         related_name="version_set",
-                        to_field=b"uuid",
+                        to_field="uuid",
                         to="fpr.Format",
                         null=True,
                     ),
@@ -400,7 +372,7 @@ class Migration(migrations.Migration):
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.FormatVersion", null=True
+                        to_field="uuid", blank=True, to="fpr.FormatVersion", null=True
                     ),
                 ),
             ],
@@ -427,7 +399,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -441,10 +413,10 @@ class Migration(migrations.Migration):
                     models.CharField(
                         max_length=16,
                         choices=[
-                            (b"bashScript", b"Bash Script"),
-                            (b"pythonScript", b"Python Script"),
-                            (b"command", b"Command Line"),
-                            (b"as_is", b"No shebang (#!/path/to/interpreter) needed"),
+                            ("bashScript", "Bash Script"),
+                            ("pythonScript", "Python Script"),
+                            ("command", "Command Line"),
+                            ("as_is", "No shebang (#!/path/to/interpreter) needed"),
                         ],
                     ),
                 ),
@@ -454,13 +426,13 @@ class Migration(migrations.Migration):
                     models.CharField(
                         max_length=16,
                         choices=[
-                            (b"characterization", b"Characterization"),
-                            (b"event_detail", b"Event Detail"),
-                            (b"extraction", b"Extraction"),
-                            (b"normalization", b"Normalization"),
-                            (b"transcription", b"Transcription"),
-                            (b"validation", b"Validation"),
-                            (b"verification", b"Verification"),
+                            ("characterization", "Characterization"),
+                            ("event_detail", "Event Detail"),
+                            ("extraction", "Extraction"),
+                            ("normalization", "Normalization"),
+                            ("transcription", "Transcription"),
+                            ("validation", "Validation"),
+                            ("verification", "Verification"),
                         ],
                     ),
                 ),
@@ -468,7 +440,7 @@ class Migration(migrations.Migration):
                     "event_detail_command",
                     models.ForeignKey(
                         related_name="+",
-                        to_field=b"uuid",
+                        to_field="uuid",
                         blank=True,
                         to="fpr.FPCommand",
                         null=True,
@@ -477,13 +449,13 @@ class Migration(migrations.Migration):
                 (
                     "output_format",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.FormatVersion", null=True
+                        to_field="uuid", blank=True, to="fpr.FormatVersion", null=True
                     ),
                 ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.FPCommand", null=True
+                        to_field="uuid", blank=True, to="fpr.FPCommand", null=True
                     ),
                 ),
             ],
@@ -510,7 +482,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -522,28 +494,28 @@ class Migration(migrations.Migration):
                     models.CharField(
                         max_length=32,
                         choices=[
-                            (b"access", b"Access"),
-                            (b"characterization", b"Characterization"),
-                            (b"extract", b"Extract"),
-                            (b"preservation", b"Preservation"),
-                            (b"thumbnail", b"Thumbnail"),
-                            (b"transcription", b"Transcription"),
-                            (b"validation", b"Validation"),
-                            (b"default_access", b"Default Access"),
-                            (b"default_characterization", b"Default Characterization"),
-                            (b"default_thumbnail", b"Default Thumbnail"),
+                            ("access", "Access"),
+                            ("characterization", "Characterization"),
+                            ("extract", "Extract"),
+                            ("preservation", "Preservation"),
+                            ("thumbnail", "Thumbnail"),
+                            ("transcription", "Transcription"),
+                            ("validation", "Validation"),
+                            ("default_access", "Default Access"),
+                            ("default_characterization", "Default Characterization"),
+                            ("default_thumbnail", "Default Thumbnail"),
                         ],
                     ),
                 ),
                 ("count_attempts", models.IntegerField(default=0)),
                 ("count_okay", models.IntegerField(default=0)),
                 ("count_not_okay", models.IntegerField(default=0)),
-                ("command", models.ForeignKey(to="fpr.FPCommand", to_field=b"uuid")),
-                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field=b"uuid")),
+                ("command", models.ForeignKey(to="fpr.FPCommand", to_field="uuid")),
+                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field="uuid")),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.FPRule", null=True
+                        to_field="uuid", blank=True, to="fpr.FPRule", null=True
                     ),
                 ),
             ],
@@ -565,7 +537,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -574,7 +546,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(help_text=b"Name of tool", max_length=256),
+                    models.CharField(help_text="Name of tool", max_length=256),
                 ),
                 ("version", models.CharField(max_length=64)),
                 ("enabled", models.BooleanField(default=True)),
@@ -600,7 +572,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -610,9 +582,9 @@ class Migration(migrations.Migration):
                 (
                     "description",
                     models.CharField(
-                        help_text=b"Name to identify script",
+                        help_text="Name to identify script",
                         max_length=256,
-                        verbose_name=b"Identifier",
+                        verbose_name="Identifier",
                     ),
                 ),
                 (
@@ -620,29 +592,29 @@ class Migration(migrations.Migration):
                     models.CharField(
                         max_length=4,
                         choices=[
-                            (b"PUID", b"PUID"),
-                            (b"MIME", b"mime-type"),
-                            (b"ext", b"file extension"),
+                            ("PUID", "PUID"),
+                            ("MIME", "mime-type"),
+                            ("ext", "file extension"),
                         ],
                     ),
                 ),
-                ("script", models.TextField(help_text=b"Script to be executed.")),
+                ("script", models.TextField(help_text="Script to be executed.")),
                 (
                     "script_type",
                     models.CharField(
                         max_length=16,
                         choices=[
-                            (b"bashScript", b"Bash Script"),
-                            (b"pythonScript", b"Python Script"),
-                            (b"command", b"Command Line"),
-                            (b"as_is", b"No shebang (#!/path/to/interpreter) needed"),
+                            ("bashScript", "Bash Script"),
+                            ("pythonScript", "Python Script"),
+                            ("command", "Command Line"),
+                            ("as_is", "No shebang (#!/path/to/interpreter) needed"),
                         ],
                     ),
                 ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.IDCommand", null=True
+                        to_field="uuid", blank=True, to="fpr.IDCommand", null=True
                     ),
                 ),
             ],
@@ -669,7 +641,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -677,12 +649,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("command_output", models.TextField()),
-                ("command", models.ForeignKey(to="fpr.IDCommand", to_field=b"uuid")),
-                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field=b"uuid")),
+                ("command", models.ForeignKey(to="fpr.IDCommand", to_field="uuid")),
+                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field="uuid")),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field=b"uuid", blank=True, to="fpr.IDRule", null=True
+                        to_field="uuid", blank=True, to="fpr.IDRule", null=True
                     ),
                 ),
             ],
@@ -704,7 +676,7 @@ class Migration(migrations.Migration):
                 (
                     "uuid",
                     django_extensions.db.fields.UUIDField(
-                        help_text=b"Unique identifier",
+                        help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
@@ -713,7 +685,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(help_text=b"Name of tool", max_length=256),
+                    models.CharField(help_text="Name of tool", max_length=256),
                 ),
                 ("version", models.CharField(max_length=64)),
                 ("enabled", models.BooleanField(default=True)),
@@ -726,14 +698,14 @@ class Migration(migrations.Migration):
             model_name="idcommand",
             name="tool",
             field=models.ForeignKey(
-                to_field=b"uuid", blank=True, to="fpr.IDTool", null=True
+                to_field="uuid", blank=True, to="fpr.IDTool", null=True
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="fpcommand",
             name="tool",
-            field=models.ForeignKey(to="fpr.FPTool", to_field=b"uuid", null=True),
+            field=models.ForeignKey(to="fpr.FPTool", to_field="uuid", null=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -741,7 +713,7 @@ class Migration(migrations.Migration):
             name="verification_command",
             field=models.ForeignKey(
                 related_name="+",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
@@ -751,15 +723,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="format",
             name="group",
-            field=models.ForeignKey(to="fpr.FormatGroup", to_field=b"uuid", null=True),
+            field=models.ForeignKey(to="fpr.FormatGroup", to_field="uuid", null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="fileid",
             name="format",
-            field=models.ForeignKey(
-                to="fpr.FormatVersion", to_field=b"uuid", null=True
-            ),
+            field=models.ForeignKey(to="fpr.FormatVersion", to_field="uuid", null=True),
             preserve_default=True,
         ),
     ]

@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             name="currentstep",
             field=models.IntegerField(
                 default=0,
-                db_column=b"currentStep",
+                db_column="currentStep",
                 choices=[
                     (0, "Unknown"),
                     (1, "Awaiting decision"),

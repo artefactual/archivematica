@@ -86,17 +86,17 @@ class Migration(migrations.Migration):
     dependencies = [("fpr", "0011_mediaconch_validation")]
 
     FPRULE_CHOICES = [
-        (b"access", "Access"),
-        (b"characterization", "Characterization"),
-        (b"extract", "Extract"),
-        (b"preservation", "Preservation"),
-        (b"thumbnail", "Thumbnail"),
-        (b"transcription", "Transcription"),
-        (b"validation", "Validation"),
-        (b"policy_check", "Validation against a policy"),
-        (b"default_access", "Default access"),
-        (b"default_characterization", "Default characterization"),
-        (b"default_thumbnail", "Default thumbnail"),
+        ("access", "Access"),
+        ("characterization", "Characterization"),
+        ("extract", "Extract"),
+        ("preservation", "Preservation"),
+        ("thumbnail", "Thumbnail"),
+        ("transcription", "Transcription"),
+        ("validation", "Validation"),
+        ("policy_check", "Validation against a policy"),
+        ("default_access", "Default access"),
+        ("default_characterization", "Default characterization"),
+        ("default_thumbnail", "Default thumbnail"),
     ]
 
     operations = [

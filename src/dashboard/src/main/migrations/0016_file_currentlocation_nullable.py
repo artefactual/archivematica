@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="file",
             name="currentlocation",
-            field=models.TextField(null=True, db_column=b"currentLocation"),
+            field=models.TextField(null=True, db_column="currentLocation"),
             preserve_default=True,
         )
     ]

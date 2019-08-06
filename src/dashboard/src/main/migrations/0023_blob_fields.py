@@ -15,13 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="file",
             name="currentlocation",
-            field=main.models.BlobTextField(null=True, db_column=b"currentLocation"),
+            field=main.models.BlobTextField(null=True, db_column="currentLocation"),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="file",
             name="originallocation",
-            field=main.models.BlobTextField(db_column=b"originalLocation"),
+            field=main.models.BlobTextField(db_column="originalLocation"),
             preserve_default=True,
         ),
     ]

@@ -6,6 +6,7 @@
 from __future__ import unicode_literals
 
 from __future__ import absolute_import
+
 try:
     from six.moves.urllib.parse import urlparse
 except ImportError:
