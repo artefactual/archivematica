@@ -32,7 +32,6 @@ filelock==3.0.10          # via tox
 funcparserlib==0.3.6      # via mockldap
 funcsigs==1.0.2           # via mock, pytest
 future==0.17.1
-futures==3.2.0
 gearman==2.0.2
 gevent==1.3.6
 greenlet==0.4.15
