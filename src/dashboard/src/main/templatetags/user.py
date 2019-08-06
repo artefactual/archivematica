@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import cPickle
+from __future__ import absolute_import
+import six.moves.cPickle
 import logging
 
 from django.conf import settings
@@ -112,7 +113,7 @@ class MCPClient(object):
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             ability,
-            cPickle.dumps(data),
+            six.moves.cPickle.dumps(data),
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -122,7 +123,7 @@ class MCPClient(object):
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
             raise RPCError("%s failed (check the logs)".format(ability))
-        payload = cPickle.loads(response.result)
+        payload = six.moves.cPickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)
         return payload
@@ -135,7 +136,7 @@ class MCPClient(object):
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job("approveJob", cPickle.dumps(data), None)
+        gm_client.submit_job("approveJob", six.moves.cPickle.dumps(data), None)
         gm_client.shutdown()
         return
 
@@ -160,7 +161,7 @@ class MCPClient(object):
             "getJobsAwaitingApproval", "", None
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
-            return cPickle.loads(completed_job_request.result)
+            return six.moves.cPickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 

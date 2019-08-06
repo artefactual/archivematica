@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import base64
 import errno
 import os
@@ -38,6 +39,8 @@ import archivematicaFunctions
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
+from six.moves import map
+from six.moves import zip
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -105,8 +108,8 @@ def _prepare_browse_response(response):
                 prop["size"]
             )
 
-    response["entries"] = map(base64.b64encode, response["entries"])
-    response["directories"] = map(base64.b64encode, response["directories"])
+    response["entries"] = list(map(base64.b64encode, response["entries"]))
+    response["directories"] = list(map(base64.b64encode, response["directories"]))
     response["properties"] = {
         base64.b64encode(k): v for k, v in response.get("properties", {}).items()
     }
@@ -361,7 +364,7 @@ def _source_transfers_gave_uuids_to_directories(files):
     directories. If ``True`` is returned, we assign new UUIDs to all
     directories in the arranged SIP.
     """
-    file_uuids = filter(None, [file_.get("uuid") for file_ in files])
+    file_uuids = [_f for _f in [file_.get("uuid") for file_ in files] if _f]
     return models.Transfer.objects.filter(
         file__uuid__in=file_uuids, diruuids=True
     ).exists()
@@ -626,7 +629,7 @@ def create_directory_within_arrange(request):
     """
     error = None
 
-    paths = map(base64.b64decode, request.POST.getlist("paths[]", []))
+    paths = list(map(base64.b64decode, request.POST.getlist("paths[]", [])))
 
     if paths:
         try:
@@ -851,9 +854,11 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     if sources is None or destinations is None:
         # List of sources & destinations
         if "filepath[]" in request.POST or "destination[]" in request.POST:
-            sources = map(base64.b64decode, request.POST.getlist("filepath[]", []))
-            destinations = map(
-                base64.b64decode, request.POST.getlist("destination[]", [])
+            sources = list(
+                map(base64.b64decode, request.POST.getlist("filepath[]", []))
+            )
+            destinations = list(
+                map(base64.b64decode, request.POST.getlist("destination[]", []))
             )
         # Single path representing tree
         else:

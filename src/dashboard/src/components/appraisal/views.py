@@ -1,4 +1,5 @@
 # Standard library, alphabetical by import source
+from __future__ import absolute_import
 import logging
 
 # Django Core, alphabetical by import source

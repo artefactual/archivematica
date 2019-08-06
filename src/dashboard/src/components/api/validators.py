@@ -12,6 +12,7 @@ does not pass. The exception may include a message with more details.
 New validators must be added to the `` _VALIDATORS`` registry.
 """
 
+from __future__ import absolute_import
 import collections
 import csv
 from io import BytesIO
@@ -95,7 +96,7 @@ class AvalonValidator(BaseValidator):
             "Physical Description",
             "Terms of Use",
         ]
-        collected_headers = collections.Counter(row).items()
+        collected_headers = list(collections.Counter(row).items())
         repeated_headers = [k for k, v in collected_headers if v > 1]
 
         for x in row:
@@ -242,7 +243,7 @@ _VALIDATORS = {"avalon": AvalonValidator}
 
 class ValidatorNotAvailableError(ValueError):
     default = "Unknown validator. Accepted values: {}".format(
-        ",".join(_VALIDATORS.keys())
+        ",".join(list(_VALIDATORS.keys()))
     )
 
     def __init__(self, *args, **kwargs):

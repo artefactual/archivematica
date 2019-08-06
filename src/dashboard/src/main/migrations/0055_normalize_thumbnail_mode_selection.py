@@ -7,6 +7,7 @@ given file type.
 """
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 from dateutil.parser import parse as parse_date
 from django.db.models.functions import Concat

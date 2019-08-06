@@ -19,6 +19,7 @@ normally for a standard transfer type.
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 # We can't use apps.get_model for this model as we need to access class

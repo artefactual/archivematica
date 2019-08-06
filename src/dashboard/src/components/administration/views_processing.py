@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import absolute_import
 import os
 import re
 from glob import iglob

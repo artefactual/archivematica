@@ -5,6 +5,7 @@ there is a likelihood of other errors.
 """
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 

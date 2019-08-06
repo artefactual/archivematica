@@ -20,6 +20,7 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 
 # stdlib, alphabetical by import source
+from __future__ import absolute_import
 import logging
 import re
 

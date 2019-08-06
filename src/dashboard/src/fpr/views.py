@@ -1,6 +1,7 @@
 # stdlib, alphabetical
 
 # Django core, alphabetical
+from __future__ import absolute_import
 from django.apps import apps
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages

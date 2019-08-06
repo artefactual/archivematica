@@ -1,6 +1,7 @@
 # Documentation: http://docs.gunicorn.org/en/stable/configure.html
 # Example: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
 
+from __future__ import absolute_import
 import os
 
 # http://docs.gunicorn.org/en/stable/settings.html#user

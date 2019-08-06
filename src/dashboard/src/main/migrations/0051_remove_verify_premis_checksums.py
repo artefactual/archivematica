@@ -7,6 +7,7 @@ https://github.com/artefactual/archivematica/issues/918.
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 

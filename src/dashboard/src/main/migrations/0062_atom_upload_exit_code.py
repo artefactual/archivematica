@@ -5,6 +5,7 @@ DIP upload`` link is marked as completed successfully when the exit code is
 """
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 from main.models import Job

@@ -16,15 +16,16 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # Standard library, alphabetical by import source
+from __future__ import absolute_import
 import base64
-import cPickle
+import six.moves.cPickle
 import json
 import logging
 import os
 import re
 import requests
 import shutil
-from urlparse import urljoin
+from six.moves.urllib.parse import urljoin
 import uuid
 
 # Django Core, alphabetical by import source
@@ -312,14 +313,14 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = cPickle.dumps({"target": request.POST["target"]})
+            access.target = six.moves.cPickle.dumps({"target": request.POST["target"]})
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)
     elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = cPickle.loads(str(access.target))
+            data = six.moves.cPickle.loads(str(access.target))
         except:
             raise Http404
         return helpers.json_response(data)

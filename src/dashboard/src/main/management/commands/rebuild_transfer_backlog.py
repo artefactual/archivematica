@@ -16,6 +16,8 @@ Copied from https://git.io/vN6v6.
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
+from __future__ import print_function
 import multiprocessing
 import logging
 import os

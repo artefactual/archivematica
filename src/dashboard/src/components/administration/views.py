@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import collections
 import logging
 import os
@@ -512,7 +513,7 @@ def general(request):
     )
 
     forms = (general_form, storage_form, checksum_form)
-    if all(map(lambda form: form.is_valid(), forms)):
+    if all([form.is_valid() for form in forms]):
         for item in forms:
             item.save()
         messages.info(request, _("Saved."))

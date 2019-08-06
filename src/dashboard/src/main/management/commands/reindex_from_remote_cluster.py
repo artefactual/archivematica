@@ -14,6 +14,7 @@ Execution example:
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import json
 import sys
 from django.conf import settings

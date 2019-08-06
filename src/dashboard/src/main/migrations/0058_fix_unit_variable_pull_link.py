@@ -5,6 +5,7 @@ selected." chain link to exit with the successful status."""
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 # Can't use apps.get_model for this model as we need to access class attributes.

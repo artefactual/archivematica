@@ -1,4 +1,5 @@
 # Standard library, alphabetical by import source
+from __future__ import absolute_import
 import base64
 from functools import wraps
 import json

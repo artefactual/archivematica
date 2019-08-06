@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import division
 
+from __future__ import absolute_import
 import os
 from lxml import etree
 

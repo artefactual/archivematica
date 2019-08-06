@@ -4,6 +4,7 @@ methods that does not use compression. 7-zip copy mode.
 """
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from django.db import migrations
 
 choice_no_compression_uuid = "e3906da0-41fb-4cb8-a598-6c73981b63e9"

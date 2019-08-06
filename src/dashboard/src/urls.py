@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 from django.conf.urls import url, include
 from django.conf import settings
 

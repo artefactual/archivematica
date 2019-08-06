@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # stdlib, alphabetical
+from __future__ import absolute_import
 import base64
 from cgi import parse_header
 import json

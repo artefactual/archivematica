@@ -2,6 +2,7 @@
 """Allow JHOVE bytestream to convey partial pass message instead of fail."""
 
 from __future__ import unicode_literals
+from __future__ import absolute_import
 from django.db import migrations
 
 JHOVE_TOOL_UUID = "085d8690-93b7-4d31-84f7-2c5f4cbf6735"

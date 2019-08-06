@@ -9,6 +9,7 @@ This module does not use the ``__`` notation for accessors offered by
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 import six
 
 from components.helpers import get_metadata_type_id_by_description

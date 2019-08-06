@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 from django.shortcuts import render_to_response
 from django.http import Http404
 from django.utils.functional import wraps

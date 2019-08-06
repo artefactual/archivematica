@@ -1,4 +1,5 @@
 # Standard library, alphabetical by import source
+from __future__ import absolute_import
 import json
 import logging
 import os
@@ -16,6 +17,7 @@ from main import models
 
 import elasticSearchFunctions
 import storageService as storage_service
+from six.moves import zip
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -184,7 +186,7 @@ def bulk_extractor(request, fileuuid):
 def _parse_bulk_extractor_report(data):
     headers = ["offset", "content", "context"]
     return [
-        dict(zip(headers, l.split("\t")))
+        dict(list(zip(headers, l.split("\t"))))
         for l in data.splitlines()
         if not l.startswith("#")
     ]

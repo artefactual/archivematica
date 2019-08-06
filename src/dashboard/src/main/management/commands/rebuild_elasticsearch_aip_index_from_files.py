@@ -28,6 +28,7 @@ should not be used if there are AIPs stored that are not locally accessible.
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import shutil
 import os
 import re

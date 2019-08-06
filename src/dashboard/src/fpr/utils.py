@@ -1,4 +1,5 @@
 # Django core, alphabetical
+from __future__ import absolute_import
 from django.contrib import messages
 from django.db import models
 from django.utils.translation import ugettext as _

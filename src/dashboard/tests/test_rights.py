@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from metsrw.plugins import premisrw
 import pytest
 import uuid

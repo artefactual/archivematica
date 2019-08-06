@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import base64
 import json
 
@@ -135,7 +136,7 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
         assert resp.content == json.dumps(
             {
                 "message": "Unknown validator. Accepted values: {}".format(
-                    ",".join(validators._VALIDATORS.keys())
+                    ",".join(list(validators._VALIDATORS.keys()))
                 ),
                 "error": True,
             }
