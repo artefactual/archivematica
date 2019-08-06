@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Stop using sudo in the `Transcoding to plain svg with inkscape` command."""
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

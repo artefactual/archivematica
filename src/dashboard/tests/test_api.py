@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import datetime
 import json
 import os
@@ -13,6 +16,7 @@ from django.utils.timezone import make_aware
 from lxml import etree
 import pytest
 
+from archivematicaFunctions import b64encode_string
 from components.api import views
 from components import helpers
 from main.models import Job, SIP, Task, Transfer
@@ -42,7 +46,7 @@ class TestAPI(TestCase):
     fixtures = ["transfer", "sip"]
 
     def _test_api_error(self, response, message=None, status_code=None):
-        payload = json.loads(response.content)
+        payload = json.loads(response.content.decode("utf8"))
         assert payload["error"] is True
         if message is not None:
             assert payload["message"] == message
@@ -206,7 +210,7 @@ class TestAPI(TestCase):
             "/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert payload["status"] == "COMPLETE"
         assert payload["type"] == "transfer"
         assert payload["uuid"] == "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
@@ -247,7 +251,7 @@ class TestAPI(TestCase):
         load_fixture(["jobs-transfer-complete"])
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
             "message": "Fetched completed transfers successfully.",
             "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
@@ -260,7 +264,7 @@ class TestAPI(TestCase):
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         resp = self.client.get("/api/transfer/completed")
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
             "message": "Fetched completed transfers successfully.",
             "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
@@ -271,7 +275,7 @@ class TestAPI(TestCase):
         load_fixture(["jobs-sip-complete"])
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
             "message": "Fetched completed ingests successfully.",
             "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
@@ -284,7 +288,7 @@ class TestAPI(TestCase):
         SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
         resp = self.client.get("/api/ingest/completed")
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
             "message": "Fetched completed ingests successfully.",
             "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
@@ -315,7 +319,7 @@ class TestAPI(TestCase):
         )
         resp = self.client.get("/api/v2beta/jobs/{}".format(sip_uuid))
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         # payload contains a mapping for each job
         assert len(payload) == 5
         expected_job_uuids = [
@@ -347,7 +351,7 @@ class TestAPI(TestCase):
             "/api/v2beta/jobs/{}?microservice={}".format(sip_uuid, "Reject transfer")
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert len(payload) == 1
         job = payload[0]
         assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
@@ -363,7 +367,7 @@ class TestAPI(TestCase):
             )
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert len(payload) == 1
         job = payload[0]
         assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
@@ -385,7 +389,7 @@ class TestAPI(TestCase):
             )
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert len(payload) == 1
         job = payload[0]
         assert job["uuid"] == "59ace00b-4830-4314-a7d9-38fdbef64896"
@@ -405,7 +409,7 @@ class TestAPI(TestCase):
             )
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert len(payload) == 1
         job = payload[0]
         assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
@@ -421,7 +425,7 @@ class TestAPI(TestCase):
             )
         )
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         assert len(payload) == 1
         job = payload[0]
         assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
@@ -450,7 +454,7 @@ class TestAPI(TestCase):
         )
         resp = self.client.get("/api/v2beta/task/12345678-1234-1234-1234-123456789012")
         assert resp.status_code == 200
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode("utf8"))
         # payload is a mapping of task attributes
         assert payload["uuid"] == "12345678-1234-1234-1234-123456789012"
         assert payload["exit_code"] == 0
@@ -534,7 +538,6 @@ class TestAPI2(TestCase):
         completed = helpers.completed_units_efficient(
             unit_type="transfer", include_failed=True
         )
-        print(completed)
         assert len(completed) == 3
         assert "85216028-1150-4321-abb3-31ea570a341b" in completed
         assert "5d0ab97f-a45b-4e0f-9cb6-90ee3a404549" in completed
@@ -563,7 +566,7 @@ def test_copy_metadata_files_api(mocker):
     request = mocker.Mock(
         **{
             "POST.get.return_value": sip_uuid,
-            "POST.getlist.return_value": ["locationuuid:/some/path".encode("base64")],
+            "POST.getlist.return_value": [b64encode_string("locationuuid:/some/path")],
             "method": "POST",
         }
     )

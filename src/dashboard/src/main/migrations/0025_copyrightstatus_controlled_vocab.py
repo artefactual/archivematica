@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 
@@ -13,13 +13,13 @@ class Migration(migrations.Migration):
             model_name="rightsstatementcopyright",
             name="copyrightstatus",
             field=models.TextField(
-                default=b"unknown",
-                verbose_name=b"Copyright status",
-                db_column=b"copyrightStatus",
+                default="unknown",
+                verbose_name="Copyright status",
+                db_column="copyrightStatus",
                 choices=[
-                    (b"copyrighted", b"copyrighted"),
-                    (b"public domain", b"public domain"),
-                    (b"unknown", b"unknown"),
+                    ("copyrighted", "copyrighted"),
+                    ("public domain", "public domain"),
+                    ("unknown", "unknown"),
                 ],
             ),
         )

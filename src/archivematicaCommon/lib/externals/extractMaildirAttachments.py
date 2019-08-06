@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # vim:fileencoding=utf8
 
 # Author Ian Lewis
@@ -7,18 +8,14 @@
 # Modification
 # Author Joseph Perry
 # date Aug 10 2010
+from __future__ import absolute_import, print_function
 
-from __future__ import print_function
 import email
 import sys
-
-# According to the original blogpost, StringIO was chosen over cStringIO because PIL
-# required native Python types.
-# TODO: Look at using cStringIO instead, as it's faster, and we're not using PIL
-from StringIO import StringIO
 import uuid
 
-from django.utils import six
+import six
+from six import StringIO
 
 
 def parse_attachment(message_part, state, attachments=None):

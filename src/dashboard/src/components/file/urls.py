@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from django.conf.urls import url
 from django.conf import settings
+
 from components.file import views
 
 urlpatterns = [

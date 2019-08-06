@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
+
 """Migrate the ArchivesSpace connection details.
 
 ``host`` and `port`` are replaced by ``base_url``.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.db import migrations
-
 
 _AS_DICTNAME = "upload-archivesspace_v0.0"
 
@@ -62,6 +59,7 @@ def _get_host_and_port(base_url):
     It is a losing game, only best effort.
     See ``test_migrations.py`` for to understand the behaviour.
     """
+    base_url = base_url or ""
     host, port = "", ""
     try:
         base_url = urlparse(base_url)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 
@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name="tool",
             field=models.ForeignKey(
                 verbose_name="the related tool",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.IDTool",
                 null=True,
             ),

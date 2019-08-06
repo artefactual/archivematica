@@ -3,7 +3,7 @@
 fails that the workflow doesn't continue to trudge along to completion where
 there is a likelihood of other errors.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

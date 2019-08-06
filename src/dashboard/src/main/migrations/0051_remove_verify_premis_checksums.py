@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 """Migration to remove the "Verify checksums generated on ingest" (Ingest)
 micro-service which is redundant. See
 https://github.com/artefactual/archivematica/issues/918.
 """
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

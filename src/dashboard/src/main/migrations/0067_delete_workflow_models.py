@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 import django_extensions.db.fields
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 max_length=36,
                 null=True,
                 editable=False,
-                db_column=b"MicroServiceChainLinksPK",
+                db_column="MicroServiceChainLinksPK",
                 blank=True,
             ),
         ),
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
                 max_length=36,
                 null=True,
                 editable=False,
-                db_column=b"microServiceChainLink",
+                db_column="microServiceChainLink",
                 blank=True,
             ),
         ),

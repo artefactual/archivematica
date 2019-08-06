@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 :mod:`fpr.models`
 
 Describes the data model for the FPR
 
 """
+from __future__ import absolute_import
+
 import logging
 
 from django.db import connection, models

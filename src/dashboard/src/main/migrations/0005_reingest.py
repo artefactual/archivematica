@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models, migrations
 
@@ -13,13 +13,13 @@ class Migration(migrations.Migration):
             model_name="dublincore",
             name="status",
             field=models.CharField(
-                default=b"ORIGINAL",
+                default="ORIGINAL",
                 max_length=8,
-                db_column=b"status",
+                db_column="status",
                 choices=[
-                    (b"ORIGINAL", b"original"),
-                    (b"REINGEST", b"parsed from reingest"),
-                    (b"UPDATED", b"updated"),
+                    ("ORIGINAL", "original"),
+                    ("REINGEST", "parsed from reingest"),
+                    ("UPDATED", "updated"),
                 ],
             ),
             preserve_default=True,
@@ -28,13 +28,13 @@ class Migration(migrations.Migration):
             model_name="rightsstatement",
             name="status",
             field=models.CharField(
-                default=b"ORIGINAL",
+                default="ORIGINAL",
                 max_length=8,
-                db_column=b"status",
+                db_column="status",
                 choices=[
-                    (b"ORIGINAL", b"original"),
-                    (b"REINGEST", b"parsed from reingest"),
-                    (b"UPDATED", b"updated"),
+                    ("ORIGINAL", "original"),
+                    ("REINGEST", "parsed from reingest"),
+                    ("UPDATED", "updated"),
                 ],
             ),
             preserve_default=True,
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                 default=None,
                 max_length=36,
                 null=True,
-                db_column=b"metadataAppliesToidentifier",
+                db_column="metadataAppliesToidentifier",
                 blank=True,
             ),
             preserve_default=True,
@@ -54,21 +54,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="sip",
             name="createdtime",
-            field=models.DateTimeField(auto_now_add=True, db_column=b"createdTime"),
+            field=models.DateTimeField(auto_now_add=True, db_column="createdTime"),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="sip",
             name="sip_type",
             field=models.CharField(
-                default=b"SIP",
+                default="SIP",
                 max_length=8,
-                db_column=b"sipType",
+                db_column="sipType",
                 choices=[
-                    (b"SIP", b"SIP"),
-                    (b"AIC", b"AIC"),
-                    (b"AIP-REIN", b"Reingested AIP"),
-                    (b"AIC-REIN", b"Reingested AIC"),
+                    ("SIP", "SIP"),
+                    ("AIC", "AIC"),
+                    ("AIP-REIN", "Reingested AIP"),
+                    ("AIC-REIN", "Reingested AIC"),
                 ],
             ),
             preserve_default=True,

@@ -1,9 +1,9 @@
-# Django core, alphabetical
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from django.contrib import messages
 from django.db import models
 from django.utils.translation import ugettext as _
-
-# External dependencies, alphabetical
 
 
 # ########## DEPENDENCIES ############

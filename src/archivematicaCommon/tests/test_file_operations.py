@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import pytest
 
 from fileOperations import get_extract_dir_name

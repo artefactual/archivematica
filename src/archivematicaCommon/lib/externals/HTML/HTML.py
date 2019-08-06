@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-# -*- coding: iso-8859-1 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 HTML.py - v0.04 2009-07-28 Philippe Lagadec
 
@@ -11,7 +11,8 @@ Project website: http://www.decalage.info/python/html
 License: CeCILL (open-source GPL compatible), see source code for details.
          http://www.cecill.info
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
+from six.moves import range
 
 __version__ = "0.04"
 __date__ = "2009-07-28"

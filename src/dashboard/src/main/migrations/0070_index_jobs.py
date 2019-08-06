@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 
@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="sipuuid",
-            field=models.CharField(max_length=36, db_column=b"SIPUUID", db_index=True),
+            field=models.CharField(max_length=36, db_column="SIPUUID", db_index=True),
         ),
         migrations.AlterIndexTogether(
             name="job",

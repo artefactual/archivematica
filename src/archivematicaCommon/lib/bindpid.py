@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """Bind PID. Command-line utility and module for requesting PID-binding against
 a Handle.net server.
@@ -131,16 +132,12 @@ Example::
         </soapenv:Body>
     </soapenv:Envelope>
 """
-
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 import argparse
-
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
 import os
+
+import six.moves.configparser as configparser
 
 try:
     from jinja2 import Template

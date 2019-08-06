@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models, migrations
+
 import main.models
 
 
@@ -36,15 +37,15 @@ class Migration(migrations.Migration):
                     "id",
                     main.models.UUIDPkField(
                         primary_key=True,
-                        db_column=b"pk",
+                        db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
                     ),
                 ),
-                ("name", models.CharField(max_length=b"1024")),
-                ("sortorder", models.IntegerField(default=0, db_column=b"sortOrder")),
+                ("name", models.CharField(max_length=1024)),
+                ("sortorder", models.IntegerField(default=0, db_column="sortOrder")),
             ],
             options={},
             bases=(models.Model,),

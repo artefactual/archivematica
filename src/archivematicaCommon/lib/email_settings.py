@@ -1,20 +1,18 @@
+# -*- coding: utf-8 -*-
 """
-
 Email settings and globals.
 
 The main setting is `EMAIL_BACKEND`, which defines which backend to use. Valid
 backends are:
 
-* Console: `django.core.mail.backends.console.EmailBackend`
-* Dummy: `django.core.mail.backends.dummy.EmailBackend`
-* File: `django.core.mail.backends.filebased.EmailBackend`
-* In-Memory: `django.core.mail.backends.locmem.EmailBackend`
-* SMTP: `django.core.mail.backends.smtp.EmailBackend`
+    * Console: `django.core.mail.backends.console.EmailBackend`
+    * Dummy: `django.core.mail.backends.dummy.EmailBackend`
+    * File: `django.core.mail.backends.filebased.EmailBackend`
+    * In-Memory: `django.core.mail.backends.locmem.EmailBackend`
+    * SMTP: `django.core.mail.backends.smtp.EmailBackend`
 
 By default, the Console backend will be used.
-
 """
-
 from __future__ import absolute_import
 
 CONFIG_MAPPING = {

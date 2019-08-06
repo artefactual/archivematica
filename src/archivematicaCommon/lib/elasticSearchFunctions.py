@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
@@ -18,10 +19,7 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
-
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import calendar
 import copy
@@ -34,7 +32,6 @@ import time
 from lxml import etree
 
 from django.db.models import Min, Q
-from django.utils.six.moves import xrange
 from main.models import File, Identifier, Transfer
 
 # archivematicaCommon
@@ -46,6 +43,8 @@ from externals import xmltodict
 
 from elasticsearch import Elasticsearch, ImproperlyConfigured
 from elasticsearch.helpers import bulk
+
+from six.moves import range
 
 
 logger = logging.getLogger("archivematica.common")
@@ -795,7 +794,7 @@ def _try_to_index(
     exception = None
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
-    for _ in xrange(0, max_tries):
+    for _ in range(0, max_tries):
         try:
             client.index(body=data, index=index, doc_type=DOC_TYPE)
             return

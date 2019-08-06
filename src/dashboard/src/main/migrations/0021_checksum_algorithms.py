@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models, migrations
 
@@ -24,15 +24,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="file",
             name="checksumtype",
-            field=models.CharField(
-                max_length=36, db_column=b"checksumType", blank=True
-            ),
+            field=models.CharField(max_length=36, db_column="checksumType", blank=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name="file",
             name="checksum",
-            field=models.CharField(max_length=128, db_column=b"checksum", blank=True),
+            field=models.CharField(max_length=128, db_column="checksum", blank=True),
             preserve_default=True,
         ),
         migrations.RunPython(data_migration),

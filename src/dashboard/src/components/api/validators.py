@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Validation of transfer documents.
 
 Usage example::
@@ -11,10 +12,12 @@ does not pass. The exception may include a message with more details.
 
 New validators must be added to the `` _VALIDATORS`` registry.
 """
+from __future__ import absolute_import
 
 import collections
 import csv
 from io import BytesIO
+from six import PY2, StringIO
 
 
 class ValidationError(Exception):
@@ -95,7 +98,7 @@ class AvalonValidator(BaseValidator):
             "Physical Description",
             "Terms of Use",
         ]
-        collected_headers = collections.Counter(row).items()
+        collected_headers = list(collections.Counter(row).items())
         repeated_headers = [k for k, v in collected_headers if v > 1]
 
         for x in row:
@@ -215,7 +218,11 @@ class AvalonValidator(BaseValidator):
                     )
 
     def validate(self, string):
-        csvr = csv.reader(BytesIO(string))
+        if PY2:
+            csvfile = BytesIO(string)
+        else:
+            csvfile = StringIO(string.decode("utf8"))
+        csvr = csv.reader(csvfile)
         for i, row in enumerate(csvr):
             if i == 0:
                 self._check_admin_data(row)
@@ -242,7 +249,7 @@ _VALIDATORS = {"avalon": AvalonValidator}
 
 class ValidatorNotAvailableError(ValueError):
     default = "Unknown validator. Accepted values: {}".format(
-        ",".join(_VALIDATORS.keys())
+        ",".join(list(_VALIDATORS.keys()))
     )
 
     def __init__(self, *args, **kwargs):

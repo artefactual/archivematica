@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
+
 import os
-import StringIO
-import ConfigParser
 
 from django.test import TestCase
 import pytest
+from six import StringIO
+import six.moves.configparser as ConfigParser
 
 from env_configparser import EnvConfigParser
 
@@ -21,7 +23,7 @@ class TestConfigReader(TestCase):
         self.environ = None
 
     def read_test_config(self, test_config, prefix=""):
-        buf = StringIO.StringIO(test_config)
+        buf = StringIO(test_config)
         config = EnvConfigParser(env=self.environ, prefix=prefix)
         config.readfp(buf)
         return config

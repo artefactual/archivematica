@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,20 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 
-# Standard library, alphabetical by import source
-import base64
-import cPickle
 import json
 import logging
 import os
 import re
 import requests
 import shutil
-from urlparse import urljoin
 import uuid
 
-# Django Core, alphabetical by import source
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -38,10 +35,9 @@ from django.template import RequestContext
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import View
+import six.moves.cPickle
+from six.moves.urllib.parse import urljoin
 
-# External dependencies, alphabetical
-
-# This project, alphabetical by import source
 from contrib.mcp.client import MCPClient
 from components import advanced_search
 from components import helpers
@@ -50,7 +46,7 @@ from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from main import forms, models
 
-import archivematicaFunctions
+from archivematicaFunctions import b64encode_string, escape
 import elasticSearchFunctions
 import storageService as storage_service
 
@@ -332,14 +328,14 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = cPickle.dumps({"target": request.POST["target"]})
+            access.target = six.moves.cPickle.dumps({"target": request.POST["target"]})
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)
     elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = cPickle.loads(str(access.target))
+            data = six.moves.cPickle.loads(str(access.target))
         except:
             raise Http404
         return helpers.json_response(data)
@@ -397,7 +393,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
-        o["location"] = archivematicaFunctions.escape(o["location"])
+        o["location"] = escape(o["location"])
         (
             o["preservation_derivative_validation_attempted"],
             o["preservation_derivative_validation_failed"],
@@ -467,13 +463,13 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     if len(parts) == 1:  # path is a file
         return_list.append(
             {
-                "name": base64.b64encode(parts[0]),
+                "name": b64encode_string(parts[0]),
                 "properties": {"not_draggable": not_draggable},
             }
         )
     else:
         node, others = parts
-        node = base64.b64encode(node)
+        node = b64encode_string(node)
         if not return_list or return_list[-1]["name"] != node:
             return_list.append(
                 {
@@ -559,8 +555,8 @@ def _es_results_to_appraisal_tab_format(
                 "type": "transfer" if is_transfer else "directory",
                 # have to artificially create directory IDs, since we don't assign those
                 "id": str(uuid.uuid4()),
-                "title": base64.b64encode(os.path.basename(node)),
-                "relative_path": base64.b64encode(node),
+                "title": b64encode_string(os.path.basename(node)),
+                "relative_path": b64encode_string(node),
                 "not_draggable": not draggable,
                 "object_count": 0,
                 "children": [],
@@ -586,8 +582,8 @@ def _es_results_to_appraisal_tab_format(
     child = {
         "type": "file",
         "id": record["fileuuid"],
-        "title": base64.b64encode(fn),
-        "relative_path": base64.b64encode(record["relative_path"]),
+        "title": b64encode_string(fn),
+        "relative_path": b64encode_string(record["relative_path"]),
         "size": record["size"],
         "tags": record["tags"],
         "bulk_extractor_reports": record["bulk_extractor_reports"],

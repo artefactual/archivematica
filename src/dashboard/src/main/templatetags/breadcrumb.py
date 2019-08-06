@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,12 +15,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
+
 import logging
 
 from django.template import Node, Variable, Library
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.template.defaulttags import url
 from django.template import VariableDoesNotExist
+from six.moves import map
 
 logger = logging.getLogger("archivematica.dashboard")
 register = Library()
@@ -72,7 +76,7 @@ def breadcrumb_url(parser, token):
 
 class BreadcrumbNode(Node):
     def __init__(self, vars):
-        self.vars = map(Variable, vars)
+        self.vars = list(map(Variable, vars))
 
     def render(self, context):
         title = self.vars[0].var
@@ -86,7 +90,7 @@ class BreadcrumbNode(Node):
 
         else:
             title = title.strip("'").strip('"')
-            title = smart_unicode(title)
+            title = smart_text(title)
 
         url = None
 
@@ -117,7 +121,7 @@ class UrlBreadcrumbNode(Node):
                 title = ""
         else:
             title = title.strip("'").strip('"')
-            title = smart_unicode(title)
+            title = smart_text(title)
 
         url = self.url_node.render(context)
         return create_crumb(title, url)

@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from main.models import DashboardSetting
 
-from django.utils import six
 import pytest
+import six
 
 
 @pytest.mark.django_db
@@ -59,8 +62,8 @@ def test_dashboardsetting_get_dict():
 
     assert isinstance(ret, dict)
     assert len(ret) == len(data)
-    assert u"url" in ret.keys()
-    assert u"key" in ret.keys()
+    assert u"url" in list(ret.keys())
+    assert u"key" in list(ret.keys())
     assert ret["url"] == six.text_type(data["url"])
     assert ret["key"] == six.text_type(data["key"])
 

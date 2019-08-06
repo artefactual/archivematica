@@ -1,9 +1,11 @@
-from __future__ import print_function
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function
+
 import re
 import xml.sax.handler
 from collections import defaultdict
 
-from django.utils import six
+import six
 
 
 class Tree(defaultdict):

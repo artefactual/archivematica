@@ -1,10 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function
 
-from __future__ import print_function
 import argparse
 import json
 import os
 import sys
+
+from six.moves import zip
 
 FILES = ["pii", "ccn"]
 HEADERS = ["offset", "content", "context"]
@@ -20,7 +23,7 @@ def main(uuid, log_path, output):
             data = f.read()
 
         features[name] = [
-            dict(zip(HEADERS, l.split("\t")))
+            dict(list(zip(HEADERS, l.split("\t"))))
             for l in data.splitlines()
             if not l.startswith("#")
         ]

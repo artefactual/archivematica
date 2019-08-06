@@ -1,8 +1,10 @@
 # -*- coding: UTF-8 -*-
+from __future__ import absolute_import
+
 import os
 import pytest
 
-from django.utils import six
+import six
 
 from dicts import ReplacementDict, ChoicesDict
 from dicts import setup as setup_dicts

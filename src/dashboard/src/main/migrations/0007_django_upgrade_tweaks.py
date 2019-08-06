@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models, migrations
 
@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
             name="identifiertype",
             field=models.TextField(
                 null=True,
-                verbose_name=b"Agent Identifier Type",
-                db_column=b"agentIdentifierType",
+                verbose_name="Agent Identifier Type",
+                db_column="agentIdentifierType",
             ),
             preserve_default=True,
         ),
@@ -23,10 +23,10 @@ class Migration(migrations.Migration):
             model_name="agent",
             name="identifiervalue",
             field=models.TextField(
-                help_text=b"Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS file.",
+                help_text="Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS file.",
                 null=True,
-                verbose_name=b"Agent Identifier Value",
-                db_column=b"agentIdentifierValue",
+                verbose_name="Agent Identifier Value",
+                db_column="agentIdentifierValue",
             ),
             preserve_default=True,
         ),
@@ -34,10 +34,10 @@ class Migration(migrations.Migration):
             model_name="agent",
             name="name",
             field=models.TextField(
-                help_text=b"Used for premis:agentName in the METS file.",
+                help_text="Used for premis:agentName in the METS file.",
                 null=True,
-                verbose_name=b"Agent Name",
-                db_column=b"agentName",
+                verbose_name="Agent Name",
+                db_column="agentName",
             ),
             preserve_default=True,
         ),
@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
             model_name="microservicechainlink",
             name="defaultnextchainlink",
             field=models.ForeignKey(
-                db_column=b"defaultNextChainLink",
+                db_column="defaultNextChainLink",
                 blank=True,
                 to="main.MicroServiceChainLink",
                 null=True,
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 related_name="replaced_by",
-                db_column=b"replaces",
+                db_column="replaces",
                 blank=True,
                 to="main.MicroServiceChainLink",
                 null=True,
@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="microservicechoicereplacementdic",
             name="lastmodified",
-            field=models.DateTimeField(auto_now=True, db_column=b"lastModified"),
+            field=models.DateTimeField(auto_now=True, db_column="lastModified"),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -75,9 +75,9 @@ class Migration(migrations.Migration):
             name="copyrightenddateopen",
             field=models.BooleanField(
                 default=False,
-                help_text=b"Indicate end date is open",
-                verbose_name=b"Open End Date",
-                db_column=b"copyrightApplicableEndDateOpen",
+                help_text="Indicate end date is open",
+                verbose_name="Open End Date",
+                db_column="copyrightApplicableEndDateOpen",
             ),
             preserve_default=True,
         ),
@@ -86,9 +86,9 @@ class Migration(migrations.Migration):
             name="licenseenddateopen",
             field=models.BooleanField(
                 default=False,
-                help_text=b"Indicate end date is open",
-                verbose_name=b"Open End Date",
-                db_column=b"licenseApplicableEndDateOpen",
+                help_text="Indicate end date is open",
+                verbose_name="Open End Date",
+                db_column="licenseApplicableEndDateOpen",
             ),
             preserve_default=True,
         ),
@@ -97,9 +97,9 @@ class Migration(migrations.Migration):
             name="otherrightsenddateopen",
             field=models.BooleanField(
                 default=False,
-                help_text=b"Indicate end date is open",
-                verbose_name=b"Open End Date",
-                db_column=b"otherRightsApplicableEndDateOpen",
+                help_text="Indicate end date is open",
+                verbose_name="Open End Date",
+                db_column="otherRightsApplicableEndDateOpen",
             ),
             preserve_default=True,
         ),
@@ -108,9 +108,9 @@ class Migration(migrations.Migration):
             name="enddateopen",
             field=models.BooleanField(
                 default=False,
-                help_text=b"Indicate end date is open",
-                verbose_name=b"Open End Date",
-                db_column=b"endDateOpen",
+                help_text="Indicate end date is open",
+                verbose_name="Open End Date",
+                db_column="endDateOpen",
             ),
             preserve_default=True,
         ),
@@ -119,9 +119,9 @@ class Migration(migrations.Migration):
             name="statuteenddateopen",
             field=models.BooleanField(
                 default=False,
-                help_text=b"Indicate end date is open",
-                verbose_name=b"Open End Date",
-                db_column=b"statuteApplicableEndDateOpen",
+                help_text="Indicate end date is open",
+                verbose_name="Open End Date",
+                db_column="statuteApplicableEndDateOpen",
             ),
             preserve_default=True,
         ),
@@ -129,8 +129,8 @@ class Migration(migrations.Migration):
             model_name="dublincore",
             name="date",
             field=models.TextField(
-                help_text=b"Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)",
-                db_column=b"date",
+                help_text="Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)",
+                db_column="date",
                 blank=True,
             ),
             preserve_default=True,
@@ -140,7 +140,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 related_name="replaced_by",
-                db_column=b"replaces",
+                db_column="replaces",
                 blank=True,
                 to="main.MicroServiceChain",
                 null=True,
@@ -152,7 +152,7 @@ class Migration(migrations.Migration):
             name="rightsgranted",
             field=models.ForeignKey(
                 related_name="notes",
-                db_column=b"fkRightsStatementRightsGranted",
+                db_column="fkRightsStatementRightsGranted",
                 to="main.RightsStatementRightsGranted",
             ),
             preserve_default=True,
@@ -162,7 +162,7 @@ class Migration(migrations.Migration):
             name="rightsgranted",
             field=models.ForeignKey(
                 related_name="restrictions",
-                db_column=b"fkRightsStatementRightsGranted",
+                db_column="fkRightsStatementRightsGranted",
                 to="main.RightsStatementRightsGranted",
             ),
             preserve_default=True,

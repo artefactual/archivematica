@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -27,7 +30,9 @@ class TestProcessingConfig(TestCase):
             "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
         )
         response = self.client.get("/administration/processing/download/default/")
-        self.assertEquals(response.content, "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>")
+        self.assertEquals(
+            response.content.decode("utf8"), "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
+        )
 
     @mock.patch(
         "components.administration.forms.MCPClient.get_processing_config_fields",

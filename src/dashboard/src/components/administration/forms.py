@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,7 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import division
+from __future__ import absolute_import, division
 
 import os
 from lxml import etree
@@ -468,4 +469,4 @@ class PreconfiguredChoices(object):
 
     def save(self, config_path):
         with open(config_path, "w") as f:
-            f.write(etree.tostring(self.xml, pretty_print=True))
+            f.write(etree.tostring(self.xml, pretty_print=True, encoding="UTF-8"))

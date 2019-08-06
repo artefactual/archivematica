@@ -1,21 +1,21 @@
-# Standard library, alphabetical by import source
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import json
 import logging
 import os
 
-# Django Core, alphabetical by import source
 from django.conf import settings as django_settings
 from django.views.generic import View
-
-# External dependencies, alphabetical
 import requests
+from six.moves import zip
 
-# This project, alphabetical by import source
 from components import helpers
 from main import models
 
 import elasticSearchFunctions
 import storageService as storage_service
+
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -184,7 +184,7 @@ def bulk_extractor(request, fileuuid):
 def _parse_bulk_extractor_report(data):
     headers = ["offset", "content", "context"]
     return [
-        dict(zip(headers, l.split("\t")))
+        dict(list(zip(headers, l.split("\t"))))
         for l in data.splitlines()
         if not l.startswith("#")
     ]

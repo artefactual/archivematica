@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 
 import collections
 import logging
@@ -30,7 +32,6 @@ from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.template.defaultfilters import filesizeformat
-from django.utils.six.moves import map
 from django.utils.translation import ugettext as _
 
 from main import models
@@ -213,7 +214,7 @@ def storage(request):
         if not loc["enabled"]:
             continue
         # Skip unwanted purposes
-        if not loc["purpose"] or loc["purpose"] not in purposes.keys():
+        if not loc["purpose"] or loc["purpose"] not in list(purposes.keys()):
             continue
         # Only show usage of AS and DS locations
         loc["show_usage"] = loc["purpose"] in ["AS", "DS"]
@@ -358,7 +359,9 @@ def _usage_check_directory_volume_size(path):
     """
     try:
         # Get volume size (in 1K blocks)
-        output = subprocess.check_output(["df", "--block-size", "1024", path])
+        output = subprocess.check_output(["df", "--block-size", "1024", path]).decode(
+            "utf8"
+        )
         # Second line returns disk usage-related values
         usage_summary = output.split("\n")[1]
         # Split value by whitespace and size (in blocks)
@@ -381,7 +384,7 @@ def _usage_get_directory_used_bytes(path):
     try:
         output = subprocess.check_output(
             ["du", "--one-file-system", "--bytes", "--summarize", path]
-        )
+        ).decode("utf8")
         return output.split("\t")[0]
     except OSError:
         logger.exception("No such directory: %s", path)
@@ -555,7 +558,7 @@ def general(request):
     )
 
     forms = (general_form, storage_form, checksum_form)
-    if all(map(lambda form: form.is_valid(), forms)):
+    if all([form.is_valid() for form in forms]):
         for item in forms:
             item.save()
         messages.info(request, _("Saved."))

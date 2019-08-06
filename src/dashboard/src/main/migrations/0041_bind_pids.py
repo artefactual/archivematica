@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Migration for PID Binding: persistent identifier creation & resolution."""
-
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations, models
 
@@ -270,7 +269,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         editable=False,
                         primary_key=True,
-                        db_column=b"pk",
+                        db_column="pk",
                     ),
                 ),
                 ("type", models.TextField(null=True, verbose_name="Identifier Type")),
@@ -303,6 +302,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="sip",
             name="diruuids",
-            field=models.BooleanField(default=False, db_column=b"dirUUIDs"),
+            field=models.BooleanField(default=False, db_column="dirUUIDs"),
         ),
     ]

@@ -1,4 +1,6 @@
-# Standard library, alphabetical by import source
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import base64
 from functools import wraps
 import json
@@ -6,15 +8,12 @@ import logging
 import os
 import uuid
 
-# Django Core, alphabetical by import source
 import django.http
 from django.shortcuts import redirect
 from django.utils import timezone
 
-# External dependencies, alphabetical
 from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
 
-# This project, alphabetical by import source
 from components import helpers
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views

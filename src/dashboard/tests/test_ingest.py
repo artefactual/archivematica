@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import os
 
 from django.core.urlresolvers import reverse
@@ -11,6 +14,7 @@ from components import helpers
 from components.ingest.views import _adjust_directories_draggability
 from components.ingest.views import _es_results_to_appraisal_tab_format
 from components.ingest.views_as import get_as_system_client
+from archivematicaFunctions import b64decode_string
 from main.models import DashboardSetting
 
 
@@ -66,7 +70,7 @@ class TestIngest(TestCase):
         title = "".join(
             ["<h1>" "Normalization Event Detail<br />", "<small>test</small>", "</h1>"]
         )
-        assert title in response.content
+        assert title in response.content.decode("utf8")
 
     def test_add_metadata_files_view(self):
         """Test the 'Add metadata files' view of a SIP"""
@@ -79,16 +83,16 @@ class TestIngest(TestCase):
         title = "\n    ".join(
             ["<h1>", "  Add metadata files<br />", "  <small>test</small>", "</h1>"]
         )
-        assert title in response.content
+        assert title in response.content.decode("utf8")
 
 
 def _assert_file_node_properties_match_record(file_node, record):
     assert file_node["type"] == "file"
     assert file_node["id"] == record["fileuuid"]
     # the relative path of the node is encoded
-    assert file_node["relative_path"].decode("base64") == record["relative_path"]
+    assert b64decode_string(file_node["relative_path"]) == record["relative_path"]
     # the node title is the encoded file name
-    assert file_node["title"].decode("base64") == os.path.basename(
+    assert b64decode_string(file_node["title"]) == os.path.basename(
         record["relative_path"]
     )
     assert file_node["size"] == record["size"]

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+
 """Migration to ensure that a job associated to the ``Choose config for AtoM
 DIP upload`` link is marked as completed successfully when the exit code is
 ``0``.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

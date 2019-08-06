@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations, models
 import main.models
@@ -234,31 +234,31 @@ class Migration(migrations.Migration):
                         max_length=36,
                         serialize=False,
                         primary_key=True,
-                        db_column=b"directoryUUID",
+                        db_column="directoryUUID",
                     ),
                 ),
                 (
                     "originallocation",
-                    main.models.BlobTextField(db_column=b"originalLocation"),
+                    main.models.BlobTextField(db_column="originalLocation"),
                 ),
                 (
                     "currentlocation",
-                    main.models.BlobTextField(null=True, db_column=b"currentLocation"),
+                    main.models.BlobTextField(null=True, db_column="currentLocation"),
                 ),
                 (
                     "enteredsystem",
-                    models.DateTimeField(auto_now_add=True, db_column=b"enteredSystem"),
+                    models.DateTimeField(auto_now_add=True, db_column="enteredSystem"),
                 ),
                 (
                     "sip",
                     models.ForeignKey(
-                        db_column=b"sipUUID", blank=True, to="main.SIP", null=True
+                        db_column="sipUUID", blank=True, to="main.SIP", null=True
                     ),
                 ),
                 (
                     "transfer",
                     models.ForeignKey(
-                        db_column=b"transferUUID",
+                        db_column="transferUUID",
                         blank=True,
                         to="main.Transfer",
                         null=True,
@@ -271,6 +271,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="transfer",
             name="diruuids",
-            field=models.BooleanField(default=False, db_column=b"dirUUIDs"),
+            field=models.BooleanField(default=False, db_column="dirUUIDs"),
         ),
     ]

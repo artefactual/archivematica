@@ -2,7 +2,7 @@
 """Migration to add a 7-zip method to the list of Archivematica AIP 7-zip
 methods that does not use compression. 7-zip copy mode.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

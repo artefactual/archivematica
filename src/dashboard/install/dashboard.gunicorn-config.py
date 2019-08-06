@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 # Documentation: http://docs.gunicorn.org/en/stable/configure.html
 # Example: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
+from __future__ import absolute_import
 
 import os
 import shutil

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Remove Archivists' Toolkit data and model."""
 
-from __future__ import unicode_literals
+"""Remove Archivists' Toolkit data and model."""
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 
@@ -25,9 +25,9 @@ class Migration(migrations.Migration):
             model_name="siparrangeaccessmapping",
             name="system",
             field=models.CharField(
-                default=b"atom",
+                default="atom",
                 max_length=255,
-                choices=[(b"archivesspace", b"ArchivesSpace"), (b"atom", b"AtoM")],
+                choices=[("archivesspace", "ArchivesSpace"), ("atom", "AtoM")],
             ),
         ),
     ]

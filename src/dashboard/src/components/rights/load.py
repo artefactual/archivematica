@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Import ``PREMISRights``.
 
 Similar to ``rights_from_csv`` in that it imports rights statements. In this
@@ -6,8 +7,7 @@ module, we load a ``premisrw.PREMISRights`` object into the database.
 This module does not use the ``__`` notation for accessors offered by
 ``premisrw``.
 """
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import six
 

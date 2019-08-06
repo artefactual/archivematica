@@ -41,3 +41,6 @@ tox==3.14.2
 virtualenv==16.7.9        # via tox
 wcwidth==0.1.7            # via pytest
 zipp==0.6.0               # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via pytest, tox

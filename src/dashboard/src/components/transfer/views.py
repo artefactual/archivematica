@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 
 import json
 import logging
@@ -23,6 +25,7 @@ from django.conf import settings as django_settings
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
+import six
 
 from contrib.mcp.client import MCPClient
 
@@ -205,15 +208,10 @@ def rename_metadata_set(request, set_uuid, placeholder_id):
     except KeyError:
         response["status"] = "Failure"
         response["message"] = _("Updated path was not provided.")
-    except Exception as e:
-        if not e.message:
-            message = _(
-                "Unable to update transfer metadata set: contact administrator."
-            )
-        else:
-            message = e.message
+    except Exception as err:
+        message = _("Unable to update transfer metadata set, contact administrator:")
         response["status"] = "Failure"
-        response["message"] = message
+        response["message"] = "{} {}".format(message, err)
 
     return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -234,7 +232,7 @@ def cleanup_metadata_set(request, set_uuid):
         response["deleted_objects"] = len(objects)
         objects.delete()
         models.TransferMetadataSet.objects.get(id=set_uuid).delete()
-    except Exception as e:
-        response["message"] = e.message
+    except Exception as err:
+        response["message"] = six.text_type(err)
 
     return HttpResponse(json.dumps(response), content_type="application/json")

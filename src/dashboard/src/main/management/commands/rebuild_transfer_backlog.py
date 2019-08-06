@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Recreate the ``transfers`` Elasticsearch index from the Transfer Backlog.
 
 This is useful if the Elasticsearch index has been deleted or damaged
@@ -13,8 +14,7 @@ location is stored.
 
 Copied from https://git.io/vN6v6.
 """
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 import multiprocessing
 import logging
@@ -30,7 +30,7 @@ except ImportError:
 
 from django.conf import settings as django_settings
 from django.core.management.base import CommandError
-from django.utils import six
+import six
 
 from fileOperations import addFileToTransfer
 import elasticSearchFunctions

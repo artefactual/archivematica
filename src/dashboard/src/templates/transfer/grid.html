@@ -44,14 +44,14 @@
       });
 
     window.microservices_help = {
-      {% for x, y in microservices_help.iteritems %}
+      {% for x, y in microservices_help.items %}
         '{{ x }}': '{{ y }}',
       {% endfor %}
     };
 
     {# TODO: use json_script #}
     window.job_statuses = {
-      {% for x, y in job_statuses.iteritems %}
+      {% for x, y in job_statuses.items %}
         '{{ x }}': '{{ y }}',
       {% endfor %}
     };

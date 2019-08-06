@@ -13,9 +13,11 @@ Alternatively, they can include the 'section' and a 'process_function' callback
 where a specific parsing process can be defined. Those callbacks must accept the
 current appconfig Config object and the section.
 """
-import ConfigParser
+from __future__ import absolute_import
 
 from django.core.exceptions import ImproperlyConfigured
+
+import six.moves.configparser as ConfigParser
 
 from env_configparser import EnvConfigParser
 

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from django.core.management.base import BaseCommand
 
 from installer.steps import set_agent_code

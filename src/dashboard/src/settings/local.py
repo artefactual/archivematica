@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # flake8: noqa
 
 # This file is part of Archivematica.
@@ -18,7 +20,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 """Development settings and globals."""
-
 from __future__ import absolute_import
 
 import os

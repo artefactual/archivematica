@@ -16,8 +16,7 @@ performed.
 Once the tasks have completed, the workflow is picked up from where it would
 normally for a standard transfer type.
 """
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

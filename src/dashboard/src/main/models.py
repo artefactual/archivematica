@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -20,6 +22,8 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 
 # stdlib, alphabetical by import source
+from __future__ import absolute_import
+
 import logging
 import re
 
@@ -30,7 +34,7 @@ from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
+import six
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField

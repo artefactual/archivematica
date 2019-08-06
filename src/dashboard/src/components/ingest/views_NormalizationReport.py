@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # This file is part of Archivematica.
@@ -22,10 +22,11 @@
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
 # @author Justin Simpson <jsimpson@artefactual.com>
+from __future__ import absolute_import, print_function
 
-from __future__ import print_function
-from components import helpers
 from django.db import connection
+
+from components import helpers
 
 
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Reindex Elasticsearch data from remote cluster.
 
 Creates the Elasticsearch 6.x indexes based on the configuration and reindexes
@@ -11,8 +12,7 @@ Execution example:
     https://192.168.168.196:9200 \
     -u test -p 1234
 """
-
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import json
 import sys

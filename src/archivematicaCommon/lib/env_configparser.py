@@ -1,6 +1,10 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import os
-import ConfigParser
 import functools
+
+import six.moves.configparser as ConfigParser
 
 
 def fallback_option(fn):

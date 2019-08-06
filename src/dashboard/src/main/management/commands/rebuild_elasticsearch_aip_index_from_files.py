@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Recreate the Elasticsearch index from AIPs stored on disk.
 
 This is a copy of: https://github.com/artefactual/archivematica-devtools/blob/1fd49faf2b415a4f4229da832445d22b35c262f4/tools/rebuild-elasticsearch-aip-index-from-files.
@@ -25,8 +26,7 @@ duplicated.
 starting. This is useful if there are AIPs indexed that have been deleted. This
 should not be used if there are AIPs stored that are not locally accessible.
 """
-
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import shutil
 import os

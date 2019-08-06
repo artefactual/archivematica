@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -18,14 +19,13 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
-
 from __future__ import absolute_import
 
 import ast
 import os
 import re
 
-from django.utils import six
+import six
 
 from archivematicaFunctions import unicodeToStr
 

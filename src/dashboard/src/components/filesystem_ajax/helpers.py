@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -14,12 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 
-import base64
 import os
 import logging
 
-import archivematicaFunctions
+from archivematicaFunctions import b64encode_string, unicodeToStr
 from components import helpers
 
 
@@ -28,8 +29,8 @@ logger = logging.getLogger("archivematica.dashboard")
 
 def sorted_directory_list(path):
     cleaned = []
-    entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
-    cleaned = [archivematicaFunctions.unicodeToStr(entry) for entry in entries]
+    entries = os.listdir(unicodeToStr(path))
+    cleaned = [unicodeToStr(entry) for entry in entries]
     return sorted(cleaned, key=helpers.keynat)
 
 
@@ -38,10 +39,10 @@ def directory_to_dict(path, directory={}, entry=False):
     if entry is False:
         entry = directory
         # remove leading slash
-        entry["parent"] = base64.b64encode(os.path.dirname(path)[1:])
+        entry["parent"] = b64encode_string(os.path.dirname(path)[1:])
 
     # set standard entry properties
-    entry["name"] = base64.b64encode(os.path.basename(path))
+    entry["name"] = b64encode_string(os.path.basename(path))
     entry["children"] = []
 
     # define entries
@@ -50,7 +51,7 @@ def directory_to_dict(path, directory={}, entry=False):
         new_entry = None
         if file[0] != ".":
             new_entry = {}
-            new_entry["name"] = base64.b64encode(file)
+            new_entry["name"] = b64encode_string(file)
             entry["children"].append(new_entry)
 
         # if entry is a directory, recurse

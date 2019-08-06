@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -22,8 +23,9 @@
 """archivematicaFunctions provides various helper functions across the
 different Archivematica modules.
 """
+from __future__ import absolute_import, print_function
 
-from __future__ import print_function
+import base64
 import collections
 import hashlib
 import locale
@@ -32,7 +34,7 @@ import pprint
 import re
 from uuid import uuid4
 
-from django.utils import six
+import six
 from lxml import etree
 
 from main.models import DashboardSetting
@@ -86,7 +88,7 @@ class OrderedListsDict(collections.OrderedDict):
 def unicodeToStr(string):
     """Convert Unicode to string format."""
     if isinstance(string, six.text_type):
-        string = string.encode("utf-8")
+        return six.ensure_str(string, "utf-8")
     return string
 
 
@@ -103,6 +105,14 @@ def strToUnicode(string, obstinate=False):
             else:
                 raise
     return string
+
+
+def b64encode_string(data):
+    return base64.b64encode(data.encode("utf8")).decode("utf8")
+
+
+def b64decode_string(data):
+    return base64.b64decode(data.encode("utf8")).decode("utf8")
 
 
 def get_locale_encoding():

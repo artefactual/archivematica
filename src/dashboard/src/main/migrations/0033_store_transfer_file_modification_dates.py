@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
-
 from django.db import models
 
 # Can't use apps.get_model for this model as we need to access class attributes
@@ -109,7 +108,7 @@ class Migration(migrations.Migration):
             model_name="file",
             name="modificationtime",
             field=models.DateTimeField(
-                auto_now_add=True, null=True, db_column=b"modificationTime"
+                auto_now_add=True, null=True, db_column="modificationTime"
             ),
         ),
         migrations.RunPython(data_migration),

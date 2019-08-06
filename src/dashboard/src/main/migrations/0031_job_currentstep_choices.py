@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
             name="currentstep",
             field=models.IntegerField(
                 default=0,
-                db_column=b"currentStep",
+                db_column="currentStep",
                 choices=[
                     (0, "Unknown"),
                     (1, "Awaiting decision"),

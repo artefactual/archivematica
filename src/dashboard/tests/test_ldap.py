@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
-
 import pytest
-from django.conf import settings
+
 from mockldap import MockLdap
 
 

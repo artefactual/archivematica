@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models, migrations
 
@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="file",
             name="currentlocation",
-            field=models.TextField(null=True, db_column=b"currentLocation"),
+            field=models.TextField(null=True, db_column="currentLocation"),
             preserve_default=True,
         )
     ]

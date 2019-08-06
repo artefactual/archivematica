@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Migration to change workflow related to DIP upload and storage."""
-
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations
 

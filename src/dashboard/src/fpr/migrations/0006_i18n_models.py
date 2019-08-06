@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations, models
 import autoslug.fields
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="command",
             name="command",
-            field=models.TextField(verbose_name="command", db_column=b"command"),
+            field=models.TextField(verbose_name="command", db_column="command"),
         ),
         migrations.AlterField(
             model_name="command",
@@ -94,15 +94,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="command",
             name="description",
-            field=models.TextField(
-                verbose_name="description", db_column=b"description"
-            ),
+            field=models.TextField(verbose_name="description", db_column="description"),
         ),
         migrations.AlterField(
             model_name="command",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
@@ -116,7 +114,7 @@ class Migration(migrations.Migration):
             model_name="command",
             name="lastmodified",
             field=models.DateTimeField(
-                null=True, verbose_name="last modified", db_column=b"lastModified"
+                null=True, verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
@@ -125,21 +123,21 @@ class Migration(migrations.Migration):
             field=models.TextField(
                 null=True,
                 verbose_name="output file format",
-                db_column=b"outputFileFormat",
+                db_column="outputFileFormat",
             ),
         ),
         migrations.AlterField(
             model_name="command",
             name="outputLocation",
             field=models.TextField(
-                null=True, verbose_name="output location", db_column=b"outputLocation"
+                null=True, verbose_name="output location", db_column="outputLocation"
             ),
         ),
         migrations.AlterField(
             model_name="command",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
@@ -149,7 +147,7 @@ class Migration(migrations.Migration):
                 max_length=36,
                 null=True,
                 verbose_name="supported by",
-                db_column=b"supportedBy",
+                db_column="supportedBy",
             ),
         ),
         migrations.AlterField(
@@ -163,28 +161,28 @@ class Migration(migrations.Migration):
             model_name="commandclassification",
             name="classification",
             field=models.TextField(
-                null=True, verbose_name="classification", db_column=b"classification"
+                null=True, verbose_name="classification", db_column="classification"
             ),
         ),
         migrations.AlterField(
             model_name="commandclassification",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
             model_name="commandclassification",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="commandclassification",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
@@ -201,7 +199,7 @@ class Migration(migrations.Migration):
             model_name="commandrelationship",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
@@ -213,7 +211,7 @@ class Migration(migrations.Migration):
             model_name="commandrelationship",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
@@ -225,68 +223,66 @@ class Migration(migrations.Migration):
             model_name="commandssupportedby",
             name="description",
             field=models.TextField(
-                null=True, verbose_name="description", db_column=b"description"
+                null=True, verbose_name="description", db_column="description"
             ),
         ),
         migrations.AlterField(
             model_name="commandssupportedby",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
             model_name="commandssupportedby",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="commandssupportedby",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
             model_name="commandtype",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
             model_name="commandtype",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="commandtype",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
             model_name="commandtype",
             name="type",
-            field=models.TextField(verbose_name="type", db_column=b"type"),
+            field=models.TextField(verbose_name="type", db_column="type"),
         ),
         migrations.AlterField(
             model_name="fileid",
             name="description",
-            field=models.TextField(
-                verbose_name="description", db_column=b"description"
-            ),
+            field=models.TextField(verbose_name="description", db_column="description"),
         ),
         migrations.AlterField(
             model_name="fileid",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
@@ -296,7 +292,7 @@ class Migration(migrations.Migration):
                 max_length=36,
                 null=True,
                 verbose_name="file ID type",
-                db_column=b"fileidtype_id",
+                db_column="fileidtype_id",
             ),
         ),
         migrations.AlterField(
@@ -304,7 +300,7 @@ class Migration(migrations.Migration):
             name="format",
             field=models.ForeignKey(
                 verbose_name="the related format",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.FormatVersion",
                 null=True,
             ),
@@ -313,14 +309,14 @@ class Migration(migrations.Migration):
             model_name="fileid",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="fileid",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
@@ -330,7 +326,7 @@ class Migration(migrations.Migration):
                 default=0,
                 null=True,
                 verbose_name="valid access format",
-                db_column=b"validAccessFormat",
+                db_column="validAccessFormat",
             ),
         ),
         migrations.AlterField(
@@ -340,14 +336,14 @@ class Migration(migrations.Migration):
                 default=0,
                 null=True,
                 verbose_name="valid preservation format",
-                db_column=b"validPreservationFormat",
+                db_column="validPreservationFormat",
             ),
         ),
         migrations.AlterField(
             model_name="fileidsbysingleid",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
@@ -359,54 +355,54 @@ class Migration(migrations.Migration):
             model_name="fileidsbysingleid",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="fileidsbysingleid",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
             model_name="fileidsbysingleid",
             name="tool",
-            field=models.TextField(verbose_name="tool", db_column=b"tool"),
+            field=models.TextField(verbose_name="tool", db_column="tool"),
         ),
         migrations.AlterField(
             model_name="fileidsbysingleid",
             name="toolVersion",
             field=models.TextField(
-                null=True, verbose_name="tool version", db_column=b"toolVersion"
+                null=True, verbose_name="tool version", db_column="toolVersion"
             ),
         ),
         migrations.AlterField(
             model_name="fileidtype",
             name="description",
             field=models.TextField(
-                null=True, verbose_name="description", db_column=b"description"
+                null=True, verbose_name="description", db_column="description"
             ),
         ),
         migrations.AlterField(
             model_name="fileidtype",
             name="enabled",
             field=models.IntegerField(
-                default=1, null=True, verbose_name="enabled", db_column=b"enabled"
+                default=1, null=True, verbose_name="enabled", db_column="enabled"
             ),
         ),
         migrations.AlterField(
             model_name="fileidtype",
             name="lastmodified",
             field=models.DateTimeField(
-                verbose_name="last modified", db_column=b"lastModified"
+                verbose_name="last modified", db_column="lastModified"
             ),
         ),
         migrations.AlterField(
             model_name="fileidtype",
             name="replaces",
             field=models.CharField(
-                max_length=36, null=True, verbose_name="replaces", db_column=b"replaces"
+                max_length=36, null=True, verbose_name="replaces", db_column="replaces"
             ),
         ),
         migrations.AlterField(
@@ -423,7 +419,7 @@ class Migration(migrations.Migration):
             name="group",
             field=models.ForeignKey(
                 verbose_name="the related group",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.FormatGroup",
                 null=True,
             ),
@@ -470,7 +466,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 related_name="version_set",
                 verbose_name="the related format",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.Format",
                 null=True,
             ),
@@ -499,7 +495,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 verbose_name="the related model",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FormatVersion",
                 null=True,
@@ -524,13 +520,13 @@ class Migration(migrations.Migration):
                 max_length=16,
                 verbose_name="command usage",
                 choices=[
-                    (b"characterization", "Characterization"),
-                    (b"event_detail", "Event Detail"),
-                    (b"extraction", "Extraction"),
-                    (b"normalization", "Normalization"),
-                    (b"transcription", "Transcription"),
-                    (b"validation", "Validation"),
-                    (b"verification", "Verification"),
+                    ("characterization", "Characterization"),
+                    ("event_detail", "Event Detail"),
+                    ("extraction", "Extraction"),
+                    ("normalization", "Normalization"),
+                    ("transcription", "Transcription"),
+                    ("validation", "Validation"),
+                    ("verification", "Verification"),
                 ],
             ),
         ),
@@ -550,7 +546,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 related_name="+",
                 verbose_name="the related event detail command",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
@@ -566,7 +562,7 @@ class Migration(migrations.Migration):
             name="output_format",
             field=models.ForeignKey(
                 verbose_name="the related output format",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FormatVersion",
                 null=True,
@@ -584,7 +580,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 verbose_name="the related model",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
@@ -597,10 +593,10 @@ class Migration(migrations.Migration):
                 max_length=16,
                 verbose_name="script type",
                 choices=[
-                    (b"bashScript", "Bash script"),
-                    (b"pythonScript", "Python script"),
-                    (b"command", "Command line"),
-                    (b"as_is", "No shebang needed"),
+                    ("bashScript", "Bash script"),
+                    ("pythonScript", "Python script"),
+                    ("command", "Command line"),
+                    ("as_is", "No shebang needed"),
                 ],
             ),
         ),
@@ -609,7 +605,7 @@ class Migration(migrations.Migration):
             name="tool",
             field=models.ForeignKey(
                 verbose_name="the related tool",
-                to_field=b"uuid",
+                to_field="uuid",
                 to="fpr.FPTool",
                 null=True,
             ),
@@ -620,7 +616,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 related_name="+",
                 verbose_name="the related verification command",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
@@ -630,7 +626,7 @@ class Migration(migrations.Migration):
             model_name="fprule",
             name="command",
             field=models.ForeignKey(
-                to="fpr.FPCommand", to_field=b"uuid", verbose_name="the related command"
+                to="fpr.FPCommand", to_field="uuid", verbose_name="the related command"
             ),
         ),
         migrations.AlterField(
@@ -658,7 +654,7 @@ class Migration(migrations.Migration):
             name="format",
             field=models.ForeignKey(
                 to="fpr.FormatVersion",
-                to_field=b"uuid",
+                to_field="uuid",
                 verbose_name="the related format",
             ),
         ),
@@ -674,16 +670,16 @@ class Migration(migrations.Migration):
                 max_length=32,
                 verbose_name="purpose",
                 choices=[
-                    (b"access", "Access"),
-                    (b"characterization", "Characterization"),
-                    (b"extract", "Extract"),
-                    (b"preservation", "Preservation"),
-                    (b"thumbnail", "Thumbnail"),
-                    (b"transcription", "Transcription"),
-                    (b"validation", "Validation"),
-                    (b"default_access", "Default access"),
-                    (b"default_characterization", "Default characterization"),
-                    (b"default_thumbnail", "Default thumbnail"),
+                    ("access", "Access"),
+                    ("characterization", "Characterization"),
+                    ("extract", "Extract"),
+                    ("preservation", "Preservation"),
+                    ("thumbnail", "Thumbnail"),
+                    ("transcription", "Transcription"),
+                    ("validation", "Validation"),
+                    ("default_access", "Default access"),
+                    ("default_characterization", "Default characterization"),
+                    ("default_thumbnail", "Default thumbnail"),
                 ],
             ),
         ),
@@ -692,7 +688,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 verbose_name="the related model",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.FPRule",
                 null=True,
@@ -727,9 +723,9 @@ class Migration(migrations.Migration):
                 max_length=4,
                 verbose_name="configuration",
                 choices=[
-                    (b"PUID", "PUID"),
-                    (b"MIME", "MIME type"),
-                    (b"ext", "File extension"),
+                    ("PUID", "PUID"),
+                    ("MIME", "MIME type"),
+                    ("ext", "File extension"),
                 ],
             ),
         ),
@@ -757,7 +753,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 verbose_name="the related model",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.IDCommand",
                 null=True,
@@ -777,10 +773,10 @@ class Migration(migrations.Migration):
                 max_length=16,
                 verbose_name="script type",
                 choices=[
-                    (b"bashScript", "Bash script"),
-                    (b"pythonScript", "Python script"),
-                    (b"command", "Command line"),
-                    (b"as_is", "No shebang needed"),
+                    ("bashScript", "Bash script"),
+                    ("pythonScript", "Python script"),
+                    ("command", "Command line"),
+                    ("as_is", "No shebang needed"),
                 ],
             ),
         ),
@@ -789,7 +785,7 @@ class Migration(migrations.Migration):
             name="tool",
             field=models.ForeignKey(
                 verbose_name="the related tool",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.IDTool",
                 null=True,
@@ -799,7 +795,7 @@ class Migration(migrations.Migration):
             model_name="idrule",
             name="command",
             field=models.ForeignKey(
-                to="fpr.IDCommand", to_field=b"uuid", verbose_name="the related command"
+                to="fpr.IDCommand", to_field="uuid", verbose_name="the related command"
             ),
         ),
         migrations.AlterField(
@@ -817,7 +813,7 @@ class Migration(migrations.Migration):
             name="format",
             field=models.ForeignKey(
                 to="fpr.FormatVersion",
-                to_field=b"uuid",
+                to_field="uuid",
                 verbose_name="the related format",
             ),
         ),
@@ -831,7 +827,7 @@ class Migration(migrations.Migration):
             name="replaces",
             field=models.ForeignKey(
                 verbose_name="the related model",
-                to_field=b"uuid",
+                to_field="uuid",
                 blank=True,
                 to="fpr.IDRule",
                 null=True,

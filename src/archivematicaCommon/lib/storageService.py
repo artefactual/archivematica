@@ -1,16 +1,18 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
-import base64
+
 import logging
 import os
 import platform
-import requests
-from requests.auth import AuthBase
-import urllib
 
 from django.conf import settings as django_settings
+import requests
+from requests.auth import AuthBase
+from six.moves import map
+import six.moves.urllib as urllib
 
 # archivematicaCommon
-from archivematicaFunctions import get_setting
+from archivematicaFunctions import b64decode_string, b64encode_string, get_setting
 from common_metrics import ss_api_timer
 
 
@@ -87,7 +89,7 @@ def _storage_api_params():
     """Return API GET params username=USERNAME&api_key=KEY for use in URL."""
     username = get_setting("storage_service_user", "test")
     api_key = get_setting("storage_service_apikey", None)
-    return urllib.urlencode({"username": username, "api_key": api_key})
+    return urllib.parse.urlencode({"username": username, "api_key": api_key})
 
 
 def _storage_relative_from_absolute(location_path, space_path):
@@ -210,16 +212,16 @@ def browse_location(uuid, path):
     """
     Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
     """
-    path = base64.b64encode(path)
+    path = b64encode_string(path)
     url = _storage_service_url() + "location/" + uuid + "/browse/"
     params = {"path": path}
     with ss_api_timer(function="browse_location"):
         response = _storage_api_session().get(url, params=params)
     browse = response.json()
-    browse["entries"] = map(base64.b64decode, browse["entries"])
-    browse["directories"] = map(base64.b64decode, browse["directories"])
+    browse["entries"] = list(map(b64decode_string, browse["entries"]))
+    browse["directories"] = list(map(b64decode_string, browse["directories"]))
     browse["properties"] = {
-        base64.b64decode(k): v for k, v in browse.get("properties", {}).items()
+        b64decode_string(k): v for k, v in browse.get("properties", {}).items()
     }
     return browse
 

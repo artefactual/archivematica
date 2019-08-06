@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Remove normalization for preservation rules for all video files
 and for some common image formats."""
-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 
