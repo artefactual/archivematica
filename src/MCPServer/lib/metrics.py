@@ -101,8 +101,8 @@ def task_completed(task, task_group):
     if task.finished_timestamp is None:
         return
 
-    group_name = task_group.linkTaskManager.jobChainLink.group
-    task_name = task_group.linkTaskManager.jobChainLink.description
+    group_name = task_group.linkTaskManager.job.group
+    task_name = task_group.linkTaskManager.job.description
     script_name = task_group.name()
     timediff = task.finished_timestamp - task.start_timestamp
     duration = timediff.total_seconds()
@@ -118,8 +118,8 @@ def task_completed(task, task_group):
 
 @skip_if_prometheus_disabled
 def task_failed(task, task_group):
-    group_name = task_group.linkTaskManager.jobChainLink.group
-    task_name = task_group.linkTaskManager.jobChainLink.description
+    group_name = task_group.linkTaskManager.job.group
+    task_name = task_group.linkTaskManager.job.description
 
     task_error_timestamp.labels(
         task_group_name=group_name, task_name=task_name

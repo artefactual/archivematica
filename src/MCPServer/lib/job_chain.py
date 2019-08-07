@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import logging
 import uuid
+
 from django.utils import timezone
 
 from databaseFunctions import auto_close_db
@@ -19,6 +20,10 @@ logger = logging.getLogger("archivematica.mcp.server")
 
 
 class JobChain(object):
+    """
+    Creates jobs as necessary based on the workflow chain and unit given.
+    """
+
     def __init__(self, unit, chain, workflow, starting_link=None):
         """Create an instance of a chain, based on the workflow chain given."""
         logger.debug("Creating JobChain %s for chain %s", unit, chain.id)
@@ -27,14 +32,18 @@ class JobChain(object):
         self.workflow = workflow
         self.started_on = timezone.now()
         self.starting_link = starting_link or self.chain.link
+        self.context = None
+        # TODO: store generated choices in context
+        self.generated_choices = None
 
     def start(self):
-        pass_var = self.unit.get_variable_values()
+        # TODO: unit context hits the db, make that clearer
+        self.context = self.unit.context.copy()
 
-        job = Job(self, self.starting_link, self.workflow, self.unit, pass_var=pass_var)
+        job = Job(self, self.starting_link, self.workflow, self.unit)
         job.start()
 
-    def proceed_to_next_link(self, link, pass_var=None):
+    def proceed_to_next_link(self, link, context=None):
         """Proceed to next link."""
         if link is None:
             logger.debug(
@@ -45,11 +54,13 @@ class JobChain(object):
             metrics.chain_completed(chain_duration, self.unit.__class__.__name__)
             return
 
-        job = Job(self, link, self.workflow, self.unit, pass_var=pass_var)
+        job = Job(self, link, self.workflow, self.unit)
         job.start()
 
 
 class Job(object):
+    """Links the Job model in dashboard to a link in the workflow.
+    """
 
     # Mirror job model statuses
     STATUS_UNKNOWN = models.Job.STATUS_UNKNOWN
@@ -58,13 +69,11 @@ class Job(object):
     STATUS_EXECUTING_COMMANDS = models.Job.STATUS_EXECUTING_COMMANDS
     STATUS_FAILED = models.Job.STATUS_FAILED
 
-    def __init__(self, job_chain, link, workflow, unit, pass_var=None):
+    def __init__(self, job_chain, link, workflow, unit):
         self.uuid = uuid.uuid4()
         self.job_chain = job_chain
         self.workflow = workflow
         self.unit = unit
-        self.pass_var = pass_var
-        self.pk = link.id
         self.link = link
         self.workflow = workflow
         self.created_at = timezone.now()
@@ -87,11 +96,12 @@ class Job(object):
             microservicegroup=self.group,
             createdtime=self.created_at,
             createdtimedec=self.created_at.strftime("%f"),
-            microservicechainlink=self.pk,
+            microservicechainlink=self.link.id,
         )
 
-        manager = self.link.manager
-        manager(self, self.unit)
+        manager_class = self.link.manager
+        manager = manager_class(self, self.unit)
+        manager.execute()
 
     @log_exceptions
     @auto_close_db
@@ -102,7 +112,21 @@ class Job(object):
 
     @log_exceptions
     @auto_close_db
-    def on_complete(self, exit_code, pass_var=None, next_link=None):
+    def mark_awaiting_decision(self):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=self.STATUS_AWAITING_DECISION
+        )
+
+    @log_exceptions
+    @auto_close_db
+    def mark_complete(self):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=self.STATUS_COMPLETED_SUCCESSFULLY
+        )
+
+    @log_exceptions
+    @auto_close_db
+    def on_complete(self, exit_code, next_link=None):
         """Link completion callback.
 
         It continues the workflow running the next chain link which is looked
@@ -117,4 +141,4 @@ class Job(object):
             except KeyError:
                 pass
 
-        self.job_chain.proceed_to_next_link(next_link, pass_var=pass_var)
+        self.job_chain.proceed_to_next_link(next_link)

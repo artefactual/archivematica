@@ -7,6 +7,7 @@ import abc
 import ast
 import logging
 import os
+from collections import OrderedDict
 
 import scandir
 from django.conf import settings as django_settings
@@ -101,6 +102,13 @@ class Unit(object):
     def base_queryset(self):
         return models.File.objects.filter(sip_id=self.uuid)
 
+    @property
+    def context(self):
+        # This needs to be reloaded from the db every time, because new values
+        # could have been added by a client script.
+        # TODO: pass context changes back from client
+        return UnitContext.load_from_db(self.uuid)
+
     def reload(self):
         raise NotImplementedError
 
@@ -128,7 +136,7 @@ class Unit(object):
         ret = etree.Element("unit")
         etree.SubElement(ret, "type").text = self.__class__.__name__
         unitXML = etree.SubElement(ret, "unitXML")
-        etree.SubElement(unitXML, "UUID").text = self.uuid
+        etree.SubElement(unitXML, "UUID").text = str(self.uuid)
         etree.SubElement(unitXML, "currentPath").text = self.current_path_for_db
 
         return ret
@@ -184,6 +192,8 @@ class Unit(object):
         # TODO: refactor this concept
         if not value:
             value = ""
+        else:
+            value = six.text_type(value)
 
         unit_var, created = models.UnitVariable.objects.update_or_create(
             unittype=self.UNIT_VARIABLE_TYPE,
@@ -192,37 +202,11 @@ class Unit(object):
             defaults=dict(variablevalue=value, microservicechainlink=chain_link_id),
         )
         if created:
-            message = ("New UnitVariable %s created for %s: %s (MSCL: %s)",)
+            message = "New UnitVariable %s created for %s: %s (MSCL: %s)"
         else:
-            message = ("Existing UnitVariable %s for %s updated to %s (MSCL" " %s)",)
+            message = "Existing UnitVariable %s for %s updated to %s (MSCL" " %s)"
 
         logger.info(message, key, self.uuid, value, chain_link_id)
-
-    def get_variable_values(self):
-        """
-        Returns a dict combining all of the replacementDict unit variables for the
-        unit.
-        """
-        unit_vars = dict()
-
-        # TODO: we shouldn't need one UnitVariable per chain, with all the same values
-        unit_vars_queryset = models.UnitVariable.objects.filter(
-            unituuid=self.uuid, variable="replacementDict"
-        )
-        # Distinct helps here, at least
-        unit_vars_queryset = unit_vars_queryset.values_list("variablevalue").distinct()
-        for unit_var_value in unit_vars_queryset:
-            # TODO: nope nope nope, fix eval usage
-            try:
-                unit_var = ast.literal_eval(unit_var_value[0])
-            except ValueError:
-                logger.exception(
-                    "Failed to eval unit variable value %s", unit_var_value[0]
-                )
-            else:
-                unit_vars.update(unit_var)
-
-        return unit_vars
 
 
 class DIP(Unit):
@@ -306,3 +290,71 @@ class SIP(Unit):
         )
 
         return mapping
+
+
+class UnitContext(object):
+    """Unit context tracks choices made previously while processing
+    """
+
+    def __init__(self, *items):
+        self._data = OrderedDict()
+        for key, value in items:
+            self._data[key] = value
+
+    def __repr__(self):
+        return "UnitContext({!r})".format(dict(self._data.items()))
+
+    def __iter__(self):
+        for key, value in six.iteritems(self._data):
+            yield key, value
+
+    def __len__(self):
+        return len(self._data)
+
+    def __contains__(self, key):
+        return key in self._data
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
+    def __delitem(self, key):
+        del self._data[key]
+
+    @classmethod
+    def load_from_db(self, uuid):
+        """
+        Loads a context from the UnitVariable table.
+        """
+        context = UnitContext()
+
+        # TODO: we shouldn't need one UnitVariable per chain, with all the same values
+        unit_vars_queryset = models.UnitVariable.objects.filter(
+            unituuid=uuid, variable="replacementDict"
+        )
+        # Distinct helps here, at least
+        unit_vars_queryset = unit_vars_queryset.values_list("variablevalue").distinct()
+        for unit_var_value in unit_vars_queryset:
+            # TODO: nope nope nope, fix eval usage
+            try:
+                unit_var = ast.literal_eval(unit_var_value[0])
+            except (ValueError, SyntaxError):
+                logger.exception(
+                    "Failed to eval unit variable value %s", unit_var_value[0]
+                )
+            else:
+                context.update(unit_var)
+
+        return context
+
+    def copy(self):
+        clone = UnitContext()
+        clone._data = self._data.copy()
+
+        return clone
+
+    def update(self, mapping):
+        for key, value in mapping.items():
+            self._data[key] = value

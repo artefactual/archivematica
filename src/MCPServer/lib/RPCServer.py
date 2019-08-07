@@ -41,7 +41,10 @@ from gearman import GearmanWorker
 import gearman
 from lxml import etree
 
-from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
+from link_executor import (
+    choices_available as choicesAvailableForUnits,
+    choices_available_lock as choicesAvailableForUnitsLock,
+)
 from package import create_package, get_approve_transfer_chain_id
 from processing_config import get_processing_fields
 from main.models import Job, SIP, Transfer
@@ -212,7 +215,7 @@ class RPCServer(GearmanWorker):
         user_id = str(payload["user_id"])
         logger.debug("Approving: %s %s %s", job_id, chain, user_id)
         if job_id in choicesAvailableForUnits:
-            choicesAvailableForUnits[job_id].proceedWithChoice(chain, user_id)
+            choicesAvailableForUnits[job_id].proceed_with_choice(chain, user_id)
         return "approving: ", job_id, chain
 
     def _job_awaiting_approval_handler(self, worker, job):
@@ -270,7 +273,7 @@ class RPCServer(GearmanWorker):
             raise NotFoundError("There is no job awaiting a decision.")
         chain_id = get_approve_transfer_chain_id(transfer_type)
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(chain_id, user_id)
+            choicesAvailableForUnits[job.pk].proceed_with_choice(chain_id, user_id)
         except IndexError:
             raise NotFoundError("Could not find choice for unit")
         return job.sipuuid
@@ -305,7 +308,7 @@ class RPCServer(GearmanWorker):
         except KeyError:
             raise not_found
         try:
-            choicesAvailableForUnits[job.pk].proceedWithChoice(chain.id, user_id)
+            choicesAvailableForUnits[job.pk].proceed_with_choice(chain.id, user_id)
         except IndexError:
             raise not_found
 
