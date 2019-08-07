@@ -28,7 +28,9 @@ class TestProcessingConfig(TestCase):
             "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
         )
         response = self.client.get("/administration/processing/download/default/")
-        self.assertEquals(response.content, "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>")
+        self.assertEquals(
+            response.content.decode("utf8"), "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
+        )
 
     @mock.patch(
         "components.administration.forms.MCPClient.get_processing_config_fields",
