@@ -29,7 +29,7 @@ class MCPClientMock(object):
     ):
         if self.fails:
             raise Exception("Something bad happened!")
-        return b"59402c61-3aba-4af7-966a-996073c0601d"
+        return "59402c61-3aba-4af7-966a-996073c0601d"
 
 
 class TestAPIv2(TestCase):
@@ -42,8 +42,8 @@ class TestAPIv2(TestCase):
                 "location_uuid": "671643e1-5bec-4a5f-b244-abb76fedb0c4",
                 "relative_path": "foo/bar.jpg",
             }
-        )
-    )
+        ).encode("utf8")
+    ).decode("utf8")
 
     def setUp(self):
         self.client = Client()
@@ -81,7 +81,7 @@ class TestAPIv2(TestCase):
             content_type="application/json",
         )
         assert resp.status_code == 202
-        assert resp.content == json.dumps(
+        assert resp.content.decode() == json.dumps(
             {"id": "59402c61-3aba-4af7-966a-996073c0601d"}
         )
 
@@ -95,7 +95,7 @@ class TestAPIv2(TestCase):
             content_type="application/json",
         )
         assert resp.status_code == 500
-        payload = json.loads(resp.content)
+        payload = json.loads(resp.content.decode())
         assert payload["error"] is True
         assert payload["message"] == "Package cannot be created"
 
@@ -133,39 +133,33 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
         resp = self._post("unknown-validator", b"...")
 
         assert resp.status_code == 404
-        assert resp.content == json.dumps(
-            {
-                "message": "Unknown validator. Accepted values: {}".format(
-                    ",".join(list(validators._VALIDATORS.keys()))
-                ),
-                "error": True,
-            }
-        )
+        assert json.loads(resp.content.decode()) == {
+            "message": "Unknown validator. Accepted values: {}".format(
+                ",".join(list(validators._VALIDATORS.keys()))
+            ),
+            "error": True,
+        }
 
     def test_unaccepted_content_type(self):
         resp = self._post("avalon", b"...", content_type="text/plain")
 
         assert resp.status_code == 400
-        assert resp.content == json.dumps(
-            {
-                "message": 'Content type should be "text/csv; charset=utf-8"',
-                "error": True,
-            }
-        )
+        assert json.loads(resp.content.decode()) == {
+            "message": 'Content type should be "text/csv; charset=utf-8"',
+            "error": True,
+        }
 
     def test_avalon_pass(self):
-        resp = self._post("avalon", self.VALID_AVALON_CSV.encode("utf-8"))
+        resp = self._post("avalon", self.VALID_AVALON_CSV)
 
         assert resp.status_code == 200
-        assert resp.content == json.dumps({"valid": True})
+        assert json.loads(resp.content.decode()) == {"valid": True}
 
     def test_avalon_err(self):
-        resp = self._post("avalon", self.INVALID_AVALON_CSV.encode("utf-8"))
+        resp = self._post("avalon", self.INVALID_AVALON_CSV)
 
         assert resp.status_code == 400
-        assert resp.content == json.dumps(
-            {
-                "valid": False,
-                "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
-            }
-        )
+        assert json.loads(resp.content.decode()) == {
+            "valid": False,
+            "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
+        }

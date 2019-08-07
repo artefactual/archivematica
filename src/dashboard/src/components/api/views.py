@@ -809,7 +809,7 @@ def package(request):
 def _package_create(request):
     """Create a package."""
     try:
-        payload = json.loads(request.body)
+        payload = json.loads(request.body.decode("utf8"))
         path = base64.b64decode(payload.get("path"))
     except (TypeError, ValueError):
         return helpers.json_response(

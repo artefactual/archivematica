@@ -16,6 +16,7 @@ from __future__ import absolute_import
 import collections
 import csv
 from io import BytesIO
+from six import PY2, StringIO
 
 
 class ValidationError(Exception):
@@ -216,7 +217,11 @@ class AvalonValidator(BaseValidator):
                     )
 
     def validate(self, string):
-        csvr = csv.reader(BytesIO(string))
+        if PY2:
+            csvfile = BytesIO(string)
+        else:
+            csvfile = StringIO(string.decode("utf8"))
+        csvr = csv.reader(csvfile)
         for i, row in enumerate(csvr):
             if i == 0:
                 self._check_admin_data(row)
