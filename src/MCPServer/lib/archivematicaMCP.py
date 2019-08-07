@@ -56,7 +56,7 @@ from executor import Executor
 from taskGroupRunner import TaskGroupRunner
 import processing
 from job_chain import JobChain
-from unit import DIP, Transfer, SIP
+from package import DIP, Transfer, SIP
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
