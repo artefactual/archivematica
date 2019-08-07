@@ -108,10 +108,13 @@ def _prepare_browse_response(response):
                 prop["size"]
             )
 
-    response["entries"] = list(map(base64.b64encode, response["entries"]))
-    response["directories"] = list(map(base64.b64encode, response["directories"]))
+    def _b64(data):
+        return base64.b64encode(data.encode("utf8")).decode("utf8")
+
+    response["entries"] = list(map(_b64, response["entries"]))
+    response["directories"] = list(map(_b64, response["entries"]))
     response["properties"] = {
-        base64.b64encode(k): v for k, v in response.get("properties", {}).items()
+        _b64(k): v for k, v in response.get("properties", {}).items()
     }
 
     return response

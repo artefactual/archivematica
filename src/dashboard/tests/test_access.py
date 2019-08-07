@@ -29,7 +29,7 @@ class TestAccessAPI(TestCase):
             follow=True,
         )
         assert response.status_code == 201
-        response_dict = json.loads(response.content)
+        response_dict = json.loads(response.content.decode("utf8"))
         assert response_dict["success"] is True
         mapping = models.SIPArrangeAccessMapping.objects.get(
             system=models.SIPArrangeAccessMapping.ARCHIVESSPACE, identifier=record_id
@@ -46,7 +46,10 @@ class TestAccessAPI(TestCase):
             follow=True,
         )
         assert response.status_code == 200
-        response_dict = json.loads(response.content)
+        response_dict = json.loads(response.content.decode("utf8"))
         assert "entries" in response_dict
-        assert base64.b64encode("evelyn_s_photo.jpg") in response_dict["entries"]
+        assert (
+            base64.b64encode(b"evelyn_s_photo.jpg").decode("utf8")
+            in response_dict["entries"]
+        )
         assert len(response_dict["entries"]) == 1
