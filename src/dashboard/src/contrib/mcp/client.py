@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import cPickle
 import logging
 
 from django.conf import settings
+from django.utils.six.moves import cPickle
 from django.utils.translation import get_language
 import gearman
 
@@ -121,7 +121,7 @@ class MCPClient(object):
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
-            raise RPCError("%s failed (check the logs)".format(ability))
+            raise RPCError("{} failed (check the logs)".format(ability))
         payload = cPickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)

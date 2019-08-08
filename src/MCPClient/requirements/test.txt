@@ -41,3 +41,6 @@ tox==3.8.3
 unidecode==0.04.19
 urllib3==1.24.1
 virtualenv==16.4.3        # via tox
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via opf-fido, pytest, tox
