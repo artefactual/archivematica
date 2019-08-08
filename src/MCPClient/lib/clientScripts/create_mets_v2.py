@@ -182,7 +182,7 @@ def getDublinCore(unit, id_):
     )
     ret.set(
         ns.xsiBNS + "schemaLocation",
-        ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
+        ns.dctermsNS + " https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
     )
 
     for dbname, term in db_field_mapping.items():
@@ -312,7 +312,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                 dc.set(
                     ns.xsiBNS + "schemaLocation",
                     ns.dctermsNS
-                    + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
+                    + " https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
                 )
                 xmlData.append(dc)
             elem_namespace = ""
