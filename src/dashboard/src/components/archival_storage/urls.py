@@ -32,7 +32,6 @@ urlpatterns = [
     ),
     url(r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.aip_download),
     url(r"^search/json/file/(?P<document_id_modified>\w+)/$", views.file_json),
-    url(r"^search/json/aip/(?P<document_id_modified>\w+)/$", views.aip_json),
     url(r"^search/create_aic/$", views.create_aic, name="create_aic"),
     url(r"^search/$", views.search, name="archival_storage_search"),
     url(
