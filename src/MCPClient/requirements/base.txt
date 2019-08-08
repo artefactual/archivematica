@@ -12,7 +12,7 @@ clamd==1.0.2
 django-extensions==1.1.1
 django==1.8.19
 future==0.17.1            # via metsrw
-gearman==2.0.2
+gearman3==0.1.0
 idna==2.8                 # via requests
 lxml==3.5.0
 metsrw==0.3.11
@@ -24,3 +24,6 @@ scandir==1.9.0
 six==1.12.0               # via django-extensions, metsrw, opf-fido
 unidecode==0.04.19
 urllib3==1.24.1           # via requests
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via opf-fido

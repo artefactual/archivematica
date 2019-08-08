@@ -16,7 +16,7 @@ django==1.8.19
 filelock==3.0.10          # via tox
 funcsigs==1.0.2           # via mock, pytest
 future==0.17.1
-gearman==2.0.2
+gearman3==0.1.0
 idna==2.8
 lxml==3.5.0
 metsrw==0.3.11
@@ -41,3 +41,6 @@ tox==3.8.3
 unidecode==0.04.19
 urllib3==1.24.1
 virtualenv==16.4.3        # via tox
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via opf-fido, pytest, tox
