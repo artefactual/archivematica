@@ -21,8 +21,7 @@ import mimetypes
 import os
 import pprint
 import requests
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-from six.moves.urllib.parse import urljoin
+from six.moves.urllib.parse import urlencode, urljoin
 import json
 
 from django.conf import settings as django_settings
@@ -237,7 +236,7 @@ def get_atom_levels_of_description(clear=True):
 
 def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args=args)
-    params = six.moves.urllib.parse.urlencode(kwargs)
+    params = urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 
 

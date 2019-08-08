@@ -25,6 +25,7 @@ import logging.config
 import os
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils.six import StringIO
 
 from appconfig import Config, process_search_enabled
 import email_settings

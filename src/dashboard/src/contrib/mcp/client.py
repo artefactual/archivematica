@@ -123,7 +123,7 @@ class MCPClient(object):
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
-            raise RPCError("%s failed (check the logs)".format(ability))
+            raise RPCError("{} failed (check the logs)".format(ability))
         payload = six.moves.cPickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)

@@ -835,7 +835,7 @@ def _package_create(request):
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
         msg = "Package cannot be created"
-        LOGGER.error("{}: {}".format(msg, err))
+        LOGGER.error("%s: %s", msg, err)
         return helpers.json_response({"error": True, "message": msg}, 500)
     return helpers.json_response({"id": id_}, 202)
 

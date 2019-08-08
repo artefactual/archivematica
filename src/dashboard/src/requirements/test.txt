@@ -32,7 +32,8 @@ filelock==3.0.10          # via tox
 funcparserlib==0.3.6      # via mockldap
 funcsigs==1.0.2           # via mock, pytest
 future==0.17.1
-#gearman==2.0.2
+futures==3.2.0 ; python_version < "3.0"
+git+git://github.com/ross-spencer/python-gearman@dcf4d7ef69bc4e280838330ba9c2dcdd7a7516af#egg=gearman3
 gevent==1.3.6
 greenlet==0.4.15
 gunicorn==19.9.0
@@ -75,3 +76,5 @@ virtualenv==16.4.3        # via tox
 whitenoise==3.3.0
 wrapt==1.11.1             # via vcrpy
 
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via pytest, tox

@@ -25,7 +25,8 @@ django==1.8.19
 elasticsearch==6.3.1
 enum34==1.1.6             # via cryptography
 future==0.17.1            # via metsrw
-#gearman==2.0.2
+futures==3.2.0 ; python_version < "3.0"
+git+git://github.com/ross-spencer/python-gearman@dcf4d7ef69bc4e280838330ba9c2dcdd7a7516af#egg=gearman3
 gevent==1.3.6
 greenlet==0.4.15          # via gevent
 gunicorn==19.9.0

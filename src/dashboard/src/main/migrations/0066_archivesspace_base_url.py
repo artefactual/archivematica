@@ -14,7 +14,6 @@ except ImportError:
 
 from django.db import migrations
 
-
 _AS_DICTNAME = "upload-archivesspace_v0.0"
 
 _AS_UPLOAD_STC = "10a0f352-aeb7-4c13-8e9e-e81bda9bca29"
