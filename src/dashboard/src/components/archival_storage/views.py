@@ -204,7 +204,6 @@ def search_augment_aip_results(raw_results, counts):
                 _get_es_field(fields, "status", "UPLOADED")
             ],
             "encrypted": _get_es_field(fields, "encrypted", False),
-            "document_id_no_hyphens": item["_id"].replace("-", "____"),
         }
         size = _get_es_field(fields, "size")
         if size is not None:
@@ -548,7 +547,7 @@ def list_display(request):
     )
 
 
-def document_json_response(document_id_modified, index):
+def _document_json_response(document_id_modified, index):
     document_id = document_id_modified.replace("____", "-")
     es_client = elasticSearchFunctions.get_client()
     data = es_client.get(
@@ -559,11 +558,7 @@ def document_json_response(document_id_modified, index):
 
 
 def file_json(request, document_id_modified):
-    return document_json_response(document_id_modified, "aipfiles")
-
-
-def aip_json(request, document_id_modified):
-    return document_json_response(document_id_modified, "aips")
+    return _document_json_response(document_id_modified, "aipfiles")
 
 
 def view_aip(request, uuid):

@@ -206,7 +206,6 @@ def _get_aips_index_body():
                     },
                     "size": {"type": "double"},
                     "uuid": {"type": "keyword"},
-                    "mets": _load_mets_mapping("aips"),
                 },
             }
         },
@@ -415,12 +414,6 @@ def index_aip_and_files(
             ) or ns.xml_findtext_premis(dublincore, "dcterms:identifier")
         is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
 
-    # Convert METS XML to dict
-    xml = ElementTree.tostring(root)
-    mets_data = _rename_dict_keys_with_child_dicts(
-        _normalize_dict_values(xmltodict.parse(xml))
-    )
-
     # Pull the create time from the METS header.
     # Old METS did not use `metsHdr`.
     created = time.time()
@@ -440,7 +433,6 @@ def index_aip_and_files(
         "name": name,
         "filePath": aip_stored_path,
         "size": aip_size / (1024 * 1024),
-        "mets": mets_data,
         "origin": get_dashboard_uuid(),
         "created": created,
         "AICID": aic_identifier,
