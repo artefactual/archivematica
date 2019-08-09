@@ -588,7 +588,6 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[], printfn=print):
             indexData["fileExtension"] = fileExtension[1:].lower()
 
         # Index data
-        _wait_for_cluster_yellow_status(client)
         _try_to_index(client, indexData, "aipfiles", printfn=printfn)
 
         # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
