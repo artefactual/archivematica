@@ -470,11 +470,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
     :return: number of files indexed.
     """
     # Parse XML
-    tree = ElementTree.parse(mets_path)
-    root = tree.getroot()
-
-    # TODO: Add a conditional to toggle this
-    _remove_tool_output_from_mets(tree)
+    root = ElementTree.parse(mets_path).getroot()
 
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = ns.xml_find_premis(
