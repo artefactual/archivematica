@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import base64
 import logging
 import os
 import platform
@@ -10,7 +9,7 @@ import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from django.conf import settings as django_settings
 
 # archivematicaCommon
-from archivematicaFunctions import get_setting
+from archivematicaFunctions import get_setting, b64decode_string, b64encode_string
 from six.moves import map
 
 LOGGER = logging.getLogger("archivematica.common")
@@ -205,15 +204,16 @@ def browse_location(uuid, path):
     """
     Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
     """
-    path = base64.b64encode(path)
+    path = b64encode_string(path)
     url = _storage_service_url() + "location/" + uuid + "/browse/"
     params = {"path": path}
     response = _storage_api_session().get(url, params=params)
+
     browse = response.json()
-    browse["entries"] = list(map(base64.b64decode, browse["entries"]))
-    browse["directories"] = list(map(base64.b64decode, browse["directories"]))
+    browse["entries"] = list(map(b64decode_string, browse["entries"]))
+    browse["directories"] = list(map(b64decode_string, browse["directories"]))
     browse["properties"] = {
-        base64.b64decode(k): v for k, v in browse.get("properties", {}).items()
+        b64decode_string(k): v for k, v in browse.get("properties", {}).items()
     }
     return browse
 

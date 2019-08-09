@@ -32,13 +32,13 @@ from django.utils import six
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
-from components.filesystem_ajax.helpers import b64encode_string, b64decode_string
 from main import models
 
 import archivematicaFunctions
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
+from archivematicaFunctions import b64encode_string, b64decode_string
 from six.moves import map
 from six.moves import zip
 

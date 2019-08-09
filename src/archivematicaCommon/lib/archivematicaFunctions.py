@@ -25,6 +25,7 @@ different Archivematica modules.
 
 from __future__ import print_function
 from __future__ import absolute_import
+import base64
 import collections
 import hashlib
 import locale
@@ -104,6 +105,14 @@ def strToUnicode(string, obstinate=False):
             else:
                 raise
     return string
+
+
+def b64encode_string(data):
+    return base64.b64encode(data.encode("utf8")).decode("utf8")
+
+
+def b64decode_string(data):
+    return base64.b64decode(data.encode("utf8")).decode("utf8")
 
 
 def get_locale_encoding():

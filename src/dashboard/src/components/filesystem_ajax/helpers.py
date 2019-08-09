@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import
-import base64
 import os
 import logging
 
@@ -25,14 +24,6 @@ from components import helpers
 
 
 logger = logging.getLogger("archivematica.dashboard")
-
-
-def b64encode_string(data):
-    return base64.b64encode(data.encode("utf8")).decode("utf8")
-
-
-def b64decode_string(data):
-    return base64.b64decode(data.encode("utf8")).decode("utf8")
 
 
 def sorted_directory_list(path):

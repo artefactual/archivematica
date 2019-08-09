@@ -11,7 +11,7 @@ from agentarchives.archivesspace import ArchivesSpaceError
 from components import helpers
 from components.ingest.views import _es_results_to_appraisal_tab_format
 from components.ingest.views_as import get_as_system_client
-from components.filesystem_ajax.helpers import b64decode_string
+from archivematicaFunctions import b64decode_string
 from main.models import DashboardSetting
 
 

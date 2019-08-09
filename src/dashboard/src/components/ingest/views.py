@@ -48,12 +48,12 @@ from components import helpers
 from components import decorators
 from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
-from components.filesystem_ajax.helpers import b64encode_string
 from main import forms, models
 
 import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service
+from archivematicaFunctions import b64encode_string
 
 logger = logging.getLogger("archivematica.dashboard")
 
