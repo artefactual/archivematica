@@ -182,7 +182,8 @@ def getDublinCore(unit, id_):
     )
     ret.set(
         ns.xsiBNS + "schemaLocation",
-        ns.dctermsNS + " https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
+        ns.dctermsNS
+        + " https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
     )
 
     for dbname, term in db_field_mapping.items():
