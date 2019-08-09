@@ -45,6 +45,7 @@ import version
 from externals import xmltodict
 
 from elasticsearch import Elasticsearch, ImproperlyConfigured
+from elasticsearch.helpers import bulk
 
 
 logger = logging.getLogger("archivematica.common")
@@ -446,19 +447,13 @@ def index_aip_and_files(
     _try_to_index(client, aip_data, "aips", printfn=printfn)
     printfn("Done.")
     printfn("Indexing AIP files ...")
-    files_indexed = _index_aip_files(
-        client=client,
-        uuid=uuid,
-        mets=root,
-        name=name,
-        identifiers=identifiers,
-        printfn=printfn,
+    _index_aip_files(
+        client=client, uuid=uuid, mets=root, name=name, identifiers=identifiers
     )
-    printfn("Files indexed: " + str(files_indexed))
     return 0
 
 
-def _index_aip_files(client, uuid, mets, name, identifiers=[], printfn=print):
+def _index_aip_files(client, uuid, mets, name, identifiers=[]):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
     :param client: The ElasticSearch client.
@@ -466,8 +461,6 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[], printfn=print):
     :param mets: root Element of the METS document.
     :param name: AIP name.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
-    :param printfn: optional print funtion.
-    :return: number of files indexed.
     """
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = ns.xml_find_premis(
@@ -512,91 +505,101 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[], printfn=print):
     )
     files = original_files + metadata_files
 
-    # Index AIC METS file if it exists
-    for file_ in files:
-        indexData = fileData.copy()  # Deep copy of dict, not of dict contents
+    def _generator():
+        # Index AIC METS file if it exists
+        for file_ in files:
+            indexData = fileData.copy()  # Deep copy of dict, not of dict contents
 
-        # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
-        # otherwise parse it out of the file ID.
-        # 'Original' files have ADMIDs, 'Metadata' files don't
-        admID = file_.attrib.get("ADMID", None)
-        if admID is None:
-            # Parse UUID from file ID
-            fileUUID = None
-            uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
-            uuids = re.findall(uuix_regex, file_.attrib["ID"])
-            # Multiple UUIDs may be returned - if they are all identical, use that
-            # UUID, otherwise use None.
-            # To determine all UUIDs are identical, use the size of the set
-            if len(set(uuids)) == 1:
-                fileUUID = uuids[0]
-        else:
-            amdSecInfo = ns.xml_find_premis(mets, "mets:amdSec[@ID='{}']".format(admID))
-            fileUUID = ns.xml_findtext_premis(
-                amdSecInfo,
-                "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
+            # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
+            # otherwise parse it out of the file ID.
+            # 'Original' files have ADMIDs, 'Metadata' files don't
+            admID = file_.attrib.get("ADMID", None)
+            if admID is None:
+                # Parse UUID from file ID
+                fileUUID = None
+                uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
+                uuids = re.findall(uuix_regex, file_.attrib["ID"])
+                # Multiple UUIDs may be returned - if they are all identical, use that
+                # UUID, otherwise use None.
+                # To determine all UUIDs are identical, use the size of the set
+                if len(set(uuids)) == 1:
+                    fileUUID = uuids[0]
+            else:
+                amdSecInfo = ns.xml_find_premis(
+                    mets, "mets:amdSec[@ID='{}']".format(admID)
+                )
+                fileUUID = ns.xml_findtext_premis(
+                    amdSecInfo,
+                    "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
+                )
+
+                # Index amdSec information
+                xml = etree.tostring(amdSecInfo)
+                indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
+                    _normalize_dict_values(xmltodict.parse(xml))
+                )
+
+            indexData["FILEUUID"] = fileUUID
+
+            # Get the parent division for the file pointer
+            # by searching the physical structural map section (structMap)
+            file_id = file_.attrib.get("ID", None)
+            file_pointer_division = ns.xml_find_premis(
+                mets,
+                "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
+                    file_id
+                ),
             )
-
-            # Index amdSec information
-            xml = etree.tostring(amdSecInfo)
-            indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
-                _normalize_dict_values(xmltodict.parse(xml))
-            )
-
-        # Get the parent division for the file pointer
-        # by searching the physical structural map section (structMap)
-        file_id = file_.attrib.get("ID", None)
-        file_pointer_division = ns.xml_find_premis(
-            mets,
-            "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
-                file_id
-            ),
-        )
-        if file_pointer_division is not None:
-            # If the parent division has a DMDID attribute then index
-            # its data from the descriptive metadata section (dmdSec)
-            dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
-            if dmd_section_id is not None:
-                # dmd_section_id can contain one id (e.g., "dmdSec_2")
-                # or more than one (e.g., "dmdSec_2 dmdSec_3",
-                # when a file has both DC and non-DC metadata).
-                # Attempt to index only the DC dmdSec if available
-                for dmd_section_id_item in dmd_section_id.split():
-                    dmd_section_info = ns.xml_find_premis(
-                        mets,
-                        "mets:dmdSec[@ID='{}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData".format(
-                            dmd_section_id_item
-                        ),
-                    )
-                    if dmd_section_info is not None:
-                        xml = etree.tostring(dmd_section_info)
-                        data = _rename_dict_keys_with_child_dicts(
-                            _normalize_dict_values(xmltodict.parse(xml))
+            if file_pointer_division is not None:
+                # If the parent division has a DMDID attribute then index
+                # its data from the descriptive metadata section (dmdSec)
+                dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
+                if dmd_section_id is not None:
+                    # dmd_section_id can contain one id (e.g., "dmdSec_2")
+                    # or more than one (e.g., "dmdSec_2 dmdSec_3",
+                    # when a file has both DC and non-DC metadata).
+                    # Attempt to index only the DC dmdSec if available
+                    for dmd_section_id_item in dmd_section_id.split():
+                        dmd_section_info = ns.xml_find_premis(
+                            mets,
+                            "mets:dmdSec[@ID='{}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData".format(
+                                dmd_section_id_item
+                            ),
                         )
-                        indexData["METS"]["dmdSec"] = data
-                        break
+                        if dmd_section_info is not None:
+                            xml = etree.tostring(dmd_section_info)
+                            data = _rename_dict_keys_with_child_dicts(
+                                _normalize_dict_values(xmltodict.parse(xml))
+                            )
+                            indexData["METS"]["dmdSec"] = data
+                            break
 
-        indexData["FILEUUID"] = fileUUID
+            # Get file path from FLocat and extension
+            filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
+                "{http://www.w3.org/1999/xlink}href"
+            ]
+            indexData["filePath"] = filePath
+            _, fileExtension = os.path.splitext(filePath)
+            if fileExtension:
+                indexData["fileExtension"] = fileExtension[1:].lower()
 
-        # Get file path from FLocat and extension
-        filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
-            "{http://www.w3.org/1999/xlink}href"
-        ]
-        indexData["filePath"] = filePath
-        _, fileExtension = os.path.splitext(filePath)
-        if fileExtension:
-            indexData["fileExtension"] = fileExtension[1:].lower()
+            yield {
+                "_op_type": "index",
+                "_index": "aipfiles",
+                "_type": DOC_TYPE,
+                "_source": indexData,
+            }
 
-        # Index data
-        _try_to_index(client, indexData, "aipfiles", printfn=printfn)
+            # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
+            # since they are updated in the loop above.
+            # See http://stackoverflow.com/a/3975388 for explanation
+            fileData["METS"]["amdSec"] = {}
+            fileData["METS"]["dmdSec"] = {}
 
-        # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
-        # since they are updated in the loop above.
-        # See http://stackoverflow.com/a/3975388 for explanation
-        fileData["METS"]["amdSec"] = {}
-        fileData["METS"]["dmdSec"] = {}
-
-    return len(files)
+    # Number of docs (chunk_size) defaults to 500 which is probably too big as
+    # we're potentially dealing with large documents (full amdSec embedded).
+    # It should be revisited once we make documents smaller.
+    bulk(client, _generator(), chunk_size=50)
 
 
 def index_transfer_and_files(client, uuid, path, printfn=print):

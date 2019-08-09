@@ -7,6 +7,8 @@ import vcr
 
 import elasticSearchFunctions
 
+from lxml import etree
+
 try:
     from unittest.mock import ANY, patch
 except ImportError:
@@ -82,28 +84,25 @@ class TestElasticSearchFunctions(unittest.TestCase):
             elasticSearchFunctions.set_file_tags(self.client, "no_such_file", [])
 
     @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-    @mock.patch("elasticSearchFunctions._wait_for_cluster_yellow_status")
-    @mock.patch("elasticSearchFunctions._try_to_index")
+    @mock.patch("elasticSearchFunctions.bulk")
     def test_index_mets_file_metadata(
-        self,
-        dummy_try_to_index,
-        dummy_wait_for_cluster_yellow_status,
-        dummy_get_dashboard_uuid,
+        self, dummy_helpers_bulk, dummy_get_dashboard_uuid
     ):
         # Set up mocked functions
         dummy_get_dashboard_uuid.return_value = "test-uuid"
         indexed_data = {}
 
-        def get_dublincore_metadata(client, indexData, index, printfn):
-            try:
-                dmd_section = indexData["METS"]["dmdSec"]
-                metadata_container = dmd_section["ns0:xmlData_dict_list"][0]
-                dc = metadata_container["ns1:dublincore_dict_list"][0]
-            except (KeyError, IndexError):
-                dc = None
-            indexed_data[indexData["filePath"]] = dc
+        def _bulk(client, actions, stats_only=False, *args, **kwargs):
+            for item in actions:
+                try:
+                    dmd_section = item["_source"]["METS"]["dmdSec"]
+                    metadata_container = dmd_section["mets:xmlData_dict_list"][0]
+                    dc = metadata_container["dcterms:dublincore_dict_list"][0]
+                except (KeyError, IndexError):
+                    dc = None
+                indexed_data[item["_source"]["filePath"]] = dc
 
-        dummy_try_to_index.side_effect = get_dublincore_metadata
+        dummy_helpers_bulk.side_effect = _bulk
 
         # This METS file is a cut-down version of the AIP METS produced
         # using the SampleTransfers/DemoTransfer
@@ -114,20 +113,21 @@ class TestElasticSearchFunctions(unittest.TestCase):
         uuid = "f42a260a-9b53-4555-847e-8a4329c81662"
         sipName = "DemoTransfer-{}".format(uuid)
         identifiers = []
-        indexed_files_count = elasticSearchFunctions._index_aip_files(
+        elasticSearchFunctions._index_aip_files(
             client=self.client,
             uuid=uuid,
-            mets_path=mets_file_path,
+            mets=etree.parse(mets_file_path).getroot(),
             name=sipName,
             identifiers=identifiers,
         )
+
+        assert dummy_helpers_bulk.call_count == 1
 
         # ES should have indexed 12 files
         # - 5 content files
         # - 5 checksum and csv files in the metadata directory
         # - 2 files generated in the transfer process
-        assert indexed_files_count == 12
-        assert dummy_try_to_index.call_count == 12
+        assert len(indexed_data) == 12
 
         # Metadata should have been indexed only for these content
         # files because they are listed in the metadata.csv file
@@ -301,11 +301,9 @@ fileuuid_premisv2_no_ns = (
     ],
 )
 @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-@mock.patch("elasticSearchFunctions._wait_for_cluster_yellow_status")
-@mock.patch("elasticSearchFunctions._try_to_index")
+@mock.patch("elasticSearchFunctions.bulk")
 def test_index_aipfile_fileuuid(
-    dummy_try_to_index,
-    dummy_wait_for_cluster_yellow_status,
+    dummy_helpers_bulk,
     dummy_get_dashboard_uuid,
     metsfile,
     fileuuid_dict,
@@ -323,15 +321,16 @@ def test_index_aipfile_fileuuid(
 
     indexed_data = {}
 
-    def get_fileuuid(client, indexData, index, printfn):
-        indexed_data[indexData["filePath"]] = indexData["FILEUUID"]
+    def _bulk(client, actions, stats_only=False, *args, **kwargs):
+        for item in actions:
+            indexed_data[item["_source"]["filePath"]] = item["_source"]["FILEUUID"]
 
-    dummy_try_to_index.side_effect = get_fileuuid
+    dummy_helpers_bulk.side_effect = _bulk
 
     elasticSearchFunctions._index_aip_files(
         client=None,
         uuid=aipuuid,
-        mets_path=os.path.join(THIS_DIR, "fixtures", metsfile),
+        mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name="{}-{}".format(aipname, aipuuid),
         identifiers=[],
     )
@@ -362,14 +361,9 @@ dmdsec_dconly = {
     ],
 )
 @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-@mock.patch("elasticSearchFunctions._wait_for_cluster_yellow_status")
-@mock.patch("elasticSearchFunctions._try_to_index")
+@mock.patch("elasticSearchFunctions.bulk")
 def test_index_aipfile_dmdsec(
-    dummy_try_to_index,
-    dummy_wait_for_cluster_yellow_status,
-    dummy_get_dashboard_uuid,
-    metsfile,
-    dmdsec_dict,
+    dummy_helpers_bulk, dummy_get_dashboard_uuid, metsfile, dmdsec_dict
 ):
     """Check AIP file dmdSec is correctly parsed from METS files.
 
@@ -382,21 +376,22 @@ def test_index_aipfile_dmdsec(
 
     indexed_data = {}
 
-    def get_dublincore_metadata(client, indexData, index, printfn):
-        try:
-            dmd_section = indexData["METS"]["dmdSec"]
-            metadata_container = dmd_section["ns0:xmlData_dict_list"][0]
-            dc = metadata_container["ns1:dublincore_dict_list"][0]
-        except (KeyError, IndexError):
-            dc = None
-        indexed_data[indexData["filePath"]] = dc
+    def _bulk(client, actions, stats_only=False, *args, **kwargs):
+        for item in actions:
+            try:
+                dmd_section = item["_source"]["METS"]["dmdSec"]
+                metadata_container = dmd_section["mets:xmlData_dict_list"][0]
+                dc = metadata_container["dcterms:dublincore_dict_list"][0]
+            except (KeyError, IndexError):
+                dc = None
+            indexed_data[item["_source"]["filePath"]] = dc
 
-    dummy_try_to_index.side_effect = get_dublincore_metadata
+    dummy_helpers_bulk.side_effect = _bulk
 
     elasticSearchFunctions._index_aip_files(
         client=None,
         uuid="DUMMYUUID",
-        mets_path=os.path.join(THIS_DIR, "fixtures", metsfile),
+        mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name="{}-{}".format("DUMMYNAME", "DUMMYUUID"),
         identifiers=[],
     )
