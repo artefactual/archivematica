@@ -449,7 +449,7 @@ def index_aip_and_files(
     files_indexed = _index_aip_files(
         client=client,
         uuid=uuid,
-        mets_path=mets_staging_path,
+        mets=root,
         name=name,
         identifiers=identifiers,
         printfn=printfn,
@@ -458,23 +458,20 @@ def index_aip_and_files(
     return 0
 
 
-def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=print):
+def _index_aip_files(client, uuid, mets, name, identifiers=[], printfn=print):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
     :param client: The ElasticSearch client.
     :param uuid: The UUID of the AIP we're indexing.
-    :param mets_path: path on disk where the AIP's METS file is located.
+    :param mets: root Element of the METS document.
     :param name: AIP name.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param printfn: optional print funtion.
     :return: number of files indexed.
     """
-    # Parse XML
-    root = ElementTree.parse(mets_path).getroot()
-
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = ns.xml_find_premis(
-        root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
+        mets, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
     )
     aic_identifier = None
     is_part_of = None
@@ -503,15 +500,15 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
         "METS": {"dmdSec": {}, "amdSec": {}},
         "origin": get_dashboard_uuid(),
         "identifiers": identifiers,
-        "transferMetadata": _extract_transfer_metadata(root),
+        "transferMetadata": _extract_transfer_metadata(mets),
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'
     original_files = ns.xml_findall_premis(
-        root, "mets:fileSec/mets:fileGrp[@USE='original']/mets:file"
+        mets, "mets:fileSec/mets:fileGrp[@USE='original']/mets:file"
     )
     metadata_files = ns.xml_findall_premis(
-        root, "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file"
+        mets, "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file"
     )
     files = original_files + metadata_files
 
@@ -534,7 +531,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
             if len(set(uuids)) == 1:
                 fileUUID = uuids[0]
         else:
-            amdSecInfo = ns.xml_find_premis(root, "mets:amdSec[@ID='{}']".format(admID))
+            amdSecInfo = ns.xml_find_premis(mets, "mets:amdSec[@ID='{}']".format(admID))
             fileUUID = ns.xml_findtext_premis(
                 amdSecInfo,
                 "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
@@ -550,7 +547,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
         # by searching the physical structural map section (structMap)
         file_id = file_.attrib.get("ID", None)
         file_pointer_division = ns.xml_find_premis(
-            root,
+            mets,
             "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
                 file_id
             ),
@@ -566,7 +563,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
                 # Attempt to index only the DC dmdSec if available
                 for dmd_section_id_item in dmd_section_id.split():
                     dmd_section_info = ns.xml_find_premis(
-                        root,
+                        mets,
                         "mets:dmdSec[@ID='{}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData".format(
                             dmd_section_id_item
                         ),
