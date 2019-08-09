@@ -64,6 +64,7 @@ def _get_host_and_port(base_url):
     It is a losing game, only best effort.
     See ``test_migrations.py`` for to understand the behaviour.
     """
+    base_url = base_url or ""
     host, port = "", ""
     try:
         base_url = urlparse(base_url)
