@@ -27,6 +27,14 @@ from components import helpers
 logger = logging.getLogger("archivematica.dashboard")
 
 
+def b64encode_string(data):
+    return base64.b64encode(data.encode("utf8")).decode("utf8")
+
+
+def b64decode_string(data):
+    return base64.b64decode(data.encode("utf8")).decode("utf8")
+
+
 def sorted_directory_list(path):
     cleaned = []
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
@@ -39,10 +47,10 @@ def directory_to_dict(path, directory={}, entry=False):
     if entry is False:
         entry = directory
         # remove leading slash
-        entry["parent"] = base64.b64encode(os.path.dirname(path)[1:])
+        entry["parent"] = b64encode_string(os.path.dirname(path)[1:])
 
     # set standard entry properties
-    entry["name"] = base64.b64encode(os.path.basename(path))
+    entry["name"] = b64encode_string(os.path.basename(path))
     entry["children"] = []
 
     # define entries
@@ -51,7 +59,7 @@ def directory_to_dict(path, directory={}, entry=False):
         new_entry = None
         if file[0] != ".":
             new_entry = {}
-            new_entry["name"] = base64.b64encode(file)
+            new_entry["name"] = b64encode_string(file)
             entry["children"].append(new_entry)
 
         # if entry is a directory, recurse

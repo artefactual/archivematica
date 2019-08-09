@@ -17,7 +17,6 @@
 
 # Standard library, alphabetical by import source
 from __future__ import absolute_import
-import base64
 import six.moves.cPickle
 import json
 import logging
@@ -49,6 +48,7 @@ from components import helpers
 from components import decorators
 from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
+from components.filesystem_ajax.helpers import b64encode_string
 from main import forms, models
 
 import archivematicaFunctions
@@ -448,13 +448,13 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     if len(parts) == 1:  # path is a file
         return_list.append(
             {
-                "name": base64.b64encode(parts[0]),
+                "name": b64encode_string(parts[0]),
                 "properties": {"not_draggable": not_draggable},
             }
         )
     else:
         node, others = parts
-        node = base64.b64encode(node)
+        node = b64encode_string(node)
         if not return_list or return_list[-1]["name"] != node:
             return_list.append(
                 {
@@ -540,8 +540,8 @@ def _es_results_to_appraisal_tab_format(
                 "type": "transfer" if is_transfer else "directory",
                 # have to artificially create directory IDs, since we don't assign those
                 "id": str(uuid.uuid4()),
-                "title": base64.b64encode(os.path.basename(node)),
-                "relative_path": base64.b64encode(node),
+                "title": b64encode_string(os.path.basename(node)),
+                "relative_path": b64encode_string(node),
                 "not_draggable": not draggable,
                 "object_count": 0,
                 "children": [],
@@ -567,8 +567,8 @@ def _es_results_to_appraisal_tab_format(
     child = {
         "type": "file",
         "id": record["fileuuid"],
-        "title": base64.b64encode(fn),
-        "relative_path": base64.b64encode(record["relative_path"]),
+        "title": b64encode_string(fn),
+        "relative_path": b64encode_string(record["relative_path"]),
         "size": record["size"],
         "tags": record["tags"],
         "bulk_extractor_reports": record["bulk_extractor_reports"],

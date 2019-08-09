@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import
-import base64
 import errno
 import os
 import logging
@@ -33,6 +32,7 @@ from django.utils import six
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
+from components.filesystem_ajax.helpers import b64encode_string, b64decode_string
 from main import models
 
 import archivematicaFunctions
@@ -68,14 +68,6 @@ TRANSFER_TYPE_DIRECTORIES = {
 
 # How many objects are created through bulk_create in a single database query
 BULK_CREATE_BATCH_SIZE = 2000
-
-
-def _b64encode_string(data):
-    return base64.b64encode(data.encode("utf8")).decode("utf8")
-
-
-def _b64decode_string(data):
-    return base64.b64decode(data.encode("utf8")).decode("utf8")
 
 
 def _prepare_browse_response(response):
@@ -116,10 +108,10 @@ def _prepare_browse_response(response):
                 prop["size"]
             )
 
-    response["entries"] = list(map(_b64encode_string, response["entries"]))
-    response["directories"] = list(map(_b64encode_string, response["directories"]))
+    response["entries"] = list(map(b64encode_string, response["entries"]))
+    response["directories"] = list(map(b64encode_string, response["directories"]))
     response["properties"] = {
-        _b64encode_string(k): v for k, v in response.get("properties", {}).items()
+        b64encode_string(k): v for k, v in response.get("properties", {}).items()
     }
 
     return response
@@ -128,9 +120,9 @@ def _prepare_browse_response(response):
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ""
     if basePath:
-        path = base64.b64decode(basePath)
-    path = path + base64.b64decode(request.GET.get("base_path", ""))
-    path = path + base64.b64decode(request.GET.get("path", ""))
+        path = b64decode_string(basePath)
+    path = path + b64decode_string(request.GET.get("base_path", ""))
+    path = path + b64decode_string(request.GET.get("path", ""))
 
     response = storage_service.browse_location(location_uuid, path)
     response = _prepare_browse_response(response)
@@ -148,7 +140,7 @@ def arrange_contents(request, path=None):
     if path is None:
         path = request.GET.get("path", "")
         try:
-            base_path = _b64decode_string(path)
+            base_path = b64decode_string(path)
         except TypeError:
             response = {
                 "success": False,
@@ -228,7 +220,7 @@ def arrange_contents(request, path=None):
 def delete_arrange(request, filepath=None):
     if filepath is None:
         try:
-            filepath = base64.b64decode(request.POST["filepath"])
+            filepath = b64decode_string(request.POST["filepath"])
         except KeyError:
             response = {
                 "success": False,
@@ -481,7 +473,7 @@ def copy_from_arrange_to_completed(
     and start the microservice chain.
     """
     if filepath is None:
-        filepath = base64.b64decode(request.POST.get("filepath", ""))
+        filepath = b64decode_string(request.POST.get("filepath", ""))
     logger.info("copy_from_arrange_to_completed: filepath: %s", filepath)
     # can optionally pass in the UUID to an unstarted SIP entity
     if sip_uuid is None:
@@ -637,7 +629,7 @@ def create_directory_within_arrange(request):
     """
     error = None
 
-    paths = list(map(_b64decode_string, request.POST.getlist("paths[]", [])))
+    paths = list(map(b64decode_string, request.POST.getlist("paths[]", [])))
 
     if paths:
         try:
@@ -863,16 +855,16 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
         # List of sources & destinations
         if "filepath[]" in request.POST or "destination[]" in request.POST:
             sources = list(
-                map(_b64decode_string, request.POST.getlist("filepath[]", []))
+                map(b64decode_string, request.POST.getlist("filepath[]", []))
             )
             destinations = list(
-                map(_b64decode_string, request.POST.getlist("destination[]", []))
+                map(b64decode_string, request.POST.getlist("destination[]", []))
             )
         # Single path representing tree
         else:
             fetch_children = True
-            sources = [_b64decode_string(request.POST.get("filepath", ""))]
-            destinations = [_b64decode_string(request.POST.get("destination", ""))]
+            sources = [b64decode_string(request.POST.get("filepath", ""))]
+            destinations = [b64decode_string(request.POST.get("destination", ""))]
     logger.info("sources: %s", sources)
     logger.info("destinations: %s", destinations)
 
@@ -957,7 +949,7 @@ def copy_metadata_files(request, sip_uuid, paths):
         }
         return helpers.json_response(response, status_code=400)
 
-    paths = [base64.b64decode(p) for p in paths]
+    paths = [b64decode_string(p) for p in paths]
     sip = models.SIP.objects.get(uuid=sip_uuid)
     relative_path = sip.currentpath.replace("%sharedPath%", "", 1)
     relative_path = os.path.join(relative_path, "metadata")
@@ -1045,7 +1037,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
 
 
 def download_ss(request):
-    filepath = base64.b64decode(request.GET.get("filepath", "")).lstrip("/")
+    filepath = b64decode_string(request.GET.get("filepath", "")).lstrip("/")
     logger.info("download filepath: %s", filepath)
     if not filepath.startswith(DEFAULT_BACKLOG_PATH):
         return django.http.HttpResponseBadRequest()
@@ -1067,7 +1059,7 @@ def download_ss(request):
 
 def download_fs(request):
     shared_dir = os.path.realpath(django_settings.SHARED_DIRECTORY)
-    filepath = base64.b64decode(request.GET.get("filepath", ""))
+    filepath = b64decode_string(request.GET.get("filepath", ""))
     requested_filepath = os.path.realpath("/" + filepath)
 
     # respond with 404 if a non-Archivematica file is requested
