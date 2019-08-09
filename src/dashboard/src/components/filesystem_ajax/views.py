@@ -70,6 +70,14 @@ TRANSFER_TYPE_DIRECTORIES = {
 BULK_CREATE_BATCH_SIZE = 2000
 
 
+def _b64encode_string(data):
+    return base64.b64encode(data.encode("utf8")).decode("utf8")
+
+
+def _b64decode_string(data):
+    return base64.b64decode(data.encode("utf8")).decode("utf8")
+
+
 def _prepare_browse_response(response):
     """
     Additional common processing before passing a browse response back to JS.
@@ -108,13 +116,10 @@ def _prepare_browse_response(response):
                 prop["size"]
             )
 
-    def _b64(data):
-        return base64.b64encode(data.encode("utf8")).decode("utf8")
-
-    response["entries"] = list(map(_b64, response["entries"]))
-    response["directories"] = list(map(_b64, response["entries"]))
+    response["entries"] = list(map(_b64encode_string, response["entries"]))
+    response["directories"] = list(map(_b64encode_string, response["directories"]))
     response["properties"] = {
-        _b64(k): v for k, v in response.get("properties", {}).items()
+        _b64encode_string(k): v for k, v in response.get("properties", {}).items()
     }
 
     return response
@@ -141,9 +146,9 @@ def contents(request):
 
 def arrange_contents(request, path=None):
     if path is None:
-        path = request.GET.get("path")
+        path = request.GET.get("path", "")
         try:
-            base_path = base64.b64decode(path)
+            base_path = _b64decode_string(path)
         except TypeError:
             response = {
                 "success": False,
@@ -632,7 +637,7 @@ def create_directory_within_arrange(request):
     """
     error = None
 
-    paths = list(map(base64.b64decode, request.POST.getlist("paths[]", [])))
+    paths = list(map(_b64decode_string, request.POST.getlist("paths[]", [])))
 
     if paths:
         try:
@@ -858,16 +863,16 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
         # List of sources & destinations
         if "filepath[]" in request.POST or "destination[]" in request.POST:
             sources = list(
-                map(base64.b64decode, request.POST.getlist("filepath[]", []))
+                map(_b64decode_string, request.POST.getlist("filepath[]", []))
             )
             destinations = list(
-                map(base64.b64decode, request.POST.getlist("destination[]", []))
+                map(_b64decode_string, request.POST.getlist("destination[]", []))
             )
         # Single path representing tree
         else:
             fetch_children = True
-            sources = [base64.b64decode(request.POST.get("filepath", ""))]
-            destinations = [base64.b64decode(request.POST.get("destination", ""))]
+            sources = [_b64decode_string(request.POST.get("filepath", ""))]
+            destinations = [_b64decode_string(request.POST.get("destination", ""))]
     logger.info("sources: %s", sources)
     logger.info("destinations: %s", destinations)
 
