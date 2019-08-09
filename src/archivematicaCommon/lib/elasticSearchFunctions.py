@@ -31,7 +31,7 @@ import os
 import re
 import sys
 import time
-from xml.etree import ElementTree
+from lxml import etree
 
 from django.db.models import Min, Q
 from django.utils.six.moves import xrange
@@ -395,7 +395,7 @@ def index_aip_and_files(
         return 1
     printfn("AIP UUID: " + uuid)
     printfn("Indexing AIP ...")
-    tree = ElementTree.parse(mets_staging_path)
+    tree = etree.parse(mets_staging_path)
     _remove_tool_output_from_mets(tree)
     root = tree.getroot()
     # Extract AIC identifier, other specially-indexed information
@@ -545,7 +545,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
             )
 
             # Index amdSec information
-            xml = ElementTree.tostring(amdSecInfo)
+            xml = etree.tostring(amdSecInfo)
             indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
                 _normalize_dict_values(xmltodict.parse(xml))
             )
@@ -576,7 +576,7 @@ def _index_aip_files(client, uuid, mets_path, name, identifiers=[], printfn=prin
                         ),
                     )
                     if dmd_section_info is not None:
-                        xml = ElementTree.tostring(dmd_section_info)
+                        xml = etree.tostring(dmd_section_info)
                         data = _rename_dict_keys_with_child_dicts(
                             _normalize_dict_values(xmltodict.parse(xml))
                         )
@@ -810,7 +810,7 @@ def _remove_tool_output_from_mets(doc):
 
 def _extract_transfer_metadata(doc):
     return [
-        xmltodict.parse(ElementTree.tostring(el))["transfer_metadata"]
+        xmltodict.parse(etree.tostring(el))["transfer_metadata"]
         for el in ns.xml_findall_premis(
             doc, "mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/transfer_metadata"
         )
