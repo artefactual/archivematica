@@ -5,3 +5,4 @@ gearman==2.0.2
 lxml==3.5.0
 prometheus_client==0.7.1
 jsonschema==2.6.0
+futures==3.3.0; python_version < '3.2'
