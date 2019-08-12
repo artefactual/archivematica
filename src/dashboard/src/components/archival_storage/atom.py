@@ -57,7 +57,10 @@ def _load_premis(data, mwfile):
             val = getattr(premis_object, prop)
         except AttributeError:
             continue
-        if not val:
+        # Calling `getattr` to find an attribute deeper in the `premis_object`
+        # structure returns a non JSON serializable tuple instead of a None
+        # value. See Issues#743 for more information.
+        if not val or isinstance(val, tuple):
             continue
         logger.debug("Extracted property %s from METS: %s", prop, val)
         data[prop] = val
