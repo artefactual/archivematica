@@ -16,6 +16,7 @@ from main import models
 
 import metrics
 from job_chain import JobChain
+from scheduler import package_scheduler
 from taskGroup import TaskGroup
 from taskGroupRunner import TaskGroupRunner
 from translation import TranslationLabel
@@ -62,7 +63,7 @@ class BaseLinkExecutor(object):
 
     @property
     def workflow(self):
-        return self.job.workflow
+        return self.job.job_chain.workflow
 
 
 class ClientScriptLinkExecutor(BaseLinkExecutor):
@@ -144,7 +145,7 @@ class DirectoryLinkExecutor(ClientScriptLinkExecutor):
     def on_complete(self, task_group):
         super(DirectoryLinkExecutor, self).on_complete(task_group)
 
-        self.job.on_complete(task_group.calculateExitCode())
+        self.job_chain.job_done(self.job, self.exit_code)
 
 
 class FileLinkExecutor(ClientScriptLinkExecutor):
@@ -239,7 +240,7 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
         # If the batch of files was empty, we can immediately proceed to the
         # next job in the chain.  Assume a successful status code.
         if not self.task_groups:
-            self.job.on_complete(0)
+            self.job_chain.job_done(self.job, 0)
 
     def on_complete(self, task_group):
         super(FileLinkExecutor, self).on_complete(task_group)
@@ -255,7 +256,7 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
                     logger.error("TaskGroup UUID %s not in task list", task_group.UUID)
 
                 if not self.task_groups:
-                    self.job.on_complete(self.exit_code)
+                    self.job_chain.job_done(self.job, self.exit_code)
 
 
 class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
@@ -284,7 +285,7 @@ class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
         # Store on chain for next job
         self.job_chain.generated_choices = choices
 
-        self.job.on_complete(self.exit_code)
+        self.job_chain.job_done(self.job, self.exit_code)
 
 
 class ChoiceLinkExecutor(BaseLinkExecutor):
@@ -306,7 +307,8 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
             self.job.mark_complete()
             chain = self.workflow.get_chain(chain_id)
             job_chain = JobChain(self.unit, chain, self.workflow)
-            job_chain.start()
+            next_job = job_chain.get_current_job()
+            package_scheduler.schedule_job(next_job)
         else:
             with choices_available_lock:
                 choices_available[str(self.job.uuid)] = self
@@ -369,7 +371,8 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
         chain = self.workflow.get_chain(choice)
 
         job_chain = JobChain(self.unit, chain, self.workflow)
-        job_chain.start()
+        next_job = job_chain.get_current_job()
+        package_scheduler.schedule_job(next_job)
 
 
 class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
@@ -448,7 +451,8 @@ class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
         # an AIP store URI, and the value of execute (script_name here) is a
         # replacement string (e.g. %AIPsStore%)
         self.job_chain.context[self.config["execute"]] = context_value
-        self.job.on_complete(0)
+
+        self.job_chain.job_done(self.job, 0)
 
 
 class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
@@ -506,14 +510,14 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
                 key = "%%{}%%".format(key)
                 self.job_chain.context[key] = value
 
-            self.job.on_complete(0)
+            self.job_chain.job_done(self.job, 0)
             return
 
         replacements = self.load_choice_from_xml()
         if replacements is not None:
             self.job.mark_complete()
             self.job_chain.context.update(replacements)
-            self.job.on_complete(0)
+            self.job_chain.job_done(self.job, 0)
         else:
             with choices_available_lock:
                 choices_available[str(self.job.uuid)] = self
@@ -602,7 +606,7 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
         self.job.mark_complete()
 
         self.job_chain.context.update(items)
-        self.job.on_complete(0)
+        self.job_chain.job_done(self.job, 0)
 
 
 class GetUnitVarLinkExecutor(BaseLinkExecutor):
@@ -630,7 +634,7 @@ class GetUnitVarLinkExecutor(BaseLinkExecutor):
                 "Failed to find workflow link {} (set in unit variable)".format(link_id)
             )
 
-        self.job.on_complete(0, next_link=link)
+        self.job_chain.job_done(self.job, 0, next_link=link)
 
 
 class SetUnitVarLinkExecutor(BaseLinkExecutor):
@@ -642,4 +646,4 @@ class SetUnitVarLinkExecutor(BaseLinkExecutor):
         chain_id = self.config.get("chain_id")
 
         self.unit.set_variable(var_name, var_value, chain_id)
-        self.job.on_complete(0)
+        self.job_chain.job_done(self.job, 0)

@@ -52,11 +52,11 @@ from django.utils import six
 import watchDirectory
 from utils import log_exceptions
 
-from executor import Executor
 from taskGroupRunner import TaskGroupRunner
 import processing
 from job_chain import JobChain
 from package import DIP, Transfer, SIP
+from scheduler import package_scheduler
 from utils import valid_uuid
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
@@ -73,7 +73,7 @@ logger = logging.getLogger("archivematica.mcp.server")
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
 
-stopSignalReceived = False  # Tracks whether a sigkill has been received or not
+shutdown_event = threading.Event()  # Tracks whether a sigkill has been received or not
 
 ASSETS_DIR = os.path.join(
     os.path.dirname(os.path.abspath(os.path.join(__file__))), "assets"
@@ -170,15 +170,7 @@ def createUnitAndJobChain(path, watched_dir, workflow):
     else:
         return
     job_chain = JobChain(unit, watched_dir.chain, workflow)
-    job_chain.start()
-
-
-def createUnitAndJobChainThreaded(path, watched_dir, workflow):
-    try:
-        logger.debug("Watching path %s", path)
-        Executor.apply_async(createUnitAndJobChain, [path, watched_dir, workflow])
-    except Exception:
-        logger.exception("Error creating threads to watch directories")
+    package_scheduler.schedule_job_chain(job_chain)
 
 
 def watchDirectories(workflow):
@@ -196,35 +188,21 @@ def watchDirectories(workflow):
             if isinstance(item, six.binary_type):
                 item = item.decode("utf-8")
             path = os.path.join(six.text_type(directory), item)
-            createUnitAndJobChainThreaded(path, watched_dir, workflow)
+            createUnitAndJobChain(path, watched_dir, workflow)
         watchDirectory.archivematicaWatchDirectory(
             directory,
             variablesAdded=(watched_dir, workflow),
-            callBackFunctionAdded=createUnitAndJobChainThreaded,
+            callBackFunctionAdded=createUnitAndJobChain,
             alertOnFiles=not watched_dir["only_dirs"],
             interval=django_settings.WATCH_DIRECTORY_INTERVAL,
         )
-
-
-def signal_handler(signalReceived, frame):
-    """Used to handle the stop/kill command signals (SIGKILL)"""
-    logger.info("Recieved signal %s in frame %s", signalReceived, frame)
-    global stopSignalReceived
-    stopSignalReceived = True
-    threads = threading.enumerate()
-    for thread in threads:
-        logger.warning("Not stopping %s %s", type(thread), thread)
-    sys.stdout.flush()
-    sys.stderr.flush()
-    sys.exit(0)
-    exit(0)
 
 
 @log_exceptions
 @auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
-    while True:
+    while not shutdown_event.is_set():
         logger.debug("Debug monitor: datetime: %s", getUTCDate())
         logger.debug("Debug monitor: thread count: %s", threading.activeCount())
         time.sleep(3600)
@@ -233,7 +211,7 @@ def debugMonitor():
 @log_exceptions
 @auto_close_db
 def flushOutputs():
-    while True:
+    while not shutdown_event.is_set():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
@@ -328,18 +306,30 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
+def signal_handler(signal, frame):
+    """Used to handle the stop/kill command signals (SIGKILL)"""
+    logger.info("Recieved signal %s in frame %s", signal, frame)
+
+    shutdown_event.set()
+    package_scheduler.shutdown()
+
+    threads = threading.enumerate()
+    for thread in threads:
+        logger.warning("Not stopping %s %s", type(thread), thread)
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    sys.exit(0)
+    exit(0)
+
+
 if __name__ == "__main__":
-
-    # Replace exception handler with one that logs exceptions
-    # sys.excepthook = _except_hook_log_everything
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
-
-    metrics.start_prometheus_server()
 
     with open(DEFAULT_WORKFLOW) as workflow_file:
         try:
@@ -347,6 +337,8 @@ if __name__ == "__main__":
         except SchemaValidationError as err:
             logger.error("Workflow validation error: %s", err)
             sys.exit(1)
+
+    metrics.start_prometheus_server()
 
     dicts.setup(
         shared_directory=django_settings.SHARED_DIRECTORY,
@@ -357,19 +349,21 @@ if __name__ == "__main__":
 
     created_shared_directory_structure()
 
-    t = threading.Thread(target=debugMonitor)
-    t.daemon = True
-    t.start()
+    debug_thread = threading.Thread(target=debugMonitor)
+    debug_thread.start()
 
-    t = threading.Thread(target=flushOutputs)
-    t.daemon = True
-    t.start()
+    output_flush_thread = threading.Thread(target=flushOutputs)
+    output_flush_thread.start()
 
-    Executor.init()
-    TaskGroupRunner.init()
+    rpc_thread = threading.Thread(
+        target=RPCServer.start, args=(workflow, shutdown_event)
+    )
+    rpc_thread.start()
+
+    TaskGroupRunner.init(shutdown_event)
 
     cleanupOldDbEntriesOnNewRun()
     watchDirectories(workflow)
 
-    # This is blocking the main thread with the worker loop
-    RPCServer.start(workflow)
+    # Blocks until shutdown is called by a signal handler
+    package_scheduler.start()

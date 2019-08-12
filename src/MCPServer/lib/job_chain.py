@@ -11,6 +11,7 @@ from django.utils import timezone
 from databaseFunctions import auto_close_db
 
 import metrics
+from scheduler import package_scheduler
 from utils import log_exceptions
 
 from main import models
@@ -21,41 +22,72 @@ logger = logging.getLogger("archivematica.mcp.server")
 
 class JobChain(object):
     """
-    Creates jobs as necessary based on the workflow chain and unit given.
+    Creates jobs as necessary based on the workflow chain and package given.
     """
 
-    def __init__(self, unit, chain, workflow, starting_link=None):
+    def __init__(self, package, chain, workflow, starting_link=None):
         """Create an instance of a chain, based on the workflow chain given."""
-        logger.debug("Creating JobChain %s for chain %s", unit, chain.id)
-        self.unit = unit
+        logger.debug("Creating JobChain %s for package %s", chain.id, package.uuid)
+        self.package = package
         self.chain = chain
         self.workflow = workflow
         self.started_on = timezone.now()
-        self.starting_link = starting_link or self.chain.link
+        self.current_link = starting_link or self.chain.link
         self.context = None
         # TODO: store generated choices in context
         self.generated_choices = None
 
-    def start(self):
-        # TODO: unit context hits the db, make that clearer
-        self.context = self.unit.context.copy()
+    @property
+    def id(self):
+        return self.chain.id
 
-        job = Job(self, self.starting_link, self.workflow, self.unit)
-        job.start()
+    def get_current_job(self):
+        if not self.current_link:
+            return None
 
-    def proceed_to_next_link(self, link, context=None):
-        """Proceed to next link."""
-        if link is None:
-            logger.debug(
-                "Done with chain %s for unit %s", self.chain.id, self.unit.uuid
-            )
-            completed_on = timezone.now()
-            chain_duration = (completed_on - self.started_on).total_seconds()
-            metrics.chain_completed(chain_duration, self.unit.__class__.__name__)
-            return
+        if self.context is None:
+            # TODO: package context hits the db, make that clearer
+            self.context = self.package.context.copy()
 
-        job = Job(self, link, self.workflow, self.unit)
-        job.start()
+        return Job(self, self.current_link, self.package)
+
+    @log_exceptions
+    @auto_close_db
+    def job_done(self, job, exit_code, next_link=None):
+        """Job completion callback.
+
+        It continues the workflow running the next chain link which is looked
+        up in the workflow data unless determined by `next_link_id`. Before
+        starting, the status of the job associated to this link is updated.
+        """
+        job_status = self.current_link.get_status_id(exit_code)
+        job.update_job_status(job_status)
+
+        if next_link is None:
+            try:
+                next_link = self.current_link.get_next_link(exit_code)
+            except KeyError:
+                pass
+
+        self.current_link = next_link
+
+        if next_link is None:
+            self.done()
+        else:
+            # TODO: move this logic to queue?
+            # Queue the next job
+            next_job = self.get_current_job()
+            package_scheduler.schedule_job(next_job)
+
+    def done(self):
+        """Log chain completion
+        """
+        logger.debug(
+            "Done with chain %s for package %s", self.chain.id, self.package.uuid
+        )
+        completed_on = timezone.now()
+        chain_duration = (completed_on - self.started_on).total_seconds()
+        metrics.chain_completed(chain_duration, self.package.__class__.__name__)
 
 
 class Job(object):
@@ -69,30 +101,28 @@ class Job(object):
     STATUS_EXECUTING_COMMANDS = models.Job.STATUS_EXECUTING_COMMANDS
     STATUS_FAILED = models.Job.STATUS_FAILED
 
-    def __init__(self, job_chain, link, workflow, unit):
+    def __init__(self, job_chain, link, package):
         self.uuid = uuid.uuid4()
         self.job_chain = job_chain
-        self.workflow = workflow
-        self.unit = unit
+        self.package = package
         self.link = link
-        self.workflow = workflow
         self.created_at = timezone.now()
         self.group = link.get_label("group", "en")
         self.description = link.get_label("description", "en")
 
-    def start(self):
-        logger.info("Running %s (unit %s)", self.description, self.unit.uuid)
+    def run(self):
+        logger.info("Running %s (package %s)", self.description, self.package.uuid)
         # Reload the package, in case the path has changed
-        self.unit.reload()
+        self.package.reload()
 
         # Persist the job in the db
         models.Job.objects.create(
             jobuuid=self.uuid,
             jobtype=self.description,
-            directory=self.unit.current_path,
-            sipuuid=self.unit.uuid,
+            directory=self.package.current_path,
+            sipuuid=self.package.uuid,
             currentstep=self.STATUS_EXECUTING_COMMANDS,
-            unittype=self.unit.JOB_UNIT_TYPE,
+            unittype=self.package.JOB_UNIT_TYPE,
             microservicegroup=self.group,
             createdtime=self.created_at,
             createdtimedec=self.created_at.strftime("%f"),
@@ -100,8 +130,10 @@ class Job(object):
         )
 
         manager_class = self.link.manager
-        manager = manager_class(self, self.unit)
+        manager = manager_class(self, self.package)
         manager.execute()
+
+        return self
 
     @log_exceptions
     @auto_close_db
@@ -123,22 +155,3 @@ class Job(object):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=self.STATUS_COMPLETED_SUCCESSFULLY
         )
-
-    @log_exceptions
-    @auto_close_db
-    def on_complete(self, exit_code, next_link=None):
-        """Link completion callback.
-
-        It continues the workflow running the next chain link which is looked
-        up in the workflow data unless determined by `next_link_id`. Before
-        starting, the status of the job associated to this link is updated.
-        """
-        job_status = self.link.get_status_id(exit_code)
-        self.update_job_status(job_status)
-        if next_link is None:
-            try:
-                next_link = self.link.get_next_link(exit_code)
-            except KeyError:
-                pass
-
-        self.job_chain.proceed_to_next_link(next_link)

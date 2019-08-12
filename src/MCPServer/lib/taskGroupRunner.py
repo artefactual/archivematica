@@ -67,9 +67,9 @@ class TaskGroupRunner:
     TaskGroupJob = collections.namedtuple("Job", ["task_group", "finished_callback"])
 
     @staticmethod
-    def init():
+    def init(shutdown_event):
         """Initialize TaskGroupRunner and start its poll thread."""
-        TaskGroupRunner._instance = TaskGroupRunner()
+        TaskGroupRunner._instance = TaskGroupRunner(shutdown_event)
         TaskGroupRunner._instance._start_polling()
 
     @staticmethod
@@ -81,7 +81,9 @@ class TaskGroupRunner:
             TaskGroupRunner.TaskGroupJob(task_group, finished_callback)
         )
 
-    def __init__(self):
+    def __init__(self, shutdown_event):
+        self.shutdown_event = shutdown_event
+
         # The list of TaskGroups that are ready to run but not yet submitted to
         # the MCP Client.
         self.pending_task_group_jobs_lock = threading.Lock()
@@ -116,7 +118,7 @@ class TaskGroupRunner:
         def event_loop():
             gm_client = gearman.GearmanClient([django_settings.GEARMAN_SERVER])
 
-            while True:
+            while not self.shutdown_event.is_set():
                 try:
                     time.sleep(TaskGroupRunner.POLL_DELAY_SECONDS)
                     self._poll(gm_client)

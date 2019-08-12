@@ -32,10 +32,9 @@ from django.conf import settings
 from django.utils import six
 
 from archivematicaFunctions import unicodeToStr
-from databaseFunctions import auto_close_db
-from executor import Executor
 from job_chain import JobChain
 from main import models
+from scheduler import package_scheduler
 import storageService as storage_service
 
 
@@ -277,7 +276,6 @@ def create_package(
     user_id,
     workflow,
     auto_approve=True,
-    wait_until_complete=False,
     processing_config=None,
 ):
     """Launch transfer and return its object immediately.
@@ -319,29 +317,21 @@ def create_package(
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
-    @auto_close_db
-    def _start(transfer, name, type_, path):
-        # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
-        tmpdir = mkdtemp(dir=os.path.join(settings.SHARED_DIRECTORY, "tmp"))
-        starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
-        logger.debug(
-            "Package %s: starting transfer (%s)",
-            transfer.pk,
-            (name, type_, path, tmpdir),
-        )
-        try:
-            params = (transfer, name, path, tmpdir, starting_point, processing_config)
-            if auto_approve:
-                params = params + (workflow,)
-                _start_package_transfer_with_auto_approval(*params)
-            else:
-                _start_package_transfer(*params)
-        finally:
-            os.chmod(tmpdir, 0o770)  # Needs to be writeable by the SS.
-
-    getattr(Executor, "apply" if wait_until_complete else "apply_async")(
-        _start, (transfer, name, type_, path)
+    # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
+    tmpdir = mkdtemp(dir=os.path.join(settings.SHARED_DIRECTORY, "tmp"))
+    starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
+    logger.debug(
+        "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
     )
+    try:
+        params = (transfer, name, path, tmpdir, starting_point, processing_config)
+        if auto_approve:
+            params = params + (workflow,)
+            _start_package_transfer_with_auto_approval(*params)
+        else:
+            _start_package_transfer(*params)
+    finally:
+        os.chmod(tmpdir, 0o770)  # Needs to be writeable by the SS.
 
     return transfer
 
@@ -419,7 +409,7 @@ def _start_package_transfer_with_auto_approval(
         workflow,
         workflow.get_link(starting_point.link),
     )
-    job_chain.start()
+    package_scheduler.schedule_job_chain(job_chain)
 
 
 @_capture_transfer_failure

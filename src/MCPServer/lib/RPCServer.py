@@ -247,10 +247,7 @@ class RPCServer(GearmanWorker):
             payload.get("user_id"),
             self.workflow,
         )
-        kwargs = {
-            "auto_approve": payload.get("auto_approve"),
-            "wait_until_complete": payload.get("wait_until_complete"),
-        }
+        kwargs = {"auto_approve": payload.get("auto_approve")}
         processing_config = payload.get("processing_config")
         if processing_config is not None:
             kwargs["processing_config"] = processing_config
@@ -472,12 +469,12 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
     return ret
 
 
-def start(workflow):
+def start(workflow, shutdown_event):
     worker = RPCServer(workflow)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2
-    while True:
+    while not shutdown_event.is_set():
         try:
             worker.work()
         except gearman.errors.ServerUnavailable as inst:
