@@ -71,7 +71,10 @@ class PackageScheduler(object):
                 logger.debug(
                     "Active packages are: %s",
                     ", ".join(
-                        [repr(package) for package in self.active_packages.values()]
+                        [
+                            repr(active_package)
+                            for active_package in self.active_packages.values()
+                        ]
                     ),
                 )
             queue_size = (
@@ -103,13 +106,13 @@ class PackageScheduler(object):
             # block until a job is waiting
             job = self.job_queue.get(timeout=None)
             result = self.executor.submit(job.run)
-            result.add_done_callback(self.job_done_callback)
+            result.add_done_callback(self.check_package_done)
 
     def shutdown(self):
         self.shutdown_event.set()
         self.executor.shutdown(wait=True)
 
-    def job_done_callback(self, future):
+    def check_package_done(self, future):
         job = future.result()
 
         if job.link.id in PACKAGE_COMPLETED_LINK_IDS:

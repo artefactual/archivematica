@@ -97,13 +97,13 @@ def update_job_status(active_task_groups_by_uuid, running_gearman_jobs, pending_
 
 
 @skip_if_prometheus_disabled
-def task_completed(task, task_group):
+def task_completed(task, job):
     if task.finished_timestamp is None:
         return
 
-    group_name = task_group.linkTaskManager.job.group
-    task_name = task_group.linkTaskManager.job.description
-    script_name = task_group.name()
+    group_name = job.group
+    task_name = job.description
+    script_name = job.name
     timediff = task.finished_timestamp - task.start_timestamp
     duration = timediff.total_seconds()
 
@@ -117,9 +117,9 @@ def task_completed(task, task_group):
 
 
 @skip_if_prometheus_disabled
-def task_failed(task, task_group):
-    group_name = task_group.linkTaskManager.job.group
-    task_name = task_group.linkTaskManager.job.description
+def task_failed(task, job):
+    group_name = job.group
+    task_name = job.description
 
     task_error_timestamp.labels(
         task_group_name=group_name, task_name=task_name

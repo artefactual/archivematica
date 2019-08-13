@@ -6,12 +6,14 @@ from __future__ import unicode_literals
 import logging
 import uuid
 
-from django.utils import timezone
+from django.conf import settings
+from django.utils import six, timezone
 
 from databaseFunctions import auto_close_db
 
 import metrics
 from scheduler import package_scheduler
+from task import GearmanTaskRequest, Task, wait_for_gearman_task_results
 from utils import log_exceptions
 
 from main import models
@@ -27,7 +29,6 @@ class JobChain(object):
 
     def __init__(self, package, chain, workflow, starting_link=None):
         """Create an instance of a chain, based on the workflow chain given."""
-        logger.debug("Creating JobChain %s for package %s", chain.id, package.uuid)
         self.package = package
         self.chain = chain
         self.workflow = workflow
@@ -36,6 +37,13 @@ class JobChain(object):
         self.context = None
         # TODO: store generated choices in context
         self.generated_choices = None
+
+        logger.debug(
+            "Creating JobChain %s for package %s (initial link %s)",
+            chain.id,
+            package.uuid,
+            self.current_link,
+        )
 
     @property
     def id(self):
@@ -60,6 +68,12 @@ class JobChain(object):
         up in the workflow data unless determined by `next_link_id`. Before
         starting, the status of the job associated to this link is updated.
         """
+        logger.debug(
+            "Job %s done with exit code %s (next link %s)",
+            job.uuid,
+            exit_code,
+            next_link,
+        )
         job_status = self.current_link.get_status_id(exit_code)
         job.update_job_status(job_status)
 
@@ -91,7 +105,10 @@ class JobChain(object):
 
 
 class Job(object):
-    """Links the Job model in dashboard to a link in the workflow.
+    """
+    A single job, usually corresponding to an mcp client script.
+    Links the Job model in the database to a link in the workflow. Each job has one
+    or more associated Tasks.
     """
 
     # Mirror job model statuses
@@ -101,6 +118,14 @@ class Job(object):
     STATUS_EXECUTING_COMMANDS = models.Job.STATUS_EXECUTING_COMMANDS
     STATUS_FAILED = models.Job.STATUS_FAILED
 
+    # The number of files we'll pack into each MCP Client job.  Chosen somewhat
+    # arbitrarily, but benchmarking with larger values (like 512) didn't make much
+    # difference to throughput.
+    #
+    # Setting this too large will use more memory; setting it too small will hurt
+    # throughput.  So the trick is to set it juuuust right.
+    TASK_BATCH_SIZE = settings.BATCH_SIZE
+
     def __init__(self, job_chain, link, package):
         self.uuid = uuid.uuid4()
         self.job_chain = job_chain
@@ -109,6 +134,22 @@ class Job(object):
         self.created_at = timezone.now()
         self.group = link.get_label("group", "en")
         self.description = link.get_label("description", "en")
+
+        self.tasks = {}
+        self.pending_task_ids = []
+        self.task_request = None
+        self.task_requests = []
+
+    @property
+    def name(self):
+        return self.link.config.get("execute", "").lower()
+
+    @property
+    def exit_code(self):
+        if not self.tasks:
+            return None
+
+        return max([task.exit_code for task in six.itervalues(self.tasks)])
 
     def run(self):
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
@@ -129,11 +170,62 @@ class Job(object):
             microservicechainlink=self.link.id,
         )
 
+        # The manager will populate Job tasks, via add_task
         manager_class = self.link.manager
         manager = manager_class(self, self.package)
         manager.execute()
 
+        if self.tasks:
+            # Submit the last batch
+            self.submit_task_batch()
+
+            # Block until out of process tasks have completed
+            self.wait_for_task_results()
+
+            # Log tasks to DB
+            model_objects = [
+                task.to_db_model(self, self.link) for task in six.itervalues(self.tasks)
+            ]
+            models.Task.objects.bulk_create(model_objects, batch_size=2000)
+
+        # Run manager callback
+        # TODO: improve this back and forth
+        if hasattr(manager, "on_complete"):
+            manager.on_complete(self)
+
         return self
+
+    def submit_task_batch(self):
+        if self.task_request is None:
+            return
+
+        self.task_request.submit(self.name)
+        self.task_requests.append(self.task_request)
+        self.task_request = None
+
+    def add_task(self, *args, **kwargs):
+        task = Task(*args, **kwargs)
+        self.tasks[str(task.uuid)] = task
+
+        if self.task_request is None:
+            self.task_request = GearmanTaskRequest()
+        self.task_request.add_task(task)
+
+        if (len(self.task_request) % self.TASK_BATCH_SIZE) == 0:
+            self.submit_task_batch()
+
+    def wait_for_task_results(self):
+        for task_id, task_result in wait_for_gearman_task_results(self.task_requests):
+            task = self.tasks[task_id]
+            task.exit_code = task_result["exitCode"]
+            task.exit_status = task_result.get("exitStatus", "")
+            task.stdout = task_result.get("stdout", "")
+            task.stderr = task_result.get("stderr", "")
+            task.finished_timestamp = task_result.get("finishedTimestamp")
+
+            # task.write_output()
+
+            metrics.task_completed(task, self)
 
     @log_exceptions
     @auto_close_db

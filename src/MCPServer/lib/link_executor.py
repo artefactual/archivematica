@@ -14,11 +14,8 @@ from databaseFunctions import auto_close_db
 
 from main import models
 
-import metrics
-from job_chain import JobChain
+from job import JobChain
 from scheduler import package_scheduler
-from taskGroup import TaskGroup
-from taskGroupRunner import TaskGroupRunner
 from translation import TranslationLabel
 from utils import log_exceptions
 from workflow_abilities import choice_is_available
@@ -75,7 +72,7 @@ class ClientScriptLinkExecutor(BaseLinkExecutor):
     def __init__(self, *args, **kwargs):
         super(ClientScriptLinkExecutor, self).__init__(*args, **kwargs)
 
-        # Zero if every taskGroup executed so far has succeeded.  Otherwise,
+        # Zero if every task executed so far has succeeded.  Otherwise,
         # something greater than zero.
         self.exit_code = 0
 
@@ -117,24 +114,19 @@ class ClientScriptLinkExecutor(BaseLinkExecutor):
         stdout_file = self.replace_values(self.stdout_file, self.command_replacements)
         stderr_file = self.replace_values(self.stderr_file, self.command_replacements)
 
-        group = TaskGroup(self, self.script_name)
-        group.addTask(
+        self.job.add_task(
             arguments,
             stdout_file,
             stderr_file,
-            commandReplacementDic=self.command_replacements,
+            self.command_replacements,
             wants_output=self.capture_task_output,
         )
-        group.logTaskCreatedSQL()
-        TaskGroupRunner.runTaskGroup(group, self.on_complete)
 
-    def on_complete(self, task_group):
-        task_group.write_output()
-
+    def on_complete(self, job):
         # Exit code is the maximum of all task groups (and each task group's
         # exit code is the maximum of the tasks it contains... turtles all the
         # way down)
-        self.exit_code = max([task_group.calculateExitCode(), self.exit_code])
+        self.exit_code = max([job.exit_code, self.exit_code])
 
 
 class DirectoryLinkExecutor(ClientScriptLinkExecutor):
@@ -142,8 +134,8 @@ class DirectoryLinkExecutor(ClientScriptLinkExecutor):
     Handles links that pass a directory (e.g. "objects/") to mcp client for execution.
     """
 
-    def on_complete(self, task_group):
-        super(DirectoryLinkExecutor, self).on_complete(task_group)
+    def on_complete(self, job):
+        super(DirectoryLinkExecutor, self).on_complete(job)
 
         self.job_chain.job_done(self.job, self.exit_code)
 
@@ -152,23 +144,6 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
     """
     Handles links that pass individual files to mcp client for execution.
     """
-
-    # The number of files we'll pack into each MCP Client job.  Chosen somewhat
-    # arbitrarily, but benchmarking with larger values (like 512) didn't make much
-    # difference to throughput.
-    #
-    # Setting this too large will use more memory; setting it too small will hurt
-    # throughput.  So the trick is to set it juuuust right.
-    BATCH_SIZE = settings.BATCH_SIZE
-
-    def __init__(self, *args, **kwargs):
-        super(FileLinkExecutor, self).__init__(*args, **kwargs)
-
-        # The list of task groups we'll be executing for this batch of files
-        self.task_group_lock = threading.Lock()
-        self.task_groups = {}
-
-        self.task_output_lock = threading.Lock()
 
     def execute(self):
         # TODO simplify / break up this method
@@ -198,11 +173,6 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
             else:
                 filter_subdir = script_override.get("filterSubDir")
 
-        with metrics.task_group_lock_summary.labels(function="__init__").time():
-            self.task_group_lock.acquire()
-
-        current_task_group = None
-
         for file_replacements in self.unit.files(
             filter_filename_start=filter_file_start,
             filter_filename_end=filter_file_end,
@@ -216,47 +186,11 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
             stdout_file = self.replace_values(self.stdout_file, command_replacements)
             stderr_file = self.replace_values(self.stderr_file, command_replacements)
 
-            if (
-                current_task_group is None
-                or current_task_group.count() > self.BATCH_SIZE
-            ):
-                current_task_group = TaskGroup(self, self.script_name)
-                self.task_groups[current_task_group.UUID] = current_task_group
+            self.job.add_task(arguments, stdout_file, stderr_file, command_replacements)
 
-            current_task_group.addTask(
-                arguments,
-                stdout_file,
-                stderr_file,
-                self.task_output_lock,
-                command_replacements,
-            )
-
-        for task_group in self.task_groups.values():
-            task_group.logTaskCreatedSQL()
-            TaskGroupRunner.runTaskGroup(task_group, self.on_complete)
-
-        self.task_group_lock.release()
-
-        # If the batch of files was empty, we can immediately proceed to the
-        # next job in the chain.  Assume a successful status code.
-        if not self.task_groups:
-            self.job_chain.job_done(self.job, 0)
-
-    def on_complete(self, task_group):
-        super(FileLinkExecutor, self).on_complete(task_group)
-
-        with metrics.task_group_lock_summary.labels(
-            function="taskGroupFinished"
-        ).time():
-            with self.task_group_lock:
-                if task_group.UUID in self.task_groups:
-                    del self.task_groups[task_group.UUID]
-                else:
-                    # Shouldn't happen!
-                    logger.error("TaskGroup UUID %s not in task list", task_group.UUID)
-
-                if not self.task_groups:
-                    self.job_chain.job_done(self.job, self.exit_code)
+    def on_complete(self, job):
+        super(FileLinkExecutor, self).on_complete(job)
+        self.job_chain.job_done(self.job, self.exit_code)
 
 
 class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
@@ -265,15 +199,15 @@ class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
 
     capture_task_output = True
 
-    def on_complete(self, task_group):
-        super(GetJobOutputLinkExecutor, self).on_complete(task_group)
+    def on_complete(self, job):
+        super(GetJobOutputLinkExecutor, self).on_complete(job)
 
-        stdout = None
-        tasks = task_group.tasks()
         try:
-            stdout = tasks[0].results["stdout"]
+            # Load the "first" item from a dict
+            stdout = six.next(six.itervalues(job.tasks)).stdout
         except KeyError:
-            pass
+            stdout = None
+
         logger.debug("stdout emitted by client: %s", stdout)
 
         try:

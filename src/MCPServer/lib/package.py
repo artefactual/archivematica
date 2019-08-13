@@ -32,7 +32,7 @@ from django.conf import settings
 from django.utils import six
 
 from archivematicaFunctions import unicodeToStr
-from job_chain import JobChain
+from job import JobChain
 from main import models
 from scheduler import package_scheduler
 import storageService as storage_service

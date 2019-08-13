@@ -52,9 +52,8 @@ from django.utils import six
 import watchDirectory
 from utils import log_exceptions
 
-from taskGroupRunner import TaskGroupRunner
 import processing
-from job_chain import JobChain
+from job import JobChain
 from package import DIP, Transfer, SIP
 from scheduler import package_scheduler
 from utils import valid_uuid
@@ -359,8 +358,6 @@ if __name__ == "__main__":
         target=RPCServer.start, args=(workflow, shutdown_event)
     )
     rpc_thread.start()
-
-    TaskGroupRunner.init(shutdown_event)
 
     cleanupOldDbEntriesOnNewRun()
     watchDirectories(workflow)
