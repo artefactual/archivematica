@@ -626,7 +626,7 @@ def create_directory_within_arrange(request):
     """
     error = None
 
-    paths = map(base64.b64decode, request.POST.getlist("paths", []))
+    paths = map(base64.b64decode, request.POST.getlist("paths[]", []))
 
     if paths:
         try:

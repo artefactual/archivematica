@@ -151,7 +151,7 @@ class TestSIPArrange(TestCase):
         # Create directory
         response = self.client.post(
             reverse("components.filesystem_ajax.views.create_directory_within_arrange"),
-            data={"paths": base64.b64encode("/arrange/new_dir")},
+            data={"paths[]": [base64.b64encode("/arrange/new_dir")]},
             follow=True,
         )
         assert response.status_code == 201
