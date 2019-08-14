@@ -594,6 +594,12 @@ class File(models.Model):
 
     class Meta:
         db_table = u"Files"
+        # Additional fields indexed via raw migration (as they are blobs):
+        # ("transfer", "currentlocation"),
+        # ("sip", "currentlocation"),
+        # ("transfer", "originallocation"),
+        # ("sip", "originallocation"),
+        index_together = (("sip", "filegrpuse"),)
 
     def __unicode__(self):
         return six.text_type(
