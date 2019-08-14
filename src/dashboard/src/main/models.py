@@ -1367,6 +1367,8 @@ class UnitVariable(models.Model):
 
     class Meta:
         db_table = u"UnitVariables"
+        # Fields indexed via raw migration (as they are blobs):
+        # ("unituuid", "unittype", "variable")
 
 
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):
