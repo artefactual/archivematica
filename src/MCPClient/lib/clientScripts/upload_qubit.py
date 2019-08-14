@@ -218,19 +218,23 @@ def start(job, data):
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
     atom_url_prefix = ";" if data.version == 1 else ""
-    data.url = "%s/%ssword/deposit/%s" % (data.url, atom_url_prefix, target["target"])
+    deposit_url = "%s/%ssword/deposit/%s" % (
+        data.url,
+        atom_url_prefix,
+        target["target"],
+    )
 
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
-    access.resource = data.url
+    access.resource = "%s/%s" % (data.url, target["target"])
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 
     # Disable redirects: AtoM returns 302 instead of 202, but Location header field is valid
     response = requests.request(
         "POST",
-        data.url,
+        deposit_url,
         auth=auth,
         headers=headers,
         allow_redirects=False,
@@ -255,8 +259,6 @@ def start(job, data):
         return error(
             job, "Location is expected, if not is likely something is wrong with AtoM"
         )
-    else:
-        access.resource = data.url
 
     # (A)synchronously?
     if response.status_code == 302:
