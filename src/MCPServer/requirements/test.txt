@@ -11,7 +11,7 @@ django==1.8.19
 filelock==3.0.10          # via tox
 funcsigs==1.0.2           # via mock, pytest
 functools32==3.2.3.post2
-gearman3==0.1.0
+git+git://github.com/ross-spencer/python-gearman@ebfdee8217690d4631585ecc7f2655084aa5bd4d#egg=gearman3
 jsonschema==2.6.0
 lxml==3.5.0
 mock==2.0.0               # via pytest-mock
@@ -33,4 +33,4 @@ tox==3.8.3
 virtualenv==16.4.3        # via tox
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.0.1        # via pytest, tox
+# setuptools==41.1.0        # via pytest, tox
