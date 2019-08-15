@@ -47,7 +47,7 @@ def test_send_email_ok(settings):
 
 def test_send_email_err(monkeypatch):
     monkeypatch.setattr(
-        "django.core.mail.send_mail.func_code", fake_send_email_with_exception.func_code
+        "django.core.mail.send_mail.__code__", fake_send_email_with_exception.__code__
     )
     with pytest.raises(SMTPException):
         send_email("Foobar", ["to@domain.tld"], "<html>...</html>")
