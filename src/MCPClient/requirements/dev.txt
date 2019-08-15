@@ -17,7 +17,7 @@ django==1.8.19
 filelock==3.0.10
 funcsigs==1.0.2
 future==0.17.1
-gearman==2.0.2
+git+git://github.com/ross-spencer/python-gearman@ebfdee8217690d4631585ecc7f2655084aa5bd4d#egg=gearman3
 idna==2.8
 lxml==3.5.0
 metsrw==0.3.11
@@ -43,3 +43,6 @@ tox==3.8.3
 unidecode==0.04.19
 urllib3==1.24.1
 virtualenv==16.4.3
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.1.0        # via opf-fido, pytest, tox
