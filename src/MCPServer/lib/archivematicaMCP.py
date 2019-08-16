@@ -50,7 +50,6 @@ from django.utils import six
 
 # This project, alphabetical by import source
 import watchDirectory
-from utils import log_exceptions
 
 import processing
 from job import JobChain
@@ -142,7 +141,6 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     return UUID
 
 
-@log_exceptions
 @auto_close_db
 def createUnitAndJobChain(path, watched_dir, workflow):
     path = unicodeToStr(path)
@@ -197,7 +195,6 @@ def watchDirectories(workflow):
         )
 
 
-@log_exceptions
 @auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
@@ -207,7 +204,6 @@ def debugMonitor():
         time.sleep(3600)
 
 
-@log_exceptions
 @auto_close_db
 def flushOutputs():
     while not shutdown_event.is_set():

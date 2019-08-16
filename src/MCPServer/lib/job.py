@@ -14,7 +14,6 @@ from databaseFunctions import auto_close_db
 import metrics
 from scheduler import package_scheduler
 from task import GearmanTaskRequest, Task, wait_for_gearman_task_results
-from utils import log_exceptions
 
 from main import models
 
@@ -59,7 +58,6 @@ class JobChain(object):
 
         return Job(self, self.current_link, self.package)
 
-    @log_exceptions
     @auto_close_db
     def job_done(self, job, exit_code, next_link=None):
         """Job completion callback.
@@ -227,21 +225,18 @@ class Job(object):
 
             metrics.task_completed(task, self)
 
-    @log_exceptions
     @auto_close_db
     def update_job_status(self, status_code):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=status_code
         )
 
-    @log_exceptions
     @auto_close_db
     def mark_awaiting_decision(self):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=self.STATUS_AWAITING_DECISION
         )
 
-    @log_exceptions
     @auto_close_db
     def mark_complete(self):
         return models.Job.objects.filter(jobuuid=self.uuid).update(

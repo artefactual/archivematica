@@ -17,7 +17,6 @@ from main import models
 from job import JobChain
 from scheduler import package_scheduler
 from translation import TranslationLabel
-from utils import log_exceptions
 from workflow_abilities import choice_is_available
 
 
@@ -282,7 +281,6 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
 
         return ret
 
-    @log_exceptions
     @auto_close_db
     def proceed_with_choice(self, choice, user_id=None):
         """
@@ -360,7 +358,6 @@ class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
             description = TranslationLabel(value["description"])
             self.choices.append((index, description, value["uri"]))
 
-    @log_exceptions
     @auto_close_db
     def proceed_with_choice(self, choice, user_id=None):
         # TODO: DRY this method w/ parent
@@ -517,7 +514,6 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
 
         return ret
 
-    @log_exceptions
     @auto_close_db
     def proceed_with_choice(self, choice, user_id=None):
         # TODO: DRY this method w/ parent
