@@ -52,6 +52,7 @@ from django.utils import six
 import watchDirectory
 
 import processing
+from db import auto_close_old_connections
 from job import JobChain
 from package import DIP, Transfer, SIP
 from scheduler import package_scheduler
@@ -61,7 +62,7 @@ import metrics
 import RPCServer
 
 from archivematicaFunctions import unicodeToStr
-from databaseFunctions import auto_close_db, createSIP, getUTCDate
+from databaseFunctions import createSIP, getUTCDate
 import dicts
 
 from main import models
@@ -87,6 +88,7 @@ def fetchUUIDFromPath(path):
         return path[uuidLen - 1 : -1]
 
 
+@auto_close_old_connections
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     path = path.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%", 1)
@@ -141,7 +143,6 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type="SIP"):
     return UUID
 
 
-@auto_close_db
 def createUnitAndJobChain(path, watched_dir, workflow):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -195,7 +196,6 @@ def watchDirectories(workflow):
         )
 
 
-@auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     while not shutdown_event.is_set():
@@ -204,7 +204,6 @@ def debugMonitor():
         time.sleep(3600)
 
 
-@auto_close_db
 def flushOutputs():
     while not shutdown_event.is_set():
         sys.stdout.flush()
@@ -212,6 +211,7 @@ def flushOutputs():
         time.sleep(5)
 
 
+@auto_close_old_connections
 def cleanupOldDbEntriesOnNewRun():
     models.Job.objects.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).delete()
     models.Job.objects.filter(currentstep=models.Job.STATUS_EXECUTING_COMMANDS).update(

@@ -32,6 +32,7 @@ from django.conf import settings
 from django.utils import six
 
 from archivematicaFunctions import unicodeToStr
+from db import auto_close_old_connections
 from job import JobChain
 from main import models
 from scheduler import package_scheduler
@@ -266,6 +267,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
         transfer.save()
 
 
+@auto_close_old_connections
 def create_package(
     name,
     type_,
@@ -614,6 +616,7 @@ class Package(object):
 
         return ret
 
+    @auto_close_old_connections
     def files(
         self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
     ):
@@ -659,6 +662,7 @@ class Package(object):
             for file_obj in queryset.iterator():
                 yield get_file_replacement_mapping(file_obj, self.current_path)
 
+    @auto_close_old_connections
     def set_variable(self, key, value, chain_link_id):
         """Sets a UnitVariable, which tracks choices made by users during processing.
         """
@@ -716,6 +720,7 @@ class Transfer(Package):
     def base_queryset(self):
         return models.File.objects.filter(transfer_id=self.uuid)
 
+    @auto_close_old_connections
     def reload(self):
         transfer = models.Transfer.objects.get(uuid=self.uuid)
         self.current_path = transfer.currentlocation
@@ -743,6 +748,7 @@ class SIP(Package):
         self.aip_filename = None
         self.sip_type = None
 
+    @auto_close_old_connections
     def reload(self):
         sip = models.SIP.objects.get(uuid=self.uuid)
         self.current_path = sip.currentpath
@@ -797,6 +803,7 @@ class PackageContext(object):
         del self._data[key]
 
     @classmethod
+    @auto_close_old_connections
     def load_from_db(cls, uuid):
         """
         Loads a context from the UnitVariable table.

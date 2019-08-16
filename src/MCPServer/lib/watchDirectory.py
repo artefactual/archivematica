@@ -25,7 +25,6 @@ import time
 import threading
 
 from archivematicaFunctions import unicodeToStr
-from databaseFunctions import auto_close_db
 
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
@@ -66,7 +65,6 @@ class archivematicaWatchDirectory:
         else:
             self.start()
 
-    @auto_close_db
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True

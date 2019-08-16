@@ -10,10 +10,9 @@ import lxml.etree as etree
 from django.conf import settings
 from django.utils import six
 
-from databaseFunctions import auto_close_db
-
 from main import models
 
+from db import auto_close_old_connections
 from job import JobChain
 from scheduler import package_scheduler
 from translation import TranslationLabel
@@ -144,6 +143,7 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
     Handles links that pass individual files to mcp client for execution.
     """
 
+    @auto_close_old_connections
     def execute(self):
         # TODO simplify / break up this method
         filter_file_end = self.config.get("filter_file_end", "")
@@ -281,7 +281,7 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
 
         return ret
 
-    @auto_close_db
+    @auto_close_old_connections
     def proceed_with_choice(self, choice, user_id=None):
         """
         `choice` is a chain UUID here"""
@@ -358,7 +358,7 @@ class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
             description = TranslationLabel(value["description"])
             self.choices.append((index, description, value["uri"]))
 
-    @auto_close_db
+    @auto_close_old_connections
     def proceed_with_choice(self, choice, user_id=None):
         # TODO: DRY this method w/ parent
         if user_id is not None:
@@ -460,6 +460,7 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
                 (index, item["description"], self._format_items(item["items"]))
             )
 
+    @auto_close_old_connections
     def _get_dashboard_setting_choice(self):
         """Load settings associated to this task into a ``ReplacementDict``.
 
@@ -514,7 +515,7 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
 
         return ret
 
-    @auto_close_db
+    @auto_close_old_connections
     def proceed_with_choice(self, choice, user_id=None):
         # TODO: DRY this method w/ parent
         if user_id is not None:
@@ -545,6 +546,7 @@ class GetUnitVarLinkExecutor(BaseLinkExecutor):
     def __init__(self, *args, **kwargs):
         super(GetUnitVarLinkExecutor, self).__init__(*args, **kwargs)
 
+    @auto_close_old_connections
     def execute(self):
         try:
             unitvar = models.UnitVariable.objects.get(

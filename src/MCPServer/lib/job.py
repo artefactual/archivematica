@@ -9,9 +9,8 @@ import uuid
 from django.conf import settings
 from django.utils import six, timezone
 
-from databaseFunctions import auto_close_db
-
 import metrics
+from db import auto_close_old_connections
 from scheduler import package_scheduler
 from task import GearmanTaskRequest, Task, wait_for_gearman_task_results
 
@@ -58,7 +57,6 @@ class JobChain(object):
 
         return Job(self, self.current_link, self.package)
 
-    @auto_close_db
     def job_done(self, job, exit_code, next_link=None):
         """Job completion callback.
 
@@ -149,6 +147,7 @@ class Job(object):
 
         return max([task.exit_code for task in six.itervalues(self.tasks)])
 
+    @auto_close_old_connections
     def run(self):
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
         # Reload the package, in case the path has changed
@@ -225,19 +224,19 @@ class Job(object):
 
             metrics.task_completed(task, self)
 
-    @auto_close_db
+    @auto_close_old_connections
     def update_job_status(self, status_code):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=status_code
         )
 
-    @auto_close_db
+    @auto_close_old_connections
     def mark_awaiting_decision(self):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=self.STATUS_AWAITING_DECISION
         )
 
-    @auto_close_db
+    @auto_close_old_connections
     def mark_complete(self):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=self.STATUS_COMPLETED_SUCCESSFULLY
