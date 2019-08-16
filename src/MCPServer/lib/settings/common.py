@@ -177,11 +177,7 @@ DATABASES = {
         "PASSWORD": config.get("db_password"),
         "HOST": config.get("db_host"),
         "PORT": config.get("db_port"),
-        # CONN_MAX_AGE is irrelevant in MCPServer because Django's database
-        # connection reciclyng mechanism is only used in the web context, i.e.
-        # see `signals.request_started` and `signals.request_finished` in
-        # Django's source code.
-        "CONN_MAX_AGE": 0,
+        "CONN_MAX_AGE": 3600,  # 1 hour
     }
 }
 

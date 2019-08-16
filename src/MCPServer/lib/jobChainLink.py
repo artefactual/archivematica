@@ -24,7 +24,10 @@ import uuid
 
 from utils import log_exceptions
 
-from databaseFunctions import auto_close_db, getUTCDate
+from databaseFunctions import getUTCDate
+
+from db import auto_close_old_connections
+
 
 from main.models import Job
 
@@ -97,7 +100,7 @@ class jobChainLink:
         return str("{:10.10f}".format(float(ret)))
 
     @log_exceptions
-    @auto_close_db
+    @auto_close_old_connections
     def setExitMessage(self, status_code):
         """
         Set the value of Job.currentstep, comming either from any
@@ -117,7 +120,7 @@ class jobChainLink:
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=status_code)
 
     @log_exceptions
-    @auto_close_db
+    @auto_close_old_connections
     def linkProcessingComplete(self, exitCode, passVar=None, next_link=None):
         """Link completion callback.
 

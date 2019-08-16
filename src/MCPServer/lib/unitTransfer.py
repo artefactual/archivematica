@@ -23,6 +23,7 @@ import logging
 import lxml.etree as etree
 import uuid
 
+from db import auto_close_old_connections
 from unit import unit
 from utils import valid_uuid
 
@@ -67,6 +68,7 @@ class unitTransfer(unit):
     def __str__(self):
         return "unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>".format(u=self)
 
+    @auto_close_old_connections
     def reload(self):
         transfer = Transfer.objects.get(uuid=self.UUID)
         self.currentPath = transfer.currentlocation

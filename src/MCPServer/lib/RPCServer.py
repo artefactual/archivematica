@@ -170,6 +170,8 @@ class RPCServer(GearmanWorker):
 
     def _wrap_handler_method(self, name, handler, **opts):
         def wrap(worker, job):
+            close_old_connections()
+
             args = [worker, job]
             if opts["expect_payload"]:
                 payload = cPickle.loads(job.data)
@@ -190,8 +192,6 @@ class RPCServer(GearmanWorker):
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
                 resp = {"error": True, "handler": name, "message": str(err)}
-            finally:
-                close_old_connections()
             return cPickle.dumps(resp)
 
         return wrap

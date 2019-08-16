@@ -27,6 +27,7 @@ import cPickle
 import logging
 import os
 
+from db import auto_close_old_connections
 from databaseFunctions import getUTCDate
 from main.models import Task
 
@@ -87,6 +88,7 @@ class TaskGroup:
         """The tasks in this group."""
         return self.groupTasks
 
+    @auto_close_old_connections
     def logTaskCreatedSQL(self):
         """Log task creation times for this group of tasks."""
         with self.groupTasksLock:
@@ -105,6 +107,8 @@ class TaskGroup:
 
             databaseFunctions.retryOnFailure("Insert tasks", insertTasks)
 
+    # Not wrapped with auto_close_old_connections, as this is only called inside a
+    # transaction and that breaks.
     def _log_task(
         self, taskManager, commandReplacementDic, taskUUID, arguments, startTimestamp
     ):

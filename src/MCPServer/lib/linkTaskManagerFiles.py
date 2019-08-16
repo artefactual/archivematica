@@ -32,6 +32,7 @@ from dicts import ReplacementDict
 from main.models import UnitVariable
 
 import metrics
+from db import auto_close_old_connections
 from taskGroupRunner import TaskGroupRunner
 from taskGroup import TaskGroup
 
@@ -47,6 +48,7 @@ BATCH_SIZE = django_settings.BATCH_SIZE
 
 
 class linkTaskManagerFiles(LinkTaskManager):
+    @auto_close_old_connections
     def __init__(self, jobChainLink, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, unit)
 
