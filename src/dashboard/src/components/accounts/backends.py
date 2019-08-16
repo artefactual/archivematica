@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import json
 
 from django.conf import settings
 
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
+from josepy.jws import JWS
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
 
 from components.helpers import generate_api_key
@@ -36,3 +39,31 @@ class CustomLDAPBackend(LDAPBackend):
 
     def django_to_ldap_username(self, username):
         return username + settings.AUTH_LDAP_USERNAME_SUFFIX
+
+
+class CustomOIDCBackend(OIDCAuthenticationBackend):
+    """
+    Provide OpenID Connect authentication
+    """
+
+    def get_userinfo(self, access_token, id_token, verified_id):
+        """
+        Extract user details from JSON web tokens
+        These map to fields on the user field.
+        """
+        user_info = json.loads(JWS.from_compact(id_token).payload.decode("utf-8"))
+        access_info = json.loads(JWS.from_compact(access_token).payload.decode("utf-8"))
+
+        return {
+            "email": user_info["email"],
+            "first_name": access_info["given_name"],
+            "last_name": access_info["family_name"],
+        }
+
+    def create_user(self, user_info):
+        user = super(CustomOIDCBackend, self).create_user(user_info)
+        user.first_name = user_info["first_name"]
+        user.last_name = user_info["last_name"]
+        user.save()
+        generate_api_key(user)
+        return user
