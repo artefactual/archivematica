@@ -32,9 +32,9 @@
 # It loads configurations from the database.
 #
 # stdlib, alphabetical by import source
+import getpass
 import logging
 import logging.config
-import getpass
 import os
 import signal
 import sys
@@ -46,10 +46,8 @@ import django
 django.setup()
 from django.conf import settings as django_settings
 from django.db.models import Q
-from django.utils import six
 
 # This project, alphabetical by import source
-import watchDirectory
 
 import processing
 from db import auto_close_old_connections
@@ -57,6 +55,7 @@ from job import JobChain
 from package import DIP, Transfer, SIP
 from scheduler import package_scheduler
 from utils import valid_uuid
+from watchdirs import watch_directories
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
 import RPCServer
@@ -169,31 +168,6 @@ def createUnitAndJobChain(path, watched_dir, workflow):
         return
     job_chain = JobChain(unit, watched_dir.chain, workflow)
     package_scheduler.schedule_job_chain(job_chain)
-
-
-def watchDirectories(workflow):
-    """Start watching the watched directories defined in the workflow."""
-    for watched_dir in workflow.get_wdirs():
-        directory = os.path.join(
-            django_settings.WATCH_DIRECTORY, watched_dir.path.lstrip(os.path.sep)
-        )
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-        for item in os.listdir(directory):
-            if item == ".gitignore":
-                continue
-            # We should expect both bytes and unicode. See #932.
-            if isinstance(item, six.binary_type):
-                item = item.decode("utf-8")
-            path = os.path.join(six.text_type(directory), item)
-            createUnitAndJobChain(path, watched_dir, workflow)
-        watchDirectory.archivematicaWatchDirectory(
-            directory,
-            variablesAdded=(watched_dir, workflow),
-            callBackFunctionAdded=createUnitAndJobChain,
-            alertOnFiles=not watched_dir["only_dirs"],
-            interval=django_settings.WATCH_DIRECTORY_INTERVAL,
-        )
 
 
 def debugMonitor():
@@ -356,7 +330,15 @@ if __name__ == "__main__":
     rpc_thread.start()
 
     cleanupOldDbEntriesOnNewRun()
-    watchDirectories(workflow)
+
+    def new_dir_callback(path, watched_dir):
+        createUnitAndJobChain(path, watched_dir, workflow)
+
+    watch_dir_thread = threading.Thread(
+        target=watch_directories,
+        args=(workflow.get_wdirs(), shutdown_event, new_dir_callback),
+    )
+    watch_dir_thread.start()
 
     # Blocks until shutdown is called by a signal handler
     package_scheduler.start()
