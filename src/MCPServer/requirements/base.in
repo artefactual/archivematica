@@ -5,4 +5,6 @@ gearman==2.0.2
 lxml==3.5.0
 prometheus_client==0.7.1
 jsonschema==2.6.0
-futures==3.3.0; python_version < '3.2'
+futures==3.3.0; python_version < "3.2"
+inotify_simple==1.1.8
+enum34==1.1.6; python_version < "3.4" # required by inotify_simple

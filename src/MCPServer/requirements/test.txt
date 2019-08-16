@@ -8,11 +8,13 @@ atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via pytest
 django-extensions==1.1.1
 django==1.8.19
+enum34==1.1.6 ; python_version < "3.4"
 filelock==3.0.10          # via tox
 funcsigs==1.0.2           # via mock, pytest
 functools32==3.2.3.post2
 futures==3.3.0 ; python_version < "3.2"
 gearman==2.0.2
+inotify_simple==1.1.8
 jsonschema==2.6.0
 lxml==3.5.0
 mock==2.0.0               # via pytest-mock
