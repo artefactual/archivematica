@@ -280,6 +280,14 @@ class WatchedDir(BaseLink):
         return self._src[key]
 
     @property
+    def only_dirs(self):
+        return bool(self._src["only_dirs"])
+
+    @property
+    def unit_type(self):
+        return self._src["unit_type"]
+
+    @property
     def chain(self):
         return self._workflow.get_chain(self._src["chain_id"])
 

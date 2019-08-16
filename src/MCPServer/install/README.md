@@ -2,11 +2,13 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration file](#configuration-file)
-- [Parameter list](#parameter-list)
-- [Logging configuration](#logging-configuration)
+- [MCPServer Configuration](#mcpserver-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration file](#configuration-file)
+  - [Parameter list](#parameter-list)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -153,11 +155,18 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** `""`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
-    - **Description:** time in seconds between filesystem poll intervals.
-    - **Config file example:** `MCPServer.watchDirectoriesPollInterval`
-    - **Type:** `int`
-    - **Default:** `"1"`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_METHOD`**:
+    - **Description:** how watched directory polling is done (`poll` or `inotify`). `inotify` is much more efficient, but only available
+    when using a local filesystem on Linux.
+    - **Config file example:** `MCPServer.watch_directory_method`
+    - **Type:** `string`
+    - **Default:** `"poll"`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_INTERVAL`**:
+     - **Description:** time in seconds between filesystem poll intervals.
+     - **Config file example:** `MCPServer.watch_directory_interval`
+     - **Type:** `int`
+     - **Default:** `"1"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_BATCH_SIZE`**:
     - **Description:** the amount of files that are processed by an instance of MCPClient as a group to speed up certain operations like database updates.

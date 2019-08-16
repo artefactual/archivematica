@@ -32,9 +32,9 @@
 # It loads configurations from the database.
 #
 # stdlib, alphabetical by import source
+import getpass
 import logging
 import logging.config
-import getpass
 import os
 import signal
 import sys
@@ -46,10 +46,8 @@ import django
 django.setup()
 from django.conf import settings as django_settings
 from django.db.models import Q
-from django.utils import six
 
 # This project, alphabetical by import source
-import watchDirectory
 from utils import log_exceptions
 
 from executor import Executor
@@ -61,6 +59,7 @@ from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitTransfer import unitTransfer
 from utils import valid_uuid
+from watch_dirs import watch_directories
 from workflow import load as load_workflow, SchemaValidationError
 import metrics
 import RPCServer
@@ -76,7 +75,8 @@ logger = logging.getLogger("archivematica.mcp.server")
 # time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
 
-stopSignalReceived = False  # Tracks whether a sigkill has been received or not
+# Tracks whether a sigkill has been received or not
+shutdown_event = threading.Event()
 
 ASSETS_DIR = os.path.join(
     os.path.dirname(os.path.abspath(os.path.join(__file__))), "assets"
@@ -183,36 +183,10 @@ def createUnitAndJobChainThreaded(path, watched_dir, workflow):
         logger.exception("Error creating threads to watch directories")
 
 
-def watchDirectories(workflow):
-    """Start watching the watched directories defined in the workflow."""
-    for watched_dir in workflow.get_wdirs():
-        directory = os.path.join(
-            django_settings.WATCH_DIRECTORY, watched_dir.path.lstrip(os.path.sep)
-        )
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-        for item in os.listdir(directory):
-            if item == ".gitignore":
-                continue
-            # We should expect both bytes and unicode. See #932.
-            if isinstance(item, six.binary_type):
-                item = item.decode("utf-8")
-            path = os.path.join(six.text_type(directory), item)
-            createUnitAndJobChainThreaded(path, watched_dir, workflow)
-        watchDirectory.archivematicaWatchDirectory(
-            directory,
-            variablesAdded=(watched_dir, workflow),
-            callBackFunctionAdded=createUnitAndJobChainThreaded,
-            alertOnFiles=not watched_dir["only_dirs"],
-            interval=django_settings.WATCH_DIRECTORY_INTERVAL,
-        )
-
-
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
     logger.info("Recieved signal %s in frame %s", signalReceived, frame)
-    global stopSignalReceived
-    stopSignalReceived = True
+    shutdown_event.set()
     threads = threading.enumerate()
     for thread in threads:
         logger.warning("Not stopping %s %s", type(thread), thread)
@@ -370,7 +344,15 @@ if __name__ == "__main__":
     TaskGroupRunner.init()
 
     cleanupOldDbEntriesOnNewRun()
-    watchDirectories(workflow)
+
+    def new_dir_callback(path, watched_dir):
+        createUnitAndJobChain(path, watched_dir, workflow)
+
+    watch_dir_thread = threading.Thread(
+        target=watch_directories,
+        args=(workflow.get_wdirs(), shutdown_event, new_dir_callback),
+    )
+    watch_dir_thread.start()
 
     # This is blocking the main thread with the worker loop
     RPCServer.start(workflow)
