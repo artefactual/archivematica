@@ -32,8 +32,8 @@ filelock==3.0.10          # via tox
 funcparserlib==0.3.6      # via mockldap
 funcsigs==1.0.2           # via mock, pytest
 future==0.17.1
-futures==3.2.0
-gearman==2.0.2
+futures==3.2.0 ; python_version < "3.0"
+git+git://github.com/ross-spencer/python-gearman@ebfdee8217690d4631585ecc7f2655084aa5bd4d#egg=gearman3
 gevent==1.3.6
 greenlet==0.4.15
 gunicorn==19.9.0
@@ -41,15 +41,14 @@ idna==2.8
 ipaddress==1.0.22
 lazy-paged-sequence==0.3
 logutils==0.3.3
-lxml==3.5.0
+lxml==4.4.1
 metsrw==0.3.11
-mock==2.0.0               # via mockldap, vcrpy
+mock==3.0.5               # via mockldap, vcrpy
 mockldap==0.2.8
 more-itertools==5.0.0     # via pytest
 mysqlclient==1.3.7
 ndg-httpsclient==0.5.1
 pathlib2==2.3.3
-pbr==5.1.3                # via mock
 pluggy==0.9.0             # via pytest, tox
 py==1.8.0                 # via pytest, tox
 pyasn1-modules==0.2.5
@@ -76,3 +75,5 @@ virtualenv==16.4.3        # via tox
 whitenoise==3.3.0
 wrapt==1.11.1             # via vcrpy
 
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.2.0        # via pytest, tox
