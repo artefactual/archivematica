@@ -11,7 +11,6 @@ from django.utils import six, timezone
 
 import metrics
 from db import auto_close_old_connections
-from scheduler import package_scheduler
 from task import GearmanTaskRequest, Task, wait_for_gearman_task_results
 
 from main import models
@@ -31,8 +30,12 @@ class JobChain(object):
         self.chain = chain
         self.workflow = workflow
         self.started_on = timezone.now()
-        self.current_link = starting_link or self.chain.link
-        self.context = None
+        self.current_link = None
+        self.current_job = None
+        self.next_link = starting_link or self.chain.link
+        # TODO: package context hits the db, make that clearer
+        self.context = self.package.context.copy()
+
         # TODO: store generated choices in context
         self.generated_choices = None
 
@@ -43,53 +46,51 @@ class JobChain(object):
             self.current_link,
         )
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.next_link:
+            next_link = self.next_link
+            self.next_link = None
+        else:
+            try:
+                next_link = self.current_link.get_next_link(self.current_job.exit_code)
+            except KeyError:
+                next_link = None
+
+        if self.current_job is not None:
+            self.job_completed()
+
+        if next_link:
+            self.current_link = next_link
+            self.current_job = Job.job_for_link_type(
+                self, self.current_link, self.package
+            )
+            return self.current_job
+        else:
+            self.current_link = None
+            self.current_job = None
+            self.chain_completed()
+            raise StopIteration
+
+    next = __next__  # py2 compatability
+
     @property
     def id(self):
         return self.chain.id
 
-    def get_current_job(self):
-        if not self.current_link:
-            return None
-
-        if self.context is None:
-            # TODO: package context hits the db, make that clearer
-            self.context = self.package.context.copy()
-
-        return Job(self, self.current_link, self.package)
-
-    def job_done(self, job, exit_code, next_link=None):
-        """Job completion callback.
-
-        It continues the workflow running the next chain link which is looked
-        up in the workflow data unless determined by `next_link_id`. Before
-        starting, the status of the job associated to this link is updated.
-        """
+    def job_completed(self):
         logger.debug(
-            "Job %s done with exit code %s (next link %s)",
-            job.uuid,
-            exit_code,
-            next_link,
+            "%s %s done with exit code %s",
+            self.current_job.__class__.__name__,
+            self.current_job.uuid,
+            self.current_job.exit_code,
         )
-        job_status = self.current_link.get_status_id(exit_code)
-        job.update_job_status(job_status)
+        job_status = self.current_link.get_status_id(self.current_job.exit_code)
+        self.current_job.update_job_status(job_status)
 
-        if next_link is None:
-            try:
-                next_link = self.current_link.get_next_link(exit_code)
-            except KeyError:
-                pass
-
-        self.current_link = next_link
-
-        if next_link is None:
-            self.done()
-        else:
-            # TODO: move this logic to queue?
-            # Queue the next job
-            next_job = self.get_current_job()
-            package_scheduler.schedule_job(next_job)
-
-    def done(self):
+    def chain_completed(self):
         """Log chain completion
         """
         logger.debug(
@@ -102,9 +103,7 @@ class JobChain(object):
 
 class Job(object):
     """
-    A single job, usually corresponding to an mcp client script.
-    Links the Job model in the database to a link in the workflow. Each job has one
-    or more associated Tasks.
+    A single job, corresponding to a workflow link. Links the Job model in the database.
     """
 
     # Mirror job model statuses
@@ -113,14 +112,6 @@ class Job(object):
     STATUS_COMPLETED_SUCCESSFULLY = models.Job.STATUS_COMPLETED_SUCCESSFULLY
     STATUS_EXECUTING_COMMANDS = models.Job.STATUS_EXECUTING_COMMANDS
     STATUS_FAILED = models.Job.STATUS_FAILED
-
-    # The number of files we'll pack into each MCP Client job.  Chosen somewhat
-    # arbitrarily, but benchmarking with larger values (like 512) didn't make much
-    # difference to throughput.
-    #
-    # Setting this too large will use more memory; setting it too small will hurt
-    # throughput.  So the trick is to set it juuuust right.
-    TASK_BATCH_SIZE = settings.BATCH_SIZE
 
     def __init__(self, job_chain, link, package):
         self.uuid = uuid.uuid4()
@@ -131,21 +122,26 @@ class Job(object):
         self.group = link.get_label("group", "en")
         self.description = link.get_label("description", "en")
 
-        self.tasks = {}
-        self.pending_task_ids = []
-        self.task_request = None
-        self.task_requests = []
+        # always zero for non task jobs
+        self.exit_code = 0
+
+    @classmethod
+    def job_for_link_type(cls, job_chain, link, package):
+        manager_name = link.config["@manager"]
+        if manager_name in (
+            "linkTaskManagerDirectories",
+            "linkTaskManagerFiles",
+            "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
+        ):
+            job_class = TaskJob
+        else:
+            job_class = cls
+
+        return job_class(job_chain, link, package)
 
     @property
     def name(self):
         return self.link.config.get("execute", "").lower()
-
-    @property
-    def exit_code(self):
-        if not self.tasks:
-            return None
-
-        return max([task.exit_code for task in six.itervalues(self.tasks)])
 
     @auto_close_old_connections
     def run(self):
@@ -172,6 +168,59 @@ class Job(object):
         manager = manager_class(self, self.package)
         manager.execute()
 
+        return self
+
+    @auto_close_old_connections
+    def update_job_status(self, status_code):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=status_code
+        )
+
+    @auto_close_old_connections
+    def mark_awaiting_decision(self):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=self.STATUS_AWAITING_DECISION
+        )
+
+    @auto_close_old_connections
+    def mark_complete(self):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=self.STATUS_COMPLETED_SUCCESSFULLY
+        )
+
+
+class TaskJob(Job):
+    """A job with one or more tasks, executed via mcp client script.
+    """
+
+    # The number of files we'll pack into each MCP Client job.  Chosen somewhat
+    # arbitrarily, but benchmarking with larger values (like 512) didn't make much
+    # difference to throughput.
+    #
+    # Setting this too large will use more memory; setting it too small will hurt
+    # throughput.  So the trick is to set it juuuust right.
+    TASK_BATCH_SIZE = settings.BATCH_SIZE
+
+    def __init__(self, *args, **kwargs):
+        super(TaskJob, self).__init__(*args, **kwargs)
+
+        # Exit code is the maximum task exit code
+        self.exit_code = None
+
+        self.tasks = {}
+        self.pending_task_ids = []
+        self.task_request = None
+        self.task_requests = []
+        self.callbacks = []
+
+    @property
+    def name(self):
+        return self.link.config.get("execute", "").lower()
+
+    @auto_close_old_connections
+    def run(self, *args, **kwargs):
+        super(TaskJob, self).run(*args, **kwargs)
+
         if self.tasks:
             # Submit the last batch
             self.submit_task_batch()
@@ -184,11 +233,12 @@ class Job(object):
                 task.to_db_model(self, self.link) for task in six.itervalues(self.tasks)
             ]
             models.Task.objects.bulk_create(model_objects, batch_size=2000)
+        else:
+            # Force exit code 0 if we didn't run any tasks
+            self.exit_code = 0
 
-        # Run manager callback
-        # TODO: improve this back and forth
-        if hasattr(manager, "on_complete"):
-            manager.on_complete(self)
+        for callback in self.callbacks:
+            callback(self)
 
         return self
 
@@ -222,22 +272,9 @@ class Job(object):
 
             # task.write_output()
 
+            self.exit_code = max([self.exit_code, task.exit_code])
             metrics.task_completed(task, self)
 
-    @auto_close_old_connections
-    def update_job_status(self, status_code):
-        return models.Job.objects.filter(jobuuid=self.uuid).update(
-            currentstep=status_code
-        )
-
-    @auto_close_old_connections
-    def mark_awaiting_decision(self):
-        return models.Job.objects.filter(jobuuid=self.uuid).update(
-            currentstep=self.STATUS_AWAITING_DECISION
-        )
-
-    @auto_close_old_connections
-    def mark_complete(self):
-        return models.Job.objects.filter(jobuuid=self.uuid).update(
-            currentstep=self.STATUS_COMPLETED_SUCCESSFULLY
-        )
+    def add_callback(self, callback):
+        """Adds a callback to be executed after job execution"""
+        self.callbacks.append(callback)

@@ -409,7 +409,7 @@ def _start_package_transfer_with_auto_approval(
         unit,
         workflow.get_chain(starting_point.chain),
         workflow,
-        workflow.get_link(starting_point.link),
+        starting_link=workflow.get_link(starting_point.link),
     )
     package_scheduler.schedule_job_chain(job_chain)
 

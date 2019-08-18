@@ -70,10 +70,6 @@ class ClientScriptLinkExecutor(BaseLinkExecutor):
     def __init__(self, *args, **kwargs):
         super(ClientScriptLinkExecutor, self).__init__(*args, **kwargs)
 
-        # Zero if every task executed so far has succeeded.  Otherwise,
-        # something greater than zero.
-        self.exit_code = 0
-
         # Cache unit (SIP/Transfer) replacement values
         self.command_replacements = self.unit.get_replacement_mapping(
             filter_subdir_path=self.config.get("filter_subdir")
@@ -120,22 +116,11 @@ class ClientScriptLinkExecutor(BaseLinkExecutor):
             wants_output=self.capture_task_output,
         )
 
-    def on_complete(self, job):
-        # Exit code is the maximum of all task groups (and each task group's
-        # exit code is the maximum of the tasks it contains... turtles all the
-        # way down)
-        self.exit_code = max([job.exit_code, self.exit_code])
-
 
 class DirectoryLinkExecutor(ClientScriptLinkExecutor):
     """
     Handles links that pass a directory (e.g. "objects/") to mcp client for execution.
     """
-
-    def on_complete(self, job):
-        super(DirectoryLinkExecutor, self).on_complete(job)
-
-        self.job_chain.job_done(self.job, self.exit_code)
 
 
 class FileLinkExecutor(ClientScriptLinkExecutor):
@@ -187,10 +172,6 @@ class FileLinkExecutor(ClientScriptLinkExecutor):
 
             self.job.add_task(arguments, stdout_file, stderr_file, command_replacements)
 
-    def on_complete(self, job):
-        super(FileLinkExecutor, self).on_complete(job)
-        self.job_chain.job_done(self.job, self.exit_code)
-
 
 class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
     """Gets output from mcp client, and passes the result to the next job.
@@ -198,9 +179,12 @@ class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
 
     capture_task_output = True
 
-    def on_complete(self, job):
-        super(GetJobOutputLinkExecutor, self).on_complete(job)
+    def execute(self):
+        super(GetJobOutputLinkExecutor, self).execute()
 
+        self.job.add_callback(self.handle_job_complete)
+
+    def handle_job_complete(self, job):
         try:
             # Load the "first" item from a dict
             stdout = six.next(six.itervalues(job.tasks)).stdout
@@ -217,8 +201,6 @@ class GetJobOutputLinkExecutor(ClientScriptLinkExecutor):
 
         # Store on chain for next job
         self.job_chain.generated_choices = choices
-
-        self.job_chain.job_done(self.job, self.exit_code)
 
 
 class ChoiceLinkExecutor(BaseLinkExecutor):
@@ -240,8 +222,7 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
             self.job.mark_complete()
             chain = self.workflow.get_chain(chain_id)
             job_chain = JobChain(self.unit, chain, self.workflow)
-            next_job = job_chain.get_current_job()
-            package_scheduler.schedule_job(next_job)
+            package_scheduler.schedule_job_chain(job_chain)
         else:
             with choices_available_lock:
                 choices_available[str(self.job.uuid)] = self
@@ -303,8 +284,7 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
         chain = self.workflow.get_chain(choice)
 
         job_chain = JobChain(self.unit, chain, self.workflow)
-        next_job = job_chain.get_current_job()
-        package_scheduler.schedule_job(next_job)
+        package_scheduler.schedule_job_chain(job_chain)
 
 
 class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
@@ -383,7 +363,7 @@ class ChoiceFromOutputLinkExecutor(ChoiceLinkExecutor):
         # replacement string (e.g. %AIPsStore%)
         self.job_chain.context[self.config["execute"]] = context_value
 
-        self.job_chain.job_done(self.job, 0)
+        self.job.exit_code = 0
 
 
 class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
@@ -441,14 +421,14 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
                 key = "%%{}%%".format(key)
                 self.job_chain.context[key] = value
 
-            self.job_chain.job_done(self.job, 0)
+            self.job.exit_code = 0
             return
 
         replacements = self.load_choice_from_xml()
         if replacements is not None:
             self.job.mark_complete()
             self.job_chain.context.update(replacements)
-            self.job_chain.job_done(self.job, 0)
+            self.job.exit_code = 0
         else:
             with choices_available_lock:
                 choices_available[str(self.job.uuid)] = self
@@ -537,14 +517,11 @@ class ChoiceFromDashboardSettingLinkExecutor(ChoiceLinkExecutor):
         self.job.mark_complete()
 
         self.job_chain.context.update(items)
-        self.job_chain.job_done(self.job, 0)
+        self.job.exit_code = 0
 
 
 class GetUnitVarLinkExecutor(BaseLinkExecutor):
     """Gets the next link from a unit variable, and proceed to that link."""
-
-    def __init__(self, *args, **kwargs):
-        super(GetUnitVarLinkExecutor, self).__init__(*args, **kwargs)
 
     @auto_close_old_connections
     def execute(self):
@@ -566,7 +543,8 @@ class GetUnitVarLinkExecutor(BaseLinkExecutor):
                 "Failed to find workflow link {} (set in unit variable)".format(link_id)
             )
 
-        self.job_chain.job_done(self.job, 0, next_link=link)
+        self.job.exit_code = 0
+        self.job_chain.next_link = link
 
 
 class SetUnitVarLinkExecutor(BaseLinkExecutor):
@@ -578,4 +556,4 @@ class SetUnitVarLinkExecutor(BaseLinkExecutor):
         chain_id = self.config.get("chain_id")
 
         self.unit.set_variable(var_name, var_value, chain_id)
-        self.job_chain.job_done(self.job, 0)
+        self.job.exit_code = 0

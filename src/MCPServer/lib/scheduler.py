@@ -30,7 +30,7 @@ class PackageScheduler(object):
 
     def __init__(
         self,
-        max_concurrent_packages=2,
+        max_concurrent_packages=4,
         max_queued_packages=MAX_QUEUED_JOBS,
         debug=False,
     ):
@@ -60,7 +60,7 @@ class PackageScheduler(object):
         package = job_chain.package
         with self.active_package_lock:
             if package.uuid in self.active_packages:
-                job = job_chain.get_current_job()
+                job = next(job_chain)
                 self.job_queue.put_nowait(job)
                 return
 
@@ -106,16 +106,23 @@ class PackageScheduler(object):
             # block until a job is waiting
             job = self.job_queue.get(timeout=None)
             result = self.executor.submit(job.run)
-            result.add_done_callback(self.check_package_done)
+            result.add_done_callback(self.handle_job_complete)
 
     def shutdown(self):
         self.shutdown_event.set()
         self.executor.shutdown(wait=True)
 
-    def check_package_done(self, future):
+    def handle_job_complete(self, future):
         job = future.result()
 
-        if job.link.id in PACKAGE_COMPLETED_LINK_IDS:
+        try:
+            next_job = next(job.job_chain)
+        except StopIteration:
+            next_job = None
+        else:
+            self.schedule_job(next_job)
+
+        if next_job is None and job.link.id in PACKAGE_COMPLETED_LINK_IDS:
             self.package_done(job.package.uuid)
 
     def put_job_chain_nowait(self, job_chain):
@@ -152,8 +159,14 @@ class PackageScheduler(object):
     def maybe_process_next_job_chain(self):
         # Don't start processing if we're at capacity
         with self.active_package_lock:
-            maxed_out = len(self.active_packages) >= self.max_concurrent_packages
+            active_package_count = len(self.active_packages)
+            maxed_out = active_package_count >= self.max_concurrent_packages
             if maxed_out:
+                if self.debug:
+                    logger.debug(
+                        "Not processing next job chain; %s pacakges already active",
+                        active_package_count,
+                    )
                 return
 
         job_chain = self.get_job_chain_nowait()
@@ -165,7 +178,7 @@ class PackageScheduler(object):
         with self.active_package_lock:
             self.active_packages[package_id] = package
 
-        job = job_chain.get_current_job()
+        job = next(job_chain)
         self.job_queue.put_nowait(job)
 
         if self.debug:
