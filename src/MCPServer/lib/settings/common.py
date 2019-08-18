@@ -216,7 +216,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "detailed": {
-            "format": "%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s",
+            "format": "%(levelname)-8s %(threadName)s %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     },
