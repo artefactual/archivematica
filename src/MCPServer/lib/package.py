@@ -27,7 +27,6 @@ from tempfile import mkdtemp
 from uuid import uuid4
 
 import scandir
-from lxml import etree
 from django.conf import settings
 from django.utils import six
 
@@ -606,15 +605,6 @@ class Package(object):
         )
 
         return mapping
-
-    def xmlify(self):
-        ret = etree.Element("unit")
-        etree.SubElement(ret, "type").text = self.__class__.__name__
-        unitXML = etree.SubElement(ret, "unitXML")
-        etree.SubElement(unitXML, "UUID").text = str(self.uuid)
-        etree.SubElement(unitXML, "currentPath").text = self.current_path_for_db
-
-        return ret
 
     @auto_close_old_connections
     def files(

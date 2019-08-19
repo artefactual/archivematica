@@ -234,7 +234,7 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
                 chain = self.workflow.get_chain(chain_id)
             except KeyError:
                 continue
-            if choice_is_available(self.link, chain, settings):
+            if choice_is_available(self.link, chain):
                 self.choices.append((chain_id, chain["description"], None))
 
     def load_choice_from_xml(self):
@@ -248,19 +248,6 @@ class ChoiceLinkExecutor(BaseLinkExecutor):
                     choice = preconfigured_choice.find("goToChain").text
 
         return choice
-
-    def xmlify(self):
-        """Returns an etree XML representation of the choices available."""
-        ret = etree.Element("choicesAvailableForUnit")
-        etree.SubElement(ret, "UUID").text = str(self.job.uuid)
-        ret.append(self.unit.xmlify())
-        choices = etree.SubElement(ret, "choices")
-        for id_, description, __ in self.choices:
-            choice = etree.SubElement(choices, "choice")
-            etree.SubElement(choice, "chainAvailable").text = six.text_type(id_)
-            etree.SubElement(choice, "description").text = six.text_type(description)
-
-        return ret
 
     @auto_close_old_connections
     def proceed_with_choice(self, choice, user_id=None):

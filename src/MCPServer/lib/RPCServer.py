@@ -35,8 +35,8 @@ import time
 
 from django.conf import settings as django_settings
 from django.db import close_old_connections, connection
+from django.utils import six
 from django.utils.six.moves import configparser
-from django.utils.six import StringIO
 from gearman import GearmanWorker
 import gearman
 from lxml import etree
@@ -157,7 +157,7 @@ class RPCServer(GearmanWorker):
         except IndexError:
             raise err
         parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
-        parser.readfp(StringIO(config))
+        parser.readfp(six.StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
@@ -227,7 +227,23 @@ class RPCServer(GearmanWorker):
         """
         ret = etree.Element("choicesAvailableForUnits")
         for uuid, choice in choicesAvailableForUnits.items():
-            ret.append(choice.xmlify())
+            unit_choices = etree.SubElement(ret, "choicesAvailableForUnit")
+            etree.SubElement(unit_choices, "UUID").text = six.text_type(choice.job.uuid)
+            unit = etree.SubElement(unit_choices, "unit")
+            etree.SubElement(unit, "type").text = choice.unit.__class__.__name__
+            unitXML = etree.SubElement(unit, "unitXML")
+            etree.SubElement(unitXML, "UUID").text = six.text_type(choice.unit.uuid)
+            etree.SubElement(
+                unitXML, "currentPath"
+            ).text = choice.unit.current_path_for_db
+            choices = etree.SubElement(unit_choices, "choices")
+            for id_, description, __ in choice.choices:
+                choice = etree.SubElement(choices, "choice")
+                etree.SubElement(choice, "chainAvailable").text = six.text_type(id_)
+                etree.SubElement(choice, "description").text = six.text_type(
+                    description
+                )
+
         return etree.tostring(ret, pretty_print=True)
 
     def _package_create_handler(self, worker, job, payload):
