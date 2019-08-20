@@ -1267,36 +1267,6 @@
                 "sv": "Kontrollera överförings följsamhet"
             }
         },
-        "873b428f-2c86-42b6-b463-aeda925bf559": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-                "execute": "declarepids_v0.0",
-                "filter_file_end": "",
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Persistent identifier (PID) declaration"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
-            "group": {
-                "en": "Bind PIDs",
-                "fr": "Lier les PIDs",
-                "pt_BR": "Vincular PIDs",
-                "sv": "Lås PID:er."
-            }
-        },
         "05357876-a095-4c11-86b5-a7fff01af668": {
             "config": {
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
@@ -7391,6 +7361,41 @@
                 "sv": "SIP misslyckades"
             }
         },
+        "7e6330c6-0280-4b25-8bf8-4b8143b69bde": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
+                "execute": "copy_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Add README file",
+                "ja": "READMEファイルを追加",
+                "pt_BR": "Adicionar arquivo README",
+                "sv": "Lägg till README-fil"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a",
+            "group": {
+                "en": "Create SIP from Transfer",
+                "es": "Crear SIP a partir de la transferencia",
+                "fr": "Créer un SIP à partir du Transfert",
+                "ja": "転送からSIPを作成する",
+                "pt_BR": "Crie SIP a partir da transferência",
+                "sv": "Skapa SIP från överföringspaket"
+            }
+        },
         "7e65c627-c11d-4aad-beed-65ceb7053fe8": {
             "config": {
                 "@manager": "linkTaskManagerSetUnitVariable",
@@ -7566,6 +7571,36 @@
                 "ja": "AIPの再インジェスト",
                 "pt_BR": "Readmitir AIP",
                 "sv": "Återingestera AIP"
+            }
+        },
+        "873b428f-2c86-42b6-b463-aeda925bf559": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
+                "execute": "declarepids_v0.0",
+                "filter_file_end": "",
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Persistent identifier (PID) declaration"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
+            "group": {
+                "en": "Bind PIDs",
+                "fr": "Lier les PIDs",
+                "pt_BR": "Vincular PIDs",
+                "sv": "Lås PID:er."
             }
         },
         "87e7659c-d5de-4541-a09c-6deec966a0c0": {
@@ -8968,41 +9003,6 @@
                 "ja": "SIP作成を承認",
                 "pt_BR": "Confirmar criação SIP",
                 "sv": "Godkänn skapande av SIP"
-            }
-        },
-        "7e6330c6-0280-4b25-8bf8-4b8143b69bde": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
-                "execute": "copy_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Add README file",
-                "ja": "READMEファイルを追加",
-                "pt_BR": "Adicionar arquivo README",
-                "sv": "Lägg till README-fil"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a",
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "abd6d60c-d50f-4660-a189-ac1b34fafe85": {
