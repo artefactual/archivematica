@@ -44,6 +44,15 @@
             },
             "link_id": "5cf308fd-a6dc-4033-bda1-61689bb55ce2"
         },
+        "0a24787c-00e3-4710-b324-90e792bfb484": {
+            "description": {
+                "en": "No",
+                "fr": "Non",
+                "ja": "いいえ",
+                "sv": "Nej"
+            },
+            "link_id": "f574b2a0-6e0b-4c74-ac5b-a73ddb9593a0"
+        },
         "0ea3a6f9-ff37-4f32-ac01-eec5393f008a": {
             "description": {
                 "en": "Pre-normalize identify file format",
@@ -210,6 +219,17 @@
             },
             "link_id": "4430077a-92c5-4d86-b0f8-0d31bdb731fb"
         },
+        "35151db8-3a11-4b49-8865-f6697ef0ac75": {
+            "description": {
+                "en": "Yes",
+                "es": "Sí",
+                "fr": "Oui",
+                "ja": "はい",
+                "pt_BR": "Sim",
+                "sv": "Ja"
+            },
+            "link_id": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6"
+        },
         "3572f844-5e69-4000-a24b-4e32d3487f82": {
             "description": {
                 "en": "Upload DIP to ArchivesSpace",
@@ -334,7 +354,7 @@
                 "pt_BR": "Continua",
                 "sv": "Fortsätt"
             },
-            "link_id": "7079be6d-3a25-41e6-a481-cee5f352fe6e"
+            "link_id": "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6"
         },
         "5f34245e-5864-4199-aafc-bc0ada01d4cd": {
             "description": {
@@ -3414,7 +3434,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%taskUUID%\" \"%fileUUID%\" \"%transcribe%\"",
+                "arguments": "\"%taskUUID%\" \"%fileUUID%\"",
                 "execute": "transcribeFile_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -6693,60 +6713,6 @@
                 "sv": "Kontrollera SIPs följsamhet"
             }
         },
-        "7079be6d-3a25-41e6-a481-cee5f352fe6e": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": [
-                    {
-                        "description": {
-                            "en": "No",
-                            "fr": "Non",
-                            "ja": "いいえ",
-                            "sv": "Nej"
-                        },
-                        "id": "1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53",
-                        "items": {
-                            "transcribe": "False"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "5a9985d3-ce7e-4710-85c1-f74696770fa9",
-                        "items": {
-                            "transcribe": "True"
-                        }
-                    }
-                ]
-            },
-            "description": {
-                "en": "Transcribe SIP contents",
-                "fr": "Transcrire le contenu du SIP",
-                "pt_BR": "Transcreva o conteúdo do SIP",
-                "sv": "Transkribera SIP-innehåll"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Transcribe SIP contents",
-                "fr": "Transcrire le contenu du SIP",
-                "pt_BR": "Transcreva o conteúdo do SIP",
-                "sv": "Transkribera SIP-innehåll"
-            }
-        },
         "70f41678-baa5-46e6-a71c-4b6b4d99f4a6": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -7507,6 +7473,28 @@
                 "ja": "SIPに失敗",
                 "pt_BR": "SIP falhou",
                 "sv": "SIP misslyckades"
+            }
+        },
+        "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6": {
+            "config": {
+                "@manager": "linkTaskManagerChoice",
+                "@model": "MicroServiceChainChoice",
+                "chain_choices": [
+                    "35151db8-3a11-4b49-8865-f6697ef0ac75",
+                    "0a24787c-00e3-4710-b324-90e792bfb484"
+                ]
+            },
+            "description": {
+                "en": "Transcribe SIP contents?"
+            },
+            "exit_codes": {},
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Transcribe SIP contents",
+                "fr": "Transcrire le contenu du SIP",
+                "pt_BR": "Transcreva o conteúdo do SIP",
+                "sv": "Transkribera SIP-innehåll"
             }
         },
         "83484326-7be7-4f9f-b252-94553cd42370": {
