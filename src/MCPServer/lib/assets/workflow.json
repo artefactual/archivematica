@@ -275,6 +275,15 @@
             },
             "link_id": "f2e784a0-356b-4b92-9a5a-11887aa3cf48"
         },
+        "44a7c397-8187-4fd2-b8f7-c61737c4df49": {
+            "description": {
+                "en": "No",
+                "fr": "Non",
+                "ja": "いいえ",
+                "sv": "Nej"
+            },
+            "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
+        },
         "4500f34e-f004-4ccf-8720-5c38d0be2254": {
             "description": {
                 "en": "Do not store",
@@ -477,6 +486,17 @@
                 "sv": "Lagra DIP"
             },
             "link_id": "d026e5a4-96cf-4e4c-938d-a74b0d211da0"
+        },
+        "8f9dceb5-b978-43e0-a364-8b317a3ac43b": {
+            "description": {
+                "en": "Yes",
+                "es": "Sí",
+                "fr": "Oui",
+                "ja": "はい",
+                "pt_BR": "Sim",
+                "sv": "Ja"
+            },
+            "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
         },
         "94f764ad-805a-4d4e-8a2b-a6f2515b30c7": {
             "description": {
@@ -1265,64 +1285,6 @@
                 "fr": "Vérifier la conformité du transfert",
                 "pt_BR": "Verificar a conformidade da transferência",
                 "sv": "Kontrollera överförings följsamhet"
-            }
-        },
-        "05357876-a095-4c11-86b5-a7fff01af668": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": [
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "1e79e1b6-cf50-49ff-98a3-fa51d73553dc",
-                        "items": {
-                            "BindPIDs": "True"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "No",
-                            "fr": "Non",
-                            "ja": "いいえ",
-                            "sv": "Nej"
-                        },
-                        "id": "fcfea449-158c-452c-a8ad-4ae009c4eaba",
-                        "items": {
-                            "BindPIDs": "False"
-                        }
-                    }
-                ]
-            },
-            "description": {
-                "en": "Bind PIDs?",
-                "fr": "Lier les PIDs?",
-                "pt_BR": "Vincular PIDs?",
-                "sv": "Lås PID:er?"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
-                },
-                "1": {
-                    "job_status": "Failed",
-                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "87e93d08-36e4-4c81-99a8-beea00b18400",
-            "group": {
-                "en": "Bind PIDs",
-                "fr": "Lier les PIDs",
-                "pt_BR": "Vincular PIDs",
-                "sv": "Lås PID:er."
             }
         },
         "05f99ffd-abf2-4f5a-9ec8-f80a59967b89": {
@@ -6981,11 +6943,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
+                    "link_id": "a2ba5278-459a-4638-92d9-38eb1588717d"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "873b428f-2c86-42b6-b463-aeda925bf559",
+            "fallback_link_id": "a2ba5278-459a-4638-92d9-38eb1588717d",
             "group": {
                 "en": "Process metadata directory",
                 "es": "Procesar directorio de metadatos",
@@ -6997,7 +6959,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%sharedPath%\" --bind-pids \"%BindPIDs%\"",
+                "arguments": "\"%SIPUUID%\" \"%sharedPath%\"",
                 "execute": "bindPIDs_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -7015,14 +6977,10 @@
                 "0": {
                     "job_status": "Completed successfully",
                     "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
-                },
-                "1": {
-                    "job_status": "Failed",
-                    "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0",
+            "fallback_link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0",
             "group": {
                 "en": "Bind PIDs",
                 "fr": "Lier les PIDs",
@@ -7625,7 +7583,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
+                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
                 }
             },
             "fallback_job_status": "Failed",
@@ -7674,7 +7632,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%fileUUID%\" --bind-pids \"%BindPIDs%\"",
+                "arguments": "\"%fileUUID%\"",
                 "execute": "bindPID_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -8739,6 +8697,31 @@
                 "fr": "Normaliser ",
                 "pt_BR": "Normalizar",
                 "sv": "Normalisera"
+            }
+        },
+        "a2ba5278-459a-4638-92d9-38eb1588717d": {
+            "config": {
+                "@manager": "linkTaskManagerChoice",
+                "@model": "MicroServiceChainChoice",
+                "chain_choices": [
+                    "8f9dceb5-b978-43e0-a364-8b317a3ac43b",
+                    "44a7c397-8187-4fd2-b8f7-c61737c4df49"
+                ]
+            },
+            "description": {
+                "en": "Bind PIDs?",
+                "fr": "Lier les PIDs?",
+                "pt_BR": "Vincular PIDs?",
+                "sv": "Lås PID:er?"
+            },
+            "exit_codes": {},
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Bind PIDs",
+                "fr": "Lier les PIDs",
+                "pt_BR": "Vincular PIDs",
+                "sv": "Lås PID:er."
             }
         },
         "a329d39b-4711-4231-b54e-b5958934dccb": {

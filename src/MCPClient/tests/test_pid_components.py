@@ -93,25 +93,6 @@ class TestPIDComponents(object):
             for fixture in fixtures:
                 call_command("loaddata", fixture)
 
-    def test_bind_pids_not_set(self, caplog):
-        """Test the output of the code without any args.
-
-        bind_pids should return zero, for no-error. It won't have performed
-        any actions on the database either.
-        """
-        assert (
-            bind_pids.main(self.job, None, None, None) == 0
-        ), "Return from bind_pids is something other than expected."
-        assert (
-            caplog.records[0].message == self.do_not_bind
-        ), "Captured logging message from bind_pids is different than anticipated."
-        assert (
-            bind_pids.main(self.job, None, None, False) == 0
-        ), "Return from bind_pids is something other than expected."
-        assert (
-            caplog.records[1].message == self.do_not_bind
-        ), "Captured logging message from bind_pids is different than anticipated."
-
     @pytest.mark.django_db
     def test_bind_pids_no_config(self, caplog):
         """Test the output of the code without any args.
@@ -124,7 +105,7 @@ class TestPIDComponents(object):
         """
         DashboardSetting.objects.filter(scope="handle").delete()
         assert (
-            bind_pids.main(self.job, None, None, True) == 1
+            bind_pids.main(self.job, None, None) == 1
         ), "Incorrect return value for bind_pids with incomplete configuration."
         assert caplog.records[0].message.startswith(self.incomplete_configuration_msg)
 
@@ -148,7 +129,7 @@ class TestPIDComponents(object):
             "test_bind_pids_to_sip_and_dirs.yaml"
         ) as cassette:
             # Primary entry-point for the bind_pids microservice job.
-            bind_pids.main(self.job, self.package_uuid, "", True)
+            bind_pids.main(self.job, self.package_uuid, "")
         assert cassette.all_played
         sip_mdl = SIP.objects.filter(uuid=self.package_uuid).first()
         assert len(sip_mdl.identifiers.all()) == len(
@@ -204,26 +185,8 @@ class TestPIDComponents(object):
         most visible errors to the user.
         """
         DashboardSetting.objects.filter(scope="handle").delete()
-        assert bind_pid.main(self.job, self.package_uuid, True) == 1
+        assert bind_pid.main(self.job, self.package_uuid) == 1
         assert caplog.records[0].message.startswith(self.incomplete_configuration_msg)
-
-    def test_bind_pid_not_set(self, caplog):
-        """Ensure that the behavior of bind_pid is as anticipated when we're
-        not asking it to bind_pids, i.e. it doesn't runaway and try and bind
-        anyway, or something that isn't there.
-        """
-        assert (
-            bind_pid.main(self.job, None, None) == 0
-        ), "Return from bind_pid is incorrect"
-        assert (
-            caplog.records[0].message == self.do_not_bind
-        ), "Captured logging message from bind_pid is incorrect"
-        assert (
-            bind_pid.main(self.job, None, False) == 0
-        ), "Return from bind_pid is something other than expected"
-        assert (
-            caplog.records[1].message == self.do_not_bind
-        ), "Captured logging message from bind_pid is incorrect"
 
     @pytest.mark.django_db
     def test_bind_pid(self):
@@ -239,7 +202,7 @@ class TestPIDComponents(object):
         ), "Number of files returned from package is incorrect"
         for file_ in files:
             with vcr_cassettes.use_cassette("test_bind_pid_to_files.yaml") as cassette:
-                bind_pid.main(self.job, file_.pk, True)
+                bind_pid.main(self.job, file_.pk)
         assert cassette.all_played
         for file_mdl in files:
             bound = {idfr.type: idfr.value for idfr in file_mdl.identifiers.all()}
@@ -285,7 +248,7 @@ class TestPIDComponents(object):
             files is not None
         ), "Files haven't been retrieved from the model as expected"
         for file_ in files:
-            bind_pid.main(self.job, file_.pk, True)
+            bind_pid.main(self.job, file_.pk)
         for file_number in range(file_count):
             assert caplog.records[file_number].message.startswith(
                 self.incomplete_configuration_msg
@@ -350,7 +313,7 @@ class TestPIDComponents(object):
             "test_bind_pids_to_sip_and_dirs.yaml"
         ) as cassette:
             # Primary entry-point for the bind_pids microservice job.
-            bind_pids.main(self.job, self.package_uuid, "", True)
+            bind_pids.main(self.job, self.package_uuid, "")
         for mdl in chain((sip_mdl,), dir_mdl):
             dir_dmd_sec = create_mets_v2.getDirDmdSec(mdl, "")
             id_type = dir_dmd_sec.xpath(
@@ -372,7 +335,7 @@ class TestPIDComponents(object):
                     assert len(example_ulid) == len(value)
         for file_ in files:
             with vcr_cassettes.use_cassette("test_bind_pid_to_files.yaml") as cassette:
-                bind_pid.main(self.job, file_.pk, True)
+                bind_pid.main(self.job, file_.pk)
             assert cassette.all_played
         for file_mdl in files:
             file_level_premis = create_mets_v2.create_premis_object(file_mdl.pk)

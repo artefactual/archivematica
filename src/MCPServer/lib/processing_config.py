@@ -100,11 +100,11 @@ processing_fields["8ce07e94-6130-4987-96f0-2399ad45c5c2"] = {
     "yes_option": "d9760427-b488-4381-832a-de10106de6fe",
     "no_option": "76befd52-14c3-44f9-838f-15a4e01624b0",
 }
-processing_fields["05357876-a095-4c11-86b5-a7fff01af668"] = {
+processing_fields["a2ba5278-459a-4638-92d9-38eb1588717d"] = {
     "type": "boolean",
     "name": "bind_pids",
-    "yes_option": "1e79e1b6-cf50-49ff-98a3-fa51d73553dc",
-    "no_option": "fcfea449-158c-452c-a8ad-4ae009c4eaba",
+    "yes_option": "8f9dceb5-b978-43e0-a364-8b317a3ac43b",
+    "no_option": "44a7c397-8187-4fd2-b8f7-c61737c4df49",
 }
 processing_fields["d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"] = {
     "type": "boolean",

@@ -300,7 +300,7 @@ class ProcessingConfigurationForm(forms.Form):
         "8ce07e94-6130-4987-96f0-2399ad45c5c2": _(
             "Perform policy checks on access derivatives"
         ),
-        "05357876-a095-4c11-86b5-a7fff01af668": _("Bind PIDs"),
+        "a2ba5278-459a-4638-92d9-38eb1588717d": _("Bind PIDs"),
         "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0": _("Document empty directories"),
         "eeb23509-57e2-4529-8857-9d62525db048": _("Reminder: add metadata if desired"),
         "7079be6d-3a25-41e6-a481-cee5f352fe6e": _("Transcribe files (OCR)"),
