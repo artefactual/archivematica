@@ -407,15 +407,6 @@
             },
             "link_id": "b4567e89-9fea-4256-99f5-a88987026488"
         },
-        "69f4a4b9-93e2-481c-99a0-fa92d68c3ebd": {
-            "description": {
-                "en": "SIP Creation complete",
-                "fr": "Création du SIP complète",
-                "pt_BR": "Criação do SIP concluída",
-                "sv": "SIP skapelse fullföljd"
-            },
-            "link_id": "01fd7a29-deb9-4dd1-8e28-1c48fc1ac41b"
-        },
         "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa": {
             "description": {
                 "en": "Do not upload DIP",
@@ -726,26 +717,6 @@
             },
             "link_id": "d7e6404a-a186-4806-a130-7e6d27179a15"
         },
-        "d456dfde-1cdb-4178-babc-1a4537fe1b87": {
-            "description": {
-                "en": "Store DIP",
-                "es": "Almacenar DIP",
-                "fr": "Stocker le DIP",
-                "ja": "DIPを蓄える",
-                "pt_BR": "Armazenar DIP",
-                "sv": "Lagra DIP"
-            },
-            "link_id": "2e31580d-1678-474b-83e5-a53d97d150f6"
-        },
-        "d4ff46d4-5c57-408c-943b-fed63c1a9d75": {
-            "description": {
-                "en": "SIP Creation complete",
-                "fr": "Création du SIP complète",
-                "pt_BR": "Criação do SIP concluída",
-                "sv": "SIP skapelse fullföljd"
-            },
-            "link_id": "4430077a-92c5-4d86-b0f8-0d31bdb731fb"
-        },
         "d9760427-b488-4381-832a-de10106de6fe": {
             "description": {
                 "en": "Yes",
@@ -815,15 +786,6 @@
                 "sv": "Nej"
             },
             "link_id": "2584b25c-8d98-44b7-beca-2b3ea2ea2505"
-        },
-        "f1311d19-54c9-4484-9b3c-9bda40457559": {
-            "description": {
-                "en": "Add README file",
-                "ja": "READMEファイルを追加",
-                "pt_BR": "Adicionar arquivo README",
-                "sv": "Lägg till README-fil"
-            },
-            "link_id": "523c97cc-b267-4cfb-8209-d99e523bf4b3"
         },
         "f6df8882-d076-441e-bb00-2f58d5eda098": {
             "description": {
@@ -9496,34 +9458,6 @@
                 }
             },
             "fallback_job_status": "Completed successfully",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Normalize",
-                "es": "Normalizar",
-                "fr": "Normaliser ",
-                "pt_BR": "Normalizar",
-                "sv": "Normalisera"
-            }
-        },
-        "b3c5e343-5940-4aad-8a9f-fb0eccbfb3a3": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "c34bd22a-d077-4180-bf58-01db35bdb644",
-                    "fb7a326e-1e50-4b48-91b9-4917ff8d0ae8",
-                    "e600b56d-1a43-4031-9d7c-f64f123e5662"
-                ]
-            },
-            "description": {
-                "en": "Normalize",
-                "es": "Normalizar",
-                "fr": "Normaliser ",
-                "pt_BR": "Normalizar",
-                "sv": "Normalisera"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
             "fallback_link_id": null,
             "group": {
                 "en": "Normalize",
