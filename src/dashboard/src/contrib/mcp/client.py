@@ -65,7 +65,7 @@ class TimeoutError(RPCGearmanClientError):
     """Deadline exceeded.
 
     >> response = client.submit_job(
-           "doSomething", cPickle.dumps(data),
+           "doSomething", cPickle.dumps(data, protocol=0),
            background=False, wait_until_complete=True,
            poll_timeout=INFLIGHT_POLL_TIMEOUT)
        if response.state == gearman.JOB_CREATED:
@@ -114,7 +114,7 @@ class MCPClient(object):
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             ability,
-            six.moves.cPickle.dumps(data),
+            six.moves.cPickle.dumps(data, protocol=0),
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -137,7 +137,7 @@ class MCPClient(object):
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job("approveJob", six.moves.cPickle.dumps(data), None)
+        gm_client.submit_job(b"approveJob", six.moves.cPickle.dumps(data, protocol=0))
         gm_client.shutdown()
         return
 
@@ -159,7 +159,7 @@ class MCPClient(object):
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job(
-            "getJobsAwaitingApproval", "", None
+            b"getJobsAwaitingApproval", "".encode("utf8")
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
             return six.moves.cPickle.loads(completed_job_request.result)
