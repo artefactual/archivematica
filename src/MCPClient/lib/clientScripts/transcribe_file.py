@@ -178,10 +178,5 @@ def call(jobs):
             with job.JobContext():
                 task_uuid = job.args[1]
                 file_uuid = job.args[2]
-                transcribe = job.args[3]
 
-                if transcribe == "False":
-                    job.print_output("Skipping transcription")
-                    job.set_status(0)
-                else:
-                    job.set_status(main(job, task_uuid, file_uuid))
+                job.set_status(main(job, task_uuid, file_uuid))

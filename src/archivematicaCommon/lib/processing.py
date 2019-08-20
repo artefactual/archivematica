@@ -129,8 +129,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Transcribe files (OCR) -->
     <preconfiguredChoice>
-      <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
-      <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
+      <appliesTo>82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6</appliesTo>
+      <goToChain>0a24787c-00e3-4710-b324-90e792bfb484</goToChain>
     </preconfiguredChoice>
     <!-- Perform file format identification (Transfer) -->
     <preconfiguredChoice>

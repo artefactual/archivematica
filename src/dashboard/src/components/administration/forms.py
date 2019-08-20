@@ -303,7 +303,7 @@ class ProcessingConfigurationForm(forms.Form):
         "a2ba5278-459a-4638-92d9-38eb1588717d": _("Bind PIDs"),
         "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0": _("Document empty directories"),
         "eeb23509-57e2-4529-8857-9d62525db048": _("Reminder: add metadata if desired"),
-        "7079be6d-3a25-41e6-a481-cee5f352fe6e": _("Transcribe files (OCR)"),
+        "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6": _("Transcribe files (OCR)"),
         "087d27be-c719-47d8-9bbb-9a7d8b609c44": _(
             "Perform file format identification (Submission documentation & metadata)"
         ),

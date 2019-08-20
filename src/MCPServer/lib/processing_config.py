@@ -116,11 +116,11 @@ processing_fields["eeb23509-57e2-4529-8857-9d62525db048"] = {
     "type": "chain_choice",
     "name": "reminder",
 }
-processing_fields["7079be6d-3a25-41e6-a481-cee5f352fe6e"] = {
+processing_fields["82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6"] = {
     "type": "boolean",
     "name": "transcribe_file",
-    "yes_option": "5a9985d3-ce7e-4710-85c1-f74696770fa9",
-    "no_option": "1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53",
+    "yes_option": "35151db8-3a11-4b49-8865-f6697ef0ac75",
+    "no_option": "0a24787c-00e3-4710-b324-90e792bfb484",
 }
 processing_fields["087d27be-c719-47d8-9bbb-9a7d8b609c44"] = {
     "type": "replace_dict",
