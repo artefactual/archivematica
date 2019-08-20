@@ -485,4 +485,4 @@ class PreconfiguredChoices(object):
 
     def save(self, config_path):
         with open(config_path, "w") as f:
-            f.write(etree.tostring(self.xml, pretty_print=True))
+            f.write(etree.tostring(self.xml, pretty_print=True, encoding="unicode"))
