@@ -23,8 +23,8 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
@@ -114,8 +114,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Create SIP(s) -->
     <preconfiguredChoice>

@@ -67,12 +67,6 @@ class BindPIDException(Exception):
     exit_code = 1
 
 
-class BindPIDWarning(Exception):
-    """If I am raised, return 0."""
-
-    exit_code = 0
-
-
 def exit_on_known_exception(func):
     """Decorator that makes this module's ``main`` function cleaner by handling
     early exiting by catching particular exceptions.
@@ -82,17 +76,10 @@ def exit_on_known_exception(func):
     def wrapped(*_args, **kwargs):
         try:
             func(*_args, **kwargs)
-        except (BindPIDException, BindPIDWarning) as exc:
+        except BindPIDException as exc:
             return exc.exit_code
 
     return wrapped
-
-
-def _exit_if_not_bind_pids(bind_pids_switch):
-    """Quit processing if bind_pids_switch is not truthy."""
-    if not bind_pids_switch:
-        logger.info("Configuration indicates that PIDs should not be bound.")
-        raise BindPIDWarning
 
 
 def _get_bind_pid_config(file_uuid):
@@ -128,12 +115,10 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
 
 
 @exit_on_known_exception
-def main(job, file_uuid, bind_pids_switch):
+def main(job, file_uuid):
     """Bind the UUID ``file_uuid`` to the appropriate URL(s), given the
-    configuration from the dashboard, Do this only if ``bind_pids_switch`` is
-    ``True``.
+    configuration from the dashboard.
     """
-    _exit_if_not_bind_pids(bind_pids_switch)
     try:
         args = _get_bind_pid_config(file_uuid)
         msg = bindpid.bind_pid(**args)
@@ -156,24 +141,12 @@ def call(jobs):
     parser.add_argument(
         "file_uuid", type=str, help="The UUID of the file to bind a PID for."
     )
-    parser.add_argument(
-        "--bind-pids",
-        action="store",
-        type=str2bool,
-        dest="bind_pids_switch",
-        default="No",
-    )
 
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
                 if args.file_uuid == "None":
-                    job.set_status(0)
-                elif not args.bind_pids_switch:
-                    logger.info(
-                        "Configuration indicates that PIDs should not be bound."
-                    )
                     job.set_status(0)
                 else:
                     logger.info("bind_pid called with args: %s", vars(args))

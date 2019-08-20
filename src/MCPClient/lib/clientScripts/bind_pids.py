@@ -77,12 +77,6 @@ class BindPIDsException(Exception):
     exit_code = 1
 
 
-class BindPIDsWarning(Exception):
-    """If I am raised, return 0."""
-
-    exit_code = 0
-
-
 def exit_on_known_exception(func):
     """Decorator that makes this module's ``main`` function cleaner by handling
     early exiting by catching particular exceptions.
@@ -92,17 +86,10 @@ def exit_on_known_exception(func):
     def wrapped(*_args, **kwargs):
         try:
             func(*_args, **kwargs)
-        except (BindPIDsException, BindPIDsWarning) as exc:
+        except BindPIDsException as exc:
             return exc.exit_code
 
     return wrapped
-
-
-def _exit_if_not_bind_pids(bind_pids_switch):
-    """Quit processing if bind_pids_switch is not truthy."""
-    if not bind_pids_switch:
-        logger.info("Configuration indicates that PIDs should not be bound.")
-        raise BindPIDsWarning
 
 
 def _add_pid_to_mdl_identifiers(mdl, config):
@@ -219,12 +206,11 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
 
 
 @exit_on_known_exception
-def main(job, sip_uuid, shared_path, bind_pids_switch):
+def main(job, sip_uuid, shared_path):
     """Bind the UUID ``sip_uuid`` to the appropriate URL(s), given the
     configuration in the dashboard, Do this only if ``bind_pids_switch`` is
     ``True``.
     """
-    _exit_if_not_bind_pids(bind_pids_switch)
     handle_config = DashboardSetting.objects.get_dict("handle")
     handle_config["pid_request_verify_certs"] = str2bool(
         handle_config.get("pid_request_verify_certs", "True")
@@ -251,13 +237,6 @@ def call(jobs):
     )
     parser.add_argument(
         "shared_path", type=str, help="The shared directory where SIPs are stored."
-    )
-    parser.add_argument(
-        "--bind-pids",
-        action="store",
-        type=str2bool,
-        dest="bind_pids_switch",
-        default="No",
     )
 
     with transaction.atomic():
