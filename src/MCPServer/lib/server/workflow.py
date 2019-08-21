@@ -25,49 +25,32 @@ from django.utils.six import text_type, python_2_unicode_compatible
 from jsonschema import validate, FormatChecker
 from jsonschema.exceptions import ValidationError
 
-from main.models import Job
-
-from link_executor import (
-    ChoiceFromDashboardSettingLinkExecutor,
-    ChoiceFromOutputLinkExecutor,
-    ChoiceLinkExecutor,
-    DirectoryLinkExecutor,
-    FileLinkExecutor,
-    GetJobOutputLinkExecutor,
-    GetUnitVarLinkExecutor,
-    SetUnitVarLinkExecutor,
-)
-from translation import FALLBACK_LANG, TranslationLabel
+from server.jobs import Job
+from server.translation import FALLBACK_LANG, TranslationLabel
 
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
+ASSETS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(os.path.join(__file__)))), "assets"
+)
+
+DEFAULT_WORKFLOW = os.path.join(ASSETS_DIR, "workflow.json")
 
 
-def _load_job_statuses():
+def _invert_job_statuses():
     """Return an inverted dict of job statuses, i.e. indexed by labels."""
-    ret = {}
-    for id_, proxy in dict(Job.STATUS).items():
-        label = getattr(proxy, "_proxy____args")[0]
-        ret[label] = id_
-    return ret
+    statuses = {}
+    for status in Job.STATUSES:
+        label = text_type(status[1])
+        statuses[label] = status[0]
+
+    return statuses
 
 
-# Job statuses (from ``main.models.Job.STATUS``) indexed by the English labels.
+# Job statuses (from ``Job.STATUSES``) indexed by the English labels.
 # This is useful when decoding the values used in the JSON-encoded workflow
 # where we're using labels instead of IDs.
-_STATUSES = _load_job_statuses()
-
-# Map JSON manager names to link executor classes
-_LINK_MANAGERS = {
-    "linkTaskManagerChoice": ChoiceLinkExecutor,
-    "linkTaskManagerDirectories": DirectoryLinkExecutor,
-    "linkTaskManagerFiles": FileLinkExecutor,
-    "linkTaskManagerGetMicroserviceGeneratedListInStdOut": GetJobOutputLinkExecutor,
-    "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList": ChoiceFromOutputLinkExecutor,
-    "linkTaskManagerReplacementDicFromChoice": ChoiceFromDashboardSettingLinkExecutor,
-    "linkTaskManagerSetUnitVariable": SetUnitVarLinkExecutor,
-    "linkTaskManagerUnitVariableLinkPull": GetUnitVarLinkExecutor,
-}
+_STATUSES = _invert_job_statuses()
 
 
 @python_2_unicode_compatible
@@ -130,6 +113,10 @@ class BaseLink(object):
     def _decode_translation(self, translation_dict):
         return TranslationLabel(translation_dict)
 
+    @property
+    def workflow(self):
+        return self._workflow
+
 
 class Chain(BaseLink):
     def __init__(self, id_, attrs, workflow):
@@ -185,11 +172,6 @@ class Link(BaseLink):
         if config["@manager"] == "linkTaskManagerReplacementDicFromChoice":
             for item in config["replacements"]:
                 item["description"] = self._decode_translation(item["description"])
-
-    @property
-    def manager(self):
-        name = self._src["config"]["@manager"]
-        return _LINK_MANAGERS[name]
 
     @property
     def config(self):
@@ -251,7 +233,14 @@ def load(fp):
     """Read JSON document from file-like object, validate and decode it."""
     blob = fp.read()  # Read once, used twice.
     _validate(blob)
-    return json.loads(blob, cls=WorkflowJSONDecoder)
+    parsed = json.loads(blob, cls=WorkflowJSONDecoder)
+
+    return parsed
+
+
+def load_default_workflow():
+    with open(DEFAULT_WORKFLOW) as default_workflow:
+        return load(default_workflow)
 
 
 class SchemaValidationError(ValidationError):
@@ -268,7 +257,6 @@ def _validate(blob):
 
 def _get_schema():
     """Decode the default schema and return it."""
-    dirname = os.path.dirname(os.path.realpath(__file__))
-    schema = os.path.join(dirname, "assets", _LATEST_SCHEMA)
+    schema = os.path.join(ASSETS_DIR, _LATEST_SCHEMA)
     with open(schema) as fp:
         return json.load(fp)

@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-import workflow
-from workflow_abilities import choice_is_available
+from server import workflow
+from server.workflow_abilities import choice_is_available
 
 
 ASSETS_DIR = os.path.join(
@@ -27,7 +27,7 @@ def test_choice_is_available__enabled(settings, _workflow):
     settings.SEARCH_ENABLED = "transfers, aips"
     link = _workflow.get_link(CREATE_SIP_LINK_ID)
     chain = _workflow.get_chain(SEND_TO_BACKLOG_CHAIN_ID)
-    assert choice_is_available(link, chain, settings) is True
+    assert choice_is_available(link, chain) is True
 
 
 def test_choice_is_available__disabled(settings, _workflow):
@@ -35,4 +35,4 @@ def test_choice_is_available__disabled(settings, _workflow):
     settings.SEARCH_ENABLED = "aips"
     link = _workflow.get_link(CREATE_SIP_LINK_ID)
     chain = _workflow.get_chain(SEND_TO_BACKLOG_CHAIN_ID)
-    assert choice_is_available(link, chain, settings) is False
+    assert choice_is_available(link, chain) is False

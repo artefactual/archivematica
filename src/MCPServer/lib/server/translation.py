@@ -7,7 +7,7 @@ import pprint
 from django.utils.six import text_type, python_2_unicode_compatible
 
 FALLBACK_LANG = "en"
-_UNKNOWN_TRANSLATION_LABEL = "<unknown>"
+UNKNOWN_TRANSLATION_LABEL = "<unknown>"
 
 
 @python_2_unicode_compatible
@@ -65,14 +65,14 @@ class TranslationLabel(object):
     def get_label(self, lang=FALLBACK_LANG, fallback_label=None):
         """Get the translation of a message.
 
-        It defaults to ``_FALLBACK_LANG`` unless ``lang`` is used.
+        It defaults to ``FALLBACK_LANG`` unless ``lang`` is used.
         It accepts a ``fallback_label``,  used when the message is not
         available in the language given. As a last resort, it returns
-        ``_UNKNOWN_TRANSLATION_LABEL``.
+        ``UNKNOWN_TRANSLATION_LABEL``.
         """
         lang = self._prepare_lang(lang)
         if lang in self._src:
             return self._src[lang]
         if fallback_label is not None:
             return fallback_label
-        return self._src.get(FALLBACK_LANG, _UNKNOWN_TRANSLATION_LABEL)
+        return self._src.get(FALLBACK_LANG, UNKNOWN_TRANSLATION_LABEL)

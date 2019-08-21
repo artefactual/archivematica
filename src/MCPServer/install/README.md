@@ -2,11 +2,13 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration file](#configuration-file)
-- [Parameter list](#parameter-list)
-- [Logging configuration](#logging-configuration)
+- [MCPServer Configuration](#mcpserver-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration file](#configuration-file)
+  - [Parameter list](#parameter-list)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -172,11 +174,12 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** `"128"`
 
-- **`ARCHIVEMATICA_MCPSERVER_PROTOCOL_LIMITTASKTHREADS`**:
-    - **Description:** max. number of threads that MCPServer will run simultaneously.
-    - **Config file example:** `protocol.limitTaskThreads`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_CONCURRENT_PACKAGES`**:
+    - **Description:** the number of packages to process concurrently. Should typically correspond
+    to the number of running MCPClients.
+    - **Config file example:** `MCPServer.concurrent_packages`
     - **Type:** `int`
-    - **Default:** `"75"`
+    - **Default:** `"4"`
 
 - **`ARCHIVEMATICA_MCPSERVER_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.

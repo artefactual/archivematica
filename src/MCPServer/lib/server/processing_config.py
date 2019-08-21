@@ -1,14 +1,23 @@
+# -*- coding: utf-8 -*-
+
 """Processing configuration.
 
 This module lists the processing configuration fields where the user has the
-ability to establish predefined choices via the user interface.
+ability to establish predefined choices via the user interface, and handles
+processing config file operations.
 """
-
+import logging
+import os
+import shutil
 from collections import OrderedDict
 
-from django.conf import settings as django_settings
+from django.conf import settings
+from lxml import etree
 
-from workflow_abilities import choice_is_available
+from server.workflow_abilities import choice_is_available
+
+
+logger = logging.getLogger("archivematica.mcp.server.processing_config")
 
 
 # Types of processing fields:
@@ -190,7 +199,7 @@ def _get_options_for_chain_choice(link, workflow, ignored_choices):
         label = chain.get_label("description")
         if label in ignored_choices:
             continue
-        if not choice_is_available(link, chain, django_settings):
+        if not choice_is_available(link, chain):
             continue
         ret.append((chain_id, label))
     return ret
@@ -253,3 +262,53 @@ def _populate_duplicates_chain_choice(workflow, link, config):
                     continue
                 results.append((link.id, chain.id))
         config["duplicates"][chain_id] = (chain_desc, results)
+
+
+def copy_processing_config(processing_config, destination_path):
+    if processing_config is None:
+        return
+
+    src = os.path.join(
+        settings.SHARED_DIRECTORY,
+        "sharedMicroServiceTasksConfigs/processingMCPConfigs",
+        "%sProcessingMCP.xml" % processing_config,
+    )
+    dest = os.path.join(destination_path, "processingMCP.xml")
+    try:
+        shutil.copyfile(src, dest)
+    except IOError:
+        logger.warning(
+            "Processing configuration could not be copied: (from=%s to=%s)",
+            src,
+            dest,
+            exc_info=True,
+        )
+
+
+def load_processing_xml(package_path):
+    processing_file_path = os.path.join(package_path, settings.PROCESSING_XML_FILE)
+
+    if not os.path.isfile(processing_file_path):
+        return None
+
+    try:
+        return etree.parse(processing_file_path)
+    except etree.LxmlError:
+        logger.warning(
+            "Error parsing xml at %s for pre-configured choice",
+            processing_file_path,
+            exc_info=True,
+        )
+        return None
+
+
+def load_preconfigured_choice(package_path, workflow_link_id):
+    choice = None
+
+    processing_xml = load_processing_xml(package_path)
+    if processing_xml is not None:
+        for preconfigured_choice in processing_xml.findall(".//preconfiguredChoice"):
+            if preconfigured_choice.find("appliesTo").text == str(workflow_link_id):
+                choice = preconfigured_choice.find("goToChain").text
+
+    return choice

@@ -80,6 +80,11 @@ CONFIG_MAPPING = {
         "process_function": process_search_enabled,
     },
     "batch_size": {"section": "MCPServer", "option": "batch_size", "type": "int"},
+    "concurrent_packages": {
+        "section": "MCPServer",
+        "option": "concurrent_packages",
+        "type": "int",
+    },
     "storage_service_client_timeout": {
         "section": "MCPServer",
         "option": "storage_service_client_timeout",
@@ -99,12 +104,6 @@ CONFIG_MAPPING = {
         "section": "MCPServer",
         "option": "prometheus_bind_port",
         "type": "string",
-    },
-    # [Protocol]
-    "limit_task_threads": {
-        "section": "Protocol",
-        "option": "limitTaskThreads",
-        "type": "int",
     },
     # [client]
     "db_engine": {"section": "client", "option": "engine", "type": "string"},
@@ -130,13 +129,11 @@ processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
 batch_size = 128
+concurrent_packages = 4
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
 prometheus_bind_port =
-
-[Protocol]
-limitTaskThreads = 75
 
 [client]
 user = archivematica
@@ -216,7 +213,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "detailed": {
-            "format": "%(levelname)-8s %(threadName)s %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s",
+            "format": "%(levelname)-8s %(threadName)s %(asctime)s %(module)s:%(funcName)s:%(lineno)d:  %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     },
@@ -247,9 +244,9 @@ GEARMAN_SERVER = config.get("gearman_server")
 WAIT_ON_AUTO_APPROVE = config.get("wait_on_auto_approve")
 WATCH_DIRECTORY_METHOD = config.get("watch_directory_method")
 WATCH_DIRECTORY_INTERVAL = config.get("watch_directory_interval")
-LIMIT_TASK_THREADS = config.get("limit_task_threads")
 SEARCH_ENABLED = config.get("search_enabled")
 BATCH_SIZE = config.get("batch_size")
+CONCURRENT_PACKAGES = config.get("concurrent_packages")
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get("storage_service_client_timeout")
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get(
     "storage_service_client_quick_timeout"
