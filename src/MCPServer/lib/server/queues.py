@@ -8,6 +8,7 @@ import Queue
 
 import concurrent.futures
 
+from django.conf import settings
 from django.utils import six
 
 
@@ -32,12 +33,11 @@ class PackageQueue(object):
             "377f8ebb-7989-4a68-9361-658079ff8138",
         ]
     )
-    MAX_QUEUED_PACKAGES = 1024
-    MAX_CONCURRENT_PACKAGES = 3
+    MAX_QUEUED_PACKAGES = 2048
 
     def __init__(
         self,
-        max_concurrent_packages=MAX_CONCURRENT_PACKAGES,
+        max_concurrent_packages=settings.MAX_CONCURRENT_PACKAGES,
         max_queued_packages=MAX_QUEUED_PACKAGES,
         debug=False,
     ):
