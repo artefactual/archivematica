@@ -21,7 +21,6 @@ import abc
 import argparse
 import os
 import re
-import multiprocessing
 import subprocess
 import uuid
 import errno
@@ -43,10 +42,6 @@ from databaseFunctions import insertIntoEvents
 from main.models import Event, File
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 def clamav_version_parts(ver):

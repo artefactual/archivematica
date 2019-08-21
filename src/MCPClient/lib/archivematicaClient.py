@@ -76,7 +76,6 @@ import shlex
 import importlib
 
 from databaseFunctions import auto_close_db
-import fork_runner
 import metrics
 from job import Job
 
@@ -146,16 +145,7 @@ def handle_batch_task(gearman_job, supported_modules):
     retryOnFailure("Set task start times", set_start_times)
 
     module = importlib.import_module("clientScripts." + module_name)
-
-    # Our module can indicate that it should be run concurrently...
-    if hasattr(module, "concurrent_instances"):
-        fork_runner.call(
-            "clientScripts." + module_name,
-            jobs,
-            task_count=module.concurrent_instances(),
-        )
-    else:
-        module.call(jobs)
+    module.call(jobs)
 
     return jobs
 

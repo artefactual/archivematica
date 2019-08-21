@@ -8,7 +8,6 @@
 # will be run instead (currently FITS).
 
 from lxml import etree
-import multiprocessing
 
 import django
 
@@ -26,10 +25,6 @@ from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
 
 from lib import setup_dicts
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 def main(job, file_path, file_uuid, sip_uuid):

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import os
-import multiprocessing
 from uuid import uuid4
 
 import django
@@ -21,10 +20,6 @@ import fileOperations
 
 from django.conf import settings as mcpclient_settings
 from lib import setup_dicts
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 def insert_transcription_event(status, file_uuid, rule, relative_location):

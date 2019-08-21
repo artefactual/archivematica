@@ -58,24 +58,3 @@ Some notable features:
       - If you supply the `logger` keyword, your global logger will be
         configured to send its output to the job's standard error
         stream.
-
-## Concurrency
-
-Some tasks benefit from running multiple processes at once--giving
-better throughput. To instruct MCPClient to run your task in multiple
-concurrent processes, provide a function in your module as follows:
-
-    import multiprocessing
-    def concurrent_instances():
-        return multiprocessing.cpu_count()
-
-when your task includes `concurrent_instances`, MCPClient will call
-that to determine how many instances to run (at the time of writing,
-we just default to running as many processes as you have CPUs, but it
-might make sense to run fewer or more in some cases).  Each instance
-will be run in its own Python subprocess with a subset of the total
-jobs.
-
-Besides the method definition, that's all you need to do to run
-concurrently: MCPClient takes care of creating the subprocesses,
-dividing up the work and gathering everything up at the end.

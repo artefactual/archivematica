@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import argparse
-import multiprocessing
 import uuid
 
 import django
@@ -15,10 +14,6 @@ from django.db import transaction
 # archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import getUTCDate, insertIntoEvents
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 def _save_id_preference(file_, value):

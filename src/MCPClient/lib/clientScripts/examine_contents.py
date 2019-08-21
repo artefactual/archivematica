@@ -1,12 +1,7 @@
 #!/usr/bin/env python2
-import multiprocessing
 import os
 
 from executeOrRunSubProcess import executeOrRun
-
-
-def concurrent_instances():
-    return multiprocessing.cpu_count()
 
 
 def main(job, target, output):
