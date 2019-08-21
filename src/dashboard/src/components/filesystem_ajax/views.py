@@ -476,13 +476,13 @@ def copy_from_arrange_to_completed(
     if sip_uuid is None:
         sip_uuid = request.POST.get("uuid")
 
-    status_code, response = _copy_from_arrange_to_completed_common(
+    status_code, response = copy_from_arrange_to_completed_common(
         filepath, sip_uuid, sip_name
     )
     return helpers.json_response(response, status_code=status_code)
 
 
-def _copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
+def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
     """Create a SIP from SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
