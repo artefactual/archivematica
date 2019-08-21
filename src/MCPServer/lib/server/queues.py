@@ -37,7 +37,7 @@ class PackageQueue(object):
 
     def __init__(
         self,
-        max_concurrent_packages=settings.MAX_CONCURRENT_PACKAGES,
+        max_concurrent_packages=settings.CONCURRENT_PACKAGES,
         max_queued_packages=MAX_QUEUED_PACKAGES,
         debug=False,
     ):
