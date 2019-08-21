@@ -1,6 +1,6 @@
 import pytest
 
-from package import _determine_transfer_paths
+from server.packages import _determine_transfer_paths
 
 
 @pytest.mark.parametrize(

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """The abilities module allows for the description of abilities and their
 dependencies across Archivematica components (i.e., dashboard, MCPServer, and
 MCPClient).

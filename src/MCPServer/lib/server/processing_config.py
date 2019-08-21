@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Processing configuration.
 
 This module lists the processing configuration fields where the user has the
@@ -6,9 +8,7 @@ ability to establish predefined choices via the user interface.
 
 from collections import OrderedDict
 
-from django.conf import settings as django_settings
-
-from workflow_abilities import choice_is_available
+from server.workflow_abilities import choice_is_available
 
 
 # Types of processing fields:
@@ -190,7 +190,7 @@ def _get_options_for_chain_choice(link, workflow, ignored_choices):
         label = chain.get_label("description")
         if label in ignored_choices:
             continue
-        if not choice_is_available(link, chain, django_settings):
+        if not choice_is_available(link, chain):
             continue
         ret.append((chain_id, label))
     return ret

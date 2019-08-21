@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Exposes various metrics via Prometheus.
 """

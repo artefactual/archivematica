@@ -1,21 +1,6 @@
-"""Package management."""
+# -*- coding: utf-8 -*-
 
-# This file is part of Archivematica.
-#
-# Copyright 2010-2018 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+"""Package management."""
 
 import abc
 import ast
@@ -24,21 +9,23 @@ import logging
 import os
 import shutil
 from tempfile import mkdtemp
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import scandir
 from django.conf import settings
 from django.utils import six
 
-from archivematicaFunctions import unicodeToStr
-from db import auto_close_old_connections
-from job import JobChain
-from main import models
-from scheduler import package_scheduler
 import storageService as storage_service
+from archivematicaFunctions import unicodeToStr
+from main import models
+
+from server.db import auto_close_old_connections
+from server.jobs import JobChain
+from server.queues import package_queue
+from server.utils import uuid_from_path
 
 
-logger = logging.getLogger("archivematica.mcp.server")
+logger = logging.getLogger("archivematica.mcp.server.packages")
 
 
 StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link")
@@ -53,7 +40,7 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 # directly into action, this is whatever happens when the transfer is
 # accepted. The following dictionary points to the chains and links where
 # this is happening. Presumably this could be written in a generic way querying
-# the workflow data but in the first iteraiton we've decided to do it this way.
+# the workflow data but in the first iteration we've decided to do it this way.
 # There is also the hope that the watched directories can be deprecated in the
 # near future.
 PACKAGE_TYPE_STARTING_POINTS = {
@@ -232,7 +219,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
             message.append(str(error))
     if message:
         raise Exception(
-            "The following errors occured: %(message)s"
+            "The following errors occurred: %(message)s"
             % {"message": ", ".join(message)}
         )
 
@@ -324,25 +311,26 @@ def create_package(
     logger.debug(
         "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
     )
-    try:
-        params = (transfer, name, path, tmpdir, starting_point, processing_config)
-        if auto_approve:
-            params = params + (workflow,)
-            _start_package_transfer_with_auto_approval(*params)
-        else:
-            _start_package_transfer(*params)
-    finally:
-        os.chmod(tmpdir, 0o770)  # Needs to be writeable by the SS.
+    # TODO: stop piggybacking on package_queue's executor here
+    params = (transfer, name, path, tmpdir, starting_point, processing_config)
+    if auto_approve:
+        params = params + (workflow,)
+        result = package_queue.executor.submit(
+            _start_package_transfer_with_auto_approval, *params
+        )
+    else:
+        result = package_queue.executor.submit(_start_package_transfer, *params)
+
+    result.add_done_callback(lambda f: os.chmod(tmpdir, 0o770))
 
     return transfer
 
 
 def _capture_transfer_failure(fn):
-    """Detect errors during transfer/ingest."""
+    """Silence errors during transfer/ingest."""
 
     def wrap(*args, **kwargs):
         try:
-            # Our decorated function isn't expected to return anything.
             return fn(*args, **kwargs)
         except Exception as err:
             # The main purpose of this decorator is to update the Transfer with
@@ -410,7 +398,7 @@ def _start_package_transfer_with_auto_approval(
         workflow,
         starting_link=workflow.get_link(starting_point.link),
     )
-    package_scheduler.schedule_job_chain(job_chain)
+    package_queue.schedule_job_chain(job_chain)
 
 
 @_capture_transfer_failure
@@ -544,6 +532,8 @@ class Package(object):
         self._current_path = current_path.replace(
             r"%sharedPath%", settings.SHARED_DIRECTORY
         )
+        if not isinstance(uuid, UUID):
+            uuid = UUID(uuid)
         self.uuid = uuid
 
     def __repr__(self):
@@ -570,7 +560,7 @@ class Package(object):
     @property
     def package_name(self):
         basename = os.path.basename(self.current_path.rstrip("/"))
-        return basename.replace("-" + self.uuid, "")
+        return basename.replace("-" + six.text_type(self.uuid), "")
 
     @property
     def base_queryset(self):
@@ -590,7 +580,7 @@ class Package(object):
         mapping = BASE_REPLACEMENTS.copy()
         mapping.update(
             {
-                r"%SIPUUID%": self.uuid,
+                r"%SIPUUID%": six.text_type(self.uuid),
                 r"%SIPName%": self.package_name,
                 r"%SIPLogsDirectory%": os.path.join(self.current_path, "logs", ""),
                 r"%SIPObjectsDirectory%": os.path.join(
@@ -645,7 +635,8 @@ class Package(object):
                     file_path = os.path.join(basedir, file_name)
                     yield {
                         r"%relativeLocation%": file_path,
-                        r"%fileUUID%": "",
+                        # empty uuid expects the string 'None'
+                        r"%fileUUID%": "None",
                         r"%fileGrpUse%": "",
                     }
         else:
@@ -680,6 +671,27 @@ class DIP(Package):
     REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
     UNIT_VARIABLE_TYPE = "DIP"
     JOB_UNIT_TYPE = "unitDIP"
+
+    @classmethod
+    @auto_close_old_connections
+    def get_or_create_from_db_by_path(cls, path):
+        """Matches a directory to a database DIP by its appended UUID, or path."""
+        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+
+        dip_uuid = uuid_from_path(path)
+        if dip_uuid:
+            dip_obj, created = models.DIP.objects.get_or_create(
+                uuid=dip_uuid,
+                sip_type="DIP",
+                defaults={"currentpath": path, "diruuids": False},
+            )
+        else:
+            dip_obj = models.DIP.objects.create(
+                uuid=uuid4(), currentpath=path, sip_type="DIP", diruuids=False
+            )
+            logger.info("Creating DIP %s at %s", dip_obj.uuid, path)
+
+        return cls(path, dip_obj.uud)
 
     def reload(self):
         """Reload is called for all unit types, but is a no-op for DIPs.
@@ -737,6 +749,31 @@ class SIP(Package):
 
         self.aip_filename = None
         self.sip_type = None
+
+    @classmethod
+    @auto_close_old_connections
+    def get_or_create_from_db_by_path(cls, path):
+        """Matches a directory to a database SIP by its appended UUID, or path."""
+        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+
+        sip_uuid = uuid_from_path(path)
+        if sip_uuid:
+            sip_obj, created = models.SIP.objects.get_or_create(
+                uuid=sip_uuid,
+                sip_type="SIP",
+                defaults={"currentpath": path, "diruuids": False},
+            )
+            logger.info("Updating SIP %s path: %s", sip_obj.uuid, path)
+            if not created and sip_obj.currentpath != path:
+                sip_obj.currentpath = path
+                sip_obj.save()
+        else:
+            sip_obj = models.SIP.objects.create(
+                uuid=uuid4(), currentpath=path, sip_type="SIP", diruuids=False
+            )
+            logger.info("Creating SIP %s at %s", sip_obj.uuid, path)
+
+        return cls(path, sip_obj.uuid)
 
     @auto_close_old_connections
     def reload(self):

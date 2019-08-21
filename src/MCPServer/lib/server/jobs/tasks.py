@@ -1,7 +1,7 @@
 """
-Collection of tasks that we'll send off to the MCPClient (via Gearman).
+Tasks that we'll send off to the MCPClient (via Gearman).
 
-Each Job has one or more Tasks.
+Each ClientScriptJob has one or more Tasks.
 """
 from __future__ import unicode_literals
 
@@ -18,23 +18,26 @@ from main import models
 from django.conf import settings
 from django.utils import six, timezone
 
+from server.db import auto_close_old_connections
 
-logger = logging.getLogger("archivematica.mcp.server.task")
+
+logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
 thread_locals = threading.local()
 
 
 def gearman_client():
-    if not hasattr(thread_locals, "client"):
-        thread_locals.client = gearman.GearmanClient([settings.GEARMAN_SERVER])
+    if not hasattr(thread_locals, "gearman_client"):
+        thread_locals.gearman_client = gearman.GearmanClient([settings.GEARMAN_SERVER])
 
-    return thread_locals.client
+    return thread_locals.gearman_client
 
 
 class Task(object):
-    """A task object, representing an indiviual command (usually run on a file or
-    directory).
+    """A task object, representing an individual command (usually run on a file
+    or directory).
 
-    Tasks are batched together and sent to mcp client for processing.
+    Tasks are batched together by their ClientScriptJob and sent to mcp client
+    for processing.
     """
 
     def __init__(
@@ -56,6 +59,13 @@ class Task(object):
 
         self.start_timestamp = timezone.now()
         self.finished_timestamp = None
+
+    @classmethod
+    @auto_close_old_connections
+    def cleanup_old_db_entries(cls):
+        models.Task.objects.filter(exitcode=None).update(
+            exitcode=-1, stderror="MCP shut down while processing."
+        )
 
     def to_db_model(self, job, link):
         job_uuid = job.uuid
@@ -90,8 +100,8 @@ class Task(object):
 
     def write_output(self):
         """
-        Write the stdout/stderror we got from MCP Client out to files if
-        necessary.
+        Write the stdout/stderror we got from MCP Client out to files,
+        if necessary.
         """
         if self.stdout_file_path and self.stdout:
             self._write_file_to_disk(self.stdout_file_path, self.stdout)
@@ -128,7 +138,7 @@ class GearmanTaskRequest(TaskRequest):
 
     def serialize_task(self, task):
         return {
-            "uuid": str(task.uuid),
+            "uuid": six.text_type(task.uuid),
             "createdDate": task.start_timestamp.isoformat(b" "),
             "arguments": task.arguments,
             "wants_output": task.wants_output,
@@ -142,7 +152,8 @@ class GearmanTaskRequest(TaskRequest):
 
         data = {"tasks": {}}
         for task in self.tasks:
-            data["tasks"][str(task.uuid)] = self.serialize_task(task)
+            task_uuid = six.text_type(task.uuid)
+            data["tasks"][task_uuid] = self.serialize_task(task)
 
         pickled_data = cPickle.dumps(data)
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 
 import logging
@@ -6,32 +8,37 @@ import Queue
 
 import concurrent.futures
 
-
-logger = logging.getLogger("archivematica.mcp.server.scheduler")
-
-# TODO: make this better by actually signifying the end of a package in the workflow
-PACKAGE_COMPLETED_LINK_IDS = set(
-    [
-        # Move to SIP Creation
-        "d27fd07e-d3ed-4767-96a5-44a2251c6d0a",
-        "39a128e3-c35d-40b7-9363-87f75091e1ff",
-        # Move to failed directory
-        "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c",
-        "377f8ebb-7989-4a68-9361-658079ff8138",
-    ]
-)
-MAX_QUEUED_JOBS = 1024
+from django.utils import six
 
 
-class PackageScheduler(object):
+logger = logging.getLogger("archivematica.mcp.server.queues")
+
+
+class PackageQueue(object):
     """
-    Package scheduler/queue.
+    Package queue.
     """
+
+    # TODO: make this better by signifying the end of a package in the workflow
+    PACKAGE_COMPLETED_LINK_IDS = set(
+        [
+            # Move to SIP Creation
+            "39a128e3-c35d-40b7-9363-87f75091e1ff",
+            # AIP completed
+            "d5a2ef60-a757-483c-a71a-ccbffe6b80da",
+            # Move SIP to failed directory
+            "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c",
+            # Move Transfer to failed directory
+            "377f8ebb-7989-4a68-9361-658079ff8138",
+        ]
+    )
+    MAX_QUEUED_PACKAGES = 1024
+    MAX_CONCURRENT_PACKAGES = 3
 
     def __init__(
         self,
-        max_concurrent_packages=4,
-        max_queued_packages=MAX_QUEUED_JOBS,
+        max_concurrent_packages=MAX_CONCURRENT_PACKAGES,
+        max_queued_packages=MAX_QUEUED_PACKAGES,
         debug=False,
     ):
         self.max_concurrent_packages = max_concurrent_packages
@@ -39,8 +46,8 @@ class PackageScheduler(object):
 
         self.shutdown_event = threading.Event()
         self.active_package_lock = threading.Lock()
-        self.active_packages = {}  # uuid: Package
-        self.job_queue = Queue.Queue(maxsize=MAX_QUEUED_JOBS)
+        self.active_packages = {}  # package uuid: Package
+        self.job_queue = Queue.Queue(maxsize=max_concurrent_packages)
         # Split queues by package type
         self.transfer_queue = Queue.Queue(maxsize=max_queued_packages)
         self.sip_queue = Queue.Queue(maxsize=max_queued_packages)
@@ -51,18 +58,26 @@ class PackageScheduler(object):
         )
 
         if self.debug:
-            logger.debug("PackageScheduler initalized")
+            logger.debug("%s initialized", self.__class__.__name__)
 
     def schedule_job_chain(self, job_chain):
         # We have many cases where the same package is scheduled again, due to workflow
         # jumps (e.g. moves between watched directories). In that case, just schedule
-        # the job immediately.
+        # the job immediately, so we don't jump between packages too much.
         package = job_chain.package
         with self.active_package_lock:
             if package.uuid in self.active_packages:
                 job = next(job_chain)
-                self.job_queue.put_nowait(job)
-                return
+                try:
+                    self.job_queue.put_nowait(job)
+                except Queue.Full:
+                    # Reset the chain for normal queueing
+                    job_chain.reset()
+                else:
+                    # no further action needed
+                    return
+
+            active_package_count = len(self.active_packages)
 
         self.put_job_chain_nowait(job_chain)
 
@@ -90,7 +105,14 @@ class PackageScheduler(object):
                 queue_size,
             )
 
-        self.maybe_process_next_job_chain()
+        # Don't start processing unless we have capacity
+        if active_package_count < self.max_concurrent_packages:
+            self.process_next_job_chain()
+        elif self.debug:
+            logger.debug(
+                "Not processing next job chain; %s packages already active",
+                active_package_count,
+            )
 
     def schedule_job(self, job):
         with self.active_package_lock:
@@ -101,14 +123,14 @@ class PackageScheduler(object):
 
         self.job_queue.put_nowait(job)
 
-    def start(self):
+    def process(self):
         while not self.shutdown_event.is_set():
             # block until a job is waiting
             job = self.job_queue.get(timeout=None)
             result = self.executor.submit(job.run)
             result.add_done_callback(self.handle_job_complete)
 
-    def shutdown(self):
+    def stop(self):
         self.shutdown_event.set()
         self.executor.shutdown(wait=True)
 
@@ -122,8 +144,14 @@ class PackageScheduler(object):
         else:
             self.schedule_job(next_job)
 
-        if next_job is None and job.link.id in PACKAGE_COMPLETED_LINK_IDS:
-            self.package_done(job.package.uuid)
+        if next_job is None and job.link.id in self.PACKAGE_COMPLETED_LINK_IDS:
+            with self.active_package_lock:
+                del self.active_packages[job.package.uuid]
+
+            if self.debug:
+                logger.debug("Package %s marked completed", job.package.uuid)
+
+            self.process_next_job_chain()
 
     def put_job_chain_nowait(self, job_chain):
         # TODO: switch on class type?
@@ -140,43 +168,28 @@ class PackageScheduler(object):
         try:
             return self.dip_queue.get_nowait()
         except Queue.Empty:
-            if self.debug:
-                logger.debug("DIP queue empty.")
+            pass
 
         try:
             return self.sip_queue.get_nowait()
         except Queue.Empty:
-            if self.debug:
-                logger.debug("SIP queue empty.")
+            pass
+
         try:
             return self.transfer_queue.get_nowait()
         except Queue.Empty:
-            if self.debug:
-                logger.debug("Transfer queue empty.")
+            pass
 
-            return None
+        return None
 
-    def maybe_process_next_job_chain(self):
-        # Don't start processing if we're at capacity
-        with self.active_package_lock:
-            active_package_count = len(self.active_packages)
-            maxed_out = active_package_count >= self.max_concurrent_packages
-            if maxed_out:
-                if self.debug:
-                    logger.debug(
-                        "Not processing next job chain; %s pacakges already active",
-                        active_package_count,
-                    )
-                return
-
+    def process_next_job_chain(self):
         job_chain = self.get_job_chain_nowait()
         if job_chain is None:
-            return
+            return  # nothing to do
 
         package = job_chain.package
-        package_id = str(package.uuid)
         with self.active_package_lock:
-            self.active_packages[package_id] = package
+            self.active_packages[package.uuid] = package
 
         job = next(job_chain)
         self.job_queue.put_nowait(job)
@@ -195,19 +208,38 @@ class PackageScheduler(object):
                 queue_size,
             )
 
-    def package_done(self, package_id):
-        """On package completion, free up the active processing slot.
-        """
-        package_id = str(package_id)
 
-        with self.active_package_lock:
-            del self.active_packages[package_id]
+class DecisionQueue(object):
+    """Handles jobs awaiting user decisions.
+    """
 
-        if self.debug:
-            logger.debug("Package %s marked completed", package_id)
+    def __init__(self, package_queue):
+        self.package_queue = package_queue
+        self.lock = threading.Lock()
+        self.waiting_choices = {}  # job.uuid: WorkflowDecision
 
-        self.maybe_process_next_job_chain()
+    def put(self, job, decision):
+        job_id = six.text_type(job.uuid)
+        with self.lock:
+            self.waiting_choices[job_id] = decision
+
+    def all(self):
+        with self.lock:
+            return self.waiting_choices.copy()
+
+    def decide(self, job_uuid, choice, user_id=None):
+        job_uuid = six.text_type(job_uuid)
+
+        with self.lock:
+            decision = self.self.waiting_choices[job_uuid]
+            next_chain = decision.decide(choice, user_id=user_id)
+            del self.waiting_choices[job_uuid]
+
+        if next_chain is not None:
+            self.package_queue.schedule_job_chain(next_chain)
 
 
-# global instance, imported elsewhere
-package_scheduler = PackageScheduler(debug=True)
+# Shared globals
+# TODO: remove, and pass these where required.
+package_queue = PackageQueue(debug=False)
+decision_queue = DecisionQueue(package_queue)

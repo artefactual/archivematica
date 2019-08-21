@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import logging
@@ -36,6 +37,8 @@ def watch_directories(watched_dirs, shutdown_event, callback):
             )
 
             callback(item.path, watched_dir)
+
+    logger.debug("Started watching directories.")
 
     while not shutdown_event.is_set():
         # timeout is in milliseconds

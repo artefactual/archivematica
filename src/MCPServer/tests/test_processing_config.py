@@ -2,13 +2,13 @@ import os
 
 import pytest
 
-from processing_config import (
+from server.processing_config import (
     _get_options_for_chain_choice,
     _populate_duplicates_chain_choice,
     get_processing_fields,
     processing_fields,
 )
-from workflow import load
+from server.workflow import load
 
 
 ASSETS_DIR = os.path.join(
