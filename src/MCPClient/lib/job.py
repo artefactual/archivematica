@@ -57,7 +57,7 @@ class Job:
 
     def set_status(self, int_code, status_code="success"):
         if int_code:
-            self.int_code = int_code
+            self.int_code = int(int_code)
         self.status_code = status_code
 
     def write_output(self, s):

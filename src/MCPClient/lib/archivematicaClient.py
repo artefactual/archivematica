@@ -215,7 +215,10 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                     logger.info("\n\n*** Completed job: %s", job.dump())
 
                     kwargs = {"exitcode": job.get_exit_code(), "endtime": getUTCDate()}
-                    if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                    if (
+                        django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT
+                        or kwargs["exitcode"] > 0
+                    ):
                         kwargs.update(
                             {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
                         )
