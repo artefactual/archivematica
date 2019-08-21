@@ -222,7 +222,10 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                         end_time = getUTCDate()
 
                         kwargs = {"exitcode": exit_code, "endtime": end_time}
-                        if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                        if (
+                            django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT
+                            or kwargs["exitcode"] > 0
+                        ):
                             kwargs.update(
                                 {
                                     "stdout": job.get_stdout(),
