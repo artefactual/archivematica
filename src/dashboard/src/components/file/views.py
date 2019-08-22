@@ -157,7 +157,9 @@ def bulk_extractor(request, fileuuid):
     features = {}
 
     for report in reports:
-        relative_path = os.path.join("logs", "bulk-" + fileuuid, report + ".txt")
+        relative_path = os.path.join(
+            "data", "logs", "bulk-" + fileuuid, report + ".txt"
+        )
         url = storage_service.extract_file_url(f.transfer_id, relative_path)
         response = requests.get(
             url, timeout=django_settings.STORAGE_SERVICE_CLIENT_TIMEOUT
