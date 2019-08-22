@@ -900,7 +900,7 @@ def _get_file_formats(f):
 
 def _list_bulk_extractor_reports(transfer_path, file_uuid):
     reports = []
-    log_path = os.path.join(transfer_path, "logs", "bulk-" + file_uuid)
+    log_path = os.path.join(transfer_path, "data", "logs", "bulk-" + file_uuid)
 
     if not os.path.isdir(log_path):
         return reports
