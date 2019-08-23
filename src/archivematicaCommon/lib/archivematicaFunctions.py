@@ -34,7 +34,7 @@ import pprint
 import re
 from uuid import uuid4
 
-from django.utils import six
+import six
 from lxml import etree
 
 from main.models import DashboardSetting
@@ -88,7 +88,7 @@ class OrderedListsDict(collections.OrderedDict):
 def unicodeToStr(string):
     """Convert Unicode to string format."""
     if isinstance(string, six.text_type):
-        string = string.encode("utf-8")
+        return six.ensure_str(string, "utf-8")
     return string
 
 
