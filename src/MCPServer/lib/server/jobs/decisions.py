@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Jobs handling user decisions.
+TODO: This still needs a lot of cleanup and integration with WorkflowDecision
 """
 from __future__ import unicode_literals
 
 import logging
 import os
+import threading
 
 from lxml import etree
 from django.conf import settings
@@ -28,7 +30,15 @@ logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 
 class DecisionJob(Job):
     """Job that handles a workflow decision point.
+
+    DecisionJobs block JobChains from further proceeding until the decision
+    has been made.
     """
+
+    def __init__(self, *args, **kwargs):
+        super(DecisionJob, self).__init__(*args, **kwargs)
+
+        self.decision_made = threading.Event()
 
     @property
     def decision_class(self):
@@ -52,9 +62,31 @@ class DecisionJob(Job):
             decision.decide(preconfigured_choice)
         else:
             self.mark_awaiting_decision()
-            decision_queue.put(self, decision)
+            self.wait_for_decision(decision)
 
         return self
+
+    def wait_for_decision(self, decision):
+        """Block until the user has made a decision on the job.
+        """
+        if self.decision_made.is_set():
+            raise RuntimeError(
+                "Job {} has already had a decision made".format(self.uuid)
+            )
+
+        decision_queue.put(self, decision)
+        # Wait until the decision is made in another thread, via the queue
+        self.decision_made.wait()
+
+    def continue_processing(self):
+        """Called after a decision is made to unblock a waiting job.
+        """
+        if self.decision_made.is_set():
+            raise RuntimeError(
+                "Job {} has already had a decision made".format(self.uuid)
+            )
+
+        self.decision_made.set()
 
     def load_preconfigured_choice(self):
         """Check the processing XML file for a pre-selected choice.
@@ -81,7 +113,11 @@ class DecisionJob(Job):
 
 
 class NextChainDecisionJob(DecisionJob):
-    """Job that decides on the next chain to be executed."""
+    """
+    Job that decides on the next chain to be executed.
+
+    Note, NextChainDecisionJobs do not pause the workflow.
+    """
 
     @property
     def decision_class(self):
@@ -177,12 +213,15 @@ class UpdateContextDecisionJob(DecisionJob):
 
         preconfigured_context = self.load_preconfigured_context()
         if preconfigured_context:
+            logger.debug(
+                "Job %s got preconfigured context %s", self.uuid, preconfigured_context
+            )
             self.job_chain.context.update(preconfigured_context)
             self.mark_complete()
         else:
-            decision = self.decision_class(self)
-            decision_queue.put(self, decision)
             self.mark_awaiting_decision()
+            decision = self.decision_class(self)
+            self.wait_for_decision(decision)
 
         return self
 

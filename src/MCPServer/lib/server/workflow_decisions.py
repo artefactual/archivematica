@@ -83,7 +83,9 @@ class NextChainDecision(WorkflowDecision):
             self.package.set_variable("activeAgent", agent_id, None)
 
         self.job.mark_complete()
+        self.job.continue_processing()
 
+        # TODO: Return a job chain and schedule it via the queue
         job_chain = JobChain(self.package, chain, self.workflow)
         package_queue.schedule_job_chain(job_chain)
 
@@ -116,7 +118,7 @@ class OutputDecision(WorkflowDecision):
         # replacement string (e.g. %AIPsStore%)
         self.job.job_chain.context[self.link.config["execute"]] = choice
 
-        self.job.mark_complete()
+        self.job.continue_processing()
 
         return None
 
@@ -134,7 +136,7 @@ class UpdateContextDecision(WorkflowDecision):
 
         for index, item in enumerate(self.link.config["replacements"]):
             # item description is already translated in workflow
-            self.choices[six.text_type(index)] = item["description"]
+            choices[six.text_type(index)] = item["description"]
             self.choice_items.append(self._format_items(item["items"]))
 
         return choices
@@ -156,7 +158,7 @@ class UpdateContextDecision(WorkflowDecision):
             agent_id = models.UserProfile.objects.get(user_id=user_id).agent_id
             self.package.set_variable("activeAgent", agent_id, None)
 
-        self.job_chain.context.update(items)
-        self.job.mark_complete()
+        self.job.job_chain.context.update(items)
+        self.job.continue_processing()
 
         return None

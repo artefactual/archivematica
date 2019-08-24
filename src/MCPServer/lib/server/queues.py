@@ -231,7 +231,7 @@ class DecisionQueue(object):
         job_uuid = six.text_type(job_uuid)
 
         with self.lock:
-            decision = self.self.waiting_choices[job_uuid]
+            decision = self.waiting_choices[job_uuid]
             next_chain = decision.decide(choice, user_id=user_id)
             del self.waiting_choices[job_uuid]
 

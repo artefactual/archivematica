@@ -21,7 +21,7 @@ from server.jobs.decisions import (
     OutputDecisionJob,
     UpdateContextDecisionJob,
 )
-from server.jobs.local import LocalJob, GetUnitVarLinkJob, SetUnitVarLinkJob
+from server.jobs.local import GetUnitVarLinkJob, SetUnitVarLinkJob
 
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.chain")
@@ -94,6 +94,9 @@ class JobChain(object):
         return self
 
     def __next__(self):
+        if self.current_job is not None:
+            self.job_completed()
+
         if self.next_link:
             next_link = self.next_link
             self.next_link = None
@@ -102,9 +105,6 @@ class JobChain(object):
                 next_link = self.current_link.get_next_link(self.current_job.exit_code)
             except KeyError:
                 next_link = None
-
-        if self.current_job is not None:
-            self.job_completed()
 
         if next_link:
             self.current_link = next_link
@@ -139,7 +139,7 @@ class JobChain(object):
         )
         if isinstance(self.current_job, ClientScriptJob):
             self.current_job.update_status_from_exit_code()
-        elif isinstance(self.current_job, LocalJob):
+        else:
             self.current_job.mark_complete()
 
     def chain_completed(self):
