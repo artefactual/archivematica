@@ -71,7 +71,7 @@ class Job(object):
             unittype=self.package.JOB_UNIT_TYPE,
             microservicegroup=self.group,
             createdtime=self.created_at,
-            createdtimedec=self.created_at.strftime("%f"),
+            createdtimedec=float(self.created_at.strftime("0.%f")),
             microservicechainlink=self.link.id,
         )
 
