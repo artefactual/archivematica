@@ -98,15 +98,18 @@ def get_supported_modules(file_):
     for client_script, module_name in supported_modules_config.items(
         "supportedBatchCommands"
     ):
-        supported_modules[client_script] = module_name
+        supported_modules[client_script.encode()] = module_name.encode()
     return supported_modules
 
 
 @auto_close_db
 def handle_batch_task(gearman_job, supported_modules):
+    """Retrieve client module being requested and execute it."""
     module_name = supported_modules.get(gearman_job.task)
+    logger.info(
+        "\n\n*** RUNNING TASK: %s (clientScript: %s)", gearman_job.task, module_name
+    )
     gearman_data = cPickle.loads(gearman_job.data)
-
     utc_date = getUTCDate()
     jobs = []
     for task_uuid in gearman_data["tasks"]:
@@ -114,24 +117,26 @@ def handle_batch_task(gearman_job, supported_modules):
         arguments = task_data["arguments"]
         if isinstance(arguments, six.text_type):
             arguments = arguments.encode("utf-8")
+        # Add live metadata to the arguments structure.
 
-        replacements = (
-            replacement_dict.items()
-            + {
-                "%date%": utc_date.isoformat(),
-                "%taskUUID%": task_uuid,
-                "%jobCreatedDate%": task_data["createdDate"],
-            }.items()
+        replacements = list(six.viewitems(replacement_dict)) + list(
+            six.viewitems(
+                {
+                    "%date%": utc_date.isoformat(),
+                    "%taskUUID%": task_uuid,
+                    "%jobCreatedDate%": task_data["createdDate"],
+                }
+            )
         )
 
         for var, val in replacements:
-            arguments = arguments.replace(var, val)
+            arguments = arguments.replace(var.encode("utf-8"), val.encode("utf-8"))
 
         job = Job(
-            gearman_job.task,
-            task_data["uuid"],
-            _parse_command_line(arguments),
-            caller_wants_output=task_data["wants_output"],
+            name=gearman_job.task,
+            uuid=task_data.get("uuid"),
+            args=_parse_command_line(arguments),
+            caller_wants_output=task_data.get("wants_output"),
         )
         jobs.append(job)
 
@@ -144,12 +149,12 @@ def handle_batch_task(gearman_job, supported_modules):
 
     retryOnFailure("Set task start times", set_start_times)
 
-    module = importlib.import_module("clientScripts." + module_name)
+    module = importlib.import_module("clientScripts.{}".format(module_name.decode()))
 
     # Our module can indicate that it should be run concurrently...
     if hasattr(module, "concurrent_instances"):
         fork_runner.call(
-            "clientScripts." + module_name,
+            "clientScripts.{}".format(module_name.decode()),
             jobs,
             task_count=module.concurrent_instances(),
         )
@@ -159,8 +164,9 @@ def handle_batch_task(gearman_job, supported_modules):
     return jobs
 
 
-def _parse_command_line(s):
-    return [_shlex_unescape(x) for x in shlex.split(s)]
+def _parse_command_line(arguments):
+    """Convert args to something more Unix like to be executed."""
+    return [_shlex_unescape(arg) for arg in shlex.split(arguments.decode())]
 
 
 # If we're looking at an escaped backtick, drop the escape
@@ -203,8 +209,6 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """Execute the command encoded in ``gearman_job`` and return its exit code,
     standard output and standard error as a pickled dict.
     """
-    logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
-
     try:
         jobs = handle_batch_task(gearman_job, supported_modules)
         results = {}
@@ -213,16 +217,13 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
             with transaction.atomic():
                 for job in jobs:
                     logger.info("\n\n*** Completed job: %s", job.dump())
-
                     kwargs = {"exitcode": job.get_exit_code(), "endtime": getUTCDate()}
                     if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
                         kwargs.update(
                             {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
                         )
                     Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
-
                     results[job.UUID] = {"exitCode": job.get_exit_code()}
-
                     if job.caller_wants_output:
                         # Send back stdout/stderr so it can be written to files.
                         # Most cases don't require this (logging to the database is

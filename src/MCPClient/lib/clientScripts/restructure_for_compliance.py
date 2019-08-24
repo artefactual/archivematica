@@ -147,7 +147,6 @@ def call(jobs):
                 try:
                     sip_path = job.args[1]
                     sip_uuid = job.args[2]
-
                     transfer = None
                     sip = None
                     try:

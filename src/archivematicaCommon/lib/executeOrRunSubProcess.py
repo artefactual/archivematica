@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -48,7 +48,7 @@ def launchSubProcess(
 
     In the former case, ``command`` is first split via shlex.split() before
     being executed. No subshell will be used in either case; the commands are
-    directly execed.
+    directly executed.
 
     Keyword arguments:
     stdIn:      A string which will be fed as standard input to the executed
@@ -58,7 +58,7 @@ def launchSubProcess(
     printing:   Boolean which controls whether the subprocess's output is
                 printed to standard output. Default is True.
     arguments:  An array of arguments to pass to ``command``. Note that this is
-                only honoured if ``command`` is an array, and will be ignored
+                only honored if ``command`` is an array, and will be ignored
                 if ``command`` is a string.
     env_updates: Dict of changes to apply to the started process' environment.
     capture_output: Whether or not to capture stdout from the subprocess.
@@ -72,14 +72,12 @@ def launchSubProcess(
     """
     stdError = ""
     stdOut = ""
-
     try:
         # Split command strings but pass through arrays untouched
         if isinstance(command, six.string_types):
             command = shlex.split(command)
         else:
             command.extend(arguments)
-
         my_env = os.environ.copy()
         my_env["PYTHONIOENCODING"] = "utf-8"
         if "LANG" not in my_env or not my_env["LANG"]:
@@ -87,15 +85,20 @@ def launchSubProcess(
         if "LANGUAGE" not in my_env or not my_env["LANGUAGE"]:
             my_env["LANGUAGE"] = my_env["LANG"]
         my_env.update(env_updates)
-
         if isinstance(stdIn, six.string_types):
             stdin_pipe = subprocess.PIPE
             stdin_string = stdIn
         elif isinstance(stdIn, file_types):
             stdin_pipe = stdIn
             stdin_string = ""
+        elif isinstance(stdIn, six.binary_type):
+            # PY3 added this... there is data, but we might not be handling it correctly...
+            stdin_pipe = subprocess.PIPE
+            stdin_string = stdIn
         else:
-            raise Exception("stdIn must be a string or a file object")
+            raise Exception(
+                "stdIn must be a string or a file object, type: {}".format(type(stdIn))
+            )
         if capture_output:
             # Capture the stdout and stderr of the subprocess
             p = subprocess.Popen(
@@ -130,9 +133,10 @@ def launchSubProcess(
         print("Execution failed:", ose, file=sys.stderr)
         return -1, "Config Error!", ose.__str__()
     except Exception as inst:
-        print("Execution failed:", command, file=sys.stderr)
-        print(type(inst), file=sys.stderr)  # the exception instance
-        print(inst.args, file=sys.stderr)
+        err = "Execution failed: {} type: {}:{} args: {}".format(
+            command, type(inst), inst, inst.args
+        )
+        print(err, file=sys.stderr)
         return -1, "Execution failed:", command
     return retcode, stdOut, stdError
 
