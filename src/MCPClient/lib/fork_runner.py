@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 Execute the .call(jobs) function of a clientScripts module from multiple
@@ -14,12 +15,14 @@ function (indicating that it supports being run as a subprocess).
 
 import importlib
 import logging
+from math import floor
 import multiprocessing
 import os
 import sys
 import tempfile
 import traceback
 
+from django.utils import six
 from django.utils.six.moves import cPickle
 
 from databaseFunctions import auto_close_db
@@ -60,9 +63,8 @@ def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
 
 def _split_jobs(jobs, n):
     "Split `jobs` into n approximately equally-sized pieces"
-    chunk_size = len(jobs) / n
+    chunk_size = int(floor(len(jobs) / n))
     result = []
-
     while jobs:
         # Last chunk might be a little bigger
         if len(result) == (n - 1):
@@ -70,9 +72,7 @@ def _split_jobs(jobs, n):
             jobs = []
         else:
             result.append(jobs[0:chunk_size])
-
         jobs = jobs[chunk_size:]
-
     return result
 
 
@@ -100,22 +100,20 @@ def _run_jobs(module_name, jobs):
             printing=False,
             capture_output=True,
         )
-
-        with os.fdopen(fd) as f:
+        with os.fdopen(fd, "rb") as f:
             result = cPickle.load(f)
-
             if isinstance(result, dict) and result["uncaught_exception"]:
                 e = result["uncaught_exception"]
                 # Something went wrong with our client script.  This shouldn't
                 # happen under normal operation, but might happen during
                 # development.
                 logging.error(
-                    ("Failure while executing '%s':\n" % (module_name)) + e["traceback"]
+                    ("Failure while executing '%s':\n" % (module_name))
+                    + e["traceback"]
                 )
                 raise Exception(e["type"] + ": " + e["message"])
             else:
                 return result
-
     finally:
         os.unlink(output_file)
 
@@ -126,15 +124,18 @@ if __name__ == "__main__":
         raise Exception(
             "Must be called with a module name (and a list of pickled jobs on stdin)"
         )
-
     module_to_run = sys.argv[1]
-    environment = cPickle.load(sys.stdin)
-
-    sys.path = environment["sys.path"]
-    jobs = environment["jobs"]
-    output_file = environment["output_file"]
-
-    with open(output_file, "w") as f:
+    logger.info("Running module: %s", sys.argv[1])
+    if six.PY2:
+        # PY2 read stdin as-is, file-like object.
+        environment = cPickle.load(sys.stdin)
+    if six.PY3:
+        # PY3 need to return buffer from _io.TextIOWrapper to read as bytes.
+        environment = cPickle.load(sys.stdin.buffer)
+    sys.path = environment.get("sys.path")
+    jobs = environment.get("jobs")
+    output_file = environment.get("output_file")
+    with open(output_file, "wb") as f:
         try:
             module = importlib.import_module(module_to_run)
             module.call(jobs)

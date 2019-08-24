@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
 """
 A Job is MCP Client's representation of a unit of work to be
 performed--corresponding to a Task on the MCP Server side.  Jobs are run in
 batches by clientScript modules and populated with an exit code, standard out
 and standard error information.
 """
-
+import logging
 import traceback
 import sys
-import logging
+
+from django.utils import six
 
 from contextlib import contextmanager
 from custom_handlers import CallbackHandler
@@ -15,11 +17,38 @@ from custom_handlers import CallbackHandler
 LOGGER = logging.getLogger("archivematica.mcp.client.job")
 
 
+class JobArgList(list):
+    """Helper class to manage the mixed use of encodings across the
+    code-base.
+    """
+
+    def __init__(self, r=list()):
+        list.__init__(self, r)
+
+    def __getitem__(self, n):
+        """Override [] operator for our various uses of this list in the Job
+        class."""
+        if isinstance(n, slice):
+            """Override slice operations to return a non encoded list."""
+            n = super(JobArgList, self).__getitem__(n)
+            l = []
+            for arg in n:
+                try:
+                    l.append(arg.decode())
+                except AttributeError:
+                    l.append(arg)
+            return l
+        try:
+            return super(JobArgList, self).__getitem__(n).decode()
+        except AttributeError:
+            return super(JobArgList, self).__getitem__(n)
+
+
 class Job:
     def __init__(self, name, uuid, args, caller_wants_output=False):
         self.name = name
         self.UUID = uuid
-        self.args = [name] + args
+        self.args = JobArgList([name] + [arg.encode("utf-8") for arg in args])
         self.caller_wants_output = caller_wants_output
         self.int_code = 0
         self.status_code = "success"
@@ -61,10 +90,10 @@ class Job:
         self.status_code = status_code
 
     def write_output(self, s):
-        self.output += s
+        self.output = "{}{}".format(self.output, s)
 
     def write_error(self, s):
-        self.error += s
+        self.error = "{}{}".format(self.error, s)
 
     def print_output(self, *args):
         self.write_output(" ".join([self._to_str(x) for x in args]) + "\n")

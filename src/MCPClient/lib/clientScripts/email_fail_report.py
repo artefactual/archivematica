@@ -53,6 +53,7 @@ def get_emails_from_dashboard_users():
 
 
 def send_email(subject, to, content):
+    """Receive a string encoding a HTML email and send."""
     try:
         logger.info("Sending email...")
         return send_mail(
@@ -60,8 +61,9 @@ def send_email(subject, to, content):
             message="Please see the attached HTML document",
             from_email=mcpclient_settings.DEFAULT_FROM_EMAIL,
             recipient_list=to,
-            html_message=content,
+            html_message=content.decode(),
         )
+
     except:
         logger.exception("Report email was not delivered")
         raise
@@ -221,14 +223,11 @@ def call(jobs):
         default="ArchivematicaSystem@archivematica.org",
     )
     parser.add_argument("--stdout", action="store_true", dest="stdout", default=False)
-
     reports_to_store = []
-
     for job in jobs:
         with job.JobContext(logger=logger):
             try:
                 args = parser.parse_args(job.args[1:])
-
                 to = get_emails_from_dashboard_users()
                 if not to:
                     logger.error(
@@ -241,16 +240,13 @@ def call(jobs):
                     args.unit_name,
                     args.unit_uuid,
                 )
-
                 # Generate report in HTML and send it by email
                 content = get_content_for(
                     args.unit_type, args.unit_name, args.unit_uuid, html=True
                 )
                 send_email(subject, to, content)
-
                 if args.stdout:
                     job.pyprint(content)
-
                 # Each successfully generated report will be stored in the DB
                 reports_to_store.append(args)
             except Exception as e:

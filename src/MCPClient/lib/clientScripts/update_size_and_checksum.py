@@ -36,7 +36,10 @@ from fileOperations import updateSizeAndChecksum
 
 import metsrw
 
-import parse_mets_to_db
+try:
+    import parse_mets_to_db
+except ImportError:
+    from . import parse_mets_to_db
 
 logger = get_script_logger("archivematica.mcp.client.updateSizeAndChecksum")
 
@@ -168,10 +171,8 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
-                logger.info("Invoked as %s.", " ".join(job.args))
-
+                logger.info("Invoked as %s.", b" ".join(job.args))
                 args = parser.parse_args(job.args[1:])
-
                 job.set_status(
                     main(
                         job,

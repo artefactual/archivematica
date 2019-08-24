@@ -23,7 +23,11 @@
 
 import os
 import sys
-from verify_sip_compliance import checkDirectory
+
+try:
+    from verify_sip_compliance import checkDirectory
+except ImportError:
+    from .verify_sip_compliance import checkDirectory
 
 REQUIRED_DIRECTORIES = (
     "objects",
