@@ -107,11 +107,20 @@ class RPCServer(GearmanWorker):
     # the partial approval of AIP reingest.
     APPROVE_AIP_REINGEST_CHAIN_ID = "9520386f-bb6d-4fb9-a6b6-5845ef39375f"
 
-    def __init__(self, workflow):
+    def __init__(self, workflow, shutdown_event):
         super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
+        self.shutdown_event = shutdown_event
         self.workflow = workflow
         self._register_tasks()
         self.set_client_id(gethostname() + "_MCPServer")
+
+    def after_poll(self, any_activity):
+        """Stop the work loop if the shutdown event is set.
+        """
+        if self.shutdown_event.is_set():
+            return False
+
+        return True
 
     def _register_tasks(self):
         for ability, handler in self._handlers():
@@ -465,7 +474,7 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
 
 
 def start(workflow, shutdown_event):
-    worker = RPCServer(workflow)
+    worker = RPCServer(workflow, shutdown_event)
     logger.debug("Started RPC server.")
 
     fail_max_sleep = 30
@@ -474,7 +483,7 @@ def start(workflow, shutdown_event):
     while not shutdown_event.is_set():
         fail_sleep = 1
         try:
-            worker.work()
+            worker.work(poll_timeout=5.0)
         except gearman.errors.ServerUnavailable as inst:
             logger.error(
                 "Gearman server is unavailable: %s. Retrying in %d" " seconds.",

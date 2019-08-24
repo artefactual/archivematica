@@ -25,6 +25,9 @@ from server.watch_dirs import watch_directories
 from server.workflow import load_default_workflow
 
 
+RPC_SERVER_THREADS = 2
+
+
 logger = logging.getLogger("archivematica.mcp.server")
 
 # Tracks whether a sigterm has been received or not
@@ -87,10 +90,15 @@ def main():
 
     metrics.start_prometheus_server()
 
-    rpc_thread = threading.Thread(
-        target=rpc_server.start, args=(workflow, shutdown_event), name="RPCServer"
-    )
-    rpc_thread.start()
+    rpc_threads = []
+    for x in range(RPC_SERVER_THREADS):
+        rpc_thread = threading.Thread(
+            target=rpc_server.start,
+            args=(workflow, shutdown_event),
+            name="RPCServer-{}".format(x),
+        )
+        rpc_thread.start()
+        rpc_threads.append(rpc_thread)
 
     watch_dir_thread = threading.Thread(
         target=watch_directories,
@@ -101,6 +109,11 @@ def main():
 
     # Blocks until shutdown is called by a signal handler
     package_queue.process()
+
+    # Cleanup threads
+    watch_dir_thread.join(1.0)
+    for thread in rpc_threads:
+        thread.join(1.0)
 
 
 if __name__ == "__main__":
