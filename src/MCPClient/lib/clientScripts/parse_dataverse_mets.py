@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Parse the transfer METS file created as part of a Dataverse transfer and

@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-#
+# -*- coding: utf-8 -*-
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 
 from argparse import ArgumentParser
 import logging

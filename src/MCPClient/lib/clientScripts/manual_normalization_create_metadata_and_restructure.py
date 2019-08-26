@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 """
 Associate manually normalized preservation files with their originals.
 

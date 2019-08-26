@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-#
+# -*- coding: utf-8 -*-
+
 # Collects characterization commands for the provided file, then either
 # a) Inserts the tool's XML output into the database, or
 # b) Prints the tool's stdout, for tools which do not output XML
