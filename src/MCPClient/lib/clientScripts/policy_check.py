@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
 """Runs zero or more FPR policy check against the provided file and returns an
 exit code. May also print to stdout, generate an Event models in the db,
 and/or write command-specific stdout to disk.

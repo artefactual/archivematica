@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
 """Attempts to remove a file if its name matches a list of filenames that
 should be removed. If it does, and if the removal was successful, then it
 updates the ``File`` model of the file accordingly and also creates a "file

@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf8
 
 """pid_declaration.py
