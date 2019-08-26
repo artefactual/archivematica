@@ -84,7 +84,7 @@ class RightCsvReader(object):
         ).first()
 
         # Use universal newline mode to support unusual newlines, like \r
-        with open(self.rights_csv_filepath, "rbU") as f:
+        with open(self.rights_csv_filepath, "rU") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 self.parse_row(row)
@@ -216,7 +216,7 @@ class RightCsvReader(object):
         self, model_instance, attribute_to_column_map
     ):
         """Using a dict that maps model attributes to column names, set a model instance's attributes."""
-        for attribute, column_name in attribute_to_column_map.iteritems():
+        for attribute, column_name in attribute_to_column_map.items():
             self.set_model_instance_attribute_to_row_column_if_set(
                 model_instance, attribute, column_name
             )
