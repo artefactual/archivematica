@@ -112,7 +112,6 @@ class ClamdScanner(ScannerBase):
         self.client = self.get_client()
 
     def scan(self, path):
-        return True, "test state", "test details"
         if self.stream:
             method_name = "pass_by_stream"
             result_key = "stream"
@@ -183,7 +182,7 @@ class ClamdScanner(ScannerBase):
 
     def pass_by_stream(self, path):
         logger.info("File contents being streamed to Clamdscan.")
-        return self.client.instream(open(path))
+        return self.client.instream(open(path, "rb"))
 
 
 class ClamScanner(ScannerBase):
@@ -194,7 +193,6 @@ class ClamScanner(ScannerBase):
         return subprocess.check_output((self.COMMAND,) + args)
 
     def scan(self, path):
-        return True, "test state", "test details"
         passed, state, details = (False, "ERROR", None)
         try:
             max_file_size = (
