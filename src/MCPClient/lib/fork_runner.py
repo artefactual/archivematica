@@ -13,14 +13,14 @@ This is invoked when a clientScripts module provides a `concurrent_instances`
 function (indicating that it supports being run as a subprocess).
 """
 
-import importlib
+from importlib import import_module
 import logging
 from math import floor
-import multiprocessing
+from multiprocessing import cpu_count, Pool
 import os
 import sys
-import tempfile
-import traceback
+from tempfile import mkstemp
+from traceback import format_exc
 
 from django.utils import six
 from django.utils.six.moves import cPickle
@@ -34,17 +34,14 @@ logger = logging.getLogger("archivematica.mcp.client")
 THIS_SCRIPT = "fork_runner.py"
 
 
-def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
-    """
-    Split `jobs` into `task_count` groups and fork a subprocess to run
+def call(module_name, jobs, task_count=cpu_count()):
+    """Split `jobs` into `task_count` groups and fork a subprocess to run
     `module_name`.call() for each of them.
     """
     jobs_by_uuid = {}
     for job in jobs:
         jobs_by_uuid[job.UUID] = job
-
-    pool = multiprocessing.Pool(processes=task_count)
-
+    pool = Pool(processes=task_count)
     try:
         results = []
         for job_subset in _split_jobs(jobs, task_count):
@@ -61,13 +58,13 @@ def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
         pool.terminate()
 
 
-def _split_jobs(jobs, n):
-    "Split `jobs` into n approximately equally-sized pieces"
-    chunk_size = int(floor(len(jobs) / n))
+def _split_jobs(jobs, n_split):
+    """Split `jobs` into n approximately equally-sized pieces"""
+    chunk_size = int(floor(len(jobs) / n_split))
     result = []
     while jobs:
         # Last chunk might be a little bigger
-        if len(result) == (n - 1):
+        if len(result) == (n_split - 1):
             result.append(jobs)
             jobs = []
         else:
@@ -78,11 +75,12 @@ def _split_jobs(jobs, n):
 
 @auto_close_db
 def _run_jobs(module_name, jobs):
-    (fd, output_file) = tempfile.mkstemp()
-
+    """Launch the fork_runner script within itself for Jobs given in the
+    supplied args.
+    """
+    (file_descriptor, output_file) = mkstemp()
     try:
         environment = {"jobs": jobs, "sys.path": sys.path, "output_file": output_file}
-
         # A bit of trickiness: Re-execute ourselves (fork_runner.py) in a
         # subprocess as a standalone script.  This ensures that we're running in
         # a clean environment (avoiding issues with things like forking while
@@ -100,22 +98,57 @@ def _run_jobs(module_name, jobs):
             printing=False,
             capture_output=True,
         )
-        with os.fdopen(fd, "rb") as f:
-            result = cPickle.load(f)
-            if isinstance(result, dict) and result["uncaught_exception"]:
-                e = result["uncaught_exception"]
-                # Something went wrong with our client script.  This shouldn't
-                # happen under normal operation, but might happen during
-                # development.
+        with os.fdopen(file_descriptor, "rb") as file_:
+            result = cPickle.load(file_)
+            if isinstance(result, dict) and result.get("uncaught_exception"):
+                err = result.get("uncaught_exception", {})
                 logging.error(
-                    ("Failure while executing '%s':\n" % (module_name))
-                    + e["traceback"]
+                    "Failure while executing '%s':\n%s",
+                    module_name,
+                    err.get("traceback", "Cannot retrieve key: 'traceback'"),
                 )
-                raise Exception(e["type"] + ": " + e["message"])
+                raise Exception(
+                    "{}: {}".format(
+                        err.get("type", "Cannot retrieve key: 'type'"),
+                        err.get("message", "Cannot retrieve key: 'message'"),
+                    )
+                )
             else:
                 return result
     finally:
         os.unlink(output_file)
+
+
+def main(args):
+    """Primary entry-point for this script."""
+    module_to_run = args[1]
+    logger.info("Running module: %s", module_to_run)
+    if six.PY2:
+        # PY2 read stdin as-is, file-like object.
+        environment = cPickle.load(sys.stdin)
+    if six.PY3:
+        # PY3 need to return buffer from _io.TextIOWrapper to read as bytes.
+        environment = cPickle.load(sys.stdin.buffer)
+    sys.path = environment.get("sys.path")
+    jobs_ = environment.get("jobs")
+    output_file = environment.get("output_file")
+    with open(output_file, "wb") as out_f:
+        try:
+            module = import_module(module_to_run)
+            module.call(jobs_)
+            cPickle.dump(jobs_, out_f, protocol=0)
+        except Exception as err:
+            cPickle.dump(
+                {
+                    "uncaught_exception": {
+                        "message": err.message,
+                        "type": type(err).__name__,
+                        "traceback": format_exc(),
+                    }
+                },
+                out_f,
+                protocol=0,
+            )
 
 
 # Executed in our subprocess (see note in _run_jobs above).
@@ -124,31 +157,4 @@ if __name__ == "__main__":
         raise Exception(
             "Must be called with a module name (and a list of pickled jobs on stdin)"
         )
-    module_to_run = sys.argv[1]
-    logger.info("Running module: %s", sys.argv[1])
-    if six.PY2:
-        # PY2 read stdin as-is, file-like object.
-        environment = cPickle.load(sys.stdin)
-    if six.PY3:
-        # PY3 need to return buffer from _io.TextIOWrapper to read as bytes.
-        environment = cPickle.load(sys.stdin.buffer)
-    sys.path = environment.get("sys.path")
-    jobs = environment.get("jobs")
-    output_file = environment.get("output_file")
-    with open(output_file, "wb") as f:
-        try:
-            module = importlib.import_module(module_to_run)
-            module.call(jobs)
-            cPickle.dump(jobs, f, protocol=0)
-        except Exception as e:
-            cPickle.dump(
-                {
-                    "uncaught_exception": {
-                        "message": e.message,
-                        "type": type(e).__name__,
-                        "traceback": traceback.format_exc(),
-                    }
-                },
-                f,
-                protocol=0,
-            )
+    main(sys.argv)
