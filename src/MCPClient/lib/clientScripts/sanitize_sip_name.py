@@ -31,7 +31,10 @@ from django.db import transaction
 # dashboard
 from main.models import SIP, Transfer
 
-from sanitize_names import sanitize_path
+try:
+    from sanitize_names import sanitize_path
+except ImportError:
+    from .sanitize_names import sanitize_path
 
 
 def call(jobs):
