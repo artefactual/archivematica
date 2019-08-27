@@ -9,7 +9,8 @@ def call(jobs):
             exit_code, std_out, std_error = executeOrRun(
                 "command", ["cp"] + job.args[1:], printing=True, capture_output=True
             )
-
-            job.write_error(std_error)
-            job.write_output(std_out)
+            if std_error:
+                job.write_error(std_error)
+            if std_out:
+                job.write_output(std_out)
             job.set_status(exit_code)
