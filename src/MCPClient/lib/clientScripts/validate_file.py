@@ -34,7 +34,11 @@ from executeOrRunSubProcess import executeOrRun
 from dicts import replace_string_values
 
 from django.conf import settings as mcpclient_settings
-from lib import setup_dicts
+
+try:
+    from lib import setup_dicts
+except ImportError:
+    from .lib import setup_dicts
 
 
 SUCCESS_CODE = 0

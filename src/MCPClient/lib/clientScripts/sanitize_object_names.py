@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+
 import os
 import unicodedata
 
@@ -34,7 +35,11 @@ from main.models import Event, File, Directory, Transfer, SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-import sanitize_names
+
+try:
+    import sanitize_names
+except ImportError:
+    from . import sanitize_names
 
 logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
 
