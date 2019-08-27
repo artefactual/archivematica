@@ -19,7 +19,10 @@ django.setup()
 
 from main.models import Directory, File, SIP
 
-from sanitize_names import sanitize_name
+try:
+    from sanitize_names import sanitize_name
+except ImportError:
+    from .sanitize_names import sanitize_name
 
 
 class DeclarePIDsException(Exception):
