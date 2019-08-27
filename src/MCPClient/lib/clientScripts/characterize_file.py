@@ -9,6 +9,7 @@
 
 from lxml import etree
 import multiprocessing
+import sys
 
 import django
 
@@ -36,6 +37,7 @@ def concurrent_instances():
 
 
 def main(job, file_path, file_uuid, sip_uuid):
+
     setup_dicts(mcpclient_settings)
 
     failed = False
@@ -74,13 +76,15 @@ def main(job, file_path, file_uuid, sip_uuid):
 
         exitstatus, stdout, stderr = executeOrRun(
             rule.command.script_type,
-            command_to_execute,
+            command_to_execute.decode(),
             arguments=args,
             capture_output=True,
         )
 
-        job.write_output(stdout)
-        job.write_error(stderr)
+        if stdout:
+            job.write_output(stdout)
+        if stderr:
+            job.write_error(stderr)
 
         if exitstatus != 0:
             job.write_error(
@@ -90,6 +94,7 @@ def main(job, file_path, file_uuid, sip_uuid):
             )
             failed = True
             continue
+
         # fmt/101 is XML - we want to collect and package any XML output, while
         # allowing other commands to execute without actually collecting their
         # output in the event that they are writing their output to disk.
@@ -120,7 +125,6 @@ def main(job, file_path, file_uuid, sip_uuid):
                     rule.command.description, rule.command.uuid
                 )
             )
-
     if failed:
         return 255
     else:

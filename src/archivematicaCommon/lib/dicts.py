@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -30,7 +32,6 @@ from django.utils import six
 from archivematicaFunctions import unicodeToStr
 
 from main import models
-
 
 config = {}
 
@@ -152,7 +153,7 @@ class ReplacementDict(dict):
                 # If the original location contains non-unicode characters,
                 # using base_location as retrieved from the DB will raise.
                 origin = file_.originallocation.replace(
-                    "%transferDirectory%", base_location.encode("utf-8")
+                    "%transferDirectory%", base_location
                 )
                 current_location = file_.currentlocation.replace(
                     "%transferDirectory%", base_location
@@ -212,7 +213,7 @@ class ReplacementDict(dict):
             if orig is not None:
                 orig = unicodeToStr(orig)
                 for key, value in self.items():
-                    orig = orig.replace(key, unicodeToStr(value))
+                    orig = orig.replace(unicodeToStr(key), unicodeToStr(value))
             ret.append(orig)
         return ret
 
