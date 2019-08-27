@@ -20,12 +20,6 @@ import mimetypes
 import os
 import pprint
 import requests
-import urllib
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 import json
 
@@ -38,6 +32,7 @@ from django.db import connection
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.translation import ugettext as _
+from django.utils.six.moves.urllib.parse import urlencode, urljoin
 from main import models
 from tastypie.models import ApiKey
 
@@ -239,7 +234,7 @@ def get_atom_levels_of_description(clear=True):
 
 def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args=args)
-    params = urllib.urlencode(kwargs)
+    params = urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 
 
