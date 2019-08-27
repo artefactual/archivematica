@@ -147,7 +147,7 @@ def createAndRunScript(
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
-    os.write(FILE, text)
+    os.write(FILE, text.encode("utf-8"))
     os.close(FILE)
     cmd = [scriptPath]
     cmd.extend(arguments)
