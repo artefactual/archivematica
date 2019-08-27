@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -216,7 +217,7 @@ def executeOrRun(
             capture_output=capture_output,
         )
     if type == "bashScript":
-        text = "#!/bin/bash\n" + text
+        text = "#!/bin/bash\n{}".format(text)
         return createAndRunScript(
             text,
             stdIn=stdIn,
@@ -226,7 +227,7 @@ def executeOrRun(
             capture_output=capture_output,
         )
     if type == "pythonScript":
-        text = "#!/usr/bin/env python2\n" + text
+        text = "#!/usr/bin/env python\n{}".format(text)
         return createAndRunScript(
             text,
             stdIn=stdIn,
