@@ -20,7 +20,11 @@ import databaseFunctions
 import fileOperations
 
 from django.conf import settings as mcpclient_settings
-from lib import setup_dicts
+
+try:
+    from lib import setup_dicts
+except ImportError:
+    from .lib import setup_dicts
 
 
 def concurrent_instances():
