@@ -259,11 +259,11 @@ class FSEntriesTree(object):
         )
 
         for rights in transfer_rights:
-            for path, fsentry in self.file_index.iteritems():
+            for path, fsentry in self.file_index.items():
                 premis_rights = rights_to_premis(rights, fsentry.file_uuid)
                 fsentry.add_premis_rights(premis_rights)
 
-        for path, fsentry in self.file_index.iteritems():
+        for path, fsentry in self.file_index.items():
             file_rights = self.rights_queryset.filter(
                 metadataappliestoidentifier=fsentry.file_uuid,
                 metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,
@@ -292,7 +292,7 @@ class FSEntriesTree(object):
 
     def check_for_missing_file_uuids(self):
         missing = []
-        for path, fsentry in self.file_index.iteritems():
+        for path, fsentry in self.file_index.items():
             if fsentry.file_uuid is None:
                 logger.info("No record in database for file: %s", path)
                 missing.append(path)
@@ -687,7 +687,7 @@ def event_to_premis(event):
             ("event_identifier_value", event.event_id),
         ),
         ("event_type", event.event_type),
-        ("event_date_time", event.event_datetime),
+        ("event_date_time", event.event_datetime.isoformat()),
         ("event_detail_information", ("event_detail", event.event_detail)),
         (
             "event_outcome_information",
