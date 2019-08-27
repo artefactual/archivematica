@@ -142,11 +142,11 @@ def call(jobs):
                 for dir_mdl in dir_mdls:
                     currentPath = databaseFunctions.deUnicode(dir_mdl.currentlocation)
                     currentSIPDirPath = currentPath.replace(
-                        "%transferDirectory%", tmpSIPDir
+                        "%transferDirectory%".encode("utf-8"), tmpSIPDir.encode("utf-8")
                     )
                     if os.path.isdir(currentSIPDirPath):
                         dir_mdl.currentlocation = currentPath.replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                            "%transferDirectory%".encode("utf-8"), "%SIPDirectory%".encode("utf-8")
                         )
                         dir_mdl.sip = sip
                         dir_mdl.save()
@@ -166,11 +166,11 @@ def call(jobs):
                 for f in files:
                     currentPath = databaseFunctions.deUnicode(f.currentlocation)
                     currentSIPFilePath = currentPath.replace(
-                        "%transferDirectory%", tmpSIPDir
+                        "%transferDirectory%".encode("utf-8"), tmpSIPDir.encode("utf-8")
                     )
                     if os.path.isfile(currentSIPFilePath):
                         f.currentlocation = currentPath.replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                            "%transferDirectory%".encode("utf-8"), "%SIPDirectory%".encode("utf-8")
                         )
                         f.sip = sip
                         f.save()
