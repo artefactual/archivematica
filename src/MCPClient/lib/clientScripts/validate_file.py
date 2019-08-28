@@ -149,15 +149,17 @@ class Validator(object):
         if exitstatus != 0:
             self.job.print_error(
                 "Command {description} failed with exit status {status};"
-                " stderr:".format(
-                    description=rule.command.description, status=exitstatus
+                " stderr: {stderr}".format(
+                    description=rule.command.description,
+                    status=exitstatus,
+                    stderr=stderr,
                 )
             )
             return "failed"
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
         # insecure practice; should be JSON.
-        output = ast.literal_eval(stdout)
+        output = ast.literal_eval(stdout.decode("utf8"))
         event_detail = (
             'program="{tool.description}";'
             ' version="{tool.version}"'.format(tool=rule.command.tool)

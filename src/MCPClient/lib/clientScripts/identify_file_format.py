@@ -155,7 +155,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
         job.print_error("Error: {}".format(err))
         return 255
 
-    job.print_output("Command output:", output)
+    job.print_output("Command output:", output.decode("utf8"))
     # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
     # go straight to the FormatVersion table to see if there's a matching PUID
     try:
