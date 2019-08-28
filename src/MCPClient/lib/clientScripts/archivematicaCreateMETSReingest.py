@@ -6,9 +6,15 @@ import os
 
 import metsrw
 
-import create_mets_v2 as createmets2
-import archivematicaCreateMETSRights as createmetsrights
-import archivematicaCreateMETSMetadataCSV as createmetscsv
+try:
+    import create_mets_v2 as createmets2
+    import archivematicaCreateMETSRights as createmetsrights
+    import archivematicaCreateMETSMetadataCSV as createmetscsv
+except ImportError:
+    from . import create_mets_v2 as createmets2
+    from . import archivematicaCreateMETSRights as createmetsrights
+    from . import archivematicaCreateMETSMetadataCSV as createmetscsv
+
 import namespaces as ns
 
 # dashboard

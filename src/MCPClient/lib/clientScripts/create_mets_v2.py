@@ -33,6 +33,7 @@ import sys
 import traceback
 from uuid import uuid4
 
+from bagit import Bag, BagError
 import django
 
 django.setup()
@@ -51,30 +52,49 @@ from main.models import (
     SIPArrange,
 )
 
-import archivematicaCreateMETSReingest
-from archivematicaCreateMETSMetadataCSV import parseMetadata
-from archivematicaCreateMETSRights import archivematicaGetRights
-from archivematicaCreateMETSRightsDspaceMDRef import (
-    archivematicaCreateMETSRightsDspaceMDRef,
-)
-from archivematicaCreateMETSTrim import getTrimDmdSec
-from archivematicaCreateMETSTrim import getTrimFileDmdSec
-from archivematicaCreateMETSTrim import getTrimAmdSec
-from archivematicaCreateMETSTrim import getTrimFileAmdSec
+# MCP Client imports.
+try:
+    # PY2.
+    import archivematicaCreateMETSReingest
+    from archivematicaCreateMETSMetadataCSV import parseMetadata
+    from archivematicaCreateMETSRights import archivematicaGetRights
+    from archivematicaCreateMETSRightsDspaceMDRef import (
+        archivematicaCreateMETSRightsDspaceMDRef,
+    )
+    from archivematicaCreateMETSTrim import getTrimDmdSec
+    from archivematicaCreateMETSTrim import getTrimFileDmdSec
+    from archivematicaCreateMETSTrim import getTrimAmdSec
+    from archivematicaCreateMETSTrim import getTrimFileAmdSec
+    from create_mets_dataverse_v2 import (
+        create_dataverse_sip_dmdsec,
+        create_dataverse_tabfile_dmdsec,
+    )
+    from sanitize_names import sanitize_name
+except ImportError:
+    # PY3.
+    from . import archivematicaCreateMETSReingest
+    from .archivematicaCreateMETSMetadataCSV import parseMetadata
+    from .archivematicaCreateMETSRights import archivematicaGetRights
+    from .archivematicaCreateMETSRightsDspaceMDRef import (
+        archivematicaCreateMETSRightsDspaceMDRef,
+    )
+    from .archivematicaCreateMETSTrim import getTrimDmdSec
+    from .archivematicaCreateMETSTrim import getTrimFileDmdSec
+    from .archivematicaCreateMETSTrim import getTrimAmdSec
+    from .archivematicaCreateMETSTrim import getTrimFileAmdSec
+    from .create_mets_dataverse_v2 import (
+        create_dataverse_sip_dmdsec,
+        create_dataverse_tabfile_dmdsec,
+    )
+    from .sanitize_names import sanitize_name
 
-# archivematicaCommon
+# Archivematica Common imports.
 from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
-from create_mets_dataverse_v2 import (
-    create_dataverse_sip_dmdsec,
-    create_dataverse_tabfile_dmdsec,
-)
+
 from custom_handlers import get_script_logger
 import namespaces as ns
-from sanitize_names import sanitize_name
-
-from bagit import Bag, BagError
 
 
 class ErrorAccumulator(object):
