@@ -347,7 +347,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                 key, = match.groups()
             for v in value:
                 try:
-                    etree.SubElement(dc, elem_namespace + key).text = v.decode("utf-8")
+                    etree.SubElement(dc, elem_namespace + key).text = v
                 except UnicodeDecodeError:
                     job.pyprint(
                         "Skipping DC value; not valid UTF-8: {}".format(v),
@@ -1495,11 +1495,16 @@ def write_mets(tree, filename):
     :param ElementTree tree: METS ElementTree
     :param str filename: Filename to write the METS to
     """
-    tree.write(filename, pretty_print=True, xml_declaration=True, encoding="utf-8")
+    tree.write(
+        filename.encode("utf-8"),
+        pretty_print=True,
+        xml_declaration=True,
+        encoding="utf-8",
+    )
 
-    import cgi
+    from html import escape
 
-    validate_filename = filename + ".validatorTester.html"
+    validate_filename = "{}.validatorTester.html".format(filename)
     fileContents = """<html>
 <body>
   <form method="post" action="http://pim.fcla.edu/validate/results">
@@ -1513,14 +1518,14 @@ def write_mets(tree, filename):
   </form>
 </body>
 </html>""" % (
-        cgi.escape(
+        escape(
             etree.tostring(
                 tree, pretty_print=True, xml_declaration=True, encoding="utf-8"
-            )
+            ).decode()
         )
     )
-    with open(validate_filename, "w") as f:
-        f.write(fileContents)
+    with open(validate_filename, "wb") as f:
+        f.write(fileContents.encode("utf-8"))
 
 
 def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
