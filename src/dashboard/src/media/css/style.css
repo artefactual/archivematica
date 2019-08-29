@@ -771,3 +771,19 @@ textarea.command {
 label.required-field:after {
   content: '*'
 }
+
+/*
+ * Modals multiple choices
+ */
+
+.modal.in#big-choice-select-modal{
+  display: block;
+  width: 980px;
+  padding: 15px;
+}
+.modal-body#big-choice-select-body{
+  background: #ffffff;
+}
+.select2-container{
+  min-width: 100px;
+}

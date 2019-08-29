@@ -578,7 +578,7 @@ var BaseJobView = Backbone.View.extend({
           var $proxySelect = $select.clone();
 
           // display action selector in modal window
-          $('<div class="modal hide" id="big-choice-select-modal"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>' + gettext('Select an action...') + '</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">' + gettext('Cancel') + '</a></div></div>').modal({show: true});
+          $('<div class="modal" id="big-choice-select-modal"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>' + gettext('Select an action...') + '</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">' + gettext('Cancel') + '</a></div></div>').modal({show: true});
           $('#big-choice-select-body').append($proxySelect);
 
           // style clone as Select2
@@ -589,6 +589,7 @@ var BaseJobView = Backbone.View.extend({
                   {
             $select.val($(this).val());
             $select.trigger('change');
+            $('.modal-backdrop.in').remove();
             $('#big-choice-select-modal').remove();
           });
 
@@ -596,6 +597,7 @@ var BaseJobView = Backbone.View.extend({
           $('#big-choice-select-close, #big-choice-select-cancel').click(function()
           {
             statusObject.bigSelectShowing = false;
+            $('.modal-backdrop.in').remove();
             $('#big-choice-select-modal').remove();
           });
 
