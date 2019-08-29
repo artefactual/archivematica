@@ -27,7 +27,11 @@ from main.models import Derivation, File, SIP, Transfer
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
-from lib import setup_dicts
+
+try:
+    from lib import setup_dicts
+except ImportError:
+    from .lib import setup_dicts
 
 # Note that linkTaskManagerFiles.py will take the highest exit code it has seen
 # from all tasks and will use that as the exit code of the job as a whole.
