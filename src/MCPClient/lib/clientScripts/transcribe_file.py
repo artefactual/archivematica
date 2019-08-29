@@ -146,6 +146,7 @@ def main(job, task_uuid, file_uuid):
         script = rule.command.command
         if rule.command.script_type in ("bashScript", "command"):
             script, = rd.replace(script)
+            script = script.decode("utf8")
             args = []
         else:
             args = rd.to_gnu_options
@@ -158,7 +159,7 @@ def main(job, task_uuid, file_uuid):
         if exitstatus != 0:
             succeeded = False
 
-        output_path = rd.replace(rule.command.output_location)[0]
+        output_path = rd.replace(rule.command.output_location)[0].decode("utf8")
         relative_path = output_path.replace(rd["%SIPDirectory%"], "%SIPDirectory%")
         event = insert_transcription_event(exitstatus, file_uuid, rule, relative_path)
 
