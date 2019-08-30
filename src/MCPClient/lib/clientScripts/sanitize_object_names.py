@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import unicodedata
+import uuid
 
 import django
 import six
@@ -139,6 +140,7 @@ class NameSanitizer(object):
             file_obj.save()
 
             sanitize_event = Event(
+                event_id=uuid.uuid4(),
                 file_uuid=file_obj,
                 event_type="name cleanup",
                 event_datetime=self.date,
