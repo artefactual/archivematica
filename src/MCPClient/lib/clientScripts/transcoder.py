@@ -53,7 +53,7 @@ class Command(object):
         if self.output_location:
             self.output_location = self.replacement_dict.replace(self.output_location)[
                 0
-            ]
+            ].decode("utf8")
             self.replacement_dict["%outputLocation%"] = self.output_location
 
         # Add verification and event detail commands, if they exist
@@ -86,7 +86,7 @@ class Command(object):
         # the necessary values into the script's source
         args = []
         if self.type in ["command", "bashScript"]:
-            self.command = self.replacement_dict.replace(self.command)[0]
+            self.command = self.replacement_dict.replace(self.command)[0].decode("utf8")
         # For other command types, we translate the entries from
         # replacement_dict into GNU-style long options, e.g.
         # [%fileName%, foo] => --file-name=foo

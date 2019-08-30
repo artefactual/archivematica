@@ -8,6 +8,7 @@ THUMBNAIL_TOOL_UUID = "efa8474a-8526-48c3-8279-e5a76bdc0995"
 OLD_THUMBNAIL_CMD_UUID = "7c2b65c7-6cea-4f81-9f3b-53375efc5bee"
 NEW_THUMBNAIL_CMD_UUID = "95149bc4-0620-4c20-964c-1d6c34b9400e"
 THUMBNAIL_RULES = (
+    "3a19f9a3-c5d5-4934-9286-13b3ad6c24d3",
 )
 NEW_THUMBNAIL_CMD = '''
 import argparse
@@ -38,7 +39,7 @@ o9i79TuKe9O4yaNSNxdXVxkcah1zX5LuhyBMhQpkD/e9Xv7goUODEWxpEj1Ktw8LUnOtnBqSk3Wv
 a+ook6pzWeKfNZH/2Q==\"\"\"
 
 def main(target):
-    with open(target.decode("utf8"), 'w+b') as f:
+    with open(target, 'w+b') as f:
         f.write(base64.b64decode(DEFAULT_THUMBNAIL))
 
 if __name__ == '__main__':
