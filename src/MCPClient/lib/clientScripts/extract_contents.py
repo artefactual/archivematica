@@ -20,7 +20,11 @@ from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import get_dir_uuids, format_subdir_path
 
 # clientScripts
-from has_packages import already_extracted
+try:
+    from has_packages import already_extracted
+except ImportError:
+    from .has_packages import already_extracted
+
 
 logger = get_script_logger("archivematica.mcp.client.extractContents")
 

@@ -37,6 +37,7 @@ django.setup()
 
 from custom_handlers import get_script_logger
 import metsrw
+import six
 
 
 logger = get_script_logger("archivematica.mcp.client.convert_dataverse_struct")
@@ -71,7 +72,7 @@ def output_ddi_elems_info(job, ddi_elems):
     """
     draft = False
     job.pyprint("Fields retrieved from Dataverse:")
-    for ddi_k, ddi_v in ddi_elems.iteritems():
+    for ddi_k, ddi_v in six.iteritems(ddi_elems):
         if ddi_k == "Version Type" and ddi_v == "DRAFT":
             draft = True
         job.pyprint("{}: {}".format(ddi_k, ddi_v))
@@ -472,11 +473,13 @@ def write_mets_to_file(sip, unit_path, output_md_path, output_md_name):
     mets_f.append_file(sip)
     with open(mets_path, "w") as xml_file:
         xml_file.write(
-            etree.tostring(
-                mets_f.serialize(),
-                pretty_print=True,
-                encoding="utf-8",
-                xml_declaration=True,
+            six.ensure_str(
+                etree.tostring(
+                    mets_f.serialize(),
+                    pretty_print=True,
+                    encoding="utf-8",
+                    xml_declaration=True,
+                )
             )
         )
 
