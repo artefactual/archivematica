@@ -279,14 +279,14 @@ class TestHashsum(object):
     @pytest.fixture(scope="class")
     def django_db_setup(django_db_blocker):
         """Load the various database fixtures required for our tests."""
-        fixtures_dir = "verify_checksum_microservice"
+        fixtures_dir = "microservice_agents"
         # hashsum_agents and hashsum_unitvars work in concert to return the
         # Archivematica current user to the result set.
         fixture_files = [
             "transfer.json",
             "files-transfer-unicode.json",
-            os.path.join(fixtures_dir, "hashsum_agents.json"),
-            os.path.join(fixtures_dir, "hashsum_unitvars.json"),
+            os.path.join(fixtures_dir, "microservice_agents.json"),
+            os.path.join(fixtures_dir, "microservice_unitvars.json"),
         ]
         fixtures = []
         for fixture in fixture_files:
