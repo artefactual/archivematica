@@ -155,9 +155,15 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** `""`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_METHOD`**:
+    - **Description:** how watched directory polling is done (`poll` or `inotify`).
+    - **Config file example:** `MCPServer.watch_directory_method`
+    - **Type:** `string`
+    - **Default:** `inotify` on linux, `poll` otherwise
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_INTERVAL`**:
     - **Description:** time in seconds between filesystem poll intervals.
-    - **Config file example:** `MCPServer.watchDirectoriesPollInterval`
+    - **Config file example:** `MCPServer.watch_directory_interval`
     - **Type:** `int`
     - **Default:** `"1"`
 

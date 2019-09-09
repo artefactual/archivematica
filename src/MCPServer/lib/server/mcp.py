@@ -16,6 +16,8 @@ import django
 
 django.setup()
 
+from django.conf import settings
+
 from server import metrics, rpc_server, shared_dirs
 from server.jobs import Job, JobChain, Task
 from server.packages import DIP, Transfer, SIP
@@ -100,9 +102,10 @@ def main():
         rpc_thread.start()
         rpc_threads.append(rpc_thread)
 
+    watched_dirs = workflow.get_wdirs()
     watch_dir_thread = threading.Thread(
         target=watch_directories,
-        args=(workflow.get_wdirs(), shutdown_event, watched_dir_handler),
+        args=(watched_dirs, shutdown_event, watched_dir_handler),
         name="WatchDirs",
     )
     watch_dir_thread.start()
@@ -110,10 +113,17 @@ def main():
     # Blocks until shutdown is called by a signal handler
     package_queue.process()
 
+    logger.debug("Package queue stopped processing.")
+
     # Cleanup threads
-    watch_dir_thread.join(1.0)
+    watch_dir_thread.join(settings.WATCH_DIRECTORY_INTERVAL * 2)
+    logger.debug("Watched dir thread stopped.")
+
     for thread in rpc_threads:
         thread.join(1.0)
+        logger.debug("RPC threads stopped.")
+
+    logger.info("MCP server shut down complete.")
 
 
 if __name__ == "__main__":
