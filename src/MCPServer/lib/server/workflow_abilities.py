@@ -3,6 +3,8 @@
 dependencies across Archivematica components (i.e., dashboard, MCPServer, and
 MCPClient).
 """
+from __future__ import absolute_import, unicode_literals
+
 from django.conf import settings
 
 

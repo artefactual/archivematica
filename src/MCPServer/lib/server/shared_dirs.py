@@ -2,6 +2,7 @@
 
 """Shared directory setup.
 """
+from __future__ import absolute_import, unicode_literals
 
 import logging
 import os
@@ -13,7 +14,7 @@ logger = logging.getLogger("archivematica.mcp.server.shareddirs")
 
 
 # TODO: store this in assets at least
-DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
+DEFAULT_PROCESSING_CONFIG = """<processingMCP>
   <preconfiguredChoices>
     <!-- Select compression level -->
     <preconfiguredChoice>

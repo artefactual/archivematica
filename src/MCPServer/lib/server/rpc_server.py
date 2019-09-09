@@ -7,6 +7,7 @@ TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
+from __future__ import absolute_import, unicode_literals
 
 import calendar
 import cPickle

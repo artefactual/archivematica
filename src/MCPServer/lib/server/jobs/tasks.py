@@ -3,7 +3,7 @@ Tasks that we'll send off to the MCPClient (via Gearman).
 
 Each ClientScriptJob has one or more Tasks.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import abc
 import gearman

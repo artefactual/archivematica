@@ -3,6 +3,7 @@
 """
 Jobs executed locally in MCP server.
 """
+from __future__ import absolute_import, unicode_literals
 
 from main import models
 

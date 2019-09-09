@@ -8,7 +8,7 @@ want to remove in future; however, currently they are used extensively in all
 workflows, as many chains start the next chain by moving a transfer or SIP t
 the appropriate watched directory.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import logging
 import os

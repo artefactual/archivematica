@@ -3,7 +3,7 @@
 Jobs handling user decisions.
 TODO: This still needs a lot of cleanup and integration with WorkflowDecision
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import logging
 import os

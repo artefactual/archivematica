@@ -5,6 +5,7 @@
 This module lists the processing configuration fields where the user has the
 ability to establish predefined choices via the user interface.
 """
+from __future__ import absolute_import, unicode_literals
 
 from collections import OrderedDict
 

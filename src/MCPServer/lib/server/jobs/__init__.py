@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from server.jobs.base import Job
 from server.jobs.chain import JobChain
 from server.jobs.client import (
