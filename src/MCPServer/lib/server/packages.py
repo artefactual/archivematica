@@ -532,7 +532,7 @@ class Package(object):
         self._current_path = current_path.replace(
             r"%sharedPath%", settings.SHARED_DIRECTORY
         )
-        if not isinstance(uuid, UUID):
+        if uuid is not None and not isinstance(uuid, UUID):
             uuid = UUID(uuid)
         self.uuid = uuid
 
