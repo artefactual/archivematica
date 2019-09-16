@@ -123,9 +123,7 @@ def watch_directories_inotify(
 
 
 def watch_directories(*args, **kwargs):
-    method = settings.WATCH_DIRECTORY_METHOD
-    if method not in ("inotify", "poll"):
-        method = "inotify" if IS_LINUX else "poll"
+    method = settings.WATCH_DIRECTORY_METHOD or "poll"
 
     logger.debug("Starting directory watch (using %s).", method)
 
