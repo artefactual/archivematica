@@ -2,13 +2,15 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration files](#configuration-files)
-- [Parameter list](#parameter-list)
-  - [Application variables](#application-variables)
-  - [Gunicorn variables](#gunicorn-variables)
-- [Logging configuration](#logging-configuration)
+- [Dashboard Configuration](#dashboard-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration files](#configuration-files)
+  - [Parameter list](#parameter-list)
+    - [Application variables](#application-variables)
+    - [Gunicorn variables](#gunicorn-variables)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -183,8 +185,7 @@ variables or in the gunicorn configuration file.
     - **Default:** `300`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED`**:
-    - **Description:** Determines if Prometheus metrics should be collected. Note that
-        this is currently not compativle with multiple Gunicorn workers.
+    - **Description:** Determines if Prometheus metrics should be collected.
     - **Config file example:** `Dashboard.prometheus_enabled`
     - **Type:** `boolean`
     - **Default:** `False`
