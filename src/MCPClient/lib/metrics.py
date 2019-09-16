@@ -5,12 +5,15 @@ from __future__ import absolute_import, unicode_literals
 
 import ConfigParser
 import functools
+import os
 
 from django.conf import settings
 from django.utils import timezone
-from prometheus_client import Counter, Gauge, Summary, start_http_server
+from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
 
 from main.models import File
+
+from version import get_full_version
 
 
 job_counter = Counter(
@@ -97,6 +100,9 @@ dip_files_stored_counter = Counter(
 aip_size_counter = Counter("mcpclient_aip_size_bytes", "Number of bytes stored in AIPs")
 dip_size_counter = Counter("mcpclient_dip_size_bytes", "Number of bytes stored in DIPs")
 
+archivematica_info = Info("archivematica_version", "Archivematica version info")
+environment_info = Info("environment_variables", "Environment Variables")
+
 
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
@@ -142,6 +148,9 @@ def init_counter_labels():
 @skip_if_prometheus_disabled
 def start_prometheus_server():
     init_counter_labels()
+
+    archivematica_info.info({"version": get_full_version()})
+    environment_info.info(os.environ)
 
     return start_http_server(
         settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS

@@ -4,9 +4,12 @@ Exposes various metrics via Prometheus.
 from __future__ import absolute_import, unicode_literals
 
 import functools
+import os
 
 from django.conf import settings
-from prometheus_client import Counter, Gauge, Summary, start_http_server
+from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
+
+from version import get_full_version
 
 
 active_task_group_gauge = Gauge(
@@ -66,6 +69,9 @@ gearman_status_summary = Summary(
     "Time spent waiting for gearman job status in seconds",
 )
 
+archivematica_info = Info("archivematica_version", "Archivematica version info")
+environment_info = Info("environment_variables", "Environment Variables")
+
 
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
@@ -79,6 +85,9 @@ def skip_if_prometheus_disabled(func):
 
 @skip_if_prometheus_disabled
 def start_prometheus_server():
+    archivematica_info.info({"version": get_full_version()})
+    environment_info.info(os.environ)
+
     return start_http_server(
         settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
     )
