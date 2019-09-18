@@ -27,7 +27,7 @@ from main import models
 def load_jobs(view):
     @wraps(view)
     def inner(request, uuid, *args, **kwargs):
-        jobs = models.Job.objects.filter(sipuuid=uuid)
+        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof="")
         if 0 == jobs.count:
             raise Http404
         kwargs["jobs"] = jobs
