@@ -357,10 +357,10 @@ def create_file(
             ret = response.json()
     else:
         try:
-            with ss_api_time_summary.labels(function="create_file").time():
-                session = _storage_api_slow_session()
+            session = _storage_api_slow_session()
             url = _storage_service_url() + "file/"
-            response = session.post(url, json=new_file)
+            with ss_api_time_summary.labels(function="create_file").time():
+                response = session.post(url, json=new_file)
             response.raise_for_status()
             ret = response.json()
         except requests.exceptions.RequestException as err:
