@@ -331,7 +331,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
 if __name__ == "__main__":
 
     # Replace exception handler with one that logs exceptions
-    # sys.excepthook = _except_hook_log_everything
+    sys.excepthook = _except_hook_log_everything
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

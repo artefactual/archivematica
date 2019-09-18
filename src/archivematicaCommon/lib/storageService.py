@@ -66,7 +66,7 @@ def _storage_service_url():
     return storage_service_url
 
 
-def _storage_api_session(timeout=30.0):
+def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT):
     """Return a requests.Session with a customized adapter with timeout support."""
 
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
