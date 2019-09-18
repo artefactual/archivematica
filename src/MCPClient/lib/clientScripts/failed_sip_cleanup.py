@@ -12,6 +12,9 @@ from main import models
 # archivematicaCommon
 import storageService as storage_service
 
+import metrics
+
+
 REJECTED = "reject"
 FAILED = "fail"
 
@@ -43,3 +46,5 @@ def call(jobs):
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])
                 job.set_status(main(job, args.fail_type, args.sip_uuid))
+
+    metrics.sip_failed(args.fail_type)

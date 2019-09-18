@@ -31,9 +31,17 @@ import uuid
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import six, timezone
+from prometheus_client import Summary
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
 LOGGER = logging.getLogger("archivematica.common")
+
+
+db_retry_time_summary = Summary(
+    "common_db_retry_time_seconds",
+    "Summary of time waiting to retry database transactions in seconds",
+    ["description"],
+)
 
 
 def auto_close_db(f):
@@ -305,23 +313,24 @@ def deUnicode(unicode_string):
 
 
 def retryOnFailure(description, callback, retries=10):
-    for retry in range(0, retries + 1):
-        try:
-            callback()
-            break
-        except Exception as e:
-            if retry == retries:
-                LOGGER.error(
-                    'Failed to complete transaction "%s" after %s retries',
-                    description,
-                    retries,
-                )
-                raise e
-            else:
-                LOGGER.debug(
-                    'Retrying "%s" transaction after caught exception (retry %d): %s',
-                    description,
-                    retry + 1,
-                    e,
-                )
-                time.sleep(random.uniform(0, 2))
+    with db_retry_time_summary.labels(description=description).time():
+        for retry in range(0, retries + 1):
+            try:
+                callback()
+                break
+            except Exception as e:
+                if retry == retries:
+                    LOGGER.error(
+                        'Failed to complete transaction "%s" after %s retries',
+                        description,
+                        retries,
+                    )
+                    raise e
+                else:
+                    LOGGER.debug(
+                        'Retrying "%s" transaction after caught exception (retry %d): %s',
+                        description,
+                        retry + 1,
+                        e,
+                    )
+                    time.sleep(random.uniform(0, 2))

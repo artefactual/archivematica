@@ -39,10 +39,11 @@ from multiprocessing.pool import ThreadPool
 import time
 import traceback
 import collections
-import math
 
 from django.conf import settings as django_settings
-from prometheus_client import Gauge
+
+import metrics
+
 
 LOGGER = logging.getLogger("archivematica.mcp.server")
 
@@ -54,19 +55,6 @@ class TaskGroupRunner:
 
     # The frequency with which we'll log task stats
     NOTIFICATION_INTERVAL_SECONDS = 10
-
-    # How many samples to use when estimating the number of running units.
-    #
-    # By default we'll just assume NOTIFICATION_INTERVAL_SECONDS is a good
-    # sample size.
-    #
-    # We have to sample because running units aren't always registered with
-    # TaskGroupRunner (even though they'll spend most of their time here).  For
-    # example, they might be sitting in a watched directory waiting to be picked
-    # up to run on a new chain, or currently being processed by the MCP Server.
-    RUNNING_UNIT_SAMPLES = int(
-        math.ceil(NOTIFICATION_INTERVAL_SECONDS / float(POLL_DELAY_SECONDS))
-    )
 
     # Our singleton instance
     _instance = None
@@ -93,10 +81,6 @@ class TaskGroupRunner:
             TaskGroupRunner.TaskGroupJob(task_group, finished_callback)
         )
 
-    @staticmethod
-    def activeUnitCount():
-        return max(TaskGroupRunner._instance.activeUnitCounts)
-
     def __init__(self):
         # The list of TaskGroups that are ready to run but not yet submitted to
         # the MCP Client.
@@ -106,14 +90,6 @@ class TaskGroupRunner:
         # Gearman jobs that are currently waiting on the MCP Client
         self.running_gearman_jobs = []
         self.task_group_jobs_by_uuid = {}
-
-        # Track the number of units currently being processed
-        self.activeUnitCounts = [0] * TaskGroupRunner.RUNNING_UNIT_SAMPLES
-        self.activeUnitCountsIdx = 0
-        self.activeUnitGauge = Gauge(
-            "task_group_runner_active_units",
-            "Number of units currently being processed",
-        )
 
         # Used to run completed callbacks off the main thread.
         self.pool = ThreadPool(django_settings.LIMIT_TASK_THREADS)
@@ -191,14 +167,15 @@ class TaskGroupRunner:
             job_request = None
             while job_request is None:
                 try:
-                    job_request = gm_client.submit_job(
-                        task=task_group.name(),
-                        data=task_group.serialize(),
-                        unique=task_group.UUID,
-                        wait_until_complete=False,
-                        background=False,
-                        max_retries=10,
-                    )
+                    with metrics.gearman_submit_job_summary.time():
+                        job_request = gm_client.submit_job(
+                            task=task_group.name(),
+                            data=task_group.serialize(),
+                            unique=task_group.UUID,
+                            wait_until_complete=False,
+                            background=False,
+                            max_retries=10,
+                        )
                 except Exception as e:
                     LOGGER.warning(
                         "Retrying submit for job %s...: %s: %s"
@@ -213,7 +190,8 @@ class TaskGroupRunner:
         statuses = []
         for job in self.running_gearman_jobs:
             try:
-                status = gm_client.get_job_status(job)
+                with metrics.gearman_status_summary.time():
+                    status = gm_client.get_job_status(job)
                 statuses.append(status)
             except KeyError:
                 # There seems to be a race condition here in the Gearman client.
@@ -259,19 +237,11 @@ class TaskGroupRunner:
             )
             self.last_notification_time = now
 
-        active_count = len(
-            set(
-                [
-                    task_group.task_group.unit_uuid()
-                    for task_group in self.task_group_jobs_by_uuid.values()
-                ]
-            )
+        metrics.update_job_status(
+            self.task_group_jobs_by_uuid,
+            self.running_gearman_jobs,
+            self.pending_task_group_jobs,
         )
-        self.activeUnitCounts[self.activeUnitCountsIdx] = active_count
-        self.activeUnitCountsIdx = (
-            self.activeUnitCountsIdx + 1
-        ) % TaskGroupRunner.RUNNING_UNIT_SAMPLES
-        self.activeUnitGauge.set(self.activeUnitCount())
 
     def _handle_gearman_response(self, job_request):
         """
@@ -327,6 +297,9 @@ class TaskGroupRunner:
                 task.results["exitStatus"] = result.get("exitStatus", "")
                 task.results["stdout"] = result.get("stdout", "")
                 task.results["stderr"] = result.get("stderr", "")
+                task.finished_timestamp = result.get("finishedTimestamp")
+
+                metrics.task_completed(task, task_group)
 
                 LOGGER.debug(
                     "Task %s finished! Result %s - %s",
@@ -334,6 +307,7 @@ class TaskGroupRunner:
                     job_request.state,
                     result["exitCode"],
                 )
+
         else:
             # If the entire task failed, we'll propagate the failure to all tasks in the batch.
             msg = ""
@@ -348,3 +322,5 @@ class TaskGroupRunner:
             LOGGER.error(msg)
             for task in task_group.tasks():
                 task.results["exitCode"] = 1
+
+            metrics.task_failed(task, task_group)

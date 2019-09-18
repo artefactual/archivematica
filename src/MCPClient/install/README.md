@@ -2,11 +2,13 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [Environment variables](#environment-variables)
-- [Configuration file](#configuration-file)
-- [Parameter list](#parameter-list)
-- [Logging configuration](#logging-configuration)
+- [MCPClient Configuration](#mcpclient-configuration)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Environment variables](#environment-variables)
+  - [Configuration file](#configuration-file)
+  - [Parameter list](#parameter-list)
+  - [Logging configuration](#logging-configuration)
 
 ## Introduction
 
@@ -184,6 +186,20 @@ This is the full list of variables supported by MCPClient:
     - **Config file example:** `MCPClient.agentarchives_client_timeout`
     - **Type:** `float`
     - **Default:** `300`
+
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS`**:
+    - **Description:** when set to a non-empty string, its value is parsed as the IP address on which to serve Prometheus metrics. If this value is not provided, but ``ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT`` is, then 127.0.0.1 will
+    be used.
+    - **Config file example:** `MCPClient.prometheus_bind_addresss`
+    - **Type:** `string`
+    - **Default:** `""`
+
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT`**:
+    - **Description:** The port on which to serve Prometheus metrics.
+    If this value is not provided, metrics will not be served.
+    - **Config file example:** `MCPClient.prometheus_bind_port`
+    - **Type:** `int`
+    - **Default:** `""`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_SERVER`**:
     - **Description:** configures the `clamdscanner` backend so it knows how to reach the clamd server via UNIX socket (if the value starts with /) or TCP socket (form `host:port`, e.g.: `myclamad:3310`).

@@ -41,6 +41,8 @@ from custom_handlers import get_script_logger
 import storageService as storage_service
 from archivematicaFunctions import escape
 
+import metrics
+
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
@@ -253,6 +255,12 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # it will no longer need to be referenced from there by the user or the
     # system.
     rmtree_upload_dip_transitory_loc(package_type, aip_path)
+
+    if "AIP" in package_type:
+        metrics.aip_stored(sip_uuid, size)
+    elif "DIP" in package_type:
+        metrics.dip_stored(sip_uuid, size)
+
     return 0
 
     # FIXME this should be moved to the storage service and areas that rely

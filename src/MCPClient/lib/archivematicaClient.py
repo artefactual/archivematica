@@ -77,6 +77,7 @@ import importlib
 
 from databaseFunctions import auto_close_db
 import fork_runner
+import metrics
 from job import Job
 
 logger = logging.getLogger("archivematica.mcp.client")
@@ -205,45 +206,64 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """
     logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
 
-    try:
-        jobs = handle_batch_task(gearman_job, supported_modules)
-        results = {}
+    with metrics.task_execution_time_summary.labels(
+        script_name=gearman_job.task
+    ).time():
+        try:
+            jobs = handle_batch_task(gearman_job, supported_modules)
+            results = {}
 
-        def write_task_results_callback():
-            with transaction.atomic():
-                for job in jobs:
-                    logger.info("\n\n*** Completed job: %s", job.dump())
+            def write_task_results_callback():
+                with transaction.atomic():
+                    for job in jobs:
+                        logger.info("\n\n*** Completed job: %s", job.dump())
 
-                    kwargs = {"exitcode": job.get_exit_code(), "endtime": getUTCDate()}
-                    if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
-                        kwargs.update(
-                            {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
-                        )
-                    Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
+                        exit_code = job.get_exit_code()
+                        end_time = getUTCDate()
 
-                    results[job.UUID] = {"exitCode": job.get_exit_code()}
+                        kwargs = {"exitcode": exit_code, "endtime": end_time}
+                        if django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
+                            kwargs.update(
+                                {
+                                    "stdout": job.get_stdout(),
+                                    "stderror": job.get_stderr(),
+                                }
+                            )
+                        Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
-                    if job.caller_wants_output:
-                        # Send back stdout/stderr so it can be written to files.
-                        # Most cases don't require this (logging to the database is
-                        # enough), but the ones that do are coordinated through the
-                        # MCP Server so that multiple MCP Client instances don't try
-                        # to write the same file at the same time.
-                        results[job.UUID]["stdout"] = job.get_stdout()
-                        results[job.UUID]["stderror"] = job.get_stderr()
+                        results[job.UUID] = {
+                            "exitCode": exit_code,
+                            "finishedTimestamp": end_time,
+                        }
 
-        retryOnFailure("Write task results", write_task_results_callback)
+                        if job.caller_wants_output:
+                            # Send back stdout/stderr so it can be written to files.
+                            # Most cases don't require this (logging to the database is
+                            # enough), but the ones that do are coordinated through the
+                            # MCP Server so that multiple MCP Client instances don't try
+                            # to write the same file at the same time.
+                            results[job.UUID]["stdout"] = job.get_stdout()
+                            results[job.UUID]["stderror"] = job.get_stderr()
 
-        return cPickle.dumps({"task_results": results})
-    except SystemExit:
-        logger.error(
-            "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
-            gearman_job.task,
-        )
-        return fail_all_tasks(gearman_job, "Module attempted exit")
-    except Exception as e:
-        logger.exception("Exception while processing task %s: %s", gearman_job.task, e)
-        return fail_all_tasks(gearman_job, e)
+                        if exit_code == 0:
+                            metrics.job_completed(gearman_job.task)
+                        else:
+                            metrics.job_failed(gearman_job.task)
+
+            retryOnFailure("Write task results", write_task_results_callback)
+
+            return cPickle.dumps({"task_results": results})
+        except SystemExit:
+            logger.error(
+                "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
+                gearman_job.task,
+            )
+            return fail_all_tasks(gearman_job, "Module attempted exit")
+        except Exception as e:
+            logger.exception(
+                "Exception while processing task %s: %s", gearman_job.task, e
+            )
+            return fail_all_tasks(gearman_job, e)
 
 
 def start_gearman_worker(supported_modules):
@@ -267,7 +287,8 @@ def start_gearman_worker(supported_modules):
                 inst.args,
                 fail_sleep,
             )
-            time.sleep(fail_sleep)
+            with metrics.waiting_for_gearman_time_summary.time():
+                time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
         except Exception as e:
@@ -280,12 +301,15 @@ def start_gearman_worker(supported_modules):
                 e,
                 fail_sleep,
             )
-            time.sleep(fail_sleep)
+            with metrics.waiting_for_gearman_time_summary.time():
+                time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
 
 
 if __name__ == "__main__":
+    metrics.start_prometheus_server()
+
     try:
         start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))
     except (KeyboardInterrupt, SystemExit):

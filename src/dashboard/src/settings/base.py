@@ -84,6 +84,11 @@ CONFIG_MAPPING = {
         "option": "agentarchives_client_timeout",
         "type": "float",
     },
+    "prometheus_enabled": {
+        "section": "Dashboard",
+        "option": "prometheus_enabled",
+        "type": "boolean",
+    },
     "site_url": {"section": "Dashboard", "option": "site_url", "type": "string"},
     # [Dashboard] (MANDATORY in production)
     "allowed_hosts": {
@@ -120,6 +125,7 @@ ldap_authentication = False
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
+prometheus_enabled = False
 site_url =
 
 [client]
@@ -507,6 +513,16 @@ if LDAP_AUTHENTICATION:
 
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomLDAPBackend"]
     from .components.ldap_auth import *  # noqa
+
+PROMETHEUS_ENABLED = config.get("prometheus_enabled")
+if PROMETHEUS_ENABLED:
+    MIDDLEWARE_CLASSES = (
+        ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
+        + MIDDLEWARE_CLASSES
+        + ["django_prometheus.middleware.PrometheusAfterMiddleware"]
+    )
+    INSTALLED_APPS = INSTALLED_APPS + ["django_prometheus"]
+    LOGIN_EXEMPT_URLS = LOGIN_EXEMPT_URLS + [r"^metrics$"]
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
