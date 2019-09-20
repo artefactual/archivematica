@@ -2,13 +2,11 @@
 
 ## Table of contents
 
-- [MCPServer Configuration](#mcpserver-configuration)
-  - [Table of contents](#table-of-contents)
-  - [Introduction](#introduction)
-  - [Environment variables](#environment-variables)
-  - [Configuration file](#configuration-file)
-  - [Parameter list](#parameter-list)
-  - [Logging configuration](#logging-configuration)
+- [Introduction](#introduction)
+- [Environment variables](#environment-variables)
+- [Configuration file](#configuration-file)
+- [Parameter list](#parameter-list)
+- [Logging configuration](#logging-configuration)
 
 ## Introduction
 
