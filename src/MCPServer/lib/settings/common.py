@@ -21,7 +21,7 @@ import logging
 import logging.config
 import os
 
-from appconfig import Config, process_search_enabled
+from appconfig import Config, process_search_enabled, process_watched_directory_interval
 import email_settings
 
 CONFIG_MAPPING = {
@@ -68,8 +68,7 @@ CONFIG_MAPPING = {
     },
     "watch_directory_interval": {
         "section": "MCPServer",
-        "option": "watch_directory_interval",
-        "type": "int",
+        "process_function": process_watched_directory_interval,
     },
     "secret_key": {
         "section": "MCPServer",
