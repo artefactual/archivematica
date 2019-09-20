@@ -22,6 +22,7 @@
 import logging
 import lxml.etree as etree
 
+from db import auto_close_old_connections
 from unit import unit
 
 from main.models import SIP
@@ -45,6 +46,7 @@ class unitSIP(unit):
     def __str__(self):
         return "unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>".format(u=self)
 
+    @auto_close_old_connections
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)
         self.createdTime = sip.createdtime

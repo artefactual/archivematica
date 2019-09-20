@@ -19,6 +19,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from db import auto_close_old_connections
 from linkTaskManager import LinkTaskManager
 
 from main.models import UnitVariable
@@ -38,6 +39,7 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
             exitCode=0, passVar=self.jobChainLink.passVar, next_link=next_link
         )
 
+    @auto_close_old_connections
     def _get_next_link(self):
         """Look up next chain link in UnitVariable."""
         link = self.jobChainLink.link

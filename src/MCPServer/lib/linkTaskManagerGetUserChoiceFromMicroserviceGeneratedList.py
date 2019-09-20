@@ -30,6 +30,7 @@ from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForU
 
 from dicts import ReplacementDict, ChoicesDict
 from main.models import UserProfile, Job
+from db import auto_close_old_connections
 from workflow import TranslationLabel
 
 from django.conf import settings as django_settings
@@ -129,6 +130,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             etree.SubElement(choice, "description").text = text_type(description)
         return ret
 
+    @auto_close_old_connections
     def proceedWithChoice(self, index, user_id):
         if user_id:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id

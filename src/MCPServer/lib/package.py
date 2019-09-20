@@ -27,7 +27,7 @@ from uuid import uuid4
 from django.conf import settings as django_settings
 
 from archivematicaFunctions import unicodeToStr
-from databaseFunctions import auto_close_db
+from db import auto_close_old_connections
 from executor import Executor
 from jobChain import jobChain
 from main.models import Transfer, TransferMetadataSet
@@ -262,6 +262,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
         transfer.save()
 
 
+@auto_close_old_connections
 def create_package(
     name,
     type_,
@@ -314,7 +315,6 @@ def create_package(
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
-    @auto_close_db
     def _start(transfer, name, type_, path):
         # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
         tmpdir = mkdtemp(dir=os.path.join(django_settings.SHARED_DIRECTORY, "tmp"))

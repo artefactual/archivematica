@@ -34,7 +34,7 @@ choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
 from archivematicaFunctions import unicodeToStr
-from databaseFunctions import auto_close_db
+from db import auto_close_old_connections
 from workflow_abilities import choice_is_available
 
 from main.models import UserProfile, Job
@@ -169,7 +169,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         return ret
 
     @log_exceptions
-    @auto_close_db
+    @auto_close_old_connections
     def proceedWithChoice(self, chain_id, user_id, delayTimerStart=False):
         if user_id is not None:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id

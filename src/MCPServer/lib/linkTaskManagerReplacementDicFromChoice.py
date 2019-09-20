@@ -26,6 +26,7 @@ import os
 import threading
 import time
 
+from db import auto_close_old_connections
 from utils import choice_unifier
 from linkTaskManager import LinkTaskManager
 from linkTaskManagerChoice import (
@@ -107,6 +108,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 (index, item["description"], self._format_items(item["items"]))
             )
 
+    @auto_close_old_connections
     def _get_dashboard_setting_choice(self):
         """Load settings associated to this task into a ``ReplacementDict``.
 
@@ -244,6 +246,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             etree.SubElement(choice, "description").text = text_type(description)
         return ret
 
+    @auto_close_old_connections
     def proceedWithChoice(self, index, user_id):
         if user_id:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id

@@ -24,6 +24,7 @@ import os
 
 import archivematicaFunctions
 
+from db import auto_close_old_connections
 from unitFile import unitFile
 
 from main.models import File, UnitVariable
@@ -40,6 +41,7 @@ class unit:
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
 
+    @auto_close_old_connections
     def reloadFileList(self):
         """Match files to their UUID's via their location and the File table's currentLocation"""
         self.fileList = {}
@@ -82,6 +84,7 @@ class unit:
             LOGGER.exception("Error reloading file list for %s", currentPath)
             exit(1)
 
+    @auto_close_old_connections
     def setVariable(self, variable, variableValue, microServiceChainLink):
         """This gets called by linkTaskManagerSetUnitVariable.py in order to
         upsert `UnitVariable` rows for this unit. This is triggered by
