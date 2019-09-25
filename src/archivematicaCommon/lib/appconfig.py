@@ -138,3 +138,14 @@ def process_search_enabled(config, section):
                 'attribute. Only "aips" and/or "transfers" are allowed.' % item
             )
     return set(enabled_parts)
+
+
+def process_watched_directory_interval(config, section):
+    """Backward compatible lookup of watch_directory_interval.
+    """
+    options = [
+        {"section": section, "option": "watch_directory_interval", "type": "int"},
+        {"section": section, "option": "watchDirectoriesPollInterval", "type": "int"},
+    ]
+
+    return config.get_from_opts_list("watch_directory_interval", options, default=1)

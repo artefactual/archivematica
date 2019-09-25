@@ -21,7 +21,7 @@ import logging
 import logging.config
 import os
 
-from appconfig import Config, process_search_enabled
+from appconfig import Config, process_search_enabled, process_watched_directory_interval
 import email_settings
 
 CONFIG_MAPPING = {
@@ -61,10 +61,14 @@ CONFIG_MAPPING = {
         "option": "waitOnAutoApprove",
         "type": "int",
     },
+    "watch_directory_method": {
+        "section": "MCPServer",
+        "option": "watch_directory_method",
+        "type": "string",
+    },
     "watch_directory_interval": {
         "section": "MCPServer",
-        "option": "watchDirectoriesPollInterval",
-        "type": "int",
+        "process_function": process_watched_directory_interval,
     },
     "secret_key": {
         "section": "MCPServer",
@@ -120,7 +124,8 @@ watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
 sharedDirectory = /var/archivematica/sharedDirectory/
 processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
 rejectedDirectory = %%sharedPath%%rejected/
-watchDirectoriesPollInterval = 1
+watch_directory_method = poll
+watch_directory_interval = 1
 processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
@@ -240,6 +245,7 @@ PROCESSING_DIRECTORY = config.get("processing_directory")
 PROCESSING_XML_FILE = config.get("processing_xml_file")
 GEARMAN_SERVER = config.get("gearman_server")
 WAIT_ON_AUTO_APPROVE = config.get("wait_on_auto_approve")
+WATCH_DIRECTORY_METHOD = config.get("watch_directory_method")
 WATCH_DIRECTORY_INTERVAL = config.get("watch_directory_interval")
 LIMIT_TASK_THREADS = config.get("limit_task_threads")
 SEARCH_ENABLED = config.get("search_enabled")

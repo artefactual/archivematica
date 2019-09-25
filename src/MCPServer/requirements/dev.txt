@@ -9,10 +9,12 @@ attrs==19.1.0
 click==7.0                # via pip-tools
 django-extensions==1.1.1
 django==1.8.19
+enum34==1.1.6 ; python_version < "3.4"
 filelock==3.0.10
 funcsigs==1.0.2
 functools32==3.2.3.post2
 gearman==2.0.2
+inotify_simple==1.1.8
 jsonschema==2.6.0
 lxml==3.5.0
 mock==2.0.0
