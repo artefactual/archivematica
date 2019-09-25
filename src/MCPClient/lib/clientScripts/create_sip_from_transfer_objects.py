@@ -49,8 +49,9 @@ def call(jobs):
                 sharedPath = job.args[6]
                 sipName = transferName
 
-                tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-                destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"
+                # tmpSIPDir has a trailing slash, destSIPDir does not
+                tmpSIPDir = os.path.join(processingDirectory, sipName, "")
+                destSIPDir = os.path.join(autoProcessSIPDirectory, sipName)
                 archivematicaFunctions.create_structured_directory(
                     tmpSIPDir, manual_normalization=False
                 )
@@ -86,7 +87,7 @@ def call(jobs):
                 diruuids = len(dir_mdls) > 0
 
                 # Create row in SIPs table if one doesn't already exist
-                lookup_path = destSIPDir.replace(sharedPath, "%sharedPath%")
+                lookup_path = destSIPDir.replace(sharedPath, "%sharedPath%") + os.sep
                 try:
                     sip = SIP.objects.get(currentpath=lookup_path)
                     if diruuids:
@@ -202,4 +203,4 @@ def call(jobs):
                 shutil.copy(src, dst)
 
                 # moveSIPTo autoProcessSIPDirectory
-                shutil.move(tmpSIPDir, destSIPDir)
+                shutil.move(tmpSIPDir.rstrip(os.sep), destSIPDir)
