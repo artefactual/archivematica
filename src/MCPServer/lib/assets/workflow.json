@@ -4362,11 +4362,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5"
+                    "link_id": null
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5",
+            "fallback_link_id": null,
             "group": {
                 "en": "Create SIP from Transfer",
                 "es": "Crear SIP a partir de la transferencia",
@@ -4550,40 +4550,6 @@
                 "es": "Preparar AIP",
                 "fr": "Préparer l'AIP",
                 "sv": "Förbered AIP"
-            }
-        },
-        "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/SIPCreation/completedTransfers/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to SIP creation directory for completed transfers",
-                "pt_BR": "Mover para o diretório de criação do SIP para transferências concluídas",
-                "sv": "Flytta till SIP skapande katalogen för färdigställda överföringar"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "3f543585-fa4f-4099-9153-dd6d53572f5c": {
