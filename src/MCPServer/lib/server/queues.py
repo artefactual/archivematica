@@ -33,12 +33,9 @@ class PackageQueue(object):
     PACKAGE_COMPLETED_LINK_IDS = set(
         [
             # Move to SIP creation directory for completed transfers
-            "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5",
             "d27fd07e-d3ed-4767-96a5-44a2251c6d0a",
-            # TODO: there is a pending PR to modify the workflow, after which
-            # Move to SIP Creation will mark package completion.
             # Move to SIP Creation
-            # "39a128e3-c35d-40b7-9363-87f75091e1ff",
+            "39a128e3-c35d-40b7-9363-87f75091e1ff",
             # AIP completed
             "d5a2ef60-a757-483c-a71a-ccbffe6b80da",
             # Move SIP to failed directory
