@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Jobs handling user decisions.
+Jobs relating to user decisions.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import abc
 import logging
 import threading
 
@@ -21,28 +22,32 @@ from main import models
 logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 
 
+@six.add_metaclass(abc.ABCMeta)
 class DecisionJob(Job):
     """A Job that handles a workflow decision point.
 
     The `run` method checks if a choice has been preconfigured. If so,
-    it executes as a normal job. If not, it goes into the decision queue,
-    and resumes via the `decide` method once a decision is made.
+    it executes as a normal job. If not, the `awaiting_decision`
+    attribute is set, and the job returns itself to the package queue,
+    which will mark the job as awaiting a decision.
     """
 
     def __init__(self, *args, **kwargs):
         super(DecisionJob, self).__init__(*args, **kwargs)
 
-        self.awaiting_decision_event = threading.Event()
+        self._awaiting_decision_event = threading.Event()
 
     @property
     def awaiting_decision(self):
-        return self.awaiting_decision_event.is_set()
+        return self._awaiting_decision_event.is_set()
 
     @property
     def workflow(self):
         return self.link.workflow
 
     def run(self, *args, **kwargs):
+        super(DecisionJob, self).run(*args, **kwargs)
+
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
         # Reload the package, in case the path has changed
         self.package.reload()
@@ -68,7 +73,7 @@ class DecisionJob(Job):
     def mark_awaiting_decision(self):
         super(DecisionJob, self).mark_awaiting_decision()
 
-        self.awaiting_decision_event.set()
+        self._awaiting_decision_event.set()
 
     # TODO: this (global?) active agent setting isn't really the concern of
     # the job; move it elsewhere.
@@ -79,13 +84,22 @@ class DecisionJob(Job):
         agent_id = models.UserProfile.objects.get(user_id=user_id).agent_id
         self.package.set_variable("activeAgent", agent_id, None)
 
+    @abc.abstractmethod
+    def get_choices(self):
+        """Returns a dict of value: description choices.
+        """
+
+    @abc.abstractmethod
     def decide(self, choice):
-        raise NotImplementedError
+        """Make a choice, resulting in this job being completed and the
+        next one started.
+        """
 
 
 class NextChainDecisionJob(DecisionJob):
     """
-    Decision that determines the next chain to be executed.
+    A type of workflow decision that determines the next chain to be executed,
+    by UUID.
     """
 
     def get_choices(self):
@@ -193,7 +207,9 @@ class UpdateContextDecisionJob(DecisionJob):
         "dc0ee6b6-ed5f-42a3-bc8f-c9c7ead03ed1": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
     }
 
+    @auto_close_old_connections
     def run(self, *args, **kwargs):
+        # Intentionally don't call super() here
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
         # Reload the package, in case the path has changed
         self.package.reload()

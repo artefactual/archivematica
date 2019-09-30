@@ -1,7 +1,10 @@
 """
-Task class.
+Task class, representing an individual command (usually run on a file or directory).
+Stored in the `Task` model.
+
+Tasks are passed to MCPClient for processing.
 """
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os
@@ -48,6 +51,11 @@ class Task(object):
     @classmethod
     @auto_close_old_connections
     def cleanup_old_db_entries(cls):
+        """Update the status of any in progress tasks.
+
+        This command is run on startup.
+        TODO: we could try to recover, instead of just failing.
+        """
         models.Task.objects.filter(exitcode=None).update(
             exitcode=-1, stderror="MCP shut down while processing."
         )
@@ -61,6 +69,8 @@ class Task(object):
         models.Task.objects.bulk_create(model_objects)
 
     def to_db_model(self, job):
+        """Returns an instance of the `Task` Django model.
+        """
         job_uuid = job.uuid
         file_uuid = self.context.get(r"%fileUUID%", "")
         task_exec = job.link.config.get("execute")

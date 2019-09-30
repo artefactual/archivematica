@@ -2,6 +2,8 @@
 """
 i18n handling.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import pprint
 
 from django.utils.six import text_type, python_2_unicode_compatible

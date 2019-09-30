@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 
@@ -16,11 +16,12 @@ class TaskBackend(object):
     def submit_task(self, job, task):
         """Submit a task as part of the job given, for offline processing.
         """
-        raise NotImplementedError
 
     @abc.abstractmethod
     def wait_for_results(self, job):
         """Generator that yields `Task` objects related to the job given,
         as they are processed by the backend.
+
+        This method should only be called once all tasks related to the job
+        have been submitted, via `submit_task`.
         """
-        raise NotImplementedError

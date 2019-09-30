@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+The PackageQueue class handles job queueing, as it relates to packages.
+"""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import functools
 import logging
@@ -18,7 +21,7 @@ logger = logging.getLogger("archivematica.mcp.server.queues")
 
 
 class PackageQueue(object):
-    """Package queue
+    """Package queue.
 
     This queue throttles `Job` objects belonging to packages, so that at most
     `CONCURRENT_PACKAGES` are active at any one time.
@@ -26,7 +29,8 @@ class PackageQueue(object):
     It also tracks any jobs waiting for decisions in memory. This is a bit of
     a separate concern from package queuing and could be isolated in future.
 
-    Methods on this class should be threadsafe.
+    Methods on this class should be threadsafe; they can be called from any
+    worker thread.
     """
 
     # TODO: make this better by signifying the end of a package in the workflow
@@ -83,10 +87,9 @@ class PackageQueue(object):
         """Add a job to the queue.
 
         If the Job's package is currently "active", it will be added to the
-        queue for immediate processing. Otherwise, it will be added to the
-        package queue.
+        active job queue for immediate processing. Otherwise, it will be
+        queued, until a package has completed.
         """
-
         if self.shutdown_event.is_set():
             raise RuntimeError("Queue stopped.")
 
@@ -138,7 +141,9 @@ class PackageQueue(object):
             )
 
     def work(self):
-        """Enter into an endless loop, pulling jobs from the queue and processing them,
+        """Process the package queue.
+
+        Enters into an endless loop, pulling jobs from the queue and processing them,
         until `stop` is called.
         """
         while not self.shutdown_event.is_set():
@@ -184,14 +189,15 @@ class PackageQueue(object):
         if not next_job:
             return
 
+        # Special case for decision job here.
         if isinstance(next_job, DecisionJob) and next_job.awaiting_decision:
             self.await_decision(next_job)
         else:
             self.schedule_job(next_job)
 
     def _put_package_nowait(self, package, job):
-        """Queue a package for processing when one of the currently active
-        packages finishes.
+        """Queue a package and job for later processing, after one of the
+        currently active packages completes.
         """
         if isinstance(package, DIP):
             self.dip_queue.put_nowait(job)
@@ -201,7 +207,8 @@ class PackageQueue(object):
             self.transfer_queue.put_nowait(job)
 
     def _get_package_job_nowait(self):
-        """Return the next job, prioritizing by package type.
+        """Return a waiting job for an inactive package.
+        Prioritized by package type.
         """
         try:
             return self.dip_queue.get_nowait()

@@ -1,7 +1,8 @@
 """
-Gearman task backend.
+Gearman task backend. Submits `Task` objects to gearman for processing,
+and returns results.
 """
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import uuid
@@ -40,6 +41,11 @@ class GearmanTaskBackend(TaskBackend):
         self.pending_gearman_jobs = {}  # job_uuid: List[GearmanTaskBatch]
 
     def submit_task(self, job, task):
+        """Submit a `Task` (as part of the `Job` given) for processing.
+
+        We add the task to the batch, and only actually send the batch
+        to gearman if it's "full".
+        """
         current_task_batch = self._get_current_task_batch(job.uuid)
         current_task_batch.add_task(task)
 
@@ -96,11 +102,14 @@ class GearmanTaskBackend(TaskBackend):
 
                     completed_request_count += 1
 
-        # Once we've gotten results for all jobs, delete the batches
+        # Once we've gotten results for all tasks, delete the batches
         del self.pending_gearman_jobs[job.uuid]
         del self.current_task_batches[job.uuid]
 
     def _get_current_task_batch(self, job_uuid):
+        """Return the current GearmanTaskBatch for the job, or initialize a new
+        one.
+        """
         try:
             return self.current_task_batches[job_uuid]
         except KeyError:
@@ -115,6 +124,9 @@ class GearmanTaskBackend(TaskBackend):
 
 
 class GearmanTaskBatch(object):
+    """A collection of `Task` objects, to be submitted as one gearman job.
+    """
+
     def __init__(self):
         self.uuid = uuid.uuid4()
         self.tasks = []

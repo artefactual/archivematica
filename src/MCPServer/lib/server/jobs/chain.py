@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
 """
-Job chain logic; creates jobs from a workflow chain.
+Job chain logic.
+
+The `JobChain` class determines which job should be run next, based on
+the workflow and the exit code of the previous job. It also stores context
+provided by previous jobs in the same chain (e.g. choices for a decision).
+
+This module knows about all `Job` subclasses, and will instantiate the correct
+one by looking at the workflow.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 

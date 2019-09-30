@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Package management."""
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 import ast
@@ -507,7 +508,7 @@ def get_file_replacement_mapping(file_obj, unit_directory):
 
 @six.add_metaclass(abc.ABCMeta)
 class Package(object):
-    """The end result of a workflow (AIP, SIP, etc.)
+    """A `Package` can be a Transfer, a SIP, or a DIP.
     """
 
     def __init__(self, current_path, uuid):
@@ -531,12 +532,14 @@ class Package(object):
 
     @current_path.setter
     def current_path(self, value):
-        """Ensure that we always have a real (no shared dir vars) path.
+        """The real (no shared dir vars) path to the package.
         """
         self._current_path = value.replace(r"%sharedPath%", settings.SHARED_DIRECTORY)
 
     @property
     def current_path_for_db(self):
+        """The path to the package, as stored in the database.
+        """
         return self.current_path.replace(settings.SHARED_DIRECTORY, "%sharedPath%", 1)
 
     @property
@@ -550,11 +553,14 @@ class Package(object):
 
     @property
     def context(self):
+        """Returns a `PackageContext` for this package.
+        """
         # This needs to be reloaded from the db every time, because new values
         # could have been added by a client script.
         # TODO: pass context changes back from client
         return PackageContext.load_from_db(self.uuid)
 
+    @abc.abstractmethod
     def reload(self):
         raise NotImplementedError
 

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Base class for Job.
+A base class for other Job types to inherit from.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import abc
 import logging
 import uuid
 
-from django.utils import timezone
+from django.utils import six, timezone
 
 from server.db import auto_close_old_connections
 
@@ -18,17 +19,18 @@ from main import models
 logger = logging.getLogger("archivematica.mcp.server.jobs")
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Job(object):
     """
-    A single job, corresponding to a workflow link, and the `Job` model in the database.
+    A single job, corresponding to a workflow link, and the `Job` model in the
+    database.
 
-    There are various types of jobs, handled by subclasses:
-        * `ClientScriptJob`, handling Jobs to be execute on MCPClient
-        * `DecisionJob`, handling workflow decision points
-        * `LocalJob`, handling work done directly on MCPServer
+    Subclasses must implement a `run` method; it will be called in a thread via
+    `executor.submit`, and should return the next job to be processed.
     """
 
-    # Mirror job model statuses
+    # Mirror job model statuses, so that we can mostly avoid referencing
+    # the job model
     STATUSES = models.Job.STATUS
     STATUS_UNKNOWN = models.Job.STATUS_UNKNOWN
     STATUS_AWAITING_DECISION = models.Job.STATUS_AWAITING_DECISION
@@ -48,18 +50,20 @@ class Job(object):
         # always zero for non task jobs
         self.exit_code = 0
 
-    @property
-    def name(self):
-        return self.link.config.get("execute", "").lower()
-
     @classmethod
     @auto_close_old_connections
     def cleanup_old_db_entries(cls):
+        """Update the status of any in progress jobs.
+
+        This command is run on startup.
+        TODO: we could try to recover, instead of just failing.
+        """
         models.Job.objects.filter(currentstep=cls.STATUS_AWAITING_DECISION).delete()
         models.Job.objects.filter(currentstep=cls.STATUS_EXECUTING_COMMANDS).update(
             currentstep=cls.STATUS_FAILED
         )
 
+    @abc.abstractmethod
     @auto_close_old_connections
     def run(self):
         """
@@ -68,7 +72,6 @@ class Job(object):
         This method is executed via ThreadPoolExecutor and returns the _next_ job
         to process.
         """
-        raise NotImplementedError
 
     @auto_close_old_connections
     def save_to_db(self):

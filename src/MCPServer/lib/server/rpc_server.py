@@ -7,6 +7,7 @@ TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import calendar
 import cPickle
@@ -112,7 +113,8 @@ class RPCServer(GearmanWorker):
         self.package_queue = package_queue
         self.workflow = workflow
         self._register_tasks()
-        self.set_client_id(gethostname() + "_MCPServer")
+        client_id = b"{}_MCPServer".format(gethostname())
+        self.set_client_id(client_id)
 
     def after_poll(self, any_activity):
         """Stop the work loop if the shutdown event is set.

@@ -3,7 +3,7 @@
 """
 Shared executor, to spread work across multiple threads.
 """
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import multiprocessing
 
@@ -11,7 +11,8 @@ import concurrent.futures
 
 
 executor = concurrent.futures.ThreadPoolExecutor(
-    # Lots of workers, since we're mostly IO bound
+    # Lower than the default, since we typically run many processes.
+    # Still quite a few workers though, since we're mostly IO bound.
     max_workers=multiprocessing.cpu_count()
     * 3
 )

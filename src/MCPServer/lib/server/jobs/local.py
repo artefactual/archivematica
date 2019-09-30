@@ -3,7 +3,12 @@
 """
 Jobs executed locally in MCP server.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import abc
 import logging
+
+from django.utils import six
 
 from main import models
 
@@ -14,10 +19,12 @@ from server.jobs.base import Job
 logger = logging.getLogger("archivematica.mcp.server.jobs.local")
 
 
+@six.add_metaclass(abc.ABCMeta)
 class LocalJob(Job):
     """Base class for jobs that are executed directly."""
 
     def run(self, *args, **kwargs):
+        super(LocalJob, self).run(*args, **kwargs)
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
 
         # Reload the package, in case the path has changed
@@ -31,7 +38,6 @@ class GetUnitVarLinkJob(LocalJob):
 
     # TODO: replace this concept, if possible
 
-    @auto_close_old_connections
     def run(self, *args, **kwargs):
         super(GetUnitVarLinkJob, self).run(*args, **kwargs)
 
