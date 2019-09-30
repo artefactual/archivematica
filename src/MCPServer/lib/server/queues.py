@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import functools
 import logging
-import threading
 import Queue
+import threading
 
 from django.conf import settings
 from django.utils import six
@@ -147,16 +147,23 @@ class PackageQueue(object):
         until `stop` is called.
         """
         while not self.shutdown_event.is_set():
-            # block until a job is waiting
-            job = self.job_queue.get(timeout=None)
-            result = self.executor.submit(job.run)
-            result.add_done_callback(self._job_completed_callback)
+            self.process_one_job(timeout=None)
 
-            if job.link.id in self.PACKAGE_COMPLETED_LINK_IDS:
-                package_done_callback = functools.partial(
-                    self._package_completed_callback, job.package
-                )
-                result.add_done_callback(package_done_callback)
+    def process_one_job(self, timeout=None):
+        """Process a single job.
+
+        Only called by `work` and unit tests.
+        """
+        # block until a job is waiting
+        job = self.job_queue.get(timeout=timeout)
+        result = self.executor.submit(job.run)
+        result.add_done_callback(self._job_completed_callback)
+
+        if job.link.id in self.PACKAGE_COMPLETED_LINK_IDS:
+            package_done_callback = functools.partial(
+                self._package_completed_callback, job.package
+            )
+            result.add_done_callback(package_done_callback)
 
     def stop(self):
         """Trigger queue shutdown.
@@ -231,19 +238,28 @@ class PackageQueue(object):
         """Mark a package as active, allowing jobs related to it to process.
         """
         with self.active_package_lock:
-            self.active_packages[package.uuid] = package
-
-        if self.debug:
-            logger.debug("Marked package %s as active", package.uuid)
+            if package.uuid not in self.active_packages:
+                self.active_packages[package.uuid] = package
+                if self.debug:
+                    logger.debug("Marked package %s as active", package.uuid)
+            else:
+                logger.warning(
+                    "Package %s was activated, but was already active", package.uuid
+                )
 
     def deactivate_package(self, package):
         """Mark a package as inactive.
         """
         with self.active_package_lock:
-            del self.active_packages[package.uuid]
-
-        if self.debug:
-            logger.debug("Marked package %s as inactive", package.uuid)
+            if package.uuid in self.active_packages:
+                del self.active_packages[package.uuid]
+                if self.debug:
+                    logger.debug("Marked package %s as inactive", package.uuid)
+            else:
+                logger.warning(
+                    "Package %s was deactivated, but was not marked active",
+                    package.uuid,
+                )
 
     def queue_next_job(self):
         """Load another job into the active job queue.
@@ -266,8 +282,8 @@ class PackageQueue(object):
                 + self.transfer_queue.qsize()
             )
             logger.debug(
-                "Released job job %s (%s %s). Current queue size: %s",
-                job.id,
+                "Released job %s (%s %s). Current queue size: %s",
+                job.uuid,
                 package.__class__.__name__,
                 package.uuid,
                 queue_size,
@@ -279,6 +295,11 @@ class PackageQueue(object):
         job_id = six.text_type(job.uuid)
         with self.waiting_choices_lock:
             self.waiting_choices[job_id] = job
+
+        self.deactivate_package(job.package)
+
+        if self.debug:
+            logger.debug("Marked job %s as awaiting a decision", job.uuid)
 
     def jobs_awaiting_decisions(self):
         """Returns all jobs waiting for input.
@@ -298,4 +319,8 @@ class PackageQueue(object):
             next_job = decision.decide(choice)
             del self.waiting_choices[job_uuid]
 
-        self.schedule_job(next_job)
+        if next_job is not None:
+            self.schedule_job(next_job)
+
+        if self.debug:
+            logger.debug("Decision made for job %s (%s)", decision.uuid, choice)
