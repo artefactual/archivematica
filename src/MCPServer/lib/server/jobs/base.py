@@ -75,7 +75,7 @@ class Job(object):
         return models.Job.objects.create(
             jobuuid=self.uuid,
             jobtype=self.description,
-            directory=self.package.current_path,
+            directory=self.package.current_path_for_db,
             sipuuid=self.package.uuid,
             currentstep=self.STATUS_EXECUTING_COMMANDS,
             unittype=self.package.JOB_UNIT_TYPE,

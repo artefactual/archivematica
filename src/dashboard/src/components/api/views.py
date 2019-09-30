@@ -597,7 +597,6 @@ def reingest(request, target):
     shared_directory_path = django_settings.SHARED_DIRECTORY
     source = os.path.join(shared_directory_path, "tmp", sip_name)
 
-    reingest_uuid = sip_uuid
     if target == "transfer":
         dest = os.path.join(
             shared_directory_path,
@@ -605,30 +604,33 @@ def reingest(request, target):
             "activeTransfers",
             "standardTransfer",
         )
-        # If the destination dir has a UUID, remove it
+        reingest_uuid = str(uuid.uuid4())
+        # If the destination dir has a UUID, remove it and add the reingest uuid
         sip_basename = os.path.basename(os.path.normpath(sip_name))
         name_has_uuid = (
             len(sip_basename) > 36
             and re.match(UUID_REGEX, sip_basename[-36:]) is not None
         )
         if name_has_uuid:
-            dest = os.path.join(dest, sip_basename[:-37])
-            if os.path.isdir(dest):
-                response = {
-                    "error": True,
-                    "message": "There is already a transfer in standardTransfer with the same name.",
-                }
-                return helpers.json_response(response, status_code=400)
+            sip_basename = sip_basename[:-37]
+
+        sip_basename = "{}-{}".format(sip_basename, reingest_uuid)
+        dest = os.path.join(dest, sip_basename)
+        if os.path.isdir(dest):
+            response = {
+                "error": True,
+                "message": "There is already a transfer in standardTransfer with the same name.",
+            }
+            return helpers.json_response(response, status_code=400)
         dest = os.path.join(dest, "")
 
         # Persist transfer record in the database
         tdetails = {
             "currentlocation": SHARED_PATH_TEMPLATE_VAL
             + dest[len(shared_directory_path) :],
-            "uuid": str(uuid.uuid4()),
+            "uuid": reingest_uuid,
             "type": "Archivematica AIP",
         }
-        reingest_uuid = tdetails["uuid"]
         models.Transfer.objects.create(**tdetails)
         LOGGER.info(
             "Transfer saved in the database (uuid=%s, type=%s, location=%s)",
@@ -641,6 +643,7 @@ def reingest(request, target):
         dest = os.path.join(
             shared_directory_path, "watchedDirectories", "system", "reingestAIP", ""
         )
+        reingest_uuid = sip_uuid
 
     # Move to watched directory
     try:

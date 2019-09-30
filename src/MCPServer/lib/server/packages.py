@@ -740,8 +740,7 @@ class SIP(Package):
         if sip_uuid:
             sip_obj, created = models.SIP.objects.get_or_create(
                 uuid=sip_uuid,
-                sip_type="SIP",
-                defaults={"currentpath": path, "diruuids": False},
+                defaults={"sip_type": "SIP", "currentpath": path, "diruuids": False},
             )
             logger.info("Updating SIP %s path: %s", sip_obj.uuid, path)
             if not created and sip_obj.currentpath != path:
