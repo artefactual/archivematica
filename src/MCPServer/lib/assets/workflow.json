@@ -2582,11 +2582,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
+                    "link_id": "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "fallback_link_id": "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa",
             "group": {
                 "en": "Characterize and extract metadata",
                 "es": "Caracterizar y extraer metadatos",
@@ -6267,6 +6267,38 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
+            }
+        },
+        "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%clientAssetsDirectory%premis/premis.xsd\" \"%SIPDirectory%metadata/premis.xml\"",
+                "execute": "loadPREMISEventsFromXML_v1.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Load PREMIS events from metadata/premis.xml"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "group": {
+                "en": "Characterize and extract metadata",
+                "es": "Caracterizar y extraer metadatos",
+                "fr": "Caractériser et extraire les métadonnées",
+                "ja": "メタデータの特徴付けと抽出",
+                "pt_BR": "Caracterizar e extrair metadados",
+                "sv": "Karaktärisera och extrahera metadata"
             }
         },
         "66c9c178-2224-41c6-9c0b-dcb60ff57b1a": {
