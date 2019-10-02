@@ -8,7 +8,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import functools
 import getpass
 import logging
-import multiprocessing
 import os
 import signal
 import sys
@@ -17,6 +16,8 @@ import threading
 import django
 
 django.setup()
+
+from django.conf import settings
 
 from server import metrics, rpc_server, shared_dirs
 from server.executor import executor
@@ -27,9 +28,6 @@ from server.tasks import Task
 from server.utils import uuid_from_path
 from server.watch_dirs import watch_directories
 from server.workflow import load_default_workflow
-
-
-RPC_SERVER_THREADS = multiprocessing.cpu_count()
 
 
 logger = logging.getLogger("archivematica.mcp.server")
@@ -94,10 +92,10 @@ def main():
 
     metrics.start_prometheus_server()
 
-    package_queue = PackageQueue(executor, shutdown_event, debug=False)
+    package_queue = PackageQueue(executor, shutdown_event, debug=settings.DEBUG)
 
     rpc_threads = []
-    for x in range(RPC_SERVER_THREADS):
+    for x in range(settings.RPC_THREADS):
         rpc_thread = threading.Thread(
             target=rpc_server.start,
             args=(workflow, shutdown_event, package_queue),

@@ -14,11 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import division
 
 import StringIO
 import json
 import logging
 import logging.config
+import math
+import multiprocessing
 import os
 
 from appconfig import Config, process_search_enabled, process_watched_directory_interval
@@ -85,6 +88,12 @@ CONFIG_MAPPING = {
         "option": "concurrent_packages",
         "type": "int",
     },
+    "rpc_threads": {"section": "MCPServer", "option": "rpc_threads", "type": "int"},
+    "worker_threads": {
+        "section": "MCPServer",
+        "option": "worker_threads",
+        "type": "int",
+    },
     "storage_service_client_timeout": {
         "section": "MCPServer",
         "option": "storage_service_client_timeout",
@@ -129,7 +138,7 @@ processingXMLFile = processingMCP.xml
 waitOnAutoApprove = 0
 search_enabled = true
 batch_size = 128
-concurrent_packages = 4
+rpc_threads = 4
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
@@ -235,6 +244,13 @@ else:
     logging.config.dictConfig(LOGGING)
 
 
+def concurrent_packages_default():
+    """Default to 1/2 of CPU count, rounded up.
+    """
+    cpu_count = multiprocessing.cpu_count()
+    return int(math.ceil(cpu_count / 2))
+
+
 SHARED_DIRECTORY = config.get("shared_directory")
 WATCH_DIRECTORY = config.get("watch_directory")
 REJECTED_DIRECTORY = config.get("rejected_directory")
@@ -246,7 +262,12 @@ WATCH_DIRECTORY_METHOD = config.get("watch_directory_method")
 WATCH_DIRECTORY_INTERVAL = config.get("watch_directory_interval")
 SEARCH_ENABLED = config.get("search_enabled")
 BATCH_SIZE = config.get("batch_size")
-CONCURRENT_PACKAGES = config.get("concurrent_packages")
+CONCURRENT_PACKAGES = config.get(
+    "concurrent_packages", default=concurrent_packages_default()
+)
+RPC_THREADS = config.get("rpc_threads")
+WORKER_THREADS = config.get("worker_threads", default=multiprocessing.cpu_count() + 1)
+
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get("storage_service_client_timeout")
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get(
     "storage_service_client_quick_timeout"

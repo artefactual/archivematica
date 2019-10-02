@@ -81,7 +81,10 @@ class PackageQueue(object):
         self.dip_queue = Queue.Queue(maxsize=max_queued_packages)
 
         if self.debug:
-            logger.debug("%s initialized", self.__class__.__name__)
+            logger.debug(
+                "PackageQueue initialized. Max concurrent packages is %s.",
+                self.max_concurrent_packages,
+            )
 
     def schedule_job(self, job):
         """Add a job to the queue.
