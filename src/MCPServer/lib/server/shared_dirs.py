@@ -34,8 +34,8 @@ DEFAULT_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
@@ -125,8 +125,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Create SIP(s) -->
     <preconfiguredChoice>
@@ -140,8 +140,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Transcribe files (OCR) -->
     <preconfiguredChoice>
-      <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
-      <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
+      <appliesTo>82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6</appliesTo>
+      <goToChain>0a24787c-00e3-4710-b324-90e792bfb484</goToChain>
     </preconfiguredChoice>
     <!-- Perform file format identification (Transfer) -->
     <preconfiguredChoice>
