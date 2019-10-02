@@ -156,6 +156,7 @@ def _check_filepath_exists(filepath):
 _default_location_uuid = None
 
 
+@auto_close_old_connections()
 def _default_transfer_source_location_uuid():
     global _default_location_uuid
     if _default_location_uuid is not None:
@@ -165,6 +166,7 @@ def _default_transfer_source_location_uuid():
     return _default_location_uuid
 
 
+@auto_close_old_connections()
 def _copy_from_transfer_sources(paths, relative_destination):
     """Copy files from source locations to the currently processing location.
 
@@ -226,6 +228,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
         )
 
 
+@auto_close_old_connections()
 def _move_to_internal_shared_dir(filepath, dest, transfer):
     """Move package to an internal Archivematica directory.
 
@@ -255,7 +258,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
         transfer.save()
 
 
-@auto_close_old_connections
+@auto_close_old_connections()
 def create_package(
     package_queue,
     name,
@@ -548,6 +551,7 @@ class Package(object):
         return basename.replace("-" + six.text_type(self.uuid), "")
 
     @property
+    @auto_close_old_connections()
     def base_queryset(self):
         return models.File.objects.filter(sip_id=self.uuid)
 
@@ -562,7 +566,7 @@ class Package(object):
 
     @abc.abstractmethod
     def reload(self):
-        raise NotImplementedError
+        pass
 
     def get_replacement_mapping(self, filter_subdir_path=None):
         mapping = BASE_REPLACEMENTS.copy()
@@ -584,53 +588,58 @@ class Package(object):
 
         return mapping
 
-    @auto_close_old_connections
     def files(
         self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
     ):
         """Generator that yields all files associated with the package.
         """
-        queryset = self.base_queryset
+        with auto_close_old_connections():
+            queryset = self.base_queryset
 
-        if filter_filename_start:
-            # TODO: regex filter
-            raise NotImplementedError("filter_filename_start is not implemented")
-        if filter_filename_end:
-            queryset = queryset.filter(currentlocation__endswith=filter_filename_end)
-        if filter_subdir:
-            filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
-            queryset = queryset.filter(currentlocation__startswith=filter_path)
-
-        # If we don't have any matching files in the database, we're in the process of
-        # generating file UUIDs, so walk the filesystem.
-        # TODO: restructure workflow to remove these cases.
-        if not queryset.exists():
-            start_path = self.current_path.encode("utf-8")  # use bytes to return bytes
+            if filter_filename_start:
+                # TODO: regex filter
+                raise NotImplementedError("filter_filename_start is not implemented")
+            if filter_filename_end:
+                queryset = queryset.filter(
+                    currentlocation__endswith=filter_filename_end
+                )
             if filter_subdir:
-                start_path = start_path + filter_subdir.encode("utf-8")
+                filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
+                queryset = queryset.filter(currentlocation__startswith=filter_path)
 
-            for basedir, subdirs, files in scandir.walk(start_path):
-                for file_name in files:
-                    if (
-                        filter_filename_start
-                        and not file_name.startswith(filter_filename_start)
-                    ) or (
-                        filter_filename_end
-                        and not file_name.endswith(filter_filename_end)
-                    ):
-                        continue
+            # If we don't have any matching files in the database, we're in the process of
+            # generating file UUIDs, so walk the filesystem.
+            # TODO: restructure workflow to remove these cases.
+            if not queryset.exists():
+                start_path = self.current_path.encode(
+                    "utf-8"
+                )  # use bytes to return bytes
+                if filter_subdir:
+                    start_path = start_path + filter_subdir.encode("utf-8")
 
-                    file_path = os.path.join(basedir, file_name)
-                    yield {
-                        r"%relativeLocation%": file_path,
-                        # empty uuid expects the string 'None'
-                        r"%fileUUID%": "None",
-                        r"%fileGrpUse%": "",
-                    }
-        else:
-            for file_obj in queryset.iterator():
-                yield get_file_replacement_mapping(file_obj, self.current_path)
+                for basedir, subdirs, files in scandir.walk(start_path):
+                    for file_name in files:
+                        if (
+                            filter_filename_start
+                            and not file_name.startswith(filter_filename_start)
+                        ) or (
+                            filter_filename_end
+                            and not file_name.endswith(filter_filename_end)
+                        ):
+                            continue
 
+                        file_path = os.path.join(basedir, file_name)
+                        yield {
+                            r"%relativeLocation%": file_path,
+                            # empty uuid expects the string 'None'
+                            r"%fileUUID%": "None",
+                            r"%fileGrpUse%": "",
+                        }
+            else:
+                for file_obj in queryset.iterator():
+                    yield get_file_replacement_mapping(file_obj, self.current_path)
+
+    @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
         """Sets a UnitVariable, which tracks choices made by users during processing.
         """
@@ -660,7 +669,7 @@ class DIP(Package):
     JOB_UNIT_TYPE = "unitDIP"
 
     @classmethod
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def get_or_create_from_db_by_path(cls, path):
         """Matches a directory to a database DIP by its appended UUID, or path."""
         path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
@@ -679,11 +688,6 @@ class DIP(Package):
             logger.info("Creating DIP %s at %s", dip_obj.uuid, path)
 
         return cls(path, dip_obj.uud)
-
-    def reload(self):
-        """Reload is called for all unit types, but is a no-op for DIPs.
-        """
-        pass
 
     def get_replacement_mapping(self, filter_subdir_path=None):
         mapping = super(DIP, self).get_replacement_mapping(
@@ -706,9 +710,11 @@ class Transfer(Package):
     JOB_UNIT_TYPE = "unitTransfer"
 
     @property
+    @auto_close_old_connections()
     def base_queryset(self):
         return models.File.objects.filter(transfer_id=self.uuid)
 
+    @auto_close_old_connections()
     def reload(self):
         transfer = models.Transfer.objects.get(uuid=self.uuid)
         self.current_path = transfer.currentlocation
@@ -737,7 +743,7 @@ class SIP(Package):
         self.sip_type = None
 
     @classmethod
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def get_or_create_from_db_by_path(cls, path):
         """Matches a directory to a database SIP by its appended UUID, or path."""
         path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
@@ -760,7 +766,7 @@ class SIP(Package):
 
         return cls(path, sip_obj.uuid)
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def reload(self):
         sip = models.SIP.objects.get(uuid=self.uuid)
         self.current_path = sip.currentpath
@@ -815,6 +821,7 @@ class PackageContext(object):
         del self._data[key]
 
     @classmethod
+    @auto_close_old_connections()
     def load_from_db(cls, uuid):
         """
         Loads a context from the UnitVariable table.

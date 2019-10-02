@@ -51,7 +51,7 @@ class Job(object):
         self.exit_code = 0
 
     @classmethod
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def cleanup_old_db_entries(cls):
         """Update the status of any in progress jobs.
 
@@ -64,7 +64,6 @@ class Job(object):
         )
 
     @abc.abstractmethod
-    @auto_close_old_connections
     def run(self):
         """
         Run the actual job.
@@ -73,7 +72,7 @@ class Job(object):
         to process.
         """
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def save_to_db(self):
         return models.Job.objects.create(
             jobuuid=self.uuid,
@@ -88,13 +87,13 @@ class Job(object):
             microservicechainlink=self.link.id,
         )
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def mark_awaiting_decision(self):
         return models.Job.objects.filter(jobuuid=self.uuid).update(
             currentstep=self.STATUS_AWAITING_DECISION
         )
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def mark_complete(self):
         logger.debug(
             "%s %s done with exit code %s",

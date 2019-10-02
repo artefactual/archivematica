@@ -49,7 +49,7 @@ class Task(object):
         self.finished_timestamp = None
 
     @classmethod
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def cleanup_old_db_entries(cls):
         """Update the status of any in progress tasks.
 
@@ -61,7 +61,7 @@ class Task(object):
         )
 
     @classmethod
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def bulk_log(self, tasks, job):
         """Log tasks to the database, in bulk.
         """

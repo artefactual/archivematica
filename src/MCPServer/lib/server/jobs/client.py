@@ -106,6 +106,7 @@ class ClientScriptJob(Job):
 
         return command
 
+    @auto_close_old_connections()
     def run(self, *args, **kwargs):
         super(ClientScriptJob, self).run(*args, **kwargs)
 
@@ -154,7 +155,7 @@ class ClientScriptJob(Job):
         """Hook for child classes.
         """
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def update_status_from_exit_code(self):
         status_code = self.link.get_status_id(self.exit_code)
 
@@ -189,7 +190,7 @@ class FilesClientScriptJob(ClientScriptJob):
         return self.link.config.get("filter_file_end", "")
 
     @property
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def filter_subdir(self):
         """Returns directory to filter files on.
 

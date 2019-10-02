@@ -23,6 +23,7 @@ logger = logging.getLogger("archivematica.mcp.server.jobs.local")
 class LocalJob(Job):
     """Base class for jobs that are executed directly."""
 
+    @auto_close_old_connections()
     def run(self, *args, **kwargs):
         super(LocalJob, self).run(*args, **kwargs)
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
@@ -38,6 +39,7 @@ class GetUnitVarLinkJob(LocalJob):
 
     # TODO: replace this concept, if possible
 
+    @auto_close_old_connections()
     def run(self, *args, **kwargs):
         super(GetUnitVarLinkJob, self).run(*args, **kwargs)
 
@@ -72,7 +74,6 @@ class SetUnitVarLinkJob(LocalJob):
 
     # TODO: replace this concept, if possible
 
-    @auto_close_old_connections
     def run(self, *args, **kwargs):
         super(SetUnitVarLinkJob, self).run(*args, **kwargs)
 

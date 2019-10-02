@@ -77,7 +77,7 @@ class DecisionJob(Job):
 
     # TODO: this (global?) active agent setting isn't really the concern of
     # the job; move it elsewhere.
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def set_active_agent(self, user_id):
         if user_id is None:
             return
@@ -114,7 +114,7 @@ class NextChainDecisionJob(DecisionJob):
 
         return choices
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def decide(self, choice):
         # TODO: fix circular imports :(
         from server.jobs import JobChain
@@ -158,7 +158,7 @@ class OutputDecisionJob(DecisionJob):
 
         return choices
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def decide(self, choice):
         if choice not in self.get_choices():
             raise ValueError("{} is not one of the available choices".format(choice))
@@ -207,7 +207,7 @@ class UpdateContextDecisionJob(DecisionJob):
         "dc0ee6b6-ed5f-42a3-bc8f-c9c7ead03ed1": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
     }
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def run(self, *args, **kwargs):
         # Intentionally don't call super() here
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
@@ -235,7 +235,7 @@ class UpdateContextDecisionJob(DecisionJob):
             self.mark_awaiting_decision()
             return self
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def _get_dashboard_setting_choice(self):
         """Load settings associated to this task into dictionary.
 
@@ -294,7 +294,7 @@ class UpdateContextDecisionJob(DecisionJob):
 
         return choices
 
-    @auto_close_old_connections
+    @auto_close_old_connections()
     def decide(self, choice, user_id=None):
         # TODO: DRY with sibling classes
         if choice not in self.get_choices():

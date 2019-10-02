@@ -18,7 +18,7 @@ import re
 import time
 
 from django.conf import settings as django_settings
-from django.db import close_old_connections, connection
+from django.db import connection
 from django.utils import six
 from django.utils.six.moves import configparser
 from gearman import GearmanWorker
@@ -28,6 +28,7 @@ from lxml import etree
 
 from main.models import Job, SIP, Transfer
 
+from server.db import auto_close_old_connections
 from server.packages import create_package, get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
 
@@ -165,9 +166,8 @@ class RPCServer(GearmanWorker):
         )
 
     def _wrap_handler_method(self, name, handler, **opts):
+        @auto_close_old_connections()
         def wrap(worker, job):
-            close_old_connections()
-
             args = [worker, job]
             if opts["expect_payload"]:
                 payload = cPickle.loads(job.data)
