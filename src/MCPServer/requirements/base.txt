@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
+contextdecorator==0.10.0 ; python_version < "3.2"
 django-extensions==1.1.1
 django==1.8.19
 enum34==1.1.6 ; python_version < "3.4"
