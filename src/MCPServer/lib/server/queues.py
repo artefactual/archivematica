@@ -150,15 +150,20 @@ class PackageQueue(object):
         until `stop` is called.
         """
         while not self.shutdown_event.is_set():
-            self.process_one_job(timeout=None)
+            # Using a timeout here allows shutdown signals to fire
+            self.process_one_job(timeout=1.0)
 
     def process_one_job(self, timeout=None):
-        """Process a single job.
+        """Process a single job, if one is queued before `timeout`.
 
         Only called by `work` and unit tests.
         """
         # block until a job is waiting
-        job = self.job_queue.get(timeout=timeout)
+        try:
+            job = self.job_queue.get(timeout=timeout)
+        except Queue.Empty:
+            return
+
         result = self.executor.submit(job.run)
         result.add_done_callback(self._job_completed_callback)
 

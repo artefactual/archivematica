@@ -10,7 +10,6 @@ import getpass
 import logging
 import os
 import signal
-import sys
 import threading
 
 import django
@@ -62,16 +61,11 @@ def watched_dir_handler(package_queue, path, watched_dir):
 
 
 def signal_handler(signal, frame):
-    """Used to handle the stop/kill command signals (SIGKILL)"""
-    logger.info("Received signal %s in frame %s", signal, frame)
+    """Used to handle the stop/kill command signals (SIGINT, SIGKILL)"""
+    logger.info("Received termination signal (%s)", signal)
 
     shutdown_event.set()
-    executor.shutdown(wait=True)
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-    sys.exit(0)
+    executor.shutdown(wait=False)
 
 
 def main():
@@ -112,13 +106,13 @@ def main():
     )
     watch_dir_thread.start()
 
-    # Blocks until shutdown is called by a signal handler
+    # Blocks until shutdown_event is set by signal_handler
     package_queue.work()
 
     # Cleanup threads
     watch_dir_thread.join(1.0)
     for thread in rpc_threads:
-        thread.join(1.0)
+        thread.join(0.1)
     logger.debug("RPC threads stopped.")
 
     logger.info("MCP server shut down complete.")
