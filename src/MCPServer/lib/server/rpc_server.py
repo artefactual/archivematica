@@ -108,11 +108,12 @@ class RPCServer(GearmanWorker):
     # the partial approval of AIP reingest.
     APPROVE_AIP_REINGEST_CHAIN_ID = "9520386f-bb6d-4fb9-a6b6-5845ef39375f"
 
-    def __init__(self, workflow, shutdown_event, package_queue):
+    def __init__(self, workflow, shutdown_event, package_queue, executor):
         super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
+        self.workflow = workflow
         self.shutdown_event = shutdown_event
         self.package_queue = package_queue
-        self.workflow = workflow
+        self.executor = executor
         self._register_tasks()
         client_id = b"{}_MCPServer".format(gethostname())
         self.set_client_id(client_id)
@@ -249,6 +250,7 @@ class RPCServer(GearmanWorker):
         """
         args = (
             self.package_queue,
+            self.executor,
             payload.get("name"),
             payload.get("type"),
             payload.get("accession"),
@@ -484,8 +486,8 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
     return ret
 
 
-def start(workflow, shutdown_event, package_queue):
-    worker = RPCServer(workflow, shutdown_event, package_queue)
+def start(workflow, shutdown_event, package_queue, executor):
+    worker = RPCServer(workflow, shutdown_event, package_queue, executor)
     logger.debug("Started RPC server.")
 
     fail_max_sleep = 30

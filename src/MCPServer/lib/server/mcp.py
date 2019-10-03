@@ -5,6 +5,7 @@ Main mcpserver entrypoint.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import concurrent.futures
 import functools
 import getpass
 import logging
@@ -86,13 +87,19 @@ def main():
 
     metrics.start_prometheus_server()
 
+    executor = concurrent.futures.ThreadPoolExecutor(
+        # Lower than the default, since we typically run many processes per system.
+        # Defaults to the number of cores available, which is twice as many as the
+        # default concurrent packages limit.
+        max_workers=settings.WORKER_THREADS
+    )
     package_queue = PackageQueue(executor, shutdown_event, debug=settings.DEBUG)
 
     rpc_threads = []
     for x in range(settings.RPC_THREADS):
         rpc_thread = threading.Thread(
             target=rpc_server.start,
-            args=(workflow, shutdown_event, package_queue),
+            args=(workflow, shutdown_event, package_queue, executor),
             name="RPCServer-{}".format(x),
         )
         rpc_thread.start()

@@ -21,7 +21,6 @@ from archivematicaFunctions import unicodeToStr
 from main import models
 
 from server.db import auto_close_old_connections
-from server.executor import executor
 from server.jobs import JobChain
 from server.processing_config import copy_processing_config
 from server.utils import uuid_from_path
@@ -261,6 +260,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
 @auto_close_old_connections()
 def create_package(
     package_queue,
+    executor,
     name,
     type_,
     accession,
