@@ -31,6 +31,29 @@ class PackageQueue(object):
 
     Methods on this class should be threadsafe; they can be called from any
     worker thread.
+
+    This process happens when a `Job` is scheduled via `PackageQueue.schedule_job`.
+
+    1. If there are too many active packages, the `Job` is placed on a deferred
+       package queue and held until a package stops processing (packages stop
+       processing when they reach a decision point in the workflow that hasn't
+       been pre configured, or when they hit specific workflow links denoting
+       SIP/Transfer completion or failure). If there is room to process the
+       package, the job is placed on an active job queue, which is the consumed
+       by the processing loop running on the main thread.
+    2. The processing loop retrieves any jobs from the active queue, and
+       schedules their `run` method for execution in a worker thread (via
+       `ThreadPoolExecutor.submit`).
+    3. The `Job.run` method executes. If it is a `ClientScriptJob` (executing
+       on MCPClient), it generates the `Task` objects required, and sends them
+       to MCPClient via `GearmanTaskBackend`, and waits for the results. All of
+       this happens on the one worker thread.
+    4. On the completion of tasks (i.e. results are returned by Gearman),
+       `Job.run` returns the _next_ job to schedule, if any. In practice this
+       is usually retrieved from the `JobChain` via `next(self.job_chain)`.
+    5. Back in the main thread, a callback attached to the result of `Job.run`
+       triggers adding the next job to the active job queue. This cycle
+       continues until the workflow chain ends.
     """
 
     # TODO: make this better by signifying the end of a package in the workflow

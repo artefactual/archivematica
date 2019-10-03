@@ -1,6 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Main mcpserver entrypoint.
+Start and run MCPServer via the `main` function.
+
+`main` goes through the following steps:
+1. A signal listener is setup to handle shutdown on SIGINT/SIGTERM events.
+2. The default workflow is loaded (from workflow.json).
+3. The configured SHARED_DIRECTORY is populated with the expected directory
+    structure, and default processing configs added.
+4. Any in progress Job and Task entries in the database are marked as errors,
+    as they are presumed to have been the result of a shutdown while processing.
+5. If Prometheus metrics are enabled, an thread is started to serve metrics for
+    scraping.
+6. A `ThreadPoolExecutor` is initialized with a configurable number of threads
+    (default ncpus).
+7. A `PackageQueue` (see the `queues` module) is initialized.
+8. A configured number (default 4) of RPCServer (see the `rpc_server` module)
+    threads are started to handle gearman "RPC" requests from the dashboard.
+9. A watched directory thread is started to observe changes in any of the
+    watched dirs as set in the workflow.
+10. The `PackageQueue.work` processing loop is started on the main thread.
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
