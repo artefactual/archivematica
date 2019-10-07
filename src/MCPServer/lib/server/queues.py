@@ -13,6 +13,7 @@ import threading
 from django.conf import settings
 from django.utils import six
 
+from server import metrics
 from server.jobs import DecisionJob
 from server.packages import DIP, SIP
 
@@ -125,6 +126,7 @@ class PackageQueue(object):
             if package.uuid in self.active_packages:
                 # If there's no slot available, block until ready
                 self.job_queue.put(job, block=True)
+                metrics.job_queue_length_gauge.inc()
                 return
 
             # Otherwise, we need to queue the package
@@ -187,6 +189,9 @@ class PackageQueue(object):
         except Queue.Empty:
             return
 
+        metrics.job_queue_length_gauge.dec()
+        metrics.active_jobs_gauge.inc()
+
         result = self.executor.submit(job.run)
         result.add_done_callback(self._job_completed_callback)
 
@@ -222,6 +227,7 @@ class PackageQueue(object):
         The argument is a future, the result of which should be the next job
         in the chain.
         """
+        metrics.active_jobs_gauge.dec()
         next_job = future.result()
 
         if not next_job:
@@ -243,27 +249,37 @@ class PackageQueue(object):
             self.sip_queue.put_nowait(job)
         else:
             self.transfer_queue.put_nowait(job)
+        metrics.package_queue_length_gauge.labels(
+            package_type=package.__class__.__name__
+        ).inc()
 
     def _get_package_job_nowait(self):
         """Return a waiting job for an inactive package.
         Prioritized by package type.
         """
         try:
-            return self.dip_queue.get_nowait()
+            package = self.dip_queue.get_nowait()
         except Queue.Empty:
-            pass
+            package = None
 
-        try:
-            return self.sip_queue.get_nowait()
-        except Queue.Empty:
-            pass
+        if package is None:
+            try:
+                package = self.sip_queue.get_nowait()
+            except Queue.Empty:
+                pass
 
-        try:
-            return self.transfer_queue.get_nowait()
-        except Queue.Empty:
-            pass
+        if package is None:
+            try:
+                package = self.transfer_queue.get_nowait()
+            except Queue.Empty:
+                pass
 
-        return None
+        if package is not None:
+            metrics.package_queue_length_gauge.labels(
+                package_type=package.__class__.__name__
+            ).dec()
+
+        return package
 
     def activate_package(self, package):
         """Mark a package as active, allowing jobs related to it to process.
@@ -271,6 +287,7 @@ class PackageQueue(object):
         with self.active_package_lock:
             if package.uuid not in self.active_packages:
                 self.active_packages[package.uuid] = package
+                metrics.active_package_gauge.inc()
                 if self.debug:
                     logger.debug("Marked package %s as active", package.uuid)
             else:
@@ -284,6 +301,7 @@ class PackageQueue(object):
         with self.active_package_lock:
             if package.uuid in self.active_packages:
                 del self.active_packages[package.uuid]
+                metrics.active_package_gauge.dec()
                 if self.debug:
                     logger.debug("Marked package %s as inactive", package.uuid)
             else:
@@ -305,6 +323,7 @@ class PackageQueue(object):
         package = job.package
         self.activate_package(package)
         self.job_queue.put_nowait(job)
+        metrics.job_queue_length_gauge.inc()
 
         if self.debug:
             queue_size = (

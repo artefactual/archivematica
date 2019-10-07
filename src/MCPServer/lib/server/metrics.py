@@ -55,6 +55,19 @@ archivematica_info = Info("archivematica_version", "Archivematica version info")
 environment_info = Info("environment_variables", "Environment Variables")
 
 
+active_package_gauge = Gauge(
+    "mcpserver_active_packages", "Number of currently active packages"
+)
+active_jobs_gauge = Gauge("mcpserver_active_jobs", "Number of currently active jobs")
+job_queue_length_gauge = Gauge(
+    "mcpserver_active_package_job_queue_length",
+    "Number of queued jobs related to currently active packages",
+)
+package_queue_length_gauge = Gauge(
+    "mcpserver_package_queue_length", "Number of queued packages", ["package_type"]
+)
+
+
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
     def wrapper(*args, **kwds):
@@ -63,6 +76,14 @@ def skip_if_prometheus_disabled(func):
         return None
 
     return wrapper
+
+
+def init_labels():
+    """Zero to start, by intializing all labels. Non-zero starting points
+    cause problems when measuring rates.
+    """
+    for package_type in ("Transfer", "SIP", "DIP"):
+        package_queue_length_gauge.labels(package_type=package_type)
 
 
 @skip_if_prometheus_disabled
