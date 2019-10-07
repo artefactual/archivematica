@@ -258,28 +258,28 @@ class PackageQueue(object):
         Prioritized by package type.
         """
         try:
-            package = self.dip_queue.get_nowait()
+            job = self.dip_queue.get_nowait()
         except Queue.Empty:
-            package = None
+            job = None
 
-        if package is None:
+        if job is None:
             try:
-                package = self.sip_queue.get_nowait()
+                job = self.sip_queue.get_nowait()
             except Queue.Empty:
                 pass
 
-        if package is None:
+        if job is None:
             try:
-                package = self.transfer_queue.get_nowait()
+                job = self.transfer_queue.get_nowait()
             except Queue.Empty:
                 pass
 
-        if package is not None:
+        if job is not None:
             metrics.package_queue_length_gauge.labels(
-                package_type=package.__class__.__name__
+                package_type=job.package.__class__.__name__
             ).dec()
 
-        return package
+        return job
 
     def activate_package(self, package):
         """Mark a package as active, allowing jobs related to it to process.

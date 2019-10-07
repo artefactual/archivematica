@@ -48,6 +48,9 @@ class GearmanTaskBackend(TaskBackend):
         to gearman if it's "full".
         """
         current_task_batch = self._get_current_task_batch(job.uuid)
+        if len(current_task_batch) == 0:
+            metrics.gearman_pending_jobs_gauge.inc()
+
         current_task_batch.add_task(task)
 
         # If we've hit TASK_BATCH_SIZE, send the batch to gearman
@@ -95,7 +98,6 @@ class GearmanTaskBackend(TaskBackend):
                 for request in gearman_requests
                 if request.state not in (gearman.JOB_COMPLETE, gearman.JOB_FAILED)
             ]
-            print(gearman_requests, completed_request_count, len(pending_batches))
 
         # Once we've gotten results for all job tasks, clear the batches
         del self.pending_gearman_jobs[job.uuid]
@@ -108,10 +110,12 @@ class GearmanTaskBackend(TaskBackend):
             return self.current_task_batches[job_uuid]
         except KeyError:
             self.current_task_batches[job_uuid] = GearmanTaskBatch()
-            metrics.gearman_pending_jobs_gauge.inc()
             return self.current_task_batches[job_uuid]
 
     def _submit_batch(self, job, task_batch):
+        if len(task_batch) == 0:
+            return
+
         task_batch.submit(self.client, job)
 
         metrics.gearman_active_jobs_gauge.inc()
@@ -161,9 +165,6 @@ class GearmanTaskBatch(object):
         self.tasks.append(task)
 
     def submit(self, client, job):
-        if len(self.tasks) == 0:
-            return
-
         # Log tasks to DB, before submitting the batch, as mcpclient then updates them
         Task.bulk_log(self.tasks, job)
 
