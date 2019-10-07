@@ -41,7 +41,6 @@ class Task(object):
         self.wants_output = any([wants_output, stdout_file_path, stderr_file_path])
 
         self.exit_code = None
-        self.exit_status = ""
         self.stdout = ""
         self.stderr = ""
 

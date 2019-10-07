@@ -84,7 +84,6 @@ class GearmanTaskBackend(TaskBackend):
                         task_result = result[task_id]
 
                         task.exit_code = task_result["exitCode"]
-                        task.exit_status = task_result.get("exitStatus", "")
                         task.stdout = task_result.get("stdout", "")
                         task.stderr = task_result.get("stderr", "")
                         task.finished_timestamp = task_result.get("finishedTimestamp")
