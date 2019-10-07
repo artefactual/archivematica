@@ -12,6 +12,7 @@ from django.conf import settings
 from django.utils import six
 from django.utils.six.moves import cPickle
 
+from server import metrics
 from server.tasks.task import Task
 from server.tasks.backends.base import TaskBackend
 
@@ -100,6 +101,7 @@ class GearmanTaskBackend(TaskBackend):
                         yield task
 
                     completed_request_count += 1
+                    metrics.gearman_active_jobs_gauge.dec()
 
         # Once we've gotten results for all tasks, delete the batches
         del self.pending_gearman_jobs[job.uuid]
@@ -113,10 +115,15 @@ class GearmanTaskBackend(TaskBackend):
             return self.current_task_batches[job_uuid]
         except KeyError:
             self.current_task_batches[job_uuid] = GearmanTaskBatch()
+            metrics.gearman_pending_jobs_gauge.inc()
             return self.current_task_batches[job_uuid]
 
     def _submit_batch(self, job, task_batch):
         task_batch.submit(self.client, job)
+
+        metrics.gearman_active_jobs_gauge.inc()
+        metrics.gearman_pending_jobs_gauge.dec()
+
         if job.uuid not in self.pending_gearman_jobs:
             self.pending_gearman_jobs[job.uuid] = []
         self.pending_gearman_jobs[job.uuid].append(task_batch)

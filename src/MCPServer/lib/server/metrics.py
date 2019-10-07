@@ -14,9 +14,6 @@ from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
 from version import get_full_version
 
 
-active_task_group_gauge = Gauge(
-    "mcpserver_active_task_groups", "Number of task groups currently being processed"
-)
 gearman_active_jobs_gauge = Gauge(
     "mcpserver_gearman_active_jobs", "Number of gearman jobs currently being processed"
 )
@@ -53,23 +50,6 @@ chain_duration_summary = Summary(
     "Summary of job chain processing durations in seconds",
     ["unit_type"],
 )
-reload_file_list_summary = Summary(
-    "mcpserver_reload_file_list_duration_seconds",
-    "Time spent reloading the file list in seconds",
-)
-task_group_lock_summary = Summary(
-    "mcpserver_task_group_lock_duration_seconds",
-    "Time spent waiting for the task group lock in seconds",
-    ["function"],
-)
-gearman_submit_job_summary = Summary(
-    "mcpserver_gearman_submit_duration_seconds",
-    "Time spent waiting for gearman job submission in seconds",
-)
-gearman_status_summary = Summary(
-    "mcpserver_gearman_status_duration_seconds",
-    "Time spent waiting for gearman job status in seconds",
-)
 
 archivematica_info = Info("archivematica_version", "Archivematica version info")
 environment_info = Info("environment_variables", "Environment Variables")
@@ -93,18 +73,6 @@ def start_prometheus_server():
     return start_http_server(
         settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
     )
-
-
-@skip_if_prometheus_disabled
-def update_job_status(active_task_groups_by_uuid, running_gearman_jobs, pending_jobs):
-    group_uuids = [
-        task_group.task_group.unit_uuid()
-        for task_group in active_task_groups_by_uuid.values()
-    ]
-    active_task_group_gauge.set(len(set(group_uuids)))
-
-    gearman_pending_jobs_gauge.set(len(pending_jobs))
-    gearman_active_jobs_gauge.set(len(running_gearman_jobs))
 
 
 @skip_if_prometheus_disabled
