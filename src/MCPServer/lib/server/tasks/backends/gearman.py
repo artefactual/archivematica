@@ -78,34 +78,27 @@ class GearmanTaskBackend(TaskBackend):
                 gearman_requests = self.client.get_job_statuses(gearman_requests)
 
             for batch in pending_batches:
-                if batch.pending.complete:
-                    result = batch.result()
-                    for task in batch.tasks:
-                        task_id = six.text_type(task.uuid)
-                        task_result = result[task_id]
+                if batch.collected:
+                    continue
 
-                        task.exit_code = task_result["exitCode"]
-                        task.stdout = task_result.get("stdout", "")
-                        task.stderr = task_result.get("stderr", "")
-                        task.finished_timestamp = task_result.get("finishedTimestamp")
-
-                        task.write_output()
-
-                        logger.debug(
-                            "Task %s finished! Result %s - %s",
-                            task_id,
-                            batch.pending.state,
-                            task_result["exitCode"],
-                        )
-
+                if batch.complete or batch.failed:
+                    for task in batch.update_task_results():
                         yield task
 
+                    batch.collected = True
                     completed_request_count += 1
                     metrics.gearman_active_jobs_gauge.dec()
 
-        # Once we've gotten results for all tasks, delete the batches
+            # Only keep checking unfinished requests
+            gearman_requests = [
+                request
+                for request in gearman_requests
+                if request.state not in (gearman.JOB_COMPLETE, gearman.JOB_FAILED)
+            ]
+            print(gearman_requests, completed_request_count, len(pending_batches))
+
+        # Once we've gotten results for all job tasks, clear the batches
         del self.pending_gearman_jobs[job.uuid]
-        del self.current_task_batches[job.uuid]
 
     def _get_current_task_batch(self, job_uuid):
         """Return the current GearmanTaskBatch for the job, or initialize a new
@@ -128,6 +121,10 @@ class GearmanTaskBackend(TaskBackend):
             self.pending_gearman_jobs[job.uuid] = []
         self.pending_gearman_jobs[job.uuid].append(task_batch)
 
+        # Clear the current task batch
+        if self.current_task_batches[job.uuid] is task_batch:
+            del self.current_task_batches[job.uuid]
+
 
 class GearmanTaskBatch(object):
     """A collection of `Task` objects, to be submitted as one gearman job.
@@ -137,9 +134,20 @@ class GearmanTaskBatch(object):
         self.uuid = uuid.uuid4()
         self.tasks = []
         self.pending = None
+        self.collected = False
 
     def __len__(self):
         return len(self.tasks)
+
+    @property
+    def complete(self):
+        return self.pending and self.pending.state == gearman.JOB_COMPLETE
+
+    @property
+    def failed(self):
+        return self.pending and (
+            self.pending.state == gearman.JOB_FAILED or self.pending.timed_out
+        )
 
     def serialize_task(self, task):
         return {
@@ -177,18 +185,51 @@ class GearmanTaskBatch(object):
         logger.debug("Submitted gearman job %s (%s)", self.uuid, job.name)
 
     def result(self):
-        if not (self.pending and self.pending.complete):
+        if not self.complete:
             raise RuntimeError("Gearman task hasn't been executed yet")
         elif not self.pending.result:
-            raise RuntimeError("Unexpected empty result from Gearman job")
+            raise ValueError("Unexpected empty result from Gearman job")
 
         job_result = cPickle.loads(self.pending.result)
 
         try:
             return job_result["task_results"]
         except KeyError:
-            raise RuntimeError(
+            raise ValueError(
                 "Expected a map containing 'task_results', but got: {!r}".format(
                     job_result
                 )
             )
+
+    def update_task_results(self):
+        if self.failed:
+            if self.pending.timed_out:
+                logger.error("Gearman task batch %s timed out", self.uuid)
+            else:
+                logger.error("Gearman task batch %s failed to execute", self.uuid)
+
+            for task in self.tasks:
+                task.exit_code = 1
+                task.done = True
+                yield task
+        else:
+            result = self.result()
+            for task in self.tasks:
+                task_id = six.text_type(task.uuid)
+                task_result = result[task_id]
+                task.exit_code = task_result["exitCode"]
+                task.stdout = task_result.get("stdout", "")
+                task.stderr = task_result.get("stderr", "")
+                task.finished_timestamp = task_result.get("finishedTimestamp")
+                task.write_output()
+
+                task.done = True
+
+                logger.debug(
+                    "Task %s finished! Result %s - %s",
+                    task_id,
+                    self.pending.state,
+                    task_result["exitCode"],
+                )
+
+                yield task

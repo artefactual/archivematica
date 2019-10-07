@@ -47,6 +47,11 @@ class Task(object):
         self.start_timestamp = timezone.now()
         self.finished_timestamp = None
 
+    def __repr__(self):
+        return "Task(uuid={}, arguments={}, start_timestamp={}, done={})".format(
+            self.uuid, self.arguments, self.start_timestamp, self.done
+        )
+
     @classmethod
     @auto_close_old_connections()
     def cleanup_old_db_entries(cls):

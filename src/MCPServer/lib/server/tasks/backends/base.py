@@ -24,4 +24,7 @@ class TaskBackend(object):
 
         This method should only be called once all tasks related to the job
         have been submitted, via `submit_task`.
+
+        Note that task objects are not necessarily returned in the order
+        they were submitted.
         """
