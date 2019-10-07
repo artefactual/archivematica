@@ -43,7 +43,7 @@ ipaddress==1.0.22
 lazy-paged-sequence==0.3
 logutils==0.3.3
 lxml==3.5.0
-metsrw==0.3.11
+metsrw==0.3.13
 mock==2.0.0               # via mockldap, vcrpy
 mockldap==0.2.8
 more-itertools==5.0.0     # via pytest
@@ -77,4 +77,3 @@ vcrpy==1.13.0
 virtualenv==16.4.3        # via tox
 whitenoise==3.3.0
 wrapt==1.11.1             # via vcrpy
-
