@@ -8,7 +8,7 @@ It makes use of the following major abstractions:
     * `jobs.base.Job` and subclasses handle execution of a single link of the workflow.
         * `jobs.client.ClientScriptJob` for jobs to be executed via MCPClient script
         * `jobs.client.DecisionJob` for workflow decision points
-        * `jobs.client.LocalJob` for jobs that are exceuted on MCPServer directly
+        * `jobs.client.LocalJob` for jobs that are executed on MCPServer directly
     * `jobs.chain.JobChain` handles passing context between jobs, and determining the
       next `Job` to be executed based on the workflow chain
     * `tasks.Task` corresponds to a single command to be executed by MCPClient
