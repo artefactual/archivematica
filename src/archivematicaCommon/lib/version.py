@@ -1,4 +1,4 @@
-ARCHIVEMATICA_VERSION = (1, 10, 0)
+ARCHIVEMATICA_VERSION = (1, 10, 1)
 
 
 def get_version():
