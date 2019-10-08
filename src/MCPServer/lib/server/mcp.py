@@ -3,16 +3,16 @@
 Start and run MCPServer via the `main` function.
 
 `main` goes through the following steps:
-1. A signal listener is setup to handle shutdown on SIGINT/SIGTERM events.
-2. The default workflow is loaded (from workflow.json).
-3. The configured SHARED_DIRECTORY is populated with the expected directory
-    structure, and default processing configs added.
-4. Any in progress Job and Task entries in the database are marked as errors,
-    as they are presumed to have been the result of a shutdown while processing.
-5. If Prometheus metrics are enabled, an thread is started to serve metrics for
-    scraping.
-6. A `ThreadPoolExecutor` is initialized with a configurable number of threads
+1. A `ThreadPoolExecutor` is initialized with a configurable number of threads
     (default ncpus).
+2. A signal listener is setup to handle shutdown on SIGINT/SIGTERM events.
+3. The default workflow is loaded (from workflow.json).
+4. The configured SHARED_DIRECTORY is populated with the expected directory
+    structure, and default processing configs added.
+5. Any in progress Job and Task entries in the database are marked as errors,
+    as they are presumed to have been the result of a shutdown while processing.
+6. If Prometheus metrics are enabled, an thread is started to serve metrics for
+    scraping.
 7. A `PackageQueue` (see the `queues` module) is initialized.
 8. A configured number (default 4) of RPCServer (see the `rpc_server` module)
     threads are started to handle gearman "RPC" requests from the dashboard.
@@ -38,7 +38,6 @@ django.setup()
 from django.conf import settings
 
 from server import metrics, rpc_server, shared_dirs
-from server.executor import executor
 from server.jobs import Job, JobChain
 from server.packages import DIP, Transfer, SIP
 from server.queues import PackageQueue
@@ -49,9 +48,6 @@ from server.workflow import load_default_workflow
 
 
 logger = logging.getLogger("archivematica.mcp.server")
-
-# Tracks whether a sigterm has been received or not
-shutdown_event = threading.Event()
 
 
 def watched_dir_handler(package_queue, path, watched_dir):
@@ -79,20 +75,29 @@ def watched_dir_handler(package_queue, path, watched_dir):
     package_queue.schedule_job(next(job_chain))
 
 
-def signal_handler(signal, frame):
-    """Used to handle the stop/kill command signals (SIGINT, SIGKILL)"""
-    logger.info("Received termination signal (%s)", signal)
-
-    shutdown_event.set()
-    executor.shutdown(wait=False)
-
-
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
+def main(shutdown_event=None):
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
+
+    # Tracks whether a sigterm has been received or not
+    if shutdown_event is None:
+        shutdown_event = threading.Event()
+    executor = concurrent.futures.ThreadPoolExecutor(
+        # Lower than the default, since we typically run many processes per system.
+        # Defaults to the number of cores available, which is twice as many as the
+        # default concurrent packages limit.
+        max_workers=settings.WORKER_THREADS
+    )
+
+    def signal_handler(signal, frame):
+        """Used to handle the stop/kill command signals (SIGINT, SIGKILL)"""
+        logger.info("Received termination signal (%s)", signal)
+
+        shutdown_event.set()
+        executor.shutdown(wait=False)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     workflow = load_default_workflow()
     logger.debug("Loaded default workflow.")
@@ -105,12 +110,6 @@ def main():
 
     metrics.start_prometheus_server()
 
-    executor = concurrent.futures.ThreadPoolExecutor(
-        # Lower than the default, since we typically run many processes per system.
-        # Defaults to the number of cores available, which is twice as many as the
-        # default concurrent packages limit.
-        max_workers=settings.WORKER_THREADS
-    )
     package_queue = PackageQueue(executor, shutdown_event, debug=settings.DEBUG)
 
     rpc_threads = []
@@ -134,7 +133,7 @@ def main():
     # Blocks until shutdown_event is set by signal_handler
     package_queue.work()
 
-    # Cleanup threads
+    # We got a shutdown signal, so cleanup threads
     watch_dir_thread.join(1.0)
     for thread in rpc_threads:
         thread.join(0.1)
