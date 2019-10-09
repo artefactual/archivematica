@@ -6,12 +6,17 @@ import threading
 from server.mcp import main
 
 
-def test_mcp_main(mocker):
+def test_mcp_main(mocker, settings):
     """Test spin up with immediate shutdown.
 
     This test has limited utility because everything is mocked, but it should
     help catch basic errors.
     """
+    # Don't bother starting many threads
+    settings.RPC_THREADS = 1
+    settings.WORKER_THREADS = 1
+    settings.PROMETHEUS_ENABLED = True
+
     mock_load_default_workflow = mocker.patch("server.mcp.load_default_workflow")
     mock_shared_dirs = mocker.patch("server.mcp.shared_dirs")
     mock_job = mocker.patch("server.mcp.Job")
