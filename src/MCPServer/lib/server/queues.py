@@ -201,6 +201,8 @@ class PackageQueue(object):
             )
             result.add_done_callback(package_done_callback)
 
+        return result
+
     def stop(self):
         """Trigger queue shutdown.
         """
