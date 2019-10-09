@@ -23,6 +23,7 @@
 import shutil
 import os
 import sys
+import uuid
 
 import django
 
@@ -49,9 +50,8 @@ def call(jobs):
                 sharedPath = job.args[6]
                 sipName = transferName
 
-                # tmpSIPDir has a trailing slash, destSIPDir does not
+                # tmpSIPDir has a trailing slash
                 tmpSIPDir = os.path.join(processingDirectory, sipName, "")
-                destSIPDir = os.path.join(autoProcessSIPDirectory, sipName)
                 archivematicaFunctions.create_structured_directory(
                     tmpSIPDir, manual_normalization=False
                 )
@@ -84,24 +84,31 @@ def call(jobs):
                     transfer_id=transferUUID,
                     currentlocation__startswith="%transferDirectory%objects",
                 )
-                diruuids = len(dir_mdls) > 0
+                diruuids = dir_mdls.count() > 0
 
+                if sip_uuid is None:
+                    sip_uuid = str(uuid.uuid4())
+
+                destSIPDir = os.path.join(
+                    autoProcessSIPDirectory, "{}-{}".format(sipName, sip_uuid)
+                )
+
+                # TODO: it's not clear in which case a SIP would already exist
+                # at this point in the workflow.
                 # Create row in SIPs table if one doesn't already exist
                 lookup_path = destSIPDir.replace(sharedPath, "%sharedPath%") + os.sep
-                try:
-                    sip = SIP.objects.get(currentpath=lookup_path)
-                    if diruuids:
-                        sip.diruuids = True
-                        sip.save()
-                except SIP.DoesNotExist:
-                    sip_uuid = databaseFunctions.createSIP(
-                        lookup_path,
-                        UUID=sip_uuid,
-                        sip_type=sip_type,
-                        diruuids=diruuids,
-                        printfn=job.pyprint,
-                    )
-                    sip = SIP.objects.get(uuid=sip_uuid)
+                sip, created = SIP.objects.get_or_create(
+                    uuid=sip_uuid,
+                    defaults={
+                        "currentpath": lookup_path,
+                        "sip_type": sip_type,
+                        "diruuids": diruuids,
+                    },
+                )
+                if not created:
+                    sip.diruuids = diruuids
+                    sip.currentpath = lookup_path
+                    sip.save()
 
                 # Set activeAgent using the value in Transfer. This ensures
                 # that events generated in Ingest can fall to this value in

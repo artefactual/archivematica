@@ -172,11 +172,24 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** `"128"`
 
-- **`ARCHIVEMATICA_MCPSERVER_PROTOCOL_LIMITTASKTHREADS`**:
-    - **Description:** max. number of threads that MCPServer will run simultaneously.
-    - **Config file example:** `protocol.limitTaskThreads`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_CONCURRENT_PACKAGES`**:
+    - **Description:** the number of packages to process concurrently. Should typically correspond
+    to the number of running MCPClients.
+    - **Config file example:** `MCPServer.concurrent_packages`
     - **Type:** `int`
-    - **Default:** `"75"`
+    - **Default:** 1/2 the number of CPU cores available to MCPServer, rounded up.
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_RPC_THREADS`**:
+    - **Description:** the number of threads used to process RPC requests from the dashboard.
+    - **Config file example:** `MCPServer.rpc_threads`
+    - **Type:** `int`
+    - **Default:** 4
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WORKER_THREADS`**:
+    - **Description:** the number of threads used to handle MCPServer jobs.
+    - **Config file example:** `MCPServer.worker_threads`
+    - **Type:** `int`
+    - **Default:** The number of CPU cores available to MCPServer, plus 1.
 
 - **`ARCHIVEMATICA_MCPSERVER_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.

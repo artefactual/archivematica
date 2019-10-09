@@ -297,21 +297,22 @@ def _copy_to_start_transfer(
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error is None:
+        temp_uuid = str(uuid.uuid4())
+
         # confine destination to subdir of originals
         basename = os.path.basename(filepath)
 
         # default to standard transfer
         type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, "standardTransfer")
-        destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir, basename)
+        destination = os.path.join(
+            ACTIVE_TRANSFER_DIR, type_subdir, "{}-{}".format(basename, temp_uuid)
+        )
         destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
 
         # Ensure directories end with a trailing /
         if os.path.isdir(filepath):
             destination = os.path.join(destination, "")
 
-        # Create the Transfer here instead of letting MCPClient create it
-        # Used to pass additional information to the Transfer
-        temp_uuid = str(uuid.uuid4())
         mcp_destination = destination.replace(
             os.path.join(SHARED_DIRECTORY_ROOT, ""), "%sharedPath%"
         )
@@ -334,8 +335,9 @@ def _copy_to_start_transfer(
             except models.TransferMetadataSet.DoesNotExist:
                 pass
 
-        transfer = models.Transfer.objects.create(**kwargs)
-        transfer.save()
+        # Create the Transfer here instead of letting MCPClient create it
+        # Used to pass additional information to the Transfer
+        models.Transfer.objects.create(**kwargs)
 
         try:
             shutil.move(filepath, destination)
