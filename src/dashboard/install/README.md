@@ -10,6 +10,7 @@
   - [Parameter list](#parameter-list)
     - [Application variables](#application-variables)
     - [Gunicorn variables](#gunicorn-variables)
+    - [LDAP variables](#ldap-variables)
   - [Logging configuration](#logging-configuration)
 
 ## Introduction
@@ -389,6 +390,139 @@ variables or in the gunicorn configuration file.
     - **Description:** Name for this instance of gunicorn.  See [PROC-NAME](http://docs.gunicorn.org/en/stable/settings.html#proc-name)
     - **Type:** `string`
     - **Default:** `archivematica-dashboard`
+
+### LDAP variables
+
+    These variables specify the behaviour of LDAP authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION` is set.
+
+- **`AUTH_LDAP_USERNAME_SUFFIX`**:
+    - **Description:** A suffix that is _stripped_ from LDAP usernames when
+      generating Dashboard usernames (e.g., if set to `_ldap`, LDAP user
+      `demo_ldap` will be saved as `demo`).
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_SERVER_URI`**:
+    - **Description:** Address of the LDAP server to authenticate against.
+    - **Type:** `string`
+    - **Default:** `ldap://localhost`
+
+- **`AUTH_LDAP_BIND_DN`**:
+    - **Description:** LDAP "bind DN"; the object to authenticate against the LDAP server with, in order
+    to lookup users, e.g. "cn=admin,dc=example,dc=com".  Empty string for anonymous.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_BIND_PASSWORD`**:
+    - **Description:** Password for the LDAP bind DN.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_USER_SEARCH_BASE_DN`**:
+    - **Description:** Base LDAP DN for user search, e.g. "ou=users,dc=example,dc=com".
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_USER_SEARCH_BASE_FILTERSTR`**:
+    - **Description:** Filter for identifying LDAP user objects, e.g. "(uid=%(user)s)". The `%(user)s`
+    portion of the string will be replaced by the username. This variable is only used if
+    `AUTH_LDAP_USER_SEARCH_BASE_DN` is not empty.
+    - **Type:** `string`
+    - **Default:** `(uid=%(user)s)`
+
+- **`AUTH_LDAP_USER_DN_TEMPLATE`**:
+    - **Description:** Template for LDAP user search, e.g. "uid=%(user)s,ou=users,dc=example,dc=com".
+    Not applicable if `AUTH_LDAP_USER_SEARCH_BASE_DN` is set.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_GROUP_IS_ACTIVE`**:
+    - **Description:** Template for LDAP group used to set the Django user `is_active` flag, e.g.
+    "cn=active,ou=django,ou=groups,dc=example,dc=com".
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_GROUP_IS_STAFF`**:
+    - **Description:** Template for LDAP group used to set the Django user `is_staff` flag, e.g.
+    "cn=staff,ou=django,ou=groups,dc=example,dc=com".
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_GROUP_IS_SUPERUSER`**:
+    - **Description:** Template for LDAP group used to set the Django user `is_superuser` flag, e.g.
+    "cn=admins,ou=django,ou=groups,dc=example,dc=com".
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_GROUP_SEARCH_BASE_DN`**:
+    - **Description:** Base LDAP DN for group search, e.g. "ou=django,ou=groups,dc=example,dc=com".
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_GROUP_SEARCH_BASE_FILTERSTR`**:
+    - **Description:** Filter for identifying LDAP group objects, e.g. "(objectClass=groupOfNames)".
+    This variable is only used if `AUTH_LDAP_GROUP_SEARCH_BASE_DN` is not empty.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_REQUIRE_GROUP`**:
+    - **Description:** Filter for a group that LDAP users must belong to in order to authenticate, e.g.
+    "cn=enabled,ou=django,ou=groups,dc=example,dc=com"
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_DENY_GROUP`**:
+    - **Description:** Filter for a group that LDAP users must _not_ belong to in order to authenticate,
+    e.g. "cn=disabled,ou=django,ou=groups,dc=example,dc=com"
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_FIND_GROUP_PERMS`**:
+    - **Description:** If we should use LDAP group membership to calculate group permissions.
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`AUTH_LDAP_CACHE_GROUPS`**:
+    - **Description:** If we should cache groups to minimize LDAP traffic.
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`AUTH_LDAP_GROUP_CACHE_TIMEOUT`**:
+    - **Description:** How long we should cache LDAP groups for (in seconds). Only applies if
+    `AUTH_LDAP_CACHE_GROUPS` is true.
+    - **Type:** `integer`
+    - **Default:** `3600`
+
+- **`AUTH_LDAP_START_TLS`**:
+    - **Description:** Determines if we update to a secure LDAP connection using StartTLS after connecting.
+    - **Type:** `boolean`
+    - **Default:** `true`
+
+- **`AUTH_LDAP_PROTOCOL_VERSION`**:
+    - **Description:** If set, forces LDAP protocol version 3.
+    - **Type:** `integer`
+    - **Default:** ``
+
+- **`AUTH_LDAP_TLS_CACERTFILE`**:
+    - **Description:** Path to a custom LDAP certificate authority file.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_TLS_CERTFILE`**:
+    - **Description:** Path to a custom LDAP certificate file.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_TLS_KEYFILE`**:
+    - **Description:** Path to a custom LDAP key file (matching the cert given in `AUTH_LDAP_TLS_CERTFILE`).
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AUTH_LDAP_TLS_REQUIRE_CERT`**:
+    - **Description:** How strict to be regarding TLS cerfiticate verification. Allowed values are "never",
+    "allow", "try", "demand", or "hard". Corresponds to the TLSVerifyClient OpenLDAP setting.
+    - **Type:** `string`
+    - **Default:** ``
 
 ## Logging configuration
 

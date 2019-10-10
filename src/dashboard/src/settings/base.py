@@ -510,8 +510,8 @@ if SHIBBOLETH_AUTHENTICATION:
 LDAP_AUTHENTICATION = config.get("ldap_authentication")
 if LDAP_AUTHENTICATION:
     ALLOW_USER_EDITS = False
+    AUTHENTICATION_BACKENDS.insert(0, "components.accounts.backends.CustomLDAPBackend")
 
-    AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomLDAPBackend"]
     from .components.ldap_auth import *  # noqa
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
