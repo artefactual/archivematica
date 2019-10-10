@@ -10,6 +10,7 @@
   - [Parameter list](#parameter-list)
     - [Application variables](#application-variables)
     - [Gunicorn variables](#gunicorn-variables)
+    - [LDAP variables](#ldap-variables)
   - [Logging configuration](#logging-configuration)
 
 ## Introduction
@@ -390,7 +391,7 @@ variables or in the gunicorn configuration file.
     - **Type:** `string`
     - **Default:** `archivematica-dashboard`
 
-### LDAP-specific environment variables
+### LDAP variables
 
     These variables specify the behaviour of LDAP authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION` is set.
 
