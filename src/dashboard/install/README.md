@@ -393,7 +393,7 @@ variables or in the gunicorn configuration file.
 
 ### LDAP variables
 
-    These variables specify the behaviour of LDAP authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION` is set.
+These variables specify the behaviour of LDAP authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION` is set.
 
 - **`AUTH_LDAP_USERNAME_SUFFIX`**:
     - **Description:** A suffix that is _stripped_ from LDAP usernames when
