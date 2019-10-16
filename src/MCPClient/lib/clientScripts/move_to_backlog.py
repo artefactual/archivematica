@@ -16,6 +16,7 @@ import shutil
 import uuid
 
 import django
+import scandir
 
 django.setup()
 from django.conf import settings as mcpclient_settings
@@ -191,7 +192,7 @@ def main(job, transfer_id, transfer_path, created_at):
 
     logger.info("Calculating size...")
     size = 0
-    for dirpath, _, filenames in os.walk(transfer_path):
+    for dirpath, _, filenames in scandir.walk(transfer_path):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             size += os.path.getsize(file_path)

@@ -35,6 +35,7 @@ import traceback
 from uuid import uuid4
 
 import django
+import scandir
 
 django.setup()
 # dashboard
@@ -1370,7 +1371,7 @@ def find_source_metadata(path):
     """
     transfer = []
     source = []
-    for dirpath, subdirs, filenames in os.walk(path):
+    for dirpath, subdirs, filenames in scandir.walk(path):
         if "transfer_metadata.xml" in filenames:
             transfer.append(os.path.join(dirpath, "transfer_metadata.xml"))
 
@@ -1513,7 +1514,7 @@ def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
     :returns: list of ``FSItem`` instances representing paths
     """
     all_fsitems = []
-    for root, dirs, files in os.walk(objectsDirectoryPath):
+    for root, dirs, files in scandir.walk(objectsDirectoryPath):
         root = root.replace(baseDirectoryPath, "", 1)
         if files or dirs:
             all_fsitems.append(FSItem("dir", root, is_empty=False))
@@ -1722,7 +1723,7 @@ def call(jobs):
                     normativeStructMap = None
 
                 # Delete empty directories, see #8427
-                for root, _, _ in os.walk(baseDirectoryPath, topdown=False):
+                for root, _, _ in scandir.walk(baseDirectoryPath, topdown=False):
                     try:
                         os.rmdir(root)
                         job.pyprint("Deleted empty directory", root)

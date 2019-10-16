@@ -13,6 +13,7 @@ from django.utils import timezone
 from . import transcoder
 
 import django
+import scandir
 
 django.setup()
 # dashboard
@@ -208,7 +209,7 @@ def once_normalized(job, command, opts, replacement_dict):
     if os.path.isfile(command.output_location):
         transcoded_files.append(command.output_location)
     elif os.path.isdir(command.output_location):
-        for w in os.walk(command.output_location):
+        for w in scandir.walk(command.output_location):
             path, _, files = w
             for p in files:
                 p = os.path.join(path, p)

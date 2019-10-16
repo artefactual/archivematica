@@ -6,6 +6,7 @@ import shutil
 
 # fileOperations requires Django to be set up
 import django
+import scandir
 
 django.setup()
 from django.db import transaction
@@ -53,7 +54,7 @@ def restructureForComplianceFileUUIDsAssigned(
                 os.mkdir(entry_objects_path)
             # Walk and move to objects dir, preserving directory structure
             # and updating the DB
-            for dirpath, dirnames, filenames in os.walk(entry_path):
+            for dirpath, dirnames, filenames in scandir.walk(entry_path):
                 # Create children dirs in new location, otherwise move fails
                 for dirname in dirnames:
                     create_dir = os.path.join(dirpath, dirname).replace(

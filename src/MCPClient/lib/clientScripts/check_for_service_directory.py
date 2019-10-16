@@ -26,6 +26,7 @@ from optparse import OptionParser
 import re
 
 import django
+import scandir
 from django.db import transaction
 
 django.setup()
@@ -38,7 +39,7 @@ def something(job, SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, da
     exitCode = 0
     job.pyprint(SIPDirectory)
     # For every file, & directory Try to find the matching file & directory in the objects directory
-    for (path, dirs, files) in os.walk(serviceDirectory):
+    for (path, dirs, files) in scandir.walk(serviceDirectory):
         for file in files:
             servicePreExtension = "_me"
             originalPreExtension = "_m"
@@ -83,7 +84,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
     if not searchForRegularExpressions:
         return
 
-    for (path, dirs, files) in os.walk(objectsDirectory):
+    for (path, dirs, files) in scandir.walk(objectsDirectory):
         for file in files:
             m = re.search("_me\.[a-zA-Z0-9]{2,4}$", file)
             if m is not None:

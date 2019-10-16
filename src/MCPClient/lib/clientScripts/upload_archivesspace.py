@@ -15,6 +15,7 @@ from agentarchives.archivesspace import ArchivesSpaceClient
 
 # initialize Django (required for Django 1.7)
 import django
+import scandir
 
 django.setup()
 from django.db import transaction
@@ -26,7 +27,7 @@ logger.addHandler(logging.FileHandler("/tmp/as_upload.log", mode="a"))
 
 
 def recursive_file_gen(mydir):
-    for root, dirs, files in os.walk(mydir):
+    for root, dirs, files in scandir.walk(mydir):
         for file in files:
             yield os.path.join(root, file)
 

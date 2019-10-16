@@ -22,6 +22,9 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 
+import scandir
+
+
 exitInidcatingThereAreObjects = 179
 
 
@@ -31,7 +34,7 @@ def call(jobs):
             objectsDir = job.args[1]
             os.path.isdir(objectsDir)
             ret = 0
-            for dirs, subDirs, files in os.walk(objectsDir):
+            for dirs, subDirs, files in scandir.walk(objectsDir):
                 if files is not None and files != []:
                     ret = exitInidcatingThereAreObjects
                     break
