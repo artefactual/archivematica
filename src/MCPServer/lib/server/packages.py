@@ -579,7 +579,7 @@ class Package(object):
                     self.current_path, "objects", ""
                 ),
                 r"%SIPDirectory%": self.current_path,
-                r"%SIPDirectoryBasename": os.path.basename(
+                r"%SIPDirectoryBasename%": os.path.basename(
                     os.path.abspath(self.current_path)
                 ),
                 r"%relativeLocation%": self.current_path_for_db,
