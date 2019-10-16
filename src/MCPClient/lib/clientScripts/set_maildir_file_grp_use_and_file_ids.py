@@ -27,6 +27,7 @@ import os
 from custom_handlers import get_script_logger
 
 import django
+import scandir
 
 django.setup()
 from django.db import connection
@@ -70,7 +71,7 @@ def set_maildir_files(sip_uuid, sip_path):
         maildir_path,
         sip_uuid,
     )
-    for root, dirs, files in os.walk(maildir_path):
+    for root, dirs, files in scandir.walk(maildir_path):
         for item in files:
             file_relative_path = os.path.join(root, item).replace(
                 sip_path, "%SIPDirectory%", 1
@@ -90,7 +91,7 @@ def set_archivematica_maildir_files(sip_uuid, sip_path):
         attachments_path,
         sip_uuid,
     )
-    for root, dirs, files in os.walk(attachments_path):
+    for root, dirs, files in scandir.walk(attachments_path):
         for item in files:
             if not item.endswith(".archivematicaMaildir"):
                 continue

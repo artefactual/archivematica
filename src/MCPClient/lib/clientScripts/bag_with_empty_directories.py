@@ -26,6 +26,7 @@ import os
 import shutil
 
 import django
+import scandir
 
 django.setup()
 from django.conf import settings as mcpclient_settings
@@ -39,7 +40,7 @@ from bagit import make_bag
 def get_sip_directories(job, sip_dir):
     """ Get a list of directories in the SIP, to be created after bagged. """
     directory_list = []
-    for directory, subdirs, _ in os.walk(sip_dir):
+    for directory, subdirs, _ in scandir.walk(sip_dir):
         for subdir in subdirs:
             path = os.path.join(directory, subdir).replace(sip_dir + "/", "", 1)
             directory_list.append(path)

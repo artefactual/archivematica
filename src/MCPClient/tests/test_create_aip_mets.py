@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 
+import scandir
 from django.test import TestCase
 
 from lxml import etree
@@ -770,7 +771,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
     @staticmethod
     def count_dir_objects(path):
         """Count all objects on a given path tree."""
-        return sum([len(files) for _, dir_, files in os.walk(path)])
+        return sum([len(files) for _, dir_, files in scandir.walk(path)])
 
     @staticmethod
     def validate_mets(mets_xsd, mets_structmap):

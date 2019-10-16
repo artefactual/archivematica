@@ -36,6 +36,7 @@ import sys
 import time
 import tempfile
 
+import scandir
 from django.conf import settings as django_settings
 from lxml import etree
 
@@ -255,7 +256,7 @@ class Command(DashboardCommand):
         name_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
         dir_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
-        for root, directories, files in os.walk(options["rootdir"]):
+        for root, directories, files in scandir.walk(options["rootdir"]):
             # Ignore top-level directories inside ``rootdir`` that are not hex,
             # e.g. we walk ``0771`` but we're ignoring ``transferBacklog``.
             if root == options["rootdir"]:
