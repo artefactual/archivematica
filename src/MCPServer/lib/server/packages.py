@@ -676,18 +676,22 @@ class DIP(Package):
 
         dip_uuid = uuid_from_path(path)
         if dip_uuid:
-            dip_obj, created = models.DIP.objects.get_or_create(
+            dip_obj, created = models.SIP.objects.get_or_create(
                 uuid=dip_uuid,
                 sip_type="DIP",
                 defaults={"currentpath": path, "diruuids": False},
             )
         else:
-            dip_obj = models.DIP.objects.create(
+            dip_obj = models.SIP.objects.create(
                 uuid=uuid4(), currentpath=path, sip_type="DIP", diruuids=False
             )
             logger.info("Creating DIP %s at %s", dip_obj.uuid, path)
 
-        return cls(path, dip_obj.uud)
+        return cls(path, dip_obj.uuid)
+
+    def reload(self):
+        # reload is a no-op for DIPs
+        pass
 
     def get_replacement_mapping(self, filter_subdir_path=None):
         mapping = super(DIP, self).get_replacement_mapping(
