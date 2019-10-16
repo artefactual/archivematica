@@ -671,23 +671,24 @@ class DIP(Package):
     @classmethod
     @auto_close_old_connections()
     def get_or_create_from_db_by_path(cls, path):
-        """Matches a directory to a database DIP by its appended UUID, or path."""
+        """Matches a directory to a database DIP by its appended UUID, or path.
+
+        Note that DIPs are represented using the SIP model in the database.
+        """
         path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
 
-        dip_uuid = uuid_from_path(path)
-        if dip_uuid:
-            dip_obj, created = models.SIP.objects.get_or_create(
-                uuid=dip_uuid,
-                sip_type="DIP",
-                defaults={"currentpath": path, "diruuids": False},
+        sip_uuid = uuid_from_path(path)
+        if sip_uuid:
+            sip_obj, _ = models.SIP.objects.get_or_create(
+                uuid=sip_uuid, defaults={"currentpath": path, "diruuids": False}
             )
         else:
-            dip_obj = models.SIP.objects.create(
-                uuid=uuid4(), currentpath=path, sip_type="DIP", diruuids=False
+            sip_obj = models.SIP.objects.create(
+                uuid=uuid4(), currentpath=path, diruuids=False
             )
-            logger.info("Creating DIP %s at %s", dip_obj.uuid, path)
+            logger.info("Creating SIP (for DIP) %s at %s", sip_obj.uuid, path)
 
-        return cls(path, dip_obj.uuid)
+        return cls(path, sip_obj.uuid)
 
     def reload(self):
         # reload is a no-op for DIPs
