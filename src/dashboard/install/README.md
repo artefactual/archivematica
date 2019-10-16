@@ -355,9 +355,11 @@ variables or in the gunicorn configuration file.
     - **Default:** `127.0.0.1:8002`
 
 - **`AM_GUNICORN_WORKERS`**:
-    - **Description:** Number of gunicorn worker processes to run.  See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers)
+    - **Description:** Number of gunicorn worker processes to run.  Note that since Archivematica
+    installations typically run many processes on the same system, a lower number of workers than
+    Gunicorn recommends should be used. See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers) and [How Many Workers?](https://docs.gunicorn.org/en/stable/design.html#how-many-workers) for more details. 
     - **Type:** `integer`
-    - **Default:** `1`
+    - **Default:** `3`
 
 - **`AM_GUNICORN_WORKER_CLASS`**:
     - **Description:** The type of worker processes to run.  See [WORKER-CLASS](http://docs.gunicorn.org/en/stable/settings.html#worker-class)
