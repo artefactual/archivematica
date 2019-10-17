@@ -1,6 +1,12 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import uuid
+
 import pytest
 
-from server.packages import _determine_transfer_paths
+from main import models
+
+from server.packages import DIP, _determine_transfer_paths
 
 
 @pytest.mark.parametrize(
@@ -40,3 +46,31 @@ def test__determine_transfer_paths(name, path, tmpdir, expected):
     assert results[0] == expected[0], "name mismatch"
     assert results[1] == expected[1], "path mismatch"
     assert results[2] == expected[2], "tmpdir mismatch"
+
+
+@pytest.mark.django_db(transaction=True)
+def test_dip_get_or_create_from_db_path_without_uuid(tmp_path):
+    dip_path = tmp_path / "test-dip"
+
+    dip = DIP.get_or_create_from_db_by_path(str(dip_path))
+
+    assert dip.current_path == str(dip_path)
+    try:
+        models.SIP.objects.get(uuid=dip.uuid)
+    except models.SIP.DoesNotExist:
+        pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
+
+
+@pytest.mark.django_db(transaction=True)
+def test_dip_get_or_create_from_db_path_with_uuid(tmp_path):
+    dip_uuid = uuid.uuid4()
+    dip_path = tmp_path / "test-dip-{}".format(dip_uuid)
+
+    dip = DIP.get_or_create_from_db_by_path(str(dip_path))
+
+    assert dip.uuid == dip_uuid
+    assert dip.current_path == str(dip_path)
+    try:
+        models.SIP.objects.get(uuid=dip_uuid)
+    except models.SIP.DoesNotExist:
+        pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
