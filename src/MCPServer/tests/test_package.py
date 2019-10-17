@@ -56,7 +56,7 @@ def test_dip_get_or_create_from_db_path_without_uuid(tmp_path):
 
     assert dip.current_path == str(dip_path)
     try:
-        models.SIP.objects.get(uuid=dip.uuid, sip_type="DIP")
+        models.SIP.objects.get(uuid=dip.uuid)
     except models.SIP.DoesNotExist:
         pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
 
@@ -71,6 +71,6 @@ def test_dip_get_or_create_from_db_path_with_uuid(tmp_path):
     assert dip.uuid == dip_uuid
     assert dip.current_path == str(dip_path)
     try:
-        models.SIP.objects.get(uuid=dip_uuid, sip_type="DIP")
+        models.SIP.objects.get(uuid=dip_uuid)
     except models.SIP.DoesNotExist:
         pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
