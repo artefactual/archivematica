@@ -218,7 +218,7 @@ class UpdateContextDecisionJob(DecisionJob):
         # TODO: split this out? Workflow items with no replacements configured
         # seems like a different case.
         dashboard_settings = self._get_dashboard_setting_choice()
-        if dashboard_settings and not self.self.link.config["replacements"]:
+        if dashboard_settings and not self.link.config["replacements"]:
             self.job_chain.context.update(dashboard_settings)
             self.mark_complete()
             return next(self.job_chain, None)
