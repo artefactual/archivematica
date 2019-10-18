@@ -28,21 +28,21 @@ class Job:
 
     def dump(self):
         return (
-            "#<%s; exit=%d; code=%s uuid=%s\n"
-            + "=============== STDOUT ===============\n"
-            + "%s"
-            + "\n=============== END STDOUT ===============\n"
-            + "=============== STDERR ===============\n"
-            + "%s"
-            + "\n=============== END STDERR ===============\n"
-            + "\n>"
+            u"#<%s; exit=%s; code=%s uuid=%s\n"
+            u"=============== STDOUT ===============\n"
+            u"%s"
+            u"\n=============== END STDOUT ===============\n"
+            u"=============== STDERR ===============\n"
+            u"%s"
+            u"\n=============== END STDERR ===============\n"
+            u"\n>"
         ) % (
             self.name,
             self.int_code,
             self.status_code,
             self.UUID,
-            self.output,
-            self.error,
+            self.get_stdout(),
+            self.get_stderr(),
         )
 
     def load_from(self, other_job):
@@ -95,10 +95,10 @@ class Job:
         return self.int_code
 
     def get_stdout(self):
-        return self.output
+        return self.output.decode("utf-8")
 
     def get_stderr(self):
-        return self.error
+        return self.error.decode("utf-8")
 
     @contextmanager
     def JobContext(self, logger=None):
