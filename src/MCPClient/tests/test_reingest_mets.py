@@ -11,7 +11,7 @@ from django.test import TestCase
 
 from main import models
 
-from job import Job
+from client.job import Job
 from namespaces import NSMAP, nsmap_for_premis2
 
 import metsrw

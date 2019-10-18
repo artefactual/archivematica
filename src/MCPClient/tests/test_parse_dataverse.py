@@ -9,7 +9,7 @@ import sys
 from django.test import TestCase
 import metsrw
 
-from job import Job
+from client.job import Job
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

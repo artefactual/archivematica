@@ -19,7 +19,7 @@ sys.path.append(
     os.path.abspath(os.path.join(THIS_DIR, "../../archivematicaCommon/lib"))
 )
 
-from job import Job
+from client.job import Job
 import create_mets_v2
 import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights

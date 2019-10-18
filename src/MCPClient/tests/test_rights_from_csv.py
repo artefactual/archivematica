@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from main import models
 
-from job import Job
+from client.job import Job
 import rights_from_csv
 
 

@@ -14,7 +14,7 @@ import sys
 
 from django.core.management import call_command
 
-from job import Job
+from client.job import Job
 from main.models import Directory, File, SIP, DashboardSetting
 
 import pytest

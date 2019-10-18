@@ -32,6 +32,7 @@ import sys
 from uuid import UUID
 
 from django.core.management import call_command
+from django.utils import six
 
 import pytest
 
@@ -40,7 +41,7 @@ from main.models import File, Event
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
-from job import Job
+from client.job import Job
 from verify_checksum import (
     Hashsum,
     NoHashCommandAvailable,
@@ -212,7 +213,7 @@ class TestHashsum(object):
         ), self.assert_exception_string
         assert ret == 1, self.assert_return_value.format(ret)
         # Flush job.error as it isn't flushed automatically.
-        job.error = ""
+        job.error = six.StringIO()
         mock = mocker.patch.object(hashsum, "_call", return_value=improper_formatting)
         mock.side_effect = subprocess.CalledProcessError(
             returncode=1, cmd="sha1sum", output=improper_formatting

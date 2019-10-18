@@ -9,7 +9,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 import parse_mets_to_db
 
-from job import Job
+from client.job import Job
 
 import fpr
 from main import models

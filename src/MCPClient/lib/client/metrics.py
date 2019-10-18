@@ -1,16 +1,25 @@
 """
 Exposes various metrics via Prometheus.
 """
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import ConfigParser
 import functools
+import tempfile
 import os
 
 from django.conf import settings
 from django.utils import timezone
-from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
-
+from prometheus_client import (
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Info,
+    Summary,
+    multiprocess,
+    start_http_server,
+)
 from main.models import File
 
 from version import get_full_version
@@ -103,6 +112,9 @@ dip_size_counter = Counter("mcpclient_dip_size_bytes", "Number of bytes stored i
 archivematica_info = Info("archivematica_version", "Archivematica version info")
 environment_info = Info("environment_variables", "Environment Variables")
 
+# TODO: remove global
+prometheus_tmp_dir = None
+
 
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
@@ -146,14 +158,27 @@ def init_counter_labels():
 
 
 @skip_if_prometheus_disabled
+def worker_exit(process_id):
+    multiprocess.mark_process_dead(process_id, path=prometheus_tmp_dir)
+
+
+@skip_if_prometheus_disabled
 def start_prometheus_server():
+    global prometheus_tmp_dir
+    registry = CollectorRegistry()
+    # TODO: this should be cleared on shutdown
+    prometheus_tmp_dir = tempfile.mkdtemp(prefix="prometheus-stats")
+    multiprocess.MultiProcessCollector(registry, path=prometheus_tmp_dir)
+
     init_counter_labels()
 
     archivematica_info.info({"version": get_full_version()})
     environment_info.info(os.environ)
 
     return start_http_server(
-        settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
+        settings.PROMETHEUS_BIND_PORT,
+        addr=settings.PROMETHEUS_BIND_ADDRESS,
+        registry=registry,
     )
 
 

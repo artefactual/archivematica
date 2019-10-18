@@ -11,7 +11,7 @@ import sys
 import pytest
 
 import metsrw
-from job import Job
+from client.job import Job
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))

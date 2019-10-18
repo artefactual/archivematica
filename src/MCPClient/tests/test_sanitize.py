@@ -10,7 +10,7 @@ import pytest
 import six
 from django.test import TestCase
 
-from job import Job
+from client.job import Job
 from main.models import Directory, Event, File, Transfer, SIP
 
 from . import TempDirMixin
