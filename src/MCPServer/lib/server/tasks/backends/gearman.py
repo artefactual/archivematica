@@ -20,6 +20,9 @@ from server.tasks.backends.base import TaskBackend
 logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
 
 
+GEARMAN_MAX_RETRIES = 5
+
+
 class GearmanTaskBackend(TaskBackend):
     """Submits tasks to MCPClient via Gearman.
 
@@ -181,7 +184,7 @@ class GearmanTaskBatch(object):
             unique=six.binary_type(self.uuid),
             wait_until_complete=False,
             background=False,
-            max_retries=0,
+            max_retries=GEARMAN_MAX_RETRIES,
         )
         logger.debug("Submitted gearman job %s (%s)", self.uuid, job.name)
 
