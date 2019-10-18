@@ -144,6 +144,11 @@ def addFileToSIP(
 
 def rename(source, destination, printfn=print, should_exit=False):
     """Used to move/rename directories. This function was before used to wrap the operation with sudo."""
+    if source == destination:
+        # Handle this case so that we don't try to move a directory into itself
+        printfn("Source and destination are the same, nothing to do.")
+        return 0
+
     command = ["mv", source, destination]
     exitCode, stdOut, stdError = executeOrRun("command", command, "", printing=False)
     if exitCode:
@@ -152,6 +157,8 @@ def rename(source, destination, printfn=print, should_exit=False):
         printfn(stdError, file=sys.stderr)
         if should_exit:
             exit(exitCode)
+
+    return exitCode
 
 
 def updateDirectoryLocation(
