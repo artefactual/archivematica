@@ -36,7 +36,6 @@ urlpatterns = [
         TemplateView.as_view(template_name="administration/language.html"),
         name="admin_set_language",
     ),
-    url(r"sources/$", views.sources),
     url(r"storage/$", views.storage),
     url(r"usage/$", views.usage),
     url(r"usage/clear/(?P<dir_id>\w+)/$", views.usage_clear),

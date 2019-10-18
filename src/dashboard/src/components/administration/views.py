@@ -29,6 +29,7 @@ from django.db.models import Max, Min
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.template.defaultfilters import filesizeformat
 from django.utils.six.moves import map
 from django.utils.translation import ugettext as _
 
@@ -176,113 +177,192 @@ def _atom_levels_of_description_sort_adjust(level_id, sortorder="promote"):
 
 
 def storage(request):
+    """Return storage service locations related with this pipeline.
+
+    Exclude locations for currently processing, AIP recovery and SS internal
+    purposes and disabled locations. Format used, quota and purpose values to
+    human readable form.
+    """
     try:
-        locations = storage_service.get_location(purpose="AS")
+        response_locations = storage_service.get_location()
     except:
         messages.warning(
             request,
             _(
-                "Error retrieving locations: is the storage server running? Please contact an administrator."
+                "Error retrieving locations: is the storage server running? "
+                "Please contact an administrator."
             ),
         )
+        return render(request, "administration/locations.html")
 
-    system_directory_description = "Available storage"
-    return render(request, "administration/locations.html", locals())
+    # Currently processing, AIP recovery and SS internal locations
+    # are intentionally not included to not display them in the table.
+    purposes = {
+        "AS": _("AIP Storage"),
+        "DS": _("DIP Storage"),
+        "SD": _("FEDORA Deposits"),
+        "BL": _("Transfer Backlog"),
+        "TS": _("Transfer Source"),
+        "RP": _("Replicator"),
+    }
+
+    # Filter and format locations
+    locations = []
+    for loc in response_locations:
+        # Skip disabled locations
+        if not loc["enabled"]:
+            continue
+        # Skip unwanted purposes
+        if not loc["purpose"] or loc["purpose"] not in purposes.keys():
+            continue
+        # Only show usage of AS and DS locations
+        loc["show_usage"] = loc["purpose"] in ["AS", "DS"]
+        if loc["show_usage"]:
+            # Show unlimited for unset quotas
+            if not loc["quota"]:
+                loc["quota"] = _("unlimited")
+            # Format bytes to human readable filesize
+            else:
+                loc["quota"] = filesizeformat(loc["quota"])
+            if loc["used"]:
+                loc["used"] = filesizeformat(loc["used"])
+        # Format purpose
+        loc["purpose"] = purposes[loc["purpose"]]
+        locations.append(loc)
+
+    # Sort by purpose
+    locations.sort(key=lambda loc: loc["purpose"])
+
+    return render(request, "administration/locations.html", {"locations": locations})
 
 
 def usage(request):
+    """Return page summarizing storage usage.
+
+    To avoid timeouts on the first load of this page, the usage data is only
+    calculated when the `calculate` get parameter is evaluated as `True` (true
+    values are "true", "yes", "on" and "1", case insensitive). When the usage data
+    is not calculated, the page shows a description and a button to reload the page
+    calculating the usage. When the usage is calculated, the page will display a
+    general information section and a table of clearable directories from within
+    the shared path.
     """
-    Return page summarizing storage usage
-    """
-    usage_dirs = _usage_dirs()
+    calculate = request.GET.get("calculate", "")
+    calculate_usage = calculate.lower() in ["true", "yes", "on", "1"]
+    if calculate_usage:
+        root_path = _get_mount_point_path(django_settings.SHARED_DIRECTORY)
+        root = {
+            "path": root_path,
+            "size": _usage_check_directory_volume_size(root_path),
+            "used": _usage_get_directory_used_bytes(root_path),
+        }
+        shared = {
+            "path": django_settings.SHARED_DIRECTORY,
+            "used": _usage_get_directory_used_bytes(django_settings.SHARED_DIRECTORY),
+        }
+        usage_dirs = _get_shared_dirs(calculate_usage=True)
 
-    context = {"usage_dirs": usage_dirs}
-    return render(request, "administration/usage.html", context)
+    return render(request, "administration/usage.html", locals())
 
 
-def _usage_dirs(calculate_usage=True):
-    """
-    Provide usage data
+def _get_shared_dirs(calculate_usage=False):
+    """Get shared directories information.
 
-    Return maximum size and, optionally, current usage of a number of directories
+    Get information about directories that can be cleared manually whitin the
+    SHARED_DIRECTORY setting path.
 
     :param bool calculate_usage: True if usage should be calculated.
-    :returns OrderedDict: Dict where key is a descriptive handle and value is a dict with the path, description, parent directory ID, and optionally size and usage.
+    :returns OrderedDict: Dict where key is a descriptive handle and value is a
+                          dict with the path, description and optionally usage.
     """
-    # Put spaces before directories contained by the spaces
-    #
-    # Description is optional, but either a path or a location purpose (used to
-    # look up the path) should be specified
-    #
-    # If only certain sudirectories within a path should be deleted, set
-    # 'subdirectories' to a list of them
-    dir_defs = (
-        ("shared", {"path": django_settings.SHARED_DIRECTORY}),
+    shared_path = django_settings.SHARED_DIRECTORY
+    dirs = collections.OrderedDict(
         (
-            "dips",
-            {
-                "description": "DIP uploads",
-                "path": os.path.join("watchedDirectories", "uploadedDIPs"),
-                "contained_by": "shared",
-            },
-        ),
-        (
-            "rejected",
-            {"description": "Rejected", "path": "rejected", "contained_by": "shared"},
-        ),
-        (
-            "failed",
-            {"description": "Failed", "path": "failed", "contained_by": "shared"},
-        ),
-        (
-            "tmp",
-            {
-                "description": "Temporary file storage",
-                "path": "tmp",
-                "contained_by": "shared",
-            },
-        ),
+            (
+                "transfers",
+                {
+                    "description": "Transfers",
+                    "path": os.path.join(shared_path, "completed", "transfers"),
+                },
+            ),
+            (
+                "dip_backups",
+                {
+                    "description": "DIP backups",
+                    "path": os.path.join(shared_path, "DIPbackups"),
+                },
+            ),
+            (
+                "failed",
+                {"description": "Failed", "path": os.path.join(shared_path, "failed")},
+            ),
+            (
+                "rejected",
+                {
+                    "description": "Rejected",
+                    "path": os.path.join(shared_path, "rejected"),
+                },
+            ),
+            (
+                "sip_backups",
+                {
+                    "description": "SIP backups",
+                    "path": os.path.join(shared_path, "SIPbackups"),
+                },
+            ),
+            (
+                "tmp",
+                {
+                    "description": "Temporary file storage",
+                    "path": os.path.join(shared_path, "tmp"),
+                },
+            ),
+            (
+                "uploaded_dips",
+                {
+                    "description": "Uploaded DIPs",
+                    "path": os.path.join(
+                        shared_path, "watchedDirectories", "uploadedDIPs"
+                    ),
+                },
+            ),
+        )
     )
 
-    dirs = collections.OrderedDict(dir_defs)
-
-    # Resolve location paths and make relative paths absolute
-    for __, dir_spec in dirs.items():
-        if "contained_by" in dir_spec:
-            # If contained, make path absolute
-            space = dir_spec["contained_by"]
-            absolute_path = os.path.join(dirs[space]["path"], dir_spec["path"])
-            dir_spec["path"] = absolute_path
-
-            if calculate_usage:
-                dir_spec["size"] = dirs[space]["size"]
-                dir_spec["used"] = _usage_get_directory_used_bytes(dir_spec["path"])
-        elif calculate_usage:
-            # Get size/usage of space
-            space_path = dir_spec["path"]
-            dir_spec["size"] = _usage_check_directory_volume_size(space_path)
-            dir_spec["used"] = _usage_get_directory_used_bytes(space_path)
+    if calculate_usage:
+        for id, dir_spec in dirs.items():
+            dir_spec["used"] = _usage_get_directory_used_bytes(dir_spec["path"])
 
     return dirs
 
 
+def _get_mount_point_path(path):
+    """Get the mount point path from a directory.
+
+    :param str path: path to check.
+    :returns: mount point path.
+    """
+    path = os.path.realpath(os.path.abspath(path))
+    while path != os.path.sep:
+        if os.path.ismount(path):
+            return path
+        path = os.path.abspath(os.path.join(path, os.pardir))
+    return path
+
+
 def _usage_check_directory_volume_size(path):
-    """
-    Check the size of the volume containing a given path
+    """Check the size of the volume containing a given path.
 
-    :param str path: path to check
-    :returns: size in bytes, or 0 on error
+    :param str path: path to check.
+    :returns: size in bytes, or 0 on error.
     """
-    # Get volume size (in 1K blocks)
     try:
+        # Get volume size (in 1K blocks)
         output = subprocess.check_output(["df", "--block-size", "1024", path])
-
         # Second line returns disk usage-related values
         usage_summary = output.split("\n")[1]
-
         # Split value by whitespace and size (in blocks)
         size = usage_summary.split()[1]
-
         return int(size) * 1024
     except OSError:
         logger.exception("No such directory: %s", path)
@@ -293,14 +373,15 @@ def _usage_check_directory_volume_size(path):
 
 
 def _usage_get_directory_used_bytes(path):
-    """
-    Check the spaced used at a given path
+    """Check the space used at a given path.
 
-    :param string path: path to check
-    :returns: usage in bytes
+    :param string path: path to check.
+    :returns: usage in bytes.
     """
     try:
-        output = subprocess.check_output(["du", "--bytes", "--summarize", path])
+        output = subprocess.check_output(
+            ["du", "--one-file-system", "--bytes", "--summarize", path]
+        )
         return output.split("\t")[0]
     except OSError:
         logger.exception("No such directory: %s", path)
@@ -310,91 +391,53 @@ def _usage_get_directory_used_bytes(path):
         return 0
 
 
-def clear_context(request, dir_id):
-    """
-    Confirmation context for emptying a directory
+def _usage_clear_context(request, dir_id):
+    """Confirmation context for emptying a directory from _get_shared_dirs.
 
-    :param dir_id: Key for the directory in _usage_dirs
+    :param dir_id: Key for the directory in _get_shared_dirs.
     """
-    usage_dirs = _usage_dirs(False)
-    prompt = "Clear " + usage_dirs[dir_id]["description"] + "?"
+    usage_dirs = _get_shared_dirs()
+    dir_info = usage_dirs.get(dir_id, None)
+    if not dir_info:
+        raise Http404
+
+    prompt = _("Clear %(dir)s?") % {"dir": dir_info["description"]}
     cancel_url = reverse("components.administration.views.usage")
     return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
+        request, {"action": _("Clear"), "prompt": prompt, "cancel_url": cancel_url}
     )
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-@decorators.confirm_required("simple_confirm.html", clear_context)
+@decorators.confirm_required("simple_confirm.html", _usage_clear_context)
 def usage_clear(request, dir_id):
+    """Clears a directory from _get_shared_dirs.
+
+    :param dir_id: Descriptive shorthand for the dir, key for _get_shared_dirs.
     """
-    Empty a directory
-
-    :param dir_id: Descriptive shorthand for the directory, key for _usage_dirs
-    """
-    if request.method == "POST":
-        usage_dirs = _usage_dirs(False)
-        dir_info = usage_dirs[dir_id]
-
-        # Prevent shared directory from being cleared
-        if dir_id == "shared" or not dir_info:
-            raise Http404
-
-        # Determine if specific subdirectories need to be cleared, rather than
-        # whole directory
-        if "subdirectories" in dir_info:
-            dirs_to_empty = [
-                os.path.join(dir_info["path"], subdir)
-                for subdir in dir_info["subdirectories"]
-            ]
-        else:
-            dirs_to_empty = [dir_info["path"]]
-
-        # Attempt to clear directories
-        successes = []
-        errors = []
-
-        for directory in dirs_to_empty:
-            try:
-                for entry in os.listdir(directory):
-                    entry_path = os.path.join(directory, entry)
-                    if os.path.isfile(entry_path):
-                        os.unlink(entry_path)
-                    else:
-                        shutil.rmtree(entry_path)
-                successes.append(directory)
-            except OSError:
-                message = "No such file or directory: {}".format(directory)
-                logger.exception(message)
-                errors.append(message)
-
-        # If any deletion attempts successed, summarize in flash message
-        if len(successes):
-            message = "Cleared %s." % ", ".join(successes)
-            messages.info(request, message)
-
-        # Show flash message for each error encountered
-        for error in errors:
-            messages.error(request, error)
-
-        return redirect("components.administration.views.usage")
-    else:
+    if request.method != "POST":
         return HttpResponseNotAllowed()
 
+    usage_dirs = _get_shared_dirs()
+    dir_info = usage_dirs.get(dir_id, None)
+    if not dir_info:
+        raise Http404
 
-def sources(request):
     try:
-        locations = storage_service.get_location(purpose="TS")
-    except:
-        messages.warning(
-            request,
-            _(
-                "Error retrieving locations: is the storage server running? Please contact an administrator."
-            ),
-        )
+        for entry in os.listdir(dir_info["path"]):
+            entry_path = os.path.join(dir_info["path"], entry)
+            if os.path.isfile(entry_path):
+                os.unlink(entry_path)
+            else:
+                shutil.rmtree(entry_path)
+        message = _("Cleared: %(path)s") % {"path": dir_info["path"]}
+        messages.info(request, message)
+    except OSError:
+        message = _("No such file or directory: %(path)s") % {"path": dir_info["path"]}
+        messages.error(request, message)
+        logger.exception(message)
 
-    system_directory_description = "Available transfer source"
-    return render(request, "administration/locations.html", locals())
+    return redirect("components.administration.views.usage")
 
 
 def processing(request):

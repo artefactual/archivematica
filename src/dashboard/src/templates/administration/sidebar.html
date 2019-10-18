@@ -8,7 +8,6 @@
   {% url 'components.administration.views.failure_report' as failure_report %}
   {% url 'components.administration.views_dip_upload.admin_atom' as url_atom_dip %}
   {% url 'components.administration.views_dip_upload.admin_as' as url_as_dips %}
-  {% url 'components.administration.views.sources' as url_sources %}
   {% url 'components.administration.views.storage' as url_storage %}
   {% url 'components.administration.views.usage' as url_usage %}
   {% url 'components.administration.views.premis_agent' as url_premis %}
@@ -25,9 +24,7 @@
 
     <li class="{% active request failure_report %}"><a href="{{ failure_report }}">{% trans "Failures" %}</a></li>
 
-    <li class="{% active request url_sources %}"><a href="{{ url_sources }}">{% trans "Transfer source locations" %}</a></li>
-
-    <li class="{% active request url_storage %}"><a href="{{ url_storage }}">{% trans "AIP storage locations" %}</a></li>
+    <li class="{% active request url_storage %}"><a href="{{ url_storage }}">{% trans "Storage locations" %}</a></li>
 
     <li class="{% active request url_usage %}"><a href="{{ url_usage }}">{% trans "Processing storage usage" %}</a></li>
 
