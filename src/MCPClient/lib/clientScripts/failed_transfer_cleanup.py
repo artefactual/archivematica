@@ -13,7 +13,7 @@ import storageService as storage_service
 
 from main.models import File, Transfer
 
-import metrics
+from client import metrics
 
 
 REJECTED = "reject"
