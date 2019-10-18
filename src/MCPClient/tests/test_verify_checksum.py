@@ -172,7 +172,7 @@ class TestHashsum(object):
         )
         assert ret == 1, self.assert_return_value.format(ret)
         assert (
-            job.get_stderr().decode("utf8").strip() == exception_string
+            job.get_stderr().strip() == exception_string
         ), self.assert_exception_string
 
     def test_compare_hashes_with_bad_files(self, mocker):
@@ -208,7 +208,7 @@ class TestHashsum(object):
             "-c", "--strict", hash_file, transfer_dir=objects_dir
         )
         assert (
-            job.get_stderr().decode("utf8").strip() == except_string_no_proper_out
+            job.get_stderr().strip() == except_string_no_proper_out
         ), self.assert_exception_string
         assert ret == 1, self.assert_return_value.format(ret)
         # Flush job.error as it isn't flushed automatically.
@@ -219,7 +219,7 @@ class TestHashsum(object):
         )
         ret = hashsum.compare_hashes("")
         assert (
-            job.get_stderr().decode("utf8").strip() == except_string_improper_format
+            job.get_stderr().strip() == except_string_improper_format
         ), self.assert_exception_string
         mock.assert_called_once_with(
             "-c", "--strict", hash_file, transfer_dir=objects_dir
