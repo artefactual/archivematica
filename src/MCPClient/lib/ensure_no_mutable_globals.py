@@ -22,9 +22,12 @@ import sys
 import types
 
 import django
+
+django.setup()
+
 import prometheus_client
 
-from archivematicaClient import get_supported_modules
+from client.loader import get_supported_modules
 
 
 # These are the global types that should not be potentially dangerous to use.
