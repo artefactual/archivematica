@@ -20,9 +20,6 @@ from server.tasks.backends.base import TaskBackend
 logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
 
 
-GEARMAN_MAX_RETRIES = 5
-
-
 class GearmanTaskBackend(TaskBackend):
     """Submits tasks to MCPClient via Gearman.
 
@@ -37,6 +34,7 @@ class GearmanTaskBackend(TaskBackend):
     # Setting this too large will use more memory; setting it too small will hurt
     # throughput.  So the trick is to set it juuuust right.
     TASK_BATCH_SIZE = settings.BATCH_SIZE
+    MAX_RETRIES = 5
 
     def __init__(self):
         self.client = gearman.GearmanClient([settings.GEARMAN_SERVER])
@@ -119,7 +117,7 @@ class GearmanTaskBackend(TaskBackend):
         if len(task_batch) == 0:
             return
 
-        task_batch.submit(self.client, job)
+        task_batch.submit(self.client, job, max_retries=self.MAX_RETRIES)
 
         metrics.gearman_active_jobs_gauge.inc()
         metrics.gearman_pending_jobs_gauge.dec()
@@ -167,7 +165,7 @@ class GearmanTaskBatch(object):
     def add_task(self, task):
         self.tasks.append(task)
 
-    def submit(self, client, job):
+    def submit(self, client, job, max_retries=0):
         # Log tasks to DB, before submitting the batch, as mcpclient then updates them
         Task.bulk_log(self.tasks, job)
 
@@ -184,7 +182,7 @@ class GearmanTaskBatch(object):
             unique=six.binary_type(self.uuid),
             wait_until_complete=False,
             background=False,
-            max_retries=GEARMAN_MAX_RETRIES,
+            max_retries=max_retries,
         )
         logger.debug("Submitted gearman job %s (%s)", self.uuid, job.name)
 
