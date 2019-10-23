@@ -17,25 +17,29 @@ from version import get_full_version
 
 
 job_counter = Counter(
-    "mcpclient_job_total", "Number of jobs processed", ["script_name"]
+    "mcpclient_job_total",
+    "Number of jobs processed, labeled by script",
+    ["script_name"],
 )
 job_processed_timestamp = Gauge(
     "mcpclient_job_success_timestamp",
-    "Timestamp of most recent job processed",
+    "Timestamp of most recent job processed, labeled by script",
     ["script_name"],
 )
 job_error_counter = Counter(
-    "mcpclient_job_error_total", "Number of failures processing jobs", ["script_name"]
+    "mcpclient_job_error_total",
+    "Number of failures processing jobs, labeled by script",
+    ["script_name"],
 )
 job_error_timestamp = Gauge(
     "mcpclient_job_error_timestamp",
-    "Timestamp of most recent job failure",
+    "Timestamp of most recent job failure, labeled by script",
     ["script_name"],
 )
 
 task_execution_time_summary = Summary(
     "mcpclient_task_execution_time_seconds",
-    "Summary of worker task execution times in seconds",
+    "Summary of worker task execution times in seconds, labeled by script",
     ["script_name"],
 )
 waiting_for_gearman_time_summary = Summary(
@@ -44,21 +48,23 @@ waiting_for_gearman_time_summary = Summary(
 )
 
 transfer_started_counter = Counter(
-    "mcpclient_transfer_started_total", "Number of Transfers started", ["transfer_type"]
+    "mcpclient_transfer_started_total",
+    "Number of Transfers started, by transfer type",
+    ["transfer_type"],
 )
 transfer_started_timestamp = Gauge(
     "mcpclient_transfer_started_timestamp",
-    "Timestamp of most recent transfer started",
+    "Timestamp of most recent transfer started, by transfer type",
     ["transfer_type"],
 )
 transfer_error_counter = Counter(
     "mcpclient_transfer_error_total",
-    "Number of transfer failures",
+    "Number of transfer failures, by transfer type, error type",
     ["transfer_type", "failure_type"],
 )
 transfer_error_timestamp = Gauge(
     "mcpclient_transfer_error_timestamp",
-    "Timestamp of most recent transfer failure",
+    "Timestamp of most recent transfer failure, by transfer type, error type",
     ["transfer_type", "failure_type"],
 )
 
@@ -67,11 +73,13 @@ sip_started_timestamp = Gauge(
     "mcpclient_sip_started_timestamp", "Timestamp of most recent SIP started"
 )
 sip_error_counter = Counter(
-    "mcpclient_sip_error_total", "Number of SIP failures", ["failure_type"]
+    "mcpclient_sip_error_total",
+    "Number of SIP failures, by error type",
+    ["failure_type"],
 )
 sip_error_timestamp = Gauge(
     "mcpclient_sip_error_timestamp",
-    "Timestamp of most recent SIP failure",
+    "Timestamp of most recent SIP failure, by error type",
     ["failure_type"],
 )
 

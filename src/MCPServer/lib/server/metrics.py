@@ -22,32 +22,32 @@ gearman_pending_jobs_gauge = Gauge(
 )
 task_counter = Counter(
     "mcpserver_task_total",
-    "Number of tasks processed",
+    "Number of tasks processed, labeled by task group, task name",
     ["task_group_name", "task_name"],
 )
 task_error_counter = Counter(
     "mcpserver_task_error_total",
-    "Number of failures processing tasks",
+    "Number of failures processing tasks, labeled by task group, task name",
     ["task_group_name", "task_name"],
 )
 task_success_timestamp = Gauge(
     "mcpserver_task_success_timestamp",
-    "Most recent successfully processed task",
+    "Most recent successfully processed task, labeled by task group, task name",
     ["task_group_name", "task_name"],
 )
 task_error_timestamp = Gauge(
     "mcpserver_task_error_timestamp",
-    "Most recent failure when processing a task",
+    "Most recent failure when processing a task, labeled by task group, task name",
     ["task_group_name", "task_name"],
 )
 task_duration_summary = Summary(
     "mcpserver_task_duration_seconds",
-    "Summary of task processing durations in seconds",
+    "Summary of task processing durations in seconds, labeled by task group, task name, script name",
     ["task_group_name", "task_name", "script_name"],
 )
 chain_duration_summary = Summary(
     "mcpserver_chain_duration_seconds",
-    "Summary of job chain processing durations in seconds",
+    "Summary of job chain processing durations in seconds, labeled by unit type",
     ["unit_type"],
 )
 

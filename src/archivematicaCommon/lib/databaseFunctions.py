@@ -39,7 +39,7 @@ LOGGER = logging.getLogger("archivematica.common")
 
 db_retry_time_summary = Summary(
     "common_db_retry_time_seconds",
-    "Summary of time waiting to retry database transactions in seconds",
+    "Time waiting to retry database transactions in seconds",
     ["description"],
 )
 

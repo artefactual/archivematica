@@ -19,7 +19,7 @@ LOGGER = logging.getLogger("archivematica.common")
 
 ss_api_time_summary = Summary(
     "common_ss_api_request_duration_seconds",
-    "Summary of time waiting on the Storage Service API in seconds",
+    "Time waiting on the Storage Service API in seconds",
     ["function"],
 )
 

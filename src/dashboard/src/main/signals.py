@@ -32,10 +32,14 @@ if settings.PROMETHEUS_ENABLED:
     # are less invasive.
 
     model_save_count = Counter(
-        "django_model_save_total", "Total model save calls", ["model"]
+        "django_model_save_total",
+        "Total model save calls labeled by model class",
+        ["model"],
     )
     model_delete_count = Counter(
-        "django_model_delete_total", "Total model delete calls", ["model"]
+        "django_model_delete_total",
+        "Total model delete labeled by model class",
+        ["model"],
     )
 
     @receiver(post_save)
