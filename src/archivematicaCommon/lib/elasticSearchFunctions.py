@@ -874,7 +874,10 @@ def _list_bulk_extractor_reports(transfer_path, file_uuid):
     return reports
 
 
-def _list_files_in_dir(path, filepaths=[]):
+def _list_files_in_dir(path, filepaths=None):
+    if filepaths is None:
+        filepaths = []
+
     # Define entries
     for file in os.listdir(path):
         child_path = os.path.join(path, file)
