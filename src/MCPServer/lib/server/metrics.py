@@ -67,6 +67,8 @@ package_queue_length_gauge = Gauge(
     "mcpserver_package_queue_length", "Number of queued packages", ["package_type"]
 )
 
+PACKAGE_TYPES = ("Transfer", "SIP", "DIP")
+
 
 def skip_if_prometheus_disabled(func):
     @functools.wraps(func)
@@ -78,12 +80,27 @@ def skip_if_prometheus_disabled(func):
     return wrapper
 
 
-def init_labels():
+@skip_if_prometheus_disabled
+def init_labels(workflow):
     """Zero to start, by intializing all labels. Non-zero starting points
     cause problems when measuring rates.
     """
-    for package_type in ("Transfer", "SIP", "DIP"):
+    for package_type in PACKAGE_TYPES:
         package_queue_length_gauge.labels(package_type=package_type)
+        chain_duration_summary.labels(unit_type=package_type)
+
+    for link in workflow.get_links().values():
+        group_name = link.get_label("group", "en")
+        task_name = link.get_label("description", "en")
+        script_name = link.config.get("execute", "").lower()
+
+        task_counter.labels(task_group_name=group_name, task_name=task_name)
+        task_error_counter.labels(task_group_name=group_name, task_name=task_name)
+        task_success_timestamp.labels(task_group_name=group_name, task_name=task_name)
+        task_error_timestamp.labels(task_group_name=group_name, task_name=task_name)
+        task_duration_summary.labels(
+            task_group_name=group_name, task_name=task_name, script_name=script_name
+        )
 
 
 @skip_if_prometheus_disabled
