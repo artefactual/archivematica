@@ -9,8 +9,9 @@ import functools
 import os
 
 from django.conf import settings
-from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
+from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
+from common_metrics import TASK_DURATION_BUCKETS
 from version import get_full_version
 
 
@@ -40,15 +41,11 @@ task_error_timestamp = Gauge(
     "Most recent failure when processing a task, labeled by task group, task name",
     ["task_group_name", "task_name"],
 )
-task_duration_summary = Summary(
+task_duration_histogram = Histogram(
     "mcpserver_task_duration_seconds",
-    "Summary of task processing durations in seconds, labeled by task group, task name, script name",
-    ["task_group_name", "task_name", "script_name"],
-)
-chain_duration_summary = Summary(
-    "mcpserver_chain_duration_seconds",
-    "Summary of job chain processing durations in seconds, labeled by unit type",
-    ["unit_type"],
+    "Histogram of task processing durations in seconds, labeled by script name",
+    ["script_name"],
+    buckets=TASK_DURATION_BUCKETS,
 )
 
 archivematica_info = Info("archivematica_version", "Archivematica version info")
@@ -87,7 +84,6 @@ def init_labels(workflow):
     """
     for package_type in PACKAGE_TYPES:
         package_queue_length_gauge.labels(package_type=package_type)
-        chain_duration_summary.labels(unit_type=package_type)
 
     for link in workflow.get_links().values():
         group_name = link.get_label("group", "en")
@@ -98,9 +94,7 @@ def init_labels(workflow):
         task_error_counter.labels(task_group_name=group_name, task_name=task_name)
         task_success_timestamp.labels(task_group_name=group_name, task_name=task_name)
         task_error_timestamp.labels(task_group_name=group_name, task_name=task_name)
-        task_duration_summary.labels(
-            task_group_name=group_name, task_name=task_name, script_name=script_name
-        )
+        task_duration_histogram.labels(script_name=script_name)
 
 
 @skip_if_prometheus_disabled
@@ -118,33 +112,21 @@ def task_completed(task, job):
     if task.finished_timestamp is None:
         return
 
-    group_name = job.group
-    task_name = job.description
-    script_name = job.name
-    timediff = task.finished_timestamp - task.start_timestamp
-    duration = timediff.total_seconds()
+    duration = (task.finished_timestamp - task.start_timestamp).total_seconds()
 
-    task_counter.labels(task_group_name=group_name, task_name=task_name).inc()
+    task_counter.labels(task_group_name=job.group, task_name=job.description).inc()
     task_success_timestamp.labels(
-        task_group_name=group_name, task_name=task_name
+        task_group_name=job.group, task_name=job.description
     ).set_to_current_time()
-    task_duration_summary.labels(
-        task_group_name=group_name, task_name=task_name, script_name=script_name
-    ).observe(duration)
+    task_duration_histogram.labels(script_name=job.name).observe(duration)
 
 
 @skip_if_prometheus_disabled
 def task_failed(task, job):
-    group_name = job.group
-    task_name = job.description
-
     task_error_timestamp.labels(
-        task_group_name=group_name, task_name=task_name
+        task_group_name=job.group, task_name=job.description
     ).set_to_current_time()
-    task_error_counter.labels(task_group_name=group_name, task_name=task_name).inc()
-    task_counter.labels(task_group_name=group_name, task_name=task_name).inc()
-
-
-@skip_if_prometheus_disabled
-def chain_completed(duration, unit_type):
-    chain_duration_summary.labels(unit_type=unit_type).observe(duration)
+    task_error_counter.labels(
+        task_group_name=job.group, task_name=job.description
+    ).inc()
+    task_counter.labels(task_group_name=job.group, task_name=job.description).inc()

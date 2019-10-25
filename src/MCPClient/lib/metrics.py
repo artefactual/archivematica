@@ -12,17 +12,11 @@ import time
 from django.conf import settings
 from django.db.models import Prefetch
 from django.utils import timezone
-from prometheus_client import (
-    Counter,
-    Gauge,
-    Histogram,
-    Info,
-    Summary,
-    start_http_server,
-)
+from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
 from main.models import File, FileFormatVersion
 
+from common_metrics import PROCESSING_TIME_BUCKETS, TASK_DURATION_BUCKETS
 from version import get_full_version
 
 
@@ -47,14 +41,15 @@ job_error_timestamp = Gauge(
     ["script_name"],
 )
 
-task_execution_time_summary = Summary(
+task_execution_time_histogram = Histogram(
     "mcpclient_task_execution_time_seconds",
-    "Summary of worker task execution times in seconds, labeled by script",
+    "Histogram of worker task execution times in seconds, labeled by script",
     ["script_name"],
+    buckets=TASK_DURATION_BUCKETS,
 )
-waiting_for_gearman_time_summary = Summary(
+waiting_for_gearman_time_counter = Counter(
     "mcpclient_gearman_sleep_time_seconds",
-    "Summary of worker sleep after gearman error times in seconds",
+    "Total worker sleep after gearman error times in seconds",
 )
 
 transfer_started_counter = Counter(
@@ -101,13 +96,15 @@ aips_stored_timestamp = Gauge(
 dips_stored_timestamp = Gauge(
     "mcpclient_dips_stored_timestamp", "Timestamp of most recent DIP stored"
 )
-aip_processing_time_summary = Summary(
+aip_processing_time_histogram = Histogram(
     "mcpclient_aip_processing_seconds",
-    "AIP processing time, from first file recorded in DB to storage in SS",
+    "Histogram of AIP processing time, from first file recorded in DB to storage in SS",
+    buckets=PROCESSING_TIME_BUCKETS,
 )
-dip_processing_time_summary = Summary(
+dip_processing_time_histogram = Histogram(
     "mcpclient_dip_processing_seconds",
-    "DIP processing time, from first file recorded in DB to storage in SS",
+    "Histogram of DIP processing time, from first file recorded in DB to storage in SS",
+    buckets=PROCESSING_TIME_BUCKETS,
 )
 aip_files_stored_counter = Counter(
     "mcpclient_aip_files_stored_total",
@@ -143,7 +140,7 @@ timestamp_buckets = [
     for year in range(1980, datetime.date.today().year + 1)
 ]
 aip_original_file_timestamps_histogram = Histogram(
-    "mcpclient_aip_original_file_timestamps_histogram",
+    "mcpclient_aip_original_file_timestamps",
     "Histogram of modification times for files stored in AIPs, bucketed by year",
     buckets=timestamp_buckets + [float("inf")],
 )
@@ -177,7 +174,7 @@ def init_counter_labels():
         job_processed_timestamp.labels(script_name=script_name)
         job_error_counter.labels(script_name=script_name)
         job_error_timestamp.labels(script_name=script_name)
-        task_execution_time_summary.labels(script_name=script_name)
+        task_execution_time_histogram.labels(script_name=script_name)
 
     for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
@@ -233,7 +230,7 @@ def aip_stored(sip_uuid, size):
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
-        aip_processing_time_summary.observe(duration)
+        aip_processing_time_histogram.observe(duration)
 
     files_queryset_with_format = File.objects.filter(sip_id=sip_uuid).prefetch_related(
         Prefetch(
@@ -279,7 +276,7 @@ def dip_stored(sip_uuid, size):
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
-        dip_processing_time_summary.observe(duration)
+        dip_processing_time_histogram.observe(duration)
 
     file_count = File.objects.filter(sip_id=sip_uuid).count()
     dip_files_stored_counter.inc(file_count)

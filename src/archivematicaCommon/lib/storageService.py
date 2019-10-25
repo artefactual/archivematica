@@ -8,20 +8,13 @@ from requests.auth import AuthBase
 import urllib
 
 from django.conf import settings as django_settings
-from prometheus_client import Summary
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
+from common_metrics import ss_api_time_summary
 
 
 LOGGER = logging.getLogger("archivematica.common")
-
-
-ss_api_time_summary = Summary(
-    "common_ss_api_request_duration_seconds",
-    "Time waiting on the Storage Service API in seconds",
-    ["function"],
-)
 
 
 class Error(requests.exceptions.RequestException):

@@ -31,17 +31,11 @@ import uuid
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import six, timezone
-from prometheus_client import Summary
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
+from common_metrics import db_retry_time_summary
+
 LOGGER = logging.getLogger("archivematica.common")
-
-
-db_retry_time_summary = Summary(
-    "common_db_retry_time_seconds",
-    "Time waiting to retry database transactions in seconds",
-    ["description"],
-)
 
 
 def auto_close_db(f):
