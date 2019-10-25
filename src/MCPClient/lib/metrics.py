@@ -4,14 +4,24 @@ Exposes various metrics via Prometheus.
 from __future__ import absolute_import, unicode_literals
 
 import ConfigParser
+import datetime
 import functools
 import os
+import time
 
 from django.conf import settings
+from django.db.models import Prefetch
 from django.utils import timezone
-from prometheus_client import Counter, Gauge, Info, Summary, start_http_server
+from prometheus_client import (
+    Counter,
+    Gauge,
+    Histogram,
+    Info,
+    Summary,
+    start_http_server,
+)
 
-from main.models import File
+from main.models import File, FileFormatVersion
 
 from version import get_full_version
 
@@ -100,16 +110,51 @@ dip_processing_time_summary = Summary(
     "DIP processing time, from first file recorded in DB to storage in SS",
 )
 aip_files_stored_counter = Counter(
-    "mcpclient_aip_files_stored_total", "Number of files stored in AIPs"
+    "mcpclient_aip_files_stored_total",
+    "Number of files stored in AIPs. Note, this includes metadata, derivatives, etc.",
 )
 dip_files_stored_counter = Counter(
     "mcpclient_dip_files_stored_total", "Number of files stored in DIPs"
 )
-aip_size_counter = Counter("mcpclient_aip_size_bytes", "Number of bytes stored in AIPs")
-dip_size_counter = Counter("mcpclient_dip_size_bytes", "Number of bytes stored in DIPs")
+aip_size_counter = Counter(
+    "mcpclient_aip_size_bytes",
+    "Number of bytes stored in AIPs.  Note, this includes metadata, derivatives, etc.",
+)
+dip_size_counter = Counter(
+    "mcpclient_dip_size_bytes",
+    "Number of bytes stored in DIPs. Note, this includes metadata, derivatives, etc.",
+)
+
+# As we track over 1000 formats, the cardinality here is around 7000 and
+# well over the recommended number of label values for Prometheus (not over
+# 100). We get around this by not zeroing this counter, and assuming nobody is
+# using all formats.
+aip_files_stored_by_file_group_and_format_counter = Counter(
+    "mcpclient_aip_files_stored_by_file_group_and_format_total",
+    (
+        "Number of original files stored in AIPs labeled by file group, format name. "
+        "Note: format labels are intentionally not zeroed, so be aware of that when "
+        "querying. See https://www.robustperception.io/existential-issues-with-metrics"
+    ),
+    ["file_group", "format_name"],
+)
+timestamp_buckets = [
+    time.mktime(datetime.date(year=year, month=1, day=1).timetuple())
+    for year in range(1980, datetime.date.today().year + 1)
+]
+aip_original_file_timestamps_histogram = Histogram(
+    "mcpclient_aip_original_file_timestamps_histogram",
+    "Histogram of modification times for files stored in AIPs, bucketed by year",
+    buckets=timestamp_buckets + [float("inf")],
+)
 
 archivematica_info = Info("archivematica_version", "Archivematica version info")
 environment_info = Info("environment_variables", "Environment Variables")
+
+
+# There's no central place to pull these constants from currently
+PACKAGE_FAILURE_TYPES = ("fail", "reject")
+TRANSFER_TYPES = ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir")
 
 
 def skip_if_prometheus_disabled(func):
@@ -134,13 +179,11 @@ def init_counter_labels():
         job_error_timestamp.labels(script_name=script_name)
         task_execution_time_summary.labels(script_name=script_name)
 
-    failure_types = ("fail", "reject")
-
-    for transfer_type in ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir"):
+    for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
         transfer_started_timestamp.labels(transfer_type=transfer_type)
 
-        for failure_type in failure_types:
+        for failure_type in PACKAGE_FAILURE_TYPES:
             transfer_error_counter.labels(
                 transfer_type=transfer_type, failure_type=failure_type
             )
@@ -148,7 +191,7 @@ def init_counter_labels():
                 transfer_type=transfer_type, failure_type=failure_type
             )
 
-    for failure_type in failure_types:
+    for failure_type in PACKAGE_FAILURE_TYPES:
         sip_error_counter.labels(failure_type=failure_type)
         sip_error_timestamp.labels(failure_type=failure_type)
 
@@ -192,8 +235,36 @@ def aip_stored(sip_uuid, size):
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         aip_processing_time_summary.observe(duration)
 
-    file_count = File.objects.filter(sip_id=sip_uuid).count()
-    aip_files_stored_counter.inc(file_count)
+    files_queryset_with_format = File.objects.filter(sip_id=sip_uuid).prefetch_related(
+        Prefetch(
+            "fileformatversion_set",
+            queryset=FileFormatVersion.objects.select_related(
+                "format_version", "format_version__format"
+            ),
+        )
+    )
+
+    for file_obj in files_queryset_with_format:
+        aip_files_stored_counter.inc()
+
+        if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
+            timestamp = time.mktime(file_obj.modificationtime.timetuple())
+            aip_original_file_timestamps_histogram.observe(timestamp)
+
+        # We don't have format information for AIPs, so don't include them
+        if file_obj.filegrpuse.lower() == "aip":
+            continue
+
+        format_name = "Unknown"
+        format_version_m2m = file_obj.fileformatversion_set.first()
+        if format_version_m2m:
+            format_version = format_version_m2m.format_version
+            if format_version.format:
+                format_name = format_version.format.description
+
+        aip_files_stored_by_file_group_and_format_counter.labels(
+            file_group=file_obj.filegrpuse, format_name=format_name
+        ).inc()
 
 
 @skip_if_prometheus_disabled
