@@ -47,6 +47,11 @@ task_execution_time_histogram = Histogram(
     ["script_name"],
     buckets=TASK_DURATION_BUCKETS,
 )
+task_execution_time_total_counter = Counter(
+    "mcpclient_total_task_execution_time_seconds",
+    "Total worker task execution time in seconds, labeled by script",
+    ["script_name"],
+)
 waiting_for_gearman_time_counter = Counter(
     "mcpclient_gearman_sleep_time_seconds",
     "Total worker sleep after gearman error times in seconds",
@@ -101,10 +106,18 @@ aip_processing_time_histogram = Histogram(
     "Histogram of AIP processing time, from first file recorded in DB to storage in SS",
     buckets=PROCESSING_TIME_BUCKETS,
 )
+aip_processing_time_total_counter = Counter(
+    "mcpclient_aip_total_processing_seconds",
+    "Total AIP processing time spent by MCPClient",
+)
 dip_processing_time_histogram = Histogram(
     "mcpclient_dip_processing_seconds",
     "Histogram of DIP processing time, from first file recorded in DB to storage in SS",
     buckets=PROCESSING_TIME_BUCKETS,
+)
+dip_processing_time_total_counter = Counter(
+    "mcpclient_dip_total_processing_seconds",
+    "Total DIP processing time spent by MCPClient",
 )
 aip_files_stored_counter = Counter(
     "mcpclient_aip_files_stored_total",
@@ -175,6 +188,7 @@ def init_counter_labels():
         job_error_counter.labels(script_name=script_name)
         job_error_timestamp.labels(script_name=script_name)
         task_execution_time_histogram.labels(script_name=script_name)
+        task_execution_time_total_counter.labels(script_name=script_name)
 
     for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
@@ -206,16 +220,24 @@ def start_prometheus_server():
 
 
 @skip_if_prometheus_disabled
-def job_completed(script_name):
+def job_completed(script_name, start_time):
     job_counter.labels(script_name=script_name).inc()
     job_processed_timestamp.labels(script_name=script_name).set_to_current_time()
 
+    duration = time.time() - start_time
+    task_execution_time_histogram.labels(script_name=script_name).observe(duration)
+    task_execution_time_total_counter.labels(script_name=script_name).inc(duration)
+
 
 @skip_if_prometheus_disabled
-def job_failed(script_name):
+def job_failed(script_name, start_time):
     job_counter.labels(script_name=script_name).inc()
     job_error_counter.labels(script_name=script_name).inc()
     job_error_timestamp.labels(script_name=script_name).set_to_current_time()
+
+    duration = time.time() - start_time
+    task_execution_time_histogram.labels(script_name=script_name).observe(duration)
+    task_execution_time_total_counter.labels(script_name=script_name).inc(duration)
 
 
 @skip_if_prometheus_disabled
@@ -231,6 +253,7 @@ def aip_stored(sip_uuid, size):
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         aip_processing_time_histogram.observe(duration)
+        aip_processing_time_total_counter.inc(duration)
 
     files_queryset_with_format = File.objects.filter(sip_id=sip_uuid).prefetch_related(
         Prefetch(
@@ -277,6 +300,7 @@ def dip_stored(sip_uuid, size):
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         dip_processing_time_histogram.observe(duration)
+        dip_processing_time_total_counter.inc(duration)
 
     file_count = File.objects.filter(sip_id=sip_uuid).count()
     dip_files_stored_counter.inc(file_count)
