@@ -205,61 +205,68 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     standard output and standard error as a pickled dict.
     """
     logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
-    task_start_time = time.time()
 
-    try:
-        jobs = handle_batch_task(gearman_job, supported_modules)
-        results = {}
+    with metrics.task_execution_time_histogram.labels(
+        script_name=gearman_job.task
+    ).time():
+        try:
+            jobs = handle_batch_task(gearman_job, supported_modules)
+            results = {}
 
-        def write_task_results_callback():
-            with transaction.atomic():
-                for job in jobs:
-                    logger.info("\n\n*** Completed job: %s", job.dump())
+            def write_task_results_callback():
+                with transaction.atomic():
+                    for job in jobs:
+                        logger.info("\n\n*** Completed job: %s", job.dump())
 
-                    exit_code = job.get_exit_code()
-                    end_time = getUTCDate()
+                        exit_code = job.get_exit_code()
+                        end_time = getUTCDate()
 
-                    kwargs = {"exitcode": exit_code, "endtime": end_time}
-                    if (
-                        django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT
-                        or kwargs["exitcode"] > 0
-                    ):
-                        kwargs.update(
-                            {"stdout": job.get_stdout(), "stderror": job.get_stderr()}
-                        )
-                    Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
+                        kwargs = {"exitcode": exit_code, "endtime": end_time}
+                        if (
+                            django_settings.CAPTURE_CLIENT_SCRIPT_OUTPUT
+                            or kwargs["exitcode"] > 0
+                        ):
+                            kwargs.update(
+                                {
+                                    "stdout": job.get_stdout(),
+                                    "stderror": job.get_stderr(),
+                                }
+                            )
+                        Task.objects.filter(taskuuid=job.UUID).update(**kwargs)
 
-                    results[job.UUID] = {
-                        "exitCode": exit_code,
-                        "finishedTimestamp": end_time,
-                    }
+                        results[job.UUID] = {
+                            "exitCode": exit_code,
+                            "finishedTimestamp": end_time,
+                        }
 
-                    if job.caller_wants_output:
-                        # Send back stdout/stderr so it can be written to files.
-                        # Most cases don't require this (logging to the database is
-                        # enough), but the ones that do are coordinated through the
-                        # MCP Server so that multiple MCP Client instances don't try
-                        # to write the same file at the same time.
-                        results[job.UUID]["stdout"] = job.get_stdout()
-                        results[job.UUID]["stderror"] = job.get_stderr()
+                        if job.caller_wants_output:
+                            # Send back stdout/stderr so it can be written to files.
+                            # Most cases don't require this (logging to the database is
+                            # enough), but the ones that do are coordinated through the
+                            # MCP Server so that multiple MCP Client instances don't try
+                            # to write the same file at the same time.
+                            results[job.UUID]["stdout"] = job.get_stdout()
+                            results[job.UUID]["stderror"] = job.get_stderr()
 
-                    if exit_code == 0:
-                        metrics.job_completed(gearman_job.task, task_start_time)
-                    else:
-                        metrics.job_failed(gearman_job.task, task_start_time)
+                        if exit_code == 0:
+                            metrics.job_completed(gearman_job.task)
+                        else:
+                            metrics.job_failed(gearman_job.task)
 
-        retryOnFailure("Write task results", write_task_results_callback)
+            retryOnFailure("Write task results", write_task_results_callback)
 
-        return cPickle.dumps({"task_results": results})
-    except SystemExit:
-        logger.error(
-            "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
-            gearman_job.task,
-        )
-        return fail_all_tasks(gearman_job, "Module attempted exit")
-    except Exception as e:
-        logger.exception("Exception while processing task %s: %s", gearman_job.task, e)
-        return fail_all_tasks(gearman_job, e)
+            return cPickle.dumps({"task_results": results})
+        except SystemExit:
+            logger.error(
+                "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
+                gearman_job.task,
+            )
+            return fail_all_tasks(gearman_job, "Module attempted exit")
+        except Exception as e:
+            logger.exception(
+                "Exception while processing task %s: %s", gearman_job.task, e
+            )
+            return fail_all_tasks(gearman_job, e)
 
 
 def start_gearman_worker(supported_modules):

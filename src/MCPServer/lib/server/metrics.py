@@ -47,11 +47,6 @@ task_duration_histogram = Histogram(
     ["script_name"],
     buckets=TASK_DURATION_BUCKETS,
 )
-task_duration_total_counter = Counter(
-    "mcpserver_total_task_duration_seconds",
-    "Total task processing durations in seconds for the pipeline, labeled by script name",
-    ["script_name"],
-)
 
 archivematica_info = Info("archivematica_version", "Archivematica version info")
 environment_info = Info("environment_variables", "Environment Variables")
@@ -100,7 +95,6 @@ def init_labels(workflow):
         task_success_timestamp.labels(task_group_name=group_name, task_name=task_name)
         task_error_timestamp.labels(task_group_name=group_name, task_name=task_name)
         task_duration_histogram.labels(script_name=script_name)
-        task_duration_total_counter.labels(script_name=script_name)
 
 
 @skip_if_prometheus_disabled
@@ -125,7 +119,6 @@ def task_completed(task, job):
         task_group_name=job.group, task_name=job.description
     ).set_to_current_time()
     task_duration_histogram.labels(script_name=job.name).observe(duration)
-    task_duration_total_counter.labels(script_name=job.name).inc(duration)
 
 
 @skip_if_prometheus_disabled
