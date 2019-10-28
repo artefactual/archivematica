@@ -10,7 +10,6 @@ import os
 import time
 
 from django.conf import settings
-from django.db.models import Prefetch
 from django.utils import timezone
 from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
@@ -218,6 +217,27 @@ def job_failed(script_name):
     job_error_timestamp.labels(script_name=script_name).set_to_current_time()
 
 
+def _get_file_group(raw_file_group_use):
+    """Convert one of the file group use values we know about into
+    the smaller subset that we track:
+
+    original -> original
+    metadata -> metadata
+    submissionDocumentation -> metadata
+    access -> derivative
+    thumbnail -> derivative
+    preservation -> derivative
+    aip -> derivative
+    """
+    raw_file_group_use = raw_file_group_use.lower()
+    if raw_file_group_use in ("access", "thumbnail", "preservation", "aip"):
+        return "derivative"
+    elif raw_file_group_use in ("metadata", "submissiondocumentation"):
+        return "metadata"
+    else:
+        return raw_file_group_use
+
+
 @skip_if_prometheus_disabled
 def aip_stored(sip_uuid, size):
     aips_stored_counter.inc()
@@ -232,35 +252,38 @@ def aip_stored(sip_uuid, size):
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
         aip_processing_time_histogram.observe(duration)
 
-    files_queryset_with_format = File.objects.filter(sip_id=sip_uuid).prefetch_related(
-        Prefetch(
-            "fileformatversion_set",
-            queryset=FileFormatVersion.objects.select_related(
-                "format_version", "format_version__format"
-            ),
-        )
-    )
+    # We do two queries here, as we may not have format information for everything
+    total_file_count = File.objects.filter(sip_id=sip_uuid).count()
+    aip_files_stored_counter.inc(total_file_count)
 
-    for file_obj in files_queryset_with_format:
-        aip_files_stored_counter.inc()
-
+    # TODO: This could probably benefit from batching with prefetches. Using just
+    # prefetches will likely break down with very large numbers of files.
+    for file_obj in (
+        File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
+    ):
         if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
             timestamp = time.mktime(file_obj.modificationtime.timetuple())
             aip_original_file_timestamps_histogram.observe(timestamp)
 
-        # We don't have format information for AIPs, so don't include them
-        if file_obj.filegrpuse.lower() == "aip":
-            continue
-
+        file_group = _get_file_group(file_obj.filegrpuse)
         format_name = "Unknown"
-        format_version_m2m = file_obj.fileformatversion_set.first()
-        if format_version_m2m:
-            format_version = format_version_m2m.format_version
-            if format_version.format:
-                format_name = format_version.format.description
+
+        format_version_m2m = (
+            FileFormatVersion.objects.select_related(
+                "format_version", "format_version__format"
+            )
+            .filter(file_uuid=file_obj.uuid)
+            .first()
+        )
+        if (
+            format_version_m2m
+            and format_version_m2m.format_version
+            and format_version_m2m.format_version.format
+        ):
+            format_name = format_version_m2m.format_version.format.description
 
         aip_files_stored_by_file_group_and_format_counter.labels(
-            file_group=file_obj.filegrpuse, format_name=format_name
+            file_group=file_group, format_name=format_name
         ).inc()
 
 
