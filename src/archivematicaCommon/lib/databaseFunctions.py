@@ -33,7 +33,7 @@ from django.db.models import Q
 from django.utils import six, timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
-from common_metrics import db_retry_time_summary
+from common_metrics import db_retry_timer
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -307,7 +307,7 @@ def deUnicode(unicode_string):
 
 
 def retryOnFailure(description, callback, retries=10):
-    with db_retry_time_summary.labels(description=description).time():
+    with db_retry_timer(description=description):
         for retry in range(0, retries + 1):
             try:
                 callback()

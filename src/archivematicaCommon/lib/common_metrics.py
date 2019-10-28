@@ -1,4 +1,7 @@
-from prometheus_client import Summary
+import time
+from contextlib import contextmanager
+
+from prometheus_client import Counter
 
 # We need to balance reasonably accurate tracking with high cardinality here, as
 # this is used with script_name labels and there are already over 100 scripts.
@@ -84,13 +87,33 @@ PROCESSING_TIME_BUCKETS = (
 )
 
 
-db_retry_time_summary = Summary(
+db_retry_time_counter = Counter(
     "common_db_retry_time_seconds",
-    "Time waiting to retry database transactions in seconds",
+    "Total time waiting to retry database transactions in seconds",
     ["description"],
 )
-ss_api_time_summary = Summary(
+ss_api_time_counter = Counter(
     "common_ss_api_request_duration_seconds",
-    "Time waiting on the Storage Service API in seconds",
+    "Total time waiting on the Storage Service API in seconds",
     ["function"],
 )
+
+
+@contextmanager
+def db_retry_timer(*args, **kwargs):
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        duration = time.time() - start_time
+        db_retry_time_counter.labels(**kwargs).inc(duration)
+
+
+@contextmanager
+def ss_api_timer(*args, **kwargs):
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        duration = time.time() - start_time
+        ss_api_time_counter.labels(**kwargs).inc(duration)
