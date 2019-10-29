@@ -826,9 +826,37 @@
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
                 "@model": "MicroServiceChoiceReplacementDic",
                 "replacements": [
+                  {
+                      "description": {
+                          "en": "1 - fastest compression",
+                          "es": "1 - el modo más rápido",
+                          "fr": "1 - mode rapide",
+                          "ja": "1 - 最高速モード",
+                          "pt_BR": "1 - modo mais rápido",
+                          "sv": "1 - snabbaste läget"
+                      },
+                      "id": "ecfad581-b007-4612-a0e0-fcc551f4057f",
+                      "items": {
+                          "AIPCompressionLevel": "1"
+                      }
+                  },
+                  {
+                      "description": {
+                          "en": "3 - fast compression",
+                          "es": "3 - mode de compresión rápido",
+                          "fr": "3 - mode de compression rapide",
+                          "ja": "3 - 高速圧縮モード",
+                          "pt_BR": "3 - modo de compressão rápida",
+                          "sv": "3 - snabbkomprimeringsläge"
+                      },
+                      "id": "85b2243e-ff97-4ca8-80e8-3c6b0842b360",
+                      "items": {
+                          "AIPCompressionLevel": "3"
+                      }
+                  },
                     {
                         "description": {
-                            "en": "5 - normal compression mode",
+                            "en": "5 - normal compression",
                             "es": "5 - modo de compresión normal",
                             "fr": "5 - mode de compression normal",
                             "ja": "5 - 通常の圧縮モード",
@@ -866,34 +894,6 @@
                         "id": "6d52fd24-8c06-4c8e-997a-e427ba0acc36",
                         "items": {
                             "AIPCompressionLevel": "9"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "3 - fast compression mode",
-                            "es": "3 - mode de compresión rápido",
-                            "fr": "3 - mode de compression rapide",
-                            "ja": "3 - 高速圧縮モード",
-                            "pt_BR": "3 - modo de compressão rápida",
-                            "sv": "3 - snabbkomprimeringsläge"
-                        },
-                        "id": "85b2243e-ff97-4ca8-80e8-3c6b0842b360",
-                        "items": {
-                            "AIPCompressionLevel": "3"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "1 - fastest mode",
-                            "es": "1 - el modo más rápido",
-                            "fr": "1 - mode rapide",
-                            "ja": "1 - 最高速モード",
-                            "pt_BR": "1 - modo mais rápido",
-                            "sv": "1 - snabbaste läget"
-                        },
-                        "id": "ecfad581-b007-4612-a0e0-fcc551f4057f",
-                        "items": {
-                            "AIPCompressionLevel": "1"
                         }
                     }
                 ]
@@ -3187,8 +3187,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "433f4e6b-1ef4-49f8-b1e4-49693791a806",
-                    "9efab23c-31dc-4cbd-a39d-bb1665460cbe"
+                    "9efab23c-31dc-4cbd-a39d-bb1665460cbe",
+                    "433f4e6b-1ef4-49f8-b1e4-49693791a806"
                 ]
             },
             "description": {
@@ -4487,9 +4487,23 @@
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
                 "@model": "MicroServiceChoiceReplacementDic",
                 "replacements": [
+                  {
+                      "description": {
+                          "en": "Yes",
+                          "es": "Sí",
+                          "fr": "Oui",
+                          "ja": "はい",
+                          "pt_BR": "Sim",
+                          "sv": "Ja"
+                      },
+                      "id": "c318b224-b718-4535-a911-494b1af6ff26",
+                      "items": {
+                          "ThumbnailMode": "generate"
+                      }
+                  },
                     {
                         "description": {
-                            "en": "Yes, without default",
+                            "en": "Yes, without default icons",
                             "pt_BR": "Sim, sem padrão"
                         },
                         "id": "89f098ef-1cb2-4a97-ad67-4c0f14d0546b",
@@ -4507,20 +4521,6 @@
                         "id": "972fce6c-52c8-4c00-99b9-d6814e377974",
                         "items": {
                             "ThumbnailMode": "do_not_generate"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "c318b224-b718-4535-a911-494b1af6ff26",
-                        "items": {
-                            "ThumbnailMode": "generate"
                         }
                     }
                 ]
@@ -5283,8 +5283,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "4500f34e-f004-4ccf-8720-5c38d0be2254",
-                    "8d29eb3d-a8a8-4347-806e-3d8227ed44a1"
+                    "8d29eb3d-a8a8-4347-806e-3d8227ed44a1",
+                    "4500f34e-f004-4ccf-8720-5c38d0be2254"
                 ]
             },
             "description": {
@@ -6231,9 +6231,9 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "a6ed697e-6189-4b4e-9f80-29209abc7937",
+                    "612e3609-ce9a-4df6-a9a3-63d634d2d934",
                     "e8544c5e-9cbb-4b8f-a68b-6d9b4d7f7362",
-                    "612e3609-ce9a-4df6-a9a3-63d634d2d934"
+                    "a6ed697e-6189-4b4e-9f80-29209abc7937"
                 ]
             },
             "description": {
@@ -7582,10 +7582,10 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "526eded3-2280-4f10-ac86-eff6c464cc81",
                     "0fe9842f-9519-4067-a691-8a363132ae24",
-                    "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa",
-                    "3572f844-5e69-4000-a24b-4e32d3487f82"
+                    "3572f844-5e69-4000-a24b-4e32d3487f82",
+                    "526eded3-2280-4f10-ac86-eff6c464cc81",
+                    "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa"
                 ]
             },
             "description": {
@@ -8320,8 +8320,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "e0a39199-c62a-4a2f-98de-e9d1116460a8",
-                    "06f03bb3-121d-4c85-bec7-abbc5320a409"
+                    "06f03bb3-121d-4c85-bec7-abbc5320a409",
+                    "e0a39199-c62a-4a2f-98de-e9d1116460a8"
                 ]
             },
             "description": {
@@ -8990,8 +8990,8 @@
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
                     "1b04ec43-055c-43b7-9543-bd03c6a778ba",
-                    "7065d256-2f47-4b7d-baec-2c4699626121",
-                    "61cfa825-120e-4b17-83e6-51a42b67d969"
+                    "61cfa825-120e-4b17-83e6-51a42b67d969",
+                    "7065d256-2f47-4b7d-baec-2c4699626121"
                 ]
             },
             "description": {
@@ -9592,11 +9592,11 @@
                 "chain_choices": [
                     "b93cecd4-71f2-4e28-bc39-d32fd62c5a94",
                     "612e3609-ce9a-4df6-a9a3-63d634d2d934",
+                    "fb7a326e-1e50-4b48-91b9-4917ff8d0ae8",
+                    "e600b56d-1a43-4031-9d7c-f64f123e5662",
                     "c34bd22a-d077-4180-bf58-01db35bdb644",
                     "89cb80dd-0636-464f-930d-57b61e3928b2",
-                    "a6ed697e-6189-4b4e-9f80-29209abc7937",
-                    "e600b56d-1a43-4031-9d7c-f64f123e5662",
-                    "fb7a326e-1e50-4b48-91b9-4917ff8d0ae8"
+                    "a6ed697e-6189-4b4e-9f80-29209abc7937"
                 ]
             },
             "description": {
