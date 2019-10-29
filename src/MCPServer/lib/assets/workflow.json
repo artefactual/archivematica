@@ -11343,6 +11343,20 @@
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
                 "@model": "MicroServiceChoiceReplacementDic",
                 "replacements": [
+                  {
+                      "description": {
+                          "en": "Yes",
+                          "es": "Sí",
+                          "fr": "Oui",
+                          "ja": "はい",
+                          "pt_BR": "Sim",
+                          "sv": "Ja"
+                      },
+                      "id": "85b1e45d-8f98-4cae-8336-72f40e12cbef",
+                      "items": {
+                          "DeletePackage": "True"
+                      }
+                  },
                     {
                         "description": {
                             "en": "No",
@@ -11353,20 +11367,6 @@
                         "id": "72e8443e-a8eb-49a8-ba5f-76d52f960bde",
                         "items": {
                             "DeletePackage": "False"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "85b1e45d-8f98-4cae-8336-72f40e12cbef",
-                        "items": {
-                            "DeletePackage": "True"
                         }
                     }
                 ]
