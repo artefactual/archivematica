@@ -7,7 +7,6 @@ import ConfigParser
 import datetime
 import functools
 import os
-import time
 
 from django.conf import settings
 from django.utils import timezone
@@ -134,14 +133,12 @@ aip_files_stored_by_file_group_and_format_counter = Counter(
     ),
     ["file_group", "format_name"],
 )
-timestamp_buckets = [
-    time.mktime(datetime.date(year=year, month=1, day=1).timetuple())
-    for year in range(1980, datetime.date.today().year + 1)
-]
 aip_original_file_timestamps_histogram = Histogram(
     "mcpclient_aip_original_file_timestamps",
     "Histogram of modification times for files stored in AIPs, bucketed by year",
-    buckets=timestamp_buckets + [float("inf")],
+    buckets=[1970, 1980, 1990, 2005, 2010]
+    + range(2015, datetime.date.today().year + 2)
+    + [float("inf")],
 )
 
 archivematica_info = Info("archivematica_version", "Archivematica version info")
@@ -262,8 +259,9 @@ def aip_stored(sip_uuid, size):
         File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
     ):
         if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
-            timestamp = time.mktime(file_obj.modificationtime.timetuple())
-            aip_original_file_timestamps_histogram.observe(timestamp)
+            aip_original_file_timestamps_histogram.observe(
+                file_obj.modificationtime.year
+            )
 
         file_group = _get_file_group(file_obj.filegrpuse)
         format_name = "Unknown"
