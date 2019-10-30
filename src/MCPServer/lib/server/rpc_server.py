@@ -27,10 +27,10 @@ from lxml import etree
 
 
 from main.models import Job, SIP, Transfer
-
 from server.db import auto_close_old_connections
 from server.packages import create_package, get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
+from collections import OrderedDict
 
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
@@ -475,7 +475,9 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
     The caller should expect ``JobNotWaitingForApprovalError`` to be raised
     when the job does not need a decision to be made.
     """
-    ret = {}
+
+    ret = OrderedDict()
+
     try:
         choices = jobs_awaiting_for_approval[job_id].get_choices()
     except (KeyError, AttributeError):
