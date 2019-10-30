@@ -6144,8 +6144,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "3e891cc4-39d2-4989-a001-5107a009a223",
-                    "c611a6ff-dfdb-46d1-b390-f366a6ea6f66"
+                    "c611a6ff-dfdb-46d1-b390-f366a6ea6f66",
+                    "3e891cc4-39d2-4989-a001-5107a009a223"
                 ]
             },
             "description": {
@@ -8989,9 +8989,9 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "1b04ec43-055c-43b7-9543-bd03c6a778ba",
                     "61cfa825-120e-4b17-83e6-51a42b67d969",
-                    "7065d256-2f47-4b7d-baec-2c4699626121"
+                    "7065d256-2f47-4b7d-baec-2c4699626121",
+                    "1b04ec43-055c-43b7-9543-bd03c6a778ba"
                 ]
             },
             "description": {
@@ -10442,8 +10442,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "cbe9b4a3-e4e6-4a32-8d7c-3adfc409cb6f",
                     "1e0df175-d56d-450d-8bee-7df1dc7ae815",
+                    "cbe9b4a3-e4e6-4a32-8d7c-3adfc409cb6f",
                     "169a5448-c756-4705-a920-737de6b8d595"
                 ]
             },
@@ -11345,18 +11345,6 @@
                 "replacements": [
                     {
                         "description": {
-                            "en": "No",
-                            "fr": "Non",
-                            "ja": "いいえ",
-                            "sv": "Nej"
-                        },
-                        "id": "72e8443e-a8eb-49a8-ba5f-76d52f960bde",
-                        "items": {
-                            "DeletePackage": "False"
-                        }
-                    },
-                    {
-                        "description": {
                             "en": "Yes",
                             "es": "Sí",
                             "fr": "Oui",
@@ -11367,6 +11355,18 @@
                         "id": "85b1e45d-8f98-4cae-8336-72f40e12cbef",
                         "items": {
                             "DeletePackage": "True"
+                      }
+                    },
+                    {
+                        "description": {
+                            "en": "No",
+                            "fr": "Non",
+                            "ja": "いいえ",
+                            "sv": "Nej"
+                        },
+                        "id": "72e8443e-a8eb-49a8-ba5f-76d52f960bde",
+                        "items": {
+                            "DeletePackage": "False"
                         }
                     }
                 ]
