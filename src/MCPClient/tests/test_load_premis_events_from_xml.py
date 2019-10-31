@@ -355,6 +355,61 @@ def test_event_element_factory_prints_datetime_error(mocker):
     )
 
 
+no_event_outcome_detail_xml = """
+<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0">
+  <premis:event>
+    <premis:eventIdentifier>
+      <premis:eventIdentifierType>NRI Repository Event ID</premis:eventIdentifierType>
+      <premis:eventIdentifierValue>NRI-016</premis:eventIdentifierValue>
+    </premis:eventIdentifier>
+    <premis:eventType>ingestion</premis:eventType>
+    <premis:eventDateTime>2019-07-04T22:46:07.773391+00:00</premis:eventDateTime>
+    <premis:eventOutcomeInformation>
+      <premis:eventOutcome>event outcome</premis:eventOutcome>
+    </premis:eventOutcomeInformation>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>NRI</premis:linkingAgentIdentifierValue>
+    </premis:linkingAgentIdentifier>
+  </premis:event>
+</premis:premis>
+"""
+
+
+def test_event_element_factory_with_no_event_outcome_detail():
+    premis_element = etree.fromstring(no_event_outcome_detail_xml)
+    event_element = premis_element.find("premis:event", premis_element.nsmap)
+    event_element.set("version", premis_element.get("version"))
+    result = load_premis_events_from_xml.event_element_factory(event_element)
+    expected_attributes = [
+        "agents",
+        "event_datetime",
+        "event_id",
+        "event_outcome",
+        "event_type",
+        "files",
+        "identifier",
+    ]
+    assert sorted(result) == expected_attributes
+    assert result["agents"] == set([("repository code", "NRI")])
+    event_datetime = result["event_datetime"]
+    assert (event_datetime.year, event_datetime.month, event_datetime.day) == (
+        2019,
+        7,
+        4,
+    )
+    assert (event_datetime.hour, event_datetime.minute, event_datetime.second) == (
+        22,
+        46,
+        7,
+    )
+    assert result["event_id"] == "NRI-016"
+    assert result["event_outcome"] == "event outcome"
+    assert result["event_type"] == "ingestion"
+    assert result["files"] == set()
+    assert result["identifier"] == ("NRI Repository Event ID", "NRI-016")
+
+
 def test_get_or_create_agents(mocker):
     mock_agent_model = mocker.Mock(
         **{"objects.get_or_create.return_value": (None, None)}
