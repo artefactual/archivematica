@@ -429,7 +429,9 @@ def event_element_factory(element, printfn=print):
     if event_outcome:
         result["event_outcome"] = event_outcome
     event_outcome_detail = get_premis_element_children_text_attribute(
-        premis_element, "event_outcome_information", "event_outcome_detail_note"
+        premis_element,
+        "event_outcome_information/event_outcome_detail",
+        "event_outcome_detail_note",
     )
     if event_outcome_detail:
         result["event_outcome_detail"] = event_outcome_detail
