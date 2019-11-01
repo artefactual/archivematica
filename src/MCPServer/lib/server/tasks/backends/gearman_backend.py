@@ -7,10 +7,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import uuid
 
-import gearman
 from django.conf import settings
 from django.utils import six
 from django.utils.six.moves import cPickle
+from gearman import GearmanClient
+from gearman.constants import JOB_COMPLETE, JOB_FAILED, JOB_UNKNOWN
 
 from server import metrics
 from server.tasks.task import Task
@@ -18,6 +19,42 @@ from server.tasks.backends.base import TaskBackend
 
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
+
+
+class MCPGearmanClient(GearmanClient):
+    """
+    Client that adds `wait_until_any_job_completed`, so that we can poll a bit
+    more efficiently.
+    """
+
+    def wait_until_any_job_completed(self, job_requests, poll_timeout=None):
+        """
+        Go into a select loop until any of our jobs have completed or failed.
+
+        This is a modified version of `wait_until_jobs_completed`.
+        """
+
+        def continue_while_no_job_completed(any_activity):
+            """Returns False (exiting the poll loop) if anything was completed.
+            """
+            for current_request in job_requests:
+                if current_request.complete and current_request.state != JOB_UNKNOWN:
+                    return False
+
+            return True
+
+        self.poll_connections_until_stopped(
+            self.connection_list, continue_while_no_job_completed, timeout=poll_timeout
+        )
+
+        # Mark any job still in the queued state to poll_timeout
+        for current_request in job_requests:
+            current_request.timed_out = not current_request.complete
+
+            if not current_request.timed_out:
+                self.request_to_rotating_connection_queue.pop(current_request, None)
+
+        return job_requests
 
 
 class GearmanTaskBackend(TaskBackend):
@@ -36,7 +73,7 @@ class GearmanTaskBackend(TaskBackend):
     TASK_BATCH_SIZE = settings.BATCH_SIZE
 
     def __init__(self):
-        self.client = gearman.GearmanClient([settings.GEARMAN_SERVER])
+        self.client = MCPGearmanClient([settings.GEARMAN_SERVER])
 
         self.current_task_batches = {}  # job_uuid: GearmanTaskBatch
         self.pending_gearman_jobs = {}  # job_uuid: List[GearmanTaskBatch]
@@ -72,13 +109,15 @@ class GearmanTaskBackend(TaskBackend):
         completed_request_count = 0
         gearman_requests = [request.pending for request in pending_batches]
 
+        # Make sure everything has been accepted by gearman before getting results
+        # Note that accepted here means STATE_PENDING, that is accepted by the
+        # gearman server, not a client.
+        self.client.wait_until_jobs_accepted(gearman_requests)
+
         while len(pending_batches) > completed_request_count:
-            try:
-                gearman_requests = self.client.get_job_statuses(gearman_requests)
-            except KeyError:
-                # Annoying gearman bug: https://github.com/Yelp/python-gearman/issues/13
-                # TODO: upgrade gearman
-                gearman_requests = self.client.get_job_statuses(gearman_requests)
+            gearman_requests = self.client.wait_until_any_job_completed(
+                gearman_requests
+            )
 
             for batch in pending_batches:
                 if batch.collected:
@@ -96,7 +135,7 @@ class GearmanTaskBackend(TaskBackend):
             gearman_requests = [
                 request
                 for request in gearman_requests
-                if request.state not in (gearman.JOB_COMPLETE, gearman.JOB_FAILED)
+                if request.state not in (JOB_COMPLETE, JOB_FAILED)
             ]
 
         # Once we've gotten results for all job tasks, clear the batches
@@ -145,12 +184,12 @@ class GearmanTaskBatch(object):
 
     @property
     def complete(self):
-        return self.pending and self.pending.state == gearman.JOB_COMPLETE
+        return self.pending and self.pending.state == JOB_COMPLETE
 
     @property
     def failed(self):
         return self.pending and (
-            self.pending.state == gearman.JOB_FAILED or self.pending.timed_out
+            self.pending.state == JOB_FAILED or self.pending.timed_out
         )
 
     def serialize_task(self, task):

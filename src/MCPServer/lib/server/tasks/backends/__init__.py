@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import threading
 
 from server.tasks.backends.base import TaskBackend
-from server.tasks.backends.gearman import GearmanTaskBackend
+from server.tasks.backends.gearman_backend import GearmanTaskBackend
 
 
 backend_local = threading.local()

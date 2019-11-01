@@ -64,9 +64,9 @@ def format_gearman_response(task_results):
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
     mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 1)
-    mock_client = mocker.patch("gearman.GearmanClient")
+    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
 
     backend = GearmanTaskBackend()
     backend.submit_task(simple_job, simple_task)
@@ -89,9 +89,9 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
 
 def test_gearman_task_result_success(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
 
-    mock_client = mocker.patch("gearman.GearmanClient")
+    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
     backend = GearmanTaskBackend()
 
     mock_gearman_job = mocker.Mock()
@@ -117,7 +117,9 @@ def test_gearman_task_result_success(simple_job, simple_task, mocker):
         return [job_request]
 
     mock_client.return_value.submit_job.return_value = job_request
-    mock_client.return_value.get_job_statuses.side_effect = mock_jobs_completed
+    mock_client.return_value.wait_until_any_job_completed.side_effect = (
+        mock_jobs_completed
+    )
 
     backend.submit_task(simple_job, simple_task)
     results = list(backend.wait_for_results(simple_job))
@@ -125,7 +127,7 @@ def test_gearman_task_result_success(simple_job, simple_task, mocker):
     assert len(results) == 1
 
     mock_client.return_value.submit_job.assert_called_once()
-    mock_client.return_value.get_job_statuses.assert_called_once()
+    mock_client.return_value.wait_until_any_job_completed.assert_called_once()
 
     task_result = results[0]
     assert task_result.exit_code == 0
@@ -136,9 +138,9 @@ def test_gearman_task_result_success(simple_job, simple_task, mocker):
 
 def test_gearman_task_result_error(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
 
-    mock_client = mocker.patch("gearman.GearmanClient")
+    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
     backend = GearmanTaskBackend()
 
     mock_gearman_job = mocker.Mock()
@@ -153,7 +155,9 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
         return [job_request]
 
     mock_client.return_value.submit_job.return_value = job_request
-    mock_client.return_value.get_job_statuses.side_effect = mock_jobs_completed
+    mock_client.return_value.wait_until_any_job_completed.side_effect = (
+        mock_jobs_completed
+    )
 
     backend.submit_task(simple_job, simple_task)
     results = list(backend.wait_for_results(simple_job))
@@ -161,7 +165,7 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
     assert len(results) == 1
 
     mock_client.return_value.submit_job.assert_called_once()
-    mock_client.return_value.get_job_statuses.assert_called_once()
+    mock_client.return_value.wait_until_any_job_completed.assert_called_once()
 
     task_result = results[0]
     assert task_result.exit_code == 1
@@ -175,9 +179,9 @@ def test_gearman_multiple_batches(
     simple_job, simple_task, mocker, reverse_result_order
 ):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
     mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 2)
-    mock_client = mocker.patch("gearman.GearmanClient")
+    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
 
     tasks = []
     for i in range(5):
@@ -231,7 +235,9 @@ def test_gearman_multiple_batches(
         return job_requests
 
     mock_client.return_value.submit_job.side_effect = job_requests
-    mock_client.return_value.get_job_statuses.side_effect = mock_get_job_statuses
+    mock_client.return_value.wait_until_any_job_completed.side_effect = (
+        mock_get_job_statuses
+    )
 
     for task in tasks:
         backend.submit_task(simple_job, task)
@@ -243,4 +249,6 @@ def test_gearman_multiple_batches(
     assert len(results) == 5
     assert results[0] is expected_first_result
     assert mock_client.return_value.submit_job.call_count == expected_batch_count
-    assert mock_client.return_value.get_job_statuses.call_count == len(job_requests)
+    assert mock_client.return_value.wait_until_any_job_completed.call_count == len(
+        job_requests
+    )
