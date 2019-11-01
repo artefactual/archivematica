@@ -64,7 +64,7 @@ def format_gearman_response(task_results):
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
     mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 1)
     mock_client = mocker.patch("gearman.GearmanClient")
 
@@ -89,7 +89,7 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
 
 def test_gearman_task_result_success(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
 
     mock_client = mocker.patch("gearman.GearmanClient")
     backend = GearmanTaskBackend()
@@ -136,7 +136,7 @@ def test_gearman_task_result_success(simple_job, simple_task, mocker):
 
 def test_gearman_task_result_error(simple_job, simple_task, mocker):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
 
     mock_client = mocker.patch("gearman.GearmanClient")
     backend = GearmanTaskBackend()
@@ -175,7 +175,7 @@ def test_gearman_multiple_batches(
     simple_job, simple_task, mocker, reverse_result_order
 ):
     # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman.Task.bulk_log")
+    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
     mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 2)
     mock_client = mocker.patch("gearman.GearmanClient")
 
