@@ -9,10 +9,11 @@ import functools
 import os
 
 from django.conf import settings
+from django.db.models import Sum
 from django.utils import timezone
 from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
-from main.models import File, FileFormatVersion
+from main.models import File, FileFormatVersion, Transfer
 
 from common_metrics import PROCESSING_TIME_BUCKETS, TASK_DURATION_BUCKETS
 from version import get_full_version
@@ -60,6 +61,16 @@ transfer_started_timestamp = Gauge(
     "Timestamp of most recent transfer started, by transfer type",
     ["transfer_type"],
 )
+transfer_completed_counter = Counter(
+    "mcpclient_transfer_completed_total",
+    "Number of Transfers completed, by transfer type",
+    ["transfer_type"],
+)
+transfer_completed_timestamp = Gauge(
+    "mcpclient_transfer_completed_timestamp",
+    "Timestamp of most recent transfer completed, by transfer type",
+    ["transfer_type"],
+)
 transfer_error_counter = Counter(
     "mcpclient_transfer_error_total",
     "Number of transfer failures, by transfer type, error type",
@@ -69,6 +80,16 @@ transfer_error_timestamp = Gauge(
     "mcpclient_transfer_error_timestamp",
     "Timestamp of most recent transfer failure, by transfer type, error type",
     ["transfer_type", "failure_type"],
+)
+transfer_files_counter = Counter(
+    "mcpclient_transfer_files_total",
+    "Number files in Transfers, by transfer type",
+    ["transfer_type"],
+)
+transfer_size_counter = Counter(
+    "mcpclient_transfer_size_bytes",
+    "Number of bytes stored in Transfers, by transfer type",
+    ["transfer_type"],
 )
 
 sip_started_counter = Counter("mcpclient_sip_started_total", "Number of SIPs started")
@@ -175,6 +196,10 @@ def init_counter_labels():
     for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
         transfer_started_timestamp.labels(transfer_type=transfer_type)
+        transfer_completed_counter.labels(transfer_type=transfer_type)
+        transfer_completed_timestamp.labels(transfer_type=transfer_type)
+        transfer_files_counter.labels(transfer_type=transfer_type)
+        transfer_size_counter.labels(transfer_type=transfer_type)
 
         for failure_type in PACKAGE_FAILURE_TYPES:
             transfer_error_counter.labels(
@@ -307,6 +332,28 @@ def dip_stored(sip_uuid, size):
 def transfer_started(transfer_type):
     transfer_started_counter.labels(transfer_type=transfer_type).inc()
     transfer_started_timestamp.labels(transfer_type=transfer_type).set_to_current_time()
+
+
+@skip_if_prometheus_disabled
+def transfer_completed(transfer_uuid):
+    try:
+        transfer = Transfer.objects.get(uuid=transfer_uuid)
+    except Transfer.DoesNotExist:
+        return
+
+    transfer_completed_counter.labels(transfer_type=transfer.type).inc()
+    transfer_completed_timestamp.labels(
+        transfer_type=transfer.type
+    ).set_to_current_time()
+
+    file_queryset = File.objects.filter(transfer=transfer)
+    file_count = file_queryset.count()
+    transfer_files_counter.labels(transfer_type=transfer.type).inc(file_count)
+
+    transfer_size = file_queryset.aggregate(total_size=Sum("size"))
+    transfer_size_counter.labels(transfer_type=transfer.type).inc(
+        transfer_size["total_size"]
+    )
 
 
 @skip_if_prometheus_disabled
