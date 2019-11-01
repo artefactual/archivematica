@@ -36,6 +36,32 @@ PROCESSING_TIME_BUCKETS = (
     28800.0,  # 8 hours
     float("inf"),
 )
+# Histogram for distribution of transfer and AIP file counts
+PACKAGE_FILE_COUNT_BUCKETS = (
+    10.0,
+    50.0,
+    100.0,
+    250.0,
+    500.0,
+    1000.0,
+    2000.0,
+    5000.0,
+    10000.0,
+    float("inf"),
+)
+# Histogram for distribution of transfer and AIP size in bytes
+PACKAGE_SIZE_BUCKETS = (
+    1000000.0,  # 1 MB
+    10000000.0,  # 10 MB
+    50000000.0,  # 50 MB
+    100000000.0,  # 100 MB
+    200000000.0,  # 200 MB
+    500000000.0,  # 500 MB
+    1000000000.0,  # 1 GB
+    5000000000.0,  # 5 GB
+    10000000000.0,  # 10 GB
+    float("inf"),
+)
 
 
 db_retry_time_counter = Counter(

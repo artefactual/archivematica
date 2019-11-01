@@ -15,7 +15,12 @@ from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
 from main.models import File, FileFormatVersion, Transfer
 
-from common_metrics import PROCESSING_TIME_BUCKETS, TASK_DURATION_BUCKETS
+from common_metrics import (
+    PACKAGE_FILE_COUNT_BUCKETS,
+    PACKAGE_SIZE_BUCKETS,
+    PROCESSING_TIME_BUCKETS,
+    TASK_DURATION_BUCKETS,
+)
 from version import get_full_version
 
 
@@ -81,15 +86,17 @@ transfer_error_timestamp = Gauge(
     "Timestamp of most recent transfer failure, by transfer type, error type",
     ["transfer_type", "failure_type"],
 )
-transfer_files_counter = Counter(
-    "mcpclient_transfer_files_total",
-    "Number files in Transfers, by transfer type",
+transfer_files_histogram = Histogram(
+    "mcpclient_transfer_files",
+    "Histogram of number of files included in transfers, by transfer type",
     ["transfer_type"],
+    buckets=PACKAGE_FILE_COUNT_BUCKETS,
 )
-transfer_size_counter = Counter(
+transfer_size_histogram = Histogram(
     "mcpclient_transfer_size_bytes",
-    "Number of bytes stored in Transfers, by transfer type",
+    "Histogram of number bytes in transfers, by transfer type",
     ["transfer_type"],
+    buckets=PACKAGE_FILE_COUNT_BUCKETS,
 )
 
 sip_started_counter = Counter("mcpclient_sip_started_total", "Number of SIPs started")
@@ -125,20 +132,25 @@ dip_processing_time_histogram = Histogram(
     "Histogram of DIP processing time, from first file recorded in DB to storage in SS",
     buckets=PROCESSING_TIME_BUCKETS,
 )
-aip_files_stored_counter = Counter(
-    "mcpclient_aip_files_stored_total",
-    "Number of files stored in AIPs. Note, this includes metadata, derivatives, etc.",
+aip_files_stored_histogram = Histogram(
+    "mcpclient_aip_files_stored",
+    "Histogram of number of files stored in AIPs. Note, this includes metadata, derivatives, etc.",
+    buckets=PACKAGE_FILE_COUNT_BUCKETS,
 )
-dip_files_stored_counter = Counter(
-    "mcpclient_dip_files_stored_total", "Number of files stored in DIPs"
+dip_files_stored_histogram = Histogram(
+    "mcpclient_dip_files_stored",
+    "Histogram of number of files stored in DIPs.",
+    buckets=PACKAGE_FILE_COUNT_BUCKETS,
 )
-aip_size_counter = Counter(
+aip_size_histogram = Histogram(
     "mcpclient_aip_size_bytes",
-    "Number of bytes stored in AIPs.  Note, this includes metadata, derivatives, etc.",
+    "Histogram of number of bytes stored in AIPs. Note, this includes metadata, derivatives, etc.",
+    buckets=PACKAGE_SIZE_BUCKETS,
 )
-dip_size_counter = Counter(
+dip_size_histogram = Histogram(
     "mcpclient_dip_size_bytes",
-    "Number of bytes stored in DIPs. Note, this includes metadata, derivatives, etc.",
+    "Histogram of number of bytes stored in DIPs. Note, this includes metadata, derivatives, etc.",
+    buckets=PACKAGE_SIZE_BUCKETS,
 )
 
 # As we track over 1000 formats, the cardinality here is around 7000 and
@@ -198,8 +210,8 @@ def init_counter_labels():
         transfer_started_timestamp.labels(transfer_type=transfer_type)
         transfer_completed_counter.labels(transfer_type=transfer_type)
         transfer_completed_timestamp.labels(transfer_type=transfer_type)
-        transfer_files_counter.labels(transfer_type=transfer_type)
-        transfer_size_counter.labels(transfer_type=transfer_type)
+        transfer_files_histogram.labels(transfer_type=transfer_type)
+        transfer_size_histogram.labels(transfer_type=transfer_type)
 
         for failure_type in PACKAGE_FAILURE_TYPES:
             transfer_error_counter.labels(
@@ -264,7 +276,7 @@ def _get_file_group(raw_file_group_use):
 def aip_stored(sip_uuid, size):
     aips_stored_counter.inc()
     aips_stored_timestamp.set_to_current_time()
-    aip_size_counter.inc(size)
+    aip_size_histogram.observe(size)
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
@@ -276,7 +288,7 @@ def aip_stored(sip_uuid, size):
 
     # We do two queries here, as we may not have format information for everything
     total_file_count = File.objects.filter(sip_id=sip_uuid).count()
-    aip_files_stored_counter.inc(total_file_count)
+    aip_files_stored_histogram.observe(total_file_count)
 
     # TODO: This could probably benefit from batching with prefetches. Using just
     # prefetches will likely break down with very large numbers of files.
@@ -314,7 +326,7 @@ def aip_stored(sip_uuid, size):
 def dip_stored(sip_uuid, size):
     dips_stored_counter.inc()
     dips_stored_timestamp.set_to_current_time()
-    dip_size_counter.inc(size)
+    dip_size_histogram.observe(size)
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
@@ -325,7 +337,7 @@ def dip_stored(sip_uuid, size):
         dip_processing_time_histogram.observe(duration)
 
     file_count = File.objects.filter(sip_id=sip_uuid).count()
-    dip_files_stored_counter.inc(file_count)
+    dip_files_stored_histogram.observe(file_count)
 
 
 @skip_if_prometheus_disabled
@@ -348,10 +360,10 @@ def transfer_completed(transfer_uuid):
 
     file_queryset = File.objects.filter(transfer=transfer)
     file_count = file_queryset.count()
-    transfer_files_counter.labels(transfer_type=transfer.type).inc(file_count)
+    transfer_files_histogram.labels(transfer_type=transfer.type).observe(file_count)
 
     transfer_size = file_queryset.aggregate(total_size=Sum("size"))
-    transfer_size_counter.labels(transfer_type=transfer.type).inc(
+    transfer_size_histogram.labels(transfer_type=transfer.type).observe(
         transfer_size["total_size"]
     )
 
