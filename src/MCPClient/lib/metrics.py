@@ -96,7 +96,7 @@ transfer_size_histogram = Histogram(
     "mcpclient_transfer_size_bytes",
     "Histogram of number bytes in transfers, by transfer type",
     ["transfer_type"],
-    buckets=PACKAGE_FILE_COUNT_BUCKETS,
+    buckets=PACKAGE_SIZE_BUCKETS,
 )
 
 sip_started_counter = Counter("mcpclient_sip_started_total", "Number of SIPs started")
