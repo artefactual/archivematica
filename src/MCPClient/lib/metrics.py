@@ -180,7 +180,7 @@ environment_info = Info("environment_variables", "Environment Variables")
 
 # There's no central place to pull these constants from currently
 PACKAGE_FAILURE_TYPES = ("fail", "reject")
-TRANSFER_TYPES = ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir")
+TRANSFER_TYPES = ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir", "Unknown")
 
 
 def skip_if_prometheus_disabled(func):
@@ -342,6 +342,8 @@ def dip_stored(sip_uuid, size):
 
 @skip_if_prometheus_disabled
 def transfer_started(transfer_type):
+    if not transfer_type:
+        transfer_type = "Unknown"
     transfer_started_counter.labels(transfer_type=transfer_type).inc()
     transfer_started_timestamp.labels(transfer_type=transfer_type).set_to_current_time()
 
@@ -353,23 +355,28 @@ def transfer_completed(transfer_uuid):
     except Transfer.DoesNotExist:
         return
 
-    transfer_completed_counter.labels(transfer_type=transfer.type).inc()
+    transfer_type = transfer.type or "Unknown"
+
+    transfer_completed_counter.labels(transfer_type=transfer_type).inc()
     transfer_completed_timestamp.labels(
-        transfer_type=transfer.type
+        transfer_type=transfer_type
     ).set_to_current_time()
 
     file_queryset = File.objects.filter(transfer=transfer)
     file_count = file_queryset.count()
-    transfer_files_histogram.labels(transfer_type=transfer.type).observe(file_count)
+    transfer_files_histogram.labels(transfer_type=transfer_type).observe(file_count)
 
     transfer_size = file_queryset.aggregate(total_size=Sum("size"))
-    transfer_size_histogram.labels(transfer_type=transfer.type).observe(
+    transfer_size_histogram.labels(transfer_type=transfer_type).observe(
         transfer_size["total_size"]
     )
 
 
 @skip_if_prometheus_disabled
 def transfer_failed(transfer_type, failure_type):
+    if not transfer_type:
+        transfer_type = "Unknown"
+
     transfer_error_counter.labels(
         transfer_type=transfer_type, failure_type=failure_type
     ).inc()
