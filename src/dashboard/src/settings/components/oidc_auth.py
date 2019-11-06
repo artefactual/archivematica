@@ -26,4 +26,10 @@ if AZURE_TENANT_ID:
 OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 
 # Username is email address
-OIDC_USERNAME_ALGO = lambda email: email
+OIDC_USERNAME_ALGO = lambda email: email  # noqa
+
+# map attributes from access token
+OIDC_ACCESS_ATTRIBUTE_MAP = {"given_name": "first_name", "family_name": "last_name"}
+
+# map attributes from id token
+OIDC_ID_ATTRIBUTE_MAP = {"email": "email"}
