@@ -9,6 +9,8 @@ django.setup()
 # dashboard
 from main.models import Transfer
 
+import metrics
+
 
 def fetch_set(sip_uuid):
     transfer = Transfer.objects.get(uuid=sip_uuid)
@@ -50,12 +52,18 @@ def call(jobs):
             elements = [build_element(label, value, root) for (label, value) in values]
 
             # If there is no transfer metadata, skip writing the XML
-            if not elements:
-                continue
+            if elements:
+                tree = etree.ElementTree(root)
+                tree.write(
+                    opts.xml_file,
+                    pretty_print=True,
+                    xml_declaration=True,
+                    encoding="utf-8",
+                )
 
-            tree = etree.ElementTree(root)
-            tree.write(
-                opts.xml_file, pretty_print=True, xml_declaration=True, encoding="utf-8"
-            )
+                job.pyprint(etree.tostring(tree))
 
-            job.pyprint(etree.tostring(tree))
+            # This is an odd point to mark the transfer as "completed", but it's the
+            # last step in the "Complete Transfer" microservice group before the folder
+            # move, so it seems like the best option we have for now.
+            metrics.transfer_completed(opts.sip_uuid)

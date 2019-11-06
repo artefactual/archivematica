@@ -206,7 +206,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """
     logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
 
-    with metrics.task_execution_time_summary.labels(
+    with metrics.task_execution_time_histogram.labels(
         script_name=gearman_job.task
     ).time():
         try:
@@ -290,8 +290,9 @@ def start_gearman_worker(supported_modules):
                 inst.args,
                 fail_sleep,
             )
-            with metrics.waiting_for_gearman_time_summary.time():
-                time.sleep(fail_sleep)
+            metrics.waiting_for_gearman_time_counter.inc(fail_sleep)
+            time.sleep(fail_sleep)
+
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
         except Exception as e:
@@ -304,8 +305,8 @@ def start_gearman_worker(supported_modules):
                 e,
                 fail_sleep,
             )
-            with metrics.waiting_for_gearman_time_summary.time():
-                time.sleep(fail_sleep)
+            metrics.waiting_for_gearman_time_counter.inc(fail_sleep)
+            time.sleep(fail_sleep)
             if fail_sleep < fail_max_sleep:
                 fail_sleep += fail_sleep_incrementor
 

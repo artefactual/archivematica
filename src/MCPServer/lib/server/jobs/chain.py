@@ -16,7 +16,6 @@ import logging
 
 from django.utils import timezone
 
-from server import metrics
 from server.jobs.client import (
     ClientScriptJob,
     DirectoryClientScriptJob,
@@ -150,6 +149,3 @@ class JobChain(object):
         logger.debug(
             "Done with chain %s for package %s", self.chain.id, self.package.uuid
         )
-        completed_on = timezone.now()
-        chain_duration = (completed_on - self.started_on).total_seconds()
-        metrics.chain_completed(chain_duration, self.package.__class__.__name__)

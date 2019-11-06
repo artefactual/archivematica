@@ -108,6 +108,7 @@ def main(shutdown_event=None):
     Task.cleanup_old_db_entries()
     logger.debug("Cleaned up old db entries.")
 
+    metrics.init_labels(workflow)
     metrics.start_prometheus_server()
 
     package_queue = PackageQueue(executor, shutdown_event, debug=settings.DEBUG)
