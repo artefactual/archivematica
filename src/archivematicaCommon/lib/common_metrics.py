@@ -15,7 +15,7 @@ TASK_DURATION_BUCKETS = (
     120.0,  # 2 min
     300.0,  # 5 min
     600.0,  # 10 min
-    1500.0,  # 30 min
+    1800.0,  # 30 min
     3600.0,  # 1 hour
     float("inf"),
 )
@@ -29,7 +29,7 @@ PROCESSING_TIME_BUCKETS = (
     120.0,  # 2 min
     300.0,  # 5 min
     600.0,  # 10 min
-    1500.0,  # 30 min
+    1800.0,  # 30 min
     3600.0,  # 1 hour
     7200.0,  # 2 hours
     14400.0,  # 4 hours
