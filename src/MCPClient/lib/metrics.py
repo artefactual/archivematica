@@ -13,6 +13,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
 
+from fpr.models import FormatVersion
 from main.models import File, FileFormatVersion, Transfer
 
 from common_metrics import (
@@ -153,17 +154,12 @@ dip_size_histogram = Histogram(
     buckets=PACKAGE_SIZE_BUCKETS,
 )
 
-# As we track over 1000 formats, the cardinality here is around 7000 and
+# As we track over 1000 formats, the cardinality here is around 3000 and
 # well over the recommended number of label values for Prometheus (not over
-# 100). We get around this by not zeroing this counter, and assuming nobody is
-# using all formats.
+# 100). This will break down if we start tracking many nodes.
 aip_files_stored_by_file_group_and_format_counter = Counter(
     "mcpclient_aip_files_stored_by_file_group_and_format_total",
-    (
-        "Number of original files stored in AIPs labeled by file group, format name. "
-        "Note: format labels are intentionally not zeroed, so be aware of that when "
-        "querying. See https://www.robustperception.io/existential-issues-with-metrics"
-    ),
+    "Number of original files stored in AIPs labeled by file group, format name.",
     ["file_group", "format_name"],
 )
 aip_original_file_timestamps_histogram = Histogram(
@@ -179,6 +175,7 @@ environment_info = Info("environment_variables", "Environment Variables")
 
 
 # There's no central place to pull these constants from currently
+FILE_GROUPS = ("original", "derivative", "metadata")
 PACKAGE_FAILURE_TYPES = ("fail", "reject")
 TRANSFER_TYPES = ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir", "Unknown")
 
@@ -225,6 +222,12 @@ def init_counter_labels():
         sip_error_counter.labels(failure_type=failure_type)
         sip_error_timestamp.labels(failure_type=failure_type)
 
+    for format_name in FormatVersion.objects.values_list("description", flat=True):
+        for file_group in FILE_GROUPS:
+            aip_files_stored_by_file_group_and_format_counter.labels(
+                file_group=file_group, format_name=format_name
+            )
+
 
 @skip_if_prometheus_disabled
 def start_prometheus_server():
@@ -264,12 +267,12 @@ def _get_file_group(raw_file_group_use):
     aip -> derivative
     """
     raw_file_group_use = raw_file_group_use.lower()
-    if raw_file_group_use in ("access", "thumbnail", "preservation", "aip"):
-        return "derivative"
+    if raw_file_group_use == "original":
+        return "original"
     elif raw_file_group_use in ("metadata", "submissiondocumentation"):
         return "metadata"
     else:
-        return raw_file_group_use
+        return "derivative"
 
 
 @skip_if_prometheus_disabled
