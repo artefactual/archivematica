@@ -507,7 +507,7 @@
                 "pt_BR": "Sim",
                 "sv": "Ja"
             },
-            "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
+            "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
         },
         "94f764ad-805a-4d4e-8a2b-a6f2515b30c7": {
             "description": {
@@ -1224,11 +1224,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f"
+                    "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f",
+            "fallback_link_id": "873b428f-2c86-42b6-b463-aeda925bf559",
             "group": {
                 "en": "Process metadata directory",
                 "es": "Procesar directorio de metadatos",
@@ -7526,21 +7526,21 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Persistent identifier (PID) declaration"
+                "en": "Load persistent identifiers from external file"
             },
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
+                    "link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
+            "fallback_link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f",
             "group": {
-                "en": "Bind PIDs",
-                "fr": "Lier les PIDs",
-                "pt_BR": "Vincular PIDs",
-                "sv": "Lås PID:er."
+                "en": "Process metadata directory",
+                "es": "Procesar directorio de metadatos",
+                "pt_BR": "Processar diretório de metadados",
+                "sv": "Bearbeta metadatamapp"
             }
         },
         "87e7659c-d5de-4541-a09c-6deec966a0c0": {
