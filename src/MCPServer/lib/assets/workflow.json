@@ -838,22 +838,22 @@
                         "id": "ecfad581-b007-4612-a0e0-fcc551f4057f",
                         "items": {
                             "AIPCompressionLevel": "1"
-                      	}
+                        }
                     },
                     {
-                      	"description": {
-	                          "en": "3 - fast compression",
-	                          "es": "3 - mode de compresión rápido",
-	                          "fr": "3 - mode de compression rapide",
-	                          "ja": "3 - 高速圧縮モード",
-	                          "pt_BR": "3 - modo de compressão rápida",
-	                          "sv": "3 - snabbkomprimeringsläge"
-                      	},
-	                      "id": "85b2243e-ff97-4ca8-80e8-3c6b0842b360",
-	                      "items": {
-	                          "AIPCompressionLevel": "3"
-	                      }
-	                  },
+                        "description": {
+                            "en": "3 - fast compression",
+                            "es": "3 - mode de compresión rápido",
+                            "fr": "3 - mode de compression rapide",
+                            "ja": "3 - 高速圧縮モード",
+                            "pt_BR": "3 - modo de compressão rápida",
+                            "sv": "3 - snabbkomprimeringsläge"
+                        },
+                        "id": "85b2243e-ff97-4ca8-80e8-3c6b0842b360",
+                        "items": {
+                            "AIPCompressionLevel": "3"
+                        }
+                    },
                     {
                         "description": {
                             "en": "5 - normal compression",
@@ -11355,7 +11355,7 @@
                         "id": "85b1e45d-8f98-4cae-8336-72f40e12cbef",
                         "items": {
                             "DeletePackage": "True"
-                      }
+                        }
                     },
                     {
                         "description": {
