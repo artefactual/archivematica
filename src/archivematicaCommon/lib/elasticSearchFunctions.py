@@ -433,7 +433,7 @@ def index_aip_and_files(
         "uuid": uuid,
         "name": name,
         "filePath": aip_stored_path,
-        "size": aip_size / (1024 * 1024),
+        "size": int(aip_size) / (1024 * 1024),
         "origin": get_dashboard_uuid(),
         "created": created,
         "AICID": aic_identifier,
