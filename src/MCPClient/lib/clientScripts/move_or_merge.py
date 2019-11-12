@@ -5,6 +5,8 @@ import filecmp
 import os
 import shutil
 
+import scandir
+
 
 def mkdir_p(path):
     """Create a directory if it doesn't already exist."""
@@ -55,7 +57,7 @@ def move_or_merge(src, dst):
         # This loop walks the tree looking for files.  For every file in ``src``,
         # it finds the path relative to the top of ``src``, then moves it
         # to the corresponding path in ``dst``.
-        for root, _, filenames in os.walk(src):
+        for root, _, filenames in scandir.walk(src):
             rel_root = os.path.relpath(root, start=src)
             for f in filenames:
                 _move_file(
