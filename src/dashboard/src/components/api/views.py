@@ -40,6 +40,8 @@ from tastypie.authentication import (
 
 # This project, alphabetical
 import archivematicaFunctions
+from version import get_full_version
+
 from contrib.mcp.client import MCPClient
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
@@ -98,6 +100,12 @@ def _api_endpoint(expected_methods):
 
             # Call the decorated method
             result = func(request, *args, **kwargs)
+
+            result["X-Archivematica-Version"] = get_full_version()
+            try:
+                result["X-Archivematica-ID"] = request.dashboard_uuid
+            except AttributeError:
+                pass
 
             return result
 
