@@ -9,6 +9,7 @@ import mock
 
 from components import helpers
 from components.api import validators
+from version import get_full_version
 
 
 class MCPClientMock(object):
@@ -48,6 +49,11 @@ class TestAPIv2(TestCase):
         self.client = Client()
         self.client.login(username="test", password="test")
         helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    def test_headers(self):
+        resp = self.client.get("/api/v2beta/package/")
+        assert resp.get("X-Archivematica-Version") == get_full_version()
+        assert resp.get("X-Archivematica-ID") == "test-uuid"
 
     def test_package_list(self):
         resp = self.client.get("/api/v2beta/package/")

@@ -15,29 +15,50 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from re import compile as re_compile
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 
 import components.helpers as helpers
-from re import compile as re_compile
+from installer.views import welcome
 
 
-EXEMPT_URLS = [re_compile(settings.LOGIN_URL.lstrip("/"))]
-if hasattr(settings, "LOGIN_EXEMPT_URLS"):
-    EXEMPT_URLS += [re_compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
+EXEMPT_URLS = None
+
+
+def _load_exempt_urls():
+    global EXEMPT_URLS
+    EXEMPT_URLS = [re_compile(settings.LOGIN_URL.lstrip("/"))]
+    if hasattr(settings, "LOGIN_EXEMPT_URLS"):
+        EXEMPT_URLS += [re_compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
+
+
+_load_exempt_urls()
 
 
 class ConfigurationCheckMiddleware:
+    """Redirect users to the installer page or the login page.
+
+    The presence of the pipeline UUID in the database is an indicator of
+    whether the application has already been set up.
+    """
+
     def process_request(self, request):
-        # The presence of the UUID is an indicator of whether we've already set up.
         dashboard_uuid = helpers.get_setting("dashboard_uuid")
+
+        # Start off the installer unless the user is already there.
         if not dashboard_uuid:
-            # Start off the installer
-            if reverse("installer.views.welcome") != request.path_info:
-                return redirect("installer.views.welcome")
-        elif not request.user.is_authenticated():
-            # Installation already happened - make sure the user is logged in.
+            if reverse(welcome) == request.path_info:
+                return
+            return redirect(welcome)
+
+        # Send the user to the login page if needed.
+        if not request.user.is_authenticated():
             path = request.path_info.lstrip("/")
             if not any(m.match(path) for m in EXEMPT_URLS):
                 return redirect(settings.LOGIN_URL)
+
+        # Share the ID of the pipeline with the application views.
+        request.dashboard_uuid = dashboard_uuid
