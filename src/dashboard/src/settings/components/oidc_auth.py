@@ -1,7 +1,5 @@
 import os
 
-
-# AUTH_SERVER = 'https://login.microsoftonline.com/common/v2.0/'
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
 
