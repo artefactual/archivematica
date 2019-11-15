@@ -49,9 +49,7 @@ class MCPGearmanClient(GearmanClient):
 
         # Mark any job still in the queued state to poll_timeout
         for current_request in job_requests:
-            current_request.timed_out = not current_request.complete
-
-            if not current_request.timed_out:
+            if current_request.complete:
                 self.request_to_rotating_connection_queue.pop(current_request, None)
 
         return job_requests
@@ -188,9 +186,7 @@ class GearmanTaskBatch(object):
 
     @property
     def failed(self):
-        return self.pending and (
-            self.pending.state == JOB_FAILED or self.pending.timed_out
-        )
+        return self.pending and self.pending.state == JOB_FAILED
 
     def serialize_task(self, task):
         return {
@@ -243,10 +239,7 @@ class GearmanTaskBatch(object):
 
     def update_task_results(self):
         if self.failed:
-            if self.pending.timed_out:
-                logger.error("Gearman task batch %s timed out", self.uuid)
-            else:
-                logger.error("Gearman task batch %s failed to execute", self.uuid)
+            logger.error("Gearman task batch %s failed to execute", self.uuid)
 
             for task in self.tasks:
                 task.exit_code = 1
