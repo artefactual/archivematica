@@ -47,11 +47,12 @@ urlpatterns = [
     url(r"^file/", include("components.file.urls")),
     url(r"^access/", include("components.access.urls")),
     url(r"^backlog/", include("components.backlog.urls")),
-    url(r'^oidc/', include('mozilla_django_oidc.urls')),
     url(r"", include("main.urls")),
-
 ]
 
 if settings.PROMETHEUS_ENABLED:
     # Include prometheus metrics at /metrics
     urlpatterns.append(url("", include("django_prometheus.urls")))
+
+if settings.OIDC_AUTHENTICATION:
+    urlpatterns.append(url(r"^oidc/", include("mozilla_django_oidc.urls")))
