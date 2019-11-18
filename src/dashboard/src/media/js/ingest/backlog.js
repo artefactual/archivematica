@@ -36,7 +36,7 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
     'file_extension': gettext('File extension'),
     'accessionid'  : gettext('Accession number'),
     'ingestdate'   : gettext('Ingest date (YYYY-MM-DD)'),
-    'sipuuid'      : gettext('SIP UUID')
+    'sipuuid'      : gettext('Transfer UUID')
   });
 
   // default field name field
