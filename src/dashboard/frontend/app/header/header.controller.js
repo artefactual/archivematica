@@ -9,16 +9,6 @@ class HeaderController {
     this.transfer = TransferBrowserTransfer;
   }
 
-  // Creates or fetches the metadata row ID for the pending transfer component,
-  // then opens a new tab to edit its metadata.
-  add_next_metadata() {
-    let element = {};
-    this.transfer.fetch_id_for(element).then(() => {
-      this.transfer.next_id = element.id;
-      window.open(`/transfer/component/${element.id}`, '_blank');
-    });
-  }
-
   // Opens a new tab to edit the metadata for a transfer component which
   // has already been added.
   open_edit_page(component) {
