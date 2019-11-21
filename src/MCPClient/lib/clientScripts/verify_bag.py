@@ -30,9 +30,9 @@ BAG_INFO = 'bag-info.txt'
 
 def verify_bag(job, bag):
     verification_commands = [
-        ["/usr/share/bagit/bin/bag", "verifyvalid", bag],  # Validity
-        ["/usr/share/bagit/bin/bag", "verifycomplete", bag],  # Completness
-        ["/usr/share/bagit/bin/bag", "verifypayloadmanifests", bag],  # Checksums in manifests
+        ["/usr/share/bagit/bin/bag", "verifyvalid", "--excludehiddenfiles", bag],  # Validity
+        ["/usr/share/bagit/bin/bag", "verifycomplete", "--excludehiddenfiles", bag],  # Completness
+        ["/usr/share/bagit/bin/bag", "verifypayloadmanifests", "--excludehiddenfiles", bag],  # Checksums in manifests
     ]
     bag_info = os.path.join(bag, "bag-info.txt")
     if os.path.isfile(bag_info):
@@ -40,7 +40,7 @@ def verify_bag(job, bag):
             if line.startswith("Payload-Oxum"):
                 # Generate Payload-Oxum and check against Payload-Oxum in bag-info.txt.
                 verification_commands.append(
-                    ["/usr/share/bagit/bin/bag", "checkpayloadoxum", bag]
+                    ["/usr/share/bagit/bin/bag", "checkpayloadoxum", "--excludehiddenfiles", bag]
                 )
                 break
 
@@ -48,7 +48,7 @@ def verify_bag(job, bag):
         if item.startswith("tagmanifest-") and item.endswith(".txt"):
             # Verify the checksums in all tag manifests.
             verification_commands.append(
-                ["/usr/share/bagit/bin/bag", "verifytagmanifests", bag]
+                ["/usr/share/bagit/bin/bag", "verifytagmanifests", "--excludehiddenfiles", bag]
             )
             break
 
