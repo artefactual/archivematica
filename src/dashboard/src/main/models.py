@@ -546,9 +546,7 @@ class Identifier(models.Model):
     )
 
     def __str__(self):
-        return u"Identifier {i.identifiervalue} of type" " {i.identifiertype}".format(
-            i=self
-        )
+        return u"Identifier {i.value} of type {i.type}".format(i=self)
 
     class Meta:
         db_table = u"Identifiers"
@@ -603,7 +601,7 @@ class File(models.Model):
 
     def __unicode__(self):
         return six.text_type(
-            _("File %(uuid)s:%(originallocation)s" " now at %(currentlocation)s")
+            _("File %(uuid)s:%(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
                 "originallocation": self.originallocation,
@@ -639,7 +637,7 @@ class Directory(models.Model):
 
     def __unicode__(self):
         return six.text_type(
-            _("Directory %(uuid)s: %(originallocation)s" " now at %(currentlocation)s")
+            _("Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
                 "originallocation": self.originallocation,

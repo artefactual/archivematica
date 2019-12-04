@@ -35,7 +35,7 @@ from lxml import etree
 
 from django.db.models import Min, Q
 from django.utils.six.moves import xrange
-from main.models import File, Transfer
+from main.models import File, Identifier, Transfer
 
 # archivematicaCommon
 from archivematicaFunctions import get_dashboard_uuid
@@ -167,6 +167,19 @@ def _wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10)
         if health["status"] != "yellow" and health["status"] != "green":
             print("Cluster not in yellow or green state... waiting to retry.")
             time.sleep(wait_between_tries)
+
+
+def _get_sip_identifiers(uuid):
+    # Also index Directory identifiers so the AIP can be found through them
+    return list(
+        Identifier.objects.filter(Q(sip=uuid) | Q(directory__sip=uuid)).values_list(
+            "value", flat=True
+        )
+    )
+
+
+def _get_file_identifiers(uuid):
+    return list(Identifier.objects.filter(file=uuid).values_list("value", flat=True))
 
 
 # --------------
@@ -368,7 +381,7 @@ def index_aip_and_files(
     name,
     aip_size,
     aips_in_aic=None,
-    identifiers=[],
+    identifiers=None,
     encrypted=False,
     printfn=print,
 ):
@@ -382,7 +395,7 @@ def index_aip_and_files(
     :param aip_size: AIP size.
     :param aips_in_aic: optional number of AIPs stored in AIC.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
-    :param identifiers: optional AIP encrypted boolean (defaults to `False`).
+    :param encrypted: optional AIP encrypted boolean (defaults to `False`).
     :param printfn: optional print funtion.
     :return: 0 is succeded, 1 otherwise.
     """
@@ -429,6 +442,10 @@ def index_aip_and_files(
             except ValueError:
                 printfn("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
 
+    if identifiers is None:
+        identifiers = []
+    identifiers += _get_sip_identifiers(uuid)
+
     aip_data = {
         "uuid": uuid,
         "name": name,
@@ -453,7 +470,7 @@ def index_aip_and_files(
     return 0
 
 
-def _index_aip_files(client, uuid, mets, name, identifiers=[]):
+def _index_aip_files(client, uuid, mets, name, identifiers=None):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
     :param client: The ElasticSearch client.
@@ -479,6 +496,9 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[]):
         elif aip_type == "Archival Information Package":
             is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
 
+    if identifiers is None:
+        identifiers = []
+
     # Establish structure to be indexed for each file item
     fileData = {
         "archivematicaVersion": version.get_version(),
@@ -492,7 +512,6 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[]):
         "AICID": aic_identifier,
         "METS": {"dmdSec": {}, "amdSec": {}},
         "origin": get_dashboard_uuid(),
-        "identifiers": identifiers,
         "transferMetadata": _extract_transfer_metadata(mets),
     }
 
@@ -582,6 +601,8 @@ def _index_aip_files(client, uuid, mets, name, identifiers=[]):
             _, fileExtension = os.path.splitext(filePath)
             if fileExtension:
                 indexData["fileExtension"] = fileExtension[1:].lower()
+
+            indexData["identifiers"] = identifiers + _get_file_identifiers(fileUUID)
 
             yield {
                 "_op_type": "index",
