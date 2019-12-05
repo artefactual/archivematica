@@ -70,6 +70,15 @@ def test_moves_contents_of_directory_when_dst_does_not_exist(tmpdir):
     assert dst.read() == "hello world"
 
 
+def test_moves_contents_with_no_files_at_src(tmpdir):
+    src_dir = tmpdir.mkdir("src")
+    dst_dir = tmpdir.join("dst")
+
+    move_or_merge(src=str(src_dir), dst=str(dst_dir))
+    assert dst_dir.exists()
+    assert not len(dst_dir.listdir())
+
+
 def test_moves_contents_of_directory(src_dir, dst_dir):
     src = src_dir.join("file.txt")
     dst = dst_dir.join("file.txt")
