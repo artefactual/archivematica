@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- encoding: utf-8
 
 import errno
 import filecmp
@@ -6,6 +7,10 @@ import os
 import shutil
 
 import scandir
+
+from custom_handlers import get_script_logger
+
+logger = get_script_logger("archivematica.mcp.client.move_or_merge")
 
 
 def mkdir_p(path):
@@ -51,21 +56,31 @@ def move_or_merge(src, dst):
     If ``dst`` does exist and is a directory, the two directories are merged by
     moving the contents of ``src`` into ``dst``.
     """
+    logger.info("Testing for the existence of src: %s", src)
+    logger.info("Moving or merging to dst: %s", dst)
     if os.path.isfile(src):
+        logger.debug("src: %s is a file", src)
         _move_file(src, dst)
     elif os.path.isdir(src):
         # This loop walks the tree looking for files.  For every file in ``src``,
         # it finds the path relative to the top of ``src``, then moves it
-        # to the corresponding path in ``dst``.
-        for root, _, filenames in scandir.walk(src):
-            rel_root = os.path.relpath(root, start=src)
-            for f in filenames:
-                _move_file(
-                    src=os.path.join(src, rel_root, f),
-                    dst=os.path.join(dst, rel_root, f),
-                )
-
-        shutil.rmtree(src)
+        # to the corresponding path in ``dst``. If the top-level ``dst``
+        # directory doesn't already exist, we guarantee its creation even if
+        # ``src`` lower-levels are empty.
+        logger.debug("src: %s is a directory", src)
+        if not os.path.exists(dst):
+            logger.info("Creating top-level dst folder: %s, moving src as-a-whole", dst)
+            shutil.move(src, dst)
+        else:
+            logger.info("dst: %s exists, copying src files one-by-one", dst)
+            for root, _, filenames in scandir.walk(src):
+                rel_root = os.path.relpath(root, start=src)
+                for f in filenames:
+                    _move_file(
+                        src=os.path.join(src, rel_root, f),
+                        dst=os.path.join(dst, rel_root, f),
+                    )
+            shutil.rmtree(src)
 
 
 def main(src, dst):
@@ -82,7 +97,7 @@ def main(src, dst):
 
 def call(jobs):
     for job in jobs:
-        with job.JobContext():
+        with job.JobContext(logger=logger):
             src = job.args[1]
             dst = job.args[2]
             try:
