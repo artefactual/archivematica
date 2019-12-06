@@ -158,3 +158,28 @@ def test_upload_to_archivespace_gets_mets_if_needed(mocker, params):
             mocker.call("Found mets file at path: /dip/location/path/METS.dipuuid.xml"),
         ]
     )
+
+
+def test_upload_to_archivespace_logs_files_with_no_pairs(db, mocker):
+    file1_uuid = uuid.uuid4()
+    file2_uuid = uuid.uuid4()
+    file3_uuid = uuid.uuid4()
+    mocker.patch(
+        "upload_archivesspace.get_pairs",
+        return_value={str(file1_uuid): "myresource", str(file3_uuid): "myresource"},
+    )
+    logger = mocker.patch("upload_archivesspace.logger")
+    mocker.patch("upload_archivesspace.mets_file")
+    client_mock = mocker.Mock()
+    files = [
+        "/path/to/{}-image.jpg".format(file1_uuid),
+        "/path/to/{}-video.avi".format(file2_uuid),
+        "/path/to/{}-audio.mp3".format(file3_uuid),
+    ]
+    restrictions = "no"
+    upload_archivesspace.upload_to_archivesspace(
+        files, client_mock, "", "", "", "", "", "", "", "", restrictions, "", ""
+    )
+    logger.warning.assert_called_once_with(
+        "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)
+    )
