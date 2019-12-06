@@ -427,3 +427,147 @@ def directories(db, sip):
 def test_get_sip_identifiers_returns_sip_and_directory_identifiers(sip, directories):
     result = elasticSearchFunctions._get_sip_identifiers(sip.uuid)
     assert sorted(result) == ["dir1", "sip_identifier"]
+
+
+PHYSICAL_STRUCT_MAP = """<mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical" xmlns:mets="http://www.loc.gov/METS/">
+  <mets:div LABEL="Demo-166e916c-0676-4324-8045-bfc628bebcea" TYPE="Directory" DMDID="dmdSec_1">
+    <mets:div LABEL="objects" TYPE="Directory" DMDID="dmdSec_2 dmdSec_3">
+      <mets:div LABEL="View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring-49ad492e-7f1f-4f76-a394-17fa9c9a392d.tif" TYPE="Item">
+        <mets:fptr FILEID="file-49ad492e-7f1f-4f76-a394-17fa9c9a392d"/>
+      </mets:div>
+      <mets:div LABEL="View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring.jpg" TYPE="Item" ADMID="amdSec_1">
+        <mets:fptr FILEID="file-e36a4785-f271-405d-ac75-e54cfdbf74e4"/>
+      </mets:div>
+      <mets:div LABEL="artwork" TYPE="Directory" ADMID="amdSec_2">
+        <mets:div LABEL="MARBLES-9077d660-cc89-4ea3-a61c-f932328985ef.tif" TYPE="Item">
+          <mets:fptr FILEID="file-9077d660-cc89-4ea3-a61c-f932328985ef"/>
+        </mets:div>
+      </mets:div>
+      <mets:div LABEL="empty" TYPE="Directory">
+      </mets:div>
+    </mets:div>
+  </mets:div>
+</mets:structMap>
+"""
+
+
+@pytest.fixture
+def physical_struct_map():
+    return etree.fromstring(PHYSICAL_STRUCT_MAP)
+
+
+def test_get_directories_with_metadata(physical_struct_map):
+    result = elasticSearchFunctions._get_directories_with_metadata(physical_struct_map)
+    labels = sorted([directory.attrib["LABEL"] for directory in result])
+    assert labels == ["Demo-166e916c-0676-4324-8045-bfc628bebcea", "artwork", "objects"]
+
+
+METS = """<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Some title</dc:title>
+          <dc:creator>AM</dc:creator>
+          <dc:subject></dc:subject>
+          <dc:subject></dc:subject>
+          <dc:subject></dc:subject>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="CUSTOM">
+      <mets:xmlData>
+        <custom_field>custom field part 1</custom_field>
+        <custom_field>custom field part 2</custom_field>
+        <custom_field2>custom field 2</custom_field2>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_1">
+    <mets:sourceMD ID="sourceMD_1">
+      <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="BagIt">
+        <mets:xmlData>
+          <transfer_metadata>
+            <Payload-Oxum>63140.2</Payload-Oxum>
+            <FIELD_CONTACT_NAME>A.</FIELD_CONTACT_NAME>
+            <FIELD_CONTACT_NAME>R.</FIELD_CONTACT_NAME>
+            <FIELD_CONTACT_NAME>Chivist</FIELD_CONTACT_NAME>
+          </transfer_metadata>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:sourceMD>
+  </mets:amdSec>
+</mets:mets>
+"""
+
+
+@pytest.fixture
+def mets():
+    return etree.fromstring(METS)
+
+
+@pytest.fixture
+def directory():
+    result = etree.Element("directory")
+    result.set("LABEL", "some/path/to/directory")
+    result.set("DMDID", "dmdSec_1 dmdSec_2")
+    result.set("ADMID", "amdSec_1")
+    return result
+
+
+@pytest.fixture
+def directory_with_no_metadata():
+    result = etree.Element("directory")
+    result.set("DMDID", "dmdSec_3")
+    return result
+
+
+def test_get_directory_metadata(mets, directory, directory_with_no_metadata):
+    result = elasticSearchFunctions._get_directory_metadata(
+        directory_with_no_metadata, mets
+    )
+    assert result == {}
+    result = elasticSearchFunctions._get_directory_metadata(directory, mets)
+    # all fields are combined into a single dictionary
+    assert result == {
+        "__DIRECTORY_LABEL__": "some/path/to/directory",
+        "FIELD_CONTACT_NAME": ["A.", "R.", "Chivist"],
+        "Payload-Oxum": "63140.2",
+        "custom_field": ["custom field part 1", "custom field part 2"],
+        "custom_field2": "custom field 2",
+        "dc:creator": "AM",
+        "dc:subject": [None, None, None],
+        "dc:title": "Some title",
+    }
+
+
+@pytest.fixture
+def file_pointer():
+    result = etree.Element("file")
+    result.set("DMDID", "dmdSec_1 dmdSec_2")
+    return result
+
+
+@pytest.fixture
+def file_pointer_with_no_metadata():
+    result = etree.Element("file")
+    result.set("DMDID", "dmdSec_3")
+    return result
+
+
+def test_get_file_metadata(mets, file_pointer, file_pointer_with_no_metadata):
+    result = elasticSearchFunctions._get_file_metadata(
+        file_pointer_with_no_metadata, mets
+    )
+    assert result == {}
+    result = elasticSearchFunctions._get_file_metadata(file_pointer, mets)
+    # all fields are combined into a single dictionary
+    assert result == {
+        "custom_field": ["custom field part 1", "custom field part 2"],
+        "custom_field2": "custom field 2",
+        "dc:creator": "AM",
+        "dc:subject": [None, None, None],
+        "dc:title": "Some title",
+    }
