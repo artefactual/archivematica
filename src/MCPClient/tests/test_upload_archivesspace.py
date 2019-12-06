@@ -2,6 +2,7 @@
 
 import os
 import sys
+import uuid
 
 import pytest
 
@@ -68,3 +69,92 @@ def test_delete_pairs(mocker):
     upload_archivesspace.delete_pairs(dip_uuid)
     filter_mock.assert_called_once_with(dipuuid=dip_uuid)
     queryset_mock.delete.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "uri",
+    ["http://some/uri/", "http://some/uri"],
+    ids=["uri_with_trailing_slash", "uri_with_no_trailing_slash"],
+)
+def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
+    file_uuid = str(uuid.uuid4())
+    client_mock = mocker.Mock()
+    mocker.patch("upload_archivesspace.mets_file")
+    mocker.patch(
+        "upload_archivesspace.get_pairs", return_value={file_uuid: "myresource"}
+    )
+    files = ["file/{}-path".format(file_uuid)]
+    # TODO: initialize restriction_apply = None/False before determining restrictions
+    #       to avoid referenced before assignment error if restrictions is no in the
+    #       expected values
+    restrictions = "no"
+    upload_archivesspace.upload_to_archivesspace(
+        files, client_mock, "", "", "", "", uri, "", "", "", restrictions, "", ""
+    )
+    client_mock.add_digital_object.assert_called_once_with(
+        **{
+            "access_conditions": "",
+            "format_name": None,
+            "format_version": None,
+            "identifier": file_uuid,
+            "inherit_notes": "",
+            "location_of_originals": "",
+            "object_type": "",
+            "parent_archival_object": "myresource",
+            "restricted": False,
+            "size": None,
+            "title": "",
+            # whole point of this test is to check this path is correct
+            "uri": "http://some/uri/{}-path".format(file_uuid),
+            "use_conditions": "",
+            "use_statement": "",
+            "xlink_actuate": "",
+            "xlink_show": "",
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"restrictions": "premis", "access_conditions": "", "use_conditions": ""},
+        {
+            "restrictions": "",
+            "access_conditions": "somecondition",
+            "use_conditions": "",
+        },
+        {
+            "restrictions": "",
+            "access_conditions": "",
+            "use_conditions": "somecondition",
+        },
+    ],
+    ids=["with_restrictions", "with_access_conditions", "with_use_conditions"],
+)
+def test_upload_to_archivespace_gets_mets_if_needed(mocker, params):
+    mocker.patch("upload_archivesspace.get_pairs")
+    logger = mocker.patch("upload_archivesspace.logger")
+    mets_file_mock = mocker.patch("upload_archivesspace.mets_file")
+    upload_archivesspace.upload_to_archivesspace(
+        [],
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "dipuuid",
+        params["access_conditions"],
+        params["use_conditions"],
+        params["restrictions"],
+        # TODO: use os.path.join to make this trailing slash optional
+        "/dip/location/path/",
+        "",
+    )
+    mets_file_mock.assert_called_once_with("/dip/location/path/METS.dipuuid.xml")
+    logger.debug.assert_has_calls(
+        [
+            mocker.call("Looking for mets: dipuuid"),
+            mocker.call("Found mets file at path: /dip/location/path/METS.dipuuid.xml"),
+        ]
+    )
