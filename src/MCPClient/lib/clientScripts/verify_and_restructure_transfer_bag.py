@@ -35,6 +35,7 @@ import fileOperations
 from databaseFunctions import insertIntoEvents
 
 from verify_bag import verify_bag
+from move_or_merge import move_or_merge
 
 
 def restructureBagForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
@@ -49,11 +50,21 @@ def restructureBagForComplianceFileUUIDsAssigned(job, unitPath, unitIdentifier, 
         dirPath = os.path.join(unitPath, dir)
         dirDataPath = os.path.join(unitPath, "data", dir)
         if os.path.isdir(dirDataPath):
+            if dir == "metadata" and os.path.isdir(dirPath):
+                # We move the existing top-level metadata folder, or merge it
+                # with what is currently there, before the next set of
+                # directory operations to move everything up a level below.
+                job.pyprint(
+                    "{}: moving/merging {} to {}".format(dir, dirPath, dirDataPath)
+                )
+                move_or_merge(dirPath, dirDataPath)
+
             # move to the top level
             src = dirDataPath
             dst = dirPath
             fileOperations.updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
             job.pyprint("moving directory ", dir)
+
         else:
             if not os.path.isdir(dirPath):
                 job.pyprint("creating: ", dir)
