@@ -172,7 +172,7 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
     success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
     )
-    logger.warning.assert_called_once_with(
+    logger.error.assert_called_once_with(
         "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)
     )
     assert not success

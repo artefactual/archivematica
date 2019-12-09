@@ -104,7 +104,7 @@ def upload_to_archivesspace(
         uuid = file_name[0:36]
 
         if uuid not in pairs:
-            logger.warning("Skipping file {} ({}) - no pairing found".format(f, uuid))
+            logger.error("Skipping file {} ({}) - no pairing found".format(f, uuid))
             all_files_paired_successfully = False
             continue
 
