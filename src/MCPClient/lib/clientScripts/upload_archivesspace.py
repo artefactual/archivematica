@@ -235,12 +235,7 @@ def upload_to_archivesspace(
         delete_pairs(dip_uuid)
 
 
-def call(jobs):
-    RESTRICTIONS_CHOICES = ["yes", "no", "premis"]
-    EAD_SHOW_CHOICES = ["embed", "new", "none", "other", "replace"]
-    EAD_ACTUATE_CHOICES = ["none", "onLoad", "other", "onRequest"]
-    INHERIT_NOTES_CHOICES = ["yes", "y", "true", "1"]
-
+def get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES):
     parser = argparse.ArgumentParser(
         description="A program to take digital objects from a DIP and upload them to an ArchivesSpace db"
     )
@@ -285,6 +280,16 @@ def call(jobs):
         type=str,
     )
     parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
+    return parser
+
+
+def call(jobs):
+    RESTRICTIONS_CHOICES = ["yes", "no", "premis"]
+    EAD_SHOW_CHOICES = ["embed", "new", "none", "other", "replace"]
+    EAD_ACTUATE_CHOICES = ["none", "onLoad", "other", "onRequest"]
+    INHERIT_NOTES_CHOICES = ["yes", "y", "true", "1"]
+
+    parser = get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES)
 
     with transaction.atomic():
         for job in jobs:

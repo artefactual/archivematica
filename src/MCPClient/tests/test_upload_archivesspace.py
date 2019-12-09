@@ -183,3 +183,64 @@ def test_upload_to_archivespace_logs_files_with_no_pairs(db, mocker):
     logger.warning.assert_called_once_with(
         "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)
     )
+
+
+def test_call(db, mocker):
+    parser_mock = mocker.Mock(
+        **{
+            "parse_args.return_value": mocker.Mock(
+                **{
+                    "base_url": "some_base_url",
+                    "user": "some_user",
+                    "passwd": "some_passwd",
+                    "dip_location": "some_dip_location",
+                    "dip_name": "some_dip_name",
+                    "dip_uuid": "some_dip_uuid",
+                    "xlink_show": "some_xlink_show",
+                    "xlink_actuate": "some_xlink_actuate",
+                    "object_type": "some_object_type",
+                    "use_statement": "some_use_statement",
+                    "uri_prefix": "some_uri_prefix",
+                    "access_conditions": "some_access_conditions",
+                    "use_conditions": "some_use_conditions",
+                    "restrictions": "some_restrictions",
+                    "inherit_notes": "some_inherit_notes",
+                }
+            )
+        }
+    )
+    mocker.patch("upload_archivesspace.get_parser", return_value=parser_mock)
+    client_mock = mocker.Mock()
+    client_factory_mock = mocker.patch(
+        "upload_archivesspace.ArchivesSpaceClient", return_value=client_mock
+    )
+    get_files_from_dip_mock = mocker.patch(
+        "upload_archivesspace.get_files_from_dip", return_value=[]
+    )
+    upload_to_archivesspace = mocker.patch(
+        "upload_archivesspace.upload_to_archivesspace"
+    )
+    job = mocker.Mock(args=[])
+    job.JobContext = mocker.MagicMock()
+    upload_archivesspace.call([job])
+    client_factory_mock.assert_called_once_with(
+        host="some_base_url", user="some_user", passwd="some_passwd"
+    )
+    get_files_from_dip_mock.assert_called_once_with(
+        "some_dip_location", "some_dip_name", "some_dip_uuid"
+    )
+    upload_to_archivesspace.assert_called_once_with(
+        [],
+        client_mock,
+        "some_xlink_show",
+        "some_xlink_actuate",
+        "some_object_type",
+        "some_use_statement",
+        "some_uri_prefix",
+        "some_dip_uuid",
+        "some_access_conditions",
+        "some_use_conditions",
+        "some_restrictions",
+        "some_dip_location",
+        False,
+    )
