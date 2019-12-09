@@ -94,7 +94,7 @@ def upload_to_archivesspace(
         or len(use_conditions) == 0
     ):
         logger.debug("Looking for mets: {}".format(dip_uuid))
-        mets_source = dip_location + "METS." + dip_uuid + ".xml"
+        mets_source = os.path.join(dip_location, "METS." + dip_uuid + ".xml")
         mets = mets_file(mets_source)
         logger.debug("Found mets file at path: {}".format(mets_source))
 

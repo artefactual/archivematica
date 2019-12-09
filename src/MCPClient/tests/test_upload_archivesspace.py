@@ -140,8 +140,7 @@ def test_upload_to_archivespace_gets_mets_if_needed(mocker, params):
         params["access_conditions"],
         params["use_conditions"],
         params["restrictions"],
-        # TODO: use os.path.join to make this trailing slash optional
-        "/dip/location/path/",
+        "/dip/location/path",
         "",
     )
     mets_file_mock.assert_called_once_with("/dip/location/path/METS.dipuuid.xml")
