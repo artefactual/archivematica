@@ -31,8 +31,7 @@ def test_get_files_from_dip_finds_files(tmpdir):
     object2.write("object 2")
     # TODO:
     # - use os.path.join in the function and make trailing slash optional
-    # - remove last two parameters, they're not used in the function
-    result = upload_archivesspace.get_files_from_dip(str(dip) + "/", None, None)
+    result = upload_archivesspace.get_files_from_dip(str(dip) + "/")
     assert sorted(result) == [str(object1), str(object2)]
 
 
@@ -40,7 +39,7 @@ def test_get_files_from_dip_with_empty_dip_location(tmpdir, mocker):
     logger = mocker.patch("upload_archivesspace.logger")
     dip = tmpdir.mkdir("mydip")
     with pytest.raises(ValueError) as excinfo:
-        upload_archivesspace.get_files_from_dip(str(dip) + "/", None, None)
+        upload_archivesspace.get_files_from_dip(str(dip) + "/")
     assert excinfo.value.message == "cannot find dip"
     logger.error.assert_called_once_with("no files in {}/objects/".format(str(dip)))
 
@@ -227,7 +226,7 @@ def test_call(db, mocker):
         host="some_base_url", user="some_user", passwd="some_passwd"
     )
     get_files_from_dip_mock.assert_called_once_with(
-        "some_dip_location", "some_dip_name", "some_dip_uuid"
+        "some_dip_location"
     )
     upload_to_archivesspace.assert_called_once_with(
         [],

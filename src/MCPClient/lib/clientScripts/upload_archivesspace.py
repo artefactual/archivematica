@@ -32,7 +32,7 @@ def recursive_file_gen(mydir):
             yield os.path.join(root, file)
 
 
-def get_files_from_dip(dip_location, dip_name, dip_uuid):
+def get_files_from_dip(dip_location):
     # need to find files in objects dir of dip:
     # go to dipLocation/dipName/objects
     # get a directory listing
@@ -303,9 +303,7 @@ def call(jobs):
                 )
 
                 try:
-                    files = get_files_from_dip(
-                        args.dip_location, args.dip_name, args.dip_uuid
-                    )
+                    files = get_files_from_dip(args.dip_location)
                 except ValueError:
                     job.set_status(2)
                     continue
