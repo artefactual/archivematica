@@ -98,12 +98,14 @@ def upload_to_archivesspace(
         mets = mets_file(mets_source)
         logger.debug("Found mets file at path: {}".format(mets_source))
 
+    all_files_paired_successfully = True
     for f in files:
         file_name = os.path.basename(f)
         uuid = file_name[0:36]
 
         if uuid not in pairs:
             logger.warning("Skipping file {} ({}) - no pairing found".format(f, uuid))
+            all_files_paired_successfully = False
             continue
 
         as_resource = pairs[uuid]
@@ -238,6 +240,8 @@ def upload_to_archivesspace(
 
         delete_pairs(dip_uuid)
 
+    return all_files_paired_successfully
+
 
 def get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES):
     parser = argparse.ArgumentParser(
@@ -314,7 +318,6 @@ def call(jobs):
                 except Exception:
                     job.set_status(3)
                     continue
-
                 upload_to_archivesspace(
                     files,
                     client,

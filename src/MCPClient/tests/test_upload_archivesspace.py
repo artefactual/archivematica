@@ -73,7 +73,7 @@ def test_delete_pairs(mocker):
     ["http://some/uri/", "http://some/uri"],
     ids=["uri_with_trailing_slash", "uri_with_no_trailing_slash"],
 )
-def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
+def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
     file_uuid = str(uuid.uuid4())
     client_mock = mocker.Mock()
     mocker.patch("upload_archivesspace.mets_file")
@@ -81,7 +81,7 @@ def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
         "upload_archivesspace.get_pairs", return_value={file_uuid: "myresource"}
     )
     files = ["file/{}-path".format(file_uuid)]
-    upload_archivesspace.upload_to_archivesspace(
+    success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", uri, "", "", "", "", "", ""
     )
     client_mock.add_digital_object.assert_called_once_with(
@@ -105,6 +105,7 @@ def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
             "xlink_show": "",
         }
     )
+    assert success
 
 
 @pytest.mark.parametrize(
@@ -124,7 +125,7 @@ def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
     ],
     ids=["with_restrictions", "with_access_conditions", "with_use_conditions"],
 )
-def test_upload_to_archivespace_gets_mets_if_needed(mocker, params):
+def test_upload_to_archivesspace_gets_mets_if_needed(mocker, params):
     mocker.patch("upload_archivesspace.get_pairs")
     logger = mocker.patch("upload_archivesspace.logger")
     mets_file_mock = mocker.patch("upload_archivesspace.mets_file")
@@ -152,7 +153,7 @@ def test_upload_to_archivespace_gets_mets_if_needed(mocker, params):
     )
 
 
-def test_upload_to_archivespace_logs_files_with_no_pairs(db, mocker):
+def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
     file3_uuid = uuid.uuid4()
@@ -168,12 +169,13 @@ def test_upload_to_archivespace_logs_files_with_no_pairs(db, mocker):
         "/path/to/{}-video.avi".format(file2_uuid),
         "/path/to/{}-audio.mp3".format(file3_uuid),
     ]
-    upload_archivesspace.upload_to_archivesspace(
+    success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
     )
     logger.warning.assert_called_once_with(
         "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)
     )
+    assert not success
 
 
 def test_call(db, mocker):
