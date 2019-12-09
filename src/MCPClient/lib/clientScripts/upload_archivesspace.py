@@ -12,6 +12,7 @@ from xml2obj import mets_file
 
 # Third party dependencies, alphabetical by import source
 from agentarchives.archivesspace import ArchivesSpaceClient
+from agentarchives.archivesspace import ArchivesSpaceError
 
 # initialize Django (required for Django 1.7)
 import django
@@ -217,26 +218,35 @@ def upload_to_archivesspace(
         logger.info(
             "Uploading {} to ArchivesSpace record {}".format(file_name, as_resource)
         )
-        client.add_digital_object(
-            parent_archival_object=as_resource,
-            identifier=uuid,
-            # TODO: fetch a title from DC?
-            #       Use the title of the parent record?
-            title=original_name,
-            uri=uri + file_name,
-            location_of_originals=dip_uuid,
-            object_type=object_type,
-            use_statement=use_statement,
-            xlink_show=xlink_show,
-            xlink_actuate=xlink_actuate,
-            restricted=restrictions_apply,
-            use_conditions=use_conditions,
-            access_conditions=access_conditions,
-            size=size,
-            format_name=format_name,
-            format_version=format_version,
-            inherit_notes=inherit_notes,
-        )
+        try:
+            client.add_digital_object(
+                parent_archival_object=as_resource,
+                identifier=uuid,
+                # TODO: fetch a title from DC?
+                #       Use the title of the parent record?
+                title=original_name,
+                uri=uri + file_name,
+                location_of_originals=dip_uuid,
+                object_type=object_type,
+                use_statement=use_statement,
+                xlink_show=xlink_show,
+                xlink_actuate=xlink_actuate,
+                restricted=restrictions_apply,
+                use_conditions=use_conditions,
+                access_conditions=access_conditions,
+                size=size,
+                format_name=format_name,
+                format_version=format_version,
+                inherit_notes=inherit_notes,
+            )
+        except ArchivesSpaceError as e:
+
+            logger.error(
+                "Could not upload {} to ArchivesSpace record {}. Error: {}".format(
+                    file_name, as_resource, str(e)
+                )
+            )
+            all_files_paired_successfully = False
 
         delete_pairs(dip_uuid)
 

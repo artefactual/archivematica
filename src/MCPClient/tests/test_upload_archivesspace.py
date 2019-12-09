@@ -178,6 +178,42 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
     assert not success
 
 
+def test_upload_to_archivesspace_when_upload_fails(db, mocker):
+    file1_uuid = uuid.uuid4()
+    file2_uuid = uuid.uuid4()
+    file3_uuid = uuid.uuid4()
+    mocker.patch(
+        "upload_archivesspace.get_pairs",
+        return_value={
+            str(file1_uuid): "myresource",
+            str(file2_uuid): "myresource",
+            str(file3_uuid): "myresource",
+        },
+    )
+    logger = mocker.patch("upload_archivesspace.logger")
+    mocker.patch("upload_archivesspace.mets_file")
+
+    def fail_video_upload(*args, **kwargs):
+        if kwargs.get("uri").endswith("video.avi"):
+            raise upload_archivesspace.ArchivesSpaceError("error with ArchivesSpace")
+
+    client_mock = mocker.Mock(**{"add_digital_object.side_effect": fail_video_upload})
+    files = [
+        "/path/to/{}-image.jpg".format(file1_uuid),
+        "/path/to/{}-video.avi".format(file2_uuid),
+        "/path/to/{}-audio.mp3".format(file3_uuid),
+    ]
+    success = upload_archivesspace.upload_to_archivesspace(
+        files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
+    )
+    logger.error.assert_called_once_with(
+        "Could not upload {} to ArchivesSpace record myresource. Error: {}".format(
+            "{}-video.avi".format(file2_uuid), "error with ArchivesSpace"
+        )
+    )
+    assert not success
+
+
 def test_call(db, mocker):
     parser_mock = mocker.Mock(
         **{
