@@ -81,12 +81,8 @@ def test_upload_to_archivespace_adds_trailing_slash_to_uri(db, mocker, uri):
         "upload_archivesspace.get_pairs", return_value={file_uuid: "myresource"}
     )
     files = ["file/{}-path".format(file_uuid)]
-    # TODO: initialize restriction_apply = None/False before determining restrictions
-    #       to avoid referenced before assignment error if restrictions is no in the
-    #       expected values
-    restrictions = "no"
     upload_archivesspace.upload_to_archivesspace(
-        files, client_mock, "", "", "", "", uri, "", "", "", restrictions, "", ""
+        files, client_mock, "", "", "", "", uri, "", "", "", "", "", ""
     )
     client_mock.add_digital_object.assert_called_once_with(
         **{
@@ -173,9 +169,8 @@ def test_upload_to_archivespace_logs_files_with_no_pairs(db, mocker):
         "/path/to/{}-video.avi".format(file2_uuid),
         "/path/to/{}-audio.mp3".format(file3_uuid),
     ]
-    restrictions = "no"
     upload_archivesspace.upload_to_archivesspace(
-        files, client_mock, "", "", "", "", "", "", "", "", restrictions, "", ""
+        files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
     )
     logger.warning.assert_called_once_with(
         "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)

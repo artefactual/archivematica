@@ -137,6 +137,7 @@ def upload_to_archivesspace(
                     ]
 
         # determine restrictions
+        restrictions_apply = False
         if restrictions == "no":
             restrictions_apply = False
         elif restrictions == "yes":
