@@ -244,3 +244,27 @@ def test_call(db, mocker):
         "some_dip_location",
         False,
     )
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"exception": ValueError("cannot find dip"), "expected_job_status": 2},
+        {"exception": Exception("unknown error"), "expected_job_status": 3},
+    ],
+    ids=["no_files_found", "unknown_error_raised"],
+)
+def test_call_when_files_from_dip_cant_be_retrieved(db, mocker, params):
+    mocker.patch("upload_archivesspace.get_parser")
+    mocker.patch("upload_archivesspace.ArchivesSpaceClient")
+    mocker.patch(
+        "upload_archivesspace.get_files_from_dip", side_effect=params["exception"]
+    )
+    upload_to_archivesspace = mocker.patch(
+        "upload_archivesspace.upload_to_archivesspace"
+    )
+    job = mocker.Mock(args=[])
+    job.JobContext = mocker.MagicMock()
+    upload_archivesspace.call([job])
+    job.set_status.assert_called_once_with(params["expected_job_status"])
+    assert not upload_to_archivesspace.called
