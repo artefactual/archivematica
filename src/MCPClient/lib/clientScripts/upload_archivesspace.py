@@ -34,11 +34,14 @@ def recursive_file_gen(mydir):
 
 def get_files_from_dip(dip_location):
     # need to find files in objects dir of dip:
-    # go to dipLocation/dipName/objects
+    # go to dipLocation/objects
     # get a directory listing
     # for each item, set fileName and go
     try:
-        mydir = dip_location + "objects/"
+        # remove trailing slash
+        if dip_location != os.path.sep:
+            dip_location = dip_location.rstrip(os.path.sep)
+        mydir = os.path.join(dip_location, "objects")
         mylist = list(recursive_file_gen(mydir))
 
         if len(mylist) > 0:
