@@ -312,24 +312,26 @@ def call(jobs):
 
                 try:
                     files = get_files_from_dip(args.dip_location)
+                    if not upload_to_archivesspace(
+                        files,
+                        client,
+                        args.xlink_show,
+                        args.xlink_actuate,
+                        args.object_type,
+                        args.use_statement,
+                        args.uri_prefix,
+                        args.dip_uuid,
+                        args.access_conditions,
+                        args.use_conditions,
+                        args.restrictions,
+                        args.dip_location,
+                        args.inherit_notes,
+                    ):
+                        raise ValueError("not all files could be paired")
                 except ValueError:
                     job.set_status(2)
                     continue
                 except Exception:
                     job.set_status(3)
                     continue
-                upload_to_archivesspace(
-                    files,
-                    client,
-                    args.xlink_show,
-                    args.xlink_actuate,
-                    args.object_type,
-                    args.use_statement,
-                    args.uri_prefix,
-                    args.dip_uuid,
-                    args.access_conditions,
-                    args.use_conditions,
-                    args.restrictions,
-                    args.dip_location,
-                    args.inherit_notes,
-                )
+                job.set_status(0)

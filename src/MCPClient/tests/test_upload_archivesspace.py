@@ -235,6 +235,7 @@ def test_call(db, mocker):
         "some_dip_location",
         False,
     )
+    job.set_status.assert_called_once_with(0)
 
 
 @pytest.mark.parametrize(
@@ -259,3 +260,14 @@ def test_call_when_files_from_dip_cant_be_retrieved(db, mocker, params):
     upload_archivesspace.call([job])
     job.set_status.assert_called_once_with(params["expected_job_status"])
     assert not upload_to_archivesspace.called
+
+
+def test_call_when_not_all_files_can_be_paired(db, mocker):
+    mocker.patch("upload_archivesspace.get_parser")
+    mocker.patch("upload_archivesspace.ArchivesSpaceClient")
+    mocker.patch("upload_archivesspace.get_files_from_dip")
+    mocker.patch("upload_archivesspace.upload_to_archivesspace", return_value=False)
+    job = mocker.Mock(args=[])
+    job.JobContext = mocker.MagicMock()
+    upload_archivesspace.call([job])
+    job.set_status.assert_called_once_with(2)
