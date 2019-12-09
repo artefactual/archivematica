@@ -38,6 +38,6 @@ Archivematica consists of several projects working together, including:
 
 * [Archivematica](https://github.com/artefactual/archivematica): This repository! Main repository containing the user-facing dashboard, task manager MCPServer and clients scripts for the MCPClient
 * [Storage Service](https://github.com/artefactual/archivematica-storage-service): Responsible for moving files to Archivematica for processing, and from Archivematica into long-term storage
-* [Format Policy Registry](https://github.com/artefactual/archivematica-fpr-admin): Submodule shared between Archivematica and the Format Policy Registry (FPR) server that displays and updates FPR rules and commands
+* [Format Policy Registry](https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/src/fpr): Submodule shared between Archivematica and the Format Policy Registry (FPR) server that displays and updates FPR rules and commands
 
 For more projects in the Archivematica ecosystem, see the [getting started](https://wiki.archivematica.org/Getting_started#Projects) page.
