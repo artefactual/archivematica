@@ -81,8 +81,10 @@ def create_user_agent(sender, instance, **kwargs):
         defaults={
             "identifiertype": "Archivematica user pk",
             "identifiervalue": str(instance.id),
-            "name": 'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(
-                u=instance
+            "name": 'username="{}", first_name="{}", last_name="{}"'.format(
+                instance.username.encode("utf8"),
+                instance.first_name.encode("utf8"),
+                instance.last_name.encode("utf8"),
             ),
             "agenttype": "Archivematica user",
         },
