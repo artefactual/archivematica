@@ -94,7 +94,7 @@ def create_mets_file(aic, aips, job):
     )
     mets.attrib[
         "{{{ns}}}schemaLocation".format(ns=nsmap["xsi"])
-    ] = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd"
+    ] = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
 
     # Add Dublin Core info
     xml_data = mets.find("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)

@@ -49,7 +49,7 @@ ipython==5.8.0
 lazy-paged-sequence==0.3
 logutils==0.3.3
 lxml==3.5.0
-metsrw==0.3.13
+metsrw==0.3.14
 mock==2.0.0
 mockldap==0.2.8
 more-itertools==5.0.0
