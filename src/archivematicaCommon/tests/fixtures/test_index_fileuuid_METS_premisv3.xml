@@ -2,7 +2,7 @@
 <!--
   This METS file has been cut-down to reduce fixture size
 -->
-<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd">
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
   <mets:metsHdr CREATEDATE="2019-04-18T19:05:17"/>
   <mets:dmdSec ID="dmdSec_1">
     <mets:mdWrap MDTYPE="PREMIS:OBJECT">

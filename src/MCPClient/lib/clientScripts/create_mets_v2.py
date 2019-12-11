@@ -1790,7 +1790,7 @@ def call(jobs):
                     attrib={
                         "{"
                         + ns.xsiNS
-                        + "}schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd"
+                        + "}schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
                     },
                 )
                 etree.SubElement(root, ns.metsBNS + "metsHdr").set(

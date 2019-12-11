@@ -19,7 +19,7 @@ future==0.17.1
 gearman==2.0.2
 idna==2.8
 lxml==3.5.0
-metsrw==0.3.13
+metsrw==0.3.14
 mock==2.0.0               # via pytest-mock
 more-itertools==5.0.0     # via pytest
 mysqlclient==1.3.9
