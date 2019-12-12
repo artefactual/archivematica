@@ -201,7 +201,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
     files = {l["uuid"]: {"location": l, "files": []} for l in transfer_sources}
 
     for item in paths:
-        location, path = Path(item).parts()
+        location, path = LocationPath(item).parts()
         if location is None:
             location = _default_transfer_source_location_uuid()
         if location not in files:
@@ -303,8 +303,6 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
                     extract_dir,
                     e,
                 )
-
-
 
 
 @auto_close_old_connections()
