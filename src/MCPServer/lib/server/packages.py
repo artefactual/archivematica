@@ -291,18 +291,14 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
 
         # Move the processing config into the extraction directory so that it
         # is preserved and used in the workflow
-        processing_config = "processingMCP.xml"
-        config_path = filepath.parent / processing_config
-        if config_path.exists():
-            try:
-                config_path.rename(extract_dir / processing_config)
-            except OSError as e:
-                raise Exception(
-                    "Error moving processing config %s to %s (%s)",
-                    config_path,
-                    extract_dir,
-                    e,
-                )
+        files_to_preserve = {"processingMCP.xml"}
+        for filename in files_to_preserve:
+            path = filepath.parent / filename
+            if path.exists():
+                try:
+                    path.rename(extract_dir / filename)
+                except OSError as e:
+                    raise Exception("Error moving %s to %s (%s)", path, extract_dir, e)
 
 
 @auto_close_old_connections()
