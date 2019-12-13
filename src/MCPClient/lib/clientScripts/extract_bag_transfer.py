@@ -96,14 +96,29 @@ def call(jobs):
                     job.set_status(exit_code)
                     continue
 
-                # checkForTopLevelBag
-                listdir = os.listdir(destinationDirectory)
+                # Ensure that the only thing in the destination dir is the
+                # top level directory from the extracted file, with the
+                # exception of certain files that may have been copied here
+                # previously. (For now this is just the processing config.)
+                # These files will need to be moved down a level.
+                preexisting_files = {"processingMCP.xml"}
+
+                listdir = set(os.listdir(destinationDirectory))
+                to_move = listdir & preexisting_files
+                listdir -= preexisting_files
+
                 if len(listdir) == 1:
-                    internalBagName = listdir[0]
+                    internalBagName = listdir.pop()
+
+                    for filename in to_move:
+                        shutil.move(
+                            os.path.join(destinationDirectory, filename),
+                            os.path.join(destinationDirectory, internalBagName),
+                        )
+
                     # print "ignoring BagIt internal name: ", internalBagName
                     temp = destinationDirectory + "-tmp"
                     shutil.move(destinationDirectory, temp)
-                    # destinationDirectory = os.path.join(processingDirectory, internalBagName)
                     shutil.move(
                         os.path.join(temp, internalBagName), destinationDirectory
                     )
