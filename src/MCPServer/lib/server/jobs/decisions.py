@@ -3,6 +3,7 @@
 Jobs relating to user decisions.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
+from collections import OrderedDict
 
 import abc
 import logging
@@ -103,7 +104,7 @@ class NextChainDecisionJob(DecisionJob):
     """
 
     def get_choices(self):
-        choices = {}
+        choices = OrderedDict()
         for chain_id in self.link.config["chain_choices"]:
             try:
                 chain = self.workflow.get_chain(chain_id)
@@ -147,7 +148,7 @@ class OutputDecisionJob(DecisionJob):
         return None
 
     def get_choices(self):
-        choices = {}
+        choices = OrderedDict()
 
         if self.job_chain.generated_choices:
             for _, value in self.job_chain.generated_choices.items():
@@ -280,7 +281,7 @@ class UpdateContextDecisionJob(DecisionJob):
         return None
 
     def get_choices(self):
-        choices = {}
+        choices = OrderedDict()
         # TODO: this is kind of an odd side effect here; refactor
         self.choice_items = []
 
