@@ -6099,8 +6099,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "-R \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
-                "execute": "remove_v0.0",
+                "arguments": "\"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
+                "execute": "removeDirectories_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
