@@ -6774,9 +6774,9 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Removed bagged files",
-                "pt_BR": "Pacotes de arquivos removidos",
-                "sv": "Tog bort bagged filer"
+                "en": "Remove bagged files",
+                "pt_BR": "Remover pacotes de arquivos",
+                "sv": "Ta bort filer som blivit satta i en bag"
             },
             "exit_codes": {
                 "0": {
