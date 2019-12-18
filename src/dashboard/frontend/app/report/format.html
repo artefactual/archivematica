@@ -8,7 +8,7 @@
   </tr>
   <tr ng-repeat="record in records.selected | format_data | orderBy: format_sort_fn : format_reverse">
     <td><a ng-click="add_format_facet(record.format)">{{ record.format }}</a></td>
-    <td><a target="_blank" href="http://apps.nationalarchives.gov.uk/pronom/{{ record.data.puid }}">{{ record.data.puid }}</a> <i ng-if='record.data.puid' class='fa fa-external-link'></i></td>
+    <td><a target="_blank" href="http://www.nationalarchives.gov.uk/pronom/{{ record.data.puid }}">{{ record.data.puid }}</a> <i ng-if='record.data.puid' class='fa fa-external-link'></i></td>
     <td><a ng-click="add_group_facet(record.data.group)">{{ record.data.group }}</a></td>
     <td translate translate-n="record.data.count" translate-plural="{{$count}} objects">One object</div>
     <td>{{ record.data.size | number }} MB</td>
