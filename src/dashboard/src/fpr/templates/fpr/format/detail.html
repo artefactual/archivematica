@@ -63,7 +63,7 @@
           <tr>
             <td><a href="{% url 'formatversion_detail' format.slug version.slug %}">{{ version.description }}</a></td>
             <td>{% if version.version  %}{{ version.version }}{% endif %}</td>
-            <td>{% if version.pronom_id %}<a href="http://www.nationalarchives.gov.uk/PRONOM/{{ version.pronom_id }}" target=_blank>{{ version.pronom_id}}</a>{% endif %}</td>
+            <td>{% if version.pronom_id %}<a href="https://www.nationalarchives.gov.uk/PRONOM/{{ version.pronom_id }}" target=_blank>{{ version.pronom_id}}</a>{% endif %}</td>
             <td>{{ version.access_format|yesno:_("Yes,No") }}</td>
             <td>{{ version.preservation_format|yesno:_("Yes,No") }}</td>
             <td>{{ version.enabled }}</td>
