@@ -21,12 +21,6 @@ DEFAULT_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
       <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
-    <!-- Remove from quarantine after (days) -->
-    <preconfiguredChoice>
-      <appliesTo>19adb668-b19a-4fcb-8938-f49d7485eaf3</appliesTo>
-      <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
-      <delay unitCtime="yes">2419200.0</delay>
-    </preconfiguredChoice>
     <!-- Perform file format identification (Submission documentation & metadata) -->
     <preconfiguredChoice>
       <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
@@ -81,11 +75,6 @@ DEFAULT_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
       <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
-    </preconfiguredChoice>
-    <!-- Send transfer to quarantine -->
-    <preconfiguredChoice>
-      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
-      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
@@ -213,11 +202,6 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
       <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
-    <!-- Send transfer to quarantine -->
-    <preconfiguredChoice>
-      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
-      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
-    </preconfiguredChoice>
     <!-- Extract packages -->
     <preconfiguredChoice>
       <appliesTo>dec97e3c-5598-4b99-b26e-f87a435a6b7f</appliesTo>
@@ -288,7 +272,6 @@ def create():
         "watchedDirectories/activeTransfers/TRIM",
         "watchedDirectories/approveNormalization",
         "watchedDirectories/approveSubmissionDocumentationIngest",
-        "watchedDirectories/quarantined",
         "watchedDirectories/SIPCreation",
         "watchedDirectories/SIPCreation/completedTransfers",
         "watchedDirectories/SIPCreation/SIPsUnderConstruction",
@@ -307,7 +290,6 @@ def create():
         "watchedDirectories/workFlowDecisions/examineContentsChoice",
         "watchedDirectories/workFlowDecisions/extractPackagesChoice",
         "watchedDirectories/workFlowDecisions/metadataReminder",
-        "watchedDirectories/workFlowDecisions/quarantineTransfer",
         "watchedDirectories/workFlowDecisions/selectFormatIDToolIngest",
         "watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer",
         "www",

@@ -275,10 +275,6 @@ class ProcessingConfigurationForm(forms.Form):
     # Temporary solution until workflow data can be translated.
     LABELS = {
         "bd899573-694e-4d33-8c9b-df0af802437d": _("Assign UUIDs to directories"),
-        "755b4177-c587-41a7-8c52-015277568302": _("Send transfer to quarantine"),
-        "19adb668-b19a-4fcb-8938-f49d7485eaf3": _(
-            "Remove from quarantine after (days)"
-        ),
         "56eebd45-5600-4768-a8c2-ec0114555a3d": _("Generate transfer structure report"),
         "f09847c2-ee51-429a-9478-a860477f6b8d": _(
             "Perform file format identification (Transfer)"
@@ -327,15 +323,6 @@ class ProcessingConfigurationForm(forms.Form):
             ftype = field["type"]
             opts = self.DEFAULT_FIELD_OPTS.copy()
             opts["label"] = field["label"]
-
-            if ftype == "days":
-                opts["min_value"] = 0
-                self.fields[choice_uuid] = forms.IntegerField(**opts)
-                widget = self.fields[choice_uuid].widget
-                widget.attrs["placeholder"] = _("days")
-                widget.attrs["class"] = "form-control"
-                continue
-
             choices = opts["choices"] = list(self.EMPTY_CHOICES)
             if ftype == "boolean":
                 if "yes_option" in field:
@@ -383,10 +370,7 @@ class ProcessingConfigurationForm(forms.Form):
             field = self.fields.get(applies_to)
             if fprops is None or go_to_chain is None or field is None:
                 continue
-            if fprops["type"] == "days":
-                field.initial = int(float(choice.findtext("delay"))) // (24 * 60 * 60)
-            else:
-                field.initial = go_to_chain
+            field.initial = go_to_chain
 
     def save_config(self):
         """

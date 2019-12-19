@@ -119,11 +119,8 @@ class NextChainDecisionJob(DecisionJob):
         # TODO: fix circular imports :(
         from server.jobs import JobChain
 
-        # TODO: the default automated processing config uses a choice that isn't
-        # listed in the workflow (d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e, for link
-        # 755b4177-c587-41a7-8c52-015277568302). Fix that.
-        # if choice not in self.get_choices():
-        #     raise ValueError("{} is not one of the available choices".format(choice))
+        if choice not in self.get_choices():
+            raise ValueError("{} is not one of the available choices".format(choice))
 
         chain = self.workflow.get_chain(choice)
         logger.info("Using user selected chain %s for link %s", chain.id, self.link.id)

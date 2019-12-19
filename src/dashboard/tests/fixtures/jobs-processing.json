@@ -290,40 +290,6 @@
     },
     {
         "fields": {
-            "microservicegroup": "Quarantine",
-            "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
-            "microservicechainlink": null,
-            "currentstep": 2,
-            "subjobof": "",
-            "createdtime": "2016-10-04T22:50:42Z",
-            "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
-            "hidden": false,
-            "createdtimedec": "0.4361980000",
-            "jobtype": "Find type to process as"
-        },
-        "model": "main.job",
-        "pk": "03b5407b-8f47-4c2a-aa20-edb1962baafd"
-    },
-    {
-        "fields": {
-            "microservicegroup": "Quarantine",
-            "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
-            "microservicechainlink": null,
-            "currentstep": 2,
-            "subjobof": "",
-            "createdtime": "2016-10-04T22:50:42Z",
-            "unittype": "unitTransfer",
-            "directory": "%sharedPath%currentlyProcessing/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
-            "hidden": false,
-            "createdtimedec": "0.1151520000",
-            "jobtype": "Move to workFlowDecisions-quarantineSIP directory"
-        },
-        "model": "main.job",
-        "pk": "3dce5aff-3b5e-40b4-9b09-8b2c03ec75e6"
-    },
-    {
-        "fields": {
             "microservicegroup": "Scan for viruses",
             "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
             "microservicechainlink": null,
@@ -338,57 +304,6 @@
         },
         "model": "main.job",
         "pk": "559bb0d7-7ab7-4959-a687-b2c9a319f0c4"
-    },
-    {
-        "fields": {
-            "microservicegroup": "Scan for viruses",
-            "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
-            "microservicechainlink": null,
-            "currentstep": 2,
-            "subjobof": "",
-            "createdtime": "2016-10-04T22:50:42Z",
-            "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
-            "hidden": false,
-            "createdtimedec": "0.4729460000",
-            "jobtype": "Move to processing directory"
-        },
-        "model": "main.job",
-        "pk": "800bffdf-7f09-4e9f-97ab-379105070664"
-    },
-    {
-        "fields": {
-            "microservicegroup": "Quarantine",
-            "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
-            "microservicechainlink": null,
-            "currentstep": 2,
-            "subjobof": "",
-            "createdtime": "2016-10-04T22:50:42Z",
-            "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
-            "hidden": false,
-            "createdtimedec": "0.4456800000",
-            "jobtype": "Workflow decision - send transfer to quarantine"
-        },
-        "model": "main.job",
-        "pk": "a310cc47-ffbe-4da2-99a3-6f72e9964d26"
-    },
-    {
-        "fields": {
-            "microservicegroup": "Quarantine",
-            "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
-            "microservicechainlink": null,
-            "currentstep": 2,
-            "subjobof": "",
-            "createdtime": "2016-10-04T22:50:42Z",
-            "unittype": "unitTransfer",
-            "directory": "%sharedPath%currentlyProcessing/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
-            "hidden": false,
-            "createdtimedec": "0.1008350000",
-            "jobtype": "Designate to process as a standard transfer"
-        },
-        "model": "main.job",
-        "pk": "af2e08c4-a297-4a53-b235-2c93a6d1202b"
     },
     {
         "fields": {

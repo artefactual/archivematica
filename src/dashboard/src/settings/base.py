@@ -433,12 +433,6 @@ MICROSERVICES_HELP = {
     "Workflow decision - create transfer backup": _(
         "Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage."
     ),
-    "Workflow decision - send transfer to quarantine": _(
-        "If desired, quarantine transfer to allow definitions in anti-virus software to be updated."
-    ),
-    "Remove from quarantine": _(
-        'If desired, select "Unquarantine" to remove the transfer from quarantine immediately. Otherwise, wait until the quarantine period has expired and the transfer will be removed automatically.'
-    ),
     "Create SIP(s)": _("Create a SIP from the transfer."),
     "Approve SIP Creation": _(
         'Once you have added files from the transfer to the SIP and have completed any appraisal and physical arrangement, select "SIP creation complete" to start ingest micro-services.'
