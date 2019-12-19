@@ -25,7 +25,6 @@ logger = logging.getLogger("archivematica.mcp.server.processing_config")
 # Types of processing fields:
 # - "boolean" (required: "yes_option", "no_option")
 # - "storage_service" (required: "purpose")
-# - "days" (required: "chain")
 # - "replace_dict"
 # - "chain_choice" (optional: "ignored_choices", "find_duplicates")
 processing_fields = OrderedDict()
@@ -34,17 +33,6 @@ processing_fields["bd899573-694e-4d33-8c9b-df0af802437d"] = {
     "name": "assign_uuids_to_directories",
     "yes_option": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
     "no_option": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
-}
-processing_fields["755b4177-c587-41a7-8c52-015277568302"] = {
-    "type": "boolean",
-    "name": "quarantine_transfer",
-    "yes_option": "97ea7702-e4d5-48bc-b4b5-d15d897806ab",
-    "no_option": "d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e",
-}
-processing_fields["19adb668-b19a-4fcb-8938-f49d7485eaf3"] = {
-    "type": "days",
-    "name": "quarantine_expiry_days",
-    "chain": "333643b7-122a-4019-8bef-996443f3ecc5",
 }
 processing_fields["56eebd45-5600-4768-a8c2-ec0114555a3d"] = {
     "type": "boolean",
