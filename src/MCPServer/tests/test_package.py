@@ -8,6 +8,7 @@ from main import models
 
 from server.packages import (
     DIP,
+    Transfer,
     _determine_transfer_paths,
     _move_to_internal_shared_dir,
     _pad_destination_filepath_if_it_already_exists,
@@ -84,6 +85,42 @@ def test_dip_get_or_create_from_db_path_with_uuid(tmp_path):
         models.SIP.objects.get(uuid=dip_uuid)
     except models.SIP.DoesNotExist:
         pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
+
+
+@pytest.mark.django_db(transaction=True)
+def test_transfer_get_or_create_from_db_path_without_uuid(tmp_path):
+    transfer_path = tmp_path / "test-transfer"
+
+    assert not models.Transfer.objects.filter(
+        currentlocation=str(transfer_path)
+    ).count()
+
+    transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
+
+    assert transfer.current_path == str(transfer_path)
+    try:
+        models.Transfer.objects.get(currentlocation=str(transfer_path))
+    except models.Transfer.DoesNotExist:
+        pytest.fail(
+            "Transfer.get_or_create_from_db_by_path didn't create a Transfer model"
+        )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_transfer_get_or_create_from_db_path_with_uuid(tmp_path):
+    transfer_uuid = uuid.uuid4()
+    transfer_path = tmp_path / "test-transfer-{}".format(transfer_uuid)
+
+    transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
+
+    assert transfer.uuid == transfer_uuid
+    assert transfer.current_path == str(transfer_path)
+    try:
+        models.Transfer.objects.get(uuid=transfer_uuid)
+    except models.Transfer.DoesNotExist:
+        pytest.fail(
+            "Transfer.get_or_create_from_db_by_path didn't create a Transfer model"
+        )
 
 
 class TestPadDestinationFilePath:

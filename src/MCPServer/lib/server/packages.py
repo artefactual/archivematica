@@ -722,15 +722,21 @@ class DIP(Package):
         path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
 
         sip_uuid = uuid_from_path(path)
+        created = True
         if sip_uuid:
-            sip_obj, _ = models.SIP.objects.get_or_create(
+            sip_obj, created = models.SIP.objects.get_or_create(
                 uuid=sip_uuid, defaults={"currentpath": path, "diruuids": False}
             )
         else:
             sip_obj = models.SIP.objects.create(
                 uuid=uuid4(), currentpath=path, diruuids=False
             )
-            logger.info("Creating SIP (for DIP) %s at %s", sip_obj.uuid, path)
+        logger.info(
+            "SIP (for DIP) %s %s (%s)",
+            sip_obj.uuid,
+            "created" if created else "updated",
+            path,
+        )
 
         return cls(path, sip_obj.uuid)
 
@@ -757,6 +763,34 @@ class Transfer(Package):
     REPLACEMENT_PATH_STRING = r"%transferDirectory%"
     UNIT_VARIABLE_TYPE = "Transfer"
     JOB_UNIT_TYPE = "unitTransfer"
+
+    @classmethod
+    @auto_close_old_connections()
+    def get_or_create_from_db_by_path(cls, path):
+        """Matches a directory to a database Transfer by its appended UUID, or path."""
+        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+
+        transfer_uuid = uuid_from_path(path)
+        created = True
+        if transfer_uuid:
+            transfer_obj, created = models.Transfer.objects.get_or_create(
+                uuid=transfer_uuid, defaults={"currentlocation": path}
+            )
+            if not created and transfer_obj.currentlocation != path:
+                transfer_obj.currentpath = path
+                transfer_obj.save()
+        else:
+            transfer_obj = models.Transfer.objects.create(
+                uuid=uuid4(), currentlocation=path
+            )
+        logger.info(
+            "Transfer %s %s (%s)",
+            transfer_obj.uuid,
+            "created" if created else "updated",
+            path,
+        )
+
+        return cls(path, transfer_obj.uuid)
 
     @property
     @auto_close_old_connections()
@@ -798,12 +832,12 @@ class SIP(Package):
         path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
 
         sip_uuid = uuid_from_path(path)
+        created = True
         if sip_uuid:
             sip_obj, created = models.SIP.objects.get_or_create(
                 uuid=sip_uuid,
                 defaults={"sip_type": "SIP", "currentpath": path, "diruuids": False},
             )
-            logger.info("Updating SIP %s path: %s", sip_obj.uuid, path)
             if not created and sip_obj.currentpath != path:
                 sip_obj.currentpath = path
                 sip_obj.save()
@@ -811,7 +845,9 @@ class SIP(Package):
             sip_obj = models.SIP.objects.create(
                 uuid=uuid4(), currentpath=path, sip_type="SIP", diruuids=False
             )
-            logger.info("Creating SIP %s at %s", sip_obj.uuid, path)
+        logger.info(
+            "SIP %s %s (%s)", sip_obj.uuid, "created" if created else "updated", path
+        )
 
         return cls(path, sip_obj.uuid)
 
