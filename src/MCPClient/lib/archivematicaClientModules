@@ -125,7 +125,6 @@ copy_v0.0 = cmd_cp
 createdirectory_v0.0 = cmd_mkdir
 createdirectorytree_v0.0 = cmd_tree
 move_v0.0 = cmd_mv
-remove_v0.0 = cmd_rm
 setfilepermission_v0.0 = cmd_chmod
 test_v0.0 = cmd_test
 storeaip_v0.0 = store_aip
