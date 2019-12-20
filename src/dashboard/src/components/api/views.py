@@ -273,7 +273,6 @@ def status(request, unit_uuid, unit_type):
         return django.http.HttpResponseBadRequest(  # 400
             json.dumps(response), content_type="application/json"
         )
-
     directory = unit.currentpath if unit_type == "unitSIP" else unit.currentlocation
     response["path"] = directory.replace(
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT, 1
