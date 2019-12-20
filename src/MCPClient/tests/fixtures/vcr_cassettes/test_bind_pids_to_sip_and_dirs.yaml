@@ -1,0 +1,183 @@
+interactions:
+- request:
+    body: !!python/object/new:django.utils.safestring.SafeText
+    - !!python/unicode "<?xml version='1.0' encoding='UTF-8'?>\r\n        <soapenv:Envelope\r\n
+      \           xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'\r\n            xmlns:pid='http://pid.socialhistoryservices.org/'>\r\n
+      \           <soapenv:Body>\r\n                <pid:UpsertPidRequest>\r\n                    <pid:na>12345</pid:na>\r\n
+      \                   <pid:handle>\r\n                        <pid:pid>12345/cb5ebaf5-beda-40b4-8d0c-fefbd546b8de</pid:pid>\r\n
+      \                       <pid:locAtt>\r\n                            <pid:location
+      weight='1' href='https://access.iisg.nl/dip/12345/cb5ebaf5-beda-40b4-8d0c-fefbd546b8de'/>\r\n
+      \                           \r\n                                <pid:location\r\n
+      \                                   weight='0'\r\n                                    href='https://access.iisg.nl/mets/12345/cb5ebaf5-beda-40b4-8d0c-fefbd546b8de'\r\n
+      \                                   view='mets'/>\r\n                            \r\n
+      \                       </pid:locAtt>\r\n                    </pid:handle>\r\n
+      \               </pid:UpsertPidRequest>\r\n            </soapenv:Body>\r\n        </soapenv:Envelope>"
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - !!python/unicode bearer 84214c59-8694-48d5-89b5-d40a88cd7768
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1098'
+      Content-Type:
+      - !!python/unicode text/xml
+      User-Agent:
+      - python-requests/2.21.0
+    method: POST
+    uri: https://pid.socialhistoryservices.org/secure
+  response:
+    body:
+      string: !!python/unicode <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:UpsertPidResponse
+        xmlns:ns2="http://pid.socialhistoryservices.org/"><ns2:handle><ns2:pid>12345/CB5EBAF5-BEDA-40B4-8D0C-FEFBD546B8DE</ns2:pid><ns2:locAtt><ns2:location
+        ns2:href="https://access.iisg.nl/dip/12345/cb5ebaf5-beda-40b4-8d0c-fefbd546b8de"
+        ns2:weight="1"/><ns2:location ns2:href="https://access.iisg.nl/mets/12345/cb5ebaf5-beda-40b4-8d0c-fefbd546b8de"
+        ns2:view="mets" ns2:weight="0"/></ns2:locAtt></ns2:handle></ns2:UpsertPidResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>
+    headers:
+      accept:
+      - text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+      connection:
+      - keep-alive
+      content-length:
+      - '594'
+      content-type:
+      - text/xml;charset=utf-8
+      date:
+      - Thu, 02 May 2019 13:08:30 GMT
+      server:
+      - nginx
+      soapaction:
+      - '""'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: !!python/object/new:django.utils.safestring.SafeText
+    - !!python/unicode "<?xml version='1.0' encoding='UTF-8'?>\r\n        <soapenv:Envelope\r\n
+      \           xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'\r\n            xmlns:pid='http://pid.socialhistoryservices.org/'>\r\n
+      \           <soapenv:Body>\r\n                <pid:UpsertPidRequest>\r\n                    <pid:na>12345</pid:na>\r\n
+      \                   <pid:handle>\r\n                        <pid:pid>12345/966755bd-0ae3-4f85-b4ec-b359fefeff33</pid:pid>\r\n
+      \                       <pid:locAtt>\r\n                            <pid:location
+      weight='1' href='https://access.iisg.nl/access/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33'/>\r\n
+      \                           \r\n                                <pid:location\r\n
+      \                                   weight='0'\r\n                                    href='https://access.iisg.nl/access/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33'\r\n
+      \                                   view='access'/>\r\n                            \r\n
+      \                               <pid:location\r\n                                    weight='0'\r\n
+      \                                   href='https://access.iisg.nl/preservation/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33'\r\n
+      \                                   view='preservation'/>\r\n                            \r\n
+      \                               <pid:location\r\n                                    weight='0'\r\n
+      \                                   href='https://access.iisg.nl/original/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33'\r\n
+      \                                   view='original'/>\r\n                            \r\n
+      \                       </pid:locAtt>\r\n                    </pid:handle>\r\n
+      \               </pid:UpsertPidRequest>\r\n            </soapenv:Body>\r\n        </soapenv:Envelope>"
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - !!python/unicode bearer 84214c59-8694-48d5-89b5-d40a88cd7768
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1711'
+      Content-Type:
+      - !!python/unicode text/xml
+      User-Agent:
+      - python-requests/2.21.0
+    method: POST
+    uri: https://pid.socialhistoryservices.org/secure
+  response:
+    body:
+      string: !!python/unicode <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:UpsertPidResponse
+        xmlns:ns2="http://pid.socialhistoryservices.org/"><ns2:handle><ns2:pid>12345/966755BD-0AE3-4F85-B4EC-B359FEFEFF33</ns2:pid><ns2:locAtt><ns2:location
+        ns2:href="https://access.iisg.nl/access/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33"
+        ns2:weight="1"/><ns2:location ns2:href="https://access.iisg.nl/access/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33"
+        ns2:view="access" ns2:weight="0"/><ns2:location ns2:href="https://access.iisg.nl/preservation/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33"
+        ns2:view="preservation" ns2:weight="0"/><ns2:location ns2:href="https://access.iisg.nl/original/12345/966755bd-0ae3-4f85-b4ec-b359fefeff33"
+        ns2:view="original" ns2:weight="0"/></ns2:locAtt></ns2:handle></ns2:UpsertPidResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>
+    headers:
+      accept:
+      - text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+      connection:
+      - keep-alive
+      content-length:
+      - '881'
+      content-type:
+      - text/xml;charset=utf-8
+      date:
+      - Thu, 02 May 2019 13:08:30 GMT
+      server:
+      - nginx
+      soapaction:
+      - '""'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: !!python/object/new:django.utils.safestring.SafeText
+    - !!python/unicode "<?xml version='1.0' encoding='UTF-8'?>\r\n        <soapenv:Envelope\r\n
+      \           xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'\r\n            xmlns:pid='http://pid.socialhistoryservices.org/'>\r\n
+      \           <soapenv:Body>\r\n                <pid:UpsertPidRequest>\r\n                    <pid:na>12345</pid:na>\r\n
+      \                   <pid:handle>\r\n                        <pid:pid>12345/d298dd3f-c5d1-4445-99fe-09123fba8b30</pid:pid>\r\n
+      \                       <pid:locAtt>\r\n                            <pid:location
+      weight='1' href='https://access.iisg.nl/access/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30'/>\r\n
+      \                           \r\n                                <pid:location\r\n
+      \                                   weight='0'\r\n                                    href='https://access.iisg.nl/access/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30'\r\n
+      \                                   view='access'/>\r\n                            \r\n
+      \                               <pid:location\r\n                                    weight='0'\r\n
+      \                                   href='https://access.iisg.nl/preservation/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30'\r\n
+      \                                   view='preservation'/>\r\n                            \r\n
+      \                               <pid:location\r\n                                    weight='0'\r\n
+      \                                   href='https://access.iisg.nl/original/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30'\r\n
+      \                                   view='original'/>\r\n                            \r\n
+      \                       </pid:locAtt>\r\n                    </pid:handle>\r\n
+      \               </pid:UpsertPidRequest>\r\n            </soapenv:Body>\r\n        </soapenv:Envelope>"
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - !!python/unicode bearer 84214c59-8694-48d5-89b5-d40a88cd7768
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1711'
+      Content-Type:
+      - !!python/unicode text/xml
+      User-Agent:
+      - python-requests/2.21.0
+    method: POST
+    uri: https://pid.socialhistoryservices.org/secure
+  response:
+    body:
+      string: !!python/unicode <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:UpsertPidResponse
+        xmlns:ns2="http://pid.socialhistoryservices.org/"><ns2:handle><ns2:pid>12345/D298DD3F-C5D1-4445-99FE-09123FBA8B30</ns2:pid><ns2:locAtt><ns2:location
+        ns2:href="https://access.iisg.nl/access/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30"
+        ns2:weight="1"/><ns2:location ns2:href="https://access.iisg.nl/access/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30"
+        ns2:view="access" ns2:weight="0"/><ns2:location ns2:href="https://access.iisg.nl/preservation/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30"
+        ns2:view="preservation" ns2:weight="0"/><ns2:location ns2:href="https://access.iisg.nl/original/12345/d298dd3f-c5d1-4445-99fe-09123fba8b30"
+        ns2:view="original" ns2:weight="0"/></ns2:locAtt></ns2:handle></ns2:UpsertPidResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>
+    headers:
+      accept:
+      - text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+      connection:
+      - keep-alive
+      content-length:
+      - '881'
+      content-type:
+      - text/xml;charset=utf-8
+      date:
+      - Thu, 02 May 2019 13:08:30 GMT
+      server:
+      - nginx
+      soapaction:
+      - '""'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -24,55 +24,50 @@ from __future__ import absolute_import
 import ldap
 from django_auth_ldap.config import LDAPSearch
 
-from .base import *
+# Import local settings (base settings + debug + fixture dirs)
+from .local import *
 
 
 # IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": "archivematica-test.db",
+        "TEST": {"NAME": "archivematica-test.db"},
         "USER": "",
         "PASSWORD": "",
         "HOST": "",
         "PORT": "",
-    },
+    }
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '%(levelname)-8s  %(name)s.%(funcName)s:  %(message)s',
-        },
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(levelname)-8s  %(name)s.%(funcName)s:  %(message)s"}
     },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        }
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
 }
 
 # Disable whitenoise
 STATICFILES_STORAGE = None
-if MIDDLEWARE_CLASSES[0] == 'whitenoise.middleware.WhiteNoiseMiddleware':
+if MIDDLEWARE_CLASSES[0] == "whitenoise.middleware.WhiteNoiseMiddleware":
     del MIDDLEWARE_CLASSES[0]
 
 
 # Special testing setup for LDAP tests in test_ldap.py
 # (since override_settings would take effect too late)
-AUTH_LDAP_SERVER_URI = 'ldap://localhost/'
+AUTH_LDAP_SERVER_URI = "ldap://localhost/"
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
-    'ou=example,o=test',
-    ldap.SCOPE_SUBTREE,
-    '(cn=%(user)s)'
+    "ou=example,o=test", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"
 )
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {}
-AUTH_LDAP_USERNAME_SUFFIX = '_ldap'
+AUTH_LDAP_USERNAME_SUFFIX = "_ldap"

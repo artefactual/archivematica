@@ -28,24 +28,24 @@ import os
 import shutil
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 
 
-logger = get_script_logger('archivematica.mcp.client.handleUnstoredDIP')
+logger = get_script_logger("archivematica.mcp.client.handleUnstoredDIP")
 
 
 def _get_sip_dirname(sip_path):
-    return os.path.basename(sip_path.rstrip('/'))
+    return os.path.basename(sip_path.rstrip("/"))
 
 
 def _sip_uploaded(sip_path, uploaded_dips_path):
     """Return ``True`` if the SIP has been uploaded."""
-    return os.path.isdir(os.path.join(
-        uploaded_dips_path,
-        _get_sip_dirname(sip_path)))
+    return os.path.isdir(os.path.join(uploaded_dips_path, _get_sip_dirname(sip_path)))
 
 
 def _move_to_rejected(sip_path, rejected_path):
@@ -59,12 +59,16 @@ def _move_to_rejected(sip_path, rejected_path):
 
 def main(job, sip_path, rejected_path, uploaded_dips_path):
     if _sip_uploaded(sip_path, uploaded_dips_path):
-        msg = ('The SIP has been uploaded so it was NOT moved to the'
-               ' rejected/ directory')
+        msg = (
+            "The SIP has been uploaded so it was NOT moved to the"
+            " rejected/ directory"
+        )
     else:
         dest = _move_to_rejected(sip_path, rejected_path)
-        msg = ('The SIP had NOT been uploaded so it was moved to the'
-               ' rejected/ directory at %s' % dest)
+        msg = (
+            "The SIP had NOT been uploaded so it was moved to the"
+            " rejected/ directory at %s" % dest
+        )
     job.pyprint(msg)
     logger.info(msg)
     return 0
@@ -75,6 +79,10 @@ def call(jobs):
         for job in jobs:
             with job.JobContext(logger=logger):
                 sip_path, rejected_path, uploaded_dips_path = job.args[1:]
-                logger.info('handleUnstoredDIP called with sip directory %s and rejected'
-                            ' directory %s', sip_path, rejected_path)
+                logger.info(
+                    "handleUnstoredDIP called with sip directory %s and rejected"
+                    " directory %s",
+                    sip_path,
+                    rejected_path,
+                )
                 job.set_status(main(job, sip_path, rejected_path, uploaded_dips_path))

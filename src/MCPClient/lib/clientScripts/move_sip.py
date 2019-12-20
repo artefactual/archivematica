@@ -26,8 +26,10 @@ import shutil
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import SIP
 
@@ -54,7 +56,7 @@ def moveSIP(job, src, dst, sipUUID, sharedDirectoryPath):
     # If destination already exists, delete it with warning
     dest_path = os.path.join(dst, os.path.basename(src))
     if os.path.exists(dest_path):
-        job.pyprint(dest_path, 'exists, deleting', file=sys.stderr)
+        job.pyprint(dest_path, "exists, deleting", file=sys.stderr)
         shutil.rmtree(dest_path)
 
     return rename(src, dst, printfn=job.pyprint, should_exit=False)

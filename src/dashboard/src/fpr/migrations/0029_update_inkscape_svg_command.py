@@ -26,8 +26,8 @@ NEW_INKSCAPE_CMD_UUID = "cf8b44c8-ba16-44cd-8b47-cb29d52fbac4"
 
 def data_migration_up(apps, schema_editor):
     """Update command to stop using sudo."""
-    FPCommand = apps.get_model('fpr', 'FPCommand')
-    FPRule = apps.get_model('fpr', 'FPRule')
+    FPCommand = apps.get_model("fpr", "FPCommand")
+    FPRule = apps.get_model("fpr", "FPRule")
 
     # The only difference with the new command is that it's not using sudo.
     new_cmd = (
@@ -40,42 +40,39 @@ def data_migration_up(apps, schema_editor):
         uuid=NEW_INKSCAPE_CMD_UUID,
         replaces_id=OLD_INKSCAPE_CMD_UUID,
         tool_id=INKSCAPE_TOOL_UUID,
-        event_detail_command_id='1db2deea-01dd-43e5-9f27-dc9ed02acdfe',
-        verification_command_id='a9111dc0-edc9-47f8-85e5-ad4013971361',
-        output_format_id='8ba2101d-3f3c-4620-a0fa-a75cf5f5ec27',
+        event_detail_command_id="1db2deea-01dd-43e5-9f27-dc9ed02acdfe",
+        verification_command_id="a9111dc0-edc9-47f8-85e5-ad4013971361",
+        output_format_id="8ba2101d-3f3c-4620-a0fa-a75cf5f5ec27",
         enabled=True,
         command=new_cmd,
-        script_type='bashScript',
-        command_usage='normalization',
-        output_location='%outputDirectory%%prefix%%fileName%%postfix%.svg',
-        description='Transcoding to plain svg with inkscape')
+        script_type="bashScript",
+        command_usage="normalization",
+        output_location="%outputDirectory%%prefix%%fileName%%postfix%.svg",
+        description="Transcoding to plain svg with inkscape",
+    )
 
     # Update existing rules.
-    FPRule.objects \
-        .filter(uuid__in=INKSCAPE_SVG_RULES) \
-        .update(command_id=NEW_INKSCAPE_CMD_UUID)
+    FPRule.objects.filter(uuid__in=INKSCAPE_SVG_RULES).update(
+        command_id=NEW_INKSCAPE_CMD_UUID
+    )
 
 
 def data_migration_down(apps, schema_editor):
-    FPCommand = apps.get_model('fpr', 'FPCommand')
-    FPRule = apps.get_model('fpr', 'FPRule')
+    FPCommand = apps.get_model("fpr", "FPCommand")
+    FPRule = apps.get_model("fpr", "FPRule")
 
     # The order matters. We make sure that the rules point to the previous
     # command before the latter is deleted. Otherwise our rules would be
     # deleted by Django's on cascade mechanism.
-    FPRule.objects \
-        .filter(uuid__in=INKSCAPE_SVG_RULES) \
-        .update(command_id=OLD_INKSCAPE_CMD_UUID)
+    FPRule.objects.filter(uuid__in=INKSCAPE_SVG_RULES).update(
+        command_id=OLD_INKSCAPE_CMD_UUID
+    )
 
     FPCommand.objects.filter(uuid=NEW_INKSCAPE_CMD_UUID).delete()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('fpr', '0028_idcommand_unique_enabled'),
-    ]
+    dependencies = [("fpr", "0028_idcommand_unique_enabled")]
 
-    operations = [
-        migrations.RunPython(data_migration_up, data_migration_down),
-    ]
+    operations = [migrations.RunPython(data_migration_up, data_migration_down)]

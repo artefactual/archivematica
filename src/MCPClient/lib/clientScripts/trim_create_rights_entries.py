@@ -31,16 +31,26 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
-from main.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
+from main.models import (
+    RightsStatement,
+    RightsStatementOtherRightsInformation,
+    RightsStatementOtherRightsDocumentationIdentifier,
+    RightsStatementRightsGranted,
+    RightsStatementRightsGrantedNote,
+    RightsStatementRightsGrantedRestriction,
+)
 
 # archivematicaCommon
 from fileOperations import getFileUUIDLike
 
 while False:
     import time
+
     time.sleep(10)
 
 
@@ -70,9 +80,9 @@ def getDateTimeFromDateClosed(job, dateClosed):
     if dateClosed is None:
         return
 
-    dateClosedDT = datetime.strptime(dateClosed[:i], '%Y-%m-%dT%H:%M:%S')
+    dateClosedDT = datetime.strptime(dateClosed[:i], "%Y-%m-%dT%H:%M:%S")
     job.pyprint(dateClosedDT)
-    offSet = dateClosed[i + 1:].split(":")
+    offSet = dateClosed[i + 1 :].split(":")
     offSetTD = timedelta(hours=int(offSet[0]), minutes=int(offSet[1]))
 
     if dateClosed[i] == "-":
@@ -105,18 +115,30 @@ def call(jobs):
                         tree = etree.parse(xmlFilePath)
                         root = tree.getroot()
                     except:
-                        job.pyprint("Error parsing: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1), file=sys.stderr)
+                        job.pyprint(
+                            "Error parsing: ",
+                            xmlFilePath.replace(transferPath, "%transferDirectory%", 1),
+                            file=sys.stderr,
+                        )
                         exitCode += 1
                         continue
                     try:
-                        RetentionSchedule = root.find("Container/RetentionSchedule").text
+                        RetentionSchedule = root.find(
+                            "Container/RetentionSchedule"
+                        ).text
                         DateClosed = root.find("Container/DateClosed").text
                     except:
-                        job.pyprint("Error retrieving values from: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1), file=sys.stderr)
+                        job.pyprint(
+                            "Error retrieving values from: ",
+                            xmlFilePath.replace(transferPath, "%transferDirectory%", 1),
+                            file=sys.stderr,
+                        )
                         exitCode += 1
                         continue
 
-                    retentionPeriod = getTimedeltaFromRetensionSchedule(RetentionSchedule)
+                    retentionPeriod = getTimedeltaFromRetensionSchedule(
+                        RetentionSchedule
+                    )
                     startTime = job.pyprint(job, DateClosed)
                     endTime = startTime + retentionPeriod
 
@@ -130,11 +152,23 @@ def call(jobs):
 
                     for file in os.listdir(dirPath):
                         filePath = os.path.join(dirPath, file)
-                        if file == "ContainerMetadata.xml" or file.endswith("Metadata.xml") or not os.path.isfile(filePath):
+                        if (
+                            file == "ContainerMetadata.xml"
+                            or file.endswith("Metadata.xml")
+                            or not os.path.isfile(filePath)
+                        ):
                             continue
 
-                        fileUUID = getFileUUIDLike(filePath, transferPath, transferUUID, "transfer", "%transferDirectory%")[filePath.replace(transferPath, "%transferDirectory%", 1)]
-                        FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
+                        fileUUID = getFileUUIDLike(
+                            filePath,
+                            transferPath,
+                            transferUUID,
+                            "transfer",
+                            "%transferDirectory%",
+                        )[filePath.replace(transferPath, "%transferDirectory%", 1)]
+                        FileMetadataAppliesToType = (
+                            "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
+                        )
 
                         # RightsStatement
                         statement = RightsStatement.objects.create(
@@ -143,13 +177,12 @@ def call(jobs):
                             rightsstatementidentifiertype="UUID",
                             rightsstatementidentifiervalue=str(uuid.uuid4()),
                             rightsholder=1,
-                            rightsbasis="Other"
+                            rightsbasis="Other",
                         )
 
                         # RightsStatementOtherRightsInformation
                         info = RightsStatementOtherRightsInformation.objects.create(
-                            rightsstatement=statement,
-                            otherrightsbasis="Policy"
+                            rightsstatement=statement, otherrightsbasis="Policy"
                         )
 
                         # RightsStatementOtherRightsDocumentationIdentifier
@@ -162,19 +195,18 @@ def call(jobs):
                             rightsstatement=statement,
                             act="Disseminate",
                             startdate=startTime,
-                            enddate=endTime
+                            enddate=endTime,
                         )
 
                         # RightsStatementRightsGrantedNote
                         RightsStatementRightsGrantedNote.objects.create(
                             rightsgranted=granted,
-                            rightsgrantednote="Closed until " + endTime
+                            rightsgrantednote="Closed until " + endTime,
                         )
 
                         # RightsStatementRightsGrantedRestriction
                         RightsStatementRightsGrantedRestriction.objects.create(
-                            rightsgranted=granted,
-                            restriction="Disallow"
+                            rightsgranted=granted, restriction="Disallow"
                         )
 
                 job.set_status(exitCode)

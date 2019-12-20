@@ -1,0 +1,28 @@
+[
+{
+  "fields": {
+    "updatedtime": "2019-07-02T09:10:07.161Z",
+    "unituuid": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+    "microservicechainlink": null,
+    "createdtime": "2019-07-02T09:10:07.161Z",
+    "unittype": "Transfer",
+    "variablevalue": "3",
+    "variable": "activeAgent"
+  },
+  "model": "main.unitvariable",
+  "pk": "2f7caa64-9ca9-11e9-bdd4-0242ac120002"
+},
+{
+  "fields": {
+    "updatedtime": "2019-09-01T23:13:07.161Z",
+    "unituuid": "f6eb30e3-6ded-4f85-b52e-8653b430f29c",
+    "microservicechainlink": null,
+    "createdtime": "2019-09-01T23:13:07.161Z",
+    "unittype": "Transfer",
+    "variablevalue": "3",
+    "variable": "activeAgent"
+  },
+  "model": "main.unitvariable",
+  "pk": "ffe0de11-bd3d-47ea-a7fa-ca2c4b4dac49"
+}
+]

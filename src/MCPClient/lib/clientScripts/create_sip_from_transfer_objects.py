@@ -23,10 +23,13 @@
 import shutil
 import os
 import sys
+import uuid
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import File, Directory, SIP, Transfer, UnitVariable, Agent
 
@@ -47,43 +50,65 @@ def call(jobs):
                 sharedPath = job.args[6]
                 sipName = transferName
 
-                tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-                destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"
-                archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=False)
+                # tmpSIPDir has a trailing slash
+                tmpSIPDir = os.path.join(processingDirectory, sipName, "")
+                archivematicaFunctions.create_structured_directory(
+                    tmpSIPDir, manual_normalization=False
+                )
 
                 # If transfer is a reingested AIP, then pass that info to the SIP
-                sip_type = 'SIP'
+                sip_type = "SIP"
                 sip_uuid = None
                 transfer = Transfer.objects.get(uuid=transferUUID)
-                if transfer.type == 'Archivematica AIP':
-                    sip_type = 'AIP-REIN'
+                if transfer.type == "Archivematica AIP":
+                    sip_type = "AIP-REIN"
                     # Use reingested AIP's UUID as the SIP UUID
                     # Get AIP UUID from reingest METS name
-                    job.pyprint('path', os.path.join(objectsDirectory, '..', 'metadata'), 'listdir', os.listdir(os.path.join(objectsDirectory, '..', 'metadata')))
-                    for item in os.listdir(os.path.join(objectsDirectory, '..', 'metadata')):
-                        if item.startswith('METS'):
-                            sip_uuid = item.replace('METS.', '').replace('.xml', '')
-                job.pyprint('sip_uuid', sip_uuid)
-                job.pyprint('sip_type', sip_type)
+                    job.pyprint(
+                        "path",
+                        os.path.join(objectsDirectory, "..", "metadata"),
+                        "listdir",
+                        os.listdir(os.path.join(objectsDirectory, "..", "metadata")),
+                    )
+                    for item in os.listdir(
+                        os.path.join(objectsDirectory, "..", "metadata")
+                    ):
+                        if item.startswith("METS"):
+                            sip_uuid = item.replace("METS.", "").replace(".xml", "")
+                job.pyprint("sip_uuid", sip_uuid)
+                job.pyprint("sip_type", sip_type)
 
                 # Find out if any ``Directory`` models were created for the source
                 # ``Transfer``. If so, this fact gets recorded in the new ``SIP`` model.
                 dir_mdls = Directory.objects.filter(
                     transfer_id=transferUUID,
-                    currentlocation__startswith='%transferDirectory%objects')
-                diruuids = len(dir_mdls) > 0
+                    currentlocation__startswith="%transferDirectory%objects",
+                )
+                diruuids = dir_mdls.count() > 0
 
+                if sip_uuid is None:
+                    sip_uuid = str(uuid.uuid4())
+
+                destSIPDir = os.path.join(
+                    autoProcessSIPDirectory, "{}-{}".format(sipName, sip_uuid)
+                )
+
+                # TODO: it's not clear in which case a SIP would already exist
+                # at this point in the workflow.
                 # Create row in SIPs table if one doesn't already exist
-                lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
-                try:
-                    sip = SIP.objects.get(currentpath=lookup_path)
-                    if diruuids:
-                        sip.diruuids = True
-                        sip.save()
-                except SIP.DoesNotExist:
-                    sip_uuid = databaseFunctions.createSIP(
-                        lookup_path, UUID=sip_uuid, sip_type=sip_type, diruuids=diruuids, printfn=job.pyprint)
-                    sip = SIP.objects.get(uuid=sip_uuid)
+                lookup_path = destSIPDir.replace(sharedPath, "%sharedPath%") + os.sep
+                sip, created = SIP.objects.get_or_create(
+                    uuid=sip_uuid,
+                    defaults={
+                        "currentpath": lookup_path,
+                        "sip_type": sip_type,
+                        "diruuids": diruuids,
+                    },
+                )
+                if not created:
+                    sip.diruuids = diruuids
+                    sip.currentpath = lookup_path
+                    sip.save()
 
                 # Set activeAgent using the value in Transfer. This ensures
                 # that events generated in Ingest can fall to this value in
@@ -91,8 +116,10 @@ def call(jobs):
                 # interfactions, e.g. in the "automated" processing config.
                 try:
                     unit_variable = UnitVariable.objects.get(
-                        unittype="Transfer", unituuid=transferUUID,
-                        variable="activeAgent")
+                        unittype="Transfer",
+                        unituuid=transferUUID,
+                        variable="activeAgent",
+                    )
                 except UnitVariable.DoesNotExist:
                     unit_variable = None
                 if unit_variable:
@@ -122,45 +149,65 @@ def call(jobs):
                 # objects/ directory, and update the current location and owning SIP.
                 for dir_mdl in dir_mdls:
                     currentPath = databaseFunctions.deUnicode(dir_mdl.currentlocation)
-                    currentSIPDirPath = currentPath.replace("%transferDirectory%", tmpSIPDir)
+                    currentSIPDirPath = currentPath.replace(
+                        "%transferDirectory%", tmpSIPDir
+                    )
                     if os.path.isdir(currentSIPDirPath):
-                        dir_mdl.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
+                        dir_mdl.currentlocation = currentPath.replace(
+                            "%transferDirectory%", "%SIPDirectory%"
+                        )
                         dir_mdl.sip = sip
                         dir_mdl.save()
                     else:
-                        job.pyprint("directory not found: ", currentSIPDirPath, file=sys.stderr)
+                        job.pyprint(
+                            "directory not found: ", currentSIPDirPath, file=sys.stderr
+                        )
 
                 # Get the database list of files in the objects directory.
                 # For each file, confirm it's in the SIP objects directory, and update the
                 # current location/ owning SIP'
-                files = File.objects.filter(transfer_id=transferUUID,
-                                            currentlocation__startswith='%transferDirectory%objects',
-                                            removedtime__isnull=True)
+                files = File.objects.filter(
+                    transfer_id=transferUUID,
+                    currentlocation__startswith="%transferDirectory%objects",
+                    removedtime__isnull=True,
+                )
                 for f in files:
                     currentPath = databaseFunctions.deUnicode(f.currentlocation)
-                    currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
+                    currentSIPFilePath = currentPath.replace(
+                        "%transferDirectory%", tmpSIPDir
+                    )
                     if os.path.isfile(currentSIPFilePath):
-                        f.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
+                        f.currentlocation = currentPath.replace(
+                            "%transferDirectory%", "%SIPDirectory%"
+                        )
                         f.sip = sip
                         f.save()
                     else:
-                        job.pyprint("file not found: ", currentSIPFilePath, file=sys.stderr)
+                        job.pyprint(
+                            "file not found: ", currentSIPFilePath, file=sys.stderr
+                        )
 
-                archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
+                archivematicaFunctions.create_directories(
+                    archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES,
+                    basepath=tmpSIPDir,
+                )
 
                 # Copy the JSON metadata file, if present; this contains a
                 # serialized copy of DC metadata entered in the dashboard UI
                 # during the transfer.
-                src = os.path.normpath(os.path.join(
-                    objectsDirectory, "..", "metadata", "dc.json"))
+                src = os.path.normpath(
+                    os.path.join(objectsDirectory, "..", "metadata", "dc.json")
+                )
                 dst = os.path.join(tmpSIPDir, "metadata", "dc.json")
                 if os.path.exists(src):
                     shutil.copy(src, dst)
 
                 # Copy processingMCP.xml file
-                src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
+                src = os.path.join(
+                    os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml"
+                )
                 dst = os.path.join(tmpSIPDir, "processingMCP.xml")
                 shutil.copy(src, dst)
 
                 # moveSIPTo autoProcessSIPDirectory
-                shutil.move(tmpSIPDir, destSIPDir)
+                shutil.move(tmpSIPDir.rstrip(os.sep), destSIPDir)

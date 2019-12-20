@@ -23,25 +23,41 @@ from django.conf import settings
 class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
-        fields = ('title', 'is_part_of', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
+        fields = (
+            "title",
+            "is_part_of",
+            "creator",
+            "subject",
+            "description",
+            "publisher",
+            "contributor",
+            "date",
+            "format",
+            "identifier",
+            "source",
+            "relation",
+            "language",
+            "coverage",
+            "rights",
+        )
         widgets = {
-            'title': forms.TextInput,
-            'is_part_of': forms.TextInput,
-            'creator': forms.TextInput,
-            'subject': forms.TextInput,
-            'publisher': forms.TextInput,
-            'contributor': forms.TextInput,
-            'date': forms.TextInput,
-            'type': forms.TextInput,
-            'format': forms.TextInput,
-            'identifier': forms.TextInput,
-            'source': forms.TextInput,
-            'relation': forms.TextInput,
-            'language': forms.TextInput,
-            'coverage': forms.TextInput,
+            "title": forms.TextInput,
+            "is_part_of": forms.TextInput,
+            "creator": forms.TextInput,
+            "subject": forms.TextInput,
+            "publisher": forms.TextInput,
+            "contributor": forms.TextInput,
+            "date": forms.TextInput,
+            "type": forms.TextInput,
+            "format": forms.TextInput,
+            "identifier": forms.TextInput,
+            "source": forms.TextInput,
+            "relation": forms.TextInput,
+            "language": forms.TextInput,
+            "coverage": forms.TextInput,
         }
 
-    aic_prefix = 'AIC#'
+    aic_prefix = "AIC#"
 
     def __init__(self, *args, **kwargs):
         super(DublinCoreMetadataForm, self).__init__(*args, **kwargs)
@@ -61,7 +77,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
         return super(DublinCoreMetadataForm, self).save(*args, **kwargs)
 
     def clean_is_part_of(self):
-        data = self.cleaned_data['is_part_of']
+        data = self.cleaned_data["is_part_of"]
         if data and not data.startswith(self.aic_prefix):
             data = self.aic_prefix + data
         return data
@@ -70,15 +86,31 @@ class DublinCoreMetadataForm(forms.ModelForm):
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
-        fields = ('title', 'is_part_of', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')
+        fields = (
+            "title",
+            "is_part_of",
+            "identifier",
+            "creator",
+            "subject",
+            "description",
+            "publisher",
+            "contributor",
+            "date",
+            "format",
+            "source",
+            "relation",
+            "language",
+            "coverage",
+            "rights",
+        )
         widgets = DublinCoreMetadataForm.Meta.widgets.copy()
 
     def __init__(self, *args, **kwargs):
         super(AICDublinCoreMetadataForm, self).__init__(*args, **kwargs)
-        self.fields['identifier'].required = True
+        self.fields["identifier"].required = True
 
     def clean_identifier(self):
-        data = self.cleaned_data['identifier']
+        data = self.cleaned_data["identifier"]
         if data and not data.startswith(self.aic_prefix):
             data = self.aic_prefix + data
         return data

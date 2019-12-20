@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div TYPE="Testing a path with spaces" LABEL="Archivemtica Tests">
+      <mets:div TYPE="binary" LABEL="Complete test">
+        <mets:fptr FILEID="FILE001" CONTENTIDS="objects/dir-with-dashes/file with spaces.bin"/>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

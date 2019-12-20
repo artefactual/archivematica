@@ -1,7 +1,0 @@
-logs/*
-!.gitkeep
-node_modules/
-tmp
-.DS_Store
-.idea
-app/appraisal_tab.js

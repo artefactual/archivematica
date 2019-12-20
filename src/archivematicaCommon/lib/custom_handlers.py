@@ -18,46 +18,45 @@ class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
 class CallbackHandler(logging.Handler):
     def __init__(self, callback, module_name=None):
         logging.Handler.__init__(self)
-        self.formatter = logging.Formatter("{}: ".format(module_name) + STANDARD_FORMAT if module_name else SCRIPT_FILE_FORMAT)
+        self.formatter = logging.Formatter(
+            "{}: ".format(module_name) + STANDARD_FORMAT
+            if module_name
+            else SCRIPT_FILE_FORMAT
+        )
         self.callback = callback
 
     def emit(self, record):
         self.callback(self.format(record))
 
 
-STANDARD_FORMAT = "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
-SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s".format(os.path.basename(sys.argv[0]))
+STANDARD_FORMAT = (
+    "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
+)
+SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s".format(
+    os.path.basename(sys.argv[0])
+)
 
 
-def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", level=logging.INFO):
+def get_script_logger(
+    name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", level=logging.INFO
+):
 
     logging_config = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'fmt': {
-                'format': formatter,
-            },
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {"fmt": {"format": formatter}},
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "fmt",
+            }
         },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'fmt',
-            },
+        "loggers": {
+            root: {"level": level},  # 'archivematica'
+            name: {"level": level},  # 'archivematica.mcp.client.script_name'
         },
-        'loggers': {
-            root: {  # 'archivematica'
-                'level': level,
-            },
-            name: {  # 'archivematica.mcp.client.script_name'
-                'level': level,
-            },
-        },
-        'root': {  # Everything else
-            'handlers': ['console'],
-            'level': 'WARNING',
-        },
+        "root": {"handlers": ["console"], "level": "WARNING"},  # Everything else
     }
 
     logging.config.dictConfig(logging_config)

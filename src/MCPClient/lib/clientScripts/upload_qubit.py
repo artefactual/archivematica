@@ -35,9 +35,11 @@ from custom_handlers import get_script_logger
 import requests
 
 import django
+
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.db import transaction
+
 # dashboard
 import main.models as models
 
@@ -53,10 +55,10 @@ def hilite(string, status=True):
         return string
     attr = []
     if status:
-        attr.append('32')
+        attr.append("32")
     else:
-        attr.append('31')
-    return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+        attr.append("31")
+    return "\x1b[%sm%s\x1b[0m" % (";".join(attr), string)
 
 
 # Print to stdout
@@ -81,7 +83,11 @@ def start(job, data):
     # Get directory
     jobs = models.Job.objects.filter(sipuuid=data.uuid, jobtype="Upload DIP")
     if jobs.count():
-        directory = jobs[0].directory.rstrip('/').replace('%sharedPath%', '/var/archivematica/sharedDirectory/')
+        directory = (
+            jobs[0]
+            .directory.rstrip("/")
+            .replace("%sharedPath%", "/var/archivematica/sharedDirectory/")
+        )
     else:
         return error(job, "Directory not found: %s" % directory)
 
@@ -91,7 +97,7 @@ def start(job, data):
 
         # Trying with uploadedDIPs
         log("Looking up uploadedDIPs/")
-        directory = directory.replace('uploadDIP', 'uploadedDIPs')
+        directory = directory.replace("uploadDIP", "uploadedDIPs")
 
         if os.path.exists(directory) is False:
             return error(job, "Directory not found: %s" % directory)
@@ -104,16 +110,14 @@ def start(job, data):
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
-            access.target = cPickle.dumps({
-                "target": transfers[0].access_system_id
-            })
+            access.target = cPickle.dumps({"target": transfers[0].access_system_id})
         access.save()
 
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
         target = cPickle.loads(str(access.target))
-        log("Target: %s" % (target['target']))
+        log("Target: %s" % (target["target"]))
     except:
         return error(job, "No target was selected")
 
@@ -133,14 +137,22 @@ def start(job, data):
           -P = --partial + --stats
         """
         # Using rsync -rltzP
-        command = ["rsync", "--protect-args", "-rltz", "-P", "--chmod=ugo=rwX", directory, data.rsync_target]
+        command = [
+            "rsync",
+            "--protect-args",
+            "-rltz",
+            "-P",
+            "--chmod=ugo=rwX",
+            directory,
+            data.rsync_target,
+        ]
 
         # Add -e if data.rsync_command was passed to this script
         if data.rsync_command:
             # Insert in second position. Example: rsync -e "ssh -i key" ...
             command.insert(1, "-e %s" % data.rsync_command)
 
-        log(' '.join(command))
+        log(" ".join(command))
 
         # Getting around of rsync output buffering by outputting to a temporary file
         pipe_output, file_name = tempfile.mkstemp()
@@ -187,36 +199,51 @@ def start(job, data):
         access.save()
 
         if 0 < process.returncode:
-            return error(job, "Rsync quit unexpectedly (exit %s), the upload script will be stopped here" % process.returncode)
+            return error(
+                job,
+                "Rsync quit unexpectedly (exit %s), the upload script will be stopped here"
+                % process.returncode,
+            )
 
     # Building headers dictionary for the deposit request
     headers = {}
-    headers['User-Agent'] = 'Archivematica'
-    headers['X-Packaging'] = 'http://purl.org/net/sword-types/METSArchivematicaDIP'
+    headers["User-Agent"] = "Archivematica"
+    headers["X-Packaging"] = "http://purl.org/net/sword-types/METSArchivematicaDIP"
     """ headers['X-On-Beahalf-Of'] """
-    headers['Content-Type'] = 'application/zip'
-    headers['X-No-Op'] = 'false'
-    headers['X-Verbose'] = 'false'
-    headers['Content-Location'] = "file:///%s" % os.path.basename(directory)
+    headers["Content-Type"] = "application/zip"
+    headers["X-No-Op"] = "false"
+    headers["X-Verbose"] = "false"
+    headers["Content-Location"] = "file:///%s" % os.path.basename(directory)
     """ headers['Content-Disposition'] """
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
-    atom_url_prefix = ';' if data.version == 1 else ''
-    data.url = "%s/%ssword/deposit/%s" % (data.url, atom_url_prefix, target['target'])
+    atom_url_prefix = ";" if data.version == 1 else ""
+    deposit_url = "%s/%ssword/deposit/%s" % (
+        data.url,
+        atom_url_prefix,
+        target["target"],
+    )
 
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
-    access.resource = data.url
+    access.resource = "%s/%s" % (data.url, target["target"])
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 
     # Disable redirects: AtoM returns 302 instead of 202, but Location header field is valid
-    response = requests.request('POST', data.url, auth=auth, headers=headers, allow_redirects=False, timeout=mcpclient_settings.AGENTARCHIVES_CLIENT_TIMEOUT)
+    response = requests.request(
+        "POST",
+        deposit_url,
+        auth=auth,
+        headers=headers,
+        allow_redirects=False,
+        timeout=mcpclient_settings.AGENTARCHIVES_CLIENT_TIMEOUT,
+    )
 
     # response.{content,headers,status_code}
     log("> Response code: %s" % response.status_code)
-    log("> Location: %s" % response.headers.get('Location'))
+    log("> Location: %s" % response.headers.get("Location"))
 
     if data.debug:
         # log("> Headers sent: %s" % headers)
@@ -228,14 +255,16 @@ def start(job, data):
         return error(job, "Response code not expected")
 
     # Location is a must, if it is not included in the AtoM response something was wrong
-    if response.headers['Location'] is None:
-        return error(job, "Location is expected, if not is likely something is wrong with AtoM")
-    else:
-        access.resource = data.url
+    if response.headers["Location"] is None:
+        return error(
+            job, "Location is expected, if not is likely something is wrong with AtoM"
+        )
 
     # (A)synchronously?
     if response.status_code == 302:
-        access.status = "Deposited asynchronously, AtoM is processing the DIP in the job queue"
+        access.status = (
+            "Deposited asynchronously, AtoM is processing the DIP in the job queue"
+        )
         log(access.status)
     else:
         access.statuscode = 14
@@ -249,20 +278,46 @@ def start(job, data):
 
 
 def call(jobs):
-    parser = optparse.OptionParser(usage='Usage: %prog [options]')
+    parser = optparse.OptionParser(usage="Usage: %prog [options]")
 
-    options = optparse.OptionGroup(parser, 'Basic options')
-    options.add_option('-u', '--url', dest='url', metavar='URL', help='URL')
-    options.add_option('-e', '--email', dest='email', metavar='EMAIL', help='account e-mail')
-    options.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='account password')
-    options.add_option('-U', '--uuid', dest='uuid', metavar='UUID', help='UUID')
-    options.add_option('-d', '--debug', dest='debug', metavar='DEBUG', default='no', type=str, help='Debug mode, prints HTTP headers')
-    options.add_option('-v', '--version', dest='version', type='int', default=1, help='AtoM version')
+    options = optparse.OptionGroup(parser, "Basic options")
+    options.add_option("-u", "--url", dest="url", metavar="URL", help="URL")
+    options.add_option(
+        "-e", "--email", dest="email", metavar="EMAIL", help="account e-mail"
+    )
+    options.add_option(
+        "-p", "--password", dest="password", metavar="PASSWORD", help="account password"
+    )
+    options.add_option("-U", "--uuid", dest="uuid", metavar="UUID", help="UUID")
+    options.add_option(
+        "-d",
+        "--debug",
+        dest="debug",
+        metavar="DEBUG",
+        default="no",
+        type=str,
+        help="Debug mode, prints HTTP headers",
+    )
+    options.add_option(
+        "-v", "--version", dest="version", type="int", default=1, help="AtoM version"
+    )
     parser.add_option_group(options)
 
-    options = optparse.OptionGroup(parser, 'Rsync options')
-    options.add_option('-c', '--rsync-command', dest='rsync_command', metavar='RSYNC_COMMAND', help='Rsync command, e.g.: ssh -p 2222')
-    options.add_option('-t', '--rsync-target', dest='rsync_target', metavar='RSYNC_TARGET', help='Rsync target, e.g.: foo@bar:~/dips/')
+    options = optparse.OptionGroup(parser, "Rsync options")
+    options.add_option(
+        "-c",
+        "--rsync-command",
+        dest="rsync_command",
+        metavar="RSYNC_COMMAND",
+        help="Rsync command, e.g.: ssh -p 2222",
+    )
+    options.add_option(
+        "-t",
+        "--rsync-target",
+        dest="rsync_target",
+        metavar="RSYNC_TARGET",
+        help="Rsync target, e.g.: foo@bar:~/dips/",
+    )
     parser.add_option_group(options)
 
     with transaction.atomic():
@@ -273,18 +328,26 @@ def call(jobs):
 
                 # Make sure that archivematica user is executing this script
                 user = getpass.getuser()
-                if 'archivematica' != user:
-                    job.print_error('This user is required to be executed as "archivematica" user but you are using %s.' % user)
+                if "archivematica" != user:
+                    job.print_error(
+                        'This user is required to be executed as "archivematica" user but you are using %s.'
+                        % user
+                    )
                     job.set_status(1)
                     continue
 
-                if opts.email is None or opts.password is None or opts.url is None or opts.uuid is None:
+                if (
+                    opts.email is None
+                    or opts.password is None
+                    or opts.url is None
+                    or opts.uuid is None
+                ):
                     parser.print_help()
                     job.print_error("Invalid syntax", 2)
                     job.set_status(1)
                     continue
 
-                opts.debug = opts.debug.lower() in ['yes', 'y', 'true', '1']
+                opts.debug = opts.debug.lower() in ["yes", "y", "true", "1"]
 
                 try:
                     job.set_status(start(job, opts))
@@ -293,6 +356,7 @@ def call(jobs):
                     job.pyprint(type(inst), file=sys.stderr)
                     job.pyprint(inst.args, file=sys.stderr)
                     import traceback
+
                     job.print_error(traceback.format_exc())
                     job.set_status(1)
                 finally:

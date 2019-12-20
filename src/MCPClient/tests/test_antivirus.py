@@ -9,8 +9,7 @@ import pytest
 import test_antivirus_clamdscan
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(
-    os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
+sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import archivematica_clamscan
 
@@ -57,14 +56,13 @@ def test_get_scanner(settings):
 
 
 args = OrderedDict()
-args['file_uuid'] = 'ec26199f-72a4-4fd8-a94a-29144b02ddd8'
-args['path'] = '/path'
-args['date'] = '2019-12-01'
-args['task_uuid'] = 'c380e94e-7a7b-4ab8-aa72-ec0644cc3f5d'
+args["file_uuid"] = "ec26199f-72a4-4fd8-a94a-29144b02ddd8"
+args["path"] = "/path"
+args["date"] = "2019-12-01"
+args["task_uuid"] = "c380e94e-7a7b-4ab8-aa72-ec0644cc3f5d"
 
 
-class FileMock():
-
+class FileMock:
     def __init__(self, size):
         self.size = size
 
@@ -85,30 +83,25 @@ class ScannerMock(archivematica_clamscan.ScannerBase):
         return ("version", "virus_definitions")
 
 
-def setup_test_scan_file_mocks(mocker,
-                               file_already_scanned=False,
-                               file_size=1024,
-                               scanner_should_except=False,
-                               scanner_passed=False):
-    deps = namedtuple('deps', [
-        'file_already_scanned',
-        'file_get',
-        'scanner',
-    ])(
+def setup_test_scan_file_mocks(
+    mocker,
+    file_already_scanned=False,
+    file_size=1024,
+    scanner_should_except=False,
+    scanner_passed=False,
+):
+    deps = namedtuple("deps", ["file_already_scanned", "file_get", "scanner"])(
         file_already_scanned=mocker.patch(
-            'archivematica_clamscan.file_already_scanned',
-            return_value=file_already_scanned),
+            "archivematica_clamscan.file_already_scanned",
+            return_value=file_already_scanned,
+        ),
         file_get=mocker.patch(
-            'main.models.File.objects.get',
-            return_value=FileMock(size=file_size)),
-        scanner=ScannerMock(
-            should_except=scanner_should_except,
-            passed=scanner_passed)
+            "main.models.File.objects.get", return_value=FileMock(size=file_size)
+        ),
+        scanner=ScannerMock(should_except=scanner_should_except, passed=scanner_passed),
     )
 
-    mocker.patch(
-        'archivematica_clamscan.get_scanner',
-        return_value=deps.scanner)
+    mocker.patch("archivematica_clamscan.get_scanner", return_value=deps.scanner)
 
     return deps
 
@@ -119,59 +112,59 @@ def test_scan_file_already_scanned(mocker):
     exit_code = archivematica_clamscan.scan_file([], **dict(args))
 
     assert exit_code == 0
-    deps.file_already_scanned.assert_called_once_with(args['file_uuid'])
+    deps.file_already_scanned.assert_called_once_with(args["file_uuid"])
 
 
-QueueEventParams = namedtuple('QueueEventParams', [
-    'scanner_is_None',
-    'passed'
-])
+QueueEventParams = namedtuple("QueueEventParams", ["scanner_is_None", "passed"])
 
 
-@pytest.mark.parametrize("setup_kwargs, exit_code, queue_event_params", [
-    # File size too big for given file_size param
-    (
-        {'file_size': 43, 'scanner_passed': None},
-        0,
-        QueueEventParams(scanner_is_None=None, passed=None),
-    ),
-    # File size too big for given file_scan param
-    (
-        {'file_size': 85, 'scanner_passed': None},
-        0,
-        QueueEventParams(scanner_is_None=None, passed=None),
-    ),
-    # File size within given file_size param, and file_scan param
-    (
-        {'file_size': 42, 'scanner_passed': True},
-        0,
-        QueueEventParams(scanner_is_None=False, passed=True),
-    ),
-    # Scan returns None with no-error, e.g. Broken Pipe
-    (
-        {'scanner_passed': None},
-        0,
-        QueueEventParams(scanner_is_None=None, passed=None),
-    ),
-    # Zero byte file passes
-    (
-        {'file_size': 0, 'scanner_passed': True},
-        0,
-        QueueEventParams(scanner_is_None=False, passed=True),
-    ),
-    # Virus found
-    (
-        {'scanner_passed': False},
-        1,
-        QueueEventParams(scanner_is_None=False, passed=False),
-    ),
-    # Passed
-    (
-        {'scanner_passed': True},
-        0,
-        QueueEventParams(scanner_is_None=False, passed=True),
-    ),
-])
+@pytest.mark.parametrize(
+    "setup_kwargs, exit_code, queue_event_params",
+    [
+        # File size too big for given file_size param
+        (
+            {"file_size": 43, "scanner_passed": None},
+            0,
+            QueueEventParams(scanner_is_None=None, passed=None),
+        ),
+        # File size too big for given file_scan param
+        (
+            {"file_size": 85, "scanner_passed": None},
+            0,
+            QueueEventParams(scanner_is_None=None, passed=None),
+        ),
+        # File size within given file_size param, and file_scan param
+        (
+            {"file_size": 42, "scanner_passed": True},
+            0,
+            QueueEventParams(scanner_is_None=False, passed=True),
+        ),
+        # Scan returns None with no-error, e.g. Broken Pipe
+        (
+            {"scanner_passed": None},
+            0,
+            QueueEventParams(scanner_is_None=None, passed=None),
+        ),
+        # Zero byte file passes
+        (
+            {"file_size": 0, "scanner_passed": True},
+            0,
+            QueueEventParams(scanner_is_None=False, passed=True),
+        ),
+        # Virus found
+        (
+            {"scanner_passed": False},
+            1,
+            QueueEventParams(scanner_is_None=False, passed=False),
+        ),
+        # Passed
+        (
+            {"scanner_passed": True},
+            0,
+            QueueEventParams(scanner_is_None=False, passed=True),
+        ),
+    ],
+)
 def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings):
     setup_test_scan_file_mocks(mocker, **setup_kwargs)
 
@@ -199,6 +192,10 @@ def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings
         assert len(event_queue) == 1
 
         event = event_queue[0]
-        assert event['eventType'] == 'virus check'
-        assert event['fileUUID'] == args['file_uuid']
-        assert event['eventOutcome'] == 'Pass' if setup_kwargs['scanner_passed'] else 'Fail'
+        assert event["eventType"] == "virus check"
+        assert event["fileUUID"] == args["file_uuid"]
+        assert (
+            event["eventOutcome"] == "Pass"
+            if setup_kwargs["scanner_passed"]
+            else "Fail"
+        )

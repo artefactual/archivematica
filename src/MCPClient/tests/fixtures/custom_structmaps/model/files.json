@@ -1,0 +1,398 @@
+[
+{
+    "pk": "e334a1d6-a068-4bf2-9f89-839af1a26763",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/test_file.flac",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/test_file.flac",
+        "size": 2600
+    }
+},
+{
+    "pk": "db977b85-0874-471b-b09d-b3b2f4217f42",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/test_file.mp3",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/test_file.mp3",
+        "size": 2600
+    }
+},
+{
+    "pk": "276dc1d2-9ffb-485d-8e02-9f7342fd1f35",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/test_file.jpg",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/test_file.jpg",
+        "size": 2600
+    }
+},
+{
+    "pk": "637bcbee-c741-45a9-a93e-0563f49634cb",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/test_file.png",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/test_file.png",
+        "size": 2600
+    }
+},
+{
+    "pk": "97d55d14-22ec-4dd3-a220-a23f7dafcf5f",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/nested_dir/nested_file.rdata",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/nested_dir/nested_file.rdata",
+        "size": 2600
+    }
+},
+{
+    "pk": "16f2ac68-294b-4a09-b553-a9e213425742",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/página_de_prueba.png",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/página_de_prueba.png",
+        "size": 2600
+    }
+},
+{
+    "pk": "3d419a08-e9dc-481c-b4eb-95fcb4dd4a18",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/página_de_prueba.jpg",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/página_de_prueba.jpg",
+        "size": 2600
+    }
+},
+{
+    "pk": "8d39ffcd-9de8-4722-b783-eb50bab12b7b",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/duplicate_file_name.png",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/duplicate_file_name.png",
+        "size": 2600
+    }
+},
+{
+    "pk": "2b5ae3bd-7a38-4b0a-861b-a6ba8066d82a",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/nested_dir/duplicate_file_name.png",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/nested_dir/duplicate_file_name.png",
+        "size": 2600
+    }
+},
+{
+    "pk": "2cd8d06a-62cf-4814-b5b3-1896e0b8464f",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/dir-with-dashes/file with spaces.bin",
+        "transfer": null,
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/dir-with-dashes/file with spaces.bin",
+        "size": 2600
+    }
+},
+{
+    "pk": "9691d9cd-10b4-4c50-abcd-f8c22a37aac5",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "5cc84e44-716d-4ed2-a9f8-cd3627431621",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/simple_book_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/simple_book_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "90bc1f32-5b24-4dd4-b7d7-3c57a423b883",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_area_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_area_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "a9ee7d09-58a5-44a0-972c-459a8d541e36",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/unicode_simple_book_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/unicode_simple_book_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "0fcb11e5-993e-4044-aeb7-7edec95edca2",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/nested_file_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/nested_file_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "707696d4-5526-4908-b746-345356209bd3",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "f5f234d0-dcd4-461c-8943-d66862f42f5a",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/complex_book_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/complex_book_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "b933bf2a-9a92-456d-a30b-36d847798ac0",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/broken_structmap.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/broken_structmap.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "4dd084c7-f59d-4f0d-98a0-c7a166464dca",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/no-contentids.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/no-contentids.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "7e76e93e-3c1b-4780-8ac3-eabf6844e243",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/file_does_not_exist.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/file_does_not_exist.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "a6482fad-68bf-4fc2-815e-c966c890d21b",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/empty_filenames.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/empty_filenames.xml",
+        "size": 2600
+    }
+},
+{
+    "pk": "8c414261-57e3-4530-aad9-4d46f66e68ce",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
+        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/missing_contentid.xml",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2019-04-10T23:13:00Z",
+        "modificationtime": "1970-01-01T00:00:00Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/missing_contentid.xml",
+        "size": 2600
+    }
+}
+]

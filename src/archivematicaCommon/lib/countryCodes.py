@@ -275,7 +275,7 @@ countryCodes = {
     "WESTERN SAHARA": "EH",
     "YEMEN": "YE",
     "ZAMBIA": "ZM",
-    "ZIMBABWE": "ZW"
+    "ZIMBABWE": "ZW",
 }
 
 

@@ -1,9 +1,15 @@
 ---
 
 sudo: false
+dist: xenial
 
 language: python
 cache: pip
+
+branches:
+  only:
+    - qa/1.x
+    - /^stable\/\d+\.\d+\.x$/
 
 before_script:
   - pip install tox
@@ -37,11 +43,22 @@ matrix:
 
     # Linters
 
-    - python: "2.7"
-      env: TOXENV=py27-flake8
+    - python: "3.7"
+      env: TOXENV=linting
 
-    - python: "3.6"
-      env: TOXENV=py36-flake8
+    # Dashboard JS
+
+    - language: node_js
+      node_js: "8"
+      cache: npm
+      before_install:
+        - cd ./src/dashboard/frontend/
+      install: npm install
+      before_script:
+        - '' # override global before_script
+      script: npm run "test-single-run"
+      addons:
+        chrome: stable
 
   allow_failures:
 

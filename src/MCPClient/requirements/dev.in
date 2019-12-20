@@ -1,0 +1,3 @@
+-r test.txt
+
+pip-tools==3.7.0

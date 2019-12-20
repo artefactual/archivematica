@@ -19,6 +19,7 @@
   { "name": "openssl-devel", "state": "latest"},
   { "name": "python-devel", "state": "latest"},
   { "name": "openldap-devel", "state": "latest"},
-  { "name": "unar", "state": "latest"}
+  { "name": "unar", "state": "latest"},
+  { "name": "coreutils", "state": "latest"}
   ]
 }

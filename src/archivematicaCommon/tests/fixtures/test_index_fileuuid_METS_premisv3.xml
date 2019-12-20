@@ -1,0 +1,238 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  This METS file has been cut-down to reduce fixture size
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
+  <mets:metsHdr CREATEDATE="2019-04-18T19:05:17"/>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+      <mets:xmlData>
+        <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:intellectualEntity" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+          <premis:objectIdentifier>
+            <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+            <premis:objectIdentifierValue>37abc30b-a258-4389-b1f2-67ccd330bc7e</premis:objectIdentifierValue>
+          </premis:objectIdentifier>
+          <premis:originalName>evelynphotos-37abc30b-a258-4389-b1f2-67ccd330bc7e</premis:originalName>
+        </premis:object>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>696e431e-c5ae-4045-afa4-071c855fff47</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>a7ff7f8467ddd0b2f2f8792fb3c26f8b857abce30b15bd13fc2876a26fa513f8</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>1444992</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Tagged Image File Format</premis:formatName>
+                  <premis:formatVersion></premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName></premis:formatRegistryName>
+                  <premis:formatRegistryKey></premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-04-18</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/evelyn_s_photo-696e431e-c5ae-4045-afa4-071c855fff47.tif</premis:originalName>
+            <premis:relationship>
+              <premis:relationshipType>derivation</premis:relationshipType>
+              <premis:relationshipSubType>has source</premis:relationshipSubType>
+              <premis:relatedObjectIdentifier>
+                <premis:relatedObjectIdentifierType>UUID</premis:relatedObjectIdentifierType>
+                <premis:relatedObjectIdentifierValue>e9caf37c-93cb-4c37-ab5f-157c7d2611ac</premis:relatedObjectIdentifierValue>
+              </premis:relatedObjectIdentifier>
+              <premis:relatedEventIdentifier>
+                <premis:relatedEventIdentifierType>UUID</premis:relatedEventIdentifierType>
+                <premis:relatedEventIdentifierValue>90d670ba-ef17-41aa-a3ae-459be98fc7c9</premis:relatedEventIdentifierValue>
+              </premis:relatedEventIdentifier>
+            </premis:relationship>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_2">
+    <mets:techMD ID="techMD_2">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>e9caf37c-93cb-4c37-ab5f-157c7d2611ac</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>158131</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>JPEG</premis:formatName>
+                  <premis:formatVersion>1.02</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/44</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-04-17</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/evelyn's photo.jpg</premis:originalName>
+            <premis:relationship>
+              <premis:relationshipType>derivation</premis:relationshipType>
+              <premis:relationshipSubType>is source of</premis:relationshipSubType>
+              <premis:relatedObjectIdentifier>
+                <premis:relatedObjectIdentifierType>UUID</premis:relatedObjectIdentifierType>
+                <premis:relatedObjectIdentifierValue>696e431e-c5ae-4045-afa4-071c855fff47</premis:relatedObjectIdentifierValue>
+              </premis:relatedObjectIdentifier>
+              <premis:relatedEventIdentifier>
+                <premis:relatedEventIdentifierType>UUID</premis:relatedEventIdentifierType>
+                <premis:relatedEventIdentifierValue>90d670ba-ef17-41aa-a3ae-459be98fc7c9</premis:relatedEventIdentifierValue>
+              </premis:relatedEventIdentifier>
+            </premis:relationship>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_7">
+    <mets:techMD ID="techMD_7">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>61e56606-a1d6-456d-9c97-406feaa13b85</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>d1b55ce1c01846d926dd720e5159de15af657822b0b64203668e1a33814a6af8</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>313</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Plain Text</premis:formatName>
+                  <premis:formatVersion></premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>x-fmt/111</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-04-18</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/metadata/transfers/evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d/directory_tree.txt</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_8">
+    <mets:techMD ID="techMD_8">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>49fdc3d6-0109-4596-8847-fb80be5507be</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>e8cc462551ceb261f29b58b6124b103de438099f392b94ebc22fd63a89ea7bcb</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>95360</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>XML</premis:formatName>
+                  <premis:formatVersion>1.0</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/101</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2019-04-18</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/submissionDocumentation/transfer-evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d/METS.xml</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-e9caf37c-93cb-4c37-ab5f-157c7d2611ac" ID="file-e9caf37c-93cb-4c37-ab5f-157c7d2611ac" ADMID="amdSec_2">
+        <mets:FLocat xlink:href="objects/evelyn_s_photo.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="submissionDocumentation">
+      <mets:file GROUPID="Group-49fdc3d6-0109-4596-8847-fb80be5507be" ID="file-49fdc3d6-0109-4596-8847-fb80be5507be" ADMID="amdSec_8">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d/METS.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="preservation">
+      <mets:file GROUPID="Group-e9caf37c-93cb-4c37-ab5f-157c7d2611ac" ID="file-696e431e-c5ae-4045-afa4-071c855fff47" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/evelyn_s_photo-696e431e-c5ae-4045-afa4-071c855fff47.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="metadata">
+      <mets:file GROUPID="Group-61e56606-a1d6-456d-9c97-406feaa13b85" ID="file-61e56606-a1d6-456d-9c97-406feaa13b85" ADMID="amdSec_7">
+        <mets:FLocat xlink:href="objects/metadata/transfers/evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d/directory_tree.txt" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="evelynphotos-37abc30b-a258-4389-b1f2-67ccd330bc7e" TYPE="Directory" DMDID="dmdSec_1">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="evelyn_s_photo-696e431e-c5ae-4045-afa4-071c855fff47.tif" TYPE="Item">
+          <mets:fptr FILEID="file-696e431e-c5ae-4045-afa4-071c855fff47"/>
+        </mets:div>
+        <mets:div LABEL="evelyn_s_photo.jpg" TYPE="Item">
+          <mets:fptr FILEID="file-e9caf37c-93cb-4c37-ab5f-157c7d2611ac"/>
+        </mets:div>
+        <mets:div LABEL="metadata" TYPE="Directory">
+          <mets:div LABEL="transfers" TYPE="Directory">
+            <mets:div LABEL="evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d" TYPE="Directory">
+              <mets:div LABEL="directory_tree.txt" TYPE="Item">
+                <mets:fptr FILEID="file-61e56606-a1d6-456d-9c97-406feaa13b85"/>
+              </mets:div>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="submissionDocumentation" TYPE="Directory">
+          <mets:div LABEL="transfer-evelynphotos-96344c4e-bdaa-4e57-a271-408234de976d" TYPE="Directory">
+            <mets:div LABEL="METS.xml" TYPE="Item">
+              <mets:fptr FILEID="file-49fdc3d6-0109-4596-8847-fb80be5507be"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

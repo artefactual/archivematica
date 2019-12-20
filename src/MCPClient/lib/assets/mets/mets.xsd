@@ -1,174 +1,304 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- METS: Metadata Encoding and Transmission Standard -->
-<!-- Copyright © 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012 Digital Library Federation -->
-<!-- Prepared for the Digital Library Federation by Jerome McDonough, New York University,
-with the assistance of Michael Alexander (British Library), Joachim Bauer (Content Conversion Specialists, Germany), Rick Beaubien (University of California), Terry Catapano (Columbia University), Morgan Cundiff (Library of Congress), Susan Dahl (University of Alberta), Markus Enders (State and University Library, Göttingen/British Library),  Richard Gartner (Bodleian Library at Oxford/King's College, London), Thomas Habing (University of Illinois at Urbana-Champaign), Nancy Hoebelheinrich (Stanford University/Knowledge Motifs LLC), Arwen Hutt (U.C. San Diego), Mark Kornbluh (Michigan State University), Cecilia Preston (Preston & Lynch), Merrilee Proffitt (Research Libraries Group), Clay Redding (Library of Congress), Jenn Riley (Indiana University), Richard Rinehart (Berkeley Art Museum/Pacific Film Archive), Mackenzie Smith (Massachusetts Institute of Technology), Tobias Steinke (German National Library), Taylor Surface (OCLC), Brian Tingle (California Digital Library) and Robin Wendler (Harvard University), Robert Wolfe (Massachusetts Institute of Technology), Patrick Yott (Brown University).
--->
-<!-- March, 2012 -->
-<!-- Version 1.9.1 -->
-<!-- Change History -->
-<!-- April 23, 2001: Alpha Draft completed -->
-<!-- June 7, 2001: Beta completed -->
-<!-- 6/7/2001 Beta Changes: 
-	1. add 'Time' as a possible time code value, as well as TCF.
-	2. Make dmdSec ID attribute required; make ID attribute optional on MDRef/MDWrap.
-	3. Add 'Label' attribute to StructMap, along with 'Type'.
-	4. Add DDI and FGDC as potential metadata schemes to enumeration.
-	5. Enable an "otherMDtype" attribute for MDWrap/MDRef and any other element where
-	    there's an 'other' in the enumerated possibilities.
-	6. Add a "profile" attribute to METS element.
-	7. Revised mptr declaration so that it's like FLocat/MDRef (and not like XLink)
-	8. Extend internal documentation of <area> attributes.
-	9. Add "other" to the possible set of LOCTYPEs.
-	10. Change ADMIDS to ADMID on FileGrp.
-	11. Change "N" to "Order" on <div> element.
-	12. Change "Number" to "order label" on <div> element
-	13. Add createdate and lastmoddate attributes to mets element.
-	14. Allow <div> and <area> elements to link to administrative metadata sections.
-	15. Normalize attribute pointing facilities for file element and mdRef.
-	16. Provide a LOCTYPE of "other" and an "otherloctype" attribute for pointing to external files.
-	17. Drop PDI from enumeration of LOCTYPES.
-	18. Make MDTYPE required in mdRef and mdWrap.
-	19. Rename preservationMD to digiprovMD.
-	20. Add optional CHECKSUM attribute to FContent element.
-	21. Modularize declarations of fileGrpType and mdSecType attributes and enumerations to
-		simplify maintenance.
-	22. Add TYPE attribute to structMap.
-	23. Declare structMap element using structMapType rather than direct declaration.
-	24. Add area element as possible subelement to <div>, along with par and seq.
-	25. Change mdSec model to ALL, to enable differing order of mdRef/mdWrap elements.
-	26. Extend documentation on <par> and <seq> elements.
- -->
-<!-- October 22, 2001: Gamma completed -->
-<!-- 10/22/2001 Gamma changes:
- 	1. Added optional fileSec element beneath METS root element to contain fileGrps.
- 	2. Created subsidiary schema file xlink.xsd for XLink attributes, restored XLink attributes
- 	to mptr element, and added XLink support to mdRef and FLocat.
- 	3. Created new element metsHdr to handle metadata regarding METS document
- 	itself (analogous to TEI Header).  Moved CREATEDATE and LASTMODDATE attributes
- 	to metsHdr, and added new RECORDSTATUS attribute.  Added new subsidiary elements
- 	agent and altRecordID to metsHdr.
- 	4. Made CREATEDATE and LASTMODDATE attributes type xsd:dateTime to allow more precise
- 	recording of when work was done.
- 	5. Changed all attributes using data type of xsd:binary to xsd:base64Binary to conform to final
- 	W3C schema recommendations.
- 	6. Cleaned up annotations/documentation.
- -->
-<!-- December 19, 2001: Epsilon and PROTOFINAL completed-->
-<!-- 12/19/2001 Epsilon changes:
- 	1. Changed sequence operator for StructMap so that only 1 root div element is permitted.
-	2. Add new roles to agent element's role attribute and support for extensible 'other' role.
-	3. Add support for extensible 'other' type attribute on agent element.
-	4. Yet more documentation clean up.
-	5. Relocate CHECKSUM attribute from FContent to File element.
-	6. Change the file element's CREATED attribute and fileGroup's VERSDATE attribute to 
-	a type of xsd:dateTime
-	7. Change attribute name DMD for div element to DMDID for consistency's sake.
-	8. Added new behaviorSec for support of referencing executable code from METS object
- -->
-<!-- February 8, 2002: Zeta bug fix to final -->
-<!-- 2/8/2002 Zeta changes:
- 
- 	1. Eliminated redundant VRA in metadata type enumeration.
- 	2. Changed mdWrap content model, adding xmlData element to eliminate
- 		ambiguous content model
- -->
-<!-- June 3, 2002: Version 1.1 -->
-<!-- 6/3/2002 v1.1 changes:
- 
-  	1. Add new structLink section for recording hyperlinks between media represented by structMap nodes.
-	2. Allow a <par> element to
-	contain a <seq> -->
-<!-- Dec. 27, 2002: Version 1.2 -->
-<!-- 12/27/2002 v1.2 changes:
-1. Add “USE” attribute to FileGrp, File, FLocat and FContent;
-2. Make FLocat repeatable;
-3. Have FContent mimic mdWrap in using separate binData/xmlData sections;
-4. Copyright statement added;
-5. Allow both FLocat and Fcontent in single file element;
-6. Allow behaviorSec elements to group through GROUPID attribute;
-7. allow descriptive and administrative metadata sections to be grouped through GROUPID attribute;
-8. allow <file> element to point to descriptive metadata via DMDID attribute;
-9. allow descriptive metadata and all forms of administrative metadata to point to administrative metadata via ADMID attribute;
-10. CREATED and STATUS attributes added to all desc. and adm. metadata sections; and
-11. clean up documentation in elements to reflect reality.
--->
-<!-- May 8, 2003: Version 1.3 -->
-<!-- 05/05/2003 v1.3 changes:
 
-1. Change “2. OBJID: a primary identifier assigned to the original source document” to “2. OBJID: a primary identifier assigned to the METS object.”
-2. Add MODS to MDTYPEs.
-3. Modify <file> attributes so that instead of just CHECKSUM we have CHECKSUM and CHECKSUMTYPE, where CHECKSUMTYPE is a controlled vocabulary as follows:
-     HAVAL, MD5, SHA-1, SHA-256, SHA-384, SHA-512, TIGER, WHIRLPOOL
-4.Alter BehaviorSec to make it recursive, and add a new behavior element to wrap mechanism and interfaceDef elements.
--->
-<!-- May 1, 2004: Version 1.4 -->
-<!-- 05/01/2003 v1.4 changes:
-
-1. Moved attribute documentation out of element documentation
-(thank you, Brian Tingle).
-2. New CONTENTIDS attribute (and URIs simpleType) added to div, fptr,
-mptr and area elements for mapping MPEG21 DII Identifier values
-3. XLink namespace URI changed to conform with XLink recommendation.
-4. ID Attribute added to FContent.
-5. ID Attribute addedt to structLink.
-6. ID Attribute added to smLink.
-7. "LOM" added as metadata type.
- -->
- <!-- April 12, 2005: Version 1.5 -->
- <!-- 04/12/2005 v1.5 changes:
- 
- 1. Made file element recursive to deal with PREMIS Onion Layer model and
- support XFDU-ish unpacking specification.
- 2. Add <stream> element beneath <file> to allow linking of metadata to
- subfile structures.
- 3. Modify structLink TO and FROM attributes to put them in XLink namespace.
- 4. Make processContents "lax" for all xsd:any elements.
- -->
- <!-- October 18, 2006: Version 1.6 -->
- <!-- 10/18/2006 v1.6 changes:
- 	
- 1. add ID to stream and transformFile
- 2. add ADMID to metsHdr
- 3. make smLink/@xlink:to and smLink/@xlink:from required
- -->
-<!-- October 16, 2007/ Jan 20, 2008: Version 1.7 -->
-<!-- 10/16/2007 01/30/2008  v 1.7 changes:
-	
-1. create parType complex type to allow a seq to contain a par
-2. create FILECORE attribute group with MIMETYPE, SIZE, CHECKSUM, CHECKSUMTYPE;
-     change fileType, mdWrapType and mdRefType use the attribute group, so mdType and mdRef end
-     up with new SIZE, CHECKSUM, and CHECKSUMTYPE attributes (file does not change)
-20080130
-2a. CREATED added to FILECORE
-3. PREMIS:OBJECT PREMIS:AGENT PREMIS:RIGHTS PREMIS:EVENT added to MDTYPE value enumeration
--->
-<!-- April 2009: Version 1.8 -->
-<!-- Version 1.8 changes:
-	1. Add CRC32, Adler-32, MNP to the enumerated values constraining CHECKSUMTYPE to align with MIX messageDigestAlgorithm constraints.
-	2. Add TEXTMD and METSRIGHTS to the enumeration values constraining MDTYPE.
-	3. Add an MDTYPEVERSION attribute as a companion to the MDTYPE attribute in the mdRef and mdWrap elements.	
-	4. ID and STRUCTID attributes on the behavior element made optional.  Depending on whether the behavior applies to a transformFile element or div elements in the structMap, only one or the other of the attributes would pertain.
-	5. Documentation aligned with the METS Primer, and corrected.
-	6. xml:lang="en" atttribute value added to every <documentation> element
-	7. xlink:extendedLink support added to the <structLink> element by means of a new <smLinkGrp> element, and its child <smLocatorLink> and <smArcLink> elements.
--->
-<!--February 2010: Version 1.9-->
-<!--Version 1.9 Changes:
-	1. Added a <metsDocumentID> element to the <metsHdr> for recording a unique identifier for the METS document itself where this is different from the OBJID, the identifier for the entire digital object represented by the METS document.
-	2. Added "ISO 19115:2003 NAP" to the enumerated values for the MDTYPE attribute in the METADATA attribute group.
-	3. Added "XPTR" to the enumerated values for the BETYPE attribute on the areaType data type
-	4. Added BEGIN, END and BETYPE attributes to the <file> and <stream> elements for specifying the location of a nested file or a stream within it's parent file.
--->
-<!-- March 2012: Version 1.9.1 -->
-<!-- Version 1.9.1 Changes::
-	1.  Added 'EAC-CPF' as potential metadata scheme to MDTYPE enumeration
-		EAC-CPF = Encoded Archival Context - Corporate Bodies, Persons, and Families 
-		http://eac.staatsbibliothek-berlin.de/eac-cpf-schema.html
--->
 <xsd:schema targetNamespace="http://www.loc.gov/METS/" xmlns="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.loc.gov/standards/xlink/xlink.xsd"/>
+  <xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.loc.gov/standards/xlink/xlink.xsd"/>
 	
+  <xsd:annotation>
+
+    <xsd:documentation xml:lang="en">
+      METS: Metadata Encoding and Transmission Standard
+
+      This document is available under the Creative Commons CC0 1.0 Universal Public Domain Dedication (http://creativecommons.org/publicdomain/zero/1.0/).
+      The Digital Library Federation, as creator of this document, has waived all rights to it worldwide under copyright law, including
+      all related and neighboring rights, to the extent allowed by law. For the full text see http://creativecommons.org/publicdomain/zero/1.0/legalcode.
+
+      Prepared for the Digital Library Federation by Jerome McDonough, New York University,
+      with the assistance of Michael Alexander (British Library), Joachim Bauer (Content Conversion Specialists, Germany),
+      Rick Beaubien (University of California), Terry Catapano (Columbia University), Morgan Cundiff (Library of Congress),
+      Susan Dahl (University of Alberta), Markus Enders (State and University Library, Göttingen/British Library),
+      Richard Gartner (Bodleian Library at Oxford/King's College, London), Thomas Habing (University of Illinois at Urbana-Champaign),
+      Nancy Hoebelheinrich (Stanford University/Knowledge Motifs LLC), Arwen Hutt (U.C. San Diego),
+      Mark Kornbluh (Michigan State University), Cecilia Preston (Preston &amp; Lynch), Merrilee Proffitt (Research Libraries Group),
+      Clay Redding (Library of Congress), Jenn Riley (Indiana University), Richard Rinehart (Berkeley Art Museum/Pacific Film Archive),
+      Mackenzie Smith (Massachusetts Institute of Technology), Tobias Steinke (German National Library),
+      Taylor Surface (OCLC), Brian Tingle (California Digital Library) and Robin Wendler (Harvard University),
+      Robert Wolfe (Massachusetts Institute of Technology), Patrick Yott (Brown University).
+
+      October, 2019
+      Version 1.12.1
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      Change History
+
+      April 23, 2001: Alpha Draft completed
+      June 7, 2001: Beta completed
+
+      6/7/2001 Beta Changes:
+
+      1. add 'Time' as a possible time code value, as well as TCF.
+      2. Make dmdSec ID attribute required; make ID attribute optional on MDRef/MDWrap.
+      3. Add 'Label' attribute to StructMap, along with 'Type'.
+      4. Add DDI and FGDC as potential metadata schemes to enumeration.
+      5. Enable an "otherMDtype" attribute for MDWrap/MDRef and any other element where
+          there's an 'other' in the enumerated possibilities.
+      6. Add a "profile" attribute to METS element.
+      7. Revised mptr declaration so that it's like FLocat/MDRef (and not like XLink)
+      8. Extend internal documentation of &lt;area&gt; attributes.
+      9. Add "other" to the possible set of LOCTYPEs.
+      10. Change ADMIDS to ADMID on FileGrp.
+      11. Change "N" to "Order" on &lt;div&gt; element.
+      12. Change "Number" to "order label" on &lt;div&gt; element
+      13. Add createdate and lastmoddate attributes to mets element.
+      14. Allow &lt;div&gt; and &lt;area&gt; elements to link to administrative metadata sections.
+      15. Normalize attribute pointing facilities for file element and mdRef.
+      16. Provide a LOCTYPE of "other" and an "otherloctype" attribute for pointing to external files.
+      17. Drop PDI from enumeration of LOCTYPES.
+      18. Make MDTYPE required in mdRef and mdWrap.
+      19. Rename preservationMD to digiprovMD.
+      20. Add optional CHECKSUM attribute to FContent element.
+      21. Modularize declarations of fileGrpType and mdSecType attributes and enumerations to
+        simplify maintenance.
+      22. Add TYPE attribute to structMap.
+      23. Declare structMap element using structMapType rather than direct declaration.
+      24. Add area element as possible subelement to &lt;div&gt;, along with par and seq.
+      25. Change mdSec model to ALL, to enable differing order of mdRef/mdWrap elements.
+      26. Extend documentation on &lt;par&gt; and &lt;seq&gt; elements.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      October 22, 2001: Gamma completed
+
+      10/22/2001 Gamma changes:
+        1. Added optional fileSec element beneath METS root element to contain fileGrps.
+        2. Created subsidiary schema file xlink.xsd for XLink attributes, restored XLink attributes
+        to mptr element, and added XLink support to mdRef and FLocat.
+        3. Created new element metsHdr to handle metadata regarding METS document
+        itself (analogous to TEI Header).  Moved CREATEDATE and LASTMODDATE attributes
+        to metsHdr, and added new RECORDSTATUS attribute.  Added new subsidiary elements
+        agent and altRecordID to metsHdr.
+        4. Made CREATEDATE and LASTMODDATE attributes type xsd:dateTime to allow more precise
+        recording of when work was done.
+        5. Changed all attributes using data type of xsd:binary to xsd:base64Binary to conform to final
+        W3C schema recommendations.
+        6. Cleaned up annotations/documentation.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+       December 19, 2001: Epsilon and PROTOFINAL completed
+
+       12/19/2001 Epsilon changes:
+
+       1. Changed sequence operator for StructMap so that only 1 root div element is permitted.
+       2. Add new roles to agent element's role attribute and support for extensible 'other' role.
+       3. Add support for extensible 'other' type attribute on agent element.
+       4. Yet more documentation clean up.
+       5. Relocate CHECKSUM attribute from FContent to File element.
+       6. Change the file element's CREATED attribute and fileGroup's VERSDATE attribute to
+       a type of xsd:dateTime
+       7. Change attribute name DMD for div element to DMDID for consistency's sake.
+       8. Added new behaviorSec for support of referencing executable code from METS object
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+       February 8, 2002: Zeta bug fix to final
+
+       2/8/2002 Zeta changes
+
+       1. Eliminated redundant VRA in metadata type enumeration.
+       2. Changed mdWrap content model, adding xmlData element to eliminate
+         ambiguous content model
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      June 3, 2002: Version 1.1
+
+      6/3/2002 v1.1 changes:
+
+      1. Add new structLink section for recording hyperlinks between media represented by structMap nodes.
+      2. Allow a &lt;par&gt; element to contain a &lt;seq&gt;
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      Dec. 27, 2002: Version 1.2
+
+      12/27/2002 v1.2 changes:
+      1. Add “USE” attribute to FileGrp, File, FLocat and FContent;
+      2. Make FLocat repeatable;
+      3. Have FContent mimic mdWrap in using separate binData/xmlData sections;
+      4. Copyright statement added;
+      5. Allow both FLocat and Fcontent in single file element;
+      6. Allow behaviorSec elements to group through GROUPID attribute;
+      7. allow descriptive and administrative metadata sections to be grouped through GROUPID attribute;
+      8. allow &lt;file&gt; element to point to descriptive metadata via DMDID attribute;
+      9. allow descriptive metadata and all forms of administrative metadata to point to administrative metadata via ADMID attribute;
+      10. CREATED and STATUS attributes added to all desc. and adm. metadata sections; and
+      11. clean up documentation in elements to reflect reality.
+
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      May 8, 2003: Version 1.3
+
+      05/05/2003 v1.3 changes:
+
+      1. Change “2. OBJID: a primary identifier assigned to the original source document” to “2. OBJID: a primary identifier assigned to the METS object.”
+      2. Add MODS to MDTYPEs.
+      3. Modify &lt;file&gt; attributes so that instead of just CHECKSUM we have CHECKSUM and CHECKSUMTYPE, where CHECKSUMTYPE is a controlled vocabulary as follows:
+      HAVAL, MD5, SHA-1, SHA-256, SHA-384, SHA-512, TIGER, WHIRLPOOL
+      4.Alter BehaviorSec to make it recursive, and add a new behavior element to wrap mechanism and interfaceDef elements.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      May 1, 2004: Version 1.4
+
+      05/01/2003 v1.4 changes:
+
+      1. Moved attribute documentation out of element documentation
+      (thank you, Brian Tingle).
+      2. New CONTENTIDS attribute (and URIs simpleType) added to div, fptr,
+      mptr and area elements for mapping MPEG21 DII Identifier values
+      3. XLink namespace URI changed to conform with XLink recommendation.
+      4. ID Attribute added to FContent.
+      5. ID Attribute addedt to structLink.
+      6. ID Attribute added to smLink.
+      7. "LOM" added as metadata type.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      April 12, 2005: Version 1.5
+
+      04/12/2005 v1.5 changes:
+
+      1. Made file element recursive to deal with PREMIS Onion Layer model and
+      support XFDU-ish unpacking specification.
+      2. Add &lt;stream&gt; element beneath &lt;file&gt; to allow linking of metadata to
+      subfile structures.
+      3. Modify structLink TO and FROM attributes to put them in XLink namespace.
+      4. Make processContents "lax" for all xsd:any elements.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      October 18, 2006: Version 1.6
+
+      10/18/2006 v1.6 changes:
+
+      1. add ID to stream and transformFile
+      2. add ADMID to metsHdr
+      3. make smLink/@xlink:to and smLink/@xlink:from required
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      October 16, 2007/ Jan 20, 2008: Version 1.7
+
+      10/16/2007 01/30/2008  v 1.7 changes:
+
+      1. create parType complex type to allow a seq to contain a par
+      2. create FILECORE attribute group with MIMETYPE, SIZE, CHECKSUM, CHECKSUMTYPE;
+      change fileType, mdWrapType and mdRefType use the attribute group, so mdType and mdRef end
+      up with new SIZE, CHECKSUM, and CHECKSUMTYPE attributes (file does not change)
+      20080130
+      2a. CREATED added to FILECORE
+      3. PREMIS:OBJECT PREMIS:AGENT PREMIS:RIGHTS PREMIS:EVENT added to MDTYPE value enumeration
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      April 2009: Version 1.8
+
+      Version 1.8 changes:
+      1. Add CRC32, Adler-32, MNP to the enumerated values constraining CHECKSUMTYPE to align with MIX messageDigestAlgorithm constraints.
+      2. Add TEXTMD and METSRIGHTS to the enumeration values constraining MDTYPE.
+      3. Add an MDTYPEVERSION attribute as a companion to the MDTYPE attribute in the mdRef and mdWrap elements.	
+      4. ID and STRUCTID attributes on the behavior element made optional.  Depending on whether the behavior applies to a transformFile element or div elements in the structMap, only one or the other of the attributes would pertain.
+      5. Documentation aligned with the METS Primer, and corrected.
+      6. xml:lang="en" atttribute value added to every &lt;documentation&gt; element
+      7. xlink:extendedLink support added to the &lt;structLink&gt; element by means of a new &lt;smLinkGrp&gt; element, and its child &lt;smLocatorLink&gt; and &lt;smArcLink&gt; elements.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      2010: Version 1.9
+
+      Version 1.9 Changes:
+      1. Added a &lt;metsDocumentID&gt; element to the &lt;metsHdr&gt; for recording a unique identifier for the METS document itself where this is different from the OBJID, the identifier for the entire digital object represented by the METS document.
+      2. Added "ISO 19115:2003 NAP" to the enumerated values for the MDTYPE attribute in the METADATA attribute group.
+      3. Added "XPTR" to the enumerated values for the BETYPE attribute on the areaType data type
+      4. Added BEGIN, END and BETYPE attributes to the &lt;file&gt; and &lt;stream&gt; elements for specifying the location of a nested file or a stream within it's parent file.
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+      March 2012: Version 1.9.1
+
+      Version 1.9.1 Changes:
+      1.  Added 'EAC-CPF' as potential metadata scheme to MDTYPE enumeration
+      EAC-CPF = Encoded Archival Context - Corporate Bodies, Persons, and Families
+      http://eac.staatsbibliothek-berlin.de/eac-cpf-schema.html
+    </xsd:documentation>
+
+    <xsd:documentation xml:lang="en">
+       July 2013: Version 1.10
+
+       Version 1.10 Changes:
+         1.	Added 'LIDO' as potential metadata scheme to MDTYPE enumeration
+           LIDO = Lightweight Information Describing Objects
+           http://network.icom.museum/cidoc/working-groups/data-harvesting-and-interchange/lido-technical/specification/
+         2.	Added xsd:anyAttribute with namespace ##other and processContents lax to these METS elements:
+             mets
+               metsHdr
+               dmdSec
+               amdSec
+                 techMD
+                 rightsMD
+                 sourceMD
+                 digiprovMD
+               fileSec
+                 fileGrp
+                   file
+               structMap
+                   fptr
+               structLink
+               behaviorSec
+           This will allow arbitrary new attributes to be added to these elements to support local needs.
+      </xsd:documentation>
+
+      <xsd:documentation xml:lang="en">
+       January 2015: Version 1.10.1
+
+       Version 1.10.1 Changes:
+         1. Fixed bug:  The anyAttribute declaration was inadvertently added to the FLocat element when it should have been on the file element.  This
+            has been corrected in this version.
+      </xsd:documentation>
+
+      <xsd:documentation xml:lang="en">
+       May 2015: Version 1.11
+
+       Version 1.11 Changes:
+         1.	Added new attributes, ORDER, ORDERLABEL, and LABEL, to these METS elements:
+             par
+             seq
+             area
+         2.	Also added xsd:anyAttribute with namespace ##other and processContents lax to these elements.  This will allow arbitrary new attributes to be added to these elements to support local needs.
+      </xsd:documentation>
+
+      <xsd:documentation xml:lang="en">
+       May 2018: Version 1.12
+
+        Version 1.12 Changes:
+
+        1.	Added xsd:anyAttribute with namespace ##other and processContents lax to these elements:
+        agent/note
+
+        This will allow arbitrary new attributes to be added to this element to support local needs.  The original use case was to identify the type of the note.
+      </xsd:documentation>
+      <xsd:documentation xml:lang="en">
+	October 2019: Version 1.12.1
+
+	Version 1.12.1 Changes:
+
+	1. Move comments with version history to xsd:documentation elements
+
+	This allows tools that generate documentation from schemas to include the change history in the generated documentation.
+      </xsd:documentation>
+  </xsd:annotation>
 	<xsd:element name="mets">
 		<xsd:annotation>
 			<xsd:documentation xml:lang="en">METS: Metadata Encoding and Transmission Standard.
@@ -211,12 +341,19 @@ mptr and area elements for mapping MPEG21 DII Identifier values
 											</xsd:documentation>
 										</xsd:annotation>
 									</xsd:element>
-									<xsd:element name="note" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+									<xsd:element name="note" minOccurs="0" maxOccurs="unbounded" >
 										<xsd:annotation>
 											<xsd:documentation xml:lang="en"> 
 											The &lt;note&gt; element can be used to record any additional information regarding the agent's activities with respect to the METS document.
 											</xsd:documentation>
 										</xsd:annotation>
+										<xsd:complexType>
+											<xsd:simpleContent>
+												<xsd:extension base="xsd:string">
+													<xsd:anyAttribute namespace="##other" processContents="lax"></xsd:anyAttribute>
+												</xsd:extension>
+											</xsd:simpleContent>
+										</xsd:complexType>
 									</xsd:element>
 								</xsd:sequence>
 								<xsd:attribute name="ID" type="xsd:ID" use="optional">
@@ -362,6 +499,7 @@ OTHER: Use OTHER if none of the preceding values pertain and clarify the type of
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:anyAttribute namespace="##other" processContents="lax"/>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="dmdSec" type="mdSecType" minOccurs="0" maxOccurs="unbounded">
@@ -412,6 +550,7 @@ A &lt;fileGrp&gt; may contain zero or more &lt;fileGrp&gt; elements and or &lt;f
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:anyAttribute namespace="##other" processContents="lax"/>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="structMap" type="structMapType" maxOccurs="unbounded">
@@ -470,6 +609,7 @@ A &lt;fileGrp&gt; may contain zero or more &lt;fileGrp&gt; elements and or &lt;f
 			</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="amdSecType">
 		<xsd:annotation>
@@ -513,6 +653,7 @@ A &lt;fileGrp&gt; may contain zero or more &lt;fileGrp&gt; elements and or &lt;f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="fileGrpType">
 		<xsd:annotation>
@@ -554,6 +695,7 @@ A &lt;fileGrp&gt; may contain zero or more &lt;fileGrp&gt; elements and or &lt;f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="structMapType">
 		<xsd:annotation>
@@ -588,6 +730,7 @@ A &lt;fileGrp&gt; may contain zero or more &lt;fileGrp&gt; elements and or &lt;f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="divType">
 		
@@ -671,6 +814,7 @@ to clarify the differences between the ORDER, ORDERLABEL, and LABEL attributes f
 				            </xsd:documentation>
 			            </xsd:annotation>
                	    </xsd:attribute>
+					<xsd:anyAttribute namespace="##other" processContents="lax"></xsd:anyAttribute>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="div" type="divType" minOccurs="0" maxOccurs="unbounded"/>
@@ -681,24 +825,7 @@ to clarify the differences between the ORDER, ORDERLABEL, and LABEL attributes f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="ORDER" type="xsd:integer" use="optional">
-			<xsd:annotation>
-				<xsd:documentation xml:lang="en">ORDER (integer/O): A representation of the div's order among its siblings (e.g., its absolute, numeric sequence). For an example, and clarification of the distinction between ORDER and ORDERLABEL, see the description of the ORDERLABEL attribute.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="ORDERLABEL" type="xsd:string" use="optional">
-			<xsd:annotation>
-				<xsd:documentation xml:lang="en">ORDERLABEL (string/O): A representation of the div's order among its siblings (e.g., “xii”), or of any non-integer native numbering system. It is presumed that this value will still be machine actionable (e.g., it would support ‘go to page ___’ function), and it should not be used as a replacement/substitute for the LABEL attribute. To understand the differences between ORDER, ORDERLABEL and LABEL, imagine a text with 10 roman numbered pages followed by 10 arabic numbered pages. Page iii would have an ORDER of “3”, an ORDERLABEL of “iii” and a LABEL of “Page iii”, while page 3 would have an ORDER of “13”, an ORDERLABEL of “3” and a LABEL of “Page 3”.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="LABEL" type="xsd:string" use="optional">
-			<xsd:annotation>
-				<xsd:documentation xml:lang="en">LABEL (string/O): An attribute used, for example, to identify a &lt;div&gt; to an end user viewing the document. Thus a hierarchical arrangement of the &lt;div&gt; LABEL values could provide a table of contents to the digital content represented by a METS document and facilitate the users’ navigation of the digital object. Note that a &lt;div&gt; LABEL should be specific to its level in the structural map. In the case of a book with chapters, the book &lt;div&gt; LABEL should have the book title and the chapter &lt;div&gt;; LABELs should have the individual chapter titles, rather than having the chapter &lt;div&gt; LABELs combine both book title and chapter title . For further of the distinction between LABEL and ORDERLABEL see the description of the ORDERLABEL attribute.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
+		<xsd:attributeGroup ref="ORDERLABELS"/>		
 		<xsd:attribute name="DMDID" type="xsd:IDREFS" use="optional">
 			<xsd:annotation>
 				<xsd:documentation xml:lang="en">DMDID (IDREFS/O): Contains the ID attribute values identifying the &lt;dmdSec&gt;, elements in the METS document that contain or link to descriptive metadata pertaining to the structural division represented by the current &lt;div&gt; element.  For more information on using METS IDREFS and IDREF type attributes for internal linking, see Chapter 4 of the METS Primer.
@@ -745,6 +872,8 @@ to clarify the differences between the ORDER, ORDERLABEL, and LABEL attributes f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:attributeGroup ref="ORDERLABELS"/>		
+		<xsd:anyAttribute namespace="##other" processContents="lax"></xsd:anyAttribute>
 	</xsd:complexType>
 	<xsd:complexType name="seqType">
 		<xsd:annotation>
@@ -762,6 +891,8 @@ to clarify the differences between the ORDER, ORDERLABEL, and LABEL attributes f
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:attributeGroup ref="ORDERLABELS"/>		
+		<xsd:anyAttribute namespace="##other" processContents="lax"></xsd:anyAttribute>
 	</xsd:complexType>
 	<xsd:complexType name="areaType">
 		<xsd:annotation>
@@ -902,6 +1033,8 @@ TCF.
 				</xsd:documentation>
 			</xsd:annotation>
 	    </xsd:attribute>
+		<xsd:attributeGroup ref="ORDERLABELS"/>		
+		<xsd:anyAttribute namespace="##other" processContents="lax"></xsd:anyAttribute>
 	</xsd:complexType>
 	<xsd:complexType name="structLinkType">
 		<xsd:annotation>
@@ -1040,6 +1173,7 @@ TCF.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="behaviorSecType">
 		<xsd:annotation>
@@ -1075,6 +1209,7 @@ TCF.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>
 	<xsd:complexType name="behaviorType">
 		<xsd:annotation>
@@ -1273,6 +1408,7 @@ TCF.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:anyAttribute namespace="##other" processContents="lax" /> 
 	</xsd:complexType>
 	<xsd:complexType name="fileType">
 		<xsd:annotation>
@@ -1530,12 +1666,34 @@ TCF.
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>		
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:complexType>	
 	
 	<xsd:simpleType name="URIs">
 	    <xsd:list itemType="xsd:anyURI"/>
 	</xsd:simpleType>
-	
+
+	<xsd:attributeGroup name="ORDERLABELS">
+		<xsd:attribute name="ORDER" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en">ORDER (integer/O): A representation of the element's order among its siblings (e.g., its absolute, numeric sequence). For an example, and clarification of the distinction between ORDER and ORDERLABEL, see the description of the ORDERLABEL attribute.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="ORDERLABEL" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en">ORDERLABEL (string/O): A representation of the element's order among its siblings (e.g., “xii”), or of any non-integer native numbering system. It is presumed that this value will still be machine actionable (e.g., it would support ‘go to page ___’ function), and it should not be used as a replacement/substitute for the LABEL attribute. To understand the differences between ORDER, ORDERLABEL and LABEL, imagine a text with 10 roman numbered pages followed by 10 arabic numbered pages. Page iii would have an ORDER of “3”, an ORDERLABEL of “iii” and a LABEL of “Page iii”, while page 3 would have an ORDER of “13”, an ORDERLABEL of “3” and a LABEL of “Page 3”.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="LABEL" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en">LABEL (string/O): An attribute used, for example, to identify a &lt;div&gt; to an end user viewing the document. Thus a hierarchical arrangement of the &lt;div&gt; LABEL values could provide a table of contents to the digital content represented by a METS document and facilitate the users’ navigation of the digital object. Note that a &lt;div&gt; LABEL should be specific to its level in the structural map. In the case of a book with chapters, the book &lt;div&gt; LABEL should have the book title and the chapter &lt;div&gt;; LABELs should have the individual chapter titles, rather than having the chapter &lt;div&gt; LABELs combine both book title and chapter title . For further of the distinction between LABEL and ORDERLABEL see the description of the ORDERLABEL attribute.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>		
+	</xsd:attributeGroup>
+
 	<xsd:attributeGroup name="METADATA">
 		<xsd:attribute name="MDTYPE" use="required">
 			<xsd:annotation>
@@ -1560,6 +1718,7 @@ TEXTMD: textMD Technical metadata for text
 METSRIGHTS: Rights Declaration Schema
 ISO 19115:2003 NAP: North American Profile of ISO 19115:2003 descriptive metadata
 EAC-CPF: Encoded Archival Context - Corporate Bodies, Persons, and Families
+LIDO: Lightweight Information Describing Objects
 OTHER: metadata in a format not specified above
 				</xsd:documentation>
 			</xsd:annotation>
@@ -1584,7 +1743,8 @@ OTHER: metadata in a format not specified above
 					<xsd:enumeration value="TEXTMD"/>
 					<xsd:enumeration value="METSRIGHTS"/>
 					<xsd:enumeration value="ISO 19115:2003 NAP"/>
-					<xsd:enumeration value="EAC-CPF"></xsd:enumeration>
+					<xsd:enumeration value="EAC-CPF"/>
+					<xsd:enumeration value="LIDO"/>
 					<xsd:enumeration value="OTHER"/>
 				</xsd:restriction>
 			</xsd:simpleType>

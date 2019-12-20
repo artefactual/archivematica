@@ -29,7 +29,7 @@ def call(jobs):
         with job.JobContext():
             for directory in job.args[1:]:
                 if os.path.isdir(directory):
-                    job.pyprint('Removing directory: %s', directory)
+                    job.pyprint("Removing directory:", directory)
                     shutil.rmtree(directory)
                 else:
-                    job.pyprint('Directory does not exist: %s', directory)
+                    job.pyprint("Directory does not exist:", directory)

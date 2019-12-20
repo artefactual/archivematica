@@ -24,7 +24,7 @@ from main import models
 class EventDetailForm(forms.ModelForm):
     class Meta:
         model = models.Event
-        fields = ('event_detail',)
+        fields = ("event_detail",)
         widgets = {
-            'event_detail': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS),
+            "event_detail": forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS)
         }

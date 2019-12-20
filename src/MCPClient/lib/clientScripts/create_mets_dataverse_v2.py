@@ -44,7 +44,8 @@ def create_dataverse_sip_dmdsec(job, sip_path):
     logger.info("Create dataverse sip dmdsec %s", sip_path)
     # Retrieve METS.xml from the file system.
     metadata_mets_paths = archivematicaFunctions.find_metadata_files(
-        sip_path, 'METS.xml', only_transfers=True)
+        sip_path, "METS.xml", only_transfers=True
+    )
     if not metadata_mets_paths:
         return []
     ret = []
@@ -52,8 +53,11 @@ def create_dataverse_sip_dmdsec(job, sip_path):
         try:
             mets = metsrw.METSDocument.fromfile(metadata_path)
         except mets.MetsError:
-            job.pyprint('Could not parse external METS (Dataverse)',
-                        metadata_path, file=sys.stderr)
+            job.pyprint(
+                "Could not parse external METS (Dataverse)",
+                metadata_path,
+                file=sys.stderr,
+            )
             continue
         # Retrieve all directory DMDSecs from the METS.xml.
         for f in mets.all_files():
@@ -70,7 +74,8 @@ def create_dataverse_tabfile_dmdsec(job, sip_path, tabfile):
     logger.info("Create Dataverse tabfile dmdsec %s", sip_path)
     # Retrieve METS.xml from the file system.
     metadata_mets_paths = archivematicaFunctions.find_metadata_files(
-        sip_path, 'METS.xml', only_transfers=True)
+        sip_path, "METS.xml", only_transfers=True
+    )
     if not metadata_mets_paths:
         return []
     ret = []
@@ -78,8 +83,11 @@ def create_dataverse_tabfile_dmdsec(job, sip_path, tabfile):
         try:
             mets = metsrw.METSDocument.fromfile(metadata_path)
         except mets.MetsError:
-            job.pyprint('Could not parse external METS (Dataverse)',
-                        metadata_path, file=sys.stderr)
+            job.pyprint(
+                "Could not parse external METS (Dataverse)",
+                metadata_path,
+                file=sys.stderr,
+            )
             continue
         # Retrieve all Item DMDSecs from the METS.xml.
         for f in mets.all_files():

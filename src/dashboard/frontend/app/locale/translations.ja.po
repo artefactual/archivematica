@@ -1,0 +1,500 @@
+# Translators:
+# Naosuke Okamoto, 2018
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Last-Translator: Naosuke Okamoto, 2018\n"
+"Language-Team: Japanese (https://www.transifex.com/artefactual/teams/1506/"
+"ja/)\n"
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: app/front_page/appraisal_tab.html:48
+msgid "1 object selected"
+msgid_plural "{{$count}} objects selected"
+msgstr[0] "{{$count}} 件オブジェクト選択済"
+
+#: app/front_page/appraisal_tab.html:47
+msgid "1 transfer"
+msgid_plural "{{$count}} transfers"
+msgstr[0] "{{$count}} 件転送"
+
+#: app/front_page/transfer_browser.html:28
+msgid "Access system ID"
+msgstr ""
+
+#: app/front_page/transfer_browser.html:23
+msgid "Accession no."
+msgstr " 受入番号."
+
+#: app/front_page/transfer_browser.html:97
+msgid "Add"
+msgstr "追加"
+
+#: app/front_page/appraisal_tab.html:312
+msgid "Add directory"
+msgstr "新規のディレクトリを追加"
+
+#: app/front_page/appraisal_tab.html:211
+msgid "Add new child record"
+msgstr "新規の下位レコードを追加"
+
+#: app/front_page/appraisal_tab.html:217
+msgid "Add new digital object"
+msgstr "新規のデジタルオブジェクトを追加"
+
+#: app/front_page/transfer_browser.html:53
+msgid "Add next"
+msgstr "次を追加"
+
+#: app/examine_contents/examine_contents.html:31
+msgid "Add tag to checked files"
+msgstr "SIPの作成"
+
+#: app/front_page/appraisal_tab.html:53
+msgid "Add tag to selected files"
+msgstr "選択したファイルにタグを追加"
+
+#: app/front_page/appraisal_tab.html:20
+msgid "All"
+msgstr "全て"
+
+#: app/front_page/appraisal_tab.html:83
+msgid "Analysis"
+msgstr "分析"
+
+#: app/front_page/transfer_browser.html:43
+msgid "Approve automatically"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:194 app/front_page/appraisal_tab.html:197
+msgid "ArchivesSpace"
+msgstr "アーカイブスペース"
+
+#: app/front_page/appraisal_tab.html:234 app/front_page/appraisal_tab.html:323
+msgid "Are you sure you want to delete this?"
+msgstr "削除を確定しますか？"
+
+#: app/arrangement/arrangement.controller.js:76
+msgid "Are you sure you want to discard the current directory?"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:286 app/front_page/appraisal_tab.html:289
+msgid "Arrangement"
+msgstr "編成"
+
+#: app/front_page/appraisal_tab.html:41 app/front_page/appraisal_tab.html:44
+msgid "Backlog"
+msgstr "バックログ"
+
+#: app/front_page/transfer_browser.html:37
+msgid "Browse"
+msgstr "ブラウズ"
+
+#: app/examine_contents/examine_contents.html:48
+#: app/examine_contents/examine_contents.html:71
+msgid "Bulk extractor logs"
+msgstr "ログ一括抽出"
+
+#: app/archivesspace/form.html:37 app/arrangement/edit_metadata_form.html:10
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: app/front_page/appraisal_tab.html:58
+msgid "Collapse all"
+msgstr "全て折りたたむ"
+
+#: app/archivesspace/form.html:16
+msgid "Conditions governing access note:"
+msgstr "アクセスノートを管理する条件："
+
+#: app/examine_contents/file_info.html:3
+msgid "Content"
+msgstr "内容"
+
+#: app/examine_contents/file_info.html:4
+msgid "Context"
+msgstr "コンテキスト"
+
+#: app/report/tags.html:5
+msgid "Count"
+msgstr "数"
+
+#: app/front_page/appraisal_tab.html:331
+msgid "Create SIP"
+msgstr "SIPの作成"
+
+#: app/examine_contents/examine_contents.html:6
+msgid "Credit card numbers"
+msgstr "クレジットカード番号"
+
+#: app/front_page/transfer_browser.html:9
+msgid "DSpace"
+msgstr "DSpace"
+
+#: app/front_page/transfer_browser.html:11
+msgid "Dataverse"
+msgstr ""
+
+#: app/archivesspace/form.html:31
+msgid "Date expression:"
+msgstr "日付表現："
+
+#: app/front_page/appraisal_tab.html:123
+msgid "Date range end"
+msgstr "日付の範囲終了"
+
+#: app/front_page/appraisal_tab.html:116
+msgid "Date range start"
+msgstr "日付の範囲開始"
+
+#: app/front_page/appraisal_tab.html:131
+msgid "Dates:"
+msgstr "日付："
+
+#: app/front_page/appraisal_tab.html:236 app/front_page/appraisal_tab.html:325
+msgid "Delete selected"
+msgstr "選択したものを削除"
+
+#: app/front_page/appraisal_tab.html:57
+msgid "Deselect all"
+msgstr "全ての選択を解除"
+
+#: app/front_page/transfer_browser.html:10
+msgid "Disk image"
+msgstr "ディスクイメージ"
+
+#: app/preview/preview.html:4
+msgid "Download"
+msgstr "ダウンロード"
+
+#: app/front_page/appraisal_tab.html:318
+msgid "Edit Metadata"
+msgstr "メタデータ編集"
+
+#: app/front_page/appraisal_tab.html:229
+msgid "Edit metadata"
+msgstr "メタデータ編集"
+
+#: app/front_page/appraisal_tab.html:222
+msgid "Edit rights metadata"
+msgstr "権利のメタデータ編集"
+
+#: app/archivesspace/form.html:26
+msgid "End date:"
+msgstr "終了日"
+
+#: app/arrangement/arrangement.controller.js:393
+msgid "Error fetching levels of description"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:94
+msgid "Examine contents"
+msgstr "内容を検査する"
+
+#: app/front_page/appraisal_tab.html:59
+msgid "Expand all"
+msgstr "全て展開"
+
+#: app/arrangement/arrangement.controller.js:403
+msgid "Failed to copy files to SIP arrange; check Dashboard logs."
+msgstr ""
+"SIPアレンジにファイルをコピーできませんでした。 ダッシュボードのログを確認し"
+"てください。"
+
+#: app/front_page/appraisal_tab.html:105 app/front_page/appraisal_tab.html:108
+msgid "File list"
+msgstr "ファイルリスト"
+
+#: app/front_page/appraisal_tab.html:112
+msgid "File list is empty."
+msgstr "ファイルリストは空です。"
+
+#: app/examine_contents/examine_contents.html:45
+#: app/front_page/appraisal_tab.html:162
+msgid "Filename"
+msgstr "ファイル名"
+
+#: app/examine_contents/examine_contents.html:22
+msgid "Files"
+msgstr "ファイル"
+
+#: app/front_page/appraisal_tab.html:242
+msgid "Finalize arrangement"
+msgstr "配置を確定"
+
+#: app/report/format.html:3 app/report/report.controller.js:45
+#: app/visualizations/visualizations.controller.js:19
+#: app/visualizations/visualizations.controller.js:35
+msgid "Format"
+msgstr "フォーマット"
+
+#: app/report/report.controller.js:50
+msgid "Format group"
+msgstr "フォーマットグループ"
+
+#: app/visualizations/visualizations.html:3
+msgid "Formats (by total number of files)"
+msgstr "フォーマット(総ファイル数)"
+
+#: app/visualizations/visualizations.html:6
+msgid "Formats (by total size of files)"
+msgstr "フォーマット(総ファイルサイズ)"
+
+#: app/archivesspace/form.html:12
+msgid "General note:"
+msgstr "一般の注記"
+
+#: app/report/format.html:5
+msgid "Group"
+msgstr "グループ"
+
+#: app/front_page/appraisal_tab.html:148
+msgid "Hide path"
+msgstr "パスを隠す"
+
+#: app/front_page/appraisal_tab.html:201
+msgid "Identifier"
+msgstr "識別子"
+
+#: app/front_page/appraisal_tab.html:165
+msgid "Last modified"
+msgstr "最終更新日"
+
+#: app/archivesspace/form.html:8 app/arrangement/edit_metadata_form.html:4
+msgid "Level of description:"
+msgstr "記述レベル"
+
+#: app/front_page/transfer_browser.html:52
+msgid ""
+"Metadata entered in this form will be associated with the next component "
+"added to this transfer. Data will not be used if no component is added after "
+"the form is saved."
+msgstr ""
+"このフォームに入力されたメタデータは、この転送に追加された次のコンポーネント"
+"に関連付けられます。 フォームを保存した後にコンポーネントを追加しないと、デー"
+"タは使用されません。"
+
+#: app/arrangement/arrangement.controller.js:224
+msgid "Name of new directory?"
+msgstr "新しいフォルダの名前は？"
+
+#: app/preview/preview.html:6
+msgid "No file selected"
+msgstr "ファイルが選択されていません"
+
+#: app/visualizations/visualizations.html:10
+msgid "No files selected"
+msgstr "ファイルが選択されていません"
+
+#: app/examine_contents/examine_contents.html:19
+msgid "No information found for selected Transfers."
+msgstr "選択した転送に関する情報が見つかりませんでした。"
+
+#: app/examine_contents/examine_contents.html:77
+msgid "No information found for selected files."
+msgstr "選択したファイルの情報が見つかりません。"
+
+#: app/front_page/appraisal_tab.html:295
+msgid "None"
+msgstr ""
+
+#: app/report/format.html:6
+msgid "Number of files"
+msgstr "ファイル数"
+
+#: app/front_page/appraisal_tab.html:88
+msgid "Objects"
+msgstr "オブジェクト"
+
+#: app/report/format.html:13
+msgid "One object"
+msgid_plural "{{$count}} objects"
+msgstr[0] "{{$count}} 件オブジェクト"
+
+#: app/examine_contents/examine_contents.html:3
+msgid "PII"
+msgstr "PII"
+
+#: app/report/format.html:4
+msgid "PUID"
+msgstr "PUID"
+
+#: app/front_page/appraisal_tab.html:163
+msgid "Path"
+msgstr "パス"
+
+#: app/arrangement/arrangement.controller.js:68
+msgid "Please wait while the SIP is started"
+msgstr ""
+
+#: app/examine_contents/examine_contents.html:47
+#: app/examine_contents/examine_contents.html:68
+msgid "Preview"
+msgstr "プレビュー"
+
+#: app/front_page/appraisal_tab.html:97
+msgid "Preview file"
+msgstr "ファイルのプレビュー"
+
+#: app/preview/preview.html:3
+msgid "Previewing {{ file.title }}"
+msgstr "プレビュー中： {{ file.title }}"
+
+#: app/front_page/appraisal_tab.html:336
+msgid "Reload"
+msgstr "再読込"
+
+#: app/analysis/analysis.html:3
+msgid "Report"
+msgstr "レポート"
+
+#: app/arrangement/arrangement.controller.js:154
+#: app/arrangement/arrangement.controller.js:276
+msgid "SIP could not be started! Check dashboard logs."
+msgstr "SIPを開始できませんでした。 ダッシュボードログを確認してください。"
+
+#: app/arrangement/arrangement.controller.js:148
+#: app/arrangement/arrangement.controller.js:269
+msgid "SIP successfully started!"
+msgstr "SIPが正常に開始しました！"
+
+#: app/archivesspace/form.html:36 app/arrangement/edit_metadata_form.html:9
+msgid "Save"
+msgstr "保存"
+
+#: app/front_page/appraisal_tab.html:202
+msgid "Search ArchivesSpace"
+msgstr "アーカイブスペースの検索"
+
+#: app/front_page/appraisal_tab.html:5
+msgid "Search transfer backlog"
+msgstr "転送バックログの検索"
+
+#: app/examine_contents/examine_contents.html:41
+msgid "Select all"
+msgstr "全てを選択"
+
+#: app/front_page/appraisal_tab.html:6
+msgid "Show metadata & logs directories?"
+msgstr ""
+
+#: app/front_page/appraisal_tab.html:147
+msgid "Show path"
+msgstr "パスを表示"
+
+#: app/front_page/appraisal_tab.html:164 app/report/format.html:7
+msgid "Size"
+msgstr "サイズ"
+
+#: app/front_page/transfer_browser.html:6
+msgid "Standard"
+msgstr "標準"
+
+#: app/archivesspace/form.html:21
+msgid "Start date:"
+msgstr "開始日"
+
+#: app/front_page/transfer_browser.html:41
+msgid "Start transfer"
+msgstr "転送スタート"
+
+#: app/archivesspace/archivesspace.controller.js:555
+msgid "Successfully started SIP from record \"{{title}}\""
+msgstr "レコード「{{title}}」からSIPを正常に開始しました"
+
+#: app/facet_selector/facet_selector.controller.js:18 app/report/tags.html:4
+msgid "Tag"
+msgstr "タグ"
+
+#: app/front_page/appraisal_tab.html:166 app/front_page/appraisal_tab.html:18
+#: app/front_page/appraisal_tab.html:293 app/front_page/appraisal_tab.html:91
+msgid "Tags"
+msgstr "タグ"
+
+#: app/front_page/appraisal_tab.html:200
+msgid "Title"
+msgstr "タイトル"
+
+#: app/archivesspace/form.html:4
+msgid "Title:"
+msgstr "タイトル："
+
+#: app/examine_contents/examine_contents.html:46
+#: app/front_page/transfer_browser.html:18
+msgid "Transfer name"
+msgstr "転送名"
+
+#: app/front_page/transfer_browser.html:13
+msgid "Transfer type"
+msgstr "転送タイプ"
+
+#: app/examine_contents/examine_contents.html:11
+msgid "Transfers:"
+msgstr "転送："
+
+#: app/archivesspace/archivesspace.controller.js:352
+msgid "Unable to access ArchivesSpace; check dashboard logs!"
+msgstr ""
+"アーカイブスペースにアクセスできません。 ダッシュボードログを確認してくださ"
+"い！"
+
+#: app/archivesspace/archivesspace.controller.js:233
+msgid "Unable to add new child record to record {{id}}"
+msgstr "新しい下位レコード{{id}}を追加できません"
+
+#: app/archivesspace/archivesspace.controller.js:266
+msgid "Unable to add new digital object component to record {{id}}"
+msgstr "新しいデジタルオブジェクトコンポーネント {{id}}を追加できません"
+
+#: app/archivesspace/archivesspace.controller.js:298
+msgid "Unable to fetch record {{id}} from ArchivesSpace!"
+msgstr "アーカイブスペースからレコード{{id}}を取得できません！"
+
+#: app/archivesspace/archivesspace.controller.js:306
+msgid "Unable to fetch record {{path}} from Arrangement!"
+msgstr "編成から{{path}}レコードを取得できません！"
+
+#: app/preview/preview.controller.js:53
+msgid "Unable to retrieve metadata for file with UUID {{id}}"
+msgstr "UUID {{id}}を持つファイルのメタデータを取得できません"
+
+#: app/search/search.controller.js:16
+msgid "Unable to retrieve transfer data from Archivematica."
+msgstr "Archivematicaから転送データを取得できません。"
+
+#: app/archivesspace/archivesspace.controller.js:568
+msgid "Unable to start SIP; check dashboard logs."
+msgstr "SIPを開始できません。 ダッシュボードログを確認してください。"
+
+#: app/archivesspace/archivesspace.controller.js:566
+msgid "Unable to start SIP; no files arranged into record \"{{title}}\"."
+msgstr ""
+"SIPを開始できません。 レコード 「{{title}}」に編成されたファイルはありませ"
+"ん。"
+
+#: app/archivesspace/archivesspace.controller.js:162
+#: app/arrangement/arrangement.controller.js:377
+msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
+msgstr ""
+"「{{title}}」を編集するための編集を送信できません。 ダッシュボードログを確認"
+"してください。"
+
+#: app/front_page/transfer_browser.html:7
+msgid "Unzipped bag"
+msgstr "bagをZIP解凍しました"
+
+#: app/analysis/analysis.html:6
+msgid "Visualizations"
+msgstr "視覚化"
+
+#: app/front_page/transfer_browser.html:8
+msgid "Zipped bag"
+msgstr "bagをZIP圧縮しました"
+
+#: app/examine_contents/examine_contents.html:15
+#: app/examine_contents/examine_contents.html:16
+msgid "original order"
+msgstr "元の順序"

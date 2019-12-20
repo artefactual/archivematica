@@ -10,18 +10,13 @@ def concurrent_instances():
 
 
 def main(job, target, output):
-    args = [
-        'bulk_extractor', target, '-o', output,
-        '-M', '250', '-q', '-1'
-    ]
+    args = ["bulk_extractor", target, "-o", output, "-M", "250", "-q", "-1"]
     try:
         os.makedirs(output)
 
         _, stdout, stderr = executeOrRun(
-            'command',
-            args,
-            printing=True,
-            capture_output=True)
+            "command", args, printing=True, capture_output=True
+        )
 
         job.write_output(stdout)
         job.write_error(stderr)
@@ -42,7 +37,7 @@ def call(jobs):
             target = job.args[1]
             sipdir = job.args[2]
             file_uuid = job.args[3]
-            output = os.path.join(sipdir, 'logs', 'bulk-' + file_uuid)
+            output = os.path.join(sipdir, "logs", "bulk-" + file_uuid)
             result = main(job, target, output)
 
             if isinstance(result, Exception):

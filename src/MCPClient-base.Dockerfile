@@ -25,19 +25,18 @@ ENV LC_ALL en_US.UTF-8
 # OS dependencies
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
-	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.9.x/ubuntu-externals bionic main" \
+	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.10.x/ubuntu-externals bionic main" \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse" \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe" \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		atool \
-		bagit \
 		bulk-extractor \
 		clamav \
 		ffmpeg \
 		ghostscript \
-		hashdeep \
+		coreutils \
 		libavcodec-extra \
 		fits \
 		imagemagick \
@@ -46,7 +45,6 @@ RUN set -ex \
 		libimage-exiftool-perl \
 		libevent-dev \
 		libjansson4 \
-		libxml2-utils \
 		mediainfo \
 		mediaconch \
 		nailgun \

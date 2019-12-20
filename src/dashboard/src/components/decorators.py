@@ -27,25 +27,31 @@ from main import models
 def load_jobs(view):
     @wraps(view)
     def inner(request, uuid, *args, **kwargs):
-        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+        jobs = models.Job.objects.filter(sipuuid=uuid)
         if 0 == jobs.count:
             raise Http404
-        kwargs['jobs'] = jobs
-        kwargs['name'] = jobs.get_directory_name()
+        kwargs["jobs"] = jobs
+        kwargs["name"] = jobs.get_directory_name()
         return view(request, uuid, *args, **kwargs)
+
     return inner
 
 
 # Requires confirmation from a prompt page before executing a request
 # (see http://djangosnippets.org/snippets/1922/)
-def confirm_required(template_name, context_creator, key='__confirm__'):
+def confirm_required(template_name, context_creator, key="__confirm__"):
     def decorator(func):
         def inner(request, *args, **kwargs):
             if key in request.POST:
                 return func(request, *args, **kwargs)
             else:
-                context = context_creator and context_creator(request, *args, **kwargs) \
+                context = (
+                    context_creator
+                    and context_creator(request, *args, **kwargs)
                     or RequestContext(request)
+                )
                 return render_to_response(template_name, context)
+
         return wraps(func)(inner)
+
     return decorator

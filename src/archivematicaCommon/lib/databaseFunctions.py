@@ -31,21 +31,23 @@ import uuid
 from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import six, timezone
-from main.models import (
-    Agent, Derivation, Event, File, FPCommandOutput,
-    SIP, Transfer, UnitVariable)
+from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
-LOGGER = logging.getLogger('archivematica.common')
+from common_metrics import db_retry_timer
+
+LOGGER = logging.getLogger("archivematica.common")
 
 
 def auto_close_db(f):
     """Decorator to ensure the db connection is closed when the function returns."""
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         try:
             return f(*args, **kwargs)
         finally:
             close_old_connections()
+
     return wrapper
 
 
@@ -65,8 +67,15 @@ def getDeciDate(date):
     return str("{:10.10f}".format(float(ret)))
 
 
-def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="",
-                    sipUUID="", use="original", originalLocation=None):
+def insertIntoFiles(
+    fileUUID,
+    filePath,
+    enteredSystem=None,
+    transferUUID="",
+    sipUUID="",
+    use="original",
+    originalLocation=None,
+):
     """
     Creates a new entry in the Files table using the supplied arguments.
 
@@ -91,19 +100,25 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="",
         "originallocation": originalLocation,
         "currentlocation": filePath,
         "enteredsystem": enteredSystem,
-        "filegrpuse": use
+        "filegrpuse": use,
     }
     if transferUUID != "" and sipUUID == "":
         kwargs["transfer_id"] = transferUUID
     elif transferUUID == "" and sipUUID != "":
         kwargs["sip_id"] = sipUUID
     else:
-        print("not supported yet - both SIP and transfer UUID's defined (or neither defined)", file=sys.stderr)
+        print(
+            "not supported yet - both SIP and transfer UUID's defined (or neither defined)",
+            file=sys.stderr,
+        )
         print("SIP UUID:", sipUUID, file=sys.stderr)
         print("transferUUID:", transferUUID, file=sys.stderr)
-        raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
+        raise Exception(
+            "not supported yet - both SIP and transfer UUID's defined (or neither defined)",
+            sipUUID + "-" + transferUUID,
+        )
 
-    File.objects.create(**kwargs)
+    return File.objects.create(**kwargs)
 
 
 def getAMAgentsForFile(fileUUID):
@@ -117,39 +132,37 @@ def getAMAgentsForFile(fileUUID):
 
     :returns: A list of Agent IDs
     """
-    agents = []
-
     try:
         f = File.objects.get(uuid=fileUUID)
     except File.DoesNotExist:
-        LOGGER.warning('File with UUID %s does not exist in database; unable to fetch Agents', fileUUID)
+        LOGGER.warning(
+            "File with UUID %s does not exist in database; unable to fetch Agents",
+            fileUUID,
+        )
         return []
 
     # Fetch Agent for the User
     if f.sip:
-        try:
-            var = UnitVariable.objects.get(unittype='SIP', unituuid=f.sip_id,
-                                           variable='activeAgent')
-            agents.append(int(var.variablevalue))
-        except UnitVariable.DoesNotExist:
-            pass
-    if f.transfer and not agents:  # agent hasn't been found yet
-        try:
-            var = UnitVariable.objects.get(unittype='Transfer',
-                                           unituuid=f.transfer_id,
-                                           variable='activeAgent')
-            agents.append(int(var.variablevalue))
-        except UnitVariable.DoesNotExist:
-            pass
+        return f.sip.agents.values_list("pk", flat=True)
+    elif f.transfer:
+        return f.transfer.agents.values_list("pk", flat=True)
+
     # Fetch other Archivematica Agents
-    am_agents = Agent.objects.filter(Q(identifiertype='repository code') | Q(identifiertype='preservation system')).values_list('pk', flat=True)
-    agents.extend(am_agents)
-    return agents
+    return Agent.objects.filter(
+        Q(identifiertype="repository code") | Q(identifiertype="preservation system")
+    ).values_list("pk", flat=True)
 
 
-def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="",
-                     eventDateTime=None, eventDetail="", eventOutcome="",
-                     eventOutcomeDetailNote="", agents=None):
+def insertIntoEvents(
+    fileUUID,
+    eventIdentifierUUID="",
+    eventType="",
+    eventDateTime=None,
+    eventDetail="",
+    eventOutcome="",
+    eventOutcomeDetailNote="",
+    agents=None,
+):
     """Creates a new entry in the Events table using the supplied arguments.
 
     :param str fileUUID: The UUID of the file with which this event is
@@ -184,7 +197,7 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="",
         event_datetime=eventDateTime,
         event_detail=eventDetail,
         event_outcome=eventOutcome,
-        event_outcome_detail=eventOutcomeDetailNote
+        event_outcome_detail=eventOutcomeDetailNote,
     )
     # Splat agents list into multiple arguments
     event.agents.add(*agents)
@@ -204,9 +217,11 @@ def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None
     if not derivedFileUUID:
         raise ValueError("derivedFileUUID must be specified")
 
-    Derivation.objects.create(source_file_id=sourceFileUUID,
-                              derived_file_id=derivedFileUUID,
-                              event_id=relatedEventUUID)
+    Derivation.objects.create(
+        source_file_id=sourceFileUUID,
+        derived_file_id=derivedFileUUID,
+        event_id=relatedEventUUID,
+    )
 
 
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
@@ -219,11 +234,14 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     :param str fitsXMLString: An XML document, encoded into a string. The name is historical; this can represent XML output from any software.
     :param str ruleUUID: The UUID of the FPR rule used to generate this XML data. Foreign key to FPRule.
     """
-    FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
-                                   rule_id=ruleUUID)
+    FPCommandOutput.objects.create(
+        file_id=fileUUID, content=fitsXMLString, rule_id=ruleUUID
+    )
 
 
-def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNote="", eventOutcome=""):
+def fileWasRemoved(
+    fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNote="", eventOutcome=""
+):
     """
     Logs the removal of a file from the database.
     Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".
@@ -240,13 +258,15 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNot
     eventIdentifierUUID = uuid.uuid4().__str__()
     eventType = "file removed"
     eventDateTime = utcDate
-    insertIntoEvents(fileUUID=fileUUID,
-                     eventIdentifierUUID=eventIdentifierUUID,
-                     eventType=eventType,
-                     eventDateTime=eventDateTime,
-                     eventDetail=eventDetail,
-                     eventOutcome=eventOutcome,
-                     eventOutcomeDetailNote=eventOutcomeDetailNote)
+    insertIntoEvents(
+        fileUUID=fileUUID,
+        eventIdentifierUUID=eventIdentifierUUID,
+        eventType=eventType,
+        eventDateTime=eventDateTime,
+        eventDetail=eventDetail,
+        eventOutcome=eventOutcome,
+        eventOutcomeDetailNote=eventOutcomeDetailNote,
+    )
 
     f = File.objects.get(uuid=fileUUID)
     f.removedtime = utcDate
@@ -254,7 +274,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNot
     f.save()
 
 
-def createSIP(path, UUID=None, sip_type='SIP', diruuids=False, printfn=print):
+def createSIP(path, UUID=None, sip_type="SIP", diruuids=False, printfn=print):
     """
     Create a new SIP object for a SIP at the given path.
 
@@ -268,29 +288,10 @@ def createSIP(path, UUID=None, sip_type='SIP', diruuids=False, printfn=print):
     if UUID is None:
         UUID = str(uuid.uuid4())
     printfn("Creating SIP:", UUID, "-", path)
-    sip = SIP(uuid=UUID,
-              currentpath=path,
-              sip_type=sip_type,
-              diruuids=diruuids)
+    sip = SIP(uuid=UUID, currentpath=path, sip_type=sip_type, diruuids=diruuids)
     sip.save()
 
     return UUID
-
-
-def getAccessionNumberFromTransfer(UUID):
-    """
-    Fetches the accession number from a transfer, given its UUID.
-
-    :param str UUID: The UUID of the transfer, as a string.
-
-    :returns str: The accession number, as a string.
-    :raises ValueError: if the requested Transfer cannot be found.
-    """
-
-    try:
-        return Transfer.objects.get(uuid=UUID).accessionid
-    except Transfer.DoesNotExist:
-        raise ValueError("No Transfer found for UUID: {}".format(UUID))
 
 
 def deUnicode(unicode_string):
@@ -302,20 +303,28 @@ def deUnicode(unicode_string):
     """
     if unicode_string is None:
         return None
-    return six.text_type(unicode_string).encode('utf-8')
+    return six.text_type(unicode_string).encode("utf-8")
 
 
 def retryOnFailure(description, callback, retries=10):
-    for retry in range(0, retries + 1):
-        try:
-            callback()
-            break
-        except Exception as e:
-            if retry == retries:
-                LOGGER.error('Failed to complete transaction "%s" after %s retries',
-                             description, retries)
-                raise e
-            else:
-                LOGGER.debug('Retrying "%s" transaction after caught exception (retry %d): %s',
-                             description, retry + 1, e)
-                time.sleep(random.uniform(0, 2))
+    with db_retry_timer(description=description):
+        for retry in range(0, retries + 1):
+            try:
+                callback()
+                break
+            except Exception as e:
+                if retry == retries:
+                    LOGGER.error(
+                        'Failed to complete transaction "%s" after %s retries',
+                        description,
+                        retries,
+                    )
+                    raise e
+                else:
+                    LOGGER.debug(
+                        'Retrying "%s" transaction after caught exception (retry %d): %s',
+                        description,
+                        retry + 1,
+                        e,
+                    )
+                    time.sleep(random.uniform(0, 2))

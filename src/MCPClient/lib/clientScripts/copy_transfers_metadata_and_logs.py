@@ -28,12 +28,16 @@ from optparse import OptionParser
 import traceback
 
 import django
+
 django.setup()
-# dashboard
+
+from bag import is_bag
 from main.models import File, SIP
 
 
-def main(job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""):
+def main(
+    job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""
+):
     if not os.path.exists(transfersMetadataDirectory):
         os.makedirs(transfersMetadataDirectory)
     if not os.path.exists(transfersLogsDirectory):
@@ -42,22 +46,39 @@ def main(job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, share
     exitCode = 0
 
     sip = SIP.objects.get(uuid=sipUUID)
-    transfer_paths = File.objects.filter(sip_id=sipUUID, transfer__isnull=False).order_by('transfer__uuid').values_list('transfer__currentlocation', flat=True).distinct()
+    transfer_paths = (
+        File.objects.filter(sip_id=sipUUID, transfer__isnull=False)
+        .order_by("transfer__uuid")
+        .values_list("transfer__currentlocation", flat=True)
+        .distinct()
+    )
     for transferPath in transfer_paths:
         try:
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
+
+            if is_bag(transferPath):
+                transfer_logs_dir = os.path.join(transferPath, "data", "logs")
+                transfer_md_dir = os.path.join(transferPath, "data", "metadata")
+            else:
+                transfer_logs_dir = os.path.join(transferPath, "logs")
+                transfer_md_dir = os.path.join(transferPath, "metadata")
+
             transferBasename = os.path.basename(os.path.abspath(transferPath))
 
             # Copy transfer metadata
-            if 'REIN' in sip.sip_type:
+            if "REIN" in sip.sip_type:
                 # For reingest, ignore this transfer's metadata, only copy metadata from the original Transfer
                 transferMetaDestDir = transfersMetadataDirectory
-                transferMetadataDirectory = os.path.join(transferPath, "metadata", 'transfers')
+                transferMetadataDirectory = os.path.join(
+                    transferPath, "metadata", "transfers"
+                )
             else:
-                transferMetaDestDir = os.path.join(transfersMetadataDirectory, transferBasename)
+                transferMetaDestDir = os.path.join(
+                    transfersMetadataDirectory, transferBasename
+                )
                 os.makedirs(transferMetaDestDir)
-                transferMetadataDirectory = os.path.join(transferPath, "metadata")
+                transferMetadataDirectory = transfer_md_dir
             if not os.path.exists(transferMetadataDirectory):
                 continue
             for met in os.listdir(transferMetadataDirectory):
@@ -72,9 +93,11 @@ def main(job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, share
                 job.pyprint("copied: ", src, " -> ", dst)
 
             # Copy transfer logs
-            transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
+            transfersLogsDestDir = os.path.join(
+                transfersLogsDirectory, transferBasename
+            )
             os.makedirs(transfersLogsDestDir)
-            src = os.path.join(transferPath, "logs")
+            src = transfer_logs_dir
             dst = os.path.join(transfersLogsDestDir, "logs")
             shutil.copytree(src, dst)
             job.pyprint("copied: ", src, " -> ", dst)
@@ -88,12 +111,28 @@ def main(job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, share
 
 def call(jobs):
     parser = OptionParser()
-    parser.add_option("-s", "--sipDirectory", action="store", dest="sipDirectory", default="")
+    parser.add_option(
+        "-s", "--sipDirectory", action="store", dest="sipDirectory", default=""
+    )
     parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
-    parser.add_option("-p", "--sharedPath", action="store", dest="sharedPath", default="/var/archivematica/sharedDirectory/")
+    parser.add_option(
+        "-p",
+        "--sharedPath",
+        action="store",
+        dest="sharedPath",
+        default="/var/archivematica/sharedDirectory/",
+    )
 
     for job in jobs:
         with job.JobContext():
             (opts, args) = parser.parse_args(job.args[1:])
 
-            job.set_status(main(job, opts.sipUUID, opts.sipDirectory + "metadata/transfers/", opts.sipDirectory + "logs/transfers/", sharedPath=opts.sharedPath))
+            job.set_status(
+                main(
+                    job,
+                    opts.sipUUID,
+                    opts.sipDirectory + "metadata/transfers/",
+                    opts.sipDirectory + "logs/transfers/",
+                    sharedPath=opts.sharedPath,
+                )
+            )

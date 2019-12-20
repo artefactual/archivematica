@@ -21,15 +21,18 @@ import datetime
 import os
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main import models
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 
 
-logger = get_script_logger('archivematica.mcp.client.storeFileModificationDates')
+logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 
 
 def get_modification_date(file_path):
@@ -44,16 +47,23 @@ def main(transfer_uuid, shared_directory_path):
     mods_stored = 0
     for transfer_file in files:
         try:
-            file_path_relative_to_shared_directory = transfer_file.currentlocation.replace('%transferDirectory%', transfer.currentlocation, 1)
+            file_path_relative_to_shared_directory = transfer_file.currentlocation.replace(
+                "%transferDirectory%", transfer.currentlocation, 1
+            )
         except AttributeError:
-            logger.info('No modification date stored for file %s because it has no current location. It was probably a deleted compressed package.', transfer_file.uuid)
+            logger.info(
+                "No modification date stored for file %s because it has no current location. It was probably a deleted compressed package.",
+                transfer_file.uuid,
+            )
         else:
-            file_path = file_path_relative_to_shared_directory.replace('%sharedPath%', shared_directory_path, 1)
+            file_path = file_path_relative_to_shared_directory.replace(
+                "%sharedPath%", shared_directory_path, 1
+            )
             transfer_file.modificationtime = get_modification_date(file_path)
             transfer_file.save()
             mods_stored += 1
 
-    logger.info('Stored modification dates of %d files.', mods_stored)
+    logger.info("Stored modification dates of %d files.", mods_stored)
 
 
 def call(jobs):

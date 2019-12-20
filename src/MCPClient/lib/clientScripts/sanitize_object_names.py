@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-
+# -*- coding: utf8
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -20,110 +20,238 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-from itertools import chain
-import sys
 import os
 import unicodedata
+import uuid
 
 import django
+import six
+
 django.setup()
 from django.db import transaction
+
 # dashboard
-from main.models import File, Directory, Transfer
+from main.models import Event, File, Directory, Transfer, SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from fileOperations import updateFileLocation
-from archivematicaFunctions import unicodeToStr
 import sanitize_names
 
 logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
 
 
-def sanitize_object_names(job, objectsDirectory, sipUUID, date, groupType, groupSQL, sipPath):
-    """Sanitize object names in a Transfer/SIP."""
-    relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1)  # "%SIPDirectory%objects/"
+class NameSanitizer(object):
+    """
+    Class to track batch sanitizations of files and directories, both in the
+    filesystem and in the database.
+    """
 
-    # Get any ``Directory`` instances created for this transfer (if such exist)
-    directory_mdls = []
-    if groupSQL == 'transfer_id':
-        transfer_mdl = Transfer.objects.get(uuid=sipUUID)
-        if transfer_mdl.diruuids:
-            directory_mdls = Directory.objects.filter(
-                transfer=transfer_mdl).all()
+    BATCH_SIZE = 2000
+    EVENT_DETAIL = (
+        'prohibited characters removed: program="sanitize_names"; version="'
+        + sanitize_names.VERSION
+        + '"'
+    )
+    EVENT_OUTCOME_DETAIL = u'Original name="{}"; cleaned up name="{}"'
 
-    # Sanitize objects on disk
-    sanitizations = sanitize_names.sanitizeRecursively(job, objectsDirectory)
-    for oldfile, newfile in sanitizations.items():
-        logger.info('sanitizations: %s -> %s', oldfile, newfile)
+    def __init__(
+        self, job, objects_directory, sip_uuid, date, group_type, group_sql, sip_path
+    ):
+        if group_type not in ("%SIPDirectory%", "%transferDirectory%"):
+            raise ValueError("Unexpected group type: {}".format(group_type))
 
-    eventDetail = 'program="sanitize_names"; version="' + sanitize_names.VERSION + '"'
+        if isinstance(objects_directory, six.binary_type):
+            objects_directory = objects_directory.decode("utf-8")
 
-    # Update files in DB
-    kwargs = {
-        groupSQL: sipUUID,
-        "removedtime__isnull": True,
-    }
-    file_mdls = File.objects.filter(**kwargs)
-    # Iterate over ``File`` and ``Directory``
-    for model in chain(file_mdls, directory_mdls):
-        # Check all files to see if any parent directory had a sanitization event
-        current_location = unicodeToStr(
-            unicodedata.normalize('NFC', model.currentlocation)).replace(
-                groupType, sipPath)
-        sanitized_location = unicodeToStr(current_location)
-        logger.info('Checking %s', current_location)
+        if isinstance(sip_path, six.binary_type):
+            sip_path = sip_path.decode("utf-8")
 
-        # Check parent directories
-        # Since directory keys are a mix of sanitized and unsanitized, this is
-        # a little complicated
-        # Directories keys are in the form sanitized/sanitized/unsanitized
-        # When a match is found (eg 'unsanitized' -> 'sanitized') reset the
-        # search.
-        # This will find 'sanitized/unsanitized2' -> 'sanitized/sanitized2' on
-        # the next pass
-        # TODO This should be checked for a more efficient solution
-        dirpath = sanitized_location
-        while objectsDirectory in dirpath:  # Stay within unit
-            if dirpath in sanitizations:  # Make replacement
-                sanitized_location = sanitized_location.replace(
-                    dirpath, sanitizations[dirpath])
-                dirpath = sanitized_location  # Reset search
-            else:  # Check next level up
-                dirpath = os.path.dirname(dirpath)
-
-        if current_location != sanitized_location:
-            old_location = current_location.replace(
-                objectsDirectory, relativeReplacement, 1)
-            new_location = sanitized_location.replace(
-                objectsDirectory, relativeReplacement, 1)
-            kwargs = {
-                'src': old_location,
-                'dst': new_location,
-                'eventType': 'name cleanup',
-                'eventDateTime': date,
-                'eventDetail': "prohibited characters removed:" + eventDetail,
-                'fileUUID': None,
-            }
-            if groupType == "%SIPDirectory%":
-                kwargs['sipUUID'] = sipUUID
-            elif groupType == "%transferDirectory%":
-                kwargs['transferUUID'] = sipUUID
-            else:
-                job.pyprint("bad group type", groupType, file=sys.stderr)
-                return 3
-            logger.info('Sanitized name: %s -> %s', old_location, new_location)
-            job.pyprint('Sanitized name:', old_location, " -> ", new_location)
-            if isinstance(model, File):
-                updateFileLocation(**kwargs)
-            else:
-                model.currentlocation = new_location
-                model.save()
+        if group_sql == "transfer_id":
+            self.transfer = Transfer.objects.get(uuid=sip_uuid)
+            self.sip = None
+        elif group_sql == "sip_id":
+            self.transfer = None
+            self.sip = SIP.objects.get(uuid=sip_uuid)
         else:
-            logger.info('No sanitization for %s', current_location)
-            job.pyprint('No sanitization found for', current_location)
+            raise ValueError("Unexpected group sql: {}".format(group_sql))
 
-    return 0
+        self.job = job
+        self.objects_directory = objects_directory
+        self.date = date
+        self.group_type = group_type
+        self.sip_path = sip_path
+
+        self.files_index = {}  # old_path: new_path
+        self.dirs_index = {}  # old_path: new_path
+
+    @property
+    def directory_queryset(self):
+        """
+        Base queryset for Directory objects related to the SIP/Transfer.
+        """
+        if self.transfer is not None and self.transfer.diruuids:
+            return Directory.objects.filter(transfer=self.transfer)
+        elif self.sip is not None and self.sip.diruuids:
+            return Directory.objects.filter(sip=self.sip)
+
+        return None
+
+    @property
+    def file_queryset(self):
+        """
+        Base queryset for File objects related to the SIP/Transfer.
+        """
+        file_qs = File.objects.filter(removedtime__isnull=True)
+        if self.sip is not None:
+            return file_qs.filter(sip=self.sip)
+        else:
+            return file_qs.filter(transfer=self.transfer)
+
+    def normalize_path_for_db(self, path):
+        """
+        Returns a unicode normalized, relative paths (e.g.
+        %transferDirectory%objects/example.txt)
+        """
+        return unicodedata.normalize("NFC", path).replace(
+            self.sip_path, self.group_type, 1
+        )
+
+    def apply_file_updates(self):
+        """
+        Run a single batch of File updates.
+        """
+        if self.sip:
+            event_agents = self.sip.agents
+        else:
+            event_agents = self.transfer.agents
+
+        events = []
+
+        # We pass through _all_ objects here, as they may not be normalized in
+        # the db :(
+        for file_obj in self.file_queryset.iterator():
+            old_location = unicodedata.normalize("NFC", file_obj.currentlocation)
+            try:
+                sanitized_location = self.files_index[old_location]
+            except KeyError:
+                continue
+
+            file_obj.currentlocation = sanitized_location
+            file_obj.save()
+
+            sanitize_event = Event(
+                event_id=uuid.uuid4(),
+                file_uuid=file_obj,
+                event_type="name cleanup",
+                event_datetime=self.date,
+                event_detail=self.EVENT_DETAIL,
+                event_outcome_detail=self.EVENT_OUTCOME_DETAIL.format(
+                    old_location, sanitized_location
+                ),
+            )
+            events.append(sanitize_event)
+
+        Event.objects.bulk_create(events)
+
+        # Adding m2m fields with bulk create is awkward, we have to loop through again.
+        for event in Event.objects.filter(
+            file_uuid__in=[event.file_uuid for event in events]
+        ):
+            event.agents.add(*event_agents)
+
+        if len(self.files_index) > 0:
+            logger.debug("Sanitized batch of %s files", len(self.files_index))
+
+            self.files_index = {}
+        else:
+            logger.debug("No file sanitization required.")
+
+    def apply_dir_updates(self):
+        """
+        Run a single batch of Directory updates.
+        """
+        if self.directory_queryset is None:
+            logger.debug("No directory sanitization required.")
+            return
+
+        # We pass through _all_ objects here, as they may not be normalized in
+        # the db :(
+        for dir_obj in self.directory_queryset.iterator():
+            old_location = unicodedata.normalize("NFC", dir_obj.currentlocation)
+            try:
+                sanitized_location = self.dirs_index[old_location]
+            except KeyError:
+                continue
+
+            dir_obj.currentlocation = sanitized_location
+            dir_obj.save()
+
+            # TODO: Dir sanitizations don't generate events?
+            # Is seems like they should.
+
+        if len(self.dirs_index) > 0:
+            logger.debug("Sanitized batch of %s directories", len(self.dirs_index))
+            self.dirs_index = {}
+        else:
+            logger.debug("No directory sanitization required.")
+
+    def add_file_to_batch(self, old_path, new_path):
+        """
+        Index a path change for later updating in the database.
+
+        If our index is over a certain size, then trigger application of the
+        batched changes.
+        """
+        old_path = self.normalize_path_for_db(old_path)
+        new_path = self.normalize_path_for_db(new_path)
+
+        self.files_index[old_path] = new_path
+
+        if len(self.files_index) >= self.BATCH_SIZE:
+            self.apply_file_updates()
+
+    def add_dir_to_batch(self, old_path, new_path):
+        """
+        Index a path change for later updating in the database.
+
+        If our index is over a certain size, then trigger application of the
+        batched changes.
+        """
+        old_path = self.normalize_path_for_db(old_path)
+        new_path = self.normalize_path_for_db(new_path)
+
+        # Add trailing slashes if necessary
+        old_path = os.path.join(old_path, "")
+        new_path = os.path.join(new_path, "")
+
+        self.dirs_index[old_path] = new_path
+
+        if len(self.dirs_index) >= self.BATCH_SIZE:
+            self.apply_dir_updates()
+
+    def sanitize_objects(self):
+        """
+        Iterate over the filesystem, sanitizing as we go. Updates made on disk
+        are batched and then applied to the database in chunks of BATCH_SIZE.
+        """
+        for old_path, new_path, is_dir, was_sanitized in sanitize_names.sanitize_tree(
+            self.objects_directory, self.objects_directory
+        ):
+            # We need to use job.pyprint here to log to stdout, otherwise the filename
+            # cleanup log file is not generated.
+            if not was_sanitized:
+                self.job.pyprint("No sanitization for", old_path)
+                continue
+
+            if is_dir:
+                self.add_dir_to_batch(old_path, new_path)
+            else:
+                self.add_file_to_batch(old_path, new_path)
+            self.job.pyprint("Sanitized name:", old_path, " -> ", new_path)
+
+        # Catch the remainder afer all batches
+        self.apply_file_updates()
+        self.apply_dir_updates()
 
 
 def call(jobs):
@@ -131,12 +259,24 @@ def call(jobs):
         for job in jobs:
             with job.JobContext(logger=logger):
                 # job.args[4] (taskUUID) is unused.
-                objectsDirectory = job.args[1]  # directory to run sanitization on.
-                sipUUID = job.args[2]  # %SIPUUID%
+                objects_directory = job.args[1]  # directory to run sanitization on.
+                sip_uuid = job.args[2]  # %sip_uuid%
                 date = job.args[3]  # %date%
-                groupType = job.args[5]  # SIPDirectory or transferDirectory
-                groupType = "%%%s%%" % (groupType)  # %SIPDirectory% or %transferDirectory%
-                groupSQL = job.args[6]  # transfer_id or sip_id
-                sipPath = job.args[7]  # %SIPDirectory%
+                group_type = job.args[5]  # SIPDirectory or transferDirectory
+                group_type = "%%%s%%" % (
+                    group_type
+                )  # %SIPDirectory% or %transferDirectory%
+                group_sql = job.args[6]  # transfer_id or sip_id
+                sip_path = job.args[7]  # %SIPDirectory%
 
-                job.set_status(sanitize_object_names(job, objectsDirectory, sipUUID, date, groupType, groupSQL, sipPath))
+                sanitizer = NameSanitizer(
+                    job,
+                    objects_directory,
+                    sip_uuid,
+                    date,
+                    group_type,
+                    group_sql,
+                    sip_path,
+                )
+                sanitizer.sanitize_objects()
+                job.set_status(0)

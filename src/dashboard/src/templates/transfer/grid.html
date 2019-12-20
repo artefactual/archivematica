@@ -20,7 +20,7 @@
   <script type="text/javascript" src="{% static 'js/transfer.js' %}"></script>
   <script type="text/javascript" src="{% static 'vendor/select2/select2.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/build/transfer_browser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/build/dashboard.js' %}"></script>
 
   <script type="text/javascript">
 
@@ -69,8 +69,8 @@
 
 {% block content %}
 
-  <div ng-app="transferBrowse">
-    <ng-include src="'front_page/content.html'"></ng-include>
+  <div ng-app="dashboard">
+    <ng-include src="'front_page/transfer_browser.html'"></ng-include>
   </div>
 
   <div id="sip-container">

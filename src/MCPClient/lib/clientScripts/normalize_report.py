@@ -19,7 +19,7 @@ from custom_handlers import get_script_logger
 
 django.setup()
 
-logger = get_script_logger('archivematica.mcp.client.normalizeReport')
+logger = get_script_logger("archivematica.mcp.client.normalizeReport")
 
 # Based on http://leemunroe.github.io/responsive-html-email-template/email.html
 EMAIL_TEMPLATE = """
@@ -98,78 +98,101 @@ def report(uuid):
     Generate normalization report using Django's template module and send it to
     every active user.
     """
-    recipient_list = User.objects.filter(is_active=True, userprofile__system_emails=True).values_list('email', flat=True)
+    recipient_list = (
+      User.objects.filter(is_active=True, userprofile__system_emails=True)
+      .values_list("email", flat=True))
     if not recipient_list:
-        logger.info('Normalization report is not being sent because the recipient list is empty.')
+        logger.info(
+            "Normalization report is not being sent because the recipient list is empty."
+        )
         return 0
 
-    logger.info('Sending report to %s.', ', '.join(recipient_list))
+    logger.info("Sending report to %s.", ", ".join(recipient_list))
 
     try:
         sip = SIP.objects.get(uuid=uuid)
     except SIP.DoesNotExist:
-        logger.error('SIP with UUID %s not found.', uuid)
+        logger.error("SIP with UUID %s not found.", uuid)
         return 1
 
     failed_tasks = {}
-    for jobtype in ('Normalize for preservation', 'Normalize for access'):
+    for jobtype in ("Normalize for preservation", "Normalize for access"):
         try:
-            job = Job.objects.filter(sipuuid=uuid, jobtype=jobtype).order_by('-createdtime')[0]
+            job = Job.objects.filter(sipuuid=uuid, jobtype=jobtype).order_by(
+                "-createdtime"
+            )[0]
         except IndexError:
-            logger.info('No normalization failures have been detected in type "%s"', jobtype)
+            logger.info(
+                'No normalization failures have been detected in type "%s"', jobtype
+            )
             continue
         tasks = Task.objects.filter(job=job).exclude(exitcode__in=[0, 2])
         if not tasks.exists():
-            logger.info('No normalization failures have been detected in type "%s"', jobtype)
+            logger.info(
+                'No normalization failures have been detected in type "%s"', jobtype
+            )
             continue
-        failed_tasks[jobtype] = tasks.values('filename', 'fileuuid', 'exitcode')
+        failed_tasks[jobtype] = tasks.values("filename", "fileuuid", "exitcode")
         for item in failed_tasks[jobtype]:
             try:
-                item['location'] = File.objects.get(uuid=item['fileuuid']).currentlocation.replace('%SIPDirectory%', '')
+                item["location"] = File.objects.get(
+                    uuid=item["fileuuid"]
+                ).currentlocation.replace("%SIPDirectory%", "")
             except File.DoesNotExist:
                 pass
 
     if not len(failed_tasks):
-        logger.info('Normalization report is not being sent because no failures have been detected.')
+        logger.info(
+            "Normalization report is not being sent because no failures have been detected."
+        )
         return 0
 
     ctxdict = {
-        'uuid': uuid,
-        'name': os.path.basename(sip.currentpath.rstrip('/')).replace('-' + sip.uuid, ''),
-        'pipeline_uuid': helpers.get_setting('dashboard_uuid'),
-        'failed_tasks': failed_tasks
+        "uuid": uuid,
+        "name": os.path.basename(sip.currentpath.rstrip("/")).replace(
+            "-" + sip.uuid, ""
+        ),
+        "pipeline_uuid": helpers.get_setting("dashboard_uuid"),
+        "failed_tasks": failed_tasks,
     }
 
-    logger.info('Building HTML message')
+    logger.info("Building HTML message")
     ctx = Context(ctxdict)
     tmpl = Template(EMAIL_TEMPLATE)
     html_message = tmpl.render(ctx)
 
-    logger.info('Storing report in database')
-    Report.objects.create(content=html_message, unittype='SIP', unitname=ctxdict['name'], unitidentifier=ctxdict['uuid'])
+    logger.info("Storing report in database")
+    Report.objects.create(
+        content=html_message,
+        unittype="SIP",
+        unitname=ctxdict["name"],
+        unitidentifier=ctxdict["uuid"],
+    )
 
     try:
-        logger.info('Sending email...')
+        logger.info("Sending email...")
         send_mail(
-            subject='Normalization failure report for {} ({})'.format(ctxdict['name'], ctxdict['uuid']),
-            message='Please see the attached HTML document',
+            subject="Normalization failure report for {} ({})".format(
+                ctxdict["name"], ctxdict["uuid"]
+            ),
+            message="Please see the attached HTML document",
             from_email=mcpclient_settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipient_list,
             html_message=html_message,
         )
     except:
-        logger.exception('Report email was not delivered')
+        logger.exception("Report email was not delivered")
         return 1
     else:
-        logger.info('Report sent successfully!')
+        logger.info("Report sent successfully!")
 
     return 0
 
 
 def call(jobs):
     parser = ArgumentParser()
-    parser.add_argument('--uuid', required=True)
-    parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument("--uuid", required=True)
+    parser.add_argument("--debug", action="store_true", default=False)
 
     with transaction.atomic():
         for job in jobs:

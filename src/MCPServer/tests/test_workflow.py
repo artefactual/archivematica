@@ -9,53 +9,27 @@ from django.utils.six import next, itervalues
 from django.utils.translation import ugettext_lazy
 import pytest
 
-import workflow
+from server import translation, workflow
 
 
 ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(
-        os.path.join(__file__, os.pardir))), "lib", "assets")
+    os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))), "lib", "assets"
+)
 
-FIXTURES_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "fixtures")
+FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
-def test_load_job_statuses(mocker):
-    mocker.patch("main.models.Job.STATUS", (
-        (1, ugettext_lazy("Uno")),
-        (2, ugettext_lazy("Dos")),
-        (3, ugettext_lazy("Tres")),
-    ))
-    ret = workflow._load_job_statuses()
+def test_invert_job_statuses(mocker):
+    mocker.patch(
+        "server.jobs.Job.STATUSES",
+        (
+            (1, ugettext_lazy("Uno")),
+            (2, ugettext_lazy("Dos")),
+            (3, ugettext_lazy("Tres")),
+        ),
+    )
+    ret = workflow._invert_job_statuses()
     assert ret == {"Uno": 1, "Dos": 2, "Tres": 3}
-
-
-def test_translation_label(mocker):
-    mocker.patch("workflow._FALLBACK_LANG", "en")
-    tr = workflow.TranslationLabel({"en": "cat", "es": "gato"})
-    assert repr(tr) == "TranslationLabel({u'en': u'cat', u'es': u'gato'})"
-    assert str(tr) == "cat"
-    assert tr["es"] == "gato"
-    assert tr["unexistent-lang-code"] == "cat"
-    assert tr.get_label(lang="es") == "gato"
-    assert tr.get_label(lang="is", fallback_label="köttur") == "köttur"
-    assert tr.get_label(lang="??") == "cat"
-    mocker.patch("workflow._FALLBACK_LANG", "xx")
-    assert tr.get_label(lang="yy") == workflow._UNKNOWN_TRANSLATION_LABEL
-
-
-def test_translation_label_with_prepared_codes(mocker):
-    mocker.patch("workflow._FALLBACK_LANG", "en")
-    tr = workflow.TranslationLabel({"en": "dog", "pt_BR": "cão"})
-    assert tr.get_label(lang="en") == "dog"
-    assert tr.get_label(lang="pt-br") == "cão"
-    assert tr.get_label(lang="pt_BR") == "cão"
-
-
-def test_translation_label_string(mocker):
-    mocker.patch("workflow._FALLBACK_LANG", "en")
-    tr = workflow.TranslationLabel("cat")
-    assert repr(tr) == "TranslationLabel({u'en': u'cat'})"
 
 
 def test_load_invalid_document():
@@ -70,10 +44,13 @@ def test_load_invalid_json():
         workflow.load(blob)
 
 
-@pytest.mark.parametrize("path", (
-    os.path.join(ASSETS_DIR, "workflow.json"),
-    os.path.join(FIXTURES_DIR, "workflow-sample.json"),
-))
+@pytest.mark.parametrize(
+    "path",
+    (
+        os.path.join(ASSETS_DIR, "workflow.json"),
+        os.path.join(FIXTURES_DIR, "workflow-sample.json"),
+    ),
+)
 def test_load_valid_document(path):
     with open(path) as fp:
         wf = workflow.load(fp)
@@ -83,14 +60,11 @@ def test_load_valid_document(path):
     first_chain = next(itervalues(chains))
     assert isinstance(first_chain, workflow.Chain)
     assert str(first_chain) == first_chain.id
-    assert repr(first_chain) == \
-        "Chain <{}>".format(first_chain.id)
+    assert repr(first_chain) == "Chain <{}>".format(first_chain.id)
     assert isinstance(first_chain.link, workflow.Link)
     assert isinstance(first_chain.link, workflow.BaseLink)
-    assert isinstance(first_chain["description"],
-                      workflow.TranslationLabel)
-    assert first_chain["description"]._src == \
-        first_chain._src["description"]._src
+    assert isinstance(first_chain["description"], workflow.TranslationLabel)
+    assert first_chain["description"]._src == first_chain._src["description"]._src
 
     links = wf.get_links()
     assert len(links) > 0
@@ -105,15 +79,14 @@ def test_load_valid_document(path):
     assert isinstance(first_wdir, workflow.WatchedDir)
     assert first_wdir.path == first_wdir["path"]
     assert str(first_wdir) == first_wdir["path"]
-    assert repr(first_wdir) == \
-        "Watched directory <{}>".format(first_wdir["path"])
+    assert repr(first_wdir) == "Watched directory <{}>".format(first_wdir["path"])
     assert isinstance(first_wdir.chain, workflow.Chain)
     assert isinstance(first_wdir.chain, workflow.BaseLink)
 
     # Workflow __str__ method
-    assert str(wf) == \
-        u"Chains {}, links {}, watched directories: {}".format(
-            len(chains), len(links), len(wdirs))
+    assert str(wf) == "Chains {}, links {}, watched directories: {}".format(
+        len(chains), len(links), len(wdirs)
+    )
 
     # Test normalization of job statuses.
     link = next(itervalues(links))
@@ -123,8 +96,10 @@ def test_load_valid_document(path):
         assert item["job_status"] in valid_statuses
 
     # Test get_label method in LinkBase.
-    assert first_link.get_label("description") == \
-        first_link._src["description"][workflow._FALLBACK_LANG]
+    assert (
+        first_link.get_label("description")
+        == first_link._src["description"][translation.FALLBACK_LANG]
+    )
     assert first_link.get_label("foobar") is None
 
 
@@ -132,28 +107,18 @@ def test_link_browse_methods(mocker):
     with open(os.path.join(ASSETS_DIR, "workflow.json")) as fp:
         wf = workflow.load(fp)
     ln = wf.get_link("1ba589db-88d1-48cf-bb1a-a5f9d2b17378")
-    assert ln.get_next_link(code="0").id == \
-        "087d27be-c719-47d8-9bbb-9a7d8b609c44"
-    assert ln.get_status_id(code="0") == \
-        workflow._STATUSES["Completed successfully"]
-    assert ln.get_next_link(code="1").id == \
-        "7d728c39-395f-4892-8193-92f086c0546f"
-    assert ln.get_status_id(code="1") == \
-        workflow._STATUSES["Failed"]
-
-    # Test manager method.
-    mock = mocker.patch("linkTaskManagerFiles.linkTaskManagerFiles")
-    assert ln.manager("foo", "bar")
-    mock.assert_called_once_with("foo", "bar")
+    assert ln.get_next_link(code="0").id == "087d27be-c719-47d8-9bbb-9a7d8b609c44"
+    assert ln.get_status_id(code="0") == workflow._STATUSES["Completed successfully"]
+    assert ln.get_next_link(code="1").id == "7d728c39-395f-4892-8193-92f086c0546f"
+    assert ln.get_status_id(code="1") == workflow._STATUSES["Failed"]
 
 
 def test_get_schema():
     schema = workflow._get_schema()
-    assert schema["$id"] == \
-        "https://www.archivematica.org/labs/workflow/schema/v1.json"
+    assert schema["$id"] == "https://www.archivematica.org/labs/workflow/schema/v1.json"
 
 
 def test_get_schema_not_found(mocker):
-    mocker.patch("workflow._LATEST_SCHEMA", "non-existen-schema")
+    mocker.patch("server.workflow._LATEST_SCHEMA", "non-existen-schema")
     with pytest.raises(IOError):
         workflow._get_schema()

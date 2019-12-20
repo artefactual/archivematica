@@ -5,13 +5,15 @@ import os
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main import models
 
 # This is the UUID of SIP from the `MetadataAppliesToTypes` table
-INGEST_METADATA_TYPE = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+INGEST_METADATA_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
 
 def main(job, sip_uuid, dc_path):
@@ -23,8 +25,10 @@ def main(job, sip_uuid, dc_path):
     job.pyprint("Loading DC metadata from", dc_path)
     with open(dc_path) as json_data:
         data = json.load(json_data)
-    dc = models.DublinCore(metadataappliestoidentifier=sip_uuid,
-                           metadataappliestotype_id=INGEST_METADATA_TYPE)
+    dc = models.DublinCore(
+        metadataappliestoidentifier=sip_uuid,
+        metadataappliestotype_id=INGEST_METADATA_TYPE,
+    )
     for key, value in data.items():
         try:
             setattr(dc, key, value)

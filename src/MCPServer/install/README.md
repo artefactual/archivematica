@@ -139,17 +139,32 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `float`
     - **Default:** `5`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_HTTP_SERVER`**:
-    - **Description:** when set to a non-empty string, its value is parsed as the port number or `address:port` pair in order to start a HTTP server for Prometheus metrics as a daemon thread. Only two forms are accepted: `7999` (which results in address `127.0.0.1` and port `7999`) or  `0.0.0.0:7999` (which results in address `0.0.0.0` and port `7999`).
-    - **Config file example:** `MCPServer.prometheus_http_server`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS`**:
+    - **Description:** when set to a non-empty string, its value is parsed as the IP address on which to serve Prometheus metrics. If this value is not provided, but ``ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT`` is, then 127.0.0.1 will
+    be used.
+    - **Config file example:** `MCPServer.prometheus_bind_addresss`
     - **Type:** `string`
     - **Default:** `""`
 
-- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORIESPOLLINTERVAL`**:
-    - **Description:** time in seconds between filesystem poll intervals.
-    - **Config file example:** `MCPServer.watchDirectoriesPollInterval`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT`**:
+    - **Description:** The port on which to serve Prometheus metrics.
+    If this value is not provided, metrics will not be served.
+    - **Config file example:** `MCPServer.prometheus_bind_port`
     - **Type:** `int`
-    - **Default:** `"1"`
+    - **Default:** `""`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_METHOD`**:
+    - **Description:** how watched directory polling is done (`poll` or `inotify`). `inotify` is much more efficient, but only available
+    when using a local filesystem on Linux.
+    - **Config file example:** `MCPServer.watch_directory_method`
+    - **Type:** `string`
+    - **Default:** `"poll"`
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCH_DIRECTORY_INTERVAL`**:
+     - **Description:** time in seconds between filesystem poll intervals.
+     - **Config file example:** `MCPServer.watch_directory_interval`
+     - **Type:** `int`
+     - **Default:** `"1"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_BATCH_SIZE`**:
     - **Description:** the amount of files that are processed by an instance of MCPClient as a group to speed up certain operations like database updates.
@@ -157,11 +172,24 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** `"128"`
 
-- **`ARCHIVEMATICA_MCPSERVER_PROTOCOL_LIMITTASKTHREADS`**:
-    - **Description:** max. number of threads that MCPServer will run simultaneously.
-    - **Config file example:** `protocol.limitTaskThreads`
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_CONCURRENT_PACKAGES`**:
+    - **Description:** the number of packages to process concurrently. Should typically correspond
+    to the number of running MCPClients.
+    - **Config file example:** `MCPServer.concurrent_packages`
     - **Type:** `int`
-    - **Default:** `"75"`
+    - **Default:** 1/2 the number of CPU cores available to MCPServer, rounded up.
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_RPC_THREADS`**:
+    - **Description:** the number of threads used to process RPC requests from the dashboard.
+    - **Config file example:** `MCPServer.rpc_threads`
+    - **Type:** `int`
+    - **Default:** 4
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WORKER_THREADS`**:
+    - **Description:** the number of threads used to handle MCPServer jobs.
+    - **Config file example:** `MCPServer.worker_threads`
+    - **Type:** `int`
+    - **Default:** The number of CPU cores available to MCPServer, plus 1.
 
 - **`ARCHIVEMATICA_MCPSERVER_CLIENT_ENGINE`**:
     - **Description:** a database setting. See [DATABASES](https://docs.djangoproject.com/en/1.8/ref/settings/#databases) for more details.

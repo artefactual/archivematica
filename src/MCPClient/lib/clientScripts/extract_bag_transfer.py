@@ -25,12 +25,15 @@ import os
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import Transfer
 
 # archivematicaCommon
+from fileOperations import get_extract_dir_name
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -39,21 +42,25 @@ def extract(job, target, destinationDirectory):
 
     exitC = 0
 
-    if file_extension != '.tgz' and file_extension != '.gz':
-        job.pyprint('Unzipping...')
+    if file_extension != ".tgz" and file_extension != ".gz":
+        job.pyprint("Unzipping...")
 
         command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
-        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False, capture_output=True)
+        exitC, stdOut, stdErr = executeOrRun(
+            "command", command, printing=False, capture_output=True
+        )
         if exitC != 0:
             job.pyprint(stdOut)
             job.pyprint("Failed extraction: ", command, "\r\n", stdErr, file=sys.stderr)
     else:
-        job.pyprint('Untarring...')
+        job.pyprint("Untarring...")
 
         parent_dir = os.path.abspath(os.path.join(destinationDirectory, os.pardir))
-        file_extension = ''
+        file_extension = ""
         command = ("tar zxvf " + target + ' --directory="%s"') % (parent_dir)
-        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False, capture_output=True)
+        exitC, stdOut, stdErr = executeOrRun(
+            "command", command, printing=False, capture_output=True
+        )
         if exitC != 0:
             job.pyprint(stdOut)
             job.pyprint("Failed to untar: ", command, "\r\n", stdErr, file=sys.stderr)
@@ -71,18 +78,13 @@ def call(jobs):
                 sharedPath = job.args[4]
 
                 basename = os.path.basename(target)
-                basename = basename[:basename.rfind(".")]
-
                 destinationDirectory = os.path.join(processingDirectory, basename)
 
-                # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
-                try:
-                    tar_extension_position = destinationDirectory.rindex('.tar')
-                    destinationDirectory = destinationDirectory[:tar_extension_position]
-                except ValueError:
-                    pass
+                destinationDirectory = get_extract_dir_name(destinationDirectory)
 
-                zipLocation = os.path.join(processingDirectory, os.path.basename(target))
+                zipLocation = os.path.join(
+                    processingDirectory, os.path.basename(target)
+                )
 
                 # move to processing directory
                 shutil.move(target, zipLocation)
@@ -94,20 +96,41 @@ def call(jobs):
                     job.set_status(exit_code)
                     continue
 
-                # checkForTopLevelBag
-                listdir = os.listdir(destinationDirectory)
+                # Ensure that the only thing in the destination dir is the
+                # top level directory from the extracted file, with the
+                # exception of certain files that may have been copied here
+                # previously. (For now this is just the processing config.)
+                # These files will need to be moved down a level.
+                preexisting_files = {"processingMCP.xml"}
+
+                listdir = set(os.listdir(destinationDirectory))
+                to_move = listdir & preexisting_files
+                listdir -= preexisting_files
+
                 if len(listdir) == 1:
-                    internalBagName = listdir[0]
+                    internalBagName = listdir.pop()
+
+                    for filename in to_move:
+                        shutil.move(
+                            os.path.join(destinationDirectory, filename),
+                            os.path.join(destinationDirectory, internalBagName),
+                        )
+
                     # print "ignoring BagIt internal name: ", internalBagName
                     temp = destinationDirectory + "-tmp"
                     shutil.move(destinationDirectory, temp)
-                    # destinationDirectory = os.path.join(processingDirectory, internalBagName)
-                    shutil.move(os.path.join(temp, internalBagName), destinationDirectory)
+                    shutil.move(
+                        os.path.join(temp, internalBagName), destinationDirectory
+                    )
                     os.rmdir(temp)
 
                 # update transfer
-                destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
-                Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
+                destinationDirectoryDB = destinationDirectory.replace(
+                    sharedPath, "%sharedPath%", 1
+                )
+                Transfer.objects.filter(uuid=transferUUID).update(
+                    currentlocation=destinationDirectoryDB
+                )
 
                 # remove bag
                 os.remove(zipLocation)

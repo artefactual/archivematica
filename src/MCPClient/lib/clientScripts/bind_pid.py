@@ -47,55 +47,49 @@ from functools import wraps
 
 from django.db import transaction
 import django
+
 django.setup()
 # dashboard
-from main.models import DashboardSetting, File, Identifier
+from main.models import DashboardSetting, File
+
 # archivematicaCommon
 import bindpid
 from custom_handlers import get_script_logger
 from archivematicaFunctions import str2bool
 
 
-logger = get_script_logger('archivematica.mcp.client.bind_pid')
+logger = get_script_logger("archivematica.mcp.client.bind_pid")
 
 
 class BindPIDException(Exception):
     """If I am raised, return 1."""
+
     exit_code = 1
-
-
-class BindPIDWarning(Exception):
-    """If I am raised, return 0."""
-    exit_code = 0
 
 
 def exit_on_known_exception(func):
     """Decorator that makes this module's ``main`` function cleaner by handling
     early exiting by catching particular exceptions.
     """
+
     @wraps(func)
     def wrapped(*_args, **kwargs):
         try:
             func(*_args, **kwargs)
-        except (BindPIDException, BindPIDWarning) as exc:
+        except BindPIDException as exc:
             return exc.exit_code
+
     return wrapped
-
-
-def _exit_if_not_bind_pids(bind_pids_switch):
-    """Quit processing if bind_pids_switch is not truthy."""
-    if not bind_pids_switch:
-        logger.info('Configuration indicates that PIDs should not be bound.')
-        raise BindPIDWarning
 
 
 def _get_bind_pid_config(file_uuid):
     """Return dict to pass to ``bindpid`` function as keyword arguments."""
-    _args = {'entity_type': 'file',
-             'desired_pid': file_uuid}
-    _args.update(DashboardSetting.objects.get_dict('handle'))
-    _args['pid_request_verify_certs'] = str2bool(
-        _args.get('pid_request_verify_certs', 'True'))
+    _args = {"entity_type": "file", "desired_pid": file_uuid}
+    _args.update(DashboardSetting.objects.get_dict("handle"))
+    bindpid._validate(_args)
+    _args["pid_request_verify_certs"] = str2bool(
+        _args.get("pid_request_verify_certs", "True")
+    )
     return _args
 
 
@@ -103,36 +97,37 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
     """Add the newly minted handle to the ``File`` model as an identifier in its
     m2m ``identifiers`` attribute.
     """
-    pid = '{}/{}'.format(naming_authority, file_uuid)
-    purl = '{}/{}'.format(resolver_url.rstrip('/'), pid)
+    pid = "{}/{}".format(naming_authority, file_uuid)
+    purl = "{}/{}".format(resolver_url.rstrip("/"), pid)
     file_mdl = File.objects.get(uuid=file_uuid)
     existing_ids = file_mdl.identifiers.all()
-    for id_type, id_val in (('hdl', pid), ('URI', purl)):
+    for id_type, id_val in (("hdl", pid), ("URI", purl)):
         # Do not create duplicate identifiers. It is possible to create
         # duplicate ids because a user can ingest, and therefore bind a PID for,
         # a given file an arbitrary number of times. We allow this, in order to
         # allow changing the resolution of a PID, but there is no point in adding
         # redundant identifiers for the file.
-        matches = [True for id_ in existing_ids
-                   if id_.type == id_type and id_.value == id_val]
+        matches = [
+            True for id_ in existing_ids if id_.type == id_type and id_.value == id_val
+        ]
         if len(matches) == 0:
-            idfr = Identifier.objects.create(type=id_type, value=id_val)
-            file_mdl.identifiers.add(idfr)
+            file_mdl.add_custom_identifier(scheme=id_type, value=id_val)
 
 
 @exit_on_known_exception
-def main(job, file_uuid, bind_pids_switch):
+def main(job, file_uuid):
     """Bind the UUID ``file_uuid`` to the appropriate URL(s), given the
-    configuration from the dashboard, Do this only if ``bind_pids_switch`` is
-    ``True``.
+    configuration from the dashboard.
     """
-    _exit_if_not_bind_pids(bind_pids_switch)
     try:
         args = _get_bind_pid_config(file_uuid)
         msg = bindpid.bind_pid(**args)
-        _update_file_mdl(file_uuid, args['naming_authority'],
-                         args['handle_resolver_url'])
-        job.print_output(msg)  # gets appended to handles.log file, cf. StandardTaskConfig
+        _update_file_mdl(
+            file_uuid, args["naming_authority"], args["handle_resolver_url"]
+        )
+        job.print_output(
+            msg
+        )  # gets appended to handles.log file, cf. StandardTaskConfig
         logger.info(msg)
         return 0
     except bindpid.BindPIDException as exc:
@@ -143,22 +138,18 @@ def main(job, file_uuid, bind_pids_switch):
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument('file_uuid', type=str,
-                        help='The UUID of the file to bind a PID for.')
-    parser.add_argument('--bind-pids', action='store', type=str2bool,
-                        dest="bind_pids_switch", default='No')
+    parser.add_argument(
+        "file_uuid", type=str, help="The UUID of the file to bind a PID for."
+    )
 
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
-                if args.file_uuid == 'None':
-                    job.set_status(0)
-                elif not args.bind_pids_switch:
-                    logger.info('Configuration indicates that PIDs should not be bound.')
+                if args.file_uuid == "None":
                     job.set_status(0)
                 else:
-                    logger.info('bind_pid called with args: %s', vars(args))
+                    logger.info("bind_pid called with args: %s", vars(args))
                     args = vars(args)
-                    args['job'] = job
+                    args["job"] = job
                     job.set_status(main(**(args)))

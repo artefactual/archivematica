@@ -12,29 +12,38 @@ import logging
 from contextlib import contextmanager
 from custom_handlers import CallbackHandler
 
-LOGGER = logging.getLogger('archivematica.mcp.client.job')
+LOGGER = logging.getLogger("archivematica.mcp.client.job")
 
 
-class Job():
+class Job:
     def __init__(self, name, uuid, args, caller_wants_output=False):
         self.name = name
         self.UUID = uuid
         self.args = [name] + args
         self.caller_wants_output = caller_wants_output
         self.int_code = 0
-        self.status_code = 'success'
+        self.status_code = "success"
         self.output = ""
         self.error = ""
 
     def dump(self):
-        return (("#<%s; exit=%d; code=%s uuid=%s\n" +
-                 "=============== STDOUT ===============\n" +
-                 "%s" +
-                 "\n=============== END STDOUT ===============\n" +
-                 "=============== STDERR ===============\n" +
-                 "%s" +
-                 "\n=============== END STDERR ===============\n" +
-                 "\n>") % (self.name, self.int_code, self.status_code, self.UUID, self.output, self.error))
+        return (
+            u"#<%s; exit=%s; code=%s uuid=%s\n"
+            u"=============== STDOUT ===============\n"
+            u"%s"
+            u"\n=============== END STDOUT ===============\n"
+            u"=============== STDERR ===============\n"
+            u"%s"
+            u"\n=============== END STDERR ===============\n"
+            u"\n>"
+        ) % (
+            self.name,
+            self.int_code,
+            self.status_code,
+            self.UUID,
+            self.get_stdout(),
+            self.get_stderr(),
+        )
 
     def load_from(self, other_job):
         self.name = other_job.name
@@ -46,9 +55,9 @@ class Job():
         self.output = other_job.output
         self.error = other_job.error
 
-    def set_status(self, int_code, status_code='success'):
+    def set_status(self, int_code, status_code="success"):
         if int_code:
-            self.int_code = int_code
+            self.int_code = int(int_code)
         self.status_code = status_code
 
     def write_output(self, s):
@@ -58,22 +67,22 @@ class Job():
         self.error += s
 
     def print_output(self, *args):
-        self.write_output(' '.join([self._to_str(x) for x in args]) + "\n")
+        self.write_output(" ".join([self._to_str(x) for x in args]) + "\n")
 
     def print_error(self, *args):
-        self.write_error(' '.join([self._to_str(x) for x in args]) + "\n")
+        self.write_error(" ".join([self._to_str(x) for x in args]) + "\n")
 
     @staticmethod
     def _to_str(thing):
         try:
             return str(thing)
         except UnicodeEncodeError:
-            return thing.encode('utf8')
+            return thing.encode("utf8")
 
     def pyprint(self, *objects, **kwargs):
-        file = kwargs.get('file', sys.stdout)
-        sep = kwargs.get('sep', ' ')
-        end = kwargs.get('end', "\n")
+        file = kwargs.get("file", sys.stdout)
+        sep = kwargs.get("sep", " ")
+        end = kwargs.get("end", "\n")
         msg = sep.join([self._to_str(x) for x in objects]) + end
         if file == sys.stdout:
             self.write_output(msg)
@@ -86,10 +95,10 @@ class Job():
         return self.int_code
 
     def get_stdout(self):
-        return self.output
+        return self.output.decode("utf-8")
 
     def get_stderr(self):
-        return self.error
+        return self.error.decode("utf-8")
 
     @contextmanager
     def JobContext(self, logger=None):

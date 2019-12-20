@@ -1,20 +1,34 @@
 #!/usr/bin/env python2
+# -*- coding: utf8
+
+"""verify_mets.py
+
+Verify METS documents provided to the script. Its first, and primary use so
+far is to verify the validity of custom structmaps included with transfers and
+supplied on ingest after appraisal.
+"""
+from __future__ import unicode_literals
+from lxml import etree
 import os
 
-from executeOrRunSubProcess import executeOrRun
+
+class VerifyMETSException(Exception):
+    """Exception to raise if METS validation fails."""
 
 
 def call(jobs):
-    command = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'archivematicaVerifyMets.sh')
-
+    """Primary entry point for this script."""
     for job in jobs:
         with job.JobContext():
-            exit_code, std_out, std_error = executeOrRun(
-                'command',
-                [command] + job.args[1:],
-                printing=True,
-                capture_output=True)
-
-            job.write_error(std_error)
-            job.write_output(std_out)
-            job.set_status(exit_code)
+            mets_structmap = os.path.join(job.args[1], "metadata", "mets_structmap.xml")
+            mets_xsd = job.args[2]
+            if not os.path.isfile(mets_structmap):
+                job.pyprint("Custom structmap not supplied with package")
+                return
+            if not os.path.isfile(mets_xsd):
+                raise (VerifyMETSException("METS asset is unavailable"))
+            xmlschema = etree.XMLSchema(etree.parse(mets_xsd))
+            # Raise an exception if not valid, e.g. etree.DocumentInvalid
+            # otherwise, the document validates correctly and returns.
+            xmlschema.assertValid(etree.parse(mets_structmap))
+            job.pyprint("Custom structmap validated correctly")

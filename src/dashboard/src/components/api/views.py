@@ -17,6 +17,7 @@
 
 # stdlib, alphabetical
 import base64
+from cgi import parse_header
 import json
 import shutil
 import logging
@@ -28,23 +29,41 @@ import re
 from django.db.models import Q
 import django.http
 from django.conf import settings as django_settings
+from django.utils import six
 
 # External dependencies, alphabetical
-from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
+from tastypie.authentication import (
+    ApiKeyAuthentication,
+    MultiAuthentication,
+    SessionAuthentication,
+)
 
 # This project, alphabetical
 import archivematicaFunctions
+from version import get_full_version
+
 from contrib.mcp.client import MCPClient
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
 from components import helpers
 from main import models
 from processing import install_builtin_config
+from . import validators
 
-LOGGER = logging.getLogger('archivematica.dashboard')
+LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
-UUID_REGEX = re.compile(r'^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$', re.IGNORECASE)
+UUID_REGEX = re.compile(
+    r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
+    re.IGNORECASE,
+)
+JOB_STATUS_CODE_LABELS = {
+    models.Job.STATUS_UNKNOWN: "UNKNOWN",
+    models.Job.STATUS_AWAITING_DECISION: "USER_INPUT",
+    models.Job.STATUS_COMPLETED_SUCCESSFULLY: "COMPLETE",
+    models.Job.STATUS_EXECUTING_COMMANDS: "PROCESSING",
+    models.Job.STATUS_FAILED: "FAILED",
+}
 
 
 def _api_endpoint(expected_methods):
@@ -53,8 +72,10 @@ def _api_endpoint(expected_methods):
 
     Checks if method is allowed, and request is authenticated.
     """
+
     def decorator(func):
         """The decorator applied to the endpoint."""
+
         def wrapper(request, *args, **kwargs):
             """Wrapper for custom endpoints with boilerplate code."""
             # Check HTTP verb
@@ -72,23 +93,33 @@ def _api_endpoint(expected_methods):
             # Auth
             auth_error = authenticate_request(request)
             if auth_error is not None:
-                response = {'message': auth_error, 'error': True}
+                response = {"message": auth_error, "error": True}
                 return django.http.HttpResponseForbidden(  # 403
-                    json.dumps(response),
-                    content_type='application/json'
+                    json.dumps(response), content_type="application/json"
                 )
 
             # Call the decorated method
             result = func(request, *args, **kwargs)
 
+            result["X-Archivematica-Version"] = get_full_version()
+            try:
+                result["X-Archivematica-ID"] = request.dashboard_uuid
+            except AttributeError:
+                pass
+
             return result
+
         return wrapper
+
     return decorator
 
 
 def _ok_response(message, **kwargs):
     """Mixin to return API responses to the user."""
-    payload = {"message": message}
+    if isinstance(message, dict):
+        payload = message
+    else:
+        payload = {"message": message}
     status_code = kwargs.pop("status_code", 200)
     payload.update(kwargs)
     return helpers.json_response(payload, status_code=status_code)
@@ -97,8 +128,8 @@ def _ok_response(message, **kwargs):
 def _error_response(message, status_code=400):
     """Mixin to return API errors to the user."""
     return helpers.json_response(
-        {"error": True, "message": message},
-        status_code=status_code)
+        {"error": True, "message": message}, status_code=status_code
+    )
 
 
 class HttpResponseNotImplemented(django.http.HttpResponse):
@@ -106,19 +137,16 @@ class HttpResponseNotImplemented(django.http.HttpResponse):
 
 
 def allowed_by_whitelist(ip_address):
-    whitelist = [
-        ip.strip()
-        for ip in helpers.get_setting('api_whitelist', '').split()
-    ]
+    whitelist = [ip.strip() for ip in helpers.get_setting("api_whitelist", "").split()]
 
     # If there's no whitelist, allow all through
     if not whitelist:
         return True
 
-    LOGGER.debug('looking for ip %s in whitelist %s', ip_address, whitelist)
+    LOGGER.debug("looking for ip %s in whitelist %s", ip_address, whitelist)
     # There is a whitelist - check the IP address against it
     if ip_address in whitelist:
-        LOGGER.debug('API called by trusted IP %s', ip_address)
+        LOGGER.debug("API called by trusted IP %s", ip_address)
         return True
 
     return False
@@ -126,7 +154,7 @@ def allowed_by_whitelist(ip_address):
 
 def authenticate_request(request):
     error = None
-    client_ip = request.META['REMOTE_ADDR']
+    client_ip = request.META["REMOTE_ADDR"]
 
     api_auth = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
     authorized = api_auth.is_authenticated(request)
@@ -134,10 +162,10 @@ def authenticate_request(request):
     # 'authorized' can be True, False or tastypie.http.HttpUnauthorized
     # Check explicitly for True, not just truthiness
     if authorized is not True:
-        error = 'API key not valid.'
+        error = "API key not valid."
 
     elif not allowed_by_whitelist(client_ip):
-        error = 'Host/IP ' + client_ip + ' not authorized.'
+        error = "Host/IP " + client_ip + " not authorized."
 
     return error
 
@@ -160,30 +188,46 @@ def get_unit_status(unit_uuid, unit_type):
     """
     ret = {}
     # get jobs for the current unit ordered by created time
-    unit_jobs = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')
+    unit_jobs = (
+        models.Job.objects.filter(sipuuid=unit_uuid)
+        .filter(unittype=unit_type)
+        .order_by("-createdtime", "-createdtimedec")
+    )
     # tentatively choose the job with the latest created time to be the current/last for the unit
     job = unit_jobs[0]
 
-    ret['microservice'] = job.jobtype
+    ret["microservice"] = job.jobtype
     if job.currentstep == models.Job.STATUS_AWAITING_DECISION:
-        ret['status'] = 'USER_INPUT'
-    elif 'failed' in job.microservicegroup.lower():
-        ret['status'] = 'FAILED'
-    elif 'reject' in job.microservicegroup.lower():
-        ret['status'] = 'REJECTED'
-    elif job.jobtype == 'Remove the processing directory':  # Done storing AIP
-        ret['status'] = 'COMPLETE'
-    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Create SIP from transfer objects').exists():
-        ret['status'] = 'COMPLETE'
+        ret["status"] = "USER_INPUT"
+    elif "failed" in job.microservicegroup.lower():
+        ret["status"] = "FAILED"
+    elif "reject" in job.microservicegroup.lower():
+        ret["status"] = "REJECTED"
+    elif job.jobtype == "Remove the processing directory":  # Done storing AIP
+        ret["status"] = "COMPLETE"
+    elif (
+        models.Job.objects.filter(sipuuid=unit_uuid)
+        .filter(jobtype="Create SIP from transfer objects")
+        .exists()
+    ):
+        ret["status"] = "COMPLETE"
         # Get SIP UUID
-        sips = models.File.objects.filter(transfer_id=unit_uuid, sip__isnull=False).values('sip').distinct()
+        sips = (
+            models.File.objects.filter(transfer_id=unit_uuid, sip__isnull=False)
+            .values("sip")
+            .distinct()
+        )
         if sips:
-            ret['sip_uuid'] = sips[0]['sip']
-    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Move transfer to backlog').exists():
-        ret['status'] = 'COMPLETE'
-        ret['sip_uuid'] = 'BACKLOG'
+            ret["sip_uuid"] = sips[0]["sip"]
+    elif (
+        models.Job.objects.filter(sipuuid=unit_uuid)
+        .filter(jobtype="Move transfer to backlog")
+        .exists()
+    ):
+        ret["status"] = "COMPLETE"
+        ret["sip_uuid"] = "BACKLOG"
     else:
-        ret['status'] = 'PROCESSING'
+        ret["status"] = "PROCESSING"
 
     # The job with the latest created time is not always the last/current
     # (Ref. https://github.com/archivematica/Issues/issues/262)
@@ -192,47 +236,51 @@ def get_unit_status(unit_uuid, unit_type):
     # that does so
     # (a better fix would be to try to use microchain links related tables
     # to obtain the actual last/current job, but this adds too much complexity)
-    if unit_type == 'unitSIP' and ret['status'] == 'PROCESSING':
+    if unit_type == "unitSIP" and ret["status"] == "PROCESSING":
         for x in unit_jobs:
-            if x.jobtype == 'Remove the processing directory':
-                ret['status'] = 'COMPLETE'
+            if x.jobtype == "Remove the processing directory":
+                ret["status"] = "COMPLETE"
                 break
 
     return ret
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def status(request, unit_uuid, unit_type):
     # Example: http://127.0.0.1/api/transfer/status/?username=mike&api_key=<API key>
     response = {}
     error = None
 
     # Get info about unit
-    if unit_type == 'unitTransfer':
+    if unit_type == "unitTransfer":
         try:
             unit = models.Transfer.objects.get(uuid=unit_uuid)
         except models.Transfer.DoesNotExist:
             unit = None
-        response['type'] = 'transfer'
-    elif unit_type == 'unitSIP':
+        response["type"] = "transfer"
+    elif unit_type == "unitSIP":
         try:
             unit = models.SIP.objects.get(uuid=unit_uuid)
         except models.SIP.DoesNotExist:
             unit = None
-        response['type'] = 'SIP'
+        response["type"] = "SIP"
 
     if unit is None:
-        response['message'] = 'Cannot fetch {} with UUID {}'.format(unit_type, unit_uuid)
-        response['error'] = True
-        return django.http.HttpResponseBadRequest(  # 400
-            json.dumps(response),
-            content_type='application/json',
+        response["message"] = "Cannot fetch {} with UUID {}".format(
+            unit_type, unit_uuid
         )
-    directory = unit.currentpath if unit_type == 'unitSIP' else unit.currentlocation
-    response['path'] = directory.replace(SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT, 1)
-    response['directory'] = os.path.basename(os.path.normpath(directory))
-    response['name'] = response['directory'].replace('-' + unit_uuid, '', 1)
-    response['uuid'] = unit_uuid
+        response["error"] = True
+        return django.http.HttpResponseBadRequest(  # 400
+            json.dumps(response), content_type="application/json"
+        )
+
+    directory = unit.currentpath if unit_type == "unitSIP" else unit.currentlocation
+    response["path"] = directory.replace(
+        SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT, 1
+    )
+    response["directory"] = os.path.basename(os.path.normpath(directory))
+    response["name"] = response["directory"].replace("-" + unit_uuid, "", 1)
+    response["uuid"] = unit_uuid
 
     # Get status (including new SIP uuid, current microservice)
     try:
@@ -244,17 +292,16 @@ def status(request, unit_uuid, unit_type):
     response.update(status_info)
 
     if error is not None:
-        response['message'] = error
-        response['error'] = True
+        response["message"] = error
+        response["error"] = True
         return django.http.HttpResponseServerError(  # 500
-            json.dumps(response),
-            content_type='application/json'
+            json.dumps(response), content_type="application/json"
         )
-    response['message'] = 'Fetched status for {} successfully.'.format(unit_uuid)
+    response["message"] = "Fetched status for {} successfully.".format(unit_uuid)
     return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def waiting_for_user_input(request):
     # Example: http://127.0.0.1/api/ingest/waiting?username=mike&api_key=<API key>
     response = {}
@@ -265,22 +312,24 @@ def waiting_for_user_input(request):
     for job in jobs:
         unit_uuid = job.sipuuid
         directory = os.path.basename(os.path.normpath(job.directory))
-        unit_name = directory.replace('-' + unit_uuid, '', 1)
+        unit_name = directory.replace("-" + unit_uuid, "", 1)
 
-        waiting_units.append({
-            'sip_directory': directory,
-            'sip_uuid': unit_uuid,
-            'sip_name': unit_name,
-            'microservice': job.jobtype,
-            # 'choices': []  # TODO? Return list of choices, see ingest.views.ingest_status
-        })
+        waiting_units.append(
+            {
+                "sip_directory": directory,
+                "sip_uuid": unit_uuid,
+                "sip_name": unit_name,
+                "microservice": job.jobtype,
+                # 'choices': []  # TODO? Return list of choices, see ingest.views.ingest_status
+            }
+        )
 
-    response['results'] = waiting_units
-    response['message'] = 'Fetched units successfully.'
+    response["results"] = waiting_units
+    response["message"] = "Fetched units successfully."
     return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['DELETE'])
+@_api_endpoint(expected_methods=["DELETE"])
 def mark_hidden(request, unit_type, unit_uuid):
     """
     Mark a unit as deleted and hide it in the dashboard.
@@ -293,7 +342,7 @@ def mark_hidden(request, unit_type, unit_uuid):
     return unit_views.mark_hidden(request, unit_type, unit_uuid)
 
 
-@_api_endpoint(expected_methods=['DELETE'])
+@_api_endpoint(expected_methods=["DELETE"])
 def mark_completed_hidden(request, unit_type):
     """Mark all completed (``unit_type``) units as deleted.
 
@@ -311,28 +360,30 @@ def mark_completed_hidden(request, unit_type):
     return unit_views.mark_completed_hidden(request, unit_type)
 
 
-@_api_endpoint(expected_methods=['POST'])
+@_api_endpoint(expected_methods=["POST"])
 def start_transfer_api(request):
     """
     Endpoint for starting a transfer if calling remote and using an API key.
     """
-    transfer_name = request.POST.get('name', '')
-    transfer_type = request.POST.get('type', '')
-    accession = request.POST.get('accession', '')
-    access_id = request.POST.get('access_system_id', '')
+    transfer_name = request.POST.get("name", "")
+    transfer_type = request.POST.get("type", "")
+    accession = request.POST.get("accession", "")
+    access_id = request.POST.get("access_system_id", "")
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
-    paths = request.POST.getlist('paths[]', [])
+    paths = request.POST.getlist("paths[]", [])
     paths = [base64.b64decode(path) for path in paths]
-    row_ids = request.POST.getlist('row_ids[]', [''])
+    row_ids = request.POST.getlist("row_ids[]", [""])
     try:
-        response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, access_id, paths, row_ids)
+        response = filesystem_ajax_views.start_transfer(
+            transfer_name, transfer_type, accession, access_id, paths, row_ids
+        )
         return helpers.json_response(response)
     except Exception as e:
         return _error_response(str(e), status_code=500)
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def completed_transfers(request):
     """Return all completed transfers::
 
@@ -340,13 +391,13 @@ def completed_transfers(request):
 
     """
     response = {}
-    completed = _completed_units(unit_type='transfer')
-    response['results'] = completed
-    response['message'] = 'Fetched completed transfers successfully.'
+    completed = _completed_units(unit_type="transfer")
+    response["results"] = completed
+    response["message"] = "Fetched completed transfers successfully."
     return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def completed_ingests(request):
     """Return all completed ingests::
 
@@ -354,37 +405,39 @@ def completed_ingests(request):
 
     """
     response = {}
-    completed = _completed_units(unit_type='ingest')
-    response['results'] = completed
-    response['message'] = 'Fetched completed ingests successfully.'
+    completed = _completed_units(unit_type="ingest")
+    response["results"] = completed
+    response["message"] = "Fetched completed ingests successfully."
     return helpers.json_response(response)
 
 
-def _completed_units(unit_type='transfer'):
+def _completed_units(unit_type="transfer"):
     """Return all completed units of type `unit_type`, one of 'transfer' or
     'ingest'.
     """
-    model_name = {'transfer': 'Transfer', 'ingest': 'SIP'}.get(unit_type)
+    model_name = {"transfer": "Transfer", "ingest": "SIP"}.get(unit_type)
     model = getattr(models, model_name)
     completed = []
     units = model.objects.filter(hidden=False)
     status_err = None
     for unit in units:
         try:
-            status = get_unit_status(unit.uuid, 'unit{0}'.format(model_name))
+            status = get_unit_status(unit.uuid, "unit{0}".format(model_name))
         except IndexError as err:
             status_err = err
             continue
-        if status.get('status') == 'COMPLETE':
+        if status.get("status") == "COMPLETE":
             completed.append(unit.uuid)
     if status_err:
         LOGGER.warning(
-            "Unable to determine status of at least one unit,"
-            " e.g.: unit %s (%s)", unit.uuid, model_name)
+            "Unable to determine status of at least one unit," " e.g.: unit %s (%s)",
+            unit.uuid,
+            model_name,
+        )
     return completed
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def unapproved_transfers(request):
     # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
     response = {}
@@ -392,43 +445,47 @@ def unapproved_transfers(request):
 
     jobs = models.Job.objects.filter(
         (
-            Q(jobtype="Approve standard transfer") | Q(jobtype="Approve DSpace transfer") | Q(jobtype="Approve bagit transfer") | Q(jobtype="Approve zipped bagit transfer")
-        ) & Q(currentstep=models.Job.STATUS_AWAITING_DECISION)
+            Q(jobtype="Approve standard transfer")
+            | Q(jobtype="Approve DSpace transfer")
+            | Q(jobtype="Approve bagit transfer")
+            | Q(jobtype="Approve zipped bagit transfer")
+        )
+        & Q(currentstep=models.Job.STATUS_AWAITING_DECISION)
     )
 
     for job in jobs:
         # remove standard transfer path from directory (and last character)
         type_and_directory = job.directory.replace(
-            get_modified_standard_transfer_path() + '/',
-            '',
-            1
+            get_modified_standard_transfer_path() + "/", "", 1
         )
 
         # remove trailing slash if not a zipped bag file
         if not helpers.file_is_an_archive(job.directory):
             type_and_directory = type_and_directory[:-1]
 
-        transfer_watch_directory = type_and_directory.split('/')[0]
+        transfer_watch_directory = type_and_directory.split("/")[0]
         # Get transfer type from transfer directory
-        transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
+        transfer_type_directories_reversed = {
+            v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()
+        }
         transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
-        job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
+        job_directory = type_and_directory.replace(
+            transfer_watch_directory + "/", "", 1
+        )
 
-        unapproved.append({
-            'type': transfer_type,
-            'directory': job_directory,
-            'uuid': job.sipuuid,
-        })
+        unapproved.append(
+            {"type": transfer_type, "directory": job_directory, "uuid": job.sipuuid}
+        )
 
     # get list of unapproved transfers
     # return list as JSON
-    response['results'] = unapproved
-    response['message'] = 'Fetched unapproved transfers successfully.'
+    response["results"] = unapproved
+    response["message"] = "Fetched unapproved transfers successfully."
     return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['POST'])
+@_api_endpoint(expected_methods=["POST"])
 def approve_transfer(request):
     """Approve a transfer.
 
@@ -446,13 +503,11 @@ def approve_transfer(request):
     """
     directory = request.POST.get("directory")
     if not directory:
-        return _error_response(
-            "Please specify a transfer directory.", status_code=500)
+        return _error_response("Please specify a transfer directory.", status_code=500)
     directory = archivematicaFunctions.unicodeToStr(directory)
     transfer_type = request.POST.get("type", "standard")
     if not transfer_type:
-        return _error_response(
-            "Please specify a transfer type.", status_code=500)
+        return _error_response("Please specify a transfer type.", status_code=500)
     modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
     if modified_transfer_path is None:
         return _error_response("Invalid transfer type.", status_code=500)
@@ -467,12 +522,10 @@ def approve_transfer(request):
         db_transfer_path = os.path.join(watched_path, "")
     try:
         client = MCPClient(request.user)
-        unit_uuid = client.approve_transfer_by_path(
-            db_transfer_path, transfer_type)
+        unit_uuid = client.approve_transfer_by_path(db_transfer_path, transfer_type)
     except Exception as err:
         msg = "Unable to start the transfer."
-        LOGGER.error("%s %s (db_transfer_path=%s)",
-                     msg, err, db_transfer_path)
+        LOGGER.error("%s %s (db_transfer_path=%s)", msg, err, db_transfer_path)
         return _error_response(msg, status_code=500)
     return _ok_response("Approval successful.", uuid=unit_uuid)
 
@@ -483,14 +536,14 @@ def get_modified_standard_transfer_path(transfer_type=None):
         return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
     try:
         path = os.path.join(
-            path,
-            filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type])
+            path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type]
+        )
     except KeyError:
         return None
     return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
 
 
-@_api_endpoint(expected_methods=['POST'])
+@_api_endpoint(expected_methods=["POST"])
 def reingest_approve(request):
     """Approve an AIP partial re-ingest.
 
@@ -501,7 +554,7 @@ def reingest_approve(request):
                    - api_key  -- AM API key
                    - uuid     -- SIP UUID
     """
-    sip_uuid = request.POST.get('uuid')
+    sip_uuid = request.POST.get("uuid")
     if sip_uuid is None:
         return _error_response('"uuid" is required.')
     try:
@@ -514,7 +567,7 @@ def reingest_approve(request):
     return _ok_response("Approval successful.")
 
 
-@_api_endpoint(expected_methods=['POST'])
+@_api_endpoint(expected_methods=["POST"])
 def reingest(request, target):
     """
     Endpoint to approve reingest of an AIP to the beginning of transfer or ingest.
@@ -532,77 +585,101 @@ def reingest(request, target):
     :param str target: ingest or transfer
     """
     error = None
-    sip_name = request.POST.get('name')
-    sip_uuid = request.POST.get('uuid')
+    sip_name = request.POST.get("name")
+    sip_uuid = request.POST.get("uuid")
     if not all([sip_name, sip_uuid]):
-        response = {'error': True, 'message': '"name" and "uuid" are required.'}
+        response = {"error": True, "message": '"name" and "uuid" are required.'}
         return helpers.json_response(response, status_code=400)
-    if target not in ('transfer', 'ingest'):
-        response = {'error': True, 'message': 'Unknown tranfer type.'}
+    if target not in ("transfer", "ingest"):
+        response = {"error": True, "message": "Unknown tranfer type."}
         return helpers.json_response(response, status_code=400)
 
     # TODO Clear DB of residual stuff related to SIP
     models.Task.objects.filter(job__sipuuid=sip_uuid).delete()
     models.Job.objects.filter(sipuuid=sip_uuid).delete()
     models.SIP.objects.filter(uuid=sip_uuid).delete()  # Delete is cascading
-    models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).delete()  # Not actually a foreign key
+    models.RightsStatement.objects.filter(
+        metadataappliestoidentifier=sip_uuid
+    ).delete()  # Not actually a foreign key
     models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).delete()
 
     shared_directory_path = django_settings.SHARED_DIRECTORY
-    source = os.path.join(shared_directory_path, 'tmp', sip_name)
+    source = os.path.join(shared_directory_path, "tmp", sip_name)
 
-    reingest_uuid = sip_uuid
-    if target == 'transfer':
-        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'activeTransfers', 'standardTransfer')
-        # If the destination dir has a UUID, remove it
+    if target == "transfer":
+        dest = os.path.join(
+            shared_directory_path,
+            "watchedDirectories",
+            "activeTransfers",
+            "standardTransfer",
+        )
+        reingest_uuid = str(uuid.uuid4())
+        # If the destination dir has a UUID, remove it and add the reingest uuid
         sip_basename = os.path.basename(os.path.normpath(sip_name))
-        name_has_uuid = len(sip_basename) > 36 and re.match(UUID_REGEX, sip_basename[-36:]) is not None
+        name_has_uuid = (
+            len(sip_basename) > 36
+            and re.match(UUID_REGEX, sip_basename[-36:]) is not None
+        )
         if name_has_uuid:
-            dest = os.path.join(dest, sip_basename[:-37])
-            if os.path.isdir(dest):
-                response = {'error': True, 'message': 'There is already a transfer in standardTransfer with the same name.'}
-                return helpers.json_response(response, status_code=400)
-        dest = os.path.join(dest, '')
+            sip_basename = sip_basename[:-37]
+
+        sip_basename = "{}-{}".format(sip_basename, reingest_uuid)
+        dest = os.path.join(dest, sip_basename)
+        if os.path.isdir(dest):
+            response = {
+                "error": True,
+                "message": "There is already a transfer in standardTransfer with the same name.",
+            }
+            return helpers.json_response(response, status_code=400)
+        dest = os.path.join(dest, "")
 
         # Persist transfer record in the database
         tdetails = {
-            'currentlocation': SHARED_PATH_TEMPLATE_VAL + dest[len(shared_directory_path):],
-            'uuid': str(uuid.uuid4()),
-            'type': 'Archivematica AIP',
+            "currentlocation": SHARED_PATH_TEMPLATE_VAL
+            + dest[len(shared_directory_path) :],
+            "uuid": reingest_uuid,
+            "type": "Archivematica AIP",
         }
-        reingest_uuid = tdetails['uuid']
         models.Transfer.objects.create(**tdetails)
-        LOGGER.info('Transfer saved in the database (uuid=%s, type=%s, location=%s)', tdetails['uuid'], tdetails['type'], tdetails['currentlocation'])
+        LOGGER.info(
+            "Transfer saved in the database (uuid=%s, type=%s, location=%s)",
+            tdetails["uuid"],
+            tdetails["type"],
+            tdetails["currentlocation"],
+        )
 
-    elif target == 'ingest':
-        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'system', 'reingestAIP', '')
+    elif target == "ingest":
+        dest = os.path.join(
+            shared_directory_path, "watchedDirectories", "system", "reingestAIP", ""
+        )
+        reingest_uuid = sip_uuid
 
     # Move to watched directory
     try:
-        LOGGER.debug('Reingest moving from %s to %s', source, dest)
+        LOGGER.debug("Reingest moving from %s to %s", source, dest)
         shutil.move(source, dest)
     except (shutil.Error, OSError) as e:
         error = e.strerror or "Unable to move reingested AIP to start reingest."
-        LOGGER.warning('Unable to move reingested AIP to start reingest', exc_info=True)
+        LOGGER.warning("Unable to move reingested AIP to start reingest", exc_info=True)
     if error:
-        response = {'error': True, 'message': error}
+        response = {"error": True, "message": error}
         return helpers.json_response(response, status_code=500)
     else:
-        response = {'message': 'Approval successful.', 'reingest_uuid': reingest_uuid}
+        response = {"message": "Approval successful.", "reingest_uuid": reingest_uuid}
         return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['POST'])
+@_api_endpoint(expected_methods=["POST"])
 def copy_metadata_files_api(request):
     """
     Endpoint for adding metadata files to a SIP if using an API key.
     """
-    sip_uuid = request.POST.get('sip_uuid')
-    paths = request.POST.getlist('source_paths[]')
+    sip_uuid = request.POST.get("sip_uuid")
+    paths = request.POST.getlist("source_paths[]")
     return filesystem_ajax_views.copy_metadata_files(sip_uuid, paths)
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def get_levels_of_description(request):
     """
     Returns a JSON-encoded set of the configured levels of description.
@@ -610,12 +687,12 @@ def get_levels_of_description(request):
     The response is an array of objects containing the UUID and name for
     each level of description.
     """
-    levels = models.LevelOfDescription.objects.all().order_by('sortorder')
+    levels = models.LevelOfDescription.objects.all().order_by("sortorder")
     response = [{l.id: l.name} for l in levels]
     return helpers.json_response(response)
 
 
-@_api_endpoint(expected_methods=['GET'])
+@_api_endpoint(expected_methods=["GET"])
 def fetch_levels_of_description_from_atom(request):
     """
     Fetch all levels of description from an AtoM database, removing
@@ -630,16 +707,13 @@ def fetch_levels_of_description_from_atom(request):
         helpers.get_atom_levels_of_description(clear=True)
     except Exception as e:
         message = str(e)
-        body = {
-            "success": False,
-            "error": message
-        }
+        body = {"success": False, "error": message}
         return helpers.json_response(body, status_code=500)
     else:
         return get_levels_of_description(request)
 
 
-@_api_endpoint(expected_methods=['GET', 'POST'])
+@_api_endpoint(expected_methods=["GET", "POST"])
 def path_metadata(request):
     """
     Fetch metadata for a path (HTTP GET) or add/update it (HTTP POST).
@@ -648,40 +722,40 @@ def path_metadata(request):
     """
 
     # Determine path being requested/updated
-    path = request.GET.get('path', '') if request.method == 'GET' else request.POST.get('path', '')
+    path = (
+        request.GET.get("path", "")
+        if request.method == "GET"
+        else request.POST.get("path", "")
+    )
 
     # Get current metadata, if any
     files = models.SIPArrange.objects.filter(
-        arrange_path__in=(path, path + '/'),
-        sip_created=False)
+        arrange_path__in=(path, path + "/"), sip_created=False
+    )
     if not files:
         raise django.http.Http404
     file_lod = files.first()
 
     # Return current metadata, if requested
-    if request.method == 'GET':
+    if request.method == "GET":
         level_of_description = file_lod.level_of_description
-        return helpers.json_response({
-            "level_of_description": level_of_description
-        })
+        return helpers.json_response({"level_of_description": level_of_description})
 
     # Add/update metadata, if requested
-    if request.method == 'POST':
+    if request.method == "POST":
         file_lod.relative_location = path
         try:
-            file_lod.level_of_description = \
-                models.LevelOfDescription.objects.get(
-                    pk=request.POST['level_of_description']).name
+            file_lod.level_of_description = models.LevelOfDescription.objects.get(
+                pk=request.POST["level_of_description"]
+            ).name
         except (KeyError, models.LevelOfDescription.DoesNotExist):
-            file_lod.level_of_description = ''
+            file_lod.level_of_description = ""
         file_lod.save()
-        body = {
-            "success": True,
-        }
+        body = {"success": True}
         return helpers.json_response(body, status_code=201)
 
 
-@_api_endpoint(expected_methods=['GET', 'DELETE'])
+@_api_endpoint(expected_methods=["GET", "DELETE"])
 def processing_configuration(request, name):
     """
     Return a processing configuration XML document given its name, i.e. where
@@ -689,27 +763,28 @@ def processing_configuration(request, name):
     found in the standard processing configuration directory.
     """
 
-    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    config_path = os.path.join(
+        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+    )
 
-    if request.method == 'DELETE':
+    if request.method == "DELETE":
         try:
             os.remove(config_path)
-            return helpers.json_response({'success': True})
+            return helpers.json_response({"success": True})
         except OSError:
             msg = 'No such processing config "%s".' % name
             LOGGER.error(msg)
-            return helpers.json_response({
-                "success": False,
-                "error": msg
-            }, status_code=404)
+            return helpers.json_response(
+                {"success": False, "error": msg}, status_code=404
+            )
     else:
-        accepted_types = request.META.get('HTTP_ACCEPT', '').lower()
-        if accepted_types != '*/*' and 'xml' not in accepted_types:
+        accepted_types = request.META.get("HTTP_ACCEPT", "").lower()
+        if accepted_types != "*/*" and "xml" not in accepted_types:
             return django.http.HttpResponse(status=415)
 
         try:
             # Attempt to read the file
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 content = f.read()
         except IOError:
             # The file didn't exist, so recreate it from the builtin config
@@ -720,25 +795,23 @@ def processing_configuration(request, name):
                 else:
                     msg = 'No such processing config "%s".' % name
                     LOGGER.error(msg)
-                    return helpers.json_response({
-                        "success": False,
-                        "error": msg
-                    }, status_code=404)
+                    return helpers.json_response(
+                        {"success": False, "error": msg}, status_code=404
+                    )
             except Exception:
                 msg = 'Failed to reset processing config "%s".' % name
                 LOGGER.exception(msg)
-                return helpers.json_response({
-                    "success": False,
-                    "error": msg
-                }, status_code=500)
+                return helpers.json_response(
+                    {"success": False, "error": msg}, status_code=500
+                )
 
-        return django.http.HttpResponse(content, content_type='text/xml')
+        return django.http.HttpResponse(content, content_type="text/xml")
 
 
-@_api_endpoint(expected_methods=['GET', 'POST'])
+@_api_endpoint(expected_methods=["GET", "POST"])
 def package(request):
     """Package resource handler."""
-    if request.method == 'POST':
+    if request.method == "POST":
         return _package_create(request)
     else:
         return HttpResponseNotImplemented()
@@ -748,31 +821,134 @@ def _package_create(request):
     """Create a package."""
     try:
         payload = json.loads(request.body)
-        path = base64.b64decode(payload.get('path'))
+        path = base64.b64decode(payload.get("path"))
     except (TypeError, ValueError):
-        return helpers.json_response({
-            'error': True,
-            'message': 'Parameter "path" cannot be decoded.'}, 400)
+        return helpers.json_response(
+            {"error": True, "message": 'Parameter "path" cannot be decoded.'}, 400
+        )
     args = (
-        payload.get('name'),
-        payload.get('type'),
-        payload.get('accession'),
-        payload.get('access_system_id'),
+        payload.get("name"),
+        payload.get("type"),
+        payload.get("accession"),
+        payload.get("access_system_id"),
         path,
-        payload.get('metadata_set_id'),
+        payload.get("metadata_set_id"),
     )
     kwargs = {
-        'auto_approve': payload.get('auto_approve', True),
-        'wait_until_complete': False,
+        "auto_approve": payload.get("auto_approve", True),
+        "wait_until_complete": False,
     }
-    processing_config = payload.get('processing_config')
+    processing_config = payload.get("processing_config")
     if processing_config is not None:
-        kwargs['processing_config'] = processing_config
+        kwargs["processing_config"] = processing_config
     try:
         client = MCPClient(request.user)
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
-        msg = 'Package cannot be created'
+        msg = "Package cannot be created"
         LOGGER.error("{}: {}".format(msg, err))
-        return helpers.json_response({'error': True, 'message': msg}, 500)
-    return helpers.json_response({'id': id_}, 202)
+        return helpers.json_response({"error": True, "message": msg}, 500)
+    return helpers.json_response({"id": id_}, 202)
+
+
+@_api_endpoint(expected_methods=["POST"])
+def validate(request, validator_name):
+    try:
+        validator = validators.get_validator(validator_name)
+    except validators.ValidatorNotAvailableError as err:
+        return _error_response(six.text_type(err), status_code=404)
+
+    # We could leverage Content-Type so a validator knows the type of document
+    # and encoding that it's dealing with. For now, we're just enforcing that
+    # "text/csv; charset=utf-8" is used, which is used by Avalon's validator.
+    mime_type, props = parse_header(request.META.get("CONTENT_TYPE", ""))
+    if mime_type != "text/csv" or props.get("charset") != "utf-8":
+        return _error_response('Content type should be "text/csv; charset=utf-8"')
+
+    try:
+        validator.validate(request.read())
+    except validators.ValidationError as err:
+        return _ok_response(
+            {"valid": False, "reason": six.text_type(err)}, status_code=400
+        )
+    except Exception as err:
+        LOGGER.error("Validator {} failed: {}".format(validator_name, err))
+        return _error_response(
+            "Unexepected error in the validation process, see the logs for more details."
+        )
+    return _ok_response({"valid": True})
+
+
+def format_datetime(value):
+    """Convert datetime to string"""
+    try:
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
+    except AttributeError:
+        pass
+
+
+def format_task(task, detailed_output=False):
+    """Format task attributes for endpoint response"""
+    result = {"uuid": task.taskuuid, "exit_code": task.exitcode}
+    if detailed_output:
+        result.update(
+            {
+                "file_uuid": task.fileuuid,
+                "file_name": task.filename,
+                "time_created": format_datetime(task.createdtime),
+                "time_started": format_datetime(task.starttime),
+                "time_ended": format_datetime(task.endtime),
+                "duration": helpers.task_duration_in_seconds(task),
+            }
+        )
+    return result
+
+
+def remove_prefix(s, prefix):
+    """Remove a prefix from a string"""
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s
+
+
+@_api_endpoint(expected_methods=["GET"])
+def unit_jobs(request, unit_uuid):
+    """Return jobs associated with a unit's UUID"""
+    jobs = models.Job.objects.filter(sipuuid=unit_uuid).order_by("createdtime")
+    if not jobs.count():
+        return _error_response("No jobs found for unit: {}".format(unit_uuid))
+    result = []
+    microservice = request.GET.get("microservice")
+    if microservice is not None:
+        microservice = remove_prefix(microservice, "Microservice:")
+        jobs = jobs.filter(microservicegroup=microservice.strip())
+    link_uuid = request.GET.get("link_uuid")
+    if link_uuid is not None:
+        jobs = jobs.filter(microservicechainlink=link_uuid.strip())
+    name = request.GET.get("name")
+    if name is not None:
+        name = remove_prefix(name, "Job:")
+        jobs = jobs.filter(jobtype=name.strip())
+    for job in jobs.prefetch_related("task_set"):
+        tasks = [format_task(task) for task in job.task_set.all()]
+        result.append(
+            {
+                "uuid": job.jobuuid,
+                "name": job.jobtype,
+                "status": JOB_STATUS_CODE_LABELS.get(job.currentstep),
+                "microservice": job.microservicegroup,
+                "link_uuid": job.microservicechainlink,
+                "tasks": tasks,
+            }
+        )
+    return helpers.json_response(result)
+
+
+@_api_endpoint(expected_methods=["GET"])
+def task(request, task_uuid):
+    """Return details of a task"""
+    try:
+        task = models.Task.objects.get(taskuuid=task_uuid)
+    except models.Task.DoesNotExist:
+        return _error_response("Task with UUID {} does not exist".format(task_uuid))
+    return helpers.json_response(format_task(task, detailed_output=True))

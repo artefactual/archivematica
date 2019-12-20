@@ -11,20 +11,15 @@ def delete_orphan_mscl(apps, schema_editor):
 
     It was left behind in migration `0020`.
     """
-    MicroServiceChainLink = apps.get_model('main', 'MicroServiceChainLink')
+    MicroServiceChainLink = apps.get_model("main", "MicroServiceChainLink")
 
-    index_transfer_contents_mscl_id = 'eb52299b-9ae6-4a1f-831e-c7eee0de829f'
+    index_transfer_contents_mscl_id = "eb52299b-9ae6-4a1f-831e-c7eee0de829f"
 
-    MicroServiceChainLink.objects.filter(
-        id=index_transfer_contents_mscl_id).delete()
+    MicroServiceChainLink.objects.filter(id=index_transfer_contents_mscl_id).delete()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('main', '0059_siparrange_longblob'),
-    ]
+    dependencies = [("main", "0059_siparrange_longblob")]
 
-    operations = [
-        migrations.RunPython(delete_orphan_mscl, migrations.RunPython.noop),
-    ]
+    operations = [migrations.RunPython(delete_orphan_mscl, migrations.RunPython.noop)]

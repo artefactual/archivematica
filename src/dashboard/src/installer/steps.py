@@ -28,7 +28,7 @@ import storageService as storage_service
 from version import get_version
 
 
-logger = logging.getLogger('archivematica.dashboard')
+logger = logging.getLogger("archivematica.dashboard")
 
 
 def create_super_user(username, email, password, key):
@@ -38,9 +38,11 @@ def create_super_user(username, email, password, key):
         user = UserModel._default_manager.get(**{UserModel.USERNAME_FIELD: username})
     except UserModel.DoesNotExist:
         # User doesn't exist, create it
-        user = UserModel._default_manager.db_manager('default').create_superuser(username, email, password)
+        user = UserModel._default_manager.db_manager("default").create_superuser(
+            username, email, password
+        )
     # Create or update the user's api key
-    api_key, created = ApiKey.objects.update_or_create(user=user, defaults={'key': key})
+    api_key, created = ApiKey.objects.update_or_create(user=user, defaults={"key": key})
 
 
 def set_agent_code(agent_code, pk):
@@ -50,32 +52,32 @@ def set_agent_code(agent_code, pk):
 
 
 def setup_pipeline(org_name, org_identifier, site_url):
-    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    dashboard_uuid = helpers.get_setting("dashboard_uuid")
     # Setup pipeline only if dashboard_uuid doesn't already exists
     if dashboard_uuid:
         return
 
     # Assign UUID to Dashboard
     dashboard_uuid = str(uuid.uuid4())
-    helpers.set_setting('dashboard_uuid', dashboard_uuid)
+    helpers.set_setting("dashboard_uuid", dashboard_uuid)
 
     # Update Archivematica version in DB
     set_agent_code("Archivematica-" + get_version(), pk=1)
 
-    if org_name != '' or org_identifier != '':
+    if org_name != "" or org_identifier != "":
         agent = get_agent()
         agent.name = org_name
-        agent.identifiertype = 'repository code'
+        agent.identifiertype = "repository code"
         agent.identifiervalue = org_identifier
         agent.save()
 
     if site_url:
-        helpers.set_setting('site_url', site_url)
+        helpers.set_setting("site_url", site_url)
 
 
 def setup_pipeline_in_ss(use_default_config=False):
     # Check if pipeline is already registered on SS
-    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    dashboard_uuid = helpers.get_setting("dashboard_uuid")
     try:
         storage_service.get_pipeline(dashboard_uuid)
     except Exception:
@@ -99,7 +101,7 @@ def setup_pipeline_in_ss(use_default_config=False):
 
     # Retrieve remote name
     try:
-        setting = DashboardSetting.objects.get(name='site_url')
+        setting = DashboardSetting.objects.get(name="site_url")
     except DashboardSetting.DoesNotExist:
         remote_name = None
     else:

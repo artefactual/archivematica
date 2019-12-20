@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import django
+
 django.setup()
 # dashboard
 from main.models import Transfer
@@ -29,6 +30,9 @@ from main.models import Transfer
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from django.db import transaction
+
+import metrics
+
 
 logger = get_script_logger("archivematica.mcp.client.setTransferType")
 
@@ -40,4 +44,8 @@ def call(jobs):
                 transferUUID = job.args[1]
                 transferType = job.args[2]
 
-                Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(type="Archivematica AIP").update(type=transferType)
+                Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(
+                    type="Archivematica AIP"
+                ).update(type=transferType)
+
+    metrics.transfer_started(transferType)

@@ -13,9 +13,9 @@ License: CeCILL (open-source GPL compatible), see source code for details.
 """
 from __future__ import print_function
 
-__version__ = '0.04'
-__date__ = '2009-07-28'
-__author__ = 'Philippe Lagadec'
+__version__ = "0.04"
+__date__ = "2009-07-28"
+__author__ = "Philippe Lagadec"
 
 # --- LICENSE ------------------------------------------------------------------
 
@@ -97,7 +97,8 @@ TABLE_STYLE_THINBORDER = "border: 1px solid #000000; border-collapse: collapse;"
 
 # === CLASSES ==================================================================
 
-class TableCell (object):
+
+class TableCell(object):
     """
     a TableCell object is used to create a cell in a HTML table. (TD or TH)
 
@@ -117,9 +118,19 @@ class TableCell (object):
     Reference: http://www.w3.org/TR/html4/struct/tables.html#h-11.2.6
     """
 
-    def __init__(self, text="", bgcolor=None, header=False, width=None,
-                 align=None, char=None, charoff=None, valign=None, style=None,
-                 attribs=None):
+    def __init__(
+        self,
+        text="",
+        bgcolor=None,
+        header=False,
+        width=None,
+        align=None,
+        char=None,
+        charoff=None,
+        valign=None,
+        style=None,
+        attribs=None,
+    ):
         """TableCell constructor"""
         self.text = text
         self.bgcolor = bgcolor
@@ -138,35 +149,36 @@ class TableCell (object):
         """return the HTML code for the table cell as a string"""
         attribs_str = ""
         if self.bgcolor:
-            self.attribs['bgcolor'] = self.bgcolor
+            self.attribs["bgcolor"] = self.bgcolor
         if self.width:
-            self.attribs['width'] = self.width
+            self.attribs["width"] = self.width
         if self.align:
-            self.attribs['align'] = self.align
+            self.attribs["align"] = self.align
         if self.char:
-            self.attribs['char'] = self.char
+            self.attribs["char"] = self.char
         if self.charoff:
-            self.attribs['charoff'] = self.charoff
+            self.attribs["charoff"] = self.charoff
         if self.valign:
-            self.attribs['valign'] = self.valign
+            self.attribs["valign"] = self.valign
         if self.style:
-            self.attribs['style'] = self.style
+            self.attribs["style"] = self.style
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
         if self.text:
             text = str(self.text)
         else:
             # An empty cell should at least contain a non-breaking space
-            text = '&nbsp;'
+            text = "&nbsp;"
         if self.header:
-            return '  <TH%s>%s</TH>\n' % (attribs_str, text)
+            return "  <TH%s>%s</TH>\n" % (attribs_str, text)
         else:
-            return '  <TD%s>%s</TD>\n' % (attribs_str, text)
+            return "  <TD%s>%s</TD>\n" % (attribs_str, text)
+
 
 # ------------------------------------------------------------------------------
 
 
-class TableRow (object):
+class TableRow(object):
     """
     a TableRow object is used to create a row in a HTML table. (TR tag)
 
@@ -181,9 +193,18 @@ class TableRow (object):
     Reference: http://www.w3.org/TR/html4/struct/tables.html#h-11.2.5
     """
 
-    def __init__(self, cells=None, bgcolor=None, header=False, attribs=None,
-                 col_align=None, col_valign=None, col_char=None,
-                 col_charoff=None, col_styles=None):
+    def __init__(
+        self,
+        cells=None,
+        bgcolor=None,
+        header=False,
+        attribs=None,
+        col_align=None,
+        col_valign=None,
+        col_char=None,
+        col_charoff=None,
+        col_styles=None,
+    ):
         """TableCell constructor"""
         self.bgcolor = bgcolor
         self.cells = cells
@@ -201,12 +222,12 @@ class TableRow (object):
         """return the HTML code for the table row as a string"""
         attribs_str = ""
         if self.bgcolor:
-            self.attribs['bgcolor'] = self.bgcolor
+            self.attribs["bgcolor"] = self.bgcolor
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
-        result = ' <TR%s>\n' % attribs_str
+        result = " <TR%s>\n" % attribs_str
         for cell in self.cells:
-            col = self.cells.index(cell)    # cell column index
+            col = self.cells.index(cell)  # cell column index
             if not isinstance(cell, TableCell):
                 cell = TableCell(cell, header=self.header)
             # apply column alignment if specified:
@@ -222,13 +243,14 @@ class TableRow (object):
             if self.col_styles and cell.style is None:
                 cell.style = self.col_styles[col]
             result += str(cell)
-        result += ' </TR>\n'
+        result += " </TR>\n"
         return result
+
 
 # ------------------------------------------------------------------------------
 
 
-class Table (object):
+class Table(object):
     """
     a Table object is used to create a HTML table. (TABLE tag)
 
@@ -250,10 +272,23 @@ class Table (object):
     Reference: http://www.w3.org/TR/html4/struct/tables.html#h-11.2.1
     """
 
-    def __init__(self, rows=None, border='1', style=None, width=None,
-                 cellspacing=None, cellpadding=4, attribs=None, header_row=None,
-                 col_width=None, col_align=None, col_valign=None,
-                 col_char=None, col_charoff=None, col_styles=None):
+    def __init__(
+        self,
+        rows=None,
+        border="1",
+        style=None,
+        width=None,
+        cellspacing=None,
+        cellpadding=4,
+        attribs=None,
+        header_row=None,
+        col_width=None,
+        col_align=None,
+        col_valign=None,
+        col_char=None,
+        col_charoff=None,
+        col_styles=None,
+    ):
         """TableCell constructor"""
         self.border = border
         self.style = style
@@ -281,18 +316,18 @@ class Table (object):
         """return the HTML code for the table as a string"""
         attribs_str = ""
         if self.border:
-            self.attribs['border'] = self.border
+            self.attribs["border"] = self.border
         if self.style:
-            self.attribs['style'] = self.style
+            self.attribs["style"] = self.style
         if self.width:
-            self.attribs['width'] = self.width
+            self.attribs["width"] = self.width
         if self.cellspacing:
-            self.attribs['cellspacing'] = self.cellspacing
+            self.attribs["cellspacing"] = self.cellspacing
         if self.cellpadding:
-            self.attribs['cellpadding'] = self.cellpadding
+            self.attribs["cellpadding"] = self.cellpadding
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
-        result = '<TABLE%s>\n' % attribs_str
+        result = "<TABLE%s>\n" % attribs_str
         # insert column tags and attributes if specified:
         if self.col_width:
             for width in self.col_width:
@@ -320,13 +355,14 @@ class Table (object):
             if self.col_styles and not row.col_styles:
                 row.col_styles = self.col_styles
             result += str(row)
-        result += '</TABLE>'
+        result += "</TABLE>"
         return result
 
 
 # -----------------------------------------------------------------------------
 
-class List (object):
+
+class List(object):
     """
     a List object is used to create an ordered or unordered list in HTML.
     (UL/OL tag)
@@ -356,17 +392,17 @@ class List (object):
         """return the HTML code for the list as a string"""
         attribs_str = ""
         if self.start:
-            self.attribs['start'] = self.start
+            self.attribs["start"] = self.start
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
         if self.ordered:
-            tag = 'OL'
+            tag = "OL"
         else:
-            tag = 'UL'
-        result = '<%s%s>\n' % (tag, attribs_str)
+            tag = "UL"
+        result = "<%s%s>\n" % (tag, attribs_str)
         for line in self.lines:
-            result += ' <LI>%s\n' % str(line)
-        result += '</%s>\n' % tag
+            result += " <LI>%s\n" % str(line)
+        result += "</%s>\n" % tag
         return result
 
 
@@ -382,12 +418,12 @@ def link(text, url):
 
 
 def table(*args, **kwargs):
-    'return HTML code for a table as a string. See Table class for parameters.'
+    "return HTML code for a table as a string. See Table class for parameters."
     return str(Table(*args, **kwargs))
 
 
 def list(*args, **kwargs):
-    'return HTML code for a list as a string. See List class for parameters.'
+    "return HTML code for a list as a string. See List class for parameters."
     return str(List(*args, **kwargs))
 
 
@@ -395,49 +431,57 @@ def list(*args, **kwargs):
 
 # Show sample usage when this file is launched as a script.
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # open an HTML file to show output in a browser
-    f = open('test.html', 'w')
+    f = open("test.html", "w")
 
     t = Table()
-    t.rows.append(TableRow(['A', 'B', 'C'], header=True))
-    t.rows.append(TableRow(['D', 'E', 'F']))
-    t.rows.append(('i', 'j', 'k'))
-    f.write(str(t) + '<p>\n')
+    t.rows.append(TableRow(["A", "B", "C"], header=True))
+    t.rows.append(TableRow(["D", "E", "F"]))
+    t.rows.append(("i", "j", "k"))
+    f.write(str(t) + "<p>\n")
     print(str(t))
-    print('-' * 79)
+    print("-" * 79)
 
-    t2 = Table([
-        ('1', '2'),
-        ['3', '4']
-    ], width='100%', header_row=('col1', 'col2'),
-        col_width=('', '75%'))
-    f.write(str(t2) + '<p>\n')
+    t2 = Table(
+        [("1", "2"), ["3", "4"]],
+        width="100%",
+        header_row=("col1", "col2"),
+        col_width=("", "75%"),
+    )
+    f.write(str(t2) + "<p>\n")
     print(t2)
-    print('-' * 79)
+    print("-" * 79)
 
-    t2.rows.append(['5', '6'])
-    t2.rows[1][1] = TableCell('new', bgcolor='red')
-    t2.rows.append(TableRow(['7', '8'], attribs={'align': 'center'}))
-    f.write(str(t2) + '<p>\n')
+    t2.rows.append(["5", "6"])
+    t2.rows[1][1] = TableCell("new", bgcolor="red")
+    t2.rows.append(TableRow(["7", "8"], attribs={"align": "center"}))
+    f.write(str(t2) + "<p>\n")
     print(t2)
-    print('-' * 79)
+    print("-" * 79)
 
     # sample table with column attributes and styles:
     table_data = [
-        ['Smith', 'John', 30, 4.5],
-        ['Carpenter', 'Jack', 47, 7],
-        ['Johnson', 'Paul', 62, 10.55],
+        ["Smith", "John", 30, 4.5],
+        ["Carpenter", "Jack", 47, 7],
+        ["Johnson", "Paul", 62, 10.55],
     ]
-    htmlcode = table(table_data,
-                     header_row=['Last name', 'First name', 'Age', 'Score'],
-                     col_width=['', '20%', '10%', '10%'],
-                     col_align=['left', 'center', 'right', 'char'],
-                     col_styles=['font-size: large', '', 'font-size: small', 'background-color:yellow'])
-    f.write(htmlcode + '<p>\n')
+    htmlcode = table(
+        table_data,
+        header_row=["Last name", "First name", "Age", "Score"],
+        col_width=["", "20%", "10%", "10%"],
+        col_align=["left", "center", "right", "char"],
+        col_styles=[
+            "font-size: large",
+            "",
+            "font-size: small",
+            "background-color:yellow",
+        ],
+    )
+    f.write(htmlcode + "<p>\n")
     print(htmlcode)
-    print('-' * 79)
+    print("-" * 79)
 
     def gen_table_squares(n):
         """
@@ -446,15 +490,15 @@ if __name__ == '__main__':
         for x in range(1, n + 1):
             yield (x, x * x)
 
-    t = Table(rows=gen_table_squares(10), header_row=('x', 'square(x)'))
-    f.write(str(t) + '<p>\n')
+    t = Table(rows=gen_table_squares(10), header_row=("x", "square(x)"))
+    f.write(str(t) + "<p>\n")
 
-    print('-' * 79)
-    l = List(['aaa', 'bbb', 'ccc'])
-    f.write(str(l) + '<p>\n')
-    l.ordered = True
-    f.write(str(l) + '<p>\n')
-    l.start = 10
-    f.write(str(l) + '<p>\n')
+    print("-" * 79)
+    slist = List(["aaa", "bbb", "ccc"])
+    f.write(str(slist) + "<p>\n")
+    slist.ordered = True
+    f.write(str(slist) + "<p>\n")
+    slist.start = 10
+    f.write(str(slist) + "<p>\n")
 
     f.close()

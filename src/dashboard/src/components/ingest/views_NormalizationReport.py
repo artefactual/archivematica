@@ -30,7 +30,7 @@ from django.db import connection
 
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     if idsRestriction:
-        idsRestriction = 'AND (%s)' % idsRestriction
+        idsRestriction = "AND (%s)" % idsRestriction
 
     cursor = connection.cursor()
 
@@ -158,8 +158,9 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     return objects
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     uuid = "'%s'" % (sys.argv[1])
     print("testing normalization report")
     sql = getNormalizationReportQuery(sipUUID=uuid)

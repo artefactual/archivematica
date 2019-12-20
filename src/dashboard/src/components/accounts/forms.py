@@ -24,12 +24,12 @@ from main.models import UserProfile
 
 
 class UserCreationForm(UserCreationForm):
-    is_superuser = forms.BooleanField(label='Administrator', required=False)
+    is_superuser = forms.BooleanField(label="Administrator", required=False)
 
     def clean_password1(self):
-        data = self.cleaned_data['password1']
-        if data != '' and len(data) < 8:
-            raise forms.ValidationError('Password should be at least 8 characters long')
+        data = self.cleaned_data["password1"]
+        if data != "" and len(data) < 8:
+            raise forms.ValidationError("Password should be at least 8 characters long")
         return data
 
     def save(self, commit=True):
@@ -40,42 +40,70 @@ class UserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_superuser",
+        )
 
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
-    is_superuser = forms.BooleanField(label='Administrator', required=False)
-    regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
+    is_superuser = forms.BooleanField(label="Administrator", required=False)
+    regenerate_api_key = forms.CharField(
+        widget=forms.CheckboxInput, label="Regenerate API key (shown below)?"
+    )
 
     def __init__(self, *args, **kwargs):
-        suppress_administrator_toggle = kwargs.get('suppress_administrator_toggle', False)
+        suppress_administrator_toggle = kwargs.get(
+            "suppress_administrator_toggle", False
+        )
 
-        if 'suppress_administrator_toggle' in kwargs:
-            del kwargs['suppress_administrator_toggle']
+        if "suppress_administrator_toggle" in kwargs:
+            del kwargs["suppress_administrator_toggle"]
 
         super(UserChangeForm, self).__init__(*args, **kwargs)
 
         if suppress_administrator_toggle:
-            del self.fields['is_superuser']
+            del self.fields["is_superuser"]
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_superuser",
+        )
 
     def clean_password(self):
-        data = self.cleaned_data['password']
-        if self.cleaned_data['password'] != '' and len(self.cleaned_data['password']) < 8:
-            raise forms.ValidationError('Password should be at least 8 characters long')
+        data = self.cleaned_data["password"]
+        if (
+            self.cleaned_data["password"] != ""
+            and len(self.cleaned_data["password"]) < 8
+        ):
+            raise forms.ValidationError("Password should be at least 8 characters long")
         return data
 
     def clean(self):
         cleaned_data = super(UserChangeForm, self).clean()
-        if cleaned_data.get('password') != '' or cleaned_data.get('password_confirmation') != '':
-            if cleaned_data.get('password') != cleaned_data.get('password_confirmation'):
-                raise forms.ValidationError('Password and password confirmation do not match')
+        if (
+            cleaned_data.get("password") != ""
+            or cleaned_data.get("password_confirmation") != ""
+        ):
+            if cleaned_data.get("password") != cleaned_data.get(
+                "password_confirmation"
+            ):
+                raise forms.ValidationError(
+                    "Password and password confirmation do not match"
+                )
         return cleaned_data
 
     def save(self, commit=True):
@@ -87,8 +115,7 @@ class UserChangeForm(UserChangeForm):
 
 class ApiKeyForm(forms.Form):
     regenerate_api_key = forms.CharField(
-        widget=forms.CheckboxInput,
-        label='Regenerate API key (shown below)?'
+        widget=forms.CheckboxInput, label="Regenerate API key (shown below)?"
     )
 
 

@@ -1,0 +1,264 @@
+{
+    "chains": {
+        "3816f689-65a8-4ad0-ac27-74292a70b093": {
+            "description": {
+                "en": "Chain 1"
+            },
+            "link_id": "3b5dd6a5-b951-4e44-b00d-1180e5557beb"
+        },
+        "7b814362-c679-43c4-a2e2-1ba59957cd18": {
+            "description": {
+                "en": "Chain 2 (choice 1)"
+            },
+            "link_id": "de6eb412-0029-4dbd-9bfa-7311697d6012"
+        },
+        "f8c952a2-d7bc-4851-8613-2935726e2b9d": {
+            "description": {
+                "en": "Chain 3 (choice 2)"
+            },
+            "link_id": "f8e4c1ee-3e43-4caa-a664-f6b6bd8f156e"
+        }
+    },
+    "links": {
+        "3b5dd6a5-b951-4e44-b00d-1180e5557beb": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "execute": "link1_command",
+                "arguments": "\"%processingDirectory%\" \"%SIPUUID%\"",
+                "filter_file_start": null,
+                "filter_file_end": null,
+                "filter_subdir": null,
+                "stdout_file": null,
+                "stderr_file": null
+            },
+            "description": {
+                "en": "Starting link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "47bf2a2c-8d72-4f36-96d0-53b53a2bbc3f"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "47bf2a2c-8d72-4f36-96d0-53b53a2bbc3f": {
+            "config": {
+                "@manager": "linkTaskManagerFiles",
+                "@model": "StandardTaskConfig",
+                "execute": "link2_command",
+                "arguments": "\"%fileUUID%\"",
+                "filter_file_start": null,
+                "filter_file_end": null,
+                "filter_subdir": null,
+                "stdout_file": null,
+                "stderr_file": null
+            },
+            "description": {
+                "en": "Second link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "5678bbab-c0ea-4b3c-9de9-addc92d0de50"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "5678bbab-c0ea-4b3c-9de9-addc92d0de50": {
+            "config": {
+                "@manager": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
+                "@model": "StandardTaskConfig",
+                "execute": "link3_command",
+                "arguments": "{\"default\": {\"description\": \"Default Location\", \"uri\": \"/api/v2/location/default/\"}}",
+                "filter_file_start": null,
+                "filter_file_end": null,
+                "filter_subdir": null,
+                "stdout_file": null,
+                "stderr_file": null
+            },
+            "description": {
+                "en": "Third link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "c38f7b32-6f0c-48a5-a5f6-6dbe97ca75ba"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "c38f7b32-6f0c-48a5-a5f6-6dbe97ca75ba": {
+            "config": {
+                "@manager": "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList",
+                "@model": "StandardTaskConfig",
+                "execute": "%AIPsStore%",
+                "arguments": "",
+                "filter_file_start": null,
+                "filter_file_end": null,
+                "filter_subdir": null,
+                "stdout_file": null,
+                "stderr_file": null
+            },
+            "description": {
+                "en": "Fourth link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "d875dcf3-5e0e-4546-a66d-b2580c7a1a75"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "d875dcf3-5e0e-4546-a66d-b2580c7a1a75": {
+            "config": {
+                "@manager": "linkTaskManagerChoice",
+                "@model": "MicroServiceChainChoice",
+                "chain_choices": [
+                    "7b814362-c679-43c4-a2e2-1ba59957cd18",
+                    "f8c952a2-d7bc-4851-8613-2935726e2b9d"
+                ]
+            },
+            "description": {
+                "en": "Fifth link"
+            },
+            "exit_codes": {},
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "de6eb412-0029-4dbd-9bfa-7311697d6012": {
+            "config": {
+                "@manager": "linkTaskManagerReplacementDicFromChoice",
+                "@model": "MicroServiceChoiceReplacementDic",
+                "replacements": [
+                    {
+                        "description": {
+                            "en": "Yes"
+                        },
+                        "id": "51e395b9-1b74-419c-b013-3283b7fe39ff",
+                        "items": {
+                            "TestValue": "7"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "No"
+                        },
+                        "id": "5b6615b8-a54e-40ef-955d-d8af01797b7b",
+                        "items": {
+                            "TestValue": "3"
+                        }
+                    }
+                ]
+            },
+            "description": {
+                "en": "Chain 2 first link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "ea5f2361-d210-43f9-955b-2cc3cbeb348d"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "ea5f2361-d210-43f9-955b-2cc3cbeb348d": {
+            "config": {
+                "@manager": "linkTaskManagerSetUnitVariable",
+                "@model": "TaskConfigSetUnitVariable",
+                "chain_id": "f8e4c1ee-3e43-4caa-a664-f6b6bd8f156e",
+                "variable": "test_unit_variable",
+                "variable_value": null
+            },
+            "description": {
+                "en": "Chain 2 second link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "f44a33b2-ba1a-43d9-807f-3b3cdab680e3"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "f44a33b2-ba1a-43d9-807f-3b3cdab680e3": {
+            "config": {
+                "@manager": "linkTaskManagerUnitVariableLinkPull",
+                "@model": "TaskConfigUnitVariableLinkPull",
+                "chain_id": null,
+                "variable": "test_unit_variable"
+            },
+            "description": {
+                "en": "Chain 2 third link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": null
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        },
+        "f8e4c1ee-3e43-4caa-a664-f6b6bd8f156e": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "execute": "final_command",
+                "arguments": "\"%processingDirectory%\" \"%SIPDirectory%\" \"%SIPName%-%SIPUUID%\"",
+                "filter_file_start": null,
+                "filter_file_end": null,
+                "filter_subdir": null,
+                "stdout_file": null,
+                "stderr_file": null
+            },
+            "description": {
+                "en": "Last link"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": null
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Group 1"
+            }
+        }
+    },
+    "watched_directories": []
+}

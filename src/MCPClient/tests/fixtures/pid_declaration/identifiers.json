@@ -1,0 +1,67 @@
+[
+    {
+        "file": "",
+        "identifiers": [
+            {
+                "identifierType": "ULID",
+                "identifier": "∅1D9T8MJM9NEQ390H239VT50CQ"
+            },
+            {
+                "identifier": "https://éxample.com/AIP/id/134855∅167",
+                "identifierType": "EXÎD"
+            }
+        ]
+    },
+    {
+        "file": "objects/documents/Dōcumēnt001.doc",
+        "identifiers": [
+            {
+                "identifierType": "ULID",
+                "identifier": "01D9T8NFX0DYQY∅ZDN0HX4J5B9"
+            },
+            {
+                "identifier": "https://éxample.com/file/id/758748901",
+                "identifierType": "EXÎD"
+            }
+        ]
+    },
+    {
+        "file": "objects/images/image 001.jpg",
+        "identifiers": [
+            {
+                "identifierType": "ULID",
+                "identifier": "01D9T8NGAQ2DBN8M4D23HM5FYN"
+            },
+            {
+                "identifier": "https://éxample.com/file/id/",
+                "identifierType": "EXÎD"
+            }
+        ]
+    },
+    {
+        "file": "objects/documents",
+        "identifiers": [
+            {
+                "identifierType": "ULID",
+                "identifier": "∅1D9T8NGS76TCN890Z2H6D1SKS"
+            },
+            {
+                "identifier": "https://éxample.com/directory/id/3742112915",
+                "identifierType": "EXÎD"
+            }
+        ]
+    },
+    {
+        "file": "objects/images",
+        "identifiers": [
+            {
+                "identifierType": "ULID",
+                "identifier": "01D9T8NH7QF5WW5CJ4KTW15J3C"
+            },
+            {
+                "identifier": "https://éxample.com/directory/id/2924688∅6",
+                "identifierType": "EXÎD"
+            }
+        ]
+    }
+]

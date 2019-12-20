@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-REPLACE_COMMAND = u"""
+REPLACE_COMMAND = """
 import argparse
 import sys
 
@@ -54,33 +54,33 @@ def data_migration(apps, schema_editor):
     the command as a Python script where the contents of default.jpg are
     embedded.
     """
-    FPCommand = apps.get_model('fpr', 'FPCommand')
-    FPRule = apps.get_model('fpr', 'FPRule')
+    FPCommand = apps.get_model("fpr", "FPCommand")
+    FPRule = apps.get_model("fpr", "FPRule")
 
     # Skip if the existing command is not replace_command_uuid.
-    replace_command_uuid = '3bd47271-a3fa-4627-be97-9f7f69ddeefd'
-    rule = FPRule.objects.get(enabled=True, purpose='default_thumbnail')
+    replace_command_uuid = "3bd47271-a3fa-4627-be97-9f7f69ddeefd"
+    rule = FPRule.objects.get(enabled=True, purpose="default_thumbnail")
     if rule.command_id != replace_command_uuid:
         return
 
     # Static UUIDs
-    uuid_new_rule = '3a19f9a3-c5d5-4934-9286-13b3ad6c24d3'
-    uuid_new_command = '7c2b65c7-6cea-4f81-9f3b-53375efc5bee'
+    uuid_new_rule = "3a19f9a3-c5d5-4934-9286-13b3ad6c24d3"
+    uuid_new_command = "7c2b65c7-6cea-4f81-9f3b-53375efc5bee"
 
     # Create new command
     command = FPCommand.objects.create(
         uuid=uuid_new_command,
-        description=u'Using default thumbnail',
+        description="Using default thumbnail",
         command=REPLACE_COMMAND,
-        script_type=u'pythonScript',
-        output_location=u'%outputDirectory%%postfix%.jpg',
-        command_usage='normalization',
+        script_type="pythonScript",
+        output_location="%outputDirectory%%postfix%.jpg",
+        command_usage="normalization",
         # <FPTool: Archivematica Script version 1.0>
-        tool_id=u'efa8474a-8526-48c3-8279-e5a76bdc0995',
+        tool_id="efa8474a-8526-48c3-8279-e5a76bdc0995",
         # <FormatVersion: Image (Raster): JPEG: Generic JPEG>
-        output_format_id=u'ffb55e9a-29f1-4276-a9a5-5ef813229b79',
+        output_format_id="ffb55e9a-29f1-4276-a9a5-5ef813229b79",
         # <FPCommand: Standard verification command (file exists only)>
-        verification_command_id=u'ef3ea000-0c3c-4cae-adc2-aa2a6ccbffce',
+        verification_command_id="ef3ea000-0c3c-4cae-adc2-aa2a6ccbffce",
         replaces=rule.command,
         enabled=True,
     )
@@ -92,11 +92,11 @@ def data_migration(apps, schema_editor):
     # Create new rule
     FPRule.objects.create(
         uuid=uuid_new_rule,
-        purpose='default_thumbnail',
+        purpose="default_thumbnail",
         command=command,
-        format_id='0ab4cd40-90e7-4d75-b294-498177b3897d',
+        format_id="0ab4cd40-90e7-4d75-b294-498177b3897d",
         replaces=rule,
-        enabled=True
+        enabled=True,
     )
 
     # Disable old rule
@@ -105,10 +105,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ('fpr', '0006_i18n_models'),
-    ]
+    dependencies = [("fpr", "0006_i18n_models")]
 
-    operations = [
-        migrations.RunPython(data_migration),
-    ]
+    operations = [migrations.RunPython(data_migration)]

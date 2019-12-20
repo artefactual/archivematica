@@ -4,28 +4,30 @@ import json
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main import models
 
 FIELDS = (
-    'title',
-    'is_part_of',
-    'creator',
-    'subject',
-    'description',
-    'publisher',
-    'contributor',
-    'date',
-    'type',
-    'format',
-    'identifier',
-    'source',
-    'relation',
-    'language',
-    'coverage',
-    'rights',
+    "title",
+    "is_part_of",
+    "creator",
+    "subject",
+    "description",
+    "publisher",
+    "contributor",
+    "date",
+    "type",
+    "format",
+    "identifier",
+    "source",
+    "relation",
+    "language",
+    "coverage",
+    "rights",
 )
 
 
@@ -44,7 +46,7 @@ def main(job, transfer_uuid, target_path):
     job.pyprint("Saving the following properties to:", target_path)
     job.pyprint(jsonified)
 
-    with open(target_path, 'w') as json_file:
+    with open(target_path, "w") as json_file:
         json.dump(jsonified, json_file)
     return 0
 

@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!--
+  This METS file has been cut-down to reduce fixture size
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2016-03-26T03:59:05"/>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>0552c02b-8626-456f-89cc-bc5f3ce8a112</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>d26b5440dff6a414fb93642c7cf8f5a75647baffa42ccb7f3f527f550a7a3f37</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>99755726</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>TIFF</premis:formatName>
+                  <premis:formatVersion></premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/353</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>TIFF</premis:formatName>
+                  <premis:formatVersion></premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/353</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/LEG1363.01.TIF</premis:originalName>
+            <premis:relationship>
+              <premis:relationshipType>derivation</premis:relationshipType>
+              <premis:relationshipSubType>is source of</premis:relationshipSubType>
+              <premis:relatedObjectIdentification>
+                <premis:relatedObjectIdentifierType>UUID</premis:relatedObjectIdentifierType>
+                <premis:relatedObjectIdentifierValue>3fec6880-97aa-4347-9eb1-fe3fc806da0b</premis:relatedObjectIdentifierValue>
+              </premis:relatedObjectIdentification>
+              <premis:relatedEventIdentification>
+                <premis:relatedEventIdentifierType>UUID</premis:relatedEventIdentifierType>
+                <premis:relatedEventIdentifierValue/>
+              </premis:relatedEventIdentification>
+            </premis:relationship>
+            <premis:relationship>
+              <premis:relationshipType>derivation</premis:relationshipType>
+              <premis:relationshipSubType>is source of</premis:relationshipSubType>
+              <premis:relatedObjectIdentification>
+                <premis:relatedObjectIdentifierType>UUID</premis:relatedObjectIdentifierType>
+                <premis:relatedObjectIdentifierValue>8ac185e7-83b8-4782-bff4-060cc306519f</premis:relatedObjectIdentifierValue>
+              </premis:relatedObjectIdentification>
+              <premis:relatedEventIdentification>
+                <premis:relatedEventIdentifierType>UUID</premis:relatedEventIdentifierType>
+                <premis:relatedEventIdentifierValue/>
+              </premis:relatedEventIdentification>
+            </premis:relationship>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_4">
+    <mets:techMD ID="techMD_4">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>44d3aa6d-8bb0-4cfb-bd93-f1121c08916e</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>1797d7852df1a05bb7ff1c9bcf846784867407e2a413d405b5a92ce69bd12f40</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>226</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Generic TXT</premis:formatName>
+                  <premis:formatVersion></premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>x-fmt/111</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/metadata/transfers/MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1/directory_tree.txt</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_5">
+    <mets:techMD ID="techMD_5">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>659eaf96-7676-409d-91e1-2364ee68dba7</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>8e54d8017da12e210f1cec3f74e029920d4d74bb26c2baef9de088bef4dae8a4</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>1017</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>XML 1.0</premis:formatName>
+                  <premis:formatVersion>1.0</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/101</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/submissionDocumentation/transfer-MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1/METS.xml</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-0552c02b-8626-456f-89cc-bc5f3ce8a112" ID="file-0552c02b-8626-456f-89cc-bc5f3ce8a112" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/LEG1363.01.TIF" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="submissionDocumentation">
+      <mets:file GROUPID="Group-659eaf96-7676-409d-91e1-2364ee68dba7" ID="file-659eaf96-7676-409d-91e1-2364ee68dba7" ADMID="amdSec_5">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1/METS.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="metadata">
+      <mets:file GROUPID="Group-44d3aa6d-8bb0-4cfb-bd93-f1121c08916e" ID="file-44d3aa6d-8bb0-4cfb-bd93-f1121c08916e" ADMID="amdSec_4">
+        <mets:FLocat xlink:href="objects/metadata/transfers/MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1/directory_tree.txt" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap TYPE="physical" ID="structMap_1" LABEL="Archivematica default">
+    <mets:div TYPE="Directory" LABEL="MAPS2015-AM641-9559945a-52e8-4eb4-ac1a-e0e794e758fb">
+      <mets:div TYPE="Directory" LABEL="objects">
+        <mets:div TYPE="Item" LABEL="LEG1363.01.TIF">
+          <mets:fptr FILEID="file-0552c02b-8626-456f-89cc-bc5f3ce8a112"/>
+        </mets:div>
+        <mets:div TYPE="Directory" LABEL="metadata">
+          <mets:div TYPE="Directory" LABEL="transfers">
+            <mets:div TYPE="Directory" LABEL="MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1">
+              <mets:div TYPE="Item" LABEL="directory_tree.txt">
+                <mets:fptr FILEID="file-44d3aa6d-8bb0-4cfb-bd93-f1121c08916e"/>
+              </mets:div>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+        <mets:div TYPE="Directory" LABEL="submissionDocumentation">
+          <mets:div TYPE="Directory" LABEL="transfer-MAPS2015-AM641-44f3ee8e-88fd-424c-9d2b-f35d69b148e1">
+            <mets:div TYPE="Item" LABEL="METS.xml">
+              <mets:fptr FILEID="file-659eaf96-7676-409d-91e1-2364ee68dba7"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

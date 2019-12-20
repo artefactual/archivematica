@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/">
+  <mets:structMap TYPE="logical">
+    <mets:div TYPE="Short Listen: Ferdinand, the Misunderstood Bull by With Good Reason" LABEL="documentary">
+      <mets:div TYPE="track" LABEL="Complete documentary">
+        <mets:fptr FILEID="test_file.flac" CONTENTIDS="objects/test_file.flac"/>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

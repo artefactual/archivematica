@@ -22,6 +22,7 @@ import sys
 
 import django
 from django.db import transaction
+
 django.setup()
 from fpr.models import FPRule, FormatVersion
 from main.models import Derivation, File, SIP
@@ -39,7 +40,7 @@ SUCCESS_CODE = 0
 FAIL_CODE = 1
 NOT_DERIVATIVE_CODE = 0
 NO_RULES_CODE = 0
-DERIVATIVE_TYPES = ('preservation', 'access')
+DERIVATIVE_TYPES = ("preservation", "access")
 
 
 def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
@@ -72,7 +73,7 @@ class Validator(object):
         self.sip_uuid = sip_uuid
         self.shared_path = shared_path
         self.file_type = file_type
-        self.purpose = 'validation'
+        self.purpose = "validation"
         self._sip_logs_dir = None
         self._sip_pres_val_dir = None
 
@@ -85,9 +86,11 @@ class Validator(object):
         structure.
         """
         if self.file_type in DERIVATIVE_TYPES and not self._file_is_derivative():
-            self.job.print_output('File {uuid} {not_derivative_msg}; not validating.'.format(
-                uuid=self.file_uuid,
-                not_derivative_msg=self._not_derivative_msg()))
+            self.job.print_output(
+                "File {uuid} {not_derivative_msg}; not validating.".format(
+                    uuid=self.file_uuid, not_derivative_msg=self._not_derivative_msg()
+                )
+            )
             return NOT_DERIVATIVE_CODE
         rules = self._get_rules()
         if not rules:
@@ -95,23 +98,21 @@ class Validator(object):
         rule_outputs = []
         for rule in rules:
             rule_outputs.append(self._execute_rule_command(rule))
-        if 'failed' in rule_outputs:
+        if "failed" in rule_outputs:
             return FAIL_CODE
         return SUCCESS_CODE
 
     def _get_rules(self):
         """Return all FPR rules that apply to files of this type."""
         try:
-            fmt = FormatVersion.active.get(
-                fileformatversion__file_uuid=self.file_uuid)
+            fmt = FormatVersion.active.get(fileformatversion__file_uuid=self.file_uuid)
         except FormatVersion.DoesNotExist:
             rules = fmt = None
         if fmt:
             rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
         # Check default rules.
         if not rules:
-            rules = FPRule.active.filter(
-                purpose='default_{}'.format(self.purpose))
+            rules = FPRule.active.filter(purpose="default_{}".format(self.purpose))
         return rules
 
     def _execute_rule_command(self, rule):
@@ -121,36 +122,41 @@ class Validator(object):
         model in the db. Preservation derivative validation will result in the
         stdout from the command being saved to disk within the unit (i.e., SIP).
         """
-        result = 'passed'
-        if rule.command.script_type in ('bashScript', 'command'):
+        result = "passed"
+        if rule.command.script_type in ("bashScript", "command"):
             command_to_execute = replace_string_values(
                 rule.command.command,
                 file_=self.file_uuid,
                 sip=self.sip_uuid,
-                type_='file')
+                type_="file",
+            )
             args = []
         else:
             command_to_execute = rule.command.command
             args = [self.file_path]
-        self.job.print_output('Running', rule.command.description)
+        self.job.print_output("Running", rule.command.description)
         exitstatus, stdout, stderr = executeOrRun(
             type=rule.command.script_type,
             text=command_to_execute,
             printing=False,
-            arguments=args)
+            arguments=args,
+        )
         if exitstatus != 0:
             self.job.print_error(
-                'Command {description} failed with exit status {status};'
-                ' stderr:'.format(description=rule.command.description,
-                                  status=exitstatus))
-            return 'failed'
+                "Command {description} failed with exit status {status};"
+                " stderr:".format(
+                    description=rule.command.description, status=exitstatus
+                )
+            )
+            return "failed"
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
         # insecure practice; should be JSON.
         output = ast.literal_eval(stdout)
-        event_detail = ('program="{tool.description}";'
-                        ' version="{tool.version}"'.format(
-                            tool=rule.command.tool))
+        event_detail = (
+            'program="{tool.description}";'
+            ' version="{tool.version}"'.format(tool=rule.command.tool)
+        )
         # If the FPR command has not errored but the actual validation
         # determined that the file is not valid, then we want to both create a
         # validation event in the db and set ``failed`` to ``True`` because we
@@ -158,27 +164,36 @@ class Validator(object):
         # NOTE: this requires that the stdout of all validation FPR commands be
         # a dict (preferably a JSON object) with an ``eventOutcomeInformation``
         # boolean attribute.
-        if output.get('eventOutcomeInformation') == 'pass':
-            self.job.print_output('Command "{}" was successful'.format(rule.command.description))
+        if output.get("eventOutcomeInformation") == "pass":
+            self.job.print_output(
+                'Command "{}" was successful'.format(rule.command.description)
+            )
+        elif output.get("eventOutcomeInformation") == "partial pass":
+            self.job.print_output(
+                'Command "{}" was partially successful'.format(rule.command.description)
+            )
         else:
-            self.job.pyprint('Command {cmd_description} indicated failure with this'
-                             ' output:\n\n{output}'.format(
-                                 cmd_description=rule.command.description,
-                                 output=pformat(stdout)),
-                             file=sys.stderr)
-            result = 'failed'
-        if self.file_type == 'preservation':
+            self.job.pyprint(
+                "Command {cmd_description} indicated failure with this"
+                " output:\n\n{output}".format(
+                    cmd_description=rule.command.description, output=pformat(stdout)
+                ),
+                file=sys.stderr,
+            )
+            result = "failed"
+        if self.file_type == "preservation":
             self._save_stdout_to_logs_dir(output)
-        self.job.print_output('Creating {purpose} event for {file_path} ({file_uuid})'.format(
-            purpose=self.purpose,
-            file_path=self.file_path,
-            file_uuid=self.file_uuid))
+        self.job.print_output(
+            "Creating {purpose} event for {file_path} ({file_uuid})".format(
+                purpose=self.purpose, file_path=self.file_path, file_uuid=self.file_uuid
+            )
+        )
         databaseFunctions.insertIntoEvents(
             fileUUID=self.file_uuid,
-            eventType='validation',  # From PREMIS controlled vocab.
+            eventType="validation",  # From PREMIS controlled vocab.
             eventDetail=event_detail,
-            eventOutcome=output.get('eventOutcomeInformation'),
-            eventOutcomeDetailNote=output.get('eventOutcomeDetailNote'),
+            eventOutcome=output.get("eventOutcomeInformation"),
+            eventOutcomeDetailNote=output.get("eventOutcomeDetailNote"),
         )
         return result
 
@@ -187,19 +202,18 @@ class Validator(object):
         file at logs/implementationChecks/<input_filename>.xml in the SIP.
         ``output`` is expected to be a dict with a ``stdout`` key.
         """
-        stdout = output.get('stdout')
+        stdout = output.get("stdout")
         if stdout and self.sip_pres_val_dir:
             filename = os.path.basename(self.file_path)
-            stdout_path = os.path.join(self.sip_pres_val_dir,
-                                       '{}.xml'.format(filename))
-            with open(stdout_path, 'w') as f:
+            stdout_path = os.path.join(self.sip_pres_val_dir, "{}.xml".format(filename))
+            with open(stdout_path, "w") as f:
                 f.write(stdout)
 
     def _file_is_derivative(self):
         """Return ``True`` if the file we are validating is a derivative, i.e.,
         a modified version created for preservation or access.
         """
-        if self.file_type == 'preservation':
+        if self.file_type == "preservation":
             return self._file_is_preservation_derivative()
         return self._file_is_access_derivative()
 
@@ -208,8 +222,9 @@ class Validator(object):
         preservation derivative.
         """
         try:
-            Derivation.objects.get(derived_file__uuid=self.file_uuid,
-                                   event__event_type='normalization')
+            Derivation.objects.get(
+                derived_file__uuid=self.file_uuid, event__event_type="normalization"
+            )
             return True
         except Derivation.DoesNotExist:
             return False
@@ -220,10 +235,11 @@ class Validator(object):
         """
         try:
             file_model = File.objects.get(uuid=self.file_uuid)
-            if file_model.filegrpuse == 'access':
+            if file_model.filegrpuse == "access":
                 try:
-                    Derivation.objects.get(derived_file__uuid=self.file_uuid,
-                                           event__isnull=True)
+                    Derivation.objects.get(
+                        derived_file__uuid=self.file_uuid, event__isnull=True
+                    )
                     return True
                 except Derivation.DoesNotExist:
                     return False
@@ -234,9 +250,9 @@ class Validator(object):
 
     def _not_derivative_msg(self):
         """Return the message to print if the file is not a derivative."""
-        if self.file_type == 'preservation':
-            return 'is not a preservation derivative'
-        return 'is not an access derivative'
+        if self.file_type == "preservation":
+            return "is not a preservation derivative"
+        return "is not an access derivative"
 
     @property
     def sip_logs_dir(self):
@@ -249,19 +265,22 @@ class Validator(object):
             sip_model = SIP.objects.get(uuid=self.sip_uuid)
         except (SIP.DoesNotExist, SIP.MultipleObjectsReturned):
             self.job.print_error(
-                'Warning: unable to retrieve SIP model corresponding to SIP'
-                ' UUID {}'.format(self.sip_uuid))
+                "Warning: unable to retrieve SIP model corresponding to SIP"
+                " UUID {}".format(self.sip_uuid)
+            )
             return None
         else:
             sip_path = sip_model.currentpath.replace(
-                '%sharedPath%', self.shared_path, 1)
-            logs_dir = os.path.join(sip_path, 'logs')
+                "%sharedPath%", self.shared_path, 1
+            )
+            logs_dir = os.path.join(sip_path, "logs")
             if os.path.isdir(logs_dir):
                 self._sip_logs_dir = logs_dir
                 return logs_dir
             self.job.print_error(
-                'Warning: unable to find a logs/ directory in the SIP'
-                ' with UUID {}'.format(self.sip_uuid))
+                "Warning: unable to find a logs/ directory in the SIP"
+                " with UUID {}".format(self.sip_uuid)
+            )
             return None
 
     @property
@@ -278,8 +297,7 @@ class Validator(object):
         if self._sip_pres_val_dir:
             return self._sip_pres_val_dir
         if self.sip_logs_dir:
-            _sip_pres_val_dir = os.path.join(
-                self.sip_logs_dir, 'implementationChecks')
+            _sip_pres_val_dir = os.path.join(self.sip_logs_dir, "implementationChecks")
             if os.path.isdir(_sip_pres_val_dir):
                 self._sip_pres_val_dir = _sip_pres_val_dir
             else:
@@ -303,7 +321,7 @@ def _get_file_type(argv):
     try:
         return argv[5]
     except IndexError:
-        return 'original'
+        return "original"
 
 
 def call(jobs):
@@ -315,4 +333,6 @@ def call(jobs):
                 sip_uuid = job.args[3]
                 shared_path = _get_shared_path(job.args)
                 file_type = _get_file_type(job.args)
-                job.set_status(main(job, file_path, file_uuid, sip_uuid, shared_path, file_type))
+                job.set_status(
+                    main(job, file_path, file_uuid, sip_uuid, shared_path, file_type)
+                )

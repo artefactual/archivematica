@@ -5,13 +5,14 @@ import functools
 
 def fallback_option(fn):
     def wrapper(*args, **kwargs):
-        fallback = kwargs.pop('fallback', None)
+        fallback = kwargs.pop("fallback", None)
         try:
             return fn(*args, **kwargs)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             if fallback:
                 return fallback
             raise
+
     return functools.wraps(fn)(wrapper)
 
 
@@ -37,11 +38,12 @@ class EnvConfigParser(ConfigParser.SafeConfigParser):
     (fallback) that returns the value given to it instead of an exception when
     the section or option trying to be match are undefined.
     """
-    ENVVAR_SEPARATOR = '_'
 
-    def __init__(self, defaults=None, env=None, prefix=''):
+    ENVVAR_SEPARATOR = "_"
+
+    def __init__(self, defaults=None, env=None, prefix=""):
         self._environ = env or os.environ
-        self._prefix = prefix.rstrip('_')
+        self._prefix = prefix.rstrip("_")
         ConfigParser.SafeConfigParser.__init__(self, defaults)
 
     def _get_envvar(self, section, option):

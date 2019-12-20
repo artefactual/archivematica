@@ -33,6 +33,7 @@ from executeOrRunSubProcess import executeOrRun
 
 import django
 from django.db import transaction
+
 django.setup()
 # dashboard
 from main.models import FPCommandOutput
@@ -69,22 +70,26 @@ def main(target, xml_file, date, event_uuid, file_uuid, file_grpuse):
     """
     Note: xml_file, date and event_uuid are not being used.
     """
-    if file_grpuse in ('DSPACEMETS', 'maildirFile'):
+    if file_grpuse in ("DSPACEMETS", "maildirFile"):
         logger.error("File's fileGrpUse in exclusion list, skipping")
         return 0
 
     if not FPCommandOutput.objects.filter(file=file_uuid).exists():
-        logger.error('Warning: Fits has already run on this file. Not running again.')
+        logger.error("Warning: Fits has already run on this file. Not running again.")
         return 0
 
     _, temp_file = tempfile.mkstemp()
-    args = ['fits.sh', '-i', target, '-o', temp_file]
+    args = ["fits.sh", "-i", target, "-o", temp_file]
     try:
-        logger.info('Executing %s', args)
-        retcode, stdout, stderr = executeOrRun('command', args, printing=False, capture_output=True)
+        logger.info("Executing %s", args)
+        retcode, stdout, stderr = executeOrRun(
+            "command", args, printing=False, capture_output=True
+        )
 
         if retcode != 0:
-            logger.error("fits.sh exited with status code %s, %s, %s", retcode, stdout, stderr)
+            logger.error(
+                "fits.sh exited with status code %s, %s, %s", retcode, stdout, stderr
+            )
             return retcode
 
         try:
@@ -99,11 +104,15 @@ def main(target, xml_file, date, event_uuid, file_uuid, file_grpuse):
         # NOTE: This is hardcoded for now because FPCommandOutput references FPRule for future development,
         #       when characterization will become user-configurable and be decoupled from FITS specifically.
         #       Thus a stub rule must exist for FITS; this will be replaced with a real rule in the future.
-        logger.info('Storing output of file characterization...')
-        insertIntoFPCommandOutput(file_uuid, etree.tostring(fits, pretty_print=False), '3a19de70-0e42-4145-976b-3a248d43b462')
+        logger.info("Storing output of file characterization...")
+        insertIntoFPCommandOutput(
+            file_uuid,
+            etree.tostring(fits, pretty_print=False),
+            "3a19de70-0e42-4145-976b-3a248d43b462",
+        )
 
     except (OSError, ValueError):
-        logger.exception('Execution failed')
+        logger.exception("Execution failed")
         return 1
 
     finally:

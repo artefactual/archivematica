@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!--
+  This METS file has been cut-down to reduce fixture size
+-->
+<mets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.loc.gov/METS/" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <amdSec ID="amdSec_1">
+    <techMD ID="techMD_1">
+      <mdWrap MDTYPE="PREMIS:OBJECT">
+        <xmlData>
+          <object xmlns="info:lc/xmlns/premis-v2" xsi:type="file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-1.xsd" version="2.1">
+            <objectIdentifier>
+              <objectIdentifierType>UUID</objectIdentifierType>
+              <objectIdentifierValue>3a6a182a-40a0-4c2b-9752-fc7e91ac1edf</objectIdentifierValue>
+            </objectIdentifier>
+            <objectCharacteristics>
+              <compositionLevel>0</compositionLevel>
+              <fixity>
+                <messageDigestAlgorithm>sha256</messageDigestAlgorithm>
+                <messageDigest>7bab5874a44f22e9fb7240cb70e674d12ae4d61a96db15e7cf0755d55db33d81</messageDigest>
+              </fixity>
+              <size>50547000</size>
+              <format>
+                <formatDesignation>
+                  <formatName>MPEG-1 Video Format</formatName>
+                  <formatVersion></formatVersion>
+                </formatDesignation>
+                <formatRegistry>
+                  <formatRegistryName>PRONOM</formatRegistryName>
+                  <formatRegistryKey>x-fmt/385</formatRegistryKey>
+                </formatRegistry>
+              </format>
+              <format>
+                <formatDesignation>
+                  <formatName>MPEG-2 Video Format</formatName>
+                  <formatVersion></formatVersion>
+                </formatDesignation>
+                <formatRegistry>
+                  <formatRegistryName>PRONOM</formatRegistryName>
+                  <formatRegistryKey>x-fmt/386</formatRegistryKey>
+                </formatRegistry>
+              </format>
+            </objectCharacteristics>
+            <originalName>%transferDirectory%objects/V00154.MPG</originalName>
+          </object>
+        </xmlData>
+      </mdWrap>
+    </techMD>
+  </amdSec>
+  <amdSec ID="amdSec_2">
+    <techMD ID="techMD_2">
+      <mdWrap MDTYPE="PREMIS:OBJECT">
+        <xmlData>
+          <object xmlns="info:lc/xmlns/premis-v2" xsi:type="file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-1.xsd" version="2.1">
+            <objectIdentifier>
+              <objectIdentifierType>UUID</objectIdentifierType>
+              <objectIdentifierValue>431913ba-4379-4373-8798-cc5f2b9dd769</objectIdentifierValue>
+            </objectIdentifier>
+            <objectCharacteristics>
+              <compositionLevel>0</compositionLevel>
+              <fixity>
+                <messageDigestAlgorithm>sha256</messageDigestAlgorithm>
+                <messageDigest>7c91d344e65c549b2fcba47fb28adaaec3fa45354c5d2714e7a36e97ac72bf3f</messageDigest>
+              </fixity>
+              <size>62648324</size>
+              <format>
+                <formatDesignation>
+                  <formatName>MPEG-1 Video Format</formatName>
+                  <formatVersion></formatVersion>
+                </formatDesignation>
+                <formatRegistry>
+                  <formatRegistryName>PRONOM</formatRegistryName>
+                  <formatRegistryKey>x-fmt/385</formatRegistryKey>
+                </formatRegistry>
+              </format>
+              <format>
+                <formatDesignation>
+                  <formatName>MPEG-2 Video Format</formatName>
+                  <formatVersion></formatVersion>
+                </formatDesignation>
+                <formatRegistry>
+                  <formatRegistryName>PRONOM</formatRegistryName>
+                  <formatRegistryKey>x-fmt/386</formatRegistryKey>
+                </formatRegistry>
+              </format>
+            </objectCharacteristics>
+            <originalName>%transferDirectory%objects/V00158.MPG</originalName>
+          </object>
+        </xmlData>
+      </mdWrap>
+    </techMD>
+  </amdSec>
+  <amdSec ID="amdSec_3">
+    <techMD ID="techMD_3">
+      <mdWrap MDTYPE="PREMIS:OBJECT">
+        <xmlData>
+          <object xmlns="info:lc/xmlns/premis-v2" xsi:type="file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-1.xsd" version="2.1">
+            <objectIdentifier>
+              <objectIdentifierType>UUID</objectIdentifierType>
+              <objectIdentifierValue>fc0e52ca-a688-41c0-a10b-c1d36e21e804</objectIdentifierValue>
+            </objectIdentifier>
+            <objectCharacteristics>
+              <compositionLevel>0</compositionLevel>
+              <fixity>
+                <messageDigestAlgorithm>sha256</messageDigestAlgorithm>
+                <messageDigest>0dff86ef77411a8f6bcaf453fab5f1c9c88bd4ed7da526827d982cf767eaacfb</messageDigest>
+              </fixity>
+              <size>38</size>
+              <format>
+                <formatDesignation>
+                  <formatName>Comma Separated Values</formatName>
+                  <formatVersion></formatVersion>
+                </formatDesignation>
+                <formatRegistry>
+                  <formatRegistryName>PRONOM</formatRegistryName>
+                  <formatRegistryKey>x-fmt/18</formatRegistryKey>
+                </formatRegistry>
+              </format>
+            </objectCharacteristics>
+            <originalName>%transferDirectory%objects/AM68.csv</originalName>
+          </object>
+        </xmlData>
+      </mdWrap>
+    </techMD>
+  </amdSec>
+  <fileSec>
+    <fileGrp USE="original">
+      <file ID="V00154.MPG-3a6a182a-40a0-4c2b-9752-fc7e91ac1edf" GROUPID="Group-3a6a182a-40a0-4c2b-9752-fc7e91ac1edf" ADMID="amdSec_1">
+        <FLocat xlink:href="objects/V00154.MPG" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="V00158.MPG-431913ba-4379-4373-8798-cc5f2b9dd769" GROUPID="Group-431913ba-4379-4373-8798-cc5f2b9dd769" ADMID="amdSec_2">
+        <FLocat xlink:href="objects/V00158.MPG" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="AM68.csv-fc0e52ca-a688-41c0-a10b-c1d36e21e804" GROUPID="Group-fc0e52ca-a688-41c0-a10b-c1d36e21e804" ADMID="amdSec_3">
+        <FLocat xlink:href="objects/AM68.csv" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+    </fileGrp>
+  </fileSec>
+  <structMap TYPE="physical">
+    <div TYPE="directory" LABEL="AM68-bdcb560d-7ddd-4c13-8040-1e565b4eddff-bdcb560d-7ddd-4c13-8040-1e565b4eddff">
+      <div TYPE="directory" LABEL="objects">
+        <fptr FILEID="V00154.MPG-3a6a182a-40a0-4c2b-9752-fc7e91ac1edf"/>
+        <fptr FILEID="V00158.MPG-431913ba-4379-4373-8798-cc5f2b9dd769"/>
+        <fptr FILEID="AM68.csv-fc0e52ca-a688-41c0-a10b-c1d36e21e804"/>
+      </div>
+    </div>
+  </structMap>
+</mets>

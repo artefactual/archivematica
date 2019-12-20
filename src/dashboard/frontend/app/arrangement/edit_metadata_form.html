@@ -1,0 +1,12 @@
+<form class="resource-form" name="resource_form">
+  <div class="row">
+    <div class="col-md-6 form-group">
+      <label for="lod">{{ "Level of description:" | translate }}</label>
+      <select class="form-control" id="lod" ng-model="form.level" ng-options="level as level.label for level in form.levels track by level.value" ng-required="true"></select>
+    </div>
+  </div>
+  <div class="btn-group" role="group">
+    <button type="submit" class="btn btn-success" ng-click="form.ok()" ng-disabled="resource_form.$invalid">{{ "Save" | translate }}</button>
+    <button type="submit" class="btn btn-danger" ng-click="form.cancel()">{{ "Cancel" | translate }}</button>
+  </div>
+</form>

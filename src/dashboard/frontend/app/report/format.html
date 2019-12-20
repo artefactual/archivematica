@@ -1,0 +1,16 @@
+<table class='table table-striped table-hover table-condensed'>
+  <tr>
+    <th><a ng-click="set_sort_property('format', 'format_sort_property', 'format_reverse')">{{ "Format" | translate }}</a></th>
+    <th><a ng-click="set_sort_property('puid', 'format_sort_property', 'format_reverse')">{{ "PUID" | translate }}</a></th>
+    <th><a ng-click="set_sort_property('group', 'format_sort_property', 'format_reverse')">{{ "Group" | translate }}</a></th>
+    <th><a ng-click="set_sort_property('count', 'format_sort_property', 'format_reverse')">{{ "Number of files" | translate }}</a></th>
+    <th><a ng-click="set_sort_property('size', 'format_sort_property', 'format_reverse')">{{ "Size" | translate }}</a></th>
+  </tr>
+  <tr ng-repeat="record in records.selected | format_data | orderBy: format_sort_fn : format_reverse">
+    <td><a ng-click="add_format_facet(record.format)">{{ record.format }}</a></td>
+    <td><a target="_blank" href="https://www.nationalarchives.gov.uk/pronom/{{ record.data.puid }}">{{ record.data.puid }}</a> <i ng-if='record.data.puid' class='fa fa-external-link'></i></td>
+    <td><a ng-click="add_group_facet(record.data.group)">{{ record.data.group }}</a></td>
+    <td translate translate-n="record.data.count" translate-plural="{{$count}} objects">One object</div>
+    <td>{{ record.data.size | number }} MB</td>
+  </tr>
+</table>

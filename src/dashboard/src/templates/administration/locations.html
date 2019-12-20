@@ -16,7 +16,9 @@
 
     <div class="col-md-10">
 
-      <h3>{{ system_directory_description }}</h3>
+      <h3>{% trans "Available storage locations" %}</h3>
+
+      <p>{% trans "Storage locations are configured by an administrative user in the Archivematica Storage Service." %}</p>
 
       <div id="directories"></div>
 
@@ -24,14 +26,24 @@
         <table class="table">
         <thead>
           <tr>
+            <th>{% trans "Purpose" %}</th>
             <th>{% trans "Description" %}</th>
+            <th>{% trans "Used / available" %}</th>
             <th>{% trans "Path" %}</th>
           </tr>
         </thead>
         <tbody>
         {% for location in locations %}
           <tr>
+            <td>{{ location.purpose }}</td>
             <td>{{ location.description }}</td>
+            <td>
+              {% if location.show_usage %}
+                {{ location.used }} / {{ location.quota }}
+              {% else %}
+                {% trans "N/A" %}
+              {% endif %}
+            </td>
             <td>{{ location.path }}</td>
           </tr>
         {% endfor %}

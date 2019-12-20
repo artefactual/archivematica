@@ -21,22 +21,21 @@ from lxml import etree
 
 
 def execute(request):
-    result = ''
-    if request.POST.get('uuid'):
+    result = ""
+    if request.POST.get("uuid"):
         client = MCPClient(request.user)
         result = client.execute(
-            request.POST.get('uuid'),
-            request.POST.get('choice', ''),
+            request.POST.get("uuid"), request.POST.get("choice", "")
         )
-    return HttpResponse(result, content_type='text/plain')
+    return HttpResponse(result, content_type="text/plain")
 
 
 def list(request):
     client = MCPClient(request.user)
     jobs = etree.XML(client.list())
-    response = ''
+    response = ""
     if 0 < len(jobs):
         for job in jobs:
             response += etree.tostring(job)
-    response = '<MCP>%s</MCP>' % response
-    return HttpResponse(response, content_type='text/xml')
+    response = "<MCP>%s</MCP>" % response
+    return HttpResponse(response, content_type="text/xml")

@@ -1,0 +1,5 @@
+-r test.txt
+
+ipython
+ipdb
+pip-tools==3.7.0

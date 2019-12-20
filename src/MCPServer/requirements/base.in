@@ -1,0 +1,12 @@
+Django>=1.8,<1.9
+django-extensions==1.1.1
+mysqlclient==1.3.7
+gearman==2.0.2
+lxml==3.5.0
+prometheus_client==0.7.1
+jsonschema==2.6.0
+inotify_simple==1.1.8
+enum34==1.1.6; python_version < "3.4" # required by inotify_simple
+futures==3.3.0; python_version < "3.2"
+contextdecorator==0.10.0; python_version < "3.2"
+pathlib2==2.3.4 ; python_version < '3'

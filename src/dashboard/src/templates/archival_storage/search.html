@@ -69,7 +69,6 @@
           <tr>
             <td>
               <a href="{% url 'view_aip' term_usage.uuid %}">{{ term_usage.name }}</a>
-              <a href='/archival-storage/search/json/aip/{{ term_usage.document_id_no_hyphens }}/' target='_blank'>({% trans "view raw" %})</a>
             </td>
             <td class="size">
               {% if term_usage.size %}

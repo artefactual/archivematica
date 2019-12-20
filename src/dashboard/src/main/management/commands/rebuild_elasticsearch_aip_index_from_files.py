@@ -36,37 +36,32 @@ import sys
 import time
 import tempfile
 
+import scandir
 from django.conf import settings as django_settings
 from lxml import etree
 
 from main.management.commands import DashboardCommand
 import storageService as storage_service
 import elasticSearchFunctions
-
-
-NSMAP = {
-    'dc': 'http://purl.org/dc/terms/',
-    'm': 'http://www.loc.gov/METS/',
-    'x': 'http://www.w3.org/1999/xlink',
-}
+import namespaces as ns
 
 
 def extract_file(archive_path, destination_dir, relative_path):
     """Extract `relative_path` from `archive_path` into `destination_dir`."""
     if os.path.isdir(archive_path):
-        output_path = os.path.join(
-            destination_dir, os.path.basename(relative_path))
+        output_path = os.path.join(destination_dir, os.path.basename(relative_path))
         shutil.copy(os.path.join(archive_path, relative_path), output_path)
     else:
         command_data = [
-            'unar',
-            '-force-overwrite',
-            '-o', destination_dir,
+            "unar",
+            "-force-overwrite",
+            "-o",
+            destination_dir,
             archive_path,
             relative_path,
         ]
 
-        print('Command to run:', command_data)
+        print("Command to run:", command_data)
         subprocess.call(command_data)
         output_path = os.path.join(destination_dir, relative_path)
 
@@ -78,11 +73,13 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
     # Find name of AIC METS file
     try:
         # aic_mets_filename includes metadata/
-        aic_mets_filename = mets_root.find(
-            "m:fileSec/m:fileGrp[@USE='metadata']/m:file/m:FLocat",
-            namespaces=NSMAP).get('{' + NSMAP['x'] + '}href')
-        aip_dirname = mets_root.find(
-            "m:structMap/m:div", namespaces=NSMAP).get('LABEL')
+        aic_mets_filename = ns.xml_find_premis(
+            mets_root,
+            "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat",
+        ).get("{" + ns.NSMAP["xlink"] + "}href")
+        aip_dirname = ns.xml_find_premis(mets_root, "mets:structMap/mets:div").get(
+            "LABEL"
+        )
     except Exception:
         # Catch any parsing errors
         return None
@@ -91,13 +88,16 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
     aic_mets_path = extract_file(
         archive_path=archive_path,
         destination_dir=temp_dir,
-        relative_path=os.path.join(aip_dirname, 'data', aic_mets_filename))
+        relative_path=os.path.join(aip_dirname, "data", aic_mets_filename),
+    )
 
     # Parse for number of AIPs
     aic_root = etree.parse(aic_mets_path)
-    extent = aic_root.find(
-        "m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:extent",
-        namespaces=NSMAP)
+    extent = ns.xml_find_premis(
+        aic_root,
+        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
+    )
+
     try:
         aips_in_aic = re.search("\d+", extent.text).group()
     except AttributeError:
@@ -108,30 +108,29 @@ def get_aips_in_aic(mets_root, archive_path, temp_dir):
     return aips_in_aic
 
 
-def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
-                                 delete_existing_data=False):
+def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data=False):
     archive_file = os.path.basename(path)
 
     # Regex match the UUID - AIP might end with .7z, .tar.bz2, or
     # something else.
     match = re.search(
-        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-        archive_file)
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", archive_file
+    )
     if match is not None:
         aip_uuid = match.group()
     else:
         return -1
 
-    print('Processing AIP', aip_uuid)
+    print("Processing AIP", aip_uuid)
 
     if delete_existing_data is True:
-        print('Deleting AIP', aip_uuid, 'from aips/aip and aips/aipfile.')
+        print("Deleting AIP", aip_uuid, "from aips/aip and aips/aipfile.")
         elasticSearchFunctions.delete_aip(es_client, aip_uuid)
         elasticSearchFunctions.delete_aip_files(es_client, aip_uuid)
 
     # AIP filenames are <name>-<uuid><extension>
     # Index of match end is right before the extension
-    subdir = archive_file[:match.end()]
+    subdir = archive_file[: match.end()]
     aip_name = subdir[:-37]
     mets_file = "METS." + aip_uuid + ".xml"
     mets_file_relative_path = os.path.join("data", mets_file)
@@ -140,15 +139,16 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
     path_to_mets = extract_file(
         archive_path=path,
         destination_dir=temp_dir,
-        relative_path=mets_file_relative_path)
+        relative_path=mets_file_relative_path,
+    )
 
     # If AIC, need to extract number of AIPs in AIC to index as well
     aips_in_aic = None
     root = etree.parse(path_to_mets)
     try:
-        aip_type = root.find(
-            "m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:type",
-            namespaces=NSMAP).text
+        aip_type = ns.xml_find_premis(
+            root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:type"
+        ).text
     except AttributeError:
         pass
     else:
@@ -158,7 +158,7 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client,
     aip_info = storage_service.get_file_info(uuid=aip_uuid)
 
     if not aip_info:
-        print('Information not found in Storage Service for AIP UUID: ', aip_uuid)
+        print("Information not found in Storage Service for AIP UUID: ", aip_uuid)
         return 1
 
     return elasticSearchFunctions.index_aip_and_files(
@@ -188,28 +188,32 @@ class Command(DashboardCommand):
     def add_arguments(self, parser):
         """Entry point to add custom arguments."""
         parser.add_argument(
-            '-d', '--delete',
-            action='store_true',
-            help='Delete AIP-related Elasticsearch data before'
-                 ' indexing AIP data')
+            "-d",
+            "--delete",
+            action="store_true",
+            help="Delete AIP-related Elasticsearch data before" " indexing AIP data",
+        )
         parser.add_argument(
-            '--delete-all',
-            action='store_true',
-            help='Delete all AIP information in the index before starting.'
-                 ' This will remove Elasticsearch entries for AIPS that do not'
-                 ' exist in the provided directory.')
+            "--delete-all",
+            action="store_true",
+            help="Delete all AIP information in the index before starting."
+            " This will remove Elasticsearch entries for AIPS that do not"
+            " exist in the provided directory.",
+        )
         parser.add_argument(
-            '-u', '--uuid',
-            action='store', default='',
-            help='Specify a single AIP by UUID to process')
+            "-u",
+            "--uuid",
+            action="store",
+            default="",
+            help="Specify a single AIP by UUID to process",
+        )
         parser.add_argument(
-            'rootdir',
-            help='Path to the directory containing the AIPs',
-            metavar='PATH')
+            "rootdir", help="Path to the directory containing the AIPs", metavar="PATH"
+        )
 
     def handle(self, *args, **options):
         # Check that the `aips` part of the search is enabled
-        if 'aips' not in django_settings.SEARCH_ENABLED:
+        if "aips" not in django_settings.SEARCH_ENABLED:
             print(
                 "The AIPs indexes are not enabled. Please, make sure to "
                 "set the *_SEARCH_ENABLED environment variables to `true` "
@@ -219,7 +223,7 @@ class Command(DashboardCommand):
             sys.exit(1)
 
         # Check root directory exists
-        if not os.path.isdir(options['rootdir']):
+        if not os.path.isdir(options["rootdir"]):
             print("AIP store location doesn't exist.")
             sys.exit(1)
 
@@ -235,32 +239,28 @@ class Command(DashboardCommand):
 
         # Delete existing data also clears AIPS not found in the
         # provided directory
-        if options['delete_all']:
-            print('Deleting all AIPs in the AIP index')
+        if options["delete_all"]:
+            print("Deleting all AIPs in the AIP index")
             time.sleep(3)  # Time for the user to panic and kill the process
-            indexes = ['aips', 'aipfiles']
-            es_client.indices.delete(','.join(indexes), ignore=404)
+            indexes = ["aips", "aipfiles"]
+            es_client.indices.delete(",".join(indexes), ignore=404)
             elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
 
-        if not options['uuid']:
-            print("Rebuilding AIPS index from AIPS in", options['rootdir'])
+        if not options["uuid"]:
+            print("Rebuilding AIPS index from AIPS in", options["rootdir"])
         else:
-            print("Rebuilding AIP UUID", options['uuid'])
+            print("Rebuilding AIP UUID", options["uuid"])
 
         temp_dir = tempfile.mkdtemp()
         count = 0
-        name_regex = \
-            r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-        dir_regex = \
-            r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        name_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        dir_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
-        for root, directories, files in os.walk(options['rootdir']):
+        for root, directories, files in scandir.walk(options["rootdir"]):
             # Ignore top-level directories inside ``rootdir`` that are not hex,
             # e.g. we walk ``0771`` but we're ignoring ``transferBacklog``.
-            if root == options['rootdir']:
-                directories[:] = [
-                    d for d in directories if is_hex(d) and len(d) == 4
-                ]
+            if root == options["rootdir"]:
+                directories[:] = [d for d in directories if is_hex(d) and len(d) == 4]
 
             # Uncompressed AIPs
             for directory in directories:
@@ -269,14 +269,13 @@ class Command(DashboardCommand):
                 if not match:
                     continue
                 # If running on a single AIP, skip all others
-                if options['uuid'] and \
-                        options['uuid'].lower() not in directory.lower():
+                if options["uuid"] and options["uuid"].lower() not in directory.lower():
                     continue
                 ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, directory),
                     temp_dir=temp_dir,
                     es_client=es_client,
-                    delete_existing_data=options['delete'],
+                    delete_existing_data=options["delete"],
                 )
                 # Don't recurse into this directory
                 directories = directories.remove(directory)
@@ -291,14 +290,13 @@ class Command(DashboardCommand):
                 if not match:
                     continue
                 # If running on a single AIP, skip all others
-                if options['uuid'] and \
-                        options['uuid'].lower() not in filename.lower():
+                if options["uuid"] and options["uuid"].lower() not in filename.lower():
                     continue
                 ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, filename),
                     temp_dir=temp_dir,
                     es_client=es_client,
-                    delete_existing_data=options['delete'],
+                    delete_existing_data=options["delete"],
                 )
                 # Update count on successful index
                 if ret == 0:

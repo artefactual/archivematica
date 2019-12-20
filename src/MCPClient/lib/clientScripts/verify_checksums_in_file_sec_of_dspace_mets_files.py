@@ -34,9 +34,11 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory=
     exitCode = 0
     tree = etree.parse(metsFile)
     root = tree.getroot()
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp/{http://www.loc.gov/METS/}file"):
+    for item in root.findall(
+        "{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp/{http://www.loc.gov/METS/}file"
+    ):
         checksum = item.get("CHECKSUM")
-        checksumType = item.get('CHECKSUMTYPE', '').lower()
+        checksumType = item.get("CHECKSUMTYPE", "").lower()
 
         for item2 in item:
             if item2.tag == "{http://www.loc.gov/METS/}FLocat":
@@ -48,12 +50,22 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory=
             checksum2 = get_file_checksum(fileFullPath, checksumType)
             # eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
         else:
-            job.pyprint("Unsupported checksum type: %s" % (checksumType.__str__()), file=sys.stderr)
+            job.pyprint(
+                "Unsupported checksum type: %s" % (checksumType.__str__()),
+                file=sys.stderr,
+            )
             return 300
 
         if checksum != checksum2:
             eventOutcome = "Fail"
-            job.print_output("%s - %s - %s" % ((checksum == checksum2).__str__(), checksum.__str__(), checksum2.__str__()))
+            job.print_output(
+                "%s - %s - %s"
+                % (
+                    (checksum == checksum2).__str__(),
+                    checksum.__str__(),
+                    checksum2.__str__(),
+                )
+            )
             job.print_error(eventOutcome, fileFullPath)
             exitCode = exitCode + 22
         else:
@@ -70,5 +82,11 @@ def call(jobs):
             date = job.args[2]
             taskUUID = job.args[3]
 
-            ret = verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
+            ret = verifyMetsFileSecChecksums(
+                job,
+                metsFile,
+                date,
+                taskUUID,
+                relativeDirectory=os.path.dirname(metsFile) + "/",
+            )
             job.set_status(ret)

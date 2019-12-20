@@ -24,12 +24,14 @@
 import sys
 
 import django
+
 django.setup()
 from django.db import transaction
+
 # dashboard
 from main.models import SIP, Transfer
 
-from sanitize_names import sanitizePath
+from sanitize_names import sanitize_path
 
 
 def call(jobs):
@@ -48,18 +50,22 @@ def call(jobs):
 
                 if unitType == "SIP":
                     klass = SIP
-                    locationColumn = 'currentpath'
+                    locationColumn = "currentpath"
                 elif unitType == "Transfer":
                     klass = Transfer
-                    locationColumn = 'currentlocation'
+                    locationColumn = "currentlocation"
                 else:
                     job.pyprint("invalid unit type: ", unitType, file=sys.stderr)
                     job.set_status(1)
                     continue
-                dst = sanitizePath(job, SIPDirectory)
+                dst = sanitize_path(SIPDirectory)
                 if SIPDirectory != dst:
                     dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
-                    job.pyprint(SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1) + " -> " + dst)
+                    job.pyprint(
+                        SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1)
+                        + " -> "
+                        + dst
+                    )
 
                     unit = klass.objects.get(uuid=sipUUID)
                     setattr(unit, locationColumn, dst)

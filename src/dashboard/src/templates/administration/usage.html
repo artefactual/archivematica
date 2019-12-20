@@ -18,32 +18,96 @@
 
       <h3>{% trans "Processing storage usage" %}</h3>
 
-      <table class="table">
-        <tr>
-          <th>{% trans "Purpose" %}</th>
-          <th>{% trans "Path" %}</th>
-          <th>{% trans "Usage" %}</th>
-          <th>{% trans "Size" %}</th>
-          <th></th>
-        </tr>
-        {% for id, dir in usage_dirs.items %}
-        <tr>
-          <td>{{ dir.description }}</td>
-          <td>{{ dir.path }}</td>
-          <td>{{ dir.used|filesizeformat }}
-            ({% if dir.used %}{% widthratio dir.used dir.size 100 %}{% else %}0{% endif %}%)
-          </td>
-          <td>{{ dir.size|filesizeformat }}</td>
-          <td>
-            {% if dir.description %}
-            <form method='POST' action='{% url 'components.administration.views.usage_clear' id %}'>
-              <input type='submit' value='{% trans "Clear" %}' class='btn btn-default btn-sm'>
-            </form>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </table>
+      <p>
+        {% blocktrans trimmed %}
+          The processing storage location is determined in the Archivematica
+          pipeline with the shared directory configuration path and in the
+          Storage Service with the currently processing location associated
+          with this pipeline.
+        {% endblocktrans %}
+      </p>
+
+      <br/>
+
+      {% if not calculate_usage %}
+        <p>
+          {% blocktrans trimmed %}
+            By clicking the button below, this page will be reloaded calculating the space and
+            usage of the entire disk where the shared directory is located. This process may
+            take a long time depending on the disk configuration and its usage.
+          {% endblocktrans %}
+        </p>
+
+        <a href="{{ url_usage }}?calculate=true" class="btn btn-default">
+          {% trans "Calculate disk usage" %}
+        </a>
+      {% else %}
+        <h4>{% trans "General information:" %}</h4>
+
+        <p>
+          {% blocktrans trimmed %}
+            This section displays the location where the disk is mounted on the system and its
+            current usage and space alongside the shared directory path and size.
+          {% endblocktrans %}
+        </p>
+
+        <ul>
+          <li>
+            <strong>{% trans "Disk location" %}:</strong>
+            {{ root.path }}
+          </li>
+          <li>
+            <strong>{% trans "Disk usage" %}:</strong>
+            {{ root.used|filesizeformat }} / {{ root.size|filesizeformat }}
+            ({% widthratio root.used root.size 100 %}%)
+          </li>
+          <li>
+            <strong>{% trans "Shared directory" %}:</strong>
+            {{ shared.path }}
+          </li>
+          <li>
+            <strong>{% trans "Shared directory size" %}:</strong>
+            {{ shared.used|filesizeformat }}
+            ({% widthratio shared.used root.size 100 %}%)
+          </li>
+        </ul>
+
+        <br/>
+
+        <h4>{% trans "Clearable directories:" %}</h4>
+
+        <p>
+          {% blocktrans trimmed %}
+            This table displays some directories within the shared directory that
+            can be cleared manually.
+          {% endblocktrans %}
+        </p>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{% trans "Purpose" %}</th>
+              <th>{% trans "Size" %}</th>
+              <th>{% trans "Path" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for id, dir in usage_dirs.items %}
+              <tr>
+                <td>{{ dir.description }}</td>
+                <td>{{ dir.used|filesizeformat }}</td>
+                <td>{{ dir.path }}</td>
+                <td>
+                  <a target="_blank" href="{% url 'components.administration.views.usage_clear' id %}" class="btn btn-default btn-sm">
+                    {% trans "Clear" %} &#x2197;
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
 
     </div>
 

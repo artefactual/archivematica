@@ -35,34 +35,36 @@ from externals.HTML import HTML
 
 django.setup()
 
-logger = get_script_logger('archivematica.mcp.client.emailFailReport')
+logger = get_script_logger("archivematica.mcp.client.emailFailReport")
 
 COLORS = {
-    Job.STATUS_COMPLETED_SUCCESSFULLY: '#dff0d8',
-    Job.STATUS_FAILED: '#f2dede',
-    'default': 'yellow',
+    Job.STATUS_COMPLETED_SUCCESSFULLY: "#dff0d8",
+    Job.STATUS_FAILED: "#f2dede",
+    "default": "yellow",
 }
 
 
 def get_emails_from_dashboard_users():
-    return User.objects.filter(is_active=True, userprofile__system_emails=True).values_list('email', flat=True)
+    return (
+      User.objects.filter(is_active=True, userprofile__system_emails=True)
+      .values_list("email", flat=True))
 
 
 def send_email(subject, to, content):
     try:
-        logger.info('Sending email...')
+        logger.info("Sending email...")
         return send_mail(
             subject=subject,
-            message='Please see the attached HTML document',
+            message="Please see the attached HTML document",
             from_email=mcpclient_settings.DEFAULT_FROM_EMAIL,
             recipient_list=to,
             html_message=content,
         )
     except:
-        logger.exception('Report email was not delivered')
+        logger.exception("Report email was not delivered")
         raise
     else:
-        logger.info('Report sent successfully!')
+        logger.info("Report sent successfully!")
 
 
 def get_file_stats(cursor, unit_type, unit_uuid):
@@ -74,10 +76,10 @@ def get_file_stats(cursor, unit_type, unit_uuid):
             sum(fileSize)/count(fileUUID)/1000000  AS 'Average file size MB'
         FROM Files
     """
-    if unit_type == 'sip':
-        sql += ' WHERE sipUUID = %s;'
-    elif unit_type == 'transfer':
-        sql += ' WHERE transferUUID = %s;'
+    if unit_type == "sip":
+        sql += " WHERE sipUUID = %s;"
+    elif unit_type == "transfer":
+        sql += " WHERE transferUUID = %s;"
     cursor.execute(sql, [unit_uuid])
     return cursor.fetchone()
 
@@ -89,9 +91,9 @@ def get_processing_time(cursor, unit_type, unit_uuid):
         LEFT JOIN Jobs ON Tasks.jobUUID = Jobs.jobUUID
         WHERE Jobs.SIPUUID = %s
     """
-    if unit_type == 'sip':
+    if unit_type == "sip":
         sql += ' AND Jobs.unitType IN ("unitSIP", "unitDIP");'
-    elif unit_type == 'transfer':
+    elif unit_type == "transfer":
         sql += ' AND Jobs.unitType IN ("unitTransfer");'
     cursor.execute(sql, [unit_uuid])
     return cursor.fetchone()
@@ -99,17 +101,17 @@ def get_processing_time(cursor, unit_type, unit_uuid):
 
 def get_unit_statistical_data_html(unit_type, unit_uuid):
     fields = [
-        'Unit type',
-        'Total time processing',
-        'Total file size',
-        'Number of files',
-        'Average file size KB',
-        'Average file size MB',
+        "Unit type",
+        "Total time processing",
+        "Total file size",
+        "Number of files",
+        "Average file size KB",
+        "Average file size MB",
     ]
     values = (unit_type,)
     unit_type = unit_type.lower()
-    if unit_type not in ('sip', 'transfer'):
-        raise ValueError('Unexpected value in unit_type: {}'.format(unit_type))
+    if unit_type not in ("sip", "transfer"):
+        raise ValueError("Unexpected value in unit_type: {}".format(unit_type))
     with connection.cursor() as cursor:
         values += get_processing_time(cursor, unit_type, unit_uuid)
         values += get_file_stats(cursor, unit_type, unit_uuid)
@@ -122,13 +124,18 @@ def get_unit_job_log_html(sip_uuid):
     identifier.
     """
     parser = etree.HTMLParser(remove_blank_text=True)
-    rows = Job.objects.filter(sipuuid=sip_uuid, subjobof='').exclude(jobtype='Email fail report').order_by('-createdtime', '-createdtimedec').values_list('jobtype', 'currentstep', 'createdtime')
-    html = HTML.table(rows, header_row=['Type', 'Status', 'Started'])
-    table = etree.fromstring(html, parser).find('body/table')
-    default_bgcolor = COLORS.get('default')
+    rows = (
+        Job.objects.filter(sipuuid=sip_uuid)
+        .exclude(jobtype="Email fail report")
+        .order_by("-createdtime", "-createdtimedec")
+        .values_list("jobtype", "currentstep", "createdtime")
+    )
+    html = HTML.table(rows, header_row=["Type", "Status", "Started"])
+    table = etree.fromstring(html, parser).find("body/table")
+    default_bgcolor = COLORS.get("default")
 
     i = 0
-    for tr in table.findall('tr'):
+    for tr in table.findall("tr"):
         # Ignore header
         if i == 0:
             i += 1
@@ -136,37 +143,42 @@ def get_unit_job_log_html(sip_uuid):
 
         status = rows[i - 1][1]
         bgcolor = COLORS.get(status, default_bgcolor)
-        tr.set('bgcolor', bgcolor)
+        tr.set("bgcolor", bgcolor)
         i += 1
 
     return etree.tostring(table)
 
 
 def get_content_for(unit_type, unit_name, unit_uuid, html=True):
-    logger.info('Generating report content (unit_type=%s, unit_uuid=%s, html=%s)', unit_type, unit_uuid, html)
+    logger.info(
+        "Generating report content (unit_type=%s, unit_uuid=%s, html=%s)",
+        unit_type,
+        unit_uuid,
+        html,
+    )
     if html:
-        root = etree.Element('HTML')
-        body = etree.SubElement(root, 'BODY')
+        root = etree.Element("HTML")
+        body = etree.SubElement(root, "BODY")
     else:
-        root = etree.Element('DIV')
+        root = etree.Element("DIV")
 
     parser = etree.HTMLParser(remove_blank_text=True)
 
     try:
         htmlcode1 = get_unit_statistical_data_html(unit_type, unit_uuid)
-        t1 = etree.fromstring(htmlcode1, parser).find('body/table')
+        t1 = etree.fromstring(htmlcode1, parser).find("body/table")
 
         if html:
             body.append(t1)
-            etree.SubElement(body, 'p')
+            etree.SubElement(body, "p")
         else:
             root.append(t1)
-            etree.SubElement(root, 'p')
+            etree.SubElement(root, "p")
     except:
         pass
 
     html2code = get_unit_job_log_html(unit_uuid)
-    t2 = etree.fromstring(html2code, parser).find('body/table')
+    t2 = etree.fromstring(html2code, parser).find("body/table")
 
     if html:
         body.append(t2)
@@ -177,17 +189,36 @@ def get_content_for(unit_type, unit_name, unit_uuid, html=True):
 
 
 def store_report(content, unit_type, unit_name, unit_uuid):
-    logger.info('Storing report in database (unit_type=%s, unit_uuid=%s)', unit_type, unit_uuid)
-    Report.objects.create(content=content, unittype=unit_type, unitname=unit_name, unitidentifier=unit_uuid)
+    logger.info(
+        "Storing report in database (unit_type=%s, unit_uuid=%s)", unit_type, unit_uuid
+    )
+    Report.objects.create(
+        content=content,
+        unittype=unit_type,
+        unitname=unit_name,
+        unitidentifier=unit_uuid,
+    )
 
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--unitType', action='store', dest='unit_type', required=True)
-    parser.add_argument('-i', '--unitIdentifier', action='store', dest='unit_uuid', required=True)
-    parser.add_argument('-n', '--unitName', action='store', dest='unit_name', default='')
-    parser.add_argument('-f', '--from', action='store', dest='from', default='ArchivematicaSystem@archivematica.org')
-    parser.add_argument('--stdout', action='store_true', dest='stdout', default=False)
+    parser.add_argument(
+        "-t", "--unitType", action="store", dest="unit_type", required=True
+    )
+    parser.add_argument(
+        "-i", "--unitIdentifier", action="store", dest="unit_uuid", required=True
+    )
+    parser.add_argument(
+        "-n", "--unitName", action="store", dest="unit_name", default=""
+    )
+    parser.add_argument(
+        "-f",
+        "--from",
+        action="store",
+        dest="from",
+        default="ArchivematicaSystem@archivematica.org",
+    )
+    parser.add_argument("--stdout", action="store_true", dest="stdout", default=False)
 
     reports_to_store = []
 
@@ -198,13 +229,21 @@ def call(jobs):
 
                 to = get_emails_from_dashboard_users()
                 if not to:
-                    logger.error('Nobody to send it to. Please add users with valid email addresses in the dashboard.')
+                    logger.error(
+                        "Nobody to send it to. Please add users with valid email addresses in the dashboard."
+                    )
                     job.set_status(1)
                     continue
-                subject = 'Archivematica Fail Report for %s: %s-%s' % (args.unit_type, args.unit_name, args.unit_uuid)
+                subject = "Archivematica Fail Report for %s: %s-%s" % (
+                    args.unit_type,
+                    args.unit_name,
+                    args.unit_uuid,
+                )
 
                 # Generate report in HTML and send it by email
-                content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=True)
+                content = get_content_for(
+                    args.unit_type, args.unit_name, args.unit_uuid, html=True
+                )
                 send_email(subject, to, content)
 
                 if args.stdout:
@@ -219,5 +258,7 @@ def call(jobs):
     # Generate report in plain text and store it in the database
     with transaction.atomic():
         for arg in reports_to_store:
-            content = get_content_for(args.unit_type, args.unit_name, args.unit_uuid, html=False)
+            content = get_content_for(
+                args.unit_type, args.unit_name, args.unit_uuid, html=False
+            )
             store_report(content, args.unit_type, args.unit_name, args.unit_uuid)

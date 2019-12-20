@@ -25,10 +25,10 @@ import traceback
 from databaseFunctions import auto_close_db
 from executeOrRunSubProcess import launchSubProcess
 
-logger = logging.getLogger('archivematica.mcp.client')
+logger = logging.getLogger("archivematica.mcp.client")
 
 # Using this instead of __file__ to ensure we don't get fork_runner.pyc!
-THIS_SCRIPT = 'fork_runner.py'
+THIS_SCRIPT = "fork_runner.py"
 
 
 def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
@@ -81,9 +81,7 @@ def _run_jobs(module_name, jobs):
     (fd, output_file) = tempfile.mkstemp()
 
     try:
-        environment = {'jobs': jobs,
-                       'sys.path': sys.path,
-                       'output_file': output_file}
+        environment = {"jobs": jobs, "sys.path": sys.path, "output_file": output_file}
 
         # A bit of trickiness: Re-execute ourselves (fork_runner.py) in a
         # subprocess as a standalone script.  This ensures that we're running in
@@ -93,22 +91,28 @@ def _run_jobs(module_name, jobs):
         # We communicate with our subprocess by supplying our `environment` map
         # on stdin.  It gives results back to us by writing them to a temporary
         # file.
-        (status, stdout, stderr) = launchSubProcess([os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
-                                                     module_name],
-                                                    cPickle.dumps(environment),
-                                                    printing=False,
-                                                    capture_output=True)
+        (status, stdout, stderr) = launchSubProcess(
+            [
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
+                module_name,
+            ],
+            cPickle.dumps(environment),
+            printing=False,
+            capture_output=True,
+        )
 
         with os.fdopen(fd) as f:
             result = cPickle.load(f)
 
-            if isinstance(result, dict) and result['uncaught_exception']:
-                e = result['uncaught_exception']
+            if isinstance(result, dict) and result["uncaught_exception"]:
+                e = result["uncaught_exception"]
                 # Something went wrong with our client script.  This shouldn't
                 # happen under normal operation, but might happen during
                 # development.
-                logging.error(("Failure while executing '%s':\n" % (module_name)) + e['traceback'])
-                raise Exception(e['type'] + ": " + e['message'])
+                logging.error(
+                    ("Failure while executing '%s':\n" % (module_name)) + e["traceback"]
+                )
+                raise Exception(e["type"] + ": " + e["message"])
             else:
                 return result
 
@@ -117,27 +121,32 @@ def _run_jobs(module_name, jobs):
 
 
 # Executed in our subprocess (see note in _run_jobs above).
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) != 2:
-        raise Exception("Must be called with a module name (and a list of pickled jobs on stdin)")
+        raise Exception(
+            "Must be called with a module name (and a list of pickled jobs on stdin)"
+        )
 
     module_to_run = sys.argv[1]
     environment = cPickle.load(sys.stdin)
 
-    sys.path = environment['sys.path']
-    jobs = environment['jobs']
-    output_file = environment['output_file']
+    sys.path = environment["sys.path"]
+    jobs = environment["jobs"]
+    output_file = environment["output_file"]
 
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         try:
             module = importlib.import_module(module_to_run)
             module.call(jobs)
             cPickle.dump(jobs, f)
         except Exception as e:
-            cPickle.dump({
-                'uncaught_exception': {
-                    'message': e.message,
-                    'type': type(e).__name__,
-                    'traceback': traceback.format_exc(),
-                }
-            }, f)
+            cPickle.dump(
+                {
+                    "uncaught_exception": {
+                        "message": e.message,
+                        "type": type(e).__name__,
+                        "traceback": traceback.format_exc(),
+                    }
+                },
+                f,
+            )

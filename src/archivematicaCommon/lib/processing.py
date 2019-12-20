@@ -10,12 +10,6 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
       <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
-    <!-- Remove from quarantine after (days) -->
-    <preconfiguredChoice>
-      <appliesTo>19adb668-b19a-4fcb-8938-f49d7485eaf3</appliesTo>
-      <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
-      <delay unitCtime="yes">2419200.0</delay>
-    </preconfiguredChoice>
     <!-- Perform file format identification (Submission documentation & metadata) -->
     <preconfiguredChoice>
       <appliesTo>087d27be-c719-47d8-9bbb-9a7d8b609c44</appliesTo>
@@ -23,8 +17,8 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Generate transfer structure report -->
     <preconfiguredChoice>
@@ -71,11 +65,6 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
       <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
-    <!-- Send transfer to quarantine -->
-    <preconfiguredChoice>
-      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
-      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
-    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
 """
@@ -114,8 +103,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Bind PIDs -->
     <preconfiguredChoice>
-      <appliesTo>05357876-a095-4c11-86b5-a7fff01af668</appliesTo>
-      <goToChain>fcfea449-158c-452c-a8ad-4ae009c4eaba</goToChain>
+      <appliesTo>a2ba5278-459a-4638-92d9-38eb1588717d</appliesTo>
+      <goToChain>44a7c397-8187-4fd2-b8f7-c61737c4df49</goToChain>
     </preconfiguredChoice>
     <!-- Create SIP(s) -->
     <preconfiguredChoice>
@@ -129,8 +118,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     </preconfiguredChoice>
     <!-- Transcribe files (OCR) -->
     <preconfiguredChoice>
-      <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
-      <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
+      <appliesTo>82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6</appliesTo>
+      <goToChain>0a24787c-00e3-4710-b324-90e792bfb484</goToChain>
     </preconfiguredChoice>
     <!-- Perform file format identification (Transfer) -->
     <preconfiguredChoice>
@@ -202,11 +191,6 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
       <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
-    <!-- Send transfer to quarantine -->
-    <preconfiguredChoice>
-      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
-      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
-    </preconfiguredChoice>
     <!-- Extract packages -->
     <preconfiguredChoice>
       <appliesTo>dec97e3c-5598-4b99-b26e-f87a435a6b7f</appliesTo>
@@ -227,8 +211,8 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
 """
 
 BUILTIN_CONFIGS = {
-    'default': DEFAULT_PROCESSING_CONFIG,
-    'automated': AUTOMATED_PROCESSING_CONFIG,
+    "default": DEFAULT_PROCESSING_CONFIG,
+    "automated": AUTOMATED_PROCESSING_CONFIG,
 }
 
 
@@ -237,13 +221,13 @@ def install_builtin_config(name, force=False):
     Install the original version of a builtin processing configuration
     """
     if name in BUILTIN_CONFIGS:
-        config = BUILTIN_CONFIGS[name].encode('utf-8')
+        config = BUILTIN_CONFIGS[name].encode("utf-8")
         path = os.path.join(
             django_settings.SHARED_DIRECTORY,
-            'sharedMicroServiceTasksConfigs/processingMCPConfigs',
-            '%sProcessingMCP.xml' % name
+            "sharedMicroServiceTasksConfigs/processingMCPConfigs",
+            "%sProcessingMCP.xml" % name,
         )
         if force or not os.path.isfile(path):
-            with open(path, 'w') as fd:
+            with open(path, "w") as fd:
                 fd.write(config)
         return config

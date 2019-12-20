@@ -44,6 +44,15 @@
             },
             "link_id": "5cf308fd-a6dc-4033-bda1-61689bb55ce2"
         },
+        "0a24787c-00e3-4710-b324-90e792bfb484": {
+            "description": {
+                "en": "No",
+                "fr": "Non",
+                "ja": "いいえ",
+                "sv": "Nej"
+            },
+            "link_id": "f574b2a0-6e0b-4c74-ac5b-a73ddb9593a0"
+        },
         "0ea3a6f9-ff37-4f32-ac01-eec5393f008a": {
             "description": {
                 "en": "Pre-normalize identify file format",
@@ -130,16 +139,6 @@
             },
             "link_id": "0f0c1f33-29f2-49ae-b413-3e043da5df61"
         },
-        "252ceb42-cc61-4833-a048-97fc0bda4759": {
-            "description": {
-                "en": "Skip quarantine",
-                "fr": "Passer la quarantaine",
-                "ja": "検疫をスキップ",
-                "pt_BR": "Ignore a quarentena",
-                "sv": "Hoppa över karantän"
-            },
-            "link_id": "0e379b19-771e-4d90-a7e5-1583e4893c56"
-        },
         "260ef4ea-f87d-4acf-830d-d0de41e6d2af": {
             "description": {
                 "en": "Approve AIP reingest",
@@ -182,17 +181,6 @@
             },
             "link_id": "18c37bff-fce9-4b40-a50a-022ea0386f1a"
         },
-        "2ba94783-d073-4372-9bd1-8316ada02635": {
-            "description": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            },
-            "link_id": "2872d007-6146-4359-b554-6e9fe7a8eca6"
-        },
         "2eae85d6-da2f-4f1c-8c33-3810b55e23aa": {
             "description": {
                 "en": "SIP Creation complete",
@@ -202,13 +190,16 @@
             },
             "link_id": "36609513-6502-4aca-886a-6c4ae03a9f05"
         },
-        "333643b7-122a-4019-8bef-996443f3ecc5": {
+        "35151db8-3a11-4b49-8865-f6697ef0ac75": {
             "description": {
-                "en": "Unquarantine",
-                "pt_BR": "Sem quarentena",
-                "sv": "Ta ur karantän"
+                "en": "Yes",
+                "es": "Sí",
+                "fr": "Oui",
+                "ja": "はい",
+                "pt_BR": "Sim",
+                "sv": "Ja"
             },
-            "link_id": "4430077a-92c5-4d86-b0f8-0d31bdb731fb"
+            "link_id": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6"
         },
         "3572f844-5e69-4000-a24b-4e32d3487f82": {
             "description": {
@@ -275,6 +266,15 @@
             },
             "link_id": "f2e784a0-356b-4b92-9a5a-11887aa3cf48"
         },
+        "44a7c397-8187-4fd2-b8f7-c61737c4df49": {
+            "description": {
+                "en": "No",
+                "fr": "Non",
+                "ja": "いいえ",
+                "sv": "Nej"
+            },
+            "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
+        },
         "4500f34e-f004-4ccf-8720-5c38d0be2254": {
             "description": {
                 "en": "Do not store",
@@ -325,7 +325,7 @@
                 "pt_BR": "Continua",
                 "sv": "Fortsätt"
             },
-            "link_id": "7079be6d-3a25-41e6-a481-cee5f352fe6e"
+            "link_id": "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6"
         },
         "5f34245e-5864-4199-aafc-bc0ada01d4cd": {
             "description": {
@@ -378,15 +378,6 @@
             },
             "link_id": "b4567e89-9fea-4256-99f5-a88987026488"
         },
-        "69f4a4b9-93e2-481c-99a0-fa92d68c3ebd": {
-            "description": {
-                "en": "SIP Creation complete",
-                "fr": "Création du SIP complète",
-                "pt_BR": "Criação do SIP concluída",
-                "sv": "SIP skapelse fullföljd"
-            },
-            "link_id": "01fd7a29-deb9-4dd1-8e28-1c48fc1ac41b"
-        },
         "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa": {
             "description": {
                 "en": "Do not upload DIP",
@@ -406,14 +397,6 @@
             },
             "link_id": "2d32235c-02d4-4686-88a6-96f4d6c7b1c3"
         },
-        "7030f152-398a-470b-b045-f5dfa9013671": {
-            "description": {
-                "en": "quarantineSIP ?",
-                "pt_BR": "quarentinaSIP?",
-                "sv": "Sätt SIP i karantän?"
-            },
-            "link_id": "55de1490-f3a0-4e1e-a25b-38b75f4f05e3"
-        },
         "7065d256-2f47-4b7d-baec-2c4699626121": {
             "description": {
                 "en": "Send to backlog",
@@ -421,7 +404,7 @@
                 "pt_BR": "Enviar para o backlog",
                 "sv": "Skicka till backlogg"
             },
-            "link_id": "d46f6af8-bc4e-4369-a808-c0fedb439fef"
+            "link_id": "7e6330c6-0280-4b25-8bf8-4b8143b69bde"
         },
         "76befd52-14c3-44f9-838f-15a4e01624b0": {
             "description": {
@@ -439,7 +422,7 @@
                 "ja": "いいえ",
                 "sv": "Nej"
             },
-            "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+            "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
         },
         "816f28cd-6af1-4d26-97f3-e61645eb881b": {
             "description": {
@@ -478,6 +461,17 @@
             },
             "link_id": "d026e5a4-96cf-4e4c-938d-a74b0d211da0"
         },
+        "8f9dceb5-b978-43e0-a364-8b317a3ac43b": {
+            "description": {
+                "en": "Yes",
+                "es": "Sí",
+                "fr": "Oui",
+                "ja": "はい",
+                "pt_BR": "Sim",
+                "sv": "Ja"
+            },
+            "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
+        },
         "94f764ad-805a-4d4e-8a2b-a6f2515b30c7": {
             "description": {
                 "en": "TRIM Ingest",
@@ -497,17 +491,6 @@
                 "sv": "Granska innehåll?"
             },
             "link_id": "accea2bf-ba74-4a3a-bb97-614775c74459"
-        },
-        "97ea7702-e4d5-48bc-b4b5-d15d897806ab": {
-            "description": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            },
-            "link_id": "46dcf7b1-3750-4f49-a9be-a4bf076e304f"
         },
         "9918b64c-b898-407b-bce4-a65aa3c11b89": {
             "description": {
@@ -547,14 +530,6 @@
                 "sv": "Förkasta DIP"
             },
             "link_id": "19c94543-14cb-4158-986b-1d2b55723cd8"
-        },
-        "ad37288a-162c-4562-8532-eb4050964c73": {
-            "description": {
-                "en": "Unquarantine",
-                "pt_BR": "Sem quarentena",
-                "sv": "Ta ur karantän"
-            },
-            "link_id": "fbc3857b-bb02-425b-89ce-2d6a39eaa542"
         },
         "b0e0bf75-6b7e-44b6-a0d0-189eea7605dd": {
             "description": {
@@ -615,14 +590,6 @@
             },
             "link_id": "6c147aeb-20c5-47ce-9f40-7f22683cea1f"
         },
-        "c622426e-190e-437b-aa1a-4be9c9a7680d": {
-            "description": {
-                "en": "Unquarantine",
-                "pt_BR": "Sem quarentena",
-                "sv": "Ta ur karantän"
-            },
-            "link_id": "01fd7a29-deb9-4dd1-8e28-1c48fc1ac41b"
-        },
         "c75ef451-2040-4511-95ac-3baa0f019b48": {
             "description": {
                 "en": "Approve transfer",
@@ -675,36 +642,6 @@
                 "sv": "Godkänn överföring"
             },
             "link_id": "d3c75c96-f8c7-4674-af46-5bcce7b05f87"
-        },
-        "d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e": {
-            "description": {
-                "en": "Skip quarantine",
-                "fr": "Passer la quarantaine",
-                "ja": "検疫をスキップ",
-                "pt_BR": "Ignore a quarentena",
-                "sv": "Hoppa över karantän"
-            },
-            "link_id": "d7e6404a-a186-4806-a130-7e6d27179a15"
-        },
-        "d456dfde-1cdb-4178-babc-1a4537fe1b87": {
-            "description": {
-                "en": "Store DIP",
-                "es": "Almacenar DIP",
-                "fr": "Stocker le DIP",
-                "ja": "DIPを蓄える",
-                "pt_BR": "Armazenar DIP",
-                "sv": "Lagra DIP"
-            },
-            "link_id": "2e31580d-1678-474b-83e5-a53d97d150f6"
-        },
-        "d4ff46d4-5c57-408c-943b-fed63c1a9d75": {
-            "description": {
-                "en": "SIP Creation complete",
-                "fr": "Création du SIP complète",
-                "pt_BR": "Criação do SIP concluída",
-                "sv": "SIP skapelse fullföljd"
-            },
-            "link_id": "4430077a-92c5-4d86-b0f8-0d31bdb731fb"
         },
         "d9760427-b488-4381-832a-de10106de6fe": {
             "description": {
@@ -775,24 +712,6 @@
                 "sv": "Nej"
             },
             "link_id": "2584b25c-8d98-44b7-beca-2b3ea2ea2505"
-        },
-        "f11409ad-cf3c-4e7f-b0d5-4be32d98229b": {
-            "description": {
-                "en": "Upload DIP to Archivists Toolkit",
-                "fr": "Télécharger le DIP dans Archivists' Toolkit",
-                "pt_BR": "Carregar DIP para o Archivists Toolkit",
-                "sv": "Ladda upp DIP till Archivists Toolkit"
-            },
-            "link_id": "7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1"
-        },
-        "f1311d19-54c9-4484-9b3c-9bda40457559": {
-            "description": {
-                "en": "Add README file",
-                "ja": "READMEファイルを追加",
-                "pt_BR": "Adicionar arquivo README",
-                "sv": "Lägg till README-fil"
-            },
-            "link_id": "523c97cc-b267-4cfb-8209-d99e523bf4b3"
         },
         "f6df8882-d076-441e-bb00-2f58d5eda098": {
             "description": {
@@ -1036,23 +955,21 @@
                     },
                     {
                         "description": {
-                            "en": "Uncompressed",
-                            "pt_BR": "Sem comprimir",
-                            "sv": "Okomprimerat"
-                        },
-                        "id": "dc04c4c0-07ea-4796-b643-66d967ed33a4",
-                        "items": {
-                            "AIPCompressionAlgorithm": "None-"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "7z without compression (Copy)",
-                            "pt_BR": "7z sem compressão (Cópia)"
+                            "en": "7z without compression",
+                            "pt_BR": "7z sem compressão"
                         },
                         "id": "e3906da0-41fb-4cb8-a598-6c73981b63e9",
                         "items": {
                             "AIPCompressionAlgorithm": "7z-copy"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "Gzipped tar"
+                        },
+                        "id": "9ce711ab-96d1-45dd-8708-de69698c1424",
+                        "items": {
+                            "AIPCompressionAlgorithm": "gzip-tar.gzip"
                         }
                     },
                     {
@@ -1064,7 +981,18 @@
                         },
                         "id": "f61b00a1-ef2e-4dc4-9391-111c6f42b9a7",
                         "items": {
-                            "AIPCompressionAlgorithm": "pbzip2-"
+                            "AIPCompressionAlgorithm": "pbzip2-pbzip2"
+                        }
+                    },
+                    {
+                        "description": {
+                            "en": "Uncompressed",
+                            "pt_BR": "Sem comprimir",
+                            "sv": "Okomprimerat"
+                        },
+                        "id": "dc04c4c0-07ea-4796-b643-66d967ed33a4",
+                        "items": {
+                            "AIPCompressionAlgorithm": "None-"
                         }
                     }
                 ]
@@ -1089,40 +1017,6 @@
                 "es": "Preparar AIP",
                 "fr": "Préparer l'AIP",
                 "sv": "Förbered AIP"
-            }
-        },
-        "01fd7a29-deb9-4dd1-8e28-1c48fc1ac41b": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to processing directory",
-                "pt_BR": "Mover para o diretório de processamento",
-                "sv": "Flytta till bearbetningsmapp"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "ac85a1dc-272b-46ac-bb3e-5bf3f8e56348"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "032cdc54-0b9b-4caf-86e8-10d63efbaec0": {
@@ -1165,40 +1059,6 @@
                 "sv": "Skapa SIP från överföringspaket"
             }
         },
-        "03ee1136-f6ad-4184-8dcb-34872f843e14": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to workFlowDecisions-quarantineSIP directory",
-                "pt_BR": "Mover para o diretório workFlowDecisions-quarantineSIP",
-                "sv": "Flytta till workFlowDecisions-quarantineSIP katalog"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "04493ab2-6cad-400d-8832-06941f121a96": {
             "config": {
                 "@manager": "linkTaskManagerFiles",
@@ -1222,11 +1082,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f"
+                    "link_id": "873b428f-2c86-42b6-b463-aeda925bf559"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f",
+            "fallback_link_id": "873b428f-2c86-42b6-b463-aeda925bf559",
             "group": {
                 "en": "Process metadata directory",
                 "es": "Procesar directorio de metadatos",
@@ -1265,92 +1125,6 @@
                 "fr": "Vérifier la conformité du transfert",
                 "pt_BR": "Verificar a conformidade da transferência",
                 "sv": "Kontrollera överförings följsamhet"
-            }
-        },
-        "05357876-a095-4c11-86b5-a7fff01af668": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": [
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "1e79e1b6-cf50-49ff-98a3-fa51d73553dc",
-                        "items": {
-                            "BindPIDs": "True"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "No",
-                            "fr": "Non",
-                            "ja": "いいえ",
-                            "sv": "Nej"
-                        },
-                        "id": "fcfea449-158c-452c-a8ad-4ae009c4eaba",
-                        "items": {
-                            "BindPIDs": "False"
-                        }
-                    }
-                ]
-            },
-            "description": {
-                "en": "Bind PIDs?",
-                "fr": "Lier les PIDs?",
-                "pt_BR": "Vincular PIDs?",
-                "sv": "Lås PID:er?"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
-                },
-                "1": {
-                    "job_status": "Failed",
-                    "link_id": "87e93d08-36e4-4c81-99a8-beea00b18400"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "87e93d08-36e4-4c81-99a8-beea00b18400",
-            "group": {
-                "en": "Bind PIDs",
-                "fr": "Lier les PIDs",
-                "pt_BR": "Vincular PIDs",
-                "sv": "Lås PID:er."
-            }
-        },
-        "05f99ffd-abf2-4f5a-9ec8-f80a59967b89": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "1b04ec43-055c-43b7-9543-bd03c6a778ba",
-                    "2ba94783-d073-4372-9bd1-8316ada02635",
-                    "d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e"
-                ]
-            },
-            "description": {
-                "en": "Workflow decision - send transfer to quarantine",
-                "fr": "Décision du workflow - envoyer le transfert en quarantaine",
-                "pt_BR": "Decisão de fluxo de trabalho - enviar transferência para quarentena",
-                "sv": "Arbetsflödesbeslut - sänd transfer till karantän"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "087d27be-c719-47d8-9bbb-9a7d8b609c44": {
@@ -1760,40 +1534,6 @@
                 "sv": "Förkasta AIP"
             }
         },
-        "0e06d968-4b5b-4084-aab4-053a2a8d1679": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to processing directory",
-                "pt_BR": "Mover para o diretório de processamento",
-                "sv": "Flytta till bearbetningsmapp"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "38c591d4-b7ee-4bc0-b993-c592bf15d97d"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "0e1a8a6b-abcc-4ed6-b4fb-cbccfdc23ef5": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -1824,39 +1564,6 @@
                 "fr": "Vérifier la conformité du transfert",
                 "pt_BR": "Verificar a conformidade da transferência",
                 "sv": "Kontrollera överförings följsamhet"
-            }
-        },
-        "0e379b19-771e-4d90-a7e5-1583e4893c56": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to processing directory",
-                "pt_BR": "Mover para o diretório de processamento",
-                "sv": "Flytta till bearbetningsmapp"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Clean up names",
-                "es": "Limpiar nombres",
-                "fr": "Nettoyer les noms",
-                "pt_BR": "Limpe nomes",
-                "sv": "Rensa namn"
             }
         },
         "0e41c244-6c3e-46b9-a554-65e66e5c9324": {
@@ -2520,33 +2227,6 @@
                 "sv": "Undersök innehåll"
             }
         },
-        "19adb668-b19a-4fcb-8938-f49d7485eaf3": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "1b04ec43-055c-43b7-9543-bd03c6a778ba",
-                    "c622426e-190e-437b-aa1a-4be9c9a7680d"
-                ]
-            },
-            "description": {
-                "en": "Remove from quarantine",
-                "fr": "Retirer de la quarantaine",
-                "pt_BR": "Remover da quarentena",
-                "sv": "Ta bort från karantän"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "19c94543-14cb-4158-986b-1d2b55723cd8": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -2638,11 +2318,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
+                    "link_id": "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "fallback_link_id": "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa",
             "group": {
                 "en": "Characterize and extract metadata",
                 "es": "Caracterizar y extraer metadatos",
@@ -2941,7 +2621,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "d1018160-aaab-4d92-adce-d518880d7c7d"
+                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
                 }
             },
             "fallback_job_status": "Completed successfully",
@@ -3343,40 +3023,6 @@
                 "sv": "Normalisera"
             }
         },
-        "2872d007-6146-4359-b554-6e9fe7a8eca6": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "700 -R \"%relativeLocation%\"",
-                "execute": "setFilePermission_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Set quarantine permissions on transfer",
-                "pt_BR": "Definir permissões de quarentena na transferência",
-                "sv": "Sätt karantänsbehörigheter vid överföring"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "e2c0dae9-3295-4a98-b3ff-664ab2dc0cda"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "288b739d-40a1-4454-971b-812127a5e03d": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -3452,7 +3098,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%taskUUID%\" \"%fileUUID%\" \"%transcribe%\"",
+                "arguments": "\"%taskUUID%\" \"%fileUUID%\"",
                 "execute": "transcribeFile_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -3534,43 +3180,6 @@
                 "fr": "Traiter la documentation de soumission",
                 "pt_BR": "Processar documentação de submissão",
                 "sv": "Bearbeta leveransdokumentation"
-            }
-        },
-        "2adf60a0-ecd7-441a-b82f-f77c6a3964c3": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%quarantined/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to quarantine",
-                "es": "Mover a cuarentena",
-                "fr": "Placer en quarantaine",
-                "ja": "検疫に移動",
-                "pt_BR": "Mover para quarentena",
-                "sv": "Flytta till karantän"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "2d32235c-02d4-4686-88a6-96f4d6c7b1c3": {
@@ -3772,8 +3381,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createProcessedStructmap_v0.0",
+                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\"",
+                "execute": "createTransferMETS_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -3781,25 +3390,28 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Add processed structMap to METS.xml document",
-                "fr": "Ajouter le structMap traité au document METS.xml",
-                "ja": "処理済みのstructMapをMETS.xmlドキュメントに追加する",
-                "pt_BR": "Adicionar documento processado structMap para METS.xml",
-                "sv": "Lägg till processad structMap i METS.xml dokument"
+                "en": "Generate METS.xml document",
+                "es": "Generar METS.xml",
+                "fr": "Générer un document METS.xml",
+                "ja": "METS.xml文書 を生成",
+                "pt_BR": "Gerar documentos METS.xml",
+                "sv": "Skapa METS.xml dokument"
             },
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
+                    "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
                 }
             },
             "fallback_job_status": "Failed",
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
-                "en": "Update METS.xml document",
-                "fr": "Mettre à jour un document METS.xml",
-                "pt_BR": "Atualize documento METS.xml",
-                "sv": "Uppdatera METS.xm dokument"
+                "en": "Generate METS.xml document",
+                "es": "Generar METS.xml",
+                "fr": "Générer un document METS.xml",
+                "ja": "METS.xml文書 を生成",
+                "pt_BR": "Gerar documentos METS.xml",
+                "sv": "Skapa METS.xml dokument"
             }
         },
         "31abe664-745e-4fef-a669-ff41514e0083": {
@@ -4005,43 +3617,6 @@
                 "fr": "Traiter la documentation de soumission",
                 "pt_BR": "Processar documentação de submissão",
                 "sv": "Bearbeta leveransdokumentation"
-            }
-        },
-        "3409b898-e532-49d3-98ff-a2a1f9d988fa": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "9071c352-aed5-444c-ac3f-b6c52dfb65ac"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
             }
         },
         "3467d003-1603-49e3-b085-e58aa693afed": {
@@ -4308,41 +3883,6 @@
                 "sv": "Förbered DIP"
             }
         },
-        "38c591d4-b7ee-4bc0-b993-c592bf15d97d": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"unquarantine\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create unquarantine PREMIS events",
-                "es": "Crear eventos PREMIS de salida de cuarentena",
-                "pt_BR": "Crie eventos PREMIS de não quarentena",
-                "sv": "Skapa tas ur karantän PREMIS händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "39a128e3-c35d-40b7-9363-87f75091e1ff": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -4366,11 +3906,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5"
+                    "link_id": null
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5",
+            "fallback_link_id": null,
             "group": {
                 "en": "Create SIP from Transfer",
                 "es": "Crear SIP a partir de la transferencia",
@@ -4378,40 +3918,6 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
-        },
-        "39e58573-2dbc-4939-bce0-96b2f55dae28": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/quarantineTransfer/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to workFlowDecisions-quarantineSIP directory",
-                "pt_BR": "Mover para o diretório workFlowDecisions-quarantineSIP",
-                "sv": "Flytta till workFlowDecisions-quarantineSIP katalog"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "3a70bc05-fa82-4067-a069-a56b6006be0a": {
@@ -4527,7 +4033,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"create\" \"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"logs/\" \"objects/\" \"METS.%SIPUUID%.xml\" \"README.html\" \"thumbnails/\" \"metadata/\" --writer \"filesystem\"",
+                "arguments": "\"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"%SIPUUID%\"",
                 "execute": "bagit_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -4554,40 +4060,6 @@
                 "es": "Preparar AIP",
                 "fr": "Préparer l'AIP",
                 "sv": "Förbered AIP"
-            }
-        },
-        "3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/SIPCreation/completedTransfers/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to SIP creation directory for completed transfers",
-                "pt_BR": "Mover para o diretório de criação do SIP para transferências concluídas",
-                "sv": "Flytta till SIP skapande katalogen för färdigställda överföringar"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "3f543585-fa4f-4099-9153-dd6d53572f5c": {
@@ -4834,40 +4306,6 @@
                 "sv": "Byt namn med överförings UUID"
             }
         },
-        "4430077a-92c5-4d86-b0f8-0d31bdb731fb": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": " -R 750 \"%relativeLocation%\"",
-                "execute": "setFilePermission_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Set unquarantined file permissions on Transfer",
-                "pt_BR": "Definir permissões de arquivos sem quarentena na transferência",
-                "sv": "Ställ in Ställ in behörigheter för filer ej i karantän vid transfer"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "f8be53cd-6ca2-4770-8619-8a8101a809b9"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "45063ad6-f374-4215-a2c4-ac47be4ce2cd": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -4899,40 +4337,6 @@
                 "fr": "Vérifier la conformité du transfert",
                 "pt_BR": "Verificar a conformidade da transferência",
                 "sv": "Kontrollera överförings följsamhet"
-            }
-        },
-        "46dcf7b1-3750-4f49-a9be-a4bf076e304f": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "700 -R \"%relativeLocation%\"",
-                "execute": "setFilePermission_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Set quarantine permissions on transfer",
-                "pt_BR": "Definir permissões de quarentena na transferência",
-                "sv": "Sätt karantänsbehörigheter vid överföring"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "df1cc271-ff77-4f86-b4f3-afc01856db1f"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "46e19522-9a71-48f1-9ccd-09cabfba3f38": {
@@ -5304,41 +4708,6 @@
                 "sv": "Kontrollera överförings följsamhet"
             }
         },
-        "5158c618-6160-41d6-bbbe-ddf34b5b06bc": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"unquarantine\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create unquarantine PREMIS events",
-                "es": "Crear eventos PREMIS de salida de cuarentena",
-                "pt_BR": "Crie eventos PREMIS de não quarentena",
-                "sv": "Skapa tas ur karantän PREMIS händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "f09847c2-ee51-429a-9478-a860477f6b8d"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "f09847c2-ee51-429a-9478-a860477f6b8d",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "52269473-5325-4a11-b38a-c4aafcbd8f54": {
             "config": {
                 "@manager": "linkTaskManagerFiles",
@@ -5466,11 +4835,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa",
+            "fallback_link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
             "group": {
                 "en": "Approve transfer",
                 "es": "Aprobar transferencia",
@@ -5545,65 +4914,6 @@
                 "ja": "転送の構造レポートを生成",
                 "pt_BR": "Gerar relatório de estrutura de transferência",
                 "sv": "Generera överföringsstruktursrapport"
-            }
-        },
-        "55de1490-f3a0-4e1e-a25b-38b75f4f05e3": {
-            "config": {
-                "@manager": "linkTaskManagerUnitVariableLinkPull",
-                "@model": "TaskConfigUnitVariableLinkPull",
-                "chain_id": null,
-                "variable": "linkAfterMovedToQuarantine"
-            },
-            "description": {
-                "en": "Find type to process as",
-                "pt_BR": "Localize o tipo para processar como",
-                "sv": "Hitta typ att bearbeta som"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Completed successfully",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
-        "561bbb52-d95c-4004-b0d3-739c0a65f406": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"placement in backlog\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create placement in backlog PREMIS events",
-                "es": "Crear eventos PREMIS de localización en cola",
-                "pt_BR": "Crie a localização em eventos PREMIS de backlog",
-                "sv": "Skapa placering i backloggens PREMIS händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "56da7758-913a-4cd2-a815-be140ed09357": {
@@ -5939,8 +5249,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%relativeLocation%\" \"%date%\" \"%taskUUID%\" \"%SIPUUID%\"",
-                "execute": "verifyMD5_v0.0",
+                "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
+                "execute": "verifychecksum_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -5956,7 +5266,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "b6c9de5a-4a9f-41e1-a524-360bdca39893"
+                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
                 }
             },
             "fallback_job_status": "Failed",
@@ -6258,8 +5568,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "-R \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
-                "execute": "remove_v0.0",
+                "arguments": "\"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
+                "execute": "removeDirectories_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -6428,6 +5738,38 @@
                 "sv": "Ladda upp DIP"
             }
         },
+        "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%clientAssetsDirectory%premis/premis.xsd\" \"%SIPDirectory%metadata/premis.xml\"",
+                "execute": "loadPREMISEventsFromXML_v1.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Load PREMIS events from metadata/premis.xml"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "a536828c-be65-4088-80bd-eb511a0a063d"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "a536828c-be65-4088-80bd-eb511a0a063d",
+            "group": {
+                "en": "Characterize and extract metadata",
+                "es": "Caracterizar y extraer metadatos",
+                "fr": "Caractériser et extraire les métadonnées",
+                "ja": "メタデータの特徴付けと抽出",
+                "pt_BR": "Caracterizar e extrair metadados",
+                "sv": "Karaktärisera och extrahera metadata"
+            }
+        },
         "66c9c178-2224-41c6-9c0b-dcb60ff57b1a": {
             "config": {
                 "@manager": "linkTaskManagerFiles",
@@ -6496,42 +5838,6 @@
                 "ja": "転送完了",
                 "pt_BR": "Transferência completa",
                 "sv": "Slutför överföring"
-            }
-        },
-        "67a91b4b-a5af-4b54-a836-705e6cf4eeb9": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%quarantined/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to quarantined",
-                "fr": "Placer en quarantaine",
-                "ja": "検疫済みに移動",
-                "pt_BR": "Mover para quarentena",
-                "sv": "Flytta till i karantän"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "67b44f8f-bc97-4cb3-b6dd-09dba3c99d30": {
@@ -6800,60 +6106,6 @@
                 "sv": "Kontrollera SIPs följsamhet"
             }
         },
-        "7079be6d-3a25-41e6-a481-cee5f352fe6e": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": [
-                    {
-                        "description": {
-                            "en": "No",
-                            "fr": "Non",
-                            "ja": "いいえ",
-                            "sv": "Nej"
-                        },
-                        "id": "1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53",
-                        "items": {
-                            "transcribe": "False"
-                        }
-                    },
-                    {
-                        "description": {
-                            "en": "Yes",
-                            "es": "Sí",
-                            "fr": "Oui",
-                            "ja": "はい",
-                            "pt_BR": "Sim",
-                            "sv": "Ja"
-                        },
-                        "id": "5a9985d3-ce7e-4710-85c1-f74696770fa9",
-                        "items": {
-                            "transcribe": "True"
-                        }
-                    }
-                ]
-            },
-            "description": {
-                "en": "Transcribe SIP contents",
-                "fr": "Transcrire le contenu du SIP",
-                "pt_BR": "Transcreva o conteúdo do SIP",
-                "sv": "Transkribera SIP-innehåll"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Transcribe SIP contents",
-                "fr": "Transcrire le contenu du SIP",
-                "pt_BR": "Transcreva o conteúdo do SIP",
-                "sv": "Transkribera SIP-innehåll"
-            }
-        },
         "70f41678-baa5-46e6-a71c-4b6b4d99f4a6": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -6955,9 +6207,9 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Removed bagged files",
-                "pt_BR": "Pacotes de arquivos removidos",
-                "sv": "Tog bort bagged filer"
+                "en": "Remove bagged files",
+                "pt_BR": "Remover pacotes de arquivos",
+                "sv": "Ta bort filer som blivit satta i en bag"
             },
             "exit_codes": {
                 "0": {
@@ -7002,34 +6254,6 @@
                 "sv": "Normalisera"
             }
         },
-        "755b4177-c587-41a7-8c52-015277568302": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "97ea7702-e4d5-48bc-b4b5-d15d897806ab",
-                    "252ceb42-cc61-4833-a048-97fc0bda4759",
-                    "1b04ec43-055c-43b7-9543-bd03c6a778ba"
-                ]
-            },
-            "description": {
-                "en": "Workflow decision - send transfer to quarantine",
-                "fr": "Décision du workflow - envoyer le transfert en quarantaine",
-                "pt_BR": "Decisão de fluxo de trabalho - enviar transferência para quarentena",
-                "sv": "Arbetsflödesbeslut - sänd transfer till karantän"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "75fb5d67-5efa-4232-b00b-d85236de0d3f": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -7050,11 +6274,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "05357876-a095-4c11-86b5-a7fff01af668"
+                    "link_id": "a2ba5278-459a-4638-92d9-38eb1588717d"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "05357876-a095-4c11-86b5-a7fff01af668",
+            "fallback_link_id": "a2ba5278-459a-4638-92d9-38eb1588717d",
             "group": {
                 "en": "Process metadata directory",
                 "es": "Procesar directorio de metadatos",
@@ -7066,7 +6290,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%sharedPath%\" --bind-pids \"%BindPIDs%\"",
+                "arguments": "\"%SIPUUID%\" \"%sharedPath%\"",
                 "execute": "bindPIDs_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -7084,14 +6308,10 @@
                 "0": {
                     "job_status": "Completed successfully",
                     "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
-                },
-                "1": {
-                    "job_status": "Failed",
-                    "link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0",
+            "fallback_link_id": "d0dfa5fc-e3c2-4638-9eda-f96eea1070e0",
             "group": {
                 "en": "Bind PIDs",
                 "fr": "Lier les PIDs",
@@ -7259,36 +6479,6 @@
                 "sv": "Normalisera"
             }
         },
-        "7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1": {
-            "config": {
-                "@manager": "linkTaskManagerReplacementDicFromChoice",
-                "@model": "MicroServiceChoiceReplacementDic",
-                "replacements": []
-            },
-            "description": {
-                "en": "Choose Config for Archivists Toolkit DIP Upload",
-                "es": "Elegir configuración de Archivists' Toolkit",
-                "fr": "Choisir la configuration pour le Téléchargement DIP via Archivists' Toolkit",
-                "pt_BR": "Escolha Configuração para envio do Archivists Toolkit DIP ",
-                "sv": "Välj Config för Archivists Toolkit DIP-uppladdning"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1",
-            "group": {
-                "en": "Upload DIP",
-                "es": "Subir DIP",
-                "fr": "Télécharger le DIP",
-                "ja": "DIPをアップロード",
-                "pt_BR": "Carregar DIP",
-                "sv": "Ladda upp DIP"
-            }
-        },
         "7c44c454-e3cc-43d4-abe0-885f93d693c6": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -7326,8 +6516,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%relativeLocation%\" \"%date%\" \"%taskUUID%\" \"%SIPUUID%\"",
-                "execute": "verifyMD5_v0.0",
+                "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
+                "execute": "verifychecksum_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -7343,7 +6533,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "df957421-6bba-4ad7-8580-0fc04a54efd4"
+                    "link_id": "b2552a90-e674-4a40-a482-687c046407d3"
                 }
             },
             "fallback_job_status": "Failed",
@@ -7411,7 +6601,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "d1018160-aaab-4d92-adce-d518880d7c7d"
+                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
                 }
             },
             "fallback_job_status": "Failed",
@@ -7494,35 +6684,39 @@
                 "sv": "SIP misslyckades"
             }
         },
-        "7e65c627-c11d-4aad-beed-65ceb7053fe8": {
+        "7e6330c6-0280-4b25-8bf8-4b8143b69bde": {
             "config": {
-                "@manager": "linkTaskManagerSetUnitVariable",
-                "@model": "TaskConfigSetUnitVariable",
-                "chain_id": "19adb668-b19a-4fcb-8938-f49d7485eaf3",
-                "variable": "linkAfterMovedFromQuarantine",
-                "variable_value": null
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
+                "execute": "copy_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
             },
             "description": {
-                "en": "Designate to process as a DSpace transfer when unquarantined",
-                "fr": "Marquer le transfert pour le traiter comme transfert DSpace lorsqu'il sera retiré de la quarantaine",
-                "pt_BR": "Indicar para processar como uma transferência do DSpace quando não quarentena",
-                "sv": "Märk för att processa som en DSpace överföring efter karantän"
+                "en": "Add README file",
+                "ja": "READMEファイルを追加",
+                "pt_BR": "Adicionar arquivo README",
+                "sv": "Lägg till README-fil"
             },
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "67a91b4b-a5af-4b54-a836-705e6cf4eeb9"
+                    "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
+            "fallback_link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a",
             "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
+                "en": "Create SIP from Transfer",
+                "es": "Crear SIP a partir de la transferencia",
+                "fr": "Créer un SIP à partir du Transfert",
+                "ja": "転送からSIPを作成する",
+                "pt_BR": "Crie SIP a partir da transferência",
+                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "7f975ba6-2185-434c-b507-2911f3c77213": {
@@ -7615,6 +6809,28 @@
                 "sv": "SIP misslyckades"
             }
         },
+        "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6": {
+            "config": {
+                "@manager": "linkTaskManagerChoice",
+                "@model": "MicroServiceChainChoice",
+                "chain_choices": [
+                    "35151db8-3a11-4b49-8865-f6697ef0ac75",
+                    "0a24787c-00e3-4710-b324-90e792bfb484"
+                ]
+            },
+            "description": {
+                "en": "Transcribe SIP contents?"
+            },
+            "exit_codes": {},
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Transcribe SIP contents",
+                "fr": "Transcrire le contenu du SIP",
+                "pt_BR": "Transcreva o conteúdo do SIP",
+                "sv": "Transkribera SIP-innehåll"
+            }
+        },
         "83484326-7be7-4f9f-b252-94553cd42370": {
             "config": {
                 "@manager": "linkTaskManagerUnitVariableLinkPull",
@@ -7671,11 +6887,41 @@
                 "sv": "Återingestera AIP"
             }
         },
+        "873b428f-2c86-42b6-b463-aeda925bf559": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
+                "execute": "declarepids_v0.0",
+                "filter_file_end": "",
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Load persistent identifiers from external file"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "75fb5d67-5efa-4232-b00b-d85236de0d3f",
+            "group": {
+                "en": "Process metadata directory",
+                "es": "Procesar directorio de metadatos",
+                "pt_BR": "Processar diretório de metadados",
+                "sv": "Bearbeta metadatamapp"
+            }
+        },
         "87e7659c-d5de-4541-a09c-6deec966a0c0": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
+                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
                 "execute": "archivematicaVerifyMets_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -7708,7 +6954,7 @@
             "config": {
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%fileUUID%\" --bind-pids \"%BindPIDs%\"",
+                "arguments": "\"%fileUUID%\"",
                 "execute": "bindPID_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -8261,38 +7507,6 @@
                 "sv": "Skapa SIP från överföringspaket"
             }
         },
-        "9071c352-aed5-444c-ac3f-b6c52dfb65ac": {
-            "config": {
-                "@manager": "linkTaskManagerSetUnitVariable",
-                "@model": "TaskConfigSetUnitVariable",
-                "chain_id": "755b4177-c587-41a7-8c52-015277568302",
-                "variable": "linkAfterMovedToQuarantine",
-                "variable_value": null
-            },
-            "description": {
-                "en": "Designate to process as a standard transfer",
-                "fr": "Marquer le transfert pour le traiter comme transfert standard",
-                "ja": "標準転送として処理するように指定する",
-                "pt_BR": "Indicar para processar como uma transferência padrão",
-                "sv": "Designera för att bearbetas som en standardöverföring"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "03ee1136-f6ad-4184-8dcb-34872f843e14"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "91ca6f1f-feb5-485d-99d2-25eed195e330": {
             "config": {
                 "@manager": "linkTaskManagerFiles",
@@ -8369,7 +7583,6 @@
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
                     "526eded3-2280-4f10-ac86-eff6c464cc81",
-                    "f11409ad-cf3c-4e7f-b0d5-4be32d98229b",
                     "0fe9842f-9519-4067-a691-8a363132ae24",
                     "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa",
                     "3572f844-5e69-4000-a24b-4e32d3487f82"
@@ -8776,6 +7989,31 @@
                 "sv": "Normalisera"
             }
         },
+        "a2ba5278-459a-4638-92d9-38eb1588717d": {
+            "config": {
+                "@manager": "linkTaskManagerChoice",
+                "@model": "MicroServiceChainChoice",
+                "chain_choices": [
+                    "8f9dceb5-b978-43e0-a364-8b317a3ac43b",
+                    "44a7c397-8187-4fd2-b8f7-c61737c4df49"
+                ]
+            },
+            "description": {
+                "en": "Bind PIDs?",
+                "fr": "Lier les PIDs?",
+                "pt_BR": "Vincular PIDs?",
+                "sv": "Lås PID:er?"
+            },
+            "exit_codes": {},
+            "fallback_job_status": "Failed",
+            "fallback_link_id": null,
+            "group": {
+                "en": "Bind PIDs",
+                "fr": "Lier les PIDs",
+                "pt_BR": "Vincular PIDs",
+                "sv": "Lås PID:er."
+            }
+        },
         "a329d39b-4711-4231-b54e-b5958934dccb": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -8864,49 +8102,17 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
+                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "ec3c965c-c056-47e3-a551-ad1966e00824",
+            "fallback_link_id": "307edcde-ad10-401c-92c4-652917c993ed",
             "group": {
                 "en": "Validation",
                 "es": "Validación",
                 "ja": "妥当性確認",
                 "pt_BR": "Validação",
                 "sv": "Godkännande"
-            }
-        },
-        "a6e97805-a420-41af-b708-2a56de5b47a6": {
-            "config": {
-                "@manager": "linkTaskManagerSetUnitVariable",
-                "@model": "TaskConfigSetUnitVariable",
-                "chain_id": "05f99ffd-abf2-4f5a-9ec8-f80a59967b89",
-                "variable": "linkAfterMovedToQuarantine",
-                "variable_value": null
-            },
-            "description": {
-                "en": "Designate to process as a DSpace transfer",
-                "fr": "Marquer le transfert pour le traiter comme transfert DSpace",
-                "ja": "DSpace転送として処理するように指定する",
-                "pt_BR": "Indicar para processar como uma transferência do DSpace",
-                "sv": "Märk att processa som en DSpace överföring"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "39e58573-2dbc-4939-bce0-96b2f55dae28"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "a7c18fee-c8c1-4713-ba74-9705c45efbce": {
@@ -9078,7 +8284,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
+                "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\" \"%jobCreatedDate%\"",
                 "execute": "moveToBacklog_v1.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -9095,7 +8301,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "561bbb52-d95c-4004-b0d3-739c0a65f406"
+                    "link_id": null
                 }
             },
             "fallback_job_status": "Failed",
@@ -9107,40 +8313,6 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
-        },
-        "ac85a1dc-272b-46ac-bb3e-5bf3f8e56348": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": " -R 750 \"%relativeLocation%\"",
-                "execute": "setFilePermission_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Set unquarantined file permissions on Transfer",
-                "pt_BR": "Definir permissões de arquivos sem quarentena na transferência",
-                "sv": "Ställ in Ställ in behörigheter för filer ej i karantän vid transfer"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "0e06d968-4b5b-4084-aab4-053a2a8d1679"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "accea2bf-ba74-4a3a-bb97-614775c74459": {
@@ -9603,34 +8775,6 @@
                 "sv": "Normalisera"
             }
         },
-        "b3c5e343-5940-4aad-8a9f-fb0eccbfb3a3": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "c34bd22a-d077-4180-bf58-01db35bdb644",
-                    "fb7a326e-1e50-4b48-91b9-4917ff8d0ae8",
-                    "e600b56d-1a43-4031-9d7c-f64f123e5662"
-                ]
-            },
-            "description": {
-                "en": "Normalize",
-                "es": "Normalizar",
-                "fr": "Normaliser ",
-                "pt_BR": "Normalizar",
-                "sv": "Normalisera"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Normalize",
-                "es": "Normalizar",
-                "fr": "Normaliser ",
-                "pt_BR": "Normalizar",
-                "sv": "Normalisera"
-            }
-        },
         "b3d11842-0090-420a-8919-52d7039d50e6": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -9736,43 +8880,6 @@
                 "sv": "Bearbeta metadatamapp"
             }
         },
-        "b6c9de5a-4a9f-41e1-a524-360bdca39893": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "a6e97805-a420-41af-b708-2a56de5b47a6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml",
-                "es": "Generar METS.xml",
-                "fr": "Générer METS.xml",
-                "ja": "METS.xml を生成",
-                "pt_BR": "Gerar METS.xml",
-                "sv": "Skapa METS.xml"
-            }
-        },
         "b7cf0d9a-504f-4f4e-9930-befa817d67ff": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -9834,7 +8941,7 @@
                 },
                 "1": {
                     "job_status": "Completed successfully",
-                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
                 }
             },
             "fallback_job_status": "Failed",
@@ -9905,42 +9012,6 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
-        },
-        "bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--host=\"%host%\" --port=\"%port%\" --dbname=\"%dbname%\" --dbuser=\"%dbuser%\" --dbpass=\"%dbpass%\" --atuser=\"%atuser%\" --dip_location=\"%SIPDirectory%\" --dip_name=\"%SIPName%\" --dip_uuid=\"%SIPUUID%\" --restrictions=\"%restrictions%\" --object_type=\"%object_type%\" --ead_actuate=\"%ead_actuate%\" --ead_show=\"%ead_show%\" --use_statement=\"%use_statement%\" --uri_prefix=\"%uri_prefix%\" --access_conditions=\"%access_conditions%\" --use_conditions=\"%use_conditions%\"",
-                "execute": "upload-archivistsToolkit_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Upload to Archivists Toolkit",
-                "fr": "Télécharger dans Archivists' Toolkit",
-                "ja": "Archivists Toolkitにアップロード",
-                "pt_BR": "Carregar para o Archivists Toolkit",
-                "sv": "Ladda upp till Archivists Toolkit"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "2e31580d-1678-474b-83e5-a53d97d150f6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "2e31580d-1678-474b-83e5-a53d97d150f6",
-            "group": {
-                "en": "Upload DIP",
-                "es": "Subir DIP",
-                "fr": "Télécharger le DIP",
-                "ja": "DIPをアップロード",
-                "pt_BR": "Carregar DIP",
-                "sv": "Ladda upp DIP"
             }
         },
         "bbfbecde-370c-4e26-8087-cfa751e72e6a": {
@@ -10082,7 +9153,7 @@
                 },
                 "1": {
                     "job_status": "Completed successfully",
-                    "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+                    "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
                 }
             },
             "fallback_job_status": "Failed",
@@ -10686,37 +9757,6 @@
                 "sv": "Normalisera"
             }
         },
-        "cf71e6ff-7740-4bdb-a6a9-f392d678c6e1": {
-            "config": {
-                "@manager": "linkTaskManagerSetUnitVariable",
-                "@model": "TaskConfigSetUnitVariable",
-                "chain_id": "f3a58cbb-20a8-4c6d-9ae4-1a5f02c1a28e",
-                "variable": "linkAfterMovedFromQuarantine",
-                "variable_value": null
-            },
-            "description": {
-                "en": "Designate to process as a standard transfer when unquarantined",
-                "fr": "Marquer le transfert pour le traiter comme transfert standard lorsqu'il sera retiré de la quarantaine",
-                "pt_BR": "Indicar para processar como uma transferência padrão quando não quarentena",
-                "sv": "Märk för att processa som en standardöverföring efter karantän"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "2adf60a0-ecd7-441a-b82f-f77c6a3964c3"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "d026e5a4-96cf-4e4c-938d-a74b0d211da0": {
             "config": {
                 "@manager": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
@@ -10756,7 +9796,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
+                "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
                 "execute": "archivematicaVerifyMets_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -10840,39 +9880,6 @@
                 "fr": "Identifier les fichiers DSpace",
                 "pt_BR": "Identifique os arquivos do DSpace",
                 "sv": "Identifiera DSpace-filer"
-            }
-        },
-        "d1018160-aaab-4d92-adce-d518880d7c7d": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\"",
-                "execute": "archivematicaVerifyMets_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Verify mets_structmap.xml compliance",
-                "fr": "Vérifier la conformité mets_structmap.xml ",
-                "pt_BR": "Verificar a conformidade mets_structmap.xml",
-                "sv": "Kontrollera mets_structmap.xml följsamhet"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "b3d11842-0090-420a-8919-52d7039d50e6"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
-            "group": {
-                "en": "Verify transfer compliance",
-                "fr": "Vérifier la conformité du transfert",
-                "pt_BR": "Verificar a conformidade da transferência",
-                "sv": "Kontrollera överförings följsamhet"
             }
         },
         "d1b27e9e-73c8-4954-832c-36bd1e00c802": {
@@ -11040,42 +10047,6 @@
                 "sv": "Byt namn med överförings UUID"
             }
         },
-        "d46f6af8-bc4e-4369-a808-c0fedb439fef": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"backlog\"",
-                "execute": "elasticSearchIndex_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Index transfer contents",
-                "es": "Indexar los contenidos de la transferencia",
-                "fr": "Indexer le contenu des transferts",
-                "pt_BR": "Conteúdos de transferência de índice",
-                "sv": "Indexera överföringsinnehåll"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Create SIP from Transfer",
-                "es": "Crear SIP a partir de la transferencia",
-                "fr": "Créer un SIP à partir du Transfert",
-                "ja": "転送からSIPを作成する",
-                "pt_BR": "Crie SIP a partir da transferência",
-                "sv": "Skapa SIP från överföringspaket"
-            }
-        },
         "d55b42c8-c7c5-4a40-b626-d248d2bd883f": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -11115,8 +10086,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "-R \"%SIPDirectory%\"",
-                "execute": "remove_v0.0",
+                "arguments": "\"%SIPDirectory%\"",
+                "execute": "removeDirectories_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -11195,39 +10166,6 @@
                 "en": "Include default Transfer processingMCP.xml",
                 "pt_BR": "Incluir transferência padrão processingMCP.xml",
                 "sv": "Inkludera standadard överförings processing.xml"
-            }
-        },
-        "d7e6404a-a186-4806-a130-7e6d27179a15": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to processing directory",
-                "pt_BR": "Mover para o diretório de processamento",
-                "sv": "Flytta till bearbetningsmapp"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Scan for viruses",
-                "fr": "Lancer l’antivirus",
-                "ja": "ウイルスをスキャンする",
-                "pt_BR": "Procurar por vírus",
-                "sv": "Sök efter virus"
             }
         },
         "d951628f-e2c2-40b2-8bc0-7b9a7d1ef3d3": {
@@ -11588,78 +10526,6 @@
                 "sv": "Inkludera standard SIP processingMCP.xml"
             }
         },
-        "df1cc271-ff77-4f86-b4f3-afc01856db1f": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"quarantine\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create quarantine PREMIS events",
-                "es": "Crear eventos PREMIS de cuarentena",
-                "pt_BR": "Crie eventos da quarentena PREMIS",
-                "sv": "Skapa karantän PREMIS-händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "cf71e6ff-7740-4bdb-a6a9-f392d678c6e1"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "cf71e6ff-7740-4bdb-a6a9-f392d678c6e1",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
-        "df957421-6bba-4ad7-8580-0fc04a54efd4": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\" --fileGroupIdentifier \"transfer_id\"",
-                "execute": "createMETS_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "b2552a90-e674-4a40-a482-687c046407d3"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Generate METS.xml document",
-                "es": "Generar METS.xml",
-                "fr": "Générer un document METS.xml",
-                "ja": "METS.xml文書 を生成",
-                "pt_BR": "Gerar documentos METS.xml",
-                "sv": "Skapa METS.xml dokument"
-            }
-        },
         "e10a31c3-56df-4986-af7e-2794ddfe8686": {
             "config": {
                 "@manager": "linkTaskManagerReplacementDicFromChoice",
@@ -11774,41 +10640,6 @@
                 "fr": "Normaliser ",
                 "pt_BR": "Normalizar",
                 "sv": "Normalisera"
-            }
-        },
-        "e2c0dae9-3295-4a98-b3ff-664ab2dc0cda": {
-            "config": {
-                "@manager": "linkTaskManagerFiles",
-                "@model": "StandardTaskConfig",
-                "arguments": "--eventType \"quarantine\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-                "execute": "createEvent_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": "objects",
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Create quarantine PREMIS events",
-                "es": "Crear eventos PREMIS de cuarentena",
-                "pt_BR": "Crie eventos da quarentena PREMIS",
-                "sv": "Skapa karantän PREMIS-händelser"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "7e65c627-c11d-4aad-beed-65ceb7053fe8"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "7e65c627-c11d-4aad-beed-65ceb7053fe8",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "e399bd60-202d-42df-9760-bd14497b5034": {
@@ -11978,6 +10809,40 @@
                 "en": "TRIM transfer",
                 "fr": "Transfert TRIM",
                 "pt_BR": "Transferência do TRIM "
+            }
+        },
+        "e6e553cf-85f5-4e2f-abf4-d276acd66f5a": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
+                "execute": "saveDublinCore_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Serialize Dublin Core metadata to disk",
+                "pt_BR": "Seriar os metadados Dublin Core para o disco",
+                "sv": "Sänd Dublin Core metadata till disk som serie"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85",
+            "group": {
+                "en": "Create SIP from Transfer",
+                "es": "Crear SIP a partir de la transferencia",
+                "fr": "Créer un SIP à partir du Transfert",
+                "ja": "転送からSIPを作成する",
+                "pt_BR": "Crie SIP a partir da transferência",
+                "sv": "Skapa SIP från överföringspaket"
             }
         },
         "e76aec15-5dfa-4b14-9405-735863e3a6fa": {
@@ -12535,8 +11400,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%relativeLocation%\" \"%date%\" \"%taskUUID%\" \"%SIPUUID%\"",
-                "execute": "verifyMD5_v0.0",
+                "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
+                "execute": "verifychecksum_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -12552,7 +11417,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
                 }
             },
             "fallback_job_status": "Failed",
@@ -12734,33 +11599,6 @@
                 "fr": "Normaliser ",
                 "pt_BR": "Normalizar",
                 "sv": "Normalisera"
-            }
-        },
-        "f3a58cbb-20a8-4c6d-9ae4-1a5f02c1a28e": {
-            "config": {
-                "@manager": "linkTaskManagerChoice",
-                "@model": "MicroServiceChainChoice",
-                "chain_choices": [
-                    "333643b7-122a-4019-8bef-996443f3ecc5",
-                    "1b04ec43-055c-43b7-9543-bd03c6a778ba"
-                ]
-            },
-            "description": {
-                "en": "Remove from quarantine",
-                "fr": "Retirer de la quarantaine",
-                "pt_BR": "Remover da quarentena",
-                "sv": "Ta bort från karantän"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Failed",
-            "fallback_link_id": null,
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "f3be1ee1-8881-465d-80a6-a6f093d40ec2": {
@@ -12962,40 +11800,6 @@
                 "sv": "Inkludera standadard överförings processing.xml"
             }
         },
-        "f8be53cd-6ca2-4770-8619-8a8101a809b9": {
-            "config": {
-                "@manager": "linkTaskManagerDirectories",
-                "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-                "execute": "moveTransfer_v0.0",
-                "filter_file_end": null,
-                "filter_file_start": null,
-                "filter_subdir": null,
-                "stderr_file": null,
-                "stdout_file": null
-            },
-            "description": {
-                "en": "Move to processing directory",
-                "pt_BR": "Mover para o diretório de processamento",
-                "sv": "Flytta till bearbetningsmapp"
-            },
-            "exit_codes": {
-                "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": "5158c618-6160-41d6-bbbe-ddf34b5b06bc"
-                }
-            },
-            "fallback_job_status": "Failed",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
-            }
-        },
         "f8ee488b-5667-4417-ae15-bed9e42ee97d": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -13086,11 +11890,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa"
+                    "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": "3409b898-e532-49d3-98ff-a2a1f9d988fa",
+            "fallback_link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
             "group": {
                 "en": "TRIM transfer",
                 "fr": "Transfert TRIM",
@@ -13123,30 +11927,6 @@
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
                 "en": "Parse external files"
-            }
-        },
-        "fbc3857b-bb02-425b-89ce-2d6a39eaa542": {
-            "config": {
-                "@manager": "linkTaskManagerUnitVariableLinkPull",
-                "@model": "TaskConfigUnitVariableLinkPull",
-                "chain_id": null,
-                "variable": "linkAfterMovedFromQuarantine"
-            },
-            "description": {
-                "en": "Find type to remove from quarantine as",
-                "pt_BR": "Localize o  tipo para remover da quarentena como",
-                "sv": "Hitta typ för att ta ur karantän som"
-            },
-            "exit_codes": {},
-            "fallback_job_status": "Completed successfully",
-            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-            "group": {
-                "en": "Quarantine",
-                "es": "Cuarentena",
-                "fr": "Quarantaine",
-                "ja": "検疫",
-                "pt_BR": "Quarentena",
-                "sv": "Karantän"
             }
         },
         "fdb12ea6-22aa-46c8-a591-a2bcf5d42e5e": {
@@ -13313,12 +12093,6 @@
             "unit_type": "Transfer"
         },
         {
-            "chain_id": "ad37288a-162c-4562-8532-eb4050964c73",
-            "only_dirs": true,
-            "path": "/quarantined/",
-            "unit_type": "Transfer"
-        },
-        {
             "chain_id": "28a4322d-b8a5-4bae-b2dd-71cc9ff99e73",
             "only_dirs": true,
             "path": "/uploadDIP/",
@@ -13365,12 +12139,6 @@
             "only_dirs": true,
             "path": "/workFlowDecisions/metadataReminder/",
             "unit_type": "SIP"
-        },
-        {
-            "chain_id": "7030f152-398a-470b-b045-f5dfa9013671",
-            "only_dirs": true,
-            "path": "/workFlowDecisions/quarantineTransfer",
-            "unit_type": "Transfer"
         },
         {
             "chain_id": "fefdcee4-dd84-4b55-836f-99ef880ecdb6",
