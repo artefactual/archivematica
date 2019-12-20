@@ -5568,8 +5568,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "-R \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
-                "execute": "remove_v0.0",
+                "arguments": "\"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
+                "execute": "removeDirectories_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
@@ -6207,9 +6207,9 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Removed bagged files",
-                "pt_BR": "Pacotes de arquivos removidos",
-                "sv": "Tog bort bagged filer"
+                "en": "Remove bagged files",
+                "pt_BR": "Remover pacotes de arquivos",
+                "sv": "Ta bort filer som blivit satta i en bag"
             },
             "exit_codes": {
                 "0": {
@@ -10086,8 +10086,8 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "-R \"%SIPDirectory%\"",
-                "execute": "remove_v0.0",
+                "arguments": "\"%SIPDirectory%\"",
+                "execute": "removeDirectories_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
                 "filter_subdir": null,
