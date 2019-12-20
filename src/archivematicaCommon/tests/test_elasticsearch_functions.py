@@ -569,4 +569,4 @@ def test_get_file_metadata(mets, file_pointer, file_pointer_with_no_metadata):
         "dc:creator": "AM",
         "dc:subject": [None, None, None],
         "dc:title": "Some title",
-    }   
+    }
