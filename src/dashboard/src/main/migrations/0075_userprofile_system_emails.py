@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0067_delete_workflow_models'),
+        ('main', '0074_version_number'),
     ]
 
     operations = [
