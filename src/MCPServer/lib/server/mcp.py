@@ -42,7 +42,6 @@ from server.jobs import Job, JobChain
 from server.packages import DIP, Transfer, SIP
 from server.queues import PackageQueue
 from server.tasks import Task
-from server.utils import uuid_from_path
 from server.watch_dirs import watch_directories
 from server.workflow import load_default_workflow
 
@@ -64,10 +63,9 @@ def watched_dir_handler(package_queue, path, watched_dir):
     elif package_type == "DIP" and is_dir:
         package = DIP.get_or_create_from_db_by_path(path)
     elif package_type == "Transfer" and is_dir:
-        uuid = uuid_from_path(path)
-        package = Transfer(path, uuid)
+        package = Transfer.get_or_create_from_db_by_path(path)
     elif package_type == "Transfer" and not is_dir:
-        package = Transfer(path, None)
+        package = Transfer.get_or_create_from_db_by_path(path)
     else:
         raise ValueError("Unexpected unit type given for file {}".format(path))
 
