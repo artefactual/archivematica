@@ -20,7 +20,6 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 
-
 logger = get_script_logger("archivematica.mcp.client.indexAIP")
 
 
