@@ -245,7 +245,6 @@ class TestElasticSearchFunctions(unittest.TestCase):
         assert patch.call_count == 2
 
 
-
 fileuuid_premisv3 = (
     {
         "filePath": "objects/evelyn_s_photo.jpg",
@@ -354,7 +353,6 @@ dmdsec_dconly = {
         "dc:description": "Test description",
     },
 }
-
 
 
 @pytest.mark.django_db
@@ -572,3 +570,4 @@ def test_get_file_metadata(mets, file_pointer, file_pointer_with_no_metadata):
         "dc:subject": [None, None, None],
         "dc:title": "Some title",
     }
+    
