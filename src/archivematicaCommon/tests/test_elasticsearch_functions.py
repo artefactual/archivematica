@@ -393,6 +393,7 @@ def test_index_aipfile_dmdsec(
             indexed_data[item["_source"]["filePath"]] = dc
 
     dummy_helpers_bulk.side_effect = _bulk
+
     elasticSearchFunctions._index_aip_files(
         client=None,
         uuid="DUMMYUUID",
