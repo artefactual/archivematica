@@ -64,10 +64,10 @@ def add(request):
         form = UserCreationForm(initial=data)
         userprofileform = UserProfileForm()
 
-    return render(request, "accounts/add.html", {
-      "form": form,
-      "userprofileform": userprofileform
-    })
+    return render(
+        request, "accounts/add.html", {"form": form, "userprofileform": userprofileform}
+    )
+
 
 def profile(request):
     # If users are editable in this setup, go to the editable profile view
@@ -81,7 +81,7 @@ def profile(request):
     if request.method == "POST":
         form = ApiKeyForm(request.POST)
         userprofileform = UserProfileForm(request.POST, instance=user_profile)
-        if (form.is_valid() and userprofileform.is_valid()):
+        if form.is_valid() and userprofileform.is_valid():
             if form["regenerate_api_key"] != "":
                 generate_api_key(user)
             userprofileform.save()
@@ -91,11 +91,11 @@ def profile(request):
         form = ApiKeyForm()
         userprofileform = UserProfileForm(instance=user_profile)
 
-    return render(request, "accounts/profile.html", {
-        "form": form,
-        "userprofileform": userprofileform,
-        "title": title
-    })
+    return render(
+        request,
+        "accounts/profile.html",
+        {"form": form, "userprofileform": userprofileform, "title": title},
+    )
 
 
 def edit(request, id=None):
@@ -118,7 +118,7 @@ def edit(request, id=None):
     if request.method == "POST":
         form = UserChangeForm(request.POST, instance=user)
         userprofileform = UserProfileForm(request.POST, instance=user_profile)
-        if (form.is_valid() and userprofileform.is_valid()):
+        if form.is_valid() and userprofileform.is_valid():
             user = form.save(commit=False)
 
             # change password if requested
@@ -151,16 +151,20 @@ def edit(request, id=None):
         if request.user.is_superuser:
             suppress_administrator_toggle = False
         form = UserChangeForm(
-          instance=user, suppress_administrator_toggle=suppress_administrator_toggle
+            instance=user, suppress_administrator_toggle=suppress_administrator_toggle
         )
         userprofileform = UserProfileForm(instance=user_profile)
 
-    return render(request, "accounts/edit.html", {
-        "form": form,
-        "userprofileform": userprofileform,
-        "user": user,
-        "title": title
-    })
+    return render(
+        request,
+        "accounts/edit.html",
+        {
+            "form": form,
+            "userprofileform": userprofileform,
+            "user": user,
+            "title": title,
+        },
+    )
 
 
 def delete_context(request, id):

@@ -122,6 +122,10 @@ class ApiKeyForm(forms.Form):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['system_emails', ]
-        labels = {'system_emails': 'Send system emails?'}
-        help_texts = {'system_emails': 'If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports.'}
+        fields = [
+            "system_emails",
+        ]
+        labels = {"system_emails": "Send system emails?"}
+        help_texts = {
+            "system_emails": "If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports."
+        }
