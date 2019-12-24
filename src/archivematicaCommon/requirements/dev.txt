@@ -36,7 +36,7 @@ scandir==1.10.0
 six==1.12.0
 toml==0.10.0
 tox==3.8.3
-urllib3==1.24.1
+urllib3==1.25.7
 vcrpy==1.13.0
 virtualenv==16.4.3
 wrapt==1.11.1
