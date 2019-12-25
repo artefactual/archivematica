@@ -77,3 +77,6 @@ vcrpy==1.13.0
 virtualenv==16.4.3        # via tox
 whitenoise==3.3.0
 wrapt==1.11.1             # via vcrpy
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
