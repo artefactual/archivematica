@@ -35,7 +35,7 @@ funcparserlib==0.3.6      # via mockldap
 funcsigs==1.0.2           # via mock, pytest
 future==0.17.1
 futures==3.2.0
-gearman==2.0.2
+git+https://github.com/ross-spencer/python-gearman@82fb2b4431fa5ffc89cd70eb1ff3c61a4d2f2512#egg=gearman3
 gevent==1.3.6
 greenlet==0.4.15
 gunicorn==19.9.0

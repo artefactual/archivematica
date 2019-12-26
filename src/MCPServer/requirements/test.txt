@@ -16,7 +16,7 @@ filelock==3.0.12          # via tox
 funcsigs==1.0.2           # via mock, pytest
 functools32==3.2.3.post2
 futures==3.3.0 ; python_version < "3.2"
-gearman==2.0.2
+git+https://github.com/ross-spencer/python-gearman@82fb2b4431fa5ffc89cd70eb1ff3c61a4d2f2512#egg=gearman3
 importlib-metadata==1.3.0  # via pluggy, pytest, tox
 inotify_simple==1.1.8
 jsonschema==2.6.0
