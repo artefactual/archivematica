@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
-"Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
-"fr/)\n"
+"PO-Revision-Date: 2019-12-26 23:56+0000\n"
+"Last-Translator: Ross Spencer <all.along.the.watchtower2001+github@gmail.com>"
+"\n"
+"Language-Team: French <http://translations.artefactual.com/projects/"
+"archivematica-test/frontend/fr/>\n"
 "Language: fr\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.2.2\n"
 
 #: app/front_page/appraisal_tab.html:48
 msgid "1 object selected"
@@ -305,7 +308,7 @@ msgstr "Aucune information n'a été trouvée pour les fichiers sélectionnés."
 
 #: app/front_page/appraisal_tab.html:295
 msgid "None"
-msgstr ""
+msgstr "Aucune"
 
 #: app/report/format.html:6
 msgid "Number of files"
