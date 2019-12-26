@@ -189,7 +189,7 @@ class RPCServer(GearmanWorker):
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
                 resp = {"error": True, "handler": name, "message": str(err)}
-            return cPickle.dumps(resp)
+            return cPickle.dumps(resp, protocol=2)
 
         return wrap
 

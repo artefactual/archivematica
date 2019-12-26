@@ -112,7 +112,7 @@ class MCPClient(object):
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             ability,
-            cPickle.dumps(data),
+            cPickle.dumps(data, protocol=2),
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -135,7 +135,7 @@ class MCPClient(object):
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job("approveJob", cPickle.dumps(data), None)
+        gm_client.submit_job("approveJob", cPickle.dumps(data, protocol=2), None)
         gm_client.shutdown()
         return
 

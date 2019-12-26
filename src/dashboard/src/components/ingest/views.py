@@ -312,7 +312,9 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = cPickle.dumps({"target": request.POST["target"]})
+            access.target = cPickle.dumps(
+                {"target": request.POST["target"]}, protocol=2
+            )
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)

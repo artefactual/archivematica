@@ -110,7 +110,9 @@ def start(job, data):
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
-            access.target = cPickle.dumps({"target": transfers[0].access_system_id})
+            access.target = cPickle.dumps(
+                {"target": transfers[0].access_system_id}, protocol=2
+            )
         access.save()
 
     # The target columns contents a serialized Python dictionary

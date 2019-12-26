@@ -96,7 +96,7 @@ def _run_jobs(module_name, jobs):
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
                 module_name,
             ],
-            cPickle.dumps(environment),
+            cPickle.dumps(environment, protocol=2),
             printing=False,
             capture_output=True,
         )
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         try:
             module = importlib.import_module(module_to_run)
             module.call(jobs)
-            cPickle.dump(jobs, f)
+            cPickle.dump(jobs, f, protocol=2)
         except Exception as e:
             cPickle.dump(
                 {
@@ -149,4 +149,5 @@ if __name__ == "__main__":
                     }
                 },
                 f,
+                protocol=2,
             )
