@@ -386,7 +386,7 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
         "watchedDirectories",
         "SIPCreation",
         "SIPsUnderConstruction",
-        sip_name,
+        "%s-%s" % (sip_name, sip_uuid),
     )
     currentpath = sip_path.replace(shared_dir, "%sharedPath%", 1) + "/"
     sip_path = helpers.pad_destination_filepath_if_it_already_exists(sip_path)
