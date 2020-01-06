@@ -459,7 +459,7 @@ These variables specify the behaviour of LDAP authentication. Only applicable if
     - **Type:** `string`
     - **Default:** ``
 
-- **`AUTH_LDAP_GROUP_SEARCH_BASE_FILTERSTR`**:
+- **`AUTH_LDAP_GROUP_SEARCH_FILTERSTR`**:
     - **Description:** Filter for identifying LDAP group objects, e.g. "(objectClass=groupOfNames)".
     This variable is only used if `AUTH_LDAP_GROUP_SEARCH_BASE_DN` is not empty.
     - **Type:** `string`
