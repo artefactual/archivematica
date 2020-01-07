@@ -686,14 +686,13 @@ class Package(object):
             # associated with the current unit.
             if files_on_disk:
                 for file_path in files_on_disk:
-                    if os.path.exists(file_path):
-                        package_file_list.append(
-                            {
-                                r"%relativeLocation%": file_path,
-                                r"%fileUUID%": "None",
-                                r"%fileGrpUse%": "",
-                            }
-                        )
+                    package_file_list.append(
+                        {
+                            r"%relativeLocation%": file_path,
+                            r"%fileUUID%": "None",
+                            r"%fileGrpUse%": "",
+                        }
+                    )
 
             for file in package_file_list:
                 yield file
