@@ -635,7 +635,8 @@ class Package(object):
     def files(
         self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
     ):
-        """Generator that yields all files associated with the package.
+        """Generator that yields all files associated with the package or that
+        should be associated with a package.
         """
         with auto_close_old_connections():
             queryset = self.base_queryset
@@ -651,37 +652,51 @@ class Package(object):
                 filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
                 queryset = queryset.filter(currentlocation__startswith=filter_path)
 
-            # If we don't have any matching files in the database, we're in the process of
-            # generating file UUIDs, so walk the filesystem.
-            # TODO: restructure workflow to remove these cases.
-            if not queryset.exists():
-                start_path = self.current_path.encode(
-                    "utf-8"
-                )  # use bytes to return bytes
-                if filter_subdir:
-                    start_path = start_path + filter_subdir.encode("utf-8")
+            start_path = self.current_path.encode("utf-8")  # use bytes to return bytes
+            if filter_subdir:
+                start_path = start_path + filter_subdir.encode("utf-8")
 
-                for basedir, subdirs, files in scandir.walk(start_path):
-                    for file_name in files:
-                        if (
-                            filter_filename_start
-                            and not file_name.startswith(filter_filename_start)
-                        ) or (
-                            filter_filename_end
-                            and not file_name.endswith(filter_filename_end)
-                        ):
-                            continue
+            files_on_disk = []
+            for basedir, subdirs, files in scandir.walk(start_path):
+                for file_name in files:
+                    if (
+                        filter_filename_start
+                        and not file_name.startswith(filter_filename_start)
+                    ) or (
+                        filter_filename_end
+                        and not file_name.endswith(filter_filename_end)
+                    ):
+                        continue
 
-                        file_path = os.path.join(basedir, file_name)
-                        yield {
-                            r"%relativeLocation%": file_path,
-                            # empty uuid expects the string 'None'
-                            r"%fileUUID%": "None",
-                            r"%fileGrpUse%": "",
-                        }
-            else:
+                    files_on_disk.append(os.path.join(basedir, file_name))
+
+            package_file_list = []
+
+            if queryset.exists():
                 for file_obj in queryset.iterator():
-                    yield get_file_replacement_mapping(file_obj, self.current_path)
+                    file_obj_mapped = get_file_replacement_mapping(
+                        file_obj, self.current_path
+                    )
+                    if file_obj_mapped.get("%inputFile%") in files_on_disk:
+                        package_file_list.append(file_obj_mapped)
+                        files_on_disk.remove(file_obj_mapped.get("%inputFile%"))
+
+            # We have objects on disk that aren't yet associated with the
+            # package but need to be processed, e.g. tasks created for to be
+            # associated with the current unit.
+            if files_on_disk:
+                for file_path in files_on_disk:
+                    if os.path.exists(file_path):
+                        package_file_list.append(
+                            {
+                                r"%relativeLocation%": file_path,
+                                r"%fileUUID%": "None",
+                                r"%fileGrpUse%": "",
+                            }
+                        )
+
+            for file in package_file_list:
+                yield file
 
     @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
