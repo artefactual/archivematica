@@ -635,7 +635,8 @@ class Package(object):
     def files(
         self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
     ):
-        """Generator that yields all files associated with the package.
+        """Generator that yields all files associated with the package or that
+        should be associated with a package.
         """
         with auto_close_old_connections():
             queryset = self.base_queryset
@@ -651,37 +652,38 @@ class Package(object):
                 filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
                 queryset = queryset.filter(currentlocation__startswith=filter_path)
 
-            # If we don't have any matching files in the database, we're in the process of
-            # generating file UUIDs, so walk the filesystem.
-            # TODO: restructure workflow to remove these cases.
-            if not queryset.exists():
-                start_path = self.current_path.encode(
-                    "utf-8"
-                )  # use bytes to return bytes
-                if filter_subdir:
-                    start_path = start_path + filter_subdir.encode("utf-8")
+            start_path = self.current_path.encode("utf-8")  # use bytes to return bytes
+            if filter_subdir:
+                start_path = start_path + filter_subdir.encode("utf-8")
 
-                for basedir, subdirs, files in scandir.walk(start_path):
-                    for file_name in files:
-                        if (
-                            filter_filename_start
-                            and not file_name.startswith(filter_filename_start)
-                        ) or (
-                            filter_filename_end
-                            and not file_name.endswith(filter_filename_end)
-                        ):
-                            continue
+            files_returned_already = set()
+            if queryset.exists():
+                for file_obj in queryset.iterator():
+                    file_obj_mapped = get_file_replacement_mapping(
+                        file_obj, self.current_path
+                    )
+                    if not os.path.exists(file_obj_mapped.get("%inputFile%")):
+                        continue
+                    files_returned_already.add(file_obj_mapped.get("%inputFile%"))
+                    yield file_obj_mapped
 
-                        file_path = os.path.join(basedir, file_name)
+            for basedir, subdirs, files in scandir.walk(start_path):
+                for file_name in files:
+                    if (
+                        filter_filename_start
+                        and not file_name.startswith(filter_filename_start)
+                    ) or (
+                        filter_filename_end
+                        and not file_name.endswith(filter_filename_end)
+                    ):
+                        continue
+                    file_path = os.path.join(basedir, file_name)
+                    if file_path not in files_returned_already:
                         yield {
                             r"%relativeLocation%": file_path,
-                            # empty uuid expects the string 'None'
                             r"%fileUUID%": "None",
                             r"%fileGrpUse%": "",
                         }
-            else:
-                for file_obj in queryset.iterator():
-                    yield get_file_replacement_mapping(file_obj, self.current_path)
 
     @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
