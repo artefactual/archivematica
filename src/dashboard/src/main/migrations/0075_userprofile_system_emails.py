@@ -17,5 +17,5 @@ class Migration(migrations.Migration):
                 help_text="If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports.",
                 verbose_name="Send system emails?",
             ),
-        ),
+        )
     ]
