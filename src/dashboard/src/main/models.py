@@ -864,9 +864,7 @@ class UserProfile(models.Model):
         help_text=_(
             "If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports."
         ),
-        verbose_name=_(
-            "Send system emails?"
-        )
+        verbose_name=_("Send system emails?")
     )
 
     class Meta:
