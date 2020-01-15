@@ -22,11 +22,17 @@ UUID before re-indexing. This is useful if only some AIPs are missing from
 the index, since AIPs that already exist will not have their information
 duplicated.
 
+To delete an entry for an AIP from the index without reindexing it, use
+``--delete-only`` (shall be used with the ``-u`` (``--uuid`) parameter).
+
 ``--delete-all`` will delete the entire AIP Elasticsearch index before
 starting. This is useful if there are AIPs indexed that have been deleted. This
 should not be used if there are AIPs stored that are not locally accessible.
+
+``--tmp-dir`` may be passed to specify a temporary directory for processing
+(this is useful when the system /tmp directory used by default is on a volume
+with limited space).
 """
-from __future__ import absolute_import, print_function
 
 import shutil
 import os
@@ -38,6 +44,7 @@ import tempfile
 import scandir
 from lxml import etree
 
+from django.core.management.base import CommandError
 from main.management.commands import DashboardCommand, setup_es_for_aip_reindexing
 import archivematicaFunctions as am
 import storageService as storage_service
@@ -185,7 +192,12 @@ class Command(DashboardCommand):
             "-d",
             "--delete",
             action="store_true",
-            help="Delete AIP-related Elasticsearch data before" " indexing AIP data",
+            help="Delete AIP-related Elasticsearch data before indexing AIP data",
+        )
+        parser.add_argument(
+            "--delete-only",
+            action="store_true",
+            help="Delete AIP-related Elasticsearch data without indexing AIP data",
         )
         parser.add_argument(
             "--delete-all",
@@ -204,6 +216,15 @@ class Command(DashboardCommand):
         parser.add_argument(
             "rootdir", help="Path to the directory containing the AIPs", metavar="PATH"
         )
+        parser.add_argument(
+            "--tmp-dir",
+            help=(
+                "Temporary directory for processing, e.g.: "
+                "'/var/archivematica/sharedDirectory/tmp'."
+            ),
+            default=None,
+            required=False,
+        )
 
     def handle(self, *args, **options):
         # Check root directory exists
@@ -211,15 +232,34 @@ class Command(DashboardCommand):
             print("AIP store location doesn't exist.")
             sys.exit(1)
 
+        if options["delete_all"] and options["delete_only"]:
+            raise CommandError(
+                "Arguments --delete-only and --delete-all are mutually exclusive."
+            )
+
         # Setup es_client and delete indices if required.
         es_client = setup_es_for_aip_reindexing(self, options["delete_all"])
+
+        # If delete-only option is used, just delete the AIP data,
+        # do not need to index thereafter.
+        if options["delete_only"]:
+            if not options["uuid"]:
+                raise CommandError("Argument --delete-only requires option -u (--uuid)")
+            print(
+                "Deleting AIP {} from aips/aip and aips/aipfile.".format(
+                    options["uuid"]
+                )
+            )
+            elasticSearchFunctions.delete_aip(es_client, options["uuid"])
+            elasticSearchFunctions.delete_aip_files(es_client, options["uuid"])
+            return
 
         if not options["uuid"]:
             print("Rebuilding AIPS index from AIPS in", options["rootdir"])
         else:
             print("Rebuilding AIP UUID", options["uuid"])
 
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = tempfile.mkdtemp(dir=options["tmp_dir"])
         count = 0
         name_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
         dir_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
