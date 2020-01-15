@@ -45,6 +45,7 @@ def list(request):
 def add(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+        userprofileform = UserProfileForm(request.POST)
         if form.is_valid():
             newuser = form.save(commit=False)
             newuser.is_staff = True
@@ -53,7 +54,7 @@ def add(request):
             api_key.key = api_key.generate_key()
             api_key.save()
             user_profile = UserProfile.objects.get(user=newuser)
-            userprofileform = UserProfileForm(request.POST, instance=user_profile)
+            userprofileform.instance = user_profile
             userprofileform.save()
 
             messages.info(request, _("Saved."))
