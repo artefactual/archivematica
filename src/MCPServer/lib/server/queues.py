@@ -70,6 +70,18 @@ class PackageQueue(object):
             "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c",
             # Move Transfer to failed directory
             "377f8ebb-7989-4a68-9361-658079ff8138",
+            # Move transfer to backlog
+            "abd6d60c-d50f-4660-a189-ac1b34fafe85",
+            # Check transfer directory for objects
+            "032cdc54-0b9b-4caf-86e8-10d63efbaec0",
+            # Move to the rejected directory
+            "0d7f5dc2-b9af-43bf-b698-10fdcc5b014d",
+            "333532b9-b7c2-4478-9415-28a3056d58df",
+            "3467d003-1603-49e3-b085-e58aa693afed",
+            # Failed compliance. See output in dashboard. SIP moved back to SIPsUnderConstruction
+            "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
+            # Failed compliance. See output in dashboard. Transfer moved back to activeTransfers
+            "61af079f-46a2-48ff-9b8a-0c78ba3a456d",
         ]
     )
     # An arbitrary, large value, so we don't accept infinite packages.
