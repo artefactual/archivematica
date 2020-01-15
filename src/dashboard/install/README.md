@@ -180,6 +180,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `boolean`
     - **Default:** `false`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION`**:
+    - **Description:** enables the OIDC authentication system.
+    - **Config file example:** `Dashboard.oidc_authentication`
+    - **Type:** `boolean`
+    - **Default:** `false`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_STORAGE_SERVICE_CLIENT_TIMEOUT`**:
     - **Description:** configures the Storage Service client to stop waiting for a response after a given number of seconds.
     - **Config file example:** `Dashboard.storage_service_client_timeout`
@@ -575,6 +581,50 @@ These variables specify the behaviour of CAS authentication. Only applicable if 
     - **Description:** Domain to use for auto-configured email addresses, if `AUTH_CAS_AUTOCONFIGURE_EMAIL` is True.
     - **Type:** `string`
     - **Default:** `None`
+
+### OIDC variables
+
+These variables specify the behaviour of OpenID Connect (OIDC) authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION` is set.
+
+- **`OIDC_RP_CLIENT_ID`**:
+    - **Description:** OIDC client ID
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_RP_CLIENT_SECRET`**:
+    - **Description:** OIDC client secret
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`AZURE_TENANT_ID`**:
+    - **Description:** Azure Active Directory Tenant ID - if this is provided, the endpoint URLs will be automatically generated from this.
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_OP_AUTHORIZATION_ENDPOINT`**:
+    - **Description:** URL of OIDC provider authorization endpoint
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_OP_TOKEN_ENDPOINT`**:
+    - **Description:** URL of OIDC provider token endpoint
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_OP_USER_ENDPOINT`**:
+    - **Description:** URL of OIDC provider userinfo endpoint
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_OP_JWKS_ENDPOINT`**:
+    - **Description:** URL of OIDC provider JWKS endpoint
+    - **Type:** `string`
+    - **Default:** ``
+
+- **`OIDC_RP_SIGN_ALGO`**:
+    - **Description:** Algorithm used by the ID provider to sign ID tokens
+    - **Type:** `string`
+    - **Default:** `HS256`
 
 ## Logging configuration
 
