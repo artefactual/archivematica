@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
             model_name="userprofile",
             name="system_emails",
             field=models.BooleanField(
-                default=False,
+                default=True,
                 help_text="If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports.",
                 verbose_name="Send system emails?",
             ),
