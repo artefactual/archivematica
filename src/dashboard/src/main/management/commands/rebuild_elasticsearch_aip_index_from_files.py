@@ -21,9 +21,16 @@ UUID before re-indexing. This is useful if only some AIPs are missing from
 the index, since AIPs that already exist will not have their information
 duplicated.
 
+To delete an entry for an AIP from the index without reindexing it, use
+``--delete-only`` (shall be used with the ``-u`` (``--uuid`) parameter).
+
 ``--delete-all`` will delete the entire AIP Elasticsearch index before
 starting. This is useful if there are AIPs indexed that have been deleted. This
 should not be used if there are AIPs stored that are not locally accessible.
+
+``--tmp-dir`` may be passed to specify a temporary directory for processing
+(this is useful when the system /tmp directory used by default is on a volume
+with limited space)
 """
 
 from __future__ import print_function
@@ -193,6 +200,11 @@ class Command(DashboardCommand):
             help="Delete AIP-related Elasticsearch data before" " indexing AIP data",
         )
         parser.add_argument(
+            "--delete-only",
+            action="store_true",
+            help="Delete AIP-related Elasticsearch data without" " indexing AIP data",
+        )
+        parser.add_argument(
             "--delete-all",
             action="store_true",
             help="Delete all AIP information in the index before starting."
@@ -208,6 +220,14 @@ class Command(DashboardCommand):
         )
         parser.add_argument(
             "rootdir", help="Path to the directory containing the AIPs", metavar="PATH"
+        )
+        parser.add_argument(
+            "--tmp-dir",
+            help="Temporary directory for processing, passed as dir parameter"
+            " to tempfile.mkdtemp(), e.g,'/var/archivematica/sharedDirectory/tmp'."
+            " Default: None ",
+            default=None,
+            required=False,
         )
 
     def handle(self, *args, **options):
@@ -236,6 +256,22 @@ class Command(DashboardCommand):
             print("Error: Elasticsearch may not be running.")
             sys.exit(1)
 
+        # If delete-only option is used, just delete the AIP data,
+        # do not need to index thereafter
+        if options["delete_only"]:
+            if not options["uuid"]:
+                print("Error: --delete-only requires option -u (--uuid)")
+                sys.exit(1)
+            else:
+                print(
+                    "Deleting AIP {} from aips/aip and aips/aipfile.".format(
+                        options["uuid"]
+                    )
+                )
+                elasticSearchFunctions.delete_aip(es_client, options["uuid"])
+                elasticSearchFunctions.delete_aip_files(es_client, options["uuid"])
+                return
+
         # Delete existing data also clears AIPS not found in the
         # provided directory
         if options["delete_all"]:
@@ -250,7 +286,7 @@ class Command(DashboardCommand):
         else:
             print("Rebuilding AIP UUID", options["uuid"])
 
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = tempfile.mkdtemp(dir=options["tmp_dir"])
         count = 0
         name_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
         dir_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
