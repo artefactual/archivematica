@@ -27,11 +27,12 @@ from django.utils.translation import ugettext as _
 
 from tastypie.models import ApiKey
 
-from components.accounts.forms import UserCreationForm
+from components.accounts.forms import UserCreationForm, UserProfileForm
 from components.accounts.forms import UserChangeForm
 from components.accounts.forms import ApiKeyForm
 import components.decorators as decorators
 from components.helpers import generate_api_key
+from main.models import UserProfile
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
@@ -44,6 +45,7 @@ def list(request):
 def add(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+        userprofileform = UserProfileForm(request.POST)
         if form.is_valid():
             newuser = form.save(commit=False)
             newuser.is_staff = True
@@ -51,6 +53,9 @@ def add(request):
             api_key = ApiKey.objects.create(user=newuser)
             api_key.key = api_key.generate_key()
             api_key.save()
+            user_profile = UserProfile.objects.get(user=newuser)
+            userprofileform = UserProfileForm(request.POST, instance=user_profile)
+            userprofileform.save()
 
             messages.info(request, _("Saved."))
             return redirect("components.accounts.views.list")
@@ -58,8 +63,11 @@ def add(request):
         # Clearing out values that are getting inherited from currently logged in user
         data = {"email": ""}
         form = UserCreationForm(initial=data)
+        userprofileform = UserProfileForm()
 
-    return render(request, "accounts/add.html", {"form": form})
+    return render(
+        request, "accounts/add.html", {"form": form, "userprofileform": userprofileform}
+    )
 
 
 def profile(request):
@@ -68,19 +76,27 @@ def profile(request):
         return edit(request)
 
     user = request.user
+    user_profile = UserProfile.objects.get(user=user)
     title = _("Your profile (%s)") % user
 
     if request.method == "POST":
         form = ApiKeyForm(request.POST)
-        if form.is_valid():
+        userprofileform = UserProfileForm(request.POST, instance=user_profile)
+        if form.is_valid() and userprofileform.is_valid():
             if form["regenerate_api_key"] != "":
                 generate_api_key(user)
+            userprofileform.save()
 
             return redirect("profile")
     else:
         form = ApiKeyForm()
+        userprofileform = UserProfileForm(instance=user_profile)
 
-    return render(request, "accounts/profile.html", {"form": form, "title": title})
+    return render(
+        request,
+        "accounts/profile.html",
+        {"form": form, "userprofileform": userprofileform, "title": title},
+    )
 
 
 def edit(request, id=None):
@@ -97,10 +113,13 @@ def edit(request, id=None):
         user = get_object_or_404(User, pk=id)
         title = "Edit user %s" % user
 
+    user_profile = UserProfile.objects.get(user=user)
+
     # Form
     if request.method == "POST":
         form = UserChangeForm(request.POST, instance=user)
-        if form.is_valid():
+        userprofileform = UserProfileForm(request.POST, instance=user_profile)
+        if form.is_valid() and userprofileform.is_valid():
             user = form.save(commit=False)
 
             # change password if requested
@@ -113,6 +132,7 @@ def edit(request, id=None):
                 user.is_superuser = False
 
             user.save()
+            userprofileform.save()
 
             # regenerate API key if requested
             regenerate_api_key = request.POST.get("regenerate_api_key", "")
@@ -134,9 +154,17 @@ def edit(request, id=None):
         form = UserChangeForm(
             instance=user, suppress_administrator_toggle=suppress_administrator_toggle
         )
+        userprofileform = UserProfileForm(instance=user_profile)
 
     return render(
-        request, "accounts/edit.html", {"form": form, "user": user, "title": title}
+        request,
+        "accounts/edit.html",
+        {
+            "form": form,
+            "userprofileform": userprofileform,
+            "user": user,
+            "title": title,
+        },
     )
 
 

@@ -29,6 +29,8 @@
 
         {% include "_form.html" %}
 
+        {% include "_form.html" with form=userprofileform %}
+
         <div class="actions">
           <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
           <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">{% trans "Cancel" %}</a>

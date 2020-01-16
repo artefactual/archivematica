@@ -33,6 +33,8 @@
           <div class='input'><code>{{ user|api_key }}</code></div>
         </div>
 
+        {% include "_form.html" with form=userprofileform %}
+
         <div class="actions">
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
           <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">{% trans "Cancel" %}</a>

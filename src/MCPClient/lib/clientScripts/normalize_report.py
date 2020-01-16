@@ -98,11 +98,9 @@ def report(uuid):
     Generate normalization report using Django's template module and send it to
     every active user.
     """
-    recipient_list = (
-        User.objects.filter(is_active=True)
-        .values_list("email", flat=True)
-        .exclude(email__in=["demo@example.com", ""])
-    )
+    recipient_list = User.objects.filter(
+        is_active=True, userprofile__system_emails=True
+    ).values_list("email", flat=True)
     if not recipient_list:
         logger.info(
             "Normalization report is not being sent because the recipient list is empty."

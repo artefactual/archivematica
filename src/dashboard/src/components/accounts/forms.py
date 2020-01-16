@@ -20,6 +20,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
 
+from main.models import UserProfile
+
 
 class UserCreationForm(UserCreationForm):
     is_superuser = forms.BooleanField(label="Administrator", required=False)
@@ -115,3 +117,9 @@ class ApiKeyForm(forms.Form):
     regenerate_api_key = forms.CharField(
         widget=forms.CheckboxInput, label="Regenerate API key (shown below)?"
     )
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ["system_emails"]

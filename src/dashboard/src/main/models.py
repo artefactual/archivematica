@@ -859,6 +859,13 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User)
     agent = models.OneToOneField(Agent)
+    system_emails = models.BooleanField(
+        default=True,
+        help_text=_(
+            "If checked, this user will receive system emails, such as Transfer Fail and Normalization Reports."
+        ),
+        verbose_name=_("Send system emails?"),
+    )
 
     class Meta:
         db_table = u"main_userprofile"
