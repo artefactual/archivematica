@@ -54,7 +54,7 @@ def add(request):
             api_key.key = api_key.generate_key()
             api_key.save()
             user_profile = UserProfile.objects.get(user=newuser)
-            userprofileform.instance = user_profile
+            userprofileform = UserProfileForm(request.POST, instance=user_profile)
             userprofileform.save()
 
             messages.info(request, _("Saved."))
