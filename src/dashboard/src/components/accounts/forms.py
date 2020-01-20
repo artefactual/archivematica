@@ -32,6 +32,7 @@ from main.models import UserProfile
 
 
 class UserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
 
     def save(self, commit=True):
