@@ -22,6 +22,7 @@ from django.contrib.auth.forms import UserChangeForm
 
 
 class UserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
 
     def clean_password1(self):
@@ -49,7 +50,7 @@ class UserCreationForm(UserCreationForm):
 
 
 class UserChangeForm(UserChangeForm):
-    email = forms.EmailField(required=False)
+    email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
