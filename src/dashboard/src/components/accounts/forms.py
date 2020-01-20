@@ -49,7 +49,7 @@ class UserCreationForm(UserCreationForm):
 
 
 class UserChangeForm(UserChangeForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=False)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
