@@ -656,7 +656,7 @@ class Package(object):
             if filter_subdir:
                 start_path = start_path + filter_subdir.encode("utf-8")
 
-            files_returned_already = []
+            files_returned_already = set()
             if queryset.exists():
                 for file_obj in queryset.iterator():
                     file_obj_mapped = get_file_replacement_mapping(
@@ -664,7 +664,7 @@ class Package(object):
                     )
                     if not os.path.exists(file_obj_mapped.get("%inputFile%")):
                         continue
-                    files_returned_already.append(file_obj_mapped.get("%inputFile%"))
+                    files_returned_already.add(file_obj_mapped.get("%inputFile%"))
                     yield file_obj_mapped
 
             for basedir, subdirs, files in scandir.walk(start_path):
