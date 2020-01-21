@@ -656,7 +656,17 @@ class Package(object):
             if filter_subdir:
                 start_path = start_path + filter_subdir.encode("utf-8")
 
-            files_on_disk = []
+            files_returned_already = []
+            if queryset.exists():
+                for file_obj in queryset.iterator():
+                    file_obj_mapped = get_file_replacement_mapping(
+                        file_obj, self.current_path
+                    )
+                    if not os.path.exists(file_obj_mapped.get("%inputFile%")):
+                        continue
+                    files_returned_already.append(file_obj_mapped.get("%inputFile%"))
+                    yield file_obj_mapped
+
             for basedir, subdirs, files in scandir.walk(start_path):
                 for file_name in files:
                     if (
@@ -667,35 +677,13 @@ class Package(object):
                         and not file_name.endswith(filter_filename_end)
                     ):
                         continue
-
-                    files_on_disk.append(os.path.join(basedir, file_name))
-
-            package_file_list = []
-
-            if queryset.exists():
-                for file_obj in queryset.iterator():
-                    file_obj_mapped = get_file_replacement_mapping(
-                        file_obj, self.current_path
-                    )
-                    if file_obj_mapped.get("%inputFile%") in files_on_disk:
-                        package_file_list.append(file_obj_mapped)
-                        files_on_disk.remove(file_obj_mapped.get("%inputFile%"))
-
-            # We have objects on disk that aren't yet associated with the
-            # package but need to be processed, e.g. tasks created for to be
-            # associated with the current unit.
-            if files_on_disk:
-                for file_path in files_on_disk:
-                    package_file_list.append(
-                        {
+                    file_path = os.path.join(basedir, file_name)
+                    if file_path not in files_returned_already:
+                        yield {
                             r"%relativeLocation%": file_path,
                             r"%fileUUID%": "None",
                             r"%fileGrpUse%": "",
                         }
-                    )
-
-            for file in package_file_list:
-                yield file
 
     @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
