@@ -61,6 +61,26 @@ logger = logging.getLogger("archivematica.dashboard")
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 
+def _any_draggable(nodes):
+    for node in nodes:
+        children = node.get("children", [])
+        if not node["not_draggable"] or _any_draggable(children):
+            return True
+    return False
+
+
+def _adjust_directories_draggability(nodes):
+    """Make directories not draggable only if all their children are not draggable."""
+    for node in nodes:
+        # Make directory nodes draggable by default
+        if "relative_path" not in node:
+            node["not_draggable"] = False
+        children = node.get("children", [])
+        if children:
+            node["not_draggable"] = not _any_draggable(children)
+            _adjust_directories_draggability(children)
+
+
 def ingest_grid(request):
     try:
         storage_service.get_location(purpose="BL")
@@ -587,21 +607,6 @@ def _es_results_to_appraisal_tab_format(
     record_map[dir]["object_count"] += 1
 
 
-def adjust_non_draggable_nodes(nodes):
-    """
-    If a node contains a non draggable child, make it non_draggable too.
-    """
-    for node in nodes:
-        children = node.get("children", [])
-        if children:
-            if not node["not_draggable"]:
-                for child in children:
-                    if child["not_draggable"]:
-                        node["not_draggable"] = True
-                        break
-            adjust_non_draggable_nodes(children)
-
-
 def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
@@ -680,11 +685,7 @@ def transfer_backlog(request, ui):
     if ui == "legacy":
         response = return_list
     else:
-        if not request.GET.get("hidemetadatalogs"):
-            # if metadata and log file are shown in the appraisal tab
-            # directories should not be draggable if they contain
-            # non draggable children
-            adjust_non_draggable_nodes(return_list)
+        _adjust_directories_draggability(return_list)
         response = {"formats": [], "transfers": return_list}  # TODO populate this
 
     # return JSON response

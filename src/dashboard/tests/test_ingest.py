@@ -8,6 +8,7 @@ import pytest
 
 from agentarchives.archivesspace import ArchivesSpaceError
 from components import helpers
+from components.ingest.views import _adjust_directories_draggability
 from components.ingest.views import _es_results_to_appraisal_tab_format
 from components.ingest.views_as import get_as_system_client
 from main.models import DashboardSetting
@@ -263,3 +264,63 @@ def test_appraisal_tab_node_draggability_explicit():
     objects_dir_node = data_dir_node["children"][0]
     file_node = objects_dir_node["children"][0]
     assert file_node["not_draggable"]
+
+
+def test_adjust_directories_draggability():
+    """Test that directories in the appraisal tab can be dragged if they contain
+    draggable descendants.
+    """
+
+    # Set up a tree with three directories
+    cats = {
+        "title": "cats",
+        "not_draggable": False,
+        "children": [
+            {"relative_path": "mishy.txt", "not_draggable": False},
+            {"relative_path": "pusheen.txt", "not_draggable": True},
+        ],
+    }
+    dogs = {
+        "title": "dogs",
+        "not_draggable": False,
+        "children": [{"relative_path": "roco.txt", "not_draggable": True}],
+    }
+    turtles = {
+        "title": "turtles",
+        "not_draggable": False,
+        "children": [
+            {
+                "title": "large turtles",
+                "not_draggable": False,
+                "children": [{"relative_path": "esperanza.txt", "not_draggable": True}],
+            },
+            {
+                "title": "small turtles",
+                "not_draggable": False,
+                "children": [
+                    {"relative_path": "bututu.txt", "not_draggable": True},
+                    {"relative_path": "cristal.txt", "not_draggable": False},
+                ],
+            },
+        ],
+    }
+
+    # Adjust draggability of the directories in the tree
+    _adjust_directories_draggability([cats, dogs, turtles])
+
+    # cats has some draggable children so it's draggable
+    assert not cats["not_draggable"]
+
+    # dogs has no draggable children so it's not draggable
+    assert dogs["not_draggable"]
+
+    # turtles has some draggable grandchildren so it's draggable
+    assert not turtles["not_draggable"]
+    large_turtles = turtles["children"][0]
+    small_turtles = turtles["children"][1]
+
+    # large turtles has no draggable children so it's not draggable
+    assert large_turtles["not_draggable"]
+
+    # small turtles has some draggable children so it's draggable
+    assert not small_turtles["not_draggable"]
