@@ -2,9 +2,9 @@ import base64
 import json
 
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.test import TestCase
 from django.test.client import Client
-import pytest
 
 from components import helpers
 from components.filesystem_ajax.views import _save_sip_arranges
@@ -218,8 +218,7 @@ class TestSIPArrange(TestCase):
         assert len(response_dict["entries"]) == 2
 
 
-@pytest.mark.django_db(transaction=True)
-def test_save_arranges():
+def test_save_sip_arranges(db):
     arranges = [
         models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=None),
         models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
@@ -229,17 +228,13 @@ def test_save_arranges():
     assert models.SIPArrange.objects.count() == 2
 
 
-@pytest.mark.django_db(transaction=True)
-def test_save_arranges_with_integrity_error():
-    a_uuid = "89850069-4ff5-4162-b4dd-982bca9bb82f"
-    models.SIPArrange.objects.create(
-        original_path=None, arrange_path="a.txt", file_uuid=a_uuid
+def test_save_sip_arranges_with_integrity_error(mocker):
+    mocker.patch(
+        "main.models.SIPArrange.objects.bulk_create", side_effect=IntegrityError()
     )
-    assert models.SIPArrange.objects.count() == 1
-    arranges = [
-        # a_uuid already exists in the database
-        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=a_uuid),
-        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
-    ]
-    _save_sip_arranges(arranges)
-    assert models.SIPArrange.objects.count() == 2
+    arrange1_mock = mocker.Mock()
+    arrange2_mock = mocker.Mock()
+    _save_sip_arranges([arrange1_mock, arrange2_mock])
+    # If bulk creation fails each SIPArrange is saved individually
+    assert arrange1_mock.save.called_once()
+    assert arrange2_mock.save.called_once()
