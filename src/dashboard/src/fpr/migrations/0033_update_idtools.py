@@ -19,12 +19,12 @@ def data_migration_up(apps, schema_editor):
 
     # Create new command using the new version of Fido
     old_fido_command = idcommand.objects.get(
-        uuid="e586f750-6230-42d7-8d12-1e24ca2aa658"
+        uuid="213d1589-c255-474f-81ac-f0a618181e40"
     )
 
     # Create new FIDO, but do not enable
     idcommand.objects.create(
-        replaces_id="e586f750-6230-42d7-8d12-1e24ca2aa658",
+        replaces_id=old_fido_command,
         uuid="ff2c0b52-741d-4f7a-9b52-ba3529051af3",
         description="Identify using Fido 1.4.1",
         config=old_fido_command.config,
@@ -45,7 +45,7 @@ def data_migration_up(apps, schema_editor):
 
     # Create new command using the new version of Siegfried
     idcommand.objects.create(
-        replaces_id="75290b14-2931-455f-bdde-3b4b3f8b7f15",
+        replaces_id=old_siegfried_command,
         uuid="9402ad69-f045-4d0a-8042-9c990645910a",
         description="Identify using Siegfried 1.8.0",
         config=old_siegfried_command.config,
@@ -77,7 +77,7 @@ def data_migration_down(apps, schema_editor):
     )
 
     # Restore Fido command
-    idcommand.objects.filter(uuid="e586f750-6230-42d7-8d12-1e24ca2aa658").update(
+    idcommand.objects.filter(uuid="213d1589-c255-474f-81ac-f0a618181e40").update(
         enabled=True
     )
 
