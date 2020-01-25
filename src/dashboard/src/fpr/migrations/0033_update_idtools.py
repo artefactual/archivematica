@@ -55,6 +55,10 @@ def data_migration_up(apps, schema_editor):
         enabled=True,
     )
 
+    # Disable old Siegfried command
+    old_siegfried_command.enabled = False
+    old_siegfried_command.save()
+
 
 def data_migration_down(apps, schema_editor):
     """Revert FIDO and Siegfriend to previous versions
