@@ -4,8 +4,10 @@ import json
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+import pytest
 
 from components import helpers
+from components.filesystem_ajax.views import _save_sip_arranges
 from main import models
 
 
@@ -214,3 +216,30 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode("subsip") in response_dict["entries"]
         assert base64.b64encode("newsip") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_save_arranges():
+    arranges = [
+        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=None),
+        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
+    ]
+    assert not models.SIPArrange.objects.count()
+    _save_sip_arranges(arranges)
+    assert models.SIPArrange.objects.count() == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_save_arranges_with_integrity_error():
+    a_uuid = "89850069-4ff5-4162-b4dd-982bca9bb82f"
+    models.SIPArrange.objects.create(
+        original_path=None, arrange_path="a.txt", file_uuid=a_uuid
+    )
+    assert models.SIPArrange.objects.count() == 1
+    arranges = [
+        # a_uuid already exists in the database
+        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=a_uuid),
+        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
+    ]
+    _save_sip_arranges(arranges)
+    assert models.SIPArrange.objects.count() == 2
