@@ -77,12 +77,12 @@ def data_migration_down(apps, schema_editor):
     )
 
     # Restore Fido command
-    idcommand.objects.filter(uuid="213d1589-c255-474f-81ac-f0a618181e40").update(
+    idcommand.objects.filter(uuid="e586f750-6230-42d7-8d12-1e24ca2aa658").update(
         enabled=True
     )
 
     # Restore Siegfried command
-    idcommand.objects.filter(uuid="75290b14-2931-455f-bdde-3b4b3f8b7f15").update(
+    idcommand.objects.filter(uuid="df074736-e2f7-4102-b25d-569c099d410c").update(
         enabled=True
     )
 
