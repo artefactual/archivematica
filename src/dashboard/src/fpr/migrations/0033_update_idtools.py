@@ -36,7 +36,7 @@ def data_migration_up(apps, schema_editor):
 
     # Update Siegfried tool
     old_siegfried_command = idcommand.objects.get(
-        uuid="df074736-e2f7-4102-b25d-569c099d410c"
+        uuid="75290b14-2931-455f-bdde-3b4b3f8b7f15"
     )
 
     idtool.objects.filter(uuid="454df69d-5cc0-49fc-93e4-6fbb6ac659e7").update(
@@ -45,7 +45,7 @@ def data_migration_up(apps, schema_editor):
 
     # Create new command using the new version of Siegfried
     idcommand.objects.create(
-        replaces_id="df074736-e2f7-4102-b25d-569c099d410c",
+        replaces_id="75290b14-2931-455f-bdde-3b4b3f8b7f15",
         uuid="9402ad69-f045-4d0a-8042-9c990645910a",
         description="Identify using Siegfried 1.8.0",
         config=old_siegfried_command.config,
@@ -82,7 +82,7 @@ def data_migration_down(apps, schema_editor):
     )
 
     # Restore Siegfried command
-    idcommand.objects.filter(uuid="df074736-e2f7-4102-b25d-569c099d410c").update(
+    idcommand.objects.filter(uuid="75290b14-2931-455f-bdde-3b4b3f8b7f15").update(
         enabled=True
     )
 
