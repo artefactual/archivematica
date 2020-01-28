@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.db import IntegrityError
 from django.test import TestCase
 import mock
 
@@ -75,3 +76,25 @@ def test_create_user_agent(agent_mock):
             "agenttype": "Archivematica user",
         },
     )
+
+
+def test_sip_arrange_create_many(db):
+    arranges = [
+        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=None),
+        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
+    ]
+    assert not models.SIPArrange.objects.count()
+    models.SIPArrange.create_many(arranges)
+    assert models.SIPArrange.objects.count() == 2
+
+
+def test_sip_arrange_create_many_with_integrity_error(mocker):
+    mocker.patch(
+        "main.models.SIPArrange.objects.bulk_create", side_effect=IntegrityError()
+    )
+    arrange1_mock = mocker.Mock()
+    arrange2_mock = mocker.Mock()
+    models.SIPArrange.create_many([arrange1_mock, arrange2_mock])
+    # If bulk creation fails each SIPArrange is saved individually
+    assert arrange1_mock.save.called_once()
+    assert arrange2_mock.save.called_once()

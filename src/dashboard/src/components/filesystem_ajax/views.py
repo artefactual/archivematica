@@ -29,7 +29,6 @@ import django.http
 import django.template.defaultfilters
 from django.utils.translation import ugettext as _, ungettext
 from django.utils import six
-from django.db import IntegrityError
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -63,9 +62,6 @@ TRANSFER_TYPE_DIRECTORIES = {
     "TRIM": "TRIM",
     "dataverse": "dataverseTransfer",
 }
-
-# How many objects are created through bulk_create in a single database query
-BULK_CREATE_BATCH_SIZE = 2000
 
 
 def _prepare_browse_response(response):
@@ -618,7 +614,7 @@ def create_arrange_directories(paths):
         )
         for path in paths
     ]
-    _save_sip_arranges(arranges)
+    models.SIPArrange.create_many(arranges)
 
 
 def create_directory_within_arrange(request):
@@ -832,23 +828,6 @@ def _copy_files_to_arrange(
     return to_add
 
 
-def _save_sip_arranges(arranges):
-    """Bulk create a list of SIPArrange model instances.
-
-    If some of the SIPArrange instances already exist, bulk creation
-    will fail and this will revert back to saving each instance
-    individually ignoring the existing ones.
-    """
-    try:
-        models.SIPArrange.objects.bulk_create(arranges, BULK_CREATE_BATCH_SIZE)
-    except IntegrityError:
-        for arrange in arranges:
-            try:
-                arrange.save()
-            except IntegrityError:
-                continue
-
-
 def copy_to_arrange(request, sources=None, destinations=None, fetch_children=False):
     """
     Add files to in-progress SIPs being arranged.
@@ -933,7 +912,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
                 response = {"message": _("SIP files successfully moved.")}
                 status_code = 200
         if entries_to_copy:
-            _save_sip_arranges(entries_to_copy)
+            models.SIPArrange.create_many(entries_to_copy)
     except ValueError as e:
         logger.exception("Failed copying %s to %s", source, dest)
         response = {"message": str(e), "error": True}

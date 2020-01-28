@@ -25,6 +25,7 @@ import re
 
 # Core Django, alphabetical by import source
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -45,6 +46,8 @@ METADATA_STATUS = (
     (METADATA_STATUS_UPDATED, "updated"),  # Might be updated for both, on rereingest
 )
 
+# How many objects are created through bulk_create in a single database query
+BULK_CREATE_BATCH_SIZE = 2000
 
 # CUSTOM FIELDS
 
@@ -511,6 +514,23 @@ class SIPArrange(models.Model):
             _("%(original)s -> %(arrange)s")
             % {"original": self.original_path, "arrange": self.arrange_path}
         )
+
+    @classmethod
+    def create_many(cls, arranges):
+        """Bulk create a list of SIPArrange model instances.
+
+        If some of the SIPArrange instances already exist, bulk creation
+        will fail and this will revert back to saving each instance
+        individually ignoring the existing ones.
+        """
+        try:
+            cls.objects.bulk_create(arranges, BULK_CREATE_BATCH_SIZE)
+        except IntegrityError:
+            for arrange in arranges:
+                try:
+                    arrange.save()
+                except IntegrityError:
+                    continue
 
 
 class SIPArrangeAccessMapping(models.Model):

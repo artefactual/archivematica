@@ -2,12 +2,10 @@ import base64
 import json
 
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.test import TestCase
 from django.test.client import Client
 
 from components import helpers
-from components.filesystem_ajax.views import _save_sip_arranges
 from main import models
 
 
@@ -216,25 +214,3 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode("subsip") in response_dict["entries"]
         assert base64.b64encode("newsip") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
-
-
-def test_save_sip_arranges(db):
-    arranges = [
-        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=None),
-        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
-    ]
-    assert not models.SIPArrange.objects.count()
-    _save_sip_arranges(arranges)
-    assert models.SIPArrange.objects.count() == 2
-
-
-def test_save_sip_arranges_with_integrity_error(mocker):
-    mocker.patch(
-        "main.models.SIPArrange.objects.bulk_create", side_effect=IntegrityError()
-    )
-    arrange1_mock = mocker.Mock()
-    arrange2_mock = mocker.Mock()
-    _save_sip_arranges([arrange1_mock, arrange2_mock])
-    # If bulk creation fails each SIPArrange is saved individually
-    assert arrange1_mock.save.called_once()
-    assert arrange2_mock.save.called_once()
