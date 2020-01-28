@@ -63,9 +63,6 @@ TRANSFER_TYPE_DIRECTORIES = {
     "dataverse": "dataverseTransfer",
 }
 
-# How many objects are created through bulk_create in a single database query
-BULK_CREATE_BATCH_SIZE = 2000
-
 
 def _prepare_browse_response(response):
     """
@@ -617,7 +614,7 @@ def create_arrange_directories(paths):
         )
         for path in paths
     ]
-    models.SIPArrange.objects.bulk_create(arranges, BULK_CREATE_BATCH_SIZE)
+    models.SIPArrange.create_many(arranges)
 
 
 def create_directory_within_arrange(request):
@@ -915,9 +912,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
                 response = {"message": _("SIP files successfully moved.")}
                 status_code = 200
         if entries_to_copy:
-            models.SIPArrange.objects.bulk_create(
-                entries_to_copy, BULK_CREATE_BATCH_SIZE
-            )
+            models.SIPArrange.create_many(entries_to_copy)
     except ValueError as e:
         logger.exception("Failed copying %s to %s", source, dest)
         response = {"message": str(e), "error": True}
