@@ -324,7 +324,7 @@
     },
     {
         "fields": {
-            "microservicegroup": "Clean up names",
+            "microservicegroup": "Change transfer filenames",
             "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
             "microservicechainlink": null,
             "currentstep": 2,
@@ -334,7 +334,7 @@
             "directory": "%sharedPath%currentlyProcessing/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
             "hidden": false,
             "createdtimedec": "0.8298590000",
-            "jobtype": "Sanitize object's file and directory names"
+            "jobtype": "Change object and directory filenames"
         },
         "model": "main.job",
         "pk": "8c66a191-3d5d-4f60-9179-7200f4f04000"
@@ -392,7 +392,7 @@
     },
     {
         "fields": {
-            "microservicegroup": "Clean up names",
+            "microservicegroup": "Change transfer filenames",
             "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
             "microservicechainlink": null,
             "currentstep": 2,
@@ -402,7 +402,7 @@
             "directory": "%sharedPath%currentlyProcessing/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
             "hidden": false,
             "createdtimedec": "0.1601980000",
-            "jobtype": "Sanitize Transfer name"
+            "jobtype": "Change filename of transfer"
         },
         "model": "main.job",
         "pk": "9483fb19-42b6-4997-a285-50ec51040475"
