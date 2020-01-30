@@ -2894,7 +2894,7 @@
                 "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
             },
             "description": {
-                "en": "Sanitize object's file and directory names",
+                "en": "Change object and directory filenames",
                 "pt_BR": "Limpar os nomes de arquivos e diretórios do objeto",
                 "sv": "Sanera objekts fil- och katalognamn"
             },
@@ -2907,7 +2907,7 @@
             "fallback_job_status": "Failed",
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
-                "en": "Clean up names",
+                "en": "Change transfer filenames",
                 "es": "Limpiar nombres",
                 "fr": "Nettoyer les noms",
                 "pt_BR": "Limpe nomes",
@@ -7731,7 +7731,7 @@
             "fallback_job_status": "Failed",
             "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
             "group": {
-                "en": "Clean up names",
+                "en": "Change SIP filenames",
                 "es": "Limpiar nombres",
                 "fr": "Nettoyer les noms",
                 "pt_BR": "Limpe nomes",
@@ -8027,7 +8027,7 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Sanitize Transfer name",
+                "en": "Change transfer name",
                 "pt_BR": "Limpar o nome da transferência",
                 "sv": "Sanera överföringspaketets namn"
             },
@@ -8040,7 +8040,7 @@
             "fallback_job_status": "Failed",
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
-                "en": "Clean up names",
+                "en": "Change transfer filenames",
                 "es": "Limpiar nombres",
                 "fr": "Nettoyer les noms",
                 "pt_BR": "Limpe nomes",
@@ -8060,7 +8060,7 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Sanitize SIP name",
+                "en": "Change SIP name",
                 "pt_BR": "Limpar o nome SIP",
                 "sv": "Sanera SIP-namn"
             },
@@ -8073,7 +8073,7 @@
             "fallback_job_status": "Failed",
             "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
             "group": {
-                "en": "Clean up names",
+                "en": "Change SIP filenames",
                 "es": "Limpiar nombres",
                 "fr": "Nettoyer les noms",
                 "pt_BR": "Limpe nomes",
@@ -9533,7 +9533,7 @@
                 "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
             },
             "description": {
-                "en": "Sanitize object's file and directory names",
+                "en": "Change object and directory filenames",
                 "pt_BR": "Limpar os nomes de arquivos e diretórios do objeto",
                 "sv": "Sanera objekts fil- och katalognamn"
             },
@@ -9546,7 +9546,7 @@
             "fallback_job_status": "Failed",
             "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
-                "en": "Clean up names",
+                "en": "Change transfer filenames",
                 "es": "Limpiar nombres",
                 "fr": "Nettoyer les noms",
                 "pt_BR": "Limpe nomes",

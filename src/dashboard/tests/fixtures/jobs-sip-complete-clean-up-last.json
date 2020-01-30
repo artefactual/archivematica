@@ -103,7 +103,7 @@
     },
     {
         "fields": {
-            "microservicegroup": "Clean up names",
+            "microservicegroup": "Change SIP filenames",
             "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
             "microservicechainlink": null,
             "currentstep": 2,
@@ -120,7 +120,7 @@
     },
     {
         "fields": {
-            "microservicegroup": "Clean up names",
+            "microservicegroup": "Change SIP filenames",
             "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
             "microservicechainlink": null,
             "currentstep": 2,
@@ -171,7 +171,7 @@
     },
     {
         "fields": {
-            "microservicegroup": "Clean up names",
+            "microservicegroup": "Change SIP filenames",
             "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
             "microservicechainlink": null,
             "currentstep": 2,
@@ -181,7 +181,7 @@
             "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
             "hidden": false,
             "createdtimedec": "0.6769300000",
-            "jobtype": "Sanitize SIP name"
+            "jobtype": "Change SIP filename"
         },
         "model": "main.job",
         "pk": "ef9498c1-418d-4c28-9b73-30c38f0c3476"
