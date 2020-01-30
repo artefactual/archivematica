@@ -652,9 +652,9 @@ class Package(object):
                 filter_path = "".join([self.REPLACEMENT_PATH_STRING, filter_subdir])
                 queryset = queryset.filter(currentlocation__startswith=filter_path)
 
-            start_path = self.current_path.encode("utf-8")  # use bytes to return bytes
+            start_path = self.current_path
             if filter_subdir:
-                start_path = start_path + filter_subdir.encode("utf-8")
+                start_path = start_path + filter_subdir
 
             files_returned_already = set()
             if queryset.exists():

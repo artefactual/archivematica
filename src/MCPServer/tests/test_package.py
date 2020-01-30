@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import uuid
@@ -238,6 +240,36 @@ def test_reload_file_list(tmp_path):
     # Clean up state and ensure test doesn't interfere with other transfers
     # expected to be in the database, e.g. in test_queues.py.
     models.File.objects.filter(transfer_id=str(transfer_uuid)).delete()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_package_files_with_non_ascii_names(tmp_path):
+
+    # Create a Transfer package
+    transfer_uuid = uuid.uuid4()
+    transfer_path = tmp_path / "test-transfer-{}".format(transfer_uuid)
+    transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
+
+    # Add a file to the transfer with non-ascii name
+    transfer_path.mkdir()
+    objects = transfer_path / "objects"
+    objects.mkdir()
+    file_ = objects / "montréal.txt"
+    file_.touch()
+
+    # Create a File model instance for the transfer file
+    kwargs = {
+        "uuid": uuid.uuid4(),
+        "currentlocation": "".join(
+            [transfer.REPLACEMENT_PATH_STRING, "/objects/montréal.txt"]
+        ),
+        "filegrpuse": "original",
+        "transfer_id": transfer_uuid,
+    }
+    models.File.objects.create(**kwargs)
+
+    # Assert only one file is returned
+    assert len(list(transfer.files(None, None, "/objects"))) == 1
 
 
 class TestPadDestinationFilePath:
