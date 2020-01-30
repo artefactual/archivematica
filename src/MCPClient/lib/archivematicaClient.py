@@ -68,6 +68,7 @@ from django.conf import settings as django_settings
 import gearman
 
 from main.models import Task
+from archivematicaFunctions import unicodeToStr
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
@@ -83,9 +84,9 @@ from job import Job
 logger = logging.getLogger("archivematica.mcp.client")
 
 replacement_dict = {
-    "%sharedPath%": django_settings.SHARED_DIRECTORY,
-    "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
-    "%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
+    r"%sharedPath%": django_settings.SHARED_DIRECTORY,
+    r"%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
+    r"%clientAssetsDirectory%": django_settings.CLIENT_ASSETS_DIRECTORY,
 }
 
 
@@ -119,14 +120,14 @@ def handle_batch_task(gearman_job, supported_modules):
         replacements = (
             replacement_dict.items()
             + {
-                "%date%": utc_date.isoformat(),
-                "%taskUUID%": task_uuid,
-                "%jobCreatedDate%": task_data["createdDate"],
+                r"%date%": utc_date.isoformat(),
+                r"%taskUUID%": task_uuid,
+                r"%jobCreatedDate%": task_data["createdDate"],
             }.items()
         )
 
         for var, val in replacements:
-            arguments = arguments.replace(var, val)
+            arguments = arguments.replace(var, unicodeToStr(val))
 
         job = Job(
             gearman_job.task,
