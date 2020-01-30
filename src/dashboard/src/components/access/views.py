@@ -464,7 +464,8 @@ def access_arrange_start_sip(client, request, mapping):
     parent = archival_object.get("parent", {}).get("ref")
     while parent:
         parent_obj = client.get_record(parent)
-        relation = [parent_obj["title"]] + relation
+        parent_title = parent_obj["title"] if parent_obj.get("title") else parent_obj["display_string"]
+        relation = [parent_title] + relation
         parent = parent_obj.get("parent", {}).get("ref")
     relation = " - ".join(relation)
 
