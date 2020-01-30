@@ -8,6 +8,7 @@ need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
+from collections import OrderedDict
 
 import calendar
 import cPickle
@@ -27,7 +28,6 @@ from lxml import etree
 
 
 from main.models import Job, SIP, Transfer
-
 from server.db import auto_close_old_connections
 from server.packages import create_package, get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
@@ -475,7 +475,7 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
     The caller should expect ``JobNotWaitingForApprovalError`` to be raised
     when the job does not need a decision to be made.
     """
-    ret = {}
+    ret = OrderedDict()
     try:
         choices = jobs_awaiting_for_approval[job_id].get_choices()
     except (KeyError, AttributeError):
