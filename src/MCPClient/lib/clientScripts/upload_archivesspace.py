@@ -12,6 +12,7 @@ from xml2obj import mets_file
 
 # Third party dependencies, alphabetical by import source
 from agentarchives.archivesspace import ArchivesSpaceClient
+from agentarchives.archivesspace import ArchivesSpaceError
 
 # initialize Django (required for Django 1.7)
 import django
@@ -32,13 +33,16 @@ def recursive_file_gen(mydir):
             yield os.path.join(root, file)
 
 
-def get_files_from_dip(dip_location, dip_name, dip_uuid):
+def get_files_from_dip(dip_location):
     # need to find files in objects dir of dip:
-    # go to dipLocation/dipName/objects
+    # go to dipLocation/objects
     # get a directory listing
     # for each item, set fileName and go
     try:
-        mydir = dip_location + "objects/"
+        # remove trailing slash
+        if dip_location != os.path.sep:
+            dip_location = dip_location.rstrip(os.path.sep)
+        mydir = os.path.join(dip_location, "objects")
         mylist = list(recursive_file_gen(mydir))
 
         if len(mylist) > 0:
@@ -91,16 +95,18 @@ def upload_to_archivesspace(
         or len(use_conditions) == 0
     ):
         logger.debug("Looking for mets: {}".format(dip_uuid))
-        mets_source = dip_location + "METS." + dip_uuid + ".xml"
+        mets_source = os.path.join(dip_location, "METS.{}.xml".format(dip_uuid))
         mets = mets_file(mets_source)
         logger.debug("Found mets file at path: {}".format(mets_source))
 
+    all_files_paired_successfully = True
     for f in files:
         file_name = os.path.basename(f)
         uuid = file_name[0:36]
 
         if uuid not in pairs:
-            logger.warning("Skipping file {} ({}) - no pairing found".format(f, uuid))
+            logger.error("Skipping file {} ({}) - no pairing found".format(f, uuid))
+            all_files_paired_successfully = False
             continue
 
         as_resource = pairs[uuid]
@@ -134,9 +140,8 @@ def upload_to_archivesspace(
                     ]
 
         # determine restrictions
-        if restrictions == "no":
-            restrictions_apply = False
-        elif restrictions == "yes":
+        restrictions_apply = False
+        if restrictions == "yes":
             restrictions_apply = True
             xlink_actuate = "none"
             xlink_show = "none"
@@ -211,36 +216,42 @@ def upload_to_archivesspace(
         logger.info(
             "Uploading {} to ArchivesSpace record {}".format(file_name, as_resource)
         )
-        client.add_digital_object(
-            parent_archival_object=as_resource,
-            identifier=uuid,
-            # TODO: fetch a title from DC?
-            #       Use the title of the parent record?
-            title=original_name,
-            uri=uri + file_name,
-            location_of_originals=dip_uuid,
-            object_type=object_type,
-            use_statement=use_statement,
-            xlink_show=xlink_show,
-            xlink_actuate=xlink_actuate,
-            restricted=restrictions_apply,
-            use_conditions=use_conditions,
-            access_conditions=access_conditions,
-            size=size,
-            format_name=format_name,
-            format_version=format_version,
-            inherit_notes=inherit_notes,
-        )
+        try:
+            client.add_digital_object(
+                parent_archival_object=as_resource,
+                identifier=uuid,
+                # TODO: fetch a title from DC?
+                #       Use the title of the parent record?
+                title=original_name,
+                uri=uri + file_name,
+                location_of_originals=dip_uuid,
+                object_type=object_type,
+                use_statement=use_statement,
+                xlink_show=xlink_show,
+                xlink_actuate=xlink_actuate,
+                restricted=restrictions_apply,
+                use_conditions=use_conditions,
+                access_conditions=access_conditions,
+                size=size,
+                format_name=format_name,
+                format_version=format_version,
+                inherit_notes=inherit_notes,
+            )
+        except ArchivesSpaceError as error:
+
+            logger.error(
+                "Could not upload {} to ArchivesSpace record {}. Error: {}".format(
+                    file_name, as_resource, str(error)
+                )
+            )
+            all_files_paired_successfully = False
 
         delete_pairs(dip_uuid)
 
+    return all_files_paired_successfully
 
-def call(jobs):
-    RESTRICTIONS_CHOICES = ["yes", "no", "premis"]
-    EAD_SHOW_CHOICES = ["embed", "new", "none", "other", "replace"]
-    EAD_ACTUATE_CHOICES = ["none", "onLoad", "other", "onRequest"]
-    INHERIT_NOTES_CHOICES = ["yes", "y", "true", "1"]
 
+def get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES):
     parser = argparse.ArgumentParser(
         description="A program to take digital objects from a DIP and upload them to an ArchivesSpace db"
     )
@@ -285,6 +296,16 @@ def call(jobs):
         type=str,
     )
     parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
+    return parser
+
+
+def call(jobs):
+    RESTRICTIONS_CHOICES = ["yes", "no", "premis"]
+    EAD_SHOW_CHOICES = ["embed", "new", "none", "other", "replace"]
+    EAD_ACTUATE_CHOICES = ["none", "onLoad", "other", "onRequest"]
+    INHERIT_NOTES_CHOICES = ["yes", "y", "true", "1"]
+
+    parser = get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES)
 
     with transaction.atomic():
         for job in jobs:
@@ -298,17 +319,14 @@ def call(jobs):
                 )
 
                 try:
-                    files = get_files_from_dip(
-                        args.dip_location, args.dip_name, args.dip_uuid
-                    )
+                    files = get_files_from_dip(args.dip_location)
                 except ValueError:
                     job.set_status(2)
                     continue
                 except Exception:
                     job.set_status(3)
                     continue
-
-                upload_to_archivesspace(
+                if upload_to_archivesspace(
                     files,
                     client,
                     args.xlink_show,
@@ -322,4 +340,7 @@ def call(jobs):
                     args.restrictions,
                     args.dip_location,
                     args.inherit_notes,
-                )
+                ):
+                    job.set_status(0)
+                else:
+                    job.set_status(2)
