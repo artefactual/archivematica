@@ -11,6 +11,8 @@ from __future__ import unicode_literals
 from lxml import etree
 import os
 
+from archivematicaFunctions import strToUnicode
+
 
 class VerifyMETSException(Exception):
     """Exception to raise if METS validation fails."""
@@ -20,7 +22,9 @@ def call(jobs):
     """Primary entry point for this script."""
     for job in jobs:
         with job.JobContext():
-            mets_structmap = os.path.join(job.args[1], "metadata", "mets_structmap.xml")
+            mets_structmap = os.path.join(
+                strToUnicode(job.args[1]), "metadata", "mets_structmap.xml"
+            )
             mets_xsd = job.args[2]
             if not os.path.isfile(mets_structmap):
                 job.pyprint("Custom structmap not supplied with package")
