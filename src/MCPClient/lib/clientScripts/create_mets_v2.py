@@ -66,8 +66,9 @@ from archivematicaCreateMETSTrim import getTrimFileAmdSec
 
 # archivematicaCommon
 from archivematicaFunctions import escape
-from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
+from archivematicaFunctions import strToUnicode
+from archivematicaFunctions import unicodeToStr
 from create_mets_dataverse_v2 import (
     create_dataverse_sip_dmdsec,
     create_dataverse_tabfile_dmdsec,
@@ -273,7 +274,7 @@ def createDMDIDsFromCSVMetadata(job, path, state):
     :param path: Path relative to the SIP to find CSV metadata on
     :return: Space-separated list of DMDIDs or empty string
     """
-    metadata = state.CSV_METADATA.get(path, {})
+    metadata = state.CSV_METADATA.get(unicodeToStr(path), {})
     dmdsecs = createDmdSecsFromCSVParsedMetadata(job, metadata, state)
     return " ".join([d.get("ID") for d in dmdsecs])
 
