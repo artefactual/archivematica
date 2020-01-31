@@ -22,13 +22,11 @@ def test_recursive_file_gen(tmpdir):
 
 
 def test_get_files_from_dip_finds_files(tmpdir):
-    dip = tmpdir.mkdir("mydip")
-    objects = dip.mkdir("objects")
-    object1 = objects.join("object1.txt")
-    object1.write("object 1")
-    object2 = objects.mkdir("subdir").join("object2.txt")
-    object2.write("object 2")
-    result = upload_archivesspace.get_files_from_dip(str(dip))
+    object1 = tmpdir.join("mydip", "objects", "object1.txt")
+    object1.write("object 1", ensure=True)
+    object2 = tmpdir.join("mydip", "objects", "subdir", "object2.txt")
+    object2.write("object 2", ensure=True)
+    result = upload_archivesspace.get_files_from_dip(str(tmpdir / "mydip"))
     assert sorted(result) == [str(object1), str(object2)]
 
 
