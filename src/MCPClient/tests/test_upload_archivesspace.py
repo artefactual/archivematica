@@ -13,12 +13,11 @@ import upload_archivesspace
 
 
 def test_recursive_file_gen(tmpdir):
-    mydir = tmpdir.mkdir("mydir")
-    hello = mydir.join("hello.txt")
-    hello.write("hello!")
-    bye = mydir.mkdir("sub").join("bye.txt")
-    bye.write("bye!")
-    result = list(upload_archivesspace.recursive_file_gen(str(mydir)))
+    hello = tmpdir.join("mydir", "hello.txt")
+    hello.write("hello!", ensure=True)
+    bye = tmpdir.join("mydir", "sub", "bye.txt")
+    bye.write("bye!", ensure=True)
+    result = list(upload_archivesspace.recursive_file_gen(str(tmpdir / "mydir")))
     assert sorted(result) == [str(hello), str(bye)]
 
 

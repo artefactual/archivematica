@@ -95,7 +95,7 @@ def upload_to_archivesspace(
         or len(use_conditions) == 0
     ):
         logger.debug("Looking for mets: {}".format(dip_uuid))
-        mets_source = os.path.join(dip_location, "METS." + dip_uuid + ".xml")
+        mets_source = os.path.join(dip_location, "METS.{}.xml".format(dip_uuid))
         mets = mets_file(mets_source)
         logger.debug("Found mets file at path: {}".format(mets_source))
 
@@ -141,9 +141,7 @@ def upload_to_archivesspace(
 
         # determine restrictions
         restrictions_apply = False
-        if restrictions == "no":
-            restrictions_apply = False
-        elif restrictions == "yes":
+        if restrictions == "yes":
             restrictions_apply = True
             xlink_actuate = "none"
             xlink_show = "none"
@@ -239,11 +237,11 @@ def upload_to_archivesspace(
                 format_version=format_version,
                 inherit_notes=inherit_notes,
             )
-        except ArchivesSpaceError as e:
+        except ArchivesSpaceError as error:
 
             logger.error(
                 "Could not upload {} to ArchivesSpace record {}. Error: {}".format(
-                    file_name, as_resource, str(e)
+                    file_name, as_resource, str(error)
                 )
             )
             all_files_paired_successfully = False
