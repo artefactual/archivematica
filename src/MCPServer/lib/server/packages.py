@@ -160,7 +160,9 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
         return filepath
     if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            "{}_{}".format(original, attempt), original, attempt
+            "{}_{}".format(strToUnicode(original.as_posix()), attempt),
+            original,
+            attempt,
         )
 
     # need to work out basename
@@ -291,7 +293,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     except OSError as e:
         raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
     else:
-        transfer.currentlocation = str(dest).replace(
+        transfer.currentlocation = strToUnicode(dest.as_posix()).replace(
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
@@ -340,7 +342,6 @@ def create_package(
     """
     if not name:
         raise ValueError("No transfer name provided.")
-    name = unicodeToStr(name)
     if type_ is None or type_ == "disk image":
         type_ = "standard"
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
@@ -416,7 +417,7 @@ def _determine_transfer_paths(name, path, tmpdir):
         transfer_dir = filepath = os.path.join(tmpdir, name)
     return (
         transfer_dir.replace(_get_setting("SHARED_DIRECTORY"), "", 1),
-        unicodeToStr(filepath),
+        filepath,
         path,
     )
 
