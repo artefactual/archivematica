@@ -2,13 +2,15 @@
 
 from __future__ import unicode_literals
 
+import pytest
+
 from archivematicaClient import handle_batch_task
 
 
+@pytest.mark.django_db
 def test_handle_batch_task_replaces_non_ascii_arguments(mocker):
     # We are only interested in verifying the string replacement logic
     # for task arguments and mock the remaining functionality
-    mocker.patch("archivematicaClient.auto_close_db")
     mocker.patch("archivematicaClient.Job")
     mocker.patch("archivematicaClient.Task")
     mocker.patch("archivematicaClient.retryOnFailure")
