@@ -269,7 +269,13 @@ def test_package_files_with_non_ascii_names(tmp_path):
     models.File.objects.create(**kwargs)
 
     # Assert only one file is returned
-    assert len(list(transfer.files(None, None, "/objects"))) == 1
+    result = list(transfer.files(None, None, "/objects"))
+    assert len(result) == 1
+
+    # And it is the file we just created
+    assert result[0]["%fileUUID%"] == str(kwargs["uuid"])
+    assert result[0]["%currentLocation%"] == kwargs["currentlocation"]
+    assert result[0]["%fileGrpUse%"] == kwargs["filegrpuse"]
 
 
 class TestPadDestinationFilePath:
