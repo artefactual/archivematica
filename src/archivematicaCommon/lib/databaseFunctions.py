@@ -29,7 +29,6 @@ import time
 import uuid
 
 from django.db import close_old_connections
-from django.db.models import Q
 from django.utils import six, timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
@@ -147,9 +146,9 @@ def getAMAgentsForFile(fileUUID):
     elif f.transfer:
         return f.transfer.agents.values_list("pk", flat=True)
 
-    # Fetch other Archivematica Agents
+    # Fetch the default Agents
     return Agent.objects.filter(
-        Q(identifiertype="repository code") | Q(identifiertype="preservation system")
+        Agent.objects.default_agents_query_keywords()
     ).values_list("pk", flat=True)
 
 
