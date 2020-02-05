@@ -16,6 +16,7 @@ from django.conf import settings
 from django.utils import six
 
 import storageService as storage_service
+from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
 from fileOperations import get_extract_dir_name
 from main import models
@@ -36,6 +37,12 @@ logger = logging.getLogger("archivematica.mcp.server.packages")
 
 StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link")
 
+
+def _get_setting(name):
+    """Retrieve a Django setting decoded as a unicode string."""
+    return strToUnicode(getattr(settings, name))
+
+
 # Each package type has its corresponding watched directory and its
 # associated chain, e.g. a "standard" transfer triggers the chain with UUID
 # "fffd5342-2337-463f-857a-b2c8c3778c6d". This is stored in the
@@ -52,43 +59,49 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 PACKAGE_TYPE_STARTING_POINTS = {
     "standard": StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/standardTransfer"
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/standardTransfer"
         ),
         chain="6953950b-c101-4f4c-a0c3-0cd0684afe5e",
         link="045c43ae-d6cf-44f7-97d6-c8a602748565",
     ),
     "unzipped bag": StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/baggitDirectory"
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/baggitDirectory"
         ),
         chain="c75ef451-2040-4511-95ac-3baa0f019b48",
         link="154dd501-a344-45a9-97e3-b30093da35f5",
     ),
     "zipped bag": StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/baggitZippedDirectory"
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/baggitZippedDirectory"
         ),
         chain="167dc382-4ab1-4051-8e22-e7f1c1bf3e6f",
         link="3229e01f-adf3-4294-85f7-4acb01b3fbcf",
     ),
     "dspace": StartingPoint(
-        watched_dir=os.path.join(settings.WATCH_DIRECTORY, "activeTransfers/Dspace"),
+        watched_dir=os.path.join(
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/Dspace"
+        ),
         chain="1cb2ef0e-afe8-45b5-8d8f-a1e120f06605",
         link="bda96b35-48c7-44fc-9c9e-d7c5a05016c1",
     ),
     "maildir": StartingPoint(
-        watched_dir=os.path.join(settings.WATCH_DIRECTORY, "activeTransfers/maildir"),
+        watched_dir=os.path.join(
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/maildir"
+        ),
         chain="d381cf76-9313-415f-98a1-55c91e4d78e0",
         link="da2d650e-8ce3-4b9a-ac97-8ca4744b019f",
     ),
     "TRIM": StartingPoint(
-        watched_dir=os.path.join(settings.WATCH_DIRECTORY, "activeTransfers/TRIM"),
+        watched_dir=os.path.join(
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/TRIM"
+        ),
         chain="e4a59e3e-3dba-4eb5-9cf1-c1fb3ae61fa9",
         link="2483c25a-ade8-4566-a259-c6c37350d0d6",
     ),
     "dataverse": StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/dataverseTransfer"
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/dataverseTransfer"
         ),
         # Approve Dataverse Transfer Chain
         chain="10c00bc8-8fc2-419f-b593-cf5518695186",
@@ -98,10 +111,10 @@ PACKAGE_TYPE_STARTING_POINTS = {
 }
 
 BASE_REPLACEMENTS = {
-    r"%tmpDirectory%": os.path.join(settings.SHARED_DIRECTORY, "tmp", ""),
-    r"%processingDirectory%": settings.PROCESSING_DIRECTORY,
-    r"%watchDirectoryPath%": settings.WATCH_DIRECTORY,
-    r"%rejectedDirectory%": settings.REJECTED_DIRECTORY,
+    r"%tmpDirectory%": os.path.join(_get_setting("SHARED_DIRECTORY"), "tmp", ""),
+    r"%processingDirectory%": _get_setting("PROCESSING_DIRECTORY"),
+    r"%watchDirectoryPath%": _get_setting("WATCH_DIRECTORY"),
+    r"%rejectedDirectory%": _get_setting("REJECTED_DIRECTORY"),
 }
 
 
@@ -144,7 +157,9 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
         return filepath
     if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            "{}_{}".format(original, attempt), original, attempt
+            "{}_{}".format(strToUnicode(original.as_posix()), attempt),
+            original,
+            attempt,
         )
 
     # need to work out basename
@@ -275,8 +290,8 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     except OSError as e:
         raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
     else:
-        transfer.currentlocation = str(dest).replace(
-            settings.SHARED_DIRECTORY, "%sharedPath%", 1
+        transfer.currentlocation = strToUnicode(dest.as_posix()).replace(
+            _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
 
@@ -324,7 +339,6 @@ def create_package(
     """
     if not name:
         raise ValueError("No transfer name provided.")
-    name = unicodeToStr(name)
     if type_ is None or type_ == "disk image":
         type_ = "standard"
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
@@ -356,7 +370,7 @@ def create_package(
     logger.debug("Transfer object created: %s", transfer.pk)
 
     # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
-    tmpdir = mkdtemp(dir=os.path.join(settings.SHARED_DIRECTORY, "tmp"))
+    tmpdir = mkdtemp(dir=os.path.join(_get_setting("SHARED_DIRECTORY"), "tmp"))
     starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
     logger.debug(
         "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
@@ -399,8 +413,8 @@ def _determine_transfer_paths(name, path, tmpdir):
         path = os.path.join(path, ".")  # Copy contents of dir but not dir
         transfer_dir = filepath = os.path.join(tmpdir, name)
     return (
-        transfer_dir.replace(settings.SHARED_DIRECTORY, "", 1),
-        unicodeToStr(filepath),
+        transfer_dir.replace(_get_setting("SHARED_DIRECTORY"), "", 1),
+        filepath,
         path,
     )
 
@@ -440,11 +454,13 @@ def _start_package_transfer_with_auto_approval(
     _copy_from_transfer_sources([path], transfer_rel)
 
     copy_processing_config(
-        processing_config, os.path.join(settings.SHARED_DIRECTORY, transfer_rel)
+        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
     )
 
     logger.debug("Package %s: moving package to processing directory", transfer.pk)
-    _move_to_internal_shared_dir(filepath, settings.PROCESSING_DIRECTORY, transfer)
+    _move_to_internal_shared_dir(
+        filepath, _get_setting("PROCESSING_DIRECTORY"), transfer
+    )
 
     logger.debug("Package %s: starting workflow processing", transfer.pk)
     unit = Transfer(path, transfer.pk)
@@ -486,7 +502,7 @@ def _start_package_transfer(
     _copy_from_transfer_sources([path], transfer_rel)
 
     copy_processing_config(
-        processing_config, os.path.join(settings.SHARED_DIRECTORY, transfer_rel)
+        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
     )
 
     logger.debug(
@@ -560,7 +576,7 @@ class Package(object):
 
     def __init__(self, current_path, uuid):
         self._current_path = current_path.replace(
-            r"%sharedPath%", settings.SHARED_DIRECTORY
+            r"%sharedPath%", _get_setting("SHARED_DIRECTORY")
         )
         if uuid and not isinstance(uuid, UUID):
             uuid = UUID(uuid)
@@ -581,13 +597,17 @@ class Package(object):
     def current_path(self, value):
         """The real (no shared dir vars) path to the package.
         """
-        self._current_path = value.replace(r"%sharedPath%", settings.SHARED_DIRECTORY)
+        self._current_path = value.replace(
+            r"%sharedPath%", _get_setting("SHARED_DIRECTORY")
+        )
 
     @property
     def current_path_for_db(self):
         """The path to the package, as stored in the database.
         """
-        return self.current_path.replace(settings.SHARED_DIRECTORY, "%sharedPath%", 1)
+        return self.current_path.replace(
+            _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
+        )
 
     @property
     def package_name(self):
@@ -721,7 +741,7 @@ class DIP(Package):
 
         Note that DIPs are represented using the SIP model in the database.
         """
-        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+        path = path.replace(_get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1)
 
         sip_uuid = uuid_from_path(path)
         created = True
@@ -754,7 +774,7 @@ class DIP(Package):
 
         if filter_subdir_path:
             relative_location = filter_subdir_path.replace(
-                settings.SHARED_DIRECTORY, "%sharedPath%", 1
+                _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
             )
             mapping[r"%relativeLocation%"] = relative_location
 
@@ -770,7 +790,7 @@ class Transfer(Package):
     @auto_close_old_connections()
     def get_or_create_from_db_by_path(cls, path):
         """Matches a directory to a database Transfer by its appended UUID, or path."""
-        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+        path = path.replace(_get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1)
 
         transfer_uuid = uuid_from_path(path)
         created = True
@@ -831,7 +851,7 @@ class SIP(Package):
     @auto_close_old_connections()
     def get_or_create_from_db_by_path(cls, path):
         """Matches a directory to a database SIP by its appended UUID, or path."""
-        path = path.replace(settings.SHARED_DIRECTORY, r"%sharedPath%", 1)
+        path = path.replace(_get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1)
 
         sip_uuid = uuid_from_path(path)
         created = True

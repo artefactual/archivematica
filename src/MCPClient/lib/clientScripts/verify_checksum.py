@@ -43,6 +43,7 @@ import scandir
 from django.db import transaction
 
 django.setup()
+from archivematicaFunctions import strToUnicode
 from main.models import Event, File, Transfer
 
 from custom_handlers import get_script_logger
@@ -260,7 +261,7 @@ def run_hashsum_commands(job):
     transfer_dir = None
     transfer_uuid = None
     try:
-        transfer_dir = job.args[1]
+        transfer_dir = strToUnicode(job.args[1])
         transfer_uuid = job.args[2]
     except IndexError:
         logger.error("Cannot access expected module arguments: %s", job.args)
