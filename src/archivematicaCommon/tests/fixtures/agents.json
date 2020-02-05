@@ -48,5 +48,25 @@
     },
     "model": "main.agent",
     "pk": 10
+},
+{
+    "fields": {
+        "agenttype": "software",
+        "identifiervalue": "Other-Software-1.0",
+        "name": "Other Software",
+        "identifiertype": "preservation system"
+    },
+    "model": "main.agent",
+    "pk": 11
+},
+{
+    "fields": {
+        "agenttype": "organization",
+        "identifiervalue": "other-repository",
+        "name": "Other repository",
+        "identifiertype": "repository code"
+    },
+    "model": "main.agent",
+    "pk": 12
 }
 ]

@@ -421,9 +421,7 @@ class SIP(models.Model):
     @property
     def agents(self):
         """Returns a queryset of agents related to this SIP."""
-        agent_lookups = models.Q(
-            identifiertype__in=("repository code", "preservation system")
-        )
+        agent_lookups = Agent.objects.default_agents_query_keywords()
 
         try:
             unit_variable = UnitVariable.objects.get(
@@ -478,9 +476,7 @@ class Transfer(models.Model):
     @property
     def agents(self):
         """Returns a queryset of agents related to this tranfer."""
-        agent_lookups = models.Q(
-            identifiertype__in=("repository code", "preservation system")
-        )
+        agent_lookups = Agent.objects.default_agents_query_keywords()
 
         try:
             unit_variable = UnitVariable.objects.get(
@@ -833,6 +829,25 @@ class Task(models.Model):
         db_table = u"Tasks"
 
 
+class AgentManager(models.Manager):
+
+    # These are set in the 0002_initial_data.py migration of the dashboard
+    DEFAULT_SYSTEM_AGENT_PK = 1
+    DEFAULT_ORGANIZATION_AGENT_PK = 2
+
+    def default_system_agent(self):
+        return self.get(pk=self.DEFAULT_SYSTEM_AGENT_PK)
+
+    def default_organization_agent(self):
+        return self.get(pk=self.DEFAULT_ORGANIZATION_AGENT_PK)
+
+    def default_agents_query_keywords(self):
+        """Return QuerySet keyword arguments for the default agents."""
+        return models.Q(
+            pk__in=(self.DEFAULT_SYSTEM_AGENT_PK, self.DEFAULT_ORGANIZATION_AGENT_PK)
+        )
+
+
 class Agent(models.Model):
     """ PREMIS Agents created for the system.  """
 
@@ -864,6 +879,8 @@ class Agent(models.Model):
         db_column="agentType",
         default="organization",
     )
+
+    objects = AgentManager()
 
     def __str__(self):
         return u"{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
