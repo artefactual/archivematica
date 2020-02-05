@@ -40,10 +40,7 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 
 def _get_setting(name):
     """Retrieve a Django setting decoded as a unicode string."""
-    try:
-        return strToUnicode(getattr(settings, name))
-    except:
-        pass
+    return strToUnicode(getattr(settings, name))
 
 
 # Each package type has its corresponding watched directory and its
