@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -34,6 +34,7 @@ from django.db import transaction
 from main.models import Transfer
 
 # archivematicaCommon
+from fileOperations import get_extract_dir_name
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -87,16 +88,9 @@ def call(jobs):
                 isBag = args.bag
 
                 basename = os.path.basename(target)
-                basename = basename[: basename.rfind(".")]
-
                 destinationDirectory = os.path.join(processingDirectory, basename)
 
-                # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
-                try:
-                    tar_extension_position = destinationDirectory.rindex(".tar")
-                    destinationDirectory = destinationDirectory[:tar_extension_position]
-                except ValueError:
-                    pass
+                destinationDirectory = get_extract_dir_name(destinationDirectory)
 
                 zipLocation = os.path.join(
                     processingDirectory, os.path.basename(target)
