@@ -49,7 +49,7 @@ class TransferBrowserTransfer {
     let name = this.name;
     if (this.type === 'zipped bag') {
       name = 'ZippedBag';
-    } else if (this.type == 'zipfile') {
+    } else if (this.type === 'zipfile') {
       name = 'ZipFile';
     }
 
