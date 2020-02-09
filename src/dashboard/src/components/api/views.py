@@ -445,6 +445,7 @@ def unapproved_transfers(request):
     jobs = models.Job.objects.filter(
         (
             Q(jobtype="Approve standard transfer")
+            | Q(jobtype="Approve zipped transfer")
             | Q(jobtype="Approve DSpace transfer")
             | Q(jobtype="Approve bagit transfer")
             | Q(jobtype="Approve zipped bagit transfer")
@@ -514,7 +515,9 @@ def approve_transfer(request):
     transfer_file = watched_path.replace(
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT
     )
-    if transfer_type in ("zipped bag", "dspace") and os.path.isfile(transfer_file):
+    if transfer_type in {"zipped bag", "zipfile", "dspace"} and os.path.isfile(
+        transfer_file
+    ):
         db_transfer_path = watched_path
     else:
         # Append a slash to complete the directory path.

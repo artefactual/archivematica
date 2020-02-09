@@ -270,6 +270,7 @@ def create():
         "watchedDirectories/activeTransfers/maildir",
         "watchedDirectories/activeTransfers/standardTransfer",
         "watchedDirectories/activeTransfers/TRIM",
+        "watchedDirectories/activeTransfers/zippedDirectory",
         "watchedDirectories/approveNormalization",
         "watchedDirectories/approveSubmissionDocumentationIngest",
         "watchedDirectories/SIPCreation",
