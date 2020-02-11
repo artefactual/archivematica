@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import sys
 
 import django
 
@@ -13,13 +12,14 @@ from main.models import Transfer
 
 
 def main(job, transfer_path, transfer_uuid, shared_path):
-    """
-    Move a Transfer that is a file into a directory.
+    """Move a Transfer that is a file into a directory.
 
-    Given a transfer that is one file, move the file into a directory with the same basename and updated the DB for the new path.
-    No action taken if the transfer is already a directory.
+    Given a transfer that is one file, move the file into a directory
+    with the same basename and update the DB for the new path.  No
+    action taken if the transfer is already a directory.
 
-    WARNING This should not be run inside a watched directory - may result in duplicated transfers.
+    WARNING This should not be run inside a watched directory - may
+    result in duplicated transfers.
 
     :param transfer_path: Path to the current transfer, file or folder
     :param transfer_uuid: UUID of the transfer to update
@@ -32,17 +32,6 @@ def main(job, transfer_path, transfer_uuid, shared_path):
     # If file, move into directory and update transfer
     dirpath = os.path.splitext(transfer_path)[0]
     basename = os.path.basename(transfer_path)
-    if os.path.exists(dirpath):
-        job.pyprint(
-            "Cannot move file",
-            transfer_path,
-            "to folder",
-            dirpath,
-            "because it already exists",
-            file=sys.stderr,
-        )
-        return 1
-    os.mkdir(dirpath)
     new_path = os.path.join(dirpath, basename)
     job.pyprint("Moving", transfer_path, "to", new_path)
     os.rename(transfer_path, new_path)
