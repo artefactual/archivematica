@@ -9,6 +9,9 @@
   "osdeps_repos": [
   ],
   "osdeps_packages": [
+   { "name": "gcc", "state": "latest"},
+   { "name": "g++", "state": "latest"},
+   { "name": "make", "state": "latest"},
    { "name": "libmysqlclient-dev", "state": "latest"}
    ]
 }

@@ -15,7 +15,8 @@
    { "name": "epel-release", "state": "latest"}
   ],
   "osdeps_packages_2": [
-   { "name": "gcc", "state": "latest"}
+   { "name": "gcc", "state": "latest"},
+   { "name": "gcc-c++", "state": "latest"}
   ]
 
 }
