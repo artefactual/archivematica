@@ -8345,8 +8345,8 @@
                 "@manager": "linkTaskManagerChoice",
                 "@model": "MicroServiceChainChoice",
                 "chain_choices": [
-                    "a6ed697e-6189-4b4e-9f80-29209abc7937",
-                    "2eae85d6-da2f-4f1c-8c33-3810b55e23aa"
+                    "2eae85d6-da2f-4f1c-8c33-3810b55e23aa",
+                    "a6ed697e-6189-4b4e-9f80-29209abc7937"
                 ]
             },
             "description": {
