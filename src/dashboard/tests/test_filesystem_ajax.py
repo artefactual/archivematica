@@ -1,11 +1,14 @@
 import base64
 import json
+import uuid
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+import pytest
 
 from components import helpers
+from components.filesystem_ajax import views
 from main import models
 
 
@@ -214,3 +217,42 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode("subsip") in response_dict["entries"]
         assert base64.b64encode("newsip") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
+
+
+@pytest.mark.django_db
+def test_copy_metadata_files(mocker):
+    # Mock helper that actually copies files from the transfer source locations
+    _copy_from_transfer_sources_mock = mocker.patch(
+        "components.filesystem_ajax.views._copy_from_transfer_sources",
+        return_value=(None, ""),
+    )
+
+    # Create a SIP
+    sip_uuid = str(uuid.uuid4())
+    models.SIP.objects.create(
+        uuid=sip_uuid,
+        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+    )
+
+    # Call the view with a mocked request
+    request = mocker.Mock(
+        **{
+            "POST.get.return_value": sip_uuid,
+            "POST.getlist.return_value": ["locationuuid:/some/path".encode("base64")],
+        }
+    )
+    result = views.copy_metadata_files(request)
+
+    # Verify the contents of the response
+    assert result.status_code == 201
+    assert result["Content-Type"] == "application/json"
+    assert json.loads(result.content) == {
+        "message": "Metadata files added successfully.",
+        "error": None,
+    }
+
+    # Verify the copier helper was called with the right parameters
+    _copy_from_transfer_sources_mock.assert_called_once_with(
+        ["locationuuid:/some/path"],
+        "more/path/metadataReminder/mysip-{}/metadata".format(sip_uuid),
+    )

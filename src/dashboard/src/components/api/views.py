@@ -676,9 +676,7 @@ def copy_metadata_files_api(request):
     """
     Endpoint for adding metadata files to a SIP if using an API key.
     """
-    sip_uuid = request.POST.get("sip_uuid")
-    paths = request.POST.getlist("source_paths[]")
-    return filesystem_ajax_views.copy_metadata_files(sip_uuid, paths)
+    return filesystem_ajax_views.copy_metadata_files(request)
 
 
 @_api_endpoint(expected_methods=["GET"])
