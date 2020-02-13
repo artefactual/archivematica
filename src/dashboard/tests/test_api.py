@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import tempfile
+import uuid
 
 from django.conf import settings
 from django.core.management import call_command
@@ -10,6 +11,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.utils.timezone import make_aware
 from lxml import etree
+import pytest
 
 from components.api import views
 from components import helpers
@@ -537,3 +539,40 @@ class TestAPI2(TestCase):
         assert "85216028-1150-4321-abb3-31ea570a341b" in completed
         assert "5d0ab97f-a45b-4e0f-9cb6-90ee3a404549" in completed
         assert "b949773d-7cf7-4c1e-aea5-ccbf65b70ccd" in completed
+
+
+@pytest.mark.django_db
+def test_copy_metadata_files_api(mocker):
+    # Mock authentication helper
+    mocker.patch("components.api.views.authenticate_request", return_value=None)
+
+    # Mock helper that actually copies files from the transfer source locations
+    mocker.patch(
+        "components.filesystem_ajax.views._copy_from_transfer_sources",
+        return_value=(None, ""),
+    )
+
+    # Create a SIP
+    sip_uuid = str(uuid.uuid4())
+    SIP.objects.create(
+        uuid=sip_uuid,
+        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+    )
+
+    # Call the endpoint with a mocked request
+    request = mocker.Mock(
+        **{
+            "POST.get.return_value": sip_uuid,
+            "POST.getlist.return_value": ["locationuuid:/some/path".encode("base64")],
+            "method": "POST",
+        }
+    )
+    result = views.copy_metadata_files_api(request)
+
+    # Verify the contents of the response
+    assert result.status_code == 201
+    assert result["Content-Type"] == "application/json"
+    assert json.loads(result.content) == {
+        "message": "Metadata files added successfully.",
+        "error": None,
+    }

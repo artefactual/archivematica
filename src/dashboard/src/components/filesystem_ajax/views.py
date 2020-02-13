@@ -925,7 +925,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     return helpers.json_response(response, status_code=status_code)
 
 
-def copy_metadata_files(request, sip_uuid, paths):
+def copy_metadata_files(request):
     """
     Copy files from list `source_paths` to sip_uuid's metadata folder.
 
