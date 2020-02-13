@@ -422,7 +422,7 @@ def get_extract_dir_name(filename):
     if not filename.suffix:
         raise ValueError("Filename '%s' must have an extension", filename)
 
-    extract_dir = filename.parent / filename.stem
+    extract_dir = filename.parent / ".{}".format(str(filename.stem))
 
     # trim off '.tar' if present
     if extract_dir.suffix in (".tar", ".TAR"):

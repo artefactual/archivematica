@@ -50,7 +50,12 @@ logger = logging.getLogger("archivematica.mcp.server")
 
 
 def watched_dir_handler(package_queue, path, watched_dir):
-    if os.path.isdir(path):
+
+    is_hidden = os.path.basename(path).startswith(".")
+    if is_hidden:
+        return
+
+    if os.path.isdir(path) and not is_hidden:
         path = path + "/"
     logger.debug("Starting chain for %s", path)
 

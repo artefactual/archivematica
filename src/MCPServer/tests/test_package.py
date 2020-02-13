@@ -335,7 +335,7 @@ class TestMoveToInternalSharedDir:
 
         dest_path = processing_dir / "transfer.zip"
         assert dest_path.is_file()
-        assert (processing_dir / "transfer").is_dir()
+        assert (processing_dir / ".transfer").is_dir()
 
         transfer.refresh_from_db()
         assert Path(transfer.currentlocation) == dest_path
@@ -351,5 +351,5 @@ class TestMoveToInternalSharedDir:
 
         _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
 
-        config_dest = processing_dir / "transfer/processingMCP.xml"
+        config_dest = processing_dir / ".transfer/processingMCP.xml"
         assert config_dest.is_file()

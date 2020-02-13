@@ -87,6 +87,11 @@ def call(jobs):
                 sharedPath = args.shared_path
                 isBag = args.bag
 
+                job.pyprint("target is our zip...", target)
+                job.pyprint(
+                    "processing dir is our pre-created dir", processingDirectory
+                )
+
                 basename = os.path.basename(target)
                 destinationDirectory = os.path.join(processingDirectory, basename)
 
@@ -98,6 +103,14 @@ def call(jobs):
 
                 # move to processing directory
                 shutil.move(target, zipLocation)
+
+                job.pyprint(
+                    "We're going to extract here (our pre-created dir):",
+                    "src:",
+                    target,
+                    "dst",
+                    destinationDirectory,
+                )
 
                 # extract
                 exit_code = extract(job, zipLocation, destinationDirectory)
@@ -112,8 +125,10 @@ def call(jobs):
                 # previously. (For now this is just the processing config.)
                 # These files will need to be moved down a level.
                 if isBag:
+
                     preexisting_files = {"processingMCP.xml"}
                     listdir = set(os.listdir(destinationDirectory))
+
                     to_move = listdir & preexisting_files
                     listdir -= preexisting_files
 
@@ -134,10 +149,21 @@ def call(jobs):
                         )
                         os.rmdir(temp)
 
+                # I don't think we need to check if hidden... it always will be with server changes...
+                is_hidden = os.path.basename(destinationDirectory).startswith(".")
+                if is_hidden:
+                    destinationDirectory_new = destinationDirectory.replace(
+                        os.path.basename(destinationDirectory),
+                        os.path.basename(destinationDirectory)[1:],
+                    )
+                    # move to processing directory
+                    shutil.move(destinationDirectory, destinationDirectory_new)
+
                 # update transfer
-                destinationDirectoryDB = destinationDirectory.replace(
+                destinationDirectoryDB = destinationDirectory_new.replace(
                     sharedPath, "%sharedPath%", 1
                 )
+
                 Transfer.objects.filter(uuid=transferUUID).update(
                     currentlocation=destinationDirectoryDB
                 )

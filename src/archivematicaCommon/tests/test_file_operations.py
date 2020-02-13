@@ -6,13 +6,13 @@ from fileOperations import get_extract_dir_name
 @pytest.mark.parametrize(
     "filename,dirname",
     [
-        ("/parent/test.zip", "/parent/test"),
-        ("/parent/test.tar.gz", "/parent/test"),
-        ("/parent/test.TAR.GZ", "/parent/test"),
-        ("/parent/test.TAR.GZ", "/parent/test"),
+        ("/parent/test.zip", "/parent/.test"),
+        ("/parent/test.tar.gz", "/parent/.test"),
+        ("/parent/test.TAR.GZ", "/parent/.test"),
+        ("/parent/test.TAR.GZ", "/parent/.test"),
         (
             "/parent/test.target.tar.gz",
-            "/parent/test.target",
+            "/parent/.test.target",
         ),  # something beginning with "tar"
     ],
 )
