@@ -18,7 +18,6 @@ from django.utils import six
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
-from fileOperations import get_extract_dir_name
 from main import models
 
 from server.db import auto_close_old_connections
@@ -285,8 +284,6 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     filepath = Path(filepath)
     dest = Path(dest)
 
-    is_dir = filepath.is_dir()
-
     # Confine destination to subdir of originals.
     basename = filepath.name
     dest = _pad_destination_filepath_if_it_already_exists(dest / basename)
@@ -300,26 +297,6 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
-
-    if not is_dir:
-        # Transfer is not a directory so it is an uploaded zipfile.
-        # Precreate the extraction directory for the uploaded zipfile
-        extract_dir = Path(get_extract_dir_name(dest))
-        try:
-            extract_dir.mkdir()
-        except OSError as e:
-            raise Exception("Error creating extraction dir %s (%s)", extract_dir, e)
-
-        # Move the processing config into the extraction directory so that it
-        # is preserved and used in the workflow
-        files_to_preserve = {"processingMCP.xml"}
-        for filename in files_to_preserve:
-            path = filepath.parent / filename
-            if path.exists():
-                try:
-                    path.rename(extract_dir / filename)
-                except OSError as e:
-                    raise Exception("Error moving %s to %s (%s)", path, extract_dir, e)
 
 
 @auto_close_old_connections()
