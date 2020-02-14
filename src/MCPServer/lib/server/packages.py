@@ -373,6 +373,7 @@ def create_package(
         except models.TransferMetadataSet.DoesNotExist:
             pass
     transfer = models.Transfer.objects.create(**kwargs)
+    transfer.set_processing_configuration(processing_config)
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
@@ -834,6 +835,7 @@ class Transfer(Package):
     def reload(self):
         transfer = models.Transfer.objects.get(uuid=self.uuid)
         self.current_path = transfer.currentlocation
+        self.processing_configuration = transfer.processing_configuration
 
     def get_replacement_mapping(self, filter_subdir_path=None):
         mapping = super(Transfer, self).get_replacement_mapping(
@@ -841,7 +843,11 @@ class Transfer(Package):
         )
 
         mapping.update(
-            {self.REPLACEMENT_PATH_STRING: self.current_path, r"%unitType%": "Transfer"}
+            {
+                self.REPLACEMENT_PATH_STRING: self.current_path,
+                r"%unitType%": "Transfer",
+                r"%processingConfiguration%": self.processing_configuration,
+            }
         )
 
         return mapping
