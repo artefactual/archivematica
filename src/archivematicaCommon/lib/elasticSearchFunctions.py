@@ -26,7 +26,6 @@ from __future__ import division
 import calendar
 import copy
 import datetime
-import json
 import logging
 import os
 import re
@@ -208,6 +207,12 @@ def create_indexes_if_needed(client, indexes):
 
 
 def _get_aips_index_body():
+    """Get settings and mappings for `aips` index.
+
+    The mapping is dynamic and not a full representation of the final documents.
+    For example, the AIP directories AMD and DMD sections are parsed from the
+    METS file and added to a `transferMetadata` field.
+    """
     return {
         "settings": _get_index_settings(),
         "mappings": {
@@ -228,6 +233,12 @@ def _get_aips_index_body():
 
 
 def _get_aipfiles_index_body():
+    """Get settings and mappings for `aipfiles` index.
+
+    The mapping is dynamic and not a full representation of the final documents.
+    For example, the files AMD and DMD sections are parsed from the METS file
+    and added to a `METS` field.
+    """
     return {
         "settings": _get_index_settings(),
         "mappings": {
@@ -248,7 +259,6 @@ def _get_aipfiles_index_body():
                     "fileExtension": {"type": "text"},
                     "origin": {"type": "text"},
                     "identifiers": {"type": "keyword"},
-                    "METS": _load_mets_mapping("aipfiles"),
                 },
             }
         },
@@ -323,21 +333,6 @@ def _get_transferfiles_index_body():
             }
         },
     }
-
-
-def _load_mets_mapping(index):
-    """Load external METS mappings.
-
-    These were generated from an AIP which had all the metadata fields filled
-    out and should represent a pretty complete structure.
-    We don't want to leave this up to dynamic mapping, since automatic type
-    detection may result in some fields being detected as date fields, and
-    subsequently causing problems.
-    """
-    json_file = "%s_mets_mapping.json" % index
-    path = os.path.join(__file__, "..", "elasticsearch", json_file)
-    with open(os.path.normpath(path)) as f:
-        return json.load(f)
 
 
 def _get_index_settings():
