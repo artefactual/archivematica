@@ -23,7 +23,6 @@ from main import models
 
 from server.db import auto_close_old_connections
 from server.jobs import JobChain
-from server.processing_config import copy_processing_config
 from server.utils import uuid_from_path
 
 try:
@@ -461,10 +460,6 @@ def _start_package_transfer_with_auto_approval(
     )
     _copy_from_transfer_sources([path], transfer_rel)
 
-    copy_processing_config(
-        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
-    )
-
     logger.debug("Package %s: moving package to processing directory", transfer.pk)
     _move_to_internal_shared_dir(
         filepath, _get_setting("PROCESSING_DIRECTORY"), transfer
@@ -508,10 +503,6 @@ def _start_package_transfer(
         transfer_rel,
     )
     _copy_from_transfer_sources([path], transfer_rel)
-
-    copy_processing_config(
-        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
-    )
 
     logger.debug(
         "Package %s: moving package to activeTransfers dir (from=%s," " to=%s)",
