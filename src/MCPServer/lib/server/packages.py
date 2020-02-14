@@ -809,9 +809,13 @@ class Transfer(Package):
                 transfer_obj.currentpath = path
                 transfer_obj.save()
         else:
-            transfer_obj = models.Transfer.objects.create(
-                uuid=uuid4(), currentlocation=path
-            )
+            try:
+                transfer_obj = models.Transfer.objects.get(currentlocation=path)
+                created = False
+            except models.Transfer.DoesNotExist:
+                transfer_obj = models.Transfer.objects.create(
+                    uuid=uuid4(), currentlocation=path
+                )
         logger.info(
             "Transfer %s %s (%s)",
             transfer_obj.uuid,
