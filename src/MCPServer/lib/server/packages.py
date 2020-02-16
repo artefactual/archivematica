@@ -359,7 +359,7 @@ def create_package(
     logger.debug(
         "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
     )
-    params = (transfer, name, path, tmpdir, starting_point, processing_config)
+    params = (transfer, name, path, tmpdir, starting_point)
     if auto_approve:
         params = params + (workflow, package_queue)
         result = executor.submit(_start_package_transfer_with_auto_approval, *params)
@@ -405,14 +405,7 @@ def _determine_transfer_paths(name, path, tmpdir):
 
 @_capture_transfer_failure
 def _start_package_transfer_with_auto_approval(
-    transfer,
-    name,
-    path,
-    tmpdir,
-    starting_point,
-    processing_config,
-    workflow,
-    package_queue,
+    transfer, name, path, tmpdir, starting_point, workflow, package_queue
 ):
     """Start a new transfer the new way.
 
@@ -454,9 +447,7 @@ def _start_package_transfer_with_auto_approval(
 
 
 @_capture_transfer_failure
-def _start_package_transfer(
-    transfer, name, path, tmpdir, starting_point, processing_config
-):
+def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     """Start a new transfer the old way.
 
     This means copying the transfer into one of the standard watched dirs.
