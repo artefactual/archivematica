@@ -217,7 +217,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
     :param str relative_destination: Path relative to the currently processing
                                      space to move the files to.
     """
-    processing_location = storage_service.get_location(purpose="CP")[0]
+    processing_location = storage_service.get_first_location(purpose="CP")
     transfer_sources = storage_service.get_location(purpose="TS")
     files = {l["uuid"]: {"location": l, "files": []} for l in transfer_sources}
 

@@ -177,8 +177,8 @@ def _record_backlog_event(transfer_id, transfer_path, created_at):
 
 
 def main(job, transfer_id, transfer_path, created_at):
-    current_location = storage_service.get_location(purpose="CP")[0]
-    backlog = storage_service.get_location(purpose="BL")[0]
+    current_location = storage_service.get_first_location(purpose="CP")
+    backlog = storage_service.get_first_location(purpose="BL")
 
     logger.info("Creating events...")
     _record_backlog_event(transfer_id, transfer_path, created_at)

@@ -764,7 +764,7 @@ def _copy_files_to_arrange(
 
     # Create new SIPArrange entry for each object being copied over
     if not backlog_uuid:
-        backlog_uuid = storage_service.get_location(purpose="BL")[0]["uuid"]
+        backlog_uuid = storage_service.get_first_location(purpose="BL")["uuid"]
     to_add = []
 
     # Construct the base arrange_path differently for files vs folders
@@ -877,7 +877,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     # constants.
     if sources[0].startswith("/" + DEFAULT_BACKLOG_PATH):
         action = "copy"
-        backlog_uuid = storage_service.get_location(purpose="BL")[0]["uuid"]
+        backlog_uuid = storage_service.get_first_location(purpose="BL")["uuid"]
     elif sources[0].startswith(DEFAULT_ARRANGE_PATH):
         action = "move"
     else:
@@ -972,7 +972,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
     :param str relative_destination: Path relative to the currently processing space to move the files to.
     :returns: Tuple of (boolean error, message)
     """
-    processing_location = storage_service.get_location(purpose="CP")[0]
+    processing_location = storage_service.get_first_location(purpose="CP")
     transfer_sources = storage_service.get_location(purpose="TS")
     files = {l["uuid"]: {"location": l, "files": []} for l in transfer_sources}
 
