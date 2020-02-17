@@ -32,8 +32,8 @@ the path to the file.
 """
 
 import argparse
+import glob
 import os
-import re
 import uuid
 
 from django.db import transaction
@@ -58,12 +58,15 @@ def find_mets_file(unit_path):
     """
     Return the location of the original METS in a Archivematica AIP transfer.
     """
-    p = re.compile(r"^METS\..*\.xml$", re.IGNORECASE)
     src = os.path.join(unit_path, "metadata")
-    for item in os.listdir(src):
-        m = p.match(item)
-        if m:
-            return os.path.join(src, m.group())
+    mets_paths = glob.glob(os.path.join(src, "METS.*.xml"))
+
+    if len(mets_paths) == 1:
+        return mets_paths[0]
+    elif len(mets_paths) == 0:
+        raise Exception("No METS file found in %s" % src)
+    else:
+        raise Exception("Multiple METS files found in %s: %r" % (src, mets_paths))
 
 
 def get_file_info_from_mets(job, sip_directory, file_path_relative_to_sip):
