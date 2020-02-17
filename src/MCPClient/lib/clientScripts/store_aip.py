@@ -140,7 +140,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
 
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
-    current_location = storage_service.get_location(purpose="CP")[0]
+    current_location = storage_service.get_first_location(purpose="CP")
 
     # If ``aip_path`` does not exist, this may be a DIP that was not uploaded.
     # In that case, it will be in the uploadDIP/ directory instead of the

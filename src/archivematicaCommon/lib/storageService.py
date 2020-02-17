@@ -200,6 +200,21 @@ def get_location(path=None, purpose=None, space=None):
     return return_locations
 
 
+def get_first_location(**kwargs):
+    try:
+        return get_location(**kwargs)[0]
+    except IndexError:
+        # No locations were found.  Catch the IndexError from the .[0] lookup,
+        # and show a more helpful error in the logs.
+        kwargs_string = ", ".join(
+            "%s=%r" % (key, value) for (key, value) in kwargs.items()
+        )
+        raise Exception(
+            "No locations found for %s.  Please check your storage service config."
+            % kwargs_string
+        )
+
+
 def location_description_from_slug(aip_location_slug):
     """Retrieve the location resource description
 
@@ -315,9 +330,9 @@ def get_files_from_backlog(files):
     """
     # Get Backlog location UUID
     # Assuming only one backlog location
-    backlog = get_location(purpose="BL")[0]
+    backlog = get_first_location(purpose="BL")
     # Get currently processing location
-    processing = get_location(purpose="CP")[0]
+    processing = get_first_location(purpose="CP")
 
     return copy_files(backlog, processing, files)
 
