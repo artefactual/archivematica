@@ -22,6 +22,7 @@ from main import models
 
 from server.db import auto_close_old_connections
 from server.jobs import JobChain
+from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
 
 try:
@@ -349,6 +350,8 @@ def create_package(
         except models.TransferMetadataSet.DoesNotExist:
             pass
     transfer = models.Transfer.objects.create(**kwargs)
+    if not processing_configuration_file_exists(processing_config):
+        processing_config = "default"
     transfer.set_processing_configuration(processing_config)
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)

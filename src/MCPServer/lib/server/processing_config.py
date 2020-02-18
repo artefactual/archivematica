@@ -302,3 +302,21 @@ def load_preconfigured_choice(package_path, workflow_link_id):
                 choice = preconfigured_choice.find("goToChain").text
 
     return choice
+
+
+def processing_configuration_file_exists(processing_configuration_name):
+    if not processing_configuration_name:
+        return False
+    result = os.path.isfile(
+        os.path.join(
+            settings.SHARED_DIRECTORY,
+            "sharedMicroServiceTasksConfigs/processingMCPConfigs",
+            "%sProcessingMCP.xml" % processing_configuration_name,
+        )
+    )
+    if not result:
+        logger.debug(
+            "Processing configuration file for %s does not exist",
+            processing_configuration_name,
+        )
+    return result
