@@ -3,10 +3,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import threading
 import uuid
 
+import pytest
+
 from server.mcp import main
 from server.mcp import watched_dir_handler
 
 
+@pytest.mark.django_db(transaction=True)
 def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdir):
     """Test that a models.Transfer object exists for an unknown path.
 
@@ -49,6 +52,7 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
     )
 
 
+@pytest.mark.django_db(transaction=True)
 def test_watched_dir_handler_creates_transfer_for_file(mocker, tmpdir):
     """Test that a models.Transfer object exists for a file path.
     """
