@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 
 import django
 
@@ -32,6 +33,17 @@ def main(job, transfer_path, transfer_uuid, shared_path):
     # If file, move into directory and update transfer
     dirpath = os.path.splitext(transfer_path)[0]
     basename = os.path.basename(transfer_path)
+    if os.path.exists(dirpath):
+        job.pyprint(
+            "Cannot move file",
+            transfer_path,
+            "to folder",
+            dirpath,
+            "because it already exists",
+            file=sys.stderr,
+        )
+        return 1
+    os.mkdir(dirpath)
     new_path = os.path.join(dirpath, basename)
     job.pyprint("Moving", transfer_path, "to", new_path)
     os.rename(transfer_path, new_path)
