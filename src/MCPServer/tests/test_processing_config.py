@@ -6,6 +6,7 @@ from server.processing_config import (
     _get_options_for_chain_choice,
     _populate_duplicates_chain_choice,
     get_processing_fields,
+    processing_configuration_file_exists,
     processing_fields,
 )
 from server.workflow import load
@@ -38,3 +39,21 @@ def test__populate_duplicates_chain_choice(_workflow):
     _populate_duplicates_chain_choice(_workflow, link, config)
     duplicates = config["duplicates"]
     assert len(duplicates) > 0
+
+
+def test_processing_configuration_file_exists_with_None():
+    assert not processing_configuration_file_exists(None)
+
+
+def test_processing_configuration_file_exists_with_existent_file(mocker):
+    mocker.patch("os.path.isfile", return_value=True)
+    assert processing_configuration_file_exists("defaultProcessingMCP.xml")
+
+
+def test_processing_configuration_file_exists_with_nonexistent_file(mocker):
+    mocker.patch("os.path.isfile", return_value=False)
+    logger = mocker.patch("server.processing_config.logger")
+    assert not processing_configuration_file_exists("bogus.xml")
+    logger.debug.assert_called_once_with(
+        "Processing configuration file for %s does not exist", "bogus.xml"
+    )
