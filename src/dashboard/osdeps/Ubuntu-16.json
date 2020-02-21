@@ -8,6 +8,18 @@
   "osdeps_repos": [],
   "osdeps_packages": [
     {
+      "name": "gcc",
+      "state": "latest"
+    },
+    {
+      "name": "g++",
+      "state": "latest"
+    },
+    {
+      "name": "make",
+      "state": "latest"
+    },
+    {
       "name": "gettext",
       "state": "latest"
     },
