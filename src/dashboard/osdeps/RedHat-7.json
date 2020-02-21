@@ -10,6 +10,8 @@
   "osdeps_repos": [
   ],
   "osdeps_packages": [
+  { "name": "gcc", "state": "latest"},
+  { "name": "gcc-c++", "state": "latest"},
   { "name": "gettext", "state": "latest"},
   { "name": "nginx", "state": "latest"},
   { "name": "policycoreutils-python", "state": "latest"},
