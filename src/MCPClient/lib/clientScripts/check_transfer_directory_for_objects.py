@@ -25,17 +25,17 @@ import os
 import scandir
 
 
-exitInidcatingThereAreObjects = 179
-
-
 def call(jobs):
+    """
+    Check the given directory and it's subdirectories for files.
+    Returns job status 0 if there are files.
+    Returns job status 1 if the directories are empty.
+    """
     for job in jobs:
         with job.JobContext():
-            objectsDir = job.args[1]
-            os.path.isdir(objectsDir)
-            ret = 0
-            for dirs, subDirs, files in scandir.walk(objectsDir):
-                if files is not None and files != []:
-                    ret = exitInidcatingThereAreObjects
-                    break
-            job.set_status(ret)
+            objects_dir = job.args[1]
+            os.path.isdir(objects_dir)
+            for _, _, files in scandir.walk(objects_dir):
+                if files:
+                    return
+            job.set_status(1)

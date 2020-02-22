@@ -1061,15 +1061,11 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": null
-                },
-                "179": {
-                    "job_status": "Completed successfully",
                     "link_id": "b04e9232-2aea-49fc-9560-27349c8eba4e"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
+            "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
             "group": {
                 "en": "Create SIP from Transfer",
                 "es": "Crear SIP a partir de la transferencia",
