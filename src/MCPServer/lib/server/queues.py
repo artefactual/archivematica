@@ -72,8 +72,6 @@ class PackageQueue(object):
             "377f8ebb-7989-4a68-9361-658079ff8138",
             # Move transfer to backlog
             "abd6d60c-d50f-4660-a189-ac1b34fafe85",
-            # Check transfer directory for objects
-            "032cdc54-0b9b-4caf-86e8-10d63efbaec0",
             # Move to the rejected directory
             "0d7f5dc2-b9af-43bf-b698-10fdcc5b014d",
             "333532b9-b7c2-4478-9415-28a3056d58df",
