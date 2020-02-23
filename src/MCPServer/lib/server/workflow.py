@@ -29,7 +29,7 @@ from server.jobs import Job
 from server.translation import FALLBACK_LANG, TranslationLabel
 
 
-_LATEST_SCHEMA = "workflow-schema-v1.json"
+_LATEST_SCHEMA = "workflow-schema-v1.1.json"
 ASSETS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(os.path.join(__file__)))), "assets"
 )
@@ -193,6 +193,17 @@ class Link(BaseLink):
         except KeyError:
             status_id = self._src["fallback_job_status"]
         return status_id
+
+    def is_terminal(self):
+        """Check if the link is indicated as a terminal link.
+
+        Returns the value of the end property.
+        If the value does not exist the link is assumed to be non-terminal.
+        """
+        try:
+            return self._src["end"]
+        except KeyError:
+            return False
 
 
 class WatchedDir(BaseLink):

@@ -115,7 +115,9 @@ def test_link_browse_methods(mocker):
 
 def test_get_schema():
     schema = workflow._get_schema()
-    assert schema["$id"] == "https://www.archivematica.org/labs/workflow/schema/v1.json"
+    assert (
+        schema["$id"] == "https://www.archivematica.org/labs/workflow/schema/v1.1.json"
+    )
 
 
 def test_get_schema_not_found(mocker):
