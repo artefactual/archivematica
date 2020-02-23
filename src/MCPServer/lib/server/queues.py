@@ -80,6 +80,8 @@ class PackageQueue(object):
             "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
             # Failed compliance. See output in dashboard. Transfer moved back to activeTransfers
             "61af079f-46a2-48ff-9b8a-0c78ba3a456d",
+            # Failed compliance
+            'bbfbecde-370c-4e26-8087-cfa751e72e6a',
         ]
     )
     # An arbitrary, large value, so we don't accept infinite packages.
