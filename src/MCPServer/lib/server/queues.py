@@ -57,33 +57,6 @@ class PackageQueue(object):
        continues until the workflow chain ends.
     """
 
-    # TODO: make this better by signifying the end of a package in the workflow
-    PACKAGE_COMPLETED_LINK_IDS = set(
-        [
-            # Move to SIP creation directory for completed transfers
-            "d27fd07e-d3ed-4767-96a5-44a2251c6d0a",
-            # Move to SIP Creation
-            "39a128e3-c35d-40b7-9363-87f75091e1ff",
-            # AIP completed
-            "d5a2ef60-a757-483c-a71a-ccbffe6b80da",
-            # Move SIP to failed directory
-            "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c",
-            # Move Transfer to failed directory
-            "377f8ebb-7989-4a68-9361-658079ff8138",
-            # Move transfer to backlog
-            "abd6d60c-d50f-4660-a189-ac1b34fafe85",
-            # Move to the rejected directory
-            "0d7f5dc2-b9af-43bf-b698-10fdcc5b014d",
-            "333532b9-b7c2-4478-9415-28a3056d58df",
-            "3467d003-1603-49e3-b085-e58aa693afed",
-            # Failed compliance. See output in dashboard. SIP moved back to SIPsUnderConstruction
-            "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
-            # Failed compliance. See output in dashboard. Transfer moved back to activeTransfers
-            "61af079f-46a2-48ff-9b8a-0c78ba3a456d",
-            # Failed compliance
-            'bbfbecde-370c-4e26-8087-cfa751e72e6a',
-        ]
-    )
     # An arbitrary, large value, so we don't accept infinite packages.
     MAX_QUEUED_PACKAGES = 4096
 
@@ -193,9 +166,12 @@ class PackageQueue(object):
     def process_one_job(self, timeout=None):
         """Process a single job, if one is queued before `timeout`.
 
-        Only called by `work` and unit tests.
+        Jobs are submitted to our thread pool. Once the job has done processing
+        it will return the next link in the chain, which will be scheduled. Some
+        links are terminal, these links indicate the end of the chain for a
+        particalar package. If such a link is encountered the package is
+        deactivated and the next package is scheduled.
         """
-        # block until a job is waiting
         try:
             job = self.job_queue.get(timeout=timeout)
         except Queue.Empty:
@@ -207,7 +183,7 @@ class PackageQueue(object):
         result = self.executor.submit(job.run)
         result.add_done_callback(self._job_completed_callback)
 
-        if job.link.id in self.PACKAGE_COMPLETED_LINK_IDS:
+        if job.link.is_terminal():
             package_done_callback = functools.partial(
                 self._package_completed_callback, job.package
             )
@@ -221,34 +197,33 @@ class PackageQueue(object):
         self.shutdown_event.set()
 
     def _package_completed_callback(self, package, future):
-        """Called by an Executor on completion the last job in a package.
+        """Mark the package as inactive and schedule a new package.
 
-        The result of the future will always be None.
+        It is assumed that a package is only complete when a terminal link is
+        hit. When we hit a terminal link the future should not contain the next
+        job in the chain. If the future is a new job we raise an exception.
         """
         if future.result() is not None:
             raise RuntimeError(
                 "Unexpectedly received another job on package completion. "
-                "If the workflow has been modified, please update "
-                "PACKAGE_COMPLETED_LINK_IDS."
+                "Please verify the value of `end` in the workflow. "
             )
 
         self.deactivate_package(package)
         self.queue_next_job()
 
     def _job_completed_callback(self, future):
-        """Called by an Executor on completion of `job.run`.
+        """Schedule the next job in the chain.
 
-        The argument is a future, the result of which should be the next job
-        in the chain.
+        Retrieves the next job from the result from the previous job.
+        If there is no next_job return, otherwhise schedule the new job.
         """
         metrics.active_jobs_gauge.dec()
         next_job = future.result()
 
         if not next_job:
             return
-
-        # Special case for decision job here.
-        if isinstance(next_job, DecisionJob) and next_job.awaiting_decision:
+        elif isinstance(next_job, DecisionJob) and next_job.awaiting_decision:
             self.await_decision(next_job)
         else:
             self.schedule_job(next_job)
