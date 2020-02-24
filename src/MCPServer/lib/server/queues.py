@@ -15,7 +15,7 @@ from django.utils import six
 
 from server import metrics
 from server.jobs import DecisionJob
-from server.packages import DIP, SIP
+from server.packages import DIP, SIP, Transfer
 
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
@@ -57,19 +57,17 @@ class PackageQueue(object):
        continues until the workflow chain ends.
     """
 
-    # An arbitrary, large value, so we don't accept infinite packages.
-    MAX_QUEUED_PACKAGES = 4096
-
     def __init__(
         self,
         executor,
         shutdown_event=None,
         max_concurrent_packages=settings.CONCURRENT_PACKAGES,
-        max_queued_packages=MAX_QUEUED_PACKAGES,
+        max_queued_transfers=settings.MAX_QUEUED_TRANSFERS,
         debug=False,
     ):
         self.executor = executor
         self.max_concurrent_packages = max_concurrent_packages
+        self.max_queued_transfers = max_queued_transfers
         self.debug = debug
 
         if shutdown_event is None:
@@ -84,10 +82,18 @@ class PackageQueue(object):
 
         self.job_queue = Queue.Queue(maxsize=max_concurrent_packages)
 
-        # Split queues by package type
-        self.transfer_queue = Queue.Queue(maxsize=max_queued_packages)
-        self.sip_queue = Queue.Queue(maxsize=max_queued_packages)
-        self.dip_queue = Queue.Queue(maxsize=max_queued_packages)
+        # Split queues by package type. The number of transfers in the transfer
+        # queue is limited to the maximum number of queued packages. This limits
+        # the number of transfers that can be active at any time. For the SIP
+        # and the DIP queue we have no hard limits on queue sizes, mainly
+        # because they are not entirely in our control.
+        self.transfer_queue = Queue.Queue(maxsize=max_queued_transfers)
+        self.sip_queue = Queue.Queue()
+        self.dip_queue = Queue.Queue()
+
+        # Semaphore that manages the number of slots in the transfer queue.
+        # This semaphore is used to control the number of waiting transfers.
+        self._transfer_slots = threading.BoundedSemaphore(value=max_queued_transfers)
 
         if self.debug:
             logger.debug(
@@ -96,61 +102,39 @@ class PackageQueue(object):
             )
 
     def schedule_job(self, job):
-        """Add a job to the queue.
+        """Schedule a job by adding it to the correct queue.
 
-        If the Job's package is currently "active", it will be added to the
-        active job queue for immediate processing. Otherwise, it will be
-        queued, until a package has completed.
+        The most common action is to add the job of an already active package
+        to the job queue. In some cases the job belongs to a new packagem, these
+        packages will be added to the appropriate queue and we start the new
+        package if we have processing capacity.
+
+        When scheduling a Transfer package that is not active make sure to
+        acquire a transfer slot *first*.
         """
         if self.shutdown_event.is_set():
             raise RuntimeError("Queue stopped.")
 
-        # The most common case is an already active package is scheduled
         package = job.package
         with self.active_package_lock:
+            num_active_packages = len(self.active_packages)
             if package.uuid in self.active_packages:
                 # If there's no slot available, block until ready
                 self.job_queue.put(job, block=True)
                 metrics.job_queue_length_gauge.inc()
                 return
 
-            # Otherwise, we need to queue the package
-            active_package_count = len(self.active_packages)
-
-        self._put_package_nowait(package, job)
+        self._queue_package(package, job)
 
         if self.debug:
-            with self.active_package_lock:
-                logger.debug(
-                    "Active packages are: %s",
-                    ", ".join(
-                        [
-                            repr(active_package)
-                            for active_package in self.active_packages.values()
-                        ]
-                    ),
-                )
-            queue_size = (
-                self.sip_queue.qsize()
-                + self.dip_queue.qsize()
-                + self.transfer_queue.qsize()
-            )
-            logger.debug(
-                "Scheduled job %s (%s %s). Current queue size: %s",
-                job.uuid,
-                package.__class__.__name__,
-                package.uuid,
-                queue_size,
-            )
+            self._log_job_schedule_info(job)
 
-        # Don't start processing unless we have capacity
-        if active_package_count < self.max_concurrent_packages:
+        if num_active_packages < self.max_concurrent_packages:
             self.queue_next_job()
-
         elif self.debug:
             logger.debug(
                 "Not processing next job; %s packages already active",
-                active_package_count,
+                num_active_packages,
             )
 
     def work(self):
@@ -231,14 +215,16 @@ class PackageQueue(object):
         else:
             self.schedule_job(next_job)
 
-    def _put_package_nowait(self, package, job):
+    def _queue_package(self, package, job):
         """Queue a package and job for later processing."""
         if isinstance(package, DIP):
             self.dip_queue.put_nowait(job)
         elif isinstance(package, SIP):
             self.sip_queue.put_nowait(job)
-        else:
+        elif isinstance(package, Transfer):
             self.transfer_queue.put_nowait(job)
+        else:
+            raise TypeError("Unrecognised package type %s", package.__class__)
         metrics.package_queue_length_gauge.labels(
             package_type=package.__class__.__name__
         ).inc()
@@ -261,6 +247,7 @@ class PackageQueue(object):
         if job is None:
             try:
                 job = self.transfer_queue.get_nowait()
+                self.release_transfer_slot()
             except Queue.Empty:
                 pass
 
@@ -316,17 +303,12 @@ class PackageQueue(object):
         metrics.job_queue_length_gauge.inc()
 
         if self.debug:
-            queue_size = (
-                self.sip_queue.qsize()
-                + self.dip_queue.qsize()
-                + self.transfer_queue.qsize()
-            )
             logger.debug(
                 "Released job %s (%s %s). Current queue size: %s",
                 job.uuid,
                 package.__class__.__name__,
                 package.uuid,
-                queue_size,
+                self._num_queued_packages(),
             )
 
     def await_decision(self, job):
@@ -360,7 +342,57 @@ class PackageQueue(object):
             del self.waiting_choices[job_uuid]
 
         if next_job is not None:
+            if isinstance(next_job.package, Transfer):
+                self.acquire_transfer_slot(blocking=True)
+
             self.schedule_job(next_job)
 
         if self.debug:
             logger.debug("Decision made for job %s (%s)", decision.uuid, choice)
+
+    def acquire_transfer_slot(self, blocking=False):
+        """Try to acquire a slot in the Transfer queue.
+
+        Returns true if the slot has been acquired. If blocking is True this
+        method will block until a transfer slot is acquired.
+        """
+        return self._transfer_slots.acquire(blocking=blocking)
+
+    def release_transfer_slot(self):
+        """Release a claimed transfer slot"""
+        try:
+            self._transfer_slots.release()
+        except ValueError:
+            logger.error(
+                "The number of releases exceeds the number of transfer slots (%s)",
+                self.max_queued_transfers,
+            )
+
+    def _num_queued_packages(self):
+        """Return the number of packages waiting in the queue"""
+        return (
+            self.sip_queue.qsize()
+            + self.dip_queue.qsize()
+            + self.transfer_queue.qsize()
+        )
+
+    def _log_job_schedule_info(self, job):
+        """Log the state of the active pacakges and the new job"""
+        with self.active_package_lock:
+            logger.debug(
+                "Active packages are: %s",
+                ", ".join(
+                    [
+                        repr(active_package)
+                        for active_package in self.active_packages.values()
+                    ]
+                ),
+            )
+
+        logger.debug(
+            "Scheduled job %s (%s %s). Current queue size: %s",
+            job.uuid,
+            job.package.__class__.__name__,
+            job.package.uuid,
+            self._num_queued_packages(),
+        )

@@ -173,11 +173,18 @@ This is the full list of variables supported by MCPServer:
     - **Default:** `"128"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_CONCURRENT_PACKAGES`**:
-    - **Description:** the number of packages to process concurrently. Should typically correspond
-    to the number of running MCPClients.
+    - **Description:** the number of packages to process concurrently. Should typically correspond to the number of running MCPClients.
     - **Config file example:** `MCPServer.concurrent_packages`
     - **Type:** `int`
     - **Default:** 1/2 the number of CPU cores available to MCPServer, rounded up.
+
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_MAX_QUEUED_TRANSFERS`**:
+    - **Description:** the total number of transfers that can be waiting to be
+    processed in Archivematica. The ideal number depends on the available disk
+    space and the size of the packages.
+    - **Config file example:** `MCPServer.max_queued_transfers`
+    - **Type:** `int`
+    - **Default:** 128
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_RPC_THREADS`**:
     - **Description:** the number of threads used to process RPC requests from the dashboard.

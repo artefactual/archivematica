@@ -88,6 +88,11 @@ CONFIG_MAPPING = {
         "option": "concurrent_packages",
         "type": "int",
     },
+    "max_queued_transfers": {
+        "section": "MCPServer",
+        "option": "max_queued_transfers",
+        "type": "int",
+    },
     "rpc_threads": {"section": "MCPServer", "option": "rpc_threads", "type": "int"},
     "worker_threads": {
         "section": "MCPServer",
@@ -143,6 +148,7 @@ storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
 prometheus_bind_port =
+max_queued_transfers = 128
 
 [client]
 user = archivematica
@@ -265,6 +271,7 @@ BATCH_SIZE = config.get("batch_size")
 CONCURRENT_PACKAGES = config.get(
     "concurrent_packages", default=concurrent_packages_default()
 )
+MAX_QUEUED_TRANSFERS = config.get("max_queued_transfers")
 RPC_THREADS = config.get("rpc_threads")
 WORKER_THREADS = config.get("worker_threads", default=multiprocessing.cpu_count() + 1)
 
