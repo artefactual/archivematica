@@ -1,4 +1,4 @@
-FROM artefactual/archivematica-mcp-client-base:20190227.01.9a3872e0
+FROM artefactual/archivematica-mcp-client-base:20200210.01.0461aae
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/MCPClient/lib/:/src/archivematicaCommon/lib/:/src/dashboard/src/
