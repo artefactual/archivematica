@@ -183,7 +183,7 @@ class PackageQueue(object):
         result = self.executor.submit(job.run)
         result.add_done_callback(self._job_completed_callback)
 
-        if job.link.is_terminal():
+        if job.link.is_terminal:
             package_done_callback = functools.partial(
                 self._package_completed_callback, job.package
             )
@@ -197,11 +197,12 @@ class PackageQueue(object):
         self.shutdown_event.set()
 
     def _package_completed_callback(self, package, future):
-        """Mark the package as inactive and schedule a new package.
+        """Called by an executor on completion of a package. Marks the package
+        as inactive and schedules a new package.
 
         It is assumed that a package is only complete when a terminal link is
         hit. When we hit a terminal link the future should not contain the next
-        job in the chain. If the future is a new job we raise an exception.
+        job in the chain.
         """
         if future.result() is not None:
             raise RuntimeError(
@@ -213,7 +214,8 @@ class PackageQueue(object):
         self.queue_next_job()
 
     def _job_completed_callback(self, future):
-        """Schedule the next job in the chain.
+        """Called by an executor on completion of a Job. Schedules the next job
+        in the chain.
 
         Retrieves the next job from the result from the previous job.
         If there is no next_job return, otherwhise schedule the new job.
