@@ -1,5 +1,5 @@
 {
-  "$id": "https://www.archivematica.org/labs/workflow/schema/v1.1.json",
+  "$id": "https://www.archivematica.org/labs/workflow/schema/v1.json",
   "$schema": "http://json-schema.org/draft-06/schema#",
   "title": "Archivematica Workflow JSON Schema",
   "description": "In-progress JSON Schema document for Archivematica JSON-encoded workflows.",
