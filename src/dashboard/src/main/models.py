@@ -489,6 +489,25 @@ class Transfer(models.Model):
 
         return Agent.objects.filter(agent_lookups)
 
+    def set_processing_configuration(self, processing_configuration):
+        UnitVariable.objects.update_processing_configuration(
+            "Transfer", self.uuid, processing_configuration
+        )
+
+    @property
+    def processing_configuration(self):
+        try:
+            unit_variable = UnitVariable.objects.get(
+                unittype="Transfer",
+                unituuid=self.uuid,
+                variable="processingConfiguration",
+            )
+        except UnitVariable.DoesNotExist:
+            result = None
+        else:
+            result = unit_variable.variablevalue
+        return result or "default"
+
 
 class SIPArrange(models.Model):
     """ Information about arranged files: original and arranged location, current status. """
@@ -1392,6 +1411,13 @@ class UnitVariableManager(models.Manager):
             .userprofile.agent_id
         )
         return self.update_variable(unit_type, unit_id, "activeAgent", agent_id)
+
+    def update_processing_configuration(
+        self, unit_type, unit_uuid, processing_configuration
+    ):
+        return self.update_variable(
+            unit_type, unit_uuid, "processingConfiguration", processing_configuration
+        )
 
 
 class UnitVariable(models.Model):

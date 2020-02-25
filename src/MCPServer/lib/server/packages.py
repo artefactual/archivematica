@@ -18,12 +18,11 @@ from django.utils import six
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
-from fileOperations import get_extract_dir_name
 from main import models
 
 from server.db import auto_close_old_connections
 from server.jobs import JobChain
-from server.processing_config import copy_processing_config
+from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
 
 try:
@@ -286,8 +285,6 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     filepath = Path(filepath)
     dest = Path(dest)
 
-    is_dir = filepath.is_dir()
-
     # Confine destination to subdir of originals.
     basename = filepath.name
     dest = _pad_destination_filepath_if_it_already_exists(dest / basename)
@@ -301,26 +298,6 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
-
-    if not is_dir:
-        # Transfer is not a directory so it is an uploaded zipfile.
-        # Precreate the extraction directory for the uploaded zipfile
-        extract_dir = Path(get_extract_dir_name(dest))
-        try:
-            extract_dir.mkdir()
-        except OSError as e:
-            raise Exception("Error creating extraction dir %s (%s)", extract_dir, e)
-
-        # Move the processing config into the extraction directory so that it
-        # is preserved and used in the workflow
-        files_to_preserve = {"processingMCP.xml"}
-        for filename in files_to_preserve:
-            path = filepath.parent / filename
-            if path.exists():
-                try:
-                    path.rename(extract_dir / filename)
-                except OSError as e:
-                    raise Exception("Error moving %s to %s (%s)", path, extract_dir, e)
 
 
 @auto_close_old_connections()
@@ -373,6 +350,9 @@ def create_package(
         except models.TransferMetadataSet.DoesNotExist:
             pass
     transfer = models.Transfer.objects.create(**kwargs)
+    if not processing_configuration_file_exists(processing_config):
+        processing_config = "default"
+    transfer.set_processing_configuration(processing_config)
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
@@ -382,7 +362,7 @@ def create_package(
     logger.debug(
         "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
     )
-    params = (transfer, name, path, tmpdir, starting_point, processing_config)
+    params = (transfer, name, path, tmpdir, starting_point)
     if auto_approve:
         params = params + (workflow, package_queue)
         result = executor.submit(_start_package_transfer_with_auto_approval, *params)
@@ -428,14 +408,7 @@ def _determine_transfer_paths(name, path, tmpdir):
 
 @_capture_transfer_failure
 def _start_package_transfer_with_auto_approval(
-    transfer,
-    name,
-    path,
-    tmpdir,
-    starting_point,
-    processing_config,
-    workflow,
-    package_queue,
+    transfer, name, path, tmpdir, starting_point, workflow, package_queue
 ):
     """Start a new transfer the new way.
 
@@ -460,10 +433,6 @@ def _start_package_transfer_with_auto_approval(
     )
     _copy_from_transfer_sources([path], transfer_rel)
 
-    copy_processing_config(
-        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
-    )
-
     logger.debug("Package %s: moving package to processing directory", transfer.pk)
     _move_to_internal_shared_dir(
         filepath, _get_setting("PROCESSING_DIRECTORY"), transfer
@@ -481,9 +450,7 @@ def _start_package_transfer_with_auto_approval(
 
 
 @_capture_transfer_failure
-def _start_package_transfer(
-    transfer, name, path, tmpdir, starting_point, processing_config
-):
+def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     """Start a new transfer the old way.
 
     This means copying the transfer into one of the standard watched dirs.
@@ -507,10 +474,6 @@ def _start_package_transfer(
         transfer_rel,
     )
     _copy_from_transfer_sources([path], transfer_rel)
-
-    copy_processing_config(
-        processing_config, os.path.join(_get_setting("SHARED_DIRECTORY"), transfer_rel)
-    )
 
     logger.debug(
         "Package %s: moving package to activeTransfers dir (from=%s," " to=%s)",
@@ -809,9 +772,13 @@ class Transfer(Package):
                 transfer_obj.currentpath = path
                 transfer_obj.save()
         else:
-            transfer_obj = models.Transfer.objects.create(
-                uuid=uuid4(), currentlocation=path
-            )
+            try:
+                transfer_obj = models.Transfer.objects.get(currentlocation=path)
+                created = False
+            except models.Transfer.DoesNotExist:
+                transfer_obj = models.Transfer.objects.create(
+                    uuid=uuid4(), currentlocation=path
+                )
         logger.info(
             "Transfer %s %s (%s)",
             transfer_obj.uuid,
@@ -830,6 +797,7 @@ class Transfer(Package):
     def reload(self):
         transfer = models.Transfer.objects.get(uuid=self.uuid)
         self.current_path = transfer.currentlocation
+        self.processing_configuration = transfer.processing_configuration
 
     def get_replacement_mapping(self, filter_subdir_path=None):
         mapping = super(Transfer, self).get_replacement_mapping(
@@ -837,7 +805,11 @@ class Transfer(Package):
         )
 
         mapping.update(
-            {self.REPLACEMENT_PATH_STRING: self.current_path, r"%unitType%": "Transfer"}
+            {
+                self.REPLACEMENT_PATH_STRING: self.current_path,
+                r"%unitType%": "Transfer",
+                r"%processingConfiguration%": self.processing_configuration,
+            }
         )
 
         return mapping
