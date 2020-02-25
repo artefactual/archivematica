@@ -8,6 +8,7 @@ import ast
 import collections
 import logging
 import os
+from functools import partial
 from tempfile import mkdtemp
 from uuid import UUID, uuid4
 
@@ -336,6 +337,10 @@ def create_package(
     except (TypeError, ValueError):
         raise ValueError("Unexpected value in user_id parameter")
 
+    if not package_queue.acquire_transfer_slot():
+        message = "Cannot acquire transfer slot for transfer {}".format(name)
+        raise TransferQueueFull(message)
+
     # Create Transfer object.
     kwargs = {"uuid": str(uuid4())}
     if accession is not None:
@@ -370,6 +375,7 @@ def create_package(
         result = executor.submit(_start_package_transfer, *params)
 
     result.add_done_callback(lambda f: os.chmod(tmpdir, 0o770))
+    result.add_done_callback(partial(_release_transfer_slot_on_failure, package_queue))
 
     return transfer
 
@@ -389,6 +395,13 @@ def _capture_transfer_failure(fn):
                 logger.exception("Exception occurred during transfer processing")
 
     return wrap
+
+
+def _release_transfer_slot_on_failure(package_queue, future):
+    """Release the transfer slot if the transfer could not be started.
+    """
+    if future.exception():
+        package_queue.release_transfer_slot()
 
 
 def _determine_transfer_paths(name, path, tmpdir):
@@ -931,3 +944,9 @@ class PackageContext(object):
     def update(self, mapping):
         for key, value in mapping.items():
             self._data[key] = value
+
+
+class TransferQueueFull(Exception):
+    """Raised when there are no slots available in the transfer queue"""
+
+    pass
