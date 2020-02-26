@@ -567,18 +567,27 @@ var BaseJobView = Backbone.View.extend({
       return UNKNOWN_COLOR;
     },
 
+  destroyEnhacedActionSelectContainer: function(statusObject)
+    {
+      $('.modal-backdrop.in').remove();
+      $('body').removeClass('modal-open');
+      $('#big-choice-select-modal').remove();
+      statusObject.bigSelectShowing = false;
+    },
+
   // augment dashboard action select by using a pop-up with an enhanced select widget
   activateEnhancedActionSelect: function($select, statusObject)
     {
+      var self = this;
       $select.hover(function() {
         // if not showing proxy selector and modal window
         if (!statusObject.bigSelectShowing)
         {
           // clone action selector
-          var $proxySelect = $select.clone();
+          var $proxySelect = $select.clone().css({'width': '100%'});
 
           // display action selector in modal window
-          $('<div class="modal hide" id="big-choice-select-modal"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>' + gettext('Select an action...') + '</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">' + gettext('Cancel') + '</a></div></div>').modal({show: true});
+          $('<div class="modal" id="big-choice-select-modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>' + gettext('Select an action...') + '</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">' + gettext('Cancel') + '</a></div></div></div></div>').modal({show: true, backdrop: 'static'});
           $('#big-choice-select-body').append($proxySelect);
 
           // style clone as Select2
@@ -587,16 +596,21 @@ var BaseJobView = Backbone.View.extend({
           // proxy selections to action selector
           $proxySelect.change(function()
                   {
+            // TODO: revise this approach
+            // Once the UI is refreshed/repainted by Angular triggering the change
+            // on the $select element has no effect since it's "expired".
+            // An alternative could be to assign a unique identifier to the
+            // $select element when its created and look it up before triggering its
+            // change event.
             $select.val($(this).val());
             $select.trigger('change');
-            $('#big-choice-select-modal').remove();
+            self.destroyEnhacedActionSelectContainer(statusObject);
           });
 
           // allow another instance to show if modal is closed
           $('#big-choice-select-close, #big-choice-select-cancel').click(function()
           {
-            statusObject.bigSelectShowing = false;
-            $('#big-choice-select-modal').remove();
+            self.destroyEnhacedActionSelectContainer(statusObject);
           });
 
           // prevent multiple instances of this from displaying at once
