@@ -845,9 +845,9 @@ def _package_create(request):
         client = MCPClient(request.user)
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
-        msg = "Package cannot be created"
-        LOGGER.error("{}: {}".format(msg, err))
-        return helpers.json_response({"error": True, "message": msg}, 500)
+        messsage = "Package cannot be created: {}".format(err.message)
+        LOGGER.error(messsage)
+        return helpers.json_response({"error": True, "message": messsage}, 500)
     return helpers.json_response({"id": id_}, 202)
 
 

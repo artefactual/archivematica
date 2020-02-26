@@ -30,7 +30,11 @@ from lxml import etree
 from archivematicaFunctions import strToUnicode
 from main.models import Job, SIP, Transfer
 from server.db import auto_close_old_connections
-from server.packages import create_package, get_approve_transfer_chain_id
+from server.packages import (
+    create_package,
+    get_approve_transfer_chain_id,
+    TransferQueueFull,
+)
 from server.processing_config import get_processing_fields
 
 
@@ -50,6 +54,10 @@ class UnexpectedPayloadError(RPCServerError):
 
 class NotFoundError(RPCServerError):
     """Generic NotFound exception."""
+
+
+class TooManyWaitingTransfersError(RPCServerError):
+    """Error indicating that there are too many transfers waiting"""
 
 
 class RPCServer(GearmanWorker):
@@ -247,7 +255,7 @@ class RPCServer(GearmanWorker):
 
         [config]
         name = packageCreate
-        raise_exc = True
+        raise_exc = False
         """
         args = (
             self.package_queue,
@@ -265,7 +273,13 @@ class RPCServer(GearmanWorker):
         processing_config = payload.get("processing_config")
         if processing_config is not None:
             kwargs["processing_config"] = processing_config
-        return create_package(*args, **kwargs).pk
+
+        try:
+            return create_package(*args, **kwargs).pk
+        except ValueError as e:
+            raise UnexpectedPayloadError(e.message)
+        except TransferQueueFull as e:
+            raise TooManyWaitingTransfersError(e.message)
 
     def _approve_transfer_by_path_handler(self, worker, job, payload):
         """Approve a transfer matched by its path.
