@@ -24,7 +24,6 @@ calling it in Python. Places where this isn't feasible are as follows:
  - References to watched directories also exist in Workflow.json and MCP
    server's shared_dirs.py
      * src/MCPServer/lib/assets/workflow.json
-     * src/MCPServer/lib/server/shared_dirs.py
 
 Transfers have different characteristics such as whether a transfer can be
 selected by directory, or by file, e.g. standard transfer vs. zipped bags.
