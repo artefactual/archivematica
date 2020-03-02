@@ -211,3 +211,17 @@ def test_package_transfer_types(client, django_user_model, username, password):
         u"error": True,
     }
     assert resp.status_code == 400
+    test_transfer = {
+        "type": "standard",
+        "path": "L2hvbWUvYXJjaGl2ZW1hdGljYS9hcmNoaXZlbWF0aWNhLXNhbXBsZWRhdGEvU2FtcGxlVHJhbnNmZXJzL1ppcHBlZERpcmVjdG9yeVRyYW5zZmVycy9EZW1vVHJhbnNmZXJDU1Yuemlw",
+    }
+    resp = client.post(
+        "/api/v2beta/package/",
+        json.dumps(test_transfer),
+        content_type="application/json",
+    )
+    assert resp.status_code == 500
+    assert json.loads(resp.content) == {
+        u"message": u"Package cannot be created",
+        u"error": True,
+    }
