@@ -12250,7 +12250,7 @@
         {
             "chain_id": "a10b0088-b038-4ea2-91cc-b7761f07fe5a",
             "only_dirs": false,
-            "path": "/activeTransfers/zippedDirectory",
+            "path": "/activeTransfers/zippedPackage",
             "unit_type": "Transfer"
         },
         {

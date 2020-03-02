@@ -25,7 +25,7 @@
             "subjobof": "",
             "createdtime": "2020-03-02T23:05:52Z",
             "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/test-0b1/",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/test-0b1/",
             "hidden": false,
             "createdtimedec": "0.3763290000",
             "jobtype": "Approve zipped transfer"
@@ -110,7 +110,7 @@
             "subjobof": "",
             "createdtime": "2020-03-02T23:05:56Z",
             "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.tgz",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/SimpleTransferWithProcessingMCP.tgz",
             "hidden": false,
             "createdtimedec": "0.4931960000",
             "jobtype": "Approve zipped transfer"
@@ -127,7 +127,7 @@
             "subjobof": "",
             "createdtime": "2020-03-02T23:05:56Z",
             "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.zip",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/SimpleTransferWithProcessingMCP.zip",
             "hidden": false,
             "createdtimedec": "0.4931960000",
             "jobtype": "Approve zipped transfer"

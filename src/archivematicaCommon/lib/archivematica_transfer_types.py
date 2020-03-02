@@ -21,6 +21,11 @@ calling it in Python. Places where this isn't feasible are as follows:
  - A dummy name is generated for a transfer in the UI:
      * src/dashboard/frontend/app/services/transfer_browser_transfer.service.js
 
+ - References to watched directories also exist in Workflow.json and MCP
+   server's shared_dirs.py
+     * src/MCPServer/lib/assets/workflow.json
+     * src/MCPServer/lib/server/shared_dirs.py
+
 Transfers have different characteristics such as whether a transfer can be
 selected by directory, or by file, e.g. standard transfer vs. zipped bags.
 
@@ -31,7 +36,7 @@ from __future__ import absolute_import, unicode_literals
 import collections
 
 TRANSFER_STANDARD = "standard"
-TRANSFER_ZIPFILE = "zipfile"
+TRANSFER_ZIPFILE = "zipped package"
 TRANSFER_UNZIPPED_BAG = "unzipped bag"
 TRANSFER_ZIPPED_BAG = "zipped bag"
 TRANSFER_DSPACE = "dspace"
@@ -42,7 +47,7 @@ TRANSFER_DATAVERSE = "dataverse"
 TRANSFER_DISk_IMAGE = "disk image"
 
 WATCHED_STANDARD = "standardTransfer"
-WATCHED_ZIPFILE = "zippedDirectory"
+WATCHED_ZIPFILE = "zippedPackage"
 WATCHED_UNZIPPED_BAG = "baggitDirectory"
 WATCHED_ZIPPED_BAG = "baggitZippedDirectory"
 WATCHED_DSPACE = "Dspace"

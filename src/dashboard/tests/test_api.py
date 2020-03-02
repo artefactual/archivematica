@@ -605,11 +605,11 @@ def dashboard_login_and_setup(client, django_user_model, username, password):
         ("unzipped bag", "baggitDirectory", "standardTransfer"),
         ("zipped bag", "baggitZippedDirectory", "standardTransfer"),
         ("dspace", "Dspace", "standardTransfer"),
-        ("zipfile", "zippedDirectory", "standardTransfer"),
+        ("zipfile", "standardTransfer", "zippedPackage"),
         ("dataverse", "dataverseTransfer", "standardTransfer"),
         ("maildir", "maildir", "standardTransfer"),
         ("TRIM", "TRIM", "standardTransfer"),
-        ("zipped package", "standardTransfer", "zippedDirectory"),
+        ("zipped package", "zippedPackage", "standardTransfer"),
     ],
 )
 def test_start_transfer_endpoint(
@@ -640,6 +640,7 @@ def test_start_transfer_endpoint(
         "components.filesystem_ajax.helpers.check_filepath_exists", return_value=None
     )
     mocker.patch("shutil.move", return_value=None)
+    mocker.patch("tempfile.mkdtemp", return_value=tempfile.mkdtemp())
     mocker.patch("shutil.rmtree", return_value=None)
     # Invalid path
     resp = client.post("/api/transfer/start_transfer/", test_transfer)
@@ -652,6 +653,7 @@ def test_start_transfer_endpoint(
         assert not test_path.endswith(alt_dir)
 
 
+@pytest.mark.django_db
 def test_unapproved_transfers_endpoint(
     client, django_user_model, username, password, mocker
 ):
@@ -677,7 +679,13 @@ def test_unapproved_transfers_endpoint(
     for directory in dirs:
         if directory not in EXPECTED_DIRS:
             assert False, "Unexpected transfer in unapproved transfers"
-    transfer_types = ("zipfile", "dspace", "zipped bag", "unzipped bag", "standard")
+    transfer_types = (
+        "zipped package",
+        "dspace",
+        "zipped bag",
+        "unzipped bag",
+        "standard",
+    )
     for item in resp_parsed["results"]:
         assert item["type"] in transfer_types
     # Verify the pathway when there are no unapproved transfers.
@@ -702,14 +710,17 @@ def test_unapproved_transfers_endpoint(
             "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory",
         ),
         ("dspace", "%sharedPath%watchedDirectories/activeTransfers/Dspace"),
-        ("zipfile", "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory"),
+        (
+            "zipped package",
+            "%sharedPath%watchedDirectories/activeTransfers/zippedPackage",
+        ),
         (
             "dataverse",
             "%sharedPath%watchedDirectories/activeTransfers/dataverseTransfer",
         ),
         ("maildir", "%sharedPath%watchedDirectories/activeTransfers/maildir"),
         ("TRIM", "%sharedPath%watchedDirectories/activeTransfers/TRIM"),
-        ("zipped package", None),
+        ("zipfile", None),
     ],
 )
 def test_get_modified_standard_transfer_path(transfer_type, expected_result):

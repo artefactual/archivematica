@@ -98,7 +98,7 @@
         "typeoftransfer": "",
         "hidden": false,
         "type": "Standard",
-        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/test-0b1/",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/test-0b1/",
         "sourceofacquisition": ""
     },
     "model": "main.transfer",
@@ -173,7 +173,7 @@
         "typeoftransfer": "",
         "hidden": false,
         "type": "Standard",
-        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.tgz",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/SimpleTransferWithProcessingMCP.tgz",
         "sourceofacquisition": ""
     },
     "model": "main.transfer",
@@ -188,7 +188,7 @@
         "typeoftransfer": "",
         "hidden": false,
         "type": "Standard",
-        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.zip",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedPackage/SimpleTransferWithProcessingMCP.zip",
         "sourceofacquisition": ""
     },
     "model": "main.transfer",
