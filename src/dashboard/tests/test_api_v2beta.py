@@ -193,7 +193,7 @@ def dashboard_login_and_setup(client, django_user_model, username, password):
     helpers.set_setting("dashboard_uuid", "test-uuid")
 
 
-def test_package_transfer_types(client, django_user_model, username, password):
+def test_package_endpoint(client, django_user_model, username, password):
     """Validate the behavior of the package endpoint."""
     dashboard_login_and_setup(client, django_user_model, username, password)
     # Check for a not implemented status code for GET request.
@@ -225,3 +225,48 @@ def test_package_transfer_types(client, django_user_model, username, password):
         u"message": u"Package cannot be created",
         u"error": True,
     }
+
+
+@pytest.mark.parametrize(
+    "transfer_type, early_fail",
+    [
+        ("zipfile", True),
+        ("standard", False),
+        ("zipped bag", False),
+        ("unzipped bag", False),
+        ("dataverse", False),
+        ("dspace", False),
+        ("zipped package", False),
+        (None, False),
+        ("supercalifragilisticexpialidocious", True),
+    ],
+)
+def test_package_transfer_types(
+    client, django_user_model, username, password, transfer_type, early_fail
+):
+    """Validate the behavior of the package endpoint."""
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    test_transfer = {
+        "type": transfer_type,
+        "path": "L2hvbWUvYXJjaGl2ZW1hdGljYS9hcmNoaXZlbWF0aWNhLXNhbXBsZWRhdGEvU2FtcGxlVHJhbnNmZXJzL1ppcHBlZERpcmVjdG9yeVRyYW5zZmVycy9EZW1vVHJhbnNmZXJDU1Yuemlw",
+    }
+    resp = client.post(
+        "/api/v2beta/package/",
+        json.dumps(test_transfer),
+        content_type="application/json",
+    )
+    assert resp.status_code == 500
+    # Validating early, we'll learn from the dashboard this is an invalid
+    # transfer type.
+    if early_fail:
+        assert json.loads(resp.content) == {
+            u"message": u"Package cannot be created: Unexpected type of package provided '{}'".format(
+                transfer_type
+            ),
+            u"error": True,
+        }
+    if not early_fail:
+        assert json.loads(resp.content) == {
+            u"message": u"Package cannot be created",
+            u"error": True,
+        }
