@@ -360,9 +360,6 @@ def mark_completed_hidden(request, unit_type):
     return unit_views.mark_completed_hidden(request, unit_type)
 
 
-# XXX BELOW
-
-
 @_api_endpoint(expected_methods=["POST"])
 def start_transfer_api(request):
     """
@@ -829,9 +826,6 @@ def package(request):
         return _package_create(request)
     else:
         return HttpResponseNotImplemented()
-
-
-# XXX BELOW
 
 
 def _package_create(request):
