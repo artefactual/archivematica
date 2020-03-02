@@ -28,6 +28,8 @@ This module should try and capture these characteristics where possible.
 """
 from __future__ import absolute_import, unicode_literals
 
+import collections
+
 TRANSFER_STANDARD = "standard"
 TRANSFER_ZIPFILE = "zipfile"
 TRANSFER_UNZIPPED_BAG = "unzipped bag"
@@ -73,3 +75,45 @@ APPROVE_ZIPPED = "Approve zipped transfer"
 APPROVE_DSPACE = "Approve DSpace transfer"
 APPROVE_UNZIPPED_BAG = "Approve bagit transfer"
 APPROVE_ZIPPED_BAG = "Approve zipped bagit transfer"
+
+# Archivematica transfer profiles that describe a transfer's properties.
+TransferProfile = collections.namedtuple(
+    "TransferProfile", "transfer_type watched_directory api_caller"
+)
+ARCHIVEMATICA_TRANSFER_TYPES = {
+    TRANSFER_STANDARD: TransferProfile(
+        TRANSFER_STANDARD, WATCHED_STANDARD, TRANSFER_STANDARD
+    ),
+    TRANSFER_ZIPFILE: TransferProfile(
+        TRANSFER_ZIPFILE, WATCHED_ZIPFILE, TRANSFER_ZIPFILE
+    ),
+    TRANSFER_UNZIPPED_BAG: TransferProfile(
+        TRANSFER_UNZIPPED_BAG, WATCHED_UNZIPPED_BAG, TRANSFER_UNZIPPED_BAG
+    ),
+    TRANSFER_ZIPPED_BAG: TransferProfile(
+        TRANSFER_ZIPPED_BAG, WATCHED_ZIPPED_BAG, TRANSFER_ZIPPED_BAG
+    ),
+    TRANSFER_DSPACE: TransferProfile(TRANSFER_DSPACE, WATCHED_DSPACE, TRANSFER_DSPACE),
+    TRANSFER_MAILDIR: TransferProfile(
+        TRANSFER_MAILDIR, WATCHED_MAILDIR, TRANSFER_MAILDIR
+    ),
+    TRANSFER_TRIM: TransferProfile(TRANSFER_TRIM, WATCHED_TRIM, TRANSFER_TRIM),
+    TRANSFER_DATAVERSE: TransferProfile(
+        TRANSFER_DATAVERSE, WATCHED_DATAVERSE, TRANSFER_DATAVERSE
+    ),
+}
+
+
+def retrieve_watched_dirs():
+    for type_ in ARCHIVEMATICA_TRANSFER_TYPES:
+        yield ARCHIVEMATICA_TRANSFER_TYPES[
+            type_
+        ].transfer_type, ARCHIVEMATICA_TRANSFER_TYPES[type_].watched_directory
+
+
+def retrieve_watched_directory(transfer_type, return_key_error=False):
+    if transfer_type not in TRANSFER_TYPES:
+        if not return_key_error:
+            return ARCHIVEMATICA_TRANSFER_TYPES[TRANSFER_STANDARD].watched_directory
+        raise KeyError("Returning KeyError for legacy compatibility")
+    return ARCHIVEMATICA_TRANSFER_TYPES[transfer_type].watched_directory
