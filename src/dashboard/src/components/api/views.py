@@ -468,7 +468,7 @@ def unapproved_transfers(request):
         transfer_watch_directory = type_and_directory.split("/")[0]
         # Get transfer type from transfer directory
         transfer_type_directories_reversed = {
-            v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()
+            v: k for k, v in amtypes.retrieve_watched_dirs()
         }
         transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
@@ -538,7 +538,7 @@ def get_modified_standard_transfer_path(transfer_type=None):
         return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
     try:
         path = os.path.join(
-            path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type]
+            path, amtypes.retrieve_watched_directory(transfer_type, True)
         )
     except KeyError:
         return None
