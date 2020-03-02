@@ -360,6 +360,9 @@ def mark_completed_hidden(request, unit_type):
     return unit_views.mark_completed_hidden(request, unit_type)
 
 
+# XXX BELOW
+
+
 @_api_endpoint(expected_methods=["POST"])
 def start_transfer_api(request):
     """
@@ -507,7 +510,7 @@ def approve_transfer(request):
     if not directory:
         return _error_response("Please specify a transfer directory.", status_code=500)
     directory = archivematicaFunctions.unicodeToStr(directory)
-    transfer_type = request.POST.get("type", "standard")
+    transfer_type = request.POST.get("type", amtypes.TRANSFER_STANDARD)
     if not transfer_type:
         return _error_response("Please specify a transfer type.", status_code=500)
     modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
@@ -815,6 +818,9 @@ def package(request):
         return _package_create(request)
     else:
         return HttpResponseNotImplemented()
+
+
+# XXX BELOW
 
 
 def _package_create(request):
