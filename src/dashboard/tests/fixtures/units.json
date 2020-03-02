@@ -143,7 +143,7 @@
         "typeoftransfer": "",
         "hidden": false,
         "type": "Standard",
-        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/test-0e1/",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/SimpleBagWithProcessingMCP.tar.gz",
         "sourceofacquisition": ""
     },
     "model": "main.transfer",
@@ -163,5 +163,35 @@
     },
     "model": "main.transfer",
     "pk": "0f1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.tgz",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0g1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.zip",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0h1fea55-92b1-4d27-98e0-cba404ed3a60"
 }
 ]
