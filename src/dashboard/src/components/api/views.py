@@ -39,6 +39,7 @@ from tastypie.authentication import (
 )
 
 import archivematicaFunctions
+import archivematica_transfer_types as amtypes
 from version import get_full_version
 
 from contrib.mcp.client import MCPClient
@@ -442,13 +443,14 @@ def unapproved_transfers(request):
     response = {}
     unapproved = []
 
+    # TODO: Does Dataverse transfers need to be here?
     jobs = models.Job.objects.filter(
         (
-            Q(jobtype="Approve standard transfer")
-            | Q(jobtype="Approve zipped transfer")
-            | Q(jobtype="Approve DSpace transfer")
-            | Q(jobtype="Approve bagit transfer")
-            | Q(jobtype="Approve zipped bagit transfer")
+            Q(jobtype=amtypes.APPROVE_STANDARD)
+            | Q(jobtype=amtypes.APPROVE_ZIPPED)
+            | Q(jobtype=amtypes.APPROVE_DSPACE)
+            | Q(jobtype=amtypes.APPROVE_UNZIPPED_BAG)
+            | Q(jobtype=amtypes.APPROVE_ZIPPED_BAG)
         )
         & Q(currentstep=models.Job.STATUS_AWAITING_DECISION)
     )
@@ -515,9 +517,7 @@ def approve_transfer(request):
     transfer_file = watched_path.replace(
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT
     )
-    if transfer_type in {"zipped bag", "zipfile", "dspace"} and os.path.isfile(
-        transfer_file
-    ):
+    if transfer_type in amtypes.ZIP_TYPE_TRANSFERS and os.path.isfile(transfer_file):
         db_transfer_path = watched_path
     else:
         # Append a slash to complete the directory path.

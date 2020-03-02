@@ -1,0 +1,104 @@
+[
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0a1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:51Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-0a1/",
+            "hidden": false,
+            "createdtimedec": "0.1840100000",
+            "jobtype": "Approve standard transfer"
+        },
+        "model": "main.job",
+        "pk": "fae6b85e-3477-4555-8285-f36e5f57343a"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0b1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:52Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/test-0b1/",
+            "hidden": false,
+            "createdtimedec": "0.3763290000",
+            "jobtype": "Approve zipped transfer"
+        },
+        "model": "main.job",
+        "pk": "43034f6e-c251-4d49-aab2-020b91bb9b38"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0c1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:53Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/Dspace/test-0c1/",
+            "hidden": false,
+            "createdtimedec": "0.4440550000",
+            "jobtype": "Approve DSpace transfer"
+        },
+        "model": "main.job",
+        "pk": "51f33b28-1f81-49ed-8452-7d8341909b46"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0d1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:54Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/baggitDirectory/test-0d1/",
+            "hidden": false,
+            "createdtimedec": "0.4903070000",
+            "jobtype": "Approve bagit transfer"
+        },
+        "model": "main.job",
+        "pk": "de504d5c-69e7-4250-8e8e-a0b065ec8a45"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0e1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:55Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/test-0e1/",
+            "hidden": false,
+            "createdtimedec": "0.1605070000",
+            "jobtype": "Approve zipped bagit transfer"
+        },
+        "model": "main.job",
+        "pk": "725f3ff6-ad35-4f16-84c6-c3d693097dbd"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0f1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:56Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/dataverseTransfer/test-0f1/",
+            "hidden": false,
+            "createdtimedec": "0.4931960000",
+            "jobtype": "Approve dataverse transfer"
+        },
+        "model": "main.job",
+        "pk": "f49d45d4-5846-4119-a037-31c571538658"
+    }
+]

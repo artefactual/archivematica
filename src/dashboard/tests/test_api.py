@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import datetime
 import json
@@ -666,3 +666,55 @@ def test_start_transfer_endpoint(
     assert test_path.endswith(expected_directory)
     if alt_dir:
         assert not test_path.endswith(alt_dir)
+
+
+def test_unapproved_transfers_endpoint(
+    client, django_user_model, username, password, mocker
+):
+    MESSAGE_SUCCESS = "Fetched unapproved transfers successfully."
+    UNAPPROVED_URL = "/api/transfer/unapproved/"
+    load_fixture(["jobs-unapproved"])
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    resp = client.get(UNAPPROVED_URL)
+    resp_parsed = json.loads(resp.content)
+    assert resp.status_code == 200
+    assert resp_parsed["message"] == MESSAGE_SUCCESS
+    assert len(resp_parsed["results"]) == 5
+    transfer_types = ("zipfile", "dspace", "zipped bag", "unzipped bag", "standard")
+    for item in resp_parsed["results"]:
+        assert item["type"] in transfer_types
+    # Verify the pathway when there are no unapproved transfers.
+    mocker.patch("main.models.Job.objects.filter", return_value=[])
+    resp = client.get(UNAPPROVED_URL)
+    resp_parsed = json.loads(resp.content)
+    assert resp_parsed["message"] == MESSAGE_SUCCESS
+    assert len(resp_parsed["results"]) == 0
+
+
+@pytest.mark.parametrize(
+    "transfer_type,expected_result",
+    [
+        (None, "%sharedPath%watchedDirectories/activeTransfers"),
+        ("standard", "%sharedPath%watchedDirectories/activeTransfers/standardTransfer"),
+        (
+            "unzipped bag",
+            "%sharedPath%watchedDirectories/activeTransfers/baggitDirectory",
+        ),
+        (
+            "zipped bag",
+            "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory",
+        ),
+        ("dspace", "%sharedPath%watchedDirectories/activeTransfers/Dspace"),
+        ("zipfile", "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory"),
+        (
+            "dataverse",
+            "%sharedPath%watchedDirectories/activeTransfers/dataverseTransfer",
+        ),
+        ("maildir", "%sharedPath%watchedDirectories/activeTransfers/maildir"),
+        ("TRIM", "%sharedPath%watchedDirectories/activeTransfers/TRIM"),
+        ("zipped package", None),
+    ],
+)
+def test_get_modified_standard_transfer_path(transfer_type, expected_result):
+    ret = views.get_modified_standard_transfer_path(transfer_type)
+    assert ret == expected_result
