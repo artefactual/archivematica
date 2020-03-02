@@ -35,6 +35,7 @@ import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 from main import models
 
 import archivematicaFunctions
+import archivematica_transfer_types as amtypes
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
@@ -52,17 +53,6 @@ ORIGINAL_DIR = os.path.join(
 
 DEFAULT_BACKLOG_PATH = "originals/"
 DEFAULT_ARRANGE_PATH = "/arrange/"
-
-TRANSFER_TYPE_DIRECTORIES = {
-    "standard": "standardTransfer",
-    "zipfile": "zippedDirectory",
-    "unzipped bag": "baggitDirectory",
-    "zipped bag": "baggitZippedDirectory",
-    "dspace": "Dspace",
-    "maildir": "maildir",
-    "TRIM": "TRIM",
-    "dataverse": "dataverseTransfer",
-}
 
 
 def _prepare_browse_response(response):
@@ -234,7 +224,7 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
     Start a new transfer.
 
     :param str transfer_name: Name of new transfer.
-    :param str transfer_type: Type of new transfer. From TRANSFER_TYPE_DIRECTORIES.
+    :param str transfer_type: Type of new transfer. From archivematica_transfer_types module.
     :param str accession: Accession number of new transfer.
     :param str access_id: Access system identifier for the new transfer.
     :param list paths: List of <location_uuid>:<relative_path> to be copied into the new transfer. Location UUIDs should be associated with this pipeline, and relative path should be relative to the location.
@@ -276,7 +266,7 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
         try:
             destination = _copy_to_start_transfer(
                 filepath=filepath,
-                type=transfer_type,
+                transfer_type=transfer_type,
                 accession=accession,
                 access_id=access_id,
                 transfer_metadata_set_row_uuid=row_id,
@@ -290,7 +280,11 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
 
 
 def _copy_to_start_transfer(
-    filepath="", type="", accession="", access_id="", transfer_metadata_set_row_uuid=""
+    filepath="",
+    transfer_type="",
+    accession="",
+    access_id="",
+    transfer_metadata_set_row_uuid="",
 ):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
@@ -301,7 +295,11 @@ def _copy_to_start_transfer(
         basename = os.path.basename(filepath)
 
         # default to standard transfer
-        type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, "standardTransfer")
+        type_subdir = amtypes.retrieve_watched_directory(transfer_type)
+        if not type_subdir:
+            type_subdir = amtypes.retrieve_watched_directory(
+                amtypes.TRANSFER_TYPE_STANDARD
+            )
         destination = os.path.join(
             ACTIVE_TRANSFER_DIR, type_subdir, "{}-{}".format(basename, temp_uuid)
         )

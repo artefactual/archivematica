@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Package management."""
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, unicode_literals
 
 import abc
 import ast
@@ -18,6 +18,8 @@ from django.utils import six
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
+import archivematica_transfer_types as amtypes
+
 from main import models
 
 from server.db import auto_close_old_connections
@@ -55,59 +57,63 @@ def _get_setting(name):
 # the workflow data but in the first iteration we've decided to do it this way.
 # There is also the hope that the watched directories can be deprecated in the
 # near future.
+ACTIVE_TRANSFERS_DIR = "activeTransfers"
+WATCHED_ACTIVE_TRANSFERS = os.path.join(
+    _get_setting("WATCH_DIRECTORY"), ACTIVE_TRANSFERS_DIR
+)
 PACKAGE_TYPE_STARTING_POINTS = {
-    "standard": StartingPoint(
+    amtypes.TRANSFER_TYPE_STANDARD: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/standardTransfer"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_STANDARD
         ),
         chain="6953950b-c101-4f4c-a0c3-0cd0684afe5e",
         link="045c43ae-d6cf-44f7-97d6-c8a602748565",
     ),
-    "zipfile": StartingPoint(
+    amtypes.TRANSFER_TYPE_ZIPPED_PACKAGE: StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/zippedDirectory"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_ZIPPED_PACKAGE
         ),
         chain="f3caceff-5ad5-4bad-b98c-e73f8cd03450",
         link="541f5994-73b0-45bb-9cb5-367c06a21be7",
     ),
-    "unzipped bag": StartingPoint(
+    amtypes.TRANSFER_TYPE_UNZIPPED_BAG: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/baggitDirectory"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_UNZIPPED_BAG
         ),
         chain="c75ef451-2040-4511-95ac-3baa0f019b48",
         link="154dd501-a344-45a9-97e3-b30093da35f5",
     ),
-    "zipped bag": StartingPoint(
+    amtypes.TRANSFER_TYPE_ZIPPED_BAG: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/baggitZippedDirectory"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_ZIPPED_BAG
         ),
         chain="167dc382-4ab1-4051-8e22-e7f1c1bf3e6f",
         link="3229e01f-adf3-4294-85f7-4acb01b3fbcf",
     ),
-    "dspace": StartingPoint(
+    amtypes.TRANSFER_TYPE_DSPACE: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/Dspace"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_DSPACE
         ),
         chain="1cb2ef0e-afe8-45b5-8d8f-a1e120f06605",
         link="bda96b35-48c7-44fc-9c9e-d7c5a05016c1",
     ),
-    "maildir": StartingPoint(
+    amtypes.TRANSFER_TYPE_MAILDIR: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/maildir"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_MAILDIR
         ),
         chain="d381cf76-9313-415f-98a1-55c91e4d78e0",
         link="da2d650e-8ce3-4b9a-ac97-8ca4744b019f",
     ),
-    "TRIM": StartingPoint(
+    amtypes.TRANSFER_TYPE_TRIM: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/TRIM"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_TRIM
         ),
         chain="e4a59e3e-3dba-4eb5-9cf1-c1fb3ae61fa9",
         link="2483c25a-ade8-4566-a259-c6c37350d0d6",
     ),
-    "dataverse": StartingPoint(
+    amtypes.TRANSFER_TYPE_DATAVERSE: StartingPoint(
         watched_dir=os.path.join(
-            _get_setting("WATCH_DIRECTORY"), "activeTransfers/dataverseTransfer"
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_DATAVERSE
         ),
         # Approve Dataverse Transfer Chain
         chain="10c00bc8-8fc2-419f-b593-cf5518695186",
@@ -136,9 +142,9 @@ def get_approve_transfer_chain_id(transfer_type):
 def _file_is_an_archive(filepath):
     filepath = filepath.lower()
     return (
-        filepath.endswith(".zip")
-        or filepath.endswith(".tgz")
-        or filepath.endswith(".tar.gz")
+        filepath.endswith(amtypes.ARCHIVE_ZIP)
+        or filepath.endswith(amtypes.ARCHIVE_TGZ)
+        or filepath.endswith(amtypes.ARCHIVE_TAR_GZ)
     )
 
 
@@ -323,8 +329,8 @@ def create_package(
     """
     if not name:
         raise ValueError("No transfer name provided.")
-    if type_ is None or type_ == "disk image":
-        type_ = "standard"
+    if type_ is None or type_ == amtypes.TRANSFER_TYPE_DISK_IMAGE:
+        type_ = amtypes.TRANSFER_TYPE_STANDARD
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
         raise ValueError("Unexpected type of package provided '{}'".format(type_))
     if not path:

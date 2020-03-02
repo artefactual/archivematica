@@ -9,6 +9,7 @@ import os
 
 from django.conf import settings
 
+import archivematica_transfer_types as amtypes
 
 logger = logging.getLogger("archivematica.mcp.server.shareddirs")
 
@@ -243,6 +244,22 @@ def install_builtin_config(name):
     return config
 
 
+WATCHED_DIRS = "watchedDirectories"
+ACTIVE_TRANSFERS_DIR = os.path.join(WATCHED_DIRS, "activeTransfers")
+
+
+def generate_transfer_watched_dirs():
+    """Create a tuple of watched directories specifically related to transfers
+    based on the transfer profiles in amtypes.
+    """
+    transfer_dirs = ()
+    for _, watched_directory in amtypes.retrieve_watched_dirs():
+        transfer_dirs = transfer_dirs + (
+            os.path.join(ACTIVE_TRANSFERS_DIR, watched_directory),
+        )
+    return transfer_dirs
+
+
 def create():
     dirs = (
         "arrange",
@@ -261,16 +278,8 @@ def create():
         "sharedMicroServiceTasksConfigs/transcoder/defaultIcons",
         "SIPbackups",
         "tmp",
-        "watchedDirectories",
-        "watchedDirectories/activeTransfers",
-        "watchedDirectories/activeTransfers/baggitDirectory",
-        "watchedDirectories/activeTransfers/baggitZippedDirectory",
-        "watchedDirectories/activeTransfers/dataverseTransfer",
-        "watchedDirectories/activeTransfers/Dspace",
-        "watchedDirectories/activeTransfers/maildir",
-        "watchedDirectories/activeTransfers/standardTransfer",
-        "watchedDirectories/activeTransfers/TRIM",
-        "watchedDirectories/activeTransfers/zippedDirectory",
+        WATCHED_DIRS,
+        ACTIVE_TRANSFERS_DIR,
         "watchedDirectories/approveNormalization",
         "watchedDirectories/approveSubmissionDocumentationIngest",
         "watchedDirectories/SIPCreation",
@@ -300,6 +309,7 @@ def create():
         "www/AIPsStore/transferBacklog/originals",
         "www/DIPsStore",
     )
+    dirs = dirs + generate_transfer_watched_dirs()
     for dirname in dirs:
         dirname = os.path.join(settings.SHARED_DIRECTORY, dirname)
         if os.path.isdir(dirname):

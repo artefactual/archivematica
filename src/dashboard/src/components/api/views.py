@@ -40,6 +40,7 @@ from tastypie.authentication import (
 
 # This project, alphabetical
 import archivematicaFunctions
+import archivematica_transfer_types as amtypes
 from version import get_full_version
 
 from contrib.mcp.client import MCPClient
@@ -442,14 +443,9 @@ def unapproved_transfers(request):
     response = {}
     unapproved = []
 
+    # TODO: Does Dataverse transfers need to be here?
     jobs = models.Job.objects.filter(
-        (
-            Q(jobtype="Approve standard transfer")
-            | Q(jobtype="Approve zipped transfer")
-            | Q(jobtype="Approve DSpace transfer")
-            | Q(jobtype="Approve bagit transfer")
-            | Q(jobtype="Approve zipped bagit transfer")
-        )
+        Q(jobtype__in=amtypes.APPROVE_TRANSFER_JOB_NAMES)
         & Q(currentstep=models.Job.STATUS_AWAITING_DECISION)
     )
 
@@ -466,7 +462,7 @@ def unapproved_transfers(request):
         transfer_watch_directory = type_and_directory.split("/")[0]
         # Get transfer type from transfer directory
         transfer_type_directories_reversed = {
-            v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()
+            v: k for k, v in amtypes.retrieve_watched_dirs()
         }
         transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
@@ -505,7 +501,7 @@ def approve_transfer(request):
     if not directory:
         return _error_response("Please specify a transfer directory.", status_code=500)
     directory = archivematicaFunctions.unicodeToStr(directory)
-    transfer_type = request.POST.get("type", "standard")
+    transfer_type = request.POST.get("type", amtypes.TRANSFER_STANDARD)
     if not transfer_type:
         return _error_response("Please specify a transfer type.", status_code=500)
     modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
@@ -515,9 +511,7 @@ def approve_transfer(request):
     transfer_file = watched_path.replace(
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT
     )
-    if transfer_type in {"zipped bag", "zipfile", "dspace"} and os.path.isfile(
-        transfer_file
-    ):
+    if transfer_type in amtypes.ZIP_TYPE_TRANSFERS and os.path.isfile(transfer_file):
         db_transfer_path = watched_path
     else:
         # Append a slash to complete the directory path.
@@ -536,12 +530,10 @@ def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(django_settings.WATCH_DIRECTORY, "activeTransfers")
     if transfer_type is None:
         return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
-    try:
-        path = os.path.join(
-            path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type]
-        )
-    except KeyError:
+    transfer_dir = amtypes.retrieve_watched_directory(transfer_type)
+    if not transfer_dir:
         return None
+    path = os.path.join(path, transfer_dir)
     return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
 
 
