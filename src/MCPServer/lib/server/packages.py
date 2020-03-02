@@ -65,7 +65,7 @@ PACKAGE_TYPE_STARTING_POINTS = {
     ),
     "zipfile": StartingPoint(
         watched_dir=os.path.join(
-            settings.WATCH_DIRECTORY, "activeTransfers/zippedDirectory"
+            _get_setting("WATCH_DIRECTORY"), "activeTransfers/zippedDirectory"
         ),
         chain="f3caceff-5ad5-4bad-b98c-e73f8cd03450",
         link="541f5994-73b0-45bb-9cb5-367c06a21be7",
