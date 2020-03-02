@@ -6,6 +6,7 @@ import json
 from django.urls import reverse
 from django.test import TestCase, Client
 import mock
+import pytest
 
 from archivematicaFunctions import b64encode_string
 from components import helpers
@@ -169,3 +170,39 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
             "valid": False,
             "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
         }
+
+
+@pytest.fixture
+def username():
+    return "test"
+
+
+@pytest.fixture
+def password():
+    return "test"
+
+
+def dashboard_login_and_setup(client, django_user_model, username, password):
+    django_user_model.objects.create_user(username=username, password=password)
+    client.login(username=username, password=password)
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+
+def test_package_transfer_types(client, django_user_model, username, password):
+    """Validate the behavior of the package endpoint."""
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    # Check for a not implemented status code for GET request.
+    resp = client.get("/api/v2beta/package/")
+    assert (
+        resp.status_code == 501
+    ), "status code something other than not implemented: `{}`".format(resp.status_code)
+    # Validate the remainder of the functionality using POST.
+    # TODO: We cannot perform any validation at this point.
+    resp = client.post(
+        "/api/v2beta/package/", json.dumps({}), content_type="application/json"
+    )
+    assert json.loads(resp.content) == {
+        u"message": u'Parameter "path" cannot be decoded.',
+        u"error": True,
+    }
+    assert resp.status_code == 400
