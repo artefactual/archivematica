@@ -76,7 +76,7 @@
             "subjobof": "",
             "createdtime": "2020-03-02T23:05:55Z",
             "unittype": "unitTransfer",
-            "directory": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/test-0e1/",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/SimpleBagWithProcessingMCP.tar.gz",
             "hidden": false,
             "createdtimedec": "0.1605070000",
             "jobtype": "Approve zipped bagit transfer"
@@ -100,5 +100,39 @@
         },
         "model": "main.job",
         "pk": "f49d45d4-5846-4119-a037-31c571538658"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0g1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:56Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.tgz",
+            "hidden": false,
+            "createdtimedec": "0.4931960000",
+            "jobtype": "Approve zipped transfer"
+        },
+        "model": "main.job",
+        "pk": "279e64b8-6593-4655-83c1-664bbe651576"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Approve transfer",
+            "sipuuid": "0h1fea55-92b1-4d27-98e0-cba404ed3a60",
+            "microservicechainlink": null,
+            "currentstep": 1,
+            "subjobof": "",
+            "createdtime": "2020-03-02T23:05:56Z",
+            "unittype": "unitTransfer",
+            "directory": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/SimpleTransferWithProcessingMCP.zip",
+            "hidden": false,
+            "createdtimedec": "0.4931960000",
+            "jobtype": "Approve zipped transfer"
+        },
+        "model": "main.job",
+        "pk": "c8da285c-afdc-4ad7-938e-d3b78795e2d1"
     }
 ]

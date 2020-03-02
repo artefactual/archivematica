@@ -673,13 +673,26 @@ def test_unapproved_transfers_endpoint(
 ):
     MESSAGE_SUCCESS = "Fetched unapproved transfers successfully."
     UNAPPROVED_URL = "/api/transfer/unapproved/"
+    EXPECTED_DIRS = [
+        "SimpleTransferWithProcessingMCP.tgz",
+        "test-0b1",
+        "test-0c1",
+        "SimpleBagWithProcessingMCP.tar.gz",
+        "SimpleTransferWithProcessingMCP.zip",
+        "test-0d1",
+        "test-0a1",
+    ]
     load_fixture(["jobs-unapproved"])
     dashboard_login_and_setup(client, django_user_model, username, password)
     resp = client.get(UNAPPROVED_URL)
     resp_parsed = json.loads(resp.content)
     assert resp.status_code == 200
     assert resp_parsed["message"] == MESSAGE_SUCCESS
-    assert len(resp_parsed["results"]) == 5
+    assert len(resp_parsed["results"]) == len(EXPECTED_DIRS)
+    dirs = [x["directory"] for x in resp_parsed["results"]]
+    for directory in dirs:
+        if directory not in EXPECTED_DIRS:
+            assert False, "Unexpected transfer in unapproved transfers"
     transfer_types = ("zipfile", "dspace", "zipped bag", "unzipped bag", "standard")
     for item in resp_parsed["results"]:
         assert item["type"] in transfer_types
