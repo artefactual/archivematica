@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, unicode_literals
 
+import os
 import uuid
 
 import pytest
@@ -14,6 +15,7 @@ from server.packages import (
     _determine_transfer_paths,
     _move_to_internal_shared_dir,
     _pad_destination_filepath_if_it_already_exists,
+    PACKAGE_TYPE_STARTING_POINTS,
 )
 
 try:
@@ -338,3 +340,26 @@ class TestMoveToInternalSharedDir:
 
         transfer.refresh_from_db()
         assert Path(transfer.currentlocation) == dest_path
+
+
+ACTIVE_TRANSFERS_DIR = "activeTransfers"
+
+
+@pytest.mark.parametrize(
+    "transfer_type,expected_directory",
+    [
+        ("standard", os.path.join(ACTIVE_TRANSFERS_DIR, "standardTransfer")),
+        ("unzipped bag", os.path.join(ACTIVE_TRANSFERS_DIR, "baggitDirectory")),
+        ("zipped bag", os.path.join(ACTIVE_TRANSFERS_DIR, "baggitZippedDirectory")),
+        ("dspace", os.path.join(ACTIVE_TRANSFERS_DIR, "Dspace")),
+        ("zipfile", os.path.join(ACTIVE_TRANSFERS_DIR, "zippedDirectory")),
+        ("dataverse", os.path.join(ACTIVE_TRANSFERS_DIR, "dataverseTransfer")),
+        ("maildir", os.path.join(ACTIVE_TRANSFERS_DIR, "maildir")),
+        ("TRIM", os.path.join(ACTIVE_TRANSFERS_DIR, "TRIM")),
+    ],
+)
+def test_starting_point_watched_dirs(transfer_type, expected_directory):
+    assert PACKAGE_TYPE_STARTING_POINTS[transfer_type]
+    assert PACKAGE_TYPE_STARTING_POINTS[transfer_type].watched_dir.endswith(
+        expected_directory
+    )

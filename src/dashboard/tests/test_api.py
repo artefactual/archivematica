@@ -576,3 +576,74 @@ def test_copy_metadata_files_api(mocker):
         "message": "Metadata files added successfully.",
         "error": None,
     }
+
+
+@pytest.fixture
+def username():
+    return "test"
+
+
+@pytest.fixture
+def password():
+    return "test"
+
+
+def dashboard_login_and_setup(client, django_user_model, username, password):
+    django_user_model.objects.create_user(username=username, password=password)
+    client.login(username=username, password=password)
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "transfer_type,expected_directory,alt_dir",
+    [
+        ("standard", "standardTransfer", None),
+        ("unzipped bag", "baggitDirectory", "standardTransfer"),
+        ("zipped bag", "baggitZippedDirectory", "standardTransfer"),
+        ("dspace", "Dspace", "standardTransfer"),
+        ("zipfile", "zippedDirectory", "standardTransfer"),
+        ("dataverse", "dataverseTransfer", "standardTransfer"),
+        ("maildir", "maildir", "standardTransfer"),
+        ("TRIM", "TRIM", "standardTransfer"),
+        ("zipped package", "standardTransfer", "zippedDirectory"),
+    ],
+)
+def test_start_transfer_endpoint(
+    client,
+    django_user_model,
+    username,
+    password,
+    mocker,
+    transfer_type,
+    expected_directory,
+    alt_dir,
+):
+    """Ensure the start_transfer API endpoint works for different transfer
+    types as anticipated. In all cases, where everything is valid, the endpoint
+    will return start a standard transfer.
+    """
+    test_transfer = {
+        "name": "test_transfer",
+        "type": transfer_type,
+        "paths[]": ["test_path_will_be_mocked"],
+    }
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    mocker.patch(
+        "components.filesystem_ajax.views._copy_from_transfer_sources",
+        return_value="True",
+    )
+    mocker.patch(
+        "components.filesystem_ajax.helpers.check_filepath_exists", return_value=None
+    )
+    mocker.patch("shutil.move", return_value=None)
+    mocker.patch("shutil.rmtree", return_value=None)
+    # Invalid path
+    resp = client.post("/api/transfer/start_transfer/", test_transfer)
+    assert resp.status_code == 200
+    resp_parsed = json.loads(resp.content)
+    assert resp_parsed.get("message", "") == "Copy successful."
+    test_path = os.path.split(resp_parsed.get("path", ""))[-2]
+    assert test_path.endswith(expected_directory)
+    if alt_dir:
+        assert not test_path.endswith(alt_dir)
