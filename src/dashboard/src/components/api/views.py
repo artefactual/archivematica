@@ -830,6 +830,7 @@ def package(request):
 
 def _package_create(request):
     """Create a package."""
+    MESSAGE = "Package cannot be created"
     try:
         payload = json.loads(request.body.decode("utf8"))
         path = base64.b64decode(payload.get("path"))
@@ -837,9 +838,22 @@ def _package_create(request):
         return helpers.json_response(
             {"error": True, "message": 'Parameter "path" cannot be decoded.'}, 400
         )
+    transfer_type = payload.get("type")
+    try:
+        if transfer_type not in amtypes.TRANSFER_TYPES and transfer_type is not None:
+            raise (
+                ValueError(
+                    "Unexpected type of package provided '{}'".format(transfer_type)
+                )
+            )
+    except ValueError as err:
+        LOGGER.error("{}: {}".format(MESSAGE, err))
+        return helpers.json_response(
+            {"error": True, "message": "{}: {}".format(MESSAGE, err)}, 500
+        )
     args = (
         payload.get("name"),
-        payload.get("type"),
+        transfer_type,
         payload.get("accession"),
         payload.get("access_system_id"),
         path,
@@ -856,9 +870,8 @@ def _package_create(request):
         client = MCPClient(request.user)
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
-        msg = "Package cannot be created"
-        LOGGER.error("%s: %s", msg, err)
-        return helpers.json_response({"error": True, "message": msg}, 500)
+        LOGGER.error("{}: {}".format(MESSAGE, err))
+        return helpers.json_response({"error": True, "message": MESSAGE}, 500)
     return helpers.json_response({"id": id_}, 202)
 
 
