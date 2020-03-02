@@ -390,7 +390,7 @@ ACTIVE_TRANSFERS_DIR = "activeTransfers"
         ("unzipped bag", os.path.join(ACTIVE_TRANSFERS_DIR, "baggitDirectory")),
         ("zipped bag", os.path.join(ACTIVE_TRANSFERS_DIR, "baggitZippedDirectory")),
         ("dspace", os.path.join(ACTIVE_TRANSFERS_DIR, "Dspace")),
-        ("zipfile", os.path.join(ACTIVE_TRANSFERS_DIR, "zippedDirectory")),
+        ("zipped package", os.path.join(ACTIVE_TRANSFERS_DIR, "zippedPackage")),
         ("dataverse", os.path.join(ACTIVE_TRANSFERS_DIR, "dataverseTransfer")),
         ("maildir", os.path.join(ACTIVE_TRANSFERS_DIR, "maildir")),
         ("TRIM", os.path.join(ACTIVE_TRANSFERS_DIR, "TRIM")),

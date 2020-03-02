@@ -7,7 +7,7 @@ import archivematica_transfer_types as amtypes
 
 EXPECTED_DIRS = [
     ("standard", "standardTransfer"),
-    ("zipfile", "zippedDirectory"),
+    ("zipped package", "zippedPackage"),
     ("unzipped bag", "baggitDirectory"),
     ("zipped bag", "baggitZippedDirectory"),
     ("dspace", "Dspace"),
