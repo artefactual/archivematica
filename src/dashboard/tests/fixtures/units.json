@@ -73,5 +73,95 @@
     },
     "model": "main.transfer",
     "pk": "5d0ab97f-a45b-4e0f-9cb6-90ee3a404549"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-0a1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0a1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/zippedDirectory/test-0b1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0b1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/Dspace/test-0c1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0c1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/baggitDirectory/test-0d1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0d1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/baggitZippedDirectory/test-0e1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0e1fea55-92b1-4d27-98e0-cba404ed3a60"
+},
+{
+    "fields": {
+        "accessionid": "",
+        "description": "",
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/activeTransfers/dataverseTransfer/test-0f1/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "0f1fea55-92b1-4d27-98e0-cba404ed3a60"
 }
 ]

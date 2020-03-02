@@ -65,3 +65,11 @@ ARCHIVE_TGZ = ".tgz"
 ARCHIVE_TAR_GZ = ".tar.gz"
 
 ARCHIVE_TYPES = (ARCHIVE_ZIP, ARCHIVE_TGZ, ARCHIVE_TAR_GZ)
+ZIP_TYPE_TRANSFERS = (TRANSFER_ZIPFILE, TRANSFER_ZIPPED_BAG, TRANSFER_DSPACE)
+
+# Manual approval jobs associated with a transfer.
+APPROVE_STANDARD = "Approve standard transfer"
+APPROVE_ZIPPED = "Approve zipped transfer"
+APPROVE_DSPACE = "Approve DSpace transfer"
+APPROVE_UNZIPPED_BAG = "Approve bagit transfer"
+APPROVE_ZIPPED_BAG = "Approve zipped bagit transfer"
