@@ -17,6 +17,7 @@ from server.packages import (
     _move_to_internal_shared_dir,
     _pad_destination_filepath_if_it_already_exists,
     PACKAGE_TYPE_STARTING_POINTS,
+    ACTIVE_TRANSFERS_DIR,
 )
 
 try:
@@ -378,9 +379,6 @@ class TestMoveToInternalSharedDir:
 
         transfer.refresh_from_db()
         assert Path(transfer.currentlocation) == dest_path
-
-
-ACTIVE_TRANSFERS_DIR = "activeTransfers"
 
 
 @pytest.mark.parametrize(
