@@ -615,17 +615,17 @@ def dashboard_login_and_setup(client, django_user_model, username, password):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "transfer_type,expected_directory,alt_dir",
+    "transfer_type,expected_directory",
     [
-        ("standard", "standardTransfer", None),
-        ("unzipped bag", "baggitDirectory", "standardTransfer"),
-        ("zipped bag", "baggitZippedDirectory", "standardTransfer"),
-        ("dspace", "Dspace", "standardTransfer"),
-        ("zipfile", "standardTransfer", "zippedPackage"),
-        ("dataverse", "dataverseTransfer", "standardTransfer"),
-        ("maildir", "maildir", "standardTransfer"),
-        ("TRIM", "TRIM", "standardTransfer"),
-        ("zipped package", "zippedPackage", "standardTransfer"),
+        ("standard", "standardTransfer"),
+        ("unzipped bag", "baggitDirectory"),
+        ("zipped bag", "baggitZippedDirectory"),
+        ("dspace", "Dspace"),
+        ("dataverse", "dataverseTransfer"),
+        ("maildir", "maildir"),
+        ("TRIM", "TRIM"),
+        ("zipped package", "zippedPackage"),
+        ("unexpected transfer type", "standardTransfer"),
     ],
 )
 def test_start_transfer_endpoint(
@@ -636,7 +636,6 @@ def test_start_transfer_endpoint(
     mocker,
     transfer_type,
     expected_directory,
-    alt_dir,
 ):
     """Ensure the start_transfer API endpoint works for different transfer
     types as anticipated. In all cases, where everything is valid, the endpoint
@@ -658,15 +657,12 @@ def test_start_transfer_endpoint(
     mocker.patch("shutil.move", return_value=None)
     mocker.patch("tempfile.mkdtemp", return_value=tempfile.mkdtemp())
     mocker.patch("shutil.rmtree", return_value=None)
-    # Invalid path
     resp = client.post("/api/transfer/start_transfer/", test_transfer)
     assert resp.status_code == 200
     resp_parsed = json.loads(resp.content)
     assert resp_parsed.get("message", "") == "Copy successful."
     test_path = os.path.split(resp_parsed.get("path", ""))[-2]
     assert test_path.endswith(expected_directory)
-    if alt_dir:
-        assert not test_path.endswith(alt_dir)
 
 
 @pytest.mark.django_db
@@ -693,8 +689,7 @@ def test_unapproved_transfers_endpoint(
     assert len(resp_parsed["results"]) == len(EXPECTED_DIRS)
     dirs = [x["directory"] for x in resp_parsed["results"]]
     for directory in dirs:
-        if directory not in EXPECTED_DIRS:
-            assert False, "Unexpected transfer in unapproved transfers"
+        assert directory in EXPECTED_DIRS, "Unexpected transfer in unapproved transfers"
     transfer_types = (
         "zipped package",
         "dspace",
