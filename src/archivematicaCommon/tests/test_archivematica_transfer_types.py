@@ -35,6 +35,6 @@ def test_watched_directory():
         )
     amtypes.retrieve_watched_directory(
         "unknown transfer type"
-    ) == amtypes.WATCHED_STANDARD
+    ) == amtypes.WATCHED_DIRECTORY_STANDARD
     with pytest.raises(KeyError):
         amtypes.retrieve_watched_directory("unknown transfer type with exception", True)

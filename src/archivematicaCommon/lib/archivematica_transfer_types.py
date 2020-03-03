@@ -34,32 +34,36 @@ from __future__ import absolute_import, unicode_literals
 
 import collections
 
-TRANSFER_STANDARD = "standard"
-TRANSFER_ZIPFILE = "zipped package"
-TRANSFER_UNZIPPED_BAG = "unzipped bag"
-TRANSFER_ZIPPED_BAG = "zipped bag"
-TRANSFER_DSPACE = "dspace"
-TRANSFER_MAILDIR = "maildir"
-TRANSFER_TRIM = "TRIM"
-TRANSFER_DATAVERSE = "dataverse"
+TRANSFER_TYPE_STANDARD = "standard"
+TRANSFER_TYPE_ZIPPED_PACKAGE = "zipped package"
+TRANSFER_TYPE_UNZIPPED_BAG = "unzipped bag"
+TRANSFER_TYPE_ZIPPED_BAG = "zipped bag"
+TRANSFER_TYPE_DSPACE = "dspace"
+TRANSFER_TYPE_MAILDIR = "maildir"
+TRANSFER_TYPE_TRIM = "TRIM"
+TRANSFER_TYPE_DATAVERSE = "dataverse"
 
-TRANSFER_DISK_IMAGE = "disk image"
+TRANSFER_TYPE_DISK_IMAGE = "disk image"
 
-WATCHED_STANDARD = "standardTransfer"
-WATCHED_ZIPFILE = "zippedPackage"
-WATCHED_UNZIPPED_BAG = "baggitDirectory"
-WATCHED_ZIPPED_BAG = "baggitZippedDirectory"
-WATCHED_DSPACE = "Dspace"
-WATCHED_MAILDIR = "maildir"
-WATCHED_TRIM = "TRIM"
-WATCHED_DATAVERSE = "dataverseTransfer"
+WATCHED_DIRECTORY_STANDARD = "standardTransfer"
+WATCHED_DIRECTORY_ZIPPED_PACKAGE = "zippedPackage"
+WATCHED_DIRECTORY_UNZIPPED_BAG = "baggitDirectory"
+WATCHED_DIRECTORY_ZIPPED_BAG = "baggitZippedDirectory"
+WATCHED_DIRECTORY_DSPACE = "Dspace"
+WATCHED_DIRECTORY_MAILDIR = "maildir"
+WATCHED_DIRECTORY_TRIM = "TRIM"
+WATCHED_DIRECTORY_DATAVERSE = "dataverseTransfer"
 
 ARCHIVE_ZIP = ".zip"
 ARCHIVE_TGZ = ".tgz"
 ARCHIVE_TAR_GZ = ".tar.gz"
 
 ARCHIVE_TYPES = (ARCHIVE_ZIP, ARCHIVE_TGZ, ARCHIVE_TAR_GZ)
-ZIP_TYPE_TRANSFERS = (TRANSFER_ZIPFILE, TRANSFER_ZIPPED_BAG, TRANSFER_DSPACE)
+ZIP_TYPE_TRANSFERS = (
+    TRANSFER_TYPE_ZIPPED_PACKAGE,
+    TRANSFER_TYPE_ZIPPED_BAG,
+    TRANSFER_TYPE_DSPACE,
+)
 
 # Manual approval jobs associated with a transfer.
 APPROVE_STANDARD = "Approve standard transfer"
@@ -81,14 +85,28 @@ TransferProfile = collections.namedtuple(
     "TransferProfile", "transfer_type watched_directory"
 )
 ARCHIVEMATICA_TRANSFER_TYPES = {
-    TRANSFER_STANDARD: TransferProfile(TRANSFER_STANDARD, WATCHED_STANDARD),
-    TRANSFER_ZIPFILE: TransferProfile(TRANSFER_ZIPFILE, WATCHED_ZIPFILE),
-    TRANSFER_UNZIPPED_BAG: TransferProfile(TRANSFER_UNZIPPED_BAG, WATCHED_UNZIPPED_BAG),
-    TRANSFER_ZIPPED_BAG: TransferProfile(TRANSFER_ZIPPED_BAG, WATCHED_ZIPPED_BAG),
-    TRANSFER_DSPACE: TransferProfile(TRANSFER_DSPACE, WATCHED_DSPACE),
-    TRANSFER_MAILDIR: TransferProfile(TRANSFER_MAILDIR, WATCHED_MAILDIR),
-    TRANSFER_TRIM: TransferProfile(TRANSFER_TRIM, WATCHED_TRIM),
-    TRANSFER_DATAVERSE: TransferProfile(TRANSFER_DATAVERSE, WATCHED_DATAVERSE),
+    TRANSFER_TYPE_STANDARD: TransferProfile(
+        TRANSFER_TYPE_STANDARD, WATCHED_DIRECTORY_STANDARD
+    ),
+    TRANSFER_TYPE_ZIPPED_PACKAGE: TransferProfile(
+        TRANSFER_TYPE_ZIPPED_PACKAGE, WATCHED_DIRECTORY_ZIPPED_PACKAGE
+    ),
+    TRANSFER_TYPE_UNZIPPED_BAG: TransferProfile(
+        TRANSFER_TYPE_UNZIPPED_BAG, WATCHED_DIRECTORY_UNZIPPED_BAG
+    ),
+    TRANSFER_TYPE_ZIPPED_BAG: TransferProfile(
+        TRANSFER_TYPE_ZIPPED_BAG, WATCHED_DIRECTORY_ZIPPED_BAG
+    ),
+    TRANSFER_TYPE_DSPACE: TransferProfile(
+        TRANSFER_TYPE_DSPACE, WATCHED_DIRECTORY_DSPACE
+    ),
+    TRANSFER_TYPE_MAILDIR: TransferProfile(
+        TRANSFER_TYPE_MAILDIR, WATCHED_DIRECTORY_MAILDIR
+    ),
+    TRANSFER_TYPE_TRIM: TransferProfile(TRANSFER_TYPE_TRIM, WATCHED_DIRECTORY_TRIM),
+    TRANSFER_TYPE_DATAVERSE: TransferProfile(
+        TRANSFER_TYPE_DATAVERSE, WATCHED_DIRECTORY_DATAVERSE
+    ),
 }
 
 
@@ -106,6 +124,8 @@ def retrieve_watched_dirs():
 def retrieve_watched_directory(transfer_type, return_key_error=False):
     if transfer_type not in ARCHIVEMATICA_TRANSFER_TYPES.keys():
         if not return_key_error:
-            return ARCHIVEMATICA_TRANSFER_TYPES[TRANSFER_STANDARD].watched_directory
+            return ARCHIVEMATICA_TRANSFER_TYPES[
+                TRANSFER_TYPE_STANDARD
+            ].watched_directory
         raise KeyError("Returning KeyError for legacy compatibility")
     return ARCHIVEMATICA_TRANSFER_TYPES[transfer_type].watched_directory

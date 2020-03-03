@@ -62,45 +62,59 @@ WATCHED_ACTIVE_TRANSFERS = os.path.join(
     _get_setting("WATCH_DIRECTORY"), ACTIVE_TRANSFERS_DIR
 )
 PACKAGE_TYPE_STARTING_POINTS = {
-    amtypes.TRANSFER_STANDARD: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_STANDARD),
+    amtypes.TRANSFER_TYPE_STANDARD: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_STANDARD
+        ),
         chain="6953950b-c101-4f4c-a0c3-0cd0684afe5e",
         link="045c43ae-d6cf-44f7-97d6-c8a602748565",
     ),
-    amtypes.TRANSFER_ZIPFILE: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_ZIPFILE),
+    amtypes.TRANSFER_TYPE_ZIPPED_PACKAGE: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_ZIPPED_PACKAGE
+        ),
         chain="f3caceff-5ad5-4bad-b98c-e73f8cd03450",
         link="541f5994-73b0-45bb-9cb5-367c06a21be7",
     ),
-    amtypes.TRANSFER_UNZIPPED_BAG: StartingPoint(
+    amtypes.TRANSFER_TYPE_UNZIPPED_BAG: StartingPoint(
         watched_dir=os.path.join(
-            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_UNZIPPED_BAG
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_UNZIPPED_BAG
         ),
         chain="c75ef451-2040-4511-95ac-3baa0f019b48",
         link="154dd501-a344-45a9-97e3-b30093da35f5",
     ),
-    amtypes.TRANSFER_ZIPPED_BAG: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_ZIPPED_BAG),
+    amtypes.TRANSFER_TYPE_ZIPPED_BAG: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_ZIPPED_BAG
+        ),
         chain="167dc382-4ab1-4051-8e22-e7f1c1bf3e6f",
         link="3229e01f-adf3-4294-85f7-4acb01b3fbcf",
     ),
-    amtypes.TRANSFER_DSPACE: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DSPACE),
+    amtypes.TRANSFER_TYPE_DSPACE: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_DSPACE
+        ),
         chain="1cb2ef0e-afe8-45b5-8d8f-a1e120f06605",
         link="bda96b35-48c7-44fc-9c9e-d7c5a05016c1",
     ),
-    amtypes.TRANSFER_MAILDIR: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_MAILDIR),
+    amtypes.TRANSFER_TYPE_MAILDIR: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_MAILDIR
+        ),
         chain="d381cf76-9313-415f-98a1-55c91e4d78e0",
         link="da2d650e-8ce3-4b9a-ac97-8ca4744b019f",
     ),
-    amtypes.TRANSFER_TRIM: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_TRIM),
+    amtypes.TRANSFER_TYPE_TRIM: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_TRIM
+        ),
         chain="e4a59e3e-3dba-4eb5-9cf1-c1fb3ae61fa9",
         link="2483c25a-ade8-4566-a259-c6c37350d0d6",
     ),
-    amtypes.TRANSFER_DATAVERSE: StartingPoint(
-        watched_dir=os.path.join(WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DATAVERSE),
+    amtypes.TRANSFER_TYPE_DATAVERSE: StartingPoint(
+        watched_dir=os.path.join(
+            WATCHED_ACTIVE_TRANSFERS, amtypes.WATCHED_DIRECTORY_DATAVERSE
+        ),
         # Approve Dataverse Transfer Chain
         chain="10c00bc8-8fc2-419f-b593-cf5518695186",
         # Chain link setting transfer-type: Dataverse
