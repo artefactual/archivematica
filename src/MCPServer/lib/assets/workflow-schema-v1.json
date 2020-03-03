@@ -97,6 +97,9 @@
         },
         "group": {
           "$ref": "#/definitions/translations"
+        },
+        "end": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,

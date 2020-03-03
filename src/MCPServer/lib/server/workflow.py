@@ -177,6 +177,12 @@ class Link(BaseLink):
     def config(self):
         return self._src["config"]
 
+    @property
+    def is_terminal(self):
+        """Check if the link is indicated as a terminal link.
+        """
+        return self._src.get("end", False)
+
     def get_next_link(self, code):
         code = text_type(code)
         try:

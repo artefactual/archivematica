@@ -1548,7 +1548,8 @@
                 "ja": "AIPを拒否",
                 "pt_BR": "Rejeitar AIP",
                 "sv": "Förkasta AIP"
-            }
+            },
+            "end": true
         },
         "0e1a8a6b-abcc-4ed6-b4fb-cbccfdc23ef5": {
             "config": {
@@ -2100,7 +2101,8 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
+            },
+            "end": true
         },
         "173d310c-8e40-4669-9a69-6d4c8ffd0396": {
             "config": {
@@ -3570,7 +3572,8 @@
                 "ja": "転送を拒否",
                 "pt_BR": "Rejeitar transferência",
                 "sv": "Avslå överföring"
-            }
+            },
+            "end": true
         },
         "33533fbb-1607-434f-a82b-cf938c05f60b": {
             "config": {
@@ -3672,7 +3675,8 @@
                 "ja": "SIPを拒否",
                 "pt_BR": "Rejeitar SIP",
                 "sv": "Förkasta DIP"
-            }
+            },
+            "end": true
         },
         "3505acc1-2b03-45df-93e2-626e6885e907": {
             "config": {
@@ -3867,7 +3871,8 @@
                 "ja": "転送に失敗",
                 "pt_BR": "Falha na transferência",
                 "sv": "Överföring misslyckad"
-            }
+            },
+            "end": true
         },
         "378ae4fc-7b62-40af-b448-a1ab47ac2c0c": {
             "config": {
@@ -3939,7 +3944,8 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
+            },
+            "end": true
         },
         "3a70bc05-fa82-4067-a069-a56b6006be0a": {
             "config": {
@@ -5550,7 +5556,8 @@
                 "en": "Include default Transfer processingMCP.xml",
                 "pt_BR": "Incluir transferência padrão processingMCP.xml",
                 "sv": "Inkludera standadard överförings processing.xml"
-            }
+            },
+            "end": true
         },
         "61c316a6-0a50-4f65-8767-1f44b1eeb6dd": {
             "config": {
@@ -5821,7 +5828,8 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
-            }
+            },
+            "end": true
         },
         "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa": {
             "config": {
@@ -6892,7 +6900,8 @@
                 "ja": "SIPに失敗",
                 "pt_BR": "SIP falhou",
                 "sv": "SIP misslyckades"
-            }
+            },
+            "end": true
         },
         "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6": {
             "config": {
@@ -7225,7 +7234,8 @@
                 "fr": "Échec de la mise en conformité du transfert",
                 "pt_BR": "Falha na transferência da conformidade",
                 "sv": "Överföringsföljsamhetskontroll misslyckades"
-            }
+            },
+            "end": true
         },
         "8ba83807-2832-4e41-843c-2e55ad10ea0b": {
             "config": {
@@ -8398,7 +8408,8 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
+            },
+            "end": true
         },
         "accea2bf-ba74-4a3a-bb97-614775c74459": {
             "config": {
@@ -10198,7 +10209,8 @@
                 "ja": "AIPを蓄える",
                 "pt_BR": "Armazenar AIP",
                 "sv": "Lagra AIP"
-            }
+            },
+            "end": true
         },
         "d6f6f5db-4cc2-4652-9283-9ec6a6d181e5": {
             "config": {
@@ -11301,7 +11313,8 @@
                 "fr": "Échec de la mise en conformité",
                 "pt_BR": "Falha na conformidade",
                 "sv": "Följsamhetskontroll misslyckades"
-            }
+            },
+            "end": true
         },
         "f09847c2-ee51-429a-9478-a860477f6b8d": {
             "config": {
@@ -11917,7 +11930,8 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
-            }
+            },
+            "end": true
         },
         "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f": {
             "config": {
