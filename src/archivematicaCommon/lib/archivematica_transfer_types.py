@@ -122,6 +122,6 @@ def retrieve_watched_dirs():
 
 
 def retrieve_watched_directory(transfer_type):
-    if transfer_type not in TRANSFER_TYPES.keys():
+    if transfer_type not in TRANSFER_TYPES:
         return None
     return TRANSFER_TYPES[transfer_type].watched_directory

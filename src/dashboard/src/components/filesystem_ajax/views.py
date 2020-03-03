@@ -300,7 +300,9 @@ def _copy_to_start_transfer(
         # default to standard transfer
         type_subdir = amtypes.retrieve_watched_directory(transfer_type)
         if not type_subdir:
-            type_subdir = amtypes.retrieve_watched_directory("standard")
+            type_subdir = amtypes.retrieve_watched_directory(
+                amtypes.TRANSFER_TYPE_STANDARD
+            )
         destination = os.path.join(
             ACTIVE_TRANSFER_DIR, type_subdir, "{}-{}".format(basename, temp_uuid)
         )

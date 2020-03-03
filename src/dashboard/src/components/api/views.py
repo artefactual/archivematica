@@ -832,10 +832,7 @@ def _package_create(request):
         )
     transfer_type = payload.get("type")
     try:
-        if (
-            transfer_type not in amtypes.TRANSFER_TYPES.keys()
-            and transfer_type is not None
-        ):
+        if transfer_type not in amtypes.TRANSFER_TYPES and transfer_type is not None:
             raise (
                 ValueError(
                     "Unexpected type of package provided '{}'".format(transfer_type)
