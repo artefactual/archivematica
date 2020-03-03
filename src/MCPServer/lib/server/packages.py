@@ -57,8 +57,9 @@ def _get_setting(name):
 # the workflow data but in the first iteration we've decided to do it this way.
 # There is also the hope that the watched directories can be deprecated in the
 # near future.
+ACTIVE_TRANSFERS_DIR = "activeTransfers"
 WATCHED_ACTIVE_TRANSFERS = os.path.join(
-    _get_setting("WATCH_DIRECTORY"), "activeTransfers"
+    _get_setting("WATCH_DIRECTORY"), ACTIVE_TRANSFERS_DIR
 )
 PACKAGE_TYPE_STARTING_POINTS = {
     amtypes.TRANSFER_STANDARD: StartingPoint(
