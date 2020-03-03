@@ -334,7 +334,7 @@ def create_package(
     """
     if not name:
         raise ValueError("No transfer name provided.")
-    if type_ is None or type_ == amtypes.TRANSFER_DISk_IMAGE:
+    if type_ is None or type_ == amtypes.TRANSFER_DISK_IMAGE:
         type_ = "standard"
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
         raise ValueError("Unexpected type of package provided '{}'".format(type_))
