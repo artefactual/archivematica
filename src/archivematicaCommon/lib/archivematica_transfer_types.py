@@ -54,18 +54,6 @@ WATCHED_MAILDIR = "maildir"
 WATCHED_TRIM = "TRIM"
 WATCHED_DATAVERSE = "dataverseTransfer"
 
-# TRANSFER_DISK_IMAGE is treated differently by src/MCPServer/lib/server/packages.py.
-TRANSFER_TYPES = (
-    TRANSFER_STANDARD,
-    TRANSFER_ZIPFILE,
-    TRANSFER_UNZIPPED_BAG,
-    TRANSFER_ZIPPED_BAG,
-    TRANSFER_DSPACE,
-    TRANSFER_MAILDIR,
-    TRANSFER_TRIM,
-    TRANSFER_DATAVERSE,
-)
-
 ARCHIVE_ZIP = ".zip"
 ARCHIVE_TGZ = ".tgz"
 ARCHIVE_TAR_GZ = ".tar.gz"
@@ -104,7 +92,7 @@ def retrieve_watched_dirs():
 
 
 def retrieve_watched_directory(transfer_type, return_key_error=False):
-    if transfer_type not in TRANSFER_TYPES:
+    if transfer_type not in ARCHIVEMATICA_TRANSFER_TYPES.keys():
         if not return_key_error:
             return ARCHIVEMATICA_TRANSFER_TYPES[TRANSFER_STANDARD].watched_directory
         raise KeyError("Returning KeyError for legacy compatibility")
