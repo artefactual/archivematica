@@ -2101,7 +2101,8 @@
                 "ja": "転送からSIPを作成する",
                 "pt_BR": "Crie SIP a partir da transferência",
                 "sv": "Skapa SIP från överföringspaket"
-            }
+            },
+            "end": true
         },
         "173d310c-8e40-4669-9a69-6d4c8ffd0396": {
             "config": {
@@ -5827,7 +5828,8 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
-            }
+            },
+            "end": true
         },
         "d51a7ed8-9cf4-424b-9671-85fd8b5b95aa": {
             "config": {
@@ -7232,7 +7234,8 @@
                 "fr": "Échec de la mise en conformité du transfert",
                 "pt_BR": "Falha na transferência da conformidade",
                 "sv": "Överföringsföljsamhetskontroll misslyckades"
-            }
+            },
+            "end": true
         },
         "8ba83807-2832-4e41-843c-2e55ad10ea0b": {
             "config": {
@@ -9138,8 +9141,7 @@
                 "fr": "Échec de la mise en conformité du transfert",
                 "pt_BR": "Falha na transferência da conformidade",
                 "sv": "Överföringsföljsamhetskontroll misslyckades"
-            },
-            "end": true
+            }
         },
         "bcabd5e2-c93e-4aaa-af6a-9a74d54e8bf0": {
             "config": {
@@ -11928,7 +11930,8 @@
                 "ja": "DIPをアップロード",
                 "pt_BR": "Carregar DIP",
                 "sv": "Ladda upp DIP"
-            }
+            },
+            "end": true
         },
         "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f": {
             "config": {
