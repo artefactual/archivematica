@@ -835,7 +835,7 @@ def _package_create(request):
     transfer_type = payload.get("type")
     try:
         if (
-            transfer_type not in amtypes.ARCHIVEMATICA_TRANSFER_TYPES.keys()
+            transfer_type not in amtypes.TRANSFER_TYPES.keys()
             and transfer_type is not None
         ):
             raise (
