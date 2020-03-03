@@ -68,6 +68,14 @@ APPROVE_DSPACE = "Approve DSpace transfer"
 APPROVE_UNZIPPED_BAG = "Approve bagit transfer"
 APPROVE_ZIPPED_BAG = "Approve zipped bagit transfer"
 
+APPROVE_TRANSFER_JOB_NAMES = (
+    APPROVE_STANDARD,
+    APPROVE_ZIPPED,
+    APPROVE_DSPACE,
+    APPROVE_UNZIPPED_BAG,
+    APPROVE_ZIPPED_BAG,
+)
+
 # Archivematica transfer profiles that describe a transfer's properties.
 TransferProfile = collections.namedtuple(
     "TransferProfile", "transfer_type watched_directory"

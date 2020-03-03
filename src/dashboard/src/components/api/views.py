@@ -445,13 +445,7 @@ def unapproved_transfers(request):
 
     # TODO: Does Dataverse transfers need to be here?
     jobs = models.Job.objects.filter(
-        (
-            Q(jobtype=amtypes.APPROVE_STANDARD)
-            | Q(jobtype=amtypes.APPROVE_ZIPPED)
-            | Q(jobtype=amtypes.APPROVE_DSPACE)
-            | Q(jobtype=amtypes.APPROVE_UNZIPPED_BAG)
-            | Q(jobtype=amtypes.APPROVE_ZIPPED_BAG)
-        )
+        Q(jobtype__in=amtypes.APPROVE_TRANSFER_JOB_NAMES)
         & Q(currentstep=models.Job.STATUS_AWAITING_DECISION)
     )
 
