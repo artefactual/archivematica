@@ -225,7 +225,7 @@ def test_package_endpoint(client, django_user_model, username, password):
 @pytest.mark.parametrize(
     "transfer_type, early_fail",
     [
-        ("zipfile", True),
+        ("unexpected transfer type", True),
         ("standard", False),
         ("zipped bag", False),
         ("unzipped bag", False),

@@ -731,7 +731,7 @@ def test_unapproved_transfers_endpoint(
         ),
         ("maildir", "%sharedPath%watchedDirectories/activeTransfers/maildir"),
         ("TRIM", "%sharedPath%watchedDirectories/activeTransfers/TRIM"),
-        ("zipfile", None),
+        ("unexpected transfer type", None),
     ],
 )
 def test_get_modified_standard_transfer_path(transfer_type, expected_result):
