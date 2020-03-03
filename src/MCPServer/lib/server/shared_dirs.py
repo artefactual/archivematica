@@ -253,9 +253,9 @@ def generate_transfer_watched_dirs():
     based on the transfer profiles in amtypes.
     """
     transfer_dirs = ()
-    for transfer_type in amtypes.retrieve_watched_dirs():
+    for _, watched_directory in amtypes.retrieve_watched_dirs():
         transfer_dirs = transfer_dirs + (
-            os.path.join(ACTIVE_TRANSFERS_DIR, (transfer_type[1])),
+            os.path.join(ACTIVE_TRANSFERS_DIR, watched_directory),
         )
     return transfer_dirs
 

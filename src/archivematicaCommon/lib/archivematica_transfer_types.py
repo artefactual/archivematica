@@ -85,6 +85,10 @@ ARCHIVEMATICA_TRANSFER_TYPES = {
 
 
 def retrieve_watched_dirs():
+    """Return a generator of tuples of Archivematica Transfer Types, which
+    contains the transfer type, and suffix that will form part of the
+    transfer's watched directory.
+    """
     for type_ in ARCHIVEMATICA_TRANSFER_TYPES:
         yield ARCHIVEMATICA_TRANSFER_TYPES[
             type_
