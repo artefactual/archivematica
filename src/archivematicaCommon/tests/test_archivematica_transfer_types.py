@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import pytest
-
 import archivematica_transfer_types as amtypes
 
 EXPECTED_DIRS = [
@@ -33,8 +31,4 @@ def test_watched_directory():
         assert (
             amtypes.retrieve_watched_directory(transfer_type) == watched_directory_name
         )
-    amtypes.retrieve_watched_directory(
-        "unknown transfer type"
-    ) == amtypes.WATCHED_DIRECTORY_STANDARD
-    with pytest.raises(KeyError):
-        amtypes.retrieve_watched_directory("unknown transfer type with exception", True)
+    assert amtypes.retrieve_watched_directory("unknown transfer type") is None

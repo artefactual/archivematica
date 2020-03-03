@@ -530,12 +530,10 @@ def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(django_settings.WATCH_DIRECTORY, "activeTransfers")
     if transfer_type is None:
         return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
-    try:
-        path = os.path.join(
-            path, amtypes.retrieve_watched_directory(transfer_type, True)
-        )
-    except KeyError:
+    transfer_dir = amtypes.retrieve_watched_directory(transfer_type)
+    if not transfer_dir:
         return None
+    path = os.path.join(path, transfer_dir)
     return path.replace(SHARED_DIRECTORY_ROOT, SHARED_PATH_TEMPLATE_VAL, 1)
 
 
