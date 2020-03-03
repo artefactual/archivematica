@@ -43,7 +43,7 @@ TRANSFER_MAILDIR = "maildir"
 TRANSFER_TRIM = "TRIM"
 TRANSFER_DATAVERSE = "dataverse"
 
-TRANSFER_DISk_IMAGE = "disk image"
+TRANSFER_DISK_IMAGE = "disk image"
 
 WATCHED_STANDARD = "standardTransfer"
 WATCHED_ZIPFILE = "zippedPackage"
