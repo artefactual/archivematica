@@ -84,7 +84,7 @@ APPROVE_TRANSFER_JOB_NAMES = (
 TransferProfile = collections.namedtuple(
     "TransferProfile", "transfer_type watched_directory"
 )
-ARCHIVEMATICA_TRANSFER_TYPES = {
+TRANSFER_TYPES = {
     TRANSFER_TYPE_STANDARD: TransferProfile(
         TRANSFER_TYPE_STANDARD, WATCHED_DIRECTORY_STANDARD
     ),
@@ -115,17 +115,15 @@ def retrieve_watched_dirs():
     contains the transfer type, and suffix that will form part of the
     transfer's watched directory.
     """
-    for type_ in ARCHIVEMATICA_TRANSFER_TYPES:
-        yield ARCHIVEMATICA_TRANSFER_TYPES[
+    for type_ in TRANSFER_TYPES:
+        yield TRANSFER_TYPES[type_].transfer_type, TRANSFER_TYPES[
             type_
-        ].transfer_type, ARCHIVEMATICA_TRANSFER_TYPES[type_].watched_directory
+        ].watched_directory
 
 
 def retrieve_watched_directory(transfer_type, return_key_error=False):
-    if transfer_type not in ARCHIVEMATICA_TRANSFER_TYPES.keys():
+    if transfer_type not in TRANSFER_TYPES.keys():
         if not return_key_error:
-            return ARCHIVEMATICA_TRANSFER_TYPES[
-                TRANSFER_TYPE_STANDARD
-            ].watched_directory
+            return TRANSFER_TYPES[TRANSFER_TYPE_STANDARD].watched_directory
         raise KeyError("Returning KeyError for legacy compatibility")
-    return ARCHIVEMATICA_TRANSFER_TYPES[transfer_type].watched_directory
+    return TRANSFER_TYPES[transfer_type].watched_directory
