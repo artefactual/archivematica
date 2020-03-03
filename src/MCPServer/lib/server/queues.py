@@ -156,8 +156,8 @@ class PackageQueue(object):
     def work(self):
         """Process the package queue.
 
-        Enters into an endless loop, pulling jobs from the queue and processing them,
-        until `stop` is called.
+        Enters into an endless loop, pulling jobs from the queue and processing
+        them, until `stop` is called.
         """
         while not self.shutdown_event.is_set():
             # Using a timeout here allows shutdown signals to fire
@@ -202,7 +202,8 @@ class PackageQueue(object):
 
         It is assumed that a package is only complete when a terminal link is
         hit. When we hit a terminal link the future should not contain the next
-        job in the chain.
+        job in the chain. This function is called by an executor on completion
+        of a Job.
         """
         if future.result() is not None:
             raise RuntimeError(
@@ -214,11 +215,11 @@ class PackageQueue(object):
         self.queue_next_job()
 
     def _job_completed_callback(self, future):
-        """Called by an executor on completion of a Job. Schedules the next job
-        in the chain.
+        """Schedule the next job in the chain.
 
-        Retrieves the next job from the result from the previous job.
-        If there is no next_job return, otherwhise schedule the new job.
+        Retrieve the next job from the result from the previous job. If there is
+        no next_job return, otherwhise schedule the new job. This function is
+        called by an executor on completion of a Job.
         """
         metrics.active_jobs_gauge.dec()
         next_job = future.result()
@@ -231,9 +232,7 @@ class PackageQueue(object):
             self.schedule_job(next_job)
 
     def _put_package_nowait(self, package, job):
-        """Queue a package and job for later processing, after one of the
-        currently active packages completes.
-        """
+        """Queue a package and job for later processing."""
         if isinstance(package, DIP):
             self.dip_queue.put_nowait(job)
         elif isinstance(package, SIP):
