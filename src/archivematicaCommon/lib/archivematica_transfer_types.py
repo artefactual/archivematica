@@ -121,9 +121,7 @@ def retrieve_watched_dirs():
         ].watched_directory
 
 
-def retrieve_watched_directory(transfer_type, return_key_error=False):
+def retrieve_watched_directory(transfer_type):
     if transfer_type not in TRANSFER_TYPES.keys():
-        if not return_key_error:
-            return TRANSFER_TYPES[TRANSFER_TYPE_STANDARD].watched_directory
-        raise KeyError("Returning KeyError for legacy compatibility")
+        return None
     return TRANSFER_TYPES[transfer_type].watched_directory
