@@ -185,7 +185,7 @@ class PackageQueue(object):
 
         if job.link.is_terminal:
             package_done_callback = functools.partial(
-                self._package_completed_callback, job.package
+                self._package_completed_callback, job.package, job.link.id
             )
             result.add_done_callback(package_done_callback)
 
@@ -196,9 +196,8 @@ class PackageQueue(object):
         """
         self.shutdown_event.set()
 
-    def _package_completed_callback(self, package, future):
-        """Called by an executor on completion of a package. Marks the package
-        as inactive and schedules a new package.
+    def _package_completed_callback(self, package, link_id, future):
+        """Marks the package as inactive and schedules a new package.
 
         It is assumed that a package is only complete when a terminal link is
         hit. When we hit a terminal link the future should not contain the next
@@ -206,10 +205,12 @@ class PackageQueue(object):
         of a Job.
         """
         if future.result() is not None:
-            raise RuntimeError(
+            logger.warning(
                 "Unexpectedly received another job on package completion. "
-                "Please verify the value of `end` in the workflow. "
+                "Please verify the value of `end` in the workflow. Link %s.",
+                link_id,
             )
+            return
 
         self.deactivate_package(package)
         self.queue_next_job()
