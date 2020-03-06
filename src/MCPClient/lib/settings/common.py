@@ -126,6 +126,7 @@ CONFIG_MAPPING = {
         "option": "prometheus_bind_port",
         "type": "string",
     },
+    "time_zone": {"section": "MCPClient", "option": "time_zone", "type": "string"},
     # [antivirus]
     "clamav_server": {
         "section": "MCPClient",
@@ -192,6 +193,7 @@ storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 prometheus_bind_address =
 prometheus_bind_port =
+time_zone = UTC
 clamav_client_timeout = 86400
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
@@ -255,7 +257,7 @@ SECRET_KEY = config.get(
 )
 
 USE_TZ = True
-TIME_ZONE = "UTC"
+TIME_ZONE = config.get("time_zone")
 
 INSTALLED_APPS = (
     "django.contrib.auth",

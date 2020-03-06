@@ -93,6 +93,7 @@ CONFIG_MAPPING = {
         "type": "boolean",
     },
     "site_url": {"section": "Dashboard", "option": "site_url", "type": "string"},
+    "time_zone": {"section": "Dashboard", "option": "time_zone", "type": "string"},
     # [Dashboard] (MANDATORY in production)
     "allowed_hosts": {
         "section": "Dashboard",
@@ -130,6 +131,7 @@ storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 prometheus_enabled = False
 site_url =
+time_zone = UTC
 
 [client]
 user = archivematica
@@ -233,7 +235,7 @@ USE_L10N = True
 USE_TZ = True
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TIME_ZONE
-TIME_ZONE = "UTC"
+TIME_ZONE = config.get("time_zone")
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
