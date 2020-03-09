@@ -513,7 +513,7 @@ def approve_transfer(request):
     transfer_file = watched_path.replace(
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT
     )
-    if transfer_type in {"zipped bag", "zipfile", "dspace"} and os.path.isfile(
+    if transfer_type in {"zipped bag", "zipped package", "dspace"} and os.path.isfile(
         transfer_file
     ):
         db_transfer_path = watched_path

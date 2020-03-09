@@ -142,5 +142,5 @@ def call(jobs):
                     currentlocation=destinationDirectoryDB
                 )
 
-                # remove zipfile
+                # remove zip package
                 os.remove(zipLocation)

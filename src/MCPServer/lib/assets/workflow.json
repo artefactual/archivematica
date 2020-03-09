@@ -4344,7 +4344,7 @@
             },
             "description": {
                 "en": "Approve zipped transfer",
-                "es": "Aprobar transferencia de zipfile",
+                "es": "Aprobar transferencia de zip",
                 "fr": "Approuver le transfert compressé",
                 "ja": "ZIPにした 転送を承認",
                 "pt_BR": "Confirmar transferência zipada",
@@ -12260,7 +12260,7 @@
         {
             "chain_id": "a10b0088-b038-4ea2-91cc-b7761f07fe5a",
             "only_dirs": false,
-            "path": "/activeTransfers/zippedDirectory",
+            "path": "/activeTransfers/zippedPackage",
             "unit_type": "Transfer"
         },
         {
