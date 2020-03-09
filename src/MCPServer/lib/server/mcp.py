@@ -29,6 +29,7 @@ import getpass
 import logging
 import os
 import signal
+import subprocess
 import threading
 
 import django
@@ -50,6 +51,11 @@ logger = logging.getLogger("archivematica.mcp.server")
 
 
 def watched_dir_handler(package_queue, path, watched_dir):
+    try:
+        subprocess.check_call(["sync", "--file-system", settings.WATCH_DIRECTORY])
+    except subprocess.CalledProcessError as err:
+        logger.warning("Sync failed: %s", err)
+
     if os.path.isdir(path):
         path = path + "/"
     logger.debug("Starting chain for %s", path)
