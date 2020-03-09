@@ -68,6 +68,12 @@ non-database parameters could be set in the dbsettings file.
 
 This is the full list of variables supported by MCPServer:
 
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_TIME_ZONE`**:
+    - **Description:** application time zone. See [TIME_ZONE](https://docs.djangoproject.com/en/1.8/ref/settings/#time-zone) for more details.
+    - **Config file example:** `MCPServer.time_zone`
+    - **Type:** `string`
+    - **Default:** `"UTC"`
+
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_DJANGO_SECRET_KEY`**:
     - **Description:** a secret key used for cryptographic signing. See [SECRET_KEY](https://docs.djangoproject.com/en/1.8/ref/settings/#secret-key) for more details.
     - **Config file example:** `MCPServer.django_secret_key`

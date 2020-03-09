@@ -114,6 +114,7 @@ CONFIG_MAPPING = {
         "option": "prometheus_bind_port",
         "type": "string",
     },
+    "time_zone": {"section": "MCPServer", "option": "time_zone", "type": "string"},
     # [client]
     "db_engine": {"section": "client", "option": "engine", "type": "string"},
     "db_name": {"section": "client", "option": "database", "type": "string"},
@@ -143,6 +144,7 @@ storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
 prometheus_bind_port =
+time_zone = UTC
 
 [client]
 user = archivematica
@@ -208,7 +210,7 @@ SECRET_KEY = config.get(
 )
 
 USE_TZ = True
-TIME_ZONE = "UTC"
+TIME_ZONE = config.get("time_zone")
 
 # Configure logging manually
 LOGGING_CONFIG = None
