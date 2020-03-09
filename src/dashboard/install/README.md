@@ -102,6 +102,12 @@ variables or in the gunicorn configuration file.
 
 ### Application variables
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_TIME_ZONE`**:
+    - **Description:** application time zone. See [TIME_ZONE](https://docs.djangoproject.com/en/1.8/ref/settings/#time-zone) for more details.
+    - **Config file example:** `Dashboard.time_zone`
+    - **Type:** `string`
+    - **Default:** `"UTC"`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_ALLOWED_HOSTS`**:
     - **Description:** a list of strings representing the host/domain names that this Django site can serve. See [`ALLOWED_HOSTS`](https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts) for more details.
     - **Config file example:** `Dashboard.django_allowed_hosts`
