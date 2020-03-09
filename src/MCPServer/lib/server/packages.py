@@ -721,6 +721,11 @@ class SIPDIP(Package):
                     "diruuids": False,
                 },
             )
+            # TODO: we thought this path was unused but some tests have proved
+            # us wrong (see issue #1141) - needs to be investigated.
+            if not created and sip_obj.currentpath != path:
+                sip_obj.currentpath = path
+                sip_obj.save()
         else:
             try:
                 sip_obj = models.SIP.objects.get(currentpath=path)
@@ -783,8 +788,10 @@ class Transfer(Package):
             transfer_obj, created = models.Transfer.objects.get_or_create(
                 uuid=transfer_uuid, defaults={"currentlocation": path}
             )
+            # TODO: we thought this path was unused but some tests have proved
+            # us wrong (see issue #1141) - needs to be investigated.
             if not created and transfer_obj.currentlocation != path:
-                transfer_obj.currentpath = path
+                transfer_obj.currentlocation = path
                 transfer_obj.save()
         else:
             try:
