@@ -10,6 +10,7 @@ from main import models
 
 from server.packages import (
     DIP,
+    SIP,
     Transfer,
     _determine_transfer_paths,
     _move_to_internal_shared_dir,
@@ -123,6 +124,60 @@ def test_transfer_get_or_create_from_db_path_with_uuid(tmp_path):
         pytest.fail(
             "Transfer.get_or_create_from_db_by_path didn't create a Transfer model"
         )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_transfer_get_or_create_from_db_by_path_updates_model(tmp_path, settings):
+    settings.SHARED_DIRECTORY = "custom-shared-path"
+    transfer_uuid = uuid.uuid4()
+    transfer_path_src = (
+        tmp_path / r"%sharedPath%" / "src" / "test-transfer-{}".format(transfer_uuid)
+    )
+    transfer_path_dst = (
+        tmp_path / r"%sharedPath%" / "dst" / "test-transfer-{}".format(transfer_uuid)
+    )
+
+    t1 = Transfer.get_or_create_from_db_by_path(str(transfer_path_src))
+    t2 = Transfer.get_or_create_from_db_by_path(str(transfer_path_dst))
+
+    assert transfer_uuid == t1.uuid == t2.uuid
+    assert t1.current_path == str(transfer_path_src).replace(
+        r"%sharedPath%", settings.SHARED_DIRECTORY
+    )
+    assert t2.current_path == str(transfer_path_dst).replace(
+        r"%sharedPath%", settings.SHARED_DIRECTORY
+    )
+    try:
+        models.Transfer.objects.get(
+            uuid=transfer_uuid, currentlocation=str(transfer_path_dst)
+        )
+    except models.Transfer.DoesNotExist:
+        pytest.fail(
+            "Transfer.get_or_create_from_db_by_path didn't update the Transfer model"
+        )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_sip_get_or_create_from_db_by_path_updates_model(tmp_path, settings):
+    settings.SHARED_DIRECTORY = "custom-shared-path"
+    sip_uuid = uuid.uuid4()
+    sip_path_src = tmp_path / r"%sharedPath%" / "src" / "test-sip-{}".format(sip_uuid)
+    sip_path_dst = tmp_path / r"%sharedPath%" / "dst" / "test-sip-{}".format(sip_uuid)
+
+    s1 = SIP.get_or_create_from_db_by_path(str(sip_path_src))
+    s2 = SIP.get_or_create_from_db_by_path(str(sip_path_dst))
+
+    assert sip_uuid == s1.uuid == s2.uuid
+    assert s1.current_path == str(sip_path_src).replace(
+        r"%sharedPath%", settings.SHARED_DIRECTORY
+    )
+    assert s2.current_path == str(sip_path_dst).replace(
+        r"%sharedPath%", settings.SHARED_DIRECTORY
+    )
+    try:
+        models.SIP.objects.get(uuid=sip_uuid, currentpath=str(sip_path_dst))
+    except models.Transfer.DoesNotExist:
+        pytest.fail("SIP.get_or_create_from_db_by_path didn't update the SIP model")
 
 
 @pytest.mark.django_db(transaction=True)
