@@ -126,58 +126,41 @@ def test_transfer_get_or_create_from_db_path_with_uuid(tmp_path):
         )
 
 
+@pytest.mark.parametrize(
+    "package_class, model, loc_attribute",
+    [(Transfer, models.Transfer, "currentlocation"), (SIP, models.SIP, "currentpath")],
+)
 @pytest.mark.django_db(transaction=True)
-def test_transfer_get_or_create_from_db_by_path_updates_model(tmp_path, settings):
+def test_package_get_or_create_from_db_by_path_updates_model(
+    tmp_path, settings, package_class, model, loc_attribute
+):
     settings.SHARED_DIRECTORY = "custom-shared-path"
-    transfer_uuid = uuid.uuid4()
-    transfer_path_src = (
-        tmp_path / r"%sharedPath%" / "src" / "test-transfer-{}".format(transfer_uuid)
+    package_id = uuid.uuid4()
+    path_src = (
+        tmp_path / r"%sharedPath%" / "src" / "test-transfer-{}".format(package_id)
     )
-    transfer_path_dst = (
-        tmp_path / r"%sharedPath%" / "dst" / "test-transfer-{}".format(transfer_uuid)
+    path_dst = (
+        tmp_path / r"%sharedPath%" / "dst" / "test-transfer-{}".format(package_id)
     )
 
-    t1 = Transfer.get_or_create_from_db_by_path(str(transfer_path_src))
-    t2 = Transfer.get_or_create_from_db_by_path(str(transfer_path_dst))
+    package_obj_src = package_class.get_or_create_from_db_by_path(str(path_src))
+    package_obj_dst = package_class.get_or_create_from_db_by_path(str(path_dst))
 
-    assert transfer_uuid == t1.uuid == t2.uuid
-    assert t1.current_path == str(transfer_path_src).replace(
+    assert package_id == package_obj_src.uuid == package_obj_dst.uuid
+    assert package_obj_src.current_path == str(path_src).replace(
         r"%sharedPath%", settings.SHARED_DIRECTORY
     )
-    assert t2.current_path == str(transfer_path_dst).replace(
+    assert package_obj_dst.current_path == str(path_dst).replace(
         r"%sharedPath%", settings.SHARED_DIRECTORY
     )
     try:
-        models.Transfer.objects.get(
-            uuid=transfer_uuid, currentlocation=str(transfer_path_dst)
-        )
+        model.objects.get(**{"uuid": package_id, loc_attribute: path_dst})
     except models.Transfer.DoesNotExist:
         pytest.fail(
-            "Transfer.get_or_create_from_db_by_path didn't update the Transfer model"
+            "Method {}.get_or_create_from_db_by_path didn't update {} model".format(
+                package_class.__name__, model.__name__
+            )
         )
-
-
-@pytest.mark.django_db(transaction=True)
-def test_sip_get_or_create_from_db_by_path_updates_model(tmp_path, settings):
-    settings.SHARED_DIRECTORY = "custom-shared-path"
-    sip_uuid = uuid.uuid4()
-    sip_path_src = tmp_path / r"%sharedPath%" / "src" / "test-sip-{}".format(sip_uuid)
-    sip_path_dst = tmp_path / r"%sharedPath%" / "dst" / "test-sip-{}".format(sip_uuid)
-
-    s1 = SIP.get_or_create_from_db_by_path(str(sip_path_src))
-    s2 = SIP.get_or_create_from_db_by_path(str(sip_path_dst))
-
-    assert sip_uuid == s1.uuid == s2.uuid
-    assert s1.current_path == str(sip_path_src).replace(
-        r"%sharedPath%", settings.SHARED_DIRECTORY
-    )
-    assert s2.current_path == str(sip_path_dst).replace(
-        r"%sharedPath%", settings.SHARED_DIRECTORY
-    )
-    try:
-        models.SIP.objects.get(uuid=sip_uuid, currentpath=str(sip_path_dst))
-    except models.Transfer.DoesNotExist:
-        pytest.fail("SIP.get_or_create_from_db_by_path didn't update the SIP model")
 
 
 @pytest.mark.django_db(transaction=True)
