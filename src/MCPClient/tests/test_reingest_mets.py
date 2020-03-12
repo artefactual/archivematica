@@ -2094,3 +2094,60 @@ class TestUpdateMetadataCSV(TestCase):
         assert (
             new.findtext(".//dc:description", namespaces=NSMAP) == "Tents on a mountain"
         )
+
+    def test_non_dublincore_dmdsecs(self):
+        """ It should add file-level dmdSecs for non DC metadata. """
+        mets = metsrw.METSDocument.fromfile(
+            os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
+        )
+        assert not mets.get_file(path="objects/evelyn_s_photo.jpg", type="Item").dmdsecs
+        # Import DC and non DC metadata for the objects/evelyn_s_photo.jpg file
+        # from fixtures/metadata_csv_nondc/objects/metadata/metadata.csv
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        sip_dir = os.path.join(FIXTURES_DIR, "metadata_csv_nondc", "")
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(
+            Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, sip_dir, state
+        )
+        # Verify the new dmdSecs for the objects/evelyn_s_photo.jpg file
+        assert (
+            len(mets.get_file(path="objects/evelyn_s_photo.jpg", type="Item").dmdsecs)
+            == 2
+        )
+        dmdsecs = [
+            dmdsec.serialize()
+            for dmdsec in mets.get_file(
+                path="objects/evelyn_s_photo.jpg", type="Item"
+            ).dmdsecs
+        ]
+        # There should be one DC dmdsec
+        dc_dmdsecs = [
+            dmdsec
+            for dmdsec in dmdsecs
+            if dmdsec.find(".//dcterms:dublincore", namespaces=NSMAP) is not None
+        ]
+        assert len(dc_dmdsecs) == 1
+        assert (
+            dc_dmdsecs[0].findtext(".//dc:title", namespaces=NSMAP) == "Mountain Tents"
+        )
+        assert (
+            dc_dmdsecs[0].findtext(".//dc:description", namespaces=NSMAP)
+            == "Tents on a mountain"
+        )
+        # And one non DC dmdsec
+        nondc_dmdsecs = [
+            dmdsec
+            for dmdsec in dmdsecs
+            if dmdsec.find(
+                './/mets:mdWrap[@MDTYPE="OTHER"][@OTHERMDTYPE="CUSTOM"]/mets:xmlData',
+                namespaces=NSMAP,
+            )
+            is not None
+        ]
+        assert len(nondc_dmdsecs) == 1
+        assert (
+            nondc_dmdsecs[0].findtext(".//nondc", namespaces=NSMAP) == "Non DC metadata"
+        )
+        assert (
+            nondc_dmdsecs[0].findtext(".//custom_field", namespaces=NSMAP)
+            == "A custom field"
+        )
