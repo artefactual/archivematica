@@ -531,6 +531,24 @@ def delete_files(mets, sip_uuid):
     return mets
 
 
+def _get_directory_fsentry(mets, path):
+    """Get a metsrw.FSEntry for a directory path.
+
+    This splits a directory path into parts and starts looking for
+    Directory type entries in the metsrw.METSDocument. The starting
+    point is the Directory entry that represents the AIP.
+    """
+    parts = path.split(os.sep)
+    parent = mets.get_file(type="Directory", parent=None)
+    result = None
+    for part in parts:
+        child = mets.get_file(type="Directory", label=part, parent=parent)
+        if child is None:
+            return None
+        result = parent = child
+    return result
+
+
 def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
     job.pyprint("Parse new metadata.csv")
     full_path = metadata_csv.currentlocation.replace("%SIPDirectory%", sip_dir, 1)
@@ -543,6 +561,7 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
         job.pyprint("Looking for", f, "from metadata.csv in SIP")
         # Find File with original or current locationg matching metadata.csv
         # Prepend % to match the end of %SIPDirectory% or %transferDirectory%
+        file_obj = None
         try:
             file_obj = models.File.objects.get(
                 sip_id=sip_uuid, originallocation__endswith="%" + f
@@ -553,11 +572,16 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
                     sip_id=sip_uuid, currentlocation__endswith="%" + f
                 )
             except models.File.DoesNotExist:
-                job.pyprint(f, "not found in database")
-                continue
-        job.pyprint(f, "found in database")
+                pass
+        if file_obj is not None:
+            fsentry = mets.get_file(file_uuid=file_obj.uuid)
+        else:
+            fsentry = _get_directory_fsentry(mets, f)
+        if fsentry is None:
+            job.pyprint(f, "not found in database or METS file")
+            continue
 
-        fsentry = mets.get_file(file_uuid=file_obj.uuid)
+        job.pyprint(f, "found in database or METS file")
         job.pyprint(f, "was associated with", fsentry.dmdids)
 
         # Create dmdSec

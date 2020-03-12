@@ -2002,6 +2002,27 @@ class TestUpdateMetadataCSV(TestCase):
             == "Tents on a mountain"
         )
 
+    def test_new_dmdsecs_for_directories(self):
+        """ It should add directory-level dmdSecs. """
+        mets = metsrw.METSDocument.fromfile(
+            os.path.join(FIXTURES_DIR, "mets_sip_and_file_dc.xml")
+        )
+        assert not mets.get_file(label="Landing_zone", type="Directory").dmdsecs
+        # Import metadata for the objects/Landing_zone directory
+        # from fixtures/metadata_csv_directories/objects/metadata/metadata.csv
+        state = archivematicaCreateMETSReingest.createmets2.MetsState()
+        sip_dir = os.path.join(FIXTURES_DIR, "metadata_csv_directories", "")
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(
+            Job("stub", "stub", []), mets, self.csv_file, self.sip_uuid, sip_dir, state
+        )
+        # Verify the new dmdSec for the Landing_zone directory
+        assert len(mets.get_file(label="Landing_zone", type="Directory").dmdsecs) == 1
+        dmdsec = (
+            mets.get_file(label="Landing_zone", type="Directory").dmdsecs[0].serialize()
+        )
+        dmdsec.findtext(".//dc:title", namespaces=NSMAP) == "The landing zone"
+        dmdsec.findtext(".//dc:description", namespaces=NSMAP) == "A zone for landing"
+
     def test_update_existing(self):
         """
         It should add new dmdSecs.
