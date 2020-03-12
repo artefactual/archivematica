@@ -549,6 +549,23 @@ def _get_directory_fsentry(mets, path):
     return result
 
 
+def _replace_original_dmdsec(dmdsecs, new_dmdsec):
+    """Given a list of dmdSec elements, replace the original one.
+
+    This implementation assumes the first dmdSec of the list is the
+    original one and that all the dmdSec elements are of the same
+    MDTYPE.
+
+    A better approach could rely on the CREATED and STATUS attributes
+    of each dmdSec and the older and newer attribute and the
+    get_status method of the metsrw.SubSecion class. But currently the
+    create_mets_v2 clientScript doesn't use metsrw to create the SIP
+    METS and doesn't set these attributes.
+    """
+    if dmdsecs:
+        dmdsecs[0].replace_with(new_dmdsec)
+
+
 def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
     job.pyprint("Parse new metadata.csv")
     full_path = metadata_csv.currentlocation.replace("%SIPDirectory%", sip_dir, 1)
@@ -584,16 +601,38 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
         job.pyprint(f, "found in database or METS file")
         job.pyprint(f, "was associated with", fsentry.dmdids)
 
+        # Save existing dmdSecs
+        dc_dmdsecs = []
+        non_dc_dmdsecs = []
+        for dmdsec in fsentry.dmdsecs:
+            mdwrap = dmdsec.contents
+            if mdwrap.mdtype == "DC":
+                dc_dmdsecs.append(dmdsec)
+            elif (
+                mdwrap.mdtype == "OTHER"
+                and getattr(mdwrap, "othermdtype", None) == "CUSTOM"
+            ):
+                non_dc_dmdsecs.append(dmdsec)
+
         # Create dmdSec
         new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(job, md, state)
         # Add both
         for new_dmdsec in new_dmdsecs:
             # need to strip new_d to just the DC part
             new_dc = new_dmdsec.find(".//dcterms:dublincore", namespaces=ns.NSMAP)
-            new_metsrw_dmdsec = fsentry.add_dublin_core(new_dc)
-            if len(fsentry.dmdsecs) > 1:
-                fsentry.dmdsecs[-2].replace_with(new_metsrw_dmdsec)
-
+            if new_dc is not None:
+                new_metsrw_dmdsec = fsentry.add_dublin_core(new_dc)
+                _replace_original_dmdsec(dc_dmdsecs, new_metsrw_dmdsec)
+            else:
+                new_non_dc = new_dmdsec.find(
+                    './/mets:mdWrap[@MDTYPE="OTHER"][@OTHERMDTYPE="CUSTOM"]/mets:xmlData',
+                    namespaces=ns.NSMAP,
+                )
+                if new_non_dc is not None:
+                    new_metsrw_dmdsec = fsentry.add_dmdsec(
+                        new_non_dc, "OTHER", othermdtype="CUSTOM"
+                    )
+                    _replace_original_dmdsec(non_dc_dmdsecs, new_metsrw_dmdsec)
         job.pyprint(f, "now associated with", fsentry.dmdids)
 
     return mets
