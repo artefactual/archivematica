@@ -723,7 +723,7 @@ class SIPDIP(Package):
             )
             # TODO: we thought this path was unused but some tests have proved
             # us wrong (see issue #1141) - needs to be investigated.
-            if not created and sip_obj.currentpath != path:
+            if package_type == "SIP" and (not created and sip_obj.currentpath != path):
                 sip_obj.currentpath = path
                 sip_obj.save()
         else:
