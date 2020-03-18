@@ -32,7 +32,7 @@ EXEMPT_URLS = None
 
 def _load_exempt_urls():
     global EXEMPT_URLS
-    EXEMPT_URLS = [re_compile(settings.LOGIN_URL.lstrip("/"))]
+    EXEMPT_URLS = [re_compile("{}$".format(settings.LOGIN_URL.lstrip("/")))]
     if hasattr(settings, "LOGIN_EXEMPT_URLS"):
         EXEMPT_URLS += [re_compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
 
