@@ -35,6 +35,10 @@ class ConfigurationCheckMiddlewareTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+        # installer.middleware.EXEMPT_URLS is a global *list*
+        # that has been mutated in this test, this restores it back
+        _load_exempt_urls()
+
     def test_unauthenticated_user_is_sent_to_login_page(self):
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
