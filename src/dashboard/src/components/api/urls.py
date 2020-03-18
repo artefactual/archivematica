@@ -26,7 +26,7 @@ app_name = "api"
 urlpatterns = [
     url(r"transfer/approve", views.approve_transfer),
     url(r"transfer/unapproved", views.unapproved_transfers),
-    url(r"transfer/completed", views.completed_transfers),
+    url(r"transfer/completed", views.completed_transfers, name="completed_transfers"),
     url(
         r"transfer/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
         views.status,
@@ -49,9 +49,13 @@ urlpatterns = [
     url(r"^(?P<unit_type>transfer|ingest)/delete/", views.mark_completed_hidden),
     url(r"^ingest/reingest/approve", views.reingest_approve),
     url(r"^ingest/reingest", views.reingest, {"target": "ingest"}),
-    url(r"^ingest/completed", views.completed_ingests),
+    url(r"^ingest/completed", views.completed_ingests, name="completed_ingests"),
     url(r"^ingest/copy_metadata_files/$", views.copy_metadata_files_api),
-    url(r"administration/dips/atom/levels/$", views.get_levels_of_description),
+    url(
+        r"administration/dips/atom/levels/$",
+        views.get_levels_of_description,
+        name="get_levels_of_description",
+    ),
     url(
         r"administration/dips/atom/fetch_levels/$",
         views.fetch_levels_of_description_from_atom,
