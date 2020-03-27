@@ -550,7 +550,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
             is_bagit = True if transfer_parts[1].startswith(u"data/objects") else False
-            # Copy metadata & logs to completedTransfers, where later scripts expect
+            # Copy metadata & logs to tmp/, where later scripts expect
             for directory in ("logs", "metadata"):
                 source = [DEFAULT_BACKLOG_PATH, transfer_name, directory]
                 if is_bagit:
@@ -558,10 +558,8 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                 file_ = {
                     "source": os.path.join(os.path.sep.join(source), "."),
                     "destination": os.path.join(
-                        "watchedDirectories",
-                        "SIPCreation",
-                        "completedTransfers",
-                        transfer_name,
+                        "tmp",
+                        "transfer-{}".format(arranged_file.transfer_uuid),
                         directory,
                         ".",
                     ),

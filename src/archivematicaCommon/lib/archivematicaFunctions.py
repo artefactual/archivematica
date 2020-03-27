@@ -365,3 +365,26 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         path = os.path.join(objects_path, path)
         if not os.path.isdir(path):
             os.makedirs(path)
+
+
+def find_transfer_path_from_ingest(transfer_path, shared_path):
+    """Find path of a transfer arranged or coming straight from processing.
+
+    In Ingest, access to the original transfers is needed in order to copy
+    submission docs, metadata and logs. Transfers can be found under
+    ``currentlyProcessing`` unless they come from SIP Arrangement, in which case
+    they're found under the temporary shared directory.
+
+    TODO: use ``Transfer.currentlocation`` or a model method?
+    """
+    transfer_uuid = transfer_path.rstrip("/")[-36:]
+
+    path = transfer_path.replace("%sharedPath%", shared_path, 1)
+    if os.path.isdir(path):
+        return path
+
+    path = os.path.join(shared_path, "tmp", "transfer-{}".format(transfer_uuid))
+    if os.path.isdir(path):
+        return path
+
+    raise Exception("Transfer directory not physically found")
