@@ -32,6 +32,8 @@ django.setup()
 from bag import is_bag
 from main.models import File, SIP
 
+from archivematicaFunctions import find_transfer_path_from_ingest
+
 
 def call(jobs):
     for job in jobs:
@@ -54,8 +56,12 @@ def call(jobs):
             aip_mets_name = "METS." + sipUUID + ".xml"
 
             for transferLocation in transfer_locations:
-                transferLocation = transferLocation.replace("%sharedPath%", sharedPath)
                 transferNameUUID = os.path.basename(os.path.abspath(transferLocation))
+                transferLocation = find_transfer_path_from_ingest(
+                    transferLocation, sharedPath
+                )
+                job.pyprint("Transfer found in", transferLocation)
+
                 src = os.path.join(
                     transferLocation, "metadata", "submissionDocumentation"
                 )

@@ -34,6 +34,8 @@ django.setup()
 from bag import is_bag
 from main.models import File, SIP
 
+from archivematicaFunctions import find_transfer_path_from_ingest
+
 
 def main(
     job, sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""
@@ -54,8 +56,8 @@ def main(
     )
     for transferPath in transfer_paths:
         try:
-            if sharedPath != "":
-                transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
+            transferPath = find_transfer_path_from_ingest(transferPath, sharedPath)
+            job.pyprint("Transfer found in", transferPath)
 
             if is_bag(transferPath):
                 transfer_logs_dir = os.path.join(transferPath, "data", "logs")
