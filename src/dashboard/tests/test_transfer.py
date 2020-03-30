@@ -50,9 +50,7 @@ class TestTransferViews(TestCase):
         assert transfer_metadata.contributor == "Un colaborador"
         assert transfer_metadata.date == "2019-01-01"
         # Verify form redirects to the metadata list after saving
-        redirect_url = response.wsgi_request.build_absolute_uri(
-            reverse(
-                "components.transfer.views.transfer_metadata_list", args=[transfer_uuid]
-            )
+        redirect_url = reverse(
+            "components.transfer.views.transfer_metadata_list", args=[transfer_uuid]
         )
         assert response.url == redirect_url
