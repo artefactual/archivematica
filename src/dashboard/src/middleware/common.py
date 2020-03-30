@@ -23,7 +23,7 @@ import traceback
 from django.conf import settings
 from django.http import HttpResponseServerError
 from django.shortcuts import render
-from django.template.base import TemplateDoesNotExist
+from django.template import TemplateDoesNotExist
 from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 
 import elasticsearch
