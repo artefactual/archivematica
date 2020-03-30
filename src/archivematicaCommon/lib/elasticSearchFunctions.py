@@ -32,7 +32,7 @@ import time
 from lxml import etree
 
 from django.db.models import Min, Q
-from main.models import File, Identifier, Transfer
+from django.apps import apps
 
 # archivematicaCommon
 from archivematicaFunctions import get_dashboard_uuid
@@ -169,6 +169,7 @@ def _wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10)
 
 
 def _get_sip_identifiers(uuid):
+    Identifier = apps.get_model(app_label="main", model_name="Identifier")
     # Also index Directory identifiers so the AIP can be found through them
     return list(
         Identifier.objects.filter(Q(sip=uuid) | Q(directory__sip=uuid)).values_list(
@@ -178,6 +179,7 @@ def _get_sip_identifiers(uuid):
 
 
 def _get_file_identifiers(uuid):
+    Identifier = apps.get_model(app_label="main", model_name="Identifier")
     return list(Identifier.objects.filter(file=uuid).values_list("value", flat=True))
 
 
@@ -657,6 +659,7 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     status = "backlog"
 
     transfer_name, ingest_date = "", str(datetime.date.today())
+    Transfer = apps.get_model(app_label="main", model_name="Transfer")
     try:
         transfer = Transfer.objects.get(uuid=uuid)
     except Transfer.DoesNotExist:
@@ -667,6 +670,7 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
         # associated with the Transfer but we can look at the earliest file
         # entry instead - as long as there is a match which may not always be
         # the case.
+        File = apps.get_model(app_label="main", model_name="File")
         dt = File.objects.filter(transfer=transfer).aggregate(Min("enteredsystem"))[
             "enteredsystem__min"
         ]
@@ -709,6 +713,8 @@ def _index_transfer_files(client, uuid, path, ingest_date, status="", printfn=pr
     :param printfn: optional print funtion.
     :return: number of files indexed.
     """
+    File = apps.get_model(app_label="main", model_name="File")
+    Transfer = apps.get_model(app_label="main", model_name="Transfer")
     files_indexed = 0
 
     # Some files should not be indexed.
@@ -1270,6 +1276,7 @@ def _remove_transfer_files(client, uuid, unit_type=None):
     if unit_type == "transfer":
         transfers = {uuid}
     else:
+        File = apps.get_model(app_label="main", model_name="File")
         condition = Q(transfer_id=uuid) | Q(sip_id=uuid)
         transfers = {
             f[0] for f in File.objects.filter(condition).values_list("transfer_id")

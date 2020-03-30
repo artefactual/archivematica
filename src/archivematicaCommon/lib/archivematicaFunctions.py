@@ -35,9 +35,9 @@ import re
 from uuid import uuid4
 
 import six
+from django.apps import apps
 from lxml import etree
 
-from main.models import DashboardSetting
 from namespaces import NSMAP
 
 
@@ -59,6 +59,7 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
 
 def get_setting(setting, default=""):
     """Get Dashboard setting from database model."""
+    DashboardSetting = apps.get_model(app_label="main", model_name="DashboardSetting")
     try:
         return DashboardSetting.objects.get(name=setting).value
     except DashboardSetting.DoesNotExist:
