@@ -46,7 +46,6 @@ from elasticsearch.helpers import bulk
 
 from six.moves import range
 
-
 logger = logging.getLogger("archivematica.common")
 
 
@@ -277,8 +276,10 @@ def _get_transfers_index_body():
                     },
                     "status": {"type": "text"},
                     "ingest_date": {"type": "date", "format": "dateOptionalTime"},
+                    "size": {"type": "long"},
                     "file_count": {"type": "integer"},
                     "uuid": {"type": "keyword"},
+                    "accessionid": {"type": "keyword"},
                     "pending_deletion": {"type": "boolean"},
                 }
             }
@@ -328,6 +329,7 @@ def _get_transferfiles_index_body():
                             "group": {"type": "text"},
                         },
                     },
+                    "pending_deletion": {"type": "boolean"},
                 }
             }
         },
@@ -636,13 +638,16 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     bulk(client, _generator(), chunk_size=50)
 
 
-def index_transfer_and_files(client, uuid, path, printfn=print):
+def index_transfer_and_files(
+    client, uuid, path, size, pending_deletion=False, printfn=print
+):
     """Indexes Transfer and Transfer files with UUID `uuid` at path `path`.
 
     :param client: The ElasticSearch client.
     :param uuid: The UUID of the transfer we're indexing.
     :param path: path on disk, including the transfer directory and a
                  trailing / but not including objects/.
+    :param size: size of transfer in bytes.
     :param printfn: optional print funtion.
     :return: 0 is succeded, 1 otherwise.
     """
@@ -656,13 +661,15 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     # Default status of a transfer file document in the index.
     status = "backlog"
 
-    transfer_name, ingest_date = "", str(datetime.date.today())
+    transfer_name, accession_id, ingest_date = "", "", str(datetime.date.today())
     try:
         transfer = Transfer.objects.get(uuid=uuid)
     except Transfer.DoesNotExist:
         pass
     else:
         transfer_name = transfer.currentlocation.split("/")[-2]
+        if transfer.accessionid:
+            accession_id = transfer.accessionid
         # It doesn't seem that Archivematica records the ingestion date
         # associated with the Transfer but we can look at the earliest file
         # entry instead - as long as there is a match which may not always be
@@ -676,7 +683,15 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     printfn("Transfer UUID: " + uuid)
     printfn("Indexing Transfer files ...")
     files_indexed = _index_transfer_files(
-        client, uuid, path, ingest_date, status=status, printfn=printfn
+        client,
+        uuid,
+        path,
+        transfer_name,
+        accession_id,
+        ingest_date,
+        pending_deletion=pending_deletion,
+        status=status,
+        printfn=printfn,
     )
 
     printfn("Files indexed: " + str(files_indexed))
@@ -685,10 +700,12 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     transfer_data = {
         "name": transfer_name,
         "status": status,
+        "accessionid": accession_id,
         "ingest_date": ingest_date,
         "file_count": files_indexed,
+        "size": int(size),
         "uuid": uuid,
-        "pending_deletion": False,
+        "pending_deletion": pending_deletion,
     }
 
     _wait_for_cluster_yellow_status(client)
@@ -698,13 +715,26 @@ def index_transfer_and_files(client, uuid, path, printfn=print):
     return 0
 
 
-def _index_transfer_files(client, uuid, path, ingest_date, status="", printfn=print):
+def _index_transfer_files(
+    client,
+    uuid,
+    path,
+    transfer_name,
+    accession_id,
+    ingest_date,
+    status="",
+    pending_deletion=False,
+    printfn=print,
+):
     """Indexes files in the Transfer with UUID `uuid` at path `path`.
 
     :param client: ElasticSearch client.
     :param uuid: UUID of the Transfer in the DB.
     :param path: path on disk, including the transfer directory and a
                  trailing / but not including objects/.
+    :param transfer_name: name of Transfer
+    :param accession_id: optional accession ID
+    :param ingest_date: date Transfer was indexed
     :param status: optional Transfer status.
     :param printfn: optional print funtion.
     :return: number of files indexed.
@@ -714,14 +744,6 @@ def _index_transfer_files(client, uuid, path, ingest_date, status="", printfn=pr
     # Some files should not be indexed.
     # This should match the basename of the file.
     ignore_files = ["processingMCP.xml"]
-
-    # Get accessionId and name from Transfers table using UUID
-    try:
-        transfer = Transfer.objects.get(uuid=uuid)
-        accession_id = transfer.accessionid
-        transfer_name = transfer.currentlocation.split("/")[-2]
-    except Transfer.DoesNotExist:
-        accession_id = transfer_name = ""
 
     # Get dashboard UUID
     dashboard_uuid = get_dashboard_uuid()
@@ -776,6 +798,7 @@ def _index_transfer_files(client, uuid, path, ingest_date, status="", printfn=pr
                     "file_extension": file_extension,
                     "bulk_extractor_reports": bulk_extractor_reports,
                     "format": formats,
+                    "pending_deletion": pending_deletion,
                 }
 
                 _wait_for_cluster_yellow_status(client)
@@ -1340,6 +1363,15 @@ def mark_aip_stored(client, uuid):
 
 def mark_backlog_deletion_requested(client, uuid):
     _update_field(client, "transfers", uuid, "pending_deletion", True)
+
+    files = _document_ids_from_field_query(client, "transferfiles", "sipuuid", uuid)
+    for file_id in files:
+        client.update(
+            body={"doc": {"pending_deletion": True}},
+            index="transferfiles",
+            doc_type=DOC_TYPE,
+            id=file_id,
+        )
 
 
 # ---------------

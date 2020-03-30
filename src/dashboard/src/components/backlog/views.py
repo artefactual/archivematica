@@ -17,23 +17,26 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
+import json
 import logging
-import requests
 
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
+import requests
 
+from amclient import AMClient
+
+from archivematicaFunctions import get_setting
 import elasticSearchFunctions
 import storageService as storage_service
 
-from components import advanced_search
-from components import decorators
-from components import helpers
+from components import advanced_search, decorators, helpers
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -71,6 +74,35 @@ def check_and_remove_deleted_transfers(es_client):
             elasticSearchFunctions.remove_backlog_transfer(es_client, transfer_uuid)
 
 
+def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
+    """Check Storage Service to see if transfer has pending deletion and update ES if so.
+
+    :param uuid: Transfer UUID.
+    :param pending_deletion: Current pending_deletion value in transfers ES index.
+    :return: None
+    """
+    api_results = AMClient(
+        ss_api_key=get_setting("storage_service_apikey", ""),
+        ss_user_name=get_setting("storage_service_user", ""),
+        ss_url=get_setting("storage_service_url", "").rstrip("/"),
+        package_uuid=uuid,
+    ).get_package_details()
+    if api_results in (1, 2, 3):
+        logger.warning(
+            "Package {} not found in Storage Service. AMClient error code: {}".format(
+                uuid, api_results
+            )
+        )
+        return
+
+    transfer_status = api_results.get("status")
+
+    if transfer_status is not None and transfer_status == "DEL_REQ":
+        if pending_deletion is False:
+            es_client = elasticSearchFunctions.get_client()
+            elasticSearchFunctions.mark_backlog_deletion_requested(es_client, uuid)
+
+
 def execute(request):
     """
     Remove any deleted transfers from ES and render main backlog page.
@@ -98,11 +130,20 @@ def get_es_property_from_column_index(index, file_mode):
         (
             "name.raw",
             "uuid",
+            "size",
             "file_count",
+            "accessionid",
             "ingest_date",
+            "pending_deletion",
             None,
         ),  # Transfers are being displayed
-        ("filename.raw", "sipuuid", None),  # Transfer files are being displayed
+        (
+            "filename.raw",
+            "sipuuid",
+            "accessionid",
+            "pending_deletion",
+            None,
+        ),  # Transfer files are being displayed
     )
 
     if index < 0 or index >= len(table_columns[file_mode]):
@@ -145,7 +186,7 @@ def search(request):
     try:
         if file_mode:
             index = "transferfiles"
-            source = "filename,sipuuid,relative_path"
+            source = "filename,sipuuid,relative_path,accessionid,pending_deletion"
         else:
             # Transfer mode:
             # Query to transferfile, but only fetch & aggregrate transfer UUIDs.
@@ -166,7 +207,9 @@ def search(request):
             # Recreate query to search over transfers
             query = {"query": {"terms": {"uuid": uuids}}}
             index = "transfers"
-            source = "name,uuid,file_count,ingest_date"
+            source = (
+                "name,uuid,file_count,ingest_date,accessionid,size,pending_deletion"
+            )
 
         hits = es_client.search(
             index=index,
@@ -184,6 +227,16 @@ def search(request):
         return HttpResponse(err_desc)
 
     results = [x["_source"] for x in hits["hits"]["hits"]]
+
+    for result in results:
+        # Format size
+        size = result.get("size")
+        if size is not None:
+            result["size"] = filesizeformat(size)
+
+        if not file_mode:
+            pending_deletion = result.get("pending_deletion")
+            check_and_update_transfer_pending_deletion(result["uuid"], pending_deletion)
 
     return helpers.json_response(
         {
@@ -254,4 +307,35 @@ def download(request, uuid):
     """
     return helpers.stream_file_from_storage_service(
         storage_service.download_file_url(uuid)
+    )
+
+
+def save_state(request, table):
+    """
+    Save DataTable state JSON object as string in DashboardSettings.
+
+    :param table: Name of table to store state for.
+    :return: JSON success confirmation
+    """
+    setting_name = "{}_datatable_state".format(table)
+    state = json.dumps(request.body)
+    helpers.set_setting(setting_name, state)
+    return helpers.json_response({"success": True})
+
+
+def load_state(request, table):
+    """
+    Retrieve DataTable state JSON object stored in DashboardSettings.
+
+    :param table: Name of table to store state for.
+    :return: JSON state
+    """
+    setting_name = "{}_datatable_state".format(table)
+    state = helpers.get_setting(setting_name)
+    if state:
+        return HttpResponse(
+            json.loads(state), content_type="application/json", status=200
+        )
+    return helpers.json_response(
+        {"error": True, "message": "Setting not found"}, status_code=404
     )

@@ -34,12 +34,11 @@ import pprint
 import re
 from uuid import uuid4
 
+import scandir
 import six
 from lxml import etree
-
 from main.models import DashboardSetting
 from namespaces import NSMAP
-
 
 REQUIRED_DIRECTORIES = (
     "logs",
@@ -284,6 +283,38 @@ def format_subdir_path(dir_path, path_prefix_to_repl):
     return os.path.join(dir_path, "").replace(
         path_prefix_to_repl, "%transferDirectory%", 1
     )
+
+
+def walk_dir(dir_path):
+    """Calculate directory size by recursively walking files.
+    :param dir_path: absolute path to directory
+    :return: size in bytes (int)
+    """
+    size = 0
+    for dirpath, _, filenames in scandir.walk(dir_path):
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            size += os.path.getsize(file_path)
+    return size
+
+
+def get_bag_size(bag, path):
+    """Return size of BagIt Bag, using Payload-Oxum if present.
+
+    Payload-Oxum, like other Bag Metadata elements, is optional per the BagIt
+    specification: https://tools.ietf.org/html/rfc8493#section-2.2.2
+
+    If the Bag does not have a Payload-Oxum, calculate size by recursively
+    walking files.
+
+    :param transfer_path: Bag object
+    :param path: path to Bag directory
+    :return: size in bytes (int)
+    """
+    oxum = bag.info.get("Payload-Oxum")
+    if oxum is not None:
+        return int(oxum.split(".")[0])
+    return walk_dir(path)
 
 
 def str2bool(val):

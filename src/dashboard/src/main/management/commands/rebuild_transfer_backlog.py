@@ -32,6 +32,7 @@ from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 import six
 
+from archivematicaFunctions import get_bag_size, walk_dir
 from fileOperations import addFileToTransfer
 import elasticSearchFunctions
 import metsrw
@@ -165,13 +166,18 @@ class Command(DashboardCommand):
                 self.info(
                     "Importing self-describing transfer {}.".format(transfer_uuid)
                 )
+                size = get_bag_size(bag, str(transfer_dir))
                 _import_self_describing_transfer(
-                    self, es_client, self.stdout, transfer_dir, transfer_uuid
+                    self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             else:
                 self.info("Rebuilding known transfer {}.".format(transfer_uuid))
+                if bag:
+                    size = get_bag_size(bag, str(transfer_dir))
+                else:
+                    size = walk_dir(str(transfer_dir))
                 _import_pipeline_dependant_transfer(
-                    self, es_client, self.stdout, transfer_dir, transfer_uuid
+                    self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             processed += 1
         self.success("{} transfers indexed!".format(processed))
@@ -304,7 +310,7 @@ def _convert_checksum_algo(algo):
 
 
 def _import_self_describing_transfer(
-    cmd, es_client, stdout, transfer_dir, transfer_uuid
+    cmd, es_client, stdout, transfer_dir, transfer_uuid, size
 ):
     """Import a self-describing transfer.
 
@@ -357,12 +363,13 @@ def _import_self_describing_transfer(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",
+        size,
         printfn=_elasticsearch_noop_printfn,
     )
 
 
 def _import_pipeline_dependant_transfer(
-    cmd, es_client, stdout, transfer_dir, transfer_uuid
+    cmd, es_client, stdout, transfer_dir, transfer_uuid, size
 ):
     """Import a pipeline-dependant transfer.
 
@@ -381,6 +388,7 @@ def _import_pipeline_dependant_transfer(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",
+        size,
         printfn=_elasticsearch_noop_printfn,
     )
     try:

@@ -2,20 +2,21 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-23 22:24+0000\n"
+"POT-Creation-Date: 2020-04-14 16:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2017\n"
-"Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/sv/)\n"
+"Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
+"sv/)\n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: media/js/administration/atom_levels_of_description.js:17
@@ -27,9 +28,7 @@ msgid "Are you sure you want to delete this level of description?"
 msgstr "Är du säker på att du vill radera denna beskrivningsnivå?"
 
 #: media/js/advanced-search-query-creator.js:14 media/js/file_browser.js:59
-#: media/js/file_browser.js:64 media/js/ingest/ingest_file_browser.js:343
-#: media/js/ingest/ingest_file_browser.js:350
-#: media/js/repeating-ajax-data.js:209
+#: media/js/file_browser.js:64 media/js/repeating-ajax-data.js:209
 msgid "Delete"
 msgstr "Radera"
 
@@ -114,107 +113,127 @@ msgstr "Ladda ner"
 msgid "Request deletion"
 msgstr "Begär radering"
 
-#: media/js/backlog/backlog-search.js:19
+#: media/js/backlog/backlog-search.js:31
 msgid "Filename"
 msgstr "Filnamn"
 
-#: media/js/backlog/backlog-search.js:20 media/js/backlog/backlog-search.js:27
+#: media/js/backlog/backlog-search.js:32 media/js/backlog/backlog-search.js:41
+#: media/js/ingest/backlog.js:39
 msgid "Transfer UUID"
 msgstr "Överföringens UUID"
 
-#: media/js/backlog/backlog-search.js:21 media/js/backlog/backlog-search.js:30
-#: media/js/ingest.js:218 media/js/transfer.js:155
+#: media/js/backlog/backlog-search.js:33 media/js/backlog/backlog-search.js:44
+#: media/js/ingest/backlog.js:37
+msgid "Accession number"
+msgstr "Accessionsnummer"
+
+#: media/js/backlog/backlog-search.js:34 media/js/backlog/backlog-search.js:46
+msgid "Status"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:35 media/js/backlog/backlog-search.js:47
+#: media/js/ingest.js:216 media/js/transfer.js:153
 msgid "Actions"
 msgstr "Åtgärder"
 
-#: media/js/backlog/backlog-search.js:26
+#: media/js/backlog/backlog-search.js:40
 msgid "Name"
 msgstr "Namn"
 
-#: media/js/backlog/backlog-search.js:28
+#: media/js/backlog/backlog-search.js:42
+msgid "Size"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:43
 msgid "File count"
 msgstr "Filantal"
 
-#: media/js/backlog/backlog-search.js:29
+#: media/js/backlog/backlog-search.js:45
 msgid "Ingest date"
 msgstr "Ingestdatum"
 
-#: media/js/backlog/backlog-search.js:36
+#: media/js/backlog/backlog-search.js:96
+#, fuzzy
+#| msgid "Select an action..."
+msgid "Select columns"
+msgstr "Välj en åtgärd..."
+
+#: media/js/backlog/backlog-search.js:100
 msgctxt "DataTable - sEmptyTable"
 msgid "No data available in table"
 msgstr "Ingen data tillgänglig i tabellen"
 
-#: media/js/backlog/backlog-search.js:37
+#: media/js/backlog/backlog-search.js:101
 msgctxt "DataTable - sInfo"
 msgid "Showing _START_ to _END_ of _TOTAL_ entries"
 msgstr "Visar _START_ till _END_ av _TOTAL_ poster"
 
-#: media/js/backlog/backlog-search.js:38
+#: media/js/backlog/backlog-search.js:102
 msgctxt "DataTable - sInfoEmpty"
 msgid "Showing 0 to 0 of 0 entries"
 msgstr "Visar 0 till 0 av 0 poster"
 
-#: media/js/backlog/backlog-search.js:39
+#: media/js/backlog/backlog-search.js:103
 msgctxt "DataTable - sInfoFiltered"
 msgid "(filtered from _MAX_ total entries)"
 msgstr "(filterat från totalt _MAX_ poster)"
 
-#: media/js/backlog/backlog-search.js:41
+#: media/js/backlog/backlog-search.js:105
 msgctxt "DataTable - sInfoThousands"
 msgid ","
 msgstr ","
 
-#: media/js/backlog/backlog-search.js:42
+#: media/js/backlog/backlog-search.js:106
 msgctxt "DataTable - sLengthMenu"
 msgid "Show _MENU_ entries"
 msgstr "Visa _MENU_ poster"
 
-#: media/js/backlog/backlog-search.js:43
+#: media/js/backlog/backlog-search.js:107
 msgctxt "DataTable - sLoadingRecords"
 msgid "Loading..."
 msgstr "Laddar..."
 
-#: media/js/backlog/backlog-search.js:44
+#: media/js/backlog/backlog-search.js:108
 msgctxt "DataTable - sProcessing"
 msgid "Processing..."
 msgstr "Bearbetar..."
 
-#: media/js/backlog/backlog-search.js:45
+#: media/js/backlog/backlog-search.js:109
 msgctxt "DataTable - sSearch"
 msgid "Search:"
 msgstr "Sök:"
 
-#: media/js/backlog/backlog-search.js:46
+#: media/js/backlog/backlog-search.js:110
 msgctxt "DataTable - sZeroRecords"
 msgid "No matching records found"
 msgstr "Inga matchande poster hittades"
 
-#: media/js/backlog/backlog-search.js:48
+#: media/js/backlog/backlog-search.js:112
 msgctxt "DataTable - sFirst"
 msgid "First"
 msgstr "Först"
 
-#: media/js/backlog/backlog-search.js:49
+#: media/js/backlog/backlog-search.js:113
 msgctxt "DataTable - sLast"
 msgid "Last"
 msgstr "Sist"
 
-#: media/js/backlog/backlog-search.js:50
+#: media/js/backlog/backlog-search.js:114
 msgctxt "DataTable - sNext"
 msgid "Next"
 msgstr "Nästa"
 
-#: media/js/backlog/backlog-search.js:51
+#: media/js/backlog/backlog-search.js:115
 msgctxt "DataTable - sPrevious"
 msgid "Previous"
 msgstr "Föregående"
 
-#: media/js/backlog/backlog-search.js:54
+#: media/js/backlog/backlog-search.js:118
 msgctxt "DataTable - sSortAscending"
 msgid ": activate to sort column ascending"
 msgstr ": aktivera för att sortera kolumnen stigande"
 
-#: media/js/backlog/backlog-search.js:55
+#: media/js/backlog/backlog-search.js:119
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ": aktivera för att sortera kolumnen fallande"
@@ -233,7 +252,7 @@ msgid "Yes"
 msgstr "Ja"
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:587 media/js/jobs.js:675
+#: media/js/ingest.js:123 media/js/jobs.js:590 media/js/jobs.js:683
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -241,7 +260,7 @@ msgstr "Avbryt"
 msgid "Delete file or directory"
 msgstr "Radera fil eller mapp"
 
-#: media/js/file_browser.js:65 media/js/ingest/ingest_file_browser.js:351
+#: media/js/file_browser.js:65
 msgid "Are you sure you want to delete this directory or file?"
 msgstr "Är du säker på att du vill radera denna mapp eller fil?"
 
@@ -249,7 +268,7 @@ msgstr "Är du säker på att du vill radera denna mapp eller fil?"
 msgid "Dropped ID %(dropped_path) onto %(container_path)"
 msgstr "Lämnade ID %(dropped_path) till %(container_path)"
 
-#: media/js/file_browser.js:138 media/js/ingest/ingest_file_browser.js:129
+#: media/js/file_browser.js:138
 msgid "You can't move a directory into its subdirectory."
 msgstr "Du kan inte flytta en mapp till dess undermapp."
 
@@ -257,7 +276,7 @@ msgstr "Du kan inte flytta en mapp till dess undermapp."
 msgid "OK"
 msgstr "OK"
 
-#: media/js/ingest.js:75
+#: media/js/ingest.js:74
 msgid ""
 "Are you sure you want to remove this SIP from the dashboard? Note that this "
 "does not delete the SIP or related entities."
@@ -265,49 +284,45 @@ msgstr ""
 "Är du säker på att du vill radera denna SIP från översiktsvyn? Notera att "
 "detta inte raderar SIP:en eller relaterade objekt."
 
-#: media/js/ingest.js:77 media/js/transfer.js:78
+#: media/js/ingest.js:76 media/js/transfer.js:76
 #, javascript-format
 msgid "Directory: %s"
 msgstr "Mapp: %s"
 
-#: media/js/ingest.js:78 media/js/transfer.js:79
+#: media/js/ingest.js:77 media/js/transfer.js:77
 #, javascript-format
 msgid "UUID: %s"
 msgstr "UUID: %s"
 
-#: media/js/ingest.js:85 media/js/transfer.js:86
+#: media/js/ingest.js:84 media/js/transfer.js:84
 msgid "Remove SIP"
 msgstr "Radera SIP"
 
-#: media/js/ingest.js:96 media/js/jobs.js:646 media/js/transfer.js:97
+#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
 msgid "Confirm"
 msgstr "Bekräfta"
 
-#: media/js/ingest.js:146
+#: media/js/ingest.js:145
 msgid "Dublin Core metadata editor"
 msgstr "Dublin Core metadata redigerare"
 
-#: media/js/ingest.js:153 media/js/jobs.js:541
+#: media/js/ingest.js:152 media/js/jobs.js:535
 msgid "Close"
 msgstr "Stäng"
 
-#: media/js/ingest.js:174 media/js/ingest/ingest_file_browser.js:125
-#: media/js/ingest/ingest_file_browser.js:129
-#: media/js/ingest/ingest_file_browser.js:162
-#: media/js/ingest/ingest_file_browser.js:419
-#: media/js/ingest/ingest_file_browser.js:426
+#: media/js/ingest.js:173
 msgid "Error"
 msgstr "Fel"
 
-#: media/js/ingest.js:242
+#: media/js/ingest.js:240
 msgid "Report"
 msgstr "Rapport"
 
-#: media/js/ingest.js:245
+#: media/js/ingest.js:243
 msgid "Match DIP objects to resources"
 msgstr "Matcha DIP-objekt med resurser"
 
-#: media/js/ingest.js:312
+#: media/js/ingest.js:301
 msgid "Loading..."
 msgstr "Laddar..."
 
@@ -327,93 +342,13 @@ msgstr "Varning"
 msgid "Dismiss"
 msgstr "Avfärda"
 
-#: media/js/ingest/atk_matcher.js:43
-msgctxt "Archivists's Toolkit: specific property required"
-msgid "Property %(name) required."
-msgstr "Egenskap %(name) required."
-
 #: media/js/ingest/backlog.js:35
 msgid "File name"
 msgstr "Filnamn"
 
-#: media/js/ingest/backlog.js:37
-msgid "Accession number"
-msgstr "Accessionsnummer"
-
 #: media/js/ingest/backlog.js:38
 msgid "Ingest date (YYYY-MM-DD)"
 msgstr "Ingestdatum (ÅÅÅÅ-MM-DD)"
-
-#: media/js/ingest/backlog.js:39
-msgid "SIP UUID"
-msgstr "SIP UUID"
-
-#: media/js/ingest/directory-metadata-form-dialog.js:17
-msgid "Fetching levels of description"
-msgstr "Hämtar beskrivingsnivåer"
-
-#: media/js/ingest/directory-metadata-form-dialog.js:48
-msgid "Fetching metadata"
-msgstr "Hämtar metadata"
-
-#: media/js/ingest/directory-metadata-form-dialog.js:71
-msgid "-- Select level of description--"
-msgstr "-- Välj beskrivningnivå --"
-
-#: media/js/ingest/directory-metadata-form-dialog.js:112
-msgid "Saving metadata"
-msgstr "Sparar metadata"
-
-#: media/js/ingest/ingest_file_browser.js:125
-msgid "You can't copy into the originals directory."
-msgstr "DU kan inte kopiera till originalets mapp."
-
-#: media/js/ingest/ingest_file_browser.js:162
-msgid "Files must go in a SIP, not the parent directory."
-msgstr "Filer måste vara i en SIP, inte överkatalog."
-
-#: media/js/ingest/ingest_file_browser.js:292
-msgid "Edit metadata"
-msgstr "Redigera metadata"
-
-#: media/js/ingest/ingest_file_browser.js:292
-msgid "Please select a directory or file to edit."
-msgstr "Välj en mapp eller fil att redigera."
-
-#: media/js/ingest/ingest_file_browser.js:312
-msgid "Create directory"
-msgstr "Skapa mapp"
-
-#: media/js/ingest/ingest_file_browser.js:314
-msgid "Name of new directory?"
-msgstr "Den nya mappens namn?"
-
-#: media/js/ingest/ingest_file_browser.js:343
-msgid "Please select a directory or file to delete."
-msgstr "Välj en mapp eller fil att radera."
-
-#: media/js/ingest/ingest_file_browser.js:376
-#: media/js/ingest/ingest_file_browser.js:384
-#: media/js/ingest/ingest_file_browser.js:389
-msgid "Create SIP"
-msgstr "Skapa SIP"
-
-#: media/js/ingest/ingest_file_browser.js:376
-msgid "Please select a directory before creating a SIP."
-msgstr "Välj en mapp innan skapande av SIP."
-
-#: media/js/ingest/ingest_file_browser.js:384
-msgid "SIPs can only be created from directories, not files."
-msgstr "SIPar kan enbart skapas från mappar, inte filer."
-
-#: media/js/ingest/ingest_file_browser.js:390
-msgid "Are you sure you want to create a SIP?"
-msgstr "Är du säker på att du vill skapa en SIP?"
-
-#: media/js/ingest/ingest_file_browser.js:419
-#: media/js/ingest/ingest_file_browser.js:426
-msgid "Please specifiy a file to view."
-msgstr "Var god specificera en fil att visa."
 
 #: media/js/ingest/metadata_form.js:83
 msgid "Browse"
@@ -427,60 +362,59 @@ msgstr "Lägg till filer"
 msgid "Please select at least one metadata file."
 msgstr "Välj minst en metadatafil."
 
-#: media/js/jobs.js:487
+#: media/js/jobs.js:482
 msgid "Review"
 msgstr "Inspektera"
 
-#: media/js/jobs.js:535
+#: media/js/jobs.js:529
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr "%(directory) &raquo; %(type) &raquo; Uppgifter"
 
-#: media/js/jobs.js:587
+#: media/js/jobs.js:590
 msgid "Select an action..."
 msgstr "Välj en åtgärd..."
 
-#: media/js/jobs.js:636
+#: media/js/jobs.js:644
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
 msgstr ""
 "Är du säker på att du vill ta bort alla färdigställda %(unit)s från "
-"översiktsvyn? Notera att detta inte raderar %(unit)s eller relaterade "
-"objekt."
+"översiktsvyn? Notera att detta inte raderar %(unit)s eller relaterade objekt."
 
-#: media/js/jobs.js:642
+#: media/js/jobs.js:650
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr "Ta bort alla avslutade %s"
 
-#: media/js/jobs.js:653
+#: media/js/jobs.js:661
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr "Det fanns inga avslutade %s att ta bort"
 
-#: media/js/jobs.js:657
+#: media/js/jobs.js:665
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr "Radering av följande %s: %s lyckad"
 
-#: media/js/jobs.js:663
+#: media/js/jobs.js:671
 #, javascript-format
 msgid "Failed to remove all completed %ss"
 msgstr "Avlägsning av alla avslutade %s misslyckades"
 
-#: media/js/jobs.js:791
+#: media/js/jobs.js:797
 msgid "Previous"
 msgstr "Föregående"
 
-#: media/js/jobs.js:806
+#: media/js/jobs.js:812
 msgid "Next"
 msgstr "Nästa"
 
-#: media/js/jobs.js:844
+#: media/js/jobs.js:850
 msgid "Error trying to connect to database. Trying again..."
 msgstr "Fel under anslutning till databas. Försöker igen..."
 
-#: media/js/jobs.js:894
+#: media/js/jobs.js:900
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr "Fel under anslutning till MCP-server. Försöker igen..."
 
@@ -505,8 +439,8 @@ msgid "Type"
 msgstr "Typ"
 
 #: media/js/rights_edit.js:29
-msgid "Vype"
-msgstr "Vype"
+msgid "Value"
+msgstr ""
 
 #: media/js/rights_edit.js:34
 msgid "Role"
@@ -518,8 +452,8 @@ msgstr "Upphovsrättsanmärkning"
 
 #: media/js/rights_edit.js:53
 msgid ""
-"designation used to uniquely identify documentation supporting the specified"
-" rights granted according to copyright within the repository system"
+"designation used to uniquely identify documentation supporting the specified "
+"rights granted according to copyright within the repository system"
 msgstr ""
 "identifiering använd för att unikt identifiera dokumentation som stödjer de "
 "specifika rättigheterna beviljade enligt copyrighten inom lagringssystemet"
@@ -554,8 +488,8 @@ msgstr "Copyrightdokumentations-identifierare"
 
 #: media/js/rights_edit.js:67
 msgid ""
-"a designation of the domain within which the statute documenation identifier"
-" is unique"
+"a designation of the domain within which the statute documenation identifier "
+"is unique"
 msgstr ""
 "en identifiering av den domän i vilken regelverkens dokumentations "
 "identifierare är unik"
@@ -619,8 +553,8 @@ msgid ""
 "with different end dates."
 msgstr ""
 "använd \"OPEN\" för att inte ha någon tidsbegränsning på restriktionen. "
-"Utelämna endDate om sludatumet är okänt eller tillståndsdeklarationen gäller"
-" för flera olika objekt med olika slutdatum."
+"Utelämna endDate om sludatumet är okänt eller tillståndsdeklarationen gäller "
+"för flera olika objekt med olika slutdatum."
 
 #: media/js/rights_edit.js:144
 msgid "Restriction"
@@ -635,8 +569,7 @@ msgstr "Anmärkning rörande beviljade rättigheter"
 msgid ""
 "You'll be able to create a %s record once the above section is completed."
 msgstr ""
-"Du kommer ha möjlighet att skapa ett %s arkiv när sektionen ovan är "
-"avslutad."
+"Du kommer ha möjlighet att skapa ett %s arkiv när sektionen ovan är avslutad."
 
 #: media/js/rights_edit.js:231 media/js/rights_edit.js:244
 msgid "Note"
@@ -663,16 +596,18 @@ msgid "%s end date"
 msgstr "%s slutdatum"
 
 #: media/js/rights_edit.js:263
-msgid "Create new %(type)?"
+#, fuzzy, javascript-format
+#| msgid "Create new %(type)?"
+msgid "Create new %s?"
 msgstr "Skapa ny %(type)?"
 
-#: media/js/transfer.js:76
+#: media/js/transfer.js:74
 msgid ""
 "Are you sure you want to remove this transfer from the dashboard? Note that "
 "this does not delete the transfer or related entities."
 msgstr ""
-"Är du säker på att du vill ta bort detta överföringspaket från översiktsvyn?"
-" Notera att detta inte raderar överföringspaketet eller relaterade objekt."
+"Är du säker på att du vill ta bort detta överföringspaket från översiktsvyn? "
+"Notera att detta inte raderar överföringspaketet eller relaterade objekt."
 
 #: media/js/transfer/component_directory_select.js:57
 msgid "Error: The selected path is already present."
@@ -682,3 +617,61 @@ msgstr "Fel: vald sökväg existerar redan."
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr "Är du säker på att du vill radera %s?"
+
+#~ msgctxt "Archivists's Toolkit: specific property required"
+#~ msgid "Property %(name) required."
+#~ msgstr "Egenskap %(name) required."
+
+#~ msgid "SIP UUID"
+#~ msgstr "SIP UUID"
+
+#~ msgid "Fetching levels of description"
+#~ msgstr "Hämtar beskrivingsnivåer"
+
+#~ msgid "Fetching metadata"
+#~ msgstr "Hämtar metadata"
+
+#~ msgid "-- Select level of description--"
+#~ msgstr "-- Välj beskrivningnivå --"
+
+#~ msgid "Saving metadata"
+#~ msgstr "Sparar metadata"
+
+#~ msgid "You can't copy into the originals directory."
+#~ msgstr "DU kan inte kopiera till originalets mapp."
+
+#~ msgid "Files must go in a SIP, not the parent directory."
+#~ msgstr "Filer måste vara i en SIP, inte överkatalog."
+
+#~ msgid "Edit metadata"
+#~ msgstr "Redigera metadata"
+
+#~ msgid "Please select a directory or file to edit."
+#~ msgstr "Välj en mapp eller fil att redigera."
+
+#~ msgid "Create directory"
+#~ msgstr "Skapa mapp"
+
+#~ msgid "Name of new directory?"
+#~ msgstr "Den nya mappens namn?"
+
+#~ msgid "Please select a directory or file to delete."
+#~ msgstr "Välj en mapp eller fil att radera."
+
+#~ msgid "Create SIP"
+#~ msgstr "Skapa SIP"
+
+#~ msgid "Please select a directory before creating a SIP."
+#~ msgstr "Välj en mapp innan skapande av SIP."
+
+#~ msgid "SIPs can only be created from directories, not files."
+#~ msgstr "SIPar kan enbart skapas från mappar, inte filer."
+
+#~ msgid "Are you sure you want to create a SIP?"
+#~ msgstr "Är du säker på att du vill skapa en SIP?"
+
+#~ msgid "Please specifiy a file to view."
+#~ msgstr "Var god specificera en fil att visa."
+
+#~ msgid "Vype"
+#~ msgstr "Vype"

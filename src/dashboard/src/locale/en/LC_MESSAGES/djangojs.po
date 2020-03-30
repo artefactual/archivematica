@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-23 22:24+0000\n"
+"POT-Creation-Date: 2020-04-14 16:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,9 +26,7 @@ msgid "Are you sure you want to delete this level of description?"
 msgstr ""
 
 #: media/js/advanced-search-query-creator.js:14 media/js/file_browser.js:59
-#: media/js/file_browser.js:64 media/js/ingest/ingest_file_browser.js:343
-#: media/js/ingest/ingest_file_browser.js:350
-#: media/js/repeating-ajax-data.js:209
+#: media/js/file_browser.js:64 media/js/repeating-ajax-data.js:209
 msgid "Delete"
 msgstr ""
 
@@ -113,107 +111,125 @@ msgstr ""
 msgid "Request deletion"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:19
+#: media/js/backlog/backlog-search.js:31
 msgid "Filename"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:20 media/js/backlog/backlog-search.js:27
+#: media/js/backlog/backlog-search.js:32 media/js/backlog/backlog-search.js:41
+#: media/js/ingest/backlog.js:39
 msgid "Transfer UUID"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:21 media/js/backlog/backlog-search.js:30
-#: media/js/ingest.js:218 media/js/transfer.js:155
+#: media/js/backlog/backlog-search.js:33 media/js/backlog/backlog-search.js:44
+#: media/js/ingest/backlog.js:37
+msgid "Accession number"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:34 media/js/backlog/backlog-search.js:46
+msgid "Status"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:35 media/js/backlog/backlog-search.js:47
+#: media/js/ingest.js:216 media/js/transfer.js:153
 msgid "Actions"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:26
+#: media/js/backlog/backlog-search.js:40
 msgid "Name"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:28
+#: media/js/backlog/backlog-search.js:42
+msgid "Size"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:43
 msgid "File count"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:29
+#: media/js/backlog/backlog-search.js:45
 msgid "Ingest date"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:36
+#: media/js/backlog/backlog-search.js:96
+msgid "Select columns"
+msgstr ""
+
+#: media/js/backlog/backlog-search.js:100
 msgctxt "DataTable - sEmptyTable"
 msgid "No data available in table"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:37
+#: media/js/backlog/backlog-search.js:101
 msgctxt "DataTable - sInfo"
 msgid "Showing _START_ to _END_ of _TOTAL_ entries"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:38
+#: media/js/backlog/backlog-search.js:102
 msgctxt "DataTable - sInfoEmpty"
 msgid "Showing 0 to 0 of 0 entries"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:39
+#: media/js/backlog/backlog-search.js:103
 msgctxt "DataTable - sInfoFiltered"
 msgid "(filtered from _MAX_ total entries)"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:41
+#: media/js/backlog/backlog-search.js:105
 msgctxt "DataTable - sInfoThousands"
 msgid ","
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:42
+#: media/js/backlog/backlog-search.js:106
 msgctxt "DataTable - sLengthMenu"
 msgid "Show _MENU_ entries"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:43
+#: media/js/backlog/backlog-search.js:107
 msgctxt "DataTable - sLoadingRecords"
 msgid "Loading..."
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:44
+#: media/js/backlog/backlog-search.js:108
 msgctxt "DataTable - sProcessing"
 msgid "Processing..."
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:45
+#: media/js/backlog/backlog-search.js:109
 msgctxt "DataTable - sSearch"
 msgid "Search:"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:46
+#: media/js/backlog/backlog-search.js:110
 msgctxt "DataTable - sZeroRecords"
 msgid "No matching records found"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:48
+#: media/js/backlog/backlog-search.js:112
 msgctxt "DataTable - sFirst"
 msgid "First"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:49
+#: media/js/backlog/backlog-search.js:113
 msgctxt "DataTable - sLast"
 msgid "Last"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:50
+#: media/js/backlog/backlog-search.js:114
 msgctxt "DataTable - sNext"
 msgid "Next"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:51
+#: media/js/backlog/backlog-search.js:115
 msgctxt "DataTable - sPrevious"
 msgid "Previous"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:54
+#: media/js/backlog/backlog-search.js:118
 msgctxt "DataTable - sSortAscending"
 msgid ": activate to sort column ascending"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:55
+#: media/js/backlog/backlog-search.js:119
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ""
@@ -232,7 +248,7 @@ msgid "Yes"
 msgstr ""
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:587 media/js/jobs.js:675
+#: media/js/ingest.js:123 media/js/jobs.js:590 media/js/jobs.js:683
 msgid "Cancel"
 msgstr ""
 
@@ -240,7 +256,7 @@ msgstr ""
 msgid "Delete file or directory"
 msgstr ""
 
-#: media/js/file_browser.js:65 media/js/ingest/ingest_file_browser.js:351
+#: media/js/file_browser.js:65
 msgid "Are you sure you want to delete this directory or file?"
 msgstr ""
 
@@ -248,7 +264,7 @@ msgstr ""
 msgid "Dropped ID %(dropped_path) onto %(container_path)"
 msgstr ""
 
-#: media/js/file_browser.js:138 media/js/ingest/ingest_file_browser.js:129
+#: media/js/file_browser.js:138
 msgid "You can't move a directory into its subdirectory."
 msgstr ""
 
@@ -256,55 +272,51 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: media/js/ingest.js:75
+#: media/js/ingest.js:74
 msgid ""
 "Are you sure you want to remove this SIP from the dashboard? Note that this "
 "does not delete the SIP or related entities."
 msgstr ""
 
-#: media/js/ingest.js:77 media/js/transfer.js:78
+#: media/js/ingest.js:76 media/js/transfer.js:76
 #, javascript-format
 msgid "Directory: %s"
 msgstr ""
 
-#: media/js/ingest.js:78 media/js/transfer.js:79
+#: media/js/ingest.js:77 media/js/transfer.js:77
 #, javascript-format
 msgid "UUID: %s"
 msgstr ""
 
-#: media/js/ingest.js:85 media/js/transfer.js:86
+#: media/js/ingest.js:84 media/js/transfer.js:84
 msgid "Remove SIP"
 msgstr ""
 
-#: media/js/ingest.js:96 media/js/jobs.js:646 media/js/transfer.js:97
+#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
 msgid "Confirm"
 msgstr ""
 
-#: media/js/ingest.js:146
+#: media/js/ingest.js:145
 msgid "Dublin Core metadata editor"
 msgstr ""
 
-#: media/js/ingest.js:153 media/js/jobs.js:541
+#: media/js/ingest.js:152 media/js/jobs.js:535
 msgid "Close"
 msgstr ""
 
-#: media/js/ingest.js:174 media/js/ingest/ingest_file_browser.js:125
-#: media/js/ingest/ingest_file_browser.js:129
-#: media/js/ingest/ingest_file_browser.js:162
-#: media/js/ingest/ingest_file_browser.js:419
-#: media/js/ingest/ingest_file_browser.js:426
+#: media/js/ingest.js:173
 msgid "Error"
 msgstr ""
 
-#: media/js/ingest.js:242
+#: media/js/ingest.js:240
 msgid "Report"
 msgstr ""
 
-#: media/js/ingest.js:245
+#: media/js/ingest.js:243
 msgid "Match DIP objects to resources"
 msgstr ""
 
-#: media/js/ingest.js:312
+#: media/js/ingest.js:301
 msgid "Loading..."
 msgstr ""
 
@@ -324,92 +336,12 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: media/js/ingest/atk_matcher.js:43
-msgctxt "Archivists's Toolkit: specific property required"
-msgid "Property %(name) required."
-msgstr ""
-
 #: media/js/ingest/backlog.js:35
 msgid "File name"
 msgstr ""
 
-#: media/js/ingest/backlog.js:37
-msgid "Accession number"
-msgstr ""
-
 #: media/js/ingest/backlog.js:38
 msgid "Ingest date (YYYY-MM-DD)"
-msgstr ""
-
-#: media/js/ingest/backlog.js:39
-msgid "SIP UUID"
-msgstr ""
-
-#: media/js/ingest/directory-metadata-form-dialog.js:17
-msgid "Fetching levels of description"
-msgstr ""
-
-#: media/js/ingest/directory-metadata-form-dialog.js:48
-msgid "Fetching metadata"
-msgstr ""
-
-#: media/js/ingest/directory-metadata-form-dialog.js:71
-msgid "-- Select level of description--"
-msgstr ""
-
-#: media/js/ingest/directory-metadata-form-dialog.js:112
-msgid "Saving metadata"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:125
-msgid "You can't copy into the originals directory."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:162
-msgid "Files must go in a SIP, not the parent directory."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:292
-msgid "Edit metadata"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:292
-msgid "Please select a directory or file to edit."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:312
-msgid "Create directory"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:314
-msgid "Name of new directory?"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:343
-msgid "Please select a directory or file to delete."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:376
-#: media/js/ingest/ingest_file_browser.js:384
-#: media/js/ingest/ingest_file_browser.js:389
-msgid "Create SIP"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:376
-msgid "Please select a directory before creating a SIP."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:384
-msgid "SIPs can only be created from directories, not files."
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:390
-msgid "Are you sure you want to create a SIP?"
-msgstr ""
-
-#: media/js/ingest/ingest_file_browser.js:419
-#: media/js/ingest/ingest_file_browser.js:426
-msgid "Please specifiy a file to view."
 msgstr ""
 
 #: media/js/ingest/metadata_form.js:83
@@ -424,57 +356,57 @@ msgstr ""
 msgid "Please select at least one metadata file."
 msgstr ""
 
-#: media/js/jobs.js:487
+#: media/js/jobs.js:482
 msgid "Review"
 msgstr ""
 
-#: media/js/jobs.js:535
+#: media/js/jobs.js:529
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr ""
 
-#: media/js/jobs.js:587
+#: media/js/jobs.js:590
 msgid "Select an action..."
 msgstr ""
 
-#: media/js/jobs.js:636
+#: media/js/jobs.js:644
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
 msgstr ""
 
-#: media/js/jobs.js:642
+#: media/js/jobs.js:650
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:653
+#: media/js/jobs.js:661
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr ""
 
-#: media/js/jobs.js:657
+#: media/js/jobs.js:665
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr ""
 
-#: media/js/jobs.js:663
+#: media/js/jobs.js:671
 #, javascript-format
 msgid "Failed to remove all completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:791
+#: media/js/jobs.js:797
 msgid "Previous"
 msgstr ""
 
-#: media/js/jobs.js:806
+#: media/js/jobs.js:812
 msgid "Next"
 msgstr ""
 
-#: media/js/jobs.js:844
+#: media/js/jobs.js:850
 msgid "Error trying to connect to database. Trying again..."
 msgstr ""
 
-#: media/js/jobs.js:894
+#: media/js/jobs.js:900
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr ""
 
@@ -499,7 +431,7 @@ msgid "Type"
 msgstr ""
 
 #: media/js/rights_edit.js:29
-msgid "Vype"
+msgid "Value"
 msgstr ""
 
 #: media/js/rights_edit.js:34
@@ -642,10 +574,11 @@ msgid "%s end date"
 msgstr ""
 
 #: media/js/rights_edit.js:263
-msgid "Create new %(type)?"
+#, javascript-format
+msgid "Create new %s?"
 msgstr ""
 
-#: media/js/transfer.js:76
+#: media/js/transfer.js:74
 msgid ""
 "Are you sure you want to remove this transfer from the dashboard? Note that "
 "this does not delete the transfer or related entities."
