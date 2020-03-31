@@ -335,7 +335,6 @@ INSTALLED_APPS = [
     # django.contrib.sites',
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.webdesign",
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Internal apps
