@@ -2202,7 +2202,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "523c97cc-b267-4cfb-8209-d99e523bf4b3"
+                    "link_id": "89b4d31d-c819-4213-9cf9-49d3573dbc33"
                 }
             },
             "fallback_job_status": "Failed",
@@ -4852,7 +4852,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "3e25bda6-5314-4bb4-aa1e-90900dce887d"
+                    "link_id": "846b99da-0b51-4201-97f2-9cfabfb51bce"
                 }
             },
             "fallback_job_status": "Failed",
@@ -6944,6 +6944,37 @@
                 "sv": "\u00c5teringestera AIP"
             }
         },
+        "846b99da-0b51-4201-97f2-9cfabfb51bce": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "",
+                "execute": "validateMETS_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Validate AIC METS"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "3e25bda6-5314-4bb4-aa1e-90900dce887d"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
+            "group": {
+                "en": "Generate AIP METS",
+                "fr": "G\u00e9n\u00e9rer un AIP METS",
+                "ja": "AIP METS\u3092\u751f\u6210",
+                "pt_BR": "Gerar AIP METS",
+                "sv": "Genrerera AIP METS"
+            }
+        },
         "873b428f-2c86-42b6-b463-aeda925bf559": {
             "config": {
                 "@manager": "linkTaskManagerDirectories",
@@ -7198,6 +7229,37 @@
                 "fr": "\u00c9chec de la mise en conformit\u00e9 du transfert",
                 "pt_BR": "Falha na transfer\u00eancia da conformidade",
                 "sv": "\u00d6verf\u00f6ringsf\u00f6ljsamhetskontroll misslyckades"
+            }
+        },
+        "89b4d31d-c819-4213-9cf9-49d3573dbc33": {
+            "config": {
+                "@manager": "linkTaskManagerDirectories",
+                "@model": "StandardTaskConfig",
+                "arguments": "",
+                "execute": "validateMETS_v0.0",
+                "filter_file_end": null,
+                "filter_file_start": null,
+                "filter_subdir": null,
+                "stderr_file": null,
+                "stdout_file": null
+            },
+            "description": {
+                "en": "Validate AIP METS"
+            },
+            "exit_codes": {
+                "0": {
+                    "job_status": "Completed successfully",
+                    "link_id": "523c97cc-b267-4cfb-8209-d99e523bf4b3"
+                }
+            },
+            "fallback_job_status": "Failed",
+            "fallback_link_id": "7d728c39-395f-4892-8193-92f086c0546f",
+            "group": {
+                "en": "Generate AIP METS",
+                "fr": "G\u00e9n\u00e9rer un AIP METS",
+                "ja": "AIP METS\u3092\u751f\u6210",
+                "pt_BR": "Gerar AIP METS",
+                "sv": "Genrerera AIP METS"
             }
         },
         "8ba83807-2832-4e41-843c-2e55ad10ea0b": {
@@ -9734,7 +9796,7 @@
             "exit_codes": {
                 "0": {
                     "job_status": "Completed successfully",
-                    "link_id": "523c97cc-b267-4cfb-8209-d99e523bf4b3"
+                    "link_id": "89b4d31d-c819-4213-9cf9-49d3573dbc33"
                 }
             },
             "fallback_job_status": "Failed",

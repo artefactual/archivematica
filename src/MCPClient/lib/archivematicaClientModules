@@ -132,6 +132,7 @@ upload-qubit_v0.0 = upload_qubit
 upload-archivesspace_v0.0 = upload_archivesspace
 copyThumbnailsToDIPDirectory_v0.0 = copy_thumbnails_to_dip_directory
 removeDirectories_v0.0 = remove_directories
+validateMETS_v0.0 = validate_mets
 
 # Dataverse Scripts
 convertDataverseStructure_v0.0 = convert_dataverse_structure
