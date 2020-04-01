@@ -17,61 +17,25 @@ def concurrent_instances():
 
 
 def call(jobs):
-    """Primary entry point for this script."""
+    """Primary entry point for this script.
+
+    We will receive the following arguments that we can do something with:
+
+        \"%SIPDirectory%METS.%SIPUUID%.xml\"
+        \"%SIPLogsDirectory%\"
+
+    """
     for job in jobs:
-        """do something..."""
         with job.JobContext():
-            job.pyprint("Number of jobs:", len(jobs))
-            job.pyprint("Job name", job.name)
-            job.pyprint("Job UUID", job.UUID)
-            job.pyprint("Job caller wants output", job.caller_wants_output)
-            job.pyprint("Job code", job.int_code)
-            job.pyprint("Job status code", job.status_code)
-
-            job.pyprint("Job args length", len(job.args))
-
-            job.pyprint("---")
-
-            """
-            A small sample of dictionary values:
-                \"%SIPDirectory%\"
-                \"%SIPDirectory%METS.%SIPUUID%.xml\"
-                \"%SIPType%\"
-                \"%SIPLogsDirectory%\"
-                \"%SIPObjectsDirectory%\"
-                \"%rejectedDirectory%\"
-                \"%watchDirectoryPath%\"
-                \"%fileGrpUse%\"
-                \"%currentLocation%\"
-            """
-
-            job.pyprint("%SIPDirectory%:", job.args[1])
-            job.pyprint("%SIPDirectory%METS.%SIPUUID%.xml:", job.args[2])
-            job.pyprint("%SIPType%:", job.args[3])
-            job.pyprint("%SIPLogsDirectory%:", job.args[4])
-            job.pyprint("%SIPObjectsDirectory%:", job.args[5])
-            job.pyprint("%rejectedDirectory%:", job.args[6])
-            job.pyprint("%watchDirectoryPath%:", job.args[7])
-            job.pyprint("%fileGrpUse%:", job.args[8])
-            job.pyprint("%currentLocation%:", job.args[9])
-
             job.pyprint(
-                "Lets generate some system logging too: AIP path exists?",
-                os.path.exists(job.args[2]),
-                file=sys.stderr,
+                "We eventually want to validate (%SIPDirectory%METS.%SIPUUID%.xml):",
+                job.args[1],
             )
-            job.pyprint(
-                "Lets generate some system logging too: logs directory exists?",
-                os.path.exists(job.args[4]),
-                file=sys.stderr,
-            )
-            job.pyprint(
-                "Lets generate some system logging too: rejected directory exists?",
-                os.path.exists(job.args[6]),
-                file=sys.stderr,
-            )
-            job.pyprint(
-                "Lets generate some system logging too: current location exists?",
-                os.path.exists(job.args[9]),
-                file=sys.stderr,
-            )
+
+            log_dir = job.args[2]
+            log_name = "picturae_training.log"
+            log_file = os.path.join(log_dir, log_name)
+
+            job.pyprint("Writing a log file to", log_file, "directory", file=sys.stderr)
+            with open(log_file, "w") as demo_log:
+                demo_log.write("Let's put something useful in here.\n")

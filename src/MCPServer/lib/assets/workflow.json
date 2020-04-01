@@ -7235,7 +7235,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%\" \"%SIPDirectory%METS.%SIPUUID%.xml\" \"%SIPType%\" \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%rejectedDirectory%\" \"%watchDirectoryPath%\" \"%fileGrpUse%\" \"%currentLocation%\"",
+                "arguments": "\"%SIPDirectory%METS.%SIPUUID%.xml\" \"%SIPLogsDirectory%\"",
                 "execute": "validateMETS_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
