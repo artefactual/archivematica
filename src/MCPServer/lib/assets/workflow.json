@@ -7233,9 +7233,9 @@
         },
         "89b4d31d-c819-4213-9cf9-49d3573dbc33": {
             "config": {
-                "@manager": "linkTaskManagerDirectories",
+                "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
-                "arguments": "",
+                "arguments": "\"%SIPDirectory%\" \"%SIPDirectory%METS.%SIPUUID%.xml\" \"%SIPType%\" \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%rejectedDirectory%\" \"%watchDirectoryPath%\" \"%fileGrpUse%\" \"%currentLocation%\"",
                 "execute": "validateMETS_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
