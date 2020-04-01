@@ -6948,7 +6948,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "",
+                "arguments": "\"%SIPDirectory%METS.%SIPUUID%.xml\"",
                 "execute": "validateMETS_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,
@@ -6957,7 +6957,7 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Validate AIC METS"
+                "en": "Validate AIP METS (AIC)"
             },
             "exit_codes": {
                 "0": {
@@ -7235,7 +7235,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPDirectory%METS.%SIPUUID%.xml\" \"%SIPLogsDirectory%\"",
+                "arguments": "\"%SIPDirectory%METS.%SIPUUID%.xml\"",
                 "execute": "validateMETS_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,

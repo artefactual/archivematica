@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
+  <mets:metsHdr CREATEDATE="2020-04-02T00:19:09"/>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Basic AIC</dc:title>
+          <dc:creator>ross-spencer</dc:creator>
+          <dc:date>2020-04-01</dc:date>
+          <dc:type>Archival Information Collection</dc:type>
+          <dc:identifier>AIC#24601</dc:identifier>
+          <dcterms:isPartOf>AIC#24601</dcterms:isPartOf>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+      <mets:xmlData>
+        <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:intellectualEntity" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+          <premis:objectIdentifier>
+            <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+            <premis:objectIdentifierValue>9b787912-4fb3-4a50-81f7-ac71486c198b</premis:objectIdentifierValue>
+          </premis:objectIdentifier>
+          <premis:originalName>aic-9b787912-4fb3-4a50-81f7-ac71486c198b</premis:originalName>
+        </premis:object>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="metadata">
+      <mets:file GROUPID="Group-016800cd-4d24-41bd-8611-9452f2b632a2" ID="file-016800cd-4d24-41bd-8611-9452f2b632a2">
+        <mets:FLocat xlink:href="metadata/METS.016800cd-4d24-41bd-8611-9452f2b632a2.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="aic-9b787912-4fb3-4a50-81f7-ac71486c198b" TYPE="Directory" DMDID="dmdSec_2">
+      <mets:div LABEL="metadata" TYPE="Directory">
+        <mets:div LABEL="METS.016800cd-4d24-41bd-8611-9452f2b632a2.xml" TYPE="Item">
+          <mets:fptr FILEID="file-016800cd-4d24-41bd-8611-9452f2b632a2"/>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>
