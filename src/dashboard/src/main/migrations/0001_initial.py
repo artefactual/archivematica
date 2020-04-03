@@ -279,11 +279,19 @@ class Migration(migrations.Migration):
                         db_column="pk",
                     ),
                 ),
-                ("file_uuid", models.ForeignKey(to="main.File", db_column="fileUUID")),
+                (
+                    "file_uuid",
+                    models.ForeignKey(
+                        to="main.File", db_column="fileUUID", on_delete=models.CASCADE
+                    ),
+                ),
                 (
                     "format_version",
                     models.ForeignKey(
-                        to="fpr.FormatVersion", db_column="fileID", to_field="uuid"
+                        to="fpr.FormatVersion",
+                        db_column="fileID",
+                        to_field="uuid",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -313,7 +321,11 @@ class Migration(migrations.Migration):
                 (
                     "file",
                     models.ForeignKey(
-                        db_column="fileUUID", blank=True, to="main.File", null=True
+                        db_column="fileUUID",
+                        blank=True,
+                        to="main.File",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -333,11 +345,19 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("content", models.TextField(null=True)),
-                ("file", models.ForeignKey(to="main.File", db_column="fileUUID")),
+                (
+                    "file",
+                    models.ForeignKey(
+                        to="main.File", db_column="fileUUID", on_delete=models.CASCADE
+                    ),
+                ),
                 (
                     "rule",
                     models.ForeignKey(
-                        to="fpr.FPRule", db_column="ruleUUID", to_field="uuid"
+                        to="fpr.FPRule",
+                        db_column="ruleUUID",
+                        to_field="uuid",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -457,6 +477,7 @@ class Migration(migrations.Migration):
                         db_column="replaces",
                         to="main.MicroServiceChain",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -484,7 +505,9 @@ class Migration(migrations.Migration):
                 (
                     "chainavailable",
                     models.ForeignKey(
-                        to="main.MicroServiceChain", db_column="chainAvailable"
+                        to="main.MicroServiceChain",
+                        db_column="chainAvailable",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -560,6 +583,7 @@ class Migration(migrations.Migration):
                         related_name="exit_codes",
                         db_column="microServiceChainLink",
                         to="main.MicroServiceChainLink",
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
@@ -570,6 +594,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
@@ -580,6 +605,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChainLinkExitCode",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -621,6 +647,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.MicroServiceChainLink",
                         db_column="choiceAvailableAtLink",
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
@@ -631,6 +658,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChoiceReplacementDic",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -703,6 +731,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.MetadataAppliesToType",
                         db_column="metadataAppliesToType",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -775,7 +804,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -826,6 +857,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementCopyright",
                         db_column="fkRightsStatementCopyrightInformation",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -860,6 +892,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementCopyright",
                         db_column="fkRightsStatementCopyrightInformation",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -918,7 +951,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -969,6 +1004,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementLicense",
                         db_column="fkRightsStatementLicense",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1001,6 +1037,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementLicense",
                         db_column="fkRightsStatementLicense",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1036,7 +1073,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1138,7 +1177,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1168,6 +1209,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementOtherRightsInformation",
                         db_column="fkRightsStatementOtherRightsInformation",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1214,7 +1256,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1249,6 +1293,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementRightsGranted",
                         db_column="fkRightsStatementRightsGranted",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1271,6 +1316,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementRightsGranted",
                         db_column="fkRightsStatementRightsGranted",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1384,7 +1430,9 @@ class Migration(migrations.Migration):
                 (
                     "rightsstatement",
                     models.ForeignKey(
-                        to="main.RightsStatement", db_column="fkRightsStatement"
+                        to="main.RightsStatement",
+                        db_column="fkRightsStatement",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1412,6 +1460,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to="main.RightsStatementStatuteInformation",
                         db_column="fkRightsStatementStatuteInformation",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1468,6 +1517,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1593,6 +1643,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.StandardTaskConfig",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1641,7 +1692,12 @@ class Migration(migrations.Migration):
                     "exitcode",
                     models.BigIntegerField(null=True, db_column="exitCode", blank=True),
                 ),
-                ("job", models.ForeignKey(to="main.Job", db_column="jobuuid")),
+                (
+                    "job",
+                    models.ForeignKey(
+                        to="main.Job", db_column="jobuuid", on_delete=models.CASCADE
+                    ),
+                ),
             ],
             options={"db_table": "Tasks"},
             bases=(models.Model,),
@@ -1683,6 +1739,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.TaskConfig",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1714,6 +1771,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
@@ -1724,6 +1782,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.TaskConfigAssignMagicLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1765,6 +1824,7 @@ class Migration(migrations.Migration):
                         db_column="microServiceChainLink",
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1806,6 +1866,7 @@ class Migration(migrations.Migration):
                         db_column="defaultMicroServiceChainLink",
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1839,6 +1900,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.TaskType",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1897,7 +1959,11 @@ class Migration(migrations.Migration):
                 ("term", models.CharField(max_length=255, db_column="term")),
                 (
                     "taxonomy",
-                    models.ForeignKey(to="main.Taxonomy", db_column="taxonomyUUID"),
+                    models.ForeignKey(
+                        to="main.Taxonomy",
+                        db_column="taxonomyUUID",
+                        on_delete=models.CASCADE,
+                    ),
                 ),
             ],
             options={"db_table": "TaxonomyTerms"},
@@ -1945,6 +2011,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.MicroServiceChainLink",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -1981,7 +2048,10 @@ class Migration(migrations.Migration):
                 (
                     "optiontaxonomy",
                     models.ForeignKey(
-                        db_column="optionTaxonomyUUID", to="main.Taxonomy", null=True
+                        db_column="optionTaxonomyUUID",
+                        to="main.Taxonomy",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -2010,7 +2080,9 @@ class Migration(migrations.Migration):
                 (
                     "field",
                     models.ForeignKey(
-                        to="main.TransferMetadataField", db_column="fieldUUID"
+                        to="main.TransferMetadataField",
+                        db_column="fieldUUID",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -2090,6 +2162,7 @@ class Migration(migrations.Migration):
                         to="main.MicroServiceChainLink",
                         help_text="UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -2127,7 +2200,10 @@ class Migration(migrations.Migration):
                 (
                     "chain",
                     models.ForeignKey(
-                        db_column="chain", to="main.MicroServiceChain", null=True
+                        db_column="chain",
+                        to="main.MicroServiceChain",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -2159,6 +2235,7 @@ class Migration(migrations.Migration):
                         db_column="replaces",
                         to="main.WatchedDirectoryExpectedType",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -2172,6 +2249,7 @@ class Migration(migrations.Migration):
                 db_column="expectedType",
                 to="main.WatchedDirectoryExpectedType",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2179,14 +2257,21 @@ class Migration(migrations.Migration):
             model_name="watcheddirectory",
             name="replaces",
             field=models.ForeignKey(
-                db_column="replaces", to="main.WatchedDirectory", null=True
+                db_column="replaces",
+                to="main.WatchedDirectory",
+                null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="transfermetadatafieldvalue",
             name="set",
-            field=models.ForeignKey(to="main.TransferMetadataSet", db_column="setUUID"),
+            field=models.ForeignKey(
+                to="main.TransferMetadataSet",
+                db_column="setUUID",
+                on_delete=models.CASCADE,
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -2197,13 +2282,16 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="main.TransferMetadataSet",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="taskconfig",
             name="tasktype",
-            field=models.ForeignKey(to="main.TaskType", db_column="taskType"),
+            field=models.ForeignKey(
+                to="main.TaskType", db_column="taskType", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -2212,6 +2300,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 to="main.RightsStatementStatuteInformation",
                 db_column="fkRightsStatementStatuteInformation",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2221,13 +2310,16 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 to="main.RightsStatementOtherRightsInformation",
                 db_column="fkRightsStatementOtherRightsInformation",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="microservicechainlink",
             name="currenttask",
-            field=models.ForeignKey(to="main.TaskConfig", db_column="currentTask"),
+            field=models.ForeignKey(
+                to="main.TaskConfig", db_column="currentTask", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -2237,6 +2329,7 @@ class Migration(migrations.Migration):
                 to="main.MicroServiceChainLink",
                 null=True,
                 db_column="defaultNextChainLink",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2249,6 +2342,7 @@ class Migration(migrations.Migration):
                 to="main.MicroServiceChainLink",
                 null=True,
                 blank=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2256,7 +2350,9 @@ class Migration(migrations.Migration):
             model_name="microservicechainchoice",
             name="choiceavailableatlink",
             field=models.ForeignKey(
-                to="main.MicroServiceChainLink", db_column="choiceAvailableAtLink"
+                to="main.MicroServiceChainLink",
+                db_column="choiceAvailableAtLink",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2269,6 +2365,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="main.MicroServiceChainChoice",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2276,7 +2373,9 @@ class Migration(migrations.Migration):
             model_name="microservicechain",
             name="startinglink",
             field=models.ForeignKey(
-                to="main.MicroServiceChainLink", db_column="startingLink"
+                to="main.MicroServiceChainLink",
+                db_column="startingLink",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2288,6 +2387,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="main.MicroServiceChainLink",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2295,7 +2395,11 @@ class Migration(migrations.Migration):
             model_name="file",
             name="sip",
             field=models.ForeignKey(
-                db_column="sipUUID", blank=True, to="main.SIP", null=True
+                db_column="sipUUID",
+                blank=True,
+                to="main.SIP",
+                null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2303,7 +2407,11 @@ class Migration(migrations.Migration):
             model_name="file",
             name="transfer",
             field=models.ForeignKey(
-                db_column="transferUUID", blank=True, to="main.Transfer", null=True
+                db_column="transferUUID",
+                blank=True,
+                to="main.Transfer",
+                null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2311,7 +2419,11 @@ class Migration(migrations.Migration):
             model_name="event",
             name="file_uuid",
             field=models.ForeignKey(
-                db_column="fileUUID", blank=True, to="main.File", null=True
+                db_column="fileUUID",
+                blank=True,
+                to="main.File",
+                null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2319,7 +2431,9 @@ class Migration(migrations.Migration):
             model_name="dublincore",
             name="metadataappliestotype",
             field=models.ForeignKey(
-                to="main.MetadataAppliesToType", db_column="metadataAppliesToType"
+                to="main.MetadataAppliesToType",
+                db_column="metadataAppliesToType",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2330,6 +2444,7 @@ class Migration(migrations.Migration):
                 related_name="original_file_set",
                 db_column="derivedFileUUID",
                 to="main.File",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2342,6 +2457,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="main.Event",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
@@ -2352,6 +2468,7 @@ class Migration(migrations.Migration):
                 related_name="derived_file_set",
                 db_column="sourceFileUUID",
                 to="main.File",
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),

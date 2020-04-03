@@ -252,7 +252,11 @@ class Migration(migrations.Migration):
                 (
                     "sip",
                     models.ForeignKey(
-                        db_column="sipUUID", blank=True, to="main.SIP", null=True
+                        db_column="sipUUID",
+                        blank=True,
+                        to="main.SIP",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
@@ -262,6 +266,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="main.Transfer",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
