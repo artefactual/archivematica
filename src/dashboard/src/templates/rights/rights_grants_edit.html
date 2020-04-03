@@ -21,13 +21,13 @@
 
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
-          {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
-          {% breadcrumb_url rights_label 'components.rights.views.ingest_rights_list' uuid %}
+          {% breadcrumb_url ingest_label 'ingest:ingest_index' %}
+          {% breadcrumb_url name 'unit:detail' 'ingest' uuid %}
+          {% breadcrumb_url rights_label 'rights_ingest:index' uuid %}
         {% else %}
-          {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
-          {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
-          {% breadcrumb_url rights_label 'components.rights.views.transfer_rights_list' uuid %}
+          {% breadcrumb_url transfer_label 'transfer:transfer_index' %}
+          {% breadcrumb_url name 'unit:detail' 'transfer' uuid %}
+          {% breadcrumb_url rights_label 'rights_transfer:index' uuid %}
         {% endif %}
         {% if id %}
           {% breadcrumb edit_label %}
@@ -56,9 +56,9 @@
       {% endif %}
 
       {% if section == 'ingest' %}
-        <form class="form-stacked" method="post" action="{% url 'components.rights.views.ingest_rights_grants_edit' uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'rights_ingest:grants_edit' uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url 'components.rights.views.transfer_rights_grants_edit' uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'rights_transfer:grants_edit' uuid id %}">
       {% endif %}
 
         {{ grantFormset.management_form }}
@@ -108,9 +108,9 @@
           <button type="submit" name='next_button' value='Next' class="btn btn-primary">{% trans "Done" %}</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
+            <a href="{% url 'rights_ingest:index' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% else %}
-             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
+             <a href="{% url 'rights_transfer:index' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% endif %}
         </div>
 

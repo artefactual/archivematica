@@ -26,13 +26,13 @@
 
     <div class="col-md-10">
 
-      {% url 'components.administration.views.atom_levels_of_description' as url_atom_levels_of_description %}
+      {% url 'administration:atom_levels_of_description' as url_atom_levels_of_description %}
 
       <div style="float: right">
         <a href="{{ url_atom_levels_of_description }}" class="btn btn-default">{% trans "Levels of Description" %}</a>
       </div>
 
-      <form class="form-stacked" method="post" action="{% url 'components.administration.views_dip_upload.admin_atom' %}">
+      <form class="form-stacked" method="post" action="{% url 'administration:dips_atom_index' %}">
 
         <h3>{% trans "AtoM/Binder DIP upload" %}</h3>
 

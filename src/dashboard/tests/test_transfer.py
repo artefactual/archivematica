@@ -20,9 +20,7 @@ class TestTransferViews(TestCase):
     def test_metadata_edit(self):
         """Test the metadata form of a transfer"""
         transfer_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        url = reverse(
-            "components.transfer.views.transfer_metadata_edit", args=[transfer_uuid]
-        )
+        url = reverse("transfer:transfer_metadata_add", args=[transfer_uuid])
         # Post metadata in Spanish
         response = self.client.post(
             url,
@@ -50,7 +48,5 @@ class TestTransferViews(TestCase):
         assert transfer_metadata.contributor == "Un colaborador"
         assert transfer_metadata.date == "2019-01-01"
         # Verify form redirects to the metadata list after saving
-        redirect_url = reverse(
-            "components.transfer.views.transfer_metadata_list", args=[transfer_uuid]
-        )
+        redirect_url = reverse("transfer:transfer_metadata_list", args=[transfer_uuid])
         assert response.url == redirect_url

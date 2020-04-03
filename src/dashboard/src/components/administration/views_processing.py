@@ -55,7 +55,7 @@ def edit(request, name=None):
         if error is not None:
             logger.exception("{} {}".format(error_msg, error))
             messages.error(request, error_msg)
-        return redirect("components.administration.views_processing.list")
+        return redirect("administration:processing")
 
     def _render_form():
         return render(request, "administration/processing_edit.html", {"form": form})
@@ -75,7 +75,7 @@ def edit(request, name=None):
         except Exception as err:
             return _report_error(err, _("Failed to save processing configuration."))
         messages.info(request, _("Saved!"))
-        return redirect("components.administration.views_processing.list")
+        return redirect("administration:processing")
 
     # New configuration.
     if name is None:
@@ -93,7 +93,7 @@ def edit(request, name=None):
 
 def delete(request, name):
     if name == "default":
-        return redirect("components.administration.views_processing.list")
+        return redirect("administration:processing")
     config_path = os.path.join(
         helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
     )
@@ -101,7 +101,7 @@ def delete(request, name):
         os.remove(config_path)
     except OSError:
         pass
-    return redirect("components.administration.views_processing.list")
+    return redirect("administration:processing")
 
 
 def download(request, name):
@@ -122,4 +122,4 @@ def reset(request, name):
         logger.exception(msg)
         messages.error(request, msg)
 
-    return redirect("components.administration.views_processing.list")
+    return redirect("administration:processing")

@@ -22,6 +22,7 @@ from django.conf import settings
 
 from components.api import views
 
+app_name = "api"
 urlpatterns = [
     url(r"transfer/approve", views.approve_transfer),
     url(r"transfer/unapproved", views.unapproved_transfers),

@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'fpcommand_list' %}">{% trans "Format policy commands" %}</a></li>
+<li><a href="{% url 'fpr:fpcommand_list' %}">{% trans "Format policy commands" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -21,9 +21,9 @@
 
     <div class='tool'>
       {% if fpcommand %}
-        <form action="{% url 'fpcommand_edit' fpcommand.uuid %}" method="post">
+        <form action="{% url 'fpr:fpcommand_edit' fpcommand.uuid %}" method="post">
       {% else %}
-        <form action="{% url 'fpcommand_create' %}" method="post">
+        <form action="{% url 'fpr:fpcommand_create' %}" method="post">
       {% endif %}
 
         {% csrf_token %}

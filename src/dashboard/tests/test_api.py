@@ -75,7 +75,7 @@ class TestAPI(TestCase):
     def test_get_unit_status_user_input(self):
         """It should return USER_INPUT."""
         # Setup fixtures
-        load_fixture(["job-processing", "jobs-user-input"])
+        load_fixture(["jobs-processing", "jobs-user-input"])
         # Test
         status = views.get_unit_status(
             "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
@@ -484,14 +484,14 @@ class TestProcessingConfigurationAPI(TestCase):
 
     def test_get_existing_processing_config(self):
         response = self.client.get(
-            reverse("processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
+            reverse("api:processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
         )
         assert response.status_code == 200
         assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
     def test_delete_and_regenerate(self):
         response = self.client.delete(
-            reverse("processing_configuration", args=["default"])
+            reverse("api:processing_configuration", args=["default"])
         )
         assert response.status_code == 200
         assert not os.path.exists(
@@ -499,7 +499,7 @@ class TestProcessingConfigurationAPI(TestCase):
         )
 
         response = self.client.get(
-            reverse("processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
+            reverse("api:processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
         )
         assert response.status_code == 200
         assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
@@ -509,13 +509,14 @@ class TestProcessingConfigurationAPI(TestCase):
 
     def test_404_for_non_existent_config(self):
         response = self.client.get(
-            reverse("processing_configuration", args=["nonexistent"]), HTTP_ACCEPT="xml"
+            reverse("api:processing_configuration", args=["nonexistent"]),
+            HTTP_ACCEPT="xml",
         )
         assert response.status_code == 404
 
     def test_404_for_delete_non_existent_config(self):
         response = self.client.delete(
-            reverse("processing_configuration", args=["nonexistent"])
+            reverse("api:processing_configuration", args=["nonexistent"])
         )
         assert response.status_code == 404
 

@@ -1,13 +1,13 @@
 {% load active %}
 {% load i18n %}
 
-{% url 'fpr.views.format_list' as url_format %}
-{% url 'fpr.views.formatgroup_list' as url_formatgroup %}
-{% url 'fpr.views.idtool_list' as url_idtool %}
-{% url 'fpr.views.idrule_list' as url_idrule %}
-{% url 'fpr.views.idcommand_list' as url_idcommand %}
-{% url 'fpr.views.fprule_list' as url_fprule %}
-{% url 'fpr.views.fptool_list' as url_fptool %}
+{% url 'fpr:format_list' as url_format %}
+{% url 'fpr:formatgroup_list' as url_formatgroup %}
+{% url 'fpr:idtool_list' as url_idtool %}
+{% url 'fpr:idrule_list' as url_idrule %}
+{% url 'fpr:idcommand_list' as url_idcommand %}
+{% url 'fpr:fprule_list' as url_fprule %}
+{% url 'fpr:fptool_list' as url_fptool %}
 
 <div class="sidebar col-xs-2">
   <ul>
@@ -23,8 +23,8 @@
     <li class="{% active request url_fptool %}">&nbsp;&nbsp;<a href="{{ url_fptool }}">{% trans "Tools" %}</a></li>
 
     {% for usage, header in categories %}
-      {% url 'fprule_list' usage as url_fprule %}
-      {% url 'fpcommand_list' usage as url_fpcommand %}
+      {% url 'fpr:fprule_list' usage as url_fprule %}
+      {% url 'fpr:fpcommand_list' usage as url_fpcommand %}
       <li style="margin-top: 20px">{{ header }}</li>
       <li class="{% active request url_fprule %}">&nbsp;&nbsp;<a href="{{ url_fprule }}">{% trans "Rules" %}</a></li>
       <li class="{% active request url_fpcommand %}">&nbsp;&nbsp;<a href="{{ url_fpcommand }}">{% trans "Commands" %}</a></li>

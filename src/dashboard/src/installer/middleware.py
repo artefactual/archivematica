@@ -24,7 +24,6 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 
 import components.helpers as helpers
-from installer.views import welcome
 
 
 EXEMPT_URLS = None
@@ -52,9 +51,9 @@ class ConfigurationCheckMiddleware:
 
         # Start off the installer unless the user is already there.
         if not dashboard_uuid:
-            if reverse(welcome) == request.path_info:
+            if reverse("installer:welcome") == request.path_info:
                 return
-            return redirect(welcome)
+            return redirect("installer:welcome")
 
         # Send the user to the login page if needed.
         if not request.user.is_authenticated():

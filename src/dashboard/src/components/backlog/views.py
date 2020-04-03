@@ -206,7 +206,7 @@ def delete_context(request, uuid):
     :return: The request context
     """
     prompt = "Delete package?"
-    cancel_url = reverse("components.backlog.views.execute")
+    cancel_url = reverse("backlog:backlog_index")
     return RequestContext(
         request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -241,7 +241,7 @@ def delete(request, uuid):
     except requests.exceptions.RequestException:
         raise Http404
 
-    return redirect("backlog_index")
+    return redirect("backlog:backlog_index")
 
 
 def download(request, uuid):

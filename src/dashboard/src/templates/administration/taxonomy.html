@@ -22,7 +22,7 @@
         <p><a href='/administration/taxonomy/{{ taxonomy.pk }}/'>{{ taxonomy.name }}</a></p>
       {% endfor %}
 
-      {% url 'components.administration.views.taxonomy' as taxonomy_admin %}
+      {% url 'administration:taxonomy' as taxonomy_admin %}
 
       {% if page.has_other_pages %}
       {% if page.has_previous %}

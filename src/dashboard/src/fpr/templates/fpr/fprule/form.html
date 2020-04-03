@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'fprule_list' %}">{% trans "Format policy rules" %}</a></li>
+<li><a href="{% url 'fpr:fprule_list' %}">{% trans "Format policy rules" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -21,18 +21,18 @@
 
     <div class='tool'>
       {% if fprule %}
-        <form action="{% url 'fprule_edit' fprule.uuid %}" method="post">
+        <form action="{% url 'fpr:fprule_edit' fprule.uuid %}" method="post">
       {% else %}
-        <form action="{% url 'fprule_create' %}" method="post">
+        <form action="{% url 'fpr:fprule_create' %}" method="post">
       {% endif %}
 
       {% csrf_token %}
       {{ form|as_bootstrap }}
 
       {% if fprule %}
-      <form action="{% url 'fprule_edit' fprule.uuid %}" method="post" id='fprule_form'>
+      <form action="{% url 'fpr:fprule_edit' fprule.uuid %}" method="post" id='fprule_form'>
       {% else %}
-      <form action="{% url 'fprule_create' %}" method="post" id='fprule_form'>
+      <form action="{% url 'fpr:fprule_create' %}" method="post" id='fprule_form'>
       {% endif %}
 
         {% csrf_token %}

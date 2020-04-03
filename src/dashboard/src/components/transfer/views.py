@@ -161,9 +161,7 @@ def transfer_metadata_edit(request, uuid, id=None):
                 metadataappliestotype=transfer_metadata_type_id(),
                 metadataappliestoidentifier__exact=uuid,
             )
-            return redirect(
-                "components.transfer.views.transfer_metadata_edit", uuid, dc.id
-            )
+            return redirect("transfer:transfer_metadata_edit", uuid, dc.id)
         except models.DublinCore.DoesNotExist:
             dc = models.DublinCore(
                 metadataappliestotype=transfer_metadata_type_id(),
@@ -174,7 +172,7 @@ def transfer_metadata_edit(request, uuid, id=None):
         form = DublinCoreMetadataForm(request.POST, instance=dc)
         if form.is_valid():
             dc = form.save()
-            return redirect("components.transfer.views.transfer_metadata_list", uuid)
+            return redirect("transfer:transfer_metadata_list", uuid)
     else:
         form = DublinCoreMetadataForm(instance=dc)
         jobs = models.Job.objects.filter(sipuuid=uuid)

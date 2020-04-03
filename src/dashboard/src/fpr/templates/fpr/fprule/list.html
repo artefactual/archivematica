@@ -19,7 +19,7 @@
   <div class="col-xs-10">
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'fprule_create' %}">{% trans 'Create new rule' %}</a></p>
+    <p><a href="{% url 'fpr:fprule_create' %}">{% trans 'Create new rule' %}</a></p>
     {% endif %}
 
     {% if fprules %}
@@ -37,18 +37,18 @@
         <tbody>
         {% for fprule in fprules %}
           <tr>
-            <td><a href="{% url 'fprule_detail' fprule.uuid %}">{{ fprule.get_purpose_display }}</a></td>
+            <td><a href="{% url 'fpr:fprule_detail' fprule.uuid %}">{{ fprule.get_purpose_display }}</a></td>
             <td>{{ fprule.format.description }}</td>
             <td>{{ fprule.command.description }}</td>
             <td>{{ fprule.count_okay }} out of {{ fprule.count_attempts }}</td>
             <td>{{ fprule.enabled|yesno:_('Yes,No') }}</td>
             <td>
-              <a href="{% url 'fprule_detail' fprule.uuid %}">{% trans "View" %}</a>
+              <a href="{% url 'fpr:fprule_detail' fprule.uuid %}">{% trans "View" %}</a>
               {% if request.user.is_superuser %}
                 |
-                <a href="{% url 'fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a>
+                <a href="{% url 'fpr:fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a>
                 |
-                <a href="{% url 'fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a>
+                <a href="{% url 'fpr:fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a>
               {% endif %}
             </td>
           </tr>

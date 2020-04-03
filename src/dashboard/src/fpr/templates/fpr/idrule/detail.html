@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'idrule_list' %}">{% trans "Identification rules" %}</a></li>
+<li><a href="{% url 'fpr:idrule_list' %}">{% trans "Identification rules" %}</a></li>
 <li>{% blocktrans with uuid=idrule.uuid %}Identification rule {{ uuid }}{% endblocktrans %}</li>
 {% endblock breadcrumbs %}
 
@@ -28,15 +28,15 @@
         <dt>{% trans "Format version" %}</dt>
           <dd>{{ idrule.format.description }}</dd>
         <dt>{% trans "Command" %}</dt>
-          <dd><a href="{% url 'idcommand_detail' idrule.command.uuid %}">{{ idrule.command.description }}</a></dd>
+          <dd><a href="{% url 'fpr:idcommand_detail' idrule.command.uuid %}">{{ idrule.command.description }}</a></dd>
         <dt>{% trans "Command output" %}</dt>
           <dd>{{ idrule.command_output }}</dd>
         <dt>{% trans "Enabled" %}</dt>
           <dd>{{ idrule.enabled|yesno:_("Yes,No") }}</dd>
         {% if request.user.is_superuser %}
         <dt>{% trans "Actions" %}</dt>
-          <dd><a href="{% url 'idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a></dd>
-          <dd><a href="{% url 'idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a></dd>
+          <dd><a href="{% url 'fpr:idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a></dd>
+          <dd><a href="{% url 'fpr:idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a></dd>
         {% endif %}
       </dl>
     </div>

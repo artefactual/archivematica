@@ -10,8 +10,8 @@
       <ul class="breadcrumb">
         {% trans "Ingest" as ingest_label %}
         {% trans "Microservices" as microservices_label %}
-        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
-        {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
+        {% breadcrumb_url ingest_label 'ingest:ingest_index' %}
+        {% breadcrumb_url name 'unit:detail' 'ingest' uuid %}
         {% breadcrumb microservices_label %}
       </ul>
 

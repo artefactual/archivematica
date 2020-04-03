@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'fpcommand_list' usage %}">{% trans "Format policy commands" %}</a></li>
+<li><a href="{% url 'fpr:fpcommand_list' usage %}">{% trans "Format policy commands" %}</a></li>
 <li>{% blocktrans with description=fpcommand.description %}Command {{ description }}{% endblocktrans %}</li>
 {% endblock breadcrumbs %}
 
@@ -41,13 +41,13 @@
         <dd>{{ fpcommand.get_command_usage_display }}</dd>
         <dt>{% trans "Verification command" %}</dt>
           {% if fpcommand.verification_command %}
-            <dd><a href="{% url 'fpcommand_detail' fpcommand.verification_command.uuid %}">{{ fpcommand.verification_command.description }}</a></dd>
+            <dd><a href="{% url 'fpr:fpcommand_detail' fpcommand.verification_command.uuid %}">{{ fpcommand.verification_command.description }}</a></dd>
           {% else %}
             <dd>{{ fpcommand.verification_command }}</dd>
           {% endif %}
         <dt>{% trans "Event detail command" %}</dt>
         {% if fpcommand.event_detail_command %}
-          <dd><a href="{% url 'fpcommand_detail' fpcommand.event_detail_command.uuid %}">{{ fpcommand.event_detail_command.description }}</a></dd>
+          <dd><a href="{% url 'fpr:fpcommand_detail' fpcommand.event_detail_command.uuid %}">{{ fpcommand.event_detail_command.description }}</a></dd>
         {% else %}
           <dd>{{ fpcommand.event_detail_command|default:_("None") }}</dd>
         {% endif %}
@@ -55,8 +55,8 @@
         <dd>{{ fpcommand.enabled|yesno:_("Yes,No") }}</dd>
         {% if request.user.is_superuser %}
           <dt>{% trans "Actions" %}</dt>
-          <dd><a href="{% url 'fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></dd>
-          <dd><a href="{% url 'fpcommand_delete' fpcommand.uuid %}">{{ fpcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
+          <dd><a href="{% url 'fpr:fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></dd>
+          <dd><a href="{% url 'fpr:fpcommand_delete' fpcommand.uuid %}">{{ fpcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
         {% endif %}
       </dl>
     </div>

@@ -7,6 +7,7 @@ from fpr import views
 
 UUID_REGEX = r"[\w]{8}(-[\w]{4}){3}-[\w]{12}"
 
+app_name = "fpr"
 urlpatterns = [
     url(r"^$", views.home, name="fpr_index"),
     url(

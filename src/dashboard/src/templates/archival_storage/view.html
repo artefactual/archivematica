@@ -48,7 +48,7 @@
 
   <ul class="breadcrumb">
     {% trans "Archival storage" as archival_storage_label %}
-    {% breadcrumb_url archival_storage_label 'archival_storage_index' %}
+    {% breadcrumb_url archival_storage_label 'archival_storage:archival_storage_index' %}
     {% breadcrumb name %}
   </ul>
 
@@ -82,20 +82,20 @@
       <tr>
         <th>{% trans "Location" %}</th>
         <td>
-          <a class="btn btn-default btn-sm" href="{% url 'components.archival_storage.views.aip_download' uuid %}">{% trans "Download" %}</a>
+          <a class="btn btn-default btn-sm" href="{% url 'archival_storage:aip_download' uuid %}">{% trans "Download" %}</a>
           <code class="location-preview">[...]/{{ location_basename }}</code>
         </td>
       </tr>
       <tr>
         <th>{% trans "METS file" %}</th>
         <td>
-          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_mets_file_download' uuid %}">{% trans "View" %}</a>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'archival_storage:aip_mets_file_download' uuid %}">{% trans "View" %}</a>
         </td>
       </tr>
       <tr>
         <th>{% trans "Pointer file" %}</th>
         <td>
-          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">{% trans "View" %}</a>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'archival_storage:aip_pointer_file_download' uuid %}">{% trans "View" %}</a>
         </td>
       </tr>
     </tbody>

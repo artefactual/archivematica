@@ -22,6 +22,7 @@ from django.conf import settings
 
 from components.backlog import views
 
+app_name = "backlog"
 urlpatterns = [
     url(r"^$", views.execute, name="backlog_index"),
     url(r"search/$", views.search, name="backlog_search"),

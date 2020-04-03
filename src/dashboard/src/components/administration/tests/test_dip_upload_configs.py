@@ -14,7 +14,7 @@ class TestDipUploadAsConfig(TestCase):
 
     def setUp(self):
         self.client.login(username="test", password="test")
-        self.url = reverse("components.administration.views_dip_upload.admin_as")
+        self.url = reverse("administration:dips_as")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):
@@ -82,7 +82,7 @@ class TestDipUploadAtomConfig(TestCase):
 
     def setUp(self):
         self.client.login(username="test", password="test")
-        self.url = reverse("components.administration.views_dip_upload.admin_atom")
+        self.url = reverse("administration:dips_atom_index")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):

@@ -26,7 +26,7 @@
   {% else %}
     <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a>
   {% endif %}
-  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
+  <a class="btn btn-default" href="{% url 'ingest:ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
 
   <table class="table">
     <thead>
@@ -38,8 +38,8 @@
     <tbody>
       {% for resource in page.objects %}
         <tr>
-          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.title }} {% if resource.identifier %} ({{ resource.identifier }}) {% endif %}</a></td>
-          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.dates }}</a></td>
+          <td><a href="{% url 'ingest:ingest_upload_as_resource' uuid resource.id %}">{{ resource.title }} {% if resource.identifier %} ({{ resource.identifier }}) {% endif %}</a></td>
+          <td><a href="{% url 'ingest:ingest_upload_as_resource' uuid resource.id %}">{{ resource.dates }}</a></td>
         </tr>
       {% endfor %}
     </tbody>

@@ -99,7 +99,7 @@
                 <td>{{ dir.used|filesizeformat }}</td>
                 <td>{{ dir.path }}</td>
                 <td>
-                  <a target="_blank" href="{% url 'components.administration.views.usage_clear' id %}" class="btn btn-default btn-sm">
+                  <a target="_blank" href="{% url 'administration:usage_clear' id %}" class="btn btn-default btn-sm">
                     {% trans "Clear" %} &#x2197;
                   </a>
                 </td>

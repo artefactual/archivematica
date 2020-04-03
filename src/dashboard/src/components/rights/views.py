@@ -53,7 +53,7 @@ def transfer_rights_delete(request, uuid, id):
 
 def transfer_grant_delete_context(request, uuid, id):
     prompt = "Delete rights grant?"
-    cancel_url = reverse("components.rights.views.transfer_rights_list", args=[uuid])
+    cancel_url = reverse("rights_transfer:index", args=[uuid])
     return RequestContext(
         request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -82,7 +82,7 @@ def ingest_rights_delete(request, uuid, id):
 
 def ingest_grant_delete_context(request, uuid, id):
     prompt = "Delete rights grant?"
-    cancel_url = reverse("components.rights.views.ingest_rights_list", args=[uuid])
+    cancel_url = reverse("rights_ingest:index", args=[uuid])
     return RequestContext(
         request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -579,16 +579,9 @@ def rights_edit(request, uuid, id=None, section="ingest"):
             request.POST.get("next_button", "") is not None
             and request.POST.get("next_button", "") != ""
         ):
-            return redirect(
-                "components.rights.views.%s_rights_grants_edit" % section,
-                uuid,
-                createdRights.pk,
-            )
+            return redirect("rights_%s:grants_edit" % section, uuid, createdRights.pk)
         else:
-            url = reverse(
-                "components.rights.views.%s_rights_edit" % section,
-                args=[uuid, createdRights.pk],
-            )
+            url = reverse("rights_%s:edit" % section, args=[uuid, createdRights.pk])
             try:
                 url = url + "?created=" + new_content_type_created
             except:
@@ -726,12 +719,9 @@ def rights_grants_edit(request, uuid, id, section="ingest"):
             request.POST.get("next_button", "") is not None
             and request.POST.get("next_button", "") != ""
         ):
-            return redirect("components.rights.views.%s_rights_list" % section, uuid)
+            return redirect("rights_%s:index" % section, uuid)
         else:
-            url = reverse(
-                "components.rights.views.%s_rights_grants_edit" % section,
-                args=[uuid, viewRights.pk],
-            )
+            url = reverse("rights_%s:grant_edit" % section, args=[uuid, viewRights.pk])
             return redirect(url)
     else:
         return render(request, "rights/rights_grants_edit.html", locals())
@@ -739,12 +729,12 @@ def rights_grants_edit(request, uuid, id, section="ingest"):
 
 def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
-    return redirect("components.rights.views.%s_rights_list" % section, uuid)
+    return redirect("rights_%s:index" % section, uuid)
 
 
 def rights_grant_delete(request, uuid, id, section):
     models.RightsStatementRightsGranted.objects.get(pk=id).delete()
-    return redirect("components.rights.views.%s_rights_list" % section, uuid)
+    return redirect("rights_%s:index" % section, uuid)
 
 
 def rights_holders_lookup(request, id):

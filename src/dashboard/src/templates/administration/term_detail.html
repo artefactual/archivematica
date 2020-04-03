@@ -18,8 +18,8 @@
 
       <ul class="breadcrumb">
         {% trans "Taxonomy" as taxonomy_label %}
-        {% breadcrumb_url taxonomy_label 'components.administration.views.taxonomy' %}
-        {% breadcrumb_url taxonomy.name 'components.administration.views.terms' taxonomy.id %}
+        {% breadcrumb_url taxonomy_label 'administration:taxonomy' %}
+        {% breadcrumb_url taxonomy.name 'administration:terms' taxonomy.id %}
         {% breadcrumb term.term %}
       </ul>
 

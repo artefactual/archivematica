@@ -37,7 +37,7 @@ class RevisionLinkNode(template.Node):
 
         return '<a class="revisions_link" href="{}">Revision history</a>'.format(
             reverse(
-                "revision_list",
+                "fpr:revision_list",
                 kwargs={"entity_name": revision_type, "uuid": object_uuid},
             )
         )

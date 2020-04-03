@@ -61,7 +61,7 @@ logger = logging.getLogger("archivematica.dashboard")
 
 
 def administration(request):
-    return redirect("components.administration.views_processing.list")
+    return redirect("administration:processing")
 
 
 def failure_report(request, report_id=None):
@@ -80,7 +80,7 @@ def failure_report(request, report_id=None):
 def delete_context(request, report_id):
     report = models.Report.objects.get(pk=report_id)
     prompt = "Delete failure report for " + report.unitname + "?"
-    cancel_url = reverse("components.administration.views.failure_report")
+    cancel_url = reverse("administration:reports_failures_index")
     return RequestContext(
         request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -90,7 +90,7 @@ def delete_context(request, report_id):
 def failure_report_delete(request, report_id):
     models.Report.objects.get(pk=report_id).delete()
     messages.info(request, _("Deleted."))
-    return redirect("components.administration.views.failure_report")
+    return redirect("administration:failure_report_index")
 
 
 def failure_report_detail(request):
@@ -405,7 +405,7 @@ def _usage_clear_context(request, dir_id):
         raise Http404
 
     prompt = _("Clear %(dir)s?") % {"dir": dir_info["description"]}
-    cancel_url = reverse("components.administration.views.usage")
+    cancel_url = reverse("administration:usage")
     return RequestContext(
         request, {"action": _("Clear"), "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -440,7 +440,7 @@ def usage_clear(request, dir_id):
         messages.error(request, message)
         logger.exception(message)
 
-    return redirect("components.administration.views.usage")
+    return redirect("administration:usage")
 
 
 def processing(request):
@@ -520,9 +520,7 @@ def term_detail(request, term_uuid):
 def term_delete_context(request, term_uuid):
     term = models.TaxonomyTerm.objects.get(pk=term_uuid)
     prompt = "Delete term " + term.term + "?"
-    cancel_url = reverse(
-        "components.administration.views.term_detail", args=[term_uuid]
-    )
+    cancel_url = reverse("administration:term", args=[term_uuid])
     return RequestContext(
         request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
     )
@@ -534,7 +532,7 @@ def term_delete(request, term_uuid):
         term = models.TaxonomyTerm.objects.get(pk=term_uuid)
         term.delete()
         return HttpResponseRedirect(
-            reverse("components.administration.views.terms", args=[term.taxonomy_id])
+            reverse("administration:terms", args=[term.taxonomy_id])
         )
 
 

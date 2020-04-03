@@ -21,11 +21,16 @@ from django.conf.urls import url
 
 from components.rights import views
 
+app_name = "rights_ingest"
 urlpatterns = [
-    url(r"^$", views.ingest_rights_list),
-    url(r"^add/$", views.ingest_rights_edit),
+    url(r"^$", views.ingest_rights_list, name="index"),
+    url(r"^add/$", views.ingest_rights_edit, name="add"),
     url(r"^delete/(?P<id>\d+)/$", views.ingest_rights_delete),
-    url(r"^grants/(?P<id>\d+)/delete/$", views.ingest_rights_grant_delete),
-    url(r"^grants/(?P<id>\d+)/$", views.ingest_rights_grants_edit),
-    url(r"^(?P<id>\d+)/$", views.ingest_rights_edit),
+    url(
+        r"^grants/(?P<id>\d+)/delete/$",
+        views.ingest_rights_grant_delete,
+        name="grant_delete",
+    ),
+    url(r"^grants/(?P<id>\d+)/$", views.ingest_rights_grants_edit, name="grants_edit"),
+    url(r"^(?P<id>\d+)/$", views.ingest_rights_edit, name="edit"),
 ]

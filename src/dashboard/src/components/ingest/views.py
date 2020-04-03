@@ -165,7 +165,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc = form.save()
         dc.type = dc_type
         dc.save()
-        return redirect("components.ingest.views.ingest_metadata_list", uuid)
+        return redirect("ingest:ingest_metadata_list", uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
 
@@ -230,7 +230,7 @@ def aic_metadata_add(request, uuid):
         destination_db = destination.replace(shared_dir, "%sharedPath%") + "/"
         models.SIP.objects.filter(uuid=uuid).update(currentpath=destination_db)
         shutil.move(source, destination)
-        return redirect("ingest_index")
+        return redirect("ingest:ingest_index")
 
     name = dc.title or "New AIC"
     aic = True
@@ -251,9 +251,7 @@ def ingest_metadata_event_detail(request, uuid):
 
     if formset.is_valid():
         formset.save()
-        return redirect(
-            "components.unit.views.detail", unit_type="ingest", unit_uuid=uuid
-        )
+        return redirect("unit:detail", unit_type="ingest", unit_uuid=uuid)
 
     # Add path for original and derived files to each form
     for form in formset:
@@ -275,7 +273,7 @@ def ingest_metadata_event_detail(request, uuid):
 
 
 def delete_context(request, uuid, id):
-    cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
+    cancel_url = reverse("ingest:ingest_metadata_list", args=[uuid])
     return RequestContext(
         request,
         {
@@ -291,7 +289,7 @@ def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
         messages.info(request, _("Deleted."))
-        return redirect("components.ingest.views.ingest_metadata_list", uuid)
+        return redirect("ingest:ingest_metadata_list", uuid)
     except:
         raise Http404
 
