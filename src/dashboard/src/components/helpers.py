@@ -25,6 +25,7 @@ import pprint
 import requests
 from wsgiref.util import FileWrapper
 
+from django.apps import apps
 from django.conf import settings as django_settings
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
@@ -33,7 +34,6 @@ from django.db import connection
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.translation import ugettext as _
-from tastypie.models import ApiKey
 from six.moves.urllib.parse import urlencode, urljoin
 from six.moves import range
 from six.moves import zip
@@ -430,6 +430,7 @@ def generate_api_key(user):
     """
     Generate API key for a user
     """
+    ApiKey = apps.get_model(app_label="tastypie", model_name="ApiKey")
     api_key, _ = ApiKey.objects.get_or_create(user=user)
     api_key.key = api_key.generate_key()
     api_key.save()
