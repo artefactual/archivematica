@@ -59,7 +59,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="siparrange",
             name="sip",
-            field=models.ForeignKey(default=None, blank=True, to="main.SIP", null=True),
+            field=models.ForeignKey(
+                default=None,
+                blank=True,
+                to="main.SIP",
+                null=True,
+                on_delete=models.CASCADE,
+            ),
             preserve_default=True,
         ),
         migrations.RunPython(data_migration),

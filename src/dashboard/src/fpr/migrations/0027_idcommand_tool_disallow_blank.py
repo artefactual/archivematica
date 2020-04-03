@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
                 to_field="uuid",
                 to="fpr.IDTool",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         )
     ]
