@@ -6,7 +6,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'fptool_list' %}">{% trans "Format policy registry tools" %}</a></li>
+<li><a href="{% url 'fpr:fptool_list' %}">{% trans "Format policy registry tools" %}</a></li>
 <li>{{ fptool.description }}</li>
 {% endblock breadcrumbs %}
 
@@ -28,7 +28,7 @@
         <dd>{{ fptool.enabled|yesno:_('Yes,No') }}</dd>
         {% if request.user.is_superuser %}
         <dt>{% trans "Actions" %}</dt>
-        <dd><a href="{% url 'fptool_edit' fptool.slug %}">{% trans "Edit" %}</a></dd>
+        <dd><a href="{% url 'fpr:fptool_edit' fptool.slug %}">{% trans "Edit" %}</a></dd>
         {% endif %}
       </dl>
     </div>
@@ -36,7 +36,7 @@
     <h2>{% trans "Tool commands" %}</h2>
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpcommand_create' %}?parent={{ fptool.uuid }}">{% trans "Create new tool command" %}</a></p>
+    <p><a href="{% url 'fpr:fpcommand_create' %}?parent={{ fptool.uuid }}">{% trans "Create new tool command" %}</a></p>
     {% endif %}
 
     {% if fpcommands %}
@@ -53,10 +53,10 @@
         <tbody>
         {% for fpcommand in fpcommands %}
           <tr>
-            <td><a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
-            <td><a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.uuid }}</a></td>
+            <td><a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
+            <td><a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.uuid }}</a></td>
             {% if request.user.is_superuser %}
-            <td><a href="{% url 'fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></td>
+            <td><a href="{% url 'fpr:fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></td>
             {% endif %}
           </tr>
         {% endfor %}

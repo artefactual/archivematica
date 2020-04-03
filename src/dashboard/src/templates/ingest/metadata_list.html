@@ -6,8 +6,8 @@
     <div class="col-md-12">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
-        {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
+        {% breadcrumb_url 'Ingest' 'ingest:ingest_index' %}
+        {% breadcrumb_url name 'unit:detail' 'ingest' uuid %}
         {% breadcrumb 'Metadata' %}
       </ul>
 
@@ -27,8 +27,8 @@
               <td>{{ item }}</td>
               <td>{{ name }}</td>
               <td>
-                <a href='{% url 'components.ingest.views.ingest_metadata_edit' uuid item.id %}'>Edit</a>
-                <a href='{% url 'components.ingest.views.ingest_metadata_delete' uuid item.id %}'>Delete</a>
+                <a href='{% url 'ingest:ingest_metadata_edit' uuid item.id %}'>Edit</a>
+                <a href='{% url 'ingest:ingest_metadata_delete' uuid item.id %}'>Delete</a>
               </td>
             </tr>
           {% endfor %}
@@ -36,7 +36,7 @@
       </table>
 
       <div class="actions" style="padding-left: 1em;">
-        <a class="btn btn-primary" href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">Add</a>
+        <a class="btn btn-primary" href="{% url 'ingest:ingest_metadata_add' uuid %}">Add</a>
       </div>
 
     </div>

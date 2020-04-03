@@ -11,8 +11,8 @@
       {% trans "Microservices" as microservices_label %}
 
       <ul class="breadcrumb">
-        {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
-        {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
+        {% breadcrumb_url transfer_label 'transfer:transfer_index' %}
+        {% breadcrumb_url name 'unit:detail' 'transfer' uuid %}
         {% breadcrumb microservices_label %}
       </ul>
 

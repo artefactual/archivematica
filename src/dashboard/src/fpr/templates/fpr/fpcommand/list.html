@@ -19,7 +19,7 @@
   <div class="col-xs-10">
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpcommand_create' %}">{% trans "Create new command" %}</a></p>
+    <p><a href="{% url 'fpr:fpcommand_create' %}">{% trans "Create new command" %}</a></p>
     {% endif %}
 
     {% if fpcommands %}
@@ -36,14 +36,14 @@
         <tbody>
         {% for fpcommand in fpcommands %}
           <tr>
-            <td><a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
+            <td><a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
             <td>{{ fpcommand.get_command_usage_display }}</td>
             <td>{{ fpcommand.tool.description }}</td>
             <td>{{ fpcommand.enabled|yesno:_('Yes,No') }}</td>
-            <td> <a href="{% url 'fpcommand_detail' fpcommand.uuid %}">{% trans "View" %}</a>
+            <td> <a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{% trans "View" %}</a>
               {% if request.user.is_superuser %}
-                | <a href="{% url 'fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a>
-                | <a href="{% url 'fpcommand_delete' fpcommand.uuid %}">{{ fpcommand.enabled|yesno:_("Disable,Enable") }}</a>
+                | <a href="{% url 'fpr:fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a>
+                | <a href="{% url 'fpr:fpcommand_delete' fpcommand.uuid %}">{{ fpcommand.enabled|yesno:_("Disable,Enable") }}</a>
               {% endif %}
             </td>
           </tr>

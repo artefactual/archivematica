@@ -30,8 +30,8 @@ select {
     <ul class="breadcrumb">
       {% trans "Ingest" as ingest_label %}
       {% trans "Add metadata files" as add_metadata_files_label %}
-      {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
-      {% breadcrumb_url name 'components.unit.views.detail' 'ingest' sip_uuid %}
+      {% breadcrumb_url ingest_label 'ingest:ingest_index' %}
+      {% breadcrumb_url name 'unit:detail' 'ingest' sip_uuid %}
       {% breadcrumb add_metadata_files_label %}
     </ul>
 

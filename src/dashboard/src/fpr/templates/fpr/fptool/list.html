@@ -19,7 +19,7 @@
   <div class="col-xs-10">
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'fptool_create' %}">{% trans "Create new tool" %}</a></p>
+    <p><a href="{% url 'fpr:fptool_create' %}">{% trans "Create new tool" %}</a></p>
     {% endif %}
 
     {% if fptools %}
@@ -33,11 +33,11 @@
         <tbody>
         {% for fptool in fptools %}
           <tr>
-            <td><a href="{% url 'fptool_detail' fptool.slug %}">{{ fptool.description }}</a></td>
+            <td><a href="{% url 'fpr:fptool_detail' fptool.slug %}">{{ fptool.description }}</a></td>
             <td>
-               <a href="{% url 'fptool_detail' fptool.slug %}">{% trans "View" %}</a>
+               <a href="{% url 'fpr:fptool_detail' fptool.slug %}">{% trans "View" %}</a>
                {% if request.user.is_superuser %}
-                 | <a href="{% url 'fptool_edit' fptool.slug %}">{% trans "Edit" %}</a>
+                 | <a href="{% url 'fpr:fptool_edit' fptool.slug %}">{% trans "Edit" %}</a>
                {% endif %}
             </td>
           </tr>

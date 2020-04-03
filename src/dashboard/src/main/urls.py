@@ -23,9 +23,10 @@ from django.conf import settings
 from main import views
 
 
+app_name = "main"
 urlpatterns = [
     # Index
-    url(r"^$", views.home),
+    url(r"^$", views.home, name="main_index"),
     # JavaScript i18n catalog
     url(
         r"^jsi18n/$",
@@ -34,13 +35,13 @@ urlpatterns = [
         name="javascript-catalog",
     ),
     # Forbidden
-    url(r"forbidden/$", views.forbidden),
+    url(r"forbidden/$", views.forbidden, name="forbidden"),
     # Jobs and tasks (is part of ingest)
     url(r"tasks/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.tasks),
-    url(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task),
+    url(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task, name="task"),
     # Access
-    url(r"access/$", views.access_list),
-    url(r"access/(?P<id>\d+)/delete/$", views.access_delete),
+    url(r"access/$", views.access_list, name="access_index"),
+    url(r"access/(?P<id>\d+)/delete/$", views.access_delete, name="access_delete"),
     # JSON feeds
     url(r"status/$", views.status),
     url(

@@ -9,7 +9,7 @@
 
     <h1><a href="http://www.archivematica.org">Archivematica</a></h1>
 
-    <form class="form-stacked" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+    <form class="form-stacked" method="post" action="{% url 'accounts:login' %}">
 
       {% csrf_token %}
 
@@ -18,7 +18,7 @@
       </div>
 
       <div class="actions">
-        <a id="forgot-password" style="display: none;" href="{% url 'django.contrib.auth.views.login' %}">{% trans "Forgot your password?" %}</a>
+        <a id="forgot-password" style="display: none;" href="{% url 'accounts:login' %}">{% trans "Forgot your password?" %}</a>
         <button class="btn btn-primary" type="submit">{% trans "Log in" %}</button>
       </div>
 

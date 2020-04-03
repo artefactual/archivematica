@@ -5,6 +5,7 @@ from django.conf.urls import url
 
 from components.access import views
 
+app_name = "access"
 urlpatterns = [
     url(r"archivesspace/$", views.all_records),
     url(r"archivesspace/levels/$", views.get_levels_of_description),
@@ -12,6 +13,7 @@ urlpatterns = [
     url(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/contents/arrange/$",
         views.access_arrange_contents,
+        name="access_arrange_contents",
     ),
     url(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/copy_to_arrange/$",
@@ -24,6 +26,7 @@ urlpatterns = [
     url(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/create_directory_within_arrange/$",
         views.access_create_directory,
+        name="access_create_directory",
     ),
     url(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/rights/$", views.access_sip_rights

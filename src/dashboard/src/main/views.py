@@ -66,10 +66,7 @@ def home(request):
 
     if "first_login" in request.session and request.session["first_login"]:
         request.session.first_login = False
-        redirectUrl = reverse("components.transfer.views.grid")
-    else:
-        redirectUrl = reverse("components.transfer.views.grid")
-    return redirect(redirectUrl)
+    return redirect(reverse("transfer:transfer_index"))
 
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -125,7 +122,7 @@ def access_list(request):
 def access_delete(request, id):
     access = get_object_or_404(models.Access, pk=id)
     access.delete()
-    return redirect("main.views.access_list")
+    return redirect("main:access_index")
 
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

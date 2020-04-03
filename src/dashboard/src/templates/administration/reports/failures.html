@@ -31,12 +31,12 @@
           <tbody>
             {% for report in page.object_list %}
             <tr>
-              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}"><span class='timestamp'>{{ report.created|date:"U" }}</span></a></td>
+              <td><a href="{% url 'administration:failure_report' report.pk %}"><span class='timestamp'>{{ report.created|date:"U" }}</span></a></td>
               <td><span class="label important">{{ report.unittype }}</span></td>
-              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitname }}</a></td>
-              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitidentifier }}</a></td>
+              <td><a href="{% url 'administration:failure_report' report.pk %}">{{ report.unitname }}</a></td>
+              <td><a href="{% url 'administration:failure_report' report.pk %}">{{ report.unitidentifier }}</a></td>
               <td>
-                <a href="{% url 'components.administration.views.failure_report_delete' report.pk %}" class='btn btn-danger btn-sm'>{% trans "Delete" %}</a>
+                <a href="{% url 'administration:failure_report_delete' report.pk %}" class='btn btn-danger btn-sm'>{% trans "Delete" %}</a>
               </td>
             </tr>
             {% endfor %}

@@ -6,6 +6,7 @@ from django.conf import settings
 
 from components.file import views
 
+app_name = "file"
 urlpatterns = [
     url(r"(?P<fileuuid>" + settings.UUID_REGEX + ")/$", views.file_details),
     url(

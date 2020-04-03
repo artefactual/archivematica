@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'idrule_list' %}">{% trans "Identification rules" %}</a></li>
+<li><a href="{% url 'fpr:idrule_list' %}">{% trans "Identification rules" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -20,9 +20,9 @@
 
 <div class='form'>
     {% if idrule %}
-    <form action="{% url 'idrule_edit' idrule.uuid %}" method="post">
+    <form action="{% url 'fpr:idrule_edit' idrule.uuid %}" method="post">
     {% else %}
-    <form action="{% url 'idrule_create' %}" method="post">
+    <form action="{% url 'fpr:idrule_create' %}" method="post">
     {% endif %}
         {% csrf_token %}
         {{ form|as_bootstrap }}

@@ -39,7 +39,7 @@ def context(variables):
 
 
 def home(request):
-    return redirect("format_list")
+    return redirect("fpr:format_list")
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
@@ -50,7 +50,7 @@ def toggle_enabled(request, category, uuid):
     obj.enabled = not obj.enabled
     obj.save()
 
-    return redirect(category + "_list")
+    return redirect("fpr:{}_list".format(category))
 
 
 # ########### FORMATS ############
@@ -104,14 +104,14 @@ def format_edit(request, slug=None):
             format.group = group
             format.save()
             messages.info(request, _("Saved."))
-            return redirect("format_detail", format.slug)
+            return redirect("fpr:format_detail", format.slug)
         elif form.cleaned_data["group"] != "new":
             format = form.save(commit=False)
             group = fprmodels.FormatGroup.objects.get(uuid=form.cleaned_data["group"])
             format.group = group
             format = form.save()
             messages.info(request, _("Saved."))
-            return redirect("format_detail", format.slug)
+            return redirect("fpr:format_detail", format.slug)
 
     return render(request, "fpr/format/form.html", context(locals()))
 
@@ -148,7 +148,7 @@ def formatversion_edit(request, format_slug, slug=None):
             fprmodels.FormatVersion, "uuid", replaces, new_version
         )
         messages.info(request, _("Saved."))
-        return redirect("format_detail", format.slug)
+        return redirect("fpr:format_detail", format.slug)
     else:
         utils.warn_if_replacing_with_old_revision(request, version)
 
@@ -161,10 +161,10 @@ def formatversion_delete(request, format_slug, slug):
     version = get_object_or_404(fprmodels.FormatVersion, slug=slug, format=format)
     dependent_objects = utils.dependent_objects(version)
     breadcrumbs = [
-        {"text": _("Format versions"), "link": reverse("format_list")},
+        {"text": _("Format versions"), "link": reverse("fpr:format_list")},
         {
             "text": format.description,
-            "link": reverse("format_detail", args=[format.slug]),
+            "link": reverse("fpr:format_detail", args=[format.slug]),
         },
     ]
     if request.method == "POST":
@@ -178,7 +178,7 @@ def formatversion_delete(request, format_slug, slug):
             version.enabled = True
             messages.info(request, _("Enabled."))
         version.save()
-        return redirect("format_detail", format.slug)
+        return redirect("fpr:format_detail", format.slug)
     return render(
         request,
         "fpr/disable.html",
@@ -187,7 +187,7 @@ def formatversion_delete(request, format_slug, slug):
                 "breadcrumbs": breadcrumbs,
                 "dependent_objects": dependent_objects,
                 "form_url": reverse(
-                    "formatversion_delete", args=[format.slug, version.slug]
+                    "fpr:formatversion_delete", args=[format.slug, version.slug]
                 ),
                 "toggle_label": _("Enable/disable format version"),
                 "object": version,
@@ -218,7 +218,7 @@ def formatgroup_edit(request, slug=None):
     if form.is_valid():
         group = form.save()
         messages.info(request, "Saved.")
-        return redirect("formatgroup_list")
+        return redirect("fpr:formatgroup_list")
 
     return render(request, "fpr/format/group/form.html", context(locals()))
 
@@ -256,10 +256,10 @@ def formatgroup_delete(request, slug):
                             "Please select a group to substitute for this group in member formats."
                         ),
                     )
-                    return redirect("formatgroup_delete", slug)
+                    return redirect("fpr:formatgroup_delete", slug)
             group.delete()
             messages.info(request, _("Deleted."))
-        return redirect("formatgroup_list")
+        return redirect("fpr:formatgroup_list")
     else:
         return render(request, "fpr/format/group/delete.html", context(locals()))
 
@@ -299,7 +299,7 @@ def idtool_edit(request, slug=None):
     if form.is_valid():
         idtool = form.save()
         messages.info(request, _("Saved."))
-        return redirect("idtool_detail", idtool.slug)
+        return redirect("fpr:idtool_detail", idtool.slug)
 
     return render(request, "fpr/idtool/form.html", context(locals()))
 
@@ -340,7 +340,7 @@ def idrule_edit(request, uuid=None):
         )
         new_idrule.save(replacing=replaces)
         messages.info(request, _("Saved."))
-        return redirect("idrule_list")
+        return redirect("fpr:idrule_list")
     else:
         utils.warn_if_replacing_with_old_revision(request, idrule)
 
@@ -351,8 +351,8 @@ def idrule_edit(request, uuid=None):
 def idrule_delete(request, uuid):
     idrule = get_object_or_404(fprmodels.IDRule, uuid=uuid)
     breadcrumbs = [
-        {"text": _("Identification rules"), "link": reverse("idrule_list")},
-        {"text": str(idrule), "link": reverse("idrule_detail", args=[idrule.uuid])},
+        {"text": _("Identification rules"), "link": reverse("fpr:idrule_list")},
+        {"text": str(idrule), "link": reverse("fpr:idrule_detail", args=[idrule.uuid])},
     ]
     if request.method == "POST":
         if "disable" in request.POST:
@@ -362,7 +362,7 @@ def idrule_delete(request, uuid):
             idrule.enabled = True
             messages.info(request, _("Enabled."))
         idrule.save()
-        return redirect("idrule_detail", idrule.uuid)
+        return redirect("fpr:idrule_detail", idrule.uuid)
     return render(
         request,
         "fpr/disable.html",
@@ -370,7 +370,7 @@ def idrule_delete(request, uuid):
             {
                 "breadcrumbs": breadcrumbs,
                 "dependent_objects": None,
-                "form_url": reverse("idrule_delete", args=[idrule.uuid]),
+                "form_url": reverse("fpr:idrule_delete", args=[idrule.uuid]),
                 "toggle_label": _("Enable/disable identification rule"),
                 "object": idrule,
             }
@@ -431,7 +431,7 @@ def idcommand_edit(request, uuid=None):
             fprmodels.IDCommand, "uuid", replaces, new_idcommand
         )
         messages.info(request, _("Saved."))
-        return redirect("idcommand_list")
+        return redirect("fpr:idcommand_list")
     else:
         utils.warn_if_replacing_with_old_revision(request, idcommand)
 
@@ -442,10 +442,10 @@ def idcommand_edit(request, uuid=None):
 def idcommand_delete(request, uuid):
     command = get_object_or_404(fprmodels.IDCommand, uuid=uuid)
     breadcrumbs = [
-        {"text": _("Identification commands"), "link": reverse("idcommand_list")},
+        {"text": _("Identification commands"), "link": reverse("fpr:idcommand_list")},
         {
             "text": command.description,
-            "link": reverse("idcommand_detail", args=[command.uuid]),
+            "link": reverse("fpr:idcommand_detail", args=[command.uuid]),
         },
     ]
     if request.method == "POST":
@@ -456,14 +456,14 @@ def idcommand_delete(request, uuid):
             command.enabled = True
             messages.info(request, _("Enabled."))
         command.save()
-        return redirect("idcommand_detail", command.uuid)
+        return redirect("fpr:idcommand_detail", command.uuid)
     return render(
         request,
         "fpr/disable.html",
         context(
             {
                 "breadcrumbs": breadcrumbs,
-                "form_url": reverse("idcommand_delete", args=[command.uuid]),
+                "form_url": reverse("fpr:idcommand_delete", args=[command.uuid]),
                 "toggle_label": _("Enable/disable identification command"),
                 "object": command,
             }
@@ -525,7 +525,7 @@ def fprule_edit(request, uuid=None):
             fprule.command = command
             fprule.save(replacing=replaces)
             messages.info(request, _("Saved."))
-            return redirect("fprule_detail", fprule.uuid)
+            return redirect("fpr:fprule_detail", fprule.uuid)
         elif form.cleaned_data["command"] != "new":
             fprule = form.save(commit=False)
             command = fprmodels.FPCommand.objects.get(uuid=form.cleaned_data["command"])
@@ -533,7 +533,7 @@ def fprule_edit(request, uuid=None):
             fprule = form.save()
             fprule.save(replacing=replaces)
             messages.info(request, _("Saved."))
-            return redirect("fprule_list")
+            return redirect("fpr:fprule_list")
     else:
         utils.warn_if_replacing_with_old_revision(request, fprule)
 
@@ -544,8 +544,8 @@ def fprule_edit(request, uuid=None):
 def fprule_delete(request, uuid):
     fprule = get_object_or_404(fprmodels.FPRule, uuid=uuid)
     breadcrumbs = [
-        {"text": _("Format policy rules"), "link": reverse("fprule_list")},
-        {"text": str(fprule), "link": reverse("fprule_detail", args=[fprule.uuid])},
+        {"text": _("Format policy rules"), "link": reverse("fpr:fprule_list")},
+        {"text": str(fprule), "link": reverse("fpr:fprule_detail", args=[fprule.uuid])},
     ]
 
     if request.method == "POST":
@@ -556,7 +556,7 @@ def fprule_delete(request, uuid):
             fprule.enabled = True
             messages.info(request, _("Enabled."))
         fprule.save()
-        return redirect("fprule_detail", fprule.uuid)
+        return redirect("fpr:fprule_detail", fprule.uuid)
     return render(
         request,
         "fpr/disable.html",
@@ -564,7 +564,7 @@ def fprule_delete(request, uuid):
             {
                 "breadcrumbs": breadcrumbs,
                 "dependent_objects": None,
-                "form_url": reverse("fprule_delete", args=[fprule.uuid]),
+                "form_url": reverse("fpr:fprule_delete", args=[fprule.uuid]),
                 "toggle_label": _("Enable/disable format policy registry rule"),
                 "object": fprule,
             }
@@ -600,7 +600,7 @@ def fptool_edit(request, slug=None):
     if form.is_valid():
         fptool = form.save()
         messages.info(request, _("Saved."))
-        return redirect("fptool_detail", fptool.slug)
+        return redirect("fpr:fptool_detail", fptool.slug)
 
     return render(request, "fpr/fptool/form.html", context(locals()))
 
@@ -654,7 +654,7 @@ def fpcommand_edit(request, uuid=None):
                 fprmodels.FPCommand, "uuid", replaces, new_fpcommand
             )
             messages.info(request, _("Saved."))
-            return redirect("fpcommand_list", new_fpcommand.command_usage)
+            return redirect("fpr:fpcommand_list", new_fpcommand.command_usage)
     else:
         # Set tool to parent if it exists
         initial = {}
@@ -675,10 +675,10 @@ def fpcommand_delete(request, uuid):
     command = get_object_or_404(fprmodels.FPCommand, uuid=uuid)
     dependent_objects = utils.dependent_objects(command)
     breadcrumbs = [
-        {"text": _("Format policy commands"), "link": reverse("fpcommand_list")},
+        {"text": _("Format policy commands"), "link": reverse("fpr:fpcommand_list")},
         {
             "text": command.description,
-            "link": reverse("fpcommand_detail", args=[command.uuid]),
+            "link": reverse("fpr:fpcommand_detail", args=[command.uuid]),
         },
     ]
     if request.method == "POST":
@@ -692,7 +692,7 @@ def fpcommand_delete(request, uuid):
             command.enabled = True
             messages.info(request, _("Enabled."))
         command.save()
-        return redirect("fpcommand_detail", command.uuid)
+        return redirect("fpr:fpcommand_detail", command.uuid)
     return render(
         request,
         "fpr/disable.html",
@@ -700,7 +700,7 @@ def fpcommand_delete(request, uuid):
             {
                 "breadcrumbs": breadcrumbs,
                 "dependent_objects": dependent_objects,
-                "form_url": reverse("fpcommand_delete", args=[command.uuid]),
+                "form_url": reverse("fpr:fpcommand_delete", args=[command.uuid]),
                 "toggle_label": _("Enable/disable format policy command"),
                 "object": command,
             }
@@ -762,6 +762,7 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
             detail_view_name = entity_name + "_edit"
         else:
             detail_view_name = entity_name + "_detail"
+        detail_view_name = "fpr:{}".format(detail_view_name)
 
         try:
             parent_key_value = None

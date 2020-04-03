@@ -20,7 +20,8 @@ from __future__ import absolute_import
 from django.conf.urls import url
 from installer import views
 
+app_name = "installer"
 urlpatterns = [
-    url(r"welcome/$", views.welcome),
-    url(r"storagesetup/$", views.storagesetup),
+    url(r"welcome/$", views.welcome, name="welcome"),
+    url(r"storagesetup/$", views.storagesetup, name="storagesetup"),
 ]

@@ -28,7 +28,7 @@
   <ul class="breadcrumb">
     {% trans "Archival storage" as archival_storage_label %}
     {% trans "Search" as search_label %}
-    {% breadcrumb_url archival_storage_label 'components.archival_storage.views.overview' %}
+    {% breadcrumb_url archival_storage_label 'archival_storage:archival_storage_index' %}
     {% breadcrumb search_label %}
   </ul>
 
@@ -37,7 +37,7 @@
   {% if results %}
     {% if not file_mode %}
     <div>
-      <form action="{% url 'create_aic' %}" method="post">
+      <form action="{% url 'archival_storage:create_aic' %}" method="post">
         {{ aic_creation_form }}
         <input type='submit' class='btn btn-primary' id='create_aic' value='{% trans "Create an AIC" %}'>
       </form>
@@ -68,7 +68,7 @@
         {% for term_usage in results %}
           <tr>
             <td>
-              <a href="{% url 'view_aip' term_usage.uuid %}">{{ term_usage.name }}</a>
+              <a href="{% url 'archival_storage:view_aip' term_usage.uuid %}">{{ term_usage.name }}</a>
             </td>
             <td class="size">
               {% if term_usage.size %}
@@ -77,7 +77,7 @@
                 {% trans "Unknown" %}
               {% endif %}
             </td>
-            <td class="uuid"><a href="{% url 'view_aip' term_usage.uuid %}">{{ term_usage.uuid }}</a></td>
+            <td class="uuid"><a href="{% url 'archival_storage:view_aip' term_usage.uuid %}">{{ term_usage.uuid }}</a></td>
             {% if show_aics %}
               <td>
                 {% if term_usage.type == 'AIC' %}
@@ -95,7 +95,7 @@
             <td><span class='timestamp'>{{ term_usage.created }}</a></td>
             <td>{{ term_usage.status }}</td>
             <td>{{ term_usage.encrypted }}</td>
-            <td><a href="{% url 'view_aip' term_usage.uuid %}">{% trans "View" %}</a></td>
+            <td><a href="{% url 'archival_storage:view_aip' term_usage.uuid %}">{% trans "View" %}</a></td>
           </tr>
         {% endfor %}
         </tbody>
@@ -113,18 +113,18 @@
         <div class='aip-search-item'>
         {% if item.sipname %}
           <div class='aip-search-item-thumbnail-column'>
-            <a href="{% url 'components.archival_storage.views.aip_file_download' item.fileuuid %}">
+            <a href="{% url 'archival_storage:aip_file_download' item.fileuuid %}">
               <img src="/archival-storage/thumbnail/{{ item.fileuuid }}"/>
             </a>
           </div>
 
           <div class='aip-search-item-file-column'>
-            <div><a class='uuid' href="{% url 'components.archival_storage.views.aip_file_download' item.fileuuid %}">{{ item.filename }}</a></div>
-            <div><a class='uuid' href="{% url 'components.archival_storage.views.aip_file_download' item.fileuuid %}">{{ item.fileuuid }}</a></div>
+            <div><a class='uuid' href="{% url 'archival_storage:aip_file_download' item.fileuuid %}">{{ item.filename }}</a></div>
+            <div><a class='uuid' href="{% url 'archival_storage:aip_file_download' item.fileuuid %}">{{ item.fileuuid }}</a></div>
           </div>
 
           <div class='aip-search-item-aip-column'>
-            <div><a class='uuid' href="{% url 'components.archival_storage.views.view_aip' item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
+            <div><a class='uuid' href="{% url 'archival_storage:view_aip' item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
             <div><a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>({% trans "view raw" %})</a></div>
           </div>
         {% else %}

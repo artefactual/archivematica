@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'fprule_list' usage %}">{% trans "Format policy rules" %}</a></li>
+<li><a href="{% url 'fpr:fprule_list' usage %}">{% trans "Format policy rules" %}</a></li>
 <li>{% blocktrans with description=fprule.purpose|title %}Rule {{ description }}{% endblocktrans %}</li>
 {% endblock breadcrumbs %}
 
@@ -28,9 +28,9 @@
         <dt>{% trans "Purpose" %}</dt>
         <dd>{{ fprule.get_purpose_display }} Rule</dd>
         <dt>{% trans "Format" %}</dt>
-        <dd><a href="{% url 'formatversion_detail' fprule.format.format.slug fprule.format.slug %}">{{ fprule.format.description }}</a></dd>
+        <dd><a href="{% url 'fpr:formatversion_detail' fprule.format.format.slug fprule.format.slug %}">{{ fprule.format.description }}</a></dd>
         <dt>{% trans "Command" %}</dt>
-        <dd><a href="{% url 'fpcommand_detail' fprule.command.uuid %}">{{ fprule.command.description }}</a></dd>
+        <dd><a href="{% url 'fpr:fpcommand_detail' fprule.command.uuid %}">{{ fprule.command.description }}</a></dd>
         <dt>{% trans "Stats" %}</dt>
         <dd>{% blocktrans with count=fprule.count_okay %}Success: {{ count }}{% endblocktrans %}</dd>
         <dd>{% blocktrans with count=fprule.count_not_okay %}Failure: {{ count }}{% endblocktrans %}</dd>
@@ -39,8 +39,8 @@
         <dd>{{ fprule.enabled|yesno:_('Yes,No') }}</dd>
         {% if request.user.is_superuser %}
         <dt>{% trans "Actions" %}</dt>
-        <dd><a href="{% url 'fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a></dd>
-        <dd><a href="{% url 'fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a></dd>
+        <dd><a href="{% url 'fpr:fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a></dd>
+        <dd><a href="{% url 'fpr:fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a></dd>
         {% endif %}
       </dl>
     </div>

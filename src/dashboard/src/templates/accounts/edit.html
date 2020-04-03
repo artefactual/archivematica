@@ -19,11 +19,11 @@
 
       <ul class="breadcrumb">
         {% trans "Users" as users %}
-        {% breadcrumb_url users 'components.accounts.views.list' %}
+        {% breadcrumb_url users 'accounts:accounts_index' %}
         {% breadcrumb title %}
       </ul>
 
-      <form method="post" action="{% url 'components.accounts.views.edit' user.id %}">
+      <form method="post" action="{% url 'accounts:edit' user.id %}">
 
         {% csrf_token %}
 
@@ -37,7 +37,7 @@
 
         <div class="actions">
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-          <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">{% trans "Cancel" %}</a>
+          <a class="btn btn-default" href="{% url 'accounts:accounts_index' %}">{% trans "Cancel" %}</a>
         </div>
 
       </form>

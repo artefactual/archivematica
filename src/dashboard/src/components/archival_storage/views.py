@@ -82,7 +82,7 @@ def search(request):
     # redirect if no search params have been set
     if "query" not in request.GET:
         return helpers.redirect_with_get_params(
-            "components.archival_storage.views.search", query="", field="", type=""
+            "archival_storage:archival_storage_search", query="", field="", type=""
         )
 
     # get string of URL parameters that should be passed along when paging
@@ -285,7 +285,7 @@ def create_aic(request, *args, **kwargs):
             logger.exception(
                 "Error creating AIC: Error creating directory {}".format(destination)
             )
-            return redirect("archival_storage_index")
+            return redirect("archival_storage:archival_storage_index")
 
         # Create SIP in DB
         mcp_destination = destination.replace(shared_dir, "%sharedPath%") + "/"
@@ -298,11 +298,11 @@ def create_aic(request, *args, **kwargs):
                 os.chmod(filepath, 0o660)
                 f.write(str(aip["_source"]["name"]))
 
-        return redirect("components.ingest.views.aic_metadata_add", temp_uuid)
+        return redirect("ingest:aic_metadata_add", temp_uuid)
     else:
         messages.error(request, "Error creating AIC")
         logger.error("Error creating AIC: Form not valid: {}".format(aic_form))
-        return redirect("archival_storage_index")
+        return redirect("archival_storage:archival_storage_index")
 
 
 def aip_download(request, uuid):
@@ -647,7 +647,7 @@ def view_aip(request, uuid):
                 )
             else:
                 messages.success(request, message)
-            return redirect("archival_storage_index")
+            return redirect("archival_storage:archival_storage_index")
 
     # Process delete form
     if request.POST and "submit-delete-form" in request.POST:
@@ -663,7 +663,7 @@ def view_aip(request, uuid):
             messages.info(request, response["message"])
             es_client = elasticSearchFunctions.get_client()
             elasticSearchFunctions.mark_aip_deletion_requested(es_client, uuid)
-            return redirect("archival_storage_index")
+            return redirect("archival_storage:archival_storage_index")
 
     context = {
         "uuid": uuid,

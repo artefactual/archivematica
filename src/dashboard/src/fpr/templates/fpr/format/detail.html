@@ -6,7 +6,7 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  <li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+  <li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
   <li>{{ format.description }}</li>
 {% endblock breadcrumbs %}
 
@@ -27,14 +27,14 @@
             <dt>{% trans "Group" %}</dt>
               <dd>
                 {% if request.user.is_superuser %}
-                  <a href="{% url 'formatgroup_edit' format.group.slug %}">{{ format.group }}</a>
+                  <a href="{% url 'fpr:formatgroup_edit' format.group.slug %}">{{ format.group }}</a>
                 {% else %}
                   {{ format.group }}
                 {% endif %}
               </dd>
             {% if request.user.is_superuser %}
             <dt>{% trans "Actions" %}</dt>
-              <dd><a href="{% url 'format_edit' format.slug %}">{% trans "Edit" %}</a></dd>
+              <dd><a href="{% url 'fpr:format_edit' format.slug %}">{% trans "Edit" %}</a></dd>
             {% endif %}
         </dl>
     </div>
@@ -42,7 +42,7 @@
     <h2>{% trans "Specific versions" %}</h2>
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'formatversion_create' format.slug %}">{% trans "Create new format version" %}</a></p>
+    <p><a href="{% url 'fpr:formatversion_create' format.slug %}">{% trans "Create new format version" %}</a></p>
     {% endif %}
 
     {% if format_versions %}
@@ -61,17 +61,17 @@
         <tbody>
         {% for version in format_versions %}
           <tr>
-            <td><a href="{% url 'formatversion_detail' format.slug version.slug %}">{{ version.description }}</a></td>
+            <td><a href="{% url 'fpr:formatversion_detail' format.slug version.slug %}">{{ version.description }}</a></td>
             <td>{% if version.version  %}{{ version.version }}{% endif %}</td>
             <td>{% if version.pronom_id %}<a href="https://www.nationalarchives.gov.uk/PRONOM/{{ version.pronom_id }}" target=_blank>{{ version.pronom_id}}</a>{% endif %}</td>
             <td>{{ version.access_format|yesno:_("Yes,No") }}</td>
             <td>{{ version.preservation_format|yesno:_("Yes,No") }}</td>
             <td>{{ version.enabled }}</td>
             <td>
-              <a href="{% url 'formatversion_detail' format.slug version.slug %}">{% trans "View" %}</a>
+              <a href="{% url 'fpr:formatversion_detail' format.slug version.slug %}">{% trans "View" %}</a>
               {% if request.user.is_superuser %}
-                | <a href="{% url 'formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a>
-                | <a href="{% url 'formatversion_delete' format.slug version.slug %}">{{ version.enabled|yesno:_("Disable,Enable") }}</a></td>
+                | <a href="{% url 'fpr:formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a>
+                | <a href="{% url 'fpr:formatversion_delete' format.slug version.slug %}">{{ version.enabled|yesno:_("Disable,Enable") }}</a></td>
               {% endif %}
           </tr>
         {% endfor %}

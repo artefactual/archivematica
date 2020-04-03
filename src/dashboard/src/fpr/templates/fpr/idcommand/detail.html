@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'idcommand_list' %}">{% trans "Identification commands" %}</a></li>
+<li><a href="{% url 'fpr:idcommand_list' %}">{% trans "Identification commands" %}</a></li>
 <li>{{ idcommand.description }}</li>
 {% endblock breadcrumbs %}
 
@@ -39,8 +39,8 @@
           <dd>{{ idcommand.enabled|yesno:_('Yes,No') }}</dd>
         {% if request.user.is_superuser %}
         <dt>{% trans "Actions" %}</dt>
-          <dd><a href="{% url 'idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a></dd>
-          <dd><a href="{% url 'idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
+          <dd><a href="{% url 'fpr:idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a></dd>
+          <dd><a href="{% url 'fpr:idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a></dd>
         {% endif %}
       </dl>
     </div>

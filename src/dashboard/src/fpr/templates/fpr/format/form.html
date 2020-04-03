@@ -16,7 +16,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -30,9 +30,9 @@
     <div class='format'>
 
       {% if format %}
-      <form action="{% url 'format_edit' format.slug %}" method="post" id='format_form'>
+      <form action="{% url 'fpr:format_edit' format.slug %}" method="post" id='format_form'>
       {% else %}
-      <form action="{% url 'format_create' %}" method="post" id='format_form'>
+      <form action="{% url 'fpr:format_create' %}" method="post" id='format_form'>
       {% endif %}
         {% csrf_token %}
         <p>

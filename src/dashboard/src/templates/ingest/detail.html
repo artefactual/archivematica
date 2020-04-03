@@ -8,7 +8,7 @@
 
       <ul class="breadcrumb">
         {% trans "Ingest" as ingest_label %}
-        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
+        {% breadcrumb_url ingest_label 'ingest:ingest_index' %}
         {% breadcrumb name %}
       </ul>
 
@@ -27,28 +27,28 @@
         <div class="alert alert-info block-message">
           <p>{% trans "There are micro-services awaiting user decisions." %}</p>
           <div class="alert-actions">
-            <a class="btn btn-sm" href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "View micro-services" %}</a>
+            <a class="btn btn-sm" href="{% url 'unit:microservices' unit_type uuid %}">{% trans "View micro-services" %}</a>
           </div>
         </div>
       {% endif %}
 
       <h5>{% trans "Microservices" %}</h5>
       <ul>
-        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'unit:microservices' unit_type uuid %}">{% trans "List" %}</a></li>
       </ul>
 
       <h5>{% trans "Rights" %}</h5>
       <ul>
-        <li><a href="{% url 'components.rights.views.ingest_rights_list' uuid %}">{% trans "List" %}</a></li>
-        <li><a href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">{% trans "Add" %}</a></li>
+        <li><a href="{% url 'rights_ingest:index' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'rights_ingest:add' uuid %}">{% trans "Add" %}</a></li>
       </ul>
 
       <h5>{% trans "Metadata" %}</h5>
       <ul>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_list' uuid %}">{% trans "List" %}</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">{% trans "Add" %}</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_event_detail' uuid %}">{% trans "Manual normalization event detail" %}</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_add_files' uuid %}">{% trans "Add metadata files" %}</a></li>
+        <li><a href="{% url 'ingest:ingest_metadata_list' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'ingest:ingest_metadata_add' uuid %}">{% trans "Add" %}</a></li>
+        <li><a href="{% url 'ingest:ingest_metadata_event_detail' uuid %}">{% trans "Manual normalization event detail" %}</a></li>
+        <li><a href="{% url 'ingest:ingest_metadata_add_files' uuid %}">{% trans "Add metadata files" %}</a></li>
       </ul>
 
     </div>

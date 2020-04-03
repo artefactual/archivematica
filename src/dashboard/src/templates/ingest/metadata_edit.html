@@ -32,9 +32,9 @@ $(document).ready(function() {
         {% trans "Metadata" as metadata_label %}
         {% trans "Edit" as edit_label %}
         {% trans "Add" as add_label %}
-        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
-        {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
-        {% breadcrumb_url metadata_label 'components.ingest.views.ingest_metadata_list' uuid %}
+        {% breadcrumb_url ingest_label 'ingest:ingest_index' %}
+        {% breadcrumb_url name 'unit:detail' 'ingest' uuid %}
+        {% breadcrumb_url metadata_label 'ingest:ingest_metadata_list' uuid %}
         {% if id %}
           {% breadcrumb edit_label %}
         {% else %}
@@ -48,11 +48,11 @@ $(document).ready(function() {
       </h1>
 
       {% if id %}
-        <form class="form-stacked" method="post" action="{% url 'components.ingest.views.ingest_metadata_edit' uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'ingest:ingest_metadata_edit' uuid id %}">
       {% elif aic %}
-        <form class="form-stacked" method="post" action="{% url 'components.ingest.views.aic_metadata_add' uuid %}">
+        <form class="form-stacked" method="post" action="{% url 'ingest:aic_metadata_add' uuid %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">
+        <form class="form-stacked" method="post" action="{% url 'ingest:ingest_metadata_add' uuid %}">
       {% endif %}
 
         {% include "_form.html" %}
@@ -63,7 +63,7 @@ $(document).ready(function() {
           {% else %}
             <input type="submit" class="btn btn-primary" value="{% trans 'Create' %}" />
           {% endif %}
-          <a href="{% url 'components.ingest.views.ingest_metadata_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
+          <a href="{% url 'ingest:ingest_metadata_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
         </div>
 
       </form>

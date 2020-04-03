@@ -34,7 +34,7 @@
           <!-- Never red -->
           <td>
             {% if item.preservation_normalization_task_uuid %}
-              <a href="{% url 'main.views.task' item.preservation_normalization_task_uuid %}" target="_blank">{{ item.preservation_normalization_attempted|yesno:"Yes,No" }}</a>
+              <a href="{% url 'main:task' item.preservation_normalization_task_uuid %}" target="_blank">{{ item.preservation_normalization_attempted|yesno:"Yes,No" }}</a>
             {% else %}
               {{ item.preservation_normalization_attempted|yesno:_("Yes,No") }}
             {% endif %}
@@ -50,7 +50,7 @@
           <td>
             {% if item.preservation_derivative_validation_attempted %}
               {% if item.preservation_derivative_validation_task_uuid %}
-                <a href="{% url 'main.views.task' item.preservation_derivative_validation_task_uuid %}"
+                <a href="{% url 'main:task' item.preservation_derivative_validation_task_uuid %}"
                    target="_blank"
                    >{{ item.preservation_derivative_validation_failed|yesno:_("Failed,Passed") }}</a>
               {% else %}
@@ -69,7 +69,7 @@
           <!-- Never red -->
           <td>
             {% if item.access_normalization_task_uuid %}
-              <a href="{% url 'main.views.task' item.access_normalization_task_uuid %}" target="_blank">{{ item.access_normalization_attempted|yesno:_("Yes,No") }}</a>
+              <a href="{% url 'main:task' item.access_normalization_task_uuid %}" target="_blank">{{ item.access_normalization_attempted|yesno:_("Yes,No") }}</a>
             {% else %}
               {{ item.access_normalization_attempted|yesno:_("Yes,No") }}
             {% endif %}
@@ -90,7 +90,7 @@
           <td>
             {% if item.access_derivative_validation_attempted %}
               {% if item.access_derivative_validation_task_uuid %}
-                <a href="{% url 'main.views.task' item.access_derivative_validation_task_uuid %}"
+                <a href="{% url 'main:task' item.access_derivative_validation_task_uuid %}"
                    target="_blank"
                    >{{ item.access_derivative_validation_failed|yesno:_("Failed,Passed") }}</a>
               {% else %}
@@ -112,13 +112,13 @@
     {% endblocktrans %}
     <div style='float:right'>
     {% if page.has_previous %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn btn-default">{% trans "Previous" %}</a>
+      <a href="{% url 'ingest:ingest_normalization_report_page' uuid page.previous %}" class="btn btn-default">{% trans "Previous" %}</a>
       {% if page.has_next %}
         &nbsp;
       {% endif %}
     {% endif %}
     {% if page.has_next %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn btn-default">{% trans "Next" %}</a>
+      <a href="{% url 'ingest:ingest_normalization_report_page' uuid page.next %}" class="btn btn-default">{% trans "Next" %}</a>
     {% endif %}
     </div>
   {% endif %}

@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'idtool_list' %}">{% trans "Identification tools" %}</a></li>
+<li><a href="{% url 'fpr:idtool_list' %}">{% trans "Identification tools" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -21,9 +21,9 @@
 
     <div class='tool'>
         {% if idtool %}
-        <form action="{% url 'idtool_edit' idtool.slug %}" method="post">
+        <form action="{% url 'fpr:idtool_edit' idtool.slug %}" method="post">
         {% else %}
-        <form action="{% url 'idtool_create' %}" method="post">
+        <form action="{% url 'fpr:idtool_create' %}" method="post">
         {% endif %}
             {% csrf_token %}
             {{ form|as_bootstrap }}
