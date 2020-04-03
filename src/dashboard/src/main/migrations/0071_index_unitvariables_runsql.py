@@ -10,16 +10,18 @@ def create_index(apps, schema_editor):
     if schema_editor.connection.vendor != "mysql":
         return
 
-    schema_editor.execute(
-        "CREATE INDEX UnitVariables_ep46xp7f_idx ON UnitVariables (unitUUID, unitType, variable(255));"
-    )
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute(
+            "CREATE INDEX UnitVariables_ep46xp7f_idx ON UnitVariables (unitUUID, unitType, variable(255));"
+        )
 
 
 def drop_index(apps, schema_editor):
     if schema_editor.connection.vendor != "mysql":
         return
 
-    schema_editor.execute("DROP INDEX UnitVariables_ep46xp7f_idx ON UnitVariables;")
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute("DROP INDEX UnitVariables_ep46xp7f_idx ON UnitVariables;")
 
 
 class Migration(migrations.Migration):
