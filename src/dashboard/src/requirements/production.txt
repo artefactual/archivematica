@@ -13,17 +13,17 @@ brotli==0.5.2
 certifi==2019.11.28
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.8
+cryptography==2.9
 django-auth-ldap==1.3.0
 django-autoslug==1.9.3
 django-braces==1.0.0
-django-extensions==1.1.1
+django-extensions==1.7.9
 django-forms-bootstrap==3.1.0
 django-model-utils==1.3.1
 django-prometheus==1.0.15
 django-tastypie==0.13.2
-django==1.10.8
-elasticsearch==6.8.0
+django==1.11.29
+elasticsearch==6.8.1
 enum34==1.1.10
 future==0.18.2
 futures==3.2.0 ; python_version < "3.0"
