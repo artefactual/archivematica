@@ -31,7 +31,7 @@ def drop_original_path_unique_key(apps, schema_editor):
         if not row:
             return
         index_name = row[0]
-    schema_editor.execute("ALTER TABLE main_siparrange DROP INDEX %s" % (index_name,))
+        cursor.execute("ALTER TABLE main_siparrange DROP INDEX %s" % (index_name,))
 
 
 class Migration(migrations.Migration):
