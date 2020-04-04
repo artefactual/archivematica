@@ -29,9 +29,9 @@ import random
 import time
 import uuid
 
+from django.apps import apps
 from django.db import close_old_connections
 from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
 import six
 from six.moves import range
@@ -121,6 +121,7 @@ def insertIntoFiles(
             sipUUID + "-" + transferUUID,
         )
 
+    File = apps.get_model(app_label="main", model_name="File")
     return File.objects.create(**kwargs)
 
 
@@ -135,6 +136,7 @@ def getAMAgentsForFile(fileUUID):
 
     :returns: A list of Agent IDs
     """
+    File = apps.get_model(app_label="main", model_name="File")
     try:
         f = File.objects.get(uuid=fileUUID)
     except File.DoesNotExist:
@@ -151,6 +153,7 @@ def getAMAgentsForFile(fileUUID):
         return f.transfer.agents.values_list("pk", flat=True)
 
     # Fetch the default Agents
+    Agent = apps.get_model(app_label="main", model_name="Agent")
     return Agent.objects.filter(
         Agent.objects.default_agents_query_keywords()
     ).values_list("pk", flat=True)
@@ -193,6 +196,7 @@ def insertIntoEvents(
     if not eventIdentifierUUID:
         eventIdentifierUUID = str(uuid.uuid4())
 
+    Event = apps.get_model(app_label="main", model_name="Event")
     event = Event.objects.create(
         event_id=eventIdentifierUUID,
         file_uuid_id=fileUUID,
@@ -220,6 +224,7 @@ def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None
     if not derivedFileUUID:
         raise ValueError("derivedFileUUID must be specified")
 
+    Derivation = apps.get_model(app_label="main", model_name="Derivation")
     Derivation.objects.create(
         source_file_id=sourceFileUUID,
         derived_file_id=derivedFileUUID,
@@ -237,6 +242,7 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     :param str fitsXMLString: An XML document, encoded into a string. The name is historical; this can represent XML output from any software.
     :param str ruleUUID: The UUID of the FPR rule used to generate this XML data. Foreign key to FPRule.
     """
+    FPCommandOutput = apps.get_model(app_label="main", model_name="FPCommandOutput")
     FPCommandOutput.objects.create(
         file_id=fileUUID, content=fitsXMLString, rule_id=ruleUUID
     )
@@ -271,6 +277,7 @@ def fileWasRemoved(
         eventOutcomeDetailNote=eventOutcomeDetailNote,
     )
 
+    File = apps.get_model(app_label="main", model_name="File")
     f = File.objects.get(uuid=fileUUID)
     f.removedtime = utcDate
     f.currentlocation = None
@@ -291,6 +298,7 @@ def createSIP(path, UUID=None, sip_type="SIP", diruuids=False, printfn=print):
     if UUID is None:
         UUID = str(uuid.uuid4())
     printfn("Creating SIP:", UUID, "-", path)
+    SIP = apps.get_model(app_label="main", model_name="SIP")
     sip = SIP(uuid=UUID, currentpath=path, sip_type=sip_type, diruuids=diruuids)
     sip.save()
 
