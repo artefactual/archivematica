@@ -6,16 +6,17 @@
 #
 agentarchives==0.5.0
 bagit==1.7.0
-certifi==2019.3.9
+certifi==2019.11.28
 chardet==3.0.4
-django==1.8.19
-elasticsearch==6.3.1
+django==1.11.29
+elasticsearch==6.8.1
 idna==2.8
-mysqlclient==1.4.2.post1
+mysqlclient==1.4.6
 pathlib2==2.3.4 ; python_version < "3"
 prometheus_client==0.7.1
 python-dateutil==2.4.2
+pytz==2019.3
 requests==2.21.0
 scandir==1.10.0
 six==1.14.0
-urllib3==1.24.1
+urllib3==1.24.3
