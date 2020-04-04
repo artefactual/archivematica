@@ -9,8 +9,8 @@ bagit==1.7.0
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 clamd==1.0.2
-django-extensions==1.1.1
-django==1.8.19
+django-extensions==1.7.9
+django==1.11.29
 future==0.18.2            # via metsrw
 gearman==2.0.2
 idna==2.8                 # via requests
@@ -20,11 +20,12 @@ mysqlclient==1.3.9
 olefile==0.46             # via opf-fido
 opf-fido==1.4.1
 prometheus_client==0.7.1
+pytz==2019.3              # via django
 requests==2.21.0
 scandir==1.10.0
-six==1.13.0               # via django-extensions, metsrw, opf-fido
+six==1.14.0               # via django-extensions, metsrw, opf-fido
 unidecode==0.04.19
 urllib3==1.24.3           # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.0.1        # via opf-fido
+# setuptools
