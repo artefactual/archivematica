@@ -1,0 +1,12 @@
+[submodule "archivematica-storage-service"]
+	path = src/archivematica-storage-service
+	url = https://github.com/artefactual/archivematica-storage-service
+	branch = qa/0.x
+[submodule "archivematica-sampledata"]
+	path = src/archivematica-sampledata
+	url = https://github.com/artefactual/archivematica-sampledata
+	branch = master
+[submodule "archivematica-acceptance-tests"]
+	path = src/archivematica-acceptance-tests
+	url = https://github.com/artefactual-labs/archivematica-acceptance-tests
+	branch = master

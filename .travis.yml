@@ -6,6 +6,9 @@ dist: xenial
 language: python
 cache: pip
 
+git:
+  submodules: false
+
 branches:
   only:
     - qa/1.x
