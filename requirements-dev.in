@@ -1,0 +1,15 @@
+-rrequirements.txt
+
+mock
+mockldap==0.2.8
+pytest>=4,<5
+pytest-pythonpath
+pytest-django>=3,<4
+pytest-mock>=1,<2
+vcrpy>=1,<2
+pytest-cov==2.4.0
+coverage==4.2
+pip-tools==4.5.1
+tox
+ipython
+ipdb
