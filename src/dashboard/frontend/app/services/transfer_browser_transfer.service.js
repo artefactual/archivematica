@@ -10,6 +10,7 @@ import Base64 from 'base64-helpers';
 class TransferBrowserTransfer {
   constructor($cookies) {
     this.empty_properties();
+    this.fetch_processing_configs();
     this.$cookies = $cookies;
   }
 
@@ -20,6 +21,14 @@ class TransferBrowserTransfer {
     this.access_system_id = '';
     this.components = [];
     this.auto_approve = true;
+  }
+
+  // Fetches array of processing configs from API endpoint
+  fetch_processing_configs() {
+    this.processing_configs = [];
+    jQuery.get('/api/processing-configurations/').then(result => {
+      this.processing_configs = result.processing_configurations;
+    });
   }
 
   add_component(entry) {
@@ -42,8 +51,9 @@ class TransferBrowserTransfer {
     });
   }
 
-  // Starts a transfer using this service's current attributes.
-  start() {
+  // Starts a transfer using this service's current attributes
+  // and specified processing configuration.
+  start(processing_config) {
     // If this is a zipped bag, then there will be no transfer name;
     // give it a dummy name instead.
     let name = this.name;
@@ -58,12 +68,10 @@ class TransferBrowserTransfer {
     let payload = {
       name: name,
       type: _self.type,
+      processing_config: processing_config,
       accession: _self.accession,
       access_system_id: _self.access_system_id,
       auto_approve: _self.auto_approve,
-    }
-    if (window.hasOwnProperty('processing_config')) {
-      payload.processing_config = window.processing_config;
     }
 
     let requests = this.components.map(function(component) {
