@@ -16,15 +16,15 @@ msgid_plural "{{$count}} transfers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ./app/front_page/transfer_browser.html:28
+#: ./app/front_page/transfer_browser.html:36
 msgid "Access system ID"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:23
+#: ./app/front_page/transfer_browser.html:31
 msgid "Accession no."
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:97
+#: ./app/front_page/transfer_browser.html:114
 msgid "Add"
 msgstr ""
 
@@ -38,10 +38,6 @@ msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:217
 msgid "Add new digital object"
-msgstr ""
-
-#: ./app/front_page/transfer_browser.html:53
-msgid "Add next"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:31
@@ -60,7 +56,7 @@ msgstr ""
 msgid "Analysis"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:43
+#: ./app/front_page/transfer_browser.html:70
 msgid "Approve automatically"
 msgstr ""
 
@@ -88,7 +84,7 @@ msgstr ""
 msgid "Backlog"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:37
+#: ./app/front_page/transfer_browser.html:45
 msgid "Browse"
 msgstr ""
 
@@ -100,6 +96,10 @@ msgstr ""
 #: ./app/archivesspace/form.html:37
 #: ./app/arrangement/edit_metadata_form.html:10
 msgid "Cancel"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:54
+msgid "Choose a processing configuration"
 msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:58
@@ -130,11 +130,11 @@ msgstr ""
 msgid "Credit card numbers"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:9
+#: ./app/front_page/transfer_browser.html:17
 msgid "DSpace"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:11
+#: ./app/front_page/transfer_browser.html:19
 msgid "Dataverse"
 msgstr ""
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Deselect all"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:10
+#: ./app/front_page/transfer_browser.html:18
 msgid "Disk image"
 msgstr ""
 
@@ -267,10 +267,6 @@ msgstr ""
 #: ./app/archivesspace/form.html:8
 #: ./app/arrangement/edit_metadata_form.html:4
 msgid "Level of description:"
-msgstr ""
-
-#: ./app/front_page/transfer_browser.html:52
-msgid "Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved."
 msgstr ""
 
 #: ./app/arrangement/arrangement.controller.js:224
@@ -388,7 +384,7 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:6
+#: ./app/front_page/transfer_browser.html:13
 msgid "Standard"
 msgstr ""
 
@@ -396,8 +392,16 @@ msgstr ""
 msgid "Start date:"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:41
+#: ./app/front_page/transfer_browser.html:51
 msgid "Start transfer"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:65
+msgid "Start with \"{{ processing_config }}\" configuration"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:49
+msgid "Start with default processing configuration"
 msgstr ""
 
 #: ./app/archivesspace/archivesspace.controller.js:555
@@ -424,12 +428,16 @@ msgstr ""
 msgid "Title:"
 msgstr ""
 
+#: ./app/services/transfer_browser_transfer.service.js:95
+msgid "Transfer \"{{name}}\" started with processing configuration \"{{config}}\"."
+msgstr ""
+
 #: ./app/examine_contents/examine_contents.html:46
-#: ./app/front_page/transfer_browser.html:18
+#: ./app/front_page/transfer_browser.html:26
 msgid "Transfer name"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:13
+#: ./app/front_page/transfer_browser.html:21
 msgid "Transfer type"
 msgstr ""
 
@@ -478,7 +486,7 @@ msgstr ""
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:7
+#: ./app/front_page/transfer_browser.html:15
 msgid "Unzipped bag"
 msgstr ""
 
@@ -486,8 +494,12 @@ msgstr ""
 msgid "Visualizations"
 msgstr ""
 
-#: ./app/front_page/transfer_browser.html:8
+#: ./app/front_page/transfer_browser.html:16
 msgid "Zipped bag"
+msgstr ""
+
+#: ./app/front_page/transfer_browser.html:14
+msgid "Zipped directory"
 msgstr ""
 
 #: ./app/examine_contents/examine_contents.html:15
