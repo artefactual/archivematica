@@ -22,6 +22,7 @@ from re import compile as re_compile
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.utils.deprecation import MiddlewareMixin
 
 import components.helpers as helpers
 
@@ -39,7 +40,7 @@ def _load_exempt_urls():
 _load_exempt_urls()
 
 
-class ConfigurationCheckMiddleware:
+class ConfigurationCheckMiddleware(MiddlewareMixin):
     """Redirect users to the installer page or the login page.
 
     The presence of the pipeline UUID in the database is an indicator of
