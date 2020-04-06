@@ -24,12 +24,13 @@ from django.conf import settings
 from django.http import HttpResponseServerError
 from django.shortcuts import render
 from django.template import TemplateDoesNotExist
+from django.utils.deprecation import MiddlewareMixin
 from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 
 import elasticsearch
 
 
-class AJAXSimpleExceptionResponseMiddleware:
+class AJAXSimpleExceptionResponseMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if not settings.DEBUG or not request.is_ajax():
             return
@@ -42,13 +43,13 @@ class AJAXSimpleExceptionResponseMiddleware:
         return HttpResponseServerError(response)
 
 
-class SpecificExceptionErrorPageResponseMiddleware:
+class SpecificExceptionErrorPageResponseMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if settings.DEBUG and isinstance(exception, TemplateDoesNotExist):
             return HttpResponseServerError("Missing template: " + str(exception))
 
 
-class ElasticsearchMiddleware:
+class ElasticsearchMiddleware(MiddlewareMixin):
     """
     Redirect the user to a friendly error page when an exception related to
     Elasticsearch is detected.
