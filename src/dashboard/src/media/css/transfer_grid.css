@@ -25,3 +25,11 @@
   margin-bottom: 60px;
   margin-top: 10px;
 }
+
+#transfer-alert {
+  width: 950px;
+}
+
+.processing-config-choice:hover {
+  cursor: pointer;
+}

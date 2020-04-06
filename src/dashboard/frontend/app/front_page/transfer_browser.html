@@ -1,4 +1,11 @@
 <div ng-controller="HeaderController as vm">
+  <div id="transfer-alert" ng-controller="AlertDisplayController as vm">
+    <alert ng-repeat="alert in vm.alert.alerts" type="{{ alert.type }}" close="vm.remove($index)">
+      {{ alert.message }}
+      <span ng-if="alert.show_spinner"><i class="fa fa-spinner fa-spin"></i></span>
+    </alert>
+  </div>
+  
   <div class="row" id="transfer-browser-form">
 
   <div class="col-xs-2">
@@ -29,17 +36,36 @@
   <div class="help-block">{{ "Access system ID" | translate }}</div>
   </div>
 
-  <div class="col-xs-3">
+  <div class="col-xs-4">
   <button type="submit"
           class="btn btn-default"
           data-toggle="collapse"
           data-target="#transfer_browse_tree"
           aria-expanded="false"
           aria-controls="transfer_browse_tree">{{ "Browse" | translate }}</button>
-  <button type="submit"
+  <div class="btn-group">
+    <button type="submit"
           class="btn btn-success"
+          title='{{ "Start with default processing configuration" | translate }}'
           ng-disabled="!vm.enable_submit_button()"
-          ng-click="vm.transfer.start()">{{ "Start transfer" | translate }}</button>
+          ng-click="vm.transfer.start('default')">{{ "Start transfer" | translate }}</button>
+    <button type="submit"
+          class="btn btn-success dropdown-toggle"
+          title='{{ "Choose a processing configuration" | translate }}'
+          ng-disabled="!vm.enable_submit_button()"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu">
+      <li class="processing-config-choice"
+          ng-repeat="processing_config in vm.transfer.processing_configs">
+        <a ng-click="vm.transfer.start(processing_config)" translate>Start with "{{ processing_config }}" configuration</a>
+      </li>
+    </ul>
+  </div>
   <div class="checkbox">
     <label><input type="checkbox" ng-model="vm.transfer.auto_approve">{{ "Approve automatically" | translate }}</label>
   </div>

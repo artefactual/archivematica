@@ -25,15 +25,15 @@ msgid_plural "{{$count}} transfers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/front_page/transfer_browser.html:28
+#: app/front_page/transfer_browser.html:36
 msgid "Access system ID"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:23
+#: app/front_page/transfer_browser.html:31
 msgid "Accession no."
 msgstr "Número de accesión"
 
-#: app/front_page/transfer_browser.html:97
+#: app/front_page/transfer_browser.html:114
 msgid "Add"
 msgstr "Añadir"
 
@@ -48,10 +48,6 @@ msgstr ""
 #: app/front_page/appraisal_tab.html:217
 msgid "Add new digital object"
 msgstr ""
-
-#: app/front_page/transfer_browser.html:53
-msgid "Add next"
-msgstr "Añadir siguiente"
 
 #: app/examine_contents/examine_contents.html:31
 msgid "Add tag to checked files"
@@ -69,7 +65,7 @@ msgstr "Todos"
 msgid "Analysis"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:43
+#: app/front_page/transfer_browser.html:70
 msgid "Approve automatically"
 msgstr ""
 
@@ -93,7 +89,7 @@ msgstr "Disposición"
 msgid "Backlog"
 msgstr "Cola"
 
-#: app/front_page/transfer_browser.html:37
+#: app/front_page/transfer_browser.html:45
 msgid "Browse"
 msgstr "Navegar"
 
@@ -105,6 +101,10 @@ msgstr ""
 #: app/archivesspace/form.html:37 app/arrangement/edit_metadata_form.html:10
 msgid "Cancel"
 msgstr "Cancelar"
+
+#: app/front_page/transfer_browser.html:54
+msgid "Choose a processing configuration"
+msgstr ""
 
 #: app/front_page/appraisal_tab.html:58
 msgid "Collapse all"
@@ -134,11 +134,11 @@ msgstr "Crear SIP"
 msgid "Credit card numbers"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:9
+#: app/front_page/transfer_browser.html:17
 msgid "DSpace"
 msgstr "DSpace"
 
-#: app/front_page/transfer_browser.html:11
+#: app/front_page/transfer_browser.html:19
 msgid "Dataverse"
 msgstr ""
 
@@ -166,7 +166,7 @@ msgstr ""
 msgid "Deselect all"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:10
+#: app/front_page/transfer_browser.html:18
 msgid "Disk image"
 msgstr "Imagen de disco"
 
@@ -268,17 +268,6 @@ msgstr "Última modificación"
 #: app/archivesspace/form.html:8 app/arrangement/edit_metadata_form.html:4
 msgid "Level of description:"
 msgstr ""
-
-#: app/front_page/transfer_browser.html:52
-msgid ""
-"Metadata entered in this form will be associated with the next component "
-"added to this transfer. Data will not be used if no component is added after "
-"the form is saved."
-msgstr ""
-"Los metadatos introducidos en este formulario serán asociados con el "
-"siguiente componente añadido en esta transferencia, sin embargo no serán "
-"utilizados si ningún componente es añadido una vez que el formulario sea "
-"grabado."
 
 #: app/arrangement/arrangement.controller.js:224
 msgid "Name of new directory?"
@@ -393,7 +382,7 @@ msgstr ""
 msgid "Size"
 msgstr "Tamaño"
 
-#: app/front_page/transfer_browser.html:6
+#: app/front_page/transfer_browser.html:13
 msgid "Standard"
 msgstr "Estándar"
 
@@ -401,9 +390,17 @@ msgstr "Estándar"
 msgid "Start date:"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:41
+#: app/front_page/transfer_browser.html:51
 msgid "Start transfer"
 msgstr "Comenzar transferencia"
+
+#: app/front_page/transfer_browser.html:65
+msgid "Start with \"{{ processing_config }}\" configuration"
+msgstr ""
+
+#: app/front_page/transfer_browser.html:49
+msgid "Start with default processing configuration"
+msgstr ""
 
 #: app/archivesspace/archivesspace.controller.js:555
 msgid "Successfully started SIP from record \"{{title}}\""
@@ -426,12 +423,17 @@ msgstr "Título"
 msgid "Title:"
 msgstr ""
 
+#: app/services/transfer_browser_transfer.service.js:95
+msgid ""
+"Transfer \"{{name}}\" started with processing configuration \"{{config}}\"."
+msgstr ""
+
 #: app/examine_contents/examine_contents.html:46
-#: app/front_page/transfer_browser.html:18
+#: app/front_page/transfer_browser.html:26
 msgid "Transfer name"
 msgstr "Nombre de la transferencia"
 
-#: app/front_page/transfer_browser.html:13
+#: app/front_page/transfer_browser.html:21
 msgid "Transfer type"
 msgstr "Tipo de transferencia"
 
@@ -481,7 +483,7 @@ msgstr ""
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 
-#: app/front_page/transfer_browser.html:7
+#: app/front_page/transfer_browser.html:15
 msgid "Unzipped bag"
 msgstr "Bag no comprimido"
 
@@ -489,11 +491,28 @@ msgstr "Bag no comprimido"
 msgid "Visualizations"
 msgstr ""
 
-#: app/front_page/transfer_browser.html:8
+#: app/front_page/transfer_browser.html:16
 msgid "Zipped bag"
 msgstr "Bag comprimido (zip)"
+
+#: app/front_page/transfer_browser.html:14
+msgid "Zipped directory"
+msgstr ""
 
 #: app/examine_contents/examine_contents.html:15
 #: app/examine_contents/examine_contents.html:16
 msgid "original order"
 msgstr ""
+
+#~ msgid "Add next"
+#~ msgstr "Añadir siguiente"
+
+#~ msgid ""
+#~ "Metadata entered in this form will be associated with the next component "
+#~ "added to this transfer. Data will not be used if no component is added "
+#~ "after the form is saved."
+#~ msgstr ""
+#~ "Los metadatos introducidos en este formulario serán asociados con el "
+#~ "siguiente componente añadido en esta transferencia, sin embargo no serán "
+#~ "utilizados si ningún componente es añadido una vez que el formulario sea "
+#~ "grabado."
