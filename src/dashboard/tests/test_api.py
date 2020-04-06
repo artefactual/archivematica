@@ -481,18 +481,16 @@ class TestProcessingConfigurationAPI(TestCase):
         if not os.path.exists(self.config_path):
             os.makedirs(self.config_path)
         install_builtin_config("default")
+        install_builtin_config("automated")
 
     def test_list_processing_configs(self):
         response = self.client.get(reverse(views.processing_configurations))
         assert response.status_code == 200
         payload = json.loads(response.content.decode("utf8"))
+        processing_configs = payload["processing_configurations"]
+        assert len(processing_configs) == 2
         expected_names = ["default", "automated"]
-        assert all(
-            [
-                a == b
-                for a, b in zip(payload["processing_configurations"], expected_names)
-            ]
-        )
+        assert all([a == b for a, b in zip(processing_configs, expected_names)])
 
     def test_get_existing_processing_config(self):
         response = self.client.get(
