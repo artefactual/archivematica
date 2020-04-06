@@ -810,7 +810,7 @@ def processing_configuration(request, name):
 def processing_configurations(request):
     """Return list of names of available processing configurations."""
     config_dir = helpers.processing_config_path()
-    processing_configs = [x[:-17] for x in os.listdir(config_dir)]
+    processing_configs = [filename[:-17] for filename in os.listdir(config_dir)]
     return helpers.json_response({"processing_configurations": processing_configs})
 
 
