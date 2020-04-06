@@ -482,6 +482,18 @@ class TestProcessingConfigurationAPI(TestCase):
             os.makedirs(self.config_path)
         install_builtin_config("default")
 
+    def test_list_processing_configs(self):
+        response = self.client.get(reverse(views.processing_configurations))
+        assert response.status_code == 200
+        payload = json.loads(response.content.decode("utf8"))
+        expected_names = ["default", "automated"]
+        assert all(
+            [
+                a == b
+                for a, b in zip(payload["processing_configurations"], expected_names)
+            ]
+        )
+
     def test_get_existing_processing_config(self):
         response = self.client.get(
             reverse("processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
