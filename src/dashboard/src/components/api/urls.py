@@ -22,6 +22,7 @@ from django.conf import settings
 
 from components.api import views
 
+
 urlpatterns = [
     url(r"transfer/approve", views.approve_transfer),
     url(r"transfer/unapproved", views.unapproved_transfers),
@@ -62,6 +63,7 @@ urlpatterns = [
         views.processing_configuration,
         name="processing_configuration",
     ),
+    url(r"processing-configuration", views.processing_configurations),
     url(r"v2beta/package", views.package),
     url(r"v2beta/validate/([-\w]+)", views.validate, name="validate"),
     url(r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")", views.unit_jobs),
