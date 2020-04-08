@@ -50,7 +50,7 @@ the original report, there are a couple steps you can take:
 Any information you share with the Archivematica development team as a part of
 this process will be kept confidential within the team. If we determine that the
 vulnerability is located upstream in one of the libraries or dependencies that
-Archivevmatiac uses, we may need to share some information about the report with
+Archivematica uses, we may need to share some information about the report with
 the dependency’s core team - in this case, we will notify you before proceeding.
 
 If the vulnerability is first reported by you, we will credit you with the
