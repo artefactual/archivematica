@@ -9,6 +9,7 @@ ENV ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/MCPClient/lib/
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
 COPY MCPClient/requirements/ /src/MCPClient/requirements/
+RUN pip install --upgrade --force pip
 RUN pip install -r /src/archivematicaCommon/requirements/production.txt -r /src/archivematicaCommon/requirements/dev.txt
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 RUN pip install -r /src/MCPClient/requirements/production.txt -r /src/MCPClient/requirements/dev.txt

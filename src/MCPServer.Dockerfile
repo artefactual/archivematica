@@ -24,6 +24,7 @@ ENV LC_ALL en_US.UTF-8
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
 COPY MCPServer/requirements/ /src/MCPServer/requirements/
+RUN pip install --upgrade --force pip
 RUN pip install -r /src/archivematicaCommon/requirements/production.txt -r /src/archivematicaCommon/requirements/dev.txt
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 RUN pip install -r /src/MCPServer/requirements/production.txt -r /src/MCPServer/requirements/dev.txt

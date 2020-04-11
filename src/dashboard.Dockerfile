@@ -53,6 +53,7 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 
 COPY archivematicaCommon/requirements/ /src/archivematicaCommon/requirements/
 COPY dashboard/src/requirements/ /src/dashboard/src/requirements/
+RUN pip install --upgrade --force pip
 RUN pip install -r /src/archivematicaCommon/requirements/production.txt -r /src/archivematicaCommon/requirements/dev.txt
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 
