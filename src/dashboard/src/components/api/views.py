@@ -53,7 +53,8 @@ from . import validators
 from fpr.models import Format, FormatGroup, FormatVersion, FPTool, FPRule
 from components import par
 from datetime import datetime
-import par_validator
+
+from . import par_validator
 
 
 LOGGER = logging.getLogger("archivematica.dashboard")

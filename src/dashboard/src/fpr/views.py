@@ -19,9 +19,6 @@ from django.utils.translation import ugettext as _
 from django.db import IntegrityError
 from django.db import transaction
 
-# External dependencies, alphabetical
-from annoying.functions import get_object_or_None
-
 # This project, alphabetical
 from fpr import forms as fprforms
 from fpr import models as fprmodels
