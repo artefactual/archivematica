@@ -2,6 +2,6 @@
 
 ipython
 ipdb
-pip-tools==4.3.0
+pip-tools==4.5.1
 pytest
 pytest-mock

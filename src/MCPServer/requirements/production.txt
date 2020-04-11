@@ -4,18 +4,18 @@
 #
 #    pip-compile --output-file=production.txt production.in
 #
-contextdecorator==0.10.0 ; python_version < "3.2"
-django-extensions==1.1.1
-django==1.8.19
-enum34==1.1.6 ; python_version < "3.4"
-functools32==3.2.3.post2
-futures==3.3.0 ; python_version < "3.2"
-gearman==2.0.2
-inotify_simple==1.1.8
-jsonschema==2.6.0
-lxml==3.5.0
-mysqlclient==1.3.7
-pathlib2==2.3.4 ; python_version < "3"
-prometheus_client==0.7.1
-scandir==1.10.0
-six==1.13.0
+contextdecorator==0.10.0 ; python_version < "3.2"  # via -r base.txt
+django-extensions==1.1.1  # via -r base.txt
+django==1.8.19            # via -r base.txt
+enum34==1.1.6 ; python_version < "3.4"  # via -r base.txt
+functools32==3.2.3.post2  # via -r base.txt, jsonschema
+futures==3.3.0 ; python_version < "3.2"  # via -r base.txt
+gearman==2.0.2            # via -r base.txt
+inotify_simple==1.1.8     # via -r base.txt
+jsonschema==2.6.0         # via -r base.txt
+lxml==3.5.0               # via -r base.txt
+mysqlclient==1.3.7        # via -r base.txt
+pathlib2==2.3.4 ; python_version < "3"  # via -r base.txt
+prometheus_client==0.7.1  # via -r base.txt
+scandir==1.10.0           # via -r base.txt, pathlib2
+six==1.14.0               # via -r base.txt, django-extensions, pathlib2

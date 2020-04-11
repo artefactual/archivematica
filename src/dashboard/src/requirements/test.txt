@@ -4,80 +4,88 @@
 #
 #    pip-compile --output-file=test.txt test.in
 #
--e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
--e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername
-agentarchives==0.5.0
-amclient==1.1.1
-asn1crypto==0.24.0
+-e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r base.txt
+-e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername  # via -r base.txt
+agentarchives==0.5.0      # via -r base.txt
+amclient==1.1.1           # via -r base.txt
+appdirs==1.4.3            # via virtualenv
 atomicwrites==1.3.0       # via pytest
-attrs==19.1.0             # via pytest
-bagit==1.7.0
-brotli==0.5.2
-certifi==2019.3.9
-cffi==1.12.2
-chardet==3.0.4
-contextlib2==0.5.5        # via vcrpy
-coverage==4.2
-cryptography==2.6.1
-django-auth-ldap==1.3.0
-django-autoslug==1.9.3
-django-braces==1.0.0
-django-extensions==1.1.1
-django-forms-bootstrap==3.1.0
-django-model-utils==1.3.1
-django-prometheus==1.0.15
-django-tastypie==0.13.2
-django==1.8.19
-elasticsearch==6.3.1
-enum34==1.1.6
-filelock==3.0.10          # via tox
+attrs==19.3.0             # via pytest
+bagit==1.7.0              # via -r base.txt
+brotli==0.5.2             # via -r base.txt
+certifi==2020.4.5.1       # via -r base.txt, requests
+cffi==1.14.0              # via -r base.txt, cryptography
+chardet==3.0.4            # via -r base.txt, requests
+configparser==4.0.2       # via importlib-metadata
+contextlib2==0.6.0.post1  # via importlib-metadata, importlib-resources, vcrpy, virtualenv, zipp
+coverage==4.2             # via -r test.in, pytest-cov
+cryptography==2.9         # via -r base.txt, pyopenssl
+distlib==0.3.0            # via virtualenv
+django-auth-ldap==1.3.0   # via -r base.txt
+django-autoslug==1.9.3    # via -r base.txt
+django-braces==1.0.0      # via -r base.txt
+django-extensions==1.1.1  # via -r base.txt
+django-forms-bootstrap==3.1.0  # via -r base.txt
+django-model-utils==1.3.1  # via -r base.txt
+django-prometheus==1.0.15  # via -r base.txt
+django-tastypie==0.13.2   # via -r base.txt
+django==1.8.19            # via -r base.txt, django-auth-ldap
+elasticsearch==6.8.1      # via -r base.txt
+enum34==1.1.10            # via -r base.txt, cryptography
+filelock==3.0.12          # via tox, virtualenv
 funcparserlib==0.3.6      # via mockldap
 funcsigs==1.0.2           # via mock, pytest
-future==0.17.1
-futures==3.2.0 ; python_version < "3.0"
-gearman==2.0.2
-gevent==1.3.6
-greenlet==0.4.15
-gunicorn==19.9.0
-idna==2.8
-ipaddress==1.0.22
-lazy-paged-sequence==0.3
-logutils==0.3.3
-lxml==3.5.0
-metsrw==0.3.14
-mock==2.0.0               # via mockldap, vcrpy
-mockldap==0.2.8
+functools32==3.2.3.post2  # via -r base.txt, jsonschema
+future==0.18.2            # via -r base.txt, metsrw
+futures==3.2.0 ; python_version < "3.0"  # via -r base.txt
+gearman==2.0.2            # via -r base.txt
+gevent==1.3.6             # via -r base.txt
+greenlet==0.4.15          # via -r base.txt, gevent
+gunicorn==19.9.0          # via -r base.txt
+idna==2.8                 # via -r base.txt, requests
+importlib-metadata==1.6.0  # via importlib-resources, pluggy, pytest, tox, virtualenv
+importlib-resources==1.4.0  # via virtualenv
+ipaddress==1.0.23         # via -r base.txt, cryptography
+jsonschema==2.6.0         # via -r base.txt
+lazy-paged-sequence==0.3  # via -r base.txt
+logutils==0.3.3           # via -r base.txt
+lxml==3.5.0               # via -r base.txt, metsrw
+metsrw==0.3.14            # via -r base.txt
+mock==3.0.5               # via mockldap, vcrpy
+mockldap==0.2.8           # via -r test.in
 more-itertools==5.0.0     # via pytest
-mysqlclient==1.3.7
-ndg-httpsclient==0.5.1
-pathlib2==2.3.3
-pbr==5.1.3                # via mock
-pluggy==0.9.0             # via pytest, tox
-prometheus-client==0.7.1
-py==1.8.0                 # via pytest, tox
-pyasn1-modules==0.2.5
-pyasn1==0.4.5
-pycparser==2.19
-pyopenssl==19.0.0
-pytest-cov==2.4.0
-pytest-django==3.4.8
-pytest-pythonpath==0.7.3
-pytest==4.3.1
-python-dateutil==2.6.0
-python-ldap==3.2.0
-python-mimeparse==1.6.0
-pytz==2018.9
-pyyaml==5.1               # via vcrpy
-requests==2.21.0
-scandir==1.10.0
-six==1.12.0
+mysqlclient==1.3.7        # via -r base.txt, agentarchives
+ndg-httpsclient==0.5.1    # via -r base.txt
+packaging==20.3           # via pytest, tox
+pathlib2==2.3.3           # via -r base.txt, importlib-metadata, importlib-resources, pytest, pytest-django, virtualenv
+pluggy==0.13.1            # via pytest, tox
+prometheus-client==0.7.1  # via -r base.txt, django-prometheus
+py==1.8.1                 # via pytest, tox
+pyasn1-modules==0.2.8     # via -r base.txt, python-ldap
+pyasn1==0.4.8             # via -r base.txt, ndg-httpsclient, pyasn1-modules, python-ldap
+pycparser==2.20           # via -r base.txt, cffi
+pyopenssl==19.1.0         # via -r base.txt, ndg-httpsclient
+pyparsing==2.4.7          # via packaging
+pytest-cov==2.4.0         # via -r test.in
+pytest-django==3.9.0      # via -r test.in
+pytest-pythonpath==0.7.3  # via -r test.in
+pytest==4.6.9             # via -r test.in, pytest-cov, pytest-django, pytest-pythonpath
+python-dateutil==2.6.0    # via -r base.txt, django-tastypie
+python-ldap==3.2.0        # via -r base.txt, django-auth-ldap, mockldap
+python-mimeparse==1.6.0   # via -r base.txt, django-tastypie
+pytz==2019.3              # via -r base.txt
+pyyaml==5.3.1             # via vcrpy
+requests==2.21.0          # via -r base.txt, agentarchives, amclient
+scandir==1.10.0           # via -r base.txt, pathlib2
+singledispatch==3.4.0.3   # via importlib-resources
+six==1.14.0               # via -r base.txt, amclient, cryptography, django-extensions, metsrw, mock, more-itertools, packaging, pathlib2, pyopenssl, pytest, python-dateutil, tox, vcrpy, virtualenv
 toml==0.10.0              # via tox
-tox==3.8.3
-urllib3==1.24.1
-vcrpy==1.13.0
-virtualenv==16.4.3        # via tox
-whitenoise==3.3.0
-wrapt==1.11.1             # via vcrpy
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
+tox==3.14.6               # via -r test.in
+typing==3.7.4.1           # via importlib-resources
+urllib3==1.24.3           # via -r base.txt, amclient, elasticsearch, requests
+vcrpy==1.13.0             # via -r test.in
+virtualenv==20.0.17       # via tox
+wcwidth==0.1.9            # via pytest
+whitenoise==3.3.0         # via -r base.txt
+wrapt==1.12.1             # via vcrpy
+zipp==1.2.0               # via importlib-metadata, importlib-resources

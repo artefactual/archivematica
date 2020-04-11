@@ -4,50 +4,55 @@
 #
 #    pip-compile --output-file=test.txt test.in
 #
--e git+https://github.com/artefactual-labs/ammcpc@v0.1.1#egg=ammcpc
+-e git+https://github.com/artefactual-labs/ammcpc@v0.1.1#egg=ammcpc  # via -r base.txt
+appdirs==1.4.3            # via virtualenv
 atomicwrites==1.3.0       # via pytest
 attrs==19.3.0             # via pytest
-bagit==1.7.0
-certifi==2019.11.28
-chardet==3.0.4
-clamd==1.0.2
+bagit==1.7.0              # via -r base.txt
+certifi==2020.4.5.1       # via -r base.txt, requests
+chardet==3.0.4            # via -r base.txt, requests
+clamd==1.0.2              # via -r base.txt
 configparser==4.0.2       # via importlib-metadata
-contextlib2==0.6.0.post1  # via importlib-metadata
-django-extensions==1.1.1
-django==1.8.19
-filelock==3.0.12          # via tox
+contextlib2==0.6.0.post1  # via importlib-metadata, importlib-resources, virtualenv, zipp
+distlib==0.3.0            # via virtualenv
+django-extensions==1.1.1  # via -r base.txt
+django==1.8.19            # via -r base.txt
+filelock==3.0.12          # via tox, virtualenv
 funcsigs==1.0.2           # via mock, pytest
-future==0.18.2
-gearman==2.0.2
-idna==2.8
-importlib-metadata==1.3.0  # via pluggy, pytest, tox
-lxml==3.5.0
-metsrw==0.3.14
+future==0.18.2            # via -r base.txt, metsrw
+gearman==2.0.2            # via -r base.txt
+idna==2.8                 # via -r base.txt, requests
+importlib-metadata==1.6.0  # via importlib-resources, pluggy, pytest, tox, virtualenv
+importlib-resources==1.4.0  # via virtualenv
+lxml==3.5.0               # via -r base.txt, ammcpc, metsrw
+metsrw==0.3.14            # via -r base.txt
 mock==3.0.5               # via pytest-mock
-more-itertools==5.0.0     # via pytest, zipp
-mysqlclient==1.3.9
-olefile==0.46
-opf-fido==1.4.1
-packaging==19.2           # via pytest, tox
-pathlib2==2.3.5           # via importlib-metadata, pytest, pytest-django
+more-itertools==5.0.0     # via pytest
+mysqlclient==1.3.9        # via -r base.txt
+olefile==0.46             # via -r base.txt, opf-fido
+opf-fido==1.4.1           # via -r base.txt
+packaging==20.3           # via pytest, tox
+pathlib2==2.3.5           # via importlib-metadata, importlib-resources, pytest, pytest-django, virtualenv
 pluggy==0.13.1            # via pytest, tox
-prometheus_client==0.7.1
-py==1.8.0                 # via pytest, tox
-pyparsing==2.4.6          # via packaging
-pytest-django==3.7.0
-pytest-mock==1.13.0
-pytest-pythonpath==0.7.3
-pytest==4.6.8
-requests==2.21.0
-scandir==1.10.0
-six==1.13.0
+prometheus_client==0.7.1  # via -r base.txt
+py==1.8.1                 # via pytest, tox
+pyparsing==2.4.7          # via packaging
+pytest-django==3.9.0      # via -r test.in
+pytest-mock==1.13.0       # via -r test.in
+pytest-pythonpath==0.7.3  # via -r test.in
+pytest==4.6.9             # via -r test.in, pytest-django, pytest-mock, pytest-pythonpath
+requests==2.21.0          # via -r base.txt
+scandir==1.10.0           # via -r base.txt, pathlib2
+singledispatch==3.4.0.3   # via importlib-resources
+six==1.14.0               # via -r base.txt, django-extensions, metsrw, mock, more-itertools, opf-fido, packaging, pathlib2, pytest, tox, virtualenv
 toml==0.10.0              # via tox
-tox==3.14.2
-unidecode==0.04.19
-urllib3==1.24.3
-virtualenv==16.7.9        # via tox
-wcwidth==0.1.7            # via pytest
-zipp==0.6.0               # via importlib-metadata
+tox==3.14.6               # via -r test.in
+typing==3.7.4.1           # via importlib-resources
+unidecode==0.04.19        # via -r base.txt
+urllib3==1.24.3           # via -r base.txt, requests
+virtualenv==20.0.17       # via tox
+wcwidth==0.1.9            # via pytest
+zipp==1.2.0               # via importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.0.1        # via opf-fido, pytest, tox
+# setuptools

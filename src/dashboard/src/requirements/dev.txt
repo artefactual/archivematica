@@ -4,96 +4,106 @@
 #
 #    pip-compile --output-file=dev.txt dev.in
 #
--e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser
--e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername
-agentarchives==0.5.0
-amclient==1.1.1
-asn1crypto==0.24.0
-atomicwrites==1.3.0
-attrs==19.1.0
+-e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r test.txt
+-e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername  # via -r test.txt
+agentarchives==0.5.0      # via -r test.txt
+amclient==1.1.1           # via -r test.txt
+appdirs==1.4.3            # via -r test.txt, virtualenv
+atomicwrites==1.3.0       # via -r test.txt, pytest
+attrs==19.3.0             # via -r test.txt, pytest
 backports.shutil-get-terminal-size==1.0.0  # via ipython
-bagit==1.7.0
-brotli==0.5.2
-certifi==2019.3.9
-cffi==1.12.2
-chardet==3.0.4
-click==7.0                # via pip-tools
-contextlib2==0.5.5
-coverage==4.2
-cryptography==2.6.1
-decorator==4.4.0          # via ipython, traitlets
-django-auth-ldap==1.3.0
-django-autoslug==1.9.3
-django-braces==1.0.0
-django-extensions==1.1.1
-django-forms-bootstrap==3.1.0
-django-model-utils==1.3.1
-django-prometheus==1.0.15
-django-tastypie==0.13.2
-django==1.8.19
-elasticsearch==6.3.1
-enum34==1.1.6
-filelock==3.0.10
-funcparserlib==0.3.6
-funcsigs==1.0.2
-future==0.17.1
-futures==3.2.0 ; python_version < "3.0"
-gearman==2.0.2
-gevent==1.3.6
-greenlet==0.4.15
-gunicorn==19.9.0
-idna==2.8
-ipaddress==1.0.22
-ipdb==0.12
+bagit==1.7.0              # via -r test.txt
+brotli==0.5.2             # via -r test.txt
+certifi==2020.4.5.1       # via -r test.txt, requests
+cffi==1.14.0              # via -r test.txt, cryptography
+chardet==3.0.4            # via -r test.txt, requests
+click==7.1.1              # via pip-tools
+configparser==4.0.2       # via -r test.txt, importlib-metadata
+contextlib2==0.6.0.post1  # via -r test.txt, importlib-metadata, importlib-resources, vcrpy, virtualenv, zipp
+coverage==4.2             # via -r test.txt, pytest-cov
+cryptography==2.9         # via -r test.txt, pyopenssl
+decorator==4.4.2          # via ipython, traitlets
+distlib==0.3.0            # via -r test.txt, virtualenv
+django-auth-ldap==1.3.0   # via -r test.txt
+django-autoslug==1.9.3    # via -r test.txt
+django-braces==1.0.0      # via -r test.txt
+django-extensions==1.1.1  # via -r test.txt
+django-forms-bootstrap==3.1.0  # via -r test.txt
+django-model-utils==1.3.1  # via -r test.txt
+django-prometheus==1.0.15  # via -r test.txt
+django-tastypie==0.13.2   # via -r test.txt
+django==1.8.19            # via -r test.txt, django-auth-ldap
+elasticsearch==6.8.1      # via -r test.txt
+enum34==1.1.10            # via -r test.txt, cryptography, traitlets
+filelock==3.0.12          # via -r test.txt, tox, virtualenv
+funcparserlib==0.3.6      # via -r test.txt, mockldap
+funcsigs==1.0.2           # via -r test.txt, mock, pytest
+functools32==3.2.3.post2  # via -r test.txt, jsonschema
+future==0.18.2            # via -r test.txt, metsrw
+futures==3.2.0 ; python_version < "3.0"  # via -r test.txt
+gearman==2.0.2            # via -r test.txt
+gevent==1.3.6             # via -r test.txt
+greenlet==0.4.15          # via -r test.txt, gevent
+gunicorn==19.9.0          # via -r test.txt
+idna==2.8                 # via -r test.txt, requests
+importlib-metadata==1.6.0  # via -r test.txt, importlib-resources, pluggy, pytest, tox, virtualenv
+importlib-resources==1.4.0  # via -r test.txt, virtualenv
+ipaddress==1.0.23         # via -r test.txt, cryptography
+ipdb==0.13.2              # via -r dev.in
 ipython-genutils==0.2.0   # via traitlets
-ipython==5.8.0
-lazy-paged-sequence==0.3
-logutils==0.3.3
-lxml==3.5.0
-metsrw==0.3.14
-mock==2.0.0
-mockldap==0.2.8
-more-itertools==5.0.0
-mysqlclient==1.3.7
-ndg-httpsclient==0.5.1
-pathlib2==2.3.3
-pbr==5.1.3
-pexpect==4.6.0            # via ipython
+ipython==5.9.0            # via -r dev.in, ipdb
+jsonschema==2.6.0         # via -r test.txt
+lazy-paged-sequence==0.3  # via -r test.txt
+logutils==0.3.3           # via -r test.txt
+lxml==3.5.0               # via -r test.txt, metsrw
+metsrw==0.3.14            # via -r test.txt
+mock==3.0.5               # via -r test.txt, mockldap, pytest-mock, vcrpy
+mockldap==0.2.8           # via -r test.txt
+more-itertools==5.0.0     # via -r test.txt, pytest
+mysqlclient==1.3.7        # via -r test.txt, agentarchives
+ndg-httpsclient==0.5.1    # via -r test.txt
+packaging==20.3           # via -r test.txt, pytest, tox
+pathlib2==2.3.3           # via -r test.txt, importlib-metadata, importlib-resources, ipython, pickleshare, pytest, pytest-django, virtualenv
+pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
-pip-tools==4.3.0
-pluggy==0.9.0
-prometheus-client==0.7.1
-prompt-toolkit==1.0.15    # via ipython
+pip-tools==4.5.1          # via -r dev.in
+pluggy==0.13.1            # via -r test.txt, pytest, tox
+prometheus-client==0.7.1  # via -r test.txt, django-prometheus
+prompt-toolkit==1.0.18    # via ipython
 ptyprocess==0.6.0         # via pexpect
-py==1.8.0
-pyasn1-modules==0.2.5
-pyasn1==0.4.5
-pycparser==2.19
-pygments==2.3.1           # via ipython
-pyopenssl==19.0.0
-pytest-cov==2.4.0
-pytest-django==3.4.8
-pytest-mock==2.0.0
-pytest-pythonpath==0.7.3
-pytest==4.3.1
-python-dateutil==2.6.0
-python-ldap==3.2.0
-python-mimeparse==1.6.0
-pytz==2018.9
-pyyaml==5.1
-requests==2.21.0
-scandir==1.10.0
+py==1.8.1                 # via -r test.txt, pytest, tox
+pyasn1-modules==0.2.8     # via -r test.txt, python-ldap
+pyasn1==0.4.8             # via -r test.txt, ndg-httpsclient, pyasn1-modules, python-ldap
+pycparser==2.20           # via -r test.txt, cffi
+pygments==2.5.2           # via ipython
+pyopenssl==19.1.0         # via -r test.txt, ndg-httpsclient
+pyparsing==2.4.7          # via -r test.txt, packaging
+pytest-cov==2.4.0         # via -r test.txt
+pytest-django==3.9.0      # via -r test.txt
+pytest-mock==2.0.0        # via -r dev.in
+pytest-pythonpath==0.7.3  # via -r test.txt
+pytest==4.6.9             # via -r dev.in, -r test.txt, pytest-cov, pytest-django, pytest-mock, pytest-pythonpath
+python-dateutil==2.6.0    # via -r test.txt, django-tastypie
+python-ldap==3.2.0        # via -r test.txt, django-auth-ldap, mockldap
+python-mimeparse==1.6.0   # via -r test.txt, django-tastypie
+pytz==2019.3              # via -r test.txt
+pyyaml==5.3.1             # via -r test.txt, vcrpy
+requests==2.21.0          # via -r test.txt, agentarchives, amclient
+scandir==1.10.0           # via -r test.txt, pathlib2
 simplegeneric==0.8.1      # via ipython
-six==1.12.0
-toml==0.10.0
-tox==3.8.3
-traitlets==4.3.2          # via ipython
-urllib3==1.24.1
-vcrpy==1.13.0
-virtualenv==16.4.3
-wcwidth==0.1.7            # via prompt-toolkit
-whitenoise==3.3.0
-wrapt==1.11.1
+singledispatch==3.4.0.3   # via -r test.txt, importlib-resources
+six==1.14.0               # via -r test.txt, amclient, cryptography, django-extensions, metsrw, mock, more-itertools, packaging, pathlib2, pip-tools, prompt-toolkit, pyopenssl, pytest, python-dateutil, singledispatch, tox, traitlets, vcrpy, virtualenv
+toml==0.10.0              # via -r test.txt, tox
+tox==3.14.6               # via -r test.txt
+traitlets==4.3.3          # via ipython
+typing==3.7.4.1           # via -r test.txt, importlib-resources
+urllib3==1.24.3           # via -r test.txt, amclient, elasticsearch, requests
+vcrpy==1.13.0             # via -r test.txt
+virtualenv==20.0.17       # via -r test.txt, tox
+wcwidth==0.1.9            # via -r test.txt, prompt-toolkit, pytest
+whitenoise==3.3.0         # via -r test.txt
+wrapt==1.12.1             # via -r test.txt, vcrpy
+zipp==1.2.0               # via -r test.txt, importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
