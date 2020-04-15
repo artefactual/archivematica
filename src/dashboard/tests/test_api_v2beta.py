@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, Client
 import mock
 

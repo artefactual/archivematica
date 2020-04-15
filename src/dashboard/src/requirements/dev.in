@@ -1,7 +1,5 @@
 -r test.txt
 
-ipython
+ipython==7.9
 ipdb
 pip-tools==4.3.0
-pytest
-pytest-mock

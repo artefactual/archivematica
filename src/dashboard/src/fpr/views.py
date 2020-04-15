@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from django.apps import apps
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _

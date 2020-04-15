@@ -17,28 +17,28 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 import django.contrib.auth.views
 
 from components.accounts import views
 
 app_name = "accounts"
 urlpatterns = [
-    url(r"^$", views.list, name="accounts_index"),
-    url(r"add/$", views.add, name="add"),
-    url(r"(?P<id>\d+)/delete/$", views.delete, name="delete"),
-    url(r"(?P<id>\d+)/edit/$", views.edit, name="edit"),
-    url(r"profile/$", views.profile, name="profile"),
-    url(r"list/$", views.list),
+    re_path(r"^$", views.list, name="accounts_index"),
+    re_path(r"add/$", views.add, name="add"),
+    re_path(r"(?P<id>\d+)/delete/$", views.delete, name="delete"),
+    re_path(r"(?P<id>\d+)/edit/$", views.edit, name="edit"),
+    re_path(r"profile/$", views.profile, name="profile"),
+    re_path(r"list/$", views.list),
 ]
 
 urlpatterns += [
-    url(
+    re_path(
         r"login/$",
         django.contrib.auth.views.LoginView.as_view(
             template_name="accounts/login.html"
         ),
         name="login",
     ),
-    url(r"logout/$", django.contrib.auth.views.logout_then_login, name="logout"),
+    re_path(r"logout/$", django.contrib.auth.views.logout_then_login, name="logout"),
 ]

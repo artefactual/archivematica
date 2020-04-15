@@ -17,21 +17,21 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from components.rights import views
 
 namespace = "rights_transfer"
 urlpatterns = [
-    url(r"^$", views.transfer_rights_list, name="index"),
-    url(r"^add/$", views.transfer_rights_edit, name="add"),
-    url(r"^delete/(?P<id>\d+)/$", views.transfer_rights_delete),
-    url(
+    re_path(r"^$", views.transfer_rights_list, name="index"),
+    re_path(r"^add/$", views.transfer_rights_edit, name="add"),
+    re_path(r"^delete/(?P<id>\d+)/$", views.transfer_rights_delete),
+    re_path(
         r"^grants/(?P<id>\d+)/delete/$",
         views.transfer_rights_grant_delete,
         name="grant_delete",
     ),
-    url(
+    re_path(
         r"^grants/(?P<id>\d+)/$", views.transfer_rights_grants_edit, name="grants_edit"
     ),
-    url(r"^(?P<id>\d+)/$", views.transfer_rights_edit, name="edit"),
+    re_path(r"^(?P<id>\d+)/$", views.transfer_rights_edit, name="edit"),
 ]

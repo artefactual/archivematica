@@ -17,8 +17,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from components.mcp import views
 
 app_name = "mcp"
-urlpatterns = [url(r"execute/$", views.execute), url(r"list/$", views.list)]
+urlpatterns = [re_path(r"execute/$", views.execute), re_path(r"list/$", views.list)]

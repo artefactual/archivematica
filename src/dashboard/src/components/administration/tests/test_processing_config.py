@@ -20,7 +20,7 @@ class TestProcessingConfig(TestCase):
     def test_download_404(self, mock_is_file):
         mock_is_file.return_value = False
         response = self.client.get("/administration/processing/download/default/")
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     @mock.patch("components.helpers.send_file")
     @mock.patch("components.administration.views_processing.os.path.isfile")
@@ -30,7 +30,7 @@ class TestProcessingConfig(TestCase):
             "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
         )
         response = self.client.get("/administration/processing/download/default/")
-        self.assertEquals(
+        self.assertEqual(
             response.content.decode("utf8"), "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
         )
 
@@ -40,7 +40,7 @@ class TestProcessingConfig(TestCase):
     )
     def test_edit_new_config(self, mock_conf_fields):
         response = self.client.get("/administration/processing/add/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertNotIn("name", response.context["form"].initial)
 
     @mock.patch(
@@ -53,7 +53,7 @@ class TestProcessingConfig(TestCase):
     )
     def test_edit_not_found_config(self, mock_load_config, mock_conf_fields):
         response = self.client.get("/administration/processing/edit/not_found_config/")
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
         mock_load_config.assert_called_once_with("not_found_config")
 
     @mock.patch(
@@ -65,5 +65,5 @@ class TestProcessingConfig(TestCase):
     )
     def test_edit_found_config(self, mock_load_config, mock_conf_fields):
         response = self.client.get("/administration/processing/edit/found_config/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         mock_load_config.assert_called_once_with("found_config")

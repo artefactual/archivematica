@@ -11,35 +11,28 @@ amclient==1.1.1
 appdirs==1.4.3
 atomicwrites==1.3.0
 attrs==19.3.0
-backports.shutil-get-terminal-size==1.0.0  # via ipython
+backcall==0.1.0           # via ipython
 bagit==1.7.0
-brotli==0.5.2
+brotli==1.0.7
 certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
 click==7.1.1              # via pip-tools
-configparser==4.0.2
-contextlib2==0.6.0.post1
 coverage==4.2
 cryptography==2.9
 decorator==4.4.2          # via ipython, traitlets
 distlib==0.3.0
 django-auth-ldap==1.3.0
-django-autoslug==1.9.3
-django-braces==1.0.0
+django-autoslug==1.9.6
 django-extensions==1.7.9
 django-forms-bootstrap==3.1.0
-django-model-utils==1.3.1
-django-prometheus==1.0.15
-django-tastypie==0.13.2
-django==1.11.29
+django-prometheus==2.0.0
+django-tastypie==0.14.1
+django==2.0.13
 elasticsearch==6.8.1
-enum34==1.1.10
 filelock==3.0.12
 funcparserlib==0.3.6
-funcsigs==1.0.2
 future==0.18.2
-futures==3.2.0 ; python_version < "3.0"
 gearman3==0.2.0
 gevent==1.3.6
 greenlet==0.4.15
@@ -47,38 +40,39 @@ gunicorn==19.9.0
 idna==2.8
 importlib-metadata==1.6.0
 importlib-resources==1.4.0
-ipaddress==1.0.23
 ipdb==0.13.2
 ipython-genutils==0.2.0   # via traitlets
-ipython==5.9.0
+ipython==7.9.0
+jedi==0.16.0              # via ipython
 lazy-paged-sequence==0.3
-logutils==0.3.3
-lxml==3.5.0
+lxml==4.5.0
 metsrw==0.3.14
-mock==3.0.5
 mockldap==0.2.8
-more-itertools==5.0.0
+more-itertools==8.2.0
+multidict==4.7.5
 mysqlclient==1.3.7
 ndg-httpsclient==0.5.1
 packaging==20.3
+parso==0.6.2              # via jedi
 pathlib2==2.3.3
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
 pip-tools==4.3.0
 pluggy==0.13.1
 prometheus-client==0.7.1
-prompt-toolkit==1.0.18    # via ipython
+prompt-toolkit==2.0.10    # via ipython
 ptyprocess==0.6.0         # via pexpect
 py==1.8.1
 pyasn1-modules==0.2.8
 pyasn1==0.4.8
 pycparser==2.20
-pygments==2.5.2           # via ipython
+pygments==2.6.1           # via ipython
+pyldap==3.0.0.post1
 pyopenssl==19.1.0
 pyparsing==2.4.7
 pytest-cov==2.4.0
 pytest-django==3.9.0
-pytest-mock==2.0.0
+pytest-mock==3.0.0
 pytest-pythonpath==0.7.3
 pytest==4.6.9
 python-dateutil==2.6.0
@@ -88,19 +82,17 @@ pytz==2019.3
 pyyaml==5.3.1
 requests==2.21.0
 scandir==1.10.0
-simplegeneric==0.8.1      # via ipython
-singledispatch==3.4.0.3
 six==1.14.0
 toml==0.10.0
 tox==3.14.6
 traitlets==4.3.3          # via ipython
-typing==3.7.4.1
 urllib3==1.24.3
 vcrpy==1.13.0
 virtualenv==20.0.16
 wcwidth==0.1.9
-whitenoise==3.3.0
+whitenoise==5.0.1
 wrapt==1.12.1
+yarl==1.4.2
 zipp==1.2.0
 
 # The following packages are considered to be unsafe in a requirements file:

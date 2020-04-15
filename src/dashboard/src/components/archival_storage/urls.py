@@ -17,7 +17,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from django.conf import settings
 
 from components.archival_storage import views
@@ -25,32 +25,34 @@ from components.archival_storage import views
 
 app_name = "archival_storage"
 urlpatterns = [
-    url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/$", views.view_aip, name="view_aip"),
-    url(
+    re_path(
+        r"^(?P<uuid>" + settings.UUID_REGEX + ")/$", views.view_aip, name="view_aip"
+    ),
+    re_path(
         r"^download/aip/file/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.aip_file_download,
         name="aip_file_download",
     ),
-    url(
+    re_path(
         r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/mets_download/$",
         views.aip_mets_file_download,
         name="aip_mets_file_download",
     ),
-    url(
+    re_path(
         r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/pointer_file/$",
         views.aip_pointer_file_download,
         name="aip_pointer_file_download",
     ),
-    url(
+    re_path(
         r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.aip_download,
         name="aip_download",
     ),
-    url(r"^search/json/file/(?P<document_id_modified>\w+)/$", views.file_json),
-    url(r"^search/create_aic/$", views.create_aic, name="create_aic"),
-    url(r"^search/$", views.search, name="archival_storage_search"),
-    url(
+    re_path(r"^search/json/file/(?P<document_id_modified>\w+)/$", views.file_json),
+    re_path(r"^search/create_aic/$", views.create_aic, name="create_aic"),
+    re_path(r"^search/$", views.search, name="archival_storage_search"),
+    re_path(
         r"^thumbnail/(?P<fileuuid>" + settings.UUID_REGEX + ")/$", views.send_thumbnail
     ),
-    url(r"^$", views.overview, name="archival_storage_index"),
+    re_path(r"^$", views.overview, name="archival_storage_index"),
 ]

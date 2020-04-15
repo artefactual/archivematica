@@ -17,11 +17,11 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from installer import views
 
 app_name = "installer"
 urlpatterns = [
-    url(r"welcome/$", views.welcome, name="welcome"),
-    url(r"storagesetup/$", views.storagesetup, name="storagesetup"),
+    re_path(r"welcome/$", views.welcome, name="welcome"),
+    re_path(r"storagesetup/$", views.storagesetup, name="storagesetup"),
 ]

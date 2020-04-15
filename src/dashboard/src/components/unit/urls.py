@@ -17,7 +17,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from django.conf import settings
 
 from components.unit import views
@@ -26,12 +26,14 @@ app_name = "unit"
 # The first segment of these urls is '^(?P<unit_type>transfer|ingest)/'
 # All views should expect a first parameter of unit_type, with a value of 'transfer' or 'ingest'
 urlpatterns = [
-    url(r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/$", views.detail, name="detail"),
-    url(
+    re_path(
+        r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/$", views.detail, name="detail"
+    ),
+    re_path(
         r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/microservices/$",
         views.microservices,
         name="microservices",
     ),
-    url(r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/delete/$", views.mark_hidden),
-    url(r"^delete/$", views.mark_completed_hidden),
+    re_path(r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/delete/$", views.mark_hidden),
+    re_path(r"^delete/$", views.mark_completed_hidden),
 ]

@@ -17,21 +17,21 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from django.conf import settings
 
 from components.backlog import views
 
 app_name = "backlog"
 urlpatterns = [
-    url(r"^$", views.execute, name="backlog_index"),
-    url(r"search/$", views.search, name="backlog_search"),
-    url(
+    re_path(r"^$", views.execute, name="backlog_index"),
+    re_path(r"search/$", views.search, name="backlog_search"),
+    re_path(
         r"delete/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.delete,
         name="backlog_delete",
     ),
-    url(
+    re_path(
         r"download/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.download,
         name="backlog_download",

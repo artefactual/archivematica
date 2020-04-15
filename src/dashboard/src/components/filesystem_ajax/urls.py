@@ -17,29 +17,31 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.conf.urls import url
+from django.urls import re_path
 from django.conf import settings
 from components.filesystem_ajax import views
 
 app_name = "filesystem_ajax"
 urlpatterns = [
-    url(r"^download_ss/$", views.download_ss),
-    url(r"^download_fs/$", views.download_fs),
-    url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/download/$", views.download_by_uuid),
-    url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/preview/$", views.preview_by_uuid),
-    url(r"^contents/arrange/$", views.arrange_contents, name="contents_arrange"),
-    url(r"^contents/$", views.contents),
-    url(
+    re_path(r"^download_ss/$", views.download_ss),
+    re_path(r"^download_fs/$", views.download_fs),
+    re_path(
+        r"^(?P<uuid>" + settings.UUID_REGEX + ")/download/$", views.download_by_uuid
+    ),
+    re_path(r"^(?P<uuid>" + settings.UUID_REGEX + ")/preview/$", views.preview_by_uuid),
+    re_path(r"^contents/arrange/$", views.arrange_contents, name="contents_arrange"),
+    re_path(r"^contents/$", views.contents),
+    re_path(
         r"^children/location/(?P<location_uuid>" + settings.UUID_REGEX + ")/$",
         views.directory_children_proxy_to_storage_server,
     ),
-    url(r"^delete/arrange/$", views.delete_arrange, name="delete_arrange"),
-    url(
+    re_path(r"^delete/arrange/$", views.delete_arrange, name="delete_arrange"),
+    re_path(
         r"^create_directory_within_arrange/$",
         views.create_directory_within_arrange,
         name="create_directory_within_arrange",
     ),
-    url(r"^copy_to_arrange/$", views.copy_to_arrange, name="copy_to_arrange"),
-    url(r"^copy_from_arrange/$", views.copy_from_arrange_to_completed),
-    url(r"^copy_metadata_files/$", views.copy_metadata_files),
+    re_path(r"^copy_to_arrange/$", views.copy_to_arrange, name="copy_to_arrange"),
+    re_path(r"^copy_from_arrange/$", views.copy_from_arrange_to_completed),
+    re_path(r"^copy_metadata_files/$", views.copy_metadata_files),
 ]

@@ -39,6 +39,8 @@ import six
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
 
+from archivematicaFunctions import unicodeToStr
+
 LOGGER = logging.getLogger("archivematica.dashboard")
 
 METADATA_STATUS_ORIGINAL = "ORIGINAL"
@@ -89,9 +91,9 @@ def create_user_agent(sender, instance, **kwargs):
             "identifiertype": "Archivematica user pk",
             "identifiervalue": str(instance.id),
             "name": 'username="{}", first_name="{}", last_name="{}"'.format(
-                instance.username.encode("utf8"),
-                instance.first_name.encode("utf8"),
-                instance.last_name.encode("utf8"),
+                unicodeToStr(instance.username),
+                unicodeToStr(instance.first_name),
+                unicodeToStr(instance.last_name),
             ),
             "agenttype": "Archivematica user",
         },
@@ -962,8 +964,8 @@ class Agent(models.Model):
 class UserProfile(models.Model):
     """ Extension of the User model for additional information. """
 
-    user = models.OneToOneField(User)
-    agent = models.OneToOneField(Agent)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
     system_emails = models.BooleanField(
         default=True,
         help_text=_(

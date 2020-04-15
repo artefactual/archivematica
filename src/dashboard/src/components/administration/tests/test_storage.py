@@ -22,7 +22,7 @@ class TestStorage(TestCase):
     )
     def test_ss_connection_fail(self, mock_get_location):
         response = self.client.get(self.url)
-        self.assertIn("Error retrieving locations", response.content)
+        self.assertIn("Error retrieving locations", response.content.decode("utf8"))
 
     @mock.patch("components.administration.views.storage_service.get_location")
     def test_success(self, mock_get_location):

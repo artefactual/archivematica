@@ -22,7 +22,7 @@ import requests
 
 from django.conf import settings as django_settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.template import RequestContext

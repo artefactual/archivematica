@@ -24,7 +24,7 @@ import shutil
 import subprocess
 
 from django.conf import settings as django_settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
