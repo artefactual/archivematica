@@ -62,7 +62,7 @@
     <ul class="dropdown-menu">
       <li class="processing-config-choice"
           ng-repeat="processing_config in vm.transfer.processing_configs">
-        <a ng-click="vm.transfer.start(processing_config)">{{ "Start with" | translate }} "{{ processing_config }}" {{ "config" | translate }}</a>
+        <a ng-click="vm.transfer.start(processing_config)" translate>Start with "{{ processing_config }}" config</a>
       </li>
     </ul>
   </div>
