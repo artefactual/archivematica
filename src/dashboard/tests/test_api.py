@@ -490,7 +490,12 @@ class TestProcessingConfigurationAPI(TestCase):
         processing_configs = payload["processing_configurations"]
         assert len(processing_configs) == 2
         expected_names = ["default", "automated"]
-        assert all([a == b for a, b in zip(processing_configs, expected_names)])
+        assert all(
+            [
+                actual == expected
+                for actual, expected in zip(processing_configs, expected_names)
+            ]
+        )
 
     def test_get_existing_processing_config(self):
         response = self.client.get(
