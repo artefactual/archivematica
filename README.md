@@ -32,6 +32,16 @@ Thank you for your interest in Archivematica!
 For more details, see the [contributing guidelines](CONTRIBUTING.md)
 
 
+## Reporting an issue
+
+Issues related to Archivematica, the Storage Service, or any related repository can be filed in the [Archivematica Issues repository](https://github.com/archivematica/Issues/issues).
+
+
+### Security
+
+If you have a security concern about Archivematica or any related repository, please see the [SECURITY file](SECURITY.md) for information about how to safely report vulnerabilities.
+
+
 ## Related projects
 
 Archivematica consists of several projects working together, including:
