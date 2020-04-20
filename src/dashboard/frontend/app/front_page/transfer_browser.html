@@ -1,4 +1,11 @@
 <div ng-controller="HeaderController as vm">
+  <div ng-controller="AlertDisplayController as vm">
+    <alert ng-repeat="alert in vm.alert.alerts" type="{{ alert.type }}" close="vm.remove($index)">
+      {{ alert.message }}
+      <span ng-if="alert.show_spinner"><i class="fa fa-spinner fa-spin"></i></span>
+    </alert>
+  </div>
+  
   <div class="row" id="transfer-browser-form">
 
   <div class="col-xs-2">
@@ -39,10 +46,12 @@
   <div class="btn-group">
     <button type="submit"
           class="btn btn-success"
+          title='{{ "Start with default processing configuration" | translate }}'
           ng-disabled="!vm.enable_submit_button()"
           ng-click="vm.transfer.start('default')">{{ "Start transfer" | translate }}</button>
     <button type="submit"
           class="btn btn-success dropdown-toggle"
+          title='{{ "Choose a processing configuration" | translate }}'
           ng-disabled="!vm.enable_submit_button()"
           data-toggle="dropdown"
           aria-haspopup="true"

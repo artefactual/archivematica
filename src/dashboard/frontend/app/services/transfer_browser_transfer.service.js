@@ -8,10 +8,12 @@ import Base64 from 'base64-helpers';
 // a) Tracking metadata of the current transfer-in-progress; and
 // b) Interacting with the Archivematica API to start a transfer and perform supporting functions.
 class TransferBrowserTransfer {
-  constructor($cookies) {
+  constructor($cookies, gettextCatalog, Alert) {
     this.empty_properties();
     this.fetch_processing_configs();
     this.$cookies = $cookies;
+    this.gettextCatalog = gettextCatalog;
+    this.Alert = Alert;
   }
 
   empty_properties() {
@@ -86,6 +88,14 @@ class TransferBrowserTransfer {
         dataType: "json",
         data: JSON.stringify(payload)
       });
+    });
+
+    this.Alert.alerts.push({
+      'type': 'info',
+      'message': this.gettextCatalog.getString(
+        'Transfer "{{name}}" started with processing configuration "{{config}}".',
+        { name: this.name, config: processing_config }
+      )
     });
 
     this.empty_properties();

@@ -39,8 +39,8 @@ class HeaderController {
   }
 }
 
-export default angular.module('controllers.header', ['services.transfer_browser_transfer']).
+export default angular.module('controllers.header', ['services.transfer_browser_transfer', 'alertService']).
   controller('HeaderController', HeaderController).
   name;
 
-HeaderController.$inject = ['TransferBrowserTransfer'];
+HeaderController.$inject = ['TransferBrowserTransfer', 'Alert'];
