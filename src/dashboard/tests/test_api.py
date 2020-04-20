@@ -489,7 +489,7 @@ class TestProcessingConfigurationAPI(TestCase):
         payload = json.loads(response.content.decode("utf8"))
         processing_configs = payload["processing_configurations"]
         assert len(processing_configs) == 2
-        expected_names = ["default", "automated"]
+        expected_names = sorted(["default", "automated"])
         assert all(
             [
                 actual == expected

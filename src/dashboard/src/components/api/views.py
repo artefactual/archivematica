@@ -811,9 +811,9 @@ def processing_configurations(request):
     """Return list of names of available processing configurations."""
     config_dir = helpers.processing_config_path()
     CONFIG_FILE_SUFFIX = "ProcessingMCP.xml"
-    processing_configs = [
-        filename[: -len(CONFIG_FILE_SUFFIX)] for filename in os.listdir(config_dir)
-    ]
+    processing_configs = sorted(
+        [filename[: -len(CONFIG_FILE_SUFFIX)] for filename in os.listdir(config_dir)]
+    )
     return helpers.json_response({"processing_configurations": processing_configs})
 
 
