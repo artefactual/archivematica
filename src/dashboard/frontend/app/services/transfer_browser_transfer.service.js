@@ -94,7 +94,7 @@ class TransferBrowserTransfer {
       'type': 'info',
       'message': this.gettextCatalog.getString(
         'Transfer "{{name}}" started with processing configuration "{{config}}".',
-        { name: this.name, config: processing_config }
+        { name: name, config: processing_config }
       )
     });
 
