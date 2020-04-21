@@ -1,5 +1,5 @@
 <div ng-controller="HeaderController as vm">
-  <div ng-controller="AlertDisplayController as vm">
+  <div id="transfer-alert" ng-controller="AlertDisplayController as vm">
     <alert ng-repeat="alert in vm.alert.alerts" type="{{ alert.type }}" close="vm.remove($index)">
       {{ alert.message }}
       <span ng-if="alert.show_spinner"><i class="fa fa-spinner fa-spin"></i></span>

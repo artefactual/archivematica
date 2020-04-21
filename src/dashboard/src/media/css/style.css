@@ -770,11 +770,3 @@ textarea.command {
 label.required-field:after {
   content: '*'
 }
-
-/*
- * Transfer browser
- */
-
-.processing-config-choice:hover {
-  cursor: pointer;
-}
