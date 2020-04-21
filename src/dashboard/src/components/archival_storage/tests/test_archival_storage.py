@@ -21,10 +21,13 @@ from __future__ import absolute_import, unicode_literals
 import json
 import os
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
+from django.test import TestCase
+from django.test.client import Client
 import pytest
 
-from components.archival_storage import atom
+from components.archival_storage import atom, views
 from components import helpers
 
 import metsrw
@@ -195,3 +198,43 @@ def test_get_pointer_known_pointer(
     assert response_text == mets_hdr
     assert response.get(CONTENT_TYPE) == mock_content_type
     assert response.get(CONTENT_DISPOSITION) == content_disposition
+
+
+class TestArchivalStorageDataTableState(TestCase):
+    fixtures = ["test_user"]
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username="test", password="test")
+        helpers.set_setting("dashboard_uuid", "test-uuid")
+        self.data = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
+
+    def test_save_datatable_state(self):
+        """Test ability to save DataTable state"""
+        response = self.client.post(
+            "/archival-storage/save_state/aips/",
+            self.data,
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        saved_state = helpers.get_setting("aips_datatable_state")
+        assert json.dumps(self.data) == saved_state
+
+    def test_load_datatable_state(self):
+        """Test ability to load DataTable state"""
+        helpers.set_setting("aips_datatable_state", json.dumps(self.data))
+        # Retrieve data from view
+        response = self.client.get(reverse(views.load_state, args=["aips"]))
+        assert response.status_code == 200
+        payload = json.loads(response.content.decode("utf8"))
+        assert payload["time"] == 1588609847900
+        assert payload["columns"][0]["visible"] is True
+        assert payload["columns"][2]["visible"] is False
+
+    def test_load_datatable_state_404(self):
+        """Non-existent settings should return a 404"""
+        response = self.client.get(reverse(views.load_state, args=["nonexistent"]))
+        assert response.status_code == 404
+        payload = json.loads(response.content.decode("utf8"))
+        assert payload["error"] is True
+        assert payload["message"] == "Setting not found"

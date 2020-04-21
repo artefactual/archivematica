@@ -40,6 +40,9 @@ from lxml import etree
 from main.models import DashboardSetting
 from namespaces import NSMAP
 
+from amclient import AMClient
+
+
 REQUIRED_DIRECTORIES = (
     "logs",
     "logs/fileMeta",
@@ -55,6 +58,8 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/preservation",
 ]
 
+AMCLIENT_ERROR_CODES = (1, 2, 3, 4, -1)
+
 
 def get_setting(setting, default=""):
     """Get Dashboard setting from database model."""
@@ -67,6 +72,16 @@ def get_setting(setting, default=""):
 def get_dashboard_uuid():
     """Get Dashboard uuid via the Dashboard database mode."""
     return get_setting("dashboard_uuid", default=None)
+
+
+def setup_amclient():
+    """Initialize and return an AMClient instance."""
+    client = AMClient(
+        ss_api_key=get_setting("storage_service_apikey", ""),
+        ss_user_name=get_setting("storage_service_user", ""),
+        ss_url=get_setting("storage_service_url", "").rstrip("/"),
+    )
+    return client
 
 
 class OrderedListsDict(collections.OrderedDict):

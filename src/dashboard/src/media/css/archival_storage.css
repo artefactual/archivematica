@@ -104,3 +104,23 @@ div.search-summary p {
   list-style: none;
   color: red;
 }
+
+.dt-buttons {
+  margin-left: 45px;
+  margin-top: 9px;
+}
+
+.dt-buttons button.buttons-collection {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.button-text-span {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+#create-aic-btn {
+  margin-bottom: 10px;
+}

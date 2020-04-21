@@ -17,7 +17,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-import ast
 import json
 import logging
 import os
@@ -27,195 +26,308 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
-from lazy_paged_sequence import LazyPagedSequence
 
+from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
+from components import advanced_search, helpers
 from components.archival_storage import forms
 from components.archival_storage.atom import (
     upload_dip_metadata_to_atom,
     AtomMetadataUploadError,
 )
-from components import advanced_search
-from components import helpers
 import databaseFunctions
-import elasticSearchFunctions
+import elasticSearchFunctions as es
 import storageService as storage_service
 
 logger = logging.getLogger("archivematica.dashboard")
 
 AIPSTOREPATH = "/var/archivematica/sharedDirectory/www/AIPsStore"
 
-AIP_STATUS_DESCRIPTIONS = {"UPLOADED": _("Stored"), "DEL_REQ": _("Deletion requested")}
+AIP_STATUS_DESCRIPTIONS = {
+    es.STATUS_UPLOADED: _("Stored"),
+    es.STATUS_DELETE_REQUESTED: _("Deletion requested"),
+}
+
+DIRECTORY_PERMISSIONS = 0o770
+FILE_PERMISSIONS = 0o660
 
 
-def overview(request):
-    return list_display(request)
+def check_and_remove_deleted_aips(es_client):
+    """Remove AIP and files from ES index if Storage Service status is deleted.
+
+    Check the storage service to see if transfers marked in ES as
+    'pending deletion' have been deleted yet.
+
+    :param es_client: Elasticsearch client.
+    :return: None.
+    """
+    query = {
+        "query": {"bool": {"must": {"match": {"status": es.STATUS_DELETE_REQUESTED}}}}
+    }
+
+    deletion_pending_results = es_client.search(
+        body=query, index=es.AIPS_INDEX, _source="uuid,status"
+    )
+
+    for hit in deletion_pending_results["hits"]["hits"]:
+        aip_uuid = hit["_source"]["uuid"]
+
+        api_results = storage_service.get_file_info(uuid=aip_uuid)
+        try:
+            aip_status = api_results[0]["status"]
+        except IndexError:
+            logger.info("AIP not found in storage service: {}".format(aip_uuid))
+            continue
+
+        if aip_status == es.STATUS_DELETED:
+            es.delete_aip(es_client, aip_uuid)
+            es.delete_aip_files(es_client, aip_uuid)
+        elif aip_status != es.STATUS_DELETE_REQUESTED:
+            es.mark_aip_stored(es_client, aip_uuid)
+
+
+def check_and_update_aip_pending_deletion(uuid, es_status):
+    """Check Storage Service to see if AIP has pending deletion and update ES if so.
+
+    :param uuid: AIP UUID.
+    :param pending_deletion: Current pending_deletion value in aips ES index.
+    :return: None.
+    """
+    amclient = setup_amclient()
+    amclient.package_uuid = uuid
+    api_results = amclient.get_package_details()
+
+    if api_results in AMCLIENT_ERROR_CODES:
+        logger.warning(
+            "Package {} not found in storage service. AMClient error code: {}".format(
+                uuid, api_results
+            )
+        )
+        return
+
+    aip_status = api_results.get("status")
+
+    if aip_status is not None and aip_status == es.STATUS_DELETE_REQUESTED:
+        if es_status != es.STATUS_DELETE_REQUESTED:
+            es_client = es.get_client()
+            es.mark_aip_deletion_requested(es_client, uuid)
+
+
+def execute(request):
+    """Remove any deleted AIPs from ES index and render main archival storage page.
+
+    :param request: Django request object.
+    :return: The main archival storage page rendered.
+    """
+    if es.AIPS_INDEX in settings.SEARCH_ENABLED:
+        es_client = es.get_client()
+        check_and_remove_deleted_aips(es_client)
+
+        total_size = total_size_of_aips(es_client)
+        aip_indexed_file_count = aip_file_count(es_client)
+
+        return render(
+            request,
+            "archival_storage/archival_storage.html",
+            {
+                "total_size": total_size,
+                "aip_indexed_file_count": aip_indexed_file_count,
+            },
+        )
+
+    return render(request, "archival_storage/archival_storage.html")
+
+
+def get_es_property_from_column_index(index, file_mode):
+    """Get ES document property name corresponding to column index in DataTable.
+
+    When the user clicks a column header in the data table, we'll receive info
+    in the AJAX request telling us which column # we're supposed to sort across
+    in our query. This function will translate the column index to the
+    corresponding property name we'll tell ES to sort on.
+
+    :param index: The column index that the data table says we're sorting on.
+    :param file_mode: Whether we're looking at transfers or transfer files.
+    :return: The ES document property name corresponding to the column index.
+    """
+    table_columns = (
+        (
+            "name.raw",
+            "uuid",
+            "AICID",
+            "size",
+            "file_count",
+            "accessionids",
+            "created",
+            "status",
+            "encrypted",
+            None,
+        ),  # AIPS are being displayed
+        (
+            None,
+            "filePath.raw",
+            "FILEUUID",
+            "sipName.raw",
+            "accessionid",
+            "status",
+            None,
+        ),  # AIP files are being displayed
+    )
+
+    if index < 0 or index >= len(table_columns[file_mode]):
+        logger.warning(
+            "Archival Storage column index specified is invalid for sorting, got %s",
+            index,
+        )
+        index = 0
+
+    return table_columns[file_mode][index]
 
 
 def search(request):
-    # FIXME there has to be a better way of handling checkboxes than parsing
-    # them by hand here, and displaying 'checked' in
-    # _archival_storage_search_form.html
-    # Parse checkbox for file mode
-    yes_options = ("checked", "yes", "true", "on")
-    if request.GET.get("filemode", "") in yes_options:
-        file_mode = True
-        checked_if_in_file_mode = "checked"
-        items_per_page = 20
-    else:  # AIP list
-        file_mode = False
-        checked_if_in_file_mode = ""
-        items_per_page = 10
+    """A JSON end point that returns results for AIPs and their files.
 
-    # Parse checkbox for show AICs
-    show_aics = ""
-    if request.GET.get("show_aics", "") in yes_options:
-        show_aics = "checked"
-
-    # get search parameters from request
+    :param request: Django request object.
+    :return: A JSON object including required metadata for the datatable and
+    the search results.
+    """
+    # Get search parameters from the request.
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
-    logger.debug(
-        "Queries: %s, Ops: %s, Fields: %s, Types: %s", queries, ops, fields, types
+
+    file_mode = request.GET.get("file_mode") == "true"
+    page_size = int(request.GET.get("iDisplayLength", 10))
+    start = int(request.GET.get("iDisplayStart", 0))
+
+    order_by = get_es_property_from_column_index(
+        int(request.GET.get("iSortCol_0", 0)), file_mode
     )
+    sort_direction = request.GET.get("sSortDir_0", "asc")
 
-    # redirect if no search params have been set
+    es_client = es.get_client()
+
     if "query" not in request.GET:
-        return helpers.redirect_with_get_params(
-            "archival_storage:archival_storage_search", query="", field="", type=""
-        )
+        queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
 
-    # get string of URL parameters that should be passed along when paging
-    search_params = advanced_search.extract_url_search_params_from_request(request)
-
-    current_page_number = int(request.GET.get("page", 1))
-
-    # perform search
-    es_client = elasticSearchFunctions.get_client()
-    results = None
     query = advanced_search.assemble_query(queries, ops, fields, types)
+
     try:
-        # Use all results to pull transfer facets if not in file mode
-        # pulling only one field (we don't need field data as we augment
-        # the results using separate queries).
-        if not file_mode:
-            # Fetch all unique AIP UUIDs in the returned set of files
-            # ES query will limit to 10 aggregation results by default,
+        if file_mode:
+            index = es.AIP_FILES_INDEX
+            source = "filePath,FILEUUID,AIPUUID,accessionid,status"
+        else:
+            # Fetch all unique AIP UUIDs in the returned set of files.
+            # ES query will limit to 10 aggregation results by default;
             # add size parameter in terms to override.
             # TODO: Use composite aggregation when it gets out of beta.
             query["aggs"] = {
                 "aip_uuids": {"terms": {"field": "AIPUUID", "size": "10000"}}
             }
-            # Don't return results, just the aggregation
+            # Don't return results, just the aggregation.
             query["size"] = 0
             # Searching for AIPs still actually searches type 'aipfile', and
-            # returns the UUID of the AIP the files are a part of.  To search
+            # returns the UUID of the AIP the files are a part of. To search
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP.
-            results = es_client.search(body=query, index="aipfiles")
-            # Given these AIP UUIDs, now fetch the actual information we want from aips/aip
+            results = es_client.search(body=query, index=es.AIP_FILES_INDEX)
+            # Given these AIP UUIDs, now fetch the actual information we want
+            # from AIPs/AIP.
             buckets = results["aggregations"]["aip_uuids"]["buckets"]
             uuids = [bucket["key"] for bucket in buckets]
             uuid_file_counts = {
                 bucket["key"]: bucket["doc_count"] for bucket in buckets
             }
             query = {"query": {"terms": {"uuid": uuids}}}
-            index = "aips"
-            fields = (
-                "name,uuid,size,created,status,AICID,isPartOf,countAIPsinAIC,encrypted"
-            )
-            sort = "name.raw:desc"
+            index = es.AIPS_INDEX
+            source = "name,uuid,size,accessionids,created,status,encrypted,AICID,isPartOf,countAIPsinAIC"
+
+        results = es_client.search(
+            index=index,
+            body=query,
+            from_=start,
+            size=page_size,
+            sort=order_by + ":" + sort_direction if order_by else "",
+            _source=source,
+        )
+        hit_count = results["hits"]["total"]
+
+        if file_mode:
+            augmented_results = search_augment_file_results(es_client, results)
         else:
-            index = "aipfiles"
-            fields = "AIPUUID,filePath,FILEUUID,encrypted"
-            sort = "sipName.raw:desc"
+            augmented_results = search_augment_aip_results(results, uuid_file_counts)
 
-        # To reduce amount of data fetched from ES, use LazyPagedSequence
-        def es_pager(page, page_size):
-            """
-            Fetch one page of normalized aipfile entries from Elasticsearch.
-
-            :param page: 1-indexed page to fetch
-            :param page_size: Number of entries on a page
-            :return: List of dicts for each entry with additional information
-            """
-            start = (page - 1) * page_size
-            results = es_client.search(
-                body=query,
-                from_=start,
-                size=page_size,
-                index=index,
-                _source=fields,
-                sort=sort,
-            )
-            if file_mode:
-                return search_augment_file_results(es_client, results)
-            else:
-                return search_augment_aip_results(results, uuid_file_counts)
-
-        count = es_client.count(index=index, body={"query": query["query"]})["count"]
-        results = LazyPagedSequence(es_pager, items_per_page, count)
+        return helpers.json_response(
+            {
+                "iTotalRecords": hit_count,
+                "iTotalDisplayRecords": hit_count,
+                "sEcho": int(
+                    request.GET.get("sEcho", 0)
+                ),  # It was recommended we convert sEcho to int to prevent XSS.
+                "aaData": augmented_results,
+            }
+        )
 
     except ElasticsearchException:
-        logger.exception("Error accessing index.")
-        return HttpResponse("Error accessing index.")
-
-    if not file_mode:
-        aic_creation_form = forms.CreateAICForm(initial={"results": uuids})
-    else:  # if file_mode
-        aic_creation_form = None
-
-    page_data = helpers.pager(results, items_per_page, current_page_number)
-
-    return render(
-        request,
-        "archival_storage/search.html",
-        {
-            "file_mode": file_mode,
-            "show_aics": show_aics,
-            "checked_if_in_file_mode": checked_if_in_file_mode,
-            "aic_creation_form": aic_creation_form,
-            "results": page_data.object_list,
-            "search_params": search_params,
-            "page": page_data,
-        },
-    )
-
-
-def _get_es_field(record, field, default=None):
-    if field not in record or not record[field]:
-        return default
-    return record[field]
+        err_desc = "Error accessing AIPs index"
+        logger.exception(err_desc)
+        return HttpResponse(err_desc)
 
 
 def search_augment_aip_results(raw_results, counts):
+    """Augment AIP results and update ES status if AIP is pending deletion.
+
+    We perform check_and_update_aip_pending_deletion routine here to avoid
+    needing to iterate through all of the results a second time.
+
+    :param raw_results: Raw results returned from ES.
+    :param counts: Count of file UUIDs associated with AIP.
+
+    :return: Augmented and formatted results.
+    """
     modified_results = []
 
     for item in raw_results["hits"]["hits"]:
         fields = item["_source"]
         new_item = {
-            "name": fields["name"],
-            "uuid": fields["uuid"],
-            "count": counts[fields["uuid"]],
-            "created": fields["created"],
-            "isPartOf": _get_es_field(fields, "isPartOf"),
-            "AICID": _get_es_field(fields, "AICID"),
-            "countAIPsinAIC": _get_es_field(fields, "countAIPsinAIC", "(unknown)"),
-            "type": "AIC" if "AIC#" in _get_es_field(fields, "AICID", "") else "AIP",
-            "status": AIP_STATUS_DESCRIPTIONS[
-                _get_es_field(fields, "status", "UPLOADED")
-            ],
-            "encrypted": _get_es_field(fields, "encrypted", False),
+            "name": fields.get("name", ""),
+            "uuid": fields.get("uuid", ""),
+            "file_count": counts.get(fields.get("uuid"), 0),
+            "created": fields.get("created", 0),
+            "isPartOf": fields.get("isPartOf"),
+            "AICID": fields.get("AICID"),
+            "countAIPsinAIC": fields.get("countAIPsinAIC", "(unknown)"),
+            "status": AIP_STATUS_DESCRIPTIONS[fields.get("status", es.STATUS_UPLOADED)],
+            "encrypted": fields.get("encrypted", False),
+            "accessionids": fields.get("accessionids", []),
         }
-        size = _get_es_field(fields, "size")
+        size = fields.get("size")
         if size is not None:
-            new_item["size"] = "{0:.2f} MB".format(size)
+            bytecount = size * (1024 * 1024)
+            new_item["size"] = filesizeformat(bytecount)
         modified_results.append(new_item)
+
+        aic_id = fields.get("AICID")
+        if aic_id and "AIC#" in aic_id:
+            new_item["type"] = "AIC"
+        else:
+            new_item["type"] = "AIP"
+
+        status = fields.get("status")
+        if status is not None:
+            check_and_update_aip_pending_deletion(fields["uuid"], status)
 
     return modified_results
 
 
 def search_augment_file_results(es_client, raw_results):
+    """Augment file results.
+
+    :param es_client: Elasticsearch client.
+    :param raw_results: Raw results returned from ES.
+
+    :return: Augmented and formatted results.
+    """
     modifiedResults = []
 
     for item in raw_results["hits"]["hits"]:
@@ -224,26 +336,26 @@ def search_augment_file_results(es_client, raw_results):
 
         clone = item["_source"].copy()
 
-        # try to find AIP details in database
         try:
-            # get AIP data from ElasticSearch
-            aip = elasticSearchFunctions.get_aip_data(
+            aip = es.get_aip_data(
                 es_client,
                 clone["AIPUUID"],
                 fields="uuid,name,filePath,size,origin,created,encrypted",
             )
 
-            # augment result data
             clone["sipname"] = aip["_source"]["name"]
             clone["fileuuid"] = clone["FILEUUID"]
             clone["href"] = aip["_source"]["filePath"].replace(
                 AIPSTOREPATH + "/", "AIPsStore/"
             )
 
-        except:
+        except ElasticsearchException:
             aip = None
             clone["sipname"] = False
 
+        clone["status"] = AIP_STATUS_DESCRIPTIONS[
+            clone.get("status", es.STATUS_UPLOADED)
+        ]
         clone["filename"] = os.path.basename(clone["filePath"])
         clone["document_id"] = item["_id"]
         clone["document_id_no_hyphens"] = item["_id"].replace("-", "____")
@@ -253,56 +365,53 @@ def search_augment_file_results(es_client, raw_results):
     return modifiedResults
 
 
-def create_aic(request, *args, **kwargs):
-    aic_form = forms.CreateAICForm(request.POST or None)
-    if aic_form.is_valid():
-        aip_uuids = ast.literal_eval(aic_form.cleaned_data["results"])
-        logger.info("AIC AIP UUIDs: {}".format(aip_uuids))
+def create_aic(request):
+    """Create an AIC from POSTed list of AIP UUIDs.
 
-        # The form was passed a raw list of all AIP UUIDs mapping the user's query;
-        # use those to fetch their names, which is used to produce files below.
-        query = {"query": {"terms": {"uuid": aip_uuids}}}
-        es_client = elasticSearchFunctions.get_client()
-        results = es_client.search(
-            body=query,
-            index="aips",
-            _source="uuid,name",
-            size=elasticSearchFunctions.MAX_QUERY_SIZE,  # return all records
-        )
-
-        # Create files in staging directory with AIP information
-        shared_dir = settings.SHARED_DIRECTORY
-        staging_dir = os.path.join(shared_dir, "tmp")
-
-        # Create SIP (AIC) directory in staging directory
-        temp_uuid = str(uuid.uuid4())
-        destination = os.path.join(staging_dir, temp_uuid)
-        try:
-            os.mkdir(destination)
-            os.chmod(destination, 0o770)
-        except os.error:
-            messages.error(request, "Error creating AIC")
-            logger.exception(
-                "Error creating AIC: Error creating directory {}".format(destination)
-            )
-            return redirect("archival_storage:archival_storage_index")
-
-        # Create SIP in DB
-        mcp_destination = destination.replace(shared_dir, "%sharedPath%") + "/"
-        databaseFunctions.createSIP(mcp_destination, UUID=temp_uuid, sip_type="AIC")
-
-        # Create files with filename = AIP UUID, and contents = AIP name
-        for aip in results["hits"]["hits"]:
-            filepath = os.path.join(destination, aip["_source"]["uuid"])
-            with open(filepath, "w") as f:
-                os.chmod(filepath, 0o660)
-                f.write(str(aip["_source"]["name"]))
-
-        return redirect("ingest:aic_metadata_add", temp_uuid)
-    else:
-        messages.error(request, "Error creating AIC")
-        logger.error("Error creating AIC: Form not valid: {}".format(aic_form))
+    :param request: Django request object.
+    :return: Redirect to appropriate view.
+    """
+    uuids = request.POST.get("uuids")
+    if not uuids:
+        messages.error(request, "Unable to create AIC: No AIPs selected")
         return redirect("archival_storage:archival_storage_index")
+
+    # Make a list of UUIDs from from comma-separated string in request.
+    aip_uuids = uuids.split(",")
+    logger.info("AIC AIP UUIDs: {}".format(aip_uuids))
+
+    # Use the AIP UUIDs to fetch names, which are used to produce files below.
+    query = {"query": {"terms": {"uuid": aip_uuids}}}
+    es_client = es.get_client()
+    results = es_client.search(
+        body=query, index=es.AIPS_INDEX, _source="uuid,name", size=es.MAX_QUERY_SIZE
+    )
+
+    # Create SIP (AIC) directory in a staging directory.
+    shared_dir = settings.SHARED_DIRECTORY
+    staging_dir = os.path.join(shared_dir, "tmp")
+    temp_uuid = str(uuid.uuid4())
+    destination = os.path.join(staging_dir, temp_uuid)
+    try:
+        os.mkdir(destination)
+        os.chmod(destination, DIRECTORY_PERMISSIONS)
+    except OSError as e:
+        messages.error(request, "Error creating AIC")
+        logger.exception("Error creating AIC: {}".format(e))
+        return redirect("archival_storage:archival_storage_index")
+
+    # Create an entry for the SIP (AIC) in the database.
+    mcp_destination = os.path.join(destination.replace(shared_dir, "%sharedPath%"), "")
+    databaseFunctions.createSIP(mcp_destination, UUID=temp_uuid, sip_type="AIC")
+
+    # Create files with filename = AIP UUID, and contents = AIP name.
+    for aip in results["hits"]["hits"]:
+        filepath = os.path.join(destination, aip["_source"]["uuid"])
+        with open(filepath, "w") as f:
+            os.chmod(filepath, FILE_PERMISSIONS)
+            f.write(str(aip["_source"]["name"]))
+
+    return redirect("ingest:aic_metadata_add", temp_uuid)
 
 
 def aip_download(request, uuid):
@@ -313,16 +422,14 @@ def aip_download(request, uuid):
 
 
 def aip_file_download(request, uuid):
-    es_client = elasticSearchFunctions.get_client()
+    es_client = es.get_client()
 
     # get AIP file properties
-    aipfile = elasticSearchFunctions.get_aipfile_data(
-        es_client, uuid, fields="filePath,FILEUUID,AIPUUID"
-    )
+    aipfile = es.get_aipfile_data(es_client, uuid, fields="filePath,FILEUUID,AIPUUID")
 
     # get file's AIP's properties
     sipuuid = aipfile["_source"]["AIPUUID"]
-    aip = elasticSearchFunctions.get_aip_data(
+    aip = es.get_aip_data(
         es_client, sipuuid, fields="uuid,name,filePath,size,origin,created"
     )
     aip_filepath = aip["_source"]["filePath"]
@@ -348,9 +455,9 @@ def aip_file_download(request, uuid):
 
 def aip_mets_file_download(request, uuid):
     """Download an individual AIP METS file."""
-    es_client = elasticSearchFunctions.get_client()
+    es_client = es.get_client()
     try:
-        aip = elasticSearchFunctions.get_aip_data(es_client, uuid, fields="name")
+        aip = es.get_aip_data(es_client, uuid, fields="name")
     except IndexError:
         # TODO: 404 settings for the project do not display this to the user (only DEBUG).
         raise Http404(
@@ -371,10 +478,8 @@ def aip_pointer_file_download(request, uuid):
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
-    es_client = elasticSearchFunctions.get_client()
-    aipfile = elasticSearchFunctions.get_aipfile_data(
-        es_client, fileuuid, fields="AIPUUID"
-    )
+    es_client = es.get_client()
+    aipfile = es.get_aipfile_data(es_client, fileuuid, fields="AIPUUID")
     sipuuid = aipfile["_source"]["AIPUUID"]
 
     thumbnail_path = os.path.join(
@@ -395,7 +500,7 @@ def send_thumbnail(request, fileuuid):
 def aips_pending_deletion():
     aip_uuids = []
     try:
-        aips = storage_service.get_file_info(status="DEL_REQ")
+        aips = storage_service.get_file_info(status=es.STATUS_DELETE_REQUESTED)
     except Exception as e:
         # TODO this should be messages.warning, but we need 'request' here
         logger.warning(
@@ -426,169 +531,46 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
 
 def aip_file_count(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion("AIPUUID")
-    return advanced_search.indexed_count(es_client, "aipfiles", query)
+    return advanced_search.indexed_count(es_client, es.AIP_FILES_INDEX, query)
 
 
 def total_size_of_aips(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion("uuid")
     query["_source"] = "size"
     query["aggs"] = {"total": {"sum": {"field": "size"}}}
-    results = es_client.search(body=query, index="aips")
+    results = es_client.search(body=query, index=es.AIPS_INDEX)
     # TODO handle the return object
     total_size = results["aggregations"]["total"]["value"]
-    total_size = "{0:.2f}".format(total_size)
+    # Size is stored in ES as MBs
+    # Convert to bytes before using filesizeformat
+    total_bytes = total_size * (1024 * 1024)
+    total_size = filesizeformat(total_bytes)
     return total_size
-
-
-def list_display(request):
-
-    if "aips" not in settings.SEARCH_ENABLED:
-        return render(request, "archival_storage/list.html")
-    current_page_number = int(request.GET.get("page", 1))
-    logger.debug("Current page: %s", current_page_number)
-
-    # get count of AIP files
-    es_client = elasticSearchFunctions.get_client()
-    aip_indexed_file_count = aip_file_count(es_client)
-
-    # get AIPs
-    order_by = request.GET.get("order_by", "name")
-    sort_by = request.GET.get("sort_by", "up")
-
-    sort_params = "order_by=" + order_by + "&sort_by=" + sort_by
-
-    # use raw subfield to sort by name
-    if order_by == "name":
-        order_by = order_by + ".raw"
-
-    # change sort_by param to ES sort directions
-    if sort_by == "down":
-        sort_by = "desc"
-    else:
-        sort_by = "asc"
-
-    sort_specification = order_by + ":" + sort_by
-
-    # get list of UUIDs of AIPs that are deleted or pending deletion
-    aips_deleted_or_pending_deletion = []
-    should_haves = [{"match": {"status": "DEL_REQ"}}, {"match": {"status": "DELETED"}}]
-    query = {"query": {"bool": {"should": should_haves}}}
-    deleted_aip_results = es_client.search(
-        body=query, index="aips", _source="uuid,status"
-    )
-    for deleted_aip in deleted_aip_results["hits"]["hits"]:
-        aips_deleted_or_pending_deletion.append(deleted_aip["_source"]["uuid"])
-
-    # Fetch results and paginate
-    def es_pager(page, page_size):
-        """
-        Fetch one page of normalized entries from Elasticsearch.
-
-        :param page: 1-indexed page to fetch
-        :param page_size: Number of entries on a page
-        :return: List of dicts for each entry, where keys and values have been cleaned up
-        """
-        start = (page - 1) * page_size
-        results = es_client.search(
-            index="aips",
-            body={"query": {"match_all": {}}},
-            _source="origin,uuid,filePath,created,name,size,encrypted",
-            sort=sort_specification,
-            size=page_size,
-            from_=start,
-        )
-        return [d["_source"] for d in results["hits"]["hits"]]
-
-    items_per_page = 10
-    count = es_client.count(index="aips", body={"query": {"match_all": {}}})["count"]
-    results = LazyPagedSequence(es_pager, page_size=items_per_page, length=count)
-
-    # Paginate
-    page = helpers.pager(results, items_per_page, current_page_number)
-
-    # process deletion, etc., and format results
-    aips = []
-    for aip in page.object_list:
-        # If an AIP was deleted or is pending deletion, react if status changed
-        if aip["uuid"] in aips_deleted_or_pending_deletion:
-            # check with storage server to see current status
-            api_results = storage_service.get_file_info(uuid=aip["uuid"])
-            try:
-                aip_status = api_results[0]["status"]
-            except IndexError:
-                # Storage service does not know about this AIP
-                # TODO what should happen here?
-                logger.info("AIP not found in storage service: {}".format(aip))
-                continue
-
-            # delete AIP metadata in ElasticSearch if AIP has been deleted from the
-            # storage server
-            # TODO: handle this asynchronously
-            if aip_status == "DELETED":
-                elasticSearchFunctions.delete_aip(es_client, aip["uuid"])
-                elasticSearchFunctions.delete_aip_files(es_client, aip["uuid"])
-            elif aip_status != "DEL_REQ":
-                # update the status in ElasticSearch for this AIP
-                elasticSearchFunctions.mark_aip_stored(es_client, aip["uuid"])
-        else:
-            aip_status = "UPLOADED"
-
-        # Tweak AIP presentation and add to display array
-        if aip_status != "DELETED":
-            aip["status"] = AIP_STATUS_DESCRIPTIONS[aip_status]
-
-            try:
-                size = "{0:.2f} MB".format(float(aip["size"]))
-            except (TypeError, ValueError):
-                size = "Removed"
-
-            aip["size"] = size
-
-            aip["href"] = aip["filePath"].replace(AIPSTOREPATH + "/", "AIPsStore/")
-            aip["date"] = aip["created"]
-
-            aips.append(aip)
-
-    total_size = total_size_of_aips(es_client)
-    # Find out which AIPs are encrypted
-
-    return render(
-        request,
-        "archival_storage/list.html",
-        {
-            "total_size": total_size,
-            "aip_indexed_file_count": aip_indexed_file_count,
-            "aips": aips,
-            "page": page,
-            "search_params": sort_params,
-        },
-    )
 
 
 def _document_json_response(document_id_modified, index):
     document_id = document_id_modified.replace("____", "-")
-    es_client = elasticSearchFunctions.get_client()
-    data = es_client.get(
-        index=index, doc_type=elasticSearchFunctions.DOC_TYPE, id=document_id
-    )
+    es_client = es.get_client()
+    data = es_client.get(index=index, doc_type=es.DOC_TYPE, id=document_id)
     pretty_json = json.dumps(data, sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type="application/json")
 
 
 def file_json(request, document_id_modified):
-    return _document_json_response(document_id_modified, "aipfiles")
+    return _document_json_response(document_id_modified, es.AIP_FILES_INDEX)
 
 
 def view_aip(request, uuid):
-    es_client = elasticSearchFunctions.get_client()
+    es_client = es.get_client()
     try:
-        es_aip_doc = elasticSearchFunctions.get_aip_data(
+        es_aip_doc = es.get_aip_data(
             es_client, uuid, fields="name,size,created,status,filePath,encrypted"
         )
     except IndexError:
         raise Http404
 
-    name = _get_es_field(es_aip_doc["_source"], "name")
+    source = es_aip_doc["_source"]
+    name = source.get("name")
     active_tab = None
 
     form_upload = forms.UploadMetadataOnlyAtomForm(prefix="upload")
@@ -661,22 +643,18 @@ def view_aip(request, uuid):
                 form_delete.cleaned_data["reason"],
             )
             messages.info(request, response["message"])
-            es_client = elasticSearchFunctions.get_client()
-            elasticSearchFunctions.mark_aip_deletion_requested(es_client, uuid)
+            es_client = es.get_client()
+            es.mark_aip_deletion_requested(es_client, uuid)
             return redirect("archival_storage:archival_storage_index")
 
     context = {
         "uuid": uuid,
         "name": name,
-        "created": _get_es_field(es_aip_doc["_source"], "created"),
-        "status": AIP_STATUS_DESCRIPTIONS[
-            _get_es_field(es_aip_doc["_source"], "status", "UPLOADED")
-        ],
-        "encrypted": _get_es_field(es_aip_doc["_source"], "encrypted", False),
-        "size": "{0:.2f} MB".format(_get_es_field(es_aip_doc["_source"], "size", 0)),
-        "location_basename": os.path.basename(
-            _get_es_field(es_aip_doc["_source"], "filePath")
-        ),
+        "created": source.get("created"),
+        "status": AIP_STATUS_DESCRIPTIONS[source.get("status", es.STATUS_UPLOADED)],
+        "encrypted": source.get("encrypted", False),
+        "size": "{0:.2f} MB".format(source.get("size", 0)),
+        "location_basename": os.path.basename(source.get("filePath")),
         "active_tab": active_tab,
         "forms": {
             "upload": form_upload,
@@ -686,3 +664,34 @@ def view_aip(request, uuid):
     }
 
     return render(request, "archival_storage/view.html", context)
+
+
+def save_state(request, table):
+    """Save DataTable state JSON object as string in DashboardSettings.
+
+    :param request: Django request.
+    :param table: Name of table to store state for.
+    :return: JSON success confirmation
+    """
+    setting_name = "{}_datatable_state".format(table)
+    state = json.dumps(request.body)
+    helpers.set_setting(setting_name, state)
+    return helpers.json_response({"success": True})
+
+
+def load_state(request, table):
+    """Retrieve DataTable state JSON object stored in DashboardSettings.
+
+    :param request: Django request.
+    :param table: Name of table to store state for.
+    :return: JSON state
+    """
+    setting_name = "{}_datatable_state".format(table)
+    state = helpers.get_setting(setting_name)
+    if state:
+        return HttpResponse(
+            json.loads(state), content_type="application/json", status=200
+        )
+    return helpers.json_response(
+        {"error": True, "message": "Setting not found"}, status_code=404
+    )

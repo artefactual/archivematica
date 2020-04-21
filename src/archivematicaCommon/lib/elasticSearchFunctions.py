@@ -48,6 +48,13 @@ from six.moves import range
 
 logger = logging.getLogger("archivematica.common")
 
+STATUS_DELETE_REQUESTED = "DEL_REQ"
+STATUS_DELETED = "DELETED"
+STATUS_UPLOADED = "UPLOADED"
+
+AIPS_INDEX = "aips"
+AIP_FILES_INDEX = "aipfiles"
+
 
 class ElasticsearchError(Exception):
     """ Not operational errors. """
@@ -72,7 +79,7 @@ DEFAULT_TIMEOUT = 10
 # function declaring the index settings and mapping. For example, for an index
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
-INDEXES = ["aips", "aipfiles", "transfers", "transferfiles"]
+INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, "transfers", "transferfiles"]
 # A doc type is still required in ES 6.x but it's limited to one per index.
 # It will be removed in ES 7.x, so we'll use the same for all indexes.
 DOC_TYPE = "_doc"
@@ -87,7 +94,7 @@ TOTAL_FIELDS_LIMIT = 10000
 DEPTH_LIMIT = 1000
 
 
-def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=["aips", "transfers"]):
+def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, "transfers"]):
     """Initialize and share the Elasticsearch client.
 
     Share it as the attribute _es_client in the current module. An additional
@@ -108,8 +115,8 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=["aips", "transfers"]):
     # on the fly? Could we force to run the rebuild commands and
     # avoid doing this on each setup?
     indexes = []
-    if "aips" in enabled:
-        indexes.extend(["aips", "aipfiles"])
+    if AIPS_INDEX in enabled:
+        indexes.extend([AIPS_INDEX, AIP_FILES_INDEX])
     if "transfers" in enabled:
         indexes.extend(["transfers", "transferfiles"])
     if len(indexes) > 0:
@@ -253,10 +260,15 @@ def _get_aipfiles_index_body():
                     "isPartOf": {"type": "keyword"},
                     "AICID": {"type": "keyword"},
                     "indexedAt": {"type": "double"},
-                    "filePath": {"type": "text", "analyzer": "file_path_and_name"},
+                    "filePath": {
+                        "type": "text",
+                        "fields": {"raw": {"type": "keyword"}},
+                        "analyzer": "file_path_and_name",
+                    },
                     "fileExtension": {"type": "text"},
                     "origin": {"type": "text"},
                     "identifiers": {"type": "keyword"},
+                    "accessionid": {"type": "keyword"},
                 },
             }
         },
@@ -404,8 +416,7 @@ def index_aip_and_files(
         logger.error(error_message)
         printfn(error_message, file=sys.stderr)
         return 1
-    printfn("AIP UUID: " + uuid)
-    printfn("Indexing AIP ...")
+
     tree = etree.parse(mets_staging_path)
     _remove_tool_output_from_mets(tree)
     root = tree.getroot()
@@ -445,11 +456,27 @@ def index_aip_and_files(
 
     aip_metadata = _get_aip_metadata(root)
 
+    printfn("AIP UUID: " + uuid)
+    printfn("Indexing AIP files ...")
+
+    (files_indexed, accession_ids) = _index_aip_files(
+        client=client,
+        uuid=uuid,
+        mets=root,
+        name=name,
+        identifiers=identifiers,
+        aip_metadata=aip_metadata,
+    )
+
+    printfn("Files indexed: " + str(files_indexed))
+    printfn("Indexing AIP ...")
+
     aip_data = {
         "uuid": uuid,
         "name": name,
         "filePath": aip_stored_path,
         "size": int(aip_size) / (1024 * 1024),
+        "file_count": files_indexed,
         "origin": get_dashboard_uuid(),
         "created": created,
         "AICID": aic_identifier,
@@ -458,19 +485,14 @@ def index_aip_and_files(
         "identifiers": identifiers,
         "transferMetadata": aip_metadata,
         "encrypted": encrypted,
+        "accessionids": accession_ids,
+        "status": STATUS_UPLOADED,
     }
+
     _wait_for_cluster_yellow_status(client)
-    _try_to_index(client, aip_data, "aips", printfn=printfn)
+    _try_to_index(client, aip_data, AIPS_INDEX, printfn=printfn)
     printfn("Done.")
-    printfn("Indexing AIP files ...")
-    _index_aip_files(
-        client=client,
-        uuid=uuid,
-        mets=root,
-        name=name,
-        identifiers=identifiers,
-        aip_metadata=aip_metadata,
-    )
+
     return 0
 
 
@@ -484,8 +506,10 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param aip_metadata: list with the descriptive and administrative metadata
                          of each directory in the AIP
+    :return: number of files indexed, list of accession numbers
     """
-    # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
+
+    # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore.
     dublincore = ns.xml_find_premis(
         mets, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
     )
@@ -508,7 +532,11 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     if aip_metadata is None:
         aip_metadata = []
 
-    # Establish structure to be indexed for each file item
+    # Use a set to ensure accession numbers are unique without needing to
+    # iterate through the list each time to check.
+    accession_ids = set()
+
+    # Establish the structure to be indexed for each file item.
     fileData = {
         "archivematicaVersion": version.get_version(),
         "AIPUUID": uuid,
@@ -521,9 +549,11 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
         "AICID": aic_identifier,
         "METS": {"dmdSec": {}, "amdSec": {}},
         "origin": get_dashboard_uuid(),
+        "accessionid": "",
+        "status": STATUS_UPLOADED,
     }
 
-    # Index all files in a fileGrup with USE='original' or USE='metadata'
+    # Index all files in a fileGrup with USE='original' or USE='metadata'.
     original_files = ns.xml_findall_premis(
         mets, "mets:fileSec/mets:fileGrp[@USE='original']/mets:file"
     )
@@ -533,35 +563,35 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     files = original_files + metadata_files
 
     def _generator():
-        # Index AIC METS file if it exists
+        # Index AIC METS file if it exists.
         for file_ in files:
-            indexData = fileData.copy()  # Deep copy of dict, not of dict contents
+            # Make a deep copy of dict, not a copy of dict contents.
+            indexData = fileData.copy()
 
-            # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
+            # Get file UUID. If an ADMID exists, look in the amdSec for the UUID,
             # otherwise parse it out of the file ID.
-            # 'Original' files have ADMIDs, 'Metadata' files don't
+            # 'Original' files have ADMIDs, 'Metadata' files do not.
             admID = file_.attrib.get("ADMID", None)
             if admID is None:
-                # Parse UUID from file ID
+                # Parse UUID from the file ID.
                 fileUUID = None
                 uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
                 uuids = re.findall(uuix_regex, file_.attrib["ID"])
-                # Multiple UUIDs may be returned - if they are all identical, use that
-                # UUID, otherwise use None.
-                # To determine all UUIDs are identical, use the size of the set
+                # Multiple UUIDs may be returned - if they are all identical,
+                # use that UUID, otherwise use None.
+                # To determine all UUIDs are identical, use the size of the set.
                 if len(set(uuids)) == 1:
                     fileUUID = uuids[0]
             else:
-                amdSecInfo = ns.xml_find_premis(
-                    mets, "mets:amdSec[@ID='{}']".format(admID)
-                )
-                fileUUID = ns.xml_findtext_premis(
-                    amdSecInfo,
-                    "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
-                )
+                amdSec = _get_amdSec(admID, mets)
+                fileUUID = _get_file_uuid(amdSec)
+                accession_id = _get_accession_number(amdSec)
+                if accession_id is not None:
+                    indexData["accessionid"] = accession_id
+                    accession_ids.add(accession_id)
 
-                # Index amdSec information
-                xml = etree.tostring(amdSecInfo)
+                # Index amdSec information.
+                xml = etree.tostring(amdSec)
                 indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
                     _normalize_dict_values(xmltodict.parse(xml))
                 )
@@ -570,8 +600,8 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
             file_metadata = []
 
-            # Get the parent division for the file pointer
-            # by searching the physical structural map section (structMap)
+            # Get the parent division for the file pointer by searching the
+            # physical structural map section (structMap).
             file_id = file_.attrib.get("ID", None)
             file_pointer_division = ns.xml_find_premis(
                 mets,
@@ -584,13 +614,13 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
                 if descriptive_metadata:
                     file_metadata.append(descriptive_metadata)
                 # If the parent division has a DMDID attribute then index
-                # its data from the descriptive metadata section (dmdSec)
+                # its data from the descriptive metadata section (dmdSec).
                 dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
                 if dmd_section_id is not None:
-                    # dmd_section_id can contain one id (e.g., "dmdSec_2")
-                    # or more than one (e.g., "dmdSec_2 dmdSec_3",
-                    # when a file has both DC and non-DC metadata).
-                    # Attempt to index only the DC dmdSec if available
+                    # dmd_section_id can contain one id (e.g., "dmdSec_2") or
+                    # more than one (e.g., "dmdSec_2 dmdSec_3", when a file
+                    # has both DC and non-DC metadata).
+                    # Attempt to index only the DC dmdSec if available.
                     for dmd_section_id_item in dmd_section_id.split():
                         dmd_section_info = ns.xml_find_premis(
                             mets,
@@ -608,7 +638,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
             indexData["transferMetadata"] = aip_metadata + file_metadata
 
-            # Get file path from FLocat and extension
+            # Get file path from FLocat and extension.
             filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
                 "{http://www.w3.org/1999/xlink}href"
             ]
@@ -621,14 +651,14 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
             yield {
                 "_op_type": "index",
-                "_index": "aipfiles",
+                "_index": AIP_FILES_INDEX,
                 "_type": DOC_TYPE,
                 "_source": indexData,
             }
 
             # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
             # since they are updated in the loop above.
-            # See http://stackoverflow.com/a/3975388 for explanation
+            # See http://stackoverflow.com/a/3975388 for explanation.
             fileData["METS"]["amdSec"] = {}
             fileData["METS"]["dmdSec"] = {}
 
@@ -636,6 +666,11 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     # we're potentially dealing with large documents (full amdSec embedded).
     # It should be revisited once we make documents smaller.
     bulk(client, _generator(), chunk_size=50)
+
+    file_count = len(files)
+    accession_ids_list = list(accession_ids)
+
+    return (file_count, accession_ids_list)
 
 
 def index_transfer_and_files(
@@ -1092,6 +1127,51 @@ def _list_files_in_dir(path, filepaths=None):
     return filepaths
 
 
+def _get_amdSec(admID, doc):
+    """Get amdSec with given admID.
+
+    :param admID: admID.
+    :param doc: ElementTree object.
+    :return: amdSec.
+    """
+    return ns.xml_find_premis(doc, "mets:amdSec[@ID='{}']".format(admID))
+
+
+def _get_file_uuid(amdSec):
+    """Get UUID of a file from amdSec.
+
+    :param amdSec: amdSec.
+    :return: File UUID.
+    """
+    return ns.xml_findtext_premis(
+        amdSec,
+        "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
+    )
+
+
+def _get_accession_number(amdSec):
+    """Get accession number associated with a file from amdSec.
+
+    Look for a <premis:event> entry within file's amdSec that has a
+    <premis:eventType> of "registration". Return the text value (with leading
+    "accession#" stripped out) from the <premis:eventOutcomeDetailNote>.
+
+    If no matching <premis:event> entry is found, return None.
+
+    :param amdSec: amdSec.
+    :return: Accession number or None.
+    """
+    registration_detail_notes = ns.xml_xpath_premis(
+        amdSec,
+        ".//premis:event[premis:eventType='registration']/premis:eventOutcomeInformation/premis:eventOutcomeDetail/premis:eventOutcomeDetailNote",
+    )
+    if not registration_detail_notes:
+        return None
+    detail_text = registration_detail_notes[0].text
+    ACCESSION_PREFIX = "accession#"
+    return detail_text[len(ACCESSION_PREFIX) :]
+
+
 # -------
 # QUERIES
 # -------
@@ -1119,7 +1199,7 @@ def search_all_results(client, body, index):
 
 
 def get_aip_data(client, uuid, fields=None):
-    search_params = {"body": {"query": {"term": {"uuid": uuid}}}, "index": "aips"}
+    search_params = {"body": {"query": {"term": {"uuid": uuid}}}, "index": AIPS_INDEX}
 
     if fields:
         search_params["_source"] = fields
@@ -1132,7 +1212,7 @@ def get_aip_data(client, uuid, fields=None):
 def get_aipfile_data(client, uuid, fields=None):
     search_params = {
         "body": {"query": {"term": {"FILEUUID": uuid}}},
-        "index": "aipfiles",
+        "index": AIP_FILES_INDEX,
     }
 
     if fields:
@@ -1313,11 +1393,11 @@ def _remove_transfer_files(client, uuid, unit_type=None):
 
 
 def delete_aip(client, uuid):
-    _delete_matching_documents(client, "aips", "uuid", uuid)
+    _delete_matching_documents(client, AIPS_INDEX, "uuid", uuid)
 
 
 def delete_aip_files(client, uuid):
-    _delete_matching_documents(client, "aipfiles", "AIPUUID", uuid)
+    _delete_matching_documents(client, AIP_FILES_INDEX, "AIPUUID", uuid)
 
 
 def _delete_matching_documents(client, index, field, value):
@@ -1353,22 +1433,57 @@ def _update_field(client, index, uuid, field, value):
     )
 
 
-def mark_aip_deletion_requested(client, uuid):
-    _update_field(client, "aips", uuid, "status", "DEL_REQ")
-
-
 def mark_aip_stored(client, uuid):
-    _update_field(client, "aips", uuid, "status", "UPLOADED")
+    _update_field(client, AIPS_INDEX, uuid, "status", STATUS_UPLOADED)
+
+
+def mark_aip_deletion_requested(client, uuid):
+    """Update AIP package and file indices to reflect AIP deletion request.
+
+    :param client: ES client.
+    :param uuid: AIP UUID.
+    :return: None.
+    """
+    _mark_deletion_request(
+        client, AIPS_INDEX, AIP_FILES_INDEX, "AIPUUID", uuid, "status", "DEL_REQ"
+    )
 
 
 def mark_backlog_deletion_requested(client, uuid):
-    _update_field(client, "transfers", uuid, "pending_deletion", True)
+    """Update transfer package and file indices to reflect backlog deletion request.
 
-    files = _document_ids_from_field_query(client, "transferfiles", "sipuuid", uuid)
+    :param client: ES client.
+    :param uuid: Transfer UUID.
+    :return: None.
+    """
+    _mark_deletion_request(
+        client, "transfers", "transferfiles", "sipuuid", uuid, "pending_deletion", True
+    )
+
+
+def _mark_deletion_request(
+    client, package_index, files_index, package_uuid_field, package_uuid, field, value
+):
+    """Update package and file indices to reflect deletion request for a package.
+
+    :param client: ES client.
+    :param package_index: Name of package index to update.
+    :param files_index: Name of files index to update.
+    :param package_uuid_field: Name of ES field for package UUID in package_index.
+    :param package_uuid: UUID of package to update.
+    :param field: Field in indices to update.
+    :param value: Value to set in updated field.
+    :return: None.
+    """
+    _update_field(client, package_index, package_uuid, field, value)
+
+    files = _document_ids_from_field_query(
+        client, files_index, package_uuid_field, package_uuid
+    )
     for file_id in files:
         client.update(
-            body={"doc": {"pending_deletion": True}},
-            index="transferfiles",
+            body={"doc": {field: value}},
+            index=files_index,
             doc_type=DOC_TYPE,
             id=file_id,
         )
