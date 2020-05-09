@@ -39,6 +39,8 @@
               <img alt="Archivematica" src="{% static 'images/logo_header.png' %}"></a>
             </a>
 
+            {% block topbar %}{% endblock %}
+
             {% url 'main.views.home' as url_home %}
             {% url 'components.transfer.views.grid' as url_transfer %}
             {% url 'components.backlog.views.execute' as url_backlog %}
@@ -78,8 +80,6 @@
               {% endif %}
 
             </ul>
-
-            {% block topbar %}{% endblock %}
 
           </div>
         </div>
