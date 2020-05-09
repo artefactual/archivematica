@@ -1,5 +1,4 @@
 body {
-  padding-top: 60px !important;
   font-size: 13px;
   line-height: 18px;
 }
@@ -7,16 +6,6 @@ body {
 /*
  * Navigation bar
  */
-
-.topbar {
-  height: 40px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  overflow: visible;
-}
 
 .navbar-nav > li > a, .navbar-brand {
     padding-top: 10px;
@@ -40,8 +29,15 @@ body {
 }
 
 .topbar .navbar-brand {
-  width: 229px;
-  text-indent: -99999em;
+  display: inline-block;
+  width: 220px;
+  padding: 8px 15px 0 0;
+}
+
+@media (max-width: 767px) {
+  .topbar .navbar-brand {
+    float: none;
+  }
 }
 
 .topbar .navbar-brand > img {
@@ -128,6 +124,7 @@ li.user > a {
 
 .container .content,
 .container-fluid .content {
+  padding-top: 20px;
   padding-bottom: 20px;
 }
 
@@ -172,10 +169,6 @@ li.user > a {
  */
 
 #connection-status > #status-bullet {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-right: 1em;
   height: 40px;
   line-height: 40px;
 }
