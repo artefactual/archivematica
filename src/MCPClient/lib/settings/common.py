@@ -269,6 +269,10 @@ INSTALLED_APPS = (
     "components.mcp",
     "components.administration",
     "fpr",
+    # Only needed because archivematicaClient calls django.setup()
+    # which imports the ApiAccess model through the helpers module of
+    # the dashboard
+    "tastypie",
 )
 
 # Configure logging manually
