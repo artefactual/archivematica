@@ -5,7 +5,7 @@ from base64 import b64encode
 import json
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 import pytest

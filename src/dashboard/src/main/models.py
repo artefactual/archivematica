@@ -962,8 +962,8 @@ class Agent(models.Model):
 class UserProfile(models.Model):
     """ Extension of the User model for additional information. """
 
-    user = models.OneToOneField(User)
-    agent = models.OneToOneField(Agent)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
     system_emails = models.BooleanField(
         default=True,
         help_text=_(

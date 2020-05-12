@@ -18,13 +18,13 @@
 from __future__ import absolute_import
 
 from django.conf import settings as django_settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import get_language, ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import last_modified
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 from shibboleth.views import ShibbolethLogoutView, LOGOUT_SESSION_KEY
 
 from contrib.mcp.client import MCPClient
@@ -37,7 +37,7 @@ from archivematicaFunctions import escape
 @cache_page(86400, key_prefix="js18n-%s" % get_language())
 @last_modified(lambda req, **kw: timezone.now())
 def cached_javascript_catalog(request, domain="djangojs", packages=None):
-    return javascript_catalog(request, domain, packages)
+    return JavaScriptCatalog.as_view(domain=domain, packages=packages)(request)
 
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

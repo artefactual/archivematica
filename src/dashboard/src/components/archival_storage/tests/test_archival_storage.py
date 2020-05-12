@@ -102,7 +102,7 @@ def dashboard_login_and_setup(client, django_user_model, username, password):
 def get_streaming_response(streaming_content):
     response_text = ""
     for response_char in streaming_content:
-        response_text = "{}{}".format(response_text, response_char)
+        response_text = "{}{}".format(response_text, response_char.decode("utf8"))
     return response_text
 
 
