@@ -9,9 +9,9 @@ bagit==1.7.0
 certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
 clamd==1.0.2
-django-extensions==1.1.1
+django-extensions==1.7.9
 django-tastypie==0.13.2
-django==1.8.19
+django==1.11.29
 future==0.18.2            # via metsrw
 gearman==2.0.2
 idna==2.8                 # via requests
@@ -23,6 +23,7 @@ opf-fido==1.4.1
 prometheus_client==0.7.1
 python-dateutil==2.8.1    # via django-tastypie
 python-mimeparse==1.6.0   # via django-tastypie
+pytz==2020.1              # via django
 requests==2.21.0
 scandir==1.10.0
 six==1.14.0               # via django-extensions, metsrw, opf-fido, python-dateutil

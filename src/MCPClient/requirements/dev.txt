@@ -16,9 +16,9 @@ click==7.1.2              # via pip-tools
 configparser==4.0.2
 contextlib2==0.6.0.post1
 distlib==0.3.0
-django-extensions==1.1.1
+django-extensions==1.7.9
 django-tastypie==0.13.2
-django==1.8.19
+django==1.11.29
 filelock==3.0.12
 funcsigs==1.0.2
 future==0.18.2
@@ -46,6 +46,7 @@ pytest-pythonpath==0.7.3
 pytest==4.6.10
 python-dateutil==2.8.1
 python-mimeparse==1.6.0
+pytz==2020.1
 requests==2.21.0
 scandir==1.10.0
 singledispatch==3.4.0.3
