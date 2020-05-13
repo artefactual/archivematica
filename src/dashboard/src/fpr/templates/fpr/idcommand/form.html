@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'idcommand_list' %}">{% trans "Identification commands" %}</a></li>
+<li><a href="{% url 'fpr:idcommand_list' %}">{% trans "Identification commands" %}</a></li>
 <li>{{ title }}</li>
 {% endblock breadcrumbs %}
 
@@ -21,9 +21,9 @@
 
     <div class='tool'>
       {% if idcommand %}
-        <form action="{% url 'idcommand_edit' idcommand.uuid %}" method="post">
+        <form action="{% url 'fpr:idcommand_edit' idcommand.uuid %}" method="post">
       {% else %}
-        <form action="{% url 'idcommand_create' %}" method="post">
+        <form action="{% url 'fpr:idcommand_create' %}" method="post">
       {% endif %}
 
         {% csrf_token %}

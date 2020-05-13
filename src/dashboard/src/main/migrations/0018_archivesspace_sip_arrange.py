@@ -39,7 +39,12 @@ class Migration(migrations.Migration):
                         blank=True,
                     ),
                 ),
-                ("sip", models.ForeignKey(to="main.SIP", null=True)),
+                (
+                    "sip",
+                    models.ForeignKey(
+                        to="main.SIP", null=True, on_delete=models.CASCADE
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(

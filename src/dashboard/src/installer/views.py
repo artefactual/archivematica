@@ -34,7 +34,7 @@ def welcome(request):
     # This form will be only accessible when there is no uuid
     dashboard_uuid = helpers.get_setting("dashboard_uuid")
     if dashboard_uuid:
-        return redirect("main.views.home")
+        return redirect("main:main_index")
 
     # Do we need to set up a user?
     set_up_user = not User.objects.exists()
@@ -60,10 +60,10 @@ def welcome(request):
                 if user is not None:
                     login(request, user)
                     request.session["first_login"] = True
-                    return redirect("installer.views.storagesetup")
+                    return redirect("installer:storagesetup")
         else:
             request.session["first_login"] = True
-            return redirect("installer.views.storagesetup")
+            return redirect("installer:storagesetup")
     else:
         form = SuperUserCreationForm() if set_up_user else OrganizationForm()
 
@@ -101,4 +101,4 @@ def storagesetup(request):
             ),
         )
 
-    return redirect("main.views.home")
+    return redirect("main:main_index")

@@ -384,13 +384,13 @@ def access_create_directory(request, record_id=""):
 @_get_or_create_arrange_path
 @_get_sip
 def access_sip_rights(request, sip):
-    return redirect("components.rights.views.ingest_rights_list", uuid=sip.uuid)
+    return redirect("rights_ingest:index", uuid=sip.uuid)
 
 
 @_get_or_create_arrange_path
 @_get_sip
 def access_sip_metadata(request, sip):
-    return redirect("components.ingest.views.ingest_metadata_list", uuid=sip.uuid)
+    return redirect("ingest:ingest_metadata_list", uuid=sip.uuid)
 
 
 def access_copy_to_arrange(request, record_id=""):

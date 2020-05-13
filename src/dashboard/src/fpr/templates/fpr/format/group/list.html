@@ -6,7 +6,7 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
 <li>{% trans "Groups" %}</li>
 <li>{% trans "List" %}</li>
 {% endblock breadcrumbs %}
@@ -20,7 +20,7 @@
   <div class="col-xs-10">
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'formatgroup_create' %}">{% trans "Create new format group" %}</a></p>
+    <p><a href="{% url 'fpr:formatgroup_create' %}">{% trans "Create new format group" %}</a></p>
     {% endif %}
 
     {% if groups %}
@@ -38,17 +38,17 @@
           <tr>
             <td>
               {% if request.user.is_superuser %}
-                <a href="{% url 'formatgroup_edit' group.slug %}">{{ group.description }}</a>
+                <a href="{% url 'fpr:formatgroup_edit' group.slug %}">{{ group.description }}</a>
               {% else %}
                 {{ group.description }}
               {% endif %}
             </td>
             {% if request.user.is_superuser %}
             <td>
-              <a href="{% url 'formatgroup_edit' group.slug %}">{% trans "Edit" %}</a>
+              <a href="{% url 'fpr:formatgroup_edit' group.slug %}">{% trans "Edit" %}</a>
               {% if request.user.is_superuser %}
                 |
-                <a href="{% url 'formatgroup_delete' group.slug %}">{% trans "Delete" %}</a>
+                <a href="{% url 'fpr:formatgroup_delete' group.slug %}">{% trans "Delete" %}</a>
               {% endif %}
             </td>
             {% endif %}

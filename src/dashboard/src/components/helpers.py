@@ -23,12 +23,12 @@ import mimetypes
 import os
 import pprint
 import requests
+from wsgiref.util import FileWrapper
 
 from django.conf import settings as django_settings
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
-from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import connection
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse

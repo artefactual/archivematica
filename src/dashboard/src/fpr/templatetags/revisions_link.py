@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 from django import template
 import django.template.base as base
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 register = template.Library()
@@ -37,7 +37,7 @@ class RevisionLinkNode(template.Node):
 
         return '<a class="revisions_link" href="{}">Revision history</a>'.format(
             reverse(
-                "revision_list",
+                "fpr:revision_list",
                 kwargs={"entity_name": revision_type, "uuid": object_uuid},
             )
         )

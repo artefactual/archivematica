@@ -3,19 +3,19 @@
 
 <div class="col-md-2 sidebar">
 
-  {% url 'components.administration.views_processing.list' as url_processing %}
-  {% url 'components.administration.views.general' as url_general %}
-  {% url 'components.administration.views.failure_report' as failure_report %}
-  {% url 'components.administration.views_dip_upload.admin_atom' as url_atom_dip %}
-  {% url 'components.administration.views_dip_upload.admin_as' as url_as_dips %}
-  {% url 'components.administration.views.storage' as url_storage %}
-  {% url 'components.administration.views.usage' as url_usage %}
-  {% url 'components.administration.views.premis_agent' as url_premis %}
-  {% url 'components.administration.views.api' as url_api %}
-  {% url 'components.administration.views.version' as url_version %}
-  {% url 'admin_set_language' as url_language %}
-  {% url 'components.administration.views.handle_config' as handle_config %}
-  {% url 'components.accounts.views.list' as url_user_list %}
+  {% url 'administration:processing' as url_processing %}
+  {% url 'administration:general' as url_general %}
+  {% url 'administration:reports_failures_index' as failure_report %}
+  {% url 'administration:dips_atom_index' as url_atom_dip %}
+  {% url 'administration:dips_as' as url_as_dips %}
+  {% url 'administration:storage' as url_storage %}
+  {% url 'administration:usage' as url_usage %}
+  {% url 'administration:premis_agent' as url_premis %}
+  {% url 'administration:api' as url_api %}
+  {% url 'administration:version' as url_version %}
+  {% url 'administration:admin_set_language' as url_language %}
+  {% url 'administration:handle' as handle_config %}
+  {% url 'accounts:accounts_index' as url_user_list %}
 
   <ul>
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">{% trans "Processing configuration" %}</a></li>

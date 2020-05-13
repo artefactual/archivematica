@@ -27,11 +27,10 @@ import uuid
 
 from django.conf import settings as django_settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render, redirect
-from django.template import RequestContext
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import View
@@ -165,7 +164,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc = form.save()
         dc.type = dc_type
         dc.save()
-        return redirect("components.ingest.views.ingest_metadata_list", uuid)
+        return redirect("ingest:ingest_metadata_list", uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
 
@@ -230,7 +229,7 @@ def aic_metadata_add(request, uuid):
         destination_db = destination.replace(shared_dir, "%sharedPath%") + "/"
         models.SIP.objects.filter(uuid=uuid).update(currentpath=destination_db)
         shutil.move(source, destination)
-        return redirect("ingest_index")
+        return redirect("ingest:ingest_index")
 
     name = dc.title or "New AIC"
     aic = True
@@ -251,9 +250,7 @@ def ingest_metadata_event_detail(request, uuid):
 
     if formset.is_valid():
         formset.save()
-        return redirect(
-            "components.unit.views.detail", unit_type="ingest", unit_uuid=uuid
-        )
+        return redirect("unit:detail", unit_type="ingest", unit_uuid=uuid)
 
     # Add path for original and derived files to each form
     for form in formset:
@@ -275,15 +272,12 @@ def ingest_metadata_event_detail(request, uuid):
 
 
 def delete_context(request, uuid, id):
-    cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
-    return RequestContext(
-        request,
-        {
-            "action": "Delete",
-            "prompt": _("Are you sure you want to delete this metadata?"),
-            "cancel_url": cancel_url,
-        },
-    )
+    cancel_url = reverse("ingest:ingest_metadata_list", args=[uuid])
+    return {
+        "action": "Delete",
+        "prompt": _("Are you sure you want to delete this metadata?"),
+        "cancel_url": cancel_url,
+    }
 
 
 @decorators.confirm_required("simple_confirm.html", delete_context)
@@ -291,7 +285,7 @@ def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
         messages.info(request, _("Deleted."))
-        return redirect("components.ingest.views.ingest_metadata_list", uuid)
+        return redirect("ingest:ingest_metadata_list", uuid)
     except:
         raise Http404
 

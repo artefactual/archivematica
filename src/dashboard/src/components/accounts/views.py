@@ -21,10 +21,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from tastypie.models import ApiKey
@@ -60,7 +59,7 @@ def add(request):
             userprofileform.save()
 
             messages.info(request, _("Saved."))
-            return redirect("components.accounts.views.list")
+            return redirect("accounts:accounts_index")
     else:
         # Clearing out values that are getting inherited from currently logged in user
         data = {"email": ""}
@@ -89,7 +88,7 @@ def profile(request):
                 generate_api_key(user)
             userprofileform.save()
 
-            return redirect("profile")
+            return redirect("accounts:profile")
     else:
         form = ApiKeyForm()
         userprofileform = UserProfileForm(instance=user_profile)
@@ -105,7 +104,7 @@ def edit(request, id=None):
     # Forbidden if user isn't an admin and is trying to edit another user
     if str(request.user.id) != str(id) and id is not None:
         if request.user.is_superuser is False:
-            return redirect("main.views.forbidden")
+            return redirect("main:forbidden")
 
     # Load user
     if id is None:
@@ -143,9 +142,9 @@ def edit(request, id=None):
 
             # determine where to redirect to
             if request.user.is_superuser:
-                return_view = "components.accounts.views.list"
+                return_view = "accounts:accounts_index"
             else:
-                return_view = "profile"
+                return_view = "accounts:profile"
 
             messages.info(request, _("Saved."))
             return redirect(return_view)
@@ -173,10 +172,8 @@ def edit(request, id=None):
 def delete_context(request, id):
     user = User.objects.get(pk=id)
     prompt = "Delete user " + user.username + "?"
-    cancel_url = reverse("components.accounts.views.list")
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    cancel_url = reverse("accounts:accounts_index")
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
@@ -185,16 +182,16 @@ def delete(request, id):
     # Security check
     if request.user.id != id:
         if request.user.is_superuser is False:
-            return redirect("main.views.forbidden")
+            return redirect("main:forbidden")
     # Avoid removing the last user
     if 1 == User.objects.count():
-        return redirect("main.views.forbidden")
+        return redirect("main:forbidden")
     # Delete
     try:
         user = User.objects.get(pk=id)
         if request.user.username == user.username:
             raise Http404
         user.delete()
-        return redirect("components.accounts.views.list")
+        return redirect("accounts:accounts_index")
     except:
         raise Http404

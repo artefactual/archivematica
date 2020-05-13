@@ -366,12 +366,17 @@ class Migration(migrations.Migration):
                         to_field="uuid",
                         to="fpr.Format",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.FormatVersion", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.FormatVersion",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -443,18 +448,27 @@ class Migration(migrations.Migration):
                         blank=True,
                         to="fpr.FPCommand",
                         null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
                     "output_format",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.FormatVersion", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.FormatVersion",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.FPCommand", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.FPCommand",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -509,12 +523,28 @@ class Migration(migrations.Migration):
                 ("count_attempts", models.IntegerField(default=0)),
                 ("count_okay", models.IntegerField(default=0)),
                 ("count_not_okay", models.IntegerField(default=0)),
-                ("command", models.ForeignKey(to="fpr.FPCommand", to_field="uuid")),
-                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field="uuid")),
+                (
+                    "command",
+                    models.ForeignKey(
+                        to="fpr.FPCommand", to_field="uuid", on_delete=models.CASCADE
+                    ),
+                ),
+                (
+                    "format",
+                    models.ForeignKey(
+                        to="fpr.FormatVersion",
+                        to_field="uuid",
+                        on_delete=models.CASCADE,
+                    ),
+                ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.FPRule", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.FPRule",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -613,7 +643,11 @@ class Migration(migrations.Migration):
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.IDCommand", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.IDCommand",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -648,12 +682,28 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("command_output", models.TextField()),
-                ("command", models.ForeignKey(to="fpr.IDCommand", to_field="uuid")),
-                ("format", models.ForeignKey(to="fpr.FormatVersion", to_field="uuid")),
+                (
+                    "command",
+                    models.ForeignKey(
+                        to="fpr.IDCommand", to_field="uuid", on_delete=models.CASCADE
+                    ),
+                ),
+                (
+                    "format",
+                    models.ForeignKey(
+                        to="fpr.FormatVersion",
+                        to_field="uuid",
+                        on_delete=models.CASCADE,
+                    ),
+                ),
                 (
                     "replaces",
                     models.ForeignKey(
-                        to_field="uuid", blank=True, to="fpr.IDRule", null=True
+                        to_field="uuid",
+                        blank=True,
+                        to="fpr.IDRule",
+                        null=True,
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -697,14 +747,20 @@ class Migration(migrations.Migration):
             model_name="idcommand",
             name="tool",
             field=models.ForeignKey(
-                to_field="uuid", blank=True, to="fpr.IDTool", null=True
+                to_field="uuid",
+                blank=True,
+                to="fpr.IDTool",
+                null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="fpcommand",
             name="tool",
-            field=models.ForeignKey(to="fpr.FPTool", to_field="uuid", null=True),
+            field=models.ForeignKey(
+                to="fpr.FPTool", to_field="uuid", null=True, on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -716,19 +772,30 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
+                on_delete=models.CASCADE,
             ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="format",
             name="group",
-            field=models.ForeignKey(to="fpr.FormatGroup", to_field="uuid", null=True),
+            field=models.ForeignKey(
+                to="fpr.FormatGroup",
+                to_field="uuid",
+                null=True,
+                on_delete=models.CASCADE,
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="fileid",
             name="format",
-            field=models.ForeignKey(to="fpr.FormatVersion", to_field="uuid", null=True),
+            field=models.ForeignKey(
+                to="fpr.FormatVersion",
+                to_field="uuid",
+                null=True,
+                on_delete=models.CASCADE,
+            ),
             preserve_default=True,
         ),
     ]

@@ -25,8 +25,9 @@ class TestUsage(TestCase):
                     "/administration/usage/?calculate=%s" % calculate
                 )
             self.assertFalse(response.context["calculate_usage"])
-            self.assertIn('<a href="?calculate=true"', response.content)
-            self.assertIn("Calculate disk usage", response.content)
+            content = response.content.decode("utf8")
+            self.assertIn('<a href="?calculate=true"', content)
+            self.assertIn("Calculate disk usage", content)
 
     @mock.patch(
         "components.administration.views._usage_get_directory_used_bytes",

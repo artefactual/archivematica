@@ -168,6 +168,9 @@ class FPToolForm(forms.ModelForm):
 
 
 class FPCommandForm(forms.ModelForm):
+
+    use_required_attribute = False
+
     def __init__(self, *args, **kwargs):
         super(FPCommandForm, self).__init__(*args, **kwargs)
 

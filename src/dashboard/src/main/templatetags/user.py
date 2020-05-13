@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from tastypie.models import ApiKey
 
@@ -22,4 +22,4 @@ def logout_link(context):
     if context.get("logout_link"):
         return context["logout_link"]
     else:
-        return reverse("django.contrib.auth.views.logout_then_login")
+        return reverse("accounts:logout")

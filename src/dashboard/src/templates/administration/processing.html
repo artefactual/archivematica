@@ -24,13 +24,13 @@
             <span title="{{ item.2 }}">{{ item.1 }}</attr>
           </td>
           <td>
-            <a class="btn btn-default btn-sm" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
-            <a class="btn btn-default btn-sm" href="{% url "components.administration.views_processing.download" item.1 %}">{% trans "Download" %}</a>
+            <a class="btn btn-default btn-sm" href="{% url 'administration:processing_edit' item.1 %}">{% trans "Edit" %}</a>
+            <a class="btn btn-default btn-sm" href="{% url 'administration:processing_download' item.1 %}">{% trans "Download" %}</a>
             {% if item.1 == "default" or item.1 == 'automated' %}
-              <a class="btn btn-default btn-sm" title="Reset to original values" href="{% url "components.administration.views_processing.reset" item.1 %}">{% trans "Reset" %}</a>
+              <a class="btn btn-default btn-sm" title="Reset to original values" href="{% url 'administration:processing_reset' item.1 %}">{% trans "Reset" %}</a>
             {% endif %}
             {% if item.1 != "default" and item.1 != 'automated' %}
-              <a class="btn btn-danger btn-sm" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
+              <a class="btn btn-danger btn-sm" href="{% url 'administration:processing_delete' item.1 %}">{% trans "Delete" %}</a>
             {% endif %}
           </td>
         </tr>
@@ -56,7 +56,7 @@
       {% endif %}
 
       <div class="form-stacked actions">
-        <a class="btn btn-primary" href="{% url "components.administration.views_processing.edit" %}">{% trans "Add" %}</a>
+        <a class="btn btn-primary" href="{% url 'administration:processing_add' %}">{% trans "Add" %}</a>
       </div>
 
     </div>

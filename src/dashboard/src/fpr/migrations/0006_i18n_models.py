@@ -303,6 +303,7 @@ class Migration(migrations.Migration):
                 to_field="uuid",
                 to="fpr.FormatVersion",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -422,6 +423,7 @@ class Migration(migrations.Migration):
                 to_field="uuid",
                 to="fpr.FormatGroup",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -469,6 +471,7 @@ class Migration(migrations.Migration):
                 to_field="uuid",
                 to="fpr.Format",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -499,6 +502,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FormatVersion",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -550,6 +554,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -566,6 +571,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FormatVersion",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -584,6 +590,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -608,6 +615,7 @@ class Migration(migrations.Migration):
                 to_field="uuid",
                 to="fpr.FPTool",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -620,13 +628,17 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FPCommand",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
             model_name="fprule",
             name="command",
             field=models.ForeignKey(
-                to="fpr.FPCommand", to_field="uuid", verbose_name="the related command"
+                to="fpr.FPCommand",
+                to_field="uuid",
+                verbose_name="the related command",
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -656,6 +668,7 @@ class Migration(migrations.Migration):
                 to="fpr.FormatVersion",
                 to_field="uuid",
                 verbose_name="the related format",
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -692,6 +705,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.FPRule",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -757,6 +771,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.IDCommand",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -789,13 +804,17 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.IDTool",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
             model_name="idrule",
             name="command",
             field=models.ForeignKey(
-                to="fpr.IDCommand", to_field="uuid", verbose_name="the related command"
+                to="fpr.IDCommand",
+                to_field="uuid",
+                verbose_name="the related command",
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -815,6 +834,7 @@ class Migration(migrations.Migration):
                 to="fpr.FormatVersion",
                 to_field="uuid",
                 verbose_name="the related format",
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(
@@ -831,6 +851,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 to="fpr.IDRule",
                 null=True,
+                on_delete=models.CASCADE,
             ),
         ),
         migrations.AlterField(

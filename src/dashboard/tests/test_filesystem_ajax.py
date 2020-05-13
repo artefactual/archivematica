@@ -5,7 +5,7 @@ from base64 import b64encode
 import json
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 import pytest
@@ -31,7 +31,7 @@ class TestSIPArrange(TestCase):
     def test_arrange_contents_data_no_path(self):
         # Call endpoint
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"), follow=True
+            reverse("filesystem_ajax:contents_arrange"), follow=True
         )
         # Verify
         assert response.status_code == 200
@@ -64,7 +64,7 @@ class TestSIPArrange(TestCase):
     def test_arrange_contents_data_path(self):
         # Folder, without /
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange/newsip/objects/")},
             follow=True,
         )
@@ -101,7 +101,7 @@ class TestSIPArrange(TestCase):
 
     def test_arrange_contents_404(self):
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange/nosuchpath/")},
             follow=True,
         )
@@ -112,7 +112,7 @@ class TestSIPArrange(TestCase):
     def test_arrange_contents_empty_base_dir(self):
         models.SIPArrange.objects.all().delete()
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange/")},
             follow=True,
         )
@@ -128,7 +128,7 @@ class TestSIPArrange(TestCase):
     def test_delete_arranged_files(self):
         # Check to-be-deleted exists
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange").decode("utf8")},
             follow=True,
         )
@@ -138,7 +138,7 @@ class TestSIPArrange(TestCase):
         )
         # Delete files
         response = self.client.post(
-            reverse("components.filesystem_ajax.views.delete_arrange"),
+            reverse("filesystem_ajax:delete_arrange"),
             data={"filepath": b64encode(b"/arrange/newsip/").decode("utf8")},
             follow=True,
         )
@@ -148,7 +148,7 @@ class TestSIPArrange(TestCase):
         }
         # Check deleted
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange").decode("utf8")},
             follow=True,
         )
@@ -162,7 +162,7 @@ class TestSIPArrange(TestCase):
     def test_create_arranged_directories(self):
         # Verify does not exist already
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange")},
             follow=True,
         )
@@ -176,7 +176,7 @@ class TestSIPArrange(TestCase):
         )
         # Create directory
         response = self.client.post(
-            reverse("components.filesystem_ajax.views.create_directory_within_arrange"),
+            reverse("filesystem_ajax:create_directory_within_arrange"),
             data={"paths[]": b64encode(b"/arrange/new_dir").decode("utf8")},
             follow=True,
         )
@@ -186,7 +186,7 @@ class TestSIPArrange(TestCase):
         }
         # Check created
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange")},
             follow=True,
         )
@@ -204,7 +204,7 @@ class TestSIPArrange(TestCase):
     def test_move_within_arrange(self):
         # Move directory
         response = self.client.post(
-            reverse("components.filesystem_ajax.views.copy_to_arrange"),
+            reverse("filesystem_ajax:copy_to_arrange"),
             data={
                 "filepath": b64encode(b"/arrange/newsip/").decode("utf8"),
                 "destination": b64encode(b"/arrange/toplevel/").decode("utf8"),
@@ -217,7 +217,7 @@ class TestSIPArrange(TestCase):
         }
         # Check gone from parent
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange")},
             follow=True,
         )
@@ -232,7 +232,7 @@ class TestSIPArrange(TestCase):
 
         # Check now in subdirectory
         response = self.client.get(
-            reverse("components.filesystem_ajax.views.arrange_contents"),
+            reverse("filesystem_ajax:contents_arrange"),
             {"path": b64encode(b"/arrange/toplevel")},
             follow=True,
         )

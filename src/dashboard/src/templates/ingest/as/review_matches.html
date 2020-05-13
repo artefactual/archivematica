@@ -13,11 +13,11 @@
 
 {% block content %}
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
+    {% breadcrumb_url 'DIP upload' 'ingest:ingest_upload_as' uuid %}
   </ul>
 
-  <form method="POST" action="{% url 'components.ingest.views_as.complete_matching' uuid %}">
-    <a class="btn btn-submit" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
+  <form method="POST" action="{% url 'ingest:complete_matching' uuid %}">
+    <a class="btn btn-submit" href="{% url 'ingest:ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
     <button class="btn btn-primary">{% trans "Finish matching" %}</button>
   </form>
 

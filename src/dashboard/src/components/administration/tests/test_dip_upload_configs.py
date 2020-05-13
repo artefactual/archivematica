@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from components import helpers
@@ -14,7 +14,7 @@ class TestDipUploadAsConfig(TestCase):
 
     def setUp(self):
         self.client.login(username="test", password="test")
-        self.url = reverse("components.administration.views_dip_upload.admin_as")
+        self.url = reverse("administration:dips_as")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):
@@ -51,7 +51,7 @@ class TestDipUploadAsConfig(TestCase):
         self.assertIsInstance(config, dict)
         self.assertEqual(config["base_url"], "http://aspace.test.org:8089")
         self.assertEqual(config["repository"], "2")
-        self.assertEquals(len(list(config.keys())), len(form.fields))
+        self.assertEqual(len(list(config.keys())), len(form.fields))
 
     def test_post_missing_fields(self):
         response = self.client.post(
@@ -82,7 +82,7 @@ class TestDipUploadAtomConfig(TestCase):
 
     def setUp(self):
         self.client.login(username="test", password="test")
-        self.url = reverse("components.administration.views_dip_upload.admin_atom")
+        self.url = reverse("administration:dips_atom_index")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):
@@ -121,7 +121,7 @@ class TestDipUploadAtomConfig(TestCase):
         self.assertEqual(config["password"], "demo")
         self.assertEqual(config["version"], "2")
         self.assertEqual(config["key"], "")
-        self.assertEquals(len(list(config.keys())), len(form.fields))
+        self.assertEqual(len(list(config.keys())), len(form.fields))
 
     def test_post_missing_fields(self):
         response = self.client.post(self.url, {"url": "https://search.efimm.org"})

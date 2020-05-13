@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import os
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 import mock
@@ -62,9 +62,7 @@ class TestIngest(TestCase):
     def test_normalization_event_detail_view(self):
         """Test the 'Manual normalization event detail' view of a SIP"""
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        url = reverse(
-            "components.ingest.views.ingest_metadata_event_detail", args=[sip_uuid]
-        )
+        url = reverse("ingest:ingest_metadata_event_detail", args=[sip_uuid])
         response = self.client.get(url)
         assert response.status_code == 200
         title = "".join(
@@ -75,9 +73,7 @@ class TestIngest(TestCase):
     def test_add_metadata_files_view(self):
         """Test the 'Add metadata files' view of a SIP"""
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        url = reverse(
-            "components.ingest.views.ingest_metadata_add_files", args=[sip_uuid]
-        )
+        url = reverse("ingest:ingest_metadata_add_files", args=[sip_uuid])
         response = self.client.get(url)
         assert response.status_code == 200
         title = "\n    ".join(

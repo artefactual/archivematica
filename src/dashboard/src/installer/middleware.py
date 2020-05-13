@@ -20,11 +20,11 @@ from __future__ import absolute_import
 from re import compile as re_compile
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import redirect
+from django.utils.deprecation import MiddlewareMixin
 
 import components.helpers as helpers
-from installer.views import welcome
 
 
 EXEMPT_URLS = None
@@ -40,7 +40,7 @@ def _load_exempt_urls():
 _load_exempt_urls()
 
 
-class ConfigurationCheckMiddleware:
+class ConfigurationCheckMiddleware(MiddlewareMixin):
     """Redirect users to the installer page or the login page.
 
     The presence of the pipeline UUID in the database is an indicator of
@@ -52,12 +52,12 @@ class ConfigurationCheckMiddleware:
 
         # Start off the installer unless the user is already there.
         if not dashboard_uuid:
-            if reverse(welcome) == request.path_info:
+            if reverse("installer:welcome") == request.path_info:
                 return
-            return redirect(welcome)
+            return redirect("installer:welcome")
 
         # Send the user to the login page if needed.
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             path = request.path_info.lstrip("/")
             if not any(m.match(path) for m in EXEMPT_URLS):
                 return redirect(settings.LOGIN_URL)

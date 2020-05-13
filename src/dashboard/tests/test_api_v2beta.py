@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, Client
 import mock
 
@@ -130,7 +130,7 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
 
     def _post(self, validator_name, payload, content_type="text/csv; charset=utf-8"):
         return self.client.post(
-            reverse("validate", args=[validator_name]),
+            reverse("api:validate", args=[validator_name]),
             payload,
             content_type=content_type,
         )

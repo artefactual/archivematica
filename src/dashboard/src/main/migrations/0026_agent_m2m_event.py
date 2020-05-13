@@ -60,8 +60,16 @@ class Migration(migrations.Migration):
                         primary_key=True,
                     ),
                 ),
-                ("agent", models.OneToOneField(to="main.Agent")),
-                ("user", models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                (
+                    "agent",
+                    models.OneToOneField(to="main.Agent", on_delete=models.CASCADE),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+                    ),
+                ),
             ],
             options={"db_table": "main_userprofile"},
             bases=(models.Model,),

@@ -18,7 +18,7 @@
   <div class="col-xs-10">
 
   {% if request.user.is_superuser %}
-  <p><a href="{% url 'idcommand_create' %}">{% trans "Create new command" %}</a></p>
+  <p><a href="{% url 'fpr:idcommand_create' %}">{% trans "Create new command" %}</a></p>
   {% endif %}
 
 {% if idcommands %}
@@ -36,16 +36,16 @@
     <tbody>
     {% for idcommand in idcommands %}
       <tr>
-        <td><a href="{% url 'idcommand_detail' idcommand.uuid %}">{{ idcommand.description }}</a></td>
+        <td><a href="{% url 'fpr:idcommand_detail' idcommand.uuid %}">{{ idcommand.description }}</a></td>
         <td>{{ idcommand.get_script_type_display }}</td>
-        <td><a href="{% url 'idtool_detail' idcommand.tool.slug %}">{{ idcommand.tool }}</a></td>
+        <td><a href="{% url 'fpr:idtool_detail' idcommand.tool.slug %}">{{ idcommand.tool }}</a></td>
         <td>{{ idcommand.config }}</td>
         <td>{{ idcommand.enabled|yesno:_("Yes,No") }}</td>
         <td>
-          <a href="{% url 'idcommand_detail' idcommand.uuid %}">{% trans "View" %}</a>
+          <a href="{% url 'fpr:idcommand_detail' idcommand.uuid %}">{% trans "View" %}</a>
           {% if request.user.is_superuser %}
-            | <a href="{% url 'idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a>
-            | <a href="{% url 'idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a>
+            | <a href="{% url 'fpr:idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a>
+            | <a href="{% url 'fpr:idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a>
           {% endif %}
         </td>
       </tr>

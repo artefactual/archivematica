@@ -22,6 +22,9 @@ import sys
 import tempfile
 import traceback
 
+import django
+
+django.setup()
 from databaseFunctions import auto_close_db
 from executeOrRunSubProcess import launchSubProcess
 

@@ -19,7 +19,7 @@
   <div class="col-xs-10">
 
     {% if request.user.is_superuser %}
-    <p><a href="{% url 'idtool_create' %}">{% trans "Create new tool" %}</a></p>
+    <p><a href="{% url 'fpr:idtool_create' %}">{% trans "Create new tool" %}</a></p>
     {% endif %}
 
     {% if idtools %}
@@ -34,13 +34,13 @@
         <tbody>
         {% for idtool in idtools %}
           <tr>
-            <td><a href="{% url 'idtool_detail' idtool.slug %}">{{ idtool.description }}</a></td>
-            <td><a href="{% url 'idtool_detail' idtool.slug %}">{{ idtool.version }}</a></td>
+            <td><a href="{% url 'fpr:idtool_detail' idtool.slug %}">{{ idtool.description }}</a></td>
+            <td><a href="{% url 'fpr:idtool_detail' idtool.slug %}">{{ idtool.version }}</a></td>
             <td>
-              <a href="{% url 'idtool_detail' idtool.slug %}">{% trans "View" %}</a>
+              <a href="{% url 'fpr:idtool_detail' idtool.slug %}">{% trans "View" %}</a>
               {% if request.user.is_superuser %}
                 |
-                <a href="{% url 'idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
+                <a href="{% url 'fpr:idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
               {% endif %}
             </td>
           </tr>

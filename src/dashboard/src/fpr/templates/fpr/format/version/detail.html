@@ -7,8 +7,8 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
-<li><a href="{% url 'format_detail' format.slug %}">{{ format.description }}</a></li>
+<li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'fpr:format_detail' format.slug %}">{{ format.description }}</a></li>
 <li>{{ version.description }}</li>
 {% endblock breadcrumbs %}
 
@@ -28,12 +28,12 @@
             <dt>{% trans "Description" %}</dt> <dd>{{ version.description }}</dd>
             <dt>{% trans "Version" %}</dt> <dd>{{ version.version }}</dd>
             <dt>{% trans "Pronom" %} ID</dt> <dd>{{ version.pronom_id }}</dd>
-            <dt>{% trans "Format" %}</dt> <dd><a href="{% url 'format_detail' format.slug %}">{{ format.description }}</a></dd>
+            <dt>{% trans "Format" %}</dt> <dd><a href="{% url 'fpr:format_detail' format.slug %}">{{ format.description }}</a></dd>
             <dt>{% trans "Access?" %}</dt> <dd>{{ version.access_format|yesno:_('Yes,No') }}</dd>
             <dt>{% trans "Preservation" %}?</dt> <dd>{{ version.preservation_format|yesno:_('Yes,No') }}</dd>
             <dt>{% trans "Enabled" %}</dt> <dd>{{ version.enabled|yesno:_('Yes,No') }}</dd>
             {% if request.user.is_superuser %}
-            <dt>{% trans "Actions" %}</dt> <dd><a href="{% url 'formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a></dd>
+            <dt>{% trans "Actions" %}</dt> <dd><a href="{% url 'fpr:formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a></dd>
             {% endif %}
         </dl>
     </div>

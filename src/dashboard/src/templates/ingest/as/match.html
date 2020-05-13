@@ -61,7 +61,7 @@
     {% trans "DIP upload" as dip_upload_label %}
     {% trans "Parent record" as parent_record_label %}
     {% trans "Assign objects" as assign_objects_label %}
-    {% breadcrumb_url dip_upload_label 'components.ingest.views_as.ingest_upload_as' uuid %}
+    {% breadcrumb_url dip_upload_label 'ingest:ingest_upload_as' uuid %}
     {% breadcrumb_url parent_record_label parent_url uuid parent_id %}
     {% breadcrumb assign_objects_label %}
   </ul>
@@ -76,7 +76,7 @@
   {% else %}
     <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a>
   {% endif %}
-  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
+  <a class="btn btn-default" href="{% url 'ingest:ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
 
   <div id='as_matcher'></div>
 

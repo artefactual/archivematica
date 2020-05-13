@@ -18,7 +18,7 @@ class TestForms(TestCase):
         # Our second attempt should not validate.
         form = IDToolForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.non_field_errors(),
             ["An ID tool with this description and version already exists"],
         )
@@ -33,7 +33,7 @@ class TestForms(TestCase):
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.non_field_errors(),
             [
                 "An identical FP rule already exists."

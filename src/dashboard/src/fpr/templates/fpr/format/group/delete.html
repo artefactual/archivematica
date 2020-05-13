@@ -6,9 +6,9 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'format_list' %}">{% trans "Formats" %}</a></li>
-<li><a href="{% url 'formatgroup_list' %}">{% trans "Groups" %}</a></li>
-<li><a href="{% url 'formatgroup_edit' group.slug %}">{{ group.description }}</a></li>
+<li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
+<li><a href="{% url 'fpr:formatgroup_list' %}">{% trans "Groups" %}</a></li>
+<li><a href="{% url 'fpr:formatgroup_edit' group.slug %}">{{ group.description }}</a></li>
 <li>{% trans "Delete" %}</li>
 {% endblock breadcrumbs %}
 
@@ -21,7 +21,7 @@
   <div class="col-xs-10">
 
     <div class='format_group'>
-      <form action="{% url 'formatgroup_delete' group.slug %}" method="post">{% csrf_token %}
+      <form action="{% url 'fpr:formatgroup_delete' group.slug %}" method="post">{% csrf_token %}
         <p>{% trans "Are you sure?" %}</p>
 
         {% if format_count > 0 %}

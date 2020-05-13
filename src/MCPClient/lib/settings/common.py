@@ -269,6 +269,10 @@ INSTALLED_APPS = (
     "components.mcp",
     "components.administration",
     "fpr",
+    # Only needed because archivematicaClient calls django.setup()
+    # which imports the ApiAccess model through the helpers module of
+    # the dashboard
+    "tastypie",
 )
 
 # Configure logging manually
@@ -339,6 +343,8 @@ except ValueError:
     PROMETHEUS_ENABLED = False
 else:
     PROMETHEUS_ENABLED = True
+
+TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates"}]
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

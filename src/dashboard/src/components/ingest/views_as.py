@@ -6,7 +6,7 @@ import json
 import logging
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -59,7 +59,7 @@ def _get_reset_view(uuid):
         ).count()
         > 0
     ):
-        return "components.ingest.views_as.ingest_upload_as_reset"
+        return "ingest:ingest_upload_as_reset"
 
 
 def _authenticate_to_archivesspace(func):
@@ -109,9 +109,7 @@ def ingest_upload_as_save(request, uuid):
 
 def ingest_upload_as_reset(request, uuid):
     models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
-    return HttpResponseRedirect(
-        reverse("components.ingest.views_as.ingest_upload_as", args=[uuid])
-    )
+    return HttpResponseRedirect(reverse("ingest:ingest_upload_as", args=[uuid]))
 
 
 def ingest_upload_as_save_to_db(request, uuid):
@@ -150,7 +148,7 @@ def ingest_upload_as_resource(client, request, uuid, resource_id):
         page,
         sort,
         search_params,
-        "components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_levels",
+        "ingest:ingest_upload_as_match_dip_objects_to_resource_levels",
         "ingest/as/resource_detail.html",
         _get_reset_view(uuid),
         uuid,
@@ -172,7 +170,7 @@ def ingest_upload_as_resource_component(client, request, uuid, resource_componen
         page,
         sort,
         search_params,
-        "components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels",
+        "ingest:ingest_upload_as_match_dip_objects_to_resource_component_levels",
         "ingest/as/resource_component.html",
         _get_reset_view(uuid),
         uuid,
@@ -199,9 +197,9 @@ def ingest_upload_as_match_dip_objects_to_resource_levels(
 
     parent_type, parent_id = client.find_parent_id_for_component(resource_id)
     if parent_type == type(client).RESOURCE:
-        parent_url = "components.ingest.views_as.ingest_upload_as_resource"
+        parent_url = "ingest:ingest_upload_as_resource"
     else:
-        parent_url = "components.ingest.views_as.ingest_upload_as_resource_component"
+        parent_url = "ingest:ingest_upload_as_resource_component"
 
     return pair_matcher.match_dip_objects_to_resource_levels(
         client,
@@ -226,9 +224,9 @@ def ingest_upload_as_match_dip_objects_to_resource_component_levels(
 
     parent_type, parent_id = client.find_parent_id_for_component(resource_component_id)
     if parent_type == type(client).RESOURCE:
-        parent_url = "components.ingest.views_as.ingest_upload_as_resource"
+        parent_url = "ingest:ingest_upload_as_resource"
     else:
-        parent_url = "components.ingest.views_as.ingest_upload_as_resource_component"
+        parent_url = "ingest:ingest_upload_as_resource_component"
 
     return pair_matcher.match_dip_objects_to_resource_component_levels(
         client,
@@ -330,9 +328,6 @@ def complete_matching(request, uuid):
         )
         logger.error("Upload DIP to ArchivesSpace failed: %s", err)
         return HttpResponseRedirect(
-            reverse(
-                "components.ingest.views_as.ingest_upload_as_review_matches",
-                args=[uuid],
-            )
+            reverse("ingest:ingest_upload_as_review_matches", args=[uuid])
         )
-    return HttpResponseRedirect(reverse("components.ingest.views.ingest_grid"))
+    return HttpResponseRedirect(reverse("ingest:ingest_index"))

@@ -22,10 +22,9 @@ import requests
 
 from django.conf import settings as django_settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 import elasticSearchFunctions
@@ -206,10 +205,8 @@ def delete_context(request, uuid):
     :return: The request context
     """
     prompt = "Delete package?"
-    cancel_url = reverse("components.backlog.views.execute")
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    cancel_url = reverse("backlog:backlog_index")
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("delete_request.html", delete_context)
@@ -241,7 +238,7 @@ def delete(request, uuid):
     except requests.exceptions.RequestException:
         raise Http404
 
-    return redirect("backlog_index")
+    return redirect("backlog:backlog_index")
 
 
 def download(request, uuid):

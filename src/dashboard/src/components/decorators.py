@@ -20,7 +20,6 @@ from __future__ import absolute_import
 from django.shortcuts import render_to_response
 from django.http import Http404
 from django.utils.functional import wraps
-from django.template import RequestContext
 
 from main import models
 
@@ -48,9 +47,7 @@ def confirm_required(template_name, context_creator, key="__confirm__"):
                 return func(request, *args, **kwargs)
             else:
                 context = (
-                    context_creator
-                    and context_creator(request, *args, **kwargs)
-                    or RequestContext(request)
+                    context_creator and context_creator(request, *args, **kwargs) or {}
                 )
                 return render_to_response(template_name, context)
 

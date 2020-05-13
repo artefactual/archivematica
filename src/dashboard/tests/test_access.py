@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import base64
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 
@@ -24,7 +24,7 @@ class TestAccessAPI(TestCase):
         record_id = "/repositories/2/archival_objects/2"
         response = self.client.post(
             reverse(
-                "components.access.views.access_create_directory",
+                "access:access_create_directory",
                 kwargs={"record_id": record_id.replace("/", "-")},
             ),
             {},
@@ -42,7 +42,7 @@ class TestAccessAPI(TestCase):
         record_id = "/repositories/2/archival_objects/1"
         response = self.client.get(
             reverse(
-                "components.access.views.access_arrange_contents",
+                "access:access_arrange_contents",
                 kwargs={"record_id": record_id.replace("/", "-")},
             ),
             follow=True,

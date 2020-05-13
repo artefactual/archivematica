@@ -303,7 +303,7 @@ TEMPLATES = [
     }
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     # 'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -335,7 +335,6 @@ INSTALLED_APPS = [
     # django.contrib.sites',
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.webdesign",
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Internal apps
@@ -419,7 +418,7 @@ try:
 except:
     pass
 else:
-    MIDDLEWARE_CLASSES += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
+    MIDDLEWARE += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
     INSTALLED_APPS += ("debug_toolbar",)
     INTERNAL_IPS = ("127.0.0.1", "192.168.82.1", "10.0.2.2")
     DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
@@ -491,11 +490,8 @@ if SHIBBOLETH_AUTHENTICATION:
     ]
 
     # Insert Shibboleth after the authentication middleware
-    MIDDLEWARE_CLASSES.insert(
-        MIDDLEWARE_CLASSES.index(
-            "django.contrib.auth.middleware.AuthenticationMiddleware"
-        )
-        + 1,
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
         "middleware.common.CustomShibbolethRemoteUserMiddleware",
     )
 
@@ -515,9 +511,9 @@ if LDAP_AUTHENTICATION:
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
 if PROMETHEUS_ENABLED:
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
-        + MIDDLEWARE_CLASSES
+        + MIDDLEWARE
         + ["django_prometheus.middleware.PrometheusAfterMiddleware"]
     )
     INSTALLED_APPS = INSTALLED_APPS + ["django_prometheus"]

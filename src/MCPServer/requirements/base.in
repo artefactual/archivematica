@@ -1,6 +1,6 @@
-Django>=1.8,<1.9
-django-extensions==1.1.1
-mysqlclient==1.3.7
+Django>=1.11,<2
+django-extensions==1.7.9
+mysqlclient==1.4.6
 gearman==2.0.2
 lxml==3.5.0
 prometheus_client==0.7.1

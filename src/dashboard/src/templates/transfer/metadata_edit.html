@@ -33,9 +33,9 @@ $(document).ready(function() {
       {% trans "Add" as add_label %}
 
       <ul class="breadcrumb">
-        {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
-        {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
-        {% breadcrumb_url metadata_label 'components.transfer.views.transfer_metadata_list' uuid %}
+        {% breadcrumb_url transfer_label 'transfer:transfer_index' %}
+        {% breadcrumb_url name 'unit:detail' 'transfer' uuid %}
+        {% breadcrumb_url metadata_label 'transfer:transfer_metadata_list' uuid %}
         {% if id %}
           {% breadcrumb edit_label %}
         {% else %}
@@ -49,9 +49,9 @@ $(document).ready(function() {
       </h1>
 
       {% if id %}
-        <form class="form-stacked" method="post" action="{% url 'components.transfer.views.transfer_metadata_edit' uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'transfer:transfer_metadata_edit' uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">
+        <form class="form-stacked" method="post" action="{% url 'transfer:transfer_metadata_add' uuid %}">
       {% endif %}
 
         {% include "_form.html" %}
@@ -62,7 +62,7 @@ $(document).ready(function() {
           {% else %}
             <input type="submit" class="btn btn-primary" value="{% trans 'Create' %}" />
           {% endif %}
-          <a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
+          <a href="{% url 'transfer:transfer_metadata_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
         </div>
 
       </form>

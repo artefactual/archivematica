@@ -21,8 +21,9 @@ from django.conf.urls import url
 from django.conf import settings
 from components.transfer import views
 
+app_name = "transfer"
 urlpatterns = [
-    url(r"^$", views.grid),
+    url(r"^$", views.grid, name="transfer_index"),
     # Transfer metadata set functions
     url(r"^create_metadata_set_uuid/$", views.create_metadata_set_uuid),
     url(
@@ -36,19 +37,26 @@ urlpatterns = [
         views.cleanup_metadata_set,
     ),
     url(r"^locations/$", views.transfer_source_locations),
-    url(r"^component/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.component),
+    url(
+        r"^component/(?P<uuid>" + settings.UUID_REGEX + ")/$",
+        views.component,
+        name="component",
+    ),
     url(r"^status/$", views.status),
     url(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.status),
     url(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/$",
         views.transfer_metadata_list,
+        name="transfer_metadata_list",
     ),
     url(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/add/$",
         views.transfer_metadata_edit,
+        name="transfer_metadata_add",
     ),
     url(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/(?P<id>\d+)/$",
         views.transfer_metadata_edit,
+        name="transfer_metadata_edit",
     ),
 ]

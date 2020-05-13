@@ -16,7 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class ForceDefaultLanguageMiddleware(object):
+from django.utils.deprecation import MiddlewareMixin
+
+
+class ForceDefaultLanguageMiddleware(MiddlewareMixin):
     """
     Ignore Accept-Language HTTP headers
 

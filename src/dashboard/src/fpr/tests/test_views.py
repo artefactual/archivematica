@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from components import helpers
@@ -16,7 +16,7 @@ class TestViews(TestCase):
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_idcommand_create(self):
-        url = reverse("idcommand_create")
+        url = reverse("fpr:idcommand_create")
         tool = IDTool.objects.create(
             uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac",
             description="Foobar",
@@ -33,7 +33,7 @@ class TestViews(TestCase):
         self.assertEqual(resp.context["form"].initial["tool"], tool)
 
     def test_fpcommand_create(self):
-        url = reverse("fpcommand_create")
+        url = reverse("fpr:fpcommand_create")
         tool = FPTool.objects.create(
             uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac",
             description="Foobar",

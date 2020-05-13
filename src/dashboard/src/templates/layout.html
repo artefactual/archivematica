@@ -11,7 +11,7 @@
     <link href="{% static 'vendor/twitter-bootstrap/css/bootstrap.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" />
     {% block extra_css %}{% endblock %}
-    <script src="{% url 'javascript-catalog' %}" type="text/javascript"></script>
+    <script src="{% url 'main:javascript-catalog' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/jquery.js' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/twitter-bootstrap/js/bootstrap.js' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/jquery-ui/jquery-ui.js' %}" type="text/javascript"></script>
@@ -35,21 +35,21 @@
         <div class="topbar-inner">
           <div class="container-fluid">
 
-            <a class="navbar-brand" href="{% url 'main.views.home' %}">
+            <a class="navbar-brand" href="{% url 'main:main_index' %}">
               <img alt="Archivematica" src="{% static 'images/logo_header.png' %}"></a>
             </a>
 
             {% block topbar %}{% endblock %}
 
-            {% url 'main.views.home' as url_home %}
-            {% url 'components.transfer.views.grid' as url_transfer %}
-            {% url 'components.backlog.views.execute' as url_backlog %}
-            {% url 'components.appraisal.views.appraisal' as url_appraisal %}
-            {% url 'components.ingest.views.ingest_grid' as url_ingest %}
-            {% url 'components.archival_storage.views.overview' as url_archival_storage %}
-            {% url 'fpr_index' as url_fpr %}
-            {% url 'main.views.access_list' as url_access %}
-            {% url 'components.administration.views.administration' as url_administration %}
+            {% url 'main:main_index' as url_home %}
+            {% url 'transfer:transfer_index' as url_transfer %}
+            {% url 'backlog:backlog_index' as url_backlog %}
+            {% url 'appraisal:appraisal_index' as url_appraisal %}
+            {% url 'ingest:ingest_index' as url_ingest %}
+            {% url 'archival_storage:archival_storage_index' as url_archival_storage %}
+            {% url 'fpr:fpr_index' as url_fpr %}
+            {% url 'main:access_index' as url_access %}
+            {% url 'administration:administration_index' as url_administration %}
 
             <ul class="nav navbar-nav">
 
@@ -72,7 +72,7 @@
                     {{ request.user }} <div class="caret"></div>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                    <li><a href="{% url 'components.accounts.views.profile' %}">{% trans "Your profile" %}</a></li>
+                    <li><a href="{% url 'accounts:profile' %}">{% trans "Your profile" %}</a></li>
                     <li class="divider"></li>
                     <li><a href="{% logout_link %}">{% trans "Log out" %}</a></li>
                   </ul>

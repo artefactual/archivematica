@@ -30,7 +30,7 @@
     <ul class="breadcrumb">
       {% trans "Archival storage" as archival_storage_label %}
       {% trans "Search" as search_label %}
-      {% breadcrumb_url archival_storage_label 'components.archival_storage.views.overview' %}
+      {% breadcrumb_url archival_storage_label 'archival_storage:archival_storage_index' %}
       {% breadcrumb search_label %}
     </ul>
 
@@ -103,13 +103,13 @@
         <tbody>
           {% for item in aips %}
             <tr>
-              <td><a href="{% url 'view_aip' item.uuid %}">{{ item.name }}</a></td>
+              <td><a href="{% url 'archival_storage:view_aip' item.uuid %}">{{ item.name }}</a></td>
               <td class="size">{{ item.size }}</td>
-              <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
+              <td class="uuid"><a href="{% url 'archival_storage:view_aip' item.uuid %}">{{ item.uuid }}</a></td>
               <td><span class="timestamp">{{ item.date }}</span></td>
               <td>{{ item.status }}</td>
               <td>{{ item.encrypted }}</td>
-              <td><a href="{% url 'view_aip' item.uuid %}">{% trans "View" %}</a></td>
+              <td><a href="{% url 'archival_storage:view_aip' item.uuid %}">{% trans "View" %}</a></td>
             </tr>
           {% endfor %}
         </tbody>
