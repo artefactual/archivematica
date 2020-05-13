@@ -14,7 +14,7 @@ idna==2.8                 # via requests
 mysqlclient==1.4.6        # via agentarchives
 pathlib2==2.3.4 ; python_version < "3"
 prometheus_client==0.7.1
-python-dateutil==2.4.2
+python-dateutil==2.6.0
 pytz==2020.1              # via django
 requests==2.21.0
 scandir==1.10.0           # via pathlib2
