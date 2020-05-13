@@ -31,7 +31,6 @@ from django.urls import reverse
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render, redirect
-from django.template import RequestContext
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import View
@@ -274,14 +273,11 @@ def ingest_metadata_event_detail(request, uuid):
 
 def delete_context(request, uuid, id):
     cancel_url = reverse("ingest:ingest_metadata_list", args=[uuid])
-    return RequestContext(
-        request,
-        {
-            "action": "Delete",
-            "prompt": _("Are you sure you want to delete this metadata?"),
-            "cancel_url": cancel_url,
-        },
-    )
+    return {
+        "action": "Delete",
+        "prompt": _("Are you sure you want to delete this metadata?"),
+        "cancel_url": cancel_url,
+    }
 
 
 @decorators.confirm_required("simple_confirm.html", delete_context)

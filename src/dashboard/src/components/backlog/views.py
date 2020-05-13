@@ -25,7 +25,6 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 import elasticSearchFunctions
@@ -207,9 +206,7 @@ def delete_context(request, uuid):
     """
     prompt = "Delete package?"
     cancel_url = reverse("backlog:backlog_index")
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("delete_request.html", delete_context)

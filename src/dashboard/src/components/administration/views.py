@@ -30,7 +30,6 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.template import RequestContext
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
@@ -81,9 +80,7 @@ def delete_context(request, report_id):
     report = models.Report.objects.get(pk=report_id)
     prompt = "Delete failure report for " + report.unitname + "?"
     cancel_url = reverse("administration:reports_failures_index")
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("simple_confirm.html", delete_context)
@@ -406,9 +403,7 @@ def _usage_clear_context(request, dir_id):
 
     prompt = _("Clear %(dir)s?") % {"dir": dir_info["description"]}
     cancel_url = reverse("administration:usage")
-    return RequestContext(
-        request, {"action": _("Clear"), "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": _("Clear"), "prompt": prompt, "cancel_url": cancel_url}
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
@@ -521,9 +516,7 @@ def term_delete_context(request, term_uuid):
     term = models.TaxonomyTerm.objects.get(pk=term_uuid)
     prompt = "Delete term " + term.term + "?"
     cancel_url = reverse("administration:term", args=[term_uuid])
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("simple_confirm.html", term_delete_context)

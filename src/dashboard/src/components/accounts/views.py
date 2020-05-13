@@ -24,7 +24,6 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from tastypie.models import ApiKey
@@ -174,9 +173,7 @@ def delete_context(request, id):
     user = User.objects.get(pk=id)
     prompt = "Delete user " + user.username + "?"
     cancel_url = reverse("accounts:accounts_index")
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")

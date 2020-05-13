@@ -24,7 +24,6 @@ from django.urls import reverse
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from components import decorators
@@ -54,9 +53,7 @@ def transfer_rights_delete(request, uuid, id):
 def transfer_grant_delete_context(request, uuid, id):
     prompt = "Delete rights grant?"
     cancel_url = reverse("rights_transfer:index", args=[uuid])
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("simple_confirm.html", transfer_grant_delete_context)
@@ -83,9 +80,7 @@ def ingest_rights_delete(request, uuid, id):
 def ingest_grant_delete_context(request, uuid, id):
     prompt = "Delete rights grant?"
     cancel_url = reverse("rights_ingest:index", args=[uuid])
-    return RequestContext(
-        request, {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
-    )
+    return {"action": "Delete", "prompt": prompt, "cancel_url": cancel_url}
 
 
 @decorators.confirm_required("simple_confirm.html", ingest_grant_delete_context)
@@ -721,7 +716,7 @@ def rights_grants_edit(request, uuid, id, section="ingest"):
         ):
             return redirect("rights_%s:index" % section, uuid)
         else:
-            url = reverse("rights_%s:grant_edit" % section, args=[uuid, viewRights.pk])
+            url = reverse("rights_%s:grants_edit" % section, args=[uuid, viewRights.pk])
             return redirect(url)
     else:
         return render(request, "rights/rights_grants_edit.html", locals())

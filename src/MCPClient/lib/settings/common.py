@@ -344,5 +344,7 @@ except ValueError:
 else:
     PROMETHEUS_ENABLED = True
 
+TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates"}]
+
 # Apply email settings
 globals().update(email_settings.get_settings(config))

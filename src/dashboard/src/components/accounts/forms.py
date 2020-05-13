@@ -58,7 +58,9 @@ class UserChangeForm(UserChangeForm):
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
     regenerate_api_key = forms.CharField(
-        widget=forms.CheckboxInput, label="Regenerate API key (shown below)?"
+        widget=forms.CheckboxInput,
+        label="Regenerate API key (shown below)?",
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -117,7 +119,9 @@ class UserChangeForm(UserChangeForm):
 
 class ApiKeyForm(forms.Form):
     regenerate_api_key = forms.CharField(
-        widget=forms.CheckboxInput, label="Regenerate API key (shown below)?"
+        widget=forms.CheckboxInput,
+        label="Regenerate API key (shown below)?",
+        required=False,
     )
 
 
