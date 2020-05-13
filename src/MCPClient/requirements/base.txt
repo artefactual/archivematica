@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
--e git+https://github.com/artefactual-labs/ammcpc@v0.1.1#egg=ammcpc
+ammcpc==0.1.3
 bagit==1.7.0
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
@@ -15,7 +15,7 @@ future==0.18.2            # via metsrw
 gearman==2.0.2
 idna==2.8                 # via requests
 lxml==3.5.0
-metsrw==0.3.14
+metsrw==0.3.15
 mysqlclient==1.3.9
 olefile==0.46             # via opf-fido
 opf-fido==1.4.1
@@ -27,4 +27,4 @@ unidecode==0.04.19
 urllib3==1.24.3           # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.0.1        # via opf-fido
+# setuptools
