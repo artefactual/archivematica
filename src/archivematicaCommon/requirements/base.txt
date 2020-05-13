@@ -11,7 +11,7 @@ chardet==3.0.4            # via requests
 django==1.11.29
 elasticsearch==6.8.1
 idna==2.8                 # via requests
-mysqlclient==1.4.6        # via agentarchives
+mysqlclient==1.4.6
 pathlib2==2.3.4 ; python_version < "3"
 prometheus_client==0.7.1
 python-dateutil==2.6.0
