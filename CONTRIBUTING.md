@@ -351,9 +351,18 @@ that git-bisect stays reliable for tracking down bugs.
 
 ### Commit messages
 
-The Archivematica Documentation Guidelines describe the
-[format](https://github.com/artefactual/archivematica-docs/wiki/Style-guide#3-commit-messages)
-that commit messages should adhere to.
+The Archivematica project follows Chris Beams' guidelines on
+[How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/),
+and specifically the
+[seven rules of a great Git commit message](https://chris.beams.io/posts/git-commit/#seven-rules):
+
+1. Separate subject from body with a blank line
+2. Limit the subject line to 50 characters
+3. Capitalize the subject line
+4. Do not end the subject line with a period
+5. Use the imperative mood in the subject line
+6. Wrap the body at 72 characters
+7. Use the body to explain what and why vs. how
 
 #### Commit summaries should be concise
 
@@ -400,6 +409,7 @@ made. Make their life easier.
 Each line of a commit message should be no more than 72 characters in width.
 The following is an outline of a commit message combined with an ideal commit
 summary:
+
 ```
 Capitalized, short (50 chars or less) summary
 
@@ -412,8 +422,3 @@ two together.
 
 Further content comes after a blank line.
 ```
-##### More information on commit messages
-For more information about how to write a good commit message and to
-understand some of the rationale behind our approach, please see this
-article from Chris Beams on
-[How to write a Git commit message](https://chris.beams.io/posts/git-commit/).
