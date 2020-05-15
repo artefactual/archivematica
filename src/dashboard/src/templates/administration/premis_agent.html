@@ -19,6 +19,7 @@
       <h3>{% trans "PREMIS agent" %}</h3>
 
       <form method='POST'>
+      {% csrf_token %}
       {% include "_form.html" %}
         <div>
           <input type='submit' value='{% trans "Save" %}' class='btn btn-primary' />

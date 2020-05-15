@@ -17,6 +17,7 @@
   </ul>
 
   <form method="POST" action="{% url 'ingest:complete_matching' uuid %}">
+    {% csrf_token %}
     <a class="btn btn-submit" href="{% url 'ingest:ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
     <button class="btn btn-primary">{% trans "Finish matching" %}</button>
   </form>

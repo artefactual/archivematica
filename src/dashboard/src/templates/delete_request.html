@@ -9,6 +9,7 @@
 <br/>
 
 <form method="POST" action="">
+  {% csrf_token %}
   <input type="hidden" name="__confirm__" value="1" />
   <p>
     <strong>{% trans "Reason for deletion:" %}</strong>

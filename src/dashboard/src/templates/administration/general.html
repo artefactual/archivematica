@@ -33,6 +33,7 @@
       <h3>{% trans "General configuration" %}</h3>
 
       <form method='POST'>
+        {% csrf_token %}
 
         {% include "_form.html" with form=general_form %}
 
