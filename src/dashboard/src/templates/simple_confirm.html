@@ -6,6 +6,7 @@
 <h1>{{ prompt }}</h1>
 
 <form method="POST" action="">
+  {% csrf_token %}
   <input type="hidden" name="__confirm__" value="1" />
   <input type="submit" value="{{ action }}" class='btn btn-primary' /> <a href="{{ cancel_url }}" class='btn btn-default'>{% trans "Cancel" %}</a>
 </form>

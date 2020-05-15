@@ -55,6 +55,7 @@ $(document).ready(function() {
         <form class="form-stacked" method="post" action="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">
       {% endif %}
 
+        {% csrf_token %}
         {% include "_form.html" %}
 
         <div class="actions">

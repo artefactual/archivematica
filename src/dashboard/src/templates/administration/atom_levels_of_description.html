@@ -29,6 +29,7 @@
 
       {% if levels %}
         <form id="level_form" method="POST">
+        {% csrf_token %}
         <input id="level_operation" name="operation" type="hidden" />
         <input id="level_id" name="id" type="hidden" />
         <table class="table">
