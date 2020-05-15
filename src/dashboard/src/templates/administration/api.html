@@ -31,6 +31,7 @@
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
+        {% csrf_token %}
         <textarea name='whitelist' class='form-control' style='margin-bottom: 1em;'>{{ whitelist }}</textarea>
         <div>
           <input type='submit' value='{% trans "Save" %}' class='btn btn-primary' />

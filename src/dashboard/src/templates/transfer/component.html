@@ -16,6 +16,7 @@
       </ul>
 
       <form method='POST'>
+      {% csrf_token %}
       <input name='path' type='hidden' value='{{ path }}'/>
       <table class="table">
       {% for field in fields %}

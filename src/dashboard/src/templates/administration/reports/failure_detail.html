@@ -28,6 +28,7 @@
 
       <div>
         <form action="{% url 'administration:failure_report_delete' report_id %}" method='POST'>
+          {% csrf_token %}
           <input type="submit" value="{% trans 'Delete' %}" class="btn btn-danger">
         </form>
       </div>

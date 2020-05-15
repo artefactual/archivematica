@@ -42,6 +42,7 @@
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'installer:welcome' %}">
+        {% csrf_token %}
 
         {% include "_form.html" %}
 

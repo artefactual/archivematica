@@ -61,6 +61,7 @@
         <form class="form-stacked" method="post" action="{% url 'rights_transfer:grants_edit' uuid id %}">
       {% endif %}
 
+        {% csrf_token %}
         {{ grantFormset.management_form }}
         {{ grantFormset.non_form_errors.as_ul }}
 

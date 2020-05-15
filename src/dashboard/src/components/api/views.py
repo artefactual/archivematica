@@ -29,6 +29,7 @@ import re
 from django.db.models import Q
 import django.http
 from django.conf import settings as django_settings
+from django.views.decorators.csrf import csrf_exempt
 import six
 
 from tastypie.authentication import (
@@ -74,6 +75,7 @@ def _api_endpoint(expected_methods):
     def decorator(func):
         """The decorator applied to the endpoint."""
 
+        @csrf_exempt
         def wrapper(request, *args, **kwargs):
             """Wrapper for custom endpoints with boilerplate code."""
             # Check HTTP verb

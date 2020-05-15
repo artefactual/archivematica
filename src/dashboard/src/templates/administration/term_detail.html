@@ -28,6 +28,7 @@
       <h3>Term</h3>
 
       <form method='POST'>
+      {% csrf_token %}
       {% include "_form.html" %}
 
       <div style='float: right'>

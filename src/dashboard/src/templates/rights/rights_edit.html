@@ -81,6 +81,7 @@
         {% endif %}
       {% endif %}
 
+        {% csrf_token %}
         {% include "_form.html" %}
 
         <div id='copyright_formset' class='non-repeating-formset'>

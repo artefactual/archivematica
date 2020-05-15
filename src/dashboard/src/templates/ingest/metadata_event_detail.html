@@ -13,6 +13,7 @@
 
       <h1>Normalization Event Detail<br /><small>{{ name }}</small></h1>
       <form method="post" action="">
+        {% csrf_token %}
         {{ formset.management_form }}
         {{ formset.non_form_errors.as_ul }}
 
