@@ -33,6 +33,7 @@
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'components.administration.views_dip_upload.admin_atom' %}">
+        {% csrf_token %}
 
         <h3>{% trans "AtoM/Binder DIP upload" %}</h3>
 

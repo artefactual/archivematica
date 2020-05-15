@@ -21,6 +21,7 @@
     <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
     <form action="#" method="POST">
+      {% csrf_token %}
 
       <h4>{% trans "Register this pipeline in the Storage Service" %}</h4>
 
