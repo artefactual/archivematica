@@ -30,7 +30,6 @@ function renderArchivalStorageSearchForm(search_uri, on_success, on_error) {
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
-//    allowAdd: false,
     rowTemplate: {
       'op': '',
       'query': '',
@@ -148,7 +147,7 @@ $(document).ready(function() {
       + '/">'
       + gettext('view raw')
       + '</a>)';
-    // Remove 'objects/' from beginning of path
+    // Remove 'objects/' from beginning of path.
     var objects_prefix = 'objects/';
     var objects_prefix_length = objects_prefix.length;
     var formatted_path = filepath.startsWith(objects_prefix)
@@ -216,13 +215,13 @@ $(document).ready(function() {
   }
 
   // Return array consisting of column indices for columns that should be hidden
-  // by default if there is no saved table state in DashboardSettings
+  // by default if there is no saved table state in DashboardSettings.
   function get_default_hidden_column_indices() {
     return $('#id_show_files').prop('checked') ? [4, 5] : [2, 4, 5];
   }
 
-  // Return array consisting of column indices for columns that should not sort
-  // i.e. Actions, Thumbnails
+  // Return array consisting of column indices for columns that should not sort,
+  // i.e. Actions, Thumbnails.
   function get_unorderable_column_indices() {
     return $('#id_show_files').prop('checked') ? [0, 6] : [9];
   }
@@ -261,8 +260,8 @@ $(document).ready(function() {
     return $('#archival-storage-entries').dataTable({
         'dom': 'rtiBp',
         'stateSave': true,
-        'stateDuration': 60 * 60 * 24 * 365 * 10, // set state duration to 10 years
-        // Only save column visibility
+        'stateDuration': 60 * 60 * 24 * 365 * 10, // Set state duration to 10 years.
+        // Don't save information other than column visibility.
         'stateSaveParams': function(settings, data) {
             delete data.search;
             delete data.start;
@@ -288,7 +287,7 @@ $(document).ready(function() {
                 success: function (json) {
                   callback(json);
                 },
-                // Handle case where there is no saved state
+                // Handle case where there is no saved state.
                 error: function () {
                   callback(null);
                 }
@@ -315,7 +314,7 @@ $(document).ready(function() {
         'sInfo':                  pgettext('DataTable - sInfo',               'Showing _START_ to _END_ of _TOTAL_ entries'),
         'sInfoEmpty':             pgettext('DataTable - sInfoEmpty',          'Showing 0 to 0 of 0 entries'),
         'sInfoFiltered':          pgettext('DataTable - sInfoFiltered',       '(filtered from _MAX_ total entries)'),
-        'sInfoPostFix':           '', // pgettext('DataTable - sInfoPostFix',        ''),
+        'sInfoPostFix':           '',
         'sInfoThousands':         pgettext('DataTable - sInfoThousands',      ','),
         'sLengthMenu':            pgettext('DataTable - sLengthMenu',         'Show _MENU_ entries'),
         'sLoadingRecords':        pgettext('DataTable - sLoadingRecords',     'Loading...'),
@@ -353,7 +352,7 @@ $(document).ready(function() {
 
   function refresh_search_results() {
 
-    // If we have a datatable destroy its layout.
+    // If we have a datatable, destroy its layout.
     dtable.fnDestroy();
 
     // JQuery makes sure that the HTML element itself is emptied. The
@@ -366,7 +365,7 @@ $(document).ready(function() {
     // to see the AIPs only, or file list.
     dtable = get_datatable();
 
-    // Refresh visibliity of Create AIC button
+    // Refresh visibliity of the "Create an AIC" button to reflect new DataTable.
     set_create_aic_visibility();
 
   }
@@ -387,10 +386,10 @@ $(document).ready(function() {
     refresh_search_results();
   });
 
-  // Prevent user from refreshing page by submitting the form when hitting 'enter'
+  // Prevent user from refreshing page by submitting the form when hitting 'enter'.
   $('#search_form_container').on('keypress', '.aip-search-query-input', function (e) {
     if (e.which == 13) {  // Return key
-      // Remove focus from query input field to update its value
+      // Remove focus from query input field to update its value.
       e.target.blur();
       refresh_search_results();
       return false;
@@ -399,15 +398,15 @@ $(document).ready(function() {
 
   $("#create-aic-btn").click(function() {
     var aip_uuids = []
-    // Get object containing UUIDs from DataTable
+    // Get object containing UUIDs from the DataTable.
     var table_uuids = $('#id_show_files').prop('checked')
       ? []
       : $('#archival-storage-entries').DataTable().column(1).data();
-    // Add each UUID in returned object to clean aip_uuids array
+    // Add each UUID in the returned object to our clean aip_uuids array.
     for (i = 0; i < table_uuids.length; i++) {
       aip_uuids.push(table_uuids[i]);
     }
-    // Redirect window to create_aic, passing AIPs UUIDs in POST request
+    // Redirect window to create_aic, passing AIPs UUIDs in the POST request.
     $.redirectPost('/archival-storage/search/create_aic/', {'uuids': aip_uuids});
   });
 });

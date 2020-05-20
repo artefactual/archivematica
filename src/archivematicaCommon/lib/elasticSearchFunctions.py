@@ -48,6 +48,13 @@ from six.moves import range
 
 logger = logging.getLogger("archivematica.common")
 
+STATUS_DELETE_REQUESTED = "DEL_REQ"
+STATUS_DELETED = "DELETED"
+STATUS_UPLOADED = "UPLOADED"
+
+AIPS_INDEX = "aips"
+AIP_FILES_INDEX = "aipfiles"
+
 
 class ElasticsearchError(Exception):
     """ Not operational errors. """
@@ -72,7 +79,7 @@ DEFAULT_TIMEOUT = 10
 # function declaring the index settings and mapping. For example, for an index
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
-INDEXES = ["aips", "aipfiles", "transfers", "transferfiles"]
+INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, "transfers", "transferfiles"]
 # A doc type is still required in ES 6.x but it's limited to one per index.
 # It will be removed in ES 7.x, so we'll use the same for all indexes.
 DOC_TYPE = "_doc"
@@ -87,7 +94,7 @@ TOTAL_FIELDS_LIMIT = 10000
 DEPTH_LIMIT = 1000
 
 
-def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=["aips", "transfers"]):
+def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, "transfers"]):
     """Initialize and share the Elasticsearch client.
 
     Share it as the attribute _es_client in the current module. An additional
@@ -108,8 +115,8 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=["aips", "transfers"]):
     # on the fly? Could we force to run the rebuild commands and
     # avoid doing this on each setup?
     indexes = []
-    if "aips" in enabled:
-        indexes.extend(["aips", "aipfiles"])
+    if AIPS_INDEX in enabled:
+        indexes.extend([AIPS_INDEX, AIP_FILES_INDEX])
     if "transfers" in enabled:
         indexes.extend(["transfers", "transferfiles"])
     if len(indexes) > 0:
@@ -479,11 +486,11 @@ def index_aip_and_files(
         "transferMetadata": aip_metadata,
         "encrypted": encrypted,
         "accessionids": accession_ids,
-        "status": "UPLOADED",
+        "status": STATUS_UPLOADED,
     }
 
     _wait_for_cluster_yellow_status(client)
-    _try_to_index(client, aip_data, "aips", printfn=printfn)
+    _try_to_index(client, aip_data, AIPS_INDEX, printfn=printfn)
     printfn("Done.")
 
     return 0
@@ -541,7 +548,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
         "METS": {"dmdSec": {}, "amdSec": {}},
         "origin": get_dashboard_uuid(),
         "accessionid": "",
-        "status": "UPLOADED",
+        "status": STATUS_UPLOADED,
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'
@@ -648,7 +655,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
             yield {
                 "_op_type": "index",
-                "_index": "aipfiles",
+                "_index": AIP_FILES_INDEX,
                 "_type": DOC_TYPE,
                 "_source": indexData,
             }
@@ -1187,7 +1194,7 @@ def search_all_results(client, body, index):
 
 
 def get_aip_data(client, uuid, fields=None):
-    search_params = {"body": {"query": {"term": {"uuid": uuid}}}, "index": "aips"}
+    search_params = {"body": {"query": {"term": {"uuid": uuid}}}, "index": AIPS_INDEX}
 
     if fields:
         search_params["_source"] = fields
@@ -1200,7 +1207,7 @@ def get_aip_data(client, uuid, fields=None):
 def get_aipfile_data(client, uuid, fields=None):
     search_params = {
         "body": {"query": {"term": {"FILEUUID": uuid}}},
-        "index": "aipfiles",
+        "index": AIP_FILES_INDEX,
     }
 
     if fields:
@@ -1381,11 +1388,11 @@ def _remove_transfer_files(client, uuid, unit_type=None):
 
 
 def delete_aip(client, uuid):
-    _delete_matching_documents(client, "aips", "uuid", uuid)
+    _delete_matching_documents(client, AIPS_INDEX, "uuid", uuid)
 
 
 def delete_aip_files(client, uuid):
-    _delete_matching_documents(client, "aipfiles", "AIPUUID", uuid)
+    _delete_matching_documents(client, AIP_FILES_INDEX, "AIPUUID", uuid)
 
 
 def _delete_matching_documents(client, index, field, value):
@@ -1422,20 +1429,20 @@ def _update_field(client, index, uuid, field, value):
 
 
 def mark_aip_deletion_requested(client, uuid):
-    _update_field(client, "aips", uuid, "status", "DEL_REQ")
+    _update_field(client, AIPS_INDEX, uuid, "status", STATUS_DELETE_REQUESTED)
 
-    files = _document_ids_from_field_query(client, "aipfiles", "AIPUUID", uuid)
+    files = _document_ids_from_field_query(client, AIP_FILES_INDEX, "AIPUUID", uuid)
     for file_id in files:
         client.update(
-            body={"doc": {"status": "DEL_REQ"}},
-            index="aipfiles",
+            body={"doc": {"status": STATUS_DELETE_REQUESTED}},
+            index=AIP_FILES_INDEX,
             doc_type=DOC_TYPE,
             id=file_id,
         )
 
 
 def mark_aip_stored(client, uuid):
-    _update_field(client, "aips", uuid, "status", "UPLOADED")
+    _update_field(client, AIPS_INDEX, uuid, "status", STATUS_UPLOADED)
 
 
 def mark_backlog_deletion_requested(client, uuid):
