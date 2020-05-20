@@ -55,7 +55,12 @@
         </small>
       </h1>
 
-    <button id="create-aic-btn" class="btn btn-primary">{% trans "Create an AIC" %}</button>
+    {% blocktrans with "Create an AIC from current search results" as create_aic_title %}
+    <button
+      id="create-aic-btn"
+      class="btn btn-primary"
+      title="{{ create_aic_title }}">Create an AIC</button>
+    {% endblocktrans %}
 
     <table id="archival-storage-entries">
     </table>
