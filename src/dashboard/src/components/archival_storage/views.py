@@ -295,16 +295,16 @@ def search_augment_aip_results(raw_results, counts):
     for item in raw_results["hits"]["hits"]:
         fields = item["_source"]
         new_item = {
-            "name": fields.get("name"),
-            "uuid": fields.get("uuid"),
-            "file_count": counts[fields["uuid"]],
-            "created": fields.get("created"),
+            "name": fields.get("name", ""),
+            "uuid": fields.get("uuid", ""),
+            "file_count": counts.get(fields.get("uuid"), 0),
+            "created": fields.get("created", 0),
             "isPartOf": fields.get("isPartOf"),
             "AICID": fields.get("AICID"),
             "countAIPsinAIC": fields.get("countAIPsinAIC", "(unknown)"),
             "status": AIP_STATUS_DESCRIPTIONS[fields.get("status", es.STATUS_UPLOADED)],
             "encrypted": fields.get("encrypted", False),
-            "accessionids": fields.get("accessionids"),
+            "accessionids": fields.get("accessionids", []),
         }
         size = fields.get("size")
         if size is not None:
