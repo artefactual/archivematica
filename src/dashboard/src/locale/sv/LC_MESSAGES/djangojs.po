@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 16:45-0400\n"
+"POT-Creation-Date: 2020-05-21 15:37-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2017\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -36,295 +36,295 @@ msgstr "Radera"
 msgid "Add"
 msgstr "Lägg till"
 
-#: media/js/archival_storage/archival_storage_search.js:42
+#: media/js/archival_storage/archival_storage_search.js:41
 #: media/js/ingest/backlog.js:19
 msgid "Add new"
 msgstr "Lägg till ny"
 
-#: media/js/archival_storage/archival_storage_search.js:61
+#: media/js/archival_storage/archival_storage_search.js:60
 #: media/js/ingest/backlog.js:34
 msgid "Any"
 msgstr "Valfri"
 
-#: media/js/archival_storage/archival_storage_search.js:62
-#: media/js/archival_storage/archival_storage_search.js:239
+#: media/js/archival_storage/archival_storage_search.js:61
+#: media/js/archival_storage/archival_storage_search.js:238
 msgid "File UUID"
 msgstr "Filens UUID"
 
-#: media/js/archival_storage/archival_storage_search.js:63
+#: media/js/archival_storage/archival_storage_search.js:62
 msgid "File path"
 msgstr "Filens sökväg"
 
-#: media/js/archival_storage/archival_storage_search.js:64
+#: media/js/archival_storage/archival_storage_search.js:63
 #: media/js/ingest/backlog.js:36
 msgid "File extension"
 msgstr "Filändelse"
 
-#: media/js/archival_storage/archival_storage_search.js:65
+#: media/js/archival_storage/archival_storage_search.js:64
 msgid "AIP UUID"
 msgstr "AIP UUID"
 
-#: media/js/archival_storage/archival_storage_search.js:66
+#: media/js/archival_storage/archival_storage_search.js:65
 msgid "AIP name"
 msgstr "AIP namn"
 
-#: media/js/archival_storage/archival_storage_search.js:67
+#: media/js/archival_storage/archival_storage_search.js:66
 msgid "Identifiers"
 msgstr "Signum"
 
-#: media/js/archival_storage/archival_storage_search.js:68
+#: media/js/archival_storage/archival_storage_search.js:67
 msgid "Part of AIC"
 msgstr "Del av AIC"
 
-#: media/js/archival_storage/archival_storage_search.js:69
+#: media/js/archival_storage/archival_storage_search.js:68
 msgid "AIC Identifier"
 msgstr "AIC identifierare"
 
-#: media/js/archival_storage/archival_storage_search.js:70
+#: media/js/archival_storage/archival_storage_search.js:69
 msgid "Transfer metadata"
 msgstr "Överföringens metadata"
 
-#: media/js/archival_storage/archival_storage_search.js:71
+#: media/js/archival_storage/archival_storage_search.js:70
 msgid "Transfer metadata (other)"
 msgstr "Överföringens metadata (annan)"
 
-#: media/js/archival_storage/archival_storage_search.js:76
+#: media/js/archival_storage/archival_storage_search.js:75
 msgid "other field name"
 msgstr "annat fälts namn"
 
-#: media/js/archival_storage/archival_storage_search.js:83
+#: media/js/archival_storage/archival_storage_search.js:82
 #: media/js/ingest/backlog.js:44
 msgid "Keyword"
 msgstr "Nyckelord"
 
-#: media/js/archival_storage/archival_storage_search.js:84
+#: media/js/archival_storage/archival_storage_search.js:83
 #: media/js/ingest/backlog.js:45
 msgid "Phrase"
 msgstr "Fras"
 
-#: media/js/archival_storage/archival_storage_search.js:85
+#: media/js/archival_storage/archival_storage_search.js:84
 msgid "Date range"
 msgstr "Datumintervall"
 
-#: media/js/archival_storage/archival_storage_search.js:149
+#: media/js/archival_storage/archival_storage_search.js:148
 msgid "view raw"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:170
+#: media/js/archival_storage/archival_storage_search.js:169
 #: media/js/backlog/backlog-search.js:6 media/js/backlog/backlog-search.js:12
 msgid "Download"
 msgstr "Ladda ner"
 
-#: media/js/archival_storage/archival_storage_search.js:185
+#: media/js/archival_storage/archival_storage_search.js:184
 msgid "AIPs in AIC"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:186
+#: media/js/archival_storage/archival_storage_search.js:185
 msgid "AIP in AIC"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:189
+#: media/js/archival_storage/archival_storage_search.js:188
 #, fuzzy
 #| msgid "Part of AIC"
 msgid "Part of"
 msgstr "Del av AIC"
 
-#: media/js/archival_storage/archival_storage_search.js:191
+#: media/js/archival_storage/archival_storage_search.js:190
 msgid "None"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:198
+#: media/js/archival_storage/archival_storage_search.js:197
 msgid "View"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:211
+#: media/js/archival_storage/archival_storage_search.js:210
 msgid "True"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:211
+#: media/js/archival_storage/archival_storage_search.js:210
 msgid "False"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:215
+#: media/js/archival_storage/archival_storage_search.js:214
 msgid "Deletion requested"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:215
+#: media/js/archival_storage/archival_storage_search.js:214
 msgid "Stored"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:237
+#: media/js/archival_storage/archival_storage_search.js:236
 msgid "Thumbnail"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:238
+#: media/js/archival_storage/archival_storage_search.js:237
 #, fuzzy
 #| msgid "Filename"
 msgid "File"
 msgstr "Filnamn"
 
-#: media/js/archival_storage/archival_storage_search.js:240
+#: media/js/archival_storage/archival_storage_search.js:239
 msgid "AIP"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:241
+#: media/js/archival_storage/archival_storage_search.js:240
 #: media/js/backlog/backlog-search.js:42 media/js/backlog/backlog-search.js:53
 #: media/js/ingest/backlog.js:37
 msgid "Accession number"
 msgstr "Accessionsnummer"
 
-#: media/js/archival_storage/archival_storage_search.js:242
-#: media/js/archival_storage/archival_storage_search.js:255
+#: media/js/archival_storage/archival_storage_search.js:241
+#: media/js/archival_storage/archival_storage_search.js:254
 #: media/js/backlog/backlog-search.js:43 media/js/backlog/backlog-search.js:55
 msgid "Status"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:243
-#: media/js/archival_storage/archival_storage_search.js:257
+#: media/js/archival_storage/archival_storage_search.js:242
+#: media/js/archival_storage/archival_storage_search.js:256
 #: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
 #: media/js/ingest.js:216 media/js/transfer.js:153
 msgid "Actions"
 msgstr "Åtgärder"
 
-#: media/js/archival_storage/archival_storage_search.js:248
+#: media/js/archival_storage/archival_storage_search.js:247
 #: media/js/backlog/backlog-search.js:49
 msgid "Name"
 msgstr "Namn"
 
-#: media/js/archival_storage/archival_storage_search.js:249
+#: media/js/archival_storage/archival_storage_search.js:248
 #, fuzzy
 #| msgid "AIP UUID"
 msgid "UUID"
 msgstr "AIP UUID"
 
-#: media/js/archival_storage/archival_storage_search.js:250
+#: media/js/archival_storage/archival_storage_search.js:249
 msgid "AIC"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:251
+#: media/js/archival_storage/archival_storage_search.js:250
 #: media/js/backlog/backlog-search.js:51
 msgid "Size"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:252
+#: media/js/archival_storage/archival_storage_search.js:251
 #: media/js/backlog/backlog-search.js:52
 msgid "File count"
 msgstr "Filantal"
 
-#: media/js/archival_storage/archival_storage_search.js:253
+#: media/js/archival_storage/archival_storage_search.js:252
 #, fuzzy
 #| msgid "Accession number"
 msgid "Accession numbers"
 msgstr "Accessionsnummer"
 
-#: media/js/archival_storage/archival_storage_search.js:254
+#: media/js/archival_storage/archival_storage_search.js:253
 #, fuzzy
 #| msgid "Create SIP"
 msgid "Created"
 msgstr "Skapa SIP"
 
-#: media/js/archival_storage/archival_storage_search.js:256
+#: media/js/archival_storage/archival_storage_search.js:255
 msgid "Encrypted"
 msgstr ""
 
-#: media/js/archival_storage/archival_storage_search.js:310
+#: media/js/archival_storage/archival_storage_search.js:309
 #: media/js/backlog/backlog-search.js:109
 #, fuzzy
 #| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Välj en åtgärd..."
 
-#: media/js/archival_storage/archival_storage_search.js:314
+#: media/js/archival_storage/archival_storage_search.js:313
 #: media/js/backlog/backlog-search.js:113
 msgctxt "DataTable - sEmptyTable"
 msgid "No data available in table"
 msgstr "Ingen data tillgänglig i tabellen"
 
-#: media/js/archival_storage/archival_storage_search.js:315
+#: media/js/archival_storage/archival_storage_search.js:314
 #: media/js/backlog/backlog-search.js:114
 msgctxt "DataTable - sInfo"
 msgid "Showing _START_ to _END_ of _TOTAL_ entries"
 msgstr "Visar _START_ till _END_ av _TOTAL_ poster"
 
-#: media/js/archival_storage/archival_storage_search.js:316
+#: media/js/archival_storage/archival_storage_search.js:315
 #: media/js/backlog/backlog-search.js:115
 msgctxt "DataTable - sInfoEmpty"
 msgid "Showing 0 to 0 of 0 entries"
 msgstr "Visar 0 till 0 av 0 poster"
 
-#: media/js/archival_storage/archival_storage_search.js:317
+#: media/js/archival_storage/archival_storage_search.js:316
 #: media/js/backlog/backlog-search.js:116
 msgctxt "DataTable - sInfoFiltered"
 msgid "(filtered from _MAX_ total entries)"
 msgstr "(filterat från totalt _MAX_ poster)"
 
-#: media/js/archival_storage/archival_storage_search.js:319
+#: media/js/archival_storage/archival_storage_search.js:318
 #: media/js/backlog/backlog-search.js:118
 msgctxt "DataTable - sInfoThousands"
 msgid ","
 msgstr ","
 
-#: media/js/archival_storage/archival_storage_search.js:320
+#: media/js/archival_storage/archival_storage_search.js:319
 #: media/js/backlog/backlog-search.js:119
 msgctxt "DataTable - sLengthMenu"
 msgid "Show _MENU_ entries"
 msgstr "Visa _MENU_ poster"
 
-#: media/js/archival_storage/archival_storage_search.js:321
+#: media/js/archival_storage/archival_storage_search.js:320
 #: media/js/backlog/backlog-search.js:120
 msgctxt "DataTable - sLoadingRecords"
 msgid "Loading..."
 msgstr "Laddar..."
 
-#: media/js/archival_storage/archival_storage_search.js:322
+#: media/js/archival_storage/archival_storage_search.js:321
 #: media/js/backlog/backlog-search.js:121
 msgctxt "DataTable - sProcessing"
 msgid "Processing..."
 msgstr "Bearbetar..."
 
-#: media/js/archival_storage/archival_storage_search.js:323
+#: media/js/archival_storage/archival_storage_search.js:322
 #: media/js/backlog/backlog-search.js:122
 msgctxt "DataTable - sSearch"
 msgid "Search:"
 msgstr "Sök:"
 
-#: media/js/archival_storage/archival_storage_search.js:324
+#: media/js/archival_storage/archival_storage_search.js:323
 #: media/js/backlog/backlog-search.js:123
 msgctxt "DataTable - sZeroRecords"
 msgid "No matching records found"
 msgstr "Inga matchande poster hittades"
 
-#: media/js/archival_storage/archival_storage_search.js:326
+#: media/js/archival_storage/archival_storage_search.js:325
 #: media/js/backlog/backlog-search.js:125
 msgctxt "DataTable - sFirst"
 msgid "First"
 msgstr "Först"
 
-#: media/js/archival_storage/archival_storage_search.js:327
+#: media/js/archival_storage/archival_storage_search.js:326
 #: media/js/backlog/backlog-search.js:126
 msgctxt "DataTable - sLast"
 msgid "Last"
 msgstr "Sist"
 
-#: media/js/archival_storage/archival_storage_search.js:328
+#: media/js/archival_storage/archival_storage_search.js:327
 #: media/js/backlog/backlog-search.js:127
 msgctxt "DataTable - sNext"
 msgid "Next"
 msgstr "Nästa"
 
-#: media/js/archival_storage/archival_storage_search.js:329
+#: media/js/archival_storage/archival_storage_search.js:328
 #: media/js/backlog/backlog-search.js:128
 msgctxt "DataTable - sPrevious"
 msgid "Previous"
 msgstr "Föregående"
 
-#: media/js/archival_storage/archival_storage_search.js:332
+#: media/js/archival_storage/archival_storage_search.js:331
 #: media/js/backlog/backlog-search.js:131
 msgctxt "DataTable - sSortAscending"
 msgid ": activate to sort column ascending"
 msgstr ": aktivera för att sortera kolumnen stigande"
 
-#: media/js/archival_storage/archival_storage_search.js:333
+#: media/js/archival_storage/archival_storage_search.js:332
 #: media/js/backlog/backlog-search.js:132
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
