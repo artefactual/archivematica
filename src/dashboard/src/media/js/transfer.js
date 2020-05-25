@@ -183,6 +183,7 @@ $(function()
           $.ajax({
             context: this,
             data: { uuid: this.model.get('uuid'), choice: value, uid: this.uid },
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
             type: 'POST',
             success: function(data)
               {

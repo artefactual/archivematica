@@ -654,8 +654,11 @@ BaseAppView = Backbone.View.extend({
                 text: gettext('Confirm'),
                 click: function() {
                   var self = this;
-                  $.ajax({url: url, method: 'DELETE'})
-                    .done(function(data) {
+                  $.ajax({
+                      url: url,
+                      method: 'DELETE',
+                      headers: {'X-CSRFToken': getCookie('csrftoken')}
+                  }).done(function(data) {
                       if (data.removed.length == 0) {
                           alert(interpolate(gettext(
                             'There were no completed %ss to remove'),

@@ -268,6 +268,7 @@ $(function()
               $.ajax({
                 context: self,
                 data: { uuid: self.model.get('uuid'), choice: value, uid: self.uid},
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
                 type: 'POST',
                 success: function(data)
                   {
@@ -363,8 +364,11 @@ $(function()
                     if (input.filter(':text').val())
                     {
                       // get AtoM destination URL (so we can confirm it's up)
-                      var xhr = $.ajax(url, { type: 'POST', data: {
-                        'target': input.filter(':text').val() }})
+                      var xhr = $.ajax(url, {
+                        type: 'POST',
+                        data: {'target': input.filter(':text').val()},
+                        headers: {'X-CSRFToken': getCookie('csrftoken')}
+                      })
                       .done(function(data)
                         {
                           if (data.ready)
@@ -400,10 +404,11 @@ $(function()
               // is to Binder, i.e., the 'ar:' prefix for an artwork record and
               // the 'tr:' prefix for a technical record. This is explained in
               // the modal dialog help text. See templates/ingest/grid.html.
-              var xhr = $.ajax(url, { type: 'POST', data: {
-                'target': this.model.sip.attributes.access_system_id }})
-
-                .done(function(data)
+              var xhr = $.ajax(url, {
+                type: 'POST',
+                data: {'target': this.model.sip.attributes.access_system_id},
+                headers: {'X-CSRFToken': getCookie('csrftoken')}
+              }).done(function(data)
                   {
                     if (data.ready)
                     {
