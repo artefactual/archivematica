@@ -17,7 +17,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import Http404
 from django.utils.functional import wraps
 
@@ -49,7 +49,7 @@ def confirm_required(template_name, context_creator, key="__confirm__"):
                 context = (
                     context_creator and context_creator(request, *args, **kwargs) or {}
                 )
-                return render_to_response(template_name, context)
+                return render(request, template_name, context)
 
         return wraps(func)(inner)
 
