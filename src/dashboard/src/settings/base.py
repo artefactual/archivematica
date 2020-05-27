@@ -67,6 +67,11 @@ CONFIG_MAPPING = {
         "option": "shibboleth_authentication",
         "type": "boolean",
     },
+    "cas_authentication": {
+        "section": "Dashboard",
+        "option": "cas_authentication",
+        "type": "boolean",
+    },
     "ldap_authentication": {
         "section": "Dashboard",
         "option": "ldap_authentication",
@@ -125,6 +130,7 @@ elasticsearch_timeout = 10
 search_enabled = true
 gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
+cas_authentication = False
 ldap_authentication = False
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
@@ -501,6 +507,20 @@ if SHIBBOLETH_AUTHENTICATION:
 
     from .components.shibboleth_auth import *  # noqa
 
+CAS_AUTHENTICATION = config.get("cas_authentication")
+if CAS_AUTHENTICATION:
+    ALLOW_USER_EDITS = False
+    INSTALLED_APPS += ["django_cas_ng"]
+
+    AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomCASBackend"]
+
+    # Insert CAS after the authentication middleware
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
+        "django_cas_ng.middleware.CASMiddleware",
+    )
+
+    from .components.cas_auth import *  # noqa
 
 LDAP_AUTHENTICATION = config.get("ldap_authentication")
 if LDAP_AUTHENTICATION:

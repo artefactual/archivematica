@@ -11,6 +11,7 @@
     - [Application variables](#application-variables)
     - [Gunicorn variables](#gunicorn-variables)
     - [LDAP variables](#ldap-variables)
+    - [CAS variables](#cas-variables)
   - [Logging configuration](#logging-configuration)
 
 ## Introduction
@@ -164,6 +165,12 @@ variables or in the gunicorn configuration file.
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHIBBOLETH_AUTHENTICATION`**:
     - **Description:** enables the Shibboleth authentication system.
     - **Config file example:** `Dashboard.shibboleth_authentication`
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CAS_AUTHENTICATION`**:
+    - **Description:** enables the CAS authentication system.
+    - **Config file example:** `Dashboard.cas_authentication`
     - **Type:** `boolean`
     - **Default:** `false`
 
@@ -529,6 +536,35 @@ These variables specify the behaviour of LDAP authentication. Only applicable if
     "allow", "try", "demand", or "hard". Corresponds to the TLSVerifyClient OpenLDAP setting.
     - **Type:** `string`
     - **Default:** ``
+
+### CAS variables
+
+These variables specify the behaviour of CAS authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_CAS_AUTHENTICATION` is set.
+
+- **`AUTH_CAS_SERVER_URL`**:
+    - **Description:** Address of the CAS server to authenticate against. Defaults to CAS demo server.
+    - **Type:** `string`
+    - **Default:** `https://django-cas-ng-demo-server.herokuapp.com/cas/`
+
+- **`AUTH_CAS_PROTOCOL_VERSION`**:
+    - **Description:** Version of CAS protocol to use. Allowed values are "1", "2", "3", or "CAS_2_SAML_1_0".
+    - **Type:** `string`
+    - **Default:** `3`
+
+- **`AUTH_CAS_CHECK_ADMIN_ATTRIBUTES`**:
+    - **Description:** Determines if we check user attributes returned by CAS server to determine if user is an administrator.
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`AUTH_CAS_ADMIN_ATTRIBUTE`**:
+    - **Description:** Name of attribute to check for administrator status, if `CAS_CHECK_ADMIN_ATTRIBUTES` is True.
+    - **Type:** `string`
+    - **Default:** `None`
+
+- **`AUTH_CAS_ADMIN_ATTRIBUTE_VALUE`**:
+    - **Description:** Value in `CAS_ADMIN_ATTRIBUTE` that indicates user is an administrator, if `CAS_CHECK_ADMIN_ATTRIBUTES` is True.
+    - **Type:** `string`
+    - **Default:** `None`
 
 ## Logging configuration
 

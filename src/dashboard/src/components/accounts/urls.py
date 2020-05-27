@@ -17,10 +17,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
+from django.conf import settings
 from django.conf.urls import url
 import django.contrib.auth.views
 
 from components.accounts import views
+
 
 app_name = "accounts"
 urlpatterns = [
@@ -32,13 +34,22 @@ urlpatterns = [
     url(r"list/$", views.list),
 ]
 
-urlpatterns += [
-    url(
-        r"login/$",
-        django.contrib.auth.views.LoginView.as_view(
-            template_name="accounts/login.html"
+if "django_cas_ng" in settings.INSTALLED_APPS:
+    import django_cas_ng.views
+
+    urlpatterns += [
+        url(r"login/$", django_cas_ng.views.LoginView.as_view(), name="login"),
+        url(r"logout/$", django_cas_ng.views.LogoutView.as_view(), name="logout"),
+    ]
+
+else:
+    urlpatterns += [
+        url(
+            r"login/$",
+            django.contrib.auth.views.LoginView.as_view(
+                template_name="accounts/login.html"
+            ),
+            name="login",
         ),
-        name="login",
-    ),
-    url(r"logout/$", django.contrib.auth.views.logout_then_login, name="logout"),
-]
+        url(r"logout/$", django.contrib.auth.views.logout_then_login, name="logout"),
+    ]

@@ -40,7 +40,14 @@ class ConfigurationCheckMiddlewareTestCase(TestCase):
 
         response = self.client.get(reverse("main:main_index"))
 
-        self.assertRedirects(response, settings.LOGIN_URL)
+        if not settings.CAS_AUTHENTICATION:
+            self.assertRedirects(response, settings.LOGIN_URL)
+        else:
+            # If CAS authentication is enabled, test that after redirect to
+            # LOGIN_URL, user is again redirected to CAS server for sign-on.
+            self.assertRedirects(
+                response, settings.LOGIN_URL, status_code=302, target_status_code=302
+            )
 
     def test_authenticated_user_passes(self):
         helpers.set_setting("dashboard_uuid", "test-uuid")
