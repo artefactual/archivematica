@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-21 15:37-0400\n"
+"POT-Creation-Date: 2020-05-28 11:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -3954,16 +3954,15 @@ msgstr ""
 "              Arquivos indexados : %(count)s\n"
 "            "
 
-#: templates/archival_storage/archival_storage.html:58
-#, python-format
-msgid ""
-"\n"
-"    <button\n"
-"      id=\"create-aic-btn\"\n"
-"      class=\"btn btn-primary\"\n"
-"      title=\"%(create_aic_title)s\">Create an AIC</button>\n"
-"    "
+#: templates/archival_storage/archival_storage.html:61
+msgid "Create an AIC from current search results"
 msgstr ""
+
+#: templates/archival_storage/archival_storage.html:62
+#, fuzzy
+#| msgid "Create SIP"
+msgid "Create an AIC"
+msgstr "Criar SIP"
 
 #: templates/archival_storage/archival_storage.html:71
 msgid ""
@@ -4924,9 +4923,6 @@ msgstr "Hora inicial da transferência"
 
 #~ msgid "Edit metadata"
 #~ msgstr "Editar metadado"
-
-#~ msgid "Create SIP"
-#~ msgstr "Criar SIP"
 
 #~ msgid ""
 #~ "No AtoM levels of description found. Please contact an administrator."
