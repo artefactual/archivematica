@@ -3,11 +3,10 @@ from __future__ import absolute_import
 
 import json
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 
-from components.backlog import views
 from components import helpers
 
 
@@ -33,7 +32,7 @@ class TestBacklogAPI(TestCase):
         """Test ability to load DataTable state"""
         helpers.set_setting("transfers_datatable_state", json.dumps(self.data))
         # Retrieve data from view
-        response = self.client.get(reverse(views.load_state, args=["transfers"]))
+        response = self.client.get(reverse("backlog:load_state", args=["transfers"]))
         assert response.status_code == 200
         payload = json.loads(response.content.decode("utf8"))
         assert payload["time"] == 1586880124134
@@ -42,7 +41,7 @@ class TestBacklogAPI(TestCase):
 
     def test_load_datatable_state_404(self):
         """Non-existent settings should return a 404"""
-        response = self.client.get(reverse(views.load_state, args=["nonexistent"]))
+        response = self.client.get(reverse("backlog:load_state", args=["nonexistent"]))
         assert response.status_code == 404
         payload = json.loads(response.content.decode("utf8"))
         assert payload["error"] is True

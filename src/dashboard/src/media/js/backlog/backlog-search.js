@@ -16,7 +16,7 @@ $(document).ready(function()
     }
 
     function render_status(pending_deletion) {
-      return pending_deletion == true ? 'Delete requested' : 'Stored';
+      return pending_deletion == true ? gettext('Delete requested') : gettext('Stored');
     }
  
     function get_state_url_params() {
@@ -77,6 +77,7 @@ $(document).ready(function()
                 data: JSON.stringify(data),
                 dataType: 'json',
                 type: 'POST',
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
                 success: function() {}
             });
         },

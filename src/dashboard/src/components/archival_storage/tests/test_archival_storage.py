@@ -21,13 +21,13 @@ from __future__ import absolute_import, unicode_literals
 import json
 import os
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 import pytest
 
-from components.archival_storage import atom, views
+from components.archival_storage import atom
 from components import helpers
 
 import metsrw
@@ -224,7 +224,9 @@ class TestArchivalStorageDataTableState(TestCase):
         """Test ability to load DataTable state"""
         helpers.set_setting("aips_datatable_state", json.dumps(self.data))
         # Retrieve data from view
-        response = self.client.get(reverse(views.load_state, args=["aips"]))
+        response = self.client.get(
+            reverse("archival_storage:load_state", args=["aips"])
+        )
         assert response.status_code == 200
         payload = json.loads(response.content.decode("utf8"))
         assert payload["time"] == 1588609847900
@@ -233,7 +235,9 @@ class TestArchivalStorageDataTableState(TestCase):
 
     def test_load_datatable_state_404(self):
         """Non-existent settings should return a 404"""
-        response = self.client.get(reverse(views.load_state, args=["nonexistent"]))
+        response = self.client.get(
+            reverse("archival_storage:load_state", args=["nonexistent"])
+        )
         assert response.status_code == 404
         payload = json.loads(response.content.decode("utf8"))
         assert payload["error"] is True

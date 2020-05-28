@@ -29,10 +29,8 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 import requests
 
-from amclient import AMClient
-
-from archivematicaFunctions import get_setting
-import elasticSearchFunctions
+from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
+import elasticSearchFunctions as es
 import storageService as storage_service
 
 from components import advanced_search, decorators, helpers
@@ -51,7 +49,7 @@ def check_and_remove_deleted_transfers(es_client):
     query = {"query": {"bool": {"must": {"match": {"pending_deletion": True}}}}}
 
     deletion_pending_results = es_client.search(
-        body=query, index="transfers", _source="uuid,status"
+        body=query, index=es.TRANSFERS_INDEX, _source="uuid,status"
     )
 
     for hit in deletion_pending_results["hits"]["hits"]:
@@ -66,11 +64,9 @@ def check_and_remove_deleted_transfers(es_client):
             )
             continue
 
-        if status == "DELETED":
-            elasticSearchFunctions.remove_backlog_transfer_files(
-                es_client, transfer_uuid
-            )
-            elasticSearchFunctions.remove_backlog_transfer(es_client, transfer_uuid)
+        if status == es.STATUS_DELETED:
+            es.remove_backlog_transfer_files(es_client, transfer_uuid)
+            es.remove_backlog_transfer(es_client, transfer_uuid)
 
 
 def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
@@ -80,13 +76,11 @@ def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
     :param pending_deletion: Current pending_deletion value in transfers ES index.
     :return: None
     """
-    api_results = AMClient(
-        ss_api_key=get_setting("storage_service_apikey", ""),
-        ss_user_name=get_setting("storage_service_user", ""),
-        ss_url=get_setting("storage_service_url", "").rstrip("/"),
-        package_uuid=uuid,
-    ).get_package_details()
-    if api_results in (1, 2, 3):
+    amclient = setup_amclient()
+    amclient.package_uuid = uuid
+    api_results = amclient.get_package_details()
+
+    if api_results in AMCLIENT_ERROR_CODES:
         logger.warning(
             "Package {} not found in Storage Service. AMClient error code: {}".format(
                 uuid, api_results
@@ -96,10 +90,10 @@ def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
 
     transfer_status = api_results.get("status")
 
-    if transfer_status is not None and transfer_status == "DEL_REQ":
+    if transfer_status is not None and transfer_status == es.STATUS_DELETE_REQUESTED:
         if pending_deletion is False:
-            es_client = elasticSearchFunctions.get_client()
-            elasticSearchFunctions.mark_backlog_deletion_requested(es_client, uuid)
+            es_client = es.get_client()
+            es.mark_backlog_deletion_requested(es_client, uuid)
 
 
 def execute(request):
@@ -109,8 +103,8 @@ def execute(request):
     :param request: The Django request object
     :return: The main backlog page rendered
     """
-    if "transfers" in django_settings.SEARCH_ENABLED:
-        es_client = elasticSearchFunctions.get_client()
+    if es.TRANSFERS_INDEX in django_settings.SEARCH_ENABLED:
+        es_client = es.get_client()
         check_and_remove_deleted_transfers(es_client)
     return render(request, "backlog/backlog.html", locals())
 
@@ -173,7 +167,7 @@ def search(request):
     )
     sort_direction = request.GET.get("sSortDir_0", "asc")
 
-    es_client = elasticSearchFunctions.get_client()
+    es_client = es.get_client()
 
     if "query" not in request.GET:
         queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
@@ -184,7 +178,7 @@ def search(request):
 
     try:
         if file_mode:
-            index = "transferfiles"
+            index = es.TRANSFER_FILES_INDEX
             source = "filename,sipuuid,relative_path,accessionid,pending_deletion"
         else:
             # Transfer mode:
@@ -197,7 +191,7 @@ def search(request):
                 "transfer_uuid": {"terms": {"field": "sipuuid", "size": "10000"}}
             }
             hits = es_client.search(
-                index="transferfiles",
+                index=es.TRANSFER_FILES_INDEX,
                 body=query,
                 size=0,  # Don't return results, only aggregation
             )
@@ -205,7 +199,7 @@ def search(request):
 
             # Recreate query to search over transfers
             query = {"query": {"terms": {"uuid": uuids}}}
-            index = "transfers"
+            index = es.TRANSFERS_INDEX
             source = (
                 "name,uuid,file_count,ingest_date,accessionid,size,pending_deletion"
             )
@@ -278,8 +272,8 @@ def delete(request, uuid):
         )
 
         messages.info(request, response["message"])
-        es_client = elasticSearchFunctions.get_client()
-        elasticSearchFunctions.mark_backlog_deletion_requested(es_client, uuid)
+        es_client = es.get_client()
+        es.mark_backlog_deletion_requested(es_client, uuid)
 
     except requests.exceptions.ConnectionError:
         messages.warning(

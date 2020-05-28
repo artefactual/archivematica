@@ -277,6 +277,7 @@ $(document).ready(function() {
                 data: JSON.stringify(data),
                 dataType: 'json',
                 type: 'POST',
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
                 success: function() {}
             });
         },
@@ -406,7 +407,9 @@ $(document).ready(function() {
     for (i = 0; i < table_uuids.length; i++) {
       aip_uuids.push(table_uuids[i]);
     }
-    // Redirect window to create_aic, passing AIPs UUIDs in the POST request.
-    $.redirectPost('/archival-storage/search/create_aic/', {'uuids': aip_uuids});
+    // Redirect window URL to Django create_aic view, including the AIP UUIDs
+    // as a comma-separated string in the URL parameters.
+    var uuids_string = aip_uuids.join(",");
+    window.location = "/archival-storage/search/create_aic/?uuids=" + uuids_string;
   });
 });

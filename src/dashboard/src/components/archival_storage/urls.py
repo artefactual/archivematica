@@ -52,7 +52,7 @@ urlpatterns = [
     url(
         r"^thumbnail/(?P<fileuuid>" + settings.UUID_REGEX + ")/$", views.send_thumbnail
     ),
-    url(r"^save_state/(?P<table>[-\w]+)", views.save_state),
-    url(r"^load_state/(?P<table>[-\w]+)", views.load_state),
+    url(r"^save_state/(?P<table>[-\w]+)/$", views.save_state, name="save_state"),
+    url(r"^load_state/(?P<table>[-\w]+)/$", views.load_state, name="load_state"),
     url(r"^$", views.execute, name="archival_storage_index"),
 ]

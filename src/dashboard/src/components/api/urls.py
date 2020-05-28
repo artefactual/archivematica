@@ -63,7 +63,11 @@ urlpatterns = [
         views.processing_configuration,
         name="processing_configuration",
     ),
-    url(r"processing-configuration", views.processing_configurations),
+    url(
+        r"processing-configuration",
+        views.processing_configurations,
+        name="processing_configuration_list",
+    ),
     url(r"v2beta/package", views.package),
     url(r"v2beta/validate/([-\w]+)", views.validate, name="validate"),
     url(r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")", views.unit_jobs),

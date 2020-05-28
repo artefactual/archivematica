@@ -484,7 +484,7 @@ class TestProcessingConfigurationAPI(TestCase):
         install_builtin_config("automated")
 
     def test_list_processing_configs(self):
-        response = self.client.get(reverse(views.processing_configurations))
+        response = self.client.get(reverse("api:processing_configuration_list"))
         assert response.status_code == 200
         payload = json.loads(response.content.decode("utf8"))
         processing_configs = payload["processing_configurations"]

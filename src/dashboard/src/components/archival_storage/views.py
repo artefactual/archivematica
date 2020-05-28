@@ -371,7 +371,7 @@ def create_aic(request):
     :param request: Django request object.
     :return: Redirect to appropriate view.
     """
-    uuids = request.POST.get("uuids")
+    uuids = request.GET.get("uuids")
     if not uuids:
         messages.error(request, "Unable to create AIC: No AIPs selected")
         return redirect("archival_storage:archival_storage_index")

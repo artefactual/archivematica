@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-21 15:37-0400\n"
+"POT-Creation-Date: 2020-05-28 12:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
@@ -151,6 +151,7 @@ msgid "Deletion requested"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:214
+#: media/js/backlog/backlog-search.js:19
 msgid "Stored"
 msgstr ""
 
@@ -334,6 +335,10 @@ msgstr ": activer le tri descendant"
 #: media/js/backlog/backlog-search.js:14
 msgid "Request deletion"
 msgstr "Demander la suppression"
+
+#: media/js/backlog/backlog-search.js:19
+msgid "Delete requested"
+msgstr ""
 
 #: media/js/backlog/backlog-search.js:40
 msgid "Filename"

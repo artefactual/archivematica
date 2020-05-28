@@ -54,6 +54,8 @@ STATUS_UPLOADED = "UPLOADED"
 
 AIPS_INDEX = "aips"
 AIP_FILES_INDEX = "aipfiles"
+TRANSFERS_INDEX = "transfers"
+TRANSFER_FILES_INDEX = "transferfiles"
 
 
 class ElasticsearchError(Exception):
@@ -79,7 +81,7 @@ DEFAULT_TIMEOUT = 10
 # function declaring the index settings and mapping. For example, for an index
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
-INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, "transfers", "transferfiles"]
+INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, TRANSFERS_INDEX, TRANSFER_FILES_INDEX]
 # A doc type is still required in ES 6.x but it's limited to one per index.
 # It will be removed in ES 7.x, so we'll use the same for all indexes.
 DOC_TYPE = "_doc"
@@ -94,7 +96,7 @@ TOTAL_FIELDS_LIMIT = 10000
 DEPTH_LIMIT = 1000
 
 
-def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, "transfers"]):
+def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, TRANSFERS_INDEX]):
     """Initialize and share the Elasticsearch client.
 
     Share it as the attribute _es_client in the current module. An additional
@@ -117,8 +119,8 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, "transfers"]):
     indexes = []
     if AIPS_INDEX in enabled:
         indexes.extend([AIPS_INDEX, AIP_FILES_INDEX])
-    if "transfers" in enabled:
-        indexes.extend(["transfers", "transferfiles"])
+    if TRANSFERS_INDEX in enabled:
+        indexes.extend([TRANSFERS_INDEX, TRANSFER_FILES_INDEX])
     if len(indexes) > 0:
         create_indexes_if_needed(_es_client, indexes)
     else:
@@ -744,7 +746,7 @@ def index_transfer_and_files(
     }
 
     _wait_for_cluster_yellow_status(client)
-    _try_to_index(client, transfer_data, "transfers", printfn=printfn)
+    _try_to_index(client, transfer_data, TRANSFERS_INDEX, printfn=printfn)
     printfn("Done.")
 
     return 0
@@ -837,7 +839,7 @@ def _index_transfer_files(
                 }
 
                 _wait_for_cluster_yellow_status(client)
-                _try_to_index(client, indexData, "transferfiles", printfn=printfn)
+                _try_to_index(client, indexData, TRANSFER_FILES_INDEX, printfn=printfn)
 
                 files_indexed = files_indexed + 1
             else:
@@ -1256,7 +1258,7 @@ def get_file_tags(client, uuid):
     """
     query = {"query": {"term": {"fileuuid": uuid}}}
 
-    results = client.search(body=query, index="transferfiles", _source="tags")
+    results = client.search(body=query, index=TRANSFER_FILES_INDEX, _source="tags")
 
     count = results["hits"]["total"]
     if count == 0:
@@ -1286,7 +1288,7 @@ def set_file_tags(client, uuid, tags):
         Passing an empty list clears the file's tags.
     """
     document_ids = _document_ids_from_field_query(
-        client, "transferfiles", "fileuuid", uuid
+        client, TRANSFER_FILES_INDEX, "fileuuid", uuid
     )
 
     count = len(document_ids)
@@ -1303,7 +1305,7 @@ def set_file_tags(client, uuid, tags):
 
     body = {"doc": {"tags": tags}}
     client.update(
-        body=body, index="transferfiles", doc_type=DOC_TYPE, id=document_ids[0]
+        body=body, index=TRANSFER_FILES_INDEX, doc_type=DOC_TYPE, id=document_ids[0]
     )
     return True
 
@@ -1315,7 +1317,7 @@ def get_transfer_file_info(client, field, value):
     logger.debug("get_transfer_file_info: field: %s, value: %s", field, value)
     results = {}
     query = {"query": {"term": {field: value}}}
-    documents = search_all_results(client, body=query, index="transferfiles")
+    documents = search_all_results(client, body=query, index=TRANSFER_FILES_INDEX)
     result_count = len(documents["hits"]["hits"])
     if result_count == 1:
         results = documents["hits"]["hits"][0]["_source"]
@@ -1358,7 +1360,7 @@ def get_transfer_file_info(client, field, value):
 
 
 def remove_backlog_transfer(client, uuid):
-    _delete_matching_documents(client, "transfers", "uuid", uuid)
+    _delete_matching_documents(client, TRANSFERS_INDEX, "uuid", uuid)
 
 
 def remove_backlog_transfer_files(client, uuid):
@@ -1381,11 +1383,13 @@ def _remove_transfer_files(client, uuid, unit_type=None):
     if len(transfers) > 0:
         for transfer in transfers:
             files = _document_ids_from_field_query(
-                client, "transferfiles", "sipuuid", transfer
+                client, TRANSFER_FILES_INDEX, "sipuuid", transfer
             )
             if len(files) > 0:
                 for file_id in files:
-                    client.delete(index="transferfiles", doc_type=DOC_TYPE, id=file_id)
+                    client.delete(
+                        index=TRANSFER_FILES_INDEX, doc_type=DOC_TYPE, id=file_id
+                    )
     else:
         if not unit_type:
             unit_type = "transfer or SIP"
@@ -1457,7 +1461,13 @@ def mark_backlog_deletion_requested(client, uuid):
     :return: None.
     """
     _mark_deletion_request(
-        client, "transfers", "transferfiles", "sipuuid", uuid, "pending_deletion", True
+        client,
+        TRANSFERS_INDEX,
+        TRANSFER_FILES_INDEX,
+        "sipuuid",
+        uuid,
+        "pending_deletion",
+        True,
     )
 
 

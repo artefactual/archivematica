@@ -36,6 +36,6 @@ urlpatterns = [
         views.download,
         name="backlog_download",
     ),
-    url(r"save_state/(?P<table>[-\w]+)", views.save_state),
-    url(r"load_state/(?P<table>[-\w]+)", views.load_state),
+    url(r"save_state/(?P<table>[-\w]+)/$", views.save_state, name="save_state"),
+    url(r"load_state/(?P<table>[-\w]+)/$", views.load_state, name="load_state"),
 ]
