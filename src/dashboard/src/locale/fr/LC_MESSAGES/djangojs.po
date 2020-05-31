@@ -3,20 +3,21 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-23 22:24+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
-"Language-Team: French (https://www.transifex.com/artefactual/teams/1506/fr/)\n"
+"PO-Revision-Date: 2023-05-12 19:20+0000\n"
+"Last-Translator: Christophe-Grodecki <chgrodecki@bluewin.ch>\n"
+"Language-Team: French <https://translations.artefactual.com/projects/"
+"archivematica-test/dashboard-media-component/fr/>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.17\n"
 
 #: media/js/administration/atom_levels_of_description.js:17
 msgid "Error retrieving levels of description from AtoM"
@@ -310,7 +311,7 @@ msgstr "Faire correspondre les objets DIP aux ressources"
 
 #: media/js/ingest.js:312
 msgid "Loading..."
-msgstr "Chargement … "
+msgstr "Chargement..."
 
 #: media/js/ingest/as_matcher.js:551
 msgid "No resource selected."
