@@ -8,17 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-23 22:23+0000\n"
-"PO-Revision-Date: 2019-12-27 00:02+0000\n"
-"Last-Translator: Ross Spencer <all.along.the.watchtower2001+github@gmail.com>"
-"\n"
-"Language-Team: French <http://translations.artefactual.com/projects/"
+"PO-Revision-Date: 2023-05-12 19:20+0000\n"
+"Last-Translator: Christophe-Grodecki <chgrodecki@bluewin.ch>\n"
+"Language-Team: French <https://translations.artefactual.com/projects/"
 "archivematica-test/dashboard/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.2.2\n"
+"X-Generator: Weblate 4.17\n"
 
 #: components/accounts/views.py:55 components/accounts/views.py:133
 #: components/administration/views.py:367
@@ -76,7 +75,7 @@ msgstr ""
 
 #: components/administration/forms.py:96
 msgid "AIP PID source"
-msgstr "Source du PID de l'AIP."
+msgstr "Source du PID de l'AIP"
 
 #: components/administration/forms.py:97
 msgid ""
@@ -209,7 +208,7 @@ msgstr ""
 
 #: components/administration/forms.py:205
 msgid "Use default configuration"
-msgstr "Utiliser la configuration par défaut "
+msgstr "Utiliser la configuration par défaut"
 
 #: components/administration/forms.py:206
 msgid ""
@@ -217,7 +216,7 @@ msgid ""
 "configuration is not selected."
 msgstr ""
 "Vous devez mettre en place manuellement une configuration personnalisée si "
-"la configuration par défaut n'est pas sélectionnée. "
+"la configuration par défaut n'est pas sélectionnée."
 
 #: components/administration/forms.py:217
 msgid "Select algorithm"
@@ -244,7 +243,7 @@ msgstr "Retirer de la quarantaine après (jour)"
 
 #: components/administration/forms.py:252
 msgid "Generate transfer structure report"
-msgstr "Générer un rapport de structure de transfert "
+msgstr "Générer un rapport de structure de transfert"
 
 #: components/administration/forms.py:253
 msgid "Select file format identification command (Transfer)"
@@ -278,7 +277,7 @@ msgstr ""
 
 #: components/administration/forms.py:260
 msgid "Normalize"
-msgstr "Normaliser "
+msgstr "Normaliser"
 
 #: components/administration/forms.py:261
 msgid "Approve normalization"
@@ -437,7 +436,7 @@ msgid ""
 "made."
 msgstr ""
 "Mot de passe de l'utilisateur tel que défini ci-dessus. Entrez le mot de "
-"passe après chaque modification.  "
+"passe après chaque modification."
 
 #: components/administration/forms_dip_upload.py:32
 #: components/administration/forms_dip_upload.py:51
@@ -613,7 +612,7 @@ msgstr "Mode de débogage"
 
 #: components/administration/forms_dip_upload.py:68
 msgid "Show additional details."
-msgstr "Afficher les détails supplémentaires"
+msgstr "Afficher les détails supplémentaires."
 
 #: components/administration/forms_dip_upload.py:69
 msgid "REST API key"
@@ -712,7 +711,7 @@ msgstr "La connexion a échoué : le serveur AtoM ne peut pas être atteint."
 #: components/archival_storage/forms.py:43
 #, python-format
 msgid "Description with slug %(slug)s not found!"
-msgstr "Description avec ligne %(slug)sintrouvable!"
+msgstr "Description avec ligne %(slug)s introuvable!"
 
 #: components/archival_storage/forms.py:44
 #, python-format
@@ -777,7 +776,7 @@ msgstr "Suppression demandée"
 msgid "Metadata-only DIP upload failed, check the logs for more details"
 msgstr ""
 "Le téléchargement DIP contenant uniquement des métadonnées a échoué, "
-"consulter les journaux pour plus de détails."
+"consulter les journaux pour plus de détails"
 
 #: components/archival_storage/views.py:617
 #, python-format
