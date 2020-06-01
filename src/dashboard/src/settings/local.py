@@ -30,6 +30,12 @@ from .base import *
 DEBUG = True
 TEMPLATES[0]["OPTIONS"]["debug"] = True
 
+# Use Django uncompressed StaticFilesStorage rather than compressed Whitenoise
+# storage in local development so that tests run correctly.
+# See: https://docs.djangoproject.com/en/1.11/ref/contrib/staticfiles/
+# #django.contrib.staticfiles.storage.ManifestStaticFilesStorage.manifest_strict
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 # Fixture directories are only configured in local and test environments.
 # In Django 1.8, if you create a fixture named initial_data.[xml/yaml/json],
 # that fixture will be loaded every time you run migrate, which is something we
