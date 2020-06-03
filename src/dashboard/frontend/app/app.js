@@ -74,6 +74,7 @@ import './services/source_locations.service.js';
 import './services/tag.service.js';
 import './services/transfer.service.js';
 import './services/transfer_browser_transfer.service.js';
+import './services/csrf_interceptor_service.js';
 
 // Misc
 import './components/version/interpolate-filter.js';
@@ -122,6 +123,7 @@ module.exports = angular.module('dashboard', [
   'services.transfer_browser_transfer',
   'controllers.browse',
   'controllers.header',
+  'csrfInterceptorService',
 ]).
 
 run(function ($window, gettextCatalog) {
