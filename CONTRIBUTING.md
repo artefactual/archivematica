@@ -180,7 +180,7 @@ You can alter the commit history of a branch using git's powerful
 
 In order for the Archivematica development team to accept any patches or code
 commits, contributors must first sign this
-[Contributor's Agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt).
+[Contributor's Agreement](https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf).
 The Archivematica contributor's agreement is based almost verbatim on the
 [Apache Foundation](http://apache.org )'s individual
 [contributor license](http://www.apache.org/licenses/icla.txt).
@@ -211,11 +211,11 @@ be, rather than fighting legal battles over contributions.
 
 ### How do I send in an agreement?
 
-Please print out, read, sign, and scan the
-[contributor agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt)
-and email it to agreement@artefactual.com
+Please read and sign the
+[contributor agreement](https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf)
+and email it to agreement@artefactual.com.
 
-Alternatively, you may send an original signed agreement to:
+Alternatively, you may send a printed, signed agreement to:
 
     Artefactual Systems Inc.
     201 - 301 Sixth Street
