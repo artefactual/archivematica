@@ -114,7 +114,8 @@ $(function()
                           {
                             $dialog.dialog('close');
                             $(self.el).removeClass('sip-removing');
-                          }
+                          },
+                        headers: {'X-CSRFToken': getCookie('csrftoken')}
 
                       });
                     }
