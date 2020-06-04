@@ -180,7 +180,7 @@ You can alter the commit history of a branch using git's powerful
 
 In order for the Archivematica development team to accept any patches or code
 commits, contributors must first sign this
-[Contributor's Agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt).
+[Contributor's Agreement](https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf).
 The Archivematica contributor's agreement is based almost verbatim on the
 [Apache Foundation](http://apache.org )'s individual
 [contributor license](http://www.apache.org/licenses/icla.txt).
@@ -190,32 +190,21 @@ please email us at agreement@artefactual.com to discuss them.
 
 ### Why do I have to sign a Contributor's Agreement?
 
-One of the key challenges for open source software is to support a
-collaborative development environment while protecting the rights of
-contributors and users over the long-term. Unifying Archivematica copyrights
-through contributor agreements is the best way to protect the availability and
-sustainability of Archivematica over the long-term as free and open-source
-software. In all cases, contributors who sign the Contributor's Agreement
-retain full rights to use their original contributions for any other purpose
-outside of Archivematica, while enabling Artefactual Systems, any successor
-organization which may eventually take over responsibility for Archivematica,
-and the wider Archivematica community to benefit from their collaboration and
-contributions in this open source project.
+One of the key challenges for open source software is to support a collaborative development environment while protecting the rights of contributors and users over the long-term.
+Unifying Archivematica copyrights through contributor agreements is the best way to protect the availability and sustainability of Archivematica over the long-term as free and open-source software.
+In all cases, contributors who sign the Contributor's Agreement retain full rights to use their original contributions for any other purpose outside of Archivematica, while enabling Artefactual Systems, any successor organization which may eventually take over responsibility for Archivematica, and the wider Archivematica community to benefit from their collaboration and contributions in this open source project.
 
-[Artefactual Systems](http://artefactual.com) has made the decision and has a
-proven track record of making our intellectual property available to the
-community at large. By standardizing contributions on these agreements the
-Archivematica intellectual property position does not become too complicated.
-This ensures our resources are devoted to making our project the best they can
-be, rather than fighting legal battles over contributions.
+[Artefactual Systems](http://artefactual.com) has made the decision and has a proven track record of making our intellectual property available to the community at large.
+By standardizing contributions on these agreements the Archivematica intellectual property position does not become too complicated.
+This ensures our resources are devoted to making our project the best they can be, rather than fighting legal battles over contributions.
 
 ### How do I send in an agreement?
 
-Please print out, read, sign, and scan the
-[contributor agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt)
-and email it to agreement@artefactual.com
+Please read and sign the
+[contributor agreement](https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf)
+and email it to agreement@artefactual.com.
 
-Alternatively, you may send an original signed agreement to:
+Alternatively, you may send a printed, signed agreement to:
 
     Artefactual Systems Inc.
     201 - 301 Sixth Street
