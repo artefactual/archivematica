@@ -233,6 +233,9 @@ def _get_aips_index_body():
                     },
                     "size": {"type": "double"},
                     "uuid": {"type": "keyword"},
+                    "accessionids": {"type": "keyword"},
+                    "status": {"type": "keyword"},
+                    "file_count": {"type": "integer"},
                 },
             }
         },
@@ -271,6 +274,7 @@ def _get_aipfiles_index_body():
                     "origin": {"type": "text"},
                     "identifiers": {"type": "keyword"},
                     "accessionid": {"type": "keyword"},
+                    "status": {"type": "keyword"},
                 },
             }
         },
