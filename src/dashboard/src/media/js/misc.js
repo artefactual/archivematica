@@ -139,3 +139,23 @@ $(document).ready(
                 $(this).closest('.preview-help-text').children('.preview').show();
               });
 });
+
+// Return true if user navigated to page via browser back/forward button.
+// Return false if user navigated directly or if browser doesn't support Navigation Timing API.
+function navigatedFromBackOrForwardButton() {
+  if (window.performance) {
+    // Navigation Timing v2 spec
+    var navEntries = window.performance.getEntriesByType('navigation');
+    if (navEntries.length > 0 && navEntries[0].type === 'back_forward') {
+      return true;
+    // Navigation Timing v1 spec (deprecated but widely supported)
+    } else if (window.performance.navigation
+        && window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}

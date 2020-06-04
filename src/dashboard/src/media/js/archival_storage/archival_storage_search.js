@@ -132,7 +132,6 @@ function renderArchivalStorageSearchForm(search_uri, on_success, on_error) {
 }
 
 $(document).ready(function() {
-
   set_create_aic_visibility();
 
   var search = renderArchivalStorageSearchForm(null, null, null);
@@ -231,7 +230,9 @@ $(document).ready(function() {
   }
 
   function get_datatable() {
-    if ($('#id_show_files').prop('checked')) {
+    var showFiles = $('#id_show_files').prop('checked');
+
+    if (showFiles) {
       var cols = [
         {sTitle: gettext('Thumbnail'), mData: 'FILEUUID', mRender: render_thumbnail },
         {sTitle: gettext('File'), mData: 'filePath', mRender: render_filepath },
@@ -341,7 +342,7 @@ $(document).ready(function() {
       'sAjaxSource': '/archival-storage/search?' + search.toUrlParams(),
       'aoColumns': cols,
       'fnServerData': function(sSource, aoData, fnCallback) {
-        aoData.push({ 'name': 'file_mode', 'value': $('#id_show_files').prop('checked') });
+        aoData.push({ 'name': 'file_mode', 'value': showFiles });
         $.getJSON(sSource, aoData, function(json) {
           fnCallback(json);
         });
