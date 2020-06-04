@@ -5,9 +5,9 @@ import Base64 from 'base64-helpers';
 import 'lodash';
 import 'restangular';
 
-angular.module('sipArrangeService', ['restangular', require('angular-cookies')]).
+angular.module('sipArrangeService', ['restangular']).
 
-factory('SipArrange', ['Restangular', '$cookies', function(Restangular, $cookies) {
+factory('SipArrange', ['Restangular', function(Restangular) {
   var SipArrange = Restangular.one('filesystem');
   var Api = Restangular.one('api');
 
@@ -128,11 +128,8 @@ factory('SipArrange', ['Restangular', '$cookies', function(Restangular, $cookies
       jQuery.param(body),
       path,
       {}, // URL parameters - always empty
-      {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-CSRFToken': $cookies.get('csrftoken')
-      }
-    );
+      {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+    )
   };
 
   return {
