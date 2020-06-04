@@ -74,7 +74,6 @@ import './services/source_locations.service.js';
 import './services/tag.service.js';
 import './services/transfer.service.js';
 import './services/transfer_browser_transfer.service.js';
-import './services/csrf_interceptor_service.js';
 
 // Misc
 import './components/version/interpolate-filter.js';
@@ -123,7 +122,6 @@ module.exports = angular.module('dashboard', [
   'services.transfer_browser_transfer',
   'controllers.browse',
   'controllers.header',
-  'csrfInterceptorService',
 ]).
 
 run(function ($window, gettextCatalog) {
@@ -141,6 +139,12 @@ run(function ($window, gettextCatalog) {
       gettextCatalog.setStrings(langCode, translations);
     }
 }).
+
+// See https://code.angularjs.org/1.5.11/docs/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken'
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken'
+}]).
 
 config(['RestangularProvider', function(RestangularProvider) {
   RestangularProvider.setRequestSuffix('/');
