@@ -140,6 +140,12 @@ run(function ($window, gettextCatalog) {
     }
 }).
 
+// See https://code.angularjs.org/1.5.11/docs/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken'
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken'
+}]).
+
 config(['RestangularProvider', function(RestangularProvider) {
   RestangularProvider.setRequestSuffix('/');
 }]).

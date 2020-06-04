@@ -4,12 +4,12 @@ import {decode_browse_response, format_entries} from 'archivematica-browse-helpe
 import 'lodash';
 import 'restangular';
 
-angular.module('archivesSpaceService', ['restangular', require('angular-cookies')]).
+angular.module('archivesSpaceService', ['restangular']).
 
 // This service allows access to ArchivesSpace, as proxied via Archivematica.
 // The data format used is documented in agentarchives:
 // https://github.com/artefactual-labs/agentarchives
-factory('ArchivesSpace', ['Restangular', '$cookies', function(Restangular, $cookies) {
+factory('ArchivesSpace', ['Restangular', function(Restangular) {
     var id_to_urlsafe = id => {
       return id.replace(/\//g, '-');
     };
@@ -44,13 +44,13 @@ factory('ArchivesSpace', ['Restangular', '$cookies', function(Restangular, $cook
       // `get` methods.
       edit: function(id, record) {
         var url_fragment = id_to_urlsafe(id);
-        return ArchivesSpace.one(url_fragment).customPUT(record, undefined, undefined, {'X-CSRFToken': $cookies.get('csrftoken')});
+        return ArchivesSpace.one(url_fragment).customPUT(record);
       },
       // Creates a new archival object as a child to the given record.
       // `record` uses a similar format to the record returned by the `get` methods.
       add_child: function(id, record) {
         var url_fragment = id_to_urlsafe(id);
-        return ArchivesSpace.one(url_fragment).one('children').customPOST(record, undefined, undefined, {'X-CSRFToken': $cookies.get('csrftoken')});
+        return ArchivesSpace.one(url_fragment).one('children').customPOST(record);
       },
       // Lists all of the digital object components associated with a given record.
       // This returns digital object components tracked by Archivematica in its
@@ -65,7 +65,7 @@ factory('ArchivesSpace', ['Restangular', '$cookies', function(Restangular, $cook
       // `record` uses the same format returned by `digital_object_components`.
       create_digital_object_component: function(id, record) {
         var url_fragment = id_to_urlsafe(id);
-        return ArchivesSpace.one(url_fragment).one('digital_object_components').customPOST(record, undefined, undefined, {'X-CSRFToken': $cookies.get('csrftoken')});
+        return ArchivesSpace.one(url_fragment).one('digital_object_components').customPOST(record);
       },
       // Lists the files inside a digital object component, given the ID of both
       // the digital object component and its parent record.
@@ -78,7 +78,7 @@ factory('ArchivesSpace', ['Restangular', '$cookies', function(Restangular, $cook
       // The deletion occurs immediately on the remote ArchivesSpace server.
       remove: function(id) {
         var url_fragment = id_to_urlsafe(id);
-        return ArchivesSpace.one(url_fragment).remove(undefined, {'X-CSRFToken': $cookies.get('csrftoken')});
+        return ArchivesSpace.one(url_fragment).remove();
       },
       // Starts a new SIP from the ArchivesSpace record with the given ID.
       // The contents of the SIP will use all of the digital object components
@@ -86,7 +86,7 @@ factory('ArchivesSpace', ['Restangular', '$cookies', function(Restangular, $cook
       // as a directory within the new SIP.
       start_sip: function(node) {
         var url_fragment = id_to_urlsafe(node.id);
-        return ArchivesSpace.one(url_fragment).one('copy_from_arrange').customPOST({ sip_name: node.display_title }, undefined, undefined, {'X-CSRFToken': $cookies.get('csrftoken')});
+        return ArchivesSpace.one(url_fragment).one('copy_from_arrange').customPOST({ sip_name: node.display_title });
       },
     };
 }]);
