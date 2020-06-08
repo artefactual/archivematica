@@ -59,6 +59,7 @@ var MetadataFormView = Backbone.View.extend({
         sip_uuid: this.sipUUID,
         source_paths: sourcePaths,
       },
+      headers: {'X-CSRFToken': getCookie('csrftoken')},
       success: function(results) {
         if (results['error']) {
           alert(results['error'])
