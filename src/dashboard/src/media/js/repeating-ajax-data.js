@@ -92,6 +92,7 @@ var RepeatingDataRecordView = Backbone.View.extend({
             url: self.url,
             type: 'POST',
             data: data,
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
             success: function(result) {
               $input.hide();
               $input.fadeIn();
@@ -188,6 +189,7 @@ var RepeatingDataView = Backbone.View.extend({
           url: self.url,
           type: 'POST',
           data: field.getValues(),
+          headers: {'X-CSRFToken': getCookie('csrftoken')},
           success: function(result) {
             $(self).attr('disabled', 'false');
             self.waitingForInput = false;
@@ -218,6 +220,7 @@ var RepeatingDataView = Backbone.View.extend({
           url: self.url + '/' + id,
           type: 'DELETE',
           data: {'id': id},
+          headers: {'X-CSRFToken': getCookie('csrftoken')},
           success: function(result) {
             self.render();
           }

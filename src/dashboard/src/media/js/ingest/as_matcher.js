@@ -119,6 +119,7 @@ var ATKMatcherView = Backbone.View.extend({
               'file_uuid': uuid
       }),
       dataType: 'json',
+      headers: {'X-CSRFToken': getCookie('csrftoken')},
       success: function(result) {
         // TODO: make the display of the "delete" button conditional on success
       }
@@ -140,6 +141,7 @@ var ATKMatcherView = Backbone.View.extend({
               'file_uuid': uuid,
       }),
       dataType: 'json',
+      headers: {'X-CSRFToken': getCookie('csrftoken')},
       success: function(result) {
         // TODO: delete the pair from the UI, and reactivate the elements?
         //       Or leave that to happen independent of the request?
@@ -596,6 +598,7 @@ var ATKMatcherView = Backbone.View.extend({
       context: this,
       type: 'POST',
       dataType: 'json',
+      headers: {'X-CSRFToken': getCookie('csrftoken')},
       data: {pairs: self.pairCollection.toJSON()},
       success: function(result)
         {
