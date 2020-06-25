@@ -12,7 +12,7 @@ from six.moves import map
 import six.moves.urllib as urllib
 
 # archivematicaCommon
-from archivematicaFunctions import b64decode_string, b64encode_string, get_setting
+import archivematicaFunctions as am
 from common_metrics import ss_api_timer
 
 
@@ -40,8 +40,8 @@ class ApiKeyAuth(AuthBase):
     """Custom auth for requests that puts user & key in Authorization header."""
 
     def __init__(self, username=None, apikey=None):
-        self.username = username or get_setting("storage_service_user", "test")
-        self.apikey = apikey or get_setting("storage_service_apikey", None)
+        self.username = username or am.get_setting("storage_service_user", "test")
+        self.apikey = apikey or am.get_setting("storage_service_apikey", None)
 
     def __call__(self, r):
         r.headers["Authorization"] = "ApiKey {0}:{1}".format(self.username, self.apikey)
@@ -50,7 +50,7 @@ class ApiKeyAuth(AuthBase):
 
 def _storage_service_url():
     # Get storage service URL from DashboardSetting model
-    storage_service_url = get_setting("storage_service_url", None)
+    storage_service_url = am.get_setting("storage_service_url", None)
     if storage_service_url is None:
         LOGGER.error("Storage server not configured.")
         storage_service_url = "http://localhost:8000/"
@@ -87,8 +87,8 @@ def _storage_api_slow_session():
 
 def _storage_api_params():
     """Return API GET params username=USERNAME&api_key=KEY for use in URL."""
-    username = get_setting("storage_service_user", "test")
-    api_key = get_setting("storage_service_apikey", None)
+    username = am.get_setting("storage_service_user", "test")
+    api_key = am.get_setting("storage_service_apikey", None)
     return urllib.parse.urlencode({"username": username, "api_key": api_key})
 
 
@@ -114,7 +114,7 @@ def create_pipeline(
     remote_name=None,
 ):
     pipeline = {
-        "uuid": get_setting("dashboard_uuid"),
+        "uuid": am.get_setting("dashboard_uuid"),
         "description": "Archivematica on {}".format(platform.node()),
         "create_default_locations": create_default_locations,
         "shared_path": shared_path,
@@ -176,7 +176,7 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space["path"])
         space = space["uuid"]
-    pipeline = get_pipeline(get_setting("dashboard_uuid"))
+    pipeline = get_pipeline(am.get_setting("dashboard_uuid"))
     if pipeline is None:
         return None
     url = _storage_service_url() + "location/"
@@ -212,16 +212,16 @@ def browse_location(uuid, path):
     """
     Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
     """
-    path = b64encode_string(path)
+    path = am.b64encode_string(path)
     url = _storage_service_url() + "location/" + uuid + "/browse/"
     params = {"path": path}
     with ss_api_timer(function="browse_location"):
         response = _storage_api_session().get(url, params=params)
     browse = response.json()
-    browse["entries"] = list(map(b64decode_string, browse["entries"]))
-    browse["directories"] = list(map(b64decode_string, browse["directories"]))
+    browse["entries"] = list(map(am.b64decode_string, browse["entries"]))
+    browse["directories"] = list(map(am.b64decode_string, browse["directories"]))
     browse["properties"] = {
-        b64decode_string(k): v for k, v in browse.get("properties", {}).items()
+        am.b64decode_string(k): v for k, v in browse.get("properties", {}).items()
     }
     return browse
 
@@ -236,7 +236,7 @@ def copy_files(source_location, destination_location, files):
         source_location and destination_location, respectively.  All other
         fields ignored.
     """
-    pipeline = get_pipeline(get_setting("dashboard_uuid"))
+    pipeline = get_pipeline(am.get_setting("dashboard_uuid"))
     move_files = {
         "origin_location": source_location["resource_uri"],
         "files": files,
@@ -311,7 +311,7 @@ def create_file(
     Returns a dict with the decoded JSON response from the SS API. It may raise
     ``RequestException`` if the SS API call fails.
     """
-    pipeline = get_pipeline(get_setting("dashboard_uuid"))
+    pipeline = get_pipeline(am.get_setting("dashboard_uuid"))
     if pipeline is None:
         raise ResourceNotFound("Pipeline not available")
     if events is None:
@@ -470,7 +470,7 @@ def request_reingest(package_uuid, reingest_type, processing_config):
     Returns a dict: {'error': [True|False], 'message': '<error message>'}
     """
     api_request = {
-        "pipeline": get_setting("dashboard_uuid"),
+        "pipeline": am.get_setting("dashboard_uuid"),
         "reingest_type": reingest_type,
         "processing_config": processing_config,
     }
@@ -495,7 +495,7 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
 
     api_request = {
         "event_reason": reason_for_deletion,
-        "pipeline": get_setting("dashboard_uuid"),
+        "pipeline": am.get_setting("dashboard_uuid"),
         "user_email": user_email,
         "user_id": user_id,
     }
@@ -552,3 +552,13 @@ def reindex_file(transfer_uuid):
         response = _storage_api_slow_session().post(url)
     response.raise_for_status()
     return response.json()
+
+
+def download_package(package_uuid, download_directory):
+    """Download package and return path to downloaded file."""
+    amclient = am.setup_amclient()
+    amclient.directory = download_directory
+    local_filename = amclient.download_package(package_uuid)
+    if local_filename is None:
+        raise Error("Unable to download package {}".format(local_filename))
+    return local_filename

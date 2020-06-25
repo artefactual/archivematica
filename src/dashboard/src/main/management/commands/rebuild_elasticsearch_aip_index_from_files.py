@@ -33,14 +33,13 @@ import os
 import re
 import subprocess
 import sys
-import time
 import tempfile
 
 import scandir
-from django.conf import settings as django_settings
 from lxml import etree
 
-from main.management.commands import DashboardCommand
+from main.management.commands import DashboardCommand, setup_es_for_aip_reindexing
+import archivematicaFunctions as am
 import storageService as storage_service
 import elasticSearchFunctions
 import namespaces as ns
@@ -68,43 +67,33 @@ def extract_file(archive_path, destination_dir, relative_path):
     return output_path
 
 
-def get_aips_in_aic(mets_root, archive_path, temp_dir):
-    """Return the number of AIPs in the AIC, extracted from AIC METS file."""
-    # Find name of AIC METS file
-    try:
-        # aic_mets_filename includes metadata/
-        aic_mets_filename = ns.xml_find_premis(
-            mets_root,
-            "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat",
-        ).get("{" + ns.NSMAP["xlink"] + "}href")
-        aip_dirname = ns.xml_find_premis(mets_root, "mets:structMap/mets:div").get(
-            "LABEL"
-        )
-    except Exception:
-        # Catch any parsing errors
+def get_aips_in_aic(mets_root, temp_dir, archive_path):
+    """Return the number of AIPs in the AIC, extracted from AIC METS file.
+
+    :param mets_root: AIP METS document root.
+    :param temp_dir: Path to tempdir where we'll write AIC METS file.
+    :param archive_path: Path to package.
+
+    :returns: Count of AIPs in AIC or None.
+    """
+    # Find the name of AIC METS file from within the AIP METS file.
+    aic_mets_filename = am.find_aic_mets_filename(mets_root)
+    aip_dirname = am.find_aip_dirname(mets_root)
+    if aic_mets_filename is None or aip_dirname is None:
         return None
 
-    # Extract AIC METS file
+    # Extract the AIC METS file.
     aic_mets_path = extract_file(
         archive_path=archive_path,
         destination_dir=temp_dir,
         relative_path=os.path.join(aip_dirname, "data", aic_mets_filename),
     )
-
-    # Parse for number of AIPs
-    aic_root = etree.parse(aic_mets_path)
-    extent = ns.xml_find_premis(
-        aic_root,
-        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
-    )
-
-    try:
-        aips_in_aic = re.search("\d+", extent.text).group()
-    except AttributeError:
-        # Probably because extent was None
-        # Or the search returned None
+    if not os.path.isfile(aic_mets_path):
         return None
 
+    # Find number of AIPs in the AIC in AIC METS file.
+    aic_root = etree.parse(aic_mets_path)
+    aips_in_aic = am.find_aips_in_aic(aic_root)
     return aips_in_aic
 
 
@@ -153,7 +142,7 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
         pass
     else:
         if aip_type == "Archival Information Collection":
-            aips_in_aic = get_aips_in_aic(root, path, temp_dir)
+            aips_in_aic = get_aips_in_aic(root, temp_dir, path)
 
     aip_info = storage_service.get_file_info(uuid=aip_uuid)
 
@@ -212,39 +201,13 @@ class Command(DashboardCommand):
         )
 
     def handle(self, *args, **options):
-        # Check that the `aips` part of the search is enabled
-        if "aips" not in django_settings.SEARCH_ENABLED:
-            print(
-                "The AIPs indexes are not enabled. Please, make sure to "
-                "set the *_SEARCH_ENABLED environment variables to `true` "
-                "to enable the AIPs and Transfers indexes, or to `aips` "
-                "to only enable the AIPs indexes."
-            )
-            sys.exit(1)
-
         # Check root directory exists
         if not os.path.isdir(options["rootdir"]):
             print("AIP store location doesn't exist.")
             sys.exit(1)
 
-        # Verify ES is accessible
-        elasticSearchFunctions.setup_reading_from_conf(django_settings)
-        es_client = elasticSearchFunctions.get_client()
-
-        try:
-            es_client.info()
-        except Exception:
-            print("Error: Elasticsearch may not be running.")
-            sys.exit(1)
-
-        # Delete existing data also clears AIPS not found in the
-        # provided directory
-        if options["delete_all"]:
-            print("Deleting all AIPs in the AIP index")
-            time.sleep(3)  # Time for the user to panic and kill the process
-            indexes = ["aips", "aipfiles"]
-            es_client.indices.delete(",".join(indexes), ignore=404)
-            elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
+        # Setup es_client and delete indices if required.
+        es_client = setup_es_for_aip_reindexing(self, options["delete_all"])
 
         if not options["uuid"]:
             print("Rebuilding AIPS index from AIPS in", options["rootdir"])

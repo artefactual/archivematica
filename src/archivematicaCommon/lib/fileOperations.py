@@ -26,6 +26,7 @@ import os
 import uuid
 import sys
 import shutil
+import subprocess
 
 try:
     from pathlib import Path
@@ -430,3 +431,21 @@ def get_extract_dir_name(filename):
         extract_dir = extract_dir.parent / extract_dir.stem
 
     return str(extract_dir)
+
+
+def extract_package(package_path, destination_dir):
+    """Extract files from compressed or concatenated package.
+
+    :param package_path: Path to package to extract.
+    :param destination_dir: Destination directory for extracted files.
+
+    :returns: None or subprocess.CalledProcessError."""
+    command = [
+        "unar",
+        "-quiet",
+        "-force-overwrite",
+        "-o",
+        destination_dir,
+        package_path,
+    ]
+    subprocess.check_call(command)

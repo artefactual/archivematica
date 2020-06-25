@@ -34,14 +34,18 @@ import pprint
 import re
 from uuid import uuid4
 
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
 import scandir
 import six
 from lxml import etree
 from main.models import DashboardSetting
-from namespaces import NSMAP
+from namespaces import NSMAP, xml_find_premis
 
 from amclient import AMClient
-
 
 REQUIRED_DIRECTORIES = (
     "logs",
@@ -59,6 +63,23 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
 ]
 
 AMCLIENT_ERROR_CODES = (1, 2, 3, 4, -1)
+
+# Package UUID suffix is a single dash followed by a UUID v4 with hyphens.
+PACKAGE_UUID_SUFFIX_LENGTH = 37
+
+# Package extension constants here are copied from Storage Service's
+# storage_service.common.utils module.
+COMPRESS_EXTENSION_7Z = ".7z"
+COMPRESS_EXTENSION_BZIP2 = ".bz2"
+COMPRESS_EXTENSION_GZIP = ".gz"
+
+COMPRESS_EXTENSIONS = (
+    COMPRESS_EXTENSION_7Z,
+    COMPRESS_EXTENSION_BZIP2,
+    COMPRESS_EXTENSION_GZIP,
+)
+
+PACKAGE_EXTENSIONS = (".tar",) + COMPRESS_EXTENSIONS
 
 
 def get_setting(setting, default=""):
@@ -434,3 +455,105 @@ def find_transfer_path_from_ingest(transfer_path, shared_path):
         return path
 
     raise Exception("Transfer directory not physically found")
+
+
+def find_aic_mets_filename(mets_root):
+    """Find name of AIC METS file within AIP METS document.
+
+    :param mets_root: AIP METS document root.
+
+    :returns: AIC METS filename or None.
+    """
+    return xml_find_premis(
+        mets_root, "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file/mets:FLocat"
+    ).get("{" + NSMAP["xlink"] + "}href")
+
+
+def find_aip_dirname(mets_root):
+    """Find name of AIP directory within AIP METS document.
+
+    :param mets_root: AIP METS document root.
+
+    :returns: AIP dirname or None.
+    """
+    return xml_find_premis(mets_root, "mets:structMap/mets:div").get("LABEL")
+
+
+def find_aips_in_aic(aic_root):
+    """Find extent of AIPs in AIC within AIC METS document.
+
+    :param aic_root" AIC METS document root.
+
+    :returns: Count of AIPs in AIC or None.
+    """
+    extent = xml_find_premis(
+        aic_root,
+        "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
+    )
+    try:
+        return re.search("\d+", extent.text).group()
+    except AttributeError:
+        return None
+
+
+def package_name_from_path(current_path, remove_uuid_suffix=False):
+    """Return name of package without file extensions from current path.
+
+    This helper works for all package types (e.g. transfer, AIP, AIC).
+
+    :param current_path: Current path to package.
+    :param remove_uuid_suffix: Optional boolean to additionally remove
+    UUID suffix.
+
+    :returns: Package name minus any file extensions.
+    """
+    path = Path(current_path)
+    name, chars_to_remove = path.name, 0
+    if remove_uuid_suffix is True:
+        chars_to_remove = PACKAGE_UUID_SUFFIX_LENGTH
+    for suffix in reversed(path.suffixes):
+        if suffix not in PACKAGE_EXTENSIONS:
+            break
+        chars_to_remove += len(suffix)
+    # Check if we have characters to remove to avoid accidentally
+    # returning an empty string with name[:-0].
+    if not chars_to_remove:
+        return name
+    return name[:-chars_to_remove]
+
+
+def relative_path_to_aip_mets_file(uuid, current_path):
+    """Return relative path to AIP METS file.
+
+    :param uuid: AIP UUID.
+    :param current_path: Current path to AIP.
+
+    :returns: Relative path to AIP METS file.
+    """
+    package_name_without_extensions = package_name_from_path(current_path)
+    mets_name = "METS.{}.xml".format(uuid)
+    mets_path = "{}/data/{}".format(package_name_without_extensions, mets_name)
+    return mets_path
+
+
+def filter_packages_by_status_and_pipeline(
+    package_list, valid_statuses=("UPLOADED", "DEL_REQ"), pipeline_uuid=None
+):
+    """Filter packages by status and origin pipeline.
+
+    :param package_list: List of package info returned by Storage
+    Service (list).
+    :param valid_statuses: Acceptable statuses for filter (tuple).
+    :param pipeline_uuid: Acceptable pipeline UUID for filter (str).
+
+    :returns: Filtered package list.
+    """
+    if pipeline_uuid is None:
+        pipeline_uuid = get_dashboard_uuid()
+    origin_pipeline = "/api/v2/pipeline/{}/".format(pipeline_uuid)
+    return [
+        package
+        for package in package_list
+        if package["status"] in valid_statuses
+        and package["origin_pipeline"] == origin_pipeline
+    ]

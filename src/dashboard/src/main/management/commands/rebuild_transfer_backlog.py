@@ -19,9 +19,17 @@ from __future__ import absolute_import, print_function, unicode_literals
 import multiprocessing
 import logging
 import os
+import shutil
+from subprocess import CalledProcessError
 import sys
+import tempfile
 import traceback
 import time
+
+try:
+    from os import scandir
+except ImportError:
+    from scandir import scandir
 
 try:
     from pathlib import Path
@@ -32,9 +40,9 @@ from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 import six
 
-from archivematicaFunctions import get_bag_size, walk_dir
-from fileOperations import addFileToTransfer
-import elasticSearchFunctions
+import archivematicaFunctions as am
+from fileOperations import addFileToTransfer, extract_package
+import elasticSearchFunctions as es
 import metsrw
 import storageService
 
@@ -70,11 +78,21 @@ class Command(DashboardCommand):
             "--transfer-backlog-dir", default=self.DEFAULT_TRANSFER_BACKLOG_DIR
         )
         parser.add_argument("--no-prompt", action="store_true")
+        parser.add_argument(
+            "--from-storage-service",
+            help="Import packages from Storage Service",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--pipeline",
+            help="Pipeline UUID to use when filtering packages from Storage Service",
+            default=am.get_dashboard_uuid(),
+        )
 
     def handle(self, *args, **options):
         """Entry point of the rebuild_transfer_backlog command."""
         # Check that the `transfers` part of the search is enabled
-        if "transfers" not in django_settings.SEARCH_ENABLED:
+        if es.TRANSFERS_INDEX not in django_settings.SEARCH_ENABLED:
             print(
                 "The Transfers indexes are not enabled. Please, make sure to "
                 "set the *_SEARCH_ENABLED environment variables to `true` "
@@ -91,13 +109,18 @@ class Command(DashboardCommand):
         logging.getLogger("archivematica.common").setLevel(logging.ERROR)
 
         transfer_backlog_dir = self.prepdir(options["transfer_backlog_dir"])
-        if not os.path.exists(transfer_backlog_dir):
-            raise CommandError("Directory does not exist: %s", transfer_backlog_dir)
-        self.info('Rebuilding "transfers" index from {}.'.format(transfer_backlog_dir))
+        if options["from_storage_service"]:
+            self.info('Rebuilding "transfers" index from packages in Storage Service.')
+        else:
+            if not os.path.exists(transfer_backlog_dir):
+                raise CommandError("Directory does not exist: %s", transfer_backlog_dir)
+            self.info(
+                'Rebuilding "transfers" index from {}.'.format(transfer_backlog_dir)
+            )
 
         # Connect to Elasticsearch.
-        elasticSearchFunctions.setup_reading_from_conf(django_settings)
-        es_client = elasticSearchFunctions.get_client()
+        es.setup_reading_from_conf(django_settings)
+        es_client = es.get_client()
         try:
             es_info = es_client.info()
         except Exception as err:
@@ -109,11 +132,15 @@ class Command(DashboardCommand):
                 )
             )
 
-        indexes = ["transfers", "transferfiles"]
+        indexes = [es.TRANSFERS_INDEX, es.TRANSFER_FILES_INDEX]
         self.delete_indexes(es_client, indexes)
         self.create_indexes(es_client, indexes)
 
-        self.populate_data(es_client, transfer_backlog_dir)
+        if options["from_storage_service"]:
+            pipeline_uuid = options["pipeline"]
+            self.populate_data_from_storage_service(es_client, pipeline_uuid)
+        else:
+            self.populate_data_from_files(es_client, transfer_backlog_dir)
 
     def confirm(self, no_prompt):
         """Ask user to confirm the operation."""
@@ -145,10 +172,10 @@ class Command(DashboardCommand):
     def create_indexes(self, es_client, indexes):
         """Create search indexes."""
         self.stdout.write("Creating indexes...")
-        elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
+        es.create_indexes_if_needed(es_client, indexes)
 
-    def populate_data(self, es_client, transfer_backlog_dir):
-        """Populate data in search indices and/or the database."""
+    def populate_data_from_files(self, es_client, transfer_backlog_dir):
+        """Populate indices and/or database from files."""
         transfer_backlog_dir = Path(transfer_backlog_dir)
         processed = 0
         for transfer_dir in transfer_backlog_dir.glob("*"):
@@ -166,20 +193,89 @@ class Command(DashboardCommand):
                 self.info(
                     "Importing self-describing transfer {}.".format(transfer_uuid)
                 )
-                size = get_bag_size(bag, str(transfer_dir))
+                size = am.get_bag_size(bag, str(transfer_dir))
                 _import_self_describing_transfer(
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             else:
                 self.info("Rebuilding known transfer {}.".format(transfer_uuid))
                 if bag:
-                    size = get_bag_size(bag, str(transfer_dir))
+                    size = am.get_bag_size(bag, str(transfer_dir))
                 else:
-                    size = walk_dir(str(transfer_dir))
+                    size = am.walk_dir(str(transfer_dir))
                 _import_pipeline_dependant_transfer(
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             processed += 1
+        self.success("{} transfers indexed!".format(processed))
+
+    def populate_data_from_storage_service(self, es_client, pipeline_uuid):
+        """Populate indices and/or database from Storage Service.
+
+        :param es_client: Elasticsearch client.
+        :param pipeline_uuid: UUID of origin pipeline for transfers to
+        reindex.
+
+        :returns: None
+        """
+        transfers = storageService.get_file_info(package_type="Transfer")
+        filtered_transfers = am.filter_packages_by_status_and_pipeline(
+            transfers, pipeline_uuid=pipeline_uuid
+        )
+        processed = 0
+        for transfer in filtered_transfers:
+            transfer_uuid = transfer["uuid"]
+            temp_backlog_dir = tempfile.mkdtemp()
+            try:
+                local_package = storageService.download_package(
+                    transfer_uuid, temp_backlog_dir
+                )
+            except storageService.Error:
+                self.error(
+                    "Transfer {} not indexed. Unable to download from Storage Service.".format(
+                        transfer_uuid
+                    )
+                )
+                continue
+            # Transfers are downloaded as .tar files, so we extract files
+            # before indexing.
+            try:
+                extract_package(local_package, temp_backlog_dir)
+            except CalledProcessError as err:
+                self.error(
+                    "Transfer {0} not indexed. File extraction from tar failed: {1}.".format(
+                        transfer_uuid, err
+                    )
+                )
+                continue
+            local_package_without_extension = am.package_name_from_path(local_package)
+            transfer_indexed = False
+            for entry in scandir(temp_backlog_dir):
+                if entry.is_dir() and entry.name == local_package_without_extension:
+                    transfer_path = entry.path
+                    self.info(
+                        "Importing transfer {} from temporarily downloaded copy.".format(
+                            transfer_uuid
+                        )
+                    )
+                    _import_self_describing_transfer(
+                        self,
+                        es_client,
+                        self.stdout,
+                        Path(transfer_path),
+                        transfer_uuid,
+                        transfer["size"],
+                    )
+                    transfer_indexed = True
+            shutil.rmtree(temp_backlog_dir)
+            if transfer_indexed:
+                processed += 1
+            else:
+                self.error(
+                    "Transfer {} not indexed. Unable to find files extracted from tar.".format(
+                        transfer_uuid
+                    )
+                )
         self.success("{} transfers indexed!".format(processed))
 
 
@@ -314,9 +410,18 @@ def _import_self_describing_transfer(
 ):
     """Import a self-describing transfer.
 
-    Knowledge of this transfer is not required in the transfer. If missing,
-    this function will populate the necessary state so arrangement and ingest
-    work as expected.
+    Knowledge of this transfer is not required in the database. If
+    missing, this function will populate the necessary state so
+    arrangement and ingest work as expected.
+
+    :param cmd: Command object
+    :param es_client: Elasticsearch client.
+    :param stdout: stdout handler.
+    :param transfer_dir: Path to transfer.
+    :param transfer_uuid: Transfer UUID.
+    :param size: Transfer size.
+
+    :returns: None.
     """
     transfer, created = Transfer.objects.get_or_create(
         uuid=transfer_uuid,
@@ -359,7 +464,7 @@ def _import_self_describing_transfer(
                 if django_settings.DEBUG:
                     traceback.print_exc()
 
-    elasticSearchFunctions.index_transfer_and_files(
+    es.index_transfer_and_files(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",
@@ -384,7 +489,7 @@ def _import_pipeline_dependant_transfer(
             "Skipping transfer {} - not found in the database!".format(transfer_uuid)
         )
         return
-    elasticSearchFunctions.index_transfer_and_files(
+    es.index_transfer_and_files(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",
