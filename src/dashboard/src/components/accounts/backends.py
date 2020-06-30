@@ -19,6 +19,12 @@ class CustomShibbolethRemoteUserBackend(ShibbolethRemoteUserBackend):
 class CustomCASBackend(CASBackend):
     def configure_user(self, user):
         generate_api_key(user)
+        # If CAS_AUTOCONFIGURE_EMAIL and CAS_EMAIL_DOMAIN settings are
+        # configured, add an email address for this user, using rule
+        # username@domain.
+        if settings.CAS_AUTOCONFIGURE_EMAIL and settings.CAS_EMAIL_DOMAIN:
+            user.email = "{0}@{1}".format(user.username, settings.CAS_EMAIL_DOMAIN)
+            user.save()
         return user
 
 

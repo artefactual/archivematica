@@ -557,12 +557,22 @@ These variables specify the behaviour of CAS authentication. Only applicable if 
     - **Default:** `false`
 
 - **`AUTH_CAS_ADMIN_ATTRIBUTE`**:
-    - **Description:** Name of attribute to check for administrator status, if `CAS_CHECK_ADMIN_ATTRIBUTES` is True.
+    - **Description:** Name of attribute to check for administrator status, if `AUTH_CAS_CHECK_ADMIN_ATTRIBUTES` is True.
     - **Type:** `string`
     - **Default:** `None`
 
 - **`AUTH_CAS_ADMIN_ATTRIBUTE_VALUE`**:
-    - **Description:** Value in `CAS_ADMIN_ATTRIBUTE` that indicates user is an administrator, if `CAS_CHECK_ADMIN_ATTRIBUTES` is True.
+    - **Description:** Value in `AUTH_CAS_ADMIN_ATTRIBUTE` that indicates user is an administrator, if `AUTH_CAS_CHECK_ADMIN_ATTRIBUTES` is True.
+    - **Type:** `string`
+    - **Default:** `None`
+
+- **`AUTH_CAS_AUTOCONFIGURE_EMAIL`**:
+    - **Description:** Determines if we auto-configure an email address for new users by following the rule username@domain.
+    - **Type:** `boolean`
+    - **Default:** `false`
+
+- **`AUTH_CAS_EMAIL_DOMAIN`**:
+    - **Description:** Domain to use for auto-configured email addresses, if `AUTH_CAS_AUTOCONFIGURE_EMAIL` is True.
     - **Type:** `string`
     - **Default:** `None`
 
