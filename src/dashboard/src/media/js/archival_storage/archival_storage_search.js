@@ -132,7 +132,12 @@ function renderArchivalStorageSearchForm(search_uri, on_success, on_error) {
 }
 
 $(document).ready(function() {
-  set_create_aic_visibility();
+  // Show files is a page state. We collect that state information early for
+  // use in each of the functions that then need it.
+  var showFiles = $('#id_show_files').prop('checked');
+
+  set_create_aic_visibility(showFiles);
+  set_download_csv_visibility(showFiles);
 
   var search = renderArchivalStorageSearchForm(null, null, null);
 
@@ -216,22 +221,20 @@ $(document).ready(function() {
   // Return array consisting of column indices for columns that should be hidden
   // by default if there is no saved table state in DashboardSettings.
   function get_default_hidden_column_indices() {
-    return $('#id_show_files').prop('checked') ? [4, 5] : [2, 4, 5];
+    return $('#id_show_files').prop('checked') ? [4, 5] : [2, 4, 5, 9];
   }
 
   // Return array consisting of column indices for columns that should not sort,
   // i.e. Actions, Thumbnails.
   function get_unorderable_column_indices() {
-    return $('#id_show_files').prop('checked') ? [0, 6] : [9];
+    return $('#id_show_files').prop('checked') ? [0, 6] : [10];
   }
 
   function get_state_url_params() {
     return $('#id_show_files').prop('checked') ? 'aipfiles/' : 'aips/';
   }
 
-  function get_datatable() {
-    var showFiles = $('#id_show_files').prop('checked');
-
+  function get_datatable(showFiles) {
     if (showFiles) {
       var cols = [
         {sTitle: gettext('Thumbnail'), mData: 'FILEUUID', mRender: render_thumbnail },
@@ -254,6 +257,7 @@ $(document).ready(function() {
         {sTitle: gettext('Created'), mData: 'created', mRender: render_aip_created_date },
         {sTitle: gettext('Status'), mData: 'status', mRender: render_status },
         {sTitle: gettext('Encrypted'), mData: 'encrypted', mRender: render_aip_encrypted },
+        {sTitle: gettext('Location'), mData: 'location' },
         {sTitle: gettext('Actions'), mData: 'uuid', mRender: render_aip_actions }
       ];
     }
@@ -350,7 +354,7 @@ $(document).ready(function() {
     });
   }
 
-  var dtable = get_datatable();
+  var dtable = get_datatable(false);
 
   function refresh_search_results() {
 
@@ -363,17 +367,23 @@ $(document).ready(function() {
     // changing the layout of the tables we want to display.
     $('#archival-storage-entries').empty();
 
+    // Show files is a page state. We collect that state information early for
+    // use in each of the functions that then need it.
+    var showFiles = $('#id_show_files').prop('checked');
+
     // Return the correct datatable based on whether the user has selected
     // to see the AIPs only, or file list.
-    dtable = get_datatable();
+    dtable = get_datatable(showFiles);
 
     // Refresh visibliity of the "Create an AIC" button to reflect new DataTable.
-    set_create_aic_visibility();
+    set_create_aic_visibility(showFiles);
 
+    // Refresh the visibility of the Download CSV button.
+    set_download_csv_visibility(showFiles);
   }
 
-  function set_create_aic_visibility() {
-    if ($('#id_show_files').prop('checked')) {
+  function set_create_aic_visibility(showFiles) {
+    if (showFiles) {
       $("#create-aic-btn").hide();
     } else {
       $("#create-aic-btn").show();
@@ -413,4 +423,45 @@ $(document).ready(function() {
     var uuids_string = aip_uuids.join(",");
     window.location = "/archival-storage/search/create_aic/?uuids=" + uuids_string;
   });
+
+  // Vars and functions to Enable the download of the Archival Storage table
+  // as a CSV from Elasticsearch.
+  const csvMimeType = "text/csv";
+  const downloadCSVButton = "download-csv-btn"
+  const csvFileName = "archival-storage-report.csv"
+
+  function set_download_csv_visibility(showFiles) {
+    btn = $("#download-csv-btn");
+    if (showFiles) {
+      btn.hide();
+    } else {
+      btn.show();
+    }
+  }
+
+  // Return the contents of the Elasticsearch index as a CSV file.
+  document.getElementById(downloadCSVButton).onclick = function() { exportFile(csvMimeType, csvFileName) };
+
+  function exportFile(mimeType, reportFileName) {
+    // Params to help us to route the query appropriately and
+    // extensibly.
+    //
+    // Param mimeType: The format of the content requested.
+    // Param reportFileName: The default download filename.
+    //
+    // NB. If we extend this For files add the parameter to the
+    // dictionary:
+    //
+    //      "file_mode": showFiles,
+    //
+    var params = {
+      "requestFile": true,
+      "mimeType": mimeType,
+      "fileName": reportFileName,
+      "returnAll": true,
+    };
+    query = $.param(params);
+    window.open('/archival-storage/search/?' + query);
+  }
+
 });

@@ -145,10 +145,14 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
             aips_in_aic = get_aips_in_aic(root, temp_dir, path)
 
     aip_info = storage_service.get_file_info(uuid=aip_uuid)
-
     if not aip_info:
         print("Information not found in Storage Service for AIP UUID: ", aip_uuid)
         return 1
+
+    aip_location = aip_info[0].get("current_location", "")
+    location_description = storage_service.retrieve_storage_location_description(
+        aip_location
+    )
 
     return elasticSearchFunctions.index_aip_and_files(
         client=es_client,
@@ -159,6 +163,7 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
         aip_size=aip_info[0]["size"],
         aips_in_aic=aips_in_aic,
         identifiers=[],  # TODO get these
+        location=location_description,
     )
 
 

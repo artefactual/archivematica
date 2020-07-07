@@ -231,6 +231,11 @@ class Command(DashboardCommand):
             package_info["current_path"], remove_uuid_suffix=True
         )
 
+        aip_location = package_info.get("current_location", "")
+        location_description = storageService.retrieve_storage_location_description(
+            aip_location
+        )
+
         if delete_before_reindexing:
             self.info(
                 "Deleting package {} from 'aips' and 'aipfiles' indices.".format(uuid)
@@ -249,6 +254,7 @@ class Command(DashboardCommand):
                 aip_size=package_info["size"],
                 aips_in_aic=aips_in_aic,
                 encrypted=package_info.get("encrypted", False),
+                location=location_description,
             )
             self.info("Successfully indexed package {}".format(uuid))
             os.remove(mets_download_path)

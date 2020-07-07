@@ -20,6 +20,7 @@ lazy-paged-sequence
 lxml==3.5.0
 metsrw==0.3.15
 mysqlclient==1.4.6
+pandas==0.24.2
 pytz
 pyopenssl
 python-dateutil==2.6.0

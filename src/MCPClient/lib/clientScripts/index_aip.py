@@ -48,9 +48,15 @@ def index_aip(job):
     sip_name = job.args[2]  # %SIPName%
     sip_staging_path = job.args[3]  # %SIPDirectory%
     sip_type = job.args[4]  # %SIPType%
+    aip_location = job.args[5]  # %AIPsStore%%
+
     if "aips" not in mcpclient_settings.SEARCH_ENABLED:
         logger.info("Skipping indexing: AIPs indexing is currently disabled.")
         return 0
+
+    location_description = storage_service.retrieve_storage_location_description(
+        aip_location, logger
+    )
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
@@ -91,6 +97,7 @@ def index_aip(job):
         aips_in_aic=aips_in_aic,
         identifiers=identifiers,
         encrypted=aip_info["encrypted"],
+        location=location_description,
         printfn=job.pyprint,
     )
     if ret == 1:

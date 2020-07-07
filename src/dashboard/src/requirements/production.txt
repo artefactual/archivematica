@@ -39,16 +39,18 @@ lxml==3.5.0               # via -r base.txt, metsrw
 metsrw==0.3.15            # via -r base.txt
 mysqlclient==1.4.6        # via -r base.txt, agentarchives
 ndg-httpsclient==0.5.1    # via -r base.txt
+numpy==1.16.6             # via -r base.txt, pandas
+pandas==0.24.2            # via -r base.txt
 pathlib2==2.3.4           # via -r base.txt
 prometheus-client==0.7.1  # via -r base.txt, django-prometheus
 pyasn1-modules==0.2.8     # via -r base.txt, python-ldap
 pyasn1==0.4.8             # via -r base.txt, ndg-httpsclient, pyasn1-modules, python-ldap
 pycparser==2.20           # via -r base.txt, cffi
 pyopenssl==19.1.0         # via -r base.txt, ndg-httpsclient
-python-dateutil==2.6.0    # via -r base.txt, django-tastypie
+python-dateutil==2.6.0    # via -r base.txt, django-tastypie, pandas
 python-ldap==3.2.0        # via -r base.txt, django-auth-ldap
 python-mimeparse==1.6.0   # via -r base.txt, django-tastypie
-pytz==2020.1              # via -r base.txt, django
+pytz==2020.1              # via -r base.txt, django, pandas
 requests==2.21.0          # via -r base.txt, agentarchives, amclient
 scandir==1.10.0           # via -r base.txt, pathlib2
 six==1.15.0               # via -r base.txt, amclient, cryptography, django-extensions, metsrw, pathlib2, pyopenssl, python-dateutil

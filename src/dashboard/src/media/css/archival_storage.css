@@ -124,3 +124,10 @@ div.search-summary p {
 #create-aic-btn {
   margin-bottom: 10px;
 }
+
+#download-csv-btn {
+  float: right;
+  border: none;
+  background: none;
+  margin-top: 10px;
+}

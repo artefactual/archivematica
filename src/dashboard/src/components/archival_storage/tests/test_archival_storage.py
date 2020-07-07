@@ -25,7 +25,11 @@ from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpRespons
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
+from elasticsearch import Elasticsearch
+import pandas as pd
 import pytest
+from six.moves.urllib.parse import urlencode
+from six import StringIO
 
 from components.archival_storage import atom
 from components import helpers
@@ -36,6 +40,7 @@ import metsrw
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
+JSON_MIME = "application/json"
 
 
 @pytest.fixture
@@ -200,6 +205,152 @@ def test_get_pointer_known_pointer(
     assert response.get(CONTENT_DISPOSITION) == content_disposition
 
 
+def test_search_as_csv(client, mocker, django_user_model, username, password, tmp_path):
+    """Test search as CSV
+
+    Test the new route via the Archival Storage tab to be able to
+    download the Elasticsearch AIP index as a CSV. Here we make sure
+    that various headers are set as well as testing whether or not the
+    data is returned correctly.
+    """
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    CSV_MIME = "text/csv"
+    RESULT_FILENAME = "test-filename.csv"
+    RESULT_DISPOSITION = 'attachment; filename="{}"'.format(RESULT_FILENAME)
+    ordered_headers = [
+        "Name",
+        "UUID",
+        "AICID",
+        "Count AIPs in AIC",
+        "Size",
+        "File count",
+        "Accession IDs",
+        "Created date (UTC)",
+        "Status",
+        "Type",
+        "Encrypted",
+        "Location",
+    ]
+    mock_augmented_result = [
+        {
+            "status": "Stored",
+            "encrypted": False,
+            "AICID": "AIC#2040",
+            "countAIPsinAIC": 2,
+            "accessionids": [],
+            "uuid": "a341dbc0-9715-4806-8477-fb407b105a5e",
+            "name": "tz",
+            "created": 1594938100,
+            "file_count": 2,
+            "location": "/var/archivematica/AIPStore",
+            "isPartOf": None,
+            "size": "200.1\xa0KB",
+            "type": "AIC",
+        },
+        {
+            "status": "Stored",
+            "encrypted": True,
+            "AICID": None,
+            "countAIPsinAIC": None,
+            "accessionids": ["Àà", "Éé", "Îî", "Ôô", "Ùù"],
+            "uuid": "22423d5c-f992-4979-9390-1cb61c87da14",
+            "name": "tz",
+            "created": 1594938200,
+            "file_count": 2,
+            "location": "thé cloud",
+            "isPartOf": None,
+            "size": "152.1\xa0KB",
+            "type": "AIP",
+        },
+    ]
+    mocker.patch("elasticSearchFunctions.get_client")
+    mocker.patch("elasticsearch.Elasticsearch.search")
+    mocker.patch(
+        "components.archival_storage.views.search_augment_aip_results",
+        return_value=mock_augmented_result,
+    )
+    REQUEST_PARAMS = {
+        "requestFile": True,
+        "mimeType": CSV_MIME,
+        "fileName": RESULT_FILENAME,
+        "returnAll": True,
+    }
+    response = client.get(
+        "/archival-storage/search/?{}".format(urlencode(REQUEST_PARAMS))
+    )
+
+    # Check that our response headers are going to be useful to the caller.
+    assert response.get("content-type") == CSV_MIME
+    assert response.get("content-disposition") == RESULT_DISPOSITION
+
+    streamed_content = b"".join([content for content in response.streaming_content])
+    csv_file = StringIO(streamed_content)
+    data_frame = pd.read_csv(csv_file, header=0, encoding="utf8")
+
+    # Make sure that our headers come out as expected and in the right order.
+    assert list(data_frame.columns.values) == ordered_headers
+
+    # Make some assertions about the quality and consistency of the rest of our
+    # data as it is returned particularly those we're encoding as Unicode.
+    accession_ids = data_frame["Accession IDs"]
+    assert pd.isnull(accession_ids[0])
+    assert accession_ids[1] == "; ".join(mock_augmented_result[1].get("accessionids"))
+
+    encrypted = data_frame["Encrypted"]
+    assert encrypted[0] == mock_augmented_result[0].get("encrypted")
+    assert encrypted[1] == mock_augmented_result[1].get("encrypted")
+
+    size = data_frame["Size"]
+    assert size[0] == mock_augmented_result[0].get("size")
+    assert size[1] == mock_augmented_result[1].get("size")
+
+    location = data_frame["Location"]
+    assert location[0] == mock_augmented_result[0].get("location")
+    assert location[1] == mock_augmented_result[1].get("location")
+
+
+def test_search_as_csv_invalid_route(
+    client, mocker, django_user_model, username, password, tmp_path
+):
+    """Test search as CSV invalid rute
+
+    Given the ability to download the Elasticsearch AIP index table as a
+    CSV, make sure that the new pathway through the code does not
+    impact the regular Archival Search component by performing a
+    rudimentary test to just ensure that we can successfully NOT
+    download the results as a CSV.
+    """
+    dashboard_login_and_setup(client, django_user_model, username, password)
+    MOCK_TOTAL = 10
+    AUG_RESULTS = {"mock": "response"}
+    mocker.patch("elasticSearchFunctions.get_client", return_value=Elasticsearch())
+    mocker.patch(
+        "elasticSearchFunctions.Elasticsearch.search",
+        return_value={
+            "hits": {"total": MOCK_TOTAL},
+            "aggregations": {
+                "aip_uuids": {"buckets": [{"key": "mocked", "doc_count": "mocked"}]}
+            },
+        },
+    )
+    mocker.patch(
+        "components.archival_storage.views.search_augment_aip_results",
+        return_value=[AUG_RESULTS],
+    )
+    REQUEST_PARAMS = {"requestFile": False}
+    response = client.get(
+        "/archival-storage/search/?{}".format(urlencode(REQUEST_PARAMS))
+    )
+    expected_result = {
+        "iTotalRecords": MOCK_TOTAL,
+        "iTotalDisplayRecords": MOCK_TOTAL,
+        "sEcho": 0,
+        "aaData": [AUG_RESULTS],
+    }
+    assert response[CONTENT_TYPE] == JSON_MIME
+    assert json.loads(response.content) == expected_result
+
+
 class TestArchivalStorageDataTableState(TestCase):
     fixtures = ["test_user"]
 
@@ -212,9 +363,7 @@ class TestArchivalStorageDataTableState(TestCase):
     def test_save_datatable_state(self):
         """Test ability to save DataTable state"""
         response = self.client.post(
-            "/archival-storage/save_state/aips/",
-            self.data,
-            content_type="application/json",
+            "/archival-storage/save_state/aips/", self.data, content_type=JSON_MIME
         )
         assert response.status_code == 200
         saved_state = helpers.get_setting("aips_datatable_state")

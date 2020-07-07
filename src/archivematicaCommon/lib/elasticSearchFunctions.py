@@ -57,6 +57,18 @@ AIP_FILES_INDEX = "aipfiles"
 TRANSFERS_INDEX = "transfers"
 TRANSFER_FILES_INDEX = "transferfiles"
 
+ES_FIELD_AICID = "AICID"
+ES_FIELD_ACCESSION_IDS = "accessionids"
+ES_FIELD_AICCOUNT = "countAIPsinAIC"
+ES_FIELD_CREATED = "created"
+ES_FIELD_ENCRYPTED = "encrypted"
+ES_FIELD_FILECOUNT = "file_count"
+ES_FIELD_LOCATION = "location"
+ES_FIELD_NAME = "name"
+ES_FIELD_SIZE = "size"
+ES_FIELD_STATUS = "status"
+ES_FIELD_UUID = "uuid"
+
 
 class ElasticsearchError(Exception):
     """ Not operational errors. """
@@ -226,16 +238,17 @@ def _get_aips_index_body():
             DOC_TYPE: {
                 "date_detection": False,
                 "properties": {
-                    "name": {
+                    ES_FIELD_NAME: {
                         "type": "text",
                         "fields": {"raw": {"type": "keyword"}},
                         "analyzer": "file_path_and_name",
                     },
-                    "size": {"type": "double"},
-                    "uuid": {"type": "keyword"},
-                    "accessionids": {"type": "keyword"},
-                    "status": {"type": "keyword"},
-                    "file_count": {"type": "integer"},
+                    ES_FIELD_SIZE: {"type": "double"},
+                    ES_FIELD_UUID: {"type": "keyword"},
+                    ES_FIELD_ACCESSION_IDS: {"type": "keyword"},
+                    ES_FIELD_STATUS: {"type": "keyword"},
+                    ES_FIELD_FILECOUNT: {"type": "integer"},
+                    ES_FIELD_LOCATION: {"type": "keyword"},
                 },
             }
         },
@@ -263,7 +276,7 @@ def _get_aipfiles_index_body():
                     "AIPUUID": {"type": "keyword"},
                     "FILEUUID": {"type": "keyword"},
                     "isPartOf": {"type": "keyword"},
-                    "AICID": {"type": "keyword"},
+                    ES_FIELD_AICID: {"type": "keyword"},
                     "indexedAt": {"type": "double"},
                     "filePath": {
                         "type": "text",
@@ -274,7 +287,7 @@ def _get_aipfiles_index_body():
                     "origin": {"type": "text"},
                     "identifiers": {"type": "keyword"},
                     "accessionid": {"type": "keyword"},
-                    "status": {"type": "keyword"},
+                    ES_FIELD_STATUS: {"type": "keyword"},
                 },
             }
         },
@@ -287,16 +300,16 @@ def _get_transfers_index_body():
         "mappings": {
             DOC_TYPE: {
                 "properties": {
-                    "name": {
+                    ES_FIELD_NAME: {
                         "type": "text",
                         "fields": {"raw": {"type": "keyword"}},
                         "analyzer": "file_path_and_name",
                     },
-                    "status": {"type": "text"},
+                    ES_FIELD_STATUS: {"type": "text"},
                     "ingest_date": {"type": "date", "format": "dateOptionalTime"},
-                    "size": {"type": "long"},
-                    "file_count": {"type": "integer"},
-                    "uuid": {"type": "keyword"},
+                    ES_FIELD_SIZE: {"type": "long"},
+                    ES_FIELD_FILECOUNT: {"type": "integer"},
+                    ES_FIELD_UUID: {"type": "keyword"},
                     "accessionid": {"type": "keyword"},
                     "pending_deletion": {"type": "boolean"},
                 }
@@ -320,7 +333,7 @@ def _get_transferfiles_index_body():
                     "fileuuid": {"type": "keyword"},
                     "sipuuid": {"type": "keyword"},
                     "accessionid": {"type": "keyword"},
-                    "status": {"type": "keyword"},
+                    ES_FIELD_STATUS: {"type": "keyword"},
                     "origin": {"type": "keyword"},
                     "ingestdate": {"type": "date", "format": "dateOptionalTime"},
                     # METS.xml files in transfers sent to backlog will have ''
@@ -334,8 +347,8 @@ def _get_transferfiles_index_body():
                         "format": "dateOptionalTime",
                         "ignore_malformed": True,
                     },
-                    "created": {"type": "double"},
-                    "size": {"type": "double"},
+                    ES_FIELD_CREATED: {"type": "double"},
+                    ES_FIELD_SIZE: {"type": "double"},
                     "tags": {"type": "keyword"},
                     "file_extension": {"type": "keyword"},
                     "bulk_extractor_reports": {"type": "keyword"},
@@ -398,6 +411,7 @@ def index_aip_and_files(
     aips_in_aic=None,
     identifiers=None,
     encrypted=False,
+    location="",
     printfn=print,
 ):
     """Index AIP and AIP files with UUID `uuid` at path `path`.
@@ -478,21 +492,22 @@ def index_aip_and_files(
     printfn("Indexing AIP ...")
 
     aip_data = {
-        "uuid": uuid,
-        "name": name,
+        ES_FIELD_UUID: uuid,
+        ES_FIELD_NAME: name,
         "filePath": aip_stored_path,
-        "size": int(aip_size) / (1024 * 1024),
-        "file_count": files_indexed,
+        ES_FIELD_SIZE: int(aip_size) / (1024 * 1024),
+        ES_FIELD_FILECOUNT: files_indexed,
         "origin": get_dashboard_uuid(),
-        "created": created,
-        "AICID": aic_identifier,
+        ES_FIELD_CREATED: created,
+        ES_FIELD_AICID: aic_identifier,
         "isPartOf": is_part_of,
-        "countAIPsinAIC": aips_in_aic,
+        ES_FIELD_AICCOUNT: aips_in_aic,
         "identifiers": identifiers,
         "transferMetadata": aip_metadata,
-        "encrypted": encrypted,
-        "accessionids": accession_ids,
-        "status": STATUS_UPLOADED,
+        ES_FIELD_ENCRYPTED: encrypted,
+        ES_FIELD_ACCESSION_IDS: accession_ids,
+        ES_FIELD_STATUS: STATUS_UPLOADED,
+        ES_FIELD_LOCATION: location,
     }
 
     _wait_for_cluster_yellow_status(client)
@@ -552,11 +567,11 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
         "filePath": "",
         "fileExtension": "",
         "isPartOf": is_part_of,
-        "AICID": aic_identifier,
+        ES_FIELD_AICID: aic_identifier,
         "METS": {"dmdSec": {}, "amdSec": {}},
         "origin": get_dashboard_uuid(),
         "accessionid": "",
-        "status": STATUS_UPLOADED,
+        ES_FIELD_STATUS: STATUS_UPLOADED,
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'.
@@ -739,13 +754,13 @@ def index_transfer_and_files(
     printfn("Indexing Transfer ...")
 
     transfer_data = {
-        "name": transfer_name,
-        "status": status,
+        ES_FIELD_NAME: transfer_name,
+        ES_FIELD_STATUS: status,
         "accessionid": accession_id,
         "ingest_date": ingest_date,
-        "file_count": files_indexed,
-        "size": int(size),
-        "uuid": uuid,
+        ES_FIELD_FILECOUNT: files_indexed,
+        ES_FIELD_SIZE: int(size),
+        ES_FIELD_UUID: uuid,
         "pending_deletion": pending_deletion,
     }
 
@@ -829,12 +844,12 @@ def _index_transfer_files(
                     "fileuuid": file_uuid,
                     "sipuuid": uuid,
                     "accessionid": accession_id,
-                    "status": status,
+                    ES_FIELD_STATUS: status,
                     "origin": dashboard_uuid,
                     "ingestdate": ingest_date,
-                    "created": create_time,
+                    ES_FIELD_CREATED: create_time,
                     "modification_date": modification_date,
-                    "size": size,
+                    ES_FIELD_SIZE: size,
                     "tags": [],
                     "file_extension": file_extension,
                     "bulk_extractor_reports": bulk_extractor_reports,
@@ -1205,7 +1220,10 @@ def search_all_results(client, body, index):
 
 
 def get_aip_data(client, uuid, fields=None):
-    search_params = {"body": {"query": {"term": {"uuid": uuid}}}, "index": AIPS_INDEX}
+    search_params = {
+        "body": {"query": {"term": {ES_FIELD_UUID: uuid}}},
+        "index": AIPS_INDEX,
+    }
 
     if fields:
         search_params["_source"] = fields
@@ -1364,7 +1382,7 @@ def get_transfer_file_info(client, field, value):
 
 
 def remove_backlog_transfer(client, uuid):
-    _delete_matching_documents(client, TRANSFERS_INDEX, "uuid", uuid)
+    _delete_matching_documents(client, TRANSFERS_INDEX, ES_FIELD_UUID, uuid)
 
 
 def remove_backlog_transfer_files(client, uuid):
@@ -1401,7 +1419,7 @@ def _remove_transfer_files(client, uuid, unit_type=None):
 
 
 def delete_aip(client, uuid):
-    _delete_matching_documents(client, AIPS_INDEX, "uuid", uuid)
+    _delete_matching_documents(client, AIPS_INDEX, ES_FIELD_UUID, uuid)
 
 
 def delete_aip_files(client, uuid):
@@ -1428,7 +1446,7 @@ def _delete_matching_documents(client, index, field, value):
 
 
 def _update_field(client, index, uuid, field, value):
-    document_id = _document_id_from_field_query(client, index, "uuid", uuid)
+    document_id = _document_id_from_field_query(client, index, ES_FIELD_UUID, uuid)
 
     if document_id is None:
         logger.error(
@@ -1442,7 +1460,7 @@ def _update_field(client, index, uuid, field, value):
 
 
 def mark_aip_stored(client, uuid):
-    _update_field(client, AIPS_INDEX, uuid, "status", STATUS_UPLOADED)
+    _update_field(client, AIPS_INDEX, uuid, ES_FIELD_STATUS, STATUS_UPLOADED)
 
 
 def mark_aip_deletion_requested(client, uuid):
@@ -1453,7 +1471,7 @@ def mark_aip_deletion_requested(client, uuid):
     :return: None.
     """
     _mark_deletion_request(
-        client, AIPS_INDEX, AIP_FILES_INDEX, "AIPUUID", uuid, "status", "DEL_REQ"
+        client, AIPS_INDEX, AIP_FILES_INDEX, "AIPUUID", uuid, ES_FIELD_STATUS, "DEL_REQ"
     )
 
 

@@ -61,7 +61,9 @@ mockldap==0.2.8           # via -r test.txt
 more-itertools==5.0.0     # via -r test.txt, pytest
 mysqlclient==1.4.6        # via -r test.txt, agentarchives
 ndg-httpsclient==0.5.1    # via -r test.txt
+numpy==1.16.6             # via -r test.txt, pandas
 packaging==20.4           # via -r test.txt, pytest, tox
+pandas==0.24.2            # via -r test.txt
 pathlib2==2.3.4           # via -r test.txt, importlib-metadata, importlib-resources, ipython, pickleshare, pytest, pytest-django, virtualenv
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
@@ -82,10 +84,10 @@ pytest-django==3.9.0      # via -r test.txt
 pytest-mock==2.0.0        # via -r dev.in, -r test.txt
 pytest-pythonpath==0.7.3  # via -r test.txt
 pytest==4.6.11            # via -r dev.in, -r test.txt, pytest-cov, pytest-django, pytest-mock, pytest-pythonpath
-python-dateutil==2.6.0    # via -r test.txt, django-tastypie
+python-dateutil==2.6.0    # via -r test.txt, django-tastypie, pandas
 python-ldap==3.2.0        # via -r test.txt, django-auth-ldap, mockldap
 python-mimeparse==1.6.0   # via -r test.txt, django-tastypie
-pytz==2020.1              # via -r test.txt, django
+pytz==2020.1              # via -r test.txt, django, pandas
 pyyaml==5.3.1             # via -r test.txt, vcrpy
 requests==2.21.0          # via -r test.txt, agentarchives, amclient
 scandir==1.10.0           # via -r test.txt, pathlib2

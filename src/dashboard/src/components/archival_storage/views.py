@@ -17,6 +17,9 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
+from collections import OrderedDict
+import csv
+from datetime import datetime
 import json
 import logging
 import os
@@ -24,11 +27,13 @@ import uuid
 
 from django.contrib import messages
 from django.conf import settings
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, StreamingHttpResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import filesizeformat
+from django.utils.timezone import make_aware, get_current_timezone
 from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
+from pandas.io.json import json_normalize
 
 from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
 from components import advanced_search, helpers
@@ -52,6 +57,9 @@ AIP_STATUS_DESCRIPTIONS = {
 
 DIRECTORY_PERMISSIONS = 0o770
 FILE_PERMISSIONS = 0o660
+
+CSV_MIMETYPE = "text/csv"
+CSV_FILE_NAME = "archival-storage-report.csv"
 
 
 def check_and_remove_deleted_aips(es_client):
@@ -163,6 +171,7 @@ def get_es_property_from_column_index(index, file_mode):
             "created",
             "status",
             "encrypted",
+            "location",
             None,
         ),  # AIPS are being displayed
         (
@@ -186,6 +195,111 @@ def get_es_property_from_column_index(index, file_mode):
     return table_columns[file_mode][index]
 
 
+def _ordered_dict_from_es_fields():
+    """Ordered dict from es fields
+
+    Archivematica code currently uses a mix of snake case, camel case,
+    and other inconsistent variants of both for its Elasticsearch
+    field names. Here we create a mapping to enable their output to
+    something nice to read. We can also use this function to guarantee
+    the field output ordering and make sure that the fields output are
+    translatable.
+    """
+    column_lookup = OrderedDict()
+    column_lookup[es.ES_FIELD_NAME] = _("Name")
+    column_lookup[es.ES_FIELD_UUID] = _("UUID")
+    column_lookup[es.ES_FIELD_AICID] = _("AICID")
+    column_lookup[es.ES_FIELD_AICCOUNT] = _("Count AIPs in AIC")
+    column_lookup[es.ES_FIELD_SIZE] = _("Size")
+    column_lookup[es.ES_FIELD_FILECOUNT] = _("File count")
+    column_lookup[es.ES_FIELD_ACCESSION_IDS] = _("Accession IDs")
+    column_lookup[es.ES_FIELD_CREATED] = _("Created date (UTC)")
+    column_lookup[es.ES_FIELD_STATUS] = _("Status")
+    column_lookup["type"] = _("Type")
+    column_lookup[es.ES_FIELD_ENCRYPTED] = _("Encrypted")
+    column_lookup[es.ES_FIELD_LOCATION] = _("Location")
+    return column_lookup
+
+
+def _order_columns_for_file_download(data_frame):
+    data_frame = data_frame.reindex(columns=list(_ordered_dict_from_es_fields().keys()))
+    return data_frame
+
+
+def _normalize_accession_ids_for_file_download(data_frame):
+    """Normalize accession ids for file download
+
+    It's rare that accession IDs will ever be an array proper. That
+    being said if they ever are then arrays suit some data types better
+    than others. For CSV, for example, we will use this function to
+    return a list so the values
+    can be parsed from a single-cell.
+    """
+    ACCESSION_IDS_FIELD = es.ES_FIELD_ACCESSION_IDS
+    FIELD_SEPARATOR = "; "
+    for i, cell in enumerate(data_frame[ACCESSION_IDS_FIELD]):
+        normalized_value = FIELD_SEPARATOR.join(cell)
+        data_frame.at[i, ACCESSION_IDS_FIELD] = normalized_value
+    return data_frame
+
+
+def _localize_date_output_for_file_download(data_frame):
+    CREATED_FIELD = es.ES_FIELD_CREATED
+    data_frame[CREATED_FIELD] = data_frame[CREATED_FIELD].apply(str)
+    for i, cell in enumerate(data_frame[CREATED_FIELD]):
+        normalized_value = make_aware(
+            datetime.fromtimestamp(float(cell)), timezone=get_current_timezone()
+        )
+        data_frame.at[i, CREATED_FIELD] = normalized_value
+    return data_frame
+
+
+def _normalize_column_names_for_file_download(data_frame):
+    """Normalize data columns for file download
+
+    Prettify and order the column headers by removing 'variable' naming
+    conventions and enable translation of column headers using
+    predictable values.
+    """
+    data_frame.columns = [
+        _ordered_dict_from_es_fields().get(column_name, column_name)
+        for column_name in data_frame.columns
+    ]
+    return data_frame
+
+
+def search_as_csv(data_frame, file_name=CSV_FILE_NAME):
+    ENCODING = "utf-8"
+    CONTENT_DISPOSITION_HDR = "Content-Disposition"
+    MIME_HDR = "mimetype"
+    CONTENT_DISPOSITION = 'attachment; filename="{}"'.format(file_name)
+    response = StreamingHttpResponse(
+        data_frame.to_csv(
+            encoding=ENCODING, quoting=csv.QUOTE_ALL, index=False, chunksize=1024
+        ),
+        content_type=CSV_MIMETYPE,
+    )
+    response[CONTENT_DISPOSITION_HDR] = CONTENT_DISPOSITION
+    response[MIME_HDR] = "{}; charset={}".format(CSV_MIMETYPE, ENCODING)
+    return response
+
+
+def search_as_file(es_results, file_name, mime_type):
+    data_frame = json_normalize(es_results)
+    # Normalize our data so that the report is consistent and useful.
+    data_frame = _order_columns_for_file_download(data_frame)
+    data_frame = _normalize_accession_ids_for_file_download(data_frame)
+    data_frame = _localize_date_output_for_file_download(data_frame)
+    # Lastly now we've done all the work we need to do on the columns
+    # we can fix-up the names for user-friendly output.
+    data_frame = _normalize_column_names_for_file_download(data_frame)
+    if mime_type != CSV_MIMETYPE:
+        logger.debug(
+            "Client requested '%s' for the archival storage report but only CSV is supported at this time"
+        )
+    return search_as_csv(data_frame, file_name)
+
+
 def search(request):
     """A JSON end point that returns results for AIPs and their files.
 
@@ -193,25 +307,40 @@ def search(request):
     :return: A JSON object including required metadata for the datatable and
     the search results.
     """
+    REQUEST_FILE = "requestFile"
+    MIMETYPE = "mimeType"
+    RETURN_ALL = "returnAll"
+    FILE_NAME = "fileName"
+
+    request_file = request.GET.get(REQUEST_FILE, "").lower() == "true"
+    file_mime = request.GET.get(MIMETYPE, "")
+    file_name = request.GET.get(FILE_NAME, "")
+
+    # Configure page-size requirements for the search.
+    DEFAULT_PAGE_SIZE = 10
+    page_size = None
+    if request.GET.get(RETURN_ALL, "").lower() == "true":
+        page_size = es.MAX_QUERY_SIZE
+    if page_size is None:
+        page_size = int(request.GET.get("iDisplayLength", DEFAULT_PAGE_SIZE))
+
     # Get search parameters from the request.
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
+    if "query" not in request.GET:
+        queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
+    query = advanced_search.assemble_query(queries, ops, fields, types)
     file_mode = request.GET.get("file_mode") == "true"
-    page_size = int(request.GET.get("iDisplayLength", 10))
-    start = int(request.GET.get("iDisplayStart", 0))
 
+    # Configure other aspects of the search including starting page and sort
+    # order.
+    start = int(request.GET.get("iDisplayStart", 0))
     order_by = get_es_property_from_column_index(
         int(request.GET.get("iSortCol_0", 0)), file_mode
     )
     sort_direction = request.GET.get("sSortDir_0", "asc")
 
     es_client = es.get_client()
-
-    if "query" not in request.GET:
-        queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
-
-    query = advanced_search.assemble_query(queries, ops, fields, types)
-
     try:
         if file_mode:
             index = es.AIP_FILES_INDEX
@@ -240,7 +369,7 @@ def search(request):
             }
             query = {"query": {"terms": {"uuid": uuids}}}
             index = es.AIPS_INDEX
-            source = "name,uuid,size,accessionids,created,status,encrypted,AICID,isPartOf,countAIPsinAIC"
+            source = "name,uuid,size,accessionids,created,status,encrypted,AICID,isPartOf,countAIPsinAIC,location"
 
         results = es_client.search(
             index=index,
@@ -250,12 +379,18 @@ def search(request):
             sort=order_by + ":" + sort_direction if order_by else "",
             _source=source,
         )
-        hit_count = results["hits"]["total"]
 
         if file_mode:
             augmented_results = search_augment_file_results(es_client, results)
         else:
             augmented_results = search_augment_aip_results(results, uuid_file_counts)
+
+        if request_file and not file_mode:
+            return search_as_file(
+                augmented_results, file_name=file_name, mime_type=file_mime
+            )
+
+        hit_count = results["hits"]["total"]
 
         return helpers.json_response(
             {
@@ -300,6 +435,7 @@ def search_augment_aip_results(raw_results, counts):
             "status": AIP_STATUS_DESCRIPTIONS[fields.get("status", es.STATUS_UPLOADED)],
             "encrypted": fields.get("encrypted", False),
             "accessionids": fields.get("accessionids", []),
+            "location": fields.get("location", ""),
         }
         size = fields.get("size")
         if size is not None:

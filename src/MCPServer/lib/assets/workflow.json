@@ -4503,7 +4503,7 @@
             "config": {
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
-                "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%SIPType%\"",
+                "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%SIPType%\" \"%AIPsStore%\" ",
                 "execute": "indexAIP_v0.0",
                 "filter_file_end": null,
                 "filter_file_start": null,

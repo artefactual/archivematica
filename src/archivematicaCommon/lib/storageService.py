@@ -200,6 +200,46 @@ def get_location(path=None, purpose=None, space=None):
     return return_locations
 
 
+def location_description_from_slug(aip_location_slug):
+    """Retrieve the location resource description
+
+    The location slug can be retrieved by microservices using the
+    %AIPsStore%% argument. This helper enables easy access to the
+    resource description provided at the URL.
+
+    Example slugs:
+
+       * /api/v2/location/3e796bef-0d56-4471-8700-eeb256859811/
+       * /api/v2/location/default/AS/"
+
+    :param string aip_location: storage location URI slug
+    :return: storage service location description
+    :rtype: dict
+    """
+    API_SLUG = "/api/v2/"
+    JSON_MIME = "application/json"
+    CONTENT_TYPE_HDR = "content-type"
+    service_uri = _storage_service_url()
+    service_uri = service_uri.replace(API_SLUG, aip_location_slug)
+    response = {}
+    with ss_api_timer(function="get_location"):
+        response = _storage_api_session().get(service_uri)
+    if not response or response.status_code != 200:
+        LOGGER.warning(
+            "Cannot retrieve storage location description from storage service: %s",
+            response.status,
+        )
+        return {}
+    if not response.headers.get(CONTENT_TYPE_HDR) == JSON_MIME:
+        LOGGER.warning(
+            "Received a successful response code (%s), but an invalid content type: %s",
+            response.status_code,
+            response.headers.get(CONTENT_TYPE_HDR),
+        )
+        return {}
+    return response.json()
+
+
 def get_default_location(purpose):
     url = _storage_service_url() + "location/default/{}".format(purpose)
     with ss_api_timer(function="get_default_location"):
@@ -603,3 +643,32 @@ def filter_packages(
         and package["package_type"] in package_types
         and package["origin_pipeline"] == origin_pipeline
     ]
+
+
+def retrieve_storage_location_description(aip_location_slug, logger=None):
+    """Retrieve storage location description
+
+    Extract a location description or path from a storage service
+    location's endpoint.
+
+       * /api/v2/location/3e796bef-0d56-4471-8700-eeb256859811/
+       * /api/v2/location/default/AS/"
+
+    :param string aip_location: storage location URI slug
+    :return: storage service location description or an empty string
+    if a description cannot be retrieved.
+    :rtype: str
+    """
+    KEY_DESC = "description"
+    KEY_PATH = "path"
+    response = location_description_from_slug(aip_location_slug)
+    location_description = response.get(KEY_DESC, "")
+    if location_description == "" or location_description is None:
+        location_description = response.get(KEY_PATH, "")
+    if logger:
+        logger.info(
+            "Storage location retrieved: {} ({})".format(
+                location_description, aip_location_slug
+            )
+        )
+    return location_description
