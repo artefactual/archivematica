@@ -562,3 +562,44 @@ def download_package(package_uuid, download_directory):
     if local_filename is None:
         raise Error("Unable to download package {}".format(local_filename))
     return local_filename
+
+
+def filter_packages(
+    package_list,
+    statuses=("UPLOADED", "DEL_REQ"),
+    package_types=("AIP", "AIC", "transfer", "DIP"),
+    pipeline_uuid=None,
+    filter_replicas=False,
+):
+    """Filter packages by status and origin pipeline.
+
+    :param package_list: List of package info returned by Storage
+    Service (list).
+    :param statuses: Acceptable statuses for filter (tuple). Defaults
+    to filtering out deleted packages.
+    :param package_types: Acceptable package types for filter (tuple).
+    :param pipeline_uuid: Acceptable pipeline UUID for filter (str).
+    :param filter_replicas: Option to filter out replicas (bool).
+
+    :returns: Filtered package list.
+    """
+    if pipeline_uuid is None:
+        pipeline_uuid = am.get_dashboard_uuid()
+    origin_pipeline = "/api/v2/pipeline/{}/".format(pipeline_uuid)
+
+    if filter_replicas:
+        return [
+            package
+            for package in package_list
+            if package["status"] in statuses
+            and package["package_type"] in package_types
+            and package["origin_pipeline"] == origin_pipeline
+            and package["replicated_package"] is None
+        ]
+    return [
+        package
+        for package in package_list
+        if package["status"] in statuses
+        and package["package_type"] in package_types
+        and package["origin_pipeline"] == origin_pipeline
+    ]

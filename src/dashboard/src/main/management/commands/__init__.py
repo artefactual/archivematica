@@ -57,7 +57,7 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
     except ElasticsearchException as err:
         raise CommandError("Unable to connect to Elasticsearch: %s".format(err))
 
-    if delete_all is True:
+    if delete_all:
         cmd.info("Deleting all AIPs in the 'aips' and 'aipfiles' indices")
         time.sleep(3)  # Time for the user to panic and kill the process.
         indices = [es.AIPS_INDEX, es.AIP_FILES_INDEX]

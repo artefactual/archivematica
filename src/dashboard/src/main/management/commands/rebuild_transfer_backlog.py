@@ -219,7 +219,7 @@ class Command(DashboardCommand):
         :returns: None
         """
         transfers = storageService.get_file_info(package_type="transfer")
-        filtered_transfers = am.filter_packages_by_status_and_pipeline(
+        filtered_transfers = storageService.filter_packages(
             transfers, pipeline_uuid=pipeline_uuid
         )
         processed = 0

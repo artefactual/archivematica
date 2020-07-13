@@ -534,26 +534,3 @@ def relative_path_to_aip_mets_file(uuid, current_path):
     mets_name = "METS.{}.xml".format(uuid)
     mets_path = "{}/data/{}".format(package_name_without_extensions, mets_name)
     return mets_path
-
-
-def filter_packages_by_status_and_pipeline(
-    package_list, valid_statuses=("UPLOADED", "DEL_REQ"), pipeline_uuid=None
-):
-    """Filter packages by status and origin pipeline.
-
-    :param package_list: List of package info returned by Storage
-    Service (list).
-    :param valid_statuses: Acceptable statuses for filter (tuple).
-    :param pipeline_uuid: Acceptable pipeline UUID for filter (str).
-
-    :returns: Filtered package list.
-    """
-    if pipeline_uuid is None:
-        pipeline_uuid = get_dashboard_uuid()
-    origin_pipeline = "/api/v2/pipeline/{}/".format(pipeline_uuid)
-    return [
-        package
-        for package in package_list
-        if package["status"] in valid_statuses
-        and package["origin_pipeline"] == origin_pipeline
-    ]

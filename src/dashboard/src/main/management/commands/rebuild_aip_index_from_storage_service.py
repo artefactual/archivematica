@@ -39,6 +39,7 @@ import logging
 from lxml import etree
 import os
 import shutil
+import sys
 import tempfile
 
 from elasticsearch import ElasticsearchException
@@ -47,6 +48,8 @@ import archivematicaFunctions as am
 import elasticSearchFunctions as es
 from main.management.commands import DashboardCommand, setup_es_for_aip_reindexing
 import storageService
+
+PACKAGE_TYPES_TO_INDEX = ("AIP", "AIC")
 
 
 def get_aips_in_aic(mets_root, temp_dir, uuid):
@@ -114,109 +117,75 @@ class Command(DashboardCommand):
         logging.getLogger("elasticsearch").setLevel(logging.ERROR)
         logging.getLogger("archivematica.common").setLevel(logging.ERROR)
 
-        # Setup es_client and delete indices if required.
-        es_client = setup_es_for_aip_reindexing(self, options["delete_all"])
-
         # Create temporary directory for downloaded METS files.
         temp_dir = tempfile.mkdtemp()
 
-        # Set pipeline UUID to use for filtering packages to reindex.
         pipeline_uuid = options["pipeline"]
+        delete_all = options["delete_all"]
 
         delete_before_reindexing = False
-        if options["delete"] is True:
+        if options["delete"]:
             delete_before_reindexing = True
 
-        # Index a single package and return if uuid option is enabled.
         if options["uuid"]:
-            package_uuid = options["uuid"]
-            self.info("Reindexing package {}".format(package_uuid))
-            package_info = storageService.get_file_info(uuid=package_uuid)
-
-            is_aic = False
-            package_type = package_info.get("package_type")
-            if package_type and package_type == "AIC":
-                is_aic = True
-
-            (index_success, error_message) = self.process_package(
-                es_client,
-                package_info,
-                temp_dir,
-                delete_before_reindexing,
-                is_aic=is_aic,
+            aips_to_index = storageService.get_file_info(uuid=options["uuid"])
+            # If we're indexing only one AIP, don't delete the indices.
+            delete_all = False
+        else:
+            # For bulk operations, index all AIPs and AICs associated
+            # with the pipeline that are not deleted or replicas.
+            packages = storageService.get_file_info()
+            aips_to_index = storageService.filter_packages(
+                packages,
+                package_types=PACKAGE_TYPES_TO_INDEX,
+                pipeline_uuid=pipeline_uuid,
+                filter_replicas=True,
             )
-            if index_success is True:
-                self.info("Successfully reindexed package {}".format(package_uuid))
-            else:
-                self.error(
-                    "Error indexing package {0}. Details: {1}".format(
-                        package_uuid, error_message
-                    )
-                )
+        aips_to_index_count = len(aips_to_index)
 
-            self.info("Cleaning up")
-            shutil.rmtree(temp_dir)
-            self.info("Indexing complete.")
-            return
+        # If there's nothing to index, log error and quit.
+        if not aips_to_index_count:
+            self.error("No AIPs found to index. Quitting.")
+            sys.exit(1)
 
+        # Setup es_client and delete indices if required.
+        es_client = setup_es_for_aip_reindexing(self, delete_all)
         self.info("Rebuilding 'aips' and 'aipfiles' indices")
 
+        # Index packages.
         packages_not_indexed = []
-
-        # Index non-deleted AIPs associated with this pipeline.
-        aips = storageService.get_file_info(package_type="AIP")
-        filtered_aips = am.filter_packages_by_status_and_pipeline(
-            aips, pipeline_uuid=pipeline_uuid
-        )
-        filtered_aip_count = len(filtered_aips)
-
         aip_indexed_count = 0
-        for aip in filtered_aips:
+        for aip in aips_to_index:
+            is_aic = False
+            if aip["package_type"] == "AIC":
+                is_aic = True
             index_success = self.process_package(
-                es_client, aip, temp_dir, delete_before_reindexing
+                es_client, aip, temp_dir, delete_before_reindexing, is_aic=is_aic
             )
-            if index_success is True:
+            if index_success:
                 aip_indexed_count += 1
             else:
                 packages_not_indexed.append(aip["uuid"])
-
-        # Index non-deleted AICs associated with this pipeline.
-        aics = storageService.get_file_info(package_type="AIC")
-        filtered_aics = am.filter_packages_by_status_and_pipeline(
-            aics, pipeline_uuid=pipeline_uuid
-        )
-        filtered_aic_count = len(filtered_aics)
-
-        aic_indexed_count = 0
-        for aic in filtered_aics:
-            index_success = self.process_package(
-                es_client, aic, temp_dir, delete_before_reindexing, is_aic=True
-            )
-            if index_success is True:
-                aic_indexed_count += 1
-            else:
-                packages_not_indexed.append(aic["uuid"])
 
         # Clean up and report on packages indexed.
         self.info("Cleaning up")
         shutil.rmtree(temp_dir)
 
         if packages_not_indexed:
-            indexing_stats = "{0} of {1} AIPs and {2} of {3} AICs".format(
-                aip_indexed_count,
-                filtered_aip_count,
-                aic_indexed_count,
-                filtered_aic_count,
-            )
-            self.info(
-                "Indexing complete. Indexed {0}. Packages not indexed: {1}.".format(
-                    indexing_stats, ", ".join(packages_not_indexed)
+            self.error(
+                "Indexing complete. Indexed {count} of {total} AIPs/AICs. Packages not indexed: {uuids}.".format(
+                    count=aip_indexed_count,
+                    total=aips_to_index_count,
+                    uuids=", ".join(packages_not_indexed),
                 )
             )
         else:
-            self.info(
-                "Indexing complete. Indexed {0} AIPs and {1} AICs".format(
-                    aip_indexed_count, aic_indexed_count
+            pluralized_aips_aics_term = (
+                "AIP/AIC" if aip_indexed_count == 1 else "AIPs/AICs"
+            )
+            self.success(
+                "Indexing complete. Successfully indexed {count} {term}.".format(
+                    count=aip_indexed_count, term=pluralized_aips_aics_term
                 )
             )
 
@@ -254,7 +223,7 @@ class Command(DashboardCommand):
             return False
 
         aips_in_aic = None
-        if is_aic is True:
+        if is_aic:
             mets_root = etree.parse(mets_download_path)
             aips_in_aic = get_aips_in_aic(mets_root, temp_dir, uuid)
 
@@ -262,7 +231,7 @@ class Command(DashboardCommand):
             package_info["current_path"], remove_uuid_suffix=True
         )
 
-        if delete_before_reindexing is True:
+        if delete_before_reindexing:
             self.info(
                 "Deleting package {} from 'aips' and 'aipfiles' indices.".format(uuid)
             )
@@ -284,7 +253,7 @@ class Command(DashboardCommand):
             self.info("Successfully indexed package {}".format(uuid))
             os.remove(mets_download_path)
             return True
-        except ElasticsearchException as err:
+        except (ElasticsearchException, etree.XMLSyntaxError) as err:
             self.error("Error indexing package {0}. Details: {1}".format(uuid, err))
             os.remove(mets_download_path)
             return False
