@@ -3,9 +3,9 @@
 {% load user %}
 {% load i18n %}
 
-{% block title %}Users - Edit {{ user }}{% endblock %}
-{% block h1 %}Users - Edit {{ user }}{% endblock %}
-{% block page_id %}accounts-edit{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+{% block h1 %}{{ title }}{% endblock %}
+{% block page_id %}accounts-profile{% endblock %}
 
 {% block content %}
 
@@ -21,7 +21,7 @@
         {% breadcrumb title %}
       </ul>
 
-      <form method="post" action="{% url 'profile' %}">
+      <form method="post" action="{% url 'accounts:profile' %}">
 
         {% csrf_token %}
 
@@ -46,7 +46,7 @@
 
         <div class="actions">
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-          <a class="btn btn-default" href="{% url 'main.views.home' %}">{% trans "Cancel" %}</a>
+          <a class="btn btn-default" href="{% url 'main:main_index' %}">{% trans "Cancel" %}</a>
         </div>
 
       </form>
