@@ -759,7 +759,7 @@
             "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
             "hidden": false,
             "createdtimedec": "0.6613570000",
-            "jobtype": "Sanitize file and directory names in submission documentation"
+            "jobtype": "Change file and directory names in submission documentation"
         },
         "model": "main.job",
         "pk": "c8a0b535-6020-4db3-87b7-317b6bc3e11e"
@@ -912,7 +912,7 @@
             "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
             "hidden": false,
             "createdtimedec": "0.3955900000",
-            "jobtype": "Sanitize file and directory names in metadata"
+            "jobtype": "Change file and directory names in metadata"
         },
         "model": "main.job",
         "pk": "2cea6ae1-6d77-4783-9356-5b323f7353cc"
