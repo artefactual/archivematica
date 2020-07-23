@@ -5,6 +5,10 @@ from os import environ
 
 from django.core.exceptions import ImproperlyConfigured
 
+# We default to a live demo CAS server to facilitate QA and regression
+# testing. The following credentials can be used to authenticate:
+# Username: admin
+# Password: django-cas-ng
 CAS_DEMO_SERVER_URL = "https://django-cas-ng-demo-server.herokuapp.com/cas/"
 CAS_SERVER_URL = environ.get("AUTH_CAS_SERVER_URL", CAS_DEMO_SERVER_URL)
 

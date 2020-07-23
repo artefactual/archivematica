@@ -15,7 +15,7 @@ except ImportError:
 
 from components import helpers
 from components.accounts.backends import CustomCASBackend
-from components.accounts.signals import _user_is_administrator
+from components.accounts.signals import _cas_user_is_administrator
 
 TEST_CAS_USER = "casuser"
 TEST_CAS_ADMIN_ATTRIBUTE = "usertype"
@@ -224,8 +224,8 @@ class TestCAS(TestCase):
             assert user is not None
             assert user.is_superuser is False
 
-    def test_user_is_administrator(self):
-        """Unit test for _user_is_administrator helper.
+    def test_cas_user_is_administrator(self):
+        """Unit test for _cas_user_is_administrator helper.
         """
         # If settings are improperly configured, function should return
         # False.
@@ -234,7 +234,9 @@ class TestCAS(TestCase):
             CAS_ADMIN_ATTRIBUTE=TEST_CAS_ADMIN_ATTRIBUTE,
             CAS_ADMIN_ATTRIBUTE_VALUE=None,
         ):
-            assert _user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_POSITIVE) is False
+            assert (
+                _cas_user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_POSITIVE) is False
+            )
 
         # Ensure function returns expected values whether
         # CAS_ADMIN_ATTRIBUTE is a string or a list.
@@ -243,7 +245,13 @@ class TestCAS(TestCase):
             CAS_ADMIN_ATTRIBUTE=TEST_CAS_ADMIN_ATTRIBUTE,
             CAS_ADMIN_ATTRIBUTE_VALUE=TEST_CAS_ADMIN_ATTRIBUTE_VALUE_POSITIVE,
         ):
-            assert _user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_POSITIVE) is True
-            assert _user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_NEGATIVE) is False
-            assert _user_is_administrator(TEST_CAS_ATTRIBUTES_LIST_POSITIVE) is True
-            assert _user_is_administrator(TEST_CAS_ATTRIBUTES_LIST_NEGATIVE) is False
+            assert (
+                _cas_user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_POSITIVE) is True
+            )
+            assert (
+                _cas_user_is_administrator(TEST_CAS_ATTRIBUTES_STRING_NEGATIVE) is False
+            )
+            assert _cas_user_is_administrator(TEST_CAS_ATTRIBUTES_LIST_POSITIVE) is True
+            assert (
+                _cas_user_is_administrator(TEST_CAS_ATTRIBUTES_LIST_NEGATIVE) is False
+            )

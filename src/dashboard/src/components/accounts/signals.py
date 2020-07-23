@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import logging
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django_auth_ldap.backend import populate_user
 from django_cas_ng.signals import cas_user_authenticated
@@ -14,7 +14,7 @@ from components.helpers import generate_api_key
 logger = logging.getLogger("archivematica.dashboard")
 
 
-def _user_is_administrator(cas_attributes):
+def _cas_user_is_administrator(cas_attributes):
     """Determine if new user is an administrator from CAS attributes.
 
     :param cas_attributes: Attributes dict returned by CAS server.
@@ -26,7 +26,7 @@ def _user_is_administrator(cas_attributes):
     if (ADMIN_ATTRIBUTE is None) or (ADMIN_ATTRIBUTE_VALUE is None):
         logger.error(
             "Error determining if new user is an administrator. Please "
-            "be sure that env variables AUTH_CAS_ADMIN_ATTRIBUTE and "
+            "be sure that CAS settings AUTH_CAS_ADMIN_ATTRIBUTE and "
             "AUTH_CAS_ADMIN_ATTRIBUTE_VALUE are properly set."
         )
         return False
@@ -71,8 +71,9 @@ def cas_user_authenticated_callback(sender, **kwargs):
     if not attributes:
         return
 
-    user = User.objects.get(username=username)
-    is_administrator = _user_is_administrator(attributes)
+    User = get_user_model()
+    user = User.objects.select_for_update().get(username=username)
+    is_administrator = _cas_user_is_administrator(attributes)
     if user.is_superuser != is_administrator:
         user.is_superuser = is_administrator
         user.save()
