@@ -25,6 +25,7 @@ import logging
 import logging.config
 import os
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from six import StringIO
 
@@ -507,8 +508,25 @@ if SHIBBOLETH_AUTHENTICATION:
 
     from .components.shibboleth_auth import *  # noqa
 
+LDAP_AUTHENTICATION = config.get("ldap_authentication")
+if LDAP_AUTHENTICATION:
+    ALLOW_USER_EDITS = False
+    AUTHENTICATION_BACKENDS.insert(0, "components.accounts.backends.CustomLDAPBackend")
+
+    from .components.ldap_auth import *  # noqa
+
 CAS_AUTHENTICATION = config.get("cas_authentication")
 if CAS_AUTHENTICATION:
+    # CAS circumvents the Archivematica login screen and prevents usage
+    # of other authentication methods, so we raise an exception if a
+    # single sign-on option other than CAS is enabled.
+    if SHIBBOLETH_AUTHENTICATION or LDAP_AUTHENTICATION:
+        raise ImproperlyConfigured(
+            "CAS authentication is not supported in tandem with other single "
+            "sign-on methods. Please disable other Archivematica SSO settings "
+            "(e.g. Shibboleth, LDAP) before proceeding."
+        )
+
     ALLOW_USER_EDITS = False
     INSTALLED_APPS += ["django_cas_ng"]
 
@@ -521,13 +539,6 @@ if CAS_AUTHENTICATION:
     )
 
     from .components.cas_auth import *  # noqa
-
-LDAP_AUTHENTICATION = config.get("ldap_authentication")
-if LDAP_AUTHENTICATION:
-    ALLOW_USER_EDITS = False
-    AUTHENTICATION_BACKENDS.insert(0, "components.accounts.backends.CustomLDAPBackend")
-
-    from .components.ldap_auth import *  # noqa
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
 if PROMETHEUS_ENABLED:
