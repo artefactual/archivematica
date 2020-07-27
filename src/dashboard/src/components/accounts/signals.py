@@ -5,6 +5,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.dispatch import receiver
 from django_auth_ldap.backend import populate_user
 from django_cas_ng.signals import cas_user_authenticated
@@ -72,11 +73,13 @@ def cas_user_authenticated_callback(sender, **kwargs):
         return
 
     User = get_user_model()
-    user = User.objects.select_for_update().get(username=username)
     is_administrator = _cas_user_is_administrator(attributes)
-    if user.is_superuser != is_administrator:
-        user.is_superuser = is_administrator
-        user.save()
+
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(username=username)
+        if user.is_superuser != is_administrator:
+            user.is_superuser = is_administrator
+            user.save()
 
 
 def ldap_populate_user(sender, user, ldap_user, **kwargs):
