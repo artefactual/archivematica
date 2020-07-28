@@ -16,7 +16,7 @@ $(document).ready(function()
     }
 
     function render_status(pending_deletion) {
-      return pending_deletion == true ? gettext('Delete requested') : gettext('Stored');
+      return pending_deletion == true ? gettext('Deletion requested') : gettext('Stored');
     }
  
     function get_state_url_params() {

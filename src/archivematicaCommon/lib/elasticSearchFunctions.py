@@ -1470,7 +1470,7 @@ def mark_aip_deletion_requested(client, uuid):
     :param uuid: AIP UUID.
     :return: None.
     """
-    _mark_deletion_request(
+    _update_field_for_package_and_files(
         client, AIPS_INDEX, AIP_FILES_INDEX, "AIPUUID", uuid, ES_FIELD_STATUS, "DEL_REQ"
     )
 
@@ -1482,7 +1482,7 @@ def mark_backlog_deletion_requested(client, uuid):
     :param uuid: Transfer UUID.
     :return: None.
     """
-    _mark_deletion_request(
+    _update_field_for_package_and_files(
         client,
         TRANSFERS_INDEX,
         TRANSFER_FILES_INDEX,
@@ -1493,10 +1493,46 @@ def mark_backlog_deletion_requested(client, uuid):
     )
 
 
-def _mark_deletion_request(
+def revert_aip_deletion_request(client, uuid):
+    """Update AIP indices to reflect rejected deletion request
+
+    :param client: ES client.
+    :param uuid: AIP UUID.
+    :returns: None.
+    """
+    _update_field_for_package_and_files(
+        client,
+        AIPS_INDEX,
+        AIP_FILES_INDEX,
+        "AIPUUID",
+        uuid,
+        ES_FIELD_STATUS,
+        STATUS_UPLOADED,
+    )
+
+
+def revert_backlog_deletion_request(client, uuid):
+    """Update transfer indices to reflect rejected deletion request
+
+    :param client: ES client.
+    :param uuid: Transfer UUID.
+    :returns: None.
+    """
+    _update_field_for_package_and_files(
+        client,
+        TRANSFERS_INDEX,
+        TRANSFER_FILES_INDEX,
+        "sipuuid",
+        uuid,
+        "pending_deletion",
+        False,
+    )
+
+
+def _update_field_for_package_and_files(
     client, package_index, files_index, package_uuid_field, package_uuid, field, value
 ):
-    """Update package and file indices to reflect deletion request for a package.
+    """Update the specified field for a package and its related files
 
     :param client: ES client.
     :param package_index: Name of package index to update.

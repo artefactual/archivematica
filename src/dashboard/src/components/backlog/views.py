@@ -39,12 +39,20 @@ logger = logging.getLogger("archivematica.dashboard")
 
 
 def check_and_remove_deleted_transfers(es_client):
-    """
-    Check the storage service to see if transfers marked in ES as 'pending deletion' have been deleted yet. If so,
-    remove the transfer and its files from ES. This is a bit of a kludge (that we do elsewhere e.g. in the storage tab),
-    but it appears necessary as the storage service doesn't talk directly to ES.
+    """Update transfers pending deletion based on their status in AMSS
 
-    :return: None
+    Check the Storage Service for the package status of transfers
+    marked in ES as pending deletion. If a package was deleted,
+    remove it and its files from ES. If the deletion request was
+    rejected, update the pending_deletion field in ES for the transfer
+    and its files accordingly.
+
+    This is a bit of a kludge (that we also do elsewhere, e.g. in the
+    Archival Storage tab), but it is necessary as the Storage Service
+    doesn't talk directly to ES.
+
+    :param es_client: ES client.
+    :return: None.
     """
     query = {"query": {"bool": {"must": {"match": {"pending_deletion": True}}}}}
 
@@ -67,6 +75,8 @@ def check_and_remove_deleted_transfers(es_client):
         if status == es.STATUS_DELETED:
             es.remove_backlog_transfer_files(es_client, transfer_uuid)
             es.remove_backlog_transfer(es_client, transfer_uuid)
+        elif status == es.STATUS_UPLOADED:
+            es.revert_backlog_deletion_request(es_client, transfer_uuid)
 
 
 def check_and_update_transfer_pending_deletion(uuid, pending_deletion):

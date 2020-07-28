@@ -63,12 +63,18 @@ CSV_FILE_NAME = "archival-storage-report.csv"
 
 
 def check_and_remove_deleted_aips(es_client):
-    """Remove AIP and files from ES index if Storage Service status is deleted.
+    """Update AIPs pending deletion based on their status in AMSS
 
-    Check the storage service to see if transfers marked in ES as
-    'pending deletion' have been deleted yet.
+    Check the Storage Service for the package status of AIPs marked in
+    ES as pending deletion. If a package was deleted, remove it and its
+    files from ES. If the deletion request was rejected, update the
+    status field in ES for the AIP and its files accordingly.
 
-    :param es_client: Elasticsearch client.
+    This is a bit of a kludge (that we also do elsewhere, e.g. in the
+    Backlog tab), but it is necessary as the Storage Service doesn't
+    talk directly to ES.
+
+    :param es_client: ES client.
     :return: None.
     """
     query = {
@@ -92,8 +98,8 @@ def check_and_remove_deleted_aips(es_client):
         if aip_status == es.STATUS_DELETED:
             es.delete_aip(es_client, aip_uuid)
             es.delete_aip_files(es_client, aip_uuid)
-        elif aip_status != es.STATUS_DELETE_REQUESTED:
-            es.mark_aip_stored(es_client, aip_uuid)
+        elif aip_status == es.STATUS_UPLOADED:
+            es.revert_aip_deletion_request(es_client, aip_uuid)
 
 
 def check_and_update_aip_pending_deletion(uuid, es_status):
