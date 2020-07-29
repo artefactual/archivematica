@@ -136,16 +136,16 @@ class HttpResponseNotImplemented(django.http.HttpResponse):
     status_code = 501
 
 
-def allowed_by_whitelist(ip_address):
-    whitelist = [ip.strip() for ip in helpers.get_setting("api_whitelist", "").split()]
+def allowed_by_allowlist(ip_address):
+    allowlist = [ip.strip() for ip in helpers.get_api_allowlist().split()]
 
-    # If there's no whitelist, allow all through
-    if not whitelist:
+    # If there's no allowlist, allow all through
+    if not allowlist:
         return True
 
-    LOGGER.debug("looking for ip %s in whitelist %s", ip_address, whitelist)
-    # There is a whitelist - check the IP address against it
-    if ip_address in whitelist:
+    LOGGER.debug("looking for ip %s in allowlist %s", ip_address, allowlist)
+    # There is an allowlist, check the IP address against it.
+    if ip_address in allowlist:
         LOGGER.debug("API called by trusted IP %s", ip_address)
         return True
 
@@ -164,7 +164,7 @@ def authenticate_request(request):
     if authorized is not True:
         error = "API key not valid."
 
-    elif not allowed_by_whitelist(client_ip):
+    elif not allowed_by_allowlist(client_ip):
         error = "Host/IP " + client_ip + " not authorized."
 
     return error

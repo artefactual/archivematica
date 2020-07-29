@@ -24,15 +24,15 @@
 
       <h3>{% trans "REST API configuration" %}</h3>
 
-      <h4>{% trans "IP whitelist" %}</h4>
+      <h4>{% trans "IP allowlist" %}</h4>
 
       <p>{% trans "Enter a whitespace-separated list of IPs or hostnames permitted to use the API." %}</p>
-      <p>{% trans "If the whitelist is left empty, all IPs and hostnames will be allowed." %}</p>
+      <p>{% trans "If the allowlist is left empty, all IPs and hostnames will be allowed." %}</p>
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
         {% csrf_token %}
-        <textarea name='whitelist' class='form-control' style='margin-bottom: 1em;'>{{ whitelist }}</textarea>
+        <textarea name='allowlist' class='form-control' style='margin-bottom: 1em;'>{{ allowlist }}</textarea>
         <div>
           <input type='submit' value='{% trans "Save" %}' class='btn btn-primary' />
         </div>
