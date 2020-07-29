@@ -433,3 +433,19 @@ def generate_api_key(user):
     api_key, _ = ApiKey.objects.get_or_create(user=user)
     api_key.key = api_key.generate_key()
     api_key.save()
+
+
+def get_api_allowlist():
+    """Get API allowlist setting."""
+    return get_setting("api_whitelist", "")
+
+
+def set_api_allowlist(allowlist):
+    """Set API allowlist setting.
+
+    ``allowlist`` (str) is a space-separated list of IP addresses with access
+    to the public API. If falsy, all clients are allowed.
+    """
+    if not allowlist:
+        allowlist = ""
+    return set_setting("api_whitelist", allowlist)

@@ -476,11 +476,11 @@ def premis_agent(request):
 
 def api(request):
     if request.method == "POST":
-        whitelist = request.POST.get("whitelist", "")
-        helpers.set_setting("api_whitelist", whitelist)
+        allowlist = request.POST.get("allowlist", "")
+        helpers.set_api_allowlist(allowlist)
         messages.info(request, _("Saved."))
     else:
-        whitelist = helpers.get_setting("api_whitelist", "")
+        allowlist = helpers.get_api_allowlist()
 
     return render(request, "administration/api.html", locals())
 
