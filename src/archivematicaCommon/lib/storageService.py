@@ -168,7 +168,7 @@ def get_location(path=None, purpose=None, space=None):
     optionally filtered by purpose, containing space or path.
 
     purpose: How the storage is used.  Should reference storage service
-        purposes, found in storage_service.locations.models.py
+        purposes, found in storage_service/locations/models/location.py
     path: Path to location.  If a space is passed in, paths starting with /
         have the space's path stripped.
     """
