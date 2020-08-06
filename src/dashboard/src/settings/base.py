@@ -78,6 +78,11 @@ CONFIG_MAPPING = {
         "option": "ldap_authentication",
         "type": "boolean",
     },
+    "oidc_authentication": {
+        "section": "Dashboard",
+        "option": "oidc_authentication",
+        "type": "boolean",
+    },
     "storage_service_client_timeout": {
         "section": "Dashboard",
         "option": "storage_service_client_timeout",
@@ -133,6 +138,7 @@ gearman_server = 127.0.0.1:4730
 shibboleth_authentication = False
 cas_authentication = False
 ldap_authentication = False
+oidc_authentication = False
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
@@ -304,6 +310,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "main.context_processors.search_enabled",
+                "main.context_processors.auth_methods",
             ],
             "debug": DEBUG,
         },
@@ -539,6 +546,16 @@ if CAS_AUTHENTICATION:
     )
 
     from .components.cas_auth import *  # noqa
+
+OIDC_AUTHENTICATION = config.get("oidc_authentication")
+if OIDC_AUTHENTICATION:
+    ALLOW_USER_EDITS = False
+
+    AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
+    LOGIN_EXEMPT_URLS.append(r"^oidc")
+    INSTALLED_APPS += ["mozilla_django_oidc"]
+
+    from .components.oidc_auth import *  # noqa
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
 if PROMETHEUS_ENABLED:

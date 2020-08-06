@@ -24,6 +24,11 @@
 
     </form>
 
+    {% if oidc_enabled %}
+      <p>
+        <a href="{% url 'oidc_authentication_init' %}">Log in with OpenID Connect</a>
+      </p>
+    {% endif %}
   </div>
 
 {% endblock %}
