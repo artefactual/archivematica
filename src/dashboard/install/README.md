@@ -586,6 +586,8 @@ These variables specify the behaviour of CAS authentication. Only applicable if 
 
 ### OIDC variables
 
+**OIDC support is experimental, please share your feedback!**
+
 These variables specify the behaviour of OpenID Connect (OIDC) authentication. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION` is set.
 
 - **`OIDC_RP_CLIENT_ID`**:
