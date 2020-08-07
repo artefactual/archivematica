@@ -7,11 +7,7 @@ from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.urls import reverse
 import pytest
-
-try:
-    import mock
-except ImportError:
-    from unittest import mock
+import mock
 
 from components import helpers
 from components.accounts.backends import CustomCASBackend

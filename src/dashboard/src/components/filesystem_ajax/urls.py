@@ -40,6 +40,10 @@ urlpatterns = [
         name="create_directory_within_arrange",
     ),
     url(r"^copy_to_arrange/$", views.copy_to_arrange, name="copy_to_arrange"),
-    url(r"^copy_from_arrange/$", views.copy_from_arrange_to_completed),
+    url(
+        r"^copy_from_arrange/$",
+        views.copy_from_arrange_to_completed,
+        name="copy_from_arrange",
+    ),
     url(r"^copy_metadata_files/$", views.copy_metadata_files),
 ]

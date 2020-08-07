@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 import pytest
+import mock
 
 from archivematicaFunctions import b64encode_string
 from components import helpers
@@ -244,6 +245,137 @@ class TestSIPArrange(TestCase):
         assert b64encode(b"subsip").decode("utf8") in response_dict["entries"]
         assert b64encode(b"newsip").decode("utf8") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
+
+    def test_copy_from_arrange_to_completed(self):
+        sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        models.SIP.objects.create(uuid=sip_uuid)
+        with mock.patch(
+            "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
+            return_value=("12345", None),
+        ):
+            with mock.patch(
+                "components.filesystem_ajax.views._create_arranged_sip",
+                return_value=None,
+            ) as create_arranged_sip_mock:
+                response = self.client.post(
+                    reverse("filesystem_ajax:copy_from_arrange"),
+                    data={
+                        "filepath": b64encode(b"/arrange/newsip/").decode("utf8"),
+                        "uuid": sip_uuid,
+                    },
+                    follow=True,
+                )
+
+                assert response.status_code == 201
+                response_dict = json.loads(response.content.decode("utf8"))
+                assert response_dict["message"] == "SIP created."
+                assert response_dict["sip_uuid"] == sip_uuid
+
+                create_arranged_sip_mock.assert_called_once_with(
+                    u"staging/newsip/",
+                    [
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg",
+                            "destination": u"staging/newsip/objects/evelyn_s_photo.jpg",
+                            "uuid": u"4fa8f739-b633-4c0f-8833-d108a4f4e88d",
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
+                            "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
+                            "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "destination": u"staging/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "uuid": u"7f889d5d-7849-490e-a8e6-ccb9595445d7",
+                        },
+                    ],
+                    sip_uuid,
+                )
+
+    def test_copy_from_arrange_to_completed_from_bagit_transfer(self):
+        """Confirms that SIP arrangement is also possible from BagIt transfers.
+
+        See https://github.com/archivematica/Issues/issues/1267 for a scenario
+        where files in backlogged transfers such as `data/logs/*` would cause
+        the endpoint to fail.
+        """
+        sip_uuid = u"a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        models.SIP.objects.create(uuid=sip_uuid)
+        models.SIPArrange.objects.all().delete()
+        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
+        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/")
+        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/objects/")
+        models.SIPArrange.objects.create(
+            arrange_path="/arrange/testsip/data/objects/MARBLES.TGA",
+            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+            transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+        )
+        models.SIPArrange.objects.create(
+            arrange_path="/arrange/testsip/data/logs/BagIt/bagit.txt",
+            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+            transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+        )
+        models.SIPArrange.objects.create(
+            arrange_path="/arrange/testsip/data/metadata/manifest-md5.txt",
+            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+            transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+        )
+
+        with mock.patch(
+            "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
+            return_value=("12345", None),
+        ):
+            with mock.patch(
+                "components.filesystem_ajax.views._create_arranged_sip",
+                return_value=None,
+            ) as create_arranged_sip_mock:
+                response = self.client.post(
+                    reverse("filesystem_ajax:copy_from_arrange"),
+                    data={
+                        "filepath": b64encode(b"/arrange/testsip/").decode("utf8"),
+                        "uuid": sip_uuid,
+                    },
+                    follow=True,
+                )
+
+                assert response.status_code == 201
+                response_dict = json.loads(response.content.decode("utf8"))
+                assert response_dict["message"] == "SIP created."
+                assert response_dict["sip_uuid"] == sip_uuid
+
+                create_arranged_sip_mock.assert_called_once_with(
+                    u"staging/testsip/",
+                    [
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+                            "destination": u"staging/testsip/data/objects/MARBLES.TGA",
+                            "uuid": None,
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
+                            "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/.",
+                            "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+                            "destination": u"staging/testsip/data/logs/BagIt/bagit.txt",
+                            "uuid": None,
+                        },
+                        {
+                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+                            "destination": u"staging/testsip/data/metadata/manifest-md5.txt",
+                            "uuid": None,
+                        },
+                    ],
+                    sip_uuid,
+                )
 
 
 @pytest.mark.django_db
