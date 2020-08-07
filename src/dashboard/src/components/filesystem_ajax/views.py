@@ -474,7 +474,9 @@ def copy_from_arrange_to_completed(
     """
     if filepath is None:
         filepath = b64decode_string(request.POST.get("filepath", ""))
-    logger.info("copy_from_arrange_to_completed: filepath: %s", filepath)
+    logger.info(
+        "copy_from_arrange_to_completed: filepath: %s, sip_uuid: %s", filepath, sip_uuid
+    )
     # can optionally pass in the UUID to an unstarted SIP entity
     if sip_uuid is None:
         sip_uuid = request.POST.get("uuid")
@@ -549,14 +551,14 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             ).split("/", 1)
             transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
-            is_bagit = True if transfer_parts[1].startswith(u"data/objects") else False
+            is_bagit = transfer_parts[1].startswith(u"data/")
             # Copy metadata & logs to tmp/, where later scripts expect
             for directory in ("logs", "metadata"):
-                source = [DEFAULT_BACKLOG_PATH, transfer_name, directory]
+                source = [DEFAULT_BACKLOG_PATH, transfer_name, directory, "."]
                 if is_bagit:
                     source.insert(2, "data")
                 file_ = {
-                    "source": os.path.join(os.path.sep.join(source), "."),
+                    "source": os.path.join(*source),
                     "destination": os.path.join(
                         "tmp",
                         "transfer-{}".format(arranged_file.transfer_uuid),
