@@ -11,7 +11,12 @@ from django.utils.translation import ugettext as _
 
 def dependent_objects(object_):
     """ Returns all the objects that rely on 'object_'. """
-    links = [rel.get_accessor_name() for rel in object_._meta.get_all_related_objects()]
+    related_objects = [
+        f
+        for f in object_._meta.get_fields()
+        if (f.one_to_many or f.one_to_one) and f.auto_created and not f.concrete
+    ]
+    links = [rel.get_accessor_name() for rel in related_objects]
     dependent_objects = []
     for link in links:
         linked_objects = getattr(object_, link).all()

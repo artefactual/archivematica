@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.test import TestCase
 
 from components import helpers
-from fpr.models import FPTool, IDTool
+from fpr.models import FPTool, IDTool, FPCommand
 
 
 class TestViews(TestCase):
@@ -48,3 +48,14 @@ class TestViews(TestCase):
 
         resp = self.client.get(url, {"parent": tool.uuid})
         self.assertEqual(resp.context["form"].initial["tool"], tool)
+
+    def test_fpcommand_delete(self):
+        fpcommand_id = "0fd7935a-ed0d-4f67-aa25-1b44684f6aca"
+        url = reverse("fpr:fpcommand_delete", args=[fpcommand_id])
+
+        self.assertEqual(FPCommand.active.filter(uuid=fpcommand_id).exists(), True)
+
+        resp = self.client.post(url, follow=True, data={"disable": True})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(FPCommand.active.filter(uuid=fpcommand_id).exists(), False)
