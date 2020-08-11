@@ -52,6 +52,7 @@ class Command(DashboardCommand):
                     "accessionids": {"type": "keyword"},
                     "status": {"type": "keyword"},
                     "file_count": {"type": "integer"},
+                    es.ES_FIELD_LOCATION: {"type": "keyword"},
                 }
             },
         )
