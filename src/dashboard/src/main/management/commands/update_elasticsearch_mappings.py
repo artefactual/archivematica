@@ -49,9 +49,9 @@ class Command(DashboardCommand):
             doc_type=es.DOC_TYPE,
             body={
                 "properties": {
-                    "accessionids": {"type": "keyword"},
-                    "status": {"type": "keyword"},
-                    "file_count": {"type": "integer"},
+                    es.ES_FIELD_ACCESSION_IDS: {"type": "keyword"},
+                    es.ES_FIELD_STATUS: {"type": "keyword"},
+                    es.ES_FIELD_FILECOUNT: {"type": "integer"},
                     es.ES_FIELD_LOCATION: {"type": "keyword"},
                 }
             },
@@ -64,7 +64,7 @@ class Command(DashboardCommand):
             body={
                 "properties": {
                     "accessionid": {"type": "keyword"},
-                    "status": {"type": "keyword"},
+                    es.ES_FIELD_STATUS: {"type": "keyword"},
                     "filePath": {
                         "type": "text",
                         "analyzer": "file_path_and_name",
