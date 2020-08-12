@@ -7,8 +7,8 @@ import metsrw
 import scandir
 
 import v1_create_aip_mets as createmets2
-import archivematicaCreateMETSRights as createmetsrights
-import archivematicaCreateMETSMetadataCSV as createmetscsv
+import create_mets_rights as createmetsrights
+import create_mets_metadata_csv as createmetscsv
 import namespaces as ns
 
 # dashboard
