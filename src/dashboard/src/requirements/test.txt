@@ -5,7 +5,6 @@
 #    pip-compile --output-file=test.txt test.in
 #
 -e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r base.txt
--e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername  # via -r base.txt
 agentarchives==0.6.0      # via -r base.txt
 amclient==1.1.1           # via -r base.txt
 appdirs==1.4.4            # via virtualenv
@@ -86,12 +85,15 @@ scandir==1.10.0           # via -r base.txt, pathlib2
 singledispatch==3.4.0.3   # via importlib-resources
 six==1.15.0               # via -r base.txt, amclient, cryptography, django-extensions, josepy, metsrw, mock, more-itertools, mozilla-django-oidc, packaging, pathlib2, pyopenssl, pytest, python-cas, python-dateutil, tox, vcrpy, virtualenv
 toml==0.10.1              # via tox
-tox==3.18.1               # via -r test.in
+tox==3.19.0               # via -r test.in
 typing==3.7.4.3           # via importlib-resources
 urllib3==1.24.3           # via -r base.txt, amclient, elasticsearch, requests
 vcrpy==1.13.0             # via -r test.in
-virtualenv==20.0.28       # via tox
+virtualenv==20.0.30       # via tox
 wcwidth==0.2.5            # via pytest
 whitenoise==3.3.0         # via -r base.txt
 wrapt==1.12.1             # via vcrpy
 zipp==1.2.0               # via importlib-metadata, importlib-resources
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

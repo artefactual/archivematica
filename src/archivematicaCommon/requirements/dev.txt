@@ -44,11 +44,11 @@ scandir==1.10.0           # via -r test.txt, pathlib2
 singledispatch==3.4.0.3   # via -r test.txt, importlib-resources
 six==1.14.0               # via -r test.txt, mock, more-itertools, packaging, pathlib2, pip-tools, pytest, python-dateutil, singledispatch, tox, vcrpy, virtualenv
 toml==0.10.1              # via -r test.txt, tox
-tox==3.16.1               # via -r test.txt
-typing==3.7.4.1           # via -r test.txt, importlib-resources
+tox==3.19.0               # via -r test.txt
+typing==3.7.4.3           # via -r test.txt, importlib-resources
 urllib3==1.24.3           # via -r test.txt, elasticsearch, requests
 vcrpy==1.13.0             # via -r test.txt
-virtualenv==20.0.25       # via -r test.txt, tox
+virtualenv==20.0.30       # via -r test.txt, tox
 wcwidth==0.2.5            # via -r test.txt, pytest
 wrapt==1.12.1             # via -r test.txt, vcrpy
 zipp==1.2.0               # via -r test.txt, importlib-metadata, importlib-resources

@@ -5,11 +5,9 @@
 #    pip-compile --output-file=dev.txt dev.in
 #
 -e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r test.txt
--e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername  # via -r test.txt
 agentarchives==0.6.0      # via -r test.txt
 amclient==1.1.1           # via -r test.txt
 appdirs==1.4.4            # via -r test.txt, virtualenv
-appnope==0.1.0            # via ipython
 atomicwrites==1.4.0       # via -r test.txt, pytest
 attrs==19.3.0             # via -r test.txt, pytest
 backports.functools-lru-cache==1.6.1  # via -r test.txt, wcwidth
@@ -100,12 +98,12 @@ simplegeneric==0.8.1      # via ipython
 singledispatch==3.4.0.3   # via -r test.txt, importlib-resources
 six==1.15.0               # via -r test.txt, amclient, cryptography, django-extensions, josepy, metsrw, mock, more-itertools, mozilla-django-oidc, packaging, pathlib2, pip-tools, prompt-toolkit, pyopenssl, pytest, python-cas, python-dateutil, singledispatch, tox, traitlets, vcrpy, virtualenv
 toml==0.10.1              # via -r test.txt, tox
-tox==3.18.1               # via -r test.txt
+tox==3.19.0               # via -r test.txt
 traitlets==4.3.3          # via ipython
 typing==3.7.4.3           # via -r test.txt, importlib-resources
 urllib3==1.24.3           # via -r test.txt, amclient, elasticsearch, requests
 vcrpy==1.13.0             # via -r test.txt
-virtualenv==20.0.28       # via -r test.txt, tox
+virtualenv==20.0.30       # via -r test.txt, tox
 wcwidth==0.2.5            # via -r test.txt, prompt-toolkit, pytest
 whitenoise==3.3.0         # via -r test.txt
 wrapt==1.12.1             # via -r test.txt, vcrpy
