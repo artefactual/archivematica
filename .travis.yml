@@ -41,6 +41,11 @@ matrix:
     - python: "3.6"
       env: TOXENV=mcpserver
 
+    # Migrations
+
+    - python: "2.7"
+      env: TOXENV=checkformigrations
+
     # Linters
 
     - python: "3.7"
