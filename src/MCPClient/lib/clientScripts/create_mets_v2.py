@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from v0_create_mets.v0_create_aip_mets import create_mets
+from v1_create_mets.v1_create_aip_mets import create_mets as create_reduced_mets
 
 import traceback
 
@@ -62,6 +63,7 @@ def call(jobs):
             try:
                 opts, _ = parser.parse_args(job.args[1:])
                 create_mets(job, opts)
+                create_reduced_mets(job, opts)
             except Exception as err:
                 job.print_error(repr(err))
                 job.print_error(traceback.format_exc())

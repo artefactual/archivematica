@@ -70,7 +70,11 @@ def bag_with_empty_directories(job, destination, sip_directory, sip_uuid, algori
     """Create BagIt and include any empty directories from the SIP."""
     # Get list of directories in SIP
     dir_list = get_sip_directories(job, sip_directory)
-    payload_entries = _PAYLOAD_ENTRIES + ("METS.%s.xml" % sip_uuid,)
+    payload_entries = _PAYLOAD_ENTRIES + (
+        "METS.%s.xml" % sip_uuid,
+        "METS-reduced.%s.xml" % sip_uuid,
+        "METS-tools.%s.xml" % sip_uuid,
+    )
     os.mkdir(destination)
     for item in payload_entries:
         item = os.path.join(sip_directory, item)
