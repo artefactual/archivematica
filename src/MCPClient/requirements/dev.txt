@@ -53,11 +53,11 @@ scandir==1.10.0           # via -r test.txt, pathlib2
 singledispatch==3.4.0.3   # via -r test.txt, importlib-resources
 six==1.15.0               # via -r test.txt, django-extensions, metsrw, mock, more-itertools, opf-fido, packaging, pathlib2, pip-tools, pytest, python-dateutil, singledispatch, tox, virtualenv
 toml==0.10.1              # via -r test.txt, tox
-tox==3.16.1               # via -r test.txt
-typing==3.7.4.1           # via -r test.txt, importlib-resources
+tox==3.19.0               # via -r test.txt
+typing==3.7.4.3           # via -r test.txt, importlib-resources
 unidecode==0.04.19        # via -r test.txt
 urllib3==1.24.3           # via -r test.txt, requests
-virtualenv==20.0.25       # via -r test.txt, tox
+virtualenv==20.0.30       # via -r test.txt, tox
 wcwidth==0.2.5            # via -r test.txt, pytest
 zipp==1.2.0               # via -r test.txt, importlib-metadata, importlib-resources
 

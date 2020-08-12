@@ -5,7 +5,6 @@
 #    pip-compile --output-file=base.txt base.in
 #
 -e git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r base.in
--e git+https://github.com/seatme/django-longer-username.git@seatme#egg=longerusername  # via -r base.in
 agentarchives==0.6.0      # via -r base.in
 amclient==1.1.1           # via -r base.in
 bagit==1.7.0              # via -r base.in
@@ -60,3 +59,6 @@ scandir==1.10.0           # via -r base.in, pathlib2
 six==1.15.0               # via amclient, cryptography, django-extensions, josepy, metsrw, mozilla-django-oidc, pathlib2, pyopenssl, python-cas, python-dateutil
 urllib3==1.24.3           # via amclient, elasticsearch, requests
 whitenoise==3.3.0         # via -r base.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
