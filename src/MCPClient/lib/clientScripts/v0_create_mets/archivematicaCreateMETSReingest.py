@@ -6,7 +6,7 @@ import os
 import metsrw
 import scandir
 
-import create_mets_v2 as createmets2
+import v0_create_aip_mets as createmets2
 import archivematicaCreateMETSRights as createmetsrights
 import archivematicaCreateMETSMetadataCSV as createmetscsv
 import namespaces as ns
