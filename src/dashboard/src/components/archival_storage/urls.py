@@ -37,6 +37,16 @@ urlpatterns = [
         name="aip_mets_file_download",
     ),
     url(
+        r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/mets_reduced/$",
+        views.aip_mets_file_reduced,
+        name="aip_mets_file_reduced",
+    ),
+    url(
+        r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/mets_tools/$",
+        views.aip_mets_file_tools,
+        name="aip_mets_file_tools",
+    ),
+    url(
         r"^download/aip/(?P<uuid>" + settings.UUID_REGEX + ")/pointer_file/$",
         views.aip_pointer_file_download,
         name="aip_pointer_file_download",

@@ -320,13 +320,21 @@ def _prepare_stream_response(
 
 
 def stream_mets_from_storage_service(
-    transfer_name, sip_uuid, error_message="Unexpected error: {}"
+    transfer_name,
+    sip_uuid,
+    error_message="Unexpected error: {}",
+    tools=False,
+    reduced=False,
 ):
     """Enable the streaming of an individual AIP METS file from the Storage
     Service.
     """
     absolute_transfer_name = "{}-{}".format(transfer_name, sip_uuid)
     mets_name = "METS.{}.xml".format(sip_uuid)
+    if tools is True:
+        mets_name = "METS-tools.{}.xml".format(sip_uuid)
+    elif reduced is True:
+        mets_name = "METS-reduced.{}.xml".format(sip_uuid)
     mets_path = "{}/data/{}".format(absolute_transfer_name, mets_name)
     # We can't get a lot of debug information from AMClient yet, so we try to
     # download and then open, returning an error if the file can't be accessed.

@@ -93,6 +93,18 @@
         </td>
       </tr>
       <tr>
+        <th>{% trans "METS file reduced" %}</th>
+        <td>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'archival_storage:aip_mets_file_reduced' uuid %}">{% trans "View" %}</a>
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Tools file" %}</th>
+        <td>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'archival_storage:aip_mets_file_tools' uuid %}">{% trans "View" %}</a>
+        </td>
+      </tr>
+      <tr>
         <th>{% trans "Pointer file" %}</th>
         <td>
           <a class="btn btn-default btn-sm" target="_blank" href="{% url 'archival_storage:aip_pointer_file_download' uuid %}">{% trans "View" %}</a>
