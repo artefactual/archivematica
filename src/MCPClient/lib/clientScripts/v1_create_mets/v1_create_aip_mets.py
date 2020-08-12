@@ -1839,10 +1839,21 @@ def create_mets(job, opts):
     for amdSec in state.amdSecs:
         root.append(amdSec)
 
-    root.append(fileSec)
-    root.append(structMap)
-    if normativeStructMap is not None:
-        root.append(normativeStructMap)
+    # WELLCOME TODO: Another quick and dirty approach to demoing our
+    # savings but I don't think this is going to be enough... for one,
+    # I think there's a lot more detail in how the different sections
+    # accumulate detail above, but this also needs to be determined.
+    #
+    # root.append(fileSec)
+    # root.append(structMap)
+    # if normativeStructMap is not None:
+    #    root.append(normativeStructMap)
+    #
+    file_sec, structmap, normative_structmap = create_mets_structure(job, opts)
+    root.append(file_sec)
+    root.append(structmap)
+    if createNormativeStructmap:
+        root.append(normative_structmap)
 
     for custom_structmap in include_custom_structmap(job, baseDirectoryPath, state):
         root.append(custom_structmap)
@@ -1867,3 +1878,95 @@ def create_mets(job, opts):
 
     job.pyprint(XMLFile, "exists", os.path.exists(XMLFile))
     job.set_status(state.error_accumulator.error_count)
+
+
+# ----------------------------------------------------------------------
+# METS STRUCTURE CODE BELOW
+# ----------------------------------------------------------------------
+
+import metsrw
+from .fs_entries_tree import FSEntriesTree
+
+
+def retrieve_file_sec(mets):
+    """Retrieve file sec"""
+    mets_root = mets.serialize()
+    file_sec = mets_root.find(".//mets:fileSec", namespaces=ns.NSMAP)
+    return file_sec
+
+
+def retrieve_physical_structmap(mets):
+    """Retrieve physical structmap"""
+    mets_root = mets.serialize()
+    struct_map = mets_root.find(
+        ".//mets:structMap[@TYPE='physical']", namespaces=ns.NSMAP
+    )
+    return struct_map
+
+
+def retrieve_logical_structmap(mets):
+    """Retrieve logical structmap"""
+    mets_root = mets.serialize()
+    struct_map = mets_root.find(
+        ".//mets:structMap[@TYPE='logical']", namespaces=ns.NSMAP
+    )
+    return struct_map
+
+
+def create_mets_structure(job, opts):
+    """Create tool mets
+
+    Outputs a structmap, fileSec, and PREMIS objects containing largely
+    just the PREMIS object characteristics extension which holds the
+    tool output for objects from Archivematica's processing via the FPR.
+
+
+    WELLCOME TODO:
+
+        * How are amdSec counts guaranteed? (They are, but how was it
+          achieved?)
+        * This pattern is almost exactly the same as that for the tool
+          output, so how do we use it across both scripts and save the
+          duplication of effort. One option might be to output a chunk
+          of it from the tool output, and then as we do here, strip
+          out the duplicate segments relating to structure.
+        * This work is also largely a cut-down duplication of Cole's
+          work, how do we bring all three scripts together usefully? The
+          transfer script is: https://git.io/JJK8a
+        * There is so much camelCase in this original module, let's try
+          and reduce that.
+        * Other TODOs in-line.
+
+    """
+    base_directory_path = opts.baseDirectoryPath
+    base_directory_path_string = "%%%s%%" % (opts.baseDirectoryPathString)
+    aip_uuid = opts.fileGroupIdentifier
+
+    # Wellcome TODO: this is way too finicky... also, it looks like we're
+    # not using the second line.
+    base_directory_path = os.path.join(base_directory_path, "")
+    objects_directory_path = os.path.join(base_directory_path, "objects")
+
+    objects_directory_path = base_directory_path
+
+    mets = metsrw.METSDocument()
+    mets.objid = str(aip_uuid)
+
+    try:
+        aip = SIP.objects.get(uuid=aip_uuid)
+    except SIP.DoesNotExist:
+        logger.info("No record in database for transfer: %s", aip_uuid)
+        raise
+
+    fsentry_tree = FSEntriesTree(
+        objects_directory_path, base_directory_path_string, aip
+    )
+    fsentry_tree.scan()
+
+    mets.append_file(fsentry_tree.root_node)
+
+    file_sec = retrieve_file_sec(mets)
+    structmap = retrieve_physical_structmap(mets)
+    normative_structmap = retrieve_logical_structmap(mets)
+
+    return file_sec, structmap, normative_structmap
