@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, print_function
+
 import collections
 import copy
 from glob import glob
@@ -19,47 +21,47 @@ django.setup()
 # dashboard
 from django.utils import timezone
 from main.models import (
-    Agent,
+    # Audit specific models (not-volatile).
     Derivation,
     Directory,
     DublinCore,
     Event,
     File,
     FileID,
-    FPCommandOutput,
     SIP,
     SIPArrange,
+    # Agent Models (volatile).
+    Agent,
+    # FPR Models (Foreign-key, low-volatility).
+    FPCommandOutput,
 )
 
-import create_mets_reingest
-from create_mets_metadata_csv import parseMetadata
-from create_mets_rights import archivematicaGetRights
-from create_mets_rights_dspace_mdref import (
-    archivematicaCreateMETSRightsDspaceMDRef,
-)
-from create_mets_trim import getTrimDmdSec
-from create_mets_trim import getTrimFileDmdSec
-from create_mets_trim import getTrimAmdSec
-from create_mets_trim import getTrimFileAmdSec
+from . import create_mets_reingest
+from .create_mets_metadata_csv import parseMetadata
+from .create_mets_rights import archivematicaGetRights
+from .create_mets_rights_dspace_mdref import archivematicaCreateMETSRightsDspaceMDRef
+from .create_mets_trim import getTrimDmdSec
+from .create_mets_trim import getTrimFileDmdSec
+from .create_mets_trim import getTrimAmdSec
+from .create_mets_trim import getTrimFileAmdSec
 
 # archivematicaCommon
 from archivematicaFunctions import escape
 from archivematicaFunctions import normalizeNonDcElementName
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
-from create_mets_dataverse_v2 import (
+from .create_mets_dataverse_v2 import (
     create_dataverse_sip_dmdsec,
     create_dataverse_tabfile_dmdsec,
 )
 from custom_handlers import get_script_logger
+
 import namespaces as ns
 from ..sanitize_names import sanitize_name
 
 from bagit import Bag, BagError
 
-
-def concurrent_instances():
-    return 1
+logger = get_script_logger("archivematica.mcp.client.createMETS2")
 
 
 class ErrorAccumulator(object):
@@ -107,8 +109,6 @@ class MetsState(object):
         self.CSV_METADATA = {}
         self.error_accumulator = ErrorAccumulator()
 
-
-logger = get_script_logger("archivematica.mcp.client.createMETS2")
 
 FSItem = collections.namedtuple("FSItem", "type path is_empty")
 FakeDirMdl = collections.namedtuple("FakeDirMdl", "uuid")
@@ -525,10 +525,6 @@ def create_premis_object(fileUUID):
         creatingApplication, ns.premisBNS + "dateCreatedByApplication"
     ).text = f.modificationtime.strftime("%Y-%m-%d")
     objectCharacteristics.append(creatingApplication)
-
-    for elem in create_premis_object_characteristics_extensions(fileUUID):
-        objectCharacteristics.append(elem)
-
     etree.SubElement(object_elem, ns.premisBNS + "originalName").text = escape(
         f.originallocation
     )
@@ -568,28 +564,6 @@ def create_premis_object_formats(fileUUID):
             3
         ]
         elements.append(fmt)
-
-    return elements
-
-
-def create_premis_object_characteristics_extensions(fileUUID):
-    elements = []
-    objectCharacteristicsExtension = etree.Element(
-        ns.premisBNS + "objectCharacteristicsExtension"
-    )
-    parser = etree.XMLParser(remove_blank_text=True)
-    documents = FPCommandOutput.objects.filter(
-        file_id=fileUUID,
-        rule__purpose__in=["characterization", "default_characterization"],
-    ).values_list("content")
-    for (document,) in documents:
-        # This needs to be converted into an str because lxml doesn't accept
-        # XML documents in unicode strings if the document contains an
-        # encoding declaration.
-        output = etree.XML(document.encode("utf-8"), parser)
-        objectCharacteristicsExtension.append(output)
-    if len(objectCharacteristicsExtension):
-        elements.append(objectCharacteristicsExtension)
 
     return elements
 
@@ -689,6 +663,10 @@ def createDigiprovMD(fileUUID, state):
         xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
         xmlData.append(createEvent(event_record))
 
+    metadata_events = create_metadata_event(file_uuid=fileUUID)
+    for metadata_event in metadata_events:
+        xmlData.append(metadata_event)
+
     agents = Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
     for agent in agents:
         state.globalDigiprovMDCounter += 1
@@ -720,9 +698,9 @@ def createEvent(event_record):
     etree.SubElement(
         eventIdentifier, ns.premisBNS + "eventIdentifierType"
     ).text = "UUID"
-    etree.SubElement(
-        eventIdentifier, ns.premisBNS + "eventIdentifierValue"
-    ).text = event_record.event_id
+    etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = str(
+        event_record.event_id
+    )
 
     etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
     etree.SubElement(
@@ -742,6 +720,9 @@ def createEvent(event_record):
     etree.SubElement(
         eventOutcomeInformation, ns.premisBNS + "eventOutcome"
     ).text = event_record.event_outcome
+
+    if event_record.event_outcome_detail != "":
+        """PREMIS does not require this field if it is empty."""
     eventOutcomeDetail = etree.SubElement(
         eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail"
     )
@@ -761,6 +742,115 @@ def createEvent(event_record):
             linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue"
         ).text = agent.identifiervalue
     return event
+
+
+# WELLCOME TODO: This function needs to be refactored it's a quick and
+# dirty ctrl-v function for demonstration purposes.
+#
+# METSRW related: https://github.com/artefactual-labs/mets-reader-writer/issues/43
+#
+# Characterization commands do not have events associated with them in
+# Archivematica yet, what happens if we create them? Is that
+# information usable to us in any way here?
+#
+def create_metadata_event(file_uuid):
+    """Create metadata event
+
+    This is a temporary function that does need a refactor.
+    """
+
+    # WELLCOME TODO: Is this the right logic, we need a new event per
+    # tool?
+    #
+    # +14 lines per file where this is done.
+    #
+    objs = create_premis_object_characteristics_extensions(file_uuid)
+    events = []
+    if not objs:
+        return events
+    for obj in objs:
+        event = etree.Element(ns.premisBNS + "event", nsmap={"premis": ns.premisNS})
+        event.set(
+            ns.xsiBNS + "schemaLocation",
+            ns.premisNS + " http://www.loc.gov/standards/premis/v3/premis.xsd",
+        )
+        event.set("version", "3.0")
+
+        eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
+        etree.SubElement(
+            eventIdentifier, ns.premisBNS + "eventIdentifierType"
+        ).text = "UUID"
+        etree.SubElement(
+            eventIdentifier, ns.premisBNS + "eventIdentifierValue"
+        ).text = str(uuid4())
+
+        # WELLCOME TODO: Grab the time that the tool output was made by
+        # Archivematica if we have it.
+        etree.SubElement(
+            event, ns.premisBNS + "eventType"
+        ).text = "INTRODUCING: metadata extraction"
+        etree.SubElement(
+            event, ns.premisBNS + "eventDateTime"
+        ).text = "TODO: Grab the date from the tool output log if there is one, else we need one!"
+
+        eventDetailInformation = etree.SubElement(
+            event, ns.premisBNS + "eventDetailInformation"
+        )
+        etree.SubElement(
+            eventDetailInformation, ns.premisBNS + "eventDetail"
+        ).text = "INFO: We don't output an event detail here..."
+
+        eventOutcomeInformation = etree.SubElement(
+            event, ns.premisBNS + "eventOutcomeInformation"
+        )
+
+        # WELLCOME TODO: When we re-write the events functions here I
+        # noticed that per sé isn't valid on output... we can probably do
+        # better.
+        etree.SubElement(
+            eventOutcomeInformation, ns.premisBNS + "eventOutcome"
+        ).text = "INFO: We don't have an event outcome per se either."
+
+        eventOutcomeDetail = etree.SubElement(
+            eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail"
+        )
+
+        # WELLCOME TODO: THIS IS WHERE THE LINK NEEDS TO GO TO THE TECH
+        # MD IN THE TOOL OUTPUT...
+        #
+        #  <premis:eventOutcomeDetailNote>
+        #      "generated objects/metadata/tool_output-1415ff13-a27b-48b8-8cb5-3cb627bdb1a1.xml#xpointer(id('techMD_3').xml"
+        #  </premis:eventOutcomeDetailNote>
+        #
+        etree.SubElement(
+            eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote"
+        ).text = "TODO: We need to find the techMD relating to this event here, e.g. .//metadata/tool_output-{UUID}.xml#xpointer(id('techMD_1').xml"
+
+        # WELLCOME TODO: We don't generate this in Archivematica either yet.
+        for agent_no in range(3):
+            linkingAgentIdentifier = etree.SubElement(
+                event, ns.premisBNS + "linkingAgentIdentifier"
+            )
+            etree.SubElement(
+                linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType"
+            ).text = "TODO: Agent: {}".format(agent_no)
+            etree.SubElement(
+                linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue"
+            ).text = "TODO: Agent identifier: {}".format(agent_no)
+
+        events.append(event)
+    return events
+
+
+def create_premis_object_characteristics_extensions(fileUUID):
+    """Create PREMIS object characteristics extension
+
+    Return true if we need to generate tool output, false if not.
+    """
+    return FPCommandOutput.objects.filter(
+        file_id=fileUUID,
+        rule__purpose__in=["characterization", "default_characterization"],
+    ).values_list("content")
 
 
 def createAgent(agent_record):
@@ -938,7 +1028,7 @@ def include_custom_structmap(
 # DMDID="dmdSec_01" for an object goes in here
 # <file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 
-
+# WELLCOME TODO: WILL WE BE ABLE TO REMOVE THIS?
 def createFileSec(
     job,
     directoryPath,
@@ -1007,6 +1097,7 @@ def createFileSec(
     for item in directoryContents:
         itemdirectoryPath = os.path.join(directoryPath, item)
         if os.path.isdir(itemdirectoryPath):
+            # WELLCOME TODO: WILL WE BE ABLE TO REMOVE THIS?
             createFileSec(
                 job,
                 itemdirectoryPath,
@@ -1453,6 +1544,8 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
     return el
 
 
+# WELLCOME TODO: Note, we no longer output METS validation scripts here
+# as PIM doesn't really work for us any-more.
 def write_mets(tree, filename):
     """
     Write tree to filename, and a validate METS form.
@@ -1461,31 +1554,6 @@ def write_mets(tree, filename):
     :param str filename: Filename to write the METS to
     """
     tree.write(filename, pretty_print=True, xml_declaration=True, encoding="utf-8")
-
-    import cgi
-
-    validate_filename = filename + ".validatorTester.html"
-    fileContents = """<html>
-<body>
-  <form method="post" action="http://pim.fcla.edu/validate/results">
-    <label for="document">Enter XML Document:</label>
-    <br/>
-    <textarea id="directinput" rows="12" cols="76" name="document">%s</textarea>
-    <br/>
-    <br/>
-    <input type="submit" value="Validate" />
-    <br/>
-  </form>
-</body>
-</html>""" % (
-        cgi.escape(
-            etree.tostring(
-                tree, pretty_print=True, xml_declaration=True, encoding="utf-8"
-            )
-        )
-    )
-    with open(validate_filename, "w") as f:
-        f.write(fileContents)
 
 
 def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
@@ -1510,6 +1578,7 @@ def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
     return all_fsitems
 
 
+# WELLCOME TODO: WILL WE BE ABLE TO REMOVE THIS?
 def get_normative_structmap(
     baseDirectoryPath, objectsDirectoryPath, directories, state
 ):
@@ -1593,12 +1662,17 @@ def add_normative_structmap_div(
 
 
 def create_mets(job, opts):
+    """Create METS
 
+    Do all the things, and create the METS!
+
+    Wellcome TODO: this is largely original code, and will need a
+    refactor accordingly.
+    """
     state = MetsState()
     SIP_TYPE = opts.sip_type
     baseDirectoryPath = opts.baseDirectoryPath
 
-    # "/var/archivematica/sharedDirectory/watchedDirectories/workFlowDecisions/metadataReminder/csv3-a8846127-b236-4f39-8ec1-f45210ea5399/METS.a8846127-b236-4f39-8ec1-f45210ea5399.xml"
     XMLFile = opts.xmlFile
     XMLFile = XMLFile.replace("METS.", "METS-reduced.")
 
@@ -1639,7 +1713,7 @@ def create_mets(job, opts):
     # objects to a ``SIP``.
     directories = {
         d.currentlocation.rstrip("/"): d
-        for d in Directory.objects.filter(sip_id=fileGroupIdentifier).all()
+        for d in Directory.objects.filter(sip_id=fileGroupIdentifier.encode()).all()
     }
 
     state.globalStructMapCounter += 1
@@ -1683,6 +1757,7 @@ def create_mets(job, opts):
         aipDmdSec.set("ID", aip_dmd_id)
         structMapDiv.set("DMDID", aip_dmd_id)
 
+    # WELLCOME TODO: WILL WE BE ABLE TO REMOVE THIS?
     structMapDivObjects = createFileSec(
         job,
         objectsDirectoryPath,
@@ -1702,6 +1777,7 @@ def create_mets(job, opts):
 
     # In an AIC, the metadata dir is not inside the objects dir
     metadataDirectoryPath = os.path.join(baseDirectoryPath, "metadata")
+    # WELLCOME TODO: WILL WE BE ABLE TO REMOVE THIS?
     createFileSec(
         job,
         metadataDirectoryPath,
@@ -1790,5 +1866,4 @@ def create_mets(job, opts):
     write_mets(tree, XMLFile)
 
     job.pyprint(XMLFile, "exists", os.path.exists(XMLFile))
-
     job.set_status(state.error_accumulator.error_count)
