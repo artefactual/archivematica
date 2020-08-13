@@ -392,12 +392,16 @@ def _usage_get_directory_used_bytes(path):
         # the archivematica user doesn't have permissions. In this case
         # du still prints an output to stdout so we try to catch it
         # from CalledProcessError.output.
-        logger.warning(
-            "Non-zero exit code while determining usage of %s. Some directories may be missing from total.",
-            path,
-        )
-        byte_count = err.output.split("\t")[0]
-        return byte_count if byte_count else 0
+        byte_count = 0
+        try:
+            byte_count = int(err.output.split("\t")[0])
+            logger.warning(
+                "Non-zero exit code while determining usage of %s. Some directories may be missing from total.",
+                path,
+            )
+        except (AttributeError, ValueError):
+            logger.exception("Unable to determine usage of %s.", path)
+        return byte_count
 
 
 def _usage_clear_context(request, dir_id):
