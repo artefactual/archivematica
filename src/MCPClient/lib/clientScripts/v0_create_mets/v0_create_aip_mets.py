@@ -1592,7 +1592,7 @@ def add_normative_structmap_div(
         path_to_el[fsitem.path] = el
 
 
-def create_mets(job, opts):
+def create_standard_mets(job, opts):
 
     state = MetsState()
     SIP_TYPE = opts.sip_type

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from v0_create_mets.v0_create_aip_mets import create_mets
+from v0_create_mets.v0_create_aip_mets import create_standard_mets
 from v1_create_mets.v1_create_aip_mets import create_mets as create_reduced_mets
 from v1_create_mets.v1_create_tool_mets import create_tool_mets
 
@@ -63,7 +63,7 @@ def call(jobs):
         with job.JobContext(logger=logger):
             try:
                 opts, _ = parser.parse_args(job.args[1:])
-                create_mets(job, opts)
+                create_standard_mets(job, opts)
                 create_reduced_mets(job, opts)
                 create_tool_mets(job, opts)
             except Exception as err:
