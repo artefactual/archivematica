@@ -396,7 +396,8 @@ def _usage_get_directory_used_bytes(path):
         try:
             byte_count = int(err.output.split("\t")[0])
             logger.warning(
-                "Non-zero exit code while determining usage of %s. Some directories may be missing from total.",
+                "Non-zero exit code while determining usage of %s. "
+                "Some directories may be missing from total.",
                 path,
             )
         except (AttributeError, ValueError):
