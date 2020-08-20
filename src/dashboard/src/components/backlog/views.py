@@ -20,7 +20,6 @@ from __future__ import absolute_import
 import json
 import logging
 
-from django.conf import settings as django_settings
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponse, Http404
@@ -38,54 +37,24 @@ from components import advanced_search, decorators, helpers
 logger = logging.getLogger("archivematica.dashboard")
 
 
-def check_and_remove_deleted_transfers(es_client):
-    """Update transfers pending deletion based on their status in AMSS
+def sync_es_transfer_status_with_storage_service(uuid, pending_deletion):
+    """Update transfer's status in ES indices to match Storage Service.
 
-    Check the Storage Service for the package status of transfers
-    marked in ES as pending deletion. If a package was deleted,
-    remove it and its files from ES. If the deletion request was
-    rejected, update the pending_deletion field in ES for the transfer
-    and its files accordingly.
+    This is a bit of a kludge that is made necessary by the fact that
+    the Storage Service does not update ElasticSearch directly when
+    a package's status has changed.
 
-    This is a bit of a kludge (that we also do elsewhere, e.g. in the
-    Archival Storage tab), but it is necessary as the Storage Service
-    doesn't talk directly to ES.
-
-    :param es_client: ES client.
-    :return: None.
-    """
-    query = {"query": {"bool": {"must": {"match": {"pending_deletion": True}}}}}
-
-    deletion_pending_results = es_client.search(
-        body=query, index=es.TRANSFERS_INDEX, _source="uuid,status"
-    )
-
-    for hit in deletion_pending_results["hits"]["hits"]:
-        transfer_uuid = hit["_source"]["uuid"]
-
-        api_results = storage_service.get_file_info(uuid=transfer_uuid)
-        try:
-            status = api_results[0]["status"]
-        except IndexError:
-            logger.info(
-                "Transfer not found in storage service: {}".format(transfer_uuid)
-            )
-            continue
-
-        if status == es.STATUS_DELETED:
-            es.remove_backlog_transfer_files(es_client, transfer_uuid)
-            es.remove_backlog_transfer(es_client, transfer_uuid)
-        elif status == es.STATUS_UPLOADED:
-            es.revert_backlog_deletion_request(es_client, transfer_uuid)
-
-
-def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
-    """Check Storage Service to see if transfer has pending deletion and update ES if so.
+    Updates to ES are visible in Backlog after running a new
+    search or refreshing the page.
 
     :param uuid: Transfer UUID.
-    :param pending_deletion: Current pending_deletion value in transfers ES index.
-    :return: None
+    :param pending_deletion: Current pending_deletion value in ES.
+
+    :returns: Boolean indicating whether transfer should be kept in
+    search results (i.e. has not been deleted from Storage Service).
     """
+    keep_in_results = True
+
     amclient = setup_amclient()
     amclient.package_uuid = uuid
     api_results = amclient.get_package_details()
@@ -96,26 +65,38 @@ def check_and_update_transfer_pending_deletion(uuid, pending_deletion):
                 uuid, api_results
             )
         )
-        return
+        return keep_in_results
 
     transfer_status = api_results.get("status")
 
-    if transfer_status is not None and transfer_status == es.STATUS_DELETE_REQUESTED:
-        if pending_deletion is False:
-            es_client = es.get_client()
-            es.mark_backlog_deletion_requested(es_client, uuid)
+    if not transfer_status:
+        logger.warning(
+            "Status for package {} could not be retrived from Storage Service."
+        )
+        return keep_in_results
+
+    if transfer_status == es.STATUS_DELETE_REQUESTED and pending_deletion is False:
+        es_client = es.get_client()
+        es.mark_backlog_deletion_requested(es_client, uuid)
+    elif transfer_status == es.STATUS_UPLOADED and pending_deletion is True:
+        es_client = es.get_client()
+        es.revert_backlog_deletion_request(es_client, uuid)
+    elif transfer_status == es.STATUS_DELETED:
+        keep_in_results = False
+        es_client = es.get_client()
+        es.remove_backlog_transfer_files(es_client, uuid)
+        es.remove_backlog_transfer(es_client, uuid)
+
+    return keep_in_results
 
 
 def execute(request):
     """
-    Remove any deleted transfers from ES and render main backlog page.
+    Render main backlog page.
 
     :param request: The Django request object
     :return: The main backlog page rendered
     """
-    if es.TRANSFERS_INDEX in django_settings.SEARCH_ENABLED:
-        es_client = es.get_client()
-        check_and_remove_deleted_transfers(es_client)
     return render(request, "backlog/backlog.html", locals())
 
 
@@ -229,17 +210,29 @@ def search(request):
         logger.exception(err_desc)
         return HttpResponse(err_desc)
 
-    results = [x["_source"] for x in hits["hits"]["hits"]]
+    search_results = []
 
-    for result in results:
+    es_results = [x["_source"] for x in hits["hits"]["hits"]]
+
+    for result in es_results:
         # Format size
         size = result.get("size")
         if size is not None:
             result["size"] = filesizeformat(size)
 
-        if not file_mode:
+        if file_mode:
+            # We only check status against the Storage Service for
+            # transfers, so include all files in search results.
+            search_results.append(result)
+        else:
             pending_deletion = result.get("pending_deletion")
-            check_and_update_transfer_pending_deletion(result["uuid"], pending_deletion)
+            keep_in_results = sync_es_transfer_status_with_storage_service(
+                result["uuid"], pending_deletion
+            )
+            # Only return details for transfers that haven't been
+            # deleted from the Storage Service in the search results.
+            if keep_in_results:
+                search_results.append(result)
 
     return helpers.json_response(
         {
@@ -248,7 +241,7 @@ def search(request):
             "sEcho": int(
                 request.GET.get("sEcho", 0)
             ),  # It was recommended we convert sEcho to int to prevent XSS
-            "aaData": results,
+            "aaData": search_results,
         }
     )
 

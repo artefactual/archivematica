@@ -62,71 +62,60 @@ CSV_MIMETYPE = "text/csv"
 CSV_FILE_NAME = "archival-storage-report.csv"
 
 
-def check_and_remove_deleted_aips(es_client):
-    """Update AIPs pending deletion based on their status in AMSS
+def sync_es_aip_status_with_storage_service(uuid, es_status):
+    """Update AIP's status in ES indices to match Storage Service.
 
-    Check the Storage Service for the package status of AIPs marked in
-    ES as pending deletion. If a package was deleted, remove it and its
-    files from ES. If the deletion request was rejected, update the
-    status field in ES for the AIP and its files accordingly.
+    This is a bit of a kludge that is made necessary by the fact that
+    the Storage Service does not update ElasticSearch directly when
+    a package's status has changed.
 
-    This is a bit of a kludge (that we also do elsewhere, e.g. in the
-    Backlog tab), but it is necessary as the Storage Service doesn't
-    talk directly to ES.
-
-    :param es_client: ES client.
-    :return: None.
-    """
-    query = {
-        "query": {"bool": {"must": {"match": {"status": es.STATUS_DELETE_REQUESTED}}}}
-    }
-
-    deletion_pending_results = es_client.search(
-        body=query, index=es.AIPS_INDEX, _source="uuid,status"
-    )
-
-    for hit in deletion_pending_results["hits"]["hits"]:
-        aip_uuid = hit["_source"]["uuid"]
-
-        api_results = storage_service.get_file_info(uuid=aip_uuid)
-        try:
-            aip_status = api_results[0]["status"]
-        except IndexError:
-            logger.info("AIP not found in storage service: {}".format(aip_uuid))
-            continue
-
-        if aip_status == es.STATUS_DELETED:
-            es.delete_aip(es_client, aip_uuid)
-            es.delete_aip_files(es_client, aip_uuid)
-        elif aip_status == es.STATUS_UPLOADED:
-            es.revert_aip_deletion_request(es_client, aip_uuid)
-
-
-def check_and_update_aip_pending_deletion(uuid, es_status):
-    """Check Storage Service to see if AIP has pending deletion and update ES if so.
+    Updates to ES are visible in Archival Storage after running a new
+    search or refreshing the page.
 
     :param uuid: AIP UUID.
-    :param pending_deletion: Current pending_deletion value in aips ES index.
-    :return: None.
+    :param es_status: Current package status in ES.
+
+    :returns: Boolean indicating whether AIP should be kept in search
+    results (i.e. has not been deleted from Storage Service).
     """
+    keep_in_results = True
+
     amclient = setup_amclient()
     amclient.package_uuid = uuid
     api_results = amclient.get_package_details()
 
     if api_results in AMCLIENT_ERROR_CODES:
         logger.warning(
-            "Package {} not found in storage service. AMClient error code: {}".format(
+            "Package {} not found in Storage Service. AMClient error code: {}".format(
                 uuid, api_results
             )
         )
-        return
+        return keep_in_results
 
     aip_status = api_results.get("status")
 
-    if aip_status is not None and aip_status == es.STATUS_DELETE_REQUESTED:
-        if es_status != es.STATUS_DELETE_REQUESTED:
-            es_client = es.get_client()
-            es.mark_aip_deletion_requested(es_client, uuid)
+    if not aip_status:
+        logger.warning(
+            "Status for package {} could not be retrived from Storage Service."
+        )
+        return keep_in_results
+
+    if (
+        aip_status == es.STATUS_DELETE_REQUESTED
+        and es_status != es.STATUS_DELETE_REQUESTED
+    ):
+        es_client = es.get_client()
+        es.mark_aip_deletion_requested(es_client, uuid)
+    elif aip_status == es.STATUS_UPLOADED and es_status != es.STATUS_UPLOADED:
+        es_client = es.get_client()
+        es.revert_aip_deletion_request(es_client, uuid)
+    elif aip_status == es.STATUS_DELETED:
+        keep_in_results = False
+        es_client = es.get_client()
+        es.delete_aip(es_client, uuid)
+        es.delete_aip_files(es_client, uuid)
+
+    return keep_in_results
 
 
 def execute(request):
@@ -137,7 +126,6 @@ def execute(request):
     """
     if es.AIPS_INDEX in settings.SEARCH_ENABLED:
         es_client = es.get_client()
-        check_and_remove_deleted_aips(es_client)
 
         total_size = total_size_of_aips(es_client)
         aip_indexed_file_count = aip_file_count(es_client)
@@ -418,7 +406,7 @@ def search(request):
 def search_augment_aip_results(raw_results, counts):
     """Augment AIP results and update ES status if AIP is pending deletion.
 
-    We perform check_and_update_aip_pending_deletion routine here to avoid
+    We perform sync_es_aip_status_with_storage_service routine here to avoid
     needing to iterate through all of the results a second time.
 
     :param raw_results: Raw results returned from ES.
@@ -447,7 +435,6 @@ def search_augment_aip_results(raw_results, counts):
         if size is not None:
             bytecount = size * (1024 * 1024)
             new_item["size"] = filesizeformat(bytecount)
-        modified_results.append(new_item)
 
         aic_id = fields.get("AICID")
         if aic_id and "AIC#" in aic_id:
@@ -457,7 +444,13 @@ def search_augment_aip_results(raw_results, counts):
 
         status = fields.get("status")
         if status is not None:
-            check_and_update_aip_pending_deletion(fields["uuid"], status)
+            keep_in_results = sync_es_aip_status_with_storage_service(
+                fields["uuid"], status
+            )
+            # Only return details for AIPs that haven't been deleted
+            # from the Storage Service in the search results.
+            if keep_in_results:
+                modified_results.append(new_item)
 
     return modified_results
 
