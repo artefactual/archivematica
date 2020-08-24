@@ -64,8 +64,8 @@ def call(jobs):
             try:
                 opts, _ = parser.parse_args(job.args[1:])
                 create_standard_mets(job, opts)
-                create_reduced_mets(job, opts)
-                create_tool_mets(job, opts)
+                tool_tech_mds = create_tool_mets(job, opts)
+                create_reduced_mets(job, opts, tool_tech_mds=tool_tech_mds)
             except Exception as err:
                 job.print_error(repr(err))
                 job.print_error(traceback.format_exc())

@@ -149,7 +149,8 @@ class FSEntriesTree(object):
                 file_obj.checksumtype
             )
             premis_object = file_obj_to_premis(file_obj)
-            fsentry.add_premis_object(premis_object)
+            if premis_object is not None:
+                fsentry.add_premis_object(premis_object)
 
     def load_dir_uuids_from_db(self):
         dir_objs = Directory.objects.prefetch_related("identifiers").filter(
@@ -214,6 +215,12 @@ def file_obj_to_premis(file_obj):
     object_characteristics_extensions = get_premis_object_characteristics_extension(
         file_obj.characterization_documents
     )
+
+    # WELLCOME TODO: For Wellcome's purpose we only care about these if
+    # there is information to care about.
+    if len(object_characteristics_extensions) == 0:
+        return None
+
     object_characteristics = (
         "object_characteristics",
         format_data,
@@ -293,14 +300,19 @@ def clean_date(date_string):
     return date_string.replace("/", "-")
 
 
-def dir_obj_to_premis(dir_obj):
+def dir_obj_to_premis(dir_obj, relative_dir_path=""):
     """
     Converts an Directory model object to a PREMIS object via metsrw.
 
     Returns:
         lxml.etree._Element
     """
-    original_name = escape(dir_obj.originallocation)
+    try:
+        original_name = escape(dir_obj.originallocation)
+    except AttributeError:
+        # We are working with an AIP.
+        original_name = escape(relative_dir_path)
+
     object_identifiers = get_premis_object_identifiers(
         dir_obj.uuid, dir_obj.identifiers.all()
     )

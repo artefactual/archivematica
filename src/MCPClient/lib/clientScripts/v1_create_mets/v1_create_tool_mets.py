@@ -8,7 +8,7 @@ import os
 import metsrw
 
 from .fs_entries_tree import FSEntriesTree
-from main.models import SIP
+from main.models import File, SIP
 
 import namespaces as ns
 
@@ -29,7 +29,33 @@ def remove_logical_structmap(mets):
         ".//mets:structMap[@TYPE='logical']", namespaces=ns.NSMAP
     )
     mets_root.remove(struct_map)
+    mets = etree.ElementTree(mets_root)
     return mets_root
+
+
+def find_tool_tech_mds(mets, aip_uuid):
+    """Find tech mds
+
+    Retrieve all of the tech_mds from the tools document and return
+    them for use in the primary mets via a lookup table.
+    """
+    tech_md_arr = {}
+    mets_root = mets.serialize()
+    tech_mds = mets_root.findall(".//mets:techMD", namespaces=ns.NSMAP)
+    for tech_md in tech_mds:
+        file_name = tech_md.find(".//premis:originalName", namespaces=ns.NSMAP).text
+        try:
+            file_obj = File.objects.get(sip_id=aip_uuid, originallocation=file_name)
+            premis_id = file_obj.uuid
+        except File.DoesNotExist:
+            continue
+        if premis_id in tech_md_arr:
+            # WELLCOME TODO; when cleaning up, let's challenge the assumption
+            # of one tech_md per file id here. What happens if there are
+            # multiple tools per output for example.
+            raise ValueError("Value already seen...")
+        tech_md_arr[premis_id] = tech_md.get("ID")
+    return tech_md_arr
 
 
 def create_tool_mets(job, opts):
@@ -102,8 +128,15 @@ def create_tool_mets(job, opts):
     # if not is_valid:
     #    raise ValueError("METS doesn't validate")
 
+    # The primary METS needs a mapping to the new tech MD values to
+    # create a mapping that can be useful to the reader.
+    tool_tech_mds = find_tool_tech_mds(mets, aip_uuid=aip_uuid)
+
     # WELLCOME TODO: This is very much a hack until we can solve:
     # https://github.com/archivematica/Issues/issues/1272
     mets = remove_logical_structmap(mets)
+
     mets = etree.ElementTree(mets)
     mets.write(XMLFile, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+
+    return tool_tech_mds
