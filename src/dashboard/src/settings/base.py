@@ -98,6 +98,11 @@ CONFIG_MAPPING = {
         "option": "agentarchives_client_timeout",
         "type": "float",
     },
+    "polling_interval": {
+        "section": "Dashboard",
+        "option": "polling_interval",
+        "type": "int",
+    },
     "prometheus_enabled": {
         "section": "Dashboard",
         "option": "prometheus_enabled",
@@ -143,6 +148,7 @@ storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 prometheus_enabled = False
+polling_interval = 10
 site_url =
 time_zone = UTC
 
@@ -437,8 +443,8 @@ else:
 
 # Dashboard internal settings
 GEARMAN_SERVER = config.get("gearman_server")
-POLLING_INTERVAL = 5  # Seconds
-STATUS_POLLING_INTERVAL = 5  # Seconds
+POLLING_INTERVAL = config.get("polling_interval")
+
 TASKS_PER_PAGE = 10  # for paging in tasks dialog
 UUID_REGEX = "[\w]{8}(-[\w]{4}){3}-[\w]{12}"
 
