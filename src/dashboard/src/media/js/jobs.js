@@ -586,8 +586,30 @@ var BaseJobView = Backbone.View.extend({
           // clone action selector
           var $proxySelect = $select.clone().css({'width': '100%'});
 
+          modalDlg = `
+            <div class="modal" id="big-choice-select-modal">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button>
+                    <h3>
+          ` + gettext('Select an action...') + `
+                    </h3>
+                  </div>
+                  <div class="modal-body" id="big-choice-select-body">
+                  </div>
+                  <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">
+          ` + gettext('Cancel') + `
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
           // display action selector in modal window
-          $('<div class="modal" id="big-choice-select-modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>' + gettext('Select an action...') + '</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">' + gettext('Cancel') + '</a></div></div></div></div>').modal({show: true, backdrop: 'static'});
+          $(modalDlg).modal({show: true, backdrop: 'static'});
           $('#big-choice-select-body').append($proxySelect);
 
           // style clone as Select2
