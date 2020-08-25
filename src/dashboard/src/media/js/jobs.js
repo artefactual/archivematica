@@ -622,8 +622,6 @@ var BaseJobView = Backbone.View.extend({
 
 BaseAppView = Backbone.View.extend({
 
-  interval: window.pollingInterval ? window.pollingInterval * 1000: 5000,
-
   idle: false,
 
   events: {
@@ -693,6 +691,9 @@ BaseAppView = Backbone.View.extend({
 
   initialize: function(options)
     {
+      this.interval = window.pollingInterval ? window.pollingInterval * 1000: 5000
+      console.log("".concat("Polling interval configured as: ", this.interval));
+
       this.statusUrl = options.statusUrl;
 
       _.bindAll(this, 'add', 'remove');
