@@ -204,6 +204,14 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `300`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_POLLING_INTERVAL`**:
+    - **Description:** describes the interval (in seconds) at which the
+    dashboard client will request an update from the server, e.g. to refresh
+    the microservice jobs display.
+    - **Config file example:** `Dashboard.polling_interval`
+    - **Type:** `integer`
+    - **Default:** `10`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED`**:
     - **Description:** Determines if Prometheus metrics should be collected.
     - **Config file example:** `Dashboard.prometheus_enabled`
@@ -363,7 +371,7 @@ variables or in the gunicorn configuration file.
 - **`AM_GUNICORN_WORKERS`**:
     - **Description:** Number of gunicorn worker processes to run.  Note that since Archivematica
     installations typically run many processes on the same system, a lower number of workers than
-    Gunicorn recommends should be used. See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers) and [How Many Workers?](https://docs.gunicorn.org/en/stable/design.html#how-many-workers) for more details. 
+    Gunicorn recommends should be used. See [WORKERS](http://docs.gunicorn.org/en/stable/settings.html#workers) and [How Many Workers?](https://docs.gunicorn.org/en/stable/design.html#how-many-workers) for more details.
     - **Type:** `integer`
     - **Default:** `3`
 
