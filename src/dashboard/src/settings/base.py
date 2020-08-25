@@ -438,7 +438,6 @@ else:
 # Dashboard internal settings
 GEARMAN_SERVER = config.get("gearman_server")
 POLLING_INTERVAL = 5  # Seconds
-STATUS_POLLING_INTERVAL = 5  # Seconds
 TASKS_PER_PAGE = 10  # for paging in tasks dialog
 UUID_REGEX = "[\w]{8}(-[\w]{4}){3}-[\w]{12}"
 
