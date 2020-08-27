@@ -148,6 +148,7 @@ class FSEntriesTree(object):
             fsentry.checksumtype = convert_to_premis_hash_function(
                 file_obj.checksumtype
             )
+            fsentry.use = file_obj.filegrpuse
             premis_object = file_obj_to_premis(file_obj)
             if premis_object is not None:
                 fsentry.add_premis_object(premis_object)
