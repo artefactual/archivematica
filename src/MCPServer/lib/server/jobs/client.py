@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import abc
 import ast
+import collections
 import logging
 
 from django.conf import settings
@@ -267,12 +268,16 @@ class OutputClientScriptJob(ClientScriptJob):
 
     def task_completed_callback(self, task):
         logger.debug("stdout emitted by client: %s", task.stdout)
-
         try:
             choices = ast.literal_eval(task.stdout)
+            new_dict = collections.OrderedDict()
+            for item in choices.get("items"):
+                key = item.keys()[0]
+                value = item[key]
+                new_dict[key] = value
         except (ValueError, SyntaxError):
             logger.exception("Unable to parse output %s", task.stdout)
             choices = {}
 
         # Store on chain for next job
-        self.job_chain.generated_choices = choices
+        self.job_chain.generated_choices = new_dict

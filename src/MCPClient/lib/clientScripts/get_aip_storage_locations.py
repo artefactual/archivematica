@@ -23,20 +23,28 @@ def get_aip_storage_locations(purpose, job):
             json.dumps(storage_directories, indent=4, sort_keys=True)
         )
     )
-    choices = {}
+    items = {}
+    values = []
+    default_choice = {
+        "default": {
+            "description": "Default Location",
+            "uri": "/api/v2/location/default/{}/".format(purpose),
+        }
+    }
+    values.append(default_choice)
     for storage_dir in storage_directories:
         label = storage_dir["description"]
         if not label:
             label = storage_dir["relative_path"]
-        choices[storage_dir["uuid"]] = {
-            "description": label,
-            "uri": storage_dir["resource_uri"],
+        choice = {
+            storage_dir["uuid"]: {
+                "description": label,
+                "uri": storage_dir["resource_uri"],
+            }
         }
-    choices["default"] = {
-        "description": "Default Location",
-        "uri": "/api/v2/location/default/{}/".format(purpose),
-    }
-    job.pyprint(json.dumps(choices, indent=4, sort_keys=True))
+        values.append(choice)
+    items["items"] = values
+    job.pyprint(json.dumps(items, indent=4, sort_keys=True))
 
 
 def call(jobs):
