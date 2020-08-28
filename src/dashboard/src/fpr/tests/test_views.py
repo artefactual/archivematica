@@ -49,6 +49,42 @@ class TestViews(TestCase):
         resp = self.client.get(url, {"parent": tool.uuid})
         self.assertEqual(resp.context["form"].initial["tool"], tool)
 
+    def test_fpcommand_edit(self):
+        fpcommand_id = "41112047-7ddf-4bf0-9156-39fe96b32d53"
+        url = reverse("fpr:fpcommand_edit", args=[fpcommand_id])
+
+        fpcommand = FPCommand.active.get(uuid=fpcommand_id)
+        self.assertEqual(fpcommand.description, "Copying file to access directory")
+
+        form_data = {
+            u"verification_command": [u"ef3ea000-0c3c-4cae-adc2-aa2a6ccbffce"],
+            u"description": [u"new description"],
+            u"tool": [u"0efc346e-6373-4799-819d-17cc0f21f827"],
+            u"event_detail_command": [u""],
+            u"output_location": [
+                u"%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"
+            ],
+            u"command_usage": [u"normalization"],
+            u"command": [
+                u'cp -R "%inputFile%" "%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"'
+            ],
+            u"csrfmiddlewaretoken": [
+                u"k5UUufiJuSOLNOGJYlU2ODow5iKPhOuLc9Q0EmUoIXsQLZ7r5Ede7Pf0pSQEm0lP"
+            ],
+            u"output_format": [u"0ab4cd40-90e7-4d75-b294-498177b3897d"],
+            u"script_type": [u"command"],
+        }
+        resp = self.client.post(url, follow=True, data=form_data)
+        self.assertEqual(resp.status_code, 200)
+
+        # Our fpcommand is now expected to be disabled.
+        fpcommand = FPCommand.objects.get(uuid=fpcommand_id)
+        self.assertEqual(fpcommand.enabled, False)
+
+        # And replaced by a new fpcommand.
+        fpcommand = FPCommand.active.get(replaces_id=fpcommand_id)
+        self.assertEqual(fpcommand.description, "new description")
+
     def test_fpcommand_delete(self):
         fpcommand_id = "0fd7935a-ed0d-4f67-aa25-1b44684f6aca"
         url = reverse("fpr:fpcommand_delete", args=[fpcommand_id])
@@ -59,3 +95,14 @@ class TestViews(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(FPCommand.active.filter(uuid=fpcommand_id).exists(), False)
+
+    def test_fpcommand_revisions(self):
+        fpcommand_id = "11036e14-78d9-4449-8360-e2da394279ad"
+        url = reverse("fpr:revision_list", args=["fpcommand", fpcommand_id])
+        fpcommand = FPCommand.active.get(uuid=fpcommand_id)
+
+        resp = self.client.get(url, follow=True)
+
+        # Assert that the revision list shows multiple instances.
+        self.assertContains(resp, fpcommand.uuid)
+        self.assertContains(resp, fpcommand.replaces_id)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from django.apps import apps
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.urls import reverse
@@ -713,12 +712,9 @@ def fpcommand_delete(request, uuid):
 
 def revision_list(request, entity_name, uuid):
     # get model using entity name
-    available_models = apps.get_models()
-    model = None
-    for model in available_models:
-        if model._meta.db_table == "fpr_" + entity_name:
-            break
-    if model is None:
+    try:
+        model = utils.get_fpr_models()[entity_name]
+    except KeyError:
         raise Http404
 
     # human-readable names

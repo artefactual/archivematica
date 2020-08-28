@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from django.apps import apps
 from django.contrib import messages
-from django.db import models
 from django.utils.translation import ugettext as _
+import six
 
 
 # ########## DEPENDENCIES ############
@@ -27,6 +28,11 @@ def dependent_objects(object_):
     return dependent_objects
 
 
+def get_fpr_models():
+    """Returns a dict of FPR models indexed by their names."""
+    return apps.all_models["fpr"]
+
+
 def update_references_to_object(
     model_referenced, key_field_name, old_object, new_object
 ):
@@ -34,23 +40,23 @@ def update_references_to_object(
     key relations to the referenced model, and updating the references. """
 
     # don't need to update references if it's a newly created object
-    if old_object is not None:
-        for model in models.get_models():
-            for field in model._meta.fields:
-                type = field.get_internal_type()
-                # update each foreign key reference to the target model
-                if (
-                    field.name != "replaces"
-                    and type == "ForeignKey"
-                    and field.rel is not None
-                    and field.rel.to == model_referenced
-                    and field.rel.field_name == key_field_name
-                ):
-                    filter_criteria = {field.name: old_object}
-                    parent_objects = model.objects.filter(**filter_criteria)
-                    for parent in parent_objects:
-                        setattr(parent, field.name, new_object)
-                        parent.save()
+    if old_object is None:
+        return
+    for model in six.itervalues(get_fpr_models()):
+        for field in model._meta.fields:
+            # update each foreign key reference to the target model
+            if (
+                field.name != "replaces"
+                and field.get_internal_type() == "ForeignKey"
+                and field.remote_field is not None
+                and field.remote_field.model == model_referenced
+                and field.remote_field.field_name == key_field_name
+            ):
+                filter_criteria = {field.name: old_object}
+                parent_objects = model.objects.filter(**filter_criteria)
+                for parent in parent_objects:
+                    setattr(parent, field.name, new_object)
+                    parent.save()
 
 
 # ########## REVISIONS ############
