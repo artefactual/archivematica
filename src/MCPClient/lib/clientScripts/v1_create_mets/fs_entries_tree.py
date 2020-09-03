@@ -128,14 +128,17 @@ class FSEntriesTree(object):
             offset += self.QUERY_BATCH_SIZE
             limit += self.QUERY_BATCH_SIZE
 
-    def load_file_data_from_db(self):
+    def retrieve_file_objs(self):
+        """Helper function to retrieve reamaining file objects in the
+        Database for processing into a METS file.
+        """
         file_objs = self.file_queryset.filter(
             sip=self.transfer, removedtime__isnull=True
         )
-
         for file_obj in self._batch_query(file_objs):
             try:
-                fsentry = self.file_index[file_obj.currentlocation]
+                self.file_index[file_obj.currentlocation]
+                yield file_obj
             except KeyError:
                 logger.info(
                     "File is no longer present on the filesystem: %s",
@@ -143,6 +146,12 @@ class FSEntriesTree(object):
                 )
                 continue
 
+    def load_file_data_from_db(self):
+        """Load the file data from the database if the files still
+        remain on disk.
+        """
+        for file_obj in self.retrieve_file_objs():
+            fsentry = self.file_index[file_obj.currentlocation]
             fsentry.file_uuid = file_obj.uuid
             fsentry.checksum = file_obj.checksum
             fsentry.checksumtype = convert_to_premis_hash_function(
@@ -323,6 +332,92 @@ def dir_obj_to_premis(dir_obj, relative_dir_path=""):
         + object_identifiers
         + (("original_name", original_name),)
     )
+
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=IE_PREMIS_META["version"]
+    )
+
+
+def event_to_premis(event, linking_object_uuids=[]):
+    """
+    Converts an Event model to a PREMIS event object via metsrw.
+    Returns:
+        lxml.etree._Element
+    """
+    ID_TYPE = "UUID"
+    SOURCE_ROLE = "Source"
+
+    premis_data = (
+        "event",
+        PREMIS_META,
+        (
+            "event_identifier",
+            ("event_identifier_type", ID_TYPE),
+            ("event_identifier_value", event.event_id),
+        ),
+        ("event_type", event.event_type),
+        ("event_date_time", event.event_datetime),
+    )
+
+    if event.event_detail:
+        premis_data += (
+            ("event_detail_information", ("event_detail", event.event_detail)),
+        )
+
+    if event.event_outcome_detail or event.event_outcome:
+        if event.event_outcome_detail:
+            detail = (
+                "event_outcome_detail",
+                ("event_outcome_detail_note", event.event_outcome_detail),
+            )
+            try:
+                event_outcome_info += detail  # noqa: F821
+            except UnboundLocalError:
+                event_outcome_info = detail
+        if event.event_outcome:
+            detail = ("event_outcome", event.event_outcome)
+            try:
+                event_outcome_info += detail
+            except UnboundLocalError:
+                event_outcome_info = detail
+        premis_data += (("event_outcome_information", event_outcome_info),)
+
+    for agent in event.agents.all():
+        premis_data += (
+            (
+                "linking_agent_identifier",
+                ("linking_agent_identifier_type", agent.identifiertype),
+                ("linking_agent_identifier_value", agent.identifiervalue),
+            ),
+        )
+
+    for linking_object_uuid in linking_object_uuids:
+        premis_data += (
+            (
+                "linkingObjectIdentifier",
+                ("linking_object_identifier_type", ID_TYPE),
+                ("linking_object_identifier_value", linking_object_uuid),
+                ("linking_object_role", SOURCE_ROLE),
+            ),
+        )
+
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=PREMIS_META["version"]
+    )
+
+
+def agents_to_premis(agent_record):
+    agent_data = (
+        (
+            "agent_identifier",
+            ("agent_identifier_type", agent_record.identifiertype),
+            ("agent_identifier_value", agent_record.identifiervalue),
+        ),
+        ("agent_name", agent_record.name),
+        ("agent_type", agent_record.agenttype),
+    )
+
+    premis_data = ("agent", IE_PREMIS_META) + agent_data
 
     return metsrw.plugins.premisrw.data_to_premis(
         premis_data, premis_version=IE_PREMIS_META["version"]
