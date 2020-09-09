@@ -6,7 +6,7 @@ import uuid
 import pytest
 
 from server.jobs import DecisionJob, Job
-from server.packages import Transfer, SIP
+from server.packages import Transfer, SIP, DIP
 from server.queues import PackageQueue
 from server.workflow import Link
 
@@ -63,6 +63,11 @@ def package_queue(request, simple_executor):
 
 
 @pytest.fixture
+def package_queue_regular(request, simple_executor):
+    return PackageQueue(simple_executor, max_concurrent_packages=1, debug=True)
+
+
+@pytest.fixture
 def workflow_link(request):
     return Link(
         uuid.uuid4(),
@@ -93,6 +98,15 @@ def transfer(request, tmp_path):
 @pytest.fixture
 def sip(request, tmp_path):
     return SIP(str(tmp_path), uuid.uuid4())
+
+
+@pytest.fixture
+def dip(request, tmp_path):
+    return DIP(str(tmp_path), uuid.uuid4())
+
+
+dip_1 = dip
+dip_2 = dip
 
 
 def test_schedule_job(package_queue, transfer, workflow_link, mocker):
@@ -189,14 +203,92 @@ def test_decision_job_moved_to_awaiting_decision(
     package_queue.process_one_job(timeout=0.1)
     test_job1.job_ran.wait(1.0)
 
+    assert test_job1.job_ran.is_set()
     assert str(test_job1.uuid) in package_queue.jobs_awaiting_decisions()
     assert transfer.uuid not in package_queue.active_packages
     assert package_queue.job_queue.qsize() == 0
 
-    test_job2 = MockJob(mocker.Mock(), workflow_link, sip)
     package_queue.schedule_job(test_job2)
     package_queue.process_one_job(timeout=0.1)
     test_job2.job_ran.wait(1.0)
 
+    assert test_job2.job_ran.is_set()
     assert test_job2.uuid not in package_queue.jobs_awaiting_decisions()
     assert sip.uuid in package_queue.active_packages
+
+
+def test_all_scheduled_decisions_are_processed(
+    package_queue_regular, dip_1, dip_2, workflow_link, mocker
+):
+    package_queue = package_queue_regular
+
+    test_job1 = MockDecisionJob(mocker.Mock(), workflow_link, dip_1)
+    test_job2 = MockDecisionJob(mocker.Mock(), workflow_link, dip_2)
+
+    # Schedule two jobs simultaneously.
+    # We want to confirm that both are eventually processed.
+    package_queue.schedule_job(test_job1)
+    package_queue.schedule_job(test_job2)
+
+    # Concurrent packages is 1, one of the two jobs must be queued.
+    # The other is ready to be picked up.
+    assert package_queue.job_queue.qsize() == 1
+    assert package_queue.dip_queue.qsize() == 1
+
+    # Process next job.
+    _process_one_job(package_queue)
+    test_job1.job_ran.wait(1.0)
+
+    # test_job1 should be done now, queues move on.
+    assert test_job1.job_ran.is_set()
+    assert str(test_job1.uuid) in package_queue.jobs_awaiting_decisions()
+    assert dip_1.uuid not in package_queue.active_packages
+    assert package_queue.job_queue.qsize() == 1
+    assert package_queue.dip_queue.qsize() == 0
+
+    # Process next job.
+    _process_one_job(package_queue)
+    test_job2.job_ran.wait(1.0)
+
+    # test_job2 should be done now, queues are empty.
+    assert test_job2.job_ran.is_set()
+    assert str(test_job2.uuid) in package_queue.jobs_awaiting_decisions()
+    assert dip_2.uuid not in package_queue.active_packages
+    assert package_queue.job_queue.qsize() == 0
+    assert package_queue.dip_queue.qsize() == 0
+
+
+def test_all_scheduled_jobs_are_processed(
+    package_queue_regular, dip_1, dip_2, workflow_link, mocker
+):
+    package_queue = package_queue_regular
+
+    # Mark the link as terminal to ensure that new jobs are enqueued.
+    workflow_link._src["end"] = True
+
+    test_job1 = MockJob(mocker.Mock(), workflow_link, dip_1)
+    test_job2 = MockJob(mocker.Mock(), workflow_link, dip_2)
+
+    # Schedule two jobs simultaneously.
+    # We want to confirm that both are eventually processed.
+    package_queue.schedule_job(test_job1)
+    package_queue.schedule_job(test_job2)
+
+    assert package_queue.job_queue.qsize() == 1
+    assert package_queue.dip_queue.qsize() == 1
+
+    package_queue.process_one_job(timeout=0.1)
+
+    test_job1.job_ran.wait(1.0)
+
+    assert test_job1.job_ran.is_set()
+    assert package_queue.job_queue.qsize() == 1
+    assert package_queue.dip_queue.qsize() == 0
+
+    package_queue.process_one_job(timeout=0.1)
+
+    test_job2.job_ran.wait(1.0)
+
+    assert test_job2.job_ran.is_set()
+    assert package_queue.job_queue.qsize() == 0
+    assert package_queue.dip_queue.qsize() == 0

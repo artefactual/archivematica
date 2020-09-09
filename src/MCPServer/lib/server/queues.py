@@ -229,6 +229,7 @@ class PackageQueue(object):
             return
         elif isinstance(next_job, DecisionJob) and next_job.awaiting_decision:
             self.await_decision(next_job)
+            self.queue_next_job()
         else:
             self.schedule_job(next_job)
 
@@ -349,7 +350,7 @@ class PackageQueue(object):
             return self.waiting_choices.copy()
 
     def decide(self, job_uuid, choice, user_id=None):
-        """Make a decsion on a job waiting for user input.
+        """Make a decision on a job waiting for user input.
         """
         job_uuid = six.text_type(job_uuid)
 
