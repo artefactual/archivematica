@@ -1,6 +1,7 @@
 import concurrent.futures
 import Queue
 import threading
+import time
 import uuid
 
 import pytest
@@ -9,6 +10,18 @@ from server.jobs import DecisionJob, Job
 from server.packages import Transfer, SIP, DIP
 from server.queues import PackageQueue
 from server.workflow import Link
+
+
+def _process_one_job(queue):
+    """Block the thread for a little while after a job is processed.
+
+    The goal is to let ``PackageQueue`` reach the desired state before we make
+    assertions. Otherwise, these tests may eventually fail although unlikely.
+    A long-term solution could be to not resolve the future until all queues
+    have been updated.
+    """
+    queue.process_one_job(timeout=1.0).result()
+    time.sleep(0.05)
 
 
 class MockJob(Job):
@@ -116,7 +129,7 @@ def test_schedule_job(package_queue, transfer, workflow_link, mocker):
 
     assert package_queue.job_queue.qsize() == 1
 
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
 
     # give ourselves up to 1 sec for other threads to spin up
     test_job.job_ran.wait(1.0)
@@ -142,7 +155,7 @@ def test_active_transfer_limit(package_queue, transfer, sip, workflow_link, mock
 
     assert package_queue.job_queue.qsize() == 1
 
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
 
     # give ourselves up to 1 sec for other threads to spin up
     test_job1.job_ran.wait(1.0)
@@ -200,7 +213,7 @@ def test_decision_job_moved_to_awaiting_decision(
     package_queue.schedule_job(test_job1)
 
     assert package_queue.job_queue.qsize() == 1
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
     test_job1.job_ran.wait(1.0)
 
     assert test_job1.job_ran.is_set()
@@ -209,7 +222,7 @@ def test_decision_job_moved_to_awaiting_decision(
     assert package_queue.job_queue.qsize() == 0
 
     package_queue.schedule_job(test_job2)
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
     test_job2.job_ran.wait(1.0)
 
     assert test_job2.job_ran.is_set()
@@ -277,7 +290,7 @@ def test_all_scheduled_jobs_are_processed(
     assert package_queue.job_queue.qsize() == 1
     assert package_queue.dip_queue.qsize() == 1
 
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
 
     test_job1.job_ran.wait(1.0)
 
@@ -285,7 +298,7 @@ def test_all_scheduled_jobs_are_processed(
     assert package_queue.job_queue.qsize() == 1
     assert package_queue.dip_queue.qsize() == 0
 
-    package_queue.process_one_job(timeout=0.1)
+    _process_one_job(package_queue)
 
     test_job2.job_ran.wait(1.0)
 
