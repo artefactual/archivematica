@@ -25,6 +25,7 @@
 from __future__ import absolute_import
 
 import logging
+import os
 import re
 
 # Core Django, alphabetical by import source
@@ -849,22 +850,33 @@ class Job(models.Model):
             ("jobtype", "currentstep"),
         )
 
-    def get_directory_name(self, default=None):
+    @staticmethod
+    def _match_directory_patterns(directory):
+        """Attempt to match the two different regex variants we might
+        receive in a Job.
+        """
+        MATCH_GROUP = "directory"
+        NEW_TRANSFER_REGEX = r"^.*/(?P<directory>.*)/$"
+        TRANSFER_REGEX = (
+            r"^.*/(?P<directory>.*)-" r"[\w]{8}(-[\w]{4})" r"{3}-[\w]{12}[/]{0,1}$"
+        )
+        try:
+            return re.search(TRANSFER_REGEX, directory).group(MATCH_GROUP)
+        except AttributeError:
+            pass
+        try:
+            directory = os.path.join(directory, "")
+            return re.search(NEW_TRANSFER_REGEX, directory).group(MATCH_GROUP)
+        except AttributeError:
+            return
+
+    def get_directory_name(self):
         if not self.directory:
             return self.sipuuid
-        try:
-            return re.search(
-                r"^.*/(?P<directory>.*)-" r"[\w]{8}(-[\w]{4})" r"{3}-[\w]{12}[/]{0,1}$",
-                self.directory,
-            ).group("directory")
-        except Exception:
-            pass
-        try:
-            return re.search(r"^.*/(?P<directory>.*)/$", self.directory).group(
-                "directory"
-            )
-        except Exception:
-            pass
+        transfer_name = self._match_directory_patterns(self.directory)
+        if not transfer_name:
+            return self.sipuuid
+        return transfer_name
 
 
 class Task(models.Model):
