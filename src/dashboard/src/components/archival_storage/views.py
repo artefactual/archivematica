@@ -443,14 +443,16 @@ def search_augment_aip_results(raw_results, counts):
             new_item["type"] = "AIP"
 
         status = fields.get("status")
+        keep_in_results = True
         if status is not None:
+            # Only return details for AIPs that haven't been deleted
+            # from the Storage Service in the search results.
             keep_in_results = sync_es_aip_status_with_storage_service(
                 fields["uuid"], status
             )
-            # Only return details for AIPs that haven't been deleted
-            # from the Storage Service in the search results.
-            if keep_in_results:
-                modified_results.append(new_item)
+
+        if keep_in_results:
+            modified_results.append(new_item)
 
     return modified_results
 
