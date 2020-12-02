@@ -1,7 +1,7 @@
 {
   "_comments": [
     "Add any comments here",
-    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file"
+    "Include here keys, repos, and packages required by this component"
   ],
   "osdeps_repokeys": [
     { "id": "0x5236CA08",
@@ -46,6 +46,7 @@
   { "name": "tree", "state": "latest"},
   { "name": "ufraw", "state": "latest"},
   { "name": "unrar-free", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
+  { "name": "uuid", "state": "latest"},
+  { "name": "libmysqlclient-dev", "state": "latest"}
   ]
 }
