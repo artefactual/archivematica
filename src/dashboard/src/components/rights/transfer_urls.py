@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from django.conf.urls import url
 from components.rights import views
 
-namespace = "rights_transfer"
+app_name = "rights_transfer"
 urlpatterns = [
     url(r"^$", views.transfer_rights_list, name="index"),
     url(r"^add/$", views.transfer_rights_edit, name="add"),
