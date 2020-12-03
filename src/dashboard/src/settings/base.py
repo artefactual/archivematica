@@ -63,6 +63,26 @@ CONFIG_MAPPING = {
         "option": "gearman_server",
         "type": "string",
     },
+    "password_minimum_length": {
+        "section": "Dashboard",
+        "option": "password_minimum_length",
+        "type": "int",
+    },
+    "password_disable_common_validation": {
+        "section": "Dashboard",
+        "option": "password_disable_common_validation",
+        "type": "boolean",
+    },
+    "password_disable_user_attribute_similarity_validation": {
+        "section": "Dashboard",
+        "option": "password_disable_user_attribute_similarity_validation",
+        "type": "boolean",
+    },
+    "password_disable_complexity_validation": {
+        "section": "Dashboard",
+        "option": "password_disable_complexity_validation",
+        "type": "boolean",
+    },
     "shibboleth_authentication": {
         "section": "Dashboard",
         "option": "shibboleth_authentication",
@@ -140,6 +160,10 @@ elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
 search_enabled = true
 gearman_server = 127.0.0.1:4730
+password_minimum_length = 8
+password_disable_common_validation = False
+password_disable_user_attribute_similarity_validation = False
+password_disable_complexity_validation = False
 shibboleth_authentication = False
 cas_authentication = False
 ldap_authentication = False
@@ -344,6 +368,8 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
+# Import basic authentication settings from component module.
+from .components.auth import *  # noqa
 
 ROOT_URLCONF = "urls"
 

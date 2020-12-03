@@ -30,6 +30,9 @@ from .base import *
 DEBUG = True
 TEMPLATES[0]["OPTIONS"]["debug"] = True
 
+# Disable password validation in local development environment.
+AUTH_PASSWORD_VALIDATORS = []
+
 # Fixture directories are only configured in local and test environments.
 # In Django 1.8, if you create a fixture named initial_data.[xml/yaml/json],
 # that fixture will be loaded every time you run migrate, which is something we

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-27 22:10+0000\n"
+"POT-Creation-Date: 2021-01-12 15:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Japanese (https://www.transifex.com/artefactual/teams/1506/"
@@ -19,17 +19,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: components/accounts/validators.py:20
+msgid ""
+"Your password must contain at least 3 of: uppercase characters, lowercase "
+"characters, numbers, and special characters (symbols or non-alphanumeric "
+"Unicode characters)."
+msgstr ""
+
 #: components/accounts/views.py:61 components/accounts/views.py:149
-#: components/administration/views.py:454
-#: components/administration/views.py:469
-#: components/administration/views.py:481
-#: components/administration/views.py:508
-#: components/administration/views.py:555
+#: components/administration/views.py:468
+#: components/administration/views.py:483
+#: components/administration/views.py:495
+#: components/administration/views.py:522
+#: components/administration/views.py:569
 #: components/administration/views_dip_upload.py:25
-#: components/administration/views_dip_upload.py:39 fpr/views.py:106
-#: fpr/views.py:113 fpr/views.py:150 fpr/views.py:301 fpr/views.py:342
-#: fpr/views.py:433 fpr/views.py:527 fpr/views.py:535 fpr/views.py:602
-#: fpr/views.py:656
+#: components/administration/views_dip_upload.py:39 fpr/views.py:105
+#: fpr/views.py:112 fpr/views.py:149 fpr/views.py:300 fpr/views.py:341
+#: fpr/views.py:432 fpr/views.py:526 fpr/views.py:534 fpr/views.py:601
+#: fpr/views.py:655
 msgid "Saved."
 msgstr "保存しました。"
 
@@ -366,7 +373,7 @@ msgstr ""
 msgid "New"
 msgstr "New"
 
-#: components/administration/forms_dip_upload.py:21 main/models.py:1021
+#: components/administration/forms_dip_upload.py:21 main/models.py:1033
 msgid "Other"
 msgstr "その他"
 
@@ -552,7 +559,7 @@ msgid "Used in metadata-only DIP upload."
 msgstr ""
 
 #: components/administration/views.py:89 components/administration/views.py:122
-#: components/ingest/views.py:287 fpr/views.py:261 main/views.py:307
+#: components/ingest/views.py:287 fpr/views.py:260 main/views.py:307
 msgid "Deleted."
 msgstr "削除しました。"
 
@@ -614,34 +621,34 @@ msgstr ""
 msgid "unlimited"
 msgstr ""
 
-#: components/administration/views.py:404
+#: components/administration/views.py:418
 #, python-format
 msgid "Clear %(dir)s?"
 msgstr ""
 
-#: components/administration/views.py:406
+#: components/administration/views.py:420
 #: templates/administration/usage.html:103
 msgid "Clear"
 msgstr "クリア"
 
-#: components/administration/views.py:431
+#: components/administration/views.py:445
 #, python-format
 msgid "Cleared: %(path)s"
 msgstr ""
 
-#: components/administration/views.py:434
+#: components/administration/views.py:448
 #, python-format
 msgid "No such file or directory: %(path)s"
 msgstr ""
 
-#: components/administration/views.py:571
+#: components/administration/views.py:585
 #, python-format
 msgid ""
 "Storage Service inaccessible. Please contact an administrator or update the "
 "Storage Sevice URL below.<hr />%(error)s"
 msgstr ""
 
-#: components/administration/views.py:588
+#: components/administration/views.py:602
 #, python-format
 msgid ""
 "Storage Service failed to create the pipeline. This can happen if the "
@@ -649,7 +656,7 @@ msgid ""
 "%(error)s"
 msgstr ""
 
-#: components/administration/views.py:600
+#: components/administration/views.py:614
 msgid ""
 "Storage Service returned a 404 error. Has the pipeline been disabled or is "
 "it not registered yet? Submitting form will attempt to register the pipeline."
@@ -718,7 +725,7 @@ msgid "Please type in the UUID to confirm"
 msgstr ""
 
 #: components/archival_storage/forms.py:89
-#: components/archival_storage/views.py:210
+#: components/archival_storage/views.py:204
 #: fpr/templates/fpr/format/detail.html:23
 #: fpr/templates/fpr/format/version/detail.html:27
 #: fpr/templates/fpr/fpcommand/detail.html:26
@@ -756,90 +763,90 @@ msgstr ""
 msgid "Deletion requested"
 msgstr ""
 
-#: components/archival_storage/views.py:209 templates/accounts/list.html:24
+#: components/archival_storage/views.py:203 templates/accounts/list.html:24
 #: templates/accounts/profile.html:31
 #: templates/administration/atom_levels_of_description.html:37
 #: templates/administration/reports/failures.html:26
 msgid "Name"
 msgstr "名称"
 
-#: components/archival_storage/views.py:211
+#: components/archival_storage/views.py:205
 msgid "AICID"
 msgstr ""
 
-#: components/archival_storage/views.py:212
+#: components/archival_storage/views.py:206
 msgid "Count AIPs in AIC"
 msgstr ""
 
-#: components/archival_storage/views.py:213
+#: components/archival_storage/views.py:207
 #: templates/administration/usage.html:90
 #: templates/archival_storage/view.html:67
 msgid "Size"
 msgstr "サイズ"
 
-#: components/archival_storage/views.py:214
+#: components/archival_storage/views.py:208
 #, fuzzy
 #| msgid "File name"
 msgid "File count"
 msgstr "ファイル名"
 
-#: components/archival_storage/views.py:215
+#: components/archival_storage/views.py:209
 #, fuzzy
 #| msgid "Access"
 msgid "Accession IDs"
 msgstr "アクセス"
 
-#: components/archival_storage/views.py:216
+#: components/archival_storage/views.py:210
 #, fuzzy
 #| msgid "Created time"
 msgid "Created date (UTC)"
 msgstr "作成時刻"
 
-#: components/archival_storage/views.py:217
+#: components/archival_storage/views.py:211
 #: templates/archival_storage/view.html:75
 msgid "Status"
 msgstr "ステータス"
 
-#: components/archival_storage/views.py:218
-#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1007
+#: components/archival_storage/views.py:212
+#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1019
 #: templates/administration/reports/failures.html:25
 #: templates/rights/rights_edit.html:102 templates/rights/rights_edit.html:154
 #: templates/rights/rights_edit.html:204 templates/rights/rights_edit.html:252
 msgid "Type"
 msgstr "種別"
 
-#: components/archival_storage/views.py:219
+#: components/archival_storage/views.py:213
 #: templates/archival_storage/view.html:79
 msgid "Encrypted"
 msgstr ""
 
-#: components/archival_storage/views.py:220
+#: components/archival_storage/views.py:214
 #: templates/archival_storage/view.html:83
 #: templates/ingest/normalization_report.html:31
 msgid "Location"
 msgstr "所在"
 
-#: components/archival_storage/views.py:600
+#: components/archival_storage/views.py:601
 msgid "The AIP package containing the requested METS cannot be found"
 msgstr ""
 
-#: components/archival_storage/views.py:729
+#: components/archival_storage/views.py:730
 msgid "Metadata-only DIP upload failed, check the logs for more details"
 msgstr ""
 
-#: components/archival_storage/views.py:741
+#: components/archival_storage/views.py:742
 #, python-format
 msgid ""
 "Metadata-only DIP upload has been completed successfully. New resource has "
 "slug: %(slug)s"
 msgstr ""
 
-#: components/archival_storage/views.py:764
+#: components/archival_storage/views.py:765
 #, python-format
 msgid "Error re-ingesting package: %(message)s"
 msgstr ""
 
-#: components/backlog/views.py:282
+#: components/backlog/views.py:285
 msgid "Unable to connect to storage server. Please contact your administrator."
 msgstr ""
 
@@ -881,100 +888,100 @@ msgstr "コピーが成功しました。"
 msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:503
+#: components/filesystem_ajax/views.py:505
 #, python-format
 msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:512
+#: components/filesystem_ajax/views.py:514
 #, python-format
 msgid "%(path1)s is not in %(path2)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:518
+#: components/filesystem_ajax/views.py:520
 #, python-format
 msgid "%(path)s is not a directory"
 msgstr "%(path)s はディレクトリではありません"
 
-#: components/filesystem_ajax/views.py:601
+#: components/filesystem_ajax/views.py:603
 msgid "SIP created."
 msgstr "SIPを作成しました。"
 
-#: components/filesystem_ajax/views.py:610
+#: components/filesystem_ajax/views.py:612
 msgid "All directories must be within the arrange directory."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:642
+#: components/filesystem_ajax/views.py:644
 msgid "Creation successful."
 msgstr "作成に成功。"
 
-#: components/filesystem_ajax/views.py:654
+#: components/filesystem_ajax/views.py:656
 #, python-format
 msgid "%(src)s and %(dst)s must be inside %(path)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:675
+#: components/filesystem_ajax/views.py:677
 msgid "You cannot drag and drop onto a file."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:745
+#: components/filesystem_ajax/views.py:747
 msgid "GET parameter 'filepath' or 'destination' was blank."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:748
+#: components/filesystem_ajax/views.py:750
 #, python-format
 msgid "%(path)s must be in arrange directory."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:761
+#: components/filesystem_ajax/views.py:763
 #, python-format
 msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:796
+#: components/filesystem_ajax/views.py:798
 #, python-format
 msgid "Storage Service failed with the message: %(messsage)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:812
+#: components/filesystem_ajax/views.py:814
 #, python-format
 msgid ""
 "No file information returned from the Storage Service for file at "
 "relative_path: %(path)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:890
+#: components/filesystem_ajax/views.py:892
 #, python-format
 msgid "%(path)s is not in base backlog path nor arrange path"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:916
+#: components/filesystem_ajax/views.py:918
 msgid "SIP files successfully moved."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:925
+#: components/filesystem_ajax/views.py:927
 msgid "Files added to the SIP."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:956
+#: components/filesystem_ajax/views.py:958
 msgid "Metadata files added successfully."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:991
+#: components/filesystem_ajax/views.py:993
 #, python-format
 msgid "Location %(location)s is not associated with this pipeline"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:1028
+#: components/filesystem_ajax/views.py:1030
 #, python-format
 msgid "The following errors occured: %(message)s"
 msgstr ""
 
-#: components/filesystem_ajax/views.py:1032
+#: components/filesystem_ajax/views.py:1034
 msgid "Files added successfully."
 msgstr ""
 
-#: components/filesystem_ajax/views.py:1102
+#: components/filesystem_ajax/views.py:1104
 #, python-format
 msgid "File with UUID %(uuid)s could not be found"
 msgstr ""
@@ -1280,7 +1287,7 @@ msgstr ""
 msgid "preservation format"
 msgstr ""
 
-#: fpr/models.py:214 fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:727
+#: fpr/models.py:214 fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:723
 #, fuzzy
 #| msgid "Format"
 msgid "Format version"
@@ -1477,7 +1484,7 @@ msgstr ""
 msgid "count not okay"
 msgstr ""
 
-#: fpr/models.py:474 fpr/views.py:732
+#: fpr/models.py:474 fpr/views.py:728
 msgid "Format policy rule"
 msgstr ""
 
@@ -1539,7 +1546,7 @@ msgstr ""
 msgid "the related event detail command"
 msgstr ""
 
-#: fpr/models.py:569 fpr/views.py:731
+#: fpr/models.py:569 fpr/views.py:727
 msgid "Format policy command"
 msgstr ""
 
@@ -2125,7 +2132,7 @@ msgstr "記述レベル"
 #: fpr/templates/fpr/fpcommand/form.html:10
 #: fpr/templates/fpr/fpcommand/list.html:4
 #: fpr/templates/fpr/fpcommand/list.html:5
-#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:678
+#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:677
 msgid "Format policy commands"
 msgstr ""
 
@@ -2198,7 +2205,7 @@ msgid "Rule %(description)s"
 msgstr "記述レベル"
 
 #: fpr/templates/fpr/fprule/detail.html:10
-#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:547
+#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:546
 msgid "Format policy rules"
 msgstr ""
 
@@ -2296,7 +2303,7 @@ msgstr ""
 #: fpr/templates/fpr/idcommand/form.html:10
 #: fpr/templates/fpr/idcommand/list.html:4
 #: fpr/templates/fpr/idcommand/list.html:5
-#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:445
+#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:444
 msgid "Identification commands"
 msgstr ""
 
@@ -2323,7 +2330,7 @@ msgstr ""
 #: fpr/templates/fpr/idrule/detail.html:10
 #: fpr/templates/fpr/idrule/form.html:10 fpr/templates/fpr/idrule/list.html:4
 #: fpr/templates/fpr/idrule/list.html:5 fpr/templates/fpr/idrule/list.html:9
-#: fpr/views.py:354
+#: fpr/views.py:353
 #, fuzzy
 #| msgid "Identifier"
 msgid "Identification rules"
@@ -2394,150 +2401,150 @@ msgstr ""
 msgid "No revisions exist."
 msgstr ""
 
-#: fpr/utils.py:74
+#: fpr/utils.py:85
 msgid ""
 "You are replacing the current revision with data from an older revision."
 msgstr ""
 
-#: fpr/utils.py:81
+#: fpr/utils.py:92
 msgid "You are viewing a disabled revision."
 msgstr ""
 
-#: fpr/views.py:91
+#: fpr/views.py:90
 #, python-format
 msgid "Edit format %(name)s"
 msgstr ""
 
-#: fpr/views.py:93
+#: fpr/views.py:92
 #, fuzzy
 #| msgid "Created time"
 msgid "Create format"
 msgstr "作成時刻"
 
-#: fpr/views.py:134
+#: fpr/views.py:133
 #, python-format
 msgid "Replace format version %(name)s"
 msgstr ""
 
-#: fpr/views.py:137 fpr/views.py:641
+#: fpr/views.py:136 fpr/views.py:640
 msgid "Create format version"
 msgstr ""
 
-#: fpr/views.py:164
+#: fpr/views.py:163
 msgid "Format versions"
 msgstr ""
 
-#: fpr/views.py:173 fpr/views.py:360 fpr/views.py:454 fpr/views.py:554
-#: fpr/views.py:687
+#: fpr/views.py:172 fpr/views.py:359 fpr/views.py:453 fpr/views.py:553
+#: fpr/views.py:686
 msgid "Disabled."
 msgstr ""
 
-#: fpr/views.py:179 fpr/views.py:363 fpr/views.py:457 fpr/views.py:557
-#: fpr/views.py:693
+#: fpr/views.py:178 fpr/views.py:362 fpr/views.py:456 fpr/views.py:556
+#: fpr/views.py:692
 msgid "Enabled."
 msgstr ""
 
-#: fpr/views.py:192
+#: fpr/views.py:191
 msgid "Enable/disable format version"
 msgstr ""
 
-#: fpr/views.py:212
+#: fpr/views.py:211
 #, python-format
 msgid "Edit format group %(name)s"
 msgstr ""
 
-#: fpr/views.py:214
+#: fpr/views.py:213
 msgid "Create format group"
 msgstr ""
 
-#: fpr/views.py:249
+#: fpr/views.py:248
 #, python-format
 msgid "%(count)d substitutions were performed."
 msgstr ""
 
-#: fpr/views.py:256
+#: fpr/views.py:255
 msgid "Please select a group to substitute for this group in member formats."
 msgstr ""
 
-#: fpr/views.py:293
+#: fpr/views.py:292
 #, python-format
 msgid "Edit identification tool %(name)s"
 msgstr ""
 
-#: fpr/views.py:296
+#: fpr/views.py:295
 msgid "Create identification tool"
 msgstr ""
 
-#: fpr/views.py:331
+#: fpr/views.py:330
 #, python-format
 msgid "Replace identification rule %(uuid)s"
 msgstr ""
 
-#: fpr/views.py:334
+#: fpr/views.py:333
 msgid "Create identification rule"
 msgstr ""
 
-#: fpr/views.py:374
+#: fpr/views.py:373
 msgid "Enable/disable identification rule"
 msgstr ""
 
-#: fpr/views.py:405
+#: fpr/views.py:404
 #, python-format
 msgid "Replace identification command %(name)s"
 msgstr ""
 
-#: fpr/views.py:410
+#: fpr/views.py:409
 msgid "Create identification command"
 msgstr ""
 
-#: fpr/views.py:467
+#: fpr/views.py:466
 msgid "Enable/disable identification command"
 msgstr ""
 
-#: fpr/views.py:509
+#: fpr/views.py:508
 #, python-format
 msgid "Replace format policy rule %(uuid)s"
 msgstr ""
 
-#: fpr/views.py:513
+#: fpr/views.py:512
 msgid "Create format policy rule"
 msgstr ""
 
-#: fpr/views.py:568
+#: fpr/views.py:567
 msgid "Enable/disable format policy registry rule"
 msgstr ""
 
-#: fpr/views.py:593
+#: fpr/views.py:592
 #, python-format
 msgid "Replace format policy registry tool %(name)s"
 msgstr ""
 
-#: fpr/views.py:598
+#: fpr/views.py:597
 msgid "Create format policy registry tool"
 msgstr ""
 
-#: fpr/views.py:638
+#: fpr/views.py:637
 #, python-format
 msgid "Replace command %(name)s"
 msgstr ""
 
-#: fpr/views.py:704
+#: fpr/views.py:703
 msgid "Enable/disable format policy command"
 msgstr ""
 
-#: fpr/views.py:728
+#: fpr/views.py:724
 #, fuzzy
 #| msgid "General configuration"
 msgid "Identification tool configuration"
 msgstr "一般的な設定"
 
-#: fpr/views.py:729
+#: fpr/views.py:725
 #, fuzzy
 #| msgid "Identifier"
 msgid "Identification rule"
 msgstr "識別子"
 
-#: fpr/views.py:730
+#: fpr/views.py:726
 msgid "Identification command"
 msgstr ""
 
@@ -2571,462 +2578,462 @@ msgid ""
 "administrator."
 msgstr ""
 
-#: main/models.py:245
+#: main/models.py:246
 msgid "Part of AIC"
 msgstr "AIC部"
 
-#: main/models.py:246
+#: main/models.py:247
 msgid "Optional: leave blank if unsure"
 msgstr ""
 
-#: main/models.py:255
+#: main/models.py:256
 msgid "Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
 msgstr ""
 
-#: main/models.py:265
+#: main/models.py:266
 msgid "Use ISO 639"
 msgstr ""
 
-#: main/models.py:283
+#: main/models.py:284
 msgid "Untitled"
 msgstr ""
 
-#: main/models.py:336
+#: main/models.py:337
 #, python-format
 msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
 msgstr ""
 
-#: main/models.py:381
+#: main/models.py:382
 #, python-format
 msgid "%(derived)s derived from %(src)s in %(event)s"
 msgstr ""
 
-#: main/models.py:409
+#: main/models.py:410
 msgid "SIP"
 msgstr ""
 
-#: main/models.py:410
+#: main/models.py:411
 msgid "AIC"
 msgstr "AIC"
 
-#: main/models.py:411
+#: main/models.py:412
 msgid "Reingested AIP"
 msgstr ""
 
-#: main/models.py:412
+#: main/models.py:413
 msgid "Reingested AIC"
 msgstr ""
 
-#: main/models.py:426
+#: main/models.py:427
 #, python-brace-format
 msgid "SIP: {path}"
 msgstr ""
 
-#: main/models.py:547
+#: main/models.py:548
 msgid "Arranged SIPs"
 msgstr ""
 
-#: main/models.py:551
+#: main/models.py:552
 #, python-format
 msgid "%(original)s -> %(arrange)s"
 msgstr ""
 
-#: main/models.py:596
+#: main/models.py:597
 msgid "Identifier Type"
 msgstr ""
 
-#: main/models.py:598
+#: main/models.py:599
 msgid "Identifier Value"
 msgstr ""
 
-#: main/models.py:600
+#: main/models.py:601
 msgid ""
 "Used for premis:objectIdentifierType and premis:objectIdentifierValue in the "
 "METS file."
 msgstr ""
 
-#: main/models.py:673
+#: main/models.py:674
 #, python-format
 msgid "File %(uuid)s:%(originallocation)s now at %(currentlocation)s"
 msgstr ""
 
-#: main/models.py:719
+#: main/models.py:720
 #, python-format
 msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
 msgstr ""
 
-#: main/models.py:783
+#: main/models.py:784
 #, python-format
 msgid "%(file)s is %(format)s"
 msgstr ""
 
-#: main/models.py:801
+#: main/models.py:802
 msgid "(Unnamed)"
 msgstr ""
 
-#: main/models.py:823
+#: main/models.py:824
 msgid "Unknown"
 msgstr "不明"
 
-#: main/models.py:824
+#: main/models.py:825
 msgid "Awaiting decision"
 msgstr ""
 
-#: main/models.py:825
+#: main/models.py:826
 msgid "Completed successfully"
 msgstr ""
 
-#: main/models.py:826
+#: main/models.py:827
 msgid "Executing command(s)"
 msgstr ""
 
-#: main/models.py:827
+#: main/models.py:828
 msgid "Failed"
 msgstr ""
 
-#: main/models.py:924
+#: main/models.py:936
 msgid "Agent Identifier Type"
 msgstr ""
 
-#: main/models.py:929
+#: main/models.py:941
 msgid "Agent Identifier Value"
 msgstr ""
 
-#: main/models.py:931
+#: main/models.py:943
 msgid ""
 "Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue "
 "in the METS file."
 msgstr ""
 
-#: main/models.py:938
+#: main/models.py:950
 msgid "Agent Name"
 msgstr ""
 
-#: main/models.py:939
+#: main/models.py:951
 msgid "Used for premis:agentName in the METS file."
 msgstr ""
 
-#: main/models.py:945
+#: main/models.py:957
 msgid "Agent Type"
 msgstr ""
 
-#: main/models.py:946
+#: main/models.py:958
 msgid "Used for premis:agentType in the METS file."
 msgstr ""
 
-#: main/models.py:970
+#: main/models.py:982
 msgid ""
 "If checked, this user will receive system emails, such as Transfer Fail and "
 "Normalization Reports."
 msgstr ""
 
-#: main/models.py:972
+#: main/models.py:984
 msgid "Send system emails?"
 msgstr ""
 
-#: main/models.py:1010 templates/rights/rights_edit.html:106
+#: main/models.py:1022 templates/rights/rights_edit.html:106
 #: templates/rights/rights_edit.html:158 templates/rights/rights_edit.html:208
 #: templates/rights/rights_edit.html:256
 msgid "Value"
 msgstr ""
 
-#: main/models.py:1013
+#: main/models.py:1025
 msgid "Rights holder"
 msgstr "権利保持者"
 
-#: main/models.py:1016
+#: main/models.py:1028
 msgid "Copyright"
 msgstr "著作権"
 
-#: main/models.py:1017
+#: main/models.py:1029
 msgid "Statute"
 msgstr "法令"
 
-#: main/models.py:1018
+#: main/models.py:1030
 msgid "License"
 msgstr "ライセンス"
 
-#: main/models.py:1019
+#: main/models.py:1031
 msgid "Donor"
 msgstr "寄贈者"
 
-#: main/models.py:1020
+#: main/models.py:1032
 msgid "Policy"
 msgstr "ポリシー"
 
-#: main/models.py:1027 templates/rights/rights_list.html:34
+#: main/models.py:1039 templates/rights/rights_list.html:34
 msgid "Basis"
 msgstr ""
 
-#: main/models.py:1039
+#: main/models.py:1051
 msgid "Rights Statement"
 msgstr ""
 
-#: main/models.py:1043
+#: main/models.py:1055
 #, python-format
 msgid "%(basis)s for %(unit)s (%(id)s)"
 msgstr ""
 
-#: main/models.py:1058
+#: main/models.py:1070
 msgid "copyrighted"
 msgstr ""
 
-#: main/models.py:1059
+#: main/models.py:1071
 msgid "public domain"
 msgstr ""
 
-#: main/models.py:1060
+#: main/models.py:1072
 msgid "unknown"
 msgstr ""
 
-#: main/models.py:1065
+#: main/models.py:1077
 msgid "Copyright status"
 msgstr "著作権のステータス"
 
-#: main/models.py:1070
+#: main/models.py:1082
 msgid "Copyright jurisdiction"
 msgstr "著作権法制"
 
-#: main/models.py:1076
+#: main/models.py:1088
 msgid "Copyright determination date"
 msgstr ""
 
-#: main/models.py:1077 main/models.py:1084 main/models.py:1091
-#: main/models.py:1161 main/models.py:1168 main/models.py:1234
-#: main/models.py:1241 main/models.py:1303 main/models.py:1312
-#: main/models.py:1319 main/models.py:1391 main/models.py:1398
+#: main/models.py:1089 main/models.py:1096 main/models.py:1103
+#: main/models.py:1173 main/models.py:1180 main/models.py:1246
+#: main/models.py:1253 main/models.py:1315 main/models.py:1324
+#: main/models.py:1331 main/models.py:1403 main/models.py:1410
 msgid "Use ISO 8061 (YYYY-MM-DD)"
 msgstr ""
 
-#: main/models.py:1083
+#: main/models.py:1095
 msgid "Copyright start date"
 msgstr ""
 
-#: main/models.py:1090
+#: main/models.py:1102
 msgid "Copyright end date"
 msgstr ""
 
-#: main/models.py:1096 main/models.py:1173 main/models.py:1248
-#: main/models.py:1324 main/models.py:1403
+#: main/models.py:1108 main/models.py:1185 main/models.py:1260
+#: main/models.py:1336 main/models.py:1415
 msgid "Open End Date"
 msgstr ""
 
-#: main/models.py:1097 main/models.py:1174 main/models.py:1249
-#: main/models.py:1325 main/models.py:1404
+#: main/models.py:1109 main/models.py:1186 main/models.py:1261
+#: main/models.py:1337 main/models.py:1416
 msgid "Indicate end date is open"
 msgstr ""
 
-#: main/models.py:1102
+#: main/models.py:1114
 msgid "Rights: Copyright"
 msgstr ""
 
-#: main/models.py:1114
+#: main/models.py:1126
 msgid "Copyright document identification type"
 msgstr ""
 
-#: main/models.py:1118
+#: main/models.py:1130
 msgid "Copyright document identification value"
 msgstr ""
 
-#: main/models.py:1124
+#: main/models.py:1136
 msgid "Copyright document identification role"
 msgstr ""
 
-#: main/models.py:1129
+#: main/models.py:1141
 msgid "Rights: Copyright: Docs ID"
 msgstr ""
 
-#: main/models.py:1140 templates/rights/rights_edit.html:117
+#: main/models.py:1152 templates/rights/rights_edit.html:117
 msgid "Copyright note"
 msgstr ""
 
-#: main/models.py:1145
+#: main/models.py:1157
 msgid "Rights: Copyright: Note"
 msgstr ""
 
-#: main/models.py:1154
+#: main/models.py:1166
 msgid "License terms"
 msgstr "ライセンス条件"
 
-#: main/models.py:1160
+#: main/models.py:1172
 msgid "License start date"
 msgstr ""
 
-#: main/models.py:1167
+#: main/models.py:1179
 msgid "License end date"
 msgstr ""
 
-#: main/models.py:1179
+#: main/models.py:1191
 msgid "Rights: License"
 msgstr ""
 
-#: main/models.py:1191
+#: main/models.py:1203
 msgid "License documentation identification type"
 msgstr ""
 
-#: main/models.py:1195
+#: main/models.py:1207
 msgid "License documentation identification value"
 msgstr ""
 
-#: main/models.py:1201
+#: main/models.py:1213
 msgid "License document identification role"
 msgstr ""
 
-#: main/models.py:1206
+#: main/models.py:1218
 msgid "Rights: License: Docs ID"
 msgstr ""
 
-#: main/models.py:1217 templates/rights/rights_edit.html:219
+#: main/models.py:1229 templates/rights/rights_edit.html:219
 msgid "License note"
 msgstr "ライセンス注記"
 
-#: main/models.py:1222
+#: main/models.py:1234
 msgid "Rights: License: Note"
 msgstr ""
 
-#: main/models.py:1233 templates/rights/rights_list.html:36
+#: main/models.py:1245 templates/rights/rights_list.html:36
 msgid "Start"
 msgstr "開始"
 
-#: main/models.py:1240 templates/rights/rights_list.html:37
+#: main/models.py:1252 templates/rights/rights_list.html:37
 msgid "End"
 msgstr "終了"
 
-#: main/models.py:1254
+#: main/models.py:1266
 msgid "Rights: Granted"
 msgstr ""
 
-#: main/models.py:1266
+#: main/models.py:1278
 msgid "Rights note"
 msgstr ""
 
-#: main/models.py:1271
+#: main/models.py:1283
 msgid "Rights: Granted: Note"
 msgstr ""
 
-#: main/models.py:1286
+#: main/models.py:1298
 msgid "Rights: Granted: Restriction"
 msgstr ""
 
-#: main/models.py:1295
+#: main/models.py:1307
 msgid "Statute jurisdiction"
 msgstr "法令の管轄"
 
-#: main/models.py:1298
+#: main/models.py:1310
 msgid "Statute citation"
 msgstr "法令の引用"
 
-#: main/models.py:1302
+#: main/models.py:1314
 msgid "Statute determination date"
 msgstr "法令の制定日"
 
-#: main/models.py:1311
+#: main/models.py:1323
 msgid "Statute start date"
 msgstr ""
 
-#: main/models.py:1318
+#: main/models.py:1330
 msgid "Statute end date"
 msgstr ""
 
-#: main/models.py:1330
+#: main/models.py:1342
 msgid "Rights: Statute"
 msgstr ""
 
-#: main/models.py:1341 templates/rights/rights_edit.html:169
+#: main/models.py:1353 templates/rights/rights_edit.html:169
 msgid "Statute note"
 msgstr "状態注記"
 
-#: main/models.py:1346
+#: main/models.py:1358
 msgid "Rights: Statute: Note"
 msgstr ""
 
-#: main/models.py:1358
+#: main/models.py:1370
 msgid "Statute document identification type"
 msgstr ""
 
-#: main/models.py:1362
+#: main/models.py:1374
 msgid "Statute document identification value"
 msgstr ""
 
-#: main/models.py:1368
+#: main/models.py:1380
 msgid "Statute document identification role"
 msgstr ""
 
-#: main/models.py:1373
+#: main/models.py:1385
 msgid "Rights: Statute: Docs ID"
 msgstr ""
 
-#: main/models.py:1383
+#: main/models.py:1395
 msgid "Other rights basis"
 msgstr ""
 
-#: main/models.py:1390
+#: main/models.py:1402
 msgid "Other rights start date"
 msgstr ""
 
-#: main/models.py:1397
+#: main/models.py:1409
 msgid "Other rights end date"
 msgstr ""
 
-#: main/models.py:1409
+#: main/models.py:1421
 msgid "Rights: Other"
 msgstr ""
 
-#: main/models.py:1421
+#: main/models.py:1433
 msgid "Other rights document identification type"
 msgstr ""
 
-#: main/models.py:1425
+#: main/models.py:1437
 msgid "Other right document identification value"
 msgstr ""
 
-#: main/models.py:1431
+#: main/models.py:1443
 msgid "Other rights document identification role"
 msgstr ""
 
-#: main/models.py:1436
+#: main/models.py:1448
 msgid "Rights: Other: Docs ID"
 msgstr ""
 
-#: main/models.py:1447
+#: main/models.py:1459
 msgid "Other rights note"
 msgstr ""
 
-#: main/models.py:1452
+#: main/models.py:1464
 msgid "Rights: Other: Note"
 msgstr ""
 
-#: main/models.py:1462
+#: main/models.py:1474
 msgid "Linking Agent"
 msgstr ""
 
-#: main/models.py:1467
+#: main/models.py:1479
 msgid "Linking Agent Value"
 msgstr ""
 
-#: main/models.py:1473
+#: main/models.py:1485
 msgid "Rights: Agent"
 msgstr ""
 
-#: main/models.py:1509
+#: main/models.py:1521
 msgid "Semantically a foreign key to SIP or Transfer"
 msgstr ""
 
-#: main/models.py:1547
+#: main/models.py:1559
 msgid "ASDIPObjectResourcePairing"
 msgstr ""
 
-#: main/models.py:1562
+#: main/models.py:1574
 msgid ""
 "Whether or not a SIP has been started using files in this digital object."
 msgstr ""
 
-#: main/models.py:1569
+#: main/models.py:1581
 msgid ""
 "ID in the remote ArchivesSpace system, after digital object has been created."
 msgstr ""
 
-#: main/models.py:1709
+#: main/models.py:1721
 #, python-format
 msgid "%(sortorder)s: %(name)s"
 msgstr "%(sortorder)s: %(name)s"
@@ -3047,66 +3054,66 @@ msgstr ""
 msgid "Incorrect type."
 msgstr ""
 
-#: settings/base.py:212
+#: settings/base.py:255
 msgid "English"
 msgstr "目次"
 
-#: settings/base.py:213
+#: settings/base.py:256
 msgid "French"
 msgstr ""
 
-#: settings/base.py:214
+#: settings/base.py:257
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:215
+#: settings/base.py:258
 msgid "Japanese"
 msgstr ""
 
-#: settings/base.py:216
+#: settings/base.py:259
 msgid "Portuguese"
 msgstr ""
 
-#: settings/base.py:217
+#: settings/base.py:260
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:218
+#: settings/base.py:261
 msgid "Swedish"
 msgstr ""
 
-#: settings/base.py:435
+#: settings/base.py:479
 msgid ""
 "Select \"Approve transfer\" to begin processing or \"Reject transfer\" to "
 "start over again."
 msgstr ""
 
-#: settings/base.py:438
+#: settings/base.py:482
 msgid ""
 "Create a complete backup of the transfer in case transfer/ingest are "
 "interrupted or fail. The transfer will automatically be deleted once the AIP "
 "has been moved into storage."
 msgstr ""
 
-#: settings/base.py:440
+#: settings/base.py:484
 msgid "Create a SIP from the transfer."
 msgstr ""
 
-#: settings/base.py:442
+#: settings/base.py:486
 msgid ""
 "Once you have added files from the transfer to the SIP and have completed "
 "any appraisal and physical arrangement, select \"SIP creation complete\" to "
 "start ingest micro-services."
 msgstr ""
 
-#: settings/base.py:445
+#: settings/base.py:489
 msgid ""
 "Create preservation and/or access copies of files if desired. Creating "
 "access copies will result in a DIP being generated for upload into an access "
 "system."
 msgstr ""
 
-#: settings/base.py:448
+#: settings/base.py:492
 msgid ""
 "If desired, click \"review\" to view the normalized files. To see a report "
 "summarizing the normalization results, click on the report icon next to the "
@@ -3115,13 +3122,13 @@ msgid ""
 "view the tool output and error message."
 msgstr ""
 
-#: settings/base.py:451
+#: settings/base.py:495
 msgid ""
 "If desired, click \"review\" to view AIP contents. Select \"Store AIP\" to "
 "move the AIP into archival storage."
 msgstr ""
 
-#: settings/base.py:454
+#: settings/base.py:498
 msgid ""
 "If desired, select \"Upload DIP\" to upload the DIP to the access system."
 msgstr ""
@@ -3279,7 +3286,9 @@ msgid "REST API configuration"
 msgstr ""
 
 #: templates/administration/api.html:27
-msgid "IP whitelist"
+#, fuzzy
+#| msgid "IP whitelist"
+msgid "IP allowlist"
 msgstr "IPホワイトリスト"
 
 #: templates/administration/api.html:29
@@ -3289,7 +3298,7 @@ msgid ""
 msgstr ""
 
 #: templates/administration/api.html:30
-msgid "If the whitelist is left empty, all IPs and hostnames will be allowed."
+msgid "If the allowlist is left empty, all IPs and hostnames will be allowed."
 msgstr ""
 
 #: templates/administration/atom_levels_of_description.html:25
