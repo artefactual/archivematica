@@ -334,6 +334,8 @@ MIDDLEWARE = [
     "installer.middleware.ConfigurationCheckMiddleware",
     "middleware.common.SpecificExceptionErrorPageResponseMiddleware",
     "middleware.common.ElasticsearchMiddleware",
+    # TODO: Disable audit logging by default and enable via config.
+    "middleware.common.AuditLogMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]

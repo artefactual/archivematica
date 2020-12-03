@@ -49,6 +49,33 @@ class SpecificExceptionErrorPageResponseMiddleware(MiddlewareMixin):
             return HttpResponseServerError("Missing template: " + str(exception))
 
 
+class AuditLogMiddleware(object):
+    """Add X-Username header with user's username to each request
+
+    This is a demonstration of one possible way forward for providing an audit
+    log of user behaviour and data access in Archivematica via the nginx
+    access log.
+
+    To make use of this header in nginx, add something like
+    'user=$upstream_http_x_username' to `log_format` in the nginx conf. If
+    desired, the header can then be stripped from the request after it's been
+    logged and prior to sending it back to Archivematica by adding
+    `proxy_hide_header x-username;` to the server block.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        username = None
+        if request.user.is_authenticated:
+            username = request.user.get_username()
+        response["X-Username"] = username
+        return response
+
+
 class ElasticsearchMiddleware(MiddlewareMixin):
     """
     Redirect the user to a friendly error page when an exception related to
