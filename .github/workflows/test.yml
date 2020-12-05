@@ -1,0 +1,100 @@
+---
+name: "Test"
+on:
+  pull_request:
+  push:
+    branches:
+      - "qa/**"
+      - "stable/**"
+jobs:
+  test:
+    name: "Test ${{ matrix.name }}"
+    runs-on: "ubuntu-18.04"
+    strategy:
+      matrix:
+        include:
+          - name: "py27"
+            python-version: "2.7"
+            toxenv: "py27"
+          - name: "py27-mcpserver"
+            python-version: "2.7"
+            toxenv: "mcpserver"
+          - name: "py27-checkformigrations"
+            python-version: "2.7"
+            toxenv: "checkformigrations"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+      - name: "Set up Python ${{ matrix.python-version }}"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: "Install OS packages"
+        run: |
+          sudo apt-get --quiet update
+          sudo apt-get install --quiet --yes build-essential \
+            libmysqlclient-dev libsasl2-dev libldap2-dev libssl-dev \
+            p7zip-full unar libxml2-dev libxslt1-dev
+      - name: "Get pip cache dir"
+        id: "pip-cache"
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: "Cache pip packages"
+        uses: "actions/cache@v2"
+        with:
+          path: "${{ steps.pip-cache.outputs.dir }}"
+          key: "${{ runner.os }}-pip-${{ hashFiles('**/test.txt') }}"
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: "Install tox"
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: "Run tox"
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+        run: |
+          tox
+  frontend:
+    name: "Test frontend"
+    runs-on: "ubuntu-18.04"
+    defaults:
+      run:
+        working-directory: "./src/dashboard/frontend/"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+      - name: "Set up Node JS"
+        uses: "actions/setup-node@v2-beta"
+        with:
+          node-version: "8"
+      - name: "Cache npm packages"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.npm"
+          key: "${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}"
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: "Install frontend dependencies"
+        run: |
+          npm install
+      - name: "Run tests"
+        run: |
+          npm run "test-single-run"
+  linting:
+    name: "Lint"
+    runs-on: "ubuntu-18.04"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+      - name: "Set up Python 3.7"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.7"
+      - name: "Install tox"
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: "Run tox"
+        run: |
+          tox -e linting
