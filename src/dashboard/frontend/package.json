@@ -36,7 +36,7 @@
     "test-single-run": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
-    "angular": "~1.5.0",
+    "angular": "~1.8.0",
     "angular-cookies": "~1.5.11",
     "angular-gettext": "^2.3.8",
     "angular-loader": "~1.5.0",
