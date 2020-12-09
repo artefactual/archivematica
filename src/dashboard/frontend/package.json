@@ -49,7 +49,7 @@
     "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git",
     "d3": "^3.5.12",
     "font-awesome": "^4.3.0",
-    "lodash": "^4.5.1",
+    "lodash": "^4.17.19",
     "moment": "^2.21.0",
     "restangular": "^1.5.1"
   }
