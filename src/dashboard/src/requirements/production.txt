@@ -12,7 +12,7 @@ brotli==0.5.2             # via -r base.txt
 certifi==2020.6.20        # via -r base.txt, requests
 cffi==1.14.1              # via -r base.txt, cryptography
 chardet==3.0.4            # via -r base.txt, requests
-cryptography==3.0         # via -r base.txt, josepy, mozilla-django-oidc, pyopenssl
+cryptography==3.2         # via -r base.txt, josepy, mozilla-django-oidc, pyopenssl
 django-auth-ldap==1.3.0   # via -r base.txt
 django-autoslug==1.9.3    # via -r base.txt
 django-braces==1.0.0      # via -r base.txt

@@ -21,7 +21,7 @@ click==7.1.2              # via pip-tools
 configparser==4.0.2       # via -r test.txt, importlib-metadata
 contextlib2==0.6.0.post1  # via -r test.txt, importlib-metadata, importlib-resources, vcrpy, zipp
 coverage==4.2             # via -r test.txt, pytest-cov
-cryptography==3.0         # via -r test.txt, josepy, mozilla-django-oidc, pyopenssl
+cryptography==3.2         # via -r test.txt, josepy, mozilla-django-oidc, pyopenssl
 decorator==4.4.2          # via ipython, traitlets
 distlib==0.3.1            # via -r test.txt, virtualenv
 django-auth-ldap==1.3.0   # via -r test.txt
