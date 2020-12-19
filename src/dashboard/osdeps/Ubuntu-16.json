@@ -1,7 +1,7 @@
 {
   "_comments": [
     "Add any comments here",
-    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file",
+    "Include here keys, repos, and packages required by this component",
     "libsasl2-dev, libldap2-dev: required to pip install python-ldap in virtualenv"
   ],
   "osdeps_repokeys": [],
@@ -61,6 +61,10 @@
     },
     {
       "name": "coreutils",
+      "state": "latest"
+    },
+    {
+      "name": "libmysqlclient-dev",
       "state": "latest"
     }
   ]

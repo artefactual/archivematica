@@ -1,7 +1,7 @@
 {
   "_comments": [
     "Add any comments here",
-    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file",
+    "Include here keys, repos, and packages required by this component",
     "gettext is only required in development environments (used to make string translateable)",
     "policycoreutils-python is for redhat/centos only?"
   ],
