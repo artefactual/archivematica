@@ -24,7 +24,7 @@ importlib-metadata==1.7.0  # via pluggy, pytest, tox, virtualenv
 importlib-resources==3.0.0  # via virtualenv
 inotify_simple==1.1.8     # via -r base.txt
 jsonschema==2.6.0         # via -r base.txt
-lxml==3.5.0               # via -r base.txt
+lxml==4.6.2               # via -r base.txt
 mock==3.0.5               # via pytest-mock
 more-itertools==5.0.0     # via pytest
 mysqlclient==1.4.6        # via -r base.txt

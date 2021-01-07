@@ -13,7 +13,7 @@ futures==3.3.0 ; python_version < "3.2"  # via -r base.txt
 gearman==2.0.2            # via -r base.txt
 inotify_simple==1.1.8     # via -r base.txt
 jsonschema==2.6.0         # via -r base.txt
-lxml==3.5.0               # via -r base.txt
+lxml==4.6.2               # via -r base.txt
 mysqlclient==1.4.6        # via -r base.txt
 pathlib2==2.3.4 ; python_version < "3"  # via -r base.txt
 prometheus_client==0.7.1  # via -r base.txt
