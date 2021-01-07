@@ -15,7 +15,7 @@ django==1.11.29           # via -r base.txt
 future==0.18.2            # via -r base.txt, metsrw
 gearman==2.0.2            # via -r base.txt
 idna==2.8                 # via -r base.txt, requests
-lxml==3.5.0               # via -r base.txt, ammcpc, metsrw
+lxml==4.6.2               # via -r base.txt, ammcpc, metsrw
 metsrw==0.3.15            # via -r base.txt
 mysqlclient==1.4.6        # via -r base.txt
 olefile==0.46             # via -r base.txt, opf-fido

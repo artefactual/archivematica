@@ -26,7 +26,7 @@ gearman==2.0.2            # via -r base.txt
 idna==2.8                 # via -r base.txt, requests
 importlib-metadata==1.7.0  # via pluggy, pytest, tox, virtualenv
 importlib-resources==3.0.0  # via virtualenv
-lxml==3.5.0               # via -r base.txt, ammcpc, metsrw
+lxml==4.6.2               # via -r base.txt, ammcpc, metsrw
 metsrw==0.3.15            # via -r base.txt
 mock==3.0.5               # via pytest-mock
 more-itertools==5.0.0     # via pytest
