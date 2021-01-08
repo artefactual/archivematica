@@ -108,6 +108,8 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
                 "usage": "Offline",
                 "file_uuid": item.file_uuid,
                 "aip_uuid": aip_uuid,
+                "aip_name": aip_name,
+                "relative_path_within_aip": item.path,
             }
             _load_premis(attrs, item)
             title = os.path.basename(item.path)
