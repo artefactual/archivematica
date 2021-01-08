@@ -1,6 +1,6 @@
 # Base requirements - for all installations
 amclient==1.1.1
-agentarchives==0.6.0
+agentarchives==0.7.0
 bagit==1.7.0
 brotli==0.5.2  # Better compression library for WhiteNoise
 Django>=1.11,<2

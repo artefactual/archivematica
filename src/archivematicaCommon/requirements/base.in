@@ -1,4 +1,4 @@
-agentarchives==0.6.0
+agentarchives==0.7.0
 bagit==1.7.0
 Django>=1.11,<2
 elasticsearch>=6.0.0,<7.0.0
