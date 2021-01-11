@@ -1,0 +1,601 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-28 14:11+0000\n"
+"PO-Revision-Date: 2020-10-19 21:12+0200\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: media/js/administration/atom_levels_of_description.js:17
+msgid "Error retrieving levels of description from AtoM"
+msgstr "Kunne ikke hente beskrivelsesnivåer fra AtoM"
+
+#: media/js/administration/atom_levels_of_description.js:43
+msgid "Are you sure you want to delete this level of description?"
+msgstr "Er du sikker på at du vil slette dette beskrivelsesnivået?"
+
+#: media/js/advanced-search-query-creator.js:14 media/js/file_browser.js:59
+#: media/js/file_browser.js:64 media/js/repeating-ajax-data.js:209
+msgid "Delete"
+msgstr "Slett"
+
+#: media/js/advanced-search-query-creator.js:15
+msgid "Add"
+msgstr "Legg til"
+
+#: media/js/archival_storage/archival_storage_search.js:43
+#: media/js/ingest/backlog.js:19
+msgid "Add new"
+msgstr "Legg til ny"
+
+#: media/js/archival_storage/archival_storage_search.js:62
+#: media/js/ingest/backlog.js:34
+msgid "Any"
+msgstr "Hvilken som helst"
+
+#: media/js/archival_storage/archival_storage_search.js:63
+msgid "File UUID"
+msgstr "Fil-UUID"
+
+#: media/js/archival_storage/archival_storage_search.js:64
+msgid "File path"
+msgstr "Filsti"
+
+#: media/js/archival_storage/archival_storage_search.js:65
+#: media/js/ingest/backlog.js:36
+msgid "File extension"
+msgstr "Filutvidelse"
+
+#: media/js/archival_storage/archival_storage_search.js:66
+msgid "AIP UUID"
+msgstr "AIP-UUID"
+
+#: media/js/archival_storage/archival_storage_search.js:67
+msgid "AIP name"
+msgstr "AIP-navn"
+
+#: media/js/archival_storage/archival_storage_search.js:68
+msgid "Identifiers"
+msgstr "Identifikatorer"
+
+#: media/js/archival_storage/archival_storage_search.js:69
+msgid "Part of AIC"
+msgstr "Del av AIC"
+
+#: media/js/archival_storage/archival_storage_search.js:70
+msgid "AIC Identifier"
+msgstr "AIC-identifikator"
+
+#: media/js/archival_storage/archival_storage_search.js:71
+msgid "Transfer metadata"
+msgstr "Metadata for overføring"
+
+#: media/js/archival_storage/archival_storage_search.js:72
+msgid "Transfer metadata (other)"
+msgstr "Andre metadata for overføring"
+
+#: media/js/archival_storage/archival_storage_search.js:77
+msgid "other field name"
+msgstr "annet feltnavn"
+
+#: media/js/archival_storage/archival_storage_search.js:84
+#: media/js/ingest/backlog.js:44
+msgid "Keyword"
+msgstr "Nøkkelord"
+
+#: media/js/archival_storage/archival_storage_search.js:85
+#: media/js/ingest/backlog.js:45
+msgid "Phrase"
+msgstr "Frase"
+
+#: media/js/archival_storage/archival_storage_search.js:86
+msgid "Date range"
+msgstr "Datointervall"
+
+#: media/js/backlog/backlog-search.js:7 media/js/backlog/backlog-search.js:11
+msgid "Download"
+msgstr "Last ned"
+
+#: media/js/backlog/backlog-search.js:12
+msgid "Request deletion"
+msgstr "Forespør sletting"
+
+#: media/js/backlog/backlog-search.js:19
+msgid "Filename"
+msgstr "Filnavn"
+
+#: media/js/backlog/backlog-search.js:20 media/js/backlog/backlog-search.js:27
+#: media/js/ingest/backlog.js:39
+msgid "Transfer UUID"
+msgstr "Overførings-UUID"
+
+#: media/js/backlog/backlog-search.js:21 media/js/backlog/backlog-search.js:30
+#: media/js/ingest.js:216 media/js/transfer.js:153
+msgid "Actions"
+msgstr "Handlinger"
+
+#: media/js/backlog/backlog-search.js:26
+msgid "Name"
+msgstr "Navn"
+
+#: media/js/backlog/backlog-search.js:28
+msgid "File count"
+msgstr "Antall filer"
+
+#: media/js/backlog/backlog-search.js:29
+msgid "Ingest date"
+msgstr "Opplastings-dato"
+
+#: media/js/backlog/backlog-search.js:36
+msgctxt "DataTable - sEmptyTable"
+msgid "No data available in table"
+msgstr "Ingen data tilgjengelig i tabellen"
+
+#: media/js/backlog/backlog-search.js:37
+msgctxt "DataTable - sInfo"
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr "Viser _START_ til _END_ av _TOTAL_ oppføringer"
+
+#: media/js/backlog/backlog-search.js:38
+msgctxt "DataTable - sInfoEmpty"
+msgid "Showing 0 to 0 of 0 entries"
+msgstr "Viser 0 til 0 av 0 oppføringer"
+
+#: media/js/backlog/backlog-search.js:39
+msgctxt "DataTable - sInfoFiltered"
+msgid "(filtered from _MAX_ total entries)"
+msgstr "(filtrert fra _MAX_ totale oppføringer)"
+
+#: media/js/backlog/backlog-search.js:41
+msgctxt "DataTable - sInfoThousands"
+msgid ","
+msgstr "."
+
+#: media/js/backlog/backlog-search.js:42
+msgctxt "DataTable - sLengthMenu"
+msgid "Show _MENU_ entries"
+msgstr "Vis _MENU_ oppføringer"
+
+#: media/js/backlog/backlog-search.js:43
+msgctxt "DataTable - sLoadingRecords"
+msgid "Loading..."
+msgstr "Laster..."
+
+#: media/js/backlog/backlog-search.js:44
+msgctxt "DataTable - sProcessing"
+msgid "Processing..."
+msgstr "Behandler..."
+
+#: media/js/backlog/backlog-search.js:45
+msgctxt "DataTable - sSearch"
+msgid "Search:"
+msgstr "Søk:"
+
+#: media/js/backlog/backlog-search.js:46
+msgctxt "DataTable - sZeroRecords"
+msgid "No matching records found"
+msgstr "Ingen samsvarende elementer funnet"
+
+#: media/js/backlog/backlog-search.js:48
+msgctxt "DataTable - sFirst"
+msgid "First"
+msgstr "Første"
+
+#: media/js/backlog/backlog-search.js:49
+msgctxt "DataTable - sLast"
+msgid "Last"
+msgstr "Siste"
+
+#: media/js/backlog/backlog-search.js:50
+msgctxt "DataTable - sNext"
+msgid "Next"
+msgstr "Neste"
+
+#: media/js/backlog/backlog-search.js:51
+msgctxt "DataTable - sPrevious"
+msgid "Previous"
+msgstr "Forrige"
+
+#: media/js/backlog/backlog-search.js:54
+msgctxt "DataTable - sSortAscending"
+msgid ": activate to sort column ascending"
+msgstr ": aktiver for å sortere kolonne stigende"
+
+#: media/js/backlog/backlog-search.js:55
+msgctxt "DataTable - sSortDescending"
+msgid ": activate to sort column descending"
+msgstr ": aktiver for å sortere kolonne synkende"
+
+#: media/js/directory_picker.js:46
+#: media/js/transfer/component_directory_select.js:49
+msgid "Select"
+msgstr "Velg kompresjonsalgoritme"
+
+#: media/js/directory_picker.js:47
+msgid "Select directory"
+msgstr "Velg en mappe"
+
+#: media/js/directory_picker.js:83 media/js/file_browser.js:171
+msgid "Yes"
+msgstr "Ja"
+
+#: media/js/directory_picker.js:90 media/js/file_browser.js:178
+#: media/js/ingest.js:123 media/js/jobs.js:590 media/js/jobs.js:683
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: media/js/file_browser.js:60
+msgid "Delete file or directory"
+msgstr "Ingen slik fil eller mappe: %(path)s"
+
+#: media/js/file_browser.js:65
+msgid "Are you sure you want to delete this directory or file?"
+msgstr "Er du sikker på at du vil slette denne mappen eller filen?"
+
+#: media/js/file_browser.js:132
+msgid "Dropped ID %(dropped_path) onto %(container_path)"
+msgstr "Slapp ID %(dropped_path) til %(container_path)"
+
+#: media/js/file_browser.js:138
+msgid "You can't move a directory into its subdirectory."
+msgstr "Du kan ikke flytte en mappe til dets egen undermappe."
+
+#: media/js/file_browser.js:152
+msgid "OK"
+msgstr "OK"
+
+#: media/js/ingest.js:74
+msgid ""
+"Are you sure you want to remove this SIP from the dashboard? Note that this "
+"does not delete the SIP or related entities."
+msgstr ""
+"Er du sikker på at du vil fjerne denne SIP-en fra dashbordet? Merk at dette "
+"ikke sletter SIP-en eller relaterte enheter."
+
+#: media/js/ingest.js:76 media/js/transfer.js:76
+#, javascript-format
+msgid "Directory: %s"
+msgstr "Mappe: %s"
+
+#: media/js/ingest.js:77 media/js/transfer.js:77
+#, javascript-format
+msgid "UUID: %s"
+msgstr "UUID: %s"
+
+#: media/js/ingest.js:84 media/js/transfer.js:84
+msgid "Remove SIP"
+msgstr "Fjern SIP"
+
+#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
+msgid "Confirm"
+msgstr "Bekreft"
+
+#: media/js/ingest.js:145
+msgid "Dublin Core metadata editor"
+msgstr "Redigeringsverktøy for Dublin Core-metadata"
+
+#: media/js/ingest.js:152 media/js/jobs.js:535
+msgid "Close"
+msgstr "Lukk"
+
+#: media/js/ingest.js:173
+msgid "Error"
+msgstr "Feil"
+
+#: media/js/ingest.js:240
+msgid "Report"
+msgstr "Rapport"
+
+#: media/js/ingest.js:243
+msgid "Match DIP objects to resources"
+msgstr "Sammenlign DIP-objekter til ressurser"
+
+#: media/js/ingest.js:301
+msgid "Loading..."
+msgstr "Laster..."
+
+#: media/js/ingest/as_matcher.js:551
+msgid "No resource selected."
+msgstr "Ingen ressurs valgt."
+
+#: media/js/ingest/as_matcher.js:558
+msgid "No objects selected."
+msgstr "Ingen objekter valgt."
+
+#: media/js/ingest/as_matcher.js:670
+msgid "Warning"
+msgstr "Advarsel"
+
+#: media/js/ingest/as_matcher.js:674
+msgid "Dismiss"
+msgstr "Avvis"
+
+#: media/js/ingest/backlog.js:35
+msgid "File name"
+msgstr "Filnavn"
+
+#: media/js/ingest/backlog.js:37
+msgid "Accession number"
+msgstr "Inventarnummer"
+
+#: media/js/ingest/backlog.js:38
+msgid "Ingest date (YYYY-MM-DD)"
+msgstr "Opplastings-dato (YYYY-MM-DD)"
+
+#: media/js/ingest/metadata_form.js:83
+msgid "Browse"
+msgstr "Bla gjennom"
+
+#: media/js/ingest/metadata_form.js:85
+msgid "Add files"
+msgstr "Legg til filer"
+
+#: media/js/ingest/metadata_form.js:124
+msgid "Please select at least one metadata file."
+msgstr "Velg minst én metadatafil."
+
+#: media/js/jobs.js:482
+msgid "Review"
+msgstr "Gjennomgå"
+
+#: media/js/jobs.js:529
+msgid "%(directory) &raquo; %(type) &raquo; Tasks"
+msgstr "%(directory) &raquo; %(type) &raquo; Oppgaver"
+
+#: media/js/jobs.js:590
+msgid "Select an action..."
+msgstr "Velg en handling..."
+
+#: media/js/jobs.js:644
+msgid ""
+"Are you sure you want to remove all completed %(unit)ss from the dashboard? "
+"Note that this does not delete the %(unit)ss or related entities."
+msgstr ""
+"Er du sikker på at du vil fjerne alle fullførte %(unit)ss fra dashbordet? "
+"Merk at dette ikke sletter %(unit)ss eller relaterte enheter."
+
+#: media/js/jobs.js:650
+#, javascript-format
+msgid "Remove All Completed %ss"
+msgstr "Fjern alle fullførte %ss"
+
+#: media/js/jobs.js:661
+#, javascript-format
+msgid "There were no completed %ss to remove"
+msgstr "Det var ingen fullførte %ss å fjerne"
+
+#: media/js/jobs.js:665
+#, javascript-format
+msgid "Successfully removed the following %ss: %s"
+msgstr "Fjernet følgende %ss: %s"
+
+#: media/js/jobs.js:671
+#, javascript-format
+msgid "Failed to remove all completed %ss"
+msgstr "Kunne ikke fjerne alle fullførte %ss"
+
+#: media/js/jobs.js:797
+msgid "Previous"
+msgstr "Forrige"
+
+#: media/js/jobs.js:812
+msgid "Next"
+msgstr "Neste"
+
+#: media/js/jobs.js:850
+msgid "Error trying to connect to database. Trying again..."
+msgstr "Feil ved forsøk på å koble til databasen. Prøver igjen..."
+
+#: media/js/jobs.js:900
+msgid "Error trying to connect to MCP server. Trying again..."
+msgstr "Feil ved forsøk på å koble til MCP-server. Prøver igjen..."
+
+#: media/js/online.js:46 media/js/online.js:47 media/js/online.js:72
+msgid "Connected"
+msgstr "Tilkoblet"
+
+#: media/js/online.js:53
+msgid "Loading"
+msgstr "Laster"
+
+#: media/js/online.js:67
+msgid "Disconnected"
+msgstr "Frakoblet"
+
+#: media/js/repeating-ajax-data.js:215
+msgid "Are you sure?"
+msgstr "Er du sikker?"
+
+#: media/js/rights_edit.js:24
+msgid "Type"
+msgstr "Type"
+
+#: media/js/rights_edit.js:29
+msgid "Value"
+msgstr "Verdi"
+
+#: media/js/rights_edit.js:34
+msgid "Role"
+msgstr "Rolle"
+
+#: media/js/rights_edit.js:49
+msgid "Copyright Note"
+msgstr "Opphavsrettsmerknad"
+
+#: media/js/rights_edit.js:53
+msgid ""
+"designation used to uniquely identify documentation supporting the specified "
+"rights granted according to copyright within the repository system"
+msgstr ""
+"betegnelse som brukes til å identifisere dokumentasjon som støtter de "
+"spesifiserte rettighetene gitt i henhold til opphavsrett i depotsystemet"
+
+#: media/js/rights_edit.js:54
+msgid ""
+"a designation of the domain within which the copyright documentation "
+"identifier is unique"
+msgstr ""
+"en betegnelse på domenet der identifikatoren for copyright-dokumentasjon er "
+"unik"
+
+#: media/js/rights_edit.js:55
+msgid "the value of the copyrightDocumentatinIdentifier"
+msgstr "verdien av copyrightDocumentatinIdentifier"
+
+#: media/js/rights_edit.js:56 media/js/rights_edit.js:69
+msgid ""
+"A value indicating the purpose or expected use of the documentation being "
+"identified"
+msgstr ""
+"En verdi som indikerer formålet eller forventet bruk av dokumentasjonen som "
+"blir identifisert"
+
+#: media/js/rights_edit.js:57
+msgid "Additional information about the copyright status of the object"
+msgstr "Tilleggsinformasjon om opphavsretts-statusen til objektet"
+
+#: media/js/rights_edit.js:62
+msgid "Copyright Documentation Identifier"
+msgstr "Identifikator for opphavsrettsdokumentasjon"
+
+#: media/js/rights_edit.js:67
+msgid ""
+"a designation of the domain within which the statute documenation identifier "
+"is unique"
+msgstr ""
+"en betegnelse på domenet der identifikatoren for vedtektsdokumentasjonen er "
+"unik"
+
+#: media/js/rights_edit.js:68
+msgid "the value of the statuteDocumentatinIdentifier"
+msgstr "verdien av statuteDocumentatinIdentifier"
+
+#: media/js/rights_edit.js:74
+msgid "Statute Documentation Identifier"
+msgstr "Identifikator for vedtektsdokumentasjon"
+
+#: media/js/rights_edit.js:80
+msgid "additional information about the statute"
+msgstr "tilleggsinformasjon om vedtekten"
+
+#: media/js/rights_edit.js:86
+msgid "Statute Note"
+msgstr "Vedtektsmerknad"
+
+#: media/js/rights_edit.js:91
+msgid ""
+"a value indicating the purpose or expected use of the documentation being "
+"identified"
+msgstr ""
+"en verdi som indikerer formålet eller forventet bruk av dokumentasjonen som "
+"blir identifisert"
+
+#: media/js/rights_edit.js:96
+msgid "License Documentation Identifier"
+msgstr "Identifikator for lisensdokumentasjon"
+
+#: media/js/rights_edit.js:102
+msgid "Other Rights Documentation Identifier"
+msgstr "Identifikator for andre rettigheters dokumentasjon"
+
+#: media/js/rights_edit.js:109
+msgid "Other Rights Note"
+msgstr "Andre rettigheters merknad"
+
+#: media/js/rights_edit.js:114
+msgid "additional information about the license"
+msgstr "tilleggsinformasjon om lisensen"
+
+#: media/js/rights_edit.js:122
+msgid "License Note"
+msgstr "Lisensmerknad"
+
+#: media/js/rights_edit.js:127
+msgid "a condition or limitation on the act"
+msgstr "en tilstand eller begrensning av loven"
+
+#: media/js/rights_edit.js:128
+msgid "additional information about the rights granted"
+msgstr "tilleggsinformasjon om de innvilgede rettighetene"
+
+#: media/js/rights_edit.js:129
+msgid ""
+"use \"OPEN\" for an open ended term of restriction. Omit endDate if the "
+"ending date is unknown or the permission statement applies to many objects "
+"with different end dates."
+msgstr ""
+"bruk \"OPEN\" for en åpen begrensningsperiode. Utelat sluttdatoen hvis "
+"sluttdato er ukjent eller tillatelsen gjelder for mange objekter med "
+"forskjellige sluttdatoer."
+
+#: media/js/rights_edit.js:144
+msgid "Restriction"
+msgstr "Begrensning"
+
+#: media/js/rights_edit.js:152
+msgid "Rights Granted Note"
+msgstr "Merknad om innvilgede rettigheter"
+
+#: media/js/rights_edit.js:182
+#, javascript-format
+msgid ""
+"You'll be able to create a %s record once the above section is completed."
+msgstr "Du kan opprette en %s-post når seksjonen ovenfor er fullført."
+
+#: media/js/rights_edit.js:231 media/js/rights_edit.js:244
+msgid "Note"
+msgstr "Merknad"
+
+#: media/js/rights_edit.js:235
+#, javascript-format
+msgid "%s documentation identifier"
+msgstr "%s dokumentasjonsidentifikator"
+
+#: media/js/rights_edit.js:239 media/js/rights_edit.js:242
+#, javascript-format
+msgid "%s note"
+msgstr "%s merknad"
+
+#: media/js/rights_edit.js:250
+#, javascript-format
+msgid "%s start date"
+msgstr "%s startdato"
+
+#: media/js/rights_edit.js:252
+#, javascript-format
+msgid "%s end date"
+msgstr "%s sluttdato"
+
+#: media/js/rights_edit.js:263
+#, javascript-format
+msgid "Create new %s?"
+msgstr "Opprett ny %s?"
+
+#: media/js/transfer.js:74
+msgid ""
+"Are you sure you want to remove this transfer from the dashboard? Note that "
+"this does not delete the transfer or related entities."
+msgstr ""
+"Er du sikker på at du vil fjerne denne overføringen fra dashbordet? Merk at "
+"dette ikke sletter overføringen eller relaterte enheter."
+
+#: media/js/transfer/component_directory_select.js:57
+msgid "Error: The selected path is already present."
+msgstr "Feil: Den valgte stien er allerede til stede."
+
+#: media/js/transfer/component_directory_select.js:80
+#, javascript-format
+msgid "Are you sure you want to remove %s?"
+msgstr "Er du sikker på at du vil fjerne %s?"

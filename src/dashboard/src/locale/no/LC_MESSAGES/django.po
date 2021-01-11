@@ -1,0 +1,4275 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-28 14:05+0000\n"
+"PO-Revision-Date: 2020-10-19 21:03+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.1\n"
+"Language: nb\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: components/accounts/views.py:62 components/accounts/views.py:150
+#: components/administration/views.py:459 components/administration/views.py:474
+#: components/administration/views.py:486 components/administration/views.py:513
+#: components/administration/views.py:564 components/administration/views_dip_upload.py:25
+#: components/administration/views_dip_upload.py:39 fpr/views.py:106 fpr/views.py:113
+#: fpr/views.py:150 fpr/views.py:301 fpr/views.py:342 fpr/views.py:433 fpr/views.py:527
+#: fpr/views.py:535 fpr/views.py:602 fpr/views.py:656
+msgid "Saved."
+msgstr "Lagret."
+
+#: components/accounts/views.py:82
+#, python-format
+msgid "Your profile (%s)"
+msgstr "Din profil (%s)"
+
+#: components/administration/forms.py:68
+msgid "Web service endpoint"
+msgstr "Webtjenestens sluttpunkt"
+
+#: components/administration/forms.py:69
+msgid "The URL for (POST) requests to create and resolve PIDs."
+msgstr "URL-en for (POST) forespørsler til å lage og løse PID-er."
+
+#: components/administration/forms.py:74
+msgid "Web service key"
+msgstr "Webtjenestenøkkel"
+
+#: components/administration/forms.py:76
+msgid ""
+"Web service key needed for authentication to make PID-binding requests to the PID web "
+"service endpoint."
+msgstr ""
+"Webtjenestenøkkel trengs for å utføre PID-bindende forespørsler til PID-webtjenestens   "
+"endepunkt."
+
+#: components/administration/forms.py:83
+msgid "Naming authority"
+msgstr "Navngivningsmyndighet"
+
+#: components/administration/forms.py:84
+msgid "Handle naming authority (e.g., 12345)"
+msgstr "Håndter navngivningsmyndighet (f.eks. 12345)"
+
+#: components/administration/forms.py:89
+msgid "Resolver URL"
+msgstr "Oversette URL"
+
+#: components/administration/forms.py:91
+msgid ""
+"The URL to append generated PIDs to in order to create (potentially qualified) PURLs "
+"(persistent URLs) that resolve to the applicable resolve URL. Note the second \"r\" in "
+"\"resolver\"!"
+msgstr ""
+"URL-en som skal legges til genererte PID-er for å opprette (potensielt kvalifiserte) PURL-"
+"er (persistente URL-er) som går til gjeldende oversette URL. Merk den andre \"r\"-en i \" "
+"resolver \"!"
+
+#: components/administration/forms.py:102
+msgid "AIP PID source"
+msgstr "AIP-PID-kilde"
+
+#: components/administration/forms.py:104
+msgid ""
+"The source of the AIP's persistent identifier. The UUID of the AIP is the default since it "
+"is virtually guaranteed to be unique. However, the accession number of the transfer may be "
+"used, assuming the user can guarantee a 1-to-1 relationship between the transfer and the "
+"AIP."
+msgstr ""
+"Kilden til AIP-ens vedvarende identifikator. UUID-en til AIP-en er standard siden den "
+"nesten garantert er unikt. Men overføringens inventarnummer kan brukes, forutsatt at "
+"brukeren kan garanterer et 1-til-1 forhold mellom overføringen og AIP-en."
+
+#: components/administration/forms.py:119
+msgid "Verify SSL certificates"
+msgstr "Kontroller SSL-sertifikat"
+
+#: components/administration/forms.py:120
+msgid "Verify SSL certificates when making requests to bind PIDs."
+msgstr "Kontroller SSL-sertifikat ved forespørsler om å binde PID-er."
+
+#: components/administration/forms.py:125
+msgid "Archive resolve URL template"
+msgstr "Arkiver oversette URL-mal"
+
+#: components/administration/forms.py:127
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL should resolve to. Has access to "
+"\"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-en som en enhets PURL skal løse til. Har tilgang til \"pid"
+"\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:135
+msgid "METS resolve URL template"
+msgstr "METS oversette URL-mal"
+
+#: components/administration/forms.py:137
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL with the \"mets\" qualifier "
+"should resolve to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-en som en enhets PURL med \"mets\" kvalifiseringen bør "
+"løse til. Har tilgang til \"pid\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:145
+msgid "File resolve URL template"
+msgstr "Fil oversette URL-mal"
+
+#: components/administration/forms.py:147
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL should resolve to. Has access to "
+"\"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-en som en fils PURL skal løse til. Har tilgang til \"pid"
+"\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:155
+msgid "Access derivative resolve URL template"
+msgstr "Tilgangsderivat oversette URL-mal"
+
+#: components/administration/forms.py:157
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the \"access\" qualifier "
+"should resolve to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-adressen som en fils PURL med \"access\" kvalifiseringen "
+"bør løse til. Har tilgang til \"pid\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:165
+msgid "Preservation derivative resolve URL template"
+msgstr "Oversette URL-mal for bevaringsbearbeiding"
+
+#: components/administration/forms.py:167
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the \"preservation\" "
+"qualifier should resolve to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-en som en fils PURL med \"preservation\" kvalifiseringen "
+"bør løse til. Har tilgang til \"pid\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:176
+msgid "Original file resolve URL template"
+msgstr "Opprinnelig oversette URL-mal for filer"
+
+#: components/administration/forms.py:178
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the \"original\" qualifier "
+"should resolve to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Mal (Django eller Jinja2) for URL-en som en fils PURL med \"original\" kvalifiseringen bør "
+"løse til. Har tilgang til \"pid\" og \"naming_authority\" variabler."
+
+#: components/administration/forms.py:187
+msgid "PID/handle request request body template"
+msgstr "PID/håndtak forespørsel hoveddel-mal"
+
+#: components/administration/forms.py:189
+msgid ""
+"Template (Django or Jinja2) that constructs the HTTP request body using the rendered URL "
+"templates above. Has access to the following variables: \"pid\", \"naming_authority\", "
+"\"base_resolve_url\", and \"qualified_resolve_urls\", the last of which is a list of dicts "
+"with \"url\" and \"qualifier\" keys."
+msgstr ""
+"Mal (Django eller Jinja2) som konstruerer HTTP-forespørslens hoveddel ved hjelp av de "
+"gjengitte URL-malene ovenfor. Har tilgang til følgende variabler: \"pid\", "
+"\"naming_authority\", \"base_resolve_url\", og \"qualified_resolve_urls\", sistnevnte er en "
+"liste over ordbøker med \"url\" og \"qualifier\" nøkler."
+
+#: components/administration/forms.py:220
+msgid "Storage Service URL"
+msgstr "Lagringstjeneste-URL"
+
+#: components/administration/forms.py:222
+msgid "Full URL of the storage service. E.g. https://192.168.168.192:8000"
+msgstr "Lagringstjenestens fulle URL. F.eks. https://192.168.168.192:8000"
+
+#: components/administration/forms.py:226
+msgid "Storage Service User"
+msgstr "Lagringstjenestebruker"
+
+#: components/administration/forms.py:227
+msgid "User in the storage service to authenticate as. E.g. test"
+msgstr "Bruker i lagringstjenesten å autentiseres som. F.eks. test"
+
+#: components/administration/forms.py:230
+msgid "API key"
+msgstr "API-nøkkel"
+
+#: components/administration/forms.py:232
+msgid "API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810"
+msgstr "Lagringstjenestebrukerens API-nøkkel. F.eks. 45f7684483044809b2de045ba59dc876b11b9810"
+
+#: components/administration/forms.py:238
+msgid "Use default configuration"
+msgstr "Bruk standardkonfigurasjon"
+
+#: components/administration/forms.py:240
+msgid ""
+"You have to manually set up a custom configuration if the default configuration is not "
+"selected."
+msgstr ""
+"Du må sette opp en tilpasset konfigurasjon manuelt om standard-konfigurasjonen ikke er "
+"valgt."
+
+#: components/administration/forms.py:252
+msgid "Select algorithm"
+msgstr "Velg algoritme"
+
+#: components/administration/forms.py:271 components/administration/forms_dip_upload.py:11
+#: components/administration/forms_dip_upload.py:20 fpr/templates/fpr/fpcommand/detail.html:37
+#: fpr/templates/fpr/fpcommand/detail.html:39 fpr/templates/fpr/fpcommand/detail.html:52
+#: templates/archival_storage/search.html:90
+msgid "None"
+msgstr "Ingen"
+
+#: components/administration/forms.py:278
+msgid "Assign UUIDs to directories"
+msgstr "Tildel mapper UUID-er"
+
+#: components/administration/forms.py:279
+msgid "Generate transfer structure report"
+msgstr "Generer overføringsstruktursrapport"
+
+#: components/administration/forms.py:281
+msgid "Perform file format identification (Transfer)"
+msgstr "Utfør filformatidentifikasjon (Overføring)"
+
+#: components/administration/forms.py:283
+msgid "Extract packages"
+msgstr "Pakk ut pakker"
+
+#: components/administration/forms.py:284
+msgid "Delete packages after extraction"
+msgstr "Slett pakker etter utpakking"
+
+#: components/administration/forms.py:285
+msgid "Perform policy checks on originals"
+msgstr "Utfør samsvarskontroll av originaler"
+
+#: components/administration/forms.py:286
+msgid "Examine contents"
+msgstr "Undersøk innhold"
+
+#: components/administration/forms.py:287
+msgid "Create SIP(s)"
+msgstr "Opprett SIP(-er)"
+
+#: components/administration/forms.py:289
+msgid "Perform file format identification (Ingest)"
+msgstr "Utfør filformatidentifikasjon (Opplasting)"
+
+#: components/administration/forms.py:291
+msgid "Normalize"
+msgstr "Normaliser"
+
+#: components/administration/forms.py:292
+msgid "Approve normalization"
+msgstr "Godkjenn normalisering"
+
+#: components/administration/forms.py:293
+msgid "Generate thumbnails"
+msgstr "Generer miniatyrbilder"
+
+#: components/administration/forms.py:295
+msgid "Perform policy checks on preservation derivatives"
+msgstr "Utfør samsvarskontroll på bevaringssderivater"
+
+#: components/administration/forms.py:298
+msgid "Perform policy checks on access derivatives"
+msgstr "Utfør samsvarskontroll på tilgangsderivater"
+
+#: components/administration/forms.py:300
+msgid "Bind PIDs"
+msgstr "Bind PID-er"
+
+#: components/administration/forms.py:301
+msgid "Document empty directories"
+msgstr "Dokumenter tomme mapper"
+
+#: components/administration/forms.py:302
+msgid "Reminder: add metadata if desired"
+msgstr "Påminnelse: legg til metadata om ønsket"
+
+#: components/administration/forms.py:303
+msgid "Transcribe files (OCR)"
+msgstr "Transkriber filer (OCR)"
+
+#: components/administration/forms.py:305
+msgid "Perform file format identification (Submission documentation & metadata)"
+msgstr "Utfør filformatidentifikasjon (Innsendingsdokumentasjon og metadata)"
+
+#: components/administration/forms.py:307
+msgid "Select compression algorithm"
+msgstr "Velg kompresjonsalgoritme"
+
+#: components/administration/forms.py:308
+msgid "Select compression level"
+msgstr "Velg kompresjonsnivå"
+
+#: components/administration/forms.py:309
+msgid "Store AIP"
+msgstr "Lagre AIP"
+
+#: components/administration/forms.py:310
+msgid "Store AIP location"
+msgstr "Lagre AIP-plassering"
+
+#: components/administration/forms.py:311 templates/archival_storage/view.html:109
+#: templates/ingest/grid.html:155
+msgid "Upload DIP"
+msgstr "Last opp DIP"
+
+#: components/administration/forms.py:312
+msgid "Store DIP"
+msgstr "Lagre DIP"
+
+#: components/administration/forms.py:313
+msgid "Store DIP location"
+msgstr "Lagre DIP-plassering"
+
+#: components/administration/forms.py:330 components/administration/forms_dip_upload.py:8
+#: components/administration/forms_dip_upload.py:127
+msgid "Yes"
+msgstr "Ja"
+
+#: components/administration/forms.py:332 components/administration/forms_dip_upload.py:8
+#: components/administration/forms_dip_upload.py:127
+msgid "No"
+msgstr "Nei"
+
+#: components/administration/forms.py:339
+msgid "Default location"
+msgstr "Standardplassering"
+
+#: components/administration/forms_dip_upload.py:8
+msgid "Base on PREMIS"
+msgstr "Baser på PREMIS"
+
+#: components/administration/forms_dip_upload.py:12
+msgid "onLoad"
+msgstr "onLoad"
+
+#: components/administration/forms_dip_upload.py:13
+msgid "other"
+msgstr "annet"
+
+#: components/administration/forms_dip_upload.py:14
+msgid "onRequest"
+msgstr "onRequest"
+
+#: components/administration/forms_dip_upload.py:18
+msgid "Embed"
+msgstr "Bygg inn"
+
+#: components/administration/forms_dip_upload.py:19
+msgid "New"
+msgstr "Ny"
+
+#: components/administration/forms_dip_upload.py:21 main/models.py:973
+msgid "Other"
+msgstr "Annet"
+
+#: components/administration/forms_dip_upload.py:22 fpr/templates/fpr/format/detail.html:73
+#: fpr/templates/fpr/format/version/detail.html:36 fpr/templates/fpr/fpcommand/detail.html:58
+#: fpr/templates/fpr/fpcommand/list.html:45 fpr/templates/fpr/fprule/detail.html:42
+#: fpr/templates/fpr/fprule/list.html:49 fpr/templates/fpr/fptool/detail.html:59
+#: fpr/templates/fpr/idcommand/detail.html:42 fpr/templates/fpr/idcommand/list.html:47
+#: fpr/templates/fpr/idrule/detail.html:38 fpr/templates/fpr/idrule/list.html:47
+#: fpr/templates/fpr/idtool/detail.html:65
+msgid "Replace"
+msgstr "Erstatt"
+
+#: components/administration/forms_dip_upload.py:28
+msgid "ArchivesSpace base URL"
+msgstr "ArchivesSpace grunn-URL"
+
+#: components/administration/forms_dip_upload.py:29
+msgid "Example: http://aspace.test.org:8089"
+msgstr "Eksempel: http://aspace.test.org:8089"
+
+#: components/administration/forms_dip_upload.py:32
+msgid "ArchivesSpace administrative user"
+msgstr "ArchivesSpace administrativ bruker"
+
+#: components/administration/forms_dip_upload.py:32
+msgid "Example: admin"
+msgstr "Eksempel: admin"
+
+#: components/administration/forms_dip_upload.py:36
+msgid "ArchivesSpace administrative user password"
+msgstr "ArchivesSpace administrativ brukers passord"
+
+#: components/administration/forms_dip_upload.py:38
+msgid "Password for user set above. Re-enter this password every time changes are made."
+msgstr "Angi passord for bruker over. Skriv inn dette passordet hver gang endinger gjøres."
+
+#: components/administration/forms_dip_upload.py:42
+msgid "Restrictions apply"
+msgstr "Begresninger gjelder"
+
+#: components/administration/forms_dip_upload.py:45
+msgid "XLink Show"
+msgstr "XLink Vis"
+
+#: components/administration/forms_dip_upload.py:48
+msgid "XLink Actuate"
+msgstr "XLink Aktiver"
+
+#: components/administration/forms_dip_upload.py:52
+msgid "Object type"
+msgstr "Objekt-type"
+
+#: components/administration/forms_dip_upload.py:54
+msgid "Optional, must come from ArchivesSpace controlled list. Example: sound_recording"
+msgstr "Valgfritt, må komme fra en ArchivesSpace-kontrollert liste. Eksempel: sound_recording"
+
+#: components/administration/forms_dip_upload.py:59
+msgid "Use statement"
+msgstr "Bruk uttalelse"
+
+#: components/administration/forms_dip_upload.py:61
+msgid ""
+"Optional, but if present should come from ArchivesSpace controlled list. Example: image-"
+"master"
+msgstr ""
+"Valgfritt, men hvis den eksisterer skal den komme fra en ArchivesSpace-kontrollert liste. "
+"For eksempel: image-master"
+
+#: components/administration/forms_dip_upload.py:65
+msgid "URL prefix"
+msgstr "URL-prefiks"
+
+#: components/administration/forms_dip_upload.py:67
+msgid ""
+"URL of DIP object server as you wish to appear in ArchivesSpace record. Example: http://"
+"example.com"
+msgstr ""
+"DIP-objekt-serverens URL som du vil at den skal vises i ArchivesSpace registeret. Eksempel: "
+"http://example.com"
+
+#: components/administration/forms_dip_upload.py:72
+msgid "Conditions governing access"
+msgstr "Vilkår for tilgang"
+
+#: components/administration/forms_dip_upload.py:73
+msgid "Populates Conditions governing access note"
+msgstr "Fyller vilkår for tilgangsnotat"
+
+#: components/administration/forms_dip_upload.py:77
+msgid "Conditions governing use"
+msgstr "Vilkår for bruk"
+
+#: components/administration/forms_dip_upload.py:78
+msgid "Populates Conditions governing use note"
+msgstr "Fyller vilkår for bruksnotat"
+
+#: components/administration/forms_dip_upload.py:81
+msgid "ArchivesSpace repository number"
+msgstr "ArchivesSpace datalager-nummer"
+
+#: components/administration/forms_dip_upload.py:82
+msgid "Default for single repository installation is 2"
+msgstr "Standard for én enkel lagringsinstallasjon er 2"
+
+#: components/administration/forms_dip_upload.py:87
+msgid "Inherit digital object notes from the parent component"
+msgstr "Arv merknader om det digitale objektet fra overordnet komponent"
+
+#: components/administration/forms_dip_upload.py:94
+msgid "Upload URL"
+msgstr "Last opp URL"
+
+#: components/administration/forms_dip_upload.py:96
+msgid ""
+"URL where the AtoM/Binder index.php frontend lives, SWORD services path will be appended."
+msgstr "URL der AtoM/Binder index.php frontend ligger, SWORD-tjenesters sti vil bli lagt til."
+
+#: components/administration/forms_dip_upload.py:100
+msgid "Login email"
+msgstr "Påloggings-epost"
+
+#: components/administration/forms_dip_upload.py:101
+msgid "E-mail account used to log into AtoM/Binder."
+msgstr "E-postkonto brukt for pålogging til AtoM/Binder."
+
+#: components/administration/forms_dip_upload.py:104
+msgid "Login password"
+msgstr "Påloggingspassord"
+
+#: components/administration/forms_dip_upload.py:104
+msgid "Password used to log into AtoM/Binder."
+msgstr "Passord brukt for pålogging til AtoM/Binder."
+
+#: components/administration/forms_dip_upload.py:107
+msgid "AtoM/Binder version"
+msgstr "AtoM-/Binder-versjon"
+
+#: components/administration/forms_dip_upload.py:111
+msgid "Rsync target"
+msgstr "Rsync-mål"
+
+#: components/administration/forms_dip_upload.py:113
+msgid ""
+"The DIP can be sent with Rsync to a remote host before is deposited in AtoM/Binder. This is "
+"the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/."
+msgstr ""
+"DIP-en kan sendes med Rsync til en ekstern vert før den blir deponert i AtoM/Binder. Dette "
+"er destinasjonsverdien sendt til Rsync (se man 1 rsync). Foreksempel: foobar.com:~/dips/."
+
+#: components/administration/forms_dip_upload.py:118
+msgid "Rsync command"
+msgstr "Rsync-kommando"
+
+#: components/administration/forms_dip_upload.py:120
+msgid ""
+"If --rsync-target is used, you can use this argument to specify the remote shell manually. "
+"For example: ssh -p 22222 -l user."
+msgstr ""
+"Hvis --rsync-target brukes, kan du bruke dette argumentet for å spesifisere det eksterne "
+"shell-et manuelt. For eksempel: ssh -p 22222 -l user."
+
+#: components/administration/forms_dip_upload.py:125
+msgid "Debug mode"
+msgstr "Feilsøkingsmodus"
+
+#: components/administration/forms_dip_upload.py:126
+msgid "Show additional details."
+msgstr "Vis ytterlige detaljer."
+
+#: components/administration/forms_dip_upload.py:132
+msgid "REST API key"
+msgstr "REST API-nøkkel"
+
+#: components/administration/forms_dip_upload.py:133
+msgid "Used in metadata-only DIP upload."
+msgstr "Brukes i kun-metadata DIP opplasting."
+
+#: components/administration/views.py:92 components/administration/views.py:125
+#: components/ingest/views.py:293 fpr/views.py:261 main/views.py:310
+msgid "Deleted."
+msgstr "Slettet."
+
+#: components/administration/views.py:109
+msgid "Promoted."
+msgstr "Forfremmet."
+
+#: components/administration/views.py:112
+msgid "Error attempting to promote level of description."
+msgstr "Feil ved forsøk på å forfremme beskrivelsesnivå."
+
+#: components/administration/views.py:116
+msgid "Demoted."
+msgstr "Degradert."
+
+#: components/administration/views.py:119
+msgid "Error attempting to demote level of description."
+msgstr "Feil ved forsøk på å degradere beskrivelsesnivå."
+
+#: components/administration/views.py:127
+msgid "Level of description not found."
+msgstr "Beskrivelsesnår ikke funnet."
+
+#: components/administration/views.py:193
+msgid ""
+"Error retrieving locations: is the storage server running? Please contact an administrator."
+msgstr ""
+"Feil ved henting av plasseringer: kjører lagringsserveren? Vennligst kontakt en "
+"administrator."
+
+#: components/administration/views.py:202
+msgid "AIP Storage"
+msgstr "API-lagring"
+
+#: components/administration/views.py:203
+msgid "DIP Storage"
+msgstr "DIP-Lagring"
+
+#: components/administration/views.py:204
+msgid "FEDORA Deposits"
+msgstr "FEDORA-innskudd"
+
+#: components/administration/views.py:205
+msgid "Transfer Backlog"
+msgstr "Overførings-backlogg"
+
+#: components/administration/views.py:206
+msgid "Transfer Source"
+msgstr "Overføringskilde"
+
+#: components/administration/views.py:207
+msgid "Replicator"
+msgstr "Replikator"
+
+#: components/administration/views.py:224
+msgid "unlimited"
+msgstr "ubegrenset"
+
+#: components/administration/views.py:407
+#, python-format
+msgid "Clear %(dir)s?"
+msgstr "Tøm %(dir)s?"
+
+#: components/administration/views.py:410 templates/administration/usage.html:103
+msgid "Clear"
+msgstr "Tøm"
+
+#: components/administration/views.py:436
+#, python-format
+msgid "Cleared: %(path)s"
+msgstr "Tømte: %(path)s"
+
+#: components/administration/views.py:439
+#, python-format
+msgid "No such file or directory: %(path)s"
+msgstr "Ingen slik fil eller mappe: %(path)s"
+
+#: components/administration/views.py:580
+#, python-format
+msgid ""
+"Storage Service inaccessible. Please contact an administrator or update the Storage Sevice "
+"URL below.<hr />%(error)s"
+msgstr ""
+"Lagringstjeneste utilgjengelig. Vennligst kontakt en administrator eller oppdater "
+"Lagringsenhetens URL nedenfor.<hr />%(error)s"
+
+#: components/administration/views.py:597
+#, python-format
+msgid ""
+"Storage Service failed to create the pipeline. This can happen if the pipeline exists but "
+"it is disabled. Please contact an administrator.<hr />%(error)s"
+msgstr ""
+"Lagringstjenesten klarte ikke å lage rør. Dette kan skje hvis røret eksisterer, men den er "
+"deaktivert. Vennligst kontakt en administrator.<hr />%(error)s"
+
+#: components/administration/views.py:609
+msgid ""
+"Storage Service returned a 404 error. Has the pipeline been disabled or is it not "
+"registered yet? Submitting form will attempt to register the pipeline."
+msgstr ""
+"Lagringstjenesten returnerte en 404-feil. Har røret blitt deaktivert eller er den ikke "
+"registrert ennå? Sendingsskjema vil prøve å registrere røret."
+
+#: components/administration/views_processing.py:67
+msgid "Unable to load processing configuration page."
+msgstr "Kan ikke laste inn konfigurasjonssiden for prosessering."
+
+#: components/administration/views_processing.py:76
+msgid "Failed to save processing configuration."
+msgstr "Kunne ikke lagre prosesseringskonfigurasjonen."
+
+#: components/administration/views_processing.py:77
+msgid "Saved!"
+msgstr "Lagret!"
+
+#: components/administration/views_processing.py:90
+msgid "Failed to load processing configuration."
+msgstr "Kunne ikke laste prosesseringskonfigurasjonen."
+
+#: components/archival_storage/forms.py:37
+msgid "Insert slug"
+msgstr "Sett in slug"
+
+#: components/archival_storage/forms.py:38
+msgid "Only compatible with AtoM 2.4 or newer."
+msgstr "Bare kompatibel med AtoM 2.4 eller nyere."
+
+#: components/archival_storage/forms.py:50
+msgid "Connection establishment failed: AtoM server cannot be reached."
+msgstr "Tilkobling mislyktes: AtoM-serveren kan ikke nås."
+
+#: components/archival_storage/forms.py:55
+#, python-format
+msgid "Description with slug %(slug)s not found!"
+msgstr "Beskrivelse med slug %(slug)s ikke funnet!"
+
+#: components/archival_storage/forms.py:60
+#, python-format
+msgid "Unknown error: %(error)s"
+msgstr "Ukjent feil: %(error)s"
+
+#: components/archival_storage/forms.py:70
+msgid "Metadata re-ingest"
+msgstr "Metadata gjenopplasting"
+
+#: components/archival_storage/forms.py:71
+msgid "Partial re-ingest"
+msgstr "Delvis gjenopplasting"
+
+#: components/archival_storage/forms.py:72
+msgid "Full re-ingest"
+msgstr "Full gjenopplasting"
+
+#: components/archival_storage/forms.py:80
+msgid "Only needed in full re-ingest"
+msgstr "Bare nødvendig i full gjenopplasting"
+
+#: components/archival_storage/forms.py:81
+msgid "default"
+msgstr "standard"
+
+#: components/archival_storage/forms.py:87
+msgid "Please type in the UUID to confirm"
+msgstr "Vennligst skriv inn UUID-en for å bekrefte"
+
+#: components/archival_storage/forms.py:89 fpr/templates/fpr/format/detail.html:23
+#: fpr/templates/fpr/format/version/detail.html:27 fpr/templates/fpr/fpcommand/detail.html:26
+#: fpr/templates/fpr/fprule/detail.html:26 fpr/templates/fpr/fptool/detail.html:23
+#: fpr/templates/fpr/fptool/detail.html:47 fpr/templates/fpr/idcommand/detail.html:26
+#: fpr/templates/fpr/idrule/detail.html:26 fpr/templates/fpr/idtool/detail.html:23
+#: fpr/templates/fpr/revisions/list.html:25 templates/administration/reports/failures.html:27
+#: templates/archival_storage/list.html:77 templates/archival_storage/search.html:57
+#: templates/archival_storage/view.html:63 templates/ingest/grid.html:62
+#: templates/ingest/grid.html.py:83 templates/transfer/grid.html:85
+#: templates/transfer/grid.html.py:107
+msgid "UUID"
+msgstr "UUID"
+
+#: components/archival_storage/forms.py:92
+msgid "Reason for deletion"
+msgstr "Årsak for sletting"
+
+#: components/archival_storage/forms.py:100
+msgid "uuid must be defined"
+msgstr "uuid må spesifiseres"
+
+#: components/archival_storage/forms.py:106
+msgid "UUID mismatch"
+msgstr "UUID-uoverensstemmelse"
+
+#: components/archival_storage/views.py:49
+msgid "Stored"
+msgstr "Lagret"
+
+#: components/archival_storage/views.py:49
+msgid "Deletion requested"
+msgstr "Sletting forespurt"
+
+#: components/archival_storage/views.py:357
+msgid "The AIP package containing the requested METS cannot be found"
+msgstr "AIP-pakken som inneholder de etterspurte METS-ene ble ikke funnet"
+
+#: components/archival_storage/views.py:611
+msgid "Metadata-only DIP upload failed, check the logs for more details"
+msgstr "Kun-metadata DIP-opplasting mislyktes, sjekk loggene for mer informasjon"
+
+#: components/archival_storage/views.py:623
+#, python-format
+msgid ""
+"Metadata-only DIP upload has been completed successfully. New resource has slug: %(slug)s"
+msgstr "Kun-metadata opplastnig av DIP er fullført. Ny ressurs har slug: %(slug)s"
+
+#: components/archival_storage/views.py:646
+#, python-format
+msgid "Error re-ingesting package: %(message)s"
+msgstr "Feil ved gjenopplasting av pakke: %(message)s"
+
+#: components/backlog/views.py:238
+msgid "Unable to connect to storage server. Please contact your administrator."
+msgstr "Kan ikke koble til lagringsserveren. Vennligst kontakt administratoren din."
+
+#: components/filesystem_ajax/views.py:98
+#, python-format
+msgid "%(count)d object"
+msgid_plural "%(count)d objects"
+msgstr[0] "%(count)d objekt"
+msgstr[1] "%(count)d objekter"
+
+#: components/filesystem_ajax/views.py:101
+#, python-format
+msgid "%(count)s objects"
+msgstr "%(count)s objekter"
+
+#: components/filesystem_ajax/views.py:145
+#, python-format
+msgid "Could not base64-decode provided path: %(path)s"
+msgstr "Kunne ikke base64-dekode oppgitt sti: %(path)s"
+
+#: components/filesystem_ajax/views.py:172
+#, python-format
+msgid "No files or directories found under path: %(path)s"
+msgstr "Ingen filer eller mapper funnet under bane: %(path)s"
+
+#: components/filesystem_ajax/views.py:225
+msgid "No filepath to delete was provided!"
+msgstr "Ingen filsti ble angitt for sletting!"
+
+#: components/filesystem_ajax/views.py:232
+msgid "Delete successful."
+msgstr "Sletting vellykket."
+
+#: components/filesystem_ajax/views.py:292
+msgid "Copy successful."
+msgstr "Kopiering vellykket."
+
+#: components/filesystem_ajax/views.py:404
+#, python-format
+msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
+msgstr "Angitt SIP-UUID (%(uuid)s) tilhører en allerede startet SIP!"
+
+#: components/filesystem_ajax/views.py:503
+#, python-format
+msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
+msgstr "Angitt UUID (%(uuid)s) er ikke en gyldig UUID!"
+
+#: components/filesystem_ajax/views.py:512
+#, python-format
+msgid "%(path1)s is not in %(path2)s"
+msgstr "%(path1)s er ikke i %(path2)s"
+
+#: components/filesystem_ajax/views.py:518
+#, python-format
+msgid "%(path)s is not a directory"
+msgstr "%(path)s er ikke en mappe"
+
+#: components/filesystem_ajax/views.py:601
+msgid "SIP created."
+msgstr "SIP opprettet."
+
+#: components/filesystem_ajax/views.py:610
+msgid "All directories must be within the arrange directory."
+msgstr "Alle mapper må være innenfor ordningsmappen."
+
+#: components/filesystem_ajax/views.py:642
+msgid "Creation successful."
+msgstr "Opprettelse vellykket."
+
+#: components/filesystem_ajax/views.py:654
+#, python-format
+msgid "%(src)s and %(dst)s must be inside %(path)s"
+msgstr "%(src)s og %(dst)s må være i %(path)s"
+
+#: components/filesystem_ajax/views.py:675
+msgid "You cannot drag and drop onto a file."
+msgstr "Du kan ikke dra og slippe til en fil."
+
+#: components/filesystem_ajax/views.py:745
+msgid "GET parameter 'filepath' or 'destination' was blank."
+msgstr "GET-parameteren 'filepath' eller 'destination' var tom."
+
+#: components/filesystem_ajax/views.py:748
+#, python-format
+msgid "%(path)s must be in arrange directory."
+msgstr "%(path)s må være i ordningsmappen."
+
+#: components/filesystem_ajax/views.py:761
+#, python-format
+msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
+msgstr "%(path1)s må i en SIP, kan ikke slippes på %(path2)s"
+
+#: components/filesystem_ajax/views.py:796
+#, python-format
+msgid "Storage Service failed with the message: %(messsage)s"
+msgstr "Lagringstjenesten mislyktes med meldingen : %(messsage)s"
+
+#: components/filesystem_ajax/views.py:812
+#, python-format
+msgid ""
+"No file information returned from the Storage Service for file at relative_path: %(path)s"
+msgstr ""
+"Ingen filinformasjon returnert fra lagringstjenesten for fil på relative_path: %(path)s"
+
+#: components/filesystem_ajax/views.py:890
+#, python-format
+msgid "%(path)s is not in base backlog path nor arrange path"
+msgstr "%(path)s er ikke i base backlogg-stien eller i ordner-stien"
+
+#: components/filesystem_ajax/views.py:916
+msgid "SIP files successfully moved."
+msgstr "Flytting av SIP-filer vellykket."
+
+#: components/filesystem_ajax/views.py:925
+msgid "Files added to the SIP."
+msgstr "Filer lagt til SIP-en."
+
+#: components/filesystem_ajax/views.py:956
+msgid "Metadata files added successfully."
+msgstr "Metadata-filer lagt til."
+
+#: components/filesystem_ajax/views.py:991
+#, python-format
+msgid "Location %(location)s is not associated with this pipeline"
+msgstr "Plassering %(location)s er ikke tilknyttet dette røret"
+
+#: components/filesystem_ajax/views.py:1028
+#, python-format
+msgid "The following errors occured: %(message)s"
+msgstr "Følgende feilmeldinger oppstod: %(message)s"
+
+#: components/filesystem_ajax/views.py:1032
+msgid "Files added successfully."
+msgstr "Filer lagt til."
+
+#: components/filesystem_ajax/views.py:1102
+#, python-format
+msgid "File with UUID %(uuid)s could not be found"
+msgstr "Kunne ikke finne fil med UUID %(uuid)s"
+
+#: components/helpers.py:208
+msgid "AtoM URL not defined!"
+msgstr "AtoM-URL ikke definert!"
+
+#: components/helpers.py:213
+msgid "AtoM authentication settings not defined!"
+msgstr "AtoM autentikasjonsinnstillinger ikke definert!"
+
+#: components/helpers.py:239
+msgid "Unable to fetch levels of description from AtoM!"
+msgstr "Kunne ikke hente beskrivelsesnivåer fra AtoM!"
+
+#: components/ingest/views.py:87
+msgid ""
+"Error retrieving originals/arrange directory locations: is the storage server running? "
+"Please contact an administrator."
+msgstr ""
+"Feil ved henting av originaler-/ordne-mappeplasseringer: kjører lagringsserveren ? "
+"Vennligst kontakt en administrator."
+
+#: components/ingest/views.py:182
+msgid ""
+"Error retrieving source directories: is the storage server running? Please contact an "
+"administrator."
+msgstr ""
+"Feil ved henting av kildekmapper: kjører lagringsserveren? Vennligst kontakt en "
+"administrator."
+
+#: components/ingest/views.py:191
+msgid "No transfer source locations are available. Please contact an administrator."
+msgstr "Ingen overføringskildeplasseringer tilgjengelig. Kontakt en administrator."
+
+#: components/ingest/views.py:283
+msgid "Are you sure you want to delete this metadata?"
+msgstr "Er du sikker på at du vil slette disse metadataene?"
+
+#: components/ingest/views.py:418
+msgid "Review normalization"
+msgstr "Gjennomgå normalisering"
+
+#: components/ingest/views.py:421
+msgid "Review AIP"
+msgstr "Gjennomgå AIP"
+
+#: components/ingest/views.py:424
+msgid "Review DIP"
+msgstr "Gjennomgå DIP"
+
+#: components/ingest/views_as.py:327
+msgid "Operation failed, please try again later or contact your administrator."
+msgstr "Operasjonen mislyktes. Prøv igjen senere eller kontakt administratoren din."
+
+#: components/rights/forms.py:37
+msgid ""
+"Designation of the basis for the right or permission described in the rights statement "
+"identifier."
+msgstr ""
+"Betegnelse av grunnlaget for rettigheten eller tillatelsen beskrevet i rettighetenes "
+"uttalelsesidentifikator."
+
+#: components/rights/forms.py:59
+msgid ""
+"The action the preservation repository is allowed to take; eg replicate, migrate, modify, "
+"use, disseminate, delete"
+msgstr ""
+"Handlingen bevaringsdatalageret har lov til å gjennomføre; f.eks. replisere, migrere, "
+"modifisere, bruke, dele, slette"
+
+#: components/rights/forms.py:68
+msgid "The beginning date of the rights or restrictions granted"
+msgstr "Startdatoen for rettighetene eller begrensningene som er gitt"
+
+#: components/rights/forms.py:75
+msgid "The ending date of the rights or restrictions granted"
+msgstr "Sluttdatoen for rettighetene eller begrensningene som er gitt"
+
+#: components/rights/forms.py:81
+msgid ""
+"Use \"OPEN\" for an open ended term of restriction. Omit end date if the ending date is "
+"unknown or the permission statement applies to many objects with different end dates."
+msgstr ""
+"Bruk \"OPEN\" for en åpen begrensningsperiode. Utelat sluttdatoen hvis sluttdato er ukjent "
+"eller tillatelsen gjelder for mange objekter med forskjellige sluttdatoer."
+
+#: components/rights/forms.py:113
+msgid ""
+"A coded designation of the copyright status of the object at the time the rights statement "
+"is recorded. Available options: Copyrighted, Public Domain, Unknown"
+msgstr ""
+"En kodet betegnelse på gjenstandens opphavsretts-status på det tidspunktet "
+"rettighetserklæring registreres. Tilgjengelige alternativer: Opphavsrett, Offentlig domene, "
+"Ukjent"
+
+#: components/rights/forms.py:120
+msgid "The country whose copyright laws apply [ISO 3166]"
+msgstr "Landet hvis opphavsrettslov gjelder [ISO 3166]"
+
+#: components/rights/forms.py:127
+msgid "The date that the copyright status recorded in 'copyright status' was determined."
+msgstr "Datoen da opphavsrettsstatusen registrert i 'opphavsrettsstatus' ble fast bestemt."
+
+#: components/rights/forms.py:135
+msgid "The date when the particular copyright applies or is applied to the content."
+msgstr "Datoen da den aktuelle opphavsretten gjelder eller blir brukt på innholdet."
+
+#: components/rights/forms.py:143
+msgid "The date when the particular copyright no longer applies or is applied to the content."
+msgstr "Datoen da den bestemte opphavsretten ikke lenger gjelder eller brukes på innholdet."
+
+#: components/rights/forms.py:196
+msgid "The country or other political body enacting the statute."
+msgstr "Landet eller et annet politisk organ som vedtar vedtekten."
+
+#: components/rights/forms.py:203
+msgid "An identifying designation for the statute."
+msgstr "En identifiserende betegnelse for vedtekten."
+
+#: components/rights/forms.py:210
+msgid ""
+"The date that the determination was made that the statue authorized the permission(s) noted."
+msgstr "Datoen da det ble bestemt at vedtekten autoriserte de(n) noterte tillatelsen(e)."
+
+#: components/rights/forms.py:218
+msgid "The date when the statute begins to apply or is applied to the content."
+msgstr "Datoen da vedtekten begynner å gjelde eller blir brukt på innholdet."
+
+#: components/rights/forms.py:226
+msgid "The date when the statute ceasees to apply or be applied to the content."
+msgstr "Datoen da vedtektene slutter å gjelde eller blir brukt på innholdet."
+
+#: components/rights/forms.py:254
+msgid ""
+"The designation of the basis for the other right or permission described in the rights "
+"statement identifier."
+msgstr ""
+"Betegnelsen på grunnlaget for den andre rettigheten eller tillatelsen beskrevet i "
+"rettighetserklæringsidentifikatoren."
+
+#: components/rights/forms.py:262
+msgid "The date when the other right applies or is applied to the content."
+msgstr "Datoen da den andre retten gjelder eller blir brukt på innholdet."
+
+#: components/rights/forms.py:270
+msgid "The date when the other right no longer applies or is applied to the content."
+msgstr "Datoen da den andre retten ikke lenger gjelder eller blir brukt på innholdet."
+
+#: components/rights/forms.py:291
+msgid "Text describing the license or agreement by which permission as granted."
+msgstr "Tekst som beskriver lisensen eller avtalen der tillatelse er gitt."
+
+#: components/rights/forms.py:299
+msgid "The date at which the license first applies or is applied to the content."
+msgstr "Datoen da lisensen først gjelder eller blir brukt på innholdet."
+
+#: components/rights/forms.py:307
+msgid "The end date at which the license no longer applies or is applied to the content."
+msgstr "Sluttdatoen da lisensen ikke lenger gjelder eller brukes på innholdet."
+
+#: components/rights/views.py:277 components/rights/views.py:311
+msgid "copyright"
+msgstr "opphavsrett"
+
+#: components/rights/views.py:345 components/rights/views.py:379
+msgid "license"
+msgstr "lisens"
+
+#: components/rights/views.py:391 components/rights/views.py:426
+#: components/rights/views.py:466 components/rights/views.py:497
+msgid "statute"
+msgstr "vedtekt"
+
+#: components/rights/views.py:483
+msgid "statue"
+msgstr "vedtekt"
+
+#: components/transfer/views.py:61
+msgid "Error retrieving source directories"
+msgstr "Feil ved henting av kildemapper"
+
+#: components/transfer/views.py:210
+msgid "Updated path was not provided."
+msgstr "Oppdatert bane ble ikke angitt."
+
+#: components/transfer/views.py:212
+msgid "Unable to update transfer metadata set, contact administrator:"
+msgstr "Kan ikke oppdatere metadatasettet for overføring, kontakt administrator:"
+
+#: fpr/forms.py:21 fpr/forms.py:112
+msgid "Create New"
+msgstr "Opprett ny"
+
+#: fpr/forms.py:65
+msgid "An ID tool with this description and version already exists"
+msgstr "Et ID-verktøy med denne beskrivelsen og versjonen eksisterer allerede"
+
+#: fpr/forms.py:136
+#, python-format
+msgid "An identical FP rule already exists. See rule %(uuid)s."
+msgstr "En identisk FP-regel eksisterer allerede. Se regel %(uuid)s."
+
+#: fpr/forms.py:144
+#, python-format
+msgid ""
+" Rule %(uuid)s is disabled and has been replaced by the following rule(s): %(repl_uuids)s"
+msgstr ""
+" Regel %(uuid)s er deaktivert og har blitt erstattet av følgende regel(er): %(repl_uuids)s"
+
+#: fpr/forms.py:152
+#, python-format
+msgid " Rule %(uuid)s is disabled."
+msgstr " Regel %(uuid)s er deaktivert."
+
+#: fpr/models.py:49
+msgid "the related model"
+msgstr "den relaterte modellen"
+
+#: fpr/models.py:51 fpr/models.py:362 fpr/models.py:560 fpr/models.py:603 fpr/models.py:643
+#: fpr/models.py:659 fpr/models.py:677 fpr/models.py:705 fpr/models.py:730 fpr/models.py:749
+#: fpr/models.py:770
+msgid "enabled"
+msgstr "aktivert"
+
+#: fpr/models.py:52 fpr/models.py:601 fpr/models.py:640 fpr/models.py:657 fpr/models.py:675
+#: fpr/models.py:703 fpr/models.py:728 fpr/models.py:747 fpr/models.py:768
+msgid "last modified"
+msgstr "sist modifisert"
+
+#: fpr/models.py:141 fpr/models.py:165 fpr/models.py:182 fpr/models.py:251 fpr/models.py:306
+#: fpr/models.py:356 fpr/models.py:388 fpr/models.py:484 fpr/models.py:554
+msgid "Unique identifier"
+msgstr "Unik identifikator"
+
+#: fpr/models.py:144 fpr/models.py:167 fpr/models.py:194 fpr/models.py:254 fpr/models.py:359
+#: fpr/models.py:494 fpr/models.py:557 fpr/models.py:631 fpr/models.py:652 fpr/models.py:671
+#: fpr/models.py:686
+msgid "description"
+msgstr "beskrivelse"
+
+#: fpr/models.py:144
+msgid "Common name of format"
+msgstr "Vanlig navn på format"
+
+#: fpr/models.py:147
+msgid "the related group"
+msgstr "den beslektede gruppen"
+
+#: fpr/models.py:149 fpr/models.py:168 fpr/models.py:364 fpr/models.py:561
+msgid "slug"
+msgstr "slug"
+
+#: fpr/models.py:154 fpr/templates/fpr/format/version/detail.html:31
+#: fpr/templates/fpr/fprule/detail.html:30 fpr/templates/fpr/fprule/list.html:30
+#: fpr/templates/fpr/idrule/list.html:28 templates/ingest/normalization_report.html:32
+msgid "Format"
+msgstr "Format"
+
+#: fpr/models.py:171
+msgid "Format group"
+msgstr "Formatgruppe"
+
+#: fpr/models.py:189 fpr/models.py:312 fpr/models.py:444 fpr/models.py:713
+msgid "the related format"
+msgstr "det relaterte formatet"
+
+#: fpr/models.py:191 fpr/models.py:361 fpr/models.py:559
+msgid "version"
+msgstr "versjon"
+
+#: fpr/models.py:192
+msgid "pronom id"
+msgstr "pronom-id"
+
+#: fpr/models.py:198
+msgid "Formal name to go in the METS file."
+msgstr "Formelt navn for bruk i METS-filen."
+
+#: fpr/models.py:200
+msgid "access format"
+msgstr "tilgangsformat"
+
+#: fpr/models.py:201
+msgid "preservation format"
+msgstr "bevaringsformat"
+
+#: fpr/models.py:208 fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:727
+msgid "Format version"
+msgstr "Formatversjon"
+
+#: fpr/models.py:227
+msgid "Unable to save, an active Format Version  with this pronom id already exists."
+msgstr "Kan ikke lagre, en aktiv formatversjon med denne pronom-ID-en eksisterer allerede."
+
+#: fpr/models.py:234
+#, python-format
+msgid "%(format)s: %(description)s (%(pronom_id)s)"
+msgstr "%(format)s: %(description)s (%(pronom_id)s)"
+
+#: fpr/models.py:254
+msgid "Name to identify script"
+msgstr "Navn for å identifisere skript"
+
+#: fpr/models.py:257
+msgid "PUID"
+msgstr "PUID"
+
+#: fpr/models.py:258
+msgid "MIME type"
+msgstr "MIME type"
+
+#: fpr/models.py:259
+msgid "File extension"
+msgstr "Filutvidelse"
+
+#: fpr/models.py:261
+msgid "configuration"
+msgstr "konfigurasjon"
+
+#: fpr/models.py:263
+msgid "script"
+msgstr "skript"
+
+#: fpr/models.py:263
+msgid "Script to be executed."
+msgstr "Skript som skal kjøres."
+
+#: fpr/models.py:265 fpr/models.py:497
+msgid "Bash script"
+msgstr "Bash-skript"
+
+#: fpr/models.py:266 fpr/models.py:498
+msgid "Python script"
+msgstr "Python-skript"
+
+#: fpr/models.py:267 fpr/models.py:499
+msgid "Command line"
+msgstr "Kommandolinje"
+
+#: fpr/models.py:268 fpr/models.py:500
+msgid "No shebang needed"
+msgstr "Ingen shebang nødvendig"
+
+#: fpr/models.py:271 fpr/models.py:503
+msgid "script type"
+msgstr "skripttype"
+
+#: fpr/models.py:274 fpr/models.py:492
+msgid "the related tool"
+msgstr "det relaterte verktøyet"
+
+#: fpr/models.py:278
+msgid "Format identification command"
+msgstr "Formatidentifikasjonskommando"
+
+#: fpr/models.py:282
+#, python-format
+msgid "%(tool)s %(config)s runs %(command)s"
+msgstr "%(tool)s %(config)s kjører %(command)s"
+
+#: fpr/models.py:309 fpr/models.py:441
+msgid "the related command"
+msgstr "den relaterte kommandoen"
+
+#: fpr/models.py:315
+msgid "command output"
+msgstr "kommando-utdata"
+
+#: fpr/models.py:318
+msgid "Format identification rule"
+msgstr "Formatidentifikasjonsregel"
+
+#: fpr/models.py:335
+msgid "Unable to save, a rule with this output already exists for this command."
+msgstr ""
+"Kan ikke lagre, det eksisterer allerede en regel med samme utdata for denne kommandoen."
+
+#: fpr/models.py:342
+#, python-format
+msgid "Format identification rule %(uuid)s"
+msgstr "Formatidentifikasjonsregel %(uuid)s"
+
+#: fpr/models.py:345
+#, python-format
+msgid "%(command)s with %(output)s is %(format)s"
+msgstr "%(command)s med %(output)s er %(format)s"
+
+#: fpr/models.py:359 fpr/models.py:557
+msgid "Name of tool"
+msgstr "Verktøynavn"
+
+#: fpr/models.py:368
+msgid "Format identification tool"
+msgstr "Formatidentifikasjonsverktøy"
+
+#: fpr/models.py:374 fpr/models.py:568
+#, python-format
+msgid "%(description)s"
+msgstr "%(description)s"
+
+#: fpr/models.py:416 templates/layout.html:64 templates/main/access.html:4
+#: templates/main/access.html.py:5
+msgid "Access"
+msgstr "Tilgang"
+
+#: fpr/models.py:417 fpr/models.py:514
+msgid "Characterization"
+msgstr "Karakterisering"
+
+#: fpr/models.py:418
+msgid "Extract"
+msgstr "Hent ut"
+
+#: fpr/models.py:419 fpr/templates/fpr/format/version/detail.html:33
+msgid "Preservation"
+msgstr "Bevaring"
+
+#: fpr/models.py:420
+msgid "Thumbnail"
+msgstr "Miniatyrbilde"
+
+#: fpr/models.py:421 fpr/models.py:518
+msgid "Transcription"
+msgstr "Transkripsjon"
+
+#: fpr/models.py:422 fpr/models.py:519
+msgid "Validation"
+msgstr "Validering"
+
+#: fpr/models.py:423
+msgid "Validation against a policy"
+msgstr "Validering mot en grunnregel"
+
+#: fpr/models.py:426
+msgid "Default access"
+msgstr "Standardtilgang"
+
+#: fpr/models.py:427
+msgid "Default characterization"
+msgstr "Standardkarakterisering"
+
+#: fpr/models.py:428
+msgid "Default thumbnail"
+msgstr "Standardminiatyrbilde"
+
+#: fpr/models.py:439
+msgid "purpose"
+msgstr "formål"
+
+#: fpr/models.py:447
+msgid "count attempts"
+msgstr "tell forsøk"
+
+#: fpr/models.py:448
+msgid "count okay"
+msgstr "tell ok"
+
+#: fpr/models.py:449
+msgid "count not okay"
+msgstr "tell ikke-ok"
+
+#: fpr/models.py:452 fpr/views.py:732
+msgid "Format policy rule"
+msgstr "Formatgrunnregel"
+
+#: fpr/models.py:472
+#, python-format
+msgid "Format policy rule %(uuid)s"
+msgstr "Formatgrunnregel %(uuid)s"
+
+#: fpr/models.py:475
+#, python-format
+msgid "Normalize %(format)s for %(purpose)s via %(command)s"
+msgstr "Normaliser %(format)s for %(purpose)s med %(command)s"
+
+#: fpr/models.py:495 fpr/models.py:627 fpr/models.py:744
+msgid "command"
+msgstr "kommando"
+
+#: fpr/models.py:505 fpr/models.py:629
+msgid "output location"
+msgstr "utdataplassering"
+
+#: fpr/models.py:511
+msgid "the related output format"
+msgstr "det relaterte utdataformatet"
+
+#: fpr/models.py:515
+msgid "Event Detail"
+msgstr "Hendelsesdetaljer"
+
+#: fpr/models.py:516
+msgid "Extraction"
+msgstr "Uthenting"
+
+#: fpr/models.py:517
+msgid "Normalization"
+msgstr "Normalisering"
+
+#: fpr/models.py:520
+msgid "Verification"
+msgstr "Bekreftelse"
+
+#: fpr/models.py:523 fpr/models.py:613
+msgid "command usage"
+msgstr "kommandobruk"
+
+#: fpr/models.py:531
+msgid "the related verification command"
+msgstr "den relaterte bekreftelseskommandoen"
+
+#: fpr/models.py:539
+msgid "the related event detail command"
+msgstr "den relaterte hendelsesdetaljkommandoen"
+
+#: fpr/models.py:543 fpr/views.py:731
+msgid "Format policy command"
+msgstr "Formatgrunnregelkommando"
+
+#: fpr/models.py:565
+msgid "Normalization tool"
+msgstr "Normaliseringsverktøy"
+
+#: fpr/models.py:582
+msgid "agent identifier type"
+msgstr "agentidentifikator type"
+
+#: fpr/models.py:583
+msgid "agent identifier value"
+msgstr "agentidentifikator verdi"
+
+#: fpr/models.py:584
+msgid "agent name"
+msgstr "agentnavn"
+
+#: fpr/models.py:585
+msgid "agent type"
+msgstr "agenttype"
+
+#: fpr/models.py:586
+msgid "client IP address"
+msgstr "klients IP-adresse"
+
+#: fpr/models.py:598 fpr/models.py:637 fpr/models.py:655 fpr/models.py:673 fpr/models.py:701
+#: fpr/models.py:726 fpr/models.py:746 fpr/models.py:766
+msgid "replaces"
+msgstr "erstatter"
+
+#: fpr/models.py:600
+msgid "type"
+msgstr "type"
+
+#: fpr/models.py:614
+msgid "command type"
+msgstr "kommandotype"
+
+#: fpr/models.py:617
+msgid "verification command"
+msgstr "bekreftelseskommando"
+
+#: fpr/models.py:621
+msgid "event detail command"
+msgstr "hendelsesdetaljkommando"
+
+#: fpr/models.py:625
+msgid "supported by"
+msgstr "støttet av"
+
+#: fpr/models.py:633
+msgid "output file format"
+msgstr "utdatafilformat"
+
+#: fpr/models.py:688
+msgid "valid preservation format"
+msgstr "gyldig bevaringsformat"
+
+#: fpr/models.py:694
+msgid "valid access format"
+msgstr "gyldig tilgangsformat"
+
+#: fpr/models.py:698
+msgid "file ID type"
+msgstr "fil-ID-type"
+
+#: fpr/models.py:723
+msgid "classification"
+msgstr "klassifisering"
+
+#: fpr/models.py:740
+msgid "command clasification"
+msgstr "kommandoklassifisering"
+
+#: fpr/models.py:745 fpr/models.py:759
+msgid "file ID"
+msgstr "fil-ID"
+
+#: fpr/models.py:761
+msgid "tool"
+msgstr "verktøy"
+
+#: fpr/models.py:763
+msgid "tool version"
+msgstr "verktøyversjon"
+
+#: fpr/templates/fpr/_sidebar.html:14 fpr/templates/fpr/format/detail.html:9
+#: fpr/templates/fpr/format/form.html:19 fpr/templates/fpr/format/group/delete.html:9
+#: fpr/templates/fpr/format/group/form.html:10 fpr/templates/fpr/format/group/form.html:37
+#: fpr/templates/fpr/format/group/list.html:9 fpr/templates/fpr/format/list.html:4
+#: fpr/templates/fpr/format/list.html:5 fpr/templates/fpr/format/list.html:9
+#: fpr/templates/fpr/format/version/detail.html:10
+#: fpr/templates/fpr/format/version/form.html:10
+msgid "Formats"
+msgstr "Formater"
+
+#: fpr/templates/fpr/_sidebar.html:15 fpr/templates/fpr/format/group/delete.html:10
+#: fpr/templates/fpr/format/group/form.html:11 fpr/templates/fpr/format/group/list.html:10
+msgid "Groups"
+msgstr "Grupper"
+
+#: fpr/templates/fpr/_sidebar.html:17
+msgid "Identification"
+msgstr "Identifikasjon"
+
+#: fpr/templates/fpr/_sidebar.html:18 fpr/templates/fpr/_sidebar.html.py:23
+#: fpr/templates/fpr/idrule/list.html:31
+msgid "Tools"
+msgstr "Verktøy"
+
+#: fpr/templates/fpr/_sidebar.html:19 fpr/templates/fpr/_sidebar.html.py:29
+msgid "Rules"
+msgstr "Regler"
+
+#: fpr/templates/fpr/_sidebar.html:20 fpr/templates/fpr/_sidebar.html.py:30
+#: fpr/templates/fpr/idtool/detail.html:38
+msgid "Commands"
+msgstr "Kommandoer"
+
+#: fpr/templates/fpr/_sidebar.html:22
+msgid "Format policy registry"
+msgstr "Formatgrunnregelregister"
+
+#: fpr/templates/fpr/app_layout.html:5
+msgid "Format Policy Registry"
+msgstr "Formatgrunnregelregister"
+
+#: fpr/templates/fpr/app_layout.html:36
+msgctxt "DataTable - emptyTable"
+msgid "No data available in table"
+msgstr "Ingen data tilgjengelig i tabellen"
+
+#: fpr/templates/fpr/app_layout.html:37
+msgctxt "DataTable - info"
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr "Viser _START_ til _END_ av _TOTAL_ oppføringer"
+
+#: fpr/templates/fpr/app_layout.html:38
+msgctxt "DataTable - infoEmpty"
+msgid "Showing 0 to 0 of 0 entries"
+msgstr "Viser 0 til 0 av 0 oppføringer"
+
+#: fpr/templates/fpr/app_layout.html:39
+msgctxt "DataTable - infoFiltered"
+msgid "(filtered from _MAX_ total entries)"
+msgstr "(filtrert fra _MAX_ totale oppføringer)"
+
+#: fpr/templates/fpr/app_layout.html:41
+msgctxt "DataTable - thousands"
+msgid ","
+msgstr "."
+
+#: fpr/templates/fpr/app_layout.html:42
+msgctxt "DataTable - lengthMenu"
+msgid "Show _MENU_ entries"
+msgstr "Vis _MENU_ oppføringer"
+
+#: fpr/templates/fpr/app_layout.html:43
+msgctxt "DataTable - loadingRecords"
+msgid "Loading..."
+msgstr "Laster..."
+
+#: fpr/templates/fpr/app_layout.html:44
+msgctxt "DataTable - processing"
+msgid "Processing..."
+msgstr "Behandler..."
+
+#: fpr/templates/fpr/app_layout.html:45
+msgctxt "DataTable - search"
+msgid "Search:"
+msgstr "Søk:"
+
+#: fpr/templates/fpr/app_layout.html:46
+msgctxt "DataTable - zeroRecords"
+msgid "No matching records found"
+msgstr "Ingen samsvarende elementer funnet"
+
+#: fpr/templates/fpr/app_layout.html:48
+msgctxt "DataTable - first"
+msgid "First"
+msgstr "Første"
+
+#: fpr/templates/fpr/app_layout.html:49
+msgctxt "DataTable - last"
+msgid "Last"
+msgstr "Siste"
+
+#: fpr/templates/fpr/app_layout.html:50
+msgctxt "DataTable - next"
+msgid "Next"
+msgstr "Neste"
+
+#: fpr/templates/fpr/app_layout.html:51
+msgctxt "DataTable - previous"
+msgid "Previous"
+msgstr "Forrige"
+
+#: fpr/templates/fpr/app_layout.html:54
+msgctxt "DataTable - sortAscending"
+msgid ": activate to sort column ascending"
+msgstr ": aktiver for å sortere kolonne stigende"
+
+#: fpr/templates/fpr/app_layout.html:55
+msgctxt "DataTable - sortDescending"
+msgid ": activate to sort column descending"
+msgstr ": aktiver for å sortere kolonne synkende"
+
+#: fpr/templates/fpr/disable.html:32
+#, python-format
+msgid "Disable %(object)s"
+msgstr "Deaktiver %(object)s"
+
+#: fpr/templates/fpr/disable.html:34
+#, python-format
+msgid "Enable %(object)s"
+msgstr "Aktiver %(object)s"
+
+#: fpr/templates/fpr/disable.html:41 fpr/templates/fpr/format/group/delete.html:25
+msgid "Are you sure?"
+msgstr "Er du sikker?"
+
+#: fpr/templates/fpr/disable.html:44
+msgid "The following rules will also be disabled:"
+msgstr "Følgende regler blir også deaktivert:"
+
+#: fpr/templates/fpr/disable.html:57 fpr/templates/fpr/format/detail.html:74
+#: fpr/templates/fpr/fpcommand/detail.html:59 fpr/templates/fpr/fpcommand/list.html:46
+#: fpr/templates/fpr/fprule/detail.html:43 fpr/templates/fpr/fprule/list.html:51
+#: fpr/templates/fpr/idcommand/detail.html:43 fpr/templates/fpr/idcommand/list.html:48
+#: fpr/templates/fpr/idrule/detail.html:39 fpr/templates/fpr/idrule/list.html:48
+msgid "Disable,Enable"
+msgstr "Deaktiver,Aktiver"
+
+#: fpr/templates/fpr/disable.html:58 fpr/templates/fpr/format/group/delete.html:50
+#: templates/accounts/add.html:36 templates/accounts/edit.html:40
+#: templates/accounts/profile.html:49 templates/administration/processing_edit.html:40
+#: templates/delete_request.html:19 templates/ingest/as/match.html:129
+#: templates/ingest/grid.html:174 templates/ingest/metadata_edit.html:66
+#: templates/rights/rights_edit.html:290 templates/rights/rights_edit.html:292
+#: templates/rights/rights_grants_edit.html:111 templates/rights/rights_grants_edit.html:113
+#: templates/simple_confirm.html:10 templates/transfer/metadata_edit.html:65
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: fpr/templates/fpr/format/detail.html:4 fpr/templates/fpr/format/detail.html:5
+#, python-format
+msgid "Format %(description)s"
+msgstr "Format %(description)s"
+
+#: fpr/templates/fpr/format/detail.html:25 fpr/templates/fpr/format/detail.html:52
+#: fpr/templates/fpr/format/group/form.html:45 fpr/templates/fpr/format/group/list.html:30
+#: fpr/templates/fpr/format/list.html:33 fpr/templates/fpr/format/version/detail.html:28
+#: fpr/templates/fpr/fpcommand/detail.html:28 fpr/templates/fpr/fpcommand/list.html:29
+#: fpr/templates/fpr/fptool/detail.html:25 fpr/templates/fpr/fptool/list.html:29
+#: fpr/templates/fpr/idcommand/detail.html:30 fpr/templates/fpr/idtool/detail.html:25
+#: fpr/templates/fpr/idtool/list.html:29 templates/administration/locations.html:30
+#: templates/ingest/as/resource_component.html:16
+#: templates/ingest/as/resource_component.html:32
+msgid "Description"
+msgstr "Beskrivelse"
+
+#: fpr/templates/fpr/format/detail.html:27 fpr/templates/fpr/format/list.html:34
+msgid "Group"
+msgstr "Gruppe"
+
+#: fpr/templates/fpr/format/detail.html:36 fpr/templates/fpr/format/detail.html:58
+#: fpr/templates/fpr/format/group/form.html:46 fpr/templates/fpr/format/group/list.html:32
+#: fpr/templates/fpr/format/list.html:35 fpr/templates/fpr/format/version/detail.html:36
+#: fpr/templates/fpr/fpcommand/detail.html:57 fpr/templates/fpr/fpcommand/list.html:33
+#: fpr/templates/fpr/fprule/detail.html:41 fpr/templates/fpr/fprule/list.html:34
+#: fpr/templates/fpr/fptool/detail.html:30 fpr/templates/fpr/fptool/detail.html:49
+#: fpr/templates/fpr/fptool/list.html:30 fpr/templates/fpr/idcommand/detail.html:41
+#: fpr/templates/fpr/idcommand/list.html:33 fpr/templates/fpr/idrule/detail.html:37
+#: fpr/templates/fpr/idrule/list.html:33 fpr/templates/fpr/idtool/detail.html:32
+#: fpr/templates/fpr/idtool/detail.html:52 fpr/templates/fpr/idtool/list.html:31
+#: templates/archival_storage/list.html:99 templates/archival_storage/search.html:65
+#: templates/archival_storage/view.html:104 templates/main/access.html:16
+msgid "Actions"
+msgstr "Handlinger"
+
+#: fpr/templates/fpr/format/detail.html:37 fpr/templates/fpr/format/group/form.html:53
+#: fpr/templates/fpr/format/group/list.html:48 fpr/templates/fpr/format/list.html:52
+#: fpr/templates/fpr/fptool/detail.html:31 fpr/templates/fpr/fptool/list.html:40
+#: fpr/templates/fpr/idtool/detail.html:33 fpr/templates/fpr/idtool/list.html:43
+#: templates/accounts/list.html:41 templates/administration/processing.html:27
+#: templates/ingest/metadata_edit.html:33 templates/rights/rights_edit.html:19
+#: templates/rights/rights_grants_edit.html:19 templates/rights/rights_list.html:12
+#: templates/rights/rights_list.html:54 templates/rights/rights_list.html:57
+#: templates/transfer/detail.html:50 templates/transfer/metadata_edit.html:32
+msgid "Edit"
+msgstr "Rediger"
+
+#: fpr/templates/fpr/format/detail.html:42
+msgid "Specific versions"
+msgstr "Spesifikke versjoner"
+
+#: fpr/templates/fpr/format/detail.html:45
+msgid "Create new format version"
+msgstr "Opprett ny formatversjon"
+
+#: fpr/templates/fpr/format/detail.html:53 fpr/templates/fpr/format/version/detail.html:29
+#: fpr/templates/fpr/idtool/detail.html:27 fpr/templates/fpr/idtool/list.html:30
+#: templates/administration/sidebar.html:51 templates/administration/version.html:5
+#: templates/administration/version.html:6 templates/administration/version.html:23
+msgid "Version"
+msgstr "Versjon"
+
+#: fpr/templates/fpr/format/detail.html:54
+msgid "Pronom ID"
+msgstr "Pronom-ID"
+
+#: fpr/templates/fpr/format/detail.html:55
+msgid "Access format?"
+msgstr "Tilgangsformat?"
+
+#: fpr/templates/fpr/format/detail.html:56
+msgid "Preservation format?"
+msgstr "Bevaringsformat?"
+
+#: fpr/templates/fpr/format/detail.html:57 fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:54 fpr/templates/fpr/fpcommand/list.html:32
+#: fpr/templates/fpr/fprule/detail.html:38 fpr/templates/fpr/fprule/list.html:33
+#: fpr/templates/fpr/fptool/detail.html:27 fpr/templates/fpr/idcommand/detail.html:38
+#: fpr/templates/fpr/idcommand/list.html:32 fpr/templates/fpr/idrule/detail.html:34
+#: fpr/templates/fpr/idrule/list.html:32 fpr/templates/fpr/idtool/detail.html:29
+#: fpr/templates/fpr/idtool/detail.html:51
+msgid "Enabled"
+msgstr "Aktivert"
+
+#: fpr/templates/fpr/format/detail.html:67 fpr/templates/fpr/format/detail.html:68
+#: fpr/templates/fpr/format/version/detail.html:32
+#: fpr/templates/fpr/format/version/detail.html:33
+#: fpr/templates/fpr/format/version/detail.html:34 fpr/templates/fpr/fpcommand/detail.html:55
+#: fpr/templates/fpr/fpcommand/list.html:42 fpr/templates/fpr/fprule/detail.html:39
+#: fpr/templates/fpr/fprule/list.html:44 fpr/templates/fpr/fptool/detail.html:28
+#: fpr/templates/fpr/idcommand/detail.html:39 fpr/templates/fpr/idcommand/list.html:43
+#: fpr/templates/fpr/idrule/detail.html:35 fpr/templates/fpr/idrule/list.html:43
+#: fpr/templates/fpr/idtool/detail.html:30 fpr/templates/fpr/idtool/detail.html:61
+#: templates/ingest/normalization_report.html:39 templates/ingest/normalization_report.html:45
+#: templates/ingest/normalization_report.html:66 templates/ingest/normalization_report.html:72
+#: templates/ingest/normalization_report.html:74 templates/ingest/normalization_report.html:80
+#: templates/ingest/normalization_report.html:85
+msgid "Yes,No"
+msgstr "Ja,Nei"
+
+#: fpr/templates/fpr/format/detail.html:71 fpr/templates/fpr/format/list.html:50
+#: fpr/templates/fpr/fpcommand/list.html:43 fpr/templates/fpr/fprule/list.html:46
+#: fpr/templates/fpr/fptool/list.html:38 fpr/templates/fpr/idcommand/list.html:45
+#: fpr/templates/fpr/idrule/list.html:45 fpr/templates/fpr/idtool/detail.html:63
+#: fpr/templates/fpr/idtool/list.html:40 templates/archival_storage/list.html:112
+#: templates/archival_storage/search.html:98 templates/archival_storage/view.html:92
+#: templates/archival_storage/view.html:98
+msgid "View"
+msgstr "Vis"
+
+#: fpr/templates/fpr/format/detail.html:82
+#, python-format
+msgid ""
+"\n"
+"          No versions exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"          Ingen versjoner eksisterer for %(description)s.\n"
+"        "
+
+#: fpr/templates/fpr/format/form.html:49 fpr/templates/fpr/format/group/form.html:32
+#: fpr/templates/fpr/format/version/form.html:30 fpr/templates/fpr/fpcommand/form.html:32
+#: fpr/templates/fpr/fprule/form.html:47 fpr/templates/fpr/fptool/form.html:30
+#: fpr/templates/fpr/idcommand/form.html:32 fpr/templates/fpr/idrule/form.html:29
+#: fpr/templates/fpr/idtool/form.html:30 templates/accounts/edit.html:39
+#: templates/accounts/profile.html:48 templates/administration/api.html:36
+#: templates/administration/dips_as_edit.html:29
+#: templates/administration/dips_atom_edit.html:44 templates/administration/general.html:67
+#: templates/administration/handle_config.html:24
+#: templates/administration/premis_agent.html:24
+#: templates/administration/processing_edit.html:39
+#: templates/administration/term_detail.html:34 templates/ingest/metadata_edit.html:62
+#: templates/rights/rights_edit.html:285 templates/rights/rights_grants_edit.html:106
+#: templates/transfer/component.html:54 templates/transfer/metadata_edit.html:61
+msgid "Save"
+msgstr "Lagre"
+
+#: fpr/templates/fpr/format/group/delete.html:4 fpr/templates/fpr/format/group/delete.html:5
+#, python-format
+msgid "Delete format group %(description)s"
+msgstr "Slett formatgrupper %(description)s"
+
+#: fpr/templates/fpr/format/group/delete.html:12 fpr/templates/fpr/format/group/delete.html:49
+#: fpr/templates/fpr/format/group/list.html:51 templates/accounts/list.html:42
+#: templates/administration/atom_levels_of_description.html:44
+#: templates/administration/processing.html:33
+#: templates/administration/reports/failure_detail.html:31
+#: templates/administration/reports/failures.html:39
+#: templates/administration/term_detail.html:35 templates/archival_storage/view.html:111
+#: templates/archival_storage/view.html:154 templates/main/access.html:25
+#: templates/rights/rights_list.html:55 templates/rights/rights_list.html:58
+msgid "Delete"
+msgstr "Slett"
+
+#: fpr/templates/fpr/format/group/delete.html:30
+#, python-format
+msgid ""
+"\n"
+"                %(count)s format(s) were found that are a member of this group.\n"
+"              "
+msgstr ""
+"\n"
+"                %(count)s format(er) ble funnet som er medlem av denne gruppen.\n"
+"              "
+
+#: fpr/templates/fpr/format/group/delete.html:37
+msgid "Substitute formats that are a member of this group with the following group:"
+msgstr "Erstatt formater som er medlem av denne gruppen med følgende gruppe:"
+
+#: fpr/templates/fpr/format/group/form.html:39 fpr/templates/fpr/format/list.html:26
+msgid "Create new format"
+msgstr "Opprett nytt format"
+
+#: fpr/templates/fpr/format/group/form.html:60
+#, python-format
+msgid ""
+"\n"
+"          No formats exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"          Ingen formater finnes for %(description)s.\n"
+"        "
+
+#: fpr/templates/fpr/format/group/list.html:4 fpr/templates/fpr/format/group/list.html:5
+msgid "Format groups"
+msgstr "Formatgrupper"
+
+#: fpr/templates/fpr/format/group/list.html:11 fpr/templates/fpr/format/list.html:10
+#: fpr/templates/fpr/fpcommand/list.html:10 fpr/templates/fpr/fprule/list.html:10
+#: fpr/templates/fpr/fptool/list.html:10 fpr/templates/fpr/idcommand/list.html:10
+#: fpr/templates/fpr/idrule/list.html:10 fpr/templates/fpr/idtool/list.html:10
+#: fpr/templates/fpr/revisions/list.html:10 templates/ingest/detail.html:37
+#: templates/ingest/detail.html.py:42 templates/ingest/detail.html:48
+#: templates/transfer/detail.html:38 templates/transfer/detail.html.py:43
+#: templates/transfer/detail.html:56
+msgid "List"
+msgstr "Liste"
+
+#: fpr/templates/fpr/format/group/list.html:23
+msgid "Create new format group"
+msgstr "Opprett ny formatgruppe"
+
+#: fpr/templates/fpr/format/group/list.html:60
+msgid "No format groups exist."
+msgstr "Ingen formatgrupper finnes."
+
+#: fpr/templates/fpr/format/list.html:60
+msgid "No formats exist."
+msgstr "Ingen formater finnes."
+
+#: fpr/templates/fpr/format/version/detail.html:5
+#, python-format
+msgid "Format version %(description)s"
+msgstr "Formatversjon %(description)s"
+
+#: fpr/templates/fpr/format/version/detail.html:6
+#, python-format
+msgid "Format version %(format)s"
+msgstr "Formatversjon %(format)s"
+
+#: fpr/templates/fpr/format/version/detail.html:30
+msgid "Pronom"
+msgstr "Pronom"
+
+#: fpr/templates/fpr/format/version/detail.html:32
+msgid "Access?"
+msgstr "Tilgang?"
+
+#: fpr/templates/fpr/fpcommand/detail.html:5 fpr/templates/fpr/fpcommand/detail.html:6
+#: fpr/templates/fpr/fpcommand/detail.html:11
+#, python-format
+msgid "Command %(description)s"
+msgstr "Kommando %(description)s"
+
+#: fpr/templates/fpr/fpcommand/detail.html:10 fpr/templates/fpr/fpcommand/form.html:10
+#: fpr/templates/fpr/fpcommand/list.html:4 fpr/templates/fpr/fpcommand/list.html:5
+#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:678
+msgid "Format policy commands"
+msgstr "Formatgrunnregelkommandoer"
+
+#: fpr/templates/fpr/fpcommand/detail.html:30 fpr/templates/fpr/fpcommand/list.html:31
+#: fpr/templates/fpr/idcommand/detail.html:28 fpr/templates/fpr/idcommand/list.html:30
+msgid "Tool"
+msgstr "Verktøy"
+
+#: fpr/templates/fpr/fpcommand/detail.html:32 fpr/templates/fpr/fprule/detail.html:32
+#: fpr/templates/fpr/fprule/list.html:31 fpr/templates/fpr/fptool/detail.html:46
+#: fpr/templates/fpr/idcommand/list.html:28 fpr/templates/fpr/idrule/detail.html:30
+#: fpr/templates/fpr/idrule/list.html:29 fpr/templates/fpr/idtool/detail.html:50
+msgid "Command"
+msgstr "Kommando"
+
+#: fpr/templates/fpr/fpcommand/detail.html:34 fpr/templates/fpr/idcommand/detail.html:36
+msgid "Script type"
+msgstr "Skripttype"
+
+#: fpr/templates/fpr/fpcommand/detail.html:36
+msgid "Output file format"
+msgstr "Utdatafilformat"
+
+#: fpr/templates/fpr/fpcommand/detail.html:38
+msgid "Output location"
+msgstr "Utdataplassering"
+
+#: fpr/templates/fpr/fpcommand/detail.html:40
+msgid "Command usage"
+msgstr "Kommandobruk"
+
+#: fpr/templates/fpr/fpcommand/detail.html:42
+msgid "Verification command"
+msgstr "Bekreftelseskommando"
+
+#: fpr/templates/fpr/fpcommand/detail.html:48
+msgid "Event detail command"
+msgstr "Hendelsesdetaljkommando"
+
+#: fpr/templates/fpr/fpcommand/list.html:22 fpr/templates/fpr/idcommand/list.html:21
+#: fpr/templates/fpr/idtool/detail.html:41
+msgid "Create new command"
+msgstr "Opprett ny kommando"
+
+#: fpr/templates/fpr/fpcommand/list.html:30 templates/administration/usage.html:5
+#: templates/administration/usage.html:6
+msgid "Usage"
+msgstr "Bruk"
+
+#: fpr/templates/fpr/fpcommand/list.html:54
+msgid "No format policy commands exist."
+msgstr "Ingen formatgrunnregelkommandoer eksisterer."
+
+#: fpr/templates/fpr/fprule/detail.html:5 fpr/templates/fpr/fprule/detail.html:6
+#: fpr/templates/fpr/fprule/detail.html:11
+#, python-format
+msgid "Rule %(description)s"
+msgstr "Regel %(description)s"
+
+#: fpr/templates/fpr/fprule/detail.html:10 fpr/templates/fpr/fprule/form.html:10
+#: fpr/views.py:547
+msgid "Format policy rules"
+msgstr "Formatgrunnregler"
+
+#: fpr/templates/fpr/fprule/detail.html:28 fpr/templates/fpr/fprule/list.html:29
+#: templates/administration/locations.html:29 templates/administration/usage.html:89
+msgid "Purpose"
+msgstr "Formål"
+
+#: fpr/templates/fpr/fprule/detail.html:34
+msgid "Stats"
+msgstr "Statistikk"
+
+#: fpr/templates/fpr/fprule/detail.html:35
+#, python-format
+msgid "Success: %(count)s"
+msgstr "Vellykket: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:36
+#, python-format
+msgid "Failure: %(count)s"
+msgstr "Mislykket: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:37
+#, python-format
+msgid "Total: %(count)s"
+msgstr "Totalt: %(count)s"
+
+#: fpr/templates/fpr/fprule/list.html:4 fpr/templates/fpr/fprule/list.html:5
+#: fpr/templates/fpr/fprule/list.html:9
+msgid "Format policy rules "
+msgstr "Formatgrunnregler "
+
+#: fpr/templates/fpr/fprule/list.html:22 fpr/templates/fpr/idrule/list.html:21
+msgid "Create new rule"
+msgstr "Opprett ny regel"
+
+#: fpr/templates/fpr/fprule/list.html:32
+msgid "Success"
+msgstr "Vellykket"
+
+#: fpr/templates/fpr/fprule/list.html:59
+msgid "No format policy rules exist."
+msgstr "Det finnes ingen grunnregel for format."
+
+#: fpr/templates/fpr/fptool/detail.html:4 fpr/templates/fpr/fptool/detail.html:5
+#, python-format
+msgid "Format policy registry tool %(description)s "
+msgstr "Registerverktøy for formatgrunnregel %(description)s "
+
+#: fpr/templates/fpr/fptool/detail.html:9 fpr/templates/fpr/fptool/form.html:10
+#: fpr/templates/fpr/fptool/list.html:4 fpr/templates/fpr/fptool/list.html:5
+#: fpr/templates/fpr/fptool/list.html:9
+msgid "Format policy registry tools"
+msgstr "Registerverktøy for formatgrunnregel"
+
+#: fpr/templates/fpr/fptool/detail.html:36
+msgid "Tool commands"
+msgstr "Verktøykommandoer"
+
+#: fpr/templates/fpr/fptool/detail.html:39
+msgid "Create new tool command"
+msgstr "Opprett ny verktøykommando"
+
+#: fpr/templates/fpr/fptool/detail.html:67 fpr/templates/fpr/idtool/detail.html:75
+#, python-format
+msgid ""
+"\n"
+"          No commands exist for %(description)s.\n"
+"        "
+msgstr ""
+"\n"
+"          Det finnes ingen kommandoer for %(description)s.\n"
+"        "
+
+#: fpr/templates/fpr/fptool/list.html:22 fpr/templates/fpr/idtool/list.html:22
+msgid "Create new tool"
+msgstr "Opprett nytt verktøy"
+
+#: fpr/templates/fpr/fptool/list.html:48
+msgid "No tools exist."
+msgstr "Det finnes ingen verktøy."
+
+#: fpr/templates/fpr/idcommand/detail.html:5 fpr/templates/fpr/idcommand/detail.html:6
+#, python-format
+msgid "Identification command %(description)s"
+msgstr "Identifikasjonskommando %(description)s"
+
+#: fpr/templates/fpr/idcommand/detail.html:10 fpr/templates/fpr/idcommand/form.html:10
+#: fpr/templates/fpr/idcommand/list.html:4 fpr/templates/fpr/idcommand/list.html:5
+#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:445
+msgid "Identification commands"
+msgstr "Identifikasjonskommandoer"
+
+#: fpr/templates/fpr/idcommand/detail.html:32 fpr/templates/fpr/idcommand/list.html:31
+msgid "Mode"
+msgstr "Modus"
+
+#: fpr/templates/fpr/idcommand/detail.html:34
+msgid "Script"
+msgstr "Skript"
+
+#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:959
+#: templates/administration/reports/failures.html:25 templates/rights/rights_edit.html:101
+#: templates/rights/rights_edit.html:153 templates/rights/rights_edit.html:203
+#: templates/rights/rights_edit.html:251
+msgid "Type"
+msgstr "Type"
+
+#: fpr/templates/fpr/idcommand/list.html:56
+msgid "No identification commands exist."
+msgstr "Det finnes ingen identifikasjonskommandoer."
+
+#: fpr/templates/fpr/idrule/detail.html:5 fpr/templates/fpr/idrule/detail.html:6
+#: fpr/templates/fpr/idrule/detail.html:11
+#, python-format
+msgid "Identification rule %(uuid)s"
+msgstr "Identifikasjonsregel %(uuid)s"
+
+#: fpr/templates/fpr/idrule/detail.html:10 fpr/templates/fpr/idrule/form.html:10
+#: fpr/templates/fpr/idrule/list.html:4 fpr/templates/fpr/idrule/list.html:5
+#: fpr/templates/fpr/idrule/list.html:9 fpr/views.py:354
+msgid "Identification rules"
+msgstr "Identifikasjonsregler"
+
+#: fpr/templates/fpr/idrule/detail.html:32
+msgid "Command output"
+msgstr "Kommandoutdata"
+
+#: fpr/templates/fpr/idrule/list.html:30
+msgid "Output"
+msgstr "Utdata"
+
+#: fpr/templates/fpr/idrule/list.html:56
+msgid "No identification rules exist."
+msgstr "Det finnes ingen identifikasjonsregler."
+
+#: fpr/templates/fpr/idtool/detail.html:4 fpr/templates/fpr/idtool/detail.html:5
+#, python-format
+msgid "Identification tool %(description)s"
+msgstr "Identifikasjonsverktøy %(description)s"
+
+#: fpr/templates/fpr/idtool/detail.html:9 fpr/templates/fpr/idtool/form.html:10
+#: fpr/templates/fpr/idtool/list.html:4 fpr/templates/fpr/idtool/list.html:5
+#: fpr/templates/fpr/idtool/list.html:9
+msgid "Identification tools"
+msgstr "Identifikasjonsverktøy"
+
+#: fpr/templates/fpr/idtool/detail.html:48
+msgid "Configuration"
+msgstr "Konfigurasjon"
+
+#: fpr/templates/fpr/idtool/detail.html:49 templates/ingest/as/_search_form.html:5
+#: templates/ingest/as/match.html:102 templates/ingest/as/match.html.py:120
+#: templates/ingest/as/review_matches.html:30 templates/ingest/grid.html:165
+msgid "Identifier"
+msgstr "Identifikator"
+
+#: fpr/templates/fpr/idtool/detail.html:66
+msgid "Disable"
+msgstr "Deaktiver"
+
+#: fpr/templates/fpr/idtool/list.html:51
+msgid "No identification tools exist."
+msgstr "Det finnes ingen identifikasjonsverktøy."
+
+#: fpr/templates/fpr/revisions/list.html:4 fpr/templates/fpr/revisions/list.html:9
+msgid "Revisions"
+msgstr "Revisjoner"
+
+#: fpr/templates/fpr/revisions/list.html:5
+#, python-format
+msgid "%(revision_type)s revision history"
+msgstr "%(revision_type)s revisjonshistorikk"
+
+#: fpr/templates/fpr/revisions/list.html:26
+msgid "Last modified"
+msgstr "Sist modifisert"
+
+#: fpr/templates/fpr/revisions/list.html:49
+msgid "No revisions exist."
+msgstr "Det finnes ingen revisjoner."
+
+#: fpr/utils.py:74
+msgid "You are replacing the current revision with data from an older revision."
+msgstr "Du erstatter den nåværende revisjonen med data fra en eldre revisjon."
+
+#: fpr/utils.py:81
+msgid "You are viewing a disabled revision."
+msgstr "Du ser på en deaktivert revisjon."
+
+#: fpr/views.py:91
+#, python-format
+msgid "Edit format %(name)s"
+msgstr "Rediger format %(name)s"
+
+#: fpr/views.py:93
+msgid "Create format"
+msgstr "Opprett format"
+
+#: fpr/views.py:134
+#, python-format
+msgid "Replace format version %(name)s"
+msgstr "Erstatt formatversjon %(name)s"
+
+#: fpr/views.py:137 fpr/views.py:641
+msgid "Create format version"
+msgstr "Opprett formatversjon"
+
+#: fpr/views.py:164
+msgid "Format versions"
+msgstr "Formatversjon"
+
+#: fpr/views.py:173 fpr/views.py:360 fpr/views.py:454 fpr/views.py:554 fpr/views.py:687
+msgid "Disabled."
+msgstr "Deaktivert."
+
+#: fpr/views.py:179 fpr/views.py:363 fpr/views.py:457 fpr/views.py:557 fpr/views.py:693
+msgid "Enabled."
+msgstr "Aktivert."
+
+#: fpr/views.py:192
+msgid "Enable/disable format version"
+msgstr "Aktiver/deaktiver formatversjon"
+
+#: fpr/views.py:212
+#, python-format
+msgid "Edit format group %(name)s"
+msgstr "Rediger formatgrupper %(name)s"
+
+#: fpr/views.py:214
+msgid "Create format group"
+msgstr "Opprett formatgruppe"
+
+#: fpr/views.py:249
+#, python-format
+msgid "%(count)d substitutions were performed."
+msgstr "%(count)d erstatninger ble utført."
+
+#: fpr/views.py:256
+msgid "Please select a group to substitute for this group in member formats."
+msgstr "Velg en gruppe som skal erstattes av denne gruppen i medlemsformater."
+
+#: fpr/views.py:293
+#, python-format
+msgid "Edit identification tool %(name)s"
+msgstr "Rediger identifikasjonsverktøy %(name)s"
+
+#: fpr/views.py:296
+msgid "Create identification tool"
+msgstr "Opprett identifikasjonsverktøy"
+
+#: fpr/views.py:331
+#, python-format
+msgid "Replace identification rule %(uuid)s"
+msgstr "Erstatt identifikasjonsregelen %(uuid)s"
+
+#: fpr/views.py:334
+msgid "Create identification rule"
+msgstr "Opprett identifikasjonsregelen"
+
+#: fpr/views.py:374
+msgid "Enable/disable identification rule"
+msgstr "Aktiver/deaktiver identifikasjonsregel"
+
+#: fpr/views.py:405
+#, python-format
+msgid "Replace identification command %(name)s"
+msgstr "Erstatt identifikasjonskommandoen %(name)s"
+
+#: fpr/views.py:410
+msgid "Create identification command"
+msgstr "Opprett identifikasjonskommando"
+
+#: fpr/views.py:467
+msgid "Enable/disable identification command"
+msgstr "Aktiver/deaktiver identifikasjonskommando"
+
+#: fpr/views.py:509
+#, python-format
+msgid "Replace format policy rule %(uuid)s"
+msgstr "Erstatt formatgrunnregel %(uuid)s"
+
+#: fpr/views.py:513
+msgid "Create format policy rule"
+msgstr "Opprett formatgrunnregel"
+
+#: fpr/views.py:568
+msgid "Enable/disable format policy registry rule"
+msgstr "Aktiver/deaktiver registerregel for format"
+
+#: fpr/views.py:593
+#, python-format
+msgid "Replace format policy registry tool %(name)s"
+msgstr "Erstatt formatgrunnregel registerverktøyet %(name)s"
+
+#: fpr/views.py:598
+msgid "Create format policy registry tool"
+msgstr "Lag formatgrunnregelregistresverktøy"
+
+#: fpr/views.py:638
+#, python-format
+msgid "Replace command %(name)s"
+msgstr "Erstatt kommandoen %(name)s"
+
+#: fpr/views.py:704
+msgid "Enable/disable format policy command"
+msgstr "Aktiver/deaktiver kommandoen for formatgrunnregel"
+
+#: fpr/views.py:728
+msgid "Identification tool configuration"
+msgstr "Konfigurasjon av identifikasjonsverktøy"
+
+#: fpr/views.py:729
+msgid "Identification rule"
+msgstr "Identifikasjonsregel"
+
+#: fpr/views.py:730
+msgid "Identification command"
+msgstr "Identifikasjonskommando"
+
+#: installer/forms.py:31
+msgid "Site URL"
+msgstr "Nettsteds-URL"
+
+#: installer/forms.py:32
+msgid "This is the public URL of your Archivematica dashboard."
+msgstr "Dette er den offentlige URL-en til Archivematica-dashbordet ditt."
+
+#: installer/forms.py:42 installer/forms.py:90
+msgid "Organization name"
+msgstr "Organisasjonsnavn"
+
+#: installer/forms.py:43 installer/forms.py:91
+msgid "PREMIS agent name"
+msgstr "PREMIS-agentnavn"
+
+#: installer/forms.py:48 installer/forms.py:96
+msgid "Organization identifier"
+msgstr "Organisasjonsidentifikator"
+
+#: installer/forms.py:49 installer/forms.py:97
+msgid "PREMIS agent identifier"
+msgstr "PREMIS-agentidentifikator"
+
+#: installer/views.py:100
+msgid ""
+"Error creating pipeline: is the storage server running? Please contact an administrator."
+msgstr ""
+"Feil ved oppretting av rør: kjører lagringsserveren? Vennligst kontakt en administrator."
+
+#: main/models.py:243
+msgid "Part of AIC"
+msgstr "Del av AIC"
+
+#: main/models.py:244
+msgid "Optional: leave blank if unsure"
+msgstr "Valgfritt: la stå tomt hvis du er usikker"
+
+#: main/models.py:253
+msgid "Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
+msgstr "Bruk ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
+
+#: main/models.py:263
+msgid "Use ISO 639"
+msgstr "Bruk ISO 639"
+
+#: main/models.py:281
+msgid "Untitled"
+msgstr "Uten navn"
+
+#: main/models.py:329
+#, python-format
+msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
+msgstr "%(type)s hendelse på %(file_uuid)s (%(detail)s)"
+
+#: main/models.py:371
+#, python-format
+msgid "%(derived)s derived from %(src)s in %(event)s"
+msgstr "%(derived)s avledet av %(src) s i %(event)s"
+
+#: main/models.py:399
+msgid "SIP"
+msgstr "SIP"
+
+#: main/models.py:400 templates/archival_storage/search.html:59
+msgid "AIC"
+msgstr "AIC"
+
+#: main/models.py:401
+msgid "Reingested AIP"
+msgstr "Gjenopplasteted AIP"
+
+#: main/models.py:402
+msgid "Reingested AIC"
+msgstr "Gjenopplasteted AIC"
+
+#: main/models.py:416
+#, python-brace-format
+msgid "SIP: {path}"
+msgstr "SIP: {path}"
+
+#: main/models.py:529
+msgid "Arranged SIPs"
+msgstr "Ordnede SIP-er"
+
+#: main/models.py:533
+#, python-format
+msgid "%(original)s -> %(arrange)s"
+msgstr "%(original)s -> %(arrange)s"
+
+#: main/models.py:578
+msgid "Identifier Type"
+msgstr "Identifikasjonstype"
+
+#: main/models.py:580
+msgid "Identifier Value"
+msgstr "Identifikasjonsverdi"
+
+#: main/models.py:582
+msgid ""
+"Used for premis:objectIdentifierType and premis:objectIdentifierValue in the METS file."
+msgstr ""
+"Brukes for premis: objectIdentifierType og premis: objectIdentifierValue i METS-filen."
+
+#: main/models.py:645
+#, python-format
+msgid "File %(uuid)s:%(originallocation)s now at %(currentlocation)s"
+msgstr "Fil %(uuid)s:%(originallocation)s nå på %(currentlocation)s"
+
+#: main/models.py:681
+#, python-format
+msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
+msgstr "Mappe %(uuid)s: %(originallocation)s nå på %(currentlocation)s"
+
+#: main/models.py:740
+#, python-format
+msgid "%(file)s is %(format)s"
+msgstr "%(file)s er %(format)s"
+
+#: main/models.py:758
+msgid "(Unnamed)"
+msgstr "(Uten navn)"
+
+#: main/models.py:780 templates/archival_storage/search.html:77
+msgid "Unknown"
+msgstr "Ukjent"
+
+#: main/models.py:781
+msgid "Awaiting decision"
+msgstr "Venter på avgjørelse"
+
+#: main/models.py:782
+msgid "Completed successfully"
+msgstr "Fullført"
+
+#: main/models.py:783
+msgid "Executing command(s)"
+msgstr "Utføre kommando(er)"
+
+#: main/models.py:784
+msgid "Failed"
+msgstr "Mislyktes"
+
+#: main/models.py:879
+msgid "Agent Identifier Type"
+msgstr "Agentidentifikator type"
+
+#: main/models.py:884
+msgid "Agent Identifier Value"
+msgstr "Agentidentifikator verdi"
+
+#: main/models.py:886
+msgid ""
+"Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS "
+"file."
+msgstr ""
+"Brukes til premis: agentIdentifierValue og premis: linkingAgentIdentifierValue i METS-filen."
+
+#: main/models.py:893
+msgid "Agent Name"
+msgstr "Agentnavn"
+
+#: main/models.py:894
+msgid "Used for premis:agentName in the METS file."
+msgstr "Brukes til premis: agentName i METS-filen."
+
+#: main/models.py:900
+msgid "Agent Type"
+msgstr "Agenttype"
+
+#: main/models.py:901
+msgid "Used for premis:agentType in the METS file."
+msgstr "Brukes til premis: agentType inn METS-filen."
+
+#: main/models.py:925
+msgid ""
+"If checked, this user will receive system emails, such as Transfer Fail and Normalization "
+"Reports."
+msgstr ""
+"Hvis avkrysset, vil denne brukeren motta system-e-postmeldinger, for eksempel "
+"overføringsfeil og normaliseringsrapporter."
+
+#: main/models.py:927
+msgid "Send system emails?"
+msgstr "Send system-e-post?"
+
+#: main/models.py:962 templates/rights/rights_edit.html:105
+#: templates/rights/rights_edit.html:157 templates/rights/rights_edit.html:207
+#: templates/rights/rights_edit.html:255
+msgid "Value"
+msgstr "Verdi"
+
+#: main/models.py:965
+msgid "Rights holder"
+msgstr "Rettighetsinnehaver"
+
+#: main/models.py:968
+msgid "Copyright"
+msgstr "Opphavsrett"
+
+#: main/models.py:969
+msgid "Statute"
+msgstr "Vedtekt"
+
+#: main/models.py:970
+msgid "License"
+msgstr "Lisens"
+
+#: main/models.py:971
+msgid "Donor"
+msgstr "Donor"
+
+#: main/models.py:972
+msgid "Policy"
+msgstr "Grunnregel"
+
+#: main/models.py:979 templates/rights/rights_list.html:34
+msgid "Basis"
+msgstr "Basis"
+
+#: main/models.py:991
+msgid "Rights Statement"
+msgstr "Rettighetserklæring"
+
+#: main/models.py:995
+#, python-format
+msgid "%(basis)s for %(unit)s (%(id)s)"
+msgstr "%(basis)s for %(unit)s (%(id)s)"
+
+#: main/models.py:1008
+msgid "copyrighted"
+msgstr "opphavsrettsbeskyttet"
+
+#: main/models.py:1009
+msgid "public domain"
+msgstr "public domain"
+
+#: main/models.py:1010
+msgid "unknown"
+msgstr "ukjent"
+
+#: main/models.py:1015
+msgid "Copyright status"
+msgstr "Opphavsrettsstatus"
+
+#: main/models.py:1020
+msgid "Copyright jurisdiction"
+msgstr "Opphavsrettsjurisdiksjon"
+
+#: main/models.py:1026
+msgid "Copyright determination date"
+msgstr "Dato for opphavsrettsbestemmelse"
+
+#: main/models.py:1027 main/models.py:1034 main/models.py:1041 main/models.py:1105
+#: main/models.py:1112 main/models.py:1172 main/models.py:1179 main/models.py:1237
+#: main/models.py:1246 main/models.py:1253 main/models.py:1321 main/models.py:1328
+msgid "Use ISO 8061 (YYYY-MM-DD)"
+msgstr "Bruk ISO 8061 (YYYY-MM-DD)"
+
+#: main/models.py:1033
+msgid "Copyright start date"
+msgstr "Startdato for opphavsrett"
+
+#: main/models.py:1040
+msgid "Copyright end date"
+msgstr "Sluttdato for opphavsrett"
+
+#: main/models.py:1046 main/models.py:1117 main/models.py:1186 main/models.py:1258
+#: main/models.py:1333
+msgid "Open End Date"
+msgstr "Åpne sluttdato"
+
+#: main/models.py:1047 main/models.py:1118 main/models.py:1187 main/models.py:1259
+#: main/models.py:1334
+msgid "Indicate end date is open"
+msgstr "Angi at sluttdatoen er åpen"
+
+#: main/models.py:1052
+msgid "Rights: Copyright"
+msgstr "Rettigheter: Opphavsrett"
+
+#: main/models.py:1062
+msgid "Copyright document identification type"
+msgstr "Opphavsrettsdokuments identifikasjonstype"
+
+#: main/models.py:1066
+msgid "Copyright document identification value"
+msgstr "Opphavsrettsdokuments identifikasjonsverdi"
+
+#: main/models.py:1072
+msgid "Copyright document identification role"
+msgstr "Opphavsrettsdokuments identifikasjonsrolle"
+
+#: main/models.py:1077
+msgid "Rights: Copyright: Docs ID"
+msgstr "Rettigheter: Opphavsrett: Dokument-ID"
+
+#: main/models.py:1086 templates/rights/rights_edit.html:116
+msgid "Copyright note"
+msgstr "Opphavsrettsmerknad"
+
+#: main/models.py:1091
+msgid "Rights: Copyright: Note"
+msgstr "Rettigheter: Opphavsrett: Merknad"
+
+#: main/models.py:1098
+msgid "License terms"
+msgstr "License terms"
+
+#: main/models.py:1104
+msgid "License start date"
+msgstr "Lisensens startdato"
+
+#: main/models.py:1111
+msgid "License end date"
+msgstr "Lisensens sluttdato"
+
+#: main/models.py:1123
+msgid "Rights: License"
+msgstr "Rettigheter: Lisens"
+
+#: main/models.py:1133
+msgid "License documentation identification type"
+msgstr "Lisensdokuments identifikasjonstype"
+
+#: main/models.py:1137
+msgid "License documentation identification value"
+msgstr "Lisensdokuments identifikasjonsverdi"
+
+#: main/models.py:1143
+msgid "License document identification role"
+msgstr "Lisensdokuments identifikasjonsrolle"
+
+#: main/models.py:1148
+msgid "Rights: License: Docs ID"
+msgstr "Rettigheter: Lisens: Dokument-ID"
+
+#: main/models.py:1157 templates/rights/rights_edit.html:218
+msgid "License note"
+msgstr "Lisensmerknad"
+
+#: main/models.py:1162
+msgid "Rights: License: Note"
+msgstr "Rettigheter: Lisens: Merknad"
+
+#: main/models.py:1171 templates/rights/rights_list.html:36
+msgid "Start"
+msgstr "Start"
+
+#: main/models.py:1178 templates/rights/rights_list.html:37
+msgid "End"
+msgstr "Slutt"
+
+#: main/models.py:1192
+msgid "Rights: Granted"
+msgstr "Rettigheter: Innvilget"
+
+#: main/models.py:1203
+msgid "Rights note"
+msgstr "Rettighetsmerknad"
+
+#: main/models.py:1208
+msgid "Rights: Granted: Note"
+msgstr "Rettigheter: Innvilget: Merknad"
+
+#: main/models.py:1222
+msgid "Rights: Granted: Restriction"
+msgstr "Rettigheter: Innvilget: Begrensning"
+
+#: main/models.py:1229
+msgid "Statute jurisdiction"
+msgstr "Vedtekts jurisdiksjon"
+
+#: main/models.py:1232
+msgid "Statute citation"
+msgstr "Vedtekts sitering"
+
+#: main/models.py:1236
+msgid "Statute determination date"
+msgstr "Dato for fastsettelse av vedtekt"
+
+#: main/models.py:1245
+msgid "Statute start date"
+msgstr "Startdato for vedtekt"
+
+#: main/models.py:1252
+msgid "Statute end date"
+msgstr "Sluttdato for vedtekt"
+
+#: main/models.py:1264
+msgid "Rights: Statute"
+msgstr "Rettigheter: Vedtekt"
+
+#: main/models.py:1274 templates/rights/rights_edit.html:168
+msgid "Statute note"
+msgstr "Vedtektsmerknad"
+
+#: main/models.py:1279
+msgid "Rights: Statute: Note"
+msgstr "Rettigheter: Vedtekt: Merknad"
+
+#: main/models.py:1290
+msgid "Statute document identification type"
+msgstr "Vedtektsdokuments identifikasjonstype"
+
+#: main/models.py:1294
+msgid "Statute document identification value"
+msgstr "Vedtektsdokuments identifikasjonsverdi"
+
+#: main/models.py:1300
+msgid "Statute document identification role"
+msgstr "Vedtektsdokuments identifikasjonsrolle"
+
+#: main/models.py:1305
+msgid "Rights: Statute: Docs ID"
+msgstr "Rettigheter: Vedtekt: Dokument-ID"
+
+#: main/models.py:1313
+msgid "Other rights basis"
+msgstr "Andre rettighetsgrunnlag"
+
+#: main/models.py:1320
+msgid "Other rights start date"
+msgstr "Startdato for andre rettigheter"
+
+#: main/models.py:1327
+msgid "Other rights end date"
+msgstr "Sluttdato for andre rettigheter"
+
+#: main/models.py:1339
+msgid "Rights: Other"
+msgstr "Rettigheter: Andre"
+
+#: main/models.py:1350
+msgid "Other rights document identification type"
+msgstr "Annet rettighetsdokuments identifikasjonstype"
+
+#: main/models.py:1354
+msgid "Other right document identification value"
+msgstr "Annet rettighetsdokuments identifikasjonsverdi"
+
+#: main/models.py:1360
+msgid "Other rights document identification role"
+msgstr "Annet rettighetsdokuments identifikasjonsrolle"
+
+#: main/models.py:1365
+msgid "Rights: Other: Docs ID"
+msgstr "Rettigheter: Andre: Dokument-ID"
+
+#: main/models.py:1375
+msgid "Other rights note"
+msgstr "Andre rettigheters merknad"
+
+#: main/models.py:1380
+msgid "Rights: Other: Note"
+msgstr "Rettigheter: Andre: Merknad"
+
+#: main/models.py:1388
+msgid "Linking Agent"
+msgstr "Koblingsagent"
+
+#: main/models.py:1393
+msgid "Linking Agent Value"
+msgstr "Koblingsagentsverdi"
+
+#: main/models.py:1399
+msgid "Rights: Agent"
+msgstr "Rettigheter: Agent"
+
+#: main/models.py:1435
+msgid "Semantically a foreign key to SIP or Transfer"
+msgstr "Semantisk sett en fremmednøkkel for SIP eller overføring"
+
+#: main/models.py:1473
+msgid "ASDIPObjectResourcePairing"
+msgstr "ASDIPObjectResourcePairing"
+
+#: main/models.py:1488
+msgid "Whether or not a SIP has been started using files in this digital object."
+msgstr "Hvorvidt en SIP har blitt startet med bruk av filer i dette digitale objektet."
+
+#: main/models.py:1495
+msgid "ID in the remote ArchivesSpace system, after digital object has been created."
+msgstr "ID i det eksterne ArchivesSpace-systemet, etter at et digitalt objekt er opprettet."
+
+#: main/models.py:1615
+#, python-format
+msgid "%(sortorder)s: %(name)s"
+msgstr "%(sortorder)s: %(name)s"
+
+#: main/templatetags/user.py:17
+msgid "<no API key generated>"
+msgstr "<ingen API-nøkkel generert>"
+
+#: main/views.py:302
+msgid "Added."
+msgstr "Lagt til."
+
+#: main/views.py:307
+msgid "Error: no delete ID supplied."
+msgstr "Feil: ingen slettings-ID er oppgitt."
+
+#: main/views.py:322
+msgid "Incorrect type."
+msgstr "Feil type."
+
+#: settings/base.py:212
+msgid "English"
+msgstr "Engelsk"
+
+#: settings/base.py:213
+msgid "French"
+msgstr "Fransk"
+
+#: settings/base.py:214
+msgid "Spanish"
+msgstr "Spansk"
+
+#: settings/base.py:215
+msgid "Japanese"
+msgstr "Japansk"
+
+#: settings/base.py:216
+msgid "Portuguese"
+msgstr "Portugisisk"
+
+#: settings/base.py:217
+msgid "Brazilian Portuguese"
+msgstr "Brasiliansk portugisisk"
+
+#: settings/base.py:218
+msgid "Swedish"
+msgstr "Svensk"
+
+#: settings/base.py:436
+msgid ""
+"Select \"Approve transfer\" to begin processing or \"Reject transfer\" to start over again."
+msgstr ""
+"Velg \"Godkjenn overføring\" for å begynne behandling eller \"Avvis overføring\" for å "
+"starte på nytt."
+
+#: settings/base.py:439
+msgid ""
+"Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. "
+"The transfer will automatically be deleted once the AIP has been moved into storage."
+msgstr ""
+"Opprett en fullstendig sikkerhetskopi av overføringen i tilfelle overføring/ingest blir "
+"avbrutt eller mislykkes. Overføringen slettes automatisk når AIP er flyttet til lagring."
+
+#: settings/base.py:441
+msgid "Create a SIP from the transfer."
+msgstr "Opprett en SIP fra overføringen."
+
+#: settings/base.py:443
+msgid ""
+"Once you have added files from the transfer to the SIP and have completed any appraisal and "
+"physical arrangement, select \"SIP creation complete\" to start ingest micro-services."
+msgstr ""
+"Når du har lagt til filer fra overføringen til SIP og har fullført evalueringen og fysiske "
+"ordning, velger du \"SIP-oppretting fullført\" for å starte ingest av mikrotjenester."
+
+#: settings/base.py:446
+msgid ""
+"Create preservation and/or access copies of files if desired. Creating access copies will "
+"result in a DIP being generated for upload into an access system."
+msgstr ""
+"Opprett bevarings- og/eller tilgangs-kopier av filer hvis ønskelig. Å lage tilgangskopier "
+"vil resultere i at en DIP blir generert for opplasting til et tilgangssystem."
+
+#: settings/base.py:449
+msgid ""
+"If desired, click \"review\" to view the normalized files. To see a report summarizing the "
+"normalization results, click on the report icon next to the Actions drop-down menu. If "
+"normalization has failed, click on \"Yes\" under \"Preservation normalization failed\" or "
+"\"Access normalization failed\" to view the tool output and error message."
+msgstr ""
+"Hvis ønskelig, klikk på \"gjennomgang\" for å se de normaliserte filene. For å se en "
+"rapport som oppsummerer normaliseringsresultatene, klikker du på rapportikonet ved siden av "
+"rullegardinmenyen \"Handlinger\". Hvis normaliseringen mislyktes, klikker du på \"Ja\" "
+"under \"Bevaringsnormalisering mislyktes\" eller \"Tilgangsnormalisering mislyktes\" for å "
+"vise verktøyets utdata og feilmelding."
+
+#: settings/base.py:452
+msgid ""
+"If desired, click \"review\" to view AIP contents. Select \"Store AIP\" to move the AIP "
+"into archival storage."
+msgstr ""
+"Hvis ønskelig, klikk på \"gjennomgang\" for å se AIP-innholdet. Velg \"Lagre AIP\" for å "
+"flytte AIP-en til arkivlagring."
+
+#: settings/base.py:455
+msgid "If desired, select \"Upload DIP\" to upload the DIP to the access system."
+msgstr "Hvis ønskelig, velg \"Last opp DIP\" for å laste opp DIP-en til tilgangssystemet."
+
+#: templates/404.html:6
+msgid "Page not found"
+msgstr "Side ikke funnet"
+
+#: templates/404.html:9
+msgid "Sorry! The page that you are trying to view is not here."
+msgstr "Beklager! Siden du prøver å vise, er ikke her."
+
+#: templates/500.html:6
+msgid "Internal server error"
+msgstr "Intern serverfeil"
+
+#: templates/500.html:9
+msgid "Sorry! Something wrong happened. Please, contact with your administrator."
+msgstr "Beklager! Noe gikk galt. Vennligst kontakt administratoren din."
+
+#: templates/_fpr_update_button.html:4
+msgid "Update"
+msgstr "Oppdater"
+
+#: templates/_pager.html:9
+msgid "First"
+msgstr "Første"
+
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:115
+msgid "Previous"
+msgstr "Forrige"
+
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:121
+#: templates/rights/rights_edit.html:287
+msgid "Next"
+msgstr "Neste"
+
+#: templates/_pager.html:39
+msgid "Last"
+msgstr "Siste"
+
+#: templates/_pager.html:54
+msgid "Jump to"
+msgstr "Hopp til"
+
+#: templates/_pager.html:60
+#, python-format
+msgid ""
+"\n"
+"      Found %(count)s entries. Showing %(start_index)s to %(end_index)s.\n"
+"    "
+msgstr ""
+"\n"
+"      Fant %(count)s oppføringer. Viser %(start_index)s til %(end_index)s.\n"
+"    "
+
+#: templates/accounts/add.html:5 templates/accounts/add.html.py:6
+msgid "Users - Add new"
+msgstr "Brukere - Legg til ny"
+
+#: templates/accounts/add.html:20 templates/accounts/edit.html:21
+#: templates/accounts/list.html:4 templates/accounts/list.html.py:5
+#: templates/accounts/list.html:18 templates/administration/sidebar.html:44
+msgid "Users"
+msgstr "Brukere"
+
+#: templates/accounts/add.html:21
+msgid "Add new user"
+msgstr "Legg til ny bruker"
+
+#: templates/accounts/add.html:35 templates/ingest/metadata_edit.html:64
+#: templates/installer/welcome.html:49 templates/transfer/metadata_edit.html:63
+msgid "Create"
+msgstr "Opprett"
+
+#: templates/accounts/edit.html:6 templates/accounts/edit.html.py:7
+#, python-format
+msgid "Users - Edit %(user)s"
+msgstr "Brukere - Rediger %(user)s"
+
+#: templates/accounts/list.html:23 templates/accounts/profile.html:29
+msgid "Username"
+msgstr "Brukernavn"
+
+#: templates/accounts/list.html:24 templates/accounts/profile.html:31
+#: templates/administration/atom_levels_of_description.html:36
+#: templates/administration/reports/failures.html:26
+msgid "Name"
+msgstr "Navn"
+
+#: templates/accounts/list.html:25 templates/accounts/profile.html:33
+msgid "E-mail"
+msgstr "E-post"
+
+#: templates/accounts/list.html:26
+msgid "Administrator"
+msgstr "Administrator"
+
+#: templates/accounts/list.html:27
+msgid "Active"
+msgstr "Aktiv"
+
+#: templates/accounts/list.html:51
+msgid "Add new"
+msgstr "Legg til ny"
+
+#: templates/accounts/logged_out.html:9
+msgid "You are logged out."
+msgstr "Du er logget ut."
+
+#: templates/accounts/logged_out.html:13
+msgid "Log in again"
+msgstr "Logg inn igjen"
+
+#: templates/accounts/login.html:21
+msgid "Forgot your password?"
+msgstr "Glemt passordet?"
+
+#: templates/accounts/login.html:22
+msgid "Log in"
+msgstr "Logg inn"
+
+#: templates/accounts/profile.html:35
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/administration/api.html:5 templates/administration/api.html:6
+#: templates/administration/atom_levels_of_description.html:6
+#: templates/administration/atom_levels_of_description.html:7
+#: templates/administration/dips_as_edit.html:5 templates/administration/dips_as_edit.html:6
+#: templates/administration/dips_atom_edit.html:5
+#: templates/administration/dips_atom_edit.html:6 templates/administration/general.html:5
+#: templates/administration/general.html:6 templates/administration/handle_config.html:5
+#: templates/administration/handle_config.html:6 templates/administration/language.html:5
+#: templates/administration/language.html:6 templates/administration/locations.html:5
+#: templates/administration/locations.html:6 templates/administration/premis_agent.html:5
+#: templates/administration/premis_agent.html:6 templates/administration/processing.html:4
+#: templates/administration/processing.html:5 templates/administration/processing_edit.html:4
+#: templates/administration/processing_edit.html:5
+#: templates/administration/reports/failure_detail.html:5
+#: templates/administration/reports/failure_detail.html:6
+#: templates/administration/reports/failures.html:5
+#: templates/administration/reports/failures.html:6 templates/administration/search.html:5
+#: templates/administration/search.html:6 templates/administration/taxonomy.html:5
+#: templates/administration/taxonomy.html:6 templates/administration/term_detail.html:5
+#: templates/administration/term_detail.html:6 templates/administration/terms.html:5
+#: templates/administration/terms.html:6 templates/layout.html:65
+msgid "Administration"
+msgstr "Administrasjon"
+
+#: templates/administration/api.html:25
+msgid "REST API configuration"
+msgstr "REST-API-konfigurasjon"
+
+#: templates/administration/api.html:27
+msgid "IP whitelist"
+msgstr "IP-hvitliste"
+
+#: templates/administration/api.html:29
+msgid "Enter a whitespace-separated list of IPs or hostnames permitted to use the API."
+msgstr ""
+"Skriv inn en mellomrom-separert liste over IP-adresser eller domener som har tilgang til "
+"API-en."
+
+#: templates/administration/api.html:30
+msgid "If the whitelist is left empty, all IPs and hostnames will be allowed."
+msgstr "Hvis hviteliste er tom, vil alle IP-adresser og vertsnavn være tillatt."
+
+#: templates/administration/atom_levels_of_description.html:25
+msgid "Fetch from AtoM"
+msgstr "Hent fra AtoM"
+
+#: templates/administration/atom_levels_of_description.html:28
+msgid "AtoM Levels of Description"
+msgstr "AtoM beskrivelsesnivåer"
+
+#: templates/administration/atom_levels_of_description.html:45
+msgid "Promote"
+msgstr "Forfrem"
+
+#: templates/administration/atom_levels_of_description.html:46
+msgid "Demote"
+msgstr "Degrader"
+
+#: templates/administration/atom_levels_of_description.html:54
+msgid "No levels found."
+msgstr "Fant ingen nivåer."
+
+#: templates/administration/dips_as_edit.html:25
+msgid "ArchivesSpace DIP upload"
+msgstr "ArchivesSpace DIP-opplasting"
+
+#: templates/administration/dips_atom_edit.html:32
+msgid "Levels of Description"
+msgstr "Beskrivelsesnivåer"
+
+#: templates/administration/dips_atom_edit.html:37
+msgid "AtoM/Binder DIP upload"
+msgstr "AtoM/Binder DIP-opplasting"
+
+#: templates/administration/dips_atom_edit.html:39
+msgid "The settings below configure DIP uploading to AtoM/Binder."
+msgstr "Innstillingene nedenfor konfigurerer DIP-opplasting til AtoM/Binder."
+
+#: templates/administration/general.html:27
+#, python-format
+msgid ""
+"\n"
+"            <b>Dashboard UUID</b> %(uuid)s\n"
+"          "
+msgstr ""
+"\n"
+"            <b>Dashboard UUID</b> %(uuid)s\n"
+"          "
+
+#: templates/administration/general.html:33
+msgid "General configuration"
+msgstr "Generell konfigurasjon"
+
+#: templates/administration/general.html:39
+msgid "Storage Service options"
+msgstr "Lagringstjenestealternativer"
+
+#: templates/administration/general.html:43
+msgid "Checksum algorithm"
+msgstr "Sjekksumalgoritme"
+
+#: templates/administration/general.html:47
+msgid "Elasticsearch Indexing"
+msgstr "Elasticsearch Indeksering"
+
+#: templates/administration/general.html:52
+msgid "Transfers related indexes enabled."
+msgstr "Overføringsrelaterte indekser aktivert."
+
+#: templates/administration/general.html:54
+msgid "Transfers related indexes disabled."
+msgstr "Overføringsrelaterte indekser deaktivert."
+
+#: templates/administration/general.html:59
+msgid "AIPs related indexes enabled."
+msgstr "AIP-relaterte indekser aktivert."
+
+#: templates/administration/general.html:61
+msgid "AIPs related indexes disabled."
+msgstr "AIP-relaterte indekser deaktivert."
+
+#: templates/administration/handle_config.html:19
+msgid "Handle Configuration for Persistent Identifier (PID) Binding"
+msgstr "Håndtakskonfigurasjon for Persisten Identifier (PID)-Binding"
+
+#: templates/administration/language.html:19 templates/administration/sidebar.html:49
+msgid "Language"
+msgstr "Språk"
+
+#: templates/administration/language.html:30
+msgid "Select one of the following languages available:"
+msgstr "Velg ett av følgende tilgjengelige språk:"
+
+#: templates/administration/language.html:44
+msgid ""
+"Your choice will be recorded in the internal session store which does not retain data "
+"forever."
+msgstr "Ditt valg blir registrert i den interne lagringsøkten som ikke lagrer data permanent."
+
+#: templates/administration/language.html:50
+msgid "Change"
+msgstr "Endre"
+
+#: templates/administration/locations.html:19
+msgid "Available storage locations"
+msgstr "Tilgjengelige lagringsplasser"
+
+#: templates/administration/locations.html:21
+msgid ""
+"Storage locations are configured by an administrative user in the Archivematica Storage "
+"Service."
+msgstr ""
+"Lagringssteder konfigureres av en administrativ bruker i Archivematica Lagringstjenesten."
+
+#: templates/administration/locations.html:31
+msgid "Used / available"
+msgstr "Brukt / tilgjengelig"
+
+#: templates/administration/locations.html:32 templates/administration/usage.html:91
+msgid "Path"
+msgstr "Sti"
+
+#: templates/administration/locations.html:44 templates/ingest/normalization_report.html:60
+#: templates/ingest/normalization_report.html:100
+msgid "N/A"
+msgstr "I/T"
+
+#: templates/administration/locations.html:53
+msgid "No available locations."
+msgstr "Ingen tilgjengelige plasser."
+
+#: templates/administration/premis_agent.html:19 templates/administration/sidebar.html:39
+msgid "PREMIS agent"
+msgstr "PREMIS-agent"
+
+#: templates/administration/processing.html:18
+#: templates/administration/processing_edit.html:18 templates/administration/sidebar.html:21
+msgid "Processing configuration"
+msgstr "Behandlingskonfigurasjon"
+
+#: templates/administration/processing.html:28 templates/archival_storage/view.html:85
+msgid "Download"
+msgstr "Last ned"
+
+#: templates/administration/processing.html:30
+msgid "Reset"
+msgstr "Nullstill"
+
+#: templates/administration/processing.html:42
+msgid "No processing configuration file found (*ProcessingMCP.xml)."
+msgstr "Ingen konfigurasjonsfil for prosessering funnet (*ProcessingMCP.xml)."
+
+#: templates/administration/processing.html:49
+msgid "The following files are being ignored because they don't meet the requirements."
+msgstr "Følgende filer ignoreres fordi de ikke oppfyller kravene."
+
+#: templates/administration/processing.html:59 templates/ingest/detail.html:43
+#: templates/ingest/detail.html.py:49 templates/ingest/metadata_edit.html:34
+#: templates/rights/rights_edit.html:20 templates/rights/rights_grants_edit.html:20
+#: templates/rights/rights_list.html:13 templates/rights/rights_list.html:82
+#: templates/rights/rights_list.html:84 templates/transfer/detail.html:44
+#: templates/transfer/detail.html.py:57 templates/transfer/metadata_edit.html:33
+msgid "Add"
+msgstr "Legg til"
+
+#: templates/administration/reports/failure_detail.html:18
+#, python-format
+msgid ""
+"\n"
+"          Failure report: %(name)s\n"
+"        "
+msgstr ""
+"\n"
+"          Feilrapport: %(name)s\n"
+"        "
+
+#: templates/administration/reports/failures.html:18
+msgid "Failure report"
+msgstr "Feilrapport"
+
+#: templates/administration/reports/failures.html:24
+msgid "Date"
+msgstr "Dato"
+
+#: templates/administration/reports/failures.html:56
+msgid "No reports found."
+msgstr "Fant ingen rapporter."
+
+#: templates/administration/search.html:23
+msgid "Search administration"
+msgstr "Søkeadministrasjon"
+
+#: templates/administration/search.html:26
+#, python-format
+msgid ""
+"\n"
+"          %(count)s AIP files indexed.\n"
+"        "
+msgstr ""
+"\n"
+"          %(count)s AIP-filer indeksert.\n"
+"        "
+
+#: templates/administration/search.html:33
+msgid "Flush AIP Index"
+msgstr "Flush AIP-Indeks"
+
+#: templates/administration/sidebar.html:23
+msgid "General"
+msgstr "Generelt"
+
+#: templates/administration/sidebar.html:25
+msgid "Failures"
+msgstr "Feil"
+
+#: templates/administration/sidebar.html:27
+msgid "Storage locations"
+msgstr "Lagringsplasser"
+
+#: templates/administration/sidebar.html:29 templates/administration/usage.html:19
+msgid "Processing storage usage"
+msgstr "Bruk av prosesseringslagring"
+
+#: templates/administration/sidebar.html:32 templates/ingest/as/match.html:61
+#: templates/ingest/as/resource_component.html:13 templates/ingest/as/resource_detail.html:13
+#: templates/ingest/as/resource_list.html:13
+msgid "DIP upload"
+msgstr "DIP-opplasting"
+
+#: templates/administration/sidebar.html:34
+msgid "AtoM/Binder"
+msgstr "AtoM/Binder"
+
+#: templates/administration/sidebar.html:35
+msgid "ArchivesSpace"
+msgstr "ArchivesSpace"
+
+#: templates/administration/sidebar.html:41
+msgid "REST API"
+msgstr "REST-API"
+
+#: templates/administration/sidebar.html:47
+msgid "Handle server config"
+msgstr "Serverhåndtakskonfigurasjon"
+
+#: templates/administration/taxonomy.html:19
+msgid "Taxonomies"
+msgstr "Taxonomies"
+
+#: templates/administration/taxonomy.html:29 templates/administration/terms.html:33
+#: templates/main/_tasks_pager.html:5
+msgid "Previous page"
+msgstr "Forrige side"
+
+#: templates/administration/taxonomy.html:35 templates/administration/terms.html:39
+#: templates/main/_tasks_pager.html:11
+msgid "Next page"
+msgstr "Neste side"
+
+#: templates/administration/term_detail.html:20 templates/administration/terms.html:20
+msgid "Taxonomy"
+msgstr "Taxonomi"
+
+#: templates/administration/usage.html:22
+msgid ""
+"The processing storage location is determined in the Archivematica pipeline with the shared "
+"directory configuration path and in the Storage Service with the currently processing "
+"location associated with this pipeline."
+msgstr ""
+"Prosesseringslagringsplassen er bestemt i Archivematica røret med den delte "
+"mappekonfigurasjonsstien og i lagringstjenesten med den nåværende behandlingsplassen i "
+"forbindelse med denne pipelinen."
+
+#: templates/administration/usage.html:34
+msgid ""
+"By clicking the button below, this page will be reloaded calculating the space and usage of "
+"the entire disk where the shared directory is located. This process may take a long time "
+"depending on the disk configuration and its usage."
+msgstr ""
+"Ved å klikke på knappen nedenfor, vil denne siden lastes inn på nytt og beregne plass og "
+"bruk av hele disken der den delte mappen ligger. Denne prosessen kan ta lang tid, avhengig "
+"av diskkonfigurasjonen og dens bruk."
+
+#: templates/administration/usage.html:42
+msgid "Calculate disk usage"
+msgstr "Beregn diskbruk"
+
+#: templates/administration/usage.html:45
+msgid "General information:"
+msgstr "Generell informasjon:"
+
+#: templates/administration/usage.html:48
+msgid ""
+"This section displays the location where the disk is mounted on the system and its current "
+"usage and space alongside the shared directory path and size."
+msgstr ""
+"Denne delen viser plasseringen der disken er montert på systemet, og dens nåværende bruk og "
+"plass ved siden av den delte mappestien og -størrelsen."
+
+#: templates/administration/usage.html:56
+msgid "Disk location"
+msgstr "Diskplassering"
+
+#: templates/administration/usage.html:60
+msgid "Disk usage"
+msgstr "Diskbruk"
+
+#: templates/administration/usage.html:65
+msgid "Shared directory"
+msgstr "Delt mappe"
+
+#: templates/administration/usage.html:69
+msgid "Shared directory size"
+msgstr "Delt mappes størrelse"
+
+#: templates/administration/usage.html:77
+msgid "Clearable directories:"
+msgstr "Mapper som kan fjernes:"
+
+#: templates/administration/usage.html:80
+msgid ""
+"This table displays some directories within the shared directory that can be cleared "
+"manually."
+msgstr "Denne tabellen viser noen mapper i den delte katalogen som kan slettes manuelt."
+
+#: templates/administration/usage.html:90 templates/archival_storage/list.html:70
+#: templates/archival_storage/search.html:56 templates/archival_storage/view.html:67
+msgid "Size"
+msgstr "Størrelse"
+
+#: templates/administration/version.html:19
+msgid "About Archivematica"
+msgstr "Om Archivematica"
+
+#: templates/administration/version.html:27
+msgid "Agent code"
+msgstr "Agentkode"
+
+#: templates/appraisal/appraisal.html:4 templates/appraisal/appraisal.html:5
+#: templates/layout.html:57
+msgid "Appraisal"
+msgstr "Vurdering"
+
+#: templates/appraisal/appraisal.html:30 templates/archival_storage/list.html:132
+#: templates/backlog/backlog.html:30
+msgid "Elasticsearch Indexing Disabled"
+msgstr "Elasticsearch indeksering deaktivert"
+
+#: templates/appraisal/appraisal.html:31
+msgid ""
+"Sorry, Elasticsearch indexing has been disabled for the Transfers related indexes in this "
+"Archivematica installation. The appraisal tab is non-functional when indexing is turned off."
+msgstr ""
+"Beklager, Elasticsearch-indeksering er deaktivert for de overføringsrelaterte indeksene i "
+"denne Archivematica-installasjonen. Vurderingsfanen er ikke funksjonell når indeksering er "
+"slått av."
+
+#: templates/archival_storage/_archival_storage_search_form.html:7
+#: templates/ingest/backlog/_search_form.html:9
+msgid "Show files?"
+msgstr "Vis filer?"
+
+#: templates/archival_storage/_archival_storage_search_form.html:9
+msgid "Show AICs?"
+msgstr "Vis AIC-er?"
+
+#: templates/archival_storage/_archival_storage_search_form.html:11
+msgid "Search archival storage"
+msgstr "Søk i arkivlager"
+
+#: templates/archival_storage/list.html:6 templates/archival_storage/list.html:7
+#: templates/archival_storage/list.html:31 templates/archival_storage/search.html:6
+#: templates/archival_storage/search.html:7 templates/archival_storage/search.html:29
+#: templates/archival_storage/view.html:6 templates/archival_storage/view.html:7
+#: templates/archival_storage/view.html:50 templates/layout.html:61
+msgid "Archival storage"
+msgstr "Arkivlagring"
+
+#: templates/archival_storage/list.html:32 templates/archival_storage/search.html:30
+#: templates/ingest/as/_search_form.html:6
+msgid "Search"
+msgstr "Søk"
+
+#: templates/archival_storage/list.html:42
+msgid "Browse archival storage"
+msgstr "Bla gjennom arkivlager"
+
+#: templates/archival_storage/list.html:45
+#, python-format
+msgid ""
+"\n"
+"            Total size: %(size)s MB\n"
+"          "
+msgstr ""
+"\n"
+"            Total størrelse: %(size)s MB\n"
+"          "
+
+#: templates/archival_storage/list.html:51
+#, python-format
+msgid ""
+"\n"
+"              Files indexed: %(count)s\n"
+"            "
+msgstr ""
+"\n"
+"              Filer indeksert: %(count)s\n"
+"            "
+
+#: templates/archival_storage/list.html:63 templates/archival_storage/search.html:55
+#: templates/ingest/aip_browse.html:6 templates/ingest/aip_browse.html.py:7
+#: templates/main/access.html:12
+msgid "AIP"
+msgstr "AIP"
+
+#: templates/archival_storage/list.html:64 templates/archival_storage/list.html:65
+#: templates/archival_storage/list.html:71 templates/archival_storage/list.html:72
+#: templates/archival_storage/list.html:83 templates/archival_storage/list.html:84
+msgid "Sort"
+msgstr "Sorter"
+
+#: templates/archival_storage/list.html:82 templates/archival_storage/search.html:62
+#: templates/archival_storage/view.html:71
+msgid "Date stored"
+msgstr "Dato sortert"
+
+#: templates/archival_storage/list.html:89 templates/archival_storage/search.html:63
+#: templates/archival_storage/view.html:75
+msgid "Status"
+msgstr "Status"
+
+#: templates/archival_storage/list.html:94 templates/archival_storage/search.html:64
+#: templates/archival_storage/view.html:79
+msgid "Encrypted"
+msgstr "Kryptert"
+
+#: templates/archival_storage/list.html:125
+msgid "Archival storage is empty."
+msgstr "Arkivlageret er tom."
+
+#: templates/archival_storage/list.html:133
+msgid ""
+"Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes in this "
+"Archivematica installation. The archival storage tab is non-functional when indexing is "
+"turned off."
+msgstr ""
+"Beklager, Elasticsearch-indeksering er deaktivert for AIP-relaterte indekser i denne "
+"Archivematica-installasjonen. Arkivlagringsfanen er ikke funksjonell når indeksering er "
+"slått av."
+
+#: templates/archival_storage/search.html:42
+msgid "Create an AIC"
+msgstr "Opprett en AIC"
+
+#: templates/archival_storage/search.html:61
+msgid "Files"
+msgstr "Filer"
+
+#: templates/archival_storage/search.html:86
+#, python-format
+msgid ""
+"\n"
+"                    Part of %(item)s\n"
+"                  "
+msgstr ""
+"\n"
+"                    Del av %(item)s\n"
+"                  "
+
+#: templates/archival_storage/search.html:107
+msgid "File(s)"
+msgstr "Fil(er)"
+
+#: templates/archival_storage/search.html:108
+msgid "AIP(s)"
+msgstr "AIP(er)"
+
+#: templates/archival_storage/search.html:128
+msgid "view raw"
+msgstr "vis i råformat"
+
+#: templates/archival_storage/search.html:131
+#, python-format
+msgid "AIP %(uuid)s details missing from database."
+msgstr "AIP %(uuid)s detaljer mangler i databasen."
+
+#: templates/archival_storage/search.html:143
+msgid "No results, please try another search."
+msgstr "Ingen resultater, prøv et nytt søk."
+
+#: templates/archival_storage/view.html:57
+msgid "Archival Information Package"
+msgstr "Arkiv-Informasjons-Pakke"
+
+#: templates/archival_storage/view.html:83 templates/ingest/normalization_report.html:31
+msgid "Location"
+msgstr "Plasseringer"
+
+#: templates/archival_storage/view.html:90
+msgid "METS file"
+msgstr "METS-fil"
+
+#: templates/archival_storage/view.html:96
+msgid "Pointer file"
+msgstr "Peker-fil"
+
+#: templates/archival_storage/view.html:110 templates/archival_storage/view.html:139
+msgid "Re-ingest"
+msgstr "Gjenopplasting"
+
+#: templates/archival_storage/view.html:121
+msgid "Metadata-only DIP upload to AtoM"
+msgstr "Kun-metadata DIP-opplasting til AtoM"
+
+#: templates/archival_storage/view.html:125 templates/ingest/grid.html:173
+msgid "Upload"
+msgstr "Opplasting"
+
+#: templates/archival_storage/view.html:135
+msgid "Choose type of re-ingest"
+msgstr "Velg gjenopplastingstype"
+
+#: templates/archival_storage/view.html:149
+msgid "Are you sure that you want to delete this AIP"
+msgstr "Er du sikker på at du vil slette denne AIP-en"
+
+#: templates/archival_storage/view.html:150 templates/delete_request.html:8
+msgid ""
+"Choosing to delete this package will send a request to your Archival Storage administrator. "
+"If the administrator approves the request, your package will be deleted from your Archival "
+"Storage and your index will be updated. If the administrator denies the request, the "
+"package will remain in storage and the administrator will contact you."
+msgstr ""
+"Hvis du velger å slette denne pakken, sendes en forespørsel til "
+"arkivlagringsadministratoren din. Hvis administratoren godkjenner forespørselen, blir "
+"pakken din slettet fra arkivlagret ditt og indeksen din blir oppdatert. Hvis "
+"administratoren avviser forespørselen, vil pakken forbli lagret og administratoren vil "
+"kontakte deg."
+
+#: templates/backlog/backlog.html:5 templates/backlog/backlog.html.py:6
+msgid "Backlog search"
+msgstr "Backlogg-søk"
+
+#: templates/backlog/backlog.html:31
+msgid ""
+"Sorry, Elasticsearch indexing has been disabled for the Transfers related indexes in this "
+"Archivematica installation. The backlog tab is non-functional when indexing is turned off."
+msgstr ""
+"Beklager, Elasticsearch-indeksering er deaktivert for de overføringsrelaterte indeksene i "
+"denne Archivematica-installasjonen. Backlogg-fanen er ikke-funksjonell når indeksering er "
+"slått av."
+
+#: templates/delete_request.html:14
+msgid "Reason for deletion:"
+msgstr "Årsak til sletting:"
+
+#: templates/elasticsearch_error.html:6
+msgid "Elasticsearch error"
+msgstr "Elasticsearch feil"
+
+#: templates/elasticsearch_error.html:9
+#, python-format
+msgid ""
+"\n"
+"        Exception type: %(exception_type)s\n"
+"    "
+msgstr ""
+"\n"
+"        Unntakstype: %(exception_type)s\n"
+"    "
+
+#: templates/elasticsearch_error.html:15 templates/elasticsearch_not_found.html:11
+msgid "Sorry! The page that you are trying to view is not available."
+msgstr "Beklager! Siden du prøver å vise er ikke tilgjengelig."
+
+#: templates/elasticsearch_error.html:16 templates/elasticsearch_not_found.html:12
+msgid "Please contact an administrator."
+msgstr "Vennligst kontakt en administrator."
+
+#: templates/elasticsearch_not_found.html:6
+msgid "ElasticSearch server issue"
+msgstr "Elasticsearch serverfeil"
+
+#: templates/forbidden.html:6
+msgid "Forbidden"
+msgstr "Forbudt"
+
+#: templates/forbidden.html:9
+msgid "Sorry! You do not have enough access privileges for this operation."
+msgstr "Beklager! Du har ikke tilstrekkelige tilgangsrettigheter for denne operasjonen."
+
+#: templates/ingest/aip_browse.html:38 templates/ingest/detail.html:10
+#: templates/ingest/grid.html:5 templates/ingest/grid.html.py:6
+#: templates/ingest/metadata_add_files.html:31 templates/ingest/metadata_edit.html:31
+#: templates/ingest/microservices.html:11 templates/layout.html:59
+#: templates/rights/rights_edit.html:16 templates/rights/rights_grants_edit.html:16
+#: templates/rights/rights_list.html:9
+msgid "Ingest"
+msgstr "Opplasting"
+
+#: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:124
+#: templates/transfer/grid.html:145
+msgid "Initializing..."
+msgstr "Initialiserer..."
+
+#: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
+#: templates/ingest/as/match.html.py:119 templates/ingest/as/resource_component.html:52
+#: templates/ingest/as/resource_detail.html:42 templates/ingest/as/resource_list.html:34
+#: templates/ingest/as/review_matches.html:29
+msgid "Title"
+msgstr "Tittel"
+
+#: templates/ingest/as/match.html:6 templates/ingest/as/match.html.py:7
+#: templates/ingest/as/resource_component.html:5 templates/ingest/as/resource_component.html:6
+#: templates/ingest/as/resource_list.html:5 templates/ingest/as/resource_list.html:6
+msgid "Match"
+msgstr "Er like"
+
+#: templates/ingest/as/match.html:48
+msgid "Filter objects"
+msgstr "Filtrer objekter"
+
+#: templates/ingest/as/match.html:53
+msgid "Filter resources"
+msgstr "Filtrer ressurser"
+
+#: templates/ingest/as/match.html:57
+msgid "Pair"
+msgstr "Par"
+
+#: templates/ingest/as/match.html:62 templates/ingest/as/resource_component.html:15
+msgid "Parent record"
+msgstr "Overordnet dokument"
+
+#: templates/ingest/as/match.html:63 templates/ingest/as/match.html.py:70
+msgid "Assign objects"
+msgstr "Tilordne objekter"
+
+#: templates/ingest/as/match.html:71
+msgid "Assign objects to descriptions"
+msgstr "Tilordne objekter til beskrivelser"
+
+#: templates/ingest/as/match.html:75 templates/ingest/as/match.html.py:77
+#: templates/ingest/as/resource_component.html:37
+#: templates/ingest/as/resource_component.html:39 templates/ingest/as/resource_detail.html:28
+#: templates/ingest/as/resource_detail.html:30 templates/ingest/as/resource_list.html:25
+#: templates/ingest/as/resource_list.html:27 templates/ingest/as/review_matches.html:20
+msgid "Restart matching"
+msgstr "Start sammenligning på nytt"
+
+#: templates/ingest/as/match.html:79 templates/ingest/as/resource_component.html:41
+#: templates/ingest/as/resource_detail.html:33 templates/ingest/as/resource_list.html:29
+#: templates/ingest/as/review_matches.html:6 templates/ingest/as/review_matches.html:7
+msgid "Review matches"
+msgstr "Gå gjennom like"
+
+#: templates/ingest/as/match.html:88
+msgid "Objects"
+msgstr "Objekter"
+
+#: templates/ingest/as/match.html:90
+msgid "Select all"
+msgstr "Velg alle"
+
+#: templates/ingest/as/match.html:95
+msgid "Resources"
+msgstr "Ressurser"
+
+#: templates/ingest/as/match.html:100 templates/ingest/as/match.html.py:118
+#: templates/ingest/as/review_matches.html:28
+msgid "Level"
+msgstr "Nivå"
+
+#: templates/ingest/as/match.html:103 templates/ingest/as/match.html.py:121
+#: templates/ingest/as/resource_component.html:53 templates/ingest/as/resource_detail.html:43
+#: templates/ingest/as/resource_list.html:35 templates/ingest/as/review_matches.html:31
+msgid "Dates"
+msgstr "Datoer"
+
+#: templates/ingest/as/match.html:112
+msgid "Pairs"
+msgstr "Par"
+
+#: templates/ingest/as/match.html:117 templates/ingest/as/review_matches.html:27
+msgid "File"
+msgstr "Fil"
+
+#: templates/ingest/as/match.html:128
+msgid "Confirm"
+msgstr "Bekreft"
+
+#: templates/ingest/as/match.html:158
+msgid "Delete match"
+msgstr "Slett lik"
+
+#: templates/ingest/as/resource_component.html:14 templates/ingest/as/resource_detail.html:14
+msgid "Collection"
+msgstr "Kolleksjon"
+
+#: templates/ingest/as/resource_component.html:42
+msgid "Assign DIP objects to this level of description"
+msgstr "Tilordne DIP-objekter til dette beskrivelsesnivået"
+
+#: templates/ingest/as/resource_component.html:51 templates/ingest/as/resource_detail.html:41
+msgid "Level of description"
+msgstr "Beskrivelsesnivå"
+
+#: templates/ingest/as/resource_component.html:69 templates/ingest/as/resource_detail.html:59
+msgid "No child descriptions found."
+msgstr "Ingen underordnede beskrivelser funnet."
+
+#: templates/ingest/as/resource_detail.html:32
+msgid "Assign DIP objects to this resource"
+msgstr "Tilordne DIP-objekter til denne ressursen"
+
+#: templates/ingest/as/resource_list.html:18
+msgid "Collections"
+msgstr "Kolleksjoner"
+
+#: templates/ingest/as/review_matches.html:21
+msgid "Finish matching"
+msgstr "Fullfør sammenligning"
+
+#: templates/ingest/backlog/_search_form.html:7
+msgid "Search transfer backlog"
+msgstr "Søk overførings-backlogg"
+
+#: templates/ingest/detail.html:16 templates/ingest/grid.html:61
+msgid "Submission Information Package"
+msgstr "Innsendings-Informasjons-Pakke"
+
+#: templates/ingest/detail.html:21 templates/transfer/detail.html:22
+#, python-format
+msgid ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
+msgstr ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
+
+#: templates/ingest/detail.html:28
+msgid "There are micro-services awaiting user decisions."
+msgstr "Mikrotjenester venter på brukerbeslutninger."
+
+#: templates/ingest/detail.html:30
+msgid "View micro-services"
+msgstr "Vis mikrotjenester"
+
+#: templates/ingest/detail.html:35 templates/ingest/microservices.html:12
+#: templates/transfer/detail.html:36 templates/transfer/microservices.html:11
+msgid "Microservices"
+msgstr "Mikrotjenester"
+
+#: templates/ingest/detail.html:40 templates/rights/rights_edit.html:17
+#: templates/rights/rights_grants_edit.html:17 templates/rights/rights_list.html:10
+#: templates/transfer/detail.html:41
+msgid "Rights"
+msgstr "Rettigheter"
+
+#: templates/ingest/detail.html:46 templates/ingest/grid.html:88
+#: templates/ingest/metadata_edit.html:32 templates/transfer/detail.html:54
+#: templates/transfer/grid.html:112 templates/transfer/metadata_edit.html:31
+msgid "Metadata"
+msgstr "Metadata"
+
+#: templates/ingest/detail.html:50
+msgid "Manual normalization event detail"
+msgstr "Manuell normalisering av hendelsesdetaljer"
+
+#: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:32
+msgid "Add metadata files"
+msgstr "Legg til metadatafiler"
+
+#: templates/ingest/grid.html:63
+msgid "Ingest start time"
+msgstr "Opplastnings starttid"
+
+#: templates/ingest/grid.html:66 templates/transfer/grid.html:88
+msgid "Remove all completed"
+msgstr "Fjern alle fullførte"
+
+#: templates/ingest/grid.html:89 templates/transfer/grid.html:113
+msgid "Remove"
+msgstr "Fjern"
+
+#: templates/ingest/grid.html:98 templates/transfer/grid.html:122
+msgid "Microservice"
+msgstr "Mikrotjeneste"
+
+#: templates/ingest/grid.html:104 templates/transfer/grid.html:128
+msgid "Job"
+msgstr "Jobb"
+
+#: templates/ingest/grid.html:118 templates/main/tasks.html:16
+#: templates/transfer/grid.html:139
+msgid "Tasks"
+msgstr "Oppgaver"
+
+#: templates/ingest/grid.html:158
+msgid ""
+"Please provide the identifier required by the AtoM or Binder SWORD V1 deposit endpoint."
+msgstr ""
+"Oppgi identifikatoren som kreves av deposit-endepunktet for AtoM eller Binder SWORD V1."
+
+#: templates/ingest/grid.html:160
+msgid ""
+"<strong>AtoM:</strong> In AtoM, this is the permalink or slug of the target archival "
+"description where the DIP will be attached as a child. For example, if the URL of the "
+"archival description is 'http://myAtoM.ca/newsletters-2;rad', then you would enter "
+"'newsletters-2'."
+msgstr ""
+"<strong>AtoM:</strong> I AtoM er dette permalinken eller sluggen til målarkivbeskrivelsen "
+"der DIP-en blir festet som underordnet. For eksempel, hvis URL-en til arkivbeskrivelsen er "
+"'http://myAtoM.ca/newsletters-2;rad', vil du skrive inn 'newsletters-2'."
+
+#: templates/ingest/grid.html:161
+msgid ""
+"<strong>Binder:</strong> In Binder, this is an identifier that indicates which resource or "
+"technology record the DIP will be attached to. Resources are preceded by 'ar:' (e.g. "
+"'ar:123') and technology records are preceded by 'tr:' (e.g. 'tr:456')."
+msgstr ""
+"<strong>Binder:</strong> I Binder er dette en identifikator som indikerer hvilken ressurs "
+"eller teknologiregistrering DIP-en vil være knyttet til. Ressurser blir innledet med "
+"'ar:' (f.eks. 'ar: 123') og teknologiregistreringer er innledet med 'tr:' (f.eks. 'tr: "
+"456')."
+
+#: templates/ingest/metadata_add_files.html:47
+msgid "Select a directory"
+msgstr "Velg en mappe"
+
+#: templates/ingest/metadata_edit.html:77 templates/transfer/metadata_edit.html:76
+msgid "A name given to the resource."
+msgstr "Et navn gitt til ressursen."
+
+#: templates/ingest/metadata_edit.html:81 templates/transfer/metadata_edit.html:80
+msgid "An entity primarily responsible for making the resource."
+msgstr "En enhet som er hovedansvarlig for å lage ressursen."
+
+#: templates/ingest/metadata_edit.html:85 templates/transfer/metadata_edit.html:84
+msgid "The topic of the resource."
+msgstr "Et tema for ressursen."
+
+#: templates/ingest/metadata_edit.html:89 templates/transfer/metadata_edit.html:88
+msgid "An account of the resource."
+msgstr "En konto for ressursen."
+
+#: templates/ingest/metadata_edit.html:93 templates/transfer/metadata_edit.html:92
+msgid "An entity responsible for making the resource available."
+msgstr "En enhet som er ansvarlig for å tilgjengeliggjøre ressursen."
+
+#: templates/ingest/metadata_edit.html:97 templates/transfer/metadata_edit.html:96
+msgid "An entity responsible for making contributions to the resource."
+msgstr "En enhet som er ansvarlig for å gi bidrag til ressursen."
+
+#: templates/ingest/metadata_edit.html:101 templates/transfer/metadata_edit.html:100
+msgid "A point or period of time associated with an event in the lifecycle of the resource."
+msgstr "Et tidspunkt eller -rom assosiert med en hendelse i ressursens livssyklus."
+
+#: templates/ingest/metadata_edit.html:106 templates/transfer/metadata_edit.html:105
+msgid "The nature or genre of the resource."
+msgstr "Ressursens natur eller kategori."
+
+#: templates/ingest/metadata_edit.html:108 templates/transfer/metadata_edit.html:107
+msgid ""
+"\n"
+"        You may wish to use the DCMI type vocabulary provided here: <a href=\"http://"
+"dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore.org/documents/dcmi-type-"
+"vocabulary/</a>\n"
+"      "
+msgstr ""
+"\n"
+"        Det kan være lurt å bruke ordforrådet av typen DCMI som er gitt her: <a href="
+"\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://dublincore.org/documents/"
+"dcmi-type-vocabulary/</a>\n"
+"      "
+
+#: templates/ingest/metadata_edit.html:116 templates/transfer/metadata_edit.html:115
+msgid "The file format, physical medium, or dimensions of the resource."
+msgstr "Ressursens filformat, fysiske medium eller dimensjoner."
+
+#: templates/ingest/metadata_edit.html:118 templates/transfer/metadata_edit.html:117
+msgid ""
+"\n"
+"        Best practice is to use a controlled vocabulary such as the list of Internet Media "
+"Types [MIME] provided here: <a href=\"http://www.iana.org/assignments/media-types/\" target="
+"\"_blank\">http://www.iana.org/assignments/media-types/</a>\n"
+"      "
+msgstr ""
+"\n"
+"        Beste praksis er å bruke et kontrollert ordforråd som f.eks. listen over Internett-"
+"mediatyper [MIME] gitt her: <a href=\"http://www.iana.org/assignments/media-types/\" target="
+"\"_blank\">http://www.iana.org/assignments/media-types/</a>\n"
+"      "
+
+#: templates/ingest/metadata_edit.html:125 templates/transfer/metadata_edit.html:124
+msgid "An unambiguous reference to the resource within a given context."
+msgstr "En entydig referanse til ressursen innenfor en gitt kontekst."
+
+#: templates/ingest/metadata_edit.html:129 templates/transfer/metadata_edit.html:128
+msgid "A related resource from which the described resource is derived."
+msgstr "En relatert ressurs som den beskrevne ressursen kommer fra."
+
+#: templates/ingest/metadata_edit.html:133 templates/transfer/metadata_edit.html:132
+msgid "A related resource."
+msgstr "En relatert ressurs."
+
+#: templates/ingest/metadata_edit.html:137 templates/transfer/metadata_edit.html:136
+msgid "A language of the resource."
+msgstr "Et språk for ressursen."
+
+#: templates/ingest/metadata_edit.html:141 templates/transfer/metadata_edit.html:140
+msgid ""
+"The spatial or temporal topic of the resource, the spatial applicability of the resource, "
+"or the jurisdiction under which the resource is relevant."
+msgstr ""
+"Ressursens romlige eller tidsmessige tema, ressursens romlige anvendelighet eller "
+"jurisdiksjonen som ressursen er relevant for."
+
+#: templates/ingest/metadata_edit.html:145 templates/transfer/metadata_edit.html:144
+msgid "Information about rights held in and over the resource."
+msgstr "Informasjon om rettigheter i og over ressursen."
+
+#: templates/ingest/normalization_report.html:14 templates/main/tasks.html:36
+msgid "File name"
+msgstr "Filnavn"
+
+#: templates/ingest/normalization_report.html:15
+msgid "File format"
+msgstr "Filformat"
+
+#: templates/ingest/normalization_report.html:16
+msgid "Preservation normalization attempted"
+msgstr "Bevaringsnormalisering forsøkt"
+
+#: templates/ingest/normalization_report.html:17
+msgid "Preservation normalization failed"
+msgstr "Bevaringsnormalisering mislyktes"
+
+#: templates/ingest/normalization_report.html:18
+msgid "Preservation conformance check"
+msgstr "Kontroll av bevarings-samsvar"
+
+#: templates/ingest/normalization_report.html:19
+msgid "Already in preservation format"
+msgstr "Allerede i bevaringsformat"
+
+#: templates/ingest/normalization_report.html:20
+msgid "Access normalization attempted"
+msgstr "Tilgangsnormalisering forsøkt"
+
+#: templates/ingest/normalization_report.html:21
+msgid "Access normalization failed"
+msgstr "Tilgangsnormalisering mislyktes"
+
+#: templates/ingest/normalization_report.html:22
+msgid "Already in access format"
+msgstr "Already in access format"
+
+#: templates/ingest/normalization_report.html:23
+msgid "Access conformance check"
+msgstr "Kontroll av tilgangs-samsvar"
+
+#: templates/ingest/normalization_report.html:55 templates/ingest/normalization_report.html:57
+#: templates/ingest/normalization_report.html:95 templates/ingest/normalization_report.html:97
+msgid "Failed,Passed"
+msgstr "Mislyktes,Bestått"
+
+#: templates/ingest/normalization_report.html:110
+#, python-format
+msgid ""
+"\n"
+"      Showing %(start_index)s-%(end_index)s of %(total_items)s\n"
+"    "
+msgstr ""
+"\n"
+"      Viser %(start_index)s-%(end_index)s av %(total_items)s\n"
+"    "
+
+#: templates/installer/storagesetup.html:25
+msgid "Register this pipeline in the Storage Service"
+msgstr "Registrer dette røret i lagringstjenesten"
+
+#: templates/installer/storagesetup.html:30
+msgid "Dashboard UUID"
+msgstr "Dashboard-UUID"
+
+#: templates/installer/storagesetup.html:39
+msgid "Register"
+msgstr "Registrer"
+
+#: templates/installer/welcome.html:5 templates/installer/welcome.html.py:6
+msgid "Welcome"
+msgstr "Velkommen"
+
+#: templates/installer/welcome.html:40
+msgid "Welcome!"
+msgstr "Velkommen!"
+
+#: templates/installer/welcome.html:41
+msgid ""
+"Archivematica has been installed successfully. Please take a minute to enter some details "
+"into the system."
+msgstr "Archivematica er installert. Vennligst legge inn noen detaljer i systemet."
+
+#: templates/layout.html:7
+msgid "Archivematica Dashboard"
+msgstr "Archivematica-Dashboard"
+
+#: templates/layout.html:54 templates/rights/rights_edit.html:18
+#: templates/rights/rights_grants_edit.html:18 templates/rights/rights_list.html:11
+#: templates/transfer/component.html:10 templates/transfer/detail.html:9
+#: templates/transfer/grid.html:5 templates/transfer/grid.html.py:6
+#: templates/transfer/grid.html:84 templates/transfer/metadata_edit.html:30
+#: templates/transfer/microservices.html:10
+msgid "Transfer"
+msgstr "Overføring"
+
+#: templates/layout.html:56
+msgid "Backlog"
+msgstr "Backlogg"
+
+#: templates/layout.html:63
+msgid "Preservation planning"
+msgstr "Planlegg bevaring"
+
+#: templates/layout.html:73
+msgid "Your profile"
+msgstr "Din profil"
+
+#: templates/layout.html:75
+msgid "Log out"
+msgstr "Logg ut"
+
+#: templates/main/access.html:13
+msgid "DIP URL"
+msgstr "DIP-URL"
+
+#: templates/main/access.html:14
+msgid "Upload date"
+msgstr "Opplastingsdato"
+
+#: templates/main/access.html:15
+msgid "Upload status"
+msgstr "Opplastingsstatus"
+
+#: templates/main/tasks.html:9
+#, python-format
+msgid "Transfer %(uuid)s"
+msgstr "Overføring %(uuid)s"
+
+#: templates/main/tasks.html:11
+#, python-format
+msgid "DIP %(uuid)s"
+msgstr "DIP %(uuid)s"
+
+#: templates/main/tasks.html:13
+#, python-format
+msgid "SIP %(uuid)s"
+msgstr "SIP %(uuid)s"
+
+#: templates/main/tasks.html:33
+msgid "File UUID"
+msgstr "Fil-UUID"
+
+#: templates/main/tasks.html:34
+msgid "Not applicable"
+msgstr "Ikke anvendelig"
+
+#: templates/main/tasks.html:39
+msgid "Client"
+msgstr "Klient"
+
+#: templates/main/tasks.html:42
+msgid "Exit code"
+msgstr "Sluttkode"
+
+#: templates/main/tasks.html:54
+msgid "Start time"
+msgstr "Starttid"
+
+#: templates/main/tasks.html:57
+msgid "End time"
+msgstr "Sluttid"
+
+#: templates/main/tasks.html:60
+msgid "Created time"
+msgstr "Opprettet-tid"
+
+#: templates/main/tasks.html:63
+msgid "Duration"
+msgstr "Varighet"
+
+#: templates/main/tasks.html:64
+#, python-format
+msgid "%(duration)s seconds(s)"
+msgstr "%(duration)s sekund(er)"
+
+#: templates/main/tasks.html:72
+#, python-format
+msgid ""
+"\n"
+"                Module %(module)s\n"
+"              "
+msgstr ""
+"\n"
+"                Modul %(module)s\n"
+"              "
+
+#: templates/main/tasks.html:83
+msgid "Standard streams"
+msgstr "Standardstrømmer"
+
+#: templates/main/tasks.html:89
+msgid "Standard output (stdout)"
+msgstr "Standard-utmelding (stdout)"
+
+#: templates/main/tasks.html:100
+msgid "Errors and diagnostics (stderr)"
+msgstr "Feil og diagnostikk (stderr)"
+
+#: templates/rights/rights_edit.html:47 templates/rights/rights_grants_edit.html:46
+msgid "Saved"
+msgstr "Lagret"
+
+#: templates/rights/rights_edit.html:51
+msgid "An error has occurred."
+msgstr "En feil har oppstått."
+
+#: templates/rights/rights_edit.html:59
+msgid "New content added."
+msgstr "Nytt innhold lagt til."
+
+#: templates/rights/rights_edit.html:62
+#, python-format
+msgid ""
+"\n"
+"                  New content added: %(type)s.\n"
+"                "
+msgstr ""
+"\n"
+"                  Nytt innhold lagt til: %(type)s.\n"
+"                "
+
+#: templates/rights/rights_edit.html:96
+msgid "Copyright documentation identifier:"
+msgstr "Identifikator for opphavsrettsdokumentasjon:"
+
+#: templates/rights/rights_edit.html:109 templates/rights/rights_edit.html:161
+#: templates/rights/rights_edit.html:211 templates/rights/rights_edit.html:259
+msgid "Role"
+msgstr "Rolle"
+
+#: templates/rights/rights_edit.html:147
+msgid "Statute documentation identifier:"
+msgstr "Identifikator for vedtektsdokumentasjon:"
+
+#: templates/rights/rights_edit.html:197
+msgid "License documentation identifier:"
+msgstr "Identifikator for lisensdokumentasjon:"
+
+#: templates/rights/rights_edit.html:245
+msgid "Documentation identifier"
+msgstr "Identifikator for dokumentasjon"
+
+#: templates/rights/rights_edit.html:266
+msgid "Note"
+msgstr "Merknad"
+
+#: templates/rights/rights_grants_edit.html:53
+msgid "You may now add additional information such as document identifers and notes."
+msgstr "Du kan nå legge til tilleggsinformasjon som dokumentidentifikatorer og merknader."
+
+#: templates/rights/rights_grants_edit.html:79
+msgid "Allow"
+msgstr "Tillat"
+
+#: templates/rights/rights_grants_edit.html:80
+msgid "Disallow"
+msgstr "Tillat ikke"
+
+#: templates/rights/rights_grants_edit.html:81
+msgid "Conditional"
+msgstr "Betinget"
+
+#: templates/rights/rights_grants_edit.html:87
+msgid "Grant/restriction note"
+msgstr "Bevilgnings-/begrensningsnotat"
+
+#: templates/rights/rights_grants_edit.html:108
+msgid "Done"
+msgstr "Ferdig"
+
+#: templates/rights/rights_list.html:33
+msgid "Act"
+msgstr "Lov"
+
+#: templates/rights/rights_list.html:35
+msgid "Restriction(s)"
+msgstr "Begrensning(er)"
+
+#: templates/transfer/component.html:11
+msgid "Component metadata"
+msgstr "Komponentmetadata"
+
+#: templates/transfer/detail.html:29
+msgid "There are microservices awaiting user decisions."
+msgstr "Mikrotjenester venter på brukerbeslutninger."
+
+#: templates/transfer/detail.html:31
+msgid "View microservices"
+msgstr "Vis mikrotjenester"
+
+#: templates/transfer/detail.html:48
+msgid "Transfer metadata"
+msgstr "Metadata for overføring"
+
+#: templates/transfer/grid.html:86
+msgid "Transfer start time"
+msgstr "Starttid for overføring"
