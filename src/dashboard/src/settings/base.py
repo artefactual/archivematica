@@ -235,6 +235,7 @@ LANGUAGES = [
     ("pt", _("Portuguese")),
     ("pt-br", _("Brazilian Portuguese")),
     ("sv", _("Swedish")),
+    ("no", _("Norwegian")),
 ]
 
 LOCALE_PATHS = [os.path.join(BASE_PATH, "locale")]
