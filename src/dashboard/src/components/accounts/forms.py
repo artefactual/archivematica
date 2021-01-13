@@ -26,6 +26,7 @@ from django.contrib.auth.password_validation import (
     validate_password,
 )
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from main.models import UserProfile
 
@@ -50,8 +51,34 @@ class UserCreationForm(UserCreationForm):
             "is_superuser",
         )
 
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 != "" and password2 != "":
+            if password1 != password2:
+                raise ValidationError(
+                    self.error_messages["password_mismatch"], code="password_mismatch"
+                )
+        return password2
+
+    def _post_clean(self):
+        super(UserCreationForm, self)._post_clean()
+        # Validate the password after self.instance is updated with form data
+        # by super().
+        password = self.cleaned_data.get("password1")
+        if password:
+            try:
+                validate_password(password, self.instance)
+            except ValidationError as error:
+                self.add_error("password1", error)
+
 
 class UserChangeForm(UserChangeForm):
+    error_messages = {
+        "password_mismatch": _(
+            "The two password fields didn’t match. Enter the same password as before, for verification."
+        )
+    }
     email = forms.EmailField(required=True)
     password = forms.CharField(
         widget=forms.PasswordInput,
@@ -91,11 +118,7 @@ class UserChangeForm(UserChangeForm):
         )
 
     def clean_password(self):
-        data = self.cleaned_data["password"]
-        try:
-            _ = validate_password(data)
-        except ValidationError as err:
-            raise forms.ValidationError(err)
+        data = self.cleaned_data.get("password")
         return data
 
     def clean(self):
@@ -107,10 +130,21 @@ class UserChangeForm(UserChangeForm):
             if cleaned_data.get("password") != cleaned_data.get(
                 "password_confirmation"
             ):
-                raise forms.ValidationError(
-                    "Password and password confirmation do not match"
+                self.add_error(
+                    "password_confirmation", self.error_messages["password_mismatch"]
                 )
         return cleaned_data
+
+    def _post_clean(self):
+        super(UserChangeForm, self)._post_clean()
+        # Validate the password after self.instance is updated with form data
+        # by super().
+        password = self.cleaned_data.get("password")
+        if password:
+            try:
+                validate_password(password, self.instance)
+            except ValidationError as error:
+                self.add_error("password", error)
 
     def save(self, commit=True):
         user = super(UserChangeForm, self).save(commit=False)
