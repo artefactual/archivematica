@@ -492,6 +492,17 @@ textarea {
   line-height: 35px;
 }
 
+/* Error help messages are coded bright red to ensure that they stand
+ * out on the page for users. */
+div.has-error div span.error-msg {
+  color: red;
+}
+
+div.has-error div p.help-block {
+  color: red;
+}
+
+
 /*
  * Reset jQuery UI dialog
  */
