@@ -1,0 +1,10 @@
+[mysqld]
+
+innodb_log_file_size=64M
+max_allowed_packet=256M
+innodb_buffer_pool_size=256M
+
+# Large scale settings
+#innodb_log_file_size=1G
+#max_allowed_packet=1G
+#innodb_buffer_pool_size=256M
