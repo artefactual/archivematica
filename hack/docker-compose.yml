@@ -1,0 +1,200 @@
+---
+version: "2.1"
+
+volumes:
+
+  # Internal named volumes.
+  # These are not accessible outside of the docker host and are maintained by
+  # Docker.
+  mysql_data:
+  elasticsearch_data:
+  archivematica_storage_service_staging_data:
+
+  # External named volumes.
+  # These are intended to be accessible beyond the docker host (e.g. via NFS).
+  # They use bind mounts to mount a specific "local" directory on the docker
+  # host - the expectation being that these directories are actually mounted
+  # filesystems from elsewhere.
+  archivematica_pipeline_data:
+    external:
+      name: "am-pipeline-data"
+  archivematica_storage_service_location_data:
+    external:
+      name: "ss-location-data"
+
+services:
+
+  mysql:
+    image: "percona:5.6"
+    user: "mysql"
+    command: "--character-set-server=utf8 --collation-server=utf8_general_ci"
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+    volumes:
+      - "./etc/mysql/tuning.cnf:/etc/my.cnf.d/tuning.cnf:ro"
+      - "mysql_data:/var/lib/mysql"
+    ports:
+      - "127.0.0.1:62001:3306"
+
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:6.5.4"
+    environment:
+      - "cluster.name=am-cluster"
+      - "node.name=am-node"
+      - "network.host=0.0.0.0"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "elasticsearch_data:/usr/share/elasticsearch/data"
+    ports:
+      - "127.0.0.1:62002:9200"
+
+  gearmand:
+    image: "artefactual/gearmand:1.1.18-alpine"
+    command: "--queue-type=builtin"
+    user: "gearman"
+    ports:
+      - "127.0.0.1:62004:4730"
+
+  fits:
+    image: "artefactual/fits-ngserver:0.8.4"
+    ports:
+      - "127.0.0.1:62005:2113"
+    volumes:
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"  # Read and write needed!
+
+  clamavd:
+    image: "artefactual/clamav:latest"
+    environment:
+      CLAMAV_MAX_FILE_SIZE: "42"
+      CLAMAV_MAX_SCAN_SIZE: "42"
+      CLAMAV_MAX_STREAM_LENGTH: "100"
+    ports:
+      - "127.0.0.1:62006:3310"
+    volumes:
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
+
+  nginx:
+    image: "nginx:stable-alpine"
+    volumes:
+      - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
+      - "./etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro"
+    ports:
+      - "62080:80"
+      - "62081:8000"
+
+  archivematica-mcp-server:
+    build:
+      context: "../"
+      dockerfile: "hack/Dockerfile"
+      args:
+        TARGET: "archivematica-mcp-server"
+    environment:
+      DJANGO_SECRET_KEY: "12345"
+      DJANGO_SETTINGS_MODULE: "settings.common"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_USER: "archivematica"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_PASSWORD: "demo"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_HOST: "mysql"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_DATABASE: "MCP"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_MCPARCHIVEMATICASERVER: "gearmand:4730"
+      ARCHIVEMATICA_MCPSERVER_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT: "7999"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    links:
+      - "mysql"
+      - "gearmand"
+
+  archivematica-mcp-client:
+    build:
+      context: "../"
+      dockerfile: "hack/Dockerfile"
+      args:
+        TARGET: "archivematica-mcp-client"
+    environment:
+      DJANGO_SECRET_KEY: "12345"
+      DJANGO_SETTINGS_MODULE: "settings.common"
+      NAILGUN_SERVER: "fits"
+      NAILGUN_PORT: "2113"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_USER: "archivematica"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_PASSWORD: "demo"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_HOST: "mysql"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_DATABASE: "MCP"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ELASTICSEARCHSERVER: "elasticsearch:9200"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER: "gearmand:4730"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CAPTURE_CLIENT_SCRIPT_OUTPUT: "${AM_CAPTURE_CLIENT_SCRIPT_OUTPUT:-true}"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_SERVER: "clamavd:3310"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_FILE_SIZE: "42"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_SCAN_SIZE: "42"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_STREAM_LENGTH: "100"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_BACKEND: "clamdscanner" # Option: clamdscanner or clamscan;
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT: "7999"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    links:
+      - "fits"
+      - "clamavd"
+      - "mysql"
+      - "gearmand"
+      - "elasticsearch"
+      - "archivematica-storage-service"
+
+  archivematica-dashboard:
+    build:
+      context: "../"
+      dockerfile: "hack/Dockerfile"
+      args:
+        TARGET: "archivematica-dashboard"
+    environment:
+      FORWARDED_ALLOW_IPS: "*"
+      AM_GUNICORN_ACCESSLOG: "/dev/null"
+      AM_GUNICORN_RELOAD: "true"
+      AM_GUNICORN_RELOAD_ENGINE: "auto"
+      DJANGO_SETTINGS_MODULE: "settings.local"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "elasticsearch:9200"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
+      ARCHIVEMATICA_DASHBOARD_CLIENT_USER: "archivematica"
+      ARCHIVEMATICA_DASHBOARD_CLIENT_PASSWORD: "demo"
+      ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
+      ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP"
+      ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    links:
+      - "mysql"
+      - "gearmand"
+      - "elasticsearch"
+      - "archivematica-storage-service"
+
+  archivematica-storage-service:
+    build:
+      context: "submodules/archivematica-storage-service"
+    environment:
+      FORWARDED_ALLOW_IPS: "*"
+      SS_GUNICORN_ACCESSLOG: "/dev/null"
+      SS_GUNICORN_RELOAD: "true"
+      SS_GUNICORN_RELOAD_ENGINE: "auto"
+      DJANGO_SETTINGS_MODULE: "storage_service.settings.local"
+      SS_DB_URL: "mysql://archivematica:demo@mysql/SS"
+      SS_GNUPG_HOME_PATH: "/var/archivematica/storage_service/.gnupg"
+      SS_PROMETHEUS_ENABLED: "true"
+    volumes:
+      - "./submodules/archivematica-storage-service/:/src/"
+      - "./submodules/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+      - "archivematica_storage_service_staging_data:/var/archivematica/storage_service:rw"
+      - "archivematica_storage_service_location_data:/home:rw"
+    links:
+      - "mysql"

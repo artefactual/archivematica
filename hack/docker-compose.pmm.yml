@@ -1,0 +1,39 @@
+---
+version: "2.1"
+
+volumes:
+  pmm_prometheus_data:
+  pmm_consul_data:
+  pmm_mysql_lib:
+  pmm_grafana_lib:
+
+services:
+
+  mysql:
+    volumes:
+      - ./etc/mysql/pmm.cnf:/etc/my.cnf.d/pmm.cnf:ro
+
+  pmm_server:
+    image: percona/pmm-server
+    volumes:
+      - pmm_prometheus_data:/opt/prometheus/data
+      - pmm_consul_data:/opt/consul-data
+      - pmm_mysql_lib:/var/lib/mysql
+      - pmm_grafana_lib:/var/lib/grafana
+    ports:
+      - "127.0.0.1:62007:80"
+    environment:
+      - SERVER_USER=pmm
+      - SERVER_PASSWORD=pmm
+
+  pmm_client:
+    image: perconalab/pmm-client
+    environment:
+      - PMM_SERVER=pmm_server
+      - PMM_USER=pmm
+      - PMM_PASSWORD=pmm
+      - DB_TYPE=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=12345

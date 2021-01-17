@@ -1,0 +1,9 @@
+scrape_configs:
+- job_name: archivematica
+  scrape_interval: 5s
+  static_configs:
+  - targets:
+    - archivematica-mcp-client:7999
+    - archivematica-mcp-server:7999
+    - archivematica-dashboard:8000
+    - archivematica-storage-service:8000

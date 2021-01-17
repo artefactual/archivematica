@@ -1,0 +1,16 @@
+---
+version: "2.1"
+
+services:
+  archivematica-acceptance-tests:
+    build:
+      context: "./submodules/archivematica-acceptance-tests"
+      dockerfile: "Dockerfile"
+    security_opt:
+      - "seccomp:./etc/docker/seccomp/chrome.json"
+    volumes:
+      - "./submodules/archivematica-acceptance-tests:/home/archivematica/acceptance-tests:rw"
+      - "./submodules/archivematica-sampledata:/home/archivematica/archivematica-sampledata:ro"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
+    links:
+      - "nginx"
