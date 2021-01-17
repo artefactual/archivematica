@@ -1,1 +1,19 @@
+# Ignore everything
+**
+
+# Include
+!/src/**
+!/pytest.ini
+!/requirements*
+!/tox.ini
+!/LICENSE
+!/COPYRIGHT
+!/TRADEMARK
+
+# Exclude
+src/dashboard/frontend/node_modules
 src/dashboard/src/media/js/build
+**/*~
+**/*.log
+**/node_modules
+**/Thumbs.db
