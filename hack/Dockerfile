@@ -24,6 +24,10 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # OS dependencies
+COPY hack/osdeps.py /src/hack/osdeps.py
+COPY src/dashboard/osdeps /src/src/dashboard/osdeps
+COPY src/MCPServer/osdeps /src/src/MCPServer/osdeps
+COPY src/MCPClient/osdeps /src/src/MCPClient/osdeps
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
 	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.12.x/ubuntu-externals bionic main" \
@@ -32,59 +36,20 @@ RUN set -ex \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		atool \
-		bulk-extractor \
-		clamav \
-		ffmpeg \
-		ghostscript \
-		coreutils \
-		libavcodec-extra \
-		fits \
-		imagemagick \
-		inkscape \
-		jhove \
-		libimage-exiftool-perl \
-		libevent-dev \
-		libjansson4 \
-		mediainfo \
-		mediaconch \
-		nailgun \
-		openjdk-8-jre-headless \
-		p7zip-full \
-		pbzip2 \
-		pst-utils \
-		rsync \
-		siegfried \
-		sleuthkit \
-		tesseract-ocr \
-		tree \
-		ufraw \
-		unrar-free \
-		uuid \
-		unar \
+		build-essential python-dev libyaml-dev clamav \
+	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
 RUN freshclam --quiet
 
-# Build dependencies
+# Install Node.js and Yarn
 RUN set -ex \
 	&& curl -s https://bootstrap.pypa.io/get-pip.py | python \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
 	&& apt-get install -y --no-install-recommends \
-		build-essential \
-		python-dev \
-		libmysqlclient-dev \
-		libffi-dev \
-		libyaml-dev \
-		libssl-dev \
-		libxml2-dev \
-		libxslt-dev \
-		libldap2-dev \
-		libsasl2-dev \
-		yarn \
-		nodejs \
+		yarn nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
