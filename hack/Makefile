@@ -3,6 +3,7 @@
 # Ensure that Composes uses BuildKit.
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=plain
 
 # Paths for Docker named volumes
 AM_PIPELINE_DATA ?= $(HOME)/.am/am-pipeline-data
