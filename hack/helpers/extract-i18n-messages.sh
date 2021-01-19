@@ -18,14 +18,16 @@ cd ${__compose_dir}
 
 function dashboard::manage {
 	docker-compose run \
+		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
-		--workdir=/src/dashboard/src \
-		--entrypoint=/src/dashboard/src/manage.py \
+		--workdir=/src/src/dashboard/src \
+		--entrypoint=/src/src/dashboard/src/manage.py \
 			archivematica-dashboard "$@"
 }
 
 function storage::manage {
 	docker-compose run \
+		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
 		--workdir=/src/storage_service \
 		--entrypoint=/src/storage_service/manage.py \
@@ -33,7 +35,7 @@ function storage::manage {
 }
 
 # TODO: do it inside a container so we don't have to require the dependency.
-if ! which angular-gettext-clio > /dev/null 2>&1 ; then
+if ! which angular-gettext-cli > /dev/null 2>&1 ; then
   echo >&2 "Cannot find angular-gettext-cli."
   echo >&2 "Install with \"npm install -g angular-gettext-cli\"."
   echo >&2 "Aborting.";
@@ -50,16 +52,11 @@ dashboard::manage makemessages --all --domain django
 dashboard::manage makemessages --all --domain djangojs --ignore build/*
 
 angular-gettext-cli \
-	--files "${__root_dir}/src/archivematica/src/dashboard/frontend/appraisal-tab/app/**/*.+(js|html)" \
-	--dest "${__root_Dir}/src/archivematica/src/dashboard/frontend/appraisal-tab/app/locale/extract.pot" \
+	--files "${__root_dir}/src/dashboard/frontend/app/**/*.+(js|html)" \
+	--dest "${__root_dir}/src/dashboard/frontend/app/locale/extract.pot" \
 	--marker-name "i18n"
 
-angular-gettext-cli \
-	--files "${__root_dir}/src/archivematica/src/dashboard/frontend/transfer-browser/app/**/*.+(js|html)" \
-	--dest "${__root_Dir}/src/archivematica/src/dashboard/frontend/transfer-browser/app/locale/extract.pot" \
-	--marker-name "i18n"
-
-(cd ${__root_dir}/src/archivematica && git status -s)
+(cd ${__root_dir} && git status -s)
 
 
 #
@@ -70,7 +67,7 @@ echo "Storage Service: extracting messages..."
 storage::manage makemessages --all --domain django
 storage::manage makemessages --all --domain djangojs
 
-(cd ${__root_dir}/src/archivematica-storage-service && git status -s)
+(cd ${__root_dir}/hack/submodules/archivematica-storage-service && git status -s)
 
 # Not ready yet:
 # - fpr-admin
