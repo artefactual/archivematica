@@ -1,8 +1,0 @@
--r base.txt
-
-mock
-pytest>=4,<5
-pytest-django>=3,<4
-pytest-pythonpath
-tox
-vcrpy>=1,<2
