@@ -17,6 +17,10 @@ SRCDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../src)
 NULL :=
 SPACE := $(NULL) $(NULL)
 
+define compose_all
+	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
+endef
+
 define compose_amauat
 	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml $(1)
 endef
@@ -346,6 +350,9 @@ test-frontend:  ## Run Dashboard JS tests.
 		--rm \
 		--volume "$(SRCDIR)/dashboard/frontend:/src/src/dashboard/frontend" \
 			archivematica-dashboard-testing
+
+stop:  # Stop all containers.
+	$(call compose_all, stop)
 
 help:  ## Print this help message.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
