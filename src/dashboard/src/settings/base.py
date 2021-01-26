@@ -128,6 +128,11 @@ CONFIG_MAPPING = {
         "option": "prometheus_enabled",
         "type": "boolean",
     },
+    "audit_log_middleware": {
+        "section": "Dashboard",
+        "option": "audit_log_middleware",
+        "type": "boolean",
+    },
     "site_url": {"section": "Dashboard", "option": "site_url", "type": "string"},
     "time_zone": {"section": "Dashboard", "option": "time_zone", "type": "string"},
     # [Dashboard] (MANDATORY in production)
@@ -172,6 +177,7 @@ storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 prometheus_enabled = False
+audit_log_middleware = False
 polling_interval = 10
 site_url =
 time_zone = UTC
@@ -365,6 +371,10 @@ MIDDLEWARE = [
     "middleware.common.SpecificExceptionErrorPageResponseMiddleware",
     "middleware.common.ElasticsearchMiddleware",
 ]
+
+AUDIT_LOG_MIDDLEWARE = config.get("audit_log_middleware")
+if AUDIT_LOG_MIDDLEWARE:
+    MIDDLEWARE.append("middleware.common.AuditLogMiddleware")
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
