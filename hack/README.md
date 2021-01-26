@@ -133,7 +133,8 @@ For more information, please consult the Elasticsearch `6.x`
 If you haven't already, create a directory to store this repository using git
 clone, and pull all the submodules:
 
-    $ git clone https://github.com/artefactual/archivematica.git --recurse-submodules
+    $ git clone https://github.com/artefactual/archivematica.git
+    $ git submodule update --init --recursive
 
 Run the installation (and all Docker Compose) commands from within the hack
 directory:
