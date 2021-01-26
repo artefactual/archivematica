@@ -76,6 +76,36 @@ class ElasticsearchMiddleware(MiddlewareMixin):
             )
 
 
+class AuditLogMiddleware(object):
+    """Add X-Username header with authenticated user to each response.
+
+    This provides a mechanism for including the username of the
+    authenticated user for each request/response in the nginx access
+    logs for auditing purposes.
+
+    To make use of this header in the nginx conf, add the following to
+    `log_format`:
+
+    user=$upstream_http_x_username
+
+    For more information on this middleware's use as part of an
+    Archivematica auditing solution, see the README for auditmatica:
+    https://github.com/artefactual-labs/auditmatica.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        username = None
+        if request.user.is_authenticated:
+            username = request.user.get_username()
+        response["X-Username"] = username
+        return response
+
+
 SHIBBOLETH_REMOTE_USER_HEADER = getattr(
     settings, "SHIBBOLETH_REMOTE_USER_HEADER", "REMOTE_USER"
 )

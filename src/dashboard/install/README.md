@@ -242,6 +242,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `boolean`
     - **Default:** `False`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_AUDIT_LOG_MIDDLEWARE`**:
+    - **Description:** enables logging of authenticated users with responses.
+    - **Config file example:** `Dashboard.audit_log_middleware`
+    - **Type:** `boolean`
+    - **Default:** `False`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SITE_URL`**:
     - **Description:** the public address of this service.
     - **Config file example:** `Dashboard.site_url`
