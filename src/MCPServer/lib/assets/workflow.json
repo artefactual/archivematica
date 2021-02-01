@@ -900,7 +900,7 @@
                 "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
             },
             "description": {
-                "en": "Sanitize extracted objects' file and directory names",
+                "en": "Change extracted objects' file and directory names",
                 "pt_BR": "Limpar os nomes dos arquivos e diretórios dos objetos extraídos",
                 "sv": "Sanera extraherade objekts fil- och katalognamn",
                 "no": "Saner utpakkede objekters fil- og mappenavn"
@@ -1941,7 +1941,7 @@
                 "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
             },
             "description": {
-                "en": "Sanitize file and directory names in submission documentation",
+                "en": "Change file and directory names in submission documentation",
                 "pt_BR": "Limpe os nomes de arquivos e diretórios na documentação de submissão",
                 "sv": "Sanera fil- och katalognamn i leveransdokumentation",
                 "no": "Saner fil- og mappenavn i innsendingsdokumentasjon"
@@ -9236,7 +9236,7 @@
                 "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
             },
             "description": {
-                "en": "Sanitize file and directory names in metadata",
+                "en": "Change file and directory names in metadata",
                 "pt_BR": "Limpar os nomes de arquivos e diretórios nos metadados",
                 "sv": "Sanera fil- och katalognamn i metadata",
                 "no": "Saner fil- og mappenavn i metadata"
@@ -10133,7 +10133,7 @@
                 "stdout_file": null
             },
             "description": {
-                "en": "Sanitize extracted objects' file and directory names",
+                "en": "Change extracted objects' file and directory names",
                 "pt_BR": "Limpar os nomes dos arquivos e diretórios dos objetos extraídos",
                 "sv": "Sanera extraherade objekts fil- och katalognamn",
                 "no": "Saner utpakkede objekters fil- og mappenavn"
