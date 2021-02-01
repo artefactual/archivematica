@@ -29,14 +29,14 @@ future==0.18.2            # via -r base.txt, metsrw
 futures==3.3.0 ; python_version < "3.0"  # via -r base.txt
 gearman==2.0.2            # via -r base.txt
 gevent==1.3.6             # via -r base.txt
-greenlet==0.4.17          # via -r base.txt, gevent
+greenlet==1.0.0           # via -r base.txt, gevent
 gunicorn==19.9.0          # via -r base.txt
 idna==2.8                 # via -r base.txt, requests
 ipaddress==1.0.23         # via -r base.txt, cryptography
-josepy==1.5.0             # via -r base.txt, mozilla-django-oidc
+josepy==1.6.0             # via -r base.txt, mozilla-django-oidc
 lazy-paged-sequence==0.3  # via -r base.txt
 logutils==0.3.3           # via -r base.txt
-lxml==3.5.0               # via -r base.txt, metsrw, python-cas
+lxml==4.6.2               # via -r base.txt, metsrw, python-cas
 metsrw==0.3.15            # via -r base.txt
 mozilla-django-oidc==1.2.4  # via -r base.txt
 mysqlclient==1.4.6        # via -r base.txt, agentarchives

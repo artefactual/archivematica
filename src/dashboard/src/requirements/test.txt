@@ -40,16 +40,16 @@ future==0.18.2            # via -r base.txt, metsrw
 futures==3.3.0 ; python_version < "3.0"  # via -r base.txt
 gearman==2.0.2            # via -r base.txt
 gevent==1.3.6             # via -r base.txt
-greenlet==0.4.17          # via -r base.txt, gevent
+greenlet==1.0.0           # via -r base.txt, gevent
 gunicorn==19.9.0          # via -r base.txt
 idna==2.8                 # via -r base.txt, requests
 importlib-metadata==2.1.1  # via pluggy, pytest, tox, virtualenv
 importlib-resources==3.3.1  # via virtualenv
 ipaddress==1.0.23         # via -r base.txt, cryptography
-josepy==1.5.0             # via -r base.txt, mozilla-django-oidc
+josepy==1.6.0             # via -r base.txt, mozilla-django-oidc
 lazy-paged-sequence==0.3  # via -r base.txt
 logutils==0.3.3           # via -r base.txt
-lxml==3.5.0               # via -r base.txt, metsrw, python-cas
+lxml==4.6.2               # via -r base.txt, metsrw, python-cas
 metsrw==0.3.15            # via -r base.txt
 mock==3.0.5               # via mockldap, pytest-mock, vcrpy
 mockldap==0.2.8           # via -r test.in
@@ -79,17 +79,17 @@ python-dateutil==2.6.0    # via -r base.txt, django-tastypie, pandas
 python-ldap==3.2.0        # via -r base.txt, django-auth-ldap, mockldap
 python-mimeparse==1.6.0   # via -r base.txt, django-tastypie
 pytz==2020.5              # via -r base.txt, django, pandas
-pyyaml==5.3.1             # via vcrpy
+pyyaml==5.4.1             # via vcrpy
 requests==2.21.0          # via -r base.txt, agentarchives, amclient, mozilla-django-oidc, python-cas
 scandir==1.10.0           # via -r base.txt, pathlib2
 singledispatch==3.4.0.3   # via importlib-resources
 six==1.15.0               # via -r base.txt, amclient, cryptography, django-extensions, josepy, metsrw, mock, more-itertools, mozilla-django-oidc, pathlib2, pyopenssl, pytest, python-cas, python-dateutil, tox, vcrpy, virtualenv
 toml==0.10.2              # via tox
-tox==3.21.0               # via -r test.in
+tox==3.21.3               # via -r test.in
 typing==3.7.4.3           # via importlib-resources
 urllib3==1.24.3           # via -r base.txt, amclient, elasticsearch, requests
 vcrpy==1.13.0             # via -r test.in
-virtualenv==20.2.2        # via tox
+virtualenv==20.4.0        # via tox
 wcwidth==0.2.5            # via pytest
 whitenoise==3.3.0         # via -r base.txt
 wrapt==1.12.1             # via vcrpy

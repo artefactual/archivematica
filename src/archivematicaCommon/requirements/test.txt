@@ -36,17 +36,17 @@ pytest-pythonpath==0.7.3  # via -r test.in
 pytest==4.6.11            # via -r test.in, pytest-django, pytest-pythonpath
 python-dateutil==2.6.0    # via -r base.txt
 pytz==2020.5              # via -r base.txt, django
-pyyaml==5.3.1             # via vcrpy
+pyyaml==5.4.1             # via vcrpy
 requests==2.21.0          # via -r base.txt, agentarchives
 scandir==1.10.0           # via -r base.txt, pathlib2
 singledispatch==3.4.0.3   # via importlib-resources
 six==1.14.0               # via -r base.txt, mock, more-itertools, pathlib2, pytest, python-dateutil, tox, vcrpy, virtualenv
 toml==0.10.2              # via tox
-tox==3.21.0               # via -r test.in
+tox==3.21.3               # via -r test.in
 typing==3.7.4.3           # via importlib-resources
 urllib3==1.24.3           # via -r base.txt, elasticsearch, requests
 vcrpy==1.13.0             # via -r test.in
-virtualenv==20.2.2        # via tox
+virtualenv==20.4.0        # via tox
 wcwidth==0.2.5            # via pytest
 wrapt==1.12.1             # via vcrpy
 zipp==1.2.0               # via importlib-metadata, importlib-resources
