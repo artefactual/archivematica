@@ -17,6 +17,7 @@ writing code which can be incorporated into Archivematica itself.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Submitting bugs](#submitting-bugs)
 - [Submitting enhancement ideas](#submitting-enhancement-ideas)
 - [Submitting code changes](#submitting-code-changes)
   - [Permalinks](#permalinks)
@@ -44,7 +45,7 @@ writing code which can be incorporated into Archivematica itself.
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-[submitting-bugs]
+## Submitting bugs
 
 If you find a security vulnerability, do NOT open an issue. Email
 info@artefactual.com instead.
