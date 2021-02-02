@@ -17,10 +17,9 @@ writing code which can be incorporated into Archivematica itself.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Submitting bugs][submitting-bugs]
-  [submitting-bugs]: /url "submitting-bugs"
-- [Submitting enhancement ideas](#submitting-enhancements)
+- [Submitting enhancement ideas](#submitting-enhancement-ideas)
 - [Submitting code changes](#submitting-code-changes)
+  - [Permalinks](#permalinks)
   - [Getting started](#getting-started)
   - [When to submit code for review?](#when-to-submit-code-for-review)
   - [Opening the pull request](#opening-the-pull-request)
@@ -39,12 +38,13 @@ writing code which can be incorporated into Archivematica itself.
   - [Commit History](#commit-history)
     - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
     - [Every commit should work](#every-commit-should-work)
+  - [Commit messages](#commit-messages)
     - [Commit summaries should be concise](#commit-summaries-should-be-concise)
     - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Submitting bugs
+[submitting-bugs]
 
 If you find a security vulnerability, do NOT open an issue. Email
 info@artefactual.com instead.
