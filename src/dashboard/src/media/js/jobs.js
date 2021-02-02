@@ -542,7 +542,7 @@ var BaseJobView = Backbone.View.extend({
     {
       event.preventDefault();
 
-      window.open('/tasks/' + this.model.get('uuid') + '/', '_self');
+      window.open('/tasks/' + this.model.get('uuid') + '/');
     },
 
   /**
