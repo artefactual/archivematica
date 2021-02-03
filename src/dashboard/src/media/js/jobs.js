@@ -542,9 +542,9 @@ var BaseJobView = Backbone.View.extend({
     {
       event.preventDefault();
 
-      window.open('/tasks/' + this.model.get('uuid') + '/');
-    },
+      window.open('/tasks/' + this.model.get('uuid') + '/', 'output');
 
+    },
   /**
    * TODO: this should be refactor to rely on CSS classes instead.
    */
