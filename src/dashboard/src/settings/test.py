@@ -29,7 +29,6 @@ from django_auth_ldap.config import LDAPSearch
 from .local import *
 
 
-# IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

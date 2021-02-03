@@ -23,8 +23,6 @@ from __future__ import absolute_import
 
 from .common import *
 
-
-# IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
