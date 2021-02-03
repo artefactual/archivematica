@@ -1,0 +1,15 @@
+---
+version: "2.1"
+
+services:
+  archivematica-tests:
+    image: "archivematica-tests:latest"
+    build:
+      context: "../"
+      dockerfile: "hack/Dockerfile"
+      args:
+        TARGET: "archivematica-tests"
+    volumes:
+      - "../:/src"
+    links:
+      - "mysql"
