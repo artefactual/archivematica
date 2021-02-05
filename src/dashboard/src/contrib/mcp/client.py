@@ -203,7 +203,8 @@ class MCPClient(object):
         return self._rpc_sync_call("approvePartialReingest", data)
 
     def get_processing_config_fields(self):
-        return self._rpc_sync_call("getProcessingConfigFields")
+        data = {"lang": self.lang}
+        return self._rpc_sync_call("getProcessingConfigFields", data)
 
     def _get_units_statuses(self, type_):
         data = {"type": type_, "lang": self.lang}
