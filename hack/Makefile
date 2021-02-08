@@ -29,7 +29,7 @@ define run_toxenvs
 	$(call compose_tests, \
 		run \
 			-e DJANGO_SETTINGS_MODULE=settings.testmysql \
-			-e PYTEST_ADDOPTS=${PYTEST_ADDOPTS} \
+			-e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),${PYTEST_ADDOPTS}) \
 			--user $(CALLER_UID):$(CALLER_GID) \
 			--workdir /src \
 			--rm \
