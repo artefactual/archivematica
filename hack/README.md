@@ -556,10 +556,8 @@ environment is not working? Here are some tips:
 - Make sure that your repositories under `/hack/submodules`
   (submodules) are up to date. If you are working off your own
   branches, make sure they are not outdated.  Rebase often!
-- Look for open/closed issues that may relate to your problem! A few
-  repos where you may find them:
-  [artefactual/archivematica][am1-issues] and
-  [archivematica/issues][am2-issues].
+- Look for open/closed [issues][am-issues] that may relate to your
+  problem!
 - [Get support](https://www.archivematica.org/community/support/).
 
 ##### PMM client service doesn't start
@@ -574,5 +572,4 @@ You'll need to fully recreate the container to make it work:
     docker-compose -f docker-compose.yml -f docker-compose.pmm.yml rm pmm_client
     docker-compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
 
-[am1-issues]: https://github.com/artefactual/archivematica/issues
-[am2-issues]: https://github.com/archivematica/issues/issues
+[am-issues]: https://github.com/archivematica/issues/issues
