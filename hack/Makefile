@@ -14,10 +14,49 @@ CALLER_GID=$(shell id -g)
 
 SRCDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../src)
 
-TEST ?= .
+NULL :=
+SPACE := $(NULL) $(NULL)
 
 define compose_amauat
 	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml $(1)
+endef
+
+define compose_tests
+	docker-compose -f docker-compose.yml -f docker-compose.tests.yml $(1)
+endef
+
+define run_toxenvs
+	$(call compose_tests, \
+		run \
+			-e DJANGO_SETTINGS_MODULE=settings.testmysql \
+			-e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),${PYTEST_ADDOPTS}) \
+			--user $(CALLER_UID):$(CALLER_GID) \
+			--workdir /src \
+			--rm \
+			--entrypoint tox \
+				archivematica-tests \
+					$(subst $(SPACE), -e ,$(SPACE)$(1)) \
+					${TOXARGS})
+endef
+
+start-mysql: test-build
+	$(call compose_tests, \
+		run \
+			--user $(CALLER_UID):$(CALLER_GID) \
+			--rm \
+			--entrypoint bash \
+				archivematica-tests \
+					/src/hack/wait-for-it.sh mysql:3306 --timeout=30)
+
+define create_db
+	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
+		DROP DATABASE IF EXISTS `$(1)`; \
+		CREATE DATABASE `$(1)`; \
+		GRANT ALL ON `$(1)`.* TO "archivematica"@"%" IDENTIFIED BY "demo";'
+endef
+
+define drop_db
+	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
 endef
 
 create-volumes:  ## Create external data volumes.
@@ -70,7 +109,7 @@ makemigrations-ss:
 			archivematica-storage-service \
 				makemigrations
 
-manage-dashboard:  ## Run Django /manage.py on Dashbaord, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG=shell`
+manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG=shell`
 	docker-compose run \
 		--rm \
 		--entrypoint /src/src/dashboard/src/manage.py \
@@ -115,7 +154,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		-e HOME=/tmp/yarn-config \
 		--rm \
 		--no-deps \
-		--user=$(CALLER_UID):$(CALLER_GID) \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--entrypoint yarn \
 			archivematica-dashboard \
 				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
@@ -129,18 +168,18 @@ restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, D
 compile-requirements-am:  ## Run pip-compile for Archivematica
 	docker-compose run --workdir /src \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
-		--rm  \
+		--rm \
 		--no-deps \
-		--user=$(CALLER_UID):$(CALLER_GID) \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--entrypoint bash archivematica-mcp-server \
 			-c "make pip-compile"
 
 compile-requirements-ss:  ## Run pip-compile for Storage Service
 	docker-compose run --workdir /src/requirements \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
-		--rm  \
+		--rm \
 		--no-deps \
-		--user=$(CALLER_UID):$(CALLER_GID) \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--entrypoint bash archivematica-storage-service \
 			-c "make clean && make all"
 
@@ -163,28 +202,56 @@ flush-search:  ## Delete Elasticsearch indices.
 flush-logs:  ## Delete container logs - requires root privileges.
 	@./helpers/flush-docker-logs.sh
 
-flush-test-dbs:
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "DROP DATABASE IF EXISTS test_MCP; DROP DATABASE IF EXISTS test_SS;"
+# These include the database names used in the settings.testmysql
+# modules plus the prefixed and suffixed variations used by Django and
+# tox
+__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcpclient test_MCPSERVERTEST test_MCPSERVERTEST_mcpserver test_SS test_SSTEST test_SSTEST_storage-service
+flush-test-dbs: start-mysql
+	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
-test-all: test-mcp-server test-mcp-client test-dashboard test-storage-service  ## Run all tests.
+test-build:  ## Build archivematica-tests image.
+	docker build \
+		-t archivematica-tests \
+		-f $(CURDIR)/Dockerfile \
+		--build-arg TARGET=archivematica-tests \
+			../
 
-test-mcp-server:  ## Run MCPServer tests.
-	docker-compose run --workdir /src/src/MCPServer --rm --entrypoint=py.test archivematica-mcp-server -p no:cacheprovider --reuse-db -v $(TEST)
+__TOXENVS_MCPSERVER := mcpserver
+test-mcp-server: start-mysql  ## Run MCPServer tests.
+	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
-test-mcp-client:  ## Run MCPClient tests.
-	docker-compose run --workdir /src/src/MCPClient --rm --entrypoint=py.test archivematica-mcp-client -p no:cacheprovider --reuse-db -v $(TEST)
+__TOXENVS_MCPCLIENT = mcpclient mcpclient-ensure-no-mutable-globals
+test-mcp-client: start-mysql  ## Run MCPClient tests.
+	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
-test-dashboard:  ## Run Dashboard tests.
-	docker-compose run --workdir /src/src/dashboard --rm --entrypoint=py.test archivematica-dashboard -p no:cacheprovider --reuse-db -v $(TEST)
+__TOXENVS_DASHBOARD = dashboard
+test-dashboard: start-mysql  ## Run Dashboard tests.
+	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
-test-storage-service:  ## Run Storage Service tests.
-	docker-compose run --workdir /src --rm --no-deps --entrypoint py.test -e "DJANGO_SETTINGS_MODULE=storage_service.settings.test" archivematica-storage-service -p no:cacheprovider --reuse-db -v $(TEST)
+__TOXENVS_STORAGE_SERVICE = storage-service
+test-storage-service: start-mysql  ## Run Storage Service tests.
+	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
-test-storage-service-integration:  ## Run Storage Service tests (including integration tests) using MySQL.
+test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-test-archivematica-common:  ## Run Archivematica Common tests.
-	docker-compose run --workdir /src/src/archivematicaCommon --rm --entrypoint py.test archivematica-mcp-client -p no:cacheprovider -p no:warnings --reuse-db -v $(TEST)
+__TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
+test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
+	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
+
+__TOXENVS_CHECKFORMIGRATIONS = checkformigrations-dashboard checkformigrations-storage-service
+test-checkformigrations: start-mysql  ## Check there are no pending migrations.
+	$(call create_db,DASHBOARDTEST)
+	$(call create_db,SSTEST)
+	$(call run_toxenvs,$(__TOXENVS_CHECKFORMIGRATIONS))
+
+__TOXENVS_LINTING = linting
+test-linting:  ## Check linting.
+	$(call run_toxenvs,$(__TOXENVS_LINTING))
+
+__TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
+test-all: start-mysql  ## Run all tests.
+	$(call run_toxenvs,$(__TOXENVS_ALL))
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
@@ -251,6 +318,14 @@ test-frontend:  ## Run Dashboard JS tests.
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-dashboard-testing \
 			../
+	docker run \
+		-e HOME=/tmp/yarn-config \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
+		--entrypoint yarn \
+			archivematica-dashboard-testing \
+				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
 	docker run \
 		--rm \
 		--volume "$(SRCDIR)/dashboard/frontend:/src/src/dashboard/frontend" \

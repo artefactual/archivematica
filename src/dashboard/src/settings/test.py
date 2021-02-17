@@ -29,7 +29,6 @@ from django_auth_ldap.config import LDAPSearch
 from .local import *
 
 
-# IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -72,8 +71,3 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 )
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {}
 AUTH_LDAP_USERNAME_SUFFIX = "_ldap"
-
-# These are MCPClient specific settings because
-# tox uses this module instead of MCPClient settings.test
-CLIENT_SCRIPTS_DIRECTORY = ""
-CLIENT_ASSETS_DIRECTORY = ""

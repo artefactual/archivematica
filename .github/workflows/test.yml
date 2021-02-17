@@ -8,53 +8,75 @@ on:
       - "stable/**"
 jobs:
   test:
-    name: "Test ${{ matrix.name }}"
+    name: "Test ${{ matrix.rule }}"
     runs-on: "ubuntu-18.04"
     strategy:
       matrix:
-        include:
-          - name: "py27"
-            python-version: "2.7"
-            toxenv: "py27"
-          - name: "py27-mcpserver"
-            python-version: "2.7"
-            toxenv: "mcpserver"
-          - name: "py27-checkformigrations"
-            python-version: "2.7"
-            toxenv: "checkformigrations"
+        rule:
+          - mcp-server
+          - mcp-client
+          - dashboard
+          - archivematica-common
+          - storage-service
+          - checkformigrations
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
-      - name: "Set up Python ${{ matrix.python-version }}"
-        uses: "actions/setup-python@v2"
-        with:
-          python-version: "${{ matrix.python-version }}"
-      - name: "Install OS packages"
+      - name: "Check out the archivematica-storage-service submodule"
         run: |
-          sudo apt-get --quiet update
-          sudo apt-get install --quiet --yes build-essential \
-            libmysqlclient-dev libsasl2-dev libldap2-dev libssl-dev \
-            p7zip-full unar libxml2-dev libxslt1-dev
-      - name: "Get pip cache dir"
-        id: "pip-cache"
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-      - name: "Cache pip packages"
+          git submodule update --init hack/submodules/archivematica-storage-service/
+      - name: "Set up pip cache"
         uses: "actions/cache@v2"
         with:
-          path: "${{ steps.pip-cache.outputs.dir }}"
-          key: "${{ runner.os }}-pip-${{ hashFiles('**/test.txt') }}"
+          path: "~/.cache/pip"
+          key: "${{ runner.os }}-pip-${{ github.sha }}"
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: "Install tox"
+      - name: "Set up tox cache"
+        uses: "actions/cache@v2"
+        with:
+          path: ./.tox
+          key: "${{ runner.os }}-tox-${{ matrix.rule }}-${{ hashFiles('**/tox.ini') }}"
+          restore-keys: |
+            ${{ runner.os }}-tox-${{ matrix.rule }}-
+            ${{ runner.os }}-tox-
+      - name: "Set up buildx"
+        uses: "docker/setup-buildx-action@v1"
+        id: buildx
+        with:
+          install: true
+      - name: "Set up docker cache"
+        uses: "actions/cache@v2"
+        with:
+          path: /tmp/.docker-cache-old
+          key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-
+      - name: "Build archivematica-tests image"
+        uses: "docker/build-push-action@v2"
+        with:
+          context: .
+          file: ./hack/Dockerfile
+          target: archivematica-tests
+          tags: archivematica-tests:latest
+          push: false
+          load: true
+          cache-from: type=local,src=/tmp/.docker-cache-old
+          cache-to: type=local,dest=/tmp/.docker-cache-new,mode=max
+      - name: "Create external volumes"
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: "Run tox"
+          make -C hack/ create-volumes
+      - name: "Run make rule"
+        run: |
+          make -C hack/ test-${{ matrix.rule }}
         env:
-          TOXENV: ${{ matrix.toxenv }}
+          TOXARGS: -vv
+          PYTEST_ADDOPTS: -vv
+      - name: "Set newest docker cache"
         run: |
-          tox
+          rm -rf /tmp/.docker-cache-old
+          mv /tmp/.docker-cache-new /tmp/.docker-cache-old
   frontend:
     name: "Test frontend"
     runs-on: "ubuntu-18.04"

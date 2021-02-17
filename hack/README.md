@@ -21,7 +21,6 @@
   - [Nginx returns 502 Bad Gateway](#nginx-returns-502-bad-gateway)
   - [MCPClient osdeps cannot be updated](#mcpclient-osdeps-cannot-be-updated)
   - [Error while mounting volume](#error-while-mounting-volume)
-  - [Tests are too slow](#tests-are-too-slow)
   - [make bootstrap fails to run](#make-bootstrap-fails-to-run)
   - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down][intro-1]
   - [My environment is still broken](#my-environment-is-still-broken)
@@ -272,7 +271,6 @@ are connected to Gearman:
 | clamavd                                 | `tcp/3310`     | `tcp/62006` |
 | nginx » archivematica-dashboard         | `tcp/80`       | `tcp/62080` |
 | nginx » archivematica-storage-service   | `tcp/8000`     | `tcp/62081` |
-| selenium-hub                            | `tcp/4444`     | `tcp/62100` |
 
 ## Tests
 
@@ -280,9 +278,52 @@ The `Makefile` includes many useful targets for testing. List them all with:
 
     $ make 2>&1 | grep test-
 
-The sources of the [acceptance tests](../src/archivematica-acceptance-tests)
-have been made available inside Docker using volumes so you can edit them and
-the changes will apply immediately.
+The following targets use [`tox`](https://tox.readthedocs.io) and
+[`pytest`](https://docs.pytest.org) to run the tests using MySQL
+databases from Docker containers:
+
+```
+test-all                   Run all tests.
+test-archivematica-common  Run Archivematica Common tests.
+test-dashboard             Run Dashboard tests.
+test-mcp-client            Run MCPClient tests.
+test-mcp-server            Run MCPServer tests.
+test-storage-service       Run Storage Service tests.
+```
+
+`tox` sets up separate virtual environments for each target and calls
+`pytest` to run the tests. Their configurations live in the `tox.ini`
+and `pytest.ini` files but you can set the [`TOXARGS`](tox-cli) and
+[`PYTEST_ADDOPTS`](pytest-cli) environment variables to pass command
+line options to each.
+
+[tox-cli]: https://tox.readthedocs.io/en/latest/config.html#cli
+[pytest-cli]: https://docs.pytest.org/en/stable/example/simple.html#how-to-change-command-line-options-defaults
+
+For example you can run all the tests in `tox` [parallel
+mode](https://tox.readthedocs.io/en/latest/example/basic.html#parallel-mode)
+and make it extra verbose like this:
+
+    $ env TOXARGS='-vv --parallel' make test-all
+
+The MySQL test databases created by `pytest` are kept and reused after
+each run, but you could [force it to recreate
+them](pytest-recreate-db) like this:
+
+    $ env PYTEST_ADDOPTS=--create-db make test-dashboard
+
+[pytest-recreate-db]: https://pytest-django.readthedocs.io/en/latest/database.html#example-work-flow-with-reuse-db-and-create-db
+
+Or you could run only a specific test module using its relative path
+in the `PYTHONPATH` of the `tox` environment like this:
+
+    $ env PYTEST_ADDOPTS=tests/test_reingest_mets.py make test-mcp-client
+
+The sources of the [acceptance
+tests](https://github.com/artefactual-labs/archivematica-acceptance-tests)
+have been made available inside Docker using volumes so you can edit
+them and the changes will apply immediately. Their `Makefile` targets
+start with `test-at-`.
 
 ## Resetting the environment
 
@@ -374,7 +415,7 @@ Dashboard or the Storage Service died. Run `docker-compose ps` to confirm it:
 
                      Name                    State
     -------------------------------------------------
-    compose_archivematica-storage-service_1  Exit 3
+    hack_archivematica-storage-service_1  Exit 3
 
 You want to see what's in the logs, e.g.:
 
@@ -435,7 +476,7 @@ frequently happens when you restart your machine.
 Under this scenario, if you try to bring up the services again you will likely
 see one or more errors like the following:
 
-    ERROR: for compose_archivematica-mcp-server_1  Cannot create container for
+    ERROR: for hack_archivematica-mcp-server_1  Cannot create container for
     service archivematica-mcp-server: error while mounting volume with options:
     type='none' device='/home/user/.am/am-pipeline-data' o='bind': no such file
     or directory
@@ -454,17 +495,6 @@ The defaults are defined in the `Makefile`:
     # Paths for Docker named volumes
     AM_PIPELINE_DATA ?= $(HOME)/.am/am-pipeline-data
     SS_LOCATION_DATA ?= $(HOME)/.am/ss-location-data
-
-##### Tests are too slow
-
-Running tests with `make test-mcp-client` and such can be very slow because the
-database is re-created on each attempt. When the tests are done the database is
-removed unless you use `--reuse-db`, e.g.: you can use the following command to
-run the MCPClient tests.
-
-    docker-compose run --no-deps --user=root --workdir /src/MCPClient --rm --entrypoint=py.test archivematica-mcp-client --reuse-db --exitfirst
-
-The difference is noticeable.
 
 ##### make bootstrap fails to run
 
@@ -521,17 +551,13 @@ environment is not working? Here are some tips:
 - Does your system meet the [requirements](#requirements)? Some services like
   Elasticsearch or ClamAV need a lot of memory!
 - Make sure that you've checked out the
-  [latest](https://github.com/artefactual-labs/am/commit/HEAD) commit of this
-  repository.
-- Make sure that your repositories under `/src` (submodules) are up to date. If
-  you are working off your own branches, make sure they are not outdated.
-  Rebase often!
-- This repo has dedicated branches to support released versions of
-  Archivematica, e.g. [stable/1.7.x][am0-issues] is the recommended branch if
-  you're doing work that targets a potential v1.7.x patch release.
-- Look for open/closed issues that may relate to your problem! A few repos
-  where you may find them: [artefactual/archivematica][am1-issues],
-  [artefactual-labs/am][am2-issues] and [archivematica/issues][am3-issues].
+  [latest](https://github.com/artefactual/archivematica/commits/qa/1.x)
+  commit of this repository.
+- Make sure that your repositories under `/hack/submodules`
+  (submodules) are up to date. If you are working off your own
+  branches, make sure they are not outdated.  Rebase often!
+- Look for open/closed [issues][am-issues] that may relate to your
+  problem!
 - [Get support](https://www.archivematica.org/community/support/).
 
 ##### PMM client service doesn't start
@@ -546,7 +572,4 @@ You'll need to fully recreate the container to make it work:
     docker-compose -f docker-compose.yml -f docker-compose.pmm.yml rm pmm_client
     docker-compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
 
-[am0-issues]: https://github.com/artefactual-labs/am/tree/5984aee49a53d127ec8628747352395d1c6a247f/compose
-[am1-issues]: https://github.com/artefactual/archivematica/issues
-[am2-issues]: https://github.com/artefactual-labs/am/issues
-[am3-issues]: https://github.com/archivematica/issues/issues
+[am-issues]: https://github.com/archivematica/issues/issues
