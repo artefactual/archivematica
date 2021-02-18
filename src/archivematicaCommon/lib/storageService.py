@@ -209,7 +209,7 @@ def get_first_location(**kwargs):
         kwargs_string = ", ".join(
             "%s=%r" % (key, value) for (key, value) in kwargs.items()
         )
-        raise Exception(
+        raise ResourceNotFound(
             "No locations found for %s.  Please check your storage service config."
             % kwargs_string
         )

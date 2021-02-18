@@ -1090,19 +1090,24 @@ def preview_by_uuid(request, uuid):
 
 
 def download_by_uuid(request, uuid, preview_file=False):
-    """Download a file from the Storage Service, given its UUID.
+    """Download a transfer file, given its UUID.
 
-    This view will stream the response directly from the storage service,
-    so, unlike download_ss, this will work even if the Storage Service is
-    not accessible to the requestor.
+    If the file is available on the pipeline local filesystem, this view will
+    stream it directly from disk. In setups with a remote Storage Service, this
+    prevents needing to rsync the entire transfer to the Storage Service and
+    unpack it to stream a single file.
+
+    If the requested file is not available on disk, this view will stream it
+    directly from the Storage Service. Unlike download_ss, this will work even
+    if the Storage Service is not accessible to the requestor.
 
     It looks up the full relative path in the ``transferfiles`` search index.
     ``relative_path`` includes the ``data`` directory when the transfer package
     uses the BagIt format.
 
     Returns 404 if a file with the requested UUID cannot be found. Otherwise
-    the status code is returned via the call to
-    ``stream_file_from_storage_service``
+    the status code is returned via the call to ``send_file`` or
+    ``stream_file_from_storage_service`` as appropriate.
 
     ``preview_file`` is an instruction to be applied to the response headers
     to enable the file to be seen inside the browser if it is capable of being
@@ -1131,6 +1136,18 @@ def download_by_uuid(request, uuid, preview_file=False):
         logger.debug("Search document is missing required parameters")
         return not_found_err
 
+    try:
+        backlog = storage_service.get_first_location(purpose="BL")
+    except storage_service.ResourceNotFound:
+        logger.debug("No backlog location associated with this pipeline")
+        return not_found_err
+
+    file_abspath = os.path.join(backlog["path"], "originals", relpath)
+    if os.path.exists(file_abspath):
+        download_file = not preview_file
+        return helpers.send_file(request, file_abspath, download_file)
+
+    # Prepare relative path in format expected by Storage Service API.
     # E.g. from "<name>-<uuid>/data/objects/bird.mp3" we only need the path
     # component not including transfer name or UUID.
     try:

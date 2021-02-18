@@ -3,13 +3,13 @@ from __future__ import absolute_import
 
 from base64 import b64encode
 import json
+import os
 import uuid
 import tempfile
-import os
 
 from django.urls import reverse
 from django.test import TestCase
-from django.test.client import Client
+from django.test.client import Client, RequestFactory
 import pytest
 import mock
 
@@ -547,3 +547,62 @@ def test_copy_metadata_files(mocker):
         ["locationuuid:/some/path"],
         "more/path/metadataReminder/mysip-{}/metadata".format(sip_uuid),
     )
+
+
+@pytest.mark.parametrize(
+    "local_path_exists, preview",
+    [
+        # Verify that transfer file is streamed directly from local
+        # disk if available (e.g. on pipeline local filesystem).
+        (True, True),  # Preview
+        (True, False),  # Download
+        # Verify that transfer file is requested from Storage Service
+        # if not available on local disk (e.g. on Storage Service
+        # local filesystem)
+        (False, True),  # Preview
+        (False, False),  # Download
+    ],
+)
+def test_download_by_uuid(mocker, local_path_exists, preview):
+    """Test that transfer file downloads work as expected."""
+    TEST_UUID = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+    TEST_SS_URL = "http://test-url"
+    TEST_BACKLOG_LOCATION_PATH = "/path/to/test/location"
+    TEST_RELPATH = "transfer-{}/data/objects/bird.mp3".format(TEST_UUID)
+    TEST_ABSPATH = os.path.join(TEST_BACKLOG_LOCATION_PATH, "originals", TEST_RELPATH)
+
+    mock_get_file_info = mocker.patch("elasticSearchFunctions.get_transfer_file_info")
+    mock_get_file_info.return_value = {
+        "sipuuid": str(uuid.uuid4()),
+        "relative_path": TEST_RELPATH,
+    }
+    mocker.patch("elasticSearchFunctions.get_client")
+
+    mock_get_location = mocker.patch("storageService.get_first_location")
+    mock_get_location.return_value = {"path": TEST_BACKLOG_LOCATION_PATH}
+
+    mock_exists = mocker.patch("os.path.exists")
+    mock_exists.return_value = local_path_exists
+
+    mock_extract_file_url = mocker.patch("storageService.extract_file_url")
+    mock_extract_file_url.return_value = TEST_SS_URL
+
+    mock_send_file = mocker.patch("components.helpers.send_file")
+    mock_stream_file_from_ss = mocker.patch(
+        "components.helpers.stream_file_from_storage_service"
+    )
+
+    factory = RequestFactory()
+    request = factory.get("/filesystem/{}/download/".format(TEST_UUID))
+
+    views.download_by_uuid(request, TEST_UUID, preview_file=preview)
+
+    if local_path_exists:
+        download = not preview
+        mock_send_file.assert_called_once_with(request, TEST_ABSPATH, download)
+        mock_stream_file_from_ss.assert_not_called()
+    else:
+        mock_send_file.assert_not_called()
+        mock_stream_file_from_ss.assert_called_once_with(
+            TEST_SS_URL, "Storage service returned {}; check logs?", preview
+        )
