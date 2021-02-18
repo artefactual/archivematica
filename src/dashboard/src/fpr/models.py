@@ -11,6 +11,7 @@ import logging
 
 from django.db import connection, models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.six import python_2_unicode_compatible
 
 from autoslug import AutoSlugField
 from django_extensions.db.fields import UUIDField
@@ -131,6 +132,7 @@ class FormatManager(models.Manager):
             return ret
 
 
+@python_2_unicode_compatible
 class Format(models.Model):
     """User-friendly description of format.
 
@@ -159,10 +161,11 @@ class Format(models.Model):
         verbose_name = _("Format")
         ordering = ["group", "description"]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}: {}".format(self.group.description, self.description)
 
 
+@python_2_unicode_compatible
 class FormatGroup(models.Model):
     """ Group/classification for formats.  Eg. image, video, audio. """
 
@@ -176,10 +179,11 @@ class FormatGroup(models.Model):
         verbose_name = _("Format group")
         ordering = ["description"]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}".format(self.description)
 
 
+@python_2_unicode_compatible
 class FormatVersion(VersionedModel, models.Model):
     """ Format that a tool identifies. """
 
@@ -236,7 +240,7 @@ class FormatVersion(VersionedModel, models.Model):
                     }
                 )
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(format)s: %(description)s (%(pronom_id)s)") % {
             "format": self.format,
             "description": self.description,
@@ -247,6 +251,7 @@ class FormatVersion(VersionedModel, models.Model):
 # ########### ID TOOLS ############
 
 
+@python_2_unicode_compatible
 class IDCommand(VersionedModel, models.Model):
     """Command to run an IDToolConfig and parse the output.
 
@@ -288,7 +293,7 @@ class IDCommand(VersionedModel, models.Model):
         verbose_name = _("Format identification command")
         ordering = ["description"]
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(tool)s %(config)s runs %(command)s") % {
             "tool": self.tool,
             "config": self.get_config_display(),
@@ -309,6 +314,7 @@ class IDCommand(VersionedModel, models.Model):
         super(IDCommand, self).save(*args, **kwargs)
 
 
+@python_2_unicode_compatible
 class IDRule(VersionedModel, models.Model):
     """ Mapping between an IDCommand output and a FormatVersion. """
 
@@ -354,7 +360,7 @@ class IDRule(VersionedModel, models.Model):
                 }
             )
 
-    def __unicode__(self):
+    def __str__(self):
         return _("Format identification rule %(uuid)s") % {"uuid": self.uuid}
 
     def long_name(self):
@@ -365,6 +371,7 @@ class IDRule(VersionedModel, models.Model):
         }
 
 
+@python_2_unicode_compatible
 class IDTool(models.Model):
     """ Tool used to identify formats.  Eg. DROID """
 
@@ -386,7 +393,7 @@ class IDTool(models.Model):
     objects = models.Manager()
     active = Enabled()
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
@@ -399,6 +406,7 @@ class IDTool(models.Model):
 # ########### NORMALIZATION ############
 
 
+@python_2_unicode_compatible
 class FPRule(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -490,7 +498,7 @@ class FPRule(VersionedModel, models.Model):
     #         raise ValidationError( {
     #             NON_FIELD_ERRORS:('Unable to save, an active Rule for this purpose and format and command already exists.',)})
 
-    def __unicode__(self):
+    def __str__(self):
         return _("Format policy rule %(uuid)s") % {"uuid": self.uuid}
 
     def long_name(self):
@@ -501,6 +509,7 @@ class FPRule(VersionedModel, models.Model):
         }
 
 
+@python_2_unicode_compatible
 class FPCommand(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -569,10 +578,11 @@ class FPCommand(VersionedModel, models.Model):
         verbose_name = _("Format policy command")
         ordering = ["description"]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}".format(self.description)
 
 
+@python_2_unicode_compatible
 class FPTool(models.Model):
     """ Tool used to perform normalization.  Eg. convert, ffmpeg, ps2pdf. """
 
@@ -590,7 +600,7 @@ class FPTool(models.Model):
     class Meta:
         verbose_name = _("Normalization tool")
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
@@ -673,6 +683,7 @@ class Command(models.Model):
         db_table = u"Command"
 
 
+@python_2_unicode_compatible
 class CommandsSupportedBy(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column="pk")
     description = models.TextField(_("description"), null=True, db_column="description")
@@ -688,7 +699,7 @@ class CommandsSupportedBy(models.Model):
     class Meta:
         db_table = u"CommandsSupportedBy"
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}".format(self.description)
 
 

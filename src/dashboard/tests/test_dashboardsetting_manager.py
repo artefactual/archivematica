@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from main.models import DashboardSetting
 
@@ -28,13 +28,14 @@ def test_dashboardsetting_set_simple_dict():
 
 @pytest.mark.django_db
 def test_dashboardsetting_set_complex_dict():
+    @six.python_2_unicode_compatible
     class Point(object):
         def __init__(self, x, y):
             self.x = x
             self.y = y
 
-        def __unicode__(self):
-            return u"POINT (x={},y={})".format(self.x, self.y)
+        def __str__(self):
+            return "POINT (x={},y={})".format(self.x, self.y)
 
     scope = "test_complex_dict"
     data = {"hidden": False, "hours": 15.20, "path": [Point(1, 2), Point(1, 4)]}
@@ -62,8 +63,8 @@ def test_dashboardsetting_get_dict():
 
     assert isinstance(ret, dict)
     assert len(ret) == len(data)
-    assert u"url" in list(ret.keys())
-    assert u"key" in list(ret.keys())
+    assert "url" in list(ret.keys())
+    assert "key" in list(ret.keys())
     assert ret["url"] == six.text_type(data["url"])
     assert ret["key"] == six.text_type(data["key"])
 
