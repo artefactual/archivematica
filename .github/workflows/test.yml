@@ -6,6 +6,7 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
+      - "dev/python3"
 jobs:
   test:
     name: "Test ${{ matrix.rule }}"
@@ -49,10 +50,10 @@ jobs:
         uses: "actions/cache@v2"
         with:
           path: /tmp/.docker-cache-old
-          key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
+          key: ${{ runner.os }}-docker-py3-${{ matrix.rule }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.rule }}-
-            ${{ runner.os }}-docker-
+            ${{ runner.os }}-docker-py3-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-py3-
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v2"
         with:
