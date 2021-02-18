@@ -208,7 +208,7 @@ flush-logs:  ## Delete container logs - requires root privileges.
 # These include the database names used in the settings.testmysql
 # modules plus the prefixed and suffixed variations used by Django and
 # tox
-__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcpclient test_MCPSERVERTEST test_MCPSERVERTEST_mcpserver test_SS test_SSTEST test_SSTEST_storage-service
+__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_py27-dashboard test_DASHBOARDTEST_py36-dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcpclient test_MCPSERVERTEST test_MCPSERVERTEST_mcpserver test_MCPSERVERTEST_py27-mcpserver test_MCPSERVERTEST_py36-mcpserver test_SS test_SSTEST test_SSTEST_storage-service
 flush-test-dbs: start-mysql
 	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
@@ -219,17 +219,33 @@ test-build:  ## Build archivematica-tests image.
 		--build-arg TARGET=archivematica-tests \
 			../
 
-__TOXENVS_MCPSERVER := mcpserver
+__TOXENVS_MCPSERVER_PY27 := py27-mcpserver
+__TOXENVS_MCPSERVER_PY36 := py36-mcpserver
+__TOXENVS_MCPSERVER := $(__TOXENVS_MCPSERVER_PY27) $(__TOXENVS_MCPSERVER_PY36)
 test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
+
+test-mcp-server-py27: start-mysql  ## Run MCPServer tests only in Python 2.7.
+	$(call run_toxenvs,$(__TOXENVS_MCPSERVER_PY27))
+
+test-mcp-server-py36: start-mysql  ## Run MCPServer tests only in Python 3.6.
+	$(call run_toxenvs,$(__TOXENVS_MCPSERVER_PY36))
 
 __TOXENVS_MCPCLIENT = mcpclient mcpclient-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
-__TOXENVS_DASHBOARD = dashboard
+__TOXENVS_DASHBOARD_PY27 := py27-dashboard
+__TOXENVS_DASHBOARD_PY36 := py36-dashboard
+__TOXENVS_DASHBOARD = $(__TOXENVS_DASHBOARD_PY27) $(__TOXENVS_DASHBOARD_PY36)
 test-dashboard: start-mysql  ## Run Dashboard tests.
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
+
+test-dashboard-py27: start-mysql  ## Run Dashboard tests only in Python 2.7.
+	$(call run_toxenvs,$(__TOXENVS_DASHBOARD_PY27))
+
+test-dashboard-py36: start-mysql  ## Run Dashboard tests only in Python 3.6.
+	$(call run_toxenvs,$(__TOXENVS_DASHBOARD_PY36))
 
 __TOXENVS_STORAGE_SERVICE = storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.

@@ -287,8 +287,8 @@ def test_search_as_csv(client, mocker, django_user_model, username, password, tm
     assert response.get("content-type") == CSV_MIME
     assert response.get("content-disposition") == RESULT_DISPOSITION
 
-    streamed_content = get_streaming_response(response.streaming_content)
-    csv_file = StringIO(streamed_content)
+    streamed_content = b"".join([content for content in response.streaming_content])
+    csv_file = StringIO(streamed_content.decode("utf8"))
     data_frame = pd.read_csv(csv_file, header=0, encoding="utf8")
 
     # Make sure that our headers come out as expected and in the right order.

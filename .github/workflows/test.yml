@@ -14,9 +14,11 @@ jobs:
     strategy:
       matrix:
         rule:
-          - mcp-server
+          - mcp-server-py27
+          - mcp-server-py36
           - mcp-client
-          - dashboard
+          - dashboard-py27
+          - dashboard-py36
           - archivematica-common
           - storage-service
           - checkformigrations
