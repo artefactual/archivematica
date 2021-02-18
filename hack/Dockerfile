@@ -96,7 +96,7 @@ ENTRYPOINT ["/src/src/MCPClient/lib/archivematicaClient.py"]
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-mcp-server
+FROM python3 AS archivematica-mcp-server
 
 USER archivematica
 

@@ -11,7 +11,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from collections import OrderedDict
 
 import calendar
-import cPickle
 import inspect
 import logging
 from socket import gethostname
@@ -25,7 +24,7 @@ from django.utils.six.moves import configparser
 from gearman import GearmanWorker
 import gearman
 from lxml import etree
-
+from six.moves import cPickle
 
 from archivematicaFunctions import strToUnicode
 from main.models import Job, SIP, Transfer
