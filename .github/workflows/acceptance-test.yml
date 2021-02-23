@@ -8,7 +8,6 @@ jobs:
     if: (github.event.pull_request && github.event.label.name == 'AMAUAT')
     name: "Test ${{ matrix.tag }}"
     runs-on: "ubuntu-18.04"
-    continue-on-error: true
     strategy:
       matrix:
         tag:
@@ -20,10 +19,6 @@ jobs:
           - "tpc"
           - "uuids-dirs"
     steps:
-      - name: "Debug event"
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
       - name: "Check out repository"
         uses: "actions/checkout@v2"
         with:
@@ -42,7 +37,7 @@ jobs:
         working-directory: ./hack
       - name: "Wait for MySQL to start"
         run: |
-          sleep 20
+          sleep 15
       - name: "Bootstrap services"
         run: |
           make -C hack/ bootstrap
@@ -51,7 +46,7 @@ jobs:
           make -C hack/ restart-am-services
       - name: "Wait for services to restart"
         run: |
-          sleep 20
+          sleep 15
       - name: "Run AMAUAT tag"
         run: |
           make -C hack/ test-at-behave TAGS=${{ matrix.tag }}
