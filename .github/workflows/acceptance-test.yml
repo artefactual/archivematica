@@ -22,6 +22,10 @@ jobs:
           - "tpc"
           - "uuids-dirs"
     steps:
+      - name: "Debug event"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: "Check out repository"
         uses: "actions/checkout@v2"
         with:
