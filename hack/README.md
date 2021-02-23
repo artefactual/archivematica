@@ -410,14 +410,20 @@ To access the PMM server interface, visit http://localhost:62007:
 
 ##### Nginx returns 502 Bad Gateway
 
-We're using Nginx as a proxy. Likely the underlying issue is that either the
-Dashboard or the Storage Service died. Run `docker-compose ps` to confirm it:
+We're using Nginx as a proxy. Likely the underlying issue is that
+either the Dashboard or the Storage Service died. Run `docker-compose
+ps` to confirm the state of their services like this:
 
-                     Name                    State
-    -------------------------------------------------
-    hack_archivematica-storage-service_1  Exit 3
+```bash
+$ docker-compose ps archivematica-dashboard archivematica-storage-service
+                Name                              Command                State      Ports
+-------------------------------------------------------------------------------------------
+hack_archivematica-dashboard_1         /usr/local/bin/gunicorn -- ...   Up         8000/tcp
+hack_archivematica-storage-service_1   /bin/sh -c /usr/local/bin/ ...   Exit 137
+```
 
-You want to see what's in the logs, e.g.:
+You want to see what's in the logs of the
+`archivematica-storage-service` service, e.g.:
 
     $ docker-compose logs -f archivematica-storage-service
 
