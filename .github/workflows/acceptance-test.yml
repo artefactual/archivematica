@@ -5,7 +5,7 @@ on:
     types: [labeled]
 jobs:
   test:
-    if: (github.event.pull_request && github.event.label.name == 'AMAUAT')
+    if: github.event.label.name == 'AMAUAT'
     name: "Test ${{ matrix.tag }}"
     runs-on: "ubuntu-18.04"
     strategy:
@@ -37,16 +37,13 @@ jobs:
         working-directory: ./hack
       - name: "Wait for MySQL to start"
         run: |
-          sleep 15
+          sleep 20
       - name: "Bootstrap services"
         run: |
           make -C hack/ bootstrap
       - name: "Restart services"
         run: |
           make -C hack/ restart-am-services
-      - name: "Wait for services to restart"
-        run: |
-          sleep 15
       - name: "Run AMAUAT tag"
         run: |
           make -C hack/ test-at-behave TAGS=${{ matrix.tag }}
