@@ -98,9 +98,6 @@ jobs:
       - name: "Create external volumes"
         run: |
           make -C hack/ create-volumes
-      - name: "Build images"
-        run: |
-          make -C hack/ build
       - name: "Start services"
         run: |
           docker-compose up -d
