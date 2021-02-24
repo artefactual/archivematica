@@ -1,14 +1,11 @@
 ---
 name: "Acceptance Test"
 on:
-  pull_request:
-    types: [labeled]
   push:
     branches:
       - "dev/amauat-ci-with-caching"
 jobs:
   test:
-    # if: github.event.label.name == 'AMAUAT'
     name: "Test ${{ matrix.tag }}"
     runs-on: "ubuntu-18.04"
     strategy:
@@ -38,6 +35,10 @@ jobs:
         run: |
           docker-compose up -d mysql
         working-directory: ./hack
+      - name: "Disk space"
+        run: |
+          df -h
+          sudo du -hs /var/lib/docker
       - name: "Set up docker cache"
         uses: "actions/cache@v2"
         with:
@@ -99,6 +100,10 @@ jobs:
           load: true
           cache-from: type=local,src=/tmp/.docker-cache-old
           cache-to: type=local,dest=/tmp/.docker-cache-new,mode=max
+      - name: "Disk space"
+        run: |
+          df -h
+          sudo du -hs /var/lib/docker
       - name: "Set newest docker cache"
         run: |
           rm -rf /tmp/.docker-cache-old
@@ -110,12 +115,20 @@ jobs:
         env:
           cluster.routing.allocation.disk.threshold_enabled: false
         working-directory: ./hack
+      - name: "Disk space"
+        run: |
+          df -h
+          sudo du -hs /var/lib/docker
       - name: "Bootstrap services"
         run: |
           make -C hack/ bootstrap
       - name: "Restart services"
         run: |
           make -C hack/ restart-am-services
+      - name: "Disk space"
+        run: |
+          df -h
+          sudo du -hs /var/lib/docker
       - name: "Run AMAUAT tag"
         run: |
           make -C hack/ test-at-behave TAGS=${{ matrix.tag }}
