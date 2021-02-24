@@ -3,9 +3,12 @@ name: "Acceptance Test"
 on:
   pull_request:
     types: [labeled]
+  push:
+    branches:
+      - "dev/amauat-ci-with-caching"
 jobs:
   test:
-    if: github.event.label.name == 'AMAUAT'
+    # if: github.event.label.name == 'AMAUAT'
     name: "Test ${{ matrix.tag }}"
     runs-on: "ubuntu-18.04"
     strategy:
@@ -100,6 +103,7 @@ jobs:
         run: |
           rm -rf /tmp/.docker-cache-old
           mv /tmp/.docker-cache-new /tmp/.docker-cache-old
+          docker system prune -f
       - name: "Start services"
         run: |
           docker-compose up -d
