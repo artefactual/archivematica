@@ -3,6 +3,7 @@ version: "2.1"
 
 services:
   archivematica-acceptance-tests:
+    image: "archivematica-acceptance-tests:latest"
     build:
       context: "./submodules/archivematica-acceptance-tests"
       dockerfile: "Dockerfile"
