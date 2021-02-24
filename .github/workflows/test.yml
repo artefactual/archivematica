@@ -49,9 +49,9 @@ jobs:
         uses: "actions/cache@v2"
         with:
           path: /tmp/.docker-cache-old
-          key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
+          key: ${{ runner.os }}-docker-${{ hashFiles('hack/**/Dockerfile') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ hashFiles('hack/**/Dockerfile') }}-
             ${{ runner.os }}-docker-
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v2"
