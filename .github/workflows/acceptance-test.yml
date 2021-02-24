@@ -36,6 +36,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-${{ hashFiles('hack/**/Dockerfile') }}-
             ${{ runner.os }}-docker-
+      - name: "Print number of cached layers before building"
+        run: |
+          find /tmp/.docker-cache-old/blobs/sha256 -type f | wc -l
       - name: "Build archivematica-dashboard image"
         uses: "docker/build-push-action@v2"
         with:
@@ -89,6 +92,9 @@ jobs:
           load: true
           cache-from: type=local,src=/tmp/.docker-cache-old
           cache-to: type=local,dest=/tmp/.docker-cache-new,mode=max
+      - name: "Print number of cached layers after building"
+        run: |
+          find /tmp/.docker-cache-new/blobs/sha256 -type f | wc -l
       - name: "Create external volumes"
         run: |
           make -C hack/ create-volumes
