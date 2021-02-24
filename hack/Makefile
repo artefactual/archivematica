@@ -56,7 +56,7 @@ define create_db
 endef
 
 define drop_db
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
+	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
 endef
 
 create-volumes:  ## Create external data volumes.
@@ -79,7 +79,7 @@ build:  # Build Compose services.
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Boostrap Storage Service (new database).
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS SS; \
 		CREATE DATABASE SS; \
 		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
@@ -124,7 +124,7 @@ manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [opt
 				$(ARG)
 
 bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS MCP; \
 		CREATE DATABASE MCP; \
 		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
@@ -184,7 +184,7 @@ compile-requirements-ss:  ## Run pip-compile for Storage Service
 			-c "make clean && make all"
 
 db:  ## Connect to the MySQL server using the CLI.
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345
+	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345
 
 flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete ALL user data.
 
@@ -294,6 +294,7 @@ BROWSER ?= Firefox
 test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-behave TAGS=mo-aip-reingest BROWSER=Firefox`.
 	$(call compose_amauat, \
 		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests /usr/local/bin/behave \
+			--no-capture --no-capture-stderr --no-logcapture \
 			--tags=$(TAGS) --no-skipped -v --stop \
 			-D driver_name=$(BROWSER) \
 			-D ssh_accessible=no \
