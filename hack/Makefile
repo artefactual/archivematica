@@ -254,8 +254,10 @@ test-all: start-mysql  ## Run all tests.
 	$(call run_toxenvs,$(__TOXENVS_ALL))
 
 test-at-build:  ## AMAUAT: build image.
-	$(call compose_amauat, \
-		build archivematica-acceptance-tests)
+	docker build \
+		-t archivematica-acceptance-tests \
+		-f $(CURDIR)/submodules/archivematica-acceptance-tests/Dockerfile \
+			$(CURDIR)/submodules/archivematica-acceptance-tests
 
 test-at-check: test-at-build  ## AMAUAT: test browsers.
 	$(call compose_amauat, \
