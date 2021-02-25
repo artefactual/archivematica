@@ -328,14 +328,14 @@ class RPCServer(GearmanWorker):
         if job_chain:
             self.package_queue.schedule_job(next(job_chain))
 
-    def _get_processing_config_fields_handler(self, worker, job):
+    def _get_processing_config_fields_handler(self, worker, job, payload):
         """List processing configuration fields.
 
         [config]
         name = getProcessingConfigFields
         raise_exc = False
         """
-        return get_processing_fields(self.workflow)
+        return get_processing_fields(self.workflow, payload.get("lang"))
 
     def _units_statuses_handler(self, worker, job, payload):
         """Returns the status of units that are of type SIP or Transfer.
