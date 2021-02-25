@@ -8,250 +8,303 @@ processing config file operations.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import abc
 import logging
 import os
 import shutil
-from collections import OrderedDict
 
 from django.conf import settings
 from lxml import etree
+import six
 
 from server.workflow_abilities import choice_is_available
+import storageService as storage_service
 
 
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 
 
-# Types of processing fields:
-# - "boolean" (required: "yes_option", "no_option")
-# - "storage_service" (required: "purpose")
-# - "replace_dict"
-# - "chain_choice" (optional: "ignored_choices", "find_duplicates")
-processing_fields = OrderedDict()
-processing_fields["bd899573-694e-4d33-8c9b-df0af802437d"] = {
-    "type": "boolean",
-    "name": "assign_uuids_to_directories",
-    "yes_option": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
-    "no_option": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
-}
-processing_fields["56eebd45-5600-4768-a8c2-ec0114555a3d"] = {
-    "type": "boolean",
-    "name": "tree",
-    "yes_option": "df54fec1-dae1-4ea6-8d17-a839ee7ac4a7",
-    "no_option": "e9eaef1e-c2e0-4e3b-b942-bfb537162795",
-}
-processing_fields["f09847c2-ee51-429a-9478-a860477f6b8d"] = {
-    "type": "replace_dict",
-    "name": "select_format_id_tool_transfer",
-}
-processing_fields["dec97e3c-5598-4b99-b26e-f87a435a6b7f"] = {
-    "type": "chain_choice",
-    "name": "extract_packages",
-}
-processing_fields["f19926dd-8fb5-4c79-8ade-c83f61f55b40"] = {
-    "type": "replace_dict",
-    "name": "delete_packages",
-}
-processing_fields["70fc7040-d4fb-4d19-a0e6-792387ca1006"] = {
-    "type": "boolean",
-    "name": "policy_checks_originals",
-    "yes_option": "c611a6ff-dfdb-46d1-b390-f366a6ea6f66",
-    "no_option": "3e891cc4-39d2-4989-a001-5107a009a223",
-}
-processing_fields["accea2bf-ba74-4a3a-bb97-614775c74459"] = {
-    "type": "chain_choice",
-    "name": "examine",
-}
-processing_fields["bb194013-597c-4e4a-8493-b36d190f8717"] = {
-    "type": "chain_choice",
-    "name": "create_sip",
-    "ignored_choices": ["Reject transfer"],
-}
-processing_fields["7a024896-c4f7-4808-a240-44c87c762bc5"] = {
-    "type": "replace_dict",
-    "name": "select_format_id_tool_ingest",
-}
-processing_fields["cb8e5706-e73f-472f-ad9b-d1236af8095f"] = {
-    "type": "chain_choice",
-    "name": "normalize",
-    "ignored_choices": ["Reject SIP"],
-    "find_duplicates": True,
-    "label": "Normalize",
-}
-processing_fields["de909a42-c5b5-46e1-9985-c031b50e9d30"] = {
-    "type": "boolean",
-    "name": "normalize_transfer",
-    "yes_option": "1e0df175-d56d-450d-8bee-7df1dc7ae815",
-}
-processing_fields["498f7a6d-1b8c-431a-aa5d-83f14f3c5e65"] = {
-    "type": "replace_dict",
-    "name": "normalize_thumbnail_mode",
-}
-processing_fields["153c5f41-3cfb-47ba-9150-2dd44ebc27df"] = {
-    "type": "boolean",
-    "name": "policy_checks_preservation_derivatives",
-    "yes_option": "3a55f688-eca3-4ebc-a012-4ce68290e7b0",
-    "no_option": "b7ce05f0-9d94-4b3e-86cc-d4b2c6dba546",
-}
-processing_fields["8ce07e94-6130-4987-96f0-2399ad45c5c2"] = {
-    "type": "boolean",
-    "name": "policy_checks_access_derivatives",
-    "yes_option": "d9760427-b488-4381-832a-de10106de6fe",
-    "no_option": "76befd52-14c3-44f9-838f-15a4e01624b0",
-}
-processing_fields["a2ba5278-459a-4638-92d9-38eb1588717d"] = {
-    "type": "boolean",
-    "name": "bind_pids",
-    "yes_option": "8f9dceb5-b978-43e0-a364-8b317a3ac43b",
-    "no_option": "44a7c397-8187-4fd2-b8f7-c61737c4df49",
-}
-processing_fields["d0dfa5fc-e3c2-4638-9eda-f96eea1070e0"] = {
-    "type": "boolean",
-    "name": "normative_structmap",
-    "yes_option": "29881c21-3548-454a-9637-ebc5fd46aee0",
-    "no_option": "65273f18-5b4e-4944-af4f-09be175a88e8",
-}
-processing_fields["eeb23509-57e2-4529-8857-9d62525db048"] = {
-    "type": "chain_choice",
-    "name": "reminder",
-}
-processing_fields["82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6"] = {
-    "type": "boolean",
-    "name": "transcribe_file",
-    "yes_option": "35151db8-3a11-4b49-8865-f6697ef0ac75",
-    "no_option": "0a24787c-00e3-4710-b324-90e792bfb484",
-}
-processing_fields["087d27be-c719-47d8-9bbb-9a7d8b609c44"] = {
-    "type": "replace_dict",
-    "name": "select_format_id_tool_submissiondocs",
-}
-processing_fields["01d64f58-8295-4b7b-9cab-8f1b153a504f"] = {
-    "type": "replace_dict",
-    "name": "compression_algo",
-}
-processing_fields["01c651cb-c174-4ba4-b985-1d87a44d6754"] = {
-    "type": "replace_dict",
-    "name": "compression_level",
-}
-processing_fields["2d32235c-02d4-4686-88a6-96f4d6c7b1c3"] = {
-    "type": "boolean",
-    "name": "store_aip",
-    "yes_option": "9efab23c-31dc-4cbd-a39d-bb1665460cbe",
-}
-processing_fields["b320ce81-9982-408a-9502-097d0daa48fa"] = {
-    "type": "storage_service",
-    "name": "store_aip_location",
-    "purpose": "AS",
-}
-processing_fields["92879a29-45bf-4f0b-ac43-e64474f0f2f9"] = {
-    "type": "chain_choice",
-    "name": "upload_dip",
-}
-processing_fields["5e58066d-e113-4383-b20b-f301ed4d751c"] = {
-    "type": "chain_choice",
-    "name": "store_dip",
-}
-processing_fields["cd844b6e-ab3c-4bc6-b34f-7103f88715de"] = {
-    "type": "storage_service",
-    "name": "store_dip_location",
-    "purpose": "DS",
-}
+@six.add_metaclass(abc.ABCMeta)
+class ProcessingConfigField(object):
+    def __init__(self, link_id, name, **kwargs):
+        self.link_id = link_id
+        self.name = name
+        self.options = self.read_config(kwargs)
 
+    @abc.abstractmethod
+    def read_config(self, options):
+        """Implementors must use this method to process additional config."""
 
-def get_processing_fields(workflow):
-    """Return the list of known processing configuration fields.
+    @abc.abstractmethod
+    def add_choices(self, workflow, lang):
+        """Implementors must use this method to add field choices."""
 
-    It uses `processing_fields`` defined in this module as a base and extended
-    after some workflow lookups.
-    """
-    for link_id, config in processing_fields.items():
-        link = workflow.get_link(link_id)
-        if config["type"] == "replace_dict":
-            config["options"] = _get_options_for_replace_dict(link)
-        elif config["type"] == "chain_choice":
-            config["options"] = _get_options_for_chain_choice(
-                link, workflow, config.get("ignored_choices", [])
-            )
-            _populate_duplicates_chain_choice(workflow, link, config)
-    return processing_fields
+    def to_dict(self, workflow, lang):
+        """It generates a dictionary with all the information needed to feed
+        a drop-down, including its choices and where they apply in workflow
+        which can be more than a single entry.
 
-
-def _get_options_for_replace_dict(link):
-    return [
-        (item["id"], item["description"]["en"]) for item in link.config["replacements"]
-    ]
-
-
-def _get_options_for_chain_choice(link, workflow, ignored_choices):
-    ret = []
-    for chain_id in link.config["chain_choices"]:
-        chain = workflow.get_chain(chain_id)
-        label = chain.get_label("description")
-        if label in ignored_choices:
-            continue
-        if not choice_is_available(link, chain):
-            continue
-        ret.append((chain_id, label))
-    return ret
-
-
-def _populate_duplicates_chain_choice(workflow, link, config):
-    """Find and populate chain choice duplicates.
-
-    When the user chooses a value like "Normalize for preservation" in the
-    "Normalize" processing config, this function makes sure that all the
-    matching chain links are listed so the user choise applies to all of them.
-
-    Given the following config item (see `processing_fields` in this module):
-
-        config[find_duplicates] = True
-        config[label] = "Normalize"
-        config[options] = [
-            (2b93cecd4-71f2-4e28-bc39-d32fd62c5a94", "Normalize ...")
-            (2612e3609-ce9a-4df6-a9a3-63d634d2d934", ...)
-            (2c34bd22a-d077-4180-bf58-01db35bdb644", ...)
-            (289cb80dd-0636-464f-930d-57b61e3928b2", ...)
-            (2a6ed697e-6189-4b4e-9f80-29209abc7937", ...)
-            (2e600b56d-1a43-4031-9d7c-f64f123e5662", ...)
-            (2fb7a326e-1e50-4b48-91b9-4917ff8d0ae8", ...)
-        ]
-
-    This function populates a new property with a list of matching links, e.g.:
-
-        config[duplicates] = {
-            <chain_id> = (chain_desc, (<link_id>, <chain_id>), ...)
-            ...
+        E.g., "Normalize for preservation" is a chain link shared across more
+        than a single decision point.
+        """
+        self.link = workflow.get_link(self.link_id)
+        self.choices = []
+        self.add_choices(workflow, lang)
+        return {
+            "id": self.link.id,
+            "name": self.name,
+            "label": self.link.get_label("description", lang),
+            "choices": self.choices,
         }
 
-    It's used in `administration/forms.py` so we can build configs like the
-    following when the user picks "Normalize for preservation" which has more
-    than one match:
 
-        <!-- Normalize (match 1 for "Normalize for preservation") -->
-        <preconfiguredChoice>
-          <appliesTo>cb8e5706-e73f-472f-ad9b-d1236af8095f</appliesTo>
-          <goToChain>612e3609-ce9a-4df6-a9a3-63d634d2d934</goToChain>
-        </preconfiguredChoice>
-        <!-- Normalize (match 2 for "Normalize for preservation") -->
-        <preconfiguredChoice>
-          <appliesTo>7509e7dc-1e1b-4dce-8d21-e130515fce73</appliesTo>
-          <goToChain>612e3609-ce9a-4df6-a9a3-63d634d2d934</goToChain>
-        </preconfiguredChoice>
+class StorageLocationField(ProcessingConfigField):
+    ALLOWED_PURPOSES = ("AS", "DS")
+
+    def read_config(self, options):
+        self.purpose = options["purpose"]
+        if self.purpose not in self.ALLOWED_PURPOSES:
+            raise ValueError(
+                "Purpose %s is invalid; valid purposes: %s."
+                % (self.purpose, ", ".join(self.ALLOWED_PURPOSES))
+            )
+
+    def add_choices(self, workflow, lang):
+        value = "/api/v2/location/default/%s/" % self.purpose
+        self.choices.append(
+            {
+                "value": value,
+                "label": "Default location",
+                "applies_to": [(self.link.id, value, "Default location")],
+            }
+        )
+
+        locations = self.get_storage_locations()
+        if locations:
+            for loc in locations:
+                label = loc["description"] or loc["relative_path"]
+                self.choices.append(
+                    {
+                        "value": loc["resource_uri"],
+                        "label": label,
+                        "applies_to": [(self.link.id, loc["resource_uri"], label)],
+                    }
+                )
+
+    def get_storage_locations(self):
+        return storage_service.get_location(purpose=self.purpose)
+
+
+class ReplaceDictField(ProcessingConfigField):
+    def read_config(self, options):
+        pass
+
+    def add_choices(self, workflow, lang):
+        for item in self.link.config["replacements"]:
+            label = item["description"].get_label(lang)
+            self.choices.append(
+                {
+                    "value": item["id"],
+                    "label": label,
+                    "applies_to": [(self.link.id, item["id"], label)],
+                }
+            )
+
+
+class ChainChoicesField(ProcessingConfigField):
+    """Populate choices based on the list of chains indicated by
+    ``chain_choices`` in the workflow link definition.
+
+    ``ignored_choices`` (List[str]) is an optional list of chain names that will
+    not be incorporated. ``find_duplicates`` is an optional string used to match
+    all links making use of that choice, e.g. "Normalize for preservation".
     """
-    if not config.get("find_duplicates", False):
-        return
-    config["duplicates"] = {}
-    for chain_id, chain_desc in config["options"]:
-        results = []
-        for link in workflow.get_links().values():
-            if config["label"] != link.get_label("description"):
+
+    def read_config(self, options):
+        self.ignored_choices = options.get("ignored_choices", [])
+        self.find_duplicates = options.get("find_duplicates")
+
+    def add_choices(self, workflow, lang):
+        for chain_id in self.link.config["chain_choices"]:
+            chain = workflow.get_chain(chain_id)
+            chain_desc = chain.get_label("description")
+            if chain_desc in self.ignored_choices:
                 continue
-            for cid in link.config["chain_choices"]:
-                chain = workflow.get_chain(cid)
-                if chain_desc != chain.get_label("description"):
+            if not choice_is_available(self.link, chain):
+                continue
+            self.choices.append(
+                {
+                    "value": chain_id,
+                    "label": chain.get_label("description", lang),
+                    "applies_to": [(self.link_id, chain_id, chain_desc)],
+                }
+            )
+            if not self.find_duplicates:
+                continue
+            for link in workflow.get_links().values():
+                if link.id == self.link_id:
                     continue
-                results.append((link.id, chain.id))
-        config["duplicates"][chain_id] = (chain_desc, results)
+                if link.get_label("description") != self.find_duplicates:
+                    continue
+                for cid in link.config["chain_choices"]:
+                    chain = workflow.get_chain(cid)
+                    if chain_desc != chain.get_label("description"):
+                        continue
+                    self.choices[-1]["applies_to"].append(
+                        (link.id, chain.id, chain_desc)
+                    )
+
+
+class SharedChainChoicesField(ProcessingConfigField):
+    """Populate choices that are equivalent across multiple chain links.
+
+    Use `related_links` (List[str]) to indicate additional link identifiers.
+    """
+
+    def read_config(self, options):
+        self.related_links = options.get("related_links", [])
+
+    def add_choices(self, workflow, lang):
+        # Full list of choices based on the master link.
+        choices = [
+            workflow.get_chain(chain_id)["description"]["en"]
+            for chain_id in self.link.config["chain_choices"]
+        ]
+
+        # All link identifiers.
+        link_ids = [self.link.id] + self.related_links
+
+        # Each choice capturing the underlying chain choices for each link,
+        for choice in choices:
+            applies_to = []
+            value = None
+            for link_id in link_ids:
+                link = workflow.get_link(link_id)
+                for chain_id in link.config["chain_choices"]:
+                    chain = workflow.get_chain(chain_id)
+                    if chain.get_label("description") == choice:
+                        applies_to.append((link_id, chain_id, choice))
+                        if link_id == self.link.id:
+                            value = chain_id
+            self.choices.append(
+                {"value": value, "label": choice, "applies_to": applies_to}
+            )
+
+
+# A list of processing configuration fields that we want to display via the
+# web user interface. Use one of the supported configuration classes, i.e. all
+# classes extending ``ProcessingConfigField``.
+processing_fields = [
+    ReplaceDictField(
+        link_id="bd899573-694e-4d33-8c9b-df0af802437d",
+        name="assign_uuids_to_directories",
+    ),
+    ChainChoicesField(
+        link_id="56eebd45-5600-4768-a8c2-ec0114555a3d",
+        name="generate_transfer_structure",
+    ),
+    ReplaceDictField(
+        link_id="f09847c2-ee51-429a-9478-a860477f6b8d",
+        name="select_format_id_tool_transfer",
+    ),
+    ChainChoicesField(
+        link_id="dec97e3c-5598-4b99-b26e-f87a435a6b7f", name="extract_packages"
+    ),
+    ReplaceDictField(
+        link_id="f19926dd-8fb5-4c79-8ade-c83f61f55b40", name="delete_packages"
+    ),
+    ChainChoicesField(
+        link_id="70fc7040-d4fb-4d19-a0e6-792387ca1006", name="policy_checks_originals"
+    ),
+    ChainChoicesField(
+        link_id="accea2bf-ba74-4a3a-bb97-614775c74459", name="examine_contents"
+    ),
+    ChainChoicesField(
+        link_id="bb194013-597c-4e4a-8493-b36d190f8717",
+        name="create_sip",
+        ignored_choices=["Reject transfer"],
+    ),
+    ReplaceDictField(
+        link_id="7a024896-c4f7-4808-a240-44c87c762bc5",
+        name="select_format_id_tool_ingest",
+    ),
+    ChainChoicesField(
+        link_id="cb8e5706-e73f-472f-ad9b-d1236af8095f",
+        name="normalize",
+        ignored_choices=["Reject SIP"],
+        find_duplicates="Normalize",
+    ),
+    ChainChoicesField(
+        link_id="de909a42-c5b5-46e1-9985-c031b50e9d30",
+        name="normalize_transfer",
+        ignored_choices=["Redo", "Reject"],
+    ),
+    ReplaceDictField(
+        link_id="498f7a6d-1b8c-431a-aa5d-83f14f3c5e65", name="normalize_thumbnail_mode"
+    ),
+    ChainChoicesField(
+        link_id="153c5f41-3cfb-47ba-9150-2dd44ebc27df",
+        name="policy_checks_preservation_derivatives",
+    ),
+    ChainChoicesField(
+        link_id="8ce07e94-6130-4987-96f0-2399ad45c5c2",
+        name="policy_checks_access_derivatives",
+    ),
+    ChainChoicesField(link_id="a2ba5278-459a-4638-92d9-38eb1588717d", name="bind_pids"),
+    ChainChoicesField(
+        link_id="d0dfa5fc-e3c2-4638-9eda-f96eea1070e0", name="normative_structmap"
+    ),
+    ChainChoicesField(link_id="eeb23509-57e2-4529-8857-9d62525db048", name="reminder"),
+    ChainChoicesField(
+        link_id="82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6", name="transcribe_file"
+    ),
+    ReplaceDictField(
+        link_id="087d27be-c719-47d8-9bbb-9a7d8b609c44",
+        name="select_format_id_tool_submissiondocs",
+    ),
+    ReplaceDictField(
+        link_id="01d64f58-8295-4b7b-9cab-8f1b153a504f", name="compression_algo"
+    ),
+    ReplaceDictField(
+        link_id="01c651cb-c174-4ba4-b985-1d87a44d6754", name="compression_level"
+    ),
+    ChainChoicesField(
+        link_id="2d32235c-02d4-4686-88a6-96f4d6c7b1c3",
+        name="store_aip",
+        ignored_choices=["Reject AIP"],
+    ),
+    StorageLocationField(
+        link_id="b320ce81-9982-408a-9502-097d0daa48fa",
+        name="store_aip_location",
+        purpose="AS",
+    ),
+    ChainChoicesField(
+        link_id="92879a29-45bf-4f0b-ac43-e64474f0f2f9", name="upload_dip"
+    ),
+    ChainChoicesField(link_id="5e58066d-e113-4383-b20b-f301ed4d751c", name="store_dip"),
+    StorageLocationField(
+        link_id="cd844b6e-ab3c-4bc6-b34f-7103f88715de",
+        name="store_dip_location",
+        purpose="DS",
+    ),
+    SharedChainChoicesField(
+        link_id="856d2d65-cd25-49fa-8da9-cabb78292894",
+        name="virus_scanning",
+        related_links=[
+            "1dad74a2-95df-4825-bbba-dca8b91d2371",
+            "7e81f94e-6441-4430-a12d-76df09181b66",
+            "390d6507-5029-4dae-bcd4-ce7178c9b560",
+            "97a5ddc0-d4e0-43ac-a571-9722405a0a9b",
+        ],
+    ),
+]
+
+
+def get_processing_fields(workflow, lang="en"):
+    """Return the list dict form of all processing configuration fields defined
+    in the module-level attribute ``processing_fields``.
+    """
+    return [field.to_dict(workflow, lang) for field in processing_fields]
 
 
 def copy_processing_config(processing_config, destination_path):

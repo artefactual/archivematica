@@ -2,6 +2,7 @@
 *.mo
 
 # IDE specific
+.idea
 *.directory
 .project
 .pydevproject

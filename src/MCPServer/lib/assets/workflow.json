@@ -117,6 +117,18 @@
       },
       "link_id": "89071669-3bb6-4e03-90a3-3c8b20c7f6fe"
     },
+    "1ac7d792-b63f-46e0-9945-d48d9e5c02c9": {
+      "description": {
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
+      },
+      "link_id": "7d33f228-0fa8-4f4c-a66b-24f8e264c214"
+    },
     "1b04ec43-055c-43b7-9543-bd03c6a778ba": {
       "description": {
         "en": "Reject transfer",
@@ -143,13 +155,13 @@
     },
     "1e0df175-d56d-450d-8bee-7df1dc7ae815": {
       "description": {
-        "en": "Approve",
-        "es": "Aprobar",
-        "fr": "Approuver",
-        "ja": "承認",
-        "no": "Godkjenn",
-        "pt_BR": "Confirmar",
-        "sv": "Godkänn"
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
       },
       "link_id": "0f0c1f33-29f2-49ae-b413-3e043da5df61"
     },
@@ -208,6 +220,18 @@
         "sv": "SIP skapelse fullföljd"
       },
       "link_id": "36609513-6502-4aca-886a-6c4ae03a9f05"
+    },
+    "34944d4f-762e-4262-8c79-b9fd48521ca0": {
+      "description": {
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
+      },
+      "link_id": "21d6d597-b876-4b3f-ab85-f97356f10507"
     },
     "35151db8-3a11-4b49-8865-f6697ef0ac75": {
       "description": {
@@ -270,6 +294,18 @@
         "sv": "Nej"
       },
       "link_id": "dae3c416-a8c2-4515-9081-6dbd7b265388"
+    },
+    "3e8c0c39-3f30-4c9b-a449-85eef1b2a458": {
+      "description": {
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
+      },
+      "link_id": "1ba589db-88d1-48cf-bb1a-a5f9d2b17378"
     },
     "4171636c-e013-4ecc-ae45-60b5458c208b": {
       "description": {
@@ -394,6 +430,26 @@
       },
       "link_id": "8f639582-8881-4a8b-8574-d2f86dc4db3d"
     },
+    "63767e4b-9ce8-4fe2-8724-65cc1f763de0": {
+      "description": {
+        "en": "No",
+        "fr": "Non",
+        "ja": "いいえ",
+        "no": "Nei",
+        "sv": "Nej"
+      },
+      "link_id": "b2444a6e-c626-4487-9abc-1556dd89a8ae"
+    },
+    "63be6081-bee8-4cf5-a453-91893e31940f": {
+      "description": {
+        "en": "No",
+        "fr": "Non",
+        "ja": "いいえ",
+        "no": "Nei",
+        "sv": "Nej"
+      },
+      "link_id": "c8f7bf7b-d903-42ec-bfdf-74d357ac4230"
+    },
     "65273f18-5b4e-4944-af4f-09be175a88e8": {
       "description": {
         "en": "No",
@@ -415,6 +471,28 @@
         "sv": "Godkänn överföring"
       },
       "link_id": "b4567e89-9fea-4256-99f5-a88987026488"
+    },
+    "697c0883-798d-4af7-b8b6-101c7f709cd5": {
+      "description": {
+        "en": "No",
+        "fr": "Non",
+        "ja": "いいえ",
+        "no": "Nei",
+        "sv": "Nej"
+      },
+      "link_id": "aaa929e4-5c35-447e-816a-033a66b9b90b"
+    },
+    "6e431096-c403-4cbf-a59a-a26e86be54a8": {
+      "description": {
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
+      },
+      "link_id": "8bc92801-4308-4e3b-885b-1a89fdcd3014"
     },
     "6eb8ebe7-fab3-4e4c-b9d7-14de17625baa": {
       "description": {
@@ -457,6 +535,16 @@
       },
       "link_id": "54b73077-a062-41cc-882c-4df1eba447d9"
     },
+    "77355172-b437-4324-9dcc-e2607ad27cb1": {
+      "description": {
+        "en": "No",
+        "fr": "Non",
+        "ja": "いいえ",
+        "no": "Nei",
+        "sv": "Nej"
+      },
+      "link_id": "559d9b14-05bf-4136-918a-de74a821b759"
+    },
     "79f1f5af-7694-48a4-b645-e42790bbf870": {
       "description": {
         "en": "No",
@@ -466,6 +554,16 @@
         "sv": "Nej"
       },
       "link_id": "f8ef02c4-f585-4b0d-9b6f-3cef6fbe527f"
+    },
+    "7f5244fe-590b-4e38-beaf-0cf1ccb9e71b": {
+      "description": {
+        "en": "No",
+        "fr": "Non",
+        "ja": "いいえ",
+        "no": "Nei",
+        "sv": "Nej"
+      },
+      "link_id": "087d27be-c719-47d8-9bbb-9a7d8b609c44"
     },
     "816f28cd-6af1-4d26-97f3-e61645eb881b": {
       "description": {
@@ -542,6 +640,18 @@
       },
       "link_id": "accea2bf-ba74-4a3a-bb97-614775c74459"
     },
+    "97be337c-ff27-4869-bf63-ef1abc9df15d": {
+      "description": {
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
+      },
+      "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
+    },
     "9918b64c-b898-407b-bce4-a65aa3c11b89": {
       "description": {
         "en": "AIP reingest approval chain",
@@ -554,12 +664,13 @@
     },
     "9efab23c-31dc-4cbd-a39d-bb1665460cbe": {
       "description": {
-        "en": "Store AIP",
-        "fr": "Stocker l’AIP",
-        "ja": "AIPを蓄える",
-        "no": "Lagre AIP",
-        "pt_BR": "Armazenar AIP",
-        "sv": "Lagra AIP"
+        "en": "Yes",
+        "es": "Sí",
+        "fr": "Oui",
+        "ja": "はい",
+        "no": "Ja",
+        "pt_BR": "Sim",
+        "sv": "Ja"
       },
       "link_id": "49cbcc4d-067b-4cd5-b52e-faf50857b35a"
     },
@@ -1949,7 +2060,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "1ba589db-88d1-48cf-bb1a-a5f9d2b17378"
+          "link_id": "97a5ddc0-d4e0-43ac-a571-9722405a0a9b"
         }
       },
       "fallback_job_status": "Failed",
@@ -2605,7 +2716,7 @@
         "stdout_file": null
       },
       "description": {
-        "en": "Scan for viruses",
+        "en": "Scan for viruses in directories",
         "fr": "Lancer l’antivirus",
         "ja": "ウイルスをスキャンする",
         "no": "Søk etter virus",
@@ -2703,6 +2814,31 @@
         "no": "Normaliser",
         "pt_BR": "Normalizar",
         "sv": "Normalisera"
+      }
+    },
+    "1dad74a2-95df-4825-bbba-dca8b91d2371": {
+      "config": {
+        "@manager": "linkTaskManagerChoice",
+        "@model": "MicroServiceChainChoice",
+        "chain_choices": [
+          "1ac7d792-b63f-46e0-9945-d48d9e5c02c9",
+          "697c0883-798d-4af7-b8b6-101c7f709cd5"
+        ]
+      },
+      "description": {
+        "en": "Do you want to scan for viruses in extracted files?"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Extract packages",
+        "es": "Extraer paquetes",
+        "fr": "Extraire les paquets ",
+        "ja": "パッケージの抽出",
+        "no": "Pakk ut pakker",
+        "pt_BR": "Extrair pacotes",
+        "sv": "Extrahera paket"
       }
     },
     "1dce8e21-7263-4cc4-aa59-968d9793b5f2": {
@@ -2949,7 +3085,7 @@
         "stdout_file": null
       },
       "description": {
-        "en": "Scan for viruses",
+        "en": "Scan for viruses in attachments",
         "fr": "Lancer l’antivirus",
         "ja": "ウイルスをスキャンする",
         "no": "Søk etter virus",
@@ -4169,6 +4305,30 @@
         "sv": "Förbered DIP"
       }
     },
+    "390d6507-5029-4dae-bcd4-ce7178c9b560": {
+      "config": {
+        "@manager": "linkTaskManagerChoice",
+        "@model": "MicroServiceChainChoice",
+        "chain_choices": [
+          "34944d4f-762e-4262-8c79-b9fd48521ca0",
+          "63be6081-bee8-4cf5-a453-91893e31940f"
+        ]
+      },
+      "description": {
+        "en": "Do you want to scan for viruses in attachments?"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Scan for viruses",
+        "fr": "Lancer l’antivirus",
+        "ja": "ウイルスをスキャンする",
+        "no": "Søk etter virus",
+        "pt_BR": "Procurar por vírus",
+        "sv": "Sök efter virus"
+      }
+    },
     "39a128e3-c35d-40b7-9363-87f75091e1ff": {
       "config": {
         "@manager": "linkTaskManagerDirectories",
@@ -5206,11 +5366,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
+          "link_id": "7e81f94e-6441-4430-a12d-76df09181b66"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
+      "fallback_link_id": "7e81f94e-6441-4430-a12d-76df09181b66",
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -5700,7 +5860,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
+          "link_id": "7e81f94e-6441-4430-a12d-76df09181b66"
         }
       },
       "fallback_job_status": "Failed",
@@ -7210,6 +7370,30 @@
         "sv": "Skapa SIP från överföringspaket"
       }
     },
+    "7e81f94e-6441-4430-a12d-76df09181b66": {
+      "config": {
+        "@manager": "linkTaskManagerChoice",
+        "@model": "MicroServiceChainChoice",
+        "chain_choices": [
+          "97be337c-ff27-4869-bf63-ef1abc9df15d",
+          "77355172-b437-4324-9dcc-e2607ad27cb1"
+        ]
+      },
+      "description": {
+        "en": "Do you want to scan for viruses in directories?"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Scan for viruses",
+        "fr": "Lancer l’antivirus",
+        "ja": "ウイルスをスキャンする",
+        "no": "Søk etter virus",
+        "pt_BR": "Procurar por vírus",
+        "sv": "Sök efter virus"
+      }
+    },
     "7f975ba6-2185-434c-b507-2911f3c77213": {
       "config": {
         "@manager": "linkTaskManagerReplacementDicFromChoice",
@@ -7389,6 +7573,29 @@
         "no": "Gjenopplast AIP",
         "pt_BR": "Readmitir AIP",
         "sv": "Återingestera AIP"
+      }
+    },
+    "856d2d65-cd25-49fa-8da9-cabb78292894": {
+      "config": {
+        "@manager": "linkTaskManagerChoice",
+        "@model": "MicroServiceChainChoice",
+        "chain_choices": [
+          "6e431096-c403-4cbf-a59a-a26e86be54a8",
+          "63767e4b-9ce8-4fe2-8724-65cc1f763de0"
+        ]
+      },
+      "description": {
+        "en": "Do you want to scan for viruses in metadata?"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Process metadata directory",
+        "es": "Procesar directorio de metadatos",
+        "no": "Prosesser metadatamappe",
+        "pt_BR": "Processar diretório de metadados",
+        "sv": "Bearbeta metadatamapp"
       }
     },
     "873b428f-2c86-42b6-b463-aeda925bf559": {
@@ -8293,6 +8500,29 @@
         "no": "Endre SIP filnavn",
         "pt_BR": "Limpe nomes",
         "sv": "Rensa namn"
+      }
+    },
+    "97a5ddc0-d4e0-43ac-a571-9722405a0a9b": {
+      "config": {
+        "@manager": "linkTaskManagerChoice",
+        "@model": "MicroServiceChainChoice",
+        "chain_choices": [
+          "3e8c0c39-3f30-4c9b-a449-85eef1b2a458",
+          "7f5244fe-590b-4e38-beaf-0cf1ccb9e71b"
+        ]
+      },
+      "description": {
+        "en": "Do you want to scan for viruses in submission documentation?"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": null,
+      "group": {
+        "en": "Process submission documentation",
+        "fr": "Traiter la documentation de soumission",
+        "no": "Prosesser innsendingsdokumentasjon",
+        "pt_BR": "Processar documentação de submissão",
+        "sv": "Bearbeta leveransdokumentation"
       }
     },
     "998044bb-6260-452f-a742-cfb19e80125b": {
@@ -9205,7 +9435,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "8bc92801-4308-4e3b-885b-1a89fdcd3014"
+          "link_id": "856d2d65-cd25-49fa-8da9-cabb78292894"
         }
       },
       "fallback_job_status": "Failed",
@@ -9277,11 +9507,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "21d6d597-b876-4b3f-ab85-f97356f10507"
+          "link_id": "390d6507-5029-4dae-bcd4-ce7178c9b560"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "21d6d597-b876-4b3f-ab85-f97356f10507",
+      "fallback_link_id": "390d6507-5029-4dae-bcd4-ce7178c9b560",
       "group": {
         "en": "Extract attachments",
         "es": "Extraer ficheros adjuntos",
@@ -9933,11 +10163,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "7d33f228-0fa8-4f4c-a66b-24f8e264c214"
+          "link_id": "1dad74a2-95df-4825-bbba-dca8b91d2371"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "7d33f228-0fa8-4f4c-a66b-24f8e264c214",
+      "fallback_link_id": "1dad74a2-95df-4825-bbba-dca8b91d2371",
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -12235,7 +12465,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
+          "link_id": "7e81f94e-6441-4430-a12d-76df09181b66"
         }
       },
       "fallback_job_status": "Failed",
@@ -12737,11 +12967,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b"
+          "link_id": "7e81f94e-6441-4430-a12d-76df09181b66"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "1c2550f1-3fc0-45d8-8bc4-4c06d720283b",
+      "fallback_link_id": "7e81f94e-6441-4430-a12d-76df09181b66",
       "group": {
         "en": "TRIM transfer",
         "fr": "Transfert TRIM",
