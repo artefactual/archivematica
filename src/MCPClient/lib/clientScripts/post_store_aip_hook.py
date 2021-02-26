@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
 import argparse
+import shutil
+import os
+import sys
 
 import requests
 
@@ -15,14 +18,42 @@ from main import models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
+from databaseFunctions import deUnicode
 import elasticSearchFunctions
 import storageService as storage_service
+from archivematicaFunctions import find_transfer_path_from_ingest, strToUnicode
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
 COMPLETED = 0
 NO_ACTION = 1
 ERROR = 2
+
+
+def delete_transfer_directory(job, sip_uuid):
+    """Delete the transfer directory that sourced this SIP.
+
+    This is only expected to work when the SIP was not arranged in backlog.
+    """
+    current_location = (
+        models.File.objects.filter(
+            removedtime__isnull=True,
+            sip_id=sip_uuid,
+            transfer__currentlocation__isnull=False,
+        )
+        .values_list("transfer__currentlocation", flat=True)
+        .distinct()
+        .get()
+    )
+    current_location = deUnicode(current_location)
+    transfer_path = os.path.abspath(
+        find_transfer_path_from_ingest(
+            current_location, strToUnicode(mcpclient_settings.SHARED_DIRECTORY)
+        )
+    )
+    if not transfer_path.startswith(mcpclient_settings.PROCESSING_DIRECTORY):
+        raise Exception("Transfer directory was found in an unexpected location.")
+    shutil.rmtree(transfer_path, ignore_errors=False)
 
 
 def dspace_handle_to_archivesspace(job, sip_uuid):
@@ -163,6 +194,16 @@ def post_store_hook(job, sip_uuid):
 
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)
+
+    # When not using SIP arrangement, we perform best-effort deletion of the
+    # original transfer directory under currentlyProcessing.
+    if not transfer_uuids:
+        try:
+            delete_transfer_directory(job, sip_uuid)
+        except Exception as err:
+            job.pyprint("Failed to delete transfer directory: ", err, file=sys.stderr)
+            return
+        job.pyprint("Transfer directory deleted.")
 
 
 def call(jobs):
