@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     if: github.event.label.name == 'AMAUAT'
-    name: "Test ${{ matrix.tag }}"
+    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
     runs-on: "ubuntu-18.04"
     strategy:
       matrix:
@@ -14,10 +14,15 @@ jobs:
           - "aip-encrypt"
           - "aip-encrypt-mirror"
           - "black-box"
+          - "icc"
+          - "ipc"
           - "mo-aip-reingest"
           - "tcc"
           - "tpc"
           - "uuids-dirs"
+        browser:
+          - "Firefox"
+          - "Chrome"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
@@ -47,4 +52,4 @@ jobs:
           make -C hack/ restart-am-services
       - name: "Run AMAUAT tag"
         run: |
-          make -C hack/ test-at-behave TAGS=${{ matrix.tag }}
+          make -C hack/ test-at-behave TAGS=${{ matrix.tag }} BROWSER=${{ matrix.browser }}
