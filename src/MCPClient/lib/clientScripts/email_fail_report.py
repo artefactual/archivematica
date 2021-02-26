@@ -227,6 +227,9 @@ def call(jobs):
             try:
                 args = parser.parse_args(job.args[1:])
 
+                # Each report will be stored in the DB
+                reports_to_store.append(args)
+
                 to = get_emails_from_dashboard_users()
                 if not to:
                     logger.error(
@@ -249,8 +252,6 @@ def call(jobs):
                 if args.stdout:
                     job.pyprint(content)
 
-                # Each successfully generated report will be stored in the DB
-                reports_to_store.append(args)
             except Exception as e:
                 logger.exception(e)
                 job.set_status(1)
