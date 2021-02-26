@@ -54,6 +54,7 @@ def delete_transfer_directory(job, sip_uuid):
     if not transfer_path.startswith(mcpclient_settings.PROCESSING_DIRECTORY):
         raise Exception("Transfer directory was found in an unexpected location.")
     shutil.rmtree(transfer_path, ignore_errors=False)
+    return transfer_path
 
 
 def dspace_handle_to_archivesspace(job, sip_uuid):
@@ -199,11 +200,11 @@ def post_store_hook(job, sip_uuid):
     # original transfer directory under currentlyProcessing.
     if not transfer_uuids:
         try:
-            delete_transfer_directory(job, sip_uuid)
+            transfer_dir = delete_transfer_directory(job, sip_uuid)
         except Exception as err:
             job.pyprint("Failed to delete transfer directory: ", err, file=sys.stderr)
             return
-        job.pyprint("Transfer directory deleted.")
+        job.pyprint("Transfer directory deleted: ", transfer_dir)
 
 
 def call(jobs):
