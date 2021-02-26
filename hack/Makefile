@@ -184,7 +184,7 @@ compile-requirements-ss:  ## Run pip-compile for Storage Service
 			-c "make clean && make all"
 
 db:  ## Connect to the MySQL server using the CLI.
-	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345
+	docker-compose exec mysql mysql -hlocalhost -uroot -p12345
 
 flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete ALL user data.
 
