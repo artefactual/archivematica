@@ -271,9 +271,15 @@ controller('ArrangementController', ['$scope', 'gettextCatalog', '$uibModal', '$
     };
 
     var on_failure = error => {
+      var message = gettextCatalog.getString('SIP could not be started! Check dashboard logs.');
+
+      if (error.hasOwnProperty("data") && error.data.hasOwnProperty("code") && "ERR_NO_FILES" == error.data.code) {
+        message = gettextCatalog.getString('It is not possible to create an empty SIP.');
+      }
+
       Alert.alerts.push({
         'type': 'danger',
-        'message': gettextCatalog.getString('SIP could not be started! Check dashboard logs.'),
+        'message': message,
       });
     };
 

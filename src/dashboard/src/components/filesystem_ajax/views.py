@@ -395,7 +395,8 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
         sip = models.SIP.objects.get(uuid=sip_uuid)
     except models.SIP.DoesNotExist:
         # Create a SIP object if none exists
-        databaseFunctions.createSIP(currentpath, sip_uuid, diruuids=diruuids)
+        path = os.path.join(sip_path.replace(shared_dir, "%sharedPath%", 1), "")
+        databaseFunctions.createSIP(path, sip_uuid, diruuids=diruuids)
         sip = models.SIP.objects.get(uuid=sip_uuid)
     else:
         # Update the already-created SIP with its path
@@ -506,7 +507,8 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                 % {"uuid": sip_uuid},
                 "error": True,
             }
-            return helpers.json_response(response, status_code=400)
+            status_code = 400
+            return status_code, response
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
@@ -568,6 +570,15 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                 }
                 if file_ not in files:
                     files.append(file_)
+
+        if not files:
+            status_code = 400
+            response = {
+                "message": _("No files were selected"),
+                "code": "ERR_NO_FILES",
+                "error": True,
+            }
+            return status_code, response
 
         logger.debug("copy_from_arrange_to_completed: files: %s", files)
         # Move files from backlog to local staging path
