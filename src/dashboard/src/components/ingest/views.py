@@ -308,10 +308,10 @@ def ingest_upload_destination_url_check(request):
 
 def ingest_upload(request, uuid):
     """
-        The upload DIP is actually not executed here, but some data is storaged
-        in the database (permalink, ...), used later by upload-qubit.py
-        - GET = It could be used to obtain DIP size
-        - POST = Create Accesses tuple with permalink
+    The upload DIP is actually not executed here, but some data is storaged
+    in the database (permalink, ...), used later by upload-qubit.py
+    - GET = It could be used to obtain DIP size
+    - POST = Create Accesses tuple with permalink
     """
     if not models.SIP.objects.filter(uuid__exact=uuid).exists():
         raise Http404
@@ -347,7 +347,10 @@ def derivative_validation_report(obj):
         normalization and derivative validation events performed on it.
     """
     file_id = obj["fileID"]
-    preservation_failed, preservation_attempted = derivative_validation_report_by_purpose(
+    (
+        preservation_failed,
+        preservation_attempted,
+    ) = derivative_validation_report_by_purpose(
         obj["preservation_derivative_validation_task_exitCode"], file_id
     )
     access_failed, access_attempted = derivative_validation_report_by_purpose(

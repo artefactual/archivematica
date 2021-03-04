@@ -17,15 +17,9 @@ import rights_from_csv
 
 class TestRightsImportFromCsvBase(TestCase):
 
-    transfer_uuid = (
-        "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
-    )  # UUID of transfer created by transfer.json
-    file_1_uuid = (
-        "47813453-6872-442b-9d65-6515be3c5aa1"
-    )  # UUID of first file created by files-transfer.json fixture
-    file_2_uuid = (
-        "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
-    )  # UUID of second file created by files-transfer.json fixture
+    transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"  # UUID of transfer created by transfer.json
+    file_1_uuid = "47813453-6872-442b-9d65-6515be3c5aa1"  # UUID of first file created by files-transfer.json fixture
+    file_2_uuid = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"  # UUID of second file created by files-transfer.json fixture
 
     def get_metadata_applies_to_type_for_file(self):
         """ Get MetadataAppliesToType instance that allies to files. """
@@ -96,11 +90,11 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_1_copyright_info.copyrightenddateopen is False
         assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-        row_1_copyright_identifier = models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_1_copyright_identifier = (
+            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
+                "pk"
+            )[0]
+        )
         assert (
             row_1_copyright_identifier.copyrightdocumentationidentifiertype
             == "cop type"
@@ -123,11 +117,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_1_grant.enddateopen is False
         assert row_1_grant.enddate == "2005-05-05"
 
-        row_1_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_1_restriction = (
+            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[0]
+        )
         assert row_1_restriction.rightsgranted == row_1_grant
         assert row_1_restriction.restriction == "Allow"
 
@@ -156,11 +148,11 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_3_copyright_info.copyrightenddateopen is False
         assert row_3_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-        row_3_copyright_identifier = models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-            "pk"
-        )[
-            1
-        ]
+        row_3_copyright_identifier = (
+            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
+                "pk"
+            )[1]
+        )
         assert (
             row_3_copyright_identifier.copyrightdocumentationidentifiertype
             == "cop type3"
@@ -180,11 +172,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_3_grant.enddateopen is False
         assert row_3_grant.enddate == "2005-05-05"
 
-        row_3_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
-            "pk"
-        )[
-            1
-        ]
+        row_3_restriction = (
+            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[1]
+        )
         assert row_3_restriction.rightsgranted == row_3_grant
         assert row_3_restriction.restriction == "Allow"
 
@@ -211,11 +201,11 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_4_license_info.licenseenddateopen is False
         assert row_4_license_info.licenseapplicableenddate == "1983-02-02"
 
-        row_4_license_identifier = models.RightsStatementLicenseDocumentationIdentifier.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_4_license_identifier = (
+            models.RightsStatementLicenseDocumentationIdentifier.objects.order_by("pk")[
+                0
+            ]
+        )
         assert (
             row_4_license_identifier.licensedocumentationidentifiertype
             == "license type"
@@ -237,11 +227,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_4_grant.enddateopen is False
         assert row_4_grant.enddate is None
 
-        row_4_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
-            "pk"
-        )[
-            2
-        ]
+        row_4_restriction = (
+            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[2]
+        )
         assert row_4_restriction.rightsgranted == row_4_grant
         assert row_4_restriction.restriction == "Allow"
 
@@ -266,11 +254,11 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_5_statute_info.statuteenddateopen is True
         assert row_5_statute_info.statuteapplicableenddate is None
 
-        row_5_statute_identifier = models.RightsStatementStatuteDocumentationIdentifier.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_5_statute_identifier = (
+            models.RightsStatementStatuteDocumentationIdentifier.objects.order_by("pk")[
+                0
+            ]
+        )
         assert (
             row_5_statute_identifier.statutedocumentationidentifiertype
             == "statute type"
@@ -284,11 +272,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
             == "statute role"
         )
 
-        row_5_statute_note = models.RightsStatementStatuteInformationNote.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_5_statute_note = (
+            models.RightsStatementStatuteInformationNote.objects.order_by("pk")[0]
+        )
         assert row_5_statute_note.rightsstatementstatute == row_5_statute_info
         assert row_5_statute_note.statutenote == "statute note"
 
@@ -299,11 +285,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_5_grant.enddateopen is False
         assert row_5_grant.enddate is None
 
-        row_5_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
-            "pk"
-        )[
-            3
-        ]
+        row_5_restriction = (
+            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[3]
+        )
         assert row_5_restriction.rightsgranted == row_5_grant
         assert row_5_restriction.restriction == "Allow"
 
@@ -317,22 +301,18 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_6_rights_statement.status == "ORIGINAL"
         assert row_6_rights_statement.rightsbasis == "Other"
 
-        row_6_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_6_other_info = (
+            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[0]
+        )
         assert row_6_other_info.rightsstatement == row_6_rights_statement
         assert row_6_other_info.otherrightsbasis == "Other"
         assert row_6_other_info.otherrightsapplicablestartdate == "1945-01-01"
         assert row_6_other_info.otherrightsenddateopen is False
         assert row_6_other_info.otherrightsapplicableenddate == "1950-05-05"
 
-        row_6_other_note = models.RightsStatementOtherRightsInformationNote.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_6_other_note = (
+            models.RightsStatementOtherRightsInformationNote.objects.order_by("pk")[0]
+        )
         assert row_6_other_note.rightsstatementotherrights == row_6_other_info
         assert row_6_other_note.otherrightsnote == "other note"
 
@@ -343,11 +323,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_6_grant.enddateopen is False
         assert row_6_grant.enddate == "1921-01-01"
 
-        row_6_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
-            "pk"
-        )[
-            4
-        ]
+        row_6_restriction = (
+            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[4]
+        )
         assert row_6_restriction.rightsgranted == row_6_grant
         assert row_6_restriction.restriction == "Allow"
 
@@ -367,11 +345,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_7_rights_statement.status == "ORIGINAL"
         assert row_7_rights_statement.rightsbasis == "Donor"
 
-        row_7_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
-            "pk"
-        )[
-            1
-        ]
+        row_7_other_info = (
+            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[1]
+        )
         assert row_7_other_info.rightsstatement == row_7_rights_statement
         assert row_7_other_info.otherrightsbasis == "Donor"
         assert row_7_other_info.otherrightsapplicablestartdate is None
@@ -395,11 +371,9 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_8_rights_statement.status == "ORIGINAL"
         assert row_8_rights_statement.rightsbasis == "Policy"
 
-        row_8_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
-            "pk"
-        )[
-            2
-        ]
+        row_8_other_info = (
+            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[2]
+        )
         assert row_8_other_info.rightsstatement == row_8_rights_statement
         assert row_8_other_info.otherrightsbasis == "Policy"
         assert row_8_other_info.otherrightsapplicablestartdate is None
@@ -456,11 +430,11 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
         assert row_1_copyright_info.copyrightenddateopen is False
         assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-        row_1_copyright_identifier = models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-            "pk"
-        )[
-            0
-        ]
+        row_1_copyright_identifier = (
+            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
+                "pk"
+            )[0]
+        )
         assert (
             row_1_copyright_identifier.copyrightdocumentationidentifiertype
             == "cop type"

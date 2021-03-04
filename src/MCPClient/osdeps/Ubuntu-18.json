@@ -3,8 +3,135 @@
     "Add any comments here",
     "Include here keys, repos, and packages required by this component"
   ],
+  "osdeps_packages": [
+    {
+      "name": "atool",
+      "state": "latest"
+    },
+    {
+      "name": "bulk-extractor",
+      "state": "latest"
+    },
+    {
+      "name": "ffmpeg",
+      "state": "latest"
+    },
+    {
+      "name": "fits",
+      "state": "latest"
+    },
+    {
+      "name": "gearman",
+      "state": "latest"
+    },
+    {
+      "name": "ghostscript",
+      "state": "latest"
+    },
+    {
+      "name": "hashdeep",
+      "state": "latest"
+    },
+    {
+      "name": "imagemagick",
+      "state": "latest"
+    },
+    {
+      "name": "inkscape",
+      "state": "latest"
+    },
+    {
+      "name": "jhove",
+      "state": "latest"
+    },
+    {
+      "name": "libimage-exiftool-perl",
+      "state": "latest"
+    },
+    {
+      "name": "logapp",
+      "state": "latest"
+    },
+    {
+      "name": "md5deep",
+      "state": "latest"
+    },
+    {
+      "name": "nailgun",
+      "state": "latest"
+    },
+    {
+      "name": "mediaconch",
+      "state": "latest"
+    },
+    {
+      "name": "mediainfo",
+      "state": "latest"
+    },
+    {
+      "name": "nfs-common",
+      "state": "latest"
+    },
+    {
+      "name": "openjdk-8-jre-headless",
+      "state": "latest"
+    },
+    {
+      "name": "p7zip-full",
+      "state": "latest"
+    },
+    {
+      "name": "pbzip2",
+      "state": "latest"
+    },
+    {
+      "name": "postfix",
+      "state": "latest"
+    },
+    {
+      "name": "pst-utils",
+      "state": "latest"
+    },
+    {
+      "name": "rsync",
+      "state": "latest"
+    },
+    {
+      "name": "siegfried",
+      "state": "latest"
+    },
+    {
+      "name": "sleuthkit",
+      "state": "latest"
+    },
+    {
+      "name": "tesseract-ocr",
+      "state": "latest"
+    },
+    {
+      "name": "tree",
+      "state": "latest"
+    },
+    {
+      "name": "ufraw",
+      "state": "latest"
+    },
+    {
+      "name": "unrar-free",
+      "state": "latest"
+    },
+    {
+      "name": "uuid",
+      "state": "latest"
+    },
+    {
+      "name": "libmysqlclient-dev",
+      "state": "latest"
+    }
+  ],
   "osdeps_repokeys": [
-    { "id": "0x5236CA08",
+    {
+      "id": "0x5236CA08",
       "url": "https://packages.archivematica.org/GPG-KEY-archivematica",
       "validate_certs": "no"
     }
@@ -14,38 +141,5 @@
     "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe",
     "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse"
-  ],
-  "osdeps_packages": [
-  { "name": "atool", "state": "latest"},
-  { "name": "bulk-extractor", "state": "latest"},
-  { "name": "ffmpeg", "state": "latest"},
-  { "name": "fits", "state": "latest"},
-  { "name": "gearman", "state": "latest"},
-  { "name": "ghostscript", "state": "latest"},
-  { "name": "hashdeep", "state": "latest"},
-  { "name": "imagemagick", "state": "latest"},
-  { "name": "inkscape", "state": "latest"},
-  { "name": "jhove", "state": "latest"},
-  { "name": "libimage-exiftool-perl", "state": "latest"},
-  { "name": "logapp", "state": "latest"},
-  { "name": "md5deep", "state": "latest"},
-  { "name": "nailgun", "state": "latest"},
-  { "name": "mediaconch", "state": "latest"},
-  { "name": "mediainfo", "state": "latest"},
-  { "name": "nfs-common", "state": "latest"},
-  { "name": "openjdk-8-jre-headless", "state": "latest"},
-  { "name": "p7zip-full", "state": "latest"},
-  { "name": "pbzip2", "state": "latest"},
-  { "name": "postfix", "state": "latest"},
-  { "name": "pst-utils", "state": "latest"},
-  { "name": "rsync", "state": "latest"},
-  { "name": "siegfried", "state": "latest"},
-  { "name": "sleuthkit", "state": "latest"},
-  { "name": "tesseract-ocr", "state": "latest"},
-  { "name": "tree", "state": "latest"},
-  { "name": "ufraw", "state": "latest"},
-  { "name": "unrar-free", "state": "latest"},
-  { "name": "uuid", "state": "latest"},
-  { "name": "libmysqlclient-dev", "state": "latest"}
   ]
 }

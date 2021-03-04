@@ -5,23 +5,60 @@
     "gettext is only required in development environments (used to make string translateable)",
     "policycoreutils-python is for redhat/centos only?"
   ],
-  "osdeps_repokeys": [
-  ],
-  "osdeps_repos": [
-  ],
   "osdeps_packages": [
-  { "name": "gcc", "state": "latest"},
-  { "name": "gcc-c++", "state": "latest"},
-  { "name": "gettext", "state": "latest"},
-  { "name": "nginx", "state": "latest"},
-  { "name": "policycoreutils-python", "state": "latest"},
-  { "name": "libffi-devel", "state": "latest"},
-  { "name": "libxml2-devel", "state": "latest"},
-  { "name": "libxslt-devel", "state": "latest"},
-  { "name": "openssl-devel", "state": "latest"},
-  { "name": "python-devel", "state": "latest"},
-  { "name": "openldap-devel", "state": "latest"},
-  { "name": "unar", "state": "latest"},
-  { "name": "coreutils", "state": "latest"}
-  ]
+    {
+      "name": "gcc",
+      "state": "latest"
+    },
+    {
+      "name": "gcc-c++",
+      "state": "latest"
+    },
+    {
+      "name": "gettext",
+      "state": "latest"
+    },
+    {
+      "name": "nginx",
+      "state": "latest"
+    },
+    {
+      "name": "policycoreutils-python",
+      "state": "latest"
+    },
+    {
+      "name": "libffi-devel",
+      "state": "latest"
+    },
+    {
+      "name": "libxml2-devel",
+      "state": "latest"
+    },
+    {
+      "name": "libxslt-devel",
+      "state": "latest"
+    },
+    {
+      "name": "openssl-devel",
+      "state": "latest"
+    },
+    {
+      "name": "python-devel",
+      "state": "latest"
+    },
+    {
+      "name": "openldap-devel",
+      "state": "latest"
+    },
+    {
+      "name": "unar",
+      "state": "latest"
+    },
+    {
+      "name": "coreutils",
+      "state": "latest"
+    }
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": []
 }

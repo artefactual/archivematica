@@ -200,8 +200,10 @@ class PolicyChecker(object):
         (see ``self._get_rules()``).
         """
         manually_normalized_file_name = os.path.basename(self.file_path)[37:]
-        manually_normalized_file_path = "%transferDirectory%objects/manualNormalization/access/{}".format(
-            manually_normalized_file_name
+        manually_normalized_file_path = (
+            "%transferDirectory%objects/manualNormalization/access/{}".format(
+                manually_normalized_file_name
+            )
         )
         try:
             return File.objects.get(

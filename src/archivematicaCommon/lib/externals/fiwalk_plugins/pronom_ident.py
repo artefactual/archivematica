@@ -24,8 +24,7 @@ class FiwalkFido(fido.Fido):
         self.handle_matches = self.parse_matches
 
     def identify_file(self, filename):
-        """Identify the type of @param filename.
-"""
+        """Identify the type of @param filename."""
         self.current_file = filename
         try:
             t0 = time.clock()

@@ -35,8 +35,7 @@ class MockJob(Job):
 
 
 class MockDecisionJob(DecisionJob):
-    """Mock Job that passes our checks for DecisionJob.
-    """
+    """Mock Job that passes our checks for DecisionJob."""
 
     def __init__(self, *args, **kwargs):
         super(MockDecisionJob, self).__init__(*args, **kwargs)

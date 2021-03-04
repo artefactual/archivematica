@@ -67,14 +67,12 @@ class Task(object):
     @classmethod
     @auto_close_old_connections()
     def bulk_log(self, tasks, job):
-        """Log tasks to the database, in bulk.
-        """
+        """Log tasks to the database, in bulk."""
         model_objects = [task.to_db_model(job) for task in tasks]
         models.Task.objects.bulk_create(model_objects)
 
     def to_db_model(self, job):
-        """Returns an instance of the `Task` Django model.
-        """
+        """Returns an instance of the `Task` Django model."""
         job_uuid = job.uuid
         file_uuid = self.context.get(r"%fileUUID%", "")
         task_exec = job.link.config.get("execute")

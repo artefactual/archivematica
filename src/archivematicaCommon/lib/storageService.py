@@ -162,7 +162,7 @@ def get_pipeline(uuid):
 
 
 def get_location(path=None, purpose=None, space=None):
-    """ Returns a list of storage locations, filtered by parameters.
+    """Returns a list of storage locations, filtered by parameters.
 
     Queries the storage service and returns a list of storage locations,
     optionally filtered by purpose, containing space or path.
@@ -430,7 +430,7 @@ def get_file_info(
     package_type=None,
     status=None,
 ):
-    """ Returns a list of files, optionally filtered by parameters.
+    """Returns a list of files, optionally filtered by parameters.
 
     Queries the storage service and returns a list of files,
     optionally filtered by origin location/path, current location/path, or

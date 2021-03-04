@@ -184,9 +184,9 @@ def bulk_extractor(request, fileuuid):
 def _parse_bulk_extractor_report(data):
     headers = ["offset", "content", "context"]
     return [
-        dict(list(zip(headers, l.split("\t"))))
-        for l in data.splitlines()
-        if not l.startswith("#")
+        dict(list(zip(headers, line.split("\t"))))
+        for line in data.splitlines()
+        if not line.startswith("#")
     ]
 
 

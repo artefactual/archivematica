@@ -14,8 +14,7 @@ class TaskBackend(object):
 
     @abc.abstractmethod
     def submit_task(self, job, task):
-        """Submit a task as part of the job given, for offline processing.
-        """
+        """Submit a task as part of the job given, for offline processing."""
 
     @abc.abstractmethod
     def wait_for_results(self, job):

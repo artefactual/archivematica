@@ -582,8 +582,10 @@ def init_convert_dataverse(job):
         logger.info("Convert Dataverse Structure with dir: '%s'", transfer_dir)
         return convert_dataverse_to_mets(job, unit_path=transfer_dir)
     except IndexError:
-        convert_dv_msg = "Problem with the supplied arguments to the function len: {}".format(
-            len(job.args)
+        convert_dv_msg = (
+            "Problem with the supplied arguments to the function len: {}".format(
+                len(job.args)
+            )
         )
         logger.error(convert_dv_msg)
         raise ConvertDataverseError(convert_dv_msg)

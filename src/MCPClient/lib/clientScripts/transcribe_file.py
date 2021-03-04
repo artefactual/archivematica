@@ -141,7 +141,7 @@ def main(job, task_uuid, file_uuid):
     for rule in rules:
         script = rule.command.command
         if rule.command.script_type in ("bashScript", "command"):
-            script, = rd.replace(script)
+            (script,) = rd.replace(script)
             args = []
         else:
             args = rd.to_gnu_options

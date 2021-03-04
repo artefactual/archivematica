@@ -123,18 +123,18 @@ def start(job, data):
 
     # Rsync if data.rsync_target option was passed to this script
     if data.rsync_target:
-        """ Build command (rsync)
-          -a =
-            -r = recursive
-            -l = recreate symlinks on destination
-            -p = set same permissions
-            -t = transfer modification times
-            -g = set same group owner on destination
-            -o = set same user owner on destination (if possible, super-user)
-            --devices = transfer character and block device files (only super-user)
-            --specials = transfer special files like sockets and fifos
-          -z = compress
-          -P = --partial + --stats
+        """Build command (rsync)
+        -a =
+          -r = recursive
+          -l = recreate symlinks on destination
+          -p = set same permissions
+          -t = transfer modification times
+          -g = set same group owner on destination
+          -o = set same user owner on destination (if possible, super-user)
+          --devices = transfer character and block device files (only super-user)
+          --specials = transfer special files like sockets and fifos
+        -z = compress
+        -P = --partial + --stats
         """
         # Using rsync -rltzP
         command = [

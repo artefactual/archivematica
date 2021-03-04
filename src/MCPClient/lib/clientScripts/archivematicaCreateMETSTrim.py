@@ -54,9 +54,11 @@ def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
     etree.SubElement(dublincore, ns.dctermsBNS + "title").text = root.find(
         "Container/TitleFreeTextPart"
     ).text
-    etree.SubElement(dublincore, ns.dctermsBNS + "provenance").text = (
-        "Department: %s; OPR: %s"
-        % (root.find("Container/Department").text, root.find("Container/OPR").text)
+    etree.SubElement(
+        dublincore, ns.dctermsBNS + "provenance"
+    ).text = "Department: %s; OPR: %s" % (
+        root.find("Container/Department").text,
+        root.find("Container/OPR").text,
     )
     etree.SubElement(dublincore, ns.dctermsBNS + "isPartOf").text = root.find(
         "Container/FullClassificationNumber"
@@ -71,7 +73,7 @@ def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
     )
     etree.SubElement(
         dublincore, ns.dctermsBNS + "extent"
-    ).text = "%d digital objects".format(files.count())
+    ).text = "{} digital objects".format(files.count())
 
     files = File.objects.filter(
         removedtime__isnull=True,

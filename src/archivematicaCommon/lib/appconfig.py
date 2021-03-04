@@ -143,8 +143,7 @@ def process_search_enabled(config, section):
 
 
 def process_watched_directory_interval(config, section):
-    """Backward compatible lookup of watch_directory_interval.
-    """
+    """Backward compatible lookup of watch_directory_interval."""
     options = [
         {"section": section, "option": "watch_directory_interval", "type": "int"},
         {"section": section, "option": "watchDirectoriesPollInterval", "type": "int"},

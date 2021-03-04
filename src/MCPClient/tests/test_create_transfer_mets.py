@@ -248,10 +248,12 @@ def other_rights(db, basic_rights_statement):
     basic_rights_statement.rightsbasis = "Other"
     basic_rights_statement.save()
 
-    other_info = basic_rights_statement.rightsstatementotherrightsinformation_set.create(
-        otherrightsbasis="A basis for rights",
-        otherrightsapplicablestartdate="2001-10-10",
-        otherrightsenddateopen=True,
+    other_info = (
+        basic_rights_statement.rightsstatementotherrightsinformation_set.create(
+            otherrightsbasis="A basis for rights",
+            otherrightsapplicablestartdate="2001-10-10",
+            otherrightsenddateopen=True,
+        )
     )
     other_info.rightsstatementotherrightsdocumentationidentifier_set.create(
         otherrightsdocumentationidentifiertype="Tranfer form ID",

@@ -144,8 +144,7 @@ class JobChain(object):
             self.current_job.mark_complete()
 
     def chain_completed(self):
-        """Log chain completion
-        """
+        """Log chain completion"""
         logger.debug(
             "Done with chain %s for package %s", self.chain.id, self.package.uuid
         )

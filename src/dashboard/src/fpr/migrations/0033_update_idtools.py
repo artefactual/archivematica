@@ -60,8 +60,7 @@ def data_migration_up(apps, schema_editor):
 
 
 def data_migration_down(apps, schema_editor):
-    """Revert FIDO and Siegfriend to previous versions
-    """
+    """Revert FIDO and Siegfriend to previous versions"""
     idtool = apps.get_model("fpr", "IDTool")
     idcommand = apps.get_model("fpr", "IDCommand")
 

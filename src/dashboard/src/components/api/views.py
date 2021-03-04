@@ -386,7 +386,7 @@ def start_transfer_api(request):
 def completed_transfers(request):
     """Return all completed transfers::
 
-        GET /api/transfer/completed?username=<am-username>&api_key=<am-api-key>
+    GET /api/transfer/completed?username=<am-username>&api_key=<am-api-key>
 
     """
     response = {}
@@ -400,7 +400,7 @@ def completed_transfers(request):
 def completed_ingests(request):
     """Return all completed ingests::
 
-        GET /api/ingest/completed?username=<am-username>&api_key=<am-api-key>
+    GET /api/ingest/completed?username=<am-username>&api_key=<am-api-key>
 
     """
     response = {}
@@ -688,7 +688,7 @@ def get_levels_of_description(request):
     each level of description.
     """
     levels = models.LevelOfDescription.objects.all().order_by("sortorder")
-    response = [{l.id: l.name} for l in levels]
+    response = [{level.id: level.name} for level in levels]
     return helpers.json_response(response)
 
 

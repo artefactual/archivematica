@@ -219,7 +219,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
     """
     processing_location = storage_service.get_first_location(purpose="CP")
     transfer_sources = storage_service.get_location(purpose="TS")
-    files = {l["uuid"]: {"location": l, "files": []} for l in transfer_sources}
+    files = {ts["uuid"]: {"location": ts, "files": []} for ts in transfer_sources}
 
     for item in paths:
         location, path = LocationPath(item).parts()
@@ -541,8 +541,7 @@ def get_file_replacement_mapping(file_obj, unit_directory):
 
 @six.add_metaclass(abc.ABCMeta)
 class Package(object):
-    """A `Package` can be a Transfer, a SIP, or a DIP.
-    """
+    """A `Package` can be a Transfer, a SIP, or a DIP."""
 
     def __init__(self, current_path, uuid):
         self._current_path = current_path.replace(
@@ -565,16 +564,14 @@ class Package(object):
 
     @current_path.setter
     def current_path(self, value):
-        """The real (no shared dir vars) path to the package.
-        """
+        """The real (no shared dir vars) path to the package."""
         self._current_path = value.replace(
             r"%sharedPath%", _get_setting("SHARED_DIRECTORY")
         )
 
     @property
     def current_path_for_db(self):
-        """The path to the package, as stored in the database.
-        """
+        """The path to the package, as stored in the database."""
         return self.current_path.replace(
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
@@ -591,8 +588,7 @@ class Package(object):
 
     @property
     def context(self):
-        """Returns a `PackageContext` for this package.
-        """
+        """Returns a `PackageContext` for this package."""
         # This needs to be reloaded from the db every time, because new values
         # could have been added by a client script.
         # TODO: pass context changes back from client
@@ -677,8 +673,7 @@ class Package(object):
 
     @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
-        """Sets a UnitVariable, which tracks choices made by users during processing.
-        """
+        """Sets a UnitVariable, which tracks choices made by users during processing."""
         # TODO: refactor this concept
         if not value:
             value = ""
@@ -872,8 +867,7 @@ class SIP(SIPDIP):
 
 
 class PackageContext(object):
-    """Package context tracks choices made previously while processing
-    """
+    """Package context tracks choices made previously while processing"""
 
     def __init__(self, *items):
         self._data = collections.OrderedDict()

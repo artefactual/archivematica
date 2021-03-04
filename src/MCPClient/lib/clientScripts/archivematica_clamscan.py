@@ -132,7 +132,7 @@ class ClamdScanner(ScannerBase):
 
     @staticmethod
     def clamd_exception_handler(err):
-        """ Manage each decision for an exception when it is raised. Ensure
+        """Manage each decision for an exception when it is raised. Ensure
         that each decision can be tested to meet the documented Archivematica
         antivirus feature definition.
         """
@@ -272,7 +272,7 @@ DEFAULT_SCANNER = ClamdScanner
 
 
 def get_scanner():
-    """ Return the ClamAV client configured by the user and found in the
+    """Return the ClamAV client configured by the user and found in the
     installation's environment variables. Clamdscanner may perform quicker
     than Clamscanner given a larger number of objects. Return clamdscanner
     object as a default if no other, or an incorrect value is specified.

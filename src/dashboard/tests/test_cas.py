@@ -70,14 +70,12 @@ class TestCAS(TestCase):
         self.client = Client()
 
     def authenticate_user(self, request):
-        """Helper function to authenticate a user using custom backend.
-        """
+        """Helper function to authenticate a user using custom backend."""
         backend = CustomCASBackend()
         backend.authenticate(request, ticket="fake-ticket", service="fake-service")
 
     def create_request(self):
-        """Helper function to create request that will redirect to CAS.
-        """
+        """Helper function to create request that will redirect to CAS."""
         factory = RequestFactory()
         request = factory.get("/")
         request.session = {}
@@ -98,8 +96,7 @@ class TestCAS(TestCase):
 
     @mock.patch("cas.CASClientV2.verify_ticket", mock_verify)
     def test_autoconfigure_email(self):
-        """Test that email is autoconfigured from username and domain.
-        """
+        """Test that email is autoconfigured from username and domain."""
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
         with self.settings(
@@ -221,8 +218,7 @@ class TestCAS(TestCase):
             assert user.is_superuser is False
 
     def test_cas_user_is_administrator(self):
-        """Unit test for _cas_user_is_administrator helper.
-        """
+        """Unit test for _cas_user_is_administrator helper."""
         # If settings are improperly configured, function should return
         # False.
         with self.settings(

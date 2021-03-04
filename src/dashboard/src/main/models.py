@@ -963,8 +963,10 @@ class Agent(models.Model):
     objects = AgentManager()
 
     def __str__(self):
-        return u"{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
-            a=self
+        return (
+            u"{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
+                a=self
+            )
         )
 
     class Meta:
