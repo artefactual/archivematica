@@ -19,7 +19,7 @@ from six import StringIO
 
 
 def parse_attachment(message_part, state, attachments=None):
-    """ Extract the attachment and metadata about it from the message.
+    """Extract the attachment and metadata about it from the message.
 
     Returns the content, content type, size, and create/modification/read dates
     for the attachment.

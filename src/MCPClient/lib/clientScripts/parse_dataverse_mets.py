@@ -277,8 +277,7 @@ def verify_checksum(
 
 
 def parse_dataverse_mets(job, unit_path, unit_uuid):
-    """Access the existing METS file and extract and validate its components.
-    """
+    """Access the existing METS file and extract and validate its components."""
     dataverse_mets_path = os.path.join(unit_path, "metadata", "METS.xml")
     mets = metsrw.METSDocument.fromfile(dataverse_mets_path)
     mapping = get_db_objects(job, mets, unit_uuid)

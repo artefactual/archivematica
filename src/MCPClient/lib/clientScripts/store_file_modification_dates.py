@@ -47,8 +47,10 @@ def main(transfer_uuid, shared_directory_path):
     mods_stored = 0
     for transfer_file in files:
         try:
-            file_path_relative_to_shared_directory = transfer_file.currentlocation.replace(
-                "%transferDirectory%", transfer.currentlocation, 1
+            file_path_relative_to_shared_directory = (
+                transfer_file.currentlocation.replace(
+                    "%transferDirectory%", transfer.currentlocation, 1
+                )
             )
         except AttributeError:
             logger.info(

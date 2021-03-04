@@ -36,8 +36,10 @@ def mets_hdr():
 
 
 def setup_ptr_info(sip_uuid):
-    pointer_url = "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
-        sip_uuid
+    pointer_url = (
+        "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
+            sip_uuid
+        )
     )
     pointer_file = "pointer.{}.xml".format(sip_uuid)
     content_disposition = 'attachment; filename="{}"'.format(pointer_file)

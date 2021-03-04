@@ -36,8 +36,8 @@ def get_fpr_models():
 def update_references_to_object(
     model_referenced, key_field_name, old_object, new_object
 ):
-    """ Update references to an object, introspecting models, finding foreign
-    key relations to the referenced model, and updating the references. """
+    """Update references to an object, introspecting models, finding foreign
+    key relations to the referenced model, and updating the references."""
 
     # don't need to update references if it's a newly created object
     if old_object is None:
@@ -63,8 +63,8 @@ def update_references_to_object(
 
 
 def determine_what_replaces_model_instance(model, instance):
-    """ Determine what object, if any, will be replaced by creating a new
-    revision. """
+    """Determine what object, if any, will be replaced by creating a new
+    revision."""
     if instance:
         # if replacing the latest version or base on old version
         if instance.enabled:

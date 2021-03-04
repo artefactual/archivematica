@@ -54,8 +54,7 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
 
 @pytest.mark.django_db(transaction=True)
 def test_watched_dir_handler_creates_transfer_for_file(mocker, tmpdir):
-    """Test that a models.Transfer object exists for a file path.
-    """
+    """Test that a models.Transfer object exists for a file path."""
     # We're not interested in the package queue or the link chaining logics here,
     # so we mock very limited implementations for those.
     job_chain_mock = mocker.MagicMock()

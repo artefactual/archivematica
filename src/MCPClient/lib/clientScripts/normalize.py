@@ -79,14 +79,14 @@ def get_replacement_dict(job, opts):
 
 
 def check_manual_normalization(job, opts):
-    """ Checks for manually normalized file, returns that path or None.
+    """Checks for manually normalized file, returns that path or None.
 
     Checks by looking for access/preservation files for a give original file.
 
     Check the manualNormalization/access and manualNormalization/preservation
     directories for access and preservation files.  If a nomalization.csv
     file is specified, check there first for the mapping between original
-    file and access/preservation file. """
+    file and access/preservation file."""
 
     # If normalization.csv provided, check there for mapping from original
     # to access/preservation file
@@ -195,7 +195,7 @@ def check_manual_normalization(job, opts):
 
 
 def once_normalized(job, command, opts, replacement_dict):
-    """ Updates the database if normalization completed successfully.
+    """Updates the database if normalization completed successfully.
 
     Callback from transcoder.Command
 

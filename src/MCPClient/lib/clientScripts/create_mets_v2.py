@@ -327,7 +327,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                 elem_namespace = ns.dctermsBNS
             match = re.match(refinement_regex, key)
             if match:
-                key, = match.groups()
+                (key,) = match.groups()
             for v in value:
                 try:
                     etree.SubElement(dc, elem_namespace + key).text = v.decode("utf-8")

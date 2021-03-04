@@ -51,10 +51,10 @@ def get_sip_directories(job, sip_dir):
 
 
 def create_directories(base_dir, dir_list):
-    """ Create all the SIP's directories in the bag's data/ folder.
+    """Create all the SIP's directories in the bag's data/ folder.
 
     Some directories should have been created in the data/ folder by the bagit
-    command, but create any empty (or unspecified) directories. """
+    command, but create any empty (or unspecified) directories."""
     for directory in dir_list:
         directory = os.path.join(base_dir, directory)
         try:

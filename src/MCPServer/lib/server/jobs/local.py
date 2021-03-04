@@ -34,8 +34,7 @@ class LocalJob(Job):
 
 
 class GetUnitVarLinkJob(LocalJob):
-    """Gets the next link in the chain from a UnitVariable.
-    """
+    """Gets the next link in the chain from a UnitVariable."""
 
     # TODO: replace this concept, if possible
 
@@ -69,8 +68,7 @@ class GetUnitVarLinkJob(LocalJob):
 
 
 class SetUnitVarLinkJob(LocalJob):
-    """Sets the unit variable configured in the workflow.
-    """
+    """Sets the unit variable configured in the workflow."""
 
     # TODO: replace this concept, if possible
 

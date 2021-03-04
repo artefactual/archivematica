@@ -23,9 +23,9 @@ def main(uuid, log_path, output):
             data = f.read()
 
         features[name] = [
-            dict(list(zip(HEADERS, l.split("\t"))))
-            for l in data.splitlines()
-            if not l.startswith("#")
+            dict(list(zip(HEADERS, line.split("\t"))))
+            for line in data.splitlines()
+            if not line.startswith("#")
         ]
 
     with open(os.path.join(output, uuid), "w") as outfile:

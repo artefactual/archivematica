@@ -35,8 +35,7 @@ class MCPGearmanClient(GearmanClient):
         """
 
         def continue_while_no_job_completed(any_activity):
-            """Returns False (exiting the poll loop) if anything was completed.
-            """
+            """Returns False (exiting the poll loop) if anything was completed."""
             for current_request in job_requests:
                 if current_request.complete and current_request.state != JOB_UNKNOWN:
                     return False
@@ -168,8 +167,7 @@ class GearmanTaskBackend(TaskBackend):
 
 
 class GearmanTaskBatch(object):
-    """A collection of `Task` objects, to be submitted as one gearman job.
-    """
+    """A collection of `Task` objects, to be submitted as one gearman job."""
 
     def __init__(self):
         self.uuid = uuid.uuid4()

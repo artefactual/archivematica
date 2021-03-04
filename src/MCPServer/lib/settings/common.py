@@ -247,8 +247,7 @@ else:
 
 
 def concurrent_packages_default():
-    """Default to 1/2 of CPU count, rounded up.
-    """
+    """Default to 1/2 of CPU count, rounded up."""
     cpu_count = multiprocessing.cpu_count()
     return int(math.ceil(cpu_count / 2))
 

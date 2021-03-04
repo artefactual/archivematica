@@ -79,14 +79,12 @@ class ClientScriptJob(Job):
 
     @property
     def stdout_file(self):
-        """A file path to capture job stdout, as defined in the workflow.
-        """
+        """A file path to capture job stdout, as defined in the workflow."""
         return self.link.config.get("stdout_file")
 
     @property
     def stderr_file(self):
-        """A file path to capture job stderr, as defined in the workflow.
-        """
+        """A file path to capture job stderr, as defined in the workflow."""
         return self.link.config.get("stderr_file")
 
     @staticmethod
@@ -152,8 +150,7 @@ class ClientScriptJob(Job):
             self.task_completed_callback(task)
 
     def task_completed_callback(self, task):
-        """Hook for child classes.
-        """
+        """Hook for child classes."""
 
     @auto_close_old_connections()
     def update_status_from_exit_code(self):
@@ -179,14 +176,12 @@ class FilesClientScriptJob(ClientScriptJob):
 
     @property
     def filter_file_start(self):
-        """Returns path prefix to filter files on, as defined in the workflow.
-        """
+        """Returns path prefix to filter files on, as defined in the workflow."""
         return self.link.config.get("filter_file_start", "")
 
     @property
     def filter_file_end(self):
-        """Returns path suffix to filter files on, as defined in the workflow.
-        """
+        """Returns path suffix to filter files on, as defined in the workflow."""
         return self.link.config.get("filter_file_end", "")
 
     @property
@@ -224,8 +219,7 @@ class FilesClientScriptJob(ClientScriptJob):
         return filter_subdir
 
     def submit_tasks(self):
-        """Iterate through all matching files for the package, and submit tasks.
-        """
+        """Iterate through all matching files for the package, and submit tasks."""
         for file_replacements in self.package.files(
             filter_filename_start=self.filter_file_start,
             filter_filename_end=self.filter_file_end,

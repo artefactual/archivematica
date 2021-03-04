@@ -52,8 +52,7 @@ def format_gearman_request(tasks):
 
 
 def format_gearman_response(task_results):
-    """Accepts task results as a tuple of (uuid, result_dict).
-    """
+    """Accepts task results as a tuple of (uuid, result_dict)."""
     response = {"task_results": {}}
     for task_uuid, task_data in task_results:
         task_uuid = six.text_type(task_uuid)
@@ -205,8 +204,7 @@ def test_gearman_multiple_batches(
         job_requests.append(job_request)
 
     def mock_get_job_statuses(*args):
-        """Complete one batch per call, either in regular or reverse order.
-        """
+        """Complete one batch per call, either in regular or reverse order."""
         status_requests = list(job_requests)
         if reverse_result_order:
             status_requests = reversed(status_requests)

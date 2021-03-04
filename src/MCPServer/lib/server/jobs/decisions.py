@@ -87,8 +87,7 @@ class DecisionJob(Job):
 
     @abc.abstractmethod
     def get_choices(self):
-        """Returns a dict of value: description choices.
-        """
+        """Returns a dict of value: description choices."""
 
     @abc.abstractmethod
     def decide(self, choice):
@@ -133,8 +132,7 @@ class NextChainDecisionJob(DecisionJob):
 
 
 class OutputDecisionJob(DecisionJob):
-    """A job that handles a workflow decision point, with choices based on script output.
-    """
+    """A job that handles a workflow decision point, with choices based on script output."""
 
     def get_preconfigured_choice(self):
         desired_choice = load_preconfigured_choice(
@@ -171,8 +169,7 @@ class OutputDecisionJob(DecisionJob):
 
 
 class UpdateContextDecisionJob(DecisionJob):
-    """A job that updates the job chain context based on a user choice.
-    """
+    """A job that updates the job chain context based on a user choice."""
 
     # TODO: This type of job is mostly copied from the previous
     # linkTaskManagerReplacementDicFromChoice, and it seems to have multiple

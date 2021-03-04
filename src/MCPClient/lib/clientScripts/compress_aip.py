@@ -26,7 +26,7 @@ def update_unit(sip_uuid, compressed_location):
 def compress_aip(
     job, compression, compression_level, sip_directory, sip_name, sip_uuid
 ):
-    """ Compresses AIP according to compression algorithm and level.
+    """Compresses AIP according to compression algorithm and level.
     compression = AIP compression algorithm, format: <program>-<algorithm>, eg. 7z-lzma, pbzip2-
     compression_level = AIP compression level, integer between 1 and 9 inclusive
     sip_directory = Absolute path to the directory where the SIP is

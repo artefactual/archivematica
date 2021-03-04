@@ -121,7 +121,7 @@ def rmtree_upload_dip_transitory_loc(package_type, unit_path):
 
 
 def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
-    """ Stores an AIP with the storage service.
+    """Stores an AIP with the storage service.
 
     aip_destination_uri = storage service destination URI, should be of purpose
         AIP Store (AS)

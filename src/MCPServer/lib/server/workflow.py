@@ -179,8 +179,7 @@ class Link(BaseLink):
 
     @property
     def is_terminal(self):
-        """Check if the link is indicated as a terminal link.
-        """
+        """Check if the link is indicated as a terminal link."""
         return self._src.get("end", False)
 
     def get_next_link(self, code):

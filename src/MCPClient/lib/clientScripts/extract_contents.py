@@ -256,8 +256,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
 def create_extracted_dir_uuids(
     job, transfer_mdl, extraction_target, sip_directory, file_
 ):
-    """Assign UUIDs to directories via ``Directory`` objects in the database.
-    """
+    """Assign UUIDs to directories via ``Directory`` objects in the database."""
     Directory.create_many(
         dir_paths_uuids=_get_subdir_paths(
             job=job,

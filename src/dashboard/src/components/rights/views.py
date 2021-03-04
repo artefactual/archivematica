@@ -289,17 +289,19 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     )
                     createdCopyright.save()
 
-            copyrightDocIdentifier = models.RightsStatementCopyrightDocumentationIdentifier(
-                rightscopyright=createdCopyright
+            copyrightDocIdentifier = (
+                models.RightsStatementCopyrightDocumentationIdentifier(
+                    rightscopyright=createdCopyright
+                )
             )
-            copyrightDocIdentifier.copyrightdocumentationidentifiertype = request.POST.get(
-                "copyright_documentation_identifier_type", ""
+            copyrightDocIdentifier.copyrightdocumentationidentifiertype = (
+                request.POST.get("copyright_documentation_identifier_type", "")
             )
-            copyrightDocIdentifier.copyrightdocumentationidentifiervalue = request.POST.get(
-                "copyright_documentation_identifier_value", ""
+            copyrightDocIdentifier.copyrightdocumentationidentifiervalue = (
+                request.POST.get("copyright_documentation_identifier_value", "")
             )
-            copyrightDocIdentifier.copyrightdocumentationidentifierrole = request.POST.get(
-                "copyright_documentation_identifier_role", ""
+            copyrightDocIdentifier.copyrightdocumentationidentifierrole = (
+                request.POST.get("copyright_documentation_identifier_role", "")
             )
             copyrightDocIdentifier.save()
 
@@ -405,17 +407,19 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     )
                     statuteCreated.save()
 
-                statuteDocIdentifier = models.RightsStatementStatuteDocumentationIdentifier(
-                    rightsstatementstatute=statuteCreated
+                statuteDocIdentifier = (
+                    models.RightsStatementStatuteDocumentationIdentifier(
+                        rightsstatementstatute=statuteCreated
+                    )
                 )
-                statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get(
-                    "statute_documentation_identifier_type_None", ""
+                statuteDocIdentifier.statutedocumentationidentifiertype = (
+                    request.POST.get("statute_documentation_identifier_type_None", "")
                 )
-                statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get(
-                    "statute_documentation_identifier_value_None", ""
+                statuteDocIdentifier.statutedocumentationidentifiervalue = (
+                    request.POST.get("statute_documentation_identifier_value_None", "")
                 )
-                statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get(
-                    "statute_documentation_identifier_role_None", ""
+                statuteDocIdentifier.statutedocumentationidentifierrole = (
+                    request.POST.get("statute_documentation_identifier_role_None", "")
                 )
                 statuteDocIdentifier.save()
                 new_content_type_created = _("statute")
@@ -439,23 +443,31 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                         "",
                     )
                 ):
-                    statuteDocIdentifier = models.RightsStatementStatuteDocumentationIdentifier(
-                        rightsstatementstatute=form.instance
+                    statuteDocIdentifier = (
+                        models.RightsStatementStatuteDocumentationIdentifier(
+                            rightsstatementstatute=form.instance
+                        )
                     )
-                    statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get(
-                        "statute_documentation_identifier_type_"
-                        + str(form.instance.pk),
-                        "",
+                    statuteDocIdentifier.statutedocumentationidentifiertype = (
+                        request.POST.get(
+                            "statute_documentation_identifier_type_"
+                            + str(form.instance.pk),
+                            "",
+                        )
                     )
-                    statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get(
-                        "statute_documentation_identifier_value_"
-                        + str(form.instance.pk),
-                        "",
+                    statuteDocIdentifier.statutedocumentationidentifiervalue = (
+                        request.POST.get(
+                            "statute_documentation_identifier_value_"
+                            + str(form.instance.pk),
+                            "",
+                        )
                     )
-                    statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get(
-                        "statute_documentation_identifier_role_"
-                        + str(form.instance.pk),
-                        "",
+                    statuteDocIdentifier.statutedocumentationidentifierrole = (
+                        request.POST.get(
+                            "statute_documentation_identifier_role_"
+                            + str(form.instance.pk),
+                            "",
+                        )
                     )
                     statuteDocIdentifier.save()
                     new_content_type_created = _("statute")
@@ -519,8 +531,10 @@ def rights_edit(request, uuid, id=None, section="ingest"):
             # make new "other" record if it doesn't exist
             if not createdOther:
                 try:
-                    createdOther = models.RightsStatementOtherRightsInformation.objects.get(
-                        rightsstatement=createdRights
+                    createdOther = (
+                        models.RightsStatementOtherRightsInformation.objects.get(
+                            rightsstatement=createdRights
+                        )
                     )
                 except:
                     createdOther = models.RightsStatementOtherRightsInformation(
@@ -545,8 +559,10 @@ def rights_edit(request, uuid, id=None, section="ingest"):
             # make new other record if it doesn't exist
             if not createdOther:
                 try:
-                    createdOther = models.RightsStatementOtherRightsInformation.objects.get(
-                        rightsstatement=createdRights
+                    createdOther = (
+                        models.RightsStatementOtherRightsInformation.objects.get(
+                            rightsstatement=createdRights
+                        )
                     )
                 except:
                     createdOther = models.RightsStatementOtherRightsInformation(
@@ -554,17 +570,19 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     )
                     createdOther.save()
 
-            otherDocIdentifier = models.RightsStatementOtherRightsDocumentationIdentifier(
-                rightsstatementotherrights=createdOther
+            otherDocIdentifier = (
+                models.RightsStatementOtherRightsDocumentationIdentifier(
+                    rightsstatementotherrights=createdOther
+                )
             )
-            otherDocIdentifier.otherrightsdocumentationidentifiertype = request.POST.get(
-                "other_documentation_identifier_type", ""
+            otherDocIdentifier.otherrightsdocumentationidentifiertype = (
+                request.POST.get("other_documentation_identifier_type", "")
             )
-            otherDocIdentifier.otherrightsdocumentationidentifiervalue = request.POST.get(
-                "other_documentation_identifier_value", ""
+            otherDocIdentifier.otherrightsdocumentationidentifiervalue = (
+                request.POST.get("other_documentation_identifier_value", "")
             )
-            otherDocIdentifier.otherrightsdocumentationidentifierrole = request.POST.get(
-                "other_documentation_identifier_role", ""
+            otherDocIdentifier.otherrightsdocumentationidentifierrole = (
+                request.POST.get("other_documentation_identifier_role", "")
             )
             otherDocIdentifier.save()
 

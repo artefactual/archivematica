@@ -678,7 +678,7 @@ def _move_files_within_arrange(sourcepath, destination):
 
 
 def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
-    """ Fetches all the children of original_path from backlog_uuid and creates
+    """Fetches all the children of original_path from backlog_uuid and creates
     an identical tree in arrange_path.
 
     Helper function for copy_to_arrange.
@@ -976,7 +976,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
     """
     processing_location = storage_service.get_first_location(purpose="CP")
     transfer_sources = storage_service.get_location(purpose="TS")
-    files = {l["uuid"]: {"location": l, "files": []} for l in transfer_sources}
+    files = {ts["uuid"]: {"location": ts, "files": []} for ts in transfer_sources}
 
     for p in paths:
         try:

@@ -120,8 +120,7 @@ class RPCServer(GearmanWorker):
         self.set_client_id(client_id)
 
     def after_poll(self, any_activity):
-        """Stop the work loop if the shutdown event is set.
-        """
+        """Stop the work loop if the shutdown event is set."""
         if self.shutdown_event.is_set():
             return False
 

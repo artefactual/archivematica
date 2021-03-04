@@ -3,7 +3,7 @@
     "Add any comments here",
     "Include here keys, repos, and packages required by this component"
   ],
+  "osdeps_packages": [],
   "osdeps_repokeys": [],
-  "osdeps_repos": [],
-  "osdeps_packages": []
+  "osdeps_repos": []
 }

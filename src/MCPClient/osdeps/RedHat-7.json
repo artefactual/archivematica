@@ -9,52 +9,150 @@
     "cert-forensic-tools: bulk_extractor sleuthkit libewf",
     "fido is not required here anymore, it is installed with pip (opf-fido)"
   ],
-  "osdeps_repokeys": [
-  ],
-  "osdeps_repos": [
-    { "name": "archivematica-extras",
-      "description": "archivematica extras",
-      "baseurl": "https://packages.archivematica.org/1.11.x/centos-extras",
-      "gpgcheck": "no",
-      "enabled": "yes"
+  "osdeps_packages": [
+    {
+      "name": "epel-release",
+      "state": "latest"
     }
   ],
-  "osdeps_packages": [
-  { "name": "epel-release", "state": "latest"}
-  ],
   "osdeps_packages_2": [
-  { "name": "atool", "state": "latest"},
-  { "name": "bulk_extractor", "state": "latest"},
-  { "name": "ffmpeg", "state": "latest"},
-  { "name": "fits", "state": "latest"},
-  { "name": "gearmand", "state": "latest"},
-  { "name": "ghostscript", "state": "latest"},
-  { "name": "ImageMagick", "state": "latest"},
-  { "name": "inkscape", "state": "latest"},
-  { "name": "jhove", "state": "latest"},
-  { "name": "libewf", "state": "latest"},
-  { "name": "libxml2", "state": "latest"},
-  { "name": "libpst", "state": "latest"},
-  { "name": "libraw1394", "state": "latest"},
-  { "name": "libvpx", "state": "latest"},
-  { "name": "md5deep", "state": "latest"},
-  { "name": "mediainfo", "state": "latest"},
-  { "name": "mediaconch", "state": "latest"},
-  { "name": "nfs-utils", "state": "latest"},
-  { "name": "java-1.7.0-openjdk-headless", "state": "latest"},
-  { "name": "openjpeg", "state": "latest"},
-  { "name": "p7zip", "state": "latest"},
-  { "name": "p7zip-plugins", "state": "latest"},
-  { "name": "pbzip2", "state": "latest"},
-  { "name": "perl-Image-ExifTool", "state": "latest"},
-  { "name": "postfix", "state": "latest"},
-  { "name": "rsync", "state": "latest"},
-  { "name": "siegfried", "state": "latest"},
-  { "name": "sleuthkit", "state": "latest"},
-  { "name": "tesseract", "state": "latest"},
-  { "name": "tree", "state": "latest"},
-  { "name": "ufraw", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
+    {
+      "name": "atool",
+      "state": "latest"
+    },
+    {
+      "name": "bulk_extractor",
+      "state": "latest"
+    },
+    {
+      "name": "ffmpeg",
+      "state": "latest"
+    },
+    {
+      "name": "fits",
+      "state": "latest"
+    },
+    {
+      "name": "gearmand",
+      "state": "latest"
+    },
+    {
+      "name": "ghostscript",
+      "state": "latest"
+    },
+    {
+      "name": "ImageMagick",
+      "state": "latest"
+    },
+    {
+      "name": "inkscape",
+      "state": "latest"
+    },
+    {
+      "name": "jhove",
+      "state": "latest"
+    },
+    {
+      "name": "libewf",
+      "state": "latest"
+    },
+    {
+      "name": "libxml2",
+      "state": "latest"
+    },
+    {
+      "name": "libpst",
+      "state": "latest"
+    },
+    {
+      "name": "libraw1394",
+      "state": "latest"
+    },
+    {
+      "name": "libvpx",
+      "state": "latest"
+    },
+    {
+      "name": "md5deep",
+      "state": "latest"
+    },
+    {
+      "name": "mediainfo",
+      "state": "latest"
+    },
+    {
+      "name": "mediaconch",
+      "state": "latest"
+    },
+    {
+      "name": "nfs-utils",
+      "state": "latest"
+    },
+    {
+      "name": "java-1.7.0-openjdk-headless",
+      "state": "latest"
+    },
+    {
+      "name": "openjpeg",
+      "state": "latest"
+    },
+    {
+      "name": "p7zip",
+      "state": "latest"
+    },
+    {
+      "name": "p7zip-plugins",
+      "state": "latest"
+    },
+    {
+      "name": "pbzip2",
+      "state": "latest"
+    },
+    {
+      "name": "perl-Image-ExifTool",
+      "state": "latest"
+    },
+    {
+      "name": "postfix",
+      "state": "latest"
+    },
+    {
+      "name": "rsync",
+      "state": "latest"
+    },
+    {
+      "name": "siegfried",
+      "state": "latest"
+    },
+    {
+      "name": "sleuthkit",
+      "state": "latest"
+    },
+    {
+      "name": "tesseract",
+      "state": "latest"
+    },
+    {
+      "name": "tree",
+      "state": "latest"
+    },
+    {
+      "name": "ufraw",
+      "state": "latest"
+    },
+    {
+      "name": "uuid",
+      "state": "latest"
+    }
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": [
+    {
+      "baseurl": "https://packages.archivematica.org/1.11.x/centos-extras",
+      "description": "archivematica extras",
+      "enabled": "yes",
+      "gpgcheck": "no",
+      "name": "archivematica-extras"
+    }
   ]
 }
-

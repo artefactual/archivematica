@@ -69,7 +69,7 @@ class Command(object):
             )
 
     def __str__(self):
-        return u"[COMMAND] {}\n\tExecuting: {}\n\tOutput location: {}\n".format(
+        return u"[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
             self.fpcommand,
             self.command,
             self.verification_command,
@@ -77,9 +77,9 @@ class Command(object):
         )
 
     def execute(self, skip_on_success=False):
-        """ Execute the the command, and associated verification and event detail commands.
+        """Execute the the command, and associated verification and event detail commands.
 
-        Returns 0 if all commands succeeded, non-0 if any failed. """
+        Returns 0 if all commands succeeded, non-0 if any failed."""
         # For "command" and "bashScript" type delegate tools, e.g.
         # individual commandline statements or bash scripts, we interpolate
         # the necessary values into the script's source
@@ -145,9 +145,9 @@ class CommandLinker(object):
         )
 
     def execute(self):
-        """ Execute the command, and track the success statistics.
+        """Execute the command, and track the success statistics.
 
-        Returns 0 on success, non-0 on failure. """
+        Returns 0 on success, non-0 on failure."""
         # Track success/failure rates of FP Rules
         # Use Django's F() to prevent race condition updating the counts
         self.fprule.count_attempts = F("count_attempts") + 1

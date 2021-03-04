@@ -335,7 +335,7 @@ class FindFileInNormalizatonCSVError(Exception):
 def findFileInNormalizationCSV(
     csv_path, commandClassification, target_file, sip_uuid, printfn=print
 ):
-    """ Returns the original filename or None for a manually normalized file.
+    """Returns the original filename or None for a manually normalized file.
 
     :param str csv_path: absolute path to normalization.csv
     :param str commandClassification: "access" or "preservation"

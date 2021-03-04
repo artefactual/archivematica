@@ -55,7 +55,7 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
         es.setup_reading_from_conf(django_settings)
         es_client = es.get_client()
     except ElasticsearchException as err:
-        raise CommandError("Unable to connect to Elasticsearch: %s".format(err))
+        raise CommandError("Unable to connect to Elasticsearch: {}".format(err))
 
     if delete_all:
         cmd.info("Deleting all AIPs in the 'aips' and 'aipfiles' indices")

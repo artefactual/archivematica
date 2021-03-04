@@ -23,8 +23,8 @@ def data_migration(apps, schema_editor):
     # Set link, task, etc. PKs
     dip_store_retrieve_locations_link_pk = "d026e5a4-96cf-4e4c-938d-a74b0d211da0"
     dip_store_retrieve_locations_task_pk = (
-        "21292501-0c12-4376-8fb1-413286060dc2"
-    )  # Existing
+        "21292501-0c12-4376-8fb1-413286060dc2"  # Existing
+    )
 
     dip_store_location_link_pk = "cd844b6e-ab3c-4bc6-b34f-7103f88715de"
     dip_store_location_task_pk = "55123c46-78c9-4b5d-ad92-2b1f3eb658af"

@@ -4,8 +4,6 @@
     "Include here keys, repos, and packages required by this component",
     "libsasl2-dev, libldap2-dev: required to pip install python-ldap in virtualenv"
   ],
-  "osdeps_repokeys": [],
-  "osdeps_repos": [],
   "osdeps_packages": [
     {
       "name": "gcc",
@@ -63,5 +61,7 @@
       "name": "libmysqlclient-dev",
       "state": "latest"
     }
-  ]
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": []
 }

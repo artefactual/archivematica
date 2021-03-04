@@ -3,9 +3,12 @@
     "Add any comments here",
     "Include here keys, repos, and packages required by this component"
   ],
-  "osdeps_repokeys": [],
-  "osdeps_repos": [],
   "osdeps_packages": [
-    { "name": "libmysqlclient-dev", "state": "latest" }
-  ]
+    {
+      "name": "libmysqlclient-dev",
+      "state": "latest"
+    }
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": []
 }

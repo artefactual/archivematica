@@ -8,8 +8,7 @@ import archivematicaFunctions as am
 
 
 def test_get_bag_size(tmpdir):
-    """Test that get_bag_size uses bag-info Payload-Oxum when present.
-    """
+    """Test that get_bag_size uses bag-info Payload-Oxum when present."""
     # Set up test data
     bag_dir = tmpdir.mkdir("bag")
     data_file = bag_dir.join("file.txt")
@@ -29,8 +28,7 @@ def test_get_bag_size(tmpdir):
 
 
 def test_get_bag_size_bag_missing_oxum(tmpdir):
-    """Test that get_bag_size uses walk if bag-info Payload-Oxum is missing.
-    """
+    """Test that get_bag_size uses walk if bag-info Payload-Oxum is missing."""
     # Set up test data
     bag_dir = tmpdir.mkdir("bag")
     data_file = bag_dir.join("file.txt")
@@ -50,8 +48,7 @@ def test_get_bag_size_bag_missing_oxum(tmpdir):
 
 
 def test_package_name_from_path():
-    """Test that package_name_from_path returns expected results.
-    """
+    """Test that package_name_from_path returns expected results."""
     test_packages = [
         {
             "current_path": "/dev/null/tar_gz_package-473a9398-0024-4804-81da-38946040c8af.tar.gz",
