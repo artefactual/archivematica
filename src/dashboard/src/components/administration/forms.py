@@ -313,9 +313,12 @@ class ProcessingConfigurationForm(forms.Form):
         "cd844b6e-ab3c-4bc6-b34f-7103f88715de": _("Store DIP location"),
     }
 
+    NAME_MAX_LENGTH = 50
+    NAME_URL_REGEX = r"(?P<name>\w{1,%d})" % NAME_MAX_LENGTH
+    NAME_REGEX = r"^%s$" % NAME_URL_REGEX
     name = forms.RegexField(
-        max_length=16,
-        regex=r"^\w+$",
+        max_length=NAME_MAX_LENGTH,
+        regex=NAME_REGEX,
         required=True,
         error_messages={
             "invalid": _(

@@ -22,6 +22,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from components.administration import views, views_dip_upload, views_processing
+from components.administration.forms import ProcessingConfigurationForm
 
 
 app_name = "administration"
@@ -57,22 +58,22 @@ urlpatterns = [
     url(r"processing/$", views_processing.list, name="processing"),
     url(r"processing/add/$", views_processing.edit, name="processing_add"),
     url(
-        r"processing/edit/(?P<name>\w{1,16})/$",
+        r"processing/edit/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
         views_processing.edit,
         name="processing_edit",
     ),
     url(
-        r"processing/reset/(?P<name>\w{1,16})/$",
+        r"processing/reset/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
         views_processing.reset,
         name="processing_reset",
     ),
     url(
-        r"processing/delete/(?P<name>\w{1,16})/$",
+        r"processing/delete/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
         views_processing.delete,
         name="processing_delete",
     ),
     url(
-        r"processing/download/(?P<name>\w{1,16})/$",
+        r"processing/download/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
         views_processing.download,
         name="processing_download",
     ),

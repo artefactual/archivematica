@@ -67,3 +67,29 @@ class TestProcessingConfig(TestCase):
         response = self.client.get("/administration/processing/edit/found_config/")
         self.assertEqual(response.status_code, 200)
         mock_load_config.assert_called_once_with("found_config")
+
+    @mock.patch(
+        "components.administration.forms.MCPClient.get_processing_config_fields",
+        return_value={},
+    )
+    @mock.patch(
+        "components.administration.forms.ProcessingConfigurationForm.load_config"
+    )
+    def test_name_field_is_required(self, mock_load_config, mock_conf_fields):
+        response = self.client.post("/administration/processing/add/", data={1: 2})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")
+
+    @mock.patch(
+        "components.administration.forms.MCPClient.get_processing_config_fields",
+        return_value={},
+    )
+    def test_name_field_is_validated(self, mock_conf_fields):
+        response = self.client.post(
+            "/administration/processing/add/", data={"name": "foo$bar"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "The name can contain only alphanumeric characters and the underscore character (_).",
+        )
