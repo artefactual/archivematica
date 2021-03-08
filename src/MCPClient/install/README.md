@@ -151,7 +151,7 @@ This is the full list of variables supported by MCPClient:
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SEARCH_ENABLED`**:
     - **Description:** controls what Elasticsearch indexes are enabled:
         - When set to `aips` or `false`, certain client scripts will exit without interacting with the Transfers related indexes, e.g., elasticSearchIndex_v0.0 and postStoreAIPHook_v1.0.
-        - When set to `transfers` or `false`, certain client scripts will exit without interacting with the AIPs related indexes, e.g., indexAIP_v0.0 and removeAIPFilesFromIndex_v0.0.
+        - When set to `transfers` or `false`, certain client scripts will exit without interacting with the AIPs related indexes, e.g., indexAIP_v0.0.
         - When set to `aips,transfers` (the order does not matter) or `true`, all interactions with the Elasticsearch indexes will be made.
     - **Config file example:** `MCPClient.search_enabled`
     - **Type:** `boolean` or `string`
