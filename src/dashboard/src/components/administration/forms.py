@@ -313,7 +313,16 @@ class ProcessingConfigurationForm(forms.Form):
         "cd844b6e-ab3c-4bc6-b34f-7103f88715de": _("Store DIP location"),
     }
 
-    name = forms.RegexField(max_length=16, regex=r"^\w+$", required=True)
+    name = forms.RegexField(
+        max_length=16,
+        regex=r"^\w+$",
+        required=True,
+        error_messages={
+            "invalid": _(
+                "The name can contain only alphanumeric characters and the underscore character (_)."
+            )
+        },
+    )
     name.widget.attrs["class"] = "form-control"
 
     def __init__(self, *args, **kwargs):
