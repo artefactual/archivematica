@@ -67,7 +67,7 @@ RUN freshclam --quiet
 
 # Build dependencies
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/get-pip.py | python \
+	&& curl -s https://bootstrap.pypa.io/2.7/get-pip.py | python \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		build-essential \
