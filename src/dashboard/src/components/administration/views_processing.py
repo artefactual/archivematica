@@ -41,7 +41,7 @@ def list(request):
     for item in iglob("{}/*ProcessingMCP.xml".format(helpers.processing_config_path())):
         basename = os.path.basename(item)
         name = re.sub("ProcessingMCP\.xml$", "", basename)
-        if re.match(r"^\w{1,16}$", name) is None:
+        if re.match(ProcessingConfigurationForm.NAME_REGEX, name) is None:
             ignored.append((basename, name, item))
             continue
         files.append((basename, name, item))
