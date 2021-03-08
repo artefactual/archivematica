@@ -45,7 +45,7 @@ RUN freshclam --quiet
 
 # Install pip, Node.js and Yarn
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/2.7/get-pip.py | python \
+	&& curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py | python \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
 	&& apt-get install -y --no-install-recommends \
