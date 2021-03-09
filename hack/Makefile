@@ -39,6 +39,18 @@ define run_toxenvs
 					${TOXARGS})
 endef
 
+define run_coverage
+	$(call compose_tests, \
+		run \
+			--user $(CALLER_UID):$(CALLER_GID) \
+			--workdir /src/cov \
+			--rm \
+			--no-deps \
+			--entrypoint coverage \
+				archivematica-tests \
+					$(1))
+endef
+
 start-mysql: test-build
 	$(call compose_tests, \
 		run \
@@ -252,6 +264,12 @@ test-linting:  ## Check linting.
 __TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
 test-all: start-mysql  ## Run all tests.
 	$(call run_toxenvs,$(__TOXENVS_ALL))
+
+test-at-coverage-combine: test-build
+	$(call run_coverage,combine)
+
+test-at-coverage-html: test-build
+	$(call run_coverage,html --include=/src/**)
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
