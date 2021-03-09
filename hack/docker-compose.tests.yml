@@ -11,5 +11,6 @@ services:
         TARGET: "archivematica-tests"
     volumes:
       - "../:/src"
+      - "../cov:/src/cov"
     links:
       - "mysql"

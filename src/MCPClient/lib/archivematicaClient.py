@@ -53,18 +53,21 @@ task to run next).
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
 
+import atexit
 import ConfigParser
 import cPickle
 from functools import partial
 import logging
 import os
 from socket import gethostname
+import signal
 import time
 
 import django
 
 django.setup()
 from django.conf import settings as django_settings
+import coverage
 import gearman
 
 from main.models import Task
@@ -312,7 +315,21 @@ def start_gearman_worker(supported_modules):
                 fail_sleep += fail_sleep_incrementor
 
 
+cov = coverage.Coverage(data_file="/src/cov/.coverage", data_suffix=True)
+cov.start()
+
+
+def save_coverage(*args, **kw):
+    print("leaving!")
+    cov.stop()
+    cov.save()
+
+
+atexit.register(save_coverage)
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, save_coverage)
+
     metrics.start_prometheus_server()
 
     try:

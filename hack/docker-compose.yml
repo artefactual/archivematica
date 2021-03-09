@@ -97,6 +97,7 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-server"
+    stop_signal: SIGTERM
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -111,6 +112,7 @@ services:
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+      - "../cov:/src/cov"
     links:
       - "mysql"
       - "gearmand"
@@ -121,6 +123,7 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-client"
+    stop_signal: SIGTERM
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -144,6 +147,7 @@ services:
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+      - "../cov:/src/cov"
     links:
       - "fits"
       - "clamavd"
@@ -158,6 +162,7 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-dashboard"
+    stop_signal: SIGTERM
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -175,6 +180,7 @@ services:
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+      - "../cov:/src/cov"
     links:
       - "mysql"
       - "gearmand"
