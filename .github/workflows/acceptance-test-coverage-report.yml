@@ -13,7 +13,16 @@ jobs:
       matrix:
         tag:
           - "aip-encrypt"
+          - "aip-encrypt-mirror"
+          - "black-box"
+          - "icc"
+          - "ipc"
+          - "mo-aip-reingest"
+          - "tcc"
+          - "tpc"
+          - "uuids-dirs"
         browser:
+          - "Firefox"
           - "Chrome"
     steps:
       - name: "Check out repository"
