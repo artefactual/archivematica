@@ -312,8 +312,7 @@ BROWSER ?= Firefox
 test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-behave TAGS=mo-aip-reingest BROWSER=Firefox`.
 	$(call compose_amauat, \
 		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests /usr/local/bin/behave \
-			--no-capture --no-capture-stderr --no-logcapture \
-			--tags=$(TAGS) --no-skipped -v --stop \
+			--tags=$(TAGS) --no-skipped \
 			-D driver_name=$(BROWSER) \
 			-D ssh_accessible=no \
 			-D am_url=http://nginx/ \
