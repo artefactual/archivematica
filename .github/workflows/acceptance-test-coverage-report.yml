@@ -1,0 +1,99 @@
+---
+name: "Acceptance Test Coverage Report"
+on:
+  push:
+    branches:
+      - "dev/amauat-coverage-report"
+jobs:
+  test:
+    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
+    runs-on: "ubuntu-18.04"
+    continue-on-error: true
+    strategy:
+      matrix:
+        tag:
+          - "aip-encrypt"
+          - "aip-encrypt-mirror"
+          - "black-box"
+          - "icc"
+          - "ipc"
+          - "mo-aip-reingest"
+          - "tcc"
+          - "tpc"
+          - "uuids-dirs"
+        browser:
+          - "Firefox"
+          - "Chrome"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+        with:
+          submodules: true
+      - name: "Create external volumes"
+        run: |
+          make -C hack/ create-volumes
+      - name: "Create coverage directory"
+        run: |
+          mkdir -m 777 cov
+      - name: "Start MySQL"
+        run: |
+          docker-compose up -d mysql
+        working-directory: ./hack
+      - name: "Build images"
+        run: |
+          make -C hack/ build
+      - name: "Start services"
+        run: |
+          docker-compose up -d
+        env:
+          cluster.routing.allocation.disk.threshold_enabled: false
+        working-directory: ./hack
+      - name: "Bootstrap services"
+        run: |
+          make -C hack/ bootstrap
+      - name: "Restart services"
+        run: |
+          make -C hack/ restart-am-services
+      - name: "Run AMAUAT tag"
+        continue-on-error: true
+        run: |
+          make -C hack/ test-at-behave TAGS=${{ matrix.tag }} BROWSER=${{ matrix.browser }}
+      - name: "Stop services"
+        run: |
+          docker-compose stop
+        working-directory: ./hack
+      - name: "Save coverage directory"
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.tag }}-${{ matrix.browser }}
+          path: cov
+  report:
+    needs: test
+    name: "Generate HTML coverage report"
+    runs-on: "ubuntu-18.04"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+        with:
+          submodules: true
+      - name: "Create coverage directory"
+        run: |
+          mkdir -m 777 cov
+      - name: "Download coverage artifacts"
+        uses: actions/download-artifact@v2
+        with:
+          path: /tmp/cov
+      - name: "Copy all coverage artifacts to coverage directory"
+        run: |
+          find /tmp/cov -iname ".coverage.*" -exec cp {} cov \;
+      - name: "Combine coverage files"
+        run: |
+          make -C hack/ test-at-coverage-combine
+      - name: "Generate coverage report"
+        run: |
+          make -C hack/ test-at-coverage-html
+      - name: "Save coverage report"
+        uses: actions/upload-artifact@master
+        with:
+          name: htmlcov-report
+          path: cov/htmlcov
