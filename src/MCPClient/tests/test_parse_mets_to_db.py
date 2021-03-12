@@ -18,7 +18,7 @@ from main import models
 class TestParseDublinCore(TestCase):
     """ Test parsing SIP-level DublinCore from a METS file into the DB. """
 
-    fixture_files = ["dublincore.json"]
+    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_none_found(self):
@@ -130,7 +130,7 @@ class TestParseDublinCore(TestCase):
 class TestParsePremisRights(TestCase):
     """ Test parsing PREMIS:RIGHTS from a METS file into the DB. """
 
-    fixture_files = ["dublincore.json"]
+    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_none_found(self):

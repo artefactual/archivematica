@@ -66,7 +66,7 @@ def test_premis_event_data():
 
 
 @pytest.mark.django_db
-def test_transfer_agents(django_db_setup, transaction=True):
+def test_transfer_agents():
     transfer = Transfer.objects.create(uuid="756db89c-1380-459d-83bc-d3772f1e7dd8")
     user = User.objects.create(id=1)
     transfer.update_active_agent(user_id=user.id)

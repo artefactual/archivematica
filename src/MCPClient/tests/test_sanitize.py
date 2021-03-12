@@ -8,11 +8,12 @@ import uuid
 
 import pytest
 import six
-from django.core.management import call_command
 from django.test import TestCase
+from pytest_django.asserts import assertQuerysetEqual
 
 from job import Job
-from main.models import Directory, Event, File, Transfer, SIP
+from main.models import Directory, Event, File, Transfer, SIP, User, Agent
+from version import get_preservation_system_identifier
 
 from . import TempDirMixin
 
@@ -32,12 +33,19 @@ def subdir_path(tmp_path):
 
 
 @pytest.fixture()
-def transfer(db):
-    return Transfer.objects.create(
+def user(db):
+    return User.objects.create(id=Agent.objects.DEFAULT_SYSTEM_AGENT_PK)
+
+
+@pytest.fixture()
+def transfer(db, user):
+    transfer = Transfer.objects.create(
         uuid="f6eb30e3-6ded-4f85-b52e-8653b430f29c",
         currentlocation=r"%transferDirectory%",
         diruuids=True,
     )
+    transfer.update_active_agent(user.id)
+    return transfer
 
 
 @pytest.fixture()
@@ -202,28 +210,15 @@ def verify_event_details(event):
 class TestSanitize(TempDirMixin, TestCase):
     """Test sanitizeNames, sanitize_object_names & sanitizeSipName."""
 
+    fixture_files = [
+        "transfer.json",
+        "files-transfer-unicode.json",
+        os.path.join("microservice_agents", "microservice_agents.json"),
+        os.path.join("microservice_agents", "microservice_unitvars.json"),
+    ]
+    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
-
-    def setUp(self):
-        super(TestSanitize, self).setUp()
-
-    @staticmethod
-    @pytest.fixture(scope="class")
-    def django_db_setup(self, django_db_blocker):
-        """Load the various database fixtures required for our tests."""
-        agents_fixtures_dir = "microservice_agents"
-        agents = os.path.join(agents_fixtures_dir, "microservice_agents.json")
-        agent_unitvars = os.path.join(agents_fixtures_dir, "microservice_unitvars.json")
-        fixture_files = [
-            "transfer.json",
-            "files-transfer-unicode.json",
-            agents,
-            agent_unitvars,
-        ]
-        fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-        with django_db_blocker.unblock():
-            for fixture in fixtures:
-                call_command("loaddata", fixture)
 
     def test_sanitize_object_names(self):
         """Test sanitize_object_names.
@@ -375,9 +370,19 @@ def test_sanitize_transfer_with_multiple_files(
             not in file_obj.currentlocation
         )
         assert "bulk-file" in file_obj.currentlocation
-        # Test the event details were written correctly for our object.
-        event = Event.objects.get(file_uuid=file_obj.uuid, event_type="name cleanup")
-        verify_event_details(event)
+        assertQuerysetEqual(
+            Event.objects.get(
+                file_uuid=file_obj.uuid, event_type="name cleanup"
+            ).agents.all(),
+            [
+                "<Agent: software; preservation system: %s; Archivematica>"
+                % get_preservation_system_identifier(),
+                "<Agent: organization; repository code: ORG; Your Organization Name Here>",
+                '<Agent: Archivematica user; Archivematica user pk: 1; username="", first_name="", last_name="">',
+            ],
+            transform=repr,
+            ordered=False,
+        )
 
 
 @pytest.mark.django_db
