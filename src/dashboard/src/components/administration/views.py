@@ -476,7 +476,7 @@ def handle_config(request):
 
 
 def premis_agent(request):
-    agent = models.Agent.objects.get(pk=2)
+    agent = models.Agent.objects.default_organization_agent()
     if request.POST:
         form = AgentForm(request.POST, instance=agent)
         if form.is_valid():
