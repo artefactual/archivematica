@@ -29,7 +29,11 @@ class TestRightsImportFromCsvBase(TestCase):
 class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
     """Test rights importing from CSV files."""
 
-    fixture_files = ["transfer.json", "files-transfer.json"]
+    fixture_files = [
+        "metadata_applies_to_type.json",
+        "transfer.json",
+        "files-transfer.json",
+    ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_rows_processed_and_database_content(self):
@@ -390,7 +394,11 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
 
 class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
 
-    fixture_files = ["transfer.json", "files-transfer-unicode.json"]
+    fixture_files = [
+        "metadata_applies_to_type.json",
+        "transfer.json",
+        "files-transfer-unicode.json",
+    ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_rows_processed_and_database_content_with_unicode_filepath(self):

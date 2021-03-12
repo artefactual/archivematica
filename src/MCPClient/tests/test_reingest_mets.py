@@ -40,11 +40,7 @@ class TestUpdateObject(TestCase):
 
     def load_fixture(self, fixture_paths):
         try:
-            call_command(
-                "loaddata",
-                *fixture_paths,
-                **{"verbosity": 0, "commit": False, "skip_checks": True}
-            )
+            call_command("loaddata", *fixture_paths, **{"verbosity": 0})
         except Exception:
             self._fixture_teardown()
             raise
@@ -561,7 +557,7 @@ class TestUpdateObject(TestCase):
 class TestUpdateDublinCore(TestCase):
     """ Test updating SIP-level DublinCore. (update_dublincore) """
 
-    fixture_files = ["dublincore.json"]
+    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid_none = "dnedne7c-5bd2-4249-84a1-2f00f725b981"
@@ -924,7 +920,7 @@ class TestUpdateDublinCore(TestCase):
 class TestUpdateRights(TestCase):
     """ Test updating PREMIS:RIGHTS. (update_rights and add_rights_elements) """
 
-    fixture_files = ["rights.json"]
+    fixture_files = ["metadata_applies_to_type.json", "rights.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid_none = "dnedne7c-5bd2-4249-84a1-2f00f725b981"
