@@ -27,7 +27,7 @@ from tastypie.models import ApiKey
 from main.models import Agent, DashboardSetting, User
 import components.helpers as helpers
 import storageService as storage_service
-from version import get_version
+from version import get_preservation_system_identifier
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -47,12 +47,6 @@ def create_super_user(username, email, password, key):
     api_key, created = ApiKey.objects.update_or_create(user=user, defaults={"key": key})
 
 
-def set_agent_code(agent_code, pk):
-    archivematica_agent = Agent.objects.get(pk=pk)
-    archivematica_agent.identifiervalue = agent_code
-    archivematica_agent.save()
-
-
 def setup_pipeline(org_name, org_identifier, site_url):
     dashboard_uuid = helpers.get_setting("dashboard_uuid")
     # Setup pipeline only if dashboard_uuid doesn't already exists
@@ -64,10 +58,12 @@ def setup_pipeline(org_name, org_identifier, site_url):
     helpers.set_setting("dashboard_uuid", dashboard_uuid)
 
     # Update Archivematica version in DB
-    set_agent_code("Archivematica-" + get_version(), pk=1)
+    Agent.objects.default_system_agent().update(
+        identifiervalue=get_preservation_system_identifier()
+    )
 
     if org_name != "" or org_identifier != "":
-        agent = get_agent()
+        agent = Agent.objects.default_organization_agent()
         agent.name = org_name
         agent.identifiertype = "repository code"
         agent.identifiervalue = org_identifier
@@ -117,7 +113,3 @@ def setup_pipeline_in_ss(use_default_config=False):
         api_username=user.username,
         api_key=api_key.key,
     )
-
-
-def get_agent():
-    return Agent.objects.get(pk=2)
