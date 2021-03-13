@@ -58,9 +58,9 @@ def setup_pipeline(org_name, org_identifier, site_url):
     helpers.set_setting("dashboard_uuid", dashboard_uuid)
 
     # Update Archivematica version in DB
-    Agent.objects.default_system_agent().update(
-        identifiervalue=get_preservation_system_identifier()
-    )
+    agent = Agent.objects.default_system_agent()
+    agent.identifiervalue = get_preservation_system_identifier()
+    agent.save()
 
     if org_name != "" or org_identifier != "":
         agent = Agent.objects.default_organization_agent()
