@@ -312,7 +312,9 @@ def get_events_from_db(uuid):
                 ),
             ),
         ]
-        for agent_mdl in event_mdl.agents.all():
+        for agent_mdl in Agent.objects.extend_queryset_with_preservation_system(
+            event_mdl.agents.all()
+        ):
             event.append(
                 (
                     "linking_agent_identifier",
@@ -326,7 +328,9 @@ def get_events_from_db(uuid):
 
 def get_agents_from_db(uuid):
     agents = []
-    for agent_mdl in Agent.objects.filter(event__file_uuid_id=uuid).distinct():
+    for agent_mdl in Agent.objects.extend_queryset_with_preservation_system(
+        Agent.objects.filter(event__file_uuid_id=uuid).distinct()
+    ):
         agents.append(
             (
                 "agent",

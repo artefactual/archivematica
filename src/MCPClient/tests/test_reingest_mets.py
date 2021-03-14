@@ -13,6 +13,7 @@ from main import models
 
 from job import Job
 from namespaces import NSMAP, nsmap_for_premis2
+from version import get_preservation_system_identifier
 
 import metsrw
 
@@ -1330,7 +1331,7 @@ class TestAddEvents(TestCase):
             len(
                 root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)
             )
-            == 9
+            == 12
         )
 
     def test_agent_not_in_mets(self):
@@ -1395,7 +1396,8 @@ class TestAddEvents(TestCase):
         )
         assert (
             root.xpath(
-                'mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                'mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="%s"]'
+                % get_preservation_system_identifier(),
                 namespaces=NSMAP,
             )
             != []
@@ -1445,7 +1447,8 @@ class TestAddEvents(TestCase):
         )
         assert (
             root.xpath(
-                'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                'mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="%s"]'
+                % get_preservation_system_identifier(),
                 namespaces=NSMAP,
             )
             != []
@@ -1474,7 +1477,8 @@ class TestAddEvents(TestCase):
         )
         assert (
             root.xpath(
-                'mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                'mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="%s"]'
+                % get_preservation_system_identifier(),
                 namespaces=NSMAP,
             )
             != []
@@ -1863,7 +1867,8 @@ class TestAddingNewFiles(TestCase):
         # Agents
         assert (
             amdsec.xpath(
-                './/premis:agentIdentifierValue[text()="Archivematica-1.4.0"]',
+                './/premis:agentIdentifierValue[text()="%s"]'
+                % get_preservation_system_identifier(),
                 namespaces=NSMAP,
             )
             != []

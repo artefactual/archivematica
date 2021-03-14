@@ -48,7 +48,7 @@ import components.helpers as helpers
 from installer.steps import setup_pipeline_in_ss
 import storageService as storage_service
 
-from version import get_full_version
+from version import get_full_version, get_preservation_system_identifier
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -623,8 +623,11 @@ def general(request):
 
 
 def version(request):
-    version = get_full_version()
-    agent_code = models.Agent.objects.get(
-        identifiertype="preservation system"
-    ).identifiervalue
-    return render(request, "administration/version.html", locals())
+    return render(
+        request,
+        "administration/version.html",
+        {
+            "version": get_full_version(),
+            "agent_code": get_preservation_system_identifier(),
+        },
+    )

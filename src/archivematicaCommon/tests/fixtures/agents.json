@@ -1,16 +1,6 @@
 [
 {
     "fields": {
-        "agenttype": "software",
-        "identifiervalue": "Archivematica-1.3.2",
-        "name": "Archivematica",
-        "identifiertype": "preservation system"
-    },
-    "model": "main.agent",
-    "pk": 1
-},
-{
-    "fields": {
         "agenttype": "organization",
         "identifiervalue": "demo",
         "name": "demo",

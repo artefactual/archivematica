@@ -31,8 +31,6 @@ import subprocess
 import sys
 from uuid import UUID
 
-from django.core.management import call_command
-
 import pytest
 
 from main.models import File, Event
@@ -95,7 +93,9 @@ class TestHashsum(object):
         else:
             with pytest.raises(NoHashCommandAvailable):
                 Hashsum(fixture[0])
-                pytest.fail("Expecting NoHashCommandAvailable for a filename we shouldn't be able to handle")
+                pytest.fail(
+                    "Expecting NoHashCommandAvailable for a filename we shouldn't be able to handle"
+                )
 
     def test_provenance_string(self, mocker):
         """Test to ensure that the string output to the PREMIS event for this
@@ -274,14 +274,13 @@ class TestHashsum(object):
     @pytest.fixture(scope="class")
     def django_db_setup(django_db_blocker):
         """Load the various database fixtures required for our tests."""
-        fixtures_dir = "microservice_agents"
         # hashsum_agents and hashsum_unitvars work in concert to return the
         # Archivematica current user to the result set.
         fixture_files = [
             "transfer.json",
             "files-transfer-unicode.json",
-            os.path.join(fixtures_dir, "microservice_agents.json"),
-            os.path.join(fixtures_dir, "microservice_unitvars.json"),
+            "admin-user.json",
+            os.path.join("microservice_agents", "microservice_unitvars.json"),
         ]
         fixtures = []
         for fixture in fixture_files:
@@ -301,24 +300,22 @@ class TestHashsum(object):
         event_outcome = "pass"
         # Values we will write.
         detail = "suma de verificación validada: OK"
-        number_of_expected_agents = 3
+        number_of_expected_agents = 2
         # Agent values we can test against. Three agents, which should be,
         # preservation system, repository, and user.
-        identifier_values = ["Archivematica-1.10", "エズメレルダ", "Atefactual Systems Inc."]
+        identifier_values = ["1", "ORG"]
 
         identifier_types = [
-            "preservation system",
             "repository code",
             "Archivematica user pk",
         ]
 
         agent_names = [
-            "Archivematica",
-            "Artefactual Systems Corporate Archive",
-            'username="\u30a8\u30ba\u30e1\u30ec\u30eb\u30c0", first_name="\u3053\u3093\u306b\u3061\u306f", last_name="\u4e16\u754c"',
+            "Your Organization Name Here",
+            'username="kmindelan", first_name="Keladry", last_name="Mindelan"',
         ]
 
-        agent_types = ["software", "organization", "Archivematica user"]
+        agent_types = ["organization", "Archivematica user"]
         package_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
         kwargs = {"removedtime__isnull": True, "transfer_id": package_uuid}
         file_objs_queryset = File.objects.filter(**kwargs)
@@ -392,4 +389,8 @@ class TestHashsum(object):
         invalid_package_uuid = "badf00d1-9c84-45d5-a3ca-1b0b3f58d9b6"
         with pytest.raises(PREMISFailure):
             get_file_queryset(invalid_package_uuid)
-            pytest.fail("Unable to find the transfer objects for the SIP: '{}' in the database".format(invalid_package_uuid))
+            pytest.fail(
+                "Unable to find the transfer objects for the SIP: '{}' in the database".format(
+                    invalid_package_uuid
+                )
+            )

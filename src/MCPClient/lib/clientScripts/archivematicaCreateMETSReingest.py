@@ -380,9 +380,12 @@ def add_events(job, mets, sip_uuid):
     visited = {}  # Not using a set because FSEntry is not hashable.
     agents = {
         (agent.identifiertype, agent.identifiervalue): agent
-        for agent in models.Agent.objects.all()
+        for agent in models.Agent.objects.extend_queryset_with_preservation_system(
+            models.Agent.objects.all()
+        )
     }
 
+    # Add PREMIS events.
     for event in models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid).iterator():
         job.pyprint("Adding", event.event_type, "event to file", event.file_uuid_id)
         try:
@@ -400,6 +403,7 @@ def add_events(job, mets, sip_uuid):
             visited[fsentry.file_uuid] = fsentry
         fsentry.add_premis_event(createmets2.createEvent(event))
 
+    # Add PREMIS agents.
     for fsentry in six.itervalues(visited):
         for identifier_type, identifier_value in _extract_event_agents(fsentry):
             try:
