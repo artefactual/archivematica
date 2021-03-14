@@ -6,21 +6,11 @@ on:
       - "dev/amauat-coverage-report"
 jobs:
   test:
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
+    name: "Test ${{ matrix.browser }}"
     runs-on: "ubuntu-18.04"
     continue-on-error: true
     strategy:
       matrix:
-        tag:
-          - "aip-encrypt"
-          - "aip-encrypt-mirror"
-          - "black-box"
-          - "icc"
-          - "ipc"
-          - "mo-aip-reingest"
-          - "tcc"
-          - "tpc"
-          - "uuids-dirs"
         browser:
           - "Firefox"
           - "Chrome"
@@ -57,7 +47,7 @@ jobs:
       - name: "Run AMAUAT tag"
         continue-on-error: true
         run: |
-          make -C hack/ test-at-behave TAGS=${{ matrix.tag }} BROWSER=${{ matrix.browser }}
+          make -C hack/ test-at-behave TAGS=aip-encrypt,aip-encrypt-mirror,black-box,icc,ipc,mo-aip-reingest,tcc,tpc,uuids-dirs BROWSER=${{ matrix.browser }}
       - name: "Stop services"
         run: |
           docker-compose stop
@@ -65,7 +55,7 @@ jobs:
       - name: "Save coverage directory"
         uses: actions/upload-artifact@master
         with:
-          name: ${{ matrix.tag }}-${{ matrix.browser }}
+          name: ${{ matrix.browser }}
           path: cov
   report:
     needs: test
