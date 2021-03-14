@@ -15,11 +15,16 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 import move_to_backlog
 
 
-@pytest.mark.django_db
-def test_premis_event_data():
+@pytest.fixture
+def transfer(db):
     transfer = Transfer.objects.create(uuid="756db89c-1380-459d-83bc-d3772f1e7dd8")
     user = User.objects.create(id=1)
     transfer.update_active_agent(user_id=user.id)
+    return transfer
+
+
+@pytest.mark.django_db
+def test_premis_event_data(transfer):
     event_id, event_type, created_at = (
         str(uuid.uuid4()),
         "placement in backlog",
@@ -43,7 +48,7 @@ def test_premis_event_data():
     )
     assert (
         len(premis_event.findall(".//premis:linkingAgentIdentifier", namespaces=nsmap))
-        == 3
+        == 2
     )
 
     # Test that it still returns successfully when there are no agents.
@@ -66,23 +71,16 @@ def test_premis_event_data():
 
 
 @pytest.mark.django_db
-def test_transfer_agents():
-    transfer = Transfer.objects.create(uuid="756db89c-1380-459d-83bc-d3772f1e7dd8")
-    user = User.objects.create(id=1)
-    transfer.update_active_agent(user_id=user.id)
-
+def test_transfer_agents(transfer):
     ret = move_to_backlog._transfer_agents(transfer.uuid)
-    assert len(ret) == 3
-    assert ret.get(identifiertype="preservation system")
+
+    assert len(ret) == 2
     assert ret.get(identifiertype="repository code")
     assert ret.get(identifiertype="Archivematica user pk")
 
 
 @pytest.mark.django_db
-def test_record_backlog_event(tmp_path):
-    transfer = Transfer.objects.create(uuid="756db89c-1380-459d-83bc-d3772f1e7dd8")
-    user = User.objects.create(id=1)
-    transfer.update_active_agent(user_id=user.id)
+def test_record_backlog_event(tmp_path, transfer):
     file_obj = File.objects.create(
         uuid="3c567bc8-0847-4d12-a77d-0ed3a0361c0a", transfer=transfer
     )

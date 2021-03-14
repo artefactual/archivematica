@@ -707,8 +707,9 @@ def createDigiprovMD(fileUUID, state):
         xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
         xmlData.append(createEvent(event_record))
 
-    agents = Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
-    for agent in agents:
+    for agent in Agent.objects.extend_queryset_with_preservation_system(
+        Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
+    ):
         state.globalDigiprovMDCounter += 1
         digiprovMD = etree.Element(
             ns.metsBNS + "digiprovMD",
@@ -768,7 +769,9 @@ def createEvent(event_record):
     ).text = escape(event_record.event_outcome_detail)
 
     # linkingAgentIdentifier
-    for agent in event_record.agents.all():
+    for agent in Agent.objects.extend_queryset_with_preservation_system(
+        event_record.agents.all()
+    ):
         linkingAgentIdentifier = etree.SubElement(
             event, ns.premisBNS + "linkingAgentIdentifier"
         )
@@ -819,7 +822,7 @@ def getAMDSec(
 
     techMD contains a PREMIS:OBJECT, see createTechMD
     rightsMD contain PREMIS:RIGHTS, see archivematicaGetRights, archivematicaCreateMETSRightsDspaceMDRef or getTrimFileAmdSec
-    digiprovMD contain PREMIS:EVENT and PREMIS:AGENT, see createDigiprovMD and createDigiprovMDAgents
+    digiprovMD contain PREMIS:EVENT and PREMIS:AGENT, see createDigiprovMD
 
     :param fileUUID: UUID of the file
     :param filePath: For archivematicaCreateMETSRightsDspaceMDRef

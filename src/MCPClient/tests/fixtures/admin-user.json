@@ -1,15 +1,5 @@
 [
 {
-    "pk": 2,
-    "model": "main.agent",
-    "fields": {
-        "agenttype": "organization",
-        "identifiervalue": "demo",
-        "name": "demo",
-        "identifiertype": "repository code"
-    }
-},
-{
     "fields": {
         "agenttype": "Archivematica user",
         "identifiervalue": "1",
@@ -18,16 +8,6 @@
     },
     "model": "main.agent",
     "pk": 3
-},
-{
-    "pk": 4,
-    "model": "main.agent",
-    "fields": {
-        "agenttype": "organization",
-        "identifiervalue": "Unrelated Agent",
-        "name": "Unrelated Agent",
-        "identifiertype": "repository code"
-    }
 },
 {
   "fields": {

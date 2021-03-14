@@ -40,6 +40,7 @@ from countryCodes import getCodeForCountry
 
 # dashboard
 from main.models import (
+    Agent,
     Derivation,
     Directory,
     File,
@@ -698,7 +699,9 @@ def event_to_premis(event):
             ),
         ),
     )
-    for agent in event.agents.all():
+    for agent in Agent.objects.extend_queryset_with_preservation_system(
+        event.agents.all()
+    ):
         premis_data += (
             (
                 "linking_agent_identifier",

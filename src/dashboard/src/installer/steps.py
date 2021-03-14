@@ -27,7 +27,6 @@ from tastypie.models import ApiKey
 from main.models import Agent, DashboardSetting, User
 import components.helpers as helpers
 import storageService as storage_service
-from version import get_preservation_system_identifier
 
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -56,11 +55,6 @@ def setup_pipeline(org_name, org_identifier, site_url):
     # Assign UUID to Dashboard
     dashboard_uuid = str(uuid.uuid4())
     helpers.set_setting("dashboard_uuid", dashboard_uuid)
-
-    # Update Archivematica version in DB
-    agent = Agent.objects.default_system_agent()
-    agent.identifiervalue = get_preservation_system_identifier()
-    agent.save()
 
     if org_name != "" or org_identifier != "":
         agent = Agent.objects.default_organization_agent()

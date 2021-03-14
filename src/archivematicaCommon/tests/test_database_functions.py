@@ -91,7 +91,6 @@ class TestDatabaseFunctions(TestCase):
             "88c8f115-80bc-4da4-a1e6-0158f5df13b9"
         )
         assert 5 in agents
-        assert 1 in agents  # AM software
         assert 2 in agents  # organization
 
     def test_get_agent_for_file_with_transfer_agent(self):
@@ -99,7 +98,6 @@ class TestDatabaseFunctions(TestCase):
             "1f4af873-8d60-4907-a92e-d1889e643524"
         )
         assert 10 in agents
-        assert 1 in agents  # AM software
         assert 2 in agents  # organization
 
     def test_get_agent_prefers_sip_if_both_exist(self):
@@ -107,7 +105,6 @@ class TestDatabaseFunctions(TestCase):
             "dc569efe-c88f-4be3-94d3-d9eac0c5d410"
         )
         assert 5 in agents
-        assert 1 in agents  # AM software
         assert 2 in agents  # organization
 
     def test_get_agent_returns_none_for_invalid_uuid(self):
@@ -117,7 +114,6 @@ class TestDatabaseFunctions(TestCase):
         agents = databaseFunctions.getAMAgentsForFile(
             "d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619"
         )
-        assert 1 in agents  # AM software
         assert 2 in agents  # organization
 
     # insertIntoEvents
@@ -136,7 +132,5 @@ class TestDatabaseFunctions(TestCase):
             eventIdentifierUUID="event_agent_id",
         )
         agents = Event.objects.get(event_id="event_agent_id").agents
-        assert agents.count() == 3
-        assert agents.get(id=1)
         assert agents.get(id=2)
         assert agents.get(id=5)

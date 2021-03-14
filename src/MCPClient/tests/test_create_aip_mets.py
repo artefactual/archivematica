@@ -29,6 +29,7 @@ from main.models import RightsStatement
 from . import TempDirMixin
 
 import namespaces as ns
+from version import get_preservation_system_identifier
 
 try:
     from pathlib import Path
@@ -675,7 +676,7 @@ class TestCreateDigiprovMD(TestCase):
         )
         assert (
             ret[6].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text
-            == "Archivematica-1.4.0"
+            == get_preservation_system_identifier()
         )
         assert (
             ret[6].find(".//{http://www.loc.gov/premis/v3}agentName").text

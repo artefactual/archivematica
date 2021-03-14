@@ -125,19 +125,13 @@ def dir_obj(db, transfer, tmp_path, subdir_path):
 
 @pytest.fixture()
 def event(request, db, file_obj):
-    event = Event.objects.create(
+    return Event.objects.create(
         event_id=uuid.uuid4(),
         file_uuid=file_obj,
         event_type="message digest calculation",
         event_detail='program="python"; module="hashlib.sha256()"',
         event_outcome_detail="d10bbb2cddc343cd50a304c21e67cb9d5937a93bcff5e717de2df65e0a6309d6",
     )
-    event_agent = Agent.objects.create(
-        identifiertype="preservation system", identifiervalue="Archivematica-1.9"
-    )
-    event.agents.add(event_agent)
-
-    return event
 
 
 @pytest.fixture()
@@ -479,8 +473,14 @@ def test_transfer_mets_includes_events(tmp_path, transfer, event):
     assert premis_event_date_time == str(event.event_datetime)
     assert premis_event_detail == event.event_detail
     assert premis_event_outcome_note == event.event_outcome_detail
-    assert premis_event_agent_id_type == event.agents.first().identifiertype
-    assert premis_event_agent_id_value == event.agents.first().identifiervalue
+    assert (
+        premis_event_agent_id_type
+        == Agent.objects.get_preservation_system_agent().identifiertype
+    )
+    assert (
+        premis_event_agent_id_value
+        == Agent.objects.get_preservation_system_agent().identifiervalue
+    )
 
 
 @pytest.mark.django_db

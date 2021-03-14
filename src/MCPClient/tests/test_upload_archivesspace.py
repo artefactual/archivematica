@@ -33,7 +33,7 @@ def test_get_files_from_dip_finds_files(tmpdir):
 def test_get_files_from_dip_with_empty_dip_location(tmpdir, mocker):
     logger = mocker.patch("upload_archivesspace.logger")
     dip = tmpdir.mkdir("mydip")
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         upload_archivesspace.get_files_from_dip(str(dip))
         pytest.fail("cannot find dip")
     logger.error.assert_called_once_with("no files in {}/objects".format(str(dip)))

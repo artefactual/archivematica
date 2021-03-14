@@ -24,6 +24,7 @@
 # stdlib, alphabetical by import source
 from __future__ import absolute_import
 
+import itertools
 import logging
 import os
 import re
@@ -39,6 +40,8 @@ import six
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
+
+from version import get_preservation_system_identifier
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 
@@ -911,21 +914,35 @@ class Task(models.Model):
 
 class AgentManager(models.Manager):
 
-    # These are set in the 0002_initial_data.py migration of the dashboard
-    DEFAULT_SYSTEM_AGENT_PK = 1
+    # Objects with static identifiers. Item with ID 1 was abandoned.
     DEFAULT_ORGANIZATION_AGENT_PK = 2
-
-    def default_system_agent(self):
-        return self.get(pk=self.DEFAULT_SYSTEM_AGENT_PK)
 
     def default_organization_agent(self):
         return self.get(pk=self.DEFAULT_ORGANIZATION_AGENT_PK)
 
     def default_agents_query_keywords(self):
-        """Return QuerySet keyword arguments for the default agents."""
-        return models.Q(
-            pk__in=(self.DEFAULT_SYSTEM_AGENT_PK, self.DEFAULT_ORGANIZATION_AGENT_PK)
+        """Returns QuerySet keyword arguments for the default agents."""
+        return models.Q(pk=(self.DEFAULT_ORGANIZATION_AGENT_PK))
+
+    def extend_queryset_with_preservation_system(self, agent_queryset):
+        """Returns iterator wrapping the QuerySet with the preservation system agent."""
+        return itertools.chain(
+            (self.get_preservation_system_agent(),),
+            agent_queryset,
         )
+
+    def get_preservation_system_agent(self):
+        """Returns synthetic agent describing the preservation system."""
+        try:
+            agent = self._preservation_system_agent
+        except AttributeError:
+            agent = self._preservation_system_agent = Agent(
+                name="Archivematica",
+                agenttype="software",
+                identifiertype="preservation system",
+                identifiervalue=get_preservation_system_identifier(),
+            )
+        return agent
 
 
 class Agent(models.Model):

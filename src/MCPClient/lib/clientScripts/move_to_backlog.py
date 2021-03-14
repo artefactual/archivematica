@@ -131,7 +131,7 @@ def _transfer_agents(transfer_id):
     This is similar to ``databaseFunctions.getAMAgentsForFile`` but it returns
     a ``QuerySet`` instead. TODO: move to model?
     """
-    query = Q(identifiertype__in=("repository code", "preservation system"))
+    query = Q(identifiertype="repository code")
     try:
         var = UnitVariable.objects.get(
             unittype="Transfer", unituuid=transfer_id, variable="activeAgent"

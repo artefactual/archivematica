@@ -12,8 +12,7 @@ from django.test import TestCase
 from pytest_django.asserts import assertQuerysetEqual
 
 from job import Job
-from main.models import Directory, Event, File, Transfer, SIP, User, Agent
-from version import get_preservation_system_identifier
+from main.models import Directory, Event, File, Transfer, SIP, User
 
 from . import TempDirMixin
 
@@ -34,7 +33,16 @@ def subdir_path(tmp_path):
 
 @pytest.fixture()
 def user(db):
-    return User.objects.create(id=Agent.objects.DEFAULT_SYSTEM_AGENT_PK)
+    return User.objects.create(
+        id=1,
+        username="kmindelan",
+        first_name="Keladry",
+        last_name="Mindelan",
+        is_active=True,
+        is_superuser=True,
+        is_staff=True,
+        email="keladry@mindelan.com",
+    )
 
 
 @pytest.fixture()
@@ -163,48 +171,18 @@ def is_uuid(uuid_):
 
 
 def verify_event_details(event):
-    """Verify event detail and event agent information is written correctly"""
-    NUMBER_OF_EXPECTED_AGENTS = 3
-    # Agent values we can test against. Three agents, which should be,
-    # preservation system, repository, and user.
-    AGENT_IDENTIFIER_VALUES = [
-        "Archivematica-1.10",
-        "エズメレルダ",
-        "Atefactual Systems Inc.",
-    ]
-    AGENT_IDENTIFIER_TYPES = [
-        "preservation system",
-        "repository code",
-        "Archivematica user pk",
-    ]
-    AGENT_NAMES = [
-        "Archivematica",
-        "Artefactual Systems Corporate Archive",
-        'username="\u30a8\u30ba\u30e1\u30ec\u30eb\u30c0", first_name="\u3053\u3093\u306b\u3061\u306f", last_name="\u4e16\u754c"',
-    ]
-    AGENT_TYPES = ["software", "organization", "Archivematica user"]
-
-    EVENT_DETAIL = (
-        'prohibited characters removed: program="sanitize_names"; version="1.10.'
+    assert (
+        'prohibited characters removed: program="sanitize_names"; ' 'version="1.10.'
+    ) in event.event_detail
+    assertQuerysetEqual(
+        event.agents.all(),
+        [
+            "<Agent: organization; repository code: ORG; Your Organization Name Here>",
+            '<Agent: Archivematica user; Archivematica user pk: 1; username="kmindelan", first_name="Keladry", last_name="Mindelan">',
+        ],
+        transform=repr,
+        ordered=False,
     )
-    assert event.event_id is not None, "Event ID is None"
-    assert is_uuid(event.event_id), "UUID is invalid"
-    assert EVENT_DETAIL in event.event_detail, "Event detail written incorrectly"
-    # Verify the all Event agents are written as expected in standard workflow.
-    agents = list(event.agents.all())
-    assert len(agents) == NUMBER_OF_EXPECTED_AGENTS, "Agents not all written for Event"
-    for agent in agents:
-        # Assert True, then remove from the list to simulate set-like
-        # functionality.
-        assert (
-            agent.identifiervalue in AGENT_IDENTIFIER_VALUES
-        ), "Agent identifier value not written"
-        assert (
-            agent.identifiertype in AGENT_IDENTIFIER_TYPES
-        ), "Agent identifier type not written"
-        assert agent.name in AGENT_NAMES, "Agent name not written"
-        assert agent.agenttype in AGENT_TYPES, "Agent type not written"
-        agents.remove(agent)
 
 
 class TestSanitize(TempDirMixin, TestCase):
@@ -213,7 +191,7 @@ class TestSanitize(TempDirMixin, TestCase):
     fixture_files = [
         "transfer.json",
         "files-transfer-unicode.json",
-        os.path.join("microservice_agents", "microservice_agents.json"),
+        "admin-user.json",
         os.path.join("microservice_agents", "microservice_unitvars.json"),
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
@@ -371,18 +349,8 @@ def test_sanitize_transfer_with_multiple_files(
             not in file_obj.currentlocation
         )
         assert "bulk-file" in file_obj.currentlocation
-        assertQuerysetEqual(
-            Event.objects.get(
-                file_uuid=file_obj.uuid, event_type="name cleanup"
-            ).agents.all(),
-            [
-                "<Agent: software; preservation system: %s; Archivematica>"
-                % get_preservation_system_identifier(),
-                "<Agent: organization; repository code: ORG; Your Organization Name Here>",
-                '<Agent: Archivematica user; Archivematica user pk: 1; username="", first_name="", last_name="">',
-            ],
-            transform=repr,
-            ordered=False,
+        verify_event_details(
+            Event.objects.get(file_uuid=file_obj.uuid, event_type="name cleanup")
         )
 
 
