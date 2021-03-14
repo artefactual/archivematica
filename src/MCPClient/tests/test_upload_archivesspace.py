@@ -35,7 +35,7 @@ def test_get_files_from_dip_with_empty_dip_location(tmpdir, mocker):
     dip = tmpdir.mkdir("mydip")
     with pytest.raises(ValueError) as excinfo:
         upload_archivesspace.get_files_from_dip(str(dip))
-    assert excinfo.value.message == "cannot find dip"
+        pytest.fail("cannot find dip")
     logger.error.assert_called_once_with("no files in {}/objects".format(str(dip)))
 
 
