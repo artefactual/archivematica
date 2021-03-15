@@ -97,7 +97,8 @@ def args(mocker):
     ],
     ids=["no-users-exist", "users-exist", "send-email-fails"],
 )
-def test_report_is_always_stored(transactional_db, mocker, args, test_case):
+@pytest.mark.django_db
+def test_report_is_always_stored(mocker, args, test_case):
     mocker.patch(
         "email_fail_report.get_emails_from_dashboard_users",
         return_value=test_case["users"],
