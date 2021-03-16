@@ -628,7 +628,7 @@ def file_obj_to_premis(file_obj):
             "creating_application",
             (
                 "date_created_by_application",
-                file_obj.modificationtime.strftime("%Y-%m-%d"),
+                file_obj.modificationtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
             ),
         ),
     )
