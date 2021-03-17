@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "description": "Dashboard components (Appraisal tab and Transfer browser) for Archivematica",
   "devDependencies": {
+    "angular-gettext-cli": "^1.2.0",
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
     "babel-plugin-transform-object-assign": "^6.3.13",
@@ -28,6 +29,7 @@
     "webpack": "^1.15.0"
   },
   "scripts": {
+    "extract-messages": "angular-gettext-cli --files \"./app/**/*.+(js|html)\" --dest \"./app/locale/extract.pot\" --marker-name \"i18n\"",
     "prepare": "webpack --progress --colors --entry ./app.js",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000 -c-1",

@@ -34,14 +34,6 @@ function storage::manage {
 			archivematica-storage-service "$@"
 }
 
-# TODO: do it inside a container so we don't have to require the dependency.
-if ! which angular-gettext-cli > /dev/null 2>&1 ; then
-  echo >&2 "Cannot find angular-gettext-cli."
-  echo >&2 "Install with \"npm install -g angular-gettext-cli\"."
-  echo >&2 "Aborting.";
-  exit 1;
-fi
-
 
 #
 # Dashboard
@@ -51,10 +43,12 @@ echo "Dashboard: extracting messages..."
 dashboard::manage makemessages --all --domain django
 dashboard::manage makemessages --all --domain djangojs --ignore build/*
 
-angular-gettext-cli \
-	--files "${__root_dir}/src/dashboard/frontend/app/**/*.+(js|html)" \
-	--dest "${__root_dir}/src/dashboard/frontend/app/locale/extract.pot" \
-	--marker-name "i18n"
+docker-compose run \
+	--user=$(id -u):$(id -g) \
+	--rm --no-deps \
+	--workdir=/src/src/dashboard/frontend \
+	--entrypoint=yarn \
+		archivematica-dashboard run extract-messages
 
 (cd ${__root_dir} && git status -s)
 
