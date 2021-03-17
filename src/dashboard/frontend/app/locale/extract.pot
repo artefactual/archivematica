@@ -187,7 +187,7 @@ msgstr ""
 msgid "End date:"
 msgstr ""
 
-#: ./app/arrangement/arrangement.controller.js:393
+#: ./app/arrangement/arrangement.controller.js:399
 msgid "Error fetching levels of description"
 msgstr ""
 
@@ -199,7 +199,7 @@ msgstr ""
 msgid "Expand all"
 msgstr ""
 
-#: ./app/arrangement/arrangement.controller.js:403
+#: ./app/arrangement/arrangement.controller.js:409
 msgid "Failed to copy files to SIP arrange; check Dashboard logs."
 msgstr ""
 
@@ -258,6 +258,10 @@ msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:201
 msgid "Identifier"
+msgstr ""
+
+#: ./app/arrangement/arrangement.controller.js:277
+msgid "It is not possible to create an empty SIP."
 msgstr ""
 
 #: ./app/front_page/appraisal_tab.html:165
@@ -345,7 +349,7 @@ msgid "Report"
 msgstr ""
 
 #: ./app/arrangement/arrangement.controller.js:154
-#: ./app/arrangement/arrangement.controller.js:276
+#: ./app/arrangement/arrangement.controller.js:274
 msgid "SIP could not be started! Check dashboard logs."
 msgstr ""
 
@@ -482,7 +486,7 @@ msgid "Unable to start SIP; no files arranged into record \"{{title}}\"."
 msgstr ""
 
 #: ./app/archivesspace/archivesspace.controller.js:162
-#: ./app/arrangement/arrangement.controller.js:377
+#: ./app/arrangement/arrangement.controller.js:383
 msgid "Unable to submit edits to record \"{{title}}\"; check dashboard logs."
 msgstr ""
 
