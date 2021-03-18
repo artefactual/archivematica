@@ -104,6 +104,7 @@ bootstrap-storage-service:  ## Boostrap Storage Service (new database).
 
 makemigrations-ss:
 	docker-compose run \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
@@ -111,6 +112,7 @@ makemigrations-ss:
 
 manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG=shell`
 	docker-compose run \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
@@ -118,6 +120,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 
 manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG='shell --help'`
 	docker-compose run \
+		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
