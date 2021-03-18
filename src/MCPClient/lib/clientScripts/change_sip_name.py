@@ -31,7 +31,7 @@ from django.db import transaction
 # dashboard
 from main.models import SIP, Transfer
 
-from sanitize_names import sanitize_path
+from change_names import change_path
 
 
 def call(jobs):
@@ -58,7 +58,7 @@ def call(jobs):
                     job.pyprint("invalid unit type: ", unitType, file=sys.stderr)
                     job.set_status(1)
                     continue
-                dst = sanitize_path(SIPDirectory)
+                dst = change_path(SIPDirectory)
                 if SIPDirectory != dst:
                     dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
                     job.pyprint(

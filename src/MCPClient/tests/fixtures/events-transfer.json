@@ -43,11 +43,11 @@
 },
 {
     "fields": {
-        "event_type": "name cleanup",
+        "event_type": "filename change",
         "event_id": "870d4233-efa9-4360-a6f1-5e4b988efe5d",
-        "event_detail": "prohibited characters removed:program=\"sanitizeNames\"; version=\"1.10.9529a554732f6b96a561fd0adcf2711bb233166b\"",
+        "event_detail": "prohibited characters removed:program=\"changeNames\"; version=\"1.10.9529a554732f6b96a561fd0adcf2711bb233166b\"",
         "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
-        "event_outcome_detail": "Original name=\"%transferDirectory%objects/evelyn's photo.jpg\"; cleaned up name=\"%transferDirectory%objects/evelyn_s_photo.jpg\"",
+        "event_outcome_detail": "Original name=\"%transferDirectory%objects/evelyn's photo.jpg\"; new name=\"%transferDirectory%objects/evelyn_s_photo.jpg\"",
         "agents": [2, 3],
         "event_outcome": "",
         "event_datetime": "2015-11-30T21:55:39"

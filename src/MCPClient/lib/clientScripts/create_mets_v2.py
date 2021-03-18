@@ -75,7 +75,7 @@ from create_mets_dataverse_v2 import (
 )
 from custom_handlers import get_script_logger
 import namespaces as ns
-from sanitize_names import sanitize_name
+from change_names import change_name
 
 from bagit import Bag, BagError
 
@@ -883,7 +883,7 @@ def _fixup_path_input_by_user(job, path):
     """Fix-up paths submitted by a user, e.g. in custom structmap examples so
     that they don't have to anticipate the Archivematica normalization process.
     """
-    return os.path.join("", *[sanitize_name(name) for name in path.split(os.path.sep)])
+    return os.path.join("", *[change_name(name) for name in path.split(os.path.sep)])
 
 
 def include_custom_structmap(

@@ -20,7 +20,7 @@ django.setup()
 
 from main.models import Directory, File, SIP
 
-from sanitize_names import sanitize_name
+from change_names import change_name
 
 
 class DeclarePIDsException(Exception):
@@ -71,9 +71,7 @@ class DeclarePIDs(object):
         """
         return "{}{}".format(
             self.SIP_DIRECTORY,
-            os.path.join(
-                "", *[sanitize_name(name) for name in path.split(os.path.sep)]
-            ),
+            os.path.join("", *[change_name(name) for name in path.split(os.path.sep)]),
         )
 
     def _log_identifer_to_stdout(self, mdl, identifier_type, identifier):

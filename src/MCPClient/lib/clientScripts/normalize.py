@@ -93,7 +93,7 @@ def check_manual_normalization(job, opts):
     normalization_csv = os.path.join(
         opts.sip_path, "objects", "manualNormalization", "normalization.csv"
     )
-    # Get original name of target file, to handle sanitized names
+    # Get original name of target file, to handle filename changes.
     file_ = File.objects.get(uuid=opts.file_uuid)
     bname = file_.originallocation.replace(
         "%transferDirectory%objects/", "", 1
@@ -136,7 +136,7 @@ def check_manual_normalization(job, opts):
                 return None
 
             # If we found a match, verify access/preservation exists in DB
-            # match and pull original location b/c sanitization
+            # match and pull original location b/c filename changes
             if "preservation" in opts.purpose:
                 filename = preservation_file
             elif "access" in opts.purpose:
