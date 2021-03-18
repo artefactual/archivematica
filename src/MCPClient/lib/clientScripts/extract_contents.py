@@ -59,7 +59,7 @@ def assign_uuid(
     # Correct the information in the path strings sent to this function. First
     # remove the SIP directory from the string. Second, make sure that file
     # paths have not been modified for processing purpose, i.e. in
-    # Archivematica current terminology, sanitized.
+    # Archivematica current terminology, filename change.
     relative_path = filename.replace(sip_directory, TRANSFER_DIRECTORY, 1)
     relative_package_path = package_filename.replace(
         sip_directory, TRANSFER_DIRECTORY, 1

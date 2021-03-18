@@ -1003,12 +1003,12 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%attachments/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": "objects/attachments",
-        "stderr_file": "%SIPLogsDirectory%filenameCleanup.log",
-        "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
+        "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
+        "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
       },
       "description": {
         "en": "Change extracted objects' file and directory names",
@@ -2044,12 +2044,12 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%objects/submissionDocumentation/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"SIPDirectory\" \"sip_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": "objects/submissionDocumentation",
-        "stderr_file": "%SIPLogsDirectory%filenameCleanup.log",
-        "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
+        "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
+        "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
       },
       "description": {
         "en": "Change file and directory names in submission documentation",
@@ -3246,12 +3246,12 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": "objects",
-        "stderr_file": "%SIPLogsDirectory%filenameCleanup.log",
-        "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
+        "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
+        "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
       },
       "description": {
         "en": "Change object and directory filenames",
@@ -8824,7 +8824,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\" \"%date%\" \"%sharedPath%\" \"%unitType%\"",
-        "execute": "sanitizeSIPName_v0.0",
+        "execute": "changeSIPName_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": null,
@@ -8859,7 +8859,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\" \"%date%\" \"%sharedPath%\" \"%unitType%\"",
-        "execute": "sanitizeSIPName_v0.0",
+        "execute": "changeSIPName_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": null,
@@ -9419,12 +9419,12 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%objects/metadata/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"SIPDirectory\" \"sip_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": "objects/metadata",
-        "stderr_file": "%SIPLogsDirectory%filenameCleanup.log",
-        "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
+        "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
+        "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
       },
       "description": {
         "en": "Change file and directory names in metadata",
@@ -10316,7 +10316,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": null,
@@ -10421,12 +10421,12 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%attachments/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
-        "execute": "sanitizeObjectNames_v0.0",
+        "execute": "changeObjectNames_v0.0",
         "filter_file_end": null,
         "filter_file_start": null,
         "filter_subdir": "objects/attachments",
-        "stderr_file": "%SIPLogsDirectory%filenameCleanup.log",
-        "stdout_file": "%SIPLogsDirectory%filenameCleanup.log"
+        "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
+        "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
       },
       "description": {
         "en": "Change object and directory filenames",

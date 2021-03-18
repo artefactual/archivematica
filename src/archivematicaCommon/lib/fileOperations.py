@@ -259,7 +259,7 @@ def updateFileLocation(
     createEvent=True,
 ):
     """
-    Updates file location in the database, and optionally writes an event for the sanitization to the database.
+    Updates file location in the database, and optionally writes an event for the filename changes to the database.
     Note that this does not actually move a file on disk.
     If the file uuid is not provided, will use the SIP uuid and the old path to find the file uuid.
     To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
@@ -292,7 +292,7 @@ def updateFileLocation(
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = 'Original name="%s"; cleaned up name="%s"' % (src, dst)
+        eventOutcomeDetailNote = 'Original name="%s"; new name="%s"' % (src, dst)
     # CREATE THE EVENT
     insertIntoEvents(
         fileUUID=f.uuid,
@@ -348,7 +348,7 @@ def findFileInNormalizationCSV(
     with open(csv_path, "rbU") as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
-        # Get original name of target file, to handle sanitized names
+        # Get original name of target file, to handle filename changes.
         try:
             f = File.objects.get(
                 removedtime__isnull=True,

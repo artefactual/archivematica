@@ -37,9 +37,9 @@ ALLOWED_CHARS = re.compile(r"[^a-zA-Z0-9\-_.\(\)]")
 REPLACEMENT_CHAR = "_"
 
 
-def sanitize_name(basename):
+def change_name(basename):
     if basename == "":
-        raise ValueError("sanitize_name recieved an empty filename.")
+        raise ValueError("change_name received an empty filename.")
     unicode_basename = strToUnicode(basename)
     unicode_name = unidecode(unicode_basename)
     # We can't return  an empty string here because it will become the new filename.
@@ -53,35 +53,35 @@ def sanitize_name(basename):
     return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, unicode_name)
 
 
-def sanitize_path(path):
+def change_path(path):
     basename = os.path.basename(path)
-    sanitized_name = sanitize_name(basename)
+    changed_name = change_name(basename)
 
-    if basename == sanitized_name:
+    if basename == changed_name:
         return path
 
     dirname = os.path.dirname(path)
 
     n = 1
-    file_title, file_extension = os.path.splitext(sanitized_name)
-    sanitized_name = os.path.join(dirname, file_title + file_extension)
+    file_title, file_extension = os.path.splitext(changed_name)
+    changed_name = os.path.join(dirname, file_title + file_extension)
 
-    while os.path.exists(sanitized_name):
-        sanitized_name = os.path.join(
+    while os.path.exists(changed_name):
+        changed_name = os.path.join(
             dirname, file_title + REPLACEMENT_CHAR + str(n) + file_extension
         )
         n += 1
-    shutil.move(path, sanitized_name)
+    shutil.move(path, changed_name)
 
-    return sanitized_name
+    return changed_name
 
 
-def sanitize_tree(start_path, old_start_path):
+def change_tree(start_path, old_start_path):
     """
-    Recursive generator to sanitize all filesystem entries under the start
+    Recursive generator to change all filesystem entries under the start
     path given.
 
-    Yields a tuple of (old_path, sanitized_path, is_dir, was_sanitized) once
+    Yields a tuple of (old_path, changed_path, is_dir, was_changed) once
     for each file or dir within the start_path, everything contained in each
     dir.
     """
@@ -90,13 +90,13 @@ def sanitize_tree(start_path, old_start_path):
     for dir_entry in scandir(start_path):
         is_dir = dir_entry.is_dir()  # cache is_dir before rename
 
-        sanitized_name = sanitize_path(dir_entry.path)
-        sanitized_path = os.path.join(start_path, sanitized_name)
+        changed_name = change_path(dir_entry.path)
+        changed_path = os.path.join(start_path, changed_name)
         old_path = os.path.join(old_start_path, dir_entry.name)
 
-        was_sanitized = sanitized_path != old_path
-        yield old_path, sanitized_path, is_dir, was_sanitized
+        was_changed = changed_path != old_path
+        yield old_path, changed_path, is_dir, was_changed
 
         if is_dir:
-            for result in sanitize_tree(sanitized_path, old_path):
+            for result in change_tree(changed_path, old_path):
                 yield result
