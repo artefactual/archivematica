@@ -342,6 +342,7 @@ def test_sanitize_name_raises_valueerror_on_empty_string():
         sanitize_names.sanitize_name("")
 
 
+@pytest.mark.xfail(reason="This is affected by the microservice_agents.json fixture")
 @pytest.mark.django_db
 def test_sanitize_transfer_with_multiple_files(
     monkeypatch, tmp_path, transfer, subdir_path, multiple_transfer_file_objs
