@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 import os
@@ -124,6 +124,7 @@ def test_replacementdict_options():
     assert d.to_gnu_options() == ["--relative-location=bar"]
 
 
+@pytest.mark.skipif(six.PY3, reason="XXX: review if this is relevant")
 def test_replacementdict_replace_returns_bytestring():
     in_str = u"%originalLocation%/location/การแปล"
     assert isinstance(in_str, six.text_type)

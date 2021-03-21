@@ -19,7 +19,8 @@ jobs:
           - mcp-client
           - dashboard-py27
           - dashboard-py36
-          - archivematica-common
+          - archivematica-common-py27
+          - archivematica-common-py36
           - storage-service
           - checkformigrations
     steps:

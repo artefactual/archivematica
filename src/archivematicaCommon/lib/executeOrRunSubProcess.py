@@ -134,7 +134,7 @@ def launchSubProcess(
         print(type(inst), file=sys.stderr)  # the exception instance
         print(inst.args, file=sys.stderr)
         return -1, "Execution failed:", command
-    return retcode, stdOut, stdError
+    return retcode, six.ensure_text(stdOut), six.ensure_text(stdError)
 
 
 def createAndRunScript(
@@ -222,6 +222,7 @@ def executeOrRun(
             capture_output=capture_output,
         )
     if type == "pythonScript":
+        # XXX: how should this be updated?
         text = "#!/usr/bin/env python2\n" + text
         return createAndRunScript(
             text,

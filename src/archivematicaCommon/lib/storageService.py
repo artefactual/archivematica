@@ -227,7 +227,7 @@ def location_description_from_slug(aip_location_slug):
        * /api/v2/location/3e796bef-0d56-4471-8700-eeb256859811/
        * /api/v2/location/default/AS/"
 
-    :param string aip_location: storage location URI slug
+    :param string aip_location_slug: storage location URI slug
     :return: storage service location description
     :rtype: dict
     """

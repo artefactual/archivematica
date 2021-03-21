@@ -208,7 +208,7 @@ flush-logs:  ## Delete container logs - requires root privileges.
 # These include the database names used in the settings.testmysql
 # modules plus the prefixed and suffixed variations used by Django and
 # tox
-__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_py27-dashboard test_DASHBOARDTEST_py36-dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcpclient test_MCPSERVERTEST test_MCPSERVERTEST_mcpserver test_MCPSERVERTEST_py27-mcpserver test_MCPSERVERTEST_py36-mcpserver test_SS test_SSTEST test_SSTEST_storage-service
+__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_py27-archivematica-common test_DASHBOARDTEST_py36-archivematica-common test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_py27-dashboard test_DASHBOARDTEST_py36-dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcpclient test_MCPSERVERTEST test_MCPSERVERTEST_mcpserver test_MCPSERVERTEST_py27-mcpserver test_MCPSERVERTEST_py36-mcpserver test_SS test_SSTEST test_SSTEST_storage-service
 flush-test-dbs: start-mysql
 	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
@@ -254,9 +254,17 @@ test-storage-service: start-mysql  ## Run Storage Service tests.
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-__TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON_PY27 := py27-archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON_PY36 := py36-archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON = $(__TOXENVS_ARCHIVEMATICA_COMMON_PY27) $(__TOXENVS_ARCHIVEMATICA_COMMON_PY36)
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
+
+test-archivematica-common-py27: start-mysql  ## Run Archivematica Common tests only in Python 2.7.
+	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON_PY27))
+
+test-archivematica-common-py36: start-mysql  ## Run Archivematica Common tests only in Python 3.6.
+	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON_PY36))
 
 __TOXENVS_CHECKFORMIGRATIONS = checkformigrations-dashboard checkformigrations-storage-service
 test-checkformigrations: start-mysql  ## Check there are no pending migrations.
