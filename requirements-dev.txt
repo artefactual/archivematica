@@ -83,7 +83,8 @@ pytest-cov==2.4.0         # via -r requirements-dev.in
 pytest-django==3.10.0     # via -r requirements-dev.in
 pytest-mock==1.13.0       # via -r requirements-dev.in
 pytest-pythonpath==0.7.3  # via -r requirements-dev.in
-pytest==4.6.11            # via -r requirements-dev.in, pytest-cov, pytest-django, pytest-mock, pytest-pythonpath
+pytest-randomly==1.2.3    # via -r requirements-dev.in
+pytest==4.6.11            # via -r requirements-dev.in, pytest-cov, pytest-django, pytest-mock, pytest-pythonpath, pytest-randomly
 python-cas==1.5.0         # via -r requirements.txt, django-cas-ng
 python-dateutil==2.6.0    # via -r requirements.txt, django-tastypie, pandas
 python-ldap==3.2.0        # via -r requirements.txt, django-auth-ldap, mockldap
