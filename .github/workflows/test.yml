@@ -36,7 +36,7 @@ jobs:
         uses: "actions/cache@v2"
         with:
           path: ./.tox
-          key: "${{ runner.os }}-tox-${{ matrix.rule }}-${{ hashFiles('**/tox.ini') }}"
+          key: "${{ runner.os }}-tox-${{ matrix.rule }}-${{ hashFiles('**/tox.ini', '**/requirements*.txt', '**/requirements/*.txt') }}"
           restore-keys: |
             ${{ runner.os }}-tox-${{ matrix.rule }}-
             ${{ runner.os }}-tox-
