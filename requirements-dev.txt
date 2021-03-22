@@ -43,7 +43,7 @@ funcsigs==1.0.2           # via mock, pytest
 functools32==3.2.3.post2  # via -r requirements.txt, jsonschema
 future==0.18.2            # via -r requirements.txt, metsrw
 futures==3.3.0 ; python_version < "3.2"  # via -r requirements.txt
-gearman==2.0.2            # via -r requirements.txt
+gearman==2.0.2 ; python_version < "3"  # via -r requirements.txt
 gevent==1.3.6             # via -r requirements.txt
 greenlet==1.0.0           # via -r requirements.txt, gevent
 gunicorn==19.9.0          # via -r requirements.txt
