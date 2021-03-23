@@ -272,7 +272,16 @@ class ProcessingConfigurationForm(forms.Form):
 
     LABELS = {
         # MCPServer does not extract messages.
-        "virus_scanning": _("Virus scanning")
+        "virus_scanning": _("Virus scanning"),
+        "select_format_id_tool_transfer": _(
+            "Perform file format identification (Transfer)"
+        ),
+        "select_format_id_tool_ingest": _(
+            "Perform file format identification (Ingest)"
+        ),
+        "select_format_id_tool_submissiondocs": _(
+            "Perform file format identification (Submission documentation & metadata)"
+        ),
     }
 
     NAME_MAX_LENGTH = 50
