@@ -1,18 +1,20 @@
 [run]
 
 omit =
-	src/archivematicaCommon/lib/externals/
-	**/migrations/*
-	**/settings/*
-	**/wsgi.py
-	**/tests/*
-	**/manage.py
+    **/src/archivematicaCommon/lib/externals/*
+    **/migrations/*
+    **/south_migrations/*
+    **/management/commands/*
+    **/settings/*
+    **/tests/*
+    **/wsgi.py
+    **/manage.py
 
 source =
-	src/archivematicaCommon/lib/
-	src/dashboard/src/
-	src/MCPClient/lib/
-	src/MCPClient/lib/clientScripts/
-	src/MCPServer/lib/
+    **/src/archivematicaCommon/lib/
+    **/src/dashboard/src/
+    **/src/MCPClient/lib/
+    **/src/MCPClient/lib/clientScripts/
+    **/src/MCPServer/lib/
 
 branch = True
