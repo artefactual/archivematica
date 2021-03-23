@@ -36,7 +36,7 @@ RUN set -ex \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		build-essential python-dev libyaml-dev clamav \
+		build-essential python-dev python3-dev libyaml-dev clamav \
 	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -64,6 +64,16 @@ COPY requirements-dev.txt /src/requirements-dev.txt
 RUN pip2 install -r /src/requirements-dev.txt
 
 COPY . /src
+
+# -----------------------------------------------------------------------------
+
+FROM base AS python3
+
+RUN set -ex \
+	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.6
+
+COPY requirements-dev-py3.txt /src/requirements-dev-py3.txt
+RUN pip3 install -r /src/requirements-dev-py3.txt
 
 # -----------------------------------------------------------------------------
 

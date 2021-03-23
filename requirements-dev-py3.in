@@ -1,0 +1,13 @@
+-r requirements-py3.txt
+
+coverage==4.2
+mock
+mockldap==0.2.8
+pytest>=4,<5
+pytest-cov==2.4.0
+pytest-django>=3,<4
+pytest-mock>=1,<2
+pytest-pythonpath
+pytest-randomly==1.2.3
+tox
+vcrpy>=1,<2
