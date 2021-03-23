@@ -1,4 +1,5 @@
 [![Travis CI](https://travis-ci.org/artefactual/archivematica.svg?branch=qa/1.x)](https://travis-ci.org/artefactual/archivematica)
+[![codecov](https://codecov.io/gh/artefactual/archivematica/branch/qa/1.x/graph/badge.svg?token=tKlfjhmrlC)](https://codecov.io/gh/artefactual/archivematica)
 
 # [Archivematica](https://www.archivematica.org/)
 

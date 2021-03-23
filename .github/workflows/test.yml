@@ -12,13 +12,19 @@ jobs:
     runs-on: "ubuntu-18.04"
     strategy:
       matrix:
-        rule:
-          - mcp-server
-          - mcp-client
-          - dashboard
-          - archivematica-common
-          - storage-service
-          - checkformigrations
+        include:
+          - rule: mcp-server
+            coverage: true
+          - rule: mcp-client
+            coverage: true
+          - rule: dashboard
+            coverage: true
+          - rule: archivematica-common
+            coverage: true
+          - rule: storage-service
+            coverage: false
+          - rule: checkformigrations
+            coverage: false
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
@@ -65,11 +71,27 @@ jobs:
         run: |
           make -C hack/ create-volumes
       - name: "Run make rule"
+        if: "! matrix.coverage"
         run: |
           make -C hack/ test-${{ matrix.rule }}
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv
+      - name: "Run make rule with coverage"
+        if: "matrix.coverage"
+        run: |
+          make -C hack/ test-${{ matrix.rule }}
+        env:
+          TOXARGS: -vv
+          PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
+      - name: "Upload coverage report"
+        if: matrix.coverage && github.repository == 'artefactual/archivematica'
+        uses: "codecov/codecov-action@v1"
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+          name: ${{ matrix.rule }}
       - name: "Set newest docker cache"
         run: |
           rm -rf /tmp/.docker-cache-old
