@@ -17,6 +17,7 @@ from __future__ import print_function
 from dis import HAVE_ARGUMENT, opmap
 import importlib
 import logging
+import os
 import pprint
 import sys
 import types
@@ -174,5 +175,7 @@ def print_mutable_globals_usage(supported_modules):
 
 
 if __name__ == "__main__":
-    config_path = "src/MCPClient/lib/archivematicaClientModules"
+    config_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "archivematicaClientModules"
+    )
     sys.exit(print_mutable_globals_usage(get_supported_modules(config_path)))
