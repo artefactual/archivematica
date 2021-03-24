@@ -23,6 +23,7 @@ Archivematica itself.
   - [Opening the pull request](#opening-the-pull-request)
   - [Discussion](#discussion)
   - [Cleaning up the commit history](#cleaning-up-the-commit-history)
+  - [Stalled pull requests](#stalled-pull-requests)
 - [Contributor's Agreement](#contributors-agreement)
   - [Why do I have to sign a Contributor's Agreement?](#why-do-i-have-to-sign-a-contributors-agreement)
   - [How do I send in an agreement?](#how-do-i-send-in-an-agreement)
@@ -133,8 +134,7 @@ shy about submitting early.
 
 ### Opening the pull request
 
-GitHub has an [excellent]
-guide on using the pull request feature.
+GitHub has an [excellent] guide on using the pull request feature.
 
 ### Discussion
 
@@ -165,6 +165,13 @@ Once code review is finished or nearly finished, and no further development is
 planned on the branch, the branch's commit history should be cleaned up.
 You can alter the commit history of a branch using git's powerful
 [interactive rebase feature].
+
+### Stalled pull requests
+
+Pull requests that have been inactive for 60 days will be closed and properly
+tagged using the "stalled" label. At that point, we prefer to continue the
+discussion under the original GitHub issue that should be linked from the pull
+request.
 
 ## Contributor's Agreement
 
