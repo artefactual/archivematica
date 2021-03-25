@@ -184,7 +184,7 @@ compile-requirements-ss:  ## Run pip-compile for Storage Service
 		--no-deps \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--entrypoint bash archivematica-storage-service \
-			-c "make clean && make all"
+			-c "make pip-compile"
 
 db:  ## Connect to the MySQL server using the CLI.
 	docker-compose exec mysql mysql -hlocalhost -uroot -p12345
@@ -240,9 +240,12 @@ test-dashboard: start-mysql  ## Run Dashboard tests.
 test-dashboard-py36: start-mysql  ## Run Dashboard tests in Python 3.6.
 	$(call run_toxenvs,py36-dashboard)
 
-__TOXENVS_STORAGE_SERVICE = storage-service
+__TOXENVS_STORAGE_SERVICE = py27-storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
+
+test-storage-service-py3: start-mysql  ## Run Storage Service tests in Python 3.6.
+	$(call run_toxenvs,py36-storage-service)
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
