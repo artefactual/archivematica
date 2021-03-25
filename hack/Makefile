@@ -248,7 +248,7 @@ __TOXENVS_STORAGE_SERVICE = py27-storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
-test-storage-service-py3: start-mysql  ## Run Storage Service tests in Python 3.6.
+test-storage-service-py36: start-mysql  ## Run Storage Service tests in Python 3.6.
 	$(call run_toxenvs,py36-storage-service)
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
