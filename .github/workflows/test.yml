@@ -23,6 +23,8 @@ jobs:
             coverage: true
           - rule: storage-service
             coverage: false
+          - rule: storage-service-py36
+            coverage: false
           - rule: checkformigrations
             coverage: false
     steps:
