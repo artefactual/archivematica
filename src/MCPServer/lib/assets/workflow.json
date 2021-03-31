@@ -2496,7 +2496,7 @@
       "config": {
         "@manager": "linkTaskManagerUnitVariableLinkPull",
         "@model": "TaskConfigUnitVariableLinkPull",
-        "chain_id": "675acd22-828d-4949-adc7-1888240f5e3d",
+        "chain_id": "307edcde-ad10-401c-92c4-652917c993ed",
         "variable": "postExtractSpecializedProcessing"
       },
       "description": {
@@ -2509,7 +2509,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "2fd123ea-196f-4c9c-95c0-117aa65ed9c6"
+          "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
         }
       },
       "fallback_job_status": "Failed",
@@ -3791,7 +3791,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
+          "link_id": "675acd22-828d-4949-adc7-1888240f5e3d"
         }
       },
       "fallback_job_status": "Failed",
@@ -8208,11 +8208,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "675acd22-828d-4949-adc7-1888240f5e3d"
+          "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "675acd22-828d-4949-adc7-1888240f5e3d",
+      "fallback_link_id": "307edcde-ad10-401c-92c4-652917c993ed",
       "group": {
         "en": "Identify DSpace files",
         "fr": "Identifier les fichiers DSpace",
@@ -8912,11 +8912,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
+          "link_id": "ec3c965c-c056-47e3-a551-ad1966e00824"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "307edcde-ad10-401c-92c4-652917c993ed",
+      "fallback_link_id": "ec3c965c-c056-47e3-a551-ad1966e00824",
       "group": {
         "en": "Validation",
         "es": "Validación",
@@ -12028,11 +12028,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "db99ab43-04d7-44ab-89ec-e09d7bbdc39d"
+          "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
+      "fallback_link_id": "70fc7040-d4fb-4d19-a0e6-792387ca1006",
       "group": {
         "en": "Parse external files",
         "no": "Analyser eksterne filer"
@@ -12999,7 +12999,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "db99ab43-04d7-44ab-89ec-e09d7bbdc39d"
+          "link_id": "307edcde-ad10-401c-92c4-652917c993ed"
         }
       },
       "fallback_job_status": "Failed",
