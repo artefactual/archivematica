@@ -19,6 +19,7 @@ from __future__ import absolute_import
 
 import sys
 import traceback
+import logging
 
 from django.conf import settings
 from django.http import HttpResponseServerError
@@ -30,15 +31,25 @@ from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 import elasticsearch
 
 
+logger = logging.getLogger("archivematica.dashboard")
+
+
 class AJAXSimpleExceptionResponseMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if not settings.DEBUG or not request.is_ajax():
             return
         (exc_type, exc_info, tb) = sys.exc_info()
+        tracebacks = traceback.format_tb(tb)
+        logger.error(
+            "Processing exception %s at %s. Traceback %s",
+            exception,
+            request.path,
+            tracebacks,
+        )
         response = "%s\n" % exc_type.__name__
         response += "%s\n\n" % exc_info
         response += "TRACEBACK:\n"
-        for tb in traceback.format_tb(tb):
+        for tb in tracebacks:
             response += "%s\n" % tb
         return HttpResponseServerError(response)
 
