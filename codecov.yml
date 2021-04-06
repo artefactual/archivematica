@@ -18,4 +18,4 @@ coverage:
         if_not_found: success
 
 fixes:
-  - "/src/::"
+  - "/src/src/::src/"
