@@ -11,6 +11,8 @@ Our target users are archivists, librarians, and anyone working to preserve digi
 You are free to copy, modify, and distribute Archivematica with attribution under the terms of the AGPLv3 license.
 See the [LICENSE](LICENSE) file for details.
 
+test
+
 
 ## Installation
 
