@@ -15,7 +15,8 @@ jobs:
           - "aip-encrypt-mirror"
           - "black-box"
           - "icc"
-          - "ipc"
+          - "ipc preservation"
+          - "ipc access"
           - "mo-aip-reingest"
           - "tcc"
           - "tpc"
@@ -23,6 +24,13 @@ jobs:
         browser:
           - "Firefox"
           - "Chrome"
+        exclude:
+          - tag: "black-box"
+            browser: Firefox
+          - tag: "ipc preservation"
+            browser: Firefox
+          - tag: "ipc access"
+            browser: Firefox
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
@@ -52,4 +60,4 @@ jobs:
           make -C hack/ restart-am-services
       - name: "Run AMAUAT tag"
         run: |
-          make -C hack/ test-at-behave TAGS=${{ matrix.tag }} BROWSER=${{ matrix.browser }}
+          make -C hack/ test-at-behave TAGS="${{ matrix.tag }}" BROWSER=${{ matrix.browser }}
