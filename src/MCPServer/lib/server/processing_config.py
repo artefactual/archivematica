@@ -195,6 +195,16 @@ class SharedChainChoicesField(ProcessingConfigField):
 # web user interface. Use one of the supported configuration classes, i.e. all
 # classes extending ``ProcessingConfigField``.
 processing_fields = [
+    SharedChainChoicesField(
+        link_id="856d2d65-cd25-49fa-8da9-cabb78292894",
+        name="virus_scanning",
+        related_links=[
+            "1dad74a2-95df-4825-bbba-dca8b91d2371",
+            "7e81f94e-6441-4430-a12d-76df09181b66",
+            "390d6507-5029-4dae-bcd4-ce7178c9b560",
+            "97a5ddc0-d4e0-43ac-a571-9722405a0a9b",
+        ],
+    ),
     ReplaceDictField(
         link_id="bd899573-694e-4d33-8c9b-df0af802437d",
         name="assign_uuids_to_directories",
@@ -286,16 +296,6 @@ processing_fields = [
         link_id="cd844b6e-ab3c-4bc6-b34f-7103f88715de",
         name="store_dip_location",
         purpose="DS",
-    ),
-    SharedChainChoicesField(
-        link_id="856d2d65-cd25-49fa-8da9-cabb78292894",
-        name="virus_scanning",
-        related_links=[
-            "1dad74a2-95df-4825-bbba-dca8b91d2371",
-            "7e81f94e-6441-4430-a12d-76df09181b66",
-            "390d6507-5029-4dae-bcd4-ce7178c9b560",
-            "97a5ddc0-d4e0-43ac-a571-9722405a0a9b",
-        ],
     ),
 ]
 
