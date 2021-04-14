@@ -68,6 +68,31 @@ DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
       <appliesTo>d0dfa5fc-e3c2-4638-9eda-f96eea1070e0</appliesTo>
       <goToChain>65273f18-5b4e-4944-af4f-09be175a88e8</goToChain>
     </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>856d2d65-cd25-49fa-8da9-cabb78292894</appliesTo>
+      <goToChain>6e431096-c403-4cbf-a59a-a26e86be54a8</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>1dad74a2-95df-4825-bbba-dca8b91d2371</appliesTo>
+      <goToChain>1ac7d792-b63f-46e0-9945-d48d9e5c02c9</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>7e81f94e-6441-4430-a12d-76df09181b66</appliesTo>
+      <goToChain>97be337c-ff27-4869-bf63-ef1abc9df15d</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>390d6507-5029-4dae-bcd4-ce7178c9b560</appliesTo>
+      <goToChain>34944d4f-762e-4262-8c79-b9fd48521ca0</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>97a5ddc0-d4e0-43ac-a571-9722405a0a9b</appliesTo>
+      <goToChain>3e8c0c39-3f30-4c9b-a449-85eef1b2a458</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
 """
@@ -208,6 +233,31 @@ AUTOMATED_PROCESSING_CONFIG = """<processingMCP>
     <preconfiguredChoice>
       <appliesTo>92879a29-45bf-4f0b-ac43-e64474f0f2f9</appliesTo>
       <goToChain>6eb8ebe7-fab3-4e4c-b9d7-14de17625baa</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>856d2d65-cd25-49fa-8da9-cabb78292894</appliesTo>
+      <goToChain>6e431096-c403-4cbf-a59a-a26e86be54a8</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>1dad74a2-95df-4825-bbba-dca8b91d2371</appliesTo>
+      <goToChain>1ac7d792-b63f-46e0-9945-d48d9e5c02c9</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>7e81f94e-6441-4430-a12d-76df09181b66</appliesTo>
+      <goToChain>97be337c-ff27-4869-bf63-ef1abc9df15d</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>390d6507-5029-4dae-bcd4-ce7178c9b560</appliesTo>
+      <goToChain>34944d4f-762e-4262-8c79-b9fd48521ca0</goToChain>
+    </preconfiguredChoice>
+    <!-- Virus scanning: Yes -->
+    <preconfiguredChoice>
+      <appliesTo>97a5ddc0-d4e0-43ac-a571-9722405a0a9b</appliesTo>
+      <goToChain>3e8c0c39-3f30-4c9b-a449-85eef1b2a458</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
