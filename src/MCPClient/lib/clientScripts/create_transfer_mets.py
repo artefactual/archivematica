@@ -253,6 +253,12 @@ class FSEntriesTree(object):
                 premis_event = event_to_premis(event)
                 fsentry.add_premis_event(premis_event)
 
+            for agent in Agent.objects.extend_queryset_with_preservation_system(
+                Agent.objects.filter(event__file_uuid=file_obj).distinct()
+            ):
+                premis_agent = agent_to_premis(agent)
+                fsentry.add_premis_agent(premis_agent)
+
     def load_rights_data_from_db(self):
         transfer_rights = self.rights_queryset.filter(
             metadataappliestoidentifier=self.transfer.uuid,
@@ -709,6 +715,30 @@ def event_to_premis(event):
                 ("linking_agent_identifier_value", agent.identifiervalue),
             ),
         )
+
+    return metsrw.plugins.premisrw.data_to_premis(
+        premis_data, premis_version=PREMIS_META["version"]
+    )
+
+
+def agent_to_premis(agent):
+    """
+    Converts an Agent model to a PREMIS event object via metsrw.
+
+    Returns:
+        lxml.etree._Element
+    """
+    premis_data = (
+        "agent",
+        PREMIS_META,
+        (
+            "agent_identifier",
+            ("agent_identifier_type", agent.identifiertype),
+            ("agent_identifier_value", agent.identifiervalue),
+        ),
+        ("agent_name", agent.name),
+        ("agent_type", agent.agenttype),
+    )
 
     return metsrw.plugins.premisrw.data_to_premis(
         premis_data, premis_version=PREMIS_META["version"]
