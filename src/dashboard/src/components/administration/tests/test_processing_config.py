@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os
+import tempfile
+import shutil
 
 from django.http import HttpResponse
 from django.test import TestCase
@@ -9,6 +11,19 @@ from components import helpers
 from processing import DEFAULT_PROCESSING_CONFIG, AUTOMATED_PROCESSING_CONFIG
 
 import mock
+import pytest
+
+
+@pytest.fixture
+def shared_directory(settings):
+    shared_dir = tempfile.mkdtemp()
+    settings.SHARED_DIRECTORY = str(shared_dir)
+    os.makedirs(
+        os.path.join(shared_dir, "sharedMicroServiceTasksConfigs/processingMCPConfigs/")
+    )
+    yield shared_dir
+    if tempfile._exists(shared_dir):
+        shutil.rmtree(shared_dir)
 
 
 class TestProcessingConfig(TestCase):
@@ -96,6 +111,7 @@ class TestProcessingConfig(TestCase):
             "The name can contain only alphanumeric characters and the underscore character (_).",
         )
 
+    @pytest.mark.usefixtures("shared_directory")
     def test_reset_default_processing_config(self):
         response = self.client.get("/administration/processing/reset/default/")
         self.assertEqual(response.status_code, 302)
@@ -105,6 +121,7 @@ class TestProcessingConfig(TestCase):
         with open(processing_config) as actual_file:
             assert actual_file.read() == DEFAULT_PROCESSING_CONFIG
 
+    @pytest.mark.usefixtures("shared_directory")
     def test_reset_automated_processing_config(self):
         response = self.client.get("/administration/processing/reset/automated/")
         self.assertEqual(response.status_code, 302)
