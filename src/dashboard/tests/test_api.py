@@ -7,7 +7,6 @@ import os
 import tempfile
 import uuid
 
-from django.conf import settings
 from django.core.management import call_command
 from django.urls import reverse
 from django.test import TestCase
@@ -473,54 +472,63 @@ class TestProcessingConfigurationAPI(TestCase):
         self.client = Client()
         self.client.login(username="test", password="test")
         helpers.set_setting("dashboard_uuid", "test-uuid")
-        settings.SHARED_DIRECTORY = tempfile.gettempdir()
+        self.populate_shared_dir()
+
+    def populate_shared_dir(self):
+        self.shared_dir = tempfile.gettempdir()
         self.config_path = os.path.join(
-            settings.SHARED_DIRECTORY,
+            self.shared_dir,
             "sharedMicroServiceTasksConfigs/processingMCPConfigs/",
         )
         if not os.path.exists(self.config_path):
             os.makedirs(self.config_path)
-        install_builtin_config("default")
-        install_builtin_config("automated")
+        with self.settings(SHARED_DIRECTORY=self.shared_dir):
+            install_builtin_config("default")
+            install_builtin_config("automated")
 
     def test_list_processing_configs(self):
-        response = self.client.get(reverse("api:processing_configuration_list"))
-        assert response.status_code == 200
-        payload = json.loads(response.content.decode("utf8"))
-        processing_configs = payload["processing_configurations"]
-        assert len(processing_configs) == 2
-        expected_names = sorted(["default", "automated"])
-        assert all(
-            [
-                actual == expected
-                for actual, expected in zip(processing_configs, expected_names)
-            ]
-        )
+        with self.settings(SHARED_DIRECTORY=self.shared_dir):
+            response = self.client.get(reverse("api:processing_configuration_list"))
+            assert response.status_code == 200
+            payload = json.loads(response.content.decode("utf8"))
+            processing_configs = payload["processing_configurations"]
+            assert len(processing_configs) == 2
+            expected_names = sorted(["default", "automated"])
+            assert all(
+                [
+                    actual == expected
+                    for actual, expected in zip(processing_configs, expected_names)
+                ]
+            )
 
     def test_get_existing_processing_config(self):
-        response = self.client.get(
-            reverse("api:processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
-        )
-        assert response.status_code == 200
-        assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
+        with self.settings(SHARED_DIRECTORY=self.shared_dir):
+            response = self.client.get(
+                reverse("api:processing_configuration", args=["default"]),
+                HTTP_ACCEPT="xml",
+            )
+            assert response.status_code == 200
+            assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
     def test_delete_and_regenerate(self):
-        response = self.client.delete(
-            reverse("api:processing_configuration", args=["default"])
-        )
-        assert response.status_code == 200
-        assert not os.path.exists(
-            os.path.join(self.config_path, "defaultProcessingMCP.xml")
-        )
+        with self.settings(SHARED_DIRECTORY=self.shared_dir):
+            response = self.client.delete(
+                reverse("api:processing_configuration", args=["default"])
+            )
+            assert response.status_code == 200
+            assert not os.path.exists(
+                os.path.join(self.config_path, "defaultProcessingMCP.xml")
+            )
 
-        response = self.client.get(
-            reverse("api:processing_configuration", args=["default"]), HTTP_ACCEPT="xml"
-        )
-        assert response.status_code == 200
-        assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
-        assert os.path.exists(
-            os.path.join(self.config_path, "defaultProcessingMCP.xml")
-        )
+            response = self.client.get(
+                reverse("api:processing_configuration", args=["default"]),
+                HTTP_ACCEPT="xml",
+            )
+            assert response.status_code == 200
+            assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
+            assert os.path.exists(
+                os.path.join(self.config_path, "defaultProcessingMCP.xml")
+            )
 
     def test_404_for_non_existent_config(self):
         response = self.client.get(
