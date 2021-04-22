@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
 Functions to fetch identifiers for indexing in ElasticSearch.
 
