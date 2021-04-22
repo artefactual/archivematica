@@ -37,7 +37,7 @@ def data_migration_up(apps, schema_editor):
     )
     maxlen = result["username_len__max"]
     interactive = "--no-input" not in sys.argv
-    if interactive and maxlen > _DJANGO_USERNAME_MAX_LENGTH:
+    if interactive and maxlen is not None and maxlen > _DJANGO_USERNAME_MAX_LENGTH:
         raise Exception(
             "At least one user in the system exceeds the maximum number of"
             " characters expected in the username field."

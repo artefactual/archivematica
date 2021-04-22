@@ -21,7 +21,7 @@ def mock_response(status_code, content_type, content):
     response.status_code = status_code
     response.headers["content-type"] = content_type
     response.status = "Mocked status value"
-    response._content = json.dumps(content)
+    response._content = json.dumps(content).encode("utf8")
     return response
 
 
@@ -34,7 +34,7 @@ def mock_response(status_code, content_type, content):
         (204, "x-application/mocked", {}),
         (400, "x-application/mocked", {}),
         (500, "x-application/mocked", {}),
-        (None, "", {}),
+        (0, "", {}),
     ],
 )
 def test_location_desc_from_slug(status_code, content_type, expected_result, mocker):

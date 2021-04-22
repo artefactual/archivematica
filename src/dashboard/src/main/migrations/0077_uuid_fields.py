@@ -15,14 +15,14 @@ class Migration(migrations.Migration):
             model_name="event",
             name="event_id",
             field=django_extensions.db.fields.UUIDField(
-                auto=False, db_column=b"eventIdentifierUUID", null=True, unique=True
+                auto=False, db_column="eventIdentifierUUID", null=True, unique=True
             ),
         ),
         migrations.AlterField(
             model_name="job",
             name="microservicechainlink",
             field=django_extensions.db.fields.UUIDField(
-                auto=False, blank=True, db_column=b"MicroServiceChainLinksPK", null=True
+                auto=False, blank=True, db_column="MicroServiceChainLinksPK", null=True
             ),
         ),
         migrations.AlterField(
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             model_name="unitvariable",
             name="microservicechainlink",
             field=django_extensions.db.fields.UUIDField(
-                auto=False, blank=True, db_column=b"microServiceChainLink", null=True
+                auto=False, blank=True, db_column="microServiceChainLink", null=True
             ),
         ),
     ]

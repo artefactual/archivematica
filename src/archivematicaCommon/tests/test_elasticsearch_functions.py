@@ -11,6 +11,7 @@ import vcr
 import elasticSearchFunctions
 
 from lxml import etree
+import six
 
 try:
     from unittest.mock import ANY, patch
@@ -405,7 +406,7 @@ def test_index_aipfile_dmdsec(
         identifiers=[],
     )
 
-    for key, value in dmdsec_dict["dublincore_dict"].iteritems():
+    for key, value in six.iteritems(dmdsec_dict["dublincore_dict"]):
         assert indexed_data[dmdsec_dict["filePath"]][key] == value
 
 

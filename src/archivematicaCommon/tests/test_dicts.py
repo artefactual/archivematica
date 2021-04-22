@@ -1,10 +1,8 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 import os
 import pytest
-
-import six
 
 from dicts import ReplacementDict, ChoicesDict
 from dicts import setup as setup_dicts
@@ -122,14 +120,3 @@ def test_replacementdict_model_constructor_file_only():
 def test_replacementdict_options():
     d = ReplacementDict({"%relativeLocation%": "bar"})
     assert d.to_gnu_options() == ["--relative-location=bar"]
-
-
-def test_replacementdict_replace_returns_bytestring():
-    in_str = u"%originalLocation%/location/การแปล"
-    assert isinstance(in_str, six.text_type)
-
-    d = ReplacementDict(
-        {"%originalLocation%": "\x82\xdb\x82\xc1\x82\xd5\x82\xe9\x83\x81\x83C\x83\x8b"}
-    )
-    out_str = d.replace(in_str)[0]
-    assert isinstance(out_str, six.binary_type)
