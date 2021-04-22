@@ -2,13 +2,19 @@
 
 from __future__ import unicode_literals
 
+import six
+
 from server.translation import UNKNOWN_TRANSLATION_LABEL, TranslationLabel
 
 
 def test_translation_label(mocker):
     mocker.patch("server.translation.FALLBACK_LANG", "en")
     tr = TranslationLabel({"en": "cat", "es": "gato"})
-    assert repr(tr) == "TranslationLabel({u'en': u'cat', u'es': u'gato'})"
+    # TODO: revise this
+    if six.PY2:
+        assert repr(tr) == "TranslationLabel({u'en': u'cat', u'es': u'gato'})"
+    else:
+        assert repr(tr) == "TranslationLabel({'en': 'cat', 'es': 'gato'})"
     assert str(tr) == "cat"
     assert tr["es"] == "gato"
     assert tr["unexistent-lang-code"] == "cat"
@@ -30,4 +36,8 @@ def test_translation_label_with_prepared_codes(mocker):
 def test_translation_label_string(mocker):
     mocker.patch("server.translation.FALLBACK_LANG", "en")
     tr = TranslationLabel("cat")
-    assert repr(tr) == "TranslationLabel({u'en': u'cat'})"
+    # TODO: revise this
+    if six.PY2:
+        assert repr(tr) == "TranslationLabel({u'en': u'cat'})"
+    else:
+        assert repr(tr) == "TranslationLabel({'en': 'cat'})"

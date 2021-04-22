@@ -312,7 +312,7 @@ def save_state(request, table):
     :return: JSON success confirmation
     """
     setting_name = "{}_datatable_state".format(table)
-    state = json.dumps(request.body)
+    state = json.dumps(request.body.decode("utf8"))
     helpers.set_setting(setting_name, state)
     return helpers.json_response({"success": True})
 

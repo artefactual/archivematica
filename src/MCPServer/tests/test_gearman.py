@@ -1,12 +1,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import cPickle
 import math
 import uuid
 
 import gearman
 import pytest
-from django.utils import six
+import six
+from six.moves import cPickle
 
 from server.jobs import Job
 from server.tasks import GearmanTaskBackend, Task
@@ -40,10 +40,10 @@ def simple_task(request):
 def format_gearman_request(tasks):
     request = {"tasks": {}}
     for task in tasks:
-        task_uuid = six.text_type(task.uuid)
+        task_uuid = str(task.uuid)
         request["tasks"][task_uuid] = {
             "uuid": task_uuid,
-            "createdDate": task.start_timestamp.isoformat(b" "),
+            "createdDate": task.start_timestamp.isoformat(str(" ")),
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
@@ -55,7 +55,7 @@ def format_gearman_response(task_results):
     """Accepts task results as a tuple of (uuid, result_dict)."""
     response = {"task_results": {}}
     for task_uuid, task_data in task_results:
-        task_uuid = six.text_type(task_uuid)
+        task_uuid = str(task_uuid)
         response["task_results"][task_uuid] = task_data
 
     return cPickle.dumps(response)
@@ -74,11 +74,11 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
 
     submit_job_kwargs = mock_client.return_value.submit_job.call_args[1]
 
-    assert submit_job_kwargs["task"] == six.binary_type(simple_job.name)
+    assert submit_job_kwargs["task"] == six.ensure_binary(simple_job.name)
     # Comparing pickled strings is fragile, so compare the python version
     assert cPickle.loads(submit_job_kwargs["data"]) == cPickle.loads(task_data)
     try:
-        uuid.UUID(submit_job_kwargs["unique"])
+        uuid.UUID(six.ensure_text(submit_job_kwargs["unique"]))
     except ValueError:
         pytest.fail("Expected unique to be a valid UUID.")
     assert submit_job_kwargs["wait_until_complete"] is False

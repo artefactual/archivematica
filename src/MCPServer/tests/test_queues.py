@@ -1,5 +1,5 @@
 import concurrent.futures
-import Queue
+from six.moves import queue as Queue
 import threading
 import time
 import uuid
