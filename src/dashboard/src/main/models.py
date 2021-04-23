@@ -35,6 +35,7 @@ from django.db import IntegrityError
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 import six
 
@@ -93,9 +94,9 @@ def create_user_agent(sender, instance, **kwargs):
             "identifiertype": "Archivematica user pk",
             "identifiervalue": str(instance.id),
             "name": 'username="{}", first_name="{}", last_name="{}"'.format(
-                instance.username.encode("utf8"),
-                instance.first_name.encode("utf8"),
-                instance.last_name.encode("utf8"),
+                six.ensure_str(instance.username),
+                six.ensure_str(instance.first_name),
+                six.ensure_str(instance.last_name),
             ),
             "agenttype": "Archivematica user",
         },
@@ -227,6 +228,7 @@ class Access(models.Model):
         return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
 
 
+@python_2_unicode_compatible
 class DublinCore(models.Model):
     """ DublinCore metadata associated with a SIP or Transfer. """
 
@@ -280,13 +282,14 @@ class DublinCore(models.Model):
     class Meta:
         db_table = u"Dublincore"
 
-    def __unicode__(self):
+    def __str__(self):
         if self.title:
             return u"%s" % self.title
         else:
             return six.text_type(_("Untitled"))
 
 
+@python_2_unicode_compatible
 class MetadataAppliesToType(models.Model):
     """
     What type of unit (SIP, DIP, Transfer etc) the metadata link is.
@@ -304,10 +307,11 @@ class MetadataAppliesToType(models.Model):
     class Meta:
         db_table = u"MetadataAppliesToTypes"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.description)
 
 
+@python_2_unicode_compatible
 class Event(models.Model):
     """ PREMIS Events associated with Files. """
 
@@ -335,7 +339,7 @@ class Event(models.Model):
     class Meta:
         db_table = u"Events"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(type)s event on %(file_uuid)s (%(detail)s)")
             % {
@@ -346,6 +350,7 @@ class Event(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class Derivation(models.Model):
     """
     Link between original and normalized files.
@@ -380,7 +385,7 @@ class Derivation(models.Model):
     class Meta:
         db_table = u"Derivations"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(derived)s derived from %(src)s in %(event)s")
             % {
@@ -400,6 +405,7 @@ class UnitHiddenManager(models.Manager):
             return False
 
 
+@python_2_unicode_compatible
 class SIP(models.Model):
     """ Information on SIP units. """
 
@@ -426,7 +432,7 @@ class SIP(models.Model):
     class Meta:
         db_table = u"SIPs"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(_("SIP: {path}") % {"path": self.currentpath})
 
     def update_active_agent(self, user_id):
@@ -528,6 +534,7 @@ class Transfer(models.Model):
         return result or "default"
 
 
+@python_2_unicode_compatible
 class SIPArrange(models.Model):
     """ Information about arranged files: original and arranged location, current status. """
 
@@ -550,7 +557,7 @@ class SIPArrange(models.Model):
     class Meta:
         verbose_name = _("Arranged SIPs")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(original)s -> %(arrange)s")
             % {"original": self.original_path, "arrange": self.arrange_path}
@@ -615,6 +622,7 @@ class Identifier(models.Model):
         db_table = u"Identifiers"
 
 
+@python_2_unicode_compatible
 class File(models.Model):
     """ Information about Files in units (Transfers, SIPs). """
 
@@ -672,7 +680,7 @@ class File(models.Model):
         # ("sip", "originallocation"),
         index_together = (("sip", "filegrpuse"),)
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("File %(uuid)s:%(originallocation)s now at %(currentlocation)s")
             % {
@@ -687,6 +695,7 @@ class File(models.Model):
         self.identifiers.create(type=scheme, value=value)
 
 
+@python_2_unicode_compatible
 class Directory(models.Model):
     """Information about Directories in units (Transfers, SIPs).
     Note: Directory instances are only created if the user explicitly
@@ -718,7 +727,7 @@ class Directory(models.Model):
     class Meta:
         db_table = u"Directories"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s")
             % {
@@ -761,6 +770,7 @@ class Directory(models.Model):
         return cls.objects.bulk_create(paths)
 
 
+@python_2_unicode_compatible
 class FileFormatVersion(models.Model):
     """
     Link between a File and the FormatVersion it is identified as.
@@ -782,7 +792,7 @@ class FileFormatVersion(models.Model):
     class Meta:
         db_table = u"FilesIdentifiedIDs"
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(file)s is %(format)s")
             % {"file": self.file_uuid, "format": self.format_version}
@@ -1023,6 +1033,7 @@ class Report(models.Model):
         db_table = u"Reports"
 
 
+@python_2_unicode_compatible
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column="pk")
     metadataappliestotype = models.ForeignKey(
@@ -1069,7 +1080,7 @@ class RightsStatement(models.Model):
         db_table = u"RightsStatement"
         verbose_name = _("Rights Statement")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(basis)s for %(unit)s (%(id)s)")
             % {
@@ -1611,6 +1622,7 @@ class TransferMetadataSet(models.Model):
         db_table = u"TransferMetadataSets"
 
 
+@python_2_unicode_compatible
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1631,7 +1643,7 @@ class TransferMetadataField(models.Model):
     class Meta:
         db_table = u"TransferMetadataFields"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.fieldlabel
 
 
@@ -1660,6 +1672,7 @@ class TransferMetadataFieldValue(models.Model):
 # to leave room for future expansion. The possible taxonomy terms are
 # designed to be editable, and forms to do so exist. (Forms for editing and
 # defining new fields are present in the code but currently disabled.)
+@python_2_unicode_compatible
 class Taxonomy(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1671,10 +1684,11 @@ class Taxonomy(models.Model):
     class Meta:
         db_table = u"Taxonomies"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1688,10 +1702,11 @@ class TaxonomyTerm(models.Model):
     class Meta:
         db_table = u"TaxonomyTerms"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.term
 
 
+@python_2_unicode_compatible
 class FPCommandOutput(models.Model):
     file = models.ForeignKey(
         "File", db_column="fileUUID", to_field="uuid", on_delete=models.CASCADE
@@ -1703,7 +1718,7 @@ class FPCommandOutput(models.Model):
 
     # Table name is main_fpcommandoutput
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<file: {file}; rule: {rule}; content: {content}".format(
             file=self.file, rule=self.rule, content=self.content[:20]
         )
@@ -1729,13 +1744,14 @@ class FileID(models.Model):
         db_table = "FilesIDs"
 
 
+@python_2_unicode_compatible
 class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length=1024)  # seems long, but AtoM allows this much
     # sortorder should be unique, but is not defined so here to enable swapping
     sortorder = models.IntegerField(default=0, db_column="sortOrder")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(
             _("%(sortorder)s: %(name)s")
             % {"sortorder": self.sortorder, "name": self.name}

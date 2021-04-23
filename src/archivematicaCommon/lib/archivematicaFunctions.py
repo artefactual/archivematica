@@ -39,10 +39,10 @@ try:
 except ImportError:
     from pathlib2 import Path
 
+from django.apps import apps
 import scandir
 import six
 from lxml import etree
-from main.models import DashboardSetting
 from namespaces import NSMAP, xml_find_premis
 
 from amclient import AMClient
@@ -84,6 +84,7 @@ PACKAGE_EXTENSIONS = (".tar",) + COMPRESS_EXTENSIONS
 
 def get_setting(setting, default=""):
     """Get Dashboard setting from database model."""
+    DashboardSetting = apps.get_model(app_label="main", model_name="DashboardSetting")
     try:
         return DashboardSetting.objects.get(name=setting).value
     except DashboardSetting.DoesNotExist:

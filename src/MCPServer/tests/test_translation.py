@@ -8,7 +8,6 @@ from server.translation import UNKNOWN_TRANSLATION_LABEL, TranslationLabel
 def test_translation_label(mocker):
     mocker.patch("server.translation.FALLBACK_LANG", "en")
     tr = TranslationLabel({"en": "cat", "es": "gato"})
-    assert repr(tr) == "TranslationLabel({u'en': u'cat', u'es': u'gato'})"
     assert str(tr) == "cat"
     assert tr["es"] == "gato"
     assert tr["unexistent-lang-code"] == "cat"
@@ -25,9 +24,3 @@ def test_translation_label_with_prepared_codes(mocker):
     assert tr.get_label(lang="en") == "dog"
     assert tr.get_label(lang="pt-br") == "cão"
     assert tr.get_label(lang="pt_BR") == "cão"
-
-
-def test_translation_label_string(mocker):
-    mocker.patch("server.translation.FALLBACK_LANG", "en")
-    tr = TranslationLabel("cat")
-    assert repr(tr) == "TranslationLabel({u'en': u'cat'})"

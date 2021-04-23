@@ -145,7 +145,7 @@ class ClientScriptJob(Job):
 
     def wait_for_task_results(self):
         for task in self.task_backend.wait_for_results(self):
-            self.exit_code = max([self.exit_code, task.exit_code])
+            self.exit_code = max([self.exit_code or 0, task.exit_code or 0])
             metrics.task_completed(task, self)
             self.task_completed_callback(task)
 
