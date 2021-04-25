@@ -6,6 +6,7 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
+      - "dev/coverage-unexecuted-files"
 jobs:
   test:
     name: "Test ${{ matrix.rule }}"
