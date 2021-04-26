@@ -12,6 +12,8 @@ import logging
 from contextlib import contextmanager
 from custom_handlers import CallbackHandler
 
+import six
+
 LOGGER = logging.getLogger("archivematica.mcp.client.job")
 
 
@@ -23,8 +25,8 @@ class Job:
         self.caller_wants_output = caller_wants_output
         self.int_code = 0
         self.status_code = "success"
-        self.output = ""
-        self.error = ""
+        self.output = b""
+        self.error = b""
 
     def dump(self):
         return (
@@ -61,10 +63,10 @@ class Job:
         self.status_code = status_code
 
     def write_output(self, s):
-        self.output += s
+        self.output += six.ensure_binary(s)
 
     def write_error(self, s):
-        self.error += s
+        self.error += six.ensure_binary(s)
 
     def print_output(self, *args):
         self.write_output(" ".join([self._to_str(x) for x in args]) + "\n")
@@ -75,9 +77,9 @@ class Job:
     @staticmethod
     def _to_str(thing):
         try:
+            return six.ensure_str(thing)
+        except TypeError:
             return str(thing)
-        except UnicodeEncodeError:
-            return thing.encode("utf8")
 
     def pyprint(self, *objects, **kwargs):
         file = kwargs.get("file", sys.stdout)

@@ -8,6 +8,7 @@ import sys
 
 from django.core import mail
 import pytest
+import six
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
@@ -49,7 +50,8 @@ def test_send_email_ok(settings):
 
 def test_send_email_err(monkeypatch):
     monkeypatch.setattr(
-        "django.core.mail.send_mail.func_code", fake_send_email_with_exception.func_code
+        "django.core.mail.send_mail.{}".format("func_code" if six.PY2 else "__code__"),
+        fake_send_email_with_exception.__code__,
     )
     with pytest.raises(SMTPException):
         email_fail_report.send_email("Foobar", ["to@domain.tld"], "<html>...</html>")

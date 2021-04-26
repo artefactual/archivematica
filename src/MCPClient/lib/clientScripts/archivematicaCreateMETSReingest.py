@@ -326,7 +326,9 @@ def add_rights_elements(job, rights_list, files, state, updated=False):
                     for s in fsentry.amdsecs[0].subsections
                     if s.subsection == "rightsMD"
                 ]
-                superseded = sorted(superseded, key=lambda x: x.created)
+                superseded = sorted(
+                    superseded, key=lambda x: (x.created is not None, x.created)
+                )
                 # NOTE sort(..., reverse=True) behaves differently with unsortable elements like '' and None
                 for rightmd in superseded[::-1]:
                     job.pyprint("created", rightmd.created)

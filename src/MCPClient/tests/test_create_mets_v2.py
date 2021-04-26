@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import os
 import sys
 
+import six
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
@@ -16,8 +18,8 @@ def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(mocker):
     state_mock = mocker.Mock(
         **{
             "CSV_METADATA": {
-                "montréal".encode("utf8"): "montreal metadata",
-                "dvořák".encode("utf8"): "dvorak metadata",
+                six.ensure_str("montréal"): "montreal metadata",
+                six.ensure_str("dvořák"): "dvorak metadata",
             }
         }
     )

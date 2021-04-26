@@ -30,7 +30,7 @@ def call(jobs):
                 job.pyprint("Custom structmap not supplied with package")
                 return
             if not os.path.isfile(mets_xsd):
-                raise (VerifyMETSException("METS asset is unavailable"))
+                raise VerifyMETSException
             xmlschema = etree.XMLSchema(etree.parse(mets_xsd))
             # Raise an exception if not valid, e.g. etree.DocumentInvalid
             # otherwise, the document validates correctly and returns.

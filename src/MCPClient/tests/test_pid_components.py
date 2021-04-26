@@ -17,6 +17,9 @@ from main.models import Directory, File, SIP, DashboardSetting, Transfer
 
 import pytest
 import vcr
+import six
+from six.moves import range
+from six.moves import zip
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -334,11 +337,11 @@ def test_bind_pids(data, mocker, job):
         )
         id_types = [item.text for item in id_type]
         id_values = [item.text for item in id_value]
-        identifiers_dict = dict(zip(id_types, id_values))
+        identifiers_dict = dict(list(zip(id_types, id_values)))
         for key in identifiers_dict.keys():
             assert key in chain(TRADITIONAL_IDENTIFIERS, BOUND_IDENTIFIER_TYPES)
-        assert bound_hdl in identifiers_dict.values()
-        assert bound_uri in identifiers_dict.values()
+        assert bound_hdl in list(identifiers_dict.values())
+        assert bound_uri in list(identifiers_dict.values())
 
 
 @pytest.mark.django_db
@@ -398,13 +401,13 @@ def test_bind_pid(data, job):
         )
         id_types = [item.text for item in id_type]
         id_values = [item.text for item in id_value]
-        identifiers_dict = dict(zip(id_types, id_values))
+        identifiers_dict = dict(list(zip(id_types, id_values)))
         for key in identifiers_dict.keys():
             assert key in chain(
                 TRADITIONAL_IDENTIFIERS, BOUND_IDENTIFIER_TYPES
             ), "Identifier type not in expected schemes list"
-        assert bound_hdl in identifiers_dict.values()
-        assert bound_uri in identifiers_dict.values()
+        assert bound_hdl in list(identifiers_dict.values())
+        assert bound_uri in list(identifiers_dict.values())
 
 
 @pytest.mark.django_db
@@ -485,7 +488,7 @@ def test_pid_declaration(data, mocker, job):
         assert len(id_value) == len(
             all_identifier_types
         ), "Identifier value count is incorrect"
-        for key, value in dict(zip(id_type, id_value)).items():
+        for key, value in dict(list(zip(id_type, id_value))).items():
             if key == PID_EXID:
                 assert example_uri in value, "Example URI not preserved"
             if key == PID_ULID:
@@ -508,7 +511,7 @@ def test_pid_declaration(data, mocker, job):
         assert len(id_value) == len(
             all_identifier_types
         ), "Identifier value count is incorrect"
-        for key, value in dict(zip(id_type, id_value)).items():
+        for key, value in dict(list(zip(id_type, id_value))).items():
             if key == PID_EXID:
                 assert example_uri in value, "Example URI not preserved"
             if key == PID_ULID:
@@ -538,6 +541,11 @@ def test_pid_declaration_exceptions(data, mocker, job):
     try:
         DeclarePIDs(job).pid_declaration(unit_uuid="", sip_directory="")
     except DeclarePIDsException as err:
-        assert "No JSON object could be decoded" in str(
+        json_error = (
+            "No JSON object could be decoded"
+            if six.PY2
+            else "Expecting value: line 15 column 1 (char 336)"
+        )
+        assert json_error in str(
             err
         ), "Error message something other than anticipated for invalid JSON"

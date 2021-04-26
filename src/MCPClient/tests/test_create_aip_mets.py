@@ -13,6 +13,8 @@ import scandir
 from django.test import TestCase
 
 from lxml import etree
+from six.moves import range
+import six
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
@@ -457,7 +459,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
             ["objects/foo.jpg", "Foo", "2000", "Taken on a sunny day"],
             ["objects/bar/", "Bar", "2000", "All taken on a rainy day"],
         ]
-        with self.metadata_file.open("wb") as f:
+        with open(self.metadata_file.as_posix(), "w") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
@@ -501,7 +503,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
             ["Filename", "dc.title", "dc.type", "dc.type", "dc.type"],
             ["objects/foo.jpg", "Foo", "Photograph", "Still image", "Picture"],
         ]
-        with self.metadata_file.open("wb") as f:
+        with open(self.metadata_file.as_posix(), "w") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
@@ -526,8 +528,8 @@ class TestCSVMetadata(TempDirMixin, TestCase):
     def test_parse_metadata_csv_non_ascii(self):
         """It should parse unicode."""
         # Create metadata.csv
-        data = [["Filename", "dc.title"], ["objects/foo.jpg", "元気です".encode("utf8")]]
-        with self.metadata_file.open("wb") as f:
+        data = [["Filename", "dc.title"], ["objects/foo.jpg", six.ensure_str("元気です")]]
+        with open(self.metadata_file.as_posix(), "w") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
@@ -540,7 +542,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
         assert dc
         assert "objects/foo.jpg" in dc
         assert "dc.title" in dc["objects/foo.jpg"]
-        assert dc["objects/foo.jpg"]["dc.title"] == ["元気です".encode("utf8")]
+        assert dc["objects/foo.jpg"]["dc.title"] == [six.ensure_str("元気です")]
 
     def test_parse_metadata_csv_blank_rows(self):
         """It should skip blank rows."""
@@ -550,7 +552,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
             ["objects/foo.jpg", "Foo", "Photograph", "Still image", "Picture"],
             [],
         ]
-        with self.metadata_file.open("wb") as f:
+        with open(self.metadata_file.as_posix(), "w") as f:
             writer = csv.writer(f)
             for row in data:
                 writer.writerow(row)
@@ -1003,8 +1005,8 @@ class TestCustomStructMap(TempDirMixin, TestCase):
                 res.files
             ), "Uneven replacement of IDs for files in structmap"
             for fileid in [fid.attrib["FILEID"] for fid in fids]:
-                assert (
-                    fileid in self.state.fileNameToFileID.values()
+                assert fileid in list(
+                    self.state.fileNameToFileID.values()
                 ), "Expected FILEID not in returned structmap"
 
     def test_get_included_structmap_incomplete_mets(self):

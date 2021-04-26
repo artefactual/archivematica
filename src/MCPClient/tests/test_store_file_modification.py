@@ -48,7 +48,7 @@ class TestStoreFileModification(TestCase):
             dirname = os.path.dirname(path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            with open(path, "w") as f:
+            with open(path, "wb") as f:
                 f.write(path.encode("utf8"))
             os.utime(path, (1339485682, 1339485682))
 

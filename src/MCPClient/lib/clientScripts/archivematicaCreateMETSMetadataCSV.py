@@ -31,6 +31,7 @@ import traceback
 
 # archivematicaCommon
 import archivematicaFunctions
+from six.moves import zip
 
 
 def parseMetadata(job, SIPPath, state):
@@ -98,7 +99,7 @@ def parseMetadataCSV(job, metadataCSVFilePath):
     """
     metadata = {}
     # use universal newline mode to support unusual newlines, like \r
-    with open(metadataCSVFilePath, "rbU") as f:
+    with open(metadataCSVFilePath, "rU") as f:
         reader = csv.reader(f)
         # Parse first row as header
         header = next(reader)
@@ -113,7 +114,7 @@ def parseMetadataCSV(job, metadataCSVFilePath):
                 entry_name = entry_name[:-1]
             # Strip file/dir name from values
             row = row[1:]
-            values = archivematicaFunctions.OrderedListsDict(zip(header, row))
+            values = archivematicaFunctions.OrderedListsDict(list(zip(header, row)))
             if entry_name in metadata and metadata[entry_name] != values:
                 job.pyprint(
                     "Metadata for",

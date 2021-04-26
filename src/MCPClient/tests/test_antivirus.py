@@ -1,12 +1,13 @@
 """Tests for the archivematica_clamscan.py client script."""
 
+from __future__ import absolute_import
 import os
 import sys
 
 from collections import OrderedDict, namedtuple
 
 import pytest
-import test_antivirus_clamdscan
+from . import test_antivirus_clamdscan
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
@@ -172,8 +173,8 @@ def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings
     # scan size are being tested. The scan size is offset so as to enable the
     # test to fall through correctly and eventually return None for
     # not-scanned.
-    settings.CLAMAV_CLIENT_MAX_FILE_SIZE = "42"
-    settings.CLAMAV_CLIENT_MAX_SCAN_SIZE = "84"
+    settings.CLAMAV_CLIENT_MAX_FILE_SIZE = 42
+    settings.CLAMAV_CLIENT_MAX_SCAN_SIZE = 84
 
     event_queue = []
 

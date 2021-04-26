@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import cPickle
+import six.moves.cPickle
 import getpass
 import optparse
 import os
@@ -110,13 +110,15 @@ def start(job, data):
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
-            access.target = cPickle.dumps({"target": transfers[0].access_system_id})
+            access.target = six.moves.cPickle.dumps(
+                {"target": transfers[0].access_system_id}
+            )
         access.save()
 
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
-        target = cPickle.loads(str(access.target))
+        target = six.moves.cPickle.loads(str(access.target))
         log("Target: %s" % (target["target"]))
     except:
         return error(job, "No target was selected")
