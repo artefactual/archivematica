@@ -472,15 +472,13 @@ def write_mets_to_file(sip, unit_path, output_md_path, output_md_name):
     # package.
     mets_f = metsrw.METSDocument()
     mets_f.append_file(sip)
-    with open(mets_path, "w") as xml_file:
+    with open(mets_path, "wb") as xml_file:
         xml_file.write(
-            six.ensure_text(
-                etree.tostring(
-                    mets_f.serialize(),
-                    pretty_print=True,
-                    encoding="utf-8",
-                    xml_declaration=True,
-                )
+            etree.tostring(
+                mets_f.serialize(),
+                pretty_print=True,
+                encoding="utf-8",
+                xml_declaration=True,
             )
         )
 
