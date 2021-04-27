@@ -63,16 +63,17 @@ import time
 
 import django
 from six.moves import zip
+import six
 
 django.setup()
 from django.conf import settings as django_settings
 import gearman
 
 from main.models import Task
+from archivematicaFunctions import unicodeToStr
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
-from django.utils import six
 import shlex
 import importlib
 
@@ -113,7 +114,7 @@ def handle_batch_task(gearman_job, supported_modules):
     jobs = []
     for task_uuid in gearman_data["tasks"]:
         task_data = gearman_data["tasks"][task_uuid]
-        arguments = task_data["arguments"]
+        arguments = six.ensure_str(task_data["arguments"])
 
         replacements = list(replacement_dict.items()) + list(
             {
@@ -124,7 +125,7 @@ def handle_batch_task(gearman_job, supported_modules):
         )
 
         for var, val in replacements:
-            arguments = arguments.replace(var, val)
+            arguments = arguments.replace(var, unicodeToStr(val))
 
         job = Job(
             gearman_job.task,
