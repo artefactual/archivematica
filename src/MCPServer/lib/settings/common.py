@@ -115,6 +115,11 @@ CONFIG_MAPPING = {
         "option": "prometheus_bind_port",
         "type": "string",
     },
+    "workflow_file": {
+        "section": "MCPServer",
+        "option": "workflow_file",
+        "type": "string",
+    },
     "time_zone": {"section": "MCPServer", "option": "time_zone", "type": "string"},
     # [client]
     "db_engine": {"section": "client", "option": "engine", "type": "string"},
@@ -145,6 +150,7 @@ storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
 prometheus_bind_port =
+workflow_file =
 time_zone = UTC
 
 [client]
@@ -281,6 +287,8 @@ except ValueError:
     PROMETHEUS_ENABLED = False
 else:
     PROMETHEUS_ENABLED = True
+
+WORKFLOW_FILE = config.get("workflow_file")
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))

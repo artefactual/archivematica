@@ -43,7 +43,7 @@ from server.packages import DIP, Transfer, SIP
 from server.queues import PackageQueue
 from server.tasks import Task
 from server.watch_dirs import watch_directories
-from server.workflow import load_default_workflow
+from server.workflow import load_workflow
 
 
 logger = logging.getLogger("archivematica.mcp.server")
@@ -97,7 +97,7 @@ def main(shutdown_event=None):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    workflow = load_default_workflow()
+    workflow = load_workflow()
     logger.debug("Loaded default workflow.")
 
     shared_dirs.create()

@@ -191,6 +191,12 @@ This is the full list of variables supported by MCPServer:
     - **Type:** `int`
     - **Default:** 4
 
+- **`ARCHIVEMATICA_MCPSERVER_WORKFLOW_FILE`**:
+    - **Description:** the path to the user-customised workflow file. If this is empty, Archivematica will load the default workflow. This configuration attribute is not recommended for general use, but only for users with development skills, an understanding for the Archivematica workflow engine, and are willing to maintain their own workflow file.
+    - **Config file example:** `MCPServer.workflow_file`
+    - **Type:** `string`
+    - **Default:** `""`
+
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WORKER_THREADS`**:
     - **Description:** the number of threads used to handle MCPServer jobs.
     - **Config file example:** `MCPServer.worker_threads`
