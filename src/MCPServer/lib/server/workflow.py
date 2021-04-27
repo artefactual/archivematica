@@ -27,6 +27,7 @@ from jsonschema.exceptions import ValidationError
 
 from server.jobs import Job
 from server.translation import FALLBACK_LANG, TranslationLabel
+from django.conf import settings as django_settings
 
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
@@ -243,9 +244,12 @@ def load(fp):
     return parsed
 
 
-def load_default_workflow():
-    with open(DEFAULT_WORKFLOW) as default_workflow:
-        return load(default_workflow)
+def load_workflow():
+    workflow_path = DEFAULT_WORKFLOW
+    if django_settings.WORKFLOW_FILE != "":
+        workflow_path = django_settings.WORKFLOW_FILE
+    with open(workflow_path) as workflow_file:
+        return load(workflow_file)
 
 
 class SchemaValidationError(ValidationError):
