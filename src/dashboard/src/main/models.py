@@ -297,6 +297,11 @@ class MetadataAppliesToType(models.Model):
     TODO replace this with choices fields.
     """
 
+    # Generated via migrations.
+    SIP_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
+    TRANSFER_TYPE = "45696327-44c5-4e78-849b-e027a189bf4d"
+    FILE_TYPE = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
+
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column="description")
     replaces = models.CharField(
