@@ -48,7 +48,7 @@ def format_gearman_request(tasks):
             "wants_output": task.wants_output,
         }
 
-    return cPickle.dumps(request)
+    return cPickle.dumps(request, protocol=0)
 
 
 def format_gearman_response(task_results):
@@ -58,7 +58,7 @@ def format_gearman_response(task_results):
         task_uuid = str(task_uuid)
         response["task_results"][task_uuid] = task_data
 
-    return cPickle.dumps(response)
+    return cPickle.dumps(response, protocol=0)
 
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
@@ -149,7 +149,7 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
 
     def mock_jobs_completed(*args):
         job_request.state = gearman.JOB_FAILED
-        job_request.exception = cPickle.dumps(Exception("Error!"))
+        job_request.exception = cPickle.dumps(Exception("Error!"), protocol=0)
 
         return [job_request]
 

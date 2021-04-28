@@ -3,15 +3,15 @@ import os
 import sys
 from uuid import uuid4
 
-from django.utils import six
+import six
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 from job import Job
 
 
-UNICODE = u"‘你好‘"
-NON_ASCII_BYTES = "‘你好‘"
+UNICODE = six.ensure_text("‘你好‘")
+NON_ASCII_BYTES = six.ensure_binary("‘你好‘")
 
 
 def test_job_encoding():
@@ -20,7 +20,7 @@ def test_job_encoding():
     job.pyprint(UNICODE)
     stdout = job.get_stdout()
     expected_stdout = u"{}\n".format(UNICODE)
-    expected_output = "{}\n".format(UNICODE.encode("utf8"))
+    expected_output = six.ensure_binary(UNICODE + "\n")
     assert job.output == expected_output
     assert stdout == expected_stdout
     assert isinstance(job.output, six.binary_type)
@@ -29,7 +29,7 @@ def test_job_encoding():
     job.print_error(NON_ASCII_BYTES)
     stderr = job.get_stderr()
     expected_stderr = u"{}\n".format(NON_ASCII_BYTES.decode("utf-8"))
-    expected_error = "{}\n".format(NON_ASCII_BYTES)
+    expected_error = NON_ASCII_BYTES + b"\n"
     assert job.error == expected_error
     assert stderr == expected_stderr
     assert isinstance(job.error, six.binary_type)

@@ -3,7 +3,7 @@ Exposes various metrics via Prometheus.
 """
 from __future__ import absolute_import, unicode_literals
 
-import ConfigParser
+import six.moves.configparser
 import datetime
 import functools
 import os
@@ -23,6 +23,7 @@ from common_metrics import (
     TASK_DURATION_BUCKETS,
 )
 from version import get_full_version
+from six.moves import range
 
 
 job_counter = Counter(
@@ -166,7 +167,7 @@ aip_original_file_timestamps_histogram = Histogram(
     "mcpclient_aip_original_file_timestamps",
     "Histogram of modification times for files stored in AIPs, bucketed by year",
     buckets=[1970, 1980, 1990, 2005, 2010]
-    + range(2015, datetime.date.today().year + 2)
+    + list(range(2015, datetime.date.today().year + 2))
     + [float("inf")],
 )
 
@@ -193,7 +194,7 @@ def skip_if_prometheus_disabled(func):
 def init_counter_labels():
     # Zero our counters to start, by intializing all labels. Non-zero starting points
     # cause problems when measuring rates.
-    modules_config = ConfigParser.RawConfigParser()
+    modules_config = six.moves.configparser.RawConfigParser()
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
         job_counter.labels(script_name=script_name)

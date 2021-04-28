@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import pytest
+import six
 
 from archivematicaClient import handle_batch_task
 
@@ -15,7 +16,7 @@ def test_handle_batch_task_replaces_non_ascii_arguments(mocker):
     mocker.patch("archivematicaClient.Task")
     mocker.patch("archivematicaClient.retryOnFailure")
     mocker.patch(
-        "cPickle.loads",
+        "six.moves.cPickle.loads",
         return_value={
             "tasks": {
                 "some_task_uuid": {
@@ -43,5 +44,5 @@ def test_handle_batch_task_replaces_non_ascii_arguments(mocker):
 
     # Check that string replacement were successful
     _parse_command_line.assert_called_once_with(
-        "montréal some_task_uuid some montréal datetime".encode("utf8")
+        six.ensure_str("montréal some_task_uuid some montréal datetime")
     )

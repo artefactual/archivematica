@@ -9,21 +9,23 @@ import json_metadata_to_csv
 
 
 JSON = '[{"dc.title": "This is a test item", "filename": "objects/test.txt"}]'
-CSV = "filename,dc.title\r\nobjects/test.txt,This is a test item\r\n"
+CSV = "filename,dc.title\nobjects/test.txt,This is a test item\n"
 
 JSON_MULTICOLUMN = '[{"filename": "objects/test.txt", "dc.subject": ["foo", "bar", "baz"], "dc.title": "This is a test item"}]'
-CSV_MULTICOLUMN = "filename,dc.subject,dc.subject,dc.subject,dc.title\r\nobjects/test.txt,foo,bar,baz,This is a test item\r\n"
+CSV_MULTICOLUMN = "filename,dc.subject,dc.subject,dc.subject,dc.title\nobjects/test.txt,foo,bar,baz,This is a test item\n"
 
 JSON_NULL = '[{"dc.title": "This is a test item", "filename": "objects/test.txt", "spurious metadata": null}]'
 CSV_NULL = (
-    "filename,dc.title,spurious metadata\r\nobjects/test.txt,This is a test item,\r\n"
+    "filename,dc.title,spurious metadata\nobjects/test.txt,This is a test item,\n"
 )
 
 JSON_NESTED_NULL = '[{"dc.title": "This is a test item", "filename": "objects/test.txt", "sublist": ["first", null]}]'
-CSV_NESTED_NULL = "filename,dc.title,sublist,sublist\r\nobjects/test.txt,This is a test item,first,\r\n"
+CSV_NESTED_NULL = (
+    "filename,dc.title,sublist,sublist\nobjects/test.txt,This is a test item,first,\n"
+)
 
 JSON_INT_VAL = '[{"dc.title": 2, "filename": "objects/test.txt"}]'
-CSV_INT_VAL = "filename,dc.title\r\nobjects/test.txt,2\r\n"
+CSV_INT_VAL = "filename,dc.title\nobjects/test.txt,2\n"
 
 JSON_KEYS_VALS_VARY = json.dumps(
     [
@@ -70,7 +72,7 @@ KEYS_VALS_VARY_SECOND_ROW = [
 
 
 def _list2csvrow(list_):
-    return ",".join([e or "" for e in list_]) + "\r\n"
+    return ",".join([e or "" for e in list_]) + "\n"
 
 
 CSV_KEYS_VALS_VARY = "".join(
@@ -89,7 +91,7 @@ def test_json_csv_conversion(tmpdir):
         jsonfile.write(JSON)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV
@@ -102,7 +104,7 @@ def test_json_csv_conversion_with_int_val(tmpdir):
         jsonfile.write(JSON_INT_VAL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
     assert csvdata == CSV_INT_VAL
 
@@ -114,7 +116,7 @@ def test_json_csv_conversion_with_repeated_columns(tmpdir):
         jsonfile.write(JSON_MULTICOLUMN)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_MULTICOLUMN
@@ -127,7 +129,7 @@ def test_json_csv_with_null_data(tmpdir):
         jsonfile.write(JSON_NULL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_NULL
@@ -140,7 +142,7 @@ def test_json_csv_with_nested_null_data(tmpdir):
         jsonfile.write(JSON_NESTED_NULL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_NESTED_NULL
@@ -151,10 +153,10 @@ def test_json_csv_keys_vals_vary(tmpdir):
     types works as expected, i.e.:
 
     - the headers of the CSV are the union of all attributes of all objects in
-      the JSON array: ``[{'a': ...}, {'b': ...}]`` yields ``'a,b\r\n'``;
+      the JSON array: ``[{'a': ...}, {'b': ...}]`` yields ``'a,b\n'``;
     - the order of the JSON object attributes does not matter;
     - a JSON object value may be an array or a string:
-      ``[{'a': ['x', 'y']}, {'a': 'z'}]`` yields ``'a,a\r\nx,y\r\nz,\r\n'``.
+      ``[{'a': ['x', 'y']}, {'a': 'z'}]`` yields ``'a,a\nx,y\nz,\n'``.
     """
     json_array = json.loads(JSON_KEYS_VALS_VARY)
     headers = json_metadata_to_csv.fetch_keys(json_array)
@@ -174,6 +176,6 @@ def test_json_csv_keys_vals_vary(tmpdir):
         jsonfile.write(JSON_KEYS_VALS_VARY)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path) as csvfile:
+    with open(csv_path, "rU") as csvfile:
         csvdata = csvfile.read()
     assert CSV_KEYS_VALS_VARY == csvdata

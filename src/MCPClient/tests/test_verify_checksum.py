@@ -242,7 +242,7 @@ class TestHashsum(object):
         ), self.assert_exception_string
         assert ret == 1, self.assert_return_value.format(ret)
         # Flush job.error as it isn't flushed automatically.
-        job.error = ""
+        job.error = b""
         mock = mocker.patch.object(hashsum, "_call", return_value=improper_formatting)
         mock.side_effect = subprocess.CalledProcessError(
             returncode=1, cmd="sha1sum", output=improper_formatting

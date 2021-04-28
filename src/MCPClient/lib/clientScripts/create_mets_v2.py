@@ -36,6 +36,7 @@ from uuid import uuid4
 
 import django
 import scandir
+import six
 
 django.setup()
 # dashboard
@@ -330,7 +331,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                 (key,) = match.groups()
             for v in value:
                 try:
-                    etree.SubElement(dc, elem_namespace + key).text = v.decode("utf-8")
+                    etree.SubElement(dc, elem_namespace + key).text = six.ensure_text(v)
                 except UnicodeDecodeError:
                     job.pyprint(
                         "Skipping DC value; not valid UTF-8: {}".format(v),
@@ -351,7 +352,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                 try:
                     etree.SubElement(
                         other, normalizeNonDcElementName(key)
-                    ).text = v.decode("utf-8")
+                    ).text = six.ensure_text(v)
                 except UnicodeDecodeError:
                     job.pyprint(
                         "Skipping DC value; not valid UTF-8: {}".format(v),
@@ -1227,8 +1228,8 @@ def createFileSec(
                     job, label, itemdirectoryPath, directoryPathSTR, state
                 )
                 if dspace_dmdsecs:
-                    state.dmdSecs.extend(dspace_dmdsecs.values())
-                    ids = " ".join(dspace_dmdsecs.keys())
+                    state.dmdSecs.extend(list(dspace_dmdsecs.values()))
+                    ids = " ".join(list(dspace_dmdsecs.keys()))
                     if admidApplyTo is not None:
                         admidApplyTo.set("DMDID", ids)
                     else:

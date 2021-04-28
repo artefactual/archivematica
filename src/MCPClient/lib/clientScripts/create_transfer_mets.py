@@ -30,6 +30,7 @@ import django
 import scandir
 from lxml import etree
 from django.db.models import Prefetch
+import six
 
 django.setup()
 import metsrw
@@ -266,11 +267,11 @@ class FSEntriesTree(object):
         )
 
         for rights in transfer_rights:
-            for path, fsentry in self.file_index.iteritems():
+            for path, fsentry in six.iteritems(self.file_index):
                 premis_rights = rights_to_premis(rights, fsentry.file_uuid)
                 fsentry.add_premis_rights(premis_rights)
 
-        for path, fsentry in self.file_index.iteritems():
+        for path, fsentry in six.iteritems(self.file_index):
             file_rights = self.rights_queryset.filter(
                 metadataappliestoidentifier=fsentry.file_uuid,
                 metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,
@@ -299,7 +300,7 @@ class FSEntriesTree(object):
 
     def check_for_missing_file_uuids(self):
         missing = []
-        for path, fsentry in self.file_index.iteritems():
+        for path, fsentry in six.iteritems(self.file_index):
             if fsentry.file_uuid is None:
                 logger.info("No record in database for file: %s", path)
                 missing.append(path)

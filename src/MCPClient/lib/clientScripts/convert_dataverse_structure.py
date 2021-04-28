@@ -33,6 +33,7 @@ from lxml import etree
 
 # Database functions requires Django to be set up.
 import django
+import six
 
 django.setup()
 
@@ -72,7 +73,7 @@ def output_ddi_elems_info(job, ddi_elems):
     """
     draft = False
     job.pyprint("Fields retrieved from Dataverse:")
-    for ddi_k, ddi_v in ddi_elems.iteritems():
+    for ddi_k, ddi_v in six.iteritems(ddi_elems):
         if ddi_k == "Version Type" and ddi_v == "DRAFT":
             draft = True
         job.pyprint("{}: {}".format(ddi_k, ddi_v))
@@ -471,7 +472,7 @@ def write_mets_to_file(sip, unit_path, output_md_path, output_md_name):
     # package.
     mets_f = metsrw.METSDocument()
     mets_f.append_file(sip)
-    with open(mets_path, "w") as xml_file:
+    with open(mets_path, "wb") as xml_file:
         xml_file.write(
             etree.tostring(
                 mets_f.serialize(),

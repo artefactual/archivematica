@@ -4,7 +4,8 @@ import csv
 import json
 import os
 
-from django.utils import six
+import six
+from six.moves import range
 
 
 def fetch_keys(objects):
@@ -85,6 +86,13 @@ def fix_encoding(row):
     return {key.encode("utf-8"): encode_item(value) for key, value in row.items()}
 
 
+def serialize(value):
+    try:
+        return six.ensure_text(value)
+    except TypeError:
+        return value
+
+
 def object_to_row(row, headers):
     """Takes a dict and returns a list (row) of scalars, suitable for
     serialization to CSV. The `headers` argument is mandatory and determines
@@ -94,16 +102,17 @@ def object_to_row(row, headers):
     header_idx = {}  # maps repeating headers to index in next val
     for header in headers:
         try:
+            header = six.ensure_binary(header)
             val = row[header]
             if isinstance(val, (list, tuple)):
                 idx = header_idx.get(header, 0)
                 try:
-                    ret.append(val[idx])
+                    ret.append(serialize(val[idx]))
                 except IndexError:
                     ret.append(None)
                 header_idx[header] = idx + 1
             else:
-                ret.append(val)
+                ret.append(serialize(val))
                 del row[
                     header
                 ]  # so we don't repeat a scalar value that corresponds to an array of scalars in another object

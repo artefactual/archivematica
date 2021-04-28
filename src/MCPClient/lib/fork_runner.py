@@ -13,7 +13,7 @@ function (indicating that it supports being run as a subprocess).
 """
 
 
-import cPickle
+import six.moves.cPickle
 import importlib
 import logging
 import multiprocessing
@@ -99,13 +99,13 @@ def _run_jobs(module_name, jobs):
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
                 module_name,
             ],
-            cPickle.dumps(environment),
+            six.moves.cPickle.dumps(environment, protocol=0),
             printing=False,
             capture_output=True,
         )
 
         with os.fdopen(fd) as f:
-            result = cPickle.load(f)
+            result = six.moves.cPickle.load(f)
 
             if isinstance(result, dict) and result["uncaught_exception"]:
                 e = result["uncaught_exception"]
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         )
 
     module_to_run = sys.argv[1]
-    environment = cPickle.load(sys.stdin)
+    environment = six.moves.cPickle.load(sys.stdin)
 
     sys.path = environment["sys.path"]
     jobs = environment["jobs"]
@@ -141,9 +141,9 @@ if __name__ == "__main__":
         try:
             module = importlib.import_module(module_to_run)
             module.call(jobs)
-            cPickle.dump(jobs, f)
+            six.moves.cPickle.dump(jobs, f)
         except Exception as e:
-            cPickle.dump(
+            six.moves.cPickle.dump(
                 {
                     "uncaught_exception": {
                         "message": e.message,
