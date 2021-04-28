@@ -195,7 +195,7 @@ def fail_all_tasks(gearman_job, reason):
     for task_uuid in gearman_data["tasks"]:
         result[task_uuid] = {"exitCode": 1}
 
-    return six.moves.cPickle.dumps({"task_results": result})
+    return six.moves.cPickle.dumps({"task_results": result}, protocol=0)
 
 
 @auto_close_db
@@ -254,7 +254,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
 
             retryOnFailure("Write task results", write_task_results_callback)
 
-            return six.moves.cPickle.dumps({"task_results": results})
+            return six.moves.cPickle.dumps({"task_results": results}, protocol=0)
         except SystemExit:
             logger.error(
                 "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",

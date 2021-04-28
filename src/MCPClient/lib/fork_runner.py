@@ -99,7 +99,7 @@ def _run_jobs(module_name, jobs):
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
                 module_name,
             ],
-            six.moves.cPickle.dumps(environment),
+            six.moves.cPickle.dumps(environment, protocol=0),
             printing=False,
             capture_output=True,
         )

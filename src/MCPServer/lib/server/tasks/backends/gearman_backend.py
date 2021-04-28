@@ -206,7 +206,7 @@ class GearmanTaskBatch(object):
             task_uuid = six.text_type(task.uuid)
             data["tasks"][task_uuid] = self.serialize_task(task)
 
-        pickled_data = cPickle.dumps(data)
+        pickled_data = cPickle.dumps(data, protocol=0)
 
         self.pending = client.submit_job(
             task=six.ensure_binary(job.name),
