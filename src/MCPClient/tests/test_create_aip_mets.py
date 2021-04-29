@@ -847,7 +847,6 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             directoryPath=self.objects_dir,
             parentDiv=structMapDiv,
             baseDirectoryPath=self.transfer_dir,
-            baseDirectoryName="%SIPDirectory%",
             fileGroupIdentifier="3a915449-d1bb-4920-b274-c917c7bb5929",
             fileGroupType="sip_id",
             directories={},
