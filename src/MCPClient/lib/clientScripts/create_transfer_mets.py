@@ -821,9 +821,6 @@ def call(jobs):
     parser.add_argument(
         "-b", "--basePathString", dest="base_path_string", default="SIPDirectory"
     )
-    parser.add_argument(
-        "-f", "--fileGroupIdentifier", dest="file_group_identifier", default="sipUUID"
-    )
     parser.add_argument("-S", "--sipUUID", dest="sip_uuid")
     parser.add_argument("-x", "--xmlFile", dest="xml_file")
 

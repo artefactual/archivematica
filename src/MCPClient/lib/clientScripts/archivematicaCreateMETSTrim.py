@@ -32,7 +32,7 @@ from main.models import File
 import namespaces as ns
 
 
-def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
+def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     # containerMetadata
     ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
@@ -69,7 +69,7 @@ def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
 
     # get objects count
     files = File.objects.filter(
-        removedtime__isnull=True, sip_id=fileGroupIdentifier, filegrpuse="original"
+        removedtime__isnull=True, sip_id=sipUUID, filegrpuse="original"
     )
     etree.SubElement(
         dublincore, ns.dctermsBNS + "extent"
@@ -77,7 +77,7 @@ def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
 
     files = File.objects.filter(
         removedtime__isnull=True,
-        sip_id=fileGroupIdentifier,
+        sip_id=sipUUID,
         filegrpuse="TRIM file metadata",
     )
 
@@ -105,7 +105,7 @@ def getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier):
     return ret
 
 
-def getTrimFileDmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
+def getTrimFileDmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
     ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
@@ -114,7 +114,7 @@ def getTrimFileDmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
     try:
         f = File.objects.get(
             removedtime__isnull=True,
-            sip_id=fileGroupIdentifier,
+            sip_id=sipUUID,
             filegrpuuid=fileUUID,
             filegrpuse="TRIM file metadata",
         )
@@ -145,13 +145,13 @@ def getTrimFileDmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
     return ret
 
 
-def getTrimFileAmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
+def getTrimFileAmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
     try:
         f = File.objects.get(
             removedtime__isnull=True,
-            sip_id=fileGroupIdentifier,
+            sip_id=sipUUID,
             filegrpuuid=fileUUID,
             filegrpuse="TRIM file metadata",
         )
@@ -172,12 +172,12 @@ def getTrimFileAmdSec(job, baseDirectoryPath, fileGroupIdentifier, fileUUID):
     return ret
 
 
-def getTrimAmdSec(job, baseDirectoryPath, fileGroupIdentifier):
+def getTrimAmdSec(job, baseDirectoryPath, sipUUID):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
     files = File.objects.filter(
         removedtime__isnull=True,
-        sip_id=fileGroupIdentifier,
+        sip_id=sipUUID,
         filegrpuse="TRIM container metadata",
     )
     for f in files:
