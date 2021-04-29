@@ -81,6 +81,9 @@ from change_names import change_name
 from bagit import Bag, BagError
 
 
+SIP_DIR_VAR = r"%SIPDirectory%"
+
+
 class ErrorAccumulator(object):
     def __init__(self):
         self.error_count = 0
@@ -966,7 +969,6 @@ def createFileSec(
     directoryPath,
     parentDiv,
     baseDirectoryPath,
-    baseDirectoryName,
     fileGroupIdentifier,
     fileGroupType,
     directories,
@@ -979,7 +981,6 @@ def createFileSec(
     :param directoryPath: Path to recursively traverse and create METS entries for
     :param parentDiv: structMap div to attach created children to
     :param baseDirectoryPath: SIP path
-    :param baseDirectoryName: Name of the %var% for the SIP path
     :param fileGroupIdentifier: SIP UUID
     :param fileGroupType: Name of the foreign key field linking to SIP UUID in files.
     :param includeAmdSec: If True, creates amdSecs for the files
@@ -1034,7 +1035,6 @@ def createFileSec(
                 itemdirectoryPath,
                 structMapDiv,
                 baseDirectoryPath,
-                baseDirectoryName,
                 fileGroupIdentifier,
                 fileGroupType,
                 directories,
@@ -1046,7 +1046,7 @@ def createFileSec(
             # Setup variables for creating file metadata
             DMDIDS = ""
             directoryPathSTR = itemdirectoryPath.replace(
-                baseDirectoryPath, baseDirectoryName, 1
+                baseDirectoryPath, SIP_DIR_VAR, 1
             )
 
             kwargs = {
@@ -1197,7 +1197,7 @@ def createFileSec(
                 # Service files are in the original file's group
                 fileFileIDPath = itemdirectoryPath.replace(
                     baseDirectoryPath + "objects/service/",
-                    baseDirectoryName + "objects/",
+                    SIP_DIR_VAR + "objects/",
                 )
                 objectNameExtensionIndex = fileFileIDPath.rfind(".")
                 fileFileIDPath = fileFileIDPath[: objectNameExtensionIndex + 1]
@@ -1627,7 +1627,6 @@ def main(
     sipType,
     baseDirectoryPath,
     XMLFile,
-    baseDirectoryPathString,
     fileGroupIdentifier,
     fileGroupType,
     includeAmdSec,
@@ -1711,7 +1710,6 @@ def main(
         objectsDirectoryPath,
         structMapDiv,
         baseDirectoryPath,
-        baseDirectoryPathString,
         fileGroupIdentifier,
         fileGroupType,
         directories,
@@ -1730,7 +1728,6 @@ def main(
         metadataDirectoryPath,
         structMapDiv,
         baseDirectoryPath,
-        baseDirectoryPathString,
         fileGroupIdentifier,
         fileGroupType,
         directories,
@@ -1834,14 +1831,6 @@ def call(jobs):
         dest="baseDirectoryPath",
         default="",
     )
-    # transferDirectory/
-    parser.add_option(
-        "-b",
-        "--baseDirectoryPathString",
-        action="store",
-        dest="baseDirectoryPathString",
-        default="SIPDirectory",
-    )
     # transferUUID/sipUUID
     parser.add_option(
         "-f",
@@ -1871,7 +1860,6 @@ def call(jobs):
             sipType = opts.sip_type
             baseDirectoryPath = opts.baseDirectoryPath
             XMLFile = opts.xmlFile
-            baseDirectoryPathString = "%%%s%%" % (opts.baseDirectoryPathString)
             fileGroupIdentifier = opts.fileGroupIdentifier
             fileGroupType = opts.fileGroupType
             includeAmdSec = opts.amdSec
@@ -1882,7 +1870,6 @@ def call(jobs):
                 sipType,
                 baseDirectoryPath,
                 XMLFile,
-                baseDirectoryPathString,
                 fileGroupIdentifier,
                 fileGroupType,
                 includeAmdSec,
