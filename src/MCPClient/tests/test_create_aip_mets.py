@@ -848,7 +848,6 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             parentDiv=structMapDiv,
             baseDirectoryPath=self.transfer_dir,
             fileGroupIdentifier="3a915449-d1bb-4920-b274-c917c7bb5929",
-            fileGroupType="sip_id",
             directories={},
             state=self.state,
             includeAmdSec=True,
