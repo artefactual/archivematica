@@ -2458,7 +2458,7 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --fileGroupIdentifier \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\" --createNormativeStructmap",
+        "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\" --createNormativeStructmap",
         "execute": "createMETS_v2.0",
         "filter_file_end": null,
         "filter_file_start": null,
@@ -5310,7 +5310,7 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "--baseDirectoryPath \"%SIPDirectory%\" --fileGroupIdentifier \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\"",
+        "arguments": "--baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\"",
         "execute": "createMETS_v2.0",
         "filter_file_end": null,
         "filter_file_start": null,
@@ -10560,7 +10560,7 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --fileGroupIdentifier \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\"",
+        "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\"",
         "execute": "createMETS_v2.0",
         "filter_file_end": null,
         "filter_file_start": null,

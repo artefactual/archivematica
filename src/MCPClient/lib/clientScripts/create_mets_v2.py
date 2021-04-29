@@ -969,7 +969,7 @@ def createFileSec(
     directoryPath,
     parentDiv,
     baseDirectoryPath,
-    fileGroupIdentifier,
+    sipUUID,
     directories,
     state,
     includeAmdSec=True,
@@ -980,7 +980,7 @@ def createFileSec(
     :param directoryPath: Path to recursively traverse and create METS entries for
     :param parentDiv: structMap div to attach created children to
     :param baseDirectoryPath: SIP path
-    :param fileGroupIdentifier: SIP UUID
+    :param sipUUID: SIP UUID
     :param includeAmdSec: If True, creates amdSecs for the files
     """
     filesInThisDirectory = []
@@ -1033,7 +1033,7 @@ def createFileSec(
                 itemdirectoryPath,
                 structMapDiv,
                 baseDirectoryPath,
-                fileGroupIdentifier,
+                sipUUID,
                 directories,
                 state,
                 includeAmdSec=includeAmdSec,
@@ -1048,7 +1048,7 @@ def createFileSec(
 
             kwargs = {
                 "removedtime__isnull": True,
-                "sip_id": fileGroupIdentifier,
+                "sip_id": sipUUID,
                 "currentlocation": directoryPathSTR,
             }
             try:
@@ -1082,7 +1082,7 @@ def createFileSec(
                     attrib={"TYPE": "File", "LABEL": "objects"},
                 )
 
-                trimDmdSec = getTrimDmdSec(job, baseDirectoryPath, fileGroupIdentifier)
+                trimDmdSec = getTrimDmdSec(job, baseDirectoryPath, sipUUID)
                 state.globalDmdSecCounter += 1
                 state.dmdSecs.append(trimDmdSec)
                 ID = "dmdSec_" + state.globalDmdSecCounter.__str__()
@@ -1095,7 +1095,7 @@ def createFileSec(
                 ID = "amdSec_" + state.globalAmdSecCounter.__str__()
                 trimAmdSec.set("ID", ID)
 
-                digiprovMD = getTrimAmdSec(job, baseDirectoryPath, fileGroupIdentifier)
+                digiprovMD = getTrimAmdSec(job, baseDirectoryPath, sipUUID)
                 state.globalDigiprovMDCounter += 1
                 digiprovMD.set("ID", "digiprovMD_" + str(state.globalDigiprovMDCounter))
 
@@ -1151,7 +1151,7 @@ def createFileSec(
                         )
 
                         trimFileDmdSec = getTrimFileDmdSec(
-                            job, baseDirectoryPath, fileGroupIdentifier, f.uuid
+                            job, baseDirectoryPath, sipUUID, f.uuid
                         )
                         state.globalDmdSecCounter += 1
                         state.dmdSecs.append(trimFileDmdSec)
@@ -1170,7 +1170,7 @@ def createFileSec(
                 # Dspace transfers are treated specially, but some of these fileGrpUses may be encountered in other types
                 kwargs = {
                     "removedtime__isnull": True,
-                    "sip_id": fileGroupIdentifier,
+                    "sip_id": sipUUID,
                     "filegrpuse": "original",
                     "originallocation__startswith": os.path.dirname(f.originallocation),
                 }
@@ -1201,7 +1201,7 @@ def createFileSec(
 
                 kwargs = {
                     "removedtime__isnull": True,
-                    "sip_id": fileGroupIdentifier,
+                    "sip_id": sipUUID,
                     "filegrpuse": "original",
                     "currentlocation__startswith": fileFileIDPath,
                 }
@@ -1277,7 +1277,7 @@ def createFileSec(
                         f.uuid,
                         directoryPathSTR,
                         use,
-                        fileGroupIdentifier,
+                        sipUUID,
                         f.transfer_id,
                         itemdirectoryPath,
                         typeOfTransfer,
@@ -1624,7 +1624,7 @@ def main(
     sipType,
     baseDirectoryPath,
     XMLFile,
-    fileGroupIdentifier,
+    sipUUID,
     includeAmdSec,
     createNormativeStructmap,
 ):
@@ -1633,12 +1633,11 @@ def main(
     # If reingesting, do not create a new METS, just modify existing one.
     if "REIN" in sipType:
         job.pyprint("Updating METS during reingest")
-        # fileGroupIdentifier is SIPUUID, baseDirectoryPath is SIP dir,
         # don't keep existing normative structmap if creating one
         root = archivematicaCreateMETSReingest.update_mets(
             job,
             baseDirectoryPath,
-            fileGroupIdentifier,
+            sipUUID,
             state,
             keep_normative_structmap=createNormativeStructmap,
         )
@@ -1657,7 +1656,7 @@ def main(
     # objects to a ``SIP``.
     directories = {
         d.currentlocation.rstrip("/"): d
-        for d in Directory.objects.filter(sip_id=fileGroupIdentifier).all()
+        for d in Directory.objects.filter(sip_id=sipUUID).all()
     }
 
     state.globalStructMapCounter += 1
@@ -1692,7 +1691,7 @@ def main(
 
     # Get the <dmdSec> for the entire AIP; it is associated to the root
     # <mets:div> in the physical structMap.
-    sip_mdl = SIP.objects.filter(uuid=fileGroupIdentifier).first()
+    sip_mdl = SIP.objects.filter(uuid=sipUUID).first()
     if sip_mdl:
         aipDmdSec = getDirDmdSec(sip_mdl, sip_dir_name)
         state.globalDmdSecCounter += 1
@@ -1706,7 +1705,7 @@ def main(
         objectsDirectoryPath,
         structMapDiv,
         baseDirectoryPath,
-        fileGroupIdentifier,
+        sipUUID,
         directories,
         state,
         includeAmdSec=includeAmdSec,
@@ -1723,7 +1722,7 @@ def main(
         metadataDirectoryPath,
         structMapDiv,
         baseDirectoryPath,
-        fileGroupIdentifier,
+        sipUUID,
         directories,
         state,
         includeAmdSec=includeAmdSec,
@@ -1752,7 +1751,7 @@ def main(
     dc = createDublincoreDMDSecFromDBData(
         job,
         SIPMetadataAppliesToType,
-        fileGroupIdentifier,
+        sipUUID,
         baseDirectoryPath,
         state,
     )
@@ -1792,7 +1791,7 @@ def main(
     if state.trimStructMap is not None:
         root.append(state.trimStructMap)
 
-    arranged_structmap = build_arranged_structmap(job, structMap, fileGroupIdentifier)
+    arranged_structmap = build_arranged_structmap(job, structMap, sipUUID)
     if arranged_structmap is not None:
         root.append(arranged_structmap)
 
@@ -1825,12 +1824,11 @@ def call(jobs):
         dest="baseDirectoryPath",
         default="",
     )
-    # transferUUID/sipUUID
     parser.add_option(
         "-f",
-        "--fileGroupIdentifier",
+        "--sipUUID",
         action="store",
-        dest="fileGroupIdentifier",
+        dest="sipUUID",
         default="",
     )
     parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
@@ -1851,7 +1849,7 @@ def call(jobs):
             sipType = opts.sip_type
             baseDirectoryPath = opts.baseDirectoryPath
             XMLFile = opts.xmlFile
-            fileGroupIdentifier = opts.fileGroupIdentifier
+            sipUUID = opts.sipUUID
             includeAmdSec = opts.amdSec
             createNormativeStructmap = opts.createNormativeStructmap
 
@@ -1860,7 +1858,7 @@ def call(jobs):
                 sipType,
                 baseDirectoryPath,
                 XMLFile,
-                fileGroupIdentifier,
+                sipUUID,
                 includeAmdSec,
                 createNormativeStructmap,
             )
