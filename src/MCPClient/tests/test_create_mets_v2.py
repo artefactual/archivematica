@@ -184,7 +184,6 @@ def test_simple_mets(job, sip_path, sip, file_obj):
         baseDirectoryPath=sip.currentpath,
         XMLFile=six.text_type(mets_path),
         fileGroupIdentifier=sip.pk,
-        fileGroupType="sip_id",
         includeAmdSec=False,
         createNormativeStructmap=False,
     )
@@ -216,7 +215,6 @@ def test_aip_mets_includes_dublincore(job, sip_path, sip, sip_dublincore, file_o
         baseDirectoryPath=sip.currentpath,
         XMLFile=six.text_type(mets_path),
         fileGroupIdentifier=sip.pk,
-        fileGroupType="sip_id",
         includeAmdSec=True,
         createNormativeStructmap=True,
     )
@@ -251,7 +249,6 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
         baseDirectoryPath=sip.currentpath,
         XMLFile=six.text_type(mets_path),
         fileGroupIdentifier=sip.pk,
-        fileGroupType="sip_id",
         includeAmdSec=True,
         createNormativeStructmap=True,
     )
@@ -283,7 +280,6 @@ def test_aip_mets_normative_directory_structure(
         baseDirectoryPath=sip.currentpath,
         XMLFile=six.text_type(mets_path),
         fileGroupIdentifier=sip.pk,
-        fileGroupType="sip_id",
         includeAmdSec=True,
         createNormativeStructmap=True,
     )

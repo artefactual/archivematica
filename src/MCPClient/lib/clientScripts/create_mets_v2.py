@@ -970,7 +970,6 @@ def createFileSec(
     parentDiv,
     baseDirectoryPath,
     fileGroupIdentifier,
-    fileGroupType,
     directories,
     state,
     includeAmdSec=True,
@@ -982,7 +981,6 @@ def createFileSec(
     :param parentDiv: structMap div to attach created children to
     :param baseDirectoryPath: SIP path
     :param fileGroupIdentifier: SIP UUID
-    :param fileGroupType: Name of the foreign key field linking to SIP UUID in files.
     :param includeAmdSec: If True, creates amdSecs for the files
     """
     filesInThisDirectory = []
@@ -1036,7 +1034,6 @@ def createFileSec(
                 structMapDiv,
                 baseDirectoryPath,
                 fileGroupIdentifier,
-                fileGroupType,
                 directories,
                 state,
                 includeAmdSec=includeAmdSec,
@@ -1051,7 +1048,7 @@ def createFileSec(
 
             kwargs = {
                 "removedtime__isnull": True,
-                fileGroupType: fileGroupIdentifier,
+                "sip_id": fileGroupIdentifier,
                 "currentlocation": directoryPathSTR,
             }
             try:
@@ -1173,7 +1170,7 @@ def createFileSec(
                 # Dspace transfers are treated specially, but some of these fileGrpUses may be encountered in other types
                 kwargs = {
                     "removedtime__isnull": True,
-                    fileGroupType: fileGroupIdentifier,
+                    "sip_id": fileGroupIdentifier,
                     "filegrpuse": "original",
                     "originallocation__startswith": os.path.dirname(f.originallocation),
                 }
@@ -1204,7 +1201,7 @@ def createFileSec(
 
                 kwargs = {
                     "removedtime__isnull": True,
-                    fileGroupType: fileGroupIdentifier,
+                    "sip_id": fileGroupIdentifier,
                     "filegrpuse": "original",
                     "currentlocation__startswith": fileFileIDPath,
                 }
@@ -1628,7 +1625,6 @@ def main(
     baseDirectoryPath,
     XMLFile,
     fileGroupIdentifier,
-    fileGroupType,
     includeAmdSec,
     createNormativeStructmap,
 ):
@@ -1711,7 +1707,6 @@ def main(
         structMapDiv,
         baseDirectoryPath,
         fileGroupIdentifier,
-        fileGroupType,
         directories,
         state,
         includeAmdSec=includeAmdSec,
@@ -1729,7 +1724,6 @@ def main(
         structMapDiv,
         baseDirectoryPath,
         fileGroupIdentifier,
-        fileGroupType,
         directories,
         state,
         includeAmdSec=includeAmdSec,
@@ -1839,9 +1833,6 @@ def call(jobs):
         dest="fileGroupIdentifier",
         default="",
     )
-    parser.add_option(
-        "-t", "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID"
-    )
     parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
     parser.add_option(
         "-a", "--amdSec", action="store_true", dest="amdSec", default=False
@@ -1861,7 +1852,6 @@ def call(jobs):
             baseDirectoryPath = opts.baseDirectoryPath
             XMLFile = opts.xmlFile
             fileGroupIdentifier = opts.fileGroupIdentifier
-            fileGroupType = opts.fileGroupType
             includeAmdSec = opts.amdSec
             createNormativeStructmap = opts.createNormativeStructmap
 
@@ -1871,7 +1861,6 @@ def call(jobs):
                 baseDirectoryPath,
                 XMLFile,
                 fileGroupIdentifier,
-                fileGroupType,
                 includeAmdSec,
                 createNormativeStructmap,
             )
