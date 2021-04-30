@@ -27,6 +27,7 @@ import copy
 from glob import glob
 from itertools import chain
 import lxml.etree as etree
+from optparse import OptionParser
 import os
 import pprint
 import re
@@ -1537,6 +1538,57 @@ def get_paths_as_fsitems(baseDirectoryPath, objectsDirectoryPath):
     return all_fsitems
 
 
+class NormativeStructMapElement(etree.ElementBase):
+    """Builds the normative structMap maintaining an index of all its elements
+    for quicker access and updates. ``set_dmdid`` uses this index to find the
+    element where known DMDIDs need to be applied.
+    """
+
+    def _init(self):
+        self.root = self.get_root()
+        if self.root == self:
+            self._elements = {}
+        self.root._elements[self.build_path(self)] = self
+
+    def get_root(self):
+        cur = self
+        while True:
+            parent = cur.getparent()
+            if parent is None:
+                return cur
+            cur = parent
+        return cur
+
+    @staticmethod
+    def build_path(element):
+        path = ""
+        cur = element
+        omitted = ("Archivematica default",)
+        while True:
+            parent = cur.getparent()
+            if parent is None:
+                path = os.sep + path
+                break
+            label = cur.get("LABEL")
+            if label not in omitted:
+                path = label + (os.sep + path if path != "" else "")
+            cur = parent
+        return path
+
+    def set_dmdid(self, structmap_el, dmdid):
+        """Given an element of the Archivematica default structMap, find its
+        normative equivalent and update its DMDID."""
+        path = self.build_path(structmap_el)
+        try:
+            el = self.root._elements[path]
+        except KeyError:
+            return
+        prev_dmdid = el.get("DMDID")
+        if prev_dmdid is not None:
+            dmdid = prev_dmdid + " " + dmdid
+        el.set("DMDID", dmdid)
+
+
 def get_normative_structmap(
     baseDirectoryPath, objectsDirectoryPath, directories, state
 ):
@@ -1546,7 +1598,12 @@ def get_normative_structmap(
     :param dict directories: maps directory model instance ``currentlocation``
     :returns: etree Element representing structMap XML
     """
-    normativeStructMap = etree.Element(
+    parser = etree.XMLParser()
+    parser.set_element_class_lookup(
+        etree.ElementDefaultClassLookup(element=NormativeStructMapElement)
+    )
+
+    normativeStructMap = parser.makeelement(
         ns.metsBNS + "structMap",
         TYPE="logical",
         ID="structMap_{}".format(state.globalStructMapCounter),
@@ -1617,6 +1674,15 @@ def add_normative_structmap_div(
             dirDmdSec.set("ID", dir_dmd_id)
             el.set("DMDID", dir_dmd_id)
         path_to_el[fsitem.path] = el
+
+
+def update_normative_structmap_dmdids(normative_structmap, structmap):
+    """Copies all DMDIDs found in ``structmap`` into ``normative_structmap``."""
+    for el in structmap.getiterator():
+        dmdid = el.get("DMDID")
+        if dmdid is None:
+            continue
+        normative_structmap.set_dmdid(el, dmdid)
 
 
 def main(
@@ -1782,7 +1848,9 @@ def main(
 
     root.append(fileSec)
     root.append(structMap)
+
     if normativeStructMap is not None:
+        update_normative_structmap_dmdids(normativeStructMap, structMap)
         root.append(normativeStructMap)
 
     for custom_structmap in include_custom_structmap(job, baseDirectoryPath, state):
@@ -1813,8 +1881,6 @@ def main(
 
 
 def call(jobs):
-    from optparse import OptionParser
-
     parser = OptionParser()
     parser.add_option("--sipType", action="store", dest="sip_type", default="SIP")
     parser.add_option(
