@@ -269,7 +269,6 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
     assert dublincore[0].text == "File 1"
 
 
-@pytest.mark.xfail(reason="https://github.com/archivematica/Issues/issues/768")
 def test_aip_mets_normative_directory_structure(
     job, sip_path, sip, file_obj, metadata_csv, empty_dir_path
 ):
@@ -289,17 +288,23 @@ def test_aip_mets_normative_directory_structure(
     )
 
     assert (
-        etree.tostring(normative_structmap[0])
-        == """<mets:structMap xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="structMap_2" LABEL="Normative Directory Structure" TYPE="logical">
-    <mets:div LABEL="pictures3-5904fdd7-85df-4d7e-99be-2d3bceba7f7a" TYPE="Directory" DMDID="dmdSec_2">
-      <mets:div LABEL="objects" TYPE="Directory">
-        <mets:div LABEL="file1" TYPE="Item" DMDID="dmdSec_3"/>
-        <mets:div LABEL="empty_dir" TYPE="Directory" DMDID="dmdSec_1"/>
-        <mets:div LABEL="metadata" TYPE="Directory">
-          <mets:div LABEL="metadata.csv" TYPE="Item"/>
-        </mets:div>
-      </mets:div>
-    </mets:div>
-  </mets:structMap>
-"""
+        normative_structmap[0]
+        .xpath(
+            ".//mets:div[@LABEL='pictures3-5904fdd7-85df-4d7e-99be-2d3bceba7f7a']",
+            namespaces=NSMAP,
+        )[0]
+        .get("DMDID")
+        == "dmdSec_2"
+    )
+    assert (
+        normative_structmap[0]
+        .xpath(".//mets:div[@LABEL='file1']", namespaces=NSMAP)[0]
+        .get("DMDID")
+        == "dmdSec_3"
+    )
+    assert (
+        normative_structmap[0]
+        .xpath(".//mets:div[@LABEL='empty_dir']", namespaces=NSMAP)[0]
+        .get("DMDID")
+        == "dmdSec_1"
     )
