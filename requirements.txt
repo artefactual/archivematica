@@ -44,7 +44,7 @@ jsonschema==2.6.0         # via -r requirements.in
 lazy-paged-sequence==0.3  # via -r requirements.in
 logutils==0.3.3           # via -r requirements.in
 lxml==4.6.3               # via -r requirements.in, ammcpc, metsrw, python-cas
-metsrw==0.3.19            # via -r requirements.in
+metsrw==0.3.20            # via -r requirements.in
 mozilla-django-oidc==1.2.4  # via -r requirements.in
 mysqlclient==1.4.6        # via -r requirements.in, agentarchives
 ndg-httpsclient==0.5.1    # via -r requirements.in

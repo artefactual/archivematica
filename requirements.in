@@ -26,7 +26,7 @@ jsonschema==2.6.0
 lazy-paged-sequence
 logutils==0.3.3
 lxml~=4.6
-metsrw==0.3.19
+metsrw==0.3.20
 mysqlclient==1.4.6
 ndg-httpsclient
 opf-fido==1.4.1
