@@ -57,7 +57,7 @@ jsonschema==2.6.0         # via -r requirements.txt
 lazy-paged-sequence==0.3  # via -r requirements.txt
 logutils==0.3.3           # via -r requirements.txt
 lxml==4.6.3               # via -r requirements.txt, ammcpc, metsrw, python-cas
-metsrw==0.3.19            # via -r requirements.txt
+metsrw==0.3.20            # via -r requirements.txt
 mock==3.0.5               # via -r requirements-dev.in, mockldap, pytest-mock, vcrpy
 mockldap==0.2.8           # via -r requirements-dev.in
 more-itertools==5.0.0     # via pytest
