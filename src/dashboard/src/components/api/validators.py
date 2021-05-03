@@ -404,10 +404,8 @@ class RightsValidator(BaseValidator):
                 columns = {k: v for v, k in enumerate(row)}
             if i >= 1:
                 basis = self._check_basis(row, columns)
-                if basis.lower() == "copyright":
-                    self._check_copyright(row, columns)
-                elif basis.lower() == "statute":
-                    self._check_statute(row, columns)
+                if basis.lower() in ["copyright", "statute"]:
+                    getattr(self, "_check_{}".format(basis.lower()))(row, columns)
                 self._check_documentation
                 self._check_restriction(row, columns)
         try:
