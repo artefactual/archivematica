@@ -308,9 +308,9 @@ class RightsValidator(BaseValidator):
             "grant_note",
         ]
         if [g for g in grant_fields if row[columns.get(g)]]:
-            if not row[columns.get("grant_act")]:
-                raise ValidationError("No act specified.")
-            elif row[columns.get("grant_act")].lower() not in [
+            if not row[columns.get("grant_restriction")]:
+                raise ValidationError("No restriction specified.")
+            elif row[columns.get("grant_restriction")].lower() not in [
                 "disallow",
                 "conditional",
                 "allow",
