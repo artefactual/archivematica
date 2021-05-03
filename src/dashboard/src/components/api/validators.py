@@ -320,7 +320,7 @@ class RightsValidator(BaseValidator):
                 "allow",
             ]:
                 raise ValidationError(
-                    "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'"
+                    "The value of element restriction must be: 'allow', 'disallow', or 'conditional'"
                 )
         else:
             return True
@@ -368,7 +368,7 @@ class RightsValidator(BaseValidator):
             raise ValidationError("No jurisdiction specified for statute basis.")
         elif [f for f in ["terms", "status"] if row[columns.get(f)]]:
             raise ValidationError(
-                "Copyright row contains fields that cannot pertain to statute basis."
+                "Statute row contains fields that cannot pertain to statute basis."
             )
         else:
             return True
