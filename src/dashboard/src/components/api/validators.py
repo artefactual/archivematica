@@ -293,104 +293,100 @@ class RightsValidator(BaseValidator):
             )
         return True
 
-        @staticmethod
-        def _check_restriction(row, columns):
-            """If any grant fields exist, validate grant information.
+    @staticmethod
+    def _check_restriction(row, columns):
+        """If any grant fields exist, validate grant information.
 
-            :param row: list: metadata fields
-            :param columns: dict: column names and indexes
-            """
-            grant_fields = [
-                "grant_act",
-                "grant_restriction",
-                "grant_start_date",
-                "grant_end_date",
-                "grant_note",
-            ]
-            if [g for g in grant_fields if row[columns.get(g)]]:
-                if not row[columns.get("grant_act")]:
-                    raise ValidationError("No act specified.")
-                elif row[columns.get("grant_act")].lower() not in [
-                    "disallow",
-                    "conditional",
-                    "allow",
-                ]:
-                    raise ValidationError(
-                        "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'"
-                    )
-            else:
-                return True
-
-        @staticmethod
-        def _check_basis(row, columns):
-            """Check that rights basis exists; return basis.
-
-            :param row: list: metadata fields
-            :param columns: dict: column names and indexes
-            """
-            if row[columns.get("basis")]:
-                return row[columns.get("basis")]
-            else:
-                raise ValidationError("No basis specified.")
-
-        @staticmethod
-        def _check_copyright(row, columns):
-            """Validate copyright information.
-
-            :param row: list: metadata fields
-            :param columns: dict: column names and indexes
-            """
-            if not row[columns.get("status")]:
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        grant_fields = [
+            "grant_act",
+            "grant_restriction",
+            "grant_start_date",
+            "grant_end_date",
+            "grant_note",
+        ]
+        if [g for g in grant_fields if row[columns.get(g)]]:
+            if not row[columns.get("grant_act")]:
+                raise ValidationError("No act specified.")
+            elif row[columns.get("grant_act")].lower() not in [
+                "disallow",
+                "conditional",
+                "allow",
+            ]:
                 raise ValidationError(
-                    "No copyright status specified for copyright basis."
+                    "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'"
                 )
-            elif not row[columns.get("jurisdiction")]:
-                raise ValidationError("No jurisdiction specified for copyright basis.")
-            elif [f for f in ["terms", "citation"] if row[columns.get(f)]]:
+        else:
+            return True
+
+    @staticmethod
+    def _check_basis(row, columns):
+        """Check that rights basis exists; return basis.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if row[columns.get("basis")]:
+            return row[columns.get("basis")]
+        else:
+            raise ValidationError("No basis specified.")
+
+    @staticmethod
+    def _check_copyright(row, columns):
+        """Validate copyright information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if not row[columns.get("status")]:
+            raise ValidationError("No copyright status specified for copyright basis.")
+        elif not row[columns.get("jurisdiction")]:
+            raise ValidationError("No jurisdiction specified for copyright basis.")
+        elif [f for f in ["terms", "citation"] if row[columns.get(f)]]:
+            raise ValidationError(
+                "Copyright row contains fields that cannot pertain to copyright basis."
+            )
+        else:
+            return True
+
+    @staticmethod
+    def _check_statute(row, columns):
+        """Validate statute information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if not row[columns.get("citation")]:
+            raise ValidationError("No statute citation specified for statute basis.")
+        elif not row[columns.get("jurisdiction")]:
+            raise ValidationError("No jurisdiction specified for statute basis.")
+        elif [f for f in ["terms", "status"] if row[columns.get(f)]]:
+            raise ValidationError(
+                "Copyright row contains fields that cannot pertain to statute basis."
+            )
+        else:
+            return True
+
+    @staticmethod
+    def _check_documentation(row, columns):
+        """If any documentation information exist, validate documentation information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        documentation_fields = ["doc_id_type", "doc_id_value", "doc_id_role"]
+        if [d for d in documentation_fields if row[columns.get(d)]]:
+            if (
+                not row[columns.get("doc_id_type")]
+                and not row[columns.get("doc_id_value")]
+            ):
                 raise ValidationError(
-                    "Copyright row contains fields that cannot pertain to copyright basis."
+                    "Documentation identifier type and value are required."
                 )
-            else:
-                return True
-
-        @staticmethod
-        def _check_statute(row, columns):
-            """Validate statute information.
-
-            :param row: list: metadata fields
-            :param columns: dict: column names and indexes
-            """
-            if not row[columns.get("citation")]:
-                raise ValidationError(
-                    "No statute citation specified for statute basis."
-                )
-            elif not row[columns.get("jurisdiction")]:
-                raise ValidationError("No jurisdiction specified for statute basis.")
-            elif [f for f in ["terms", "status"] if row[columns.get(f)]]:
-                raise ValidationError(
-                    "Copyright row contains fields that cannot pertain to statute basis."
-                )
-            else:
-                return True
-
-        @staticmethod
-        def _check_documentation(row, columns):
-            """If any documentation information exist, validate documentation information.
-
-            :param row: list: metadata fields
-            :param columns: dict: column names and indexes
-            """
-            documentation_fields = ["doc_id_type", "doc_id_value", "doc_id_role"]
-            if [d for d in documentation_fields if row[columns.get(d)]]:
-                if (
-                    not row[columns.get("doc_id_type")]
-                    and not row[columns.get("doc_id_value")]
-                ):
-                    raise ValidationError(
-                        "Documentation identifier type and value are required."
-                    )
-            else:
-                return True
+        else:
+            return True
 
     def validate(self, string):
         if PY2:
