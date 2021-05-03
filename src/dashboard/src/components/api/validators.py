@@ -289,7 +289,11 @@ class RightsValidator(BaseValidator):
 
         if not (all(x in row for x in req_columns)):
             raise ValidationError(
-                ("One of the required columns is missing: file, basis, grant_act.")
+                (
+                    "One of the required columns is missing: {}".format(
+                        ", ".join(req_columns)
+                    )
+                )
             )
         return True
 
