@@ -45,7 +45,7 @@ class RightCsvReader(object):
     current_row = None
     rows_processed = 0
 
-    required_column_names = ["file", "grant_act"]
+    required_column_names = ["file"]
 
     optional_column_names = [
         "basis",
@@ -57,6 +57,7 @@ class RightCsvReader(object):
         "terms",
         "citation",  # mandatory for statute basis
         "note",
+        "grant_act",
         "grant_restriction",
         "grant_start_date",
         "grant_end_date",
@@ -125,10 +126,11 @@ class RightCsvReader(object):
             self.object_basis_act_usage[filepath][basis] = {}
 
         # Check that act is set and normalize value
+        self.has_act = False
         act = self.column_value("grant_act")
-        if not act:
-            raise RightsRowException("No act specified", self)
-        act = act.lower().capitalize()
+        if act:
+            act = act.lower().capitalize()
+            self.has_act = True
 
         # Process row if basis/act combination for file hasn't yet been imported
         if act not in self.object_basis_act_usage[filepath][basis]:
@@ -158,7 +160,8 @@ class RightCsvReader(object):
         elif rights_statement.rightsbasis in ["Other", "Donor", "Policy"]:
             self.store_other_info(rights_statement)
 
-        self.store_grant_info(rights_statement)
+        if self.has_act:
+            self.store_grant_info(rights_statement)
 
     def generate_rights_statement(self):
         """Generate rights statement."""
