@@ -27,6 +27,8 @@ from __future__ import absolute_import, print_function
 
 import base64
 import collections
+import errno
+import glob
 import hashlib
 import locale
 import os
@@ -42,6 +44,7 @@ except ImportError:
 from django.apps import apps
 import scandir
 import six
+from six.moves import zip_longest
 from lxml import etree
 from namespaces import NSMAP, xml_find_premis
 
@@ -264,6 +267,26 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
         if os.path.isfile(path):
             paths.append(path)
     return paths
+
+
+def find_mets_file(unit_path):
+    """Return the location of the original METS in a Archivematica AIP transfer.
+
+    :returns: Path to original METS file (str)
+
+    :raises: METSDiscoveryError if no or multiple METS are found.
+    """
+    src = os.path.join(unit_path, "metadata")
+    mets_paths = glob.glob(os.path.join(src, "METS.*.xml"))
+
+    if len(mets_paths) == 1:
+        return mets_paths[0]
+    elif len(mets_paths) == 0:
+        raise OSError(errno.EEXIST, "No METS file found in {}".format(src))
+    else:
+        raise OSError(
+            errno.EEXIST, "Multiple METS files found in {}: {}".format(src, mets_paths)
+        )
 
 
 def create_directories(directories, basepath="", printing=False, printfn=print):
@@ -535,3 +558,12 @@ def relative_path_to_aip_mets_file(uuid, current_path):
     mets_name = "METS.{}.xml".format(uuid)
     mets_path = "{}/data/{}".format(package_name_without_extensions, mets_name)
     return mets_path
+
+
+def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
+    """Collect data into fixed-length chunks or blocks.
+    >>> list(chunk_iterable('ABCDEFG', 3, 'x'))
+    [('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]
+    """
+    args = [iter(iterable)] * chunk_size
+    return zip_longest(fillvalue=fillvalue, *args)

@@ -537,6 +537,8 @@ class Transfer(models.Model):
 
     objects = PackageManager()
 
+    ARCHIVEMATICA_AIP = "Archivematica AIP"
+
     class Meta:
         db_table = u"Transfers"
 
@@ -749,6 +751,13 @@ class File(models.Model):
     def add_custom_identifier(self, scheme, value):
         """Allow callers to add custom identifiers to the model's instance."""
         self.identifiers.create(type=scheme, value=value)
+
+    @property
+    def in_reingested_aip(self):
+        """Return boolean indicating if file is in reingested AIP"""
+        if not self.transfer:
+            return False
+        return self.transfer.type == Transfer.ARCHIVEMATICA_AIP and not self.sip
 
 
 @python_2_unicode_compatible

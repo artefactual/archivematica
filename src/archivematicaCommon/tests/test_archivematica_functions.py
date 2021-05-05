@@ -3,8 +3,38 @@ from __future__ import absolute_import
 
 import bagit
 from mock import patch
+import pytest
+from six.moves import range
 
 import archivematicaFunctions as am
+
+
+def test_find_mets_file_match(tmp_path):
+    metadata_dir = tmp_path / "metadata"
+    metadata_dir.mkdir()
+    mets_file = metadata_dir / "METS.1.xml"
+    mets_file.touch()
+    assert am.find_mets_file(str(tmp_path)) == str(tmp_path / "metadata" / "METS.1.xml")
+
+
+def test_find_mets_file_ambiguous_mets_file(tmp_path):
+    metadata_dir = tmp_path / "metadata"
+    metadata_dir.mkdir()
+    for i in range(3):
+        mets_file = metadata_dir / ("METS.{}.xml".format(i))
+        mets_file.touch()
+
+    with pytest.raises(
+        OSError, match="Multiple METS files found in {}/metadata".format(tmp_path)
+    ):
+        am.find_mets_file(str(tmp_path))
+
+
+def test_find_mets_file_no_mets_file(tmp_path):
+    with pytest.raises(
+        OSError, match="No METS file found in {}/metadata".format(tmp_path)
+    ):
+        am.find_mets_file(str(tmp_path))
 
 
 def test_get_bag_size(tmpdir):

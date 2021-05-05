@@ -19,7 +19,6 @@
 
 import argparse
 import os
-import re
 import uuid
 
 # fileOperations requires Django to be set up
@@ -30,6 +29,7 @@ django.setup()
 
 from main.models import File, FileFormatVersion
 
+from archivematicaFunctions import chunk_iterable, find_mets_file
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoDerivations
 from fileOperations import updateSizeAndChecksum
@@ -40,44 +40,29 @@ import parse_mets_to_db
 
 logger = get_script_logger("archivematica.mcp.client.updateSizeAndChecksum")
 
-
-def find_mets_file(unit_path):
-    """
-    Return the location of the original METS in a Archivematica AIP transfer.
-    """
-    p = re.compile(r"^METS\..*\.xml$", re.IGNORECASE)
-    src = os.path.join(unit_path, "metadata")
-    for item in os.listdir(src):
-        m = p.match(item)
-        if m:
-            return os.path.join(src, m.group())
+SIP_REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
+TRANSFER_REPLACEMENT_PATH_STRING = r"%transferDirectory%"
 
 
-def get_file_info_from_mets(job, shared_path, file_):
+def get_file_info_from_mets(job, mets, file_):
     """Get file size, checksum & type, and derivation for this file from METS.
 
     Given an instance of a File, return a dict with keys: file_size,
     checksum and checksum_type, as they are described in the original METS
     document of the transfer. The dict will be empty or missing keys on error.
     """
-    transfer = file_.transfer
-    transfer_location = transfer.currentlocation.replace("%sharedPath%", shared_path, 1)
-    mets_file = find_mets_file(transfer_location)
-    if not mets_file:
-        logger.info("Archivematica AIP: METS file not found in %s.", transfer_location)
-        return {}
-    logger.info("Archivematica AIP: reading METS file %s.", mets_file)
-    mets = metsrw.METSDocument.fromfile(mets_file)
     fsentry = mets.get_file(file_uuid=file_.uuid)
     if not fsentry:
-        logger.error("Archivematica AIP: FSEntry with UUID %s not found", file_.uuid)
+        job.print_error("FSEntry with UUID {} not found in METS".format(file_.uuid))
         return {}
 
     # Get the UUID of a preservation derivative, if one exists
     try:
         premis_object = fsentry.get_premis_objects()[0]
     except IndexError:
-        logger.error("Archivematica AIP: PREMIS:OBJECT could not be found")
+        job.print_error(
+            "PREMIS:OBJECT not found for file {} in METS".format(file_.uuid)
+        )
         return {}
     premis_object = fsentry.get_premis_objects()[0]
     related_object_uuid = None
@@ -100,34 +85,73 @@ def get_file_info_from_mets(job, shared_path, file_):
         if ss.contents.mdtype == metsrw.FSEntry.PREMIS_OBJECT
     ][0]
 
-    ret = {
+    return {
         "file_size": premis_object.size,
         "checksum": premis_object.message_digest,
         "checksum_type": premis_object.message_digest_algorithm,
         "derivation": related_object_uuid,
         "format_version": parse_mets_to_db.parse_format_version(job, premis_object_doc),
     }
-    logger.info("Archivematica AIP: %s", ret)
-    return ret
 
 
-def main(job, shared_path, file_uuid, file_path, date, event_uuid):
-    try:
-        file_ = File.objects.get(uuid=file_uuid)
-    except File.DoesNotExist:
-        logger.exception("File with UUID %s cannot be found.", file_uuid)
-        return 1
+def _filter_queryset_by_subdir(queryset, replacement_path_string, filter_subdir):
+    """Filter queryset by filter_subdir."""
+    filter_path = "".join([replacement_path_string, filter_subdir])
+    return queryset.filter(currentlocation__startswith=filter_path)
 
-    # See if it's a Transfer and in particular a Archivematica AIP transfer.
-    # If so, try to extract the size, checksum and checksum function from the
-    # original METS document.
+
+def get_transfer_file_queryset(transfer_uuid, filter_subdir):
+    """Return Queryset of files in this transfer."""
+    files = File.objects.filter(transfer=transfer_uuid)
+    if filter_subdir:
+        files = _filter_queryset_by_subdir(
+            files, TRANSFER_REPLACEMENT_PATH_STRING, filter_subdir
+        )
+    return files
+
+
+def get_sip_file_queryset(sip_uuid, filter_subdir):
+    """Return Queryset of files in this SIP."""
+    files = File.objects.filter(sip=sip_uuid)
+    if filter_subdir:
+        files = _filter_queryset_by_subdir(
+            files, SIP_REPLACEMENT_PATH_STRING, filter_subdir
+        )
+    return files
+
+
+def update_size_and_checksum_for_file(
+    job,
+    file_,
+    mets,
+    shared_path,
+    sip_directory,
+    sip_uuid,
+    transfer_uuid,
+    date,
+    event_uuid,
+    filter_subdir,
+):
+    """Update size and checksum for file in database.
+
+    If file is from Archivematica AIP transfer, try to extract and use
+    the size, checksum, and checksum type values from the METS.
+    """
     kw = {}
-    if (
-        file_.transfer
-        and (not file_.sip)
-        and file_.transfer.type == "Archivematica AIP"
-    ):
-        info = get_file_info_from_mets(job, shared_path, file_)
+    if transfer_uuid:
+        file_path = file_.currentlocation.replace(
+            TRANSFER_REPLACEMENT_PATH_STRING, sip_directory
+        )
+    else:
+        file_path = file_.currentlocation.replace(
+            SIP_REPLACEMENT_PATH_STRING, sip_directory
+        )
+
+    if not os.path.exists(file_path):
+        return
+
+    if file_.in_reingested_aip and mets:
+        info = get_file_info_from_mets(job, mets, file_)
         kw.update(
             fileSize=info["file_size"],
             checksum=info["checksum"],
@@ -136,14 +160,51 @@ def main(job, shared_path, file_uuid, file_path, date, event_uuid):
         )
         if info.get("derivation"):
             insertIntoDerivations(
-                sourceFileUUID=file_uuid, derivedFileUUID=info["derivation"]
+                sourceFileUUID=file_.uuid, derivedFileUUID=info["derivation"]
             )
         if info.get("format_version"):
             FileFormatVersion.objects.create(
-                file_uuid_id=file_uuid, format_version=info["format_version"]
+                file_uuid_id=file_.uuid, format_version=info["format_version"]
             )
 
-    updateSizeAndChecksum(file_uuid, file_path, date, event_uuid, **kw)
+    job.print_output("Updating file size and checksum for file {}".format(file_.uuid))
+    updateSizeAndChecksum(file_.uuid, file_path, date, event_uuid, **kw)
+
+
+def update_files(
+    job,
+    files,
+    mets,
+    shared_path,
+    sip_directory,
+    sip_uuid,
+    transfer_uuid,
+    date,
+    event_uuid,
+    filter_subdir,
+):
+    """Update file sizes and checksums for each file in list.
+
+    We open a database transaction for each chunk of 10 files, in an
+    attempt to balance performance with reasonable transaction lengths.
+    """
+    for file_chunk in chunk_iterable(files):
+        with transaction.atomic():
+            for file_ in file_chunk:
+                if not file_:
+                    continue
+                update_size_and_checksum_for_file(
+                    job,
+                    file_,
+                    mets,
+                    shared_path,
+                    sip_directory,
+                    sip_uuid,
+                    transfer_uuid,
+                    date,
+                    event_uuid,
+                    filter_subdir,
+                )
 
     return 0
 
@@ -152,12 +213,18 @@ def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument("sharedPath")
     parser.add_argument(
-        "-i", "--fileUUID", type=lambda x: str(uuid.UUID(x)), dest="file_uuid"
+        "-s", "--sipDirectory", action="store", dest="sip_directory", default=""
     )
     parser.add_argument(
-        "-p", "--filePath", action="store", dest="file_path", default=""
+        "-S", "--sipUUID", type=lambda x: str(uuid.UUID(x)), dest="sip_uuid"
+    )
+    parser.add_argument(
+        "-T", "--transferUUID", type=lambda x: str(uuid.UUID(x)), dest="transfer_uuid"
     )
     parser.add_argument("-d", "--date", action="store", dest="date", default="")
+    parser.add_argument(
+        "--filterSubdir", action="store", dest="filter_subdir", default=None
+    )
     parser.add_argument(
         "-u",
         "--eventIdentifierUUID",
@@ -165,20 +232,41 @@ def call(jobs):
         dest="event_uuid",
     )
 
-    with transaction.atomic():
-        for job in jobs:
-            with job.JobContext(logger=logger):
-                logger.info("Invoked as %s.", " ".join(job.args))
+    for job in jobs:
+        with job.JobContext(logger=logger):
+            args = parser.parse_args(job.args[1:])
 
-                args = parser.parse_args(job.args[1:])
+            TRANSFER_SIP_UUIDS = [args.sip_uuid, args.transfer_uuid]
+            if all(TRANSFER_SIP_UUIDS) or not any(TRANSFER_SIP_UUIDS):
+                job.print_error("SIP exclusive-or Transfer UUID must be defined")
+                job.set_status(2)
+                return
 
-                job.set_status(
-                    main(
-                        job,
-                        args.sharedPath,
-                        args.file_uuid,
-                        args.file_path,
-                        args.date,
-                        args.event_uuid,
-                    )
+            files = get_transfer_file_queryset(args.transfer_uuid, args.filter_subdir)
+            if args.sip_uuid:
+                files = get_sip_file_queryset(args.sip_uuid, args.filter_subdir)
+
+            mets_file = None
+            mets = None
+            try:
+                mets_file = find_mets_file(args.sip_directory)
+            except OSError as err:
+                job.print_error("METS file not found: {}".format(err))
+            if mets_file:
+                job.print_output("Reading METS file {}".format(mets_file))
+                mets = metsrw.METSDocument.fromfile(mets_file)
+
+            job.set_status(
+                update_files(
+                    job,
+                    files,
+                    mets,
+                    args.sharedPath,
+                    args.sip_directory,
+                    args.sip_uuid,
+                    args.transfer_uuid,
+                    args.date,
+                    args.event_uuid,
+                    args.filter_subdir,
                 )
+            )

@@ -640,7 +640,7 @@ def reingest(request, target):
             "currentlocation": SHARED_PATH_TEMPLATE_VAL
             + dest[len(shared_directory_path) :],
             "uuid": reingest_uuid,
-            "type": "Archivematica AIP",
+            "type": models.Transfer.ARCHIVEMATICA_AIP,
         }
         models.Transfer.objects.create(**tdetails)
         LOGGER.info(

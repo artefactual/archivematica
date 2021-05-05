@@ -19,40 +19,6 @@ def search_enabled(settings):
     settings.SEARCH_ENABLED = [es.TRANSFERS_INDEX, es.AIPS_INDEX]
 
 
-@pytest.fixture
-def transfer(db):
-    transfer = models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
-        currentlocation=r"%transferDirectory%",
-        status=models.PACKAGE_STATUS_DONE,
-        completed_at=timezone.now(),
-    )
-
-    models.Job.objects.create(
-        sipuuid=transfer.pk, unittype="unitTransfer", createdtime=timezone.now()
-    )
-    models.File.objects.create(uuid=uuid.uuid4(), transfer=transfer)
-
-    return transfer
-
-
-@pytest.fixture
-def sip(db):
-    sip = models.SIP.objects.create(
-        uuid=uuid.uuid4(),
-        status=models.PACKAGE_STATUS_DONE,
-        completed_at=timezone.now(),
-    )
-
-    models.Job.objects.create(
-        sipuuid=sip.pk, unittype="unitSIP", createdtime=timezone.now()
-    )
-    models.File.objects.create(uuid=uuid.uuid4(), sip=sip)
-    models.Access.objects.create(sipuuid=sip.pk)
-
-    return sip
-
-
 @pytest.mark.django_db
 def test_purge_command_removes_package_with_unknown_status(search_disabled, transfer):
     models.Transfer.objects.filter(pk=transfer.pk).update(
