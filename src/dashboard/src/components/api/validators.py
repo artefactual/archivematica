@@ -406,7 +406,7 @@ class RightsValidator(BaseValidator):
                 basis = self._check_basis(row, columns)
                 if basis.lower() in ["copyright", "statute"]:
                     getattr(self, "_check_{}".format(basis.lower()))(row, columns)
-                self._check_documentation
+                self._check_documentation(row, columns)
                 self._check_restriction(row, columns)
         try:
             i
