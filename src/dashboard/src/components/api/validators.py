@@ -244,7 +244,181 @@ class AvalonValidator(BaseValidator):
         return True
 
 
-_VALIDATORS = {"avalon": AvalonValidator}
+class RightsValidator(BaseValidator):
+    @staticmethod
+    def _check_column_data(row):
+        """Validate column data line in a PREMIS Rights CSV.
+
+        :param row: list: metadata fields
+        """
+        req_columns = ["file", "basis"]
+        optional_columns = [
+            "status",  # mandatory for copyright
+            "determination_date",
+            "start_date",
+            "end_date",
+            "jurisdiction",  # mandatory for copyright and statute basis
+            "terms",
+            "citation",  # mandatory for statute basis
+            "note",
+            "grant_act",
+            "grant_restriction",
+            "grant_start_date",
+            "grant_end_date",
+            "grant_note",
+            "doc_id_type",
+            "doc_id_value",
+            "doc_id_role",
+        ]
+        all_columns = req_columns + optional_columns
+
+        for x in row:
+            while "" in row:
+                row.remove("")
+            if x[0] == " " or x[-1] == " ":
+                raise ValidationError(
+                    "Columns cannot have leading or trailing blanks. Invalid column: "
+                    + str(x)
+                )
+
+        if not (set(row).issubset(set(all_columns))):
+            raise ValidationError(
+                "Invalid column(s) found: "
+                + ",".join(list(set(row) - set(all_columns)))
+            )
+
+        if not (all(x in row for x in req_columns)):
+            raise ValidationError(
+                (
+                    "One of the required columns is missing: {}".format(
+                        ", ".join(req_columns)
+                    )
+                )
+            )
+        return True
+
+    @staticmethod
+    def _check_restriction(row, columns):
+        """If any grant fields exist, validate grant information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        grant_fields = [
+            "grant_act",
+            "grant_restriction",
+            "grant_start_date",
+            "grant_end_date",
+            "grant_note",
+        ]
+        if [g for g in grant_fields if row[columns.get(g)]]:
+            if not row[columns.get("grant_restriction")]:
+                raise ValidationError("No restriction specified.")
+            elif row[columns.get("grant_restriction")].lower() not in [
+                "disallow",
+                "conditional",
+                "allow",
+            ]:
+                raise ValidationError(
+                    "The value of element restriction must be: 'allow', 'disallow', or 'conditional'"
+                )
+        else:
+            return True
+
+    @staticmethod
+    def _check_basis(row, columns):
+        """Check that rights basis exists; return basis.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if row[columns.get("basis")]:
+            return row[columns.get("basis")]
+        else:
+            raise ValidationError("No basis specified.")
+
+    @staticmethod
+    def _check_copyright(row, columns):
+        """Validate copyright information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if not row[columns.get("status")]:
+            raise ValidationError("No copyright status specified for copyright basis.")
+        elif not row[columns.get("jurisdiction")]:
+            raise ValidationError("No jurisdiction specified for copyright basis.")
+        elif [f for f in ["terms", "citation"] if row[columns.get(f)]]:
+            raise ValidationError(
+                "Copyright row contains fields that cannot pertain to copyright basis."
+            )
+        else:
+            return True
+
+    @staticmethod
+    def _check_statute(row, columns):
+        """Validate statute information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        if not row[columns.get("citation")]:
+            raise ValidationError("No statute citation specified for statute basis.")
+        elif not row[columns.get("jurisdiction")]:
+            raise ValidationError("No jurisdiction specified for statute basis.")
+        elif [f for f in ["terms", "status"] if row[columns.get(f)]]:
+            raise ValidationError(
+                "Statute row contains fields that cannot pertain to statute basis."
+            )
+        else:
+            return True
+
+    @staticmethod
+    def _check_documentation(row, columns):
+        """If any documentation information exist, validate documentation information.
+
+        :param row: list: metadata fields
+        :param columns: dict: column names and indexes
+        """
+        documentation_fields = ["doc_id_type", "doc_id_value", "doc_id_role"]
+        if [d for d in documentation_fields if row[columns.get(d)]]:
+            if (
+                not row[columns.get("doc_id_type")]
+                and not row[columns.get("doc_id_value")]
+            ):
+                raise ValidationError(
+                    "Documentation identifier type and value are required."
+                )
+        else:
+            return True
+
+    def validate(self, string):
+        if PY2:
+            csvfile = BytesIO(string)
+        else:
+            csvfile = StringIO(string.decode("utf8"))
+        csvr = csv.reader(csvfile)
+        for i, row in enumerate(csvr):
+            if i == 0:
+                self._check_column_data(row)
+                columns = {k: v for v, k in enumerate(row)}
+            if i >= 1:
+                basis = self._check_basis(row, columns)
+                if basis.lower() in ["copyright", "statute"]:
+                    getattr(self, "_check_{}".format(basis.lower()))(row, columns)
+                self._check_documentation(row, columns)
+                self._check_restriction(row, columns)
+        try:
+            i
+        except NameError:
+            raise ValidationError("The document is empty.")
+        else:
+            if i < 1:
+                raise ValidationError("The document is incomplete.")
+        return True
+
+
+_VALIDATORS = {"avalon": AvalonValidator, "rights": RightsValidator}
 
 
 class ValidatorNotAvailableError(ValueError):

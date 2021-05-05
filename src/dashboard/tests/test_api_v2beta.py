@@ -123,6 +123,16 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
 ,,Beginning Responsibility: Lunchroom Manners,Coronet Films,,,,,,Coronet Films,,1959,"The rude, clumsy puppet Mr. Bungle shows kids how to behave in the school cafeteria - the assumption being that kids actually want to behave during lunch. This film has a cult following since it appeared on a Pee Wee Herman HBO special.",Social engineering,Puppet theater,Yes,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom 1,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom Again,local,This was batch ingested with skip transcoding and with structure
 """
 
+    VALID_RIGHTS_CSV = u"""file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+objects/45212966d0256a6ac70d81db_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
+objects/45212966d0256a6ac70d81db_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,allow,2014-01-01,open,,,,
+"""
+
+    INVALID_RIGHTS_CSV = u"""file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
+objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,,2014-01-01,open,,,,
+"""
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
@@ -168,4 +178,19 @@ Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Cont
         assert json.loads(resp.content.decode()) == {
             "valid": False,
             "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
+        }
+
+    def test_rights_pass(self):
+        resp = self._post("rights", self.VALID_RIGHTS_CSV)
+
+        assert json.loads(resp.content.decode()) == {"valid": True}
+        assert resp.status_code == 200
+
+    def test_rights_err(self):
+        resp = self._post("rights", self.INVALID_RIGHTS_CSV)
+
+        assert resp.status_code == 400
+        assert json.loads(resp.content.decode()) == {
+            "valid": False,
+            "reason": "No restriction specified.",
         }
