@@ -29,7 +29,6 @@ $(function()
 
           this.transfer = this.$('ul.nav > li > a[href="/transfer/"]').eq(0);
           this.sip = this.$('ul.nav > li > a[href="/ingest/"]').eq(0);
-          // this.dip = this.$('ul.nav > li').eq(4);
         },
 
       render: function()
@@ -75,8 +74,7 @@ $(function()
             success: function(response)
               {
                 this.update(this.transfer, response.transfer);
-                this.update(this.sip, response.sip);
-                this.update(this.dip, response.dip);
+                this.update(this.sip, response.sip + response.dip);
               },
             complete: function()
               {
