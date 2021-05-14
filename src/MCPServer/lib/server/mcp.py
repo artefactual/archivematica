@@ -39,7 +39,7 @@ from django.conf import settings
 
 from server import metrics, rpc_server, shared_dirs
 from server.jobs import Job, JobChain
-from server.packages import DIP, Transfer, SIP
+from server.packages import Package, DIP, Transfer, SIP
 from server.queues import PackageQueue
 from server.tasks import Task
 from server.watch_dirs import watch_directories
@@ -69,6 +69,7 @@ def watched_dir_handler(package_queue, path, watched_dir):
     else:
         raise ValueError("Unexpected unit type given for file {}".format(path))
 
+    package.mark_as_processing()
     job_chain = JobChain(package, watched_dir.chain, watched_dir.chain.workflow)
     package_queue.schedule_job(next(job_chain))
 
@@ -102,6 +103,7 @@ def main(shutdown_event=None):
 
     shared_dirs.create()
 
+    Package.cleanup_old_db_entries()
     Job.cleanup_old_db_entries()
     Task.cleanup_old_db_entries()
     logger.debug("Cleaned up old db entries.")

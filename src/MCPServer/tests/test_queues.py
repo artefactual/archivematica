@@ -270,12 +270,14 @@ def test_all_scheduled_decisions_are_processed(
     assert package_queue.dip_queue.qsize() == 0
 
 
+@pytest.mark.django_db(transaction=True)
 def test_all_scheduled_jobs_are_processed(
     package_queue_regular, dip_1, dip_2, workflow_link, mocker
 ):
     package_queue = package_queue_regular
 
     # Mark the link as terminal to ensure that new jobs are enqueued.
+    # It causes the queue manager to hit the database.
     workflow_link._src["end"] = True
 
     test_job1 = MockJob(mocker.Mock(), workflow_link, dip_1)

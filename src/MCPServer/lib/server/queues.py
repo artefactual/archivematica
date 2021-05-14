@@ -211,6 +211,9 @@ class PackageQueue(object):
             )
             return
 
+        # TODO: can we be more specific? E.g. failed or completed.
+        package.mark_as_done()
+
         self.deactivate_package(package)
         self.queue_next_job()
 
