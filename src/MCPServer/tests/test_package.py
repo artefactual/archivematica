@@ -9,6 +9,7 @@ import pytest
 from main import models
 
 from server.packages import (
+    Package,
     DIP,
     SIP,
     Transfer,
@@ -376,3 +377,42 @@ class TestMoveToInternalSharedDir:
 
         transfer.refresh_from_db()
         assert Path(transfer.currentlocation) == dest_path
+
+
+@pytest.mark.parametrize(
+    "package_class,model_class",
+    [
+        (
+            Transfer,
+            models.Transfer,
+        ),
+        (
+            SIP,
+            models.SIP,
+        ),
+        (
+            DIP,
+            models.SIP,
+        ),
+    ],
+)
+@pytest.mark.django_db(transaction=True)
+def test_package_statuses(tmp_path, package_class, model_class):
+    package_id = uuid.uuid4()
+    model_class.objects.create(pk=package_id)
+    package = package_class(str(tmp_path), package_id)
+
+    package.mark_as_done()
+
+    assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_DONE
+
+    package.mark_as_processing()
+
+    assert (
+        model_class.objects.get(pk=package_id).status
+        == models.PACKAGE_STATUS_PROCESSING
+    )
+
+    Package.cleanup_old_db_entries()
+
+    assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_FAILED

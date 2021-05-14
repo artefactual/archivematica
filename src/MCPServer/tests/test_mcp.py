@@ -98,6 +98,7 @@ def test_mcp_main(mocker, settings):
 
     mock_load_workflow = mocker.patch("server.mcp.load_workflow")
     mock_shared_dirs = mocker.patch("server.mcp.shared_dirs")
+    mock_package = mocker.patch("server.mcp.Package")
     mock_job = mocker.patch("server.mcp.Job")
     mock_task = mocker.patch("server.mcp.Task")
     mock_metrics = mocker.patch("server.mcp.metrics")
@@ -109,6 +110,7 @@ def test_mcp_main(mocker, settings):
 
     mock_load_workflow.assert_called_once()
     mock_shared_dirs.create.assert_called_once()
+    mock_package.cleanup_old_db_entries.assert_called_once()
     mock_job.cleanup_old_db_entries.assert_called_once()
     mock_task.cleanup_old_db_entries.assert_called_once()
     mock_metrics.start_prometheus_server.assert_called_once()

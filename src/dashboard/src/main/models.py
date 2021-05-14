@@ -410,6 +410,25 @@ class UnitHiddenManager(models.Manager):
             return False
 
 
+# Models SIP and Transfer define a status property describing processing status
+# with the following possible choices. It is possible that its value is left
+# in an inconsistent state when processing ends abruptly. MCPServer marks all
+# packages with unknown and processing status as failed at startup time in the
+# lack of a better recovery mechanism.
+PACKAGE_STATUS_UNKNOWN = 0
+PACKAGE_STATUS_PROCESSING = 1
+PACKAGE_STATUS_DONE = 2
+PACKAGE_STATUS_COMPLETED_SUCCESSFULLY = 3
+PACKAGE_STATUS_FAILED = 4
+PACKAGE_STATUS_CHOICES = (
+    (PACKAGE_STATUS_UNKNOWN, _("Unknown")),
+    (PACKAGE_STATUS_PROCESSING, _("Processing")),
+    (PACKAGE_STATUS_PROCESSING, _("Done")),
+    (PACKAGE_STATUS_COMPLETED_SUCCESSFULLY, _("Completed successfully")),
+    (PACKAGE_STATUS_FAILED, _("Failed")),
+)
+
+
 @python_2_unicode_compatible
 class SIP(models.Model):
     """ Information on SIP units. """
@@ -431,6 +450,13 @@ class SIP(models.Model):
     )
     identifiers = models.ManyToManyField("Identifier")
     diruuids = models.BooleanField(db_column="dirUUIDs", default=False)
+    status = models.PositiveSmallIntegerField(
+        db_column="status",
+        choices=PACKAGE_STATUS_CHOICES,
+        default=PACKAGE_STATUS_UNKNOWN,
+        blank=False,
+    )
+    completed_at = models.DateTimeField(null=True)
 
     objects = UnitHiddenManager()
 
@@ -494,6 +520,13 @@ class Transfer(models.Model):
         on_delete=models.CASCADE,
     )
     diruuids = models.BooleanField(db_column="dirUUIDs", default=False)
+    status = models.PositiveSmallIntegerField(
+        db_column="status",
+        choices=PACKAGE_STATUS_CHOICES,
+        default=PACKAGE_STATUS_UNKNOWN,
+        blank=False,
+    )
+    completed_at = models.DateTimeField(null=True)
 
     objects = UnitHiddenManager()
 
