@@ -115,7 +115,7 @@ class RPCServer(GearmanWorker):
         self.package_queue = package_queue
         self.executor = executor
         self._register_tasks()
-        client_id = b"{}_MCPServer".format(gethostname())
+        client_id = "{}_MCPServer".format(gethostname()).encode("utf-8")
         self.set_client_id(client_id)
 
     def after_poll(self, any_activity):
