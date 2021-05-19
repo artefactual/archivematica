@@ -401,13 +401,24 @@ class Derivation(models.Model):
         )
 
 
-class UnitHiddenManager(models.Manager):
+class PackageManager(models.Manager):
     def is_hidden(self, uuid):
         """ Return True if the unit (SIP, Transfer) with uuid is hidden. """
         try:
             return self.get_queryset().get(uuid=uuid).hidden
         except:
             return False
+
+    def done(self, completed_before=None, include_failed=True, include_unknown=False):
+        statuses = [PACKAGE_STATUS_DONE, PACKAGE_STATUS_COMPLETED_SUCCESSFULLY]
+        if include_failed:
+            statuses.append(PACKAGE_STATUS_FAILED)
+        if include_unknown:
+            statuses.append(PACKAGE_STATUS_UNKNOWN)
+        qs = self.get_queryset().filter(status__in=statuses)
+        if completed_before:
+            qs = qs.filter(completed_at__lt=completed_before)
+        return qs
 
 
 # Models SIP and Transfer define a status property describing processing status
@@ -423,7 +434,7 @@ PACKAGE_STATUS_FAILED = 4
 PACKAGE_STATUS_CHOICES = (
     (PACKAGE_STATUS_UNKNOWN, _("Unknown")),
     (PACKAGE_STATUS_PROCESSING, _("Processing")),
-    (PACKAGE_STATUS_PROCESSING, _("Done")),
+    (PACKAGE_STATUS_DONE, _("Done")),
     (PACKAGE_STATUS_COMPLETED_SUCCESSFULLY, _("Completed successfully")),
     (PACKAGE_STATUS_FAILED, _("Failed")),
 )
@@ -458,7 +469,7 @@ class SIP(models.Model):
     )
     completed_at = models.DateTimeField(null=True)
 
-    objects = UnitHiddenManager()
+    objects = PackageManager()
 
     class Meta:
         db_table = u"SIPs"
@@ -488,6 +499,13 @@ class SIP(models.Model):
             agent_lookups = agent_lookups | models.Q(id=unit_variable.variablevalue)
 
         return Agent.objects.filter(agent_lookups)
+
+    @property
+    def status_str(self):
+        try:
+            return PACKAGE_STATUS_CHOICES[self.status][1]
+        except (TypeError, IndexError):
+            return None
 
 
 class TransferManager(models.Manager):
@@ -528,7 +546,7 @@ class Transfer(models.Model):
     )
     completed_at = models.DateTimeField(null=True)
 
-    objects = UnitHiddenManager()
+    objects = PackageManager()
 
     class Meta:
         db_table = u"Transfers"
@@ -570,6 +588,13 @@ class Transfer(models.Model):
         else:
             result = unit_variable.variablevalue
         return result or "default"
+
+    @property
+    def status_str(self):
+        try:
+            return PACKAGE_STATUS_CHOICES[self.status][1]
+        except (TypeError, IndexError):
+            return None
 
 
 @python_2_unicode_compatible

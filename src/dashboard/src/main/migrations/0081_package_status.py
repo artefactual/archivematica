@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 choices=[
                     (0, "Unknown"),
                     (1, "Processing"),
-                    (1, "Done"),
+                    (2, "Done"),
                     (3, "Completed successfully"),
                     (4, "Failed"),
                 ],
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 choices=[
                     (0, "Unknown"),
                     (1, "Processing"),
-                    (1, "Done"),
+                    (2, "Done"),
                     (3, "Completed successfully"),
                     (4, "Failed"),
                 ],
