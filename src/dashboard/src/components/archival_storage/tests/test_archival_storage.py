@@ -228,6 +228,7 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
             "file_count": 2,
             "location": "/var/archivematica/AIPStore",
             "isPartOf": None,
+            "bytes": 200100,
             "size": "200.1\xa0KB",
             "type": "AIC",
         },
@@ -243,6 +244,7 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
             "file_count": 2,
             "location": "thé cloud",
             "isPartOf": None,
+            "bytes": 152100,
             "size": "152.1\xa0KB",
             "type": "AIP",
         },
@@ -276,9 +278,9 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
     csv_file = StringIO(streamed_content.decode("utf8"))
 
     assert csv_file.read() == (
-        '"Name","UUID","AICID","Count AIPs in AIC","Size","File count","Accession IDs","Created date (UTC)","Status","Type","Encrypted","Location"\n'
-        '"tz","a341dbc0-9715-4806-8477-fb407b105a5e","AIC#2040","2","200.1 KB","2","","2020-07-16 22:21:40+00:00","Stored","AIC","False","/var/archivematica/AIPStore"\n'
-        '"tz","22423d5c-f992-4979-9390-1cb61c87da14","","","152.1 KB","2","Àà; Éé; Îî; Ôô; Ùù","2020-07-16 22:23:20+00:00","Stored","AIP","True","thé cloud"\n'
+        '"Name","UUID","AICID","Count AIPs in AIC","Bytes","Size","File count","Accession IDs","Created date (UTC)","Status","Type","Encrypted","Location"\n'
+        '"tz","a341dbc0-9715-4806-8477-fb407b105a5e","AIC#2040","2","200100","200.1 KB","2","","2020-07-16 22:21:40+00:00","Stored","AIC","False","/var/archivematica/AIPStore"\n'
+        '"tz","22423d5c-f992-4979-9390-1cb61c87da14","","","152100","152.1 KB","2","Àà; Éé; Îî; Ôô; Ùù","2020-07-16 22:23:20+00:00","Stored","AIP","True","thé cloud"\n'
     )
 
 

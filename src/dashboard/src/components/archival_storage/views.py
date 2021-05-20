@@ -202,6 +202,7 @@ _ORDERED_DICT_ES_FIELDS = OrderedDict(
         (es.ES_FIELD_UUID, _("UUID")),
         (es.ES_FIELD_AICID, _("AICID")),
         (es.ES_FIELD_AICCOUNT, _("Count AIPs in AIC")),
+        ("bytes", _("Bytes")),
         (es.ES_FIELD_SIZE, _("Size")),
         (es.ES_FIELD_FILECOUNT, _("File count")),
         (es.ES_FIELD_ACCESSION_IDS, _("Accession IDs")),
@@ -414,6 +415,7 @@ def search_augment_aip_results(raw_results, counts):
         size = fields.get("size")
         if size is not None:
             bytecount = size * (1024 * 1024)
+            new_item["bytes"] = bytecount
             new_item["size"] = filesizeformat(bytecount)
 
         aic_id = fields.get("AICID")
