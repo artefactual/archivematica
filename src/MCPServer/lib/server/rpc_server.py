@@ -367,14 +367,16 @@ class RPCServer(GearmanWorker):
         jobs_awaiting_for_approval = self.package_queue.jobs_awaiting_decisions()
         objects = []
         for unit_id, timestamp in sipuuids_and_timestamps:
+            unit = model.objects.get(pk=unit_id)
+            if unit.hidden:
+                continue
             item = {
                 "id": unit_id,
                 "uuid": unit_id,
                 "timestamp": float(timestamp),
+                "active": unit.active,
                 "jobs": [],
             }
-            if model.objects.is_hidden(unit_id):
-                continue
             jobs = Job.objects.filter(sipuuid=unit_id).order_by("-createdtime")
             if jobs:
                 item["directory"] = jobs[0].get_directory_name()

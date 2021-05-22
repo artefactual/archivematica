@@ -402,13 +402,6 @@ class Derivation(models.Model):
 
 
 class PackageManager(models.Manager):
-    def is_hidden(self, uuid):
-        """ Return True if the unit (SIP, Transfer) with uuid is hidden. """
-        try:
-            return self.get_queryset().get(uuid=uuid).hidden
-        except:
-            return False
-
     def done(self, completed_before=None, include_failed=True, include_unknown=False):
         statuses = [PACKAGE_STATUS_DONE, PACKAGE_STATUS_COMPLETED_SUCCESSFULLY]
         if include_failed:
@@ -507,13 +500,9 @@ class SIP(models.Model):
         except (TypeError, IndexError):
             return None
 
-
-class TransferManager(models.Manager):
-    def is_hidden(self, uuid):
-        try:
-            return Transfer.objects.get(uuid__exact=uuid).hidden is True
-        except:
-            return False
+    @property
+    def active(self):
+        return self.status == PACKAGE_STATUS_PROCESSING
 
 
 class Transfer(models.Model):
@@ -595,6 +584,10 @@ class Transfer(models.Model):
             return PACKAGE_STATUS_CHOICES[self.status][1]
         except (TypeError, IndexError):
             return None
+
+    @property
+    def active(self):
+        return self.status == PACKAGE_STATUS_PROCESSING
 
 
 @python_2_unicode_compatible

@@ -66,6 +66,13 @@ $(function()
           event.preventDefault();
           event.stopPropagation();
 
+          if (this.model.attributes.active)
+          {
+            window.alert(gettext('It is not possible to remove active SIPs.'));
+
+            return;
+          }
+
           $(this.el).addClass('sip-removing');
 
           var self = this;

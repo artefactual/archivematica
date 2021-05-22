@@ -75,6 +75,12 @@ def microservices(request, unit_type, unit_uuid):
     )
 
 
+UNIT_MODELS = {
+    "transfer": models.Transfer,
+    "ingest": models.SIP,
+}
+
+
 def mark_hidden(request, unit_type, unit_uuid):
     """
     Marks the unit as hidden to delete it.
@@ -86,22 +92,25 @@ def mark_hidden(request, unit_type, unit_uuid):
     """
     if request.method not in ("DELETE",):
         return django.http.HttpResponseNotAllowed(["DELETE"])
-
     try:
-        if unit_type == "transfer":
-            unit_model = models.Transfer
-        elif unit_type == "ingest":
-            unit_model = models.SIP
-        unit = unit_model.objects.get(uuid=unit_uuid)
-        unit.hidden = True
-        unit.save()
-        response = {"removed": True}
-        return helpers.json_response(response)
+        unit_model = UNIT_MODELS.get(unit_type)
+    except AttributeError:
+        return django.http.HttpResponseBadRequest("Unknown unit_type")
+    try:
+        count = (
+            unit_model.objects.done()
+            .filter(pk=unit_uuid, hidden=False)
+            .update(hidden=True)
+        )
+        if not count:
+            return django.http.JsonResponse({"removed": False}, status=409)
     except Exception:
-        LOGGER.debug(
+        LOGGER.error(
             "Error setting %s %s to hidden", unit_type, unit_uuid, exc_info=True
         )
-        raise django.http.Http404
+        return django.http.JsonResponse({"removed": False}, status=500)
+
+    return helpers.json_response({"removed": True})
 
 
 def mark_completed_hidden(request, unit_type):
@@ -117,17 +126,17 @@ def mark_completed_hidden(request, unit_type):
     if request.method not in ("DELETE",):
         return django.http.HttpResponseNotAllowed(["DELETE"])
     try:
+        unit_model = UNIT_MODELS.get(unit_type)
+    except AttributeError:
+        return django.http.HttpResponseBadRequest("Unknown unit_type")
+    try:
         completed = helpers.completed_units_efficient(unit_type=unit_type)
         if completed:
-            if unit_type == "transfer":
-                unit_model = models.Transfer
-            elif unit_type == "ingest":
-                unit_model = models.SIP
             unit_model.objects.filter(uuid__in=completed).update(hidden=True)
         response = {"removed": completed}
         return helpers.json_response(response)
     except Exception:
-        LOGGER.debug(
+        LOGGER.error(
             "Error setting completed %s units to hidden", unit_type, exc_info=True
         )
-        raise django.http.Http404
+        return django.http.JsonResponse({"removed": False}, status=500)
