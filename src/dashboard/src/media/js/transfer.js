@@ -66,6 +66,13 @@ $(function()
           event.preventDefault();
           event.stopPropagation();
 
+          if (this.model.attributes.active)
+          {
+            window.alert(gettext('It is not possible to remove active transfers.'));
+
+            return;
+          }
+
           $(this.el).addClass('sip-removing');
 
           var self = this;
