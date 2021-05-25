@@ -51,7 +51,7 @@ class Command(DashboardCommand):
         parser.add_argument(
             "--purge-unknown",
             action="store_true",
-            help=("Purge packages in unknown state.",),
+            help="Purge packages in unknown state.",
         )
         parser.add_argument(
             "--keep-failed",
