@@ -118,7 +118,7 @@ def addAccessionEvent(fileUUID, transferUUID, date):
     if transfer.accessionid:
         eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(
             transfer.accessionid
-        )
+        ).decode("utf-8")
         insertIntoEvents(
             fileUUID=fileUUID,
             eventType="registration",
