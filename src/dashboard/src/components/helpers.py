@@ -312,7 +312,7 @@ def _prepare_stream_response(
 ):
     """Prepare the streaming response to return to the caller.
 
-    It iterates over the response data (payload) to avoid reading the conten at
+    It iterates over the response data (payload) to avoid reading the content at
     once into memory.
 
     :param payload: The response object (requests.Response).
