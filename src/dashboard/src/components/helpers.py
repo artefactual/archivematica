@@ -310,10 +310,21 @@ def processing_config_path():
 def _prepare_stream_response(
     payload, content_type, content_disposition, preview_file=False
 ):
-    """Prepare the streaming response to return to the caller."""
+    """Prepare the streaming response to return to the caller.
+
+    It iterates over the response data (payload) to avoid reading the content at
+    once into memory.
+
+    :param payload: The response object (requests.Response).
+    :param content_type: Content-Type header value.
+    :param content_disposition: Content-Disposition header value.
+    :param preview_file: Display contents inside the web page.
+    :return: The response object (requests.Response) sent to the browser.
+    """
     if preview_file:
         content_disposition = "inline"
-    response = StreamingHttpResponse(payload)
+    chunk_size = 1024 * 1024
+    response = StreamingHttpResponse(payload.iter_content(chunk_size=chunk_size))
     response["Content-Type"] = content_type
     response["Content-Disposition"] = content_disposition
     return response
