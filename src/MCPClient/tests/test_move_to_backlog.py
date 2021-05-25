@@ -1,5 +1,3 @@
-import os
-import sys
 import uuid
 
 from main.models import Agent, File, Transfer, User
@@ -8,9 +6,6 @@ from lxml import etree
 import metsrw
 import pytest
 
-
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import move_to_backlog
 

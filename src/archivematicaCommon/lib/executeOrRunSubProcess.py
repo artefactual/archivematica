@@ -88,7 +88,7 @@ def launchSubProcess(
             my_env["LANGUAGE"] = my_env["LANG"]
         my_env.update(env_updates)
 
-        if isinstance(stdIn, six.string_types):
+        if isinstance(stdIn, six.string_types) or isinstance(stdIn, bytes):
             stdin_pipe = subprocess.PIPE
             stdin_string = stdIn
         elif isinstance(stdIn, file_types):
@@ -105,7 +105,7 @@ def launchSubProcess(
                 stdin=stdin_pipe,
                 env=my_env,
             )
-            stdOut, stdError = p.communicate(input=stdin_string)
+            stdOut, stdError = p.communicate(input=six.ensure_binary(stdin_string))
         else:
             # Ignore the stdout of the subprocess, capturing only stderr
             with open(os.devnull, "w") as devnull:
@@ -116,7 +116,7 @@ def launchSubProcess(
                     stdout=devnull,
                     stderr=subprocess.PIPE,
                 )
-                __, stdError = p.communicate(input=stdin_string)
+                __, stdError = p.communicate(input=six.ensure_binary(stdin_string))
         retcode = p.returncode
         # If we are not capturing output and the subprocess has succeeded, set
         # its stderr to the empty string.
@@ -124,8 +124,8 @@ def launchSubProcess(
             stdError = ""
         # append the output to stderror and stdout
         if printing:
-            print(stdOut)
-            print(stdError, file=sys.stderr)
+            print(six.ensure_text(stdOut))
+            print(six.ensure_text(stdError), file=sys.stderr)
     except OSError as ose:
         print("Execution failed:", ose, file=sys.stderr)
         return -1, "Config Error!", ose.__str__()
@@ -143,7 +143,7 @@ def createAndRunScript(
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
-    os.write(FILE, text)
+    os.write(FILE, text.encode("utf8"))
     os.close(FILE)
     cmd = [scriptPath]
     cmd.extend(arguments)

@@ -6,15 +6,11 @@
 from __future__ import print_function
 from collections import namedtuple
 import os
-import sys
 
 import pytest
 
 import metsrw
 from job import Job
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import convert_dataverse_structure
 

@@ -2,14 +2,9 @@
 
 from __future__ import print_function
 
-import os
 import subprocess
-import sys
 
 import pytest
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import archivematica_clamscan
 

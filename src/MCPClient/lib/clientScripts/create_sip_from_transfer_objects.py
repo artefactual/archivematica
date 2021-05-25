@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -35,7 +35,6 @@ from main.models import File, Directory, SIP, Transfer, UnitVariable, Agent
 
 # archivematicaCommon
 import archivematicaFunctions
-import databaseFunctions
 
 
 def call(jobs):
@@ -148,12 +147,11 @@ def call(jobs):
                 # objects/ directory. For each subdirectory, confirm it's in the SIP
                 # objects/ directory, and update the current location and owning SIP.
                 for dir_mdl in dir_mdls:
-                    currentPath = databaseFunctions.deUnicode(dir_mdl.currentlocation)
-                    currentSIPDirPath = currentPath.replace(
+                    currentSIPDirPath = dir_mdl.currentlocation.replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isdir(currentSIPDirPath):
-                        dir_mdl.currentlocation = currentPath.replace(
+                        dir_mdl.currentlocation = dir_mdl.currentlocation.replace(
                             "%transferDirectory%", "%SIPDirectory%"
                         )
                         dir_mdl.sip = sip
@@ -172,12 +170,11 @@ def call(jobs):
                     removedtime__isnull=True,
                 )
                 for f in files:
-                    currentPath = databaseFunctions.deUnicode(f.currentlocation)
-                    currentSIPFilePath = currentPath.replace(
+                    currentSIPFilePath = f.currentlocation.replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isfile(currentSIPFilePath):
-                        f.currentlocation = currentPath.replace(
+                        f.currentlocation = f.currentlocation.replace(
                             "%transferDirectory%", "%SIPDirectory%"
                         )
                         f.sip = sip

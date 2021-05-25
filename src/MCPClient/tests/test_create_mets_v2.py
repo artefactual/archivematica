@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os
-import sys
 import uuid
 
 from lxml import etree
@@ -19,8 +17,6 @@ from main.models import (
 )
 from namespaces import NSMAP
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 from create_mets_v2 import main, createDMDIDsFromCSVMetadata
 
 

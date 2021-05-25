@@ -1,16 +1,11 @@
 """Tests for the archivematica_clamscan.py client script."""
 
 from __future__ import absolute_import
-import os
-import sys
 
 from collections import OrderedDict, namedtuple
 
 import pytest
 from . import test_antivirus_clamdscan
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import archivematica_clamscan
 

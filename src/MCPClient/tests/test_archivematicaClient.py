@@ -38,7 +38,7 @@ def test_handle_batch_task_replaces_non_ascii_arguments(mocker):
     _parse_command_line = mocker.patch("archivematicaClient._parse_command_line")
 
     # Mock the two parameters sent to handle_batch_task
-    gearman_job_mock = mocker.Mock()
+    gearman_job_mock = mocker.Mock(task="task name")
     supported_modules_mock = mocker.Mock(**{"get.side_effect": "some_module_name"})
     handle_batch_task(gearman_job_mock, supported_modules_mock)
 

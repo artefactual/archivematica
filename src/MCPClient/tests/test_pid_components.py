@@ -10,7 +10,6 @@ also limited unit testing in create_mets_v2 (AIP METS generation).
 from __future__ import unicode_literals
 from itertools import chain
 import os
-import sys
 
 from job import Job
 from main.models import Directory, File, SIP, DashboardSetting, Transfer
@@ -23,10 +22,6 @@ from six.moves import zip
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
-sys.path.append(
-    os.path.abspath(os.path.join(THIS_DIR, "../../archivematicaCommon/lib"))
-)
 
 vcr_cassettes = vcr.VCR(
     cassette_library_dir=os.path.join(THIS_DIR, "fixtures", "vcr_cassettes"),

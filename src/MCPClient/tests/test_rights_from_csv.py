@@ -2,12 +2,10 @@
 from __future__ import print_function
 
 import os
-import sys
 
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from main import models
 

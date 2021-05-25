@@ -3,7 +3,6 @@ from __future__ import print_function, unicode_literals
 
 import os
 import shutil
-import sys
 import uuid
 
 import pytest
@@ -18,7 +17,6 @@ from . import TempDirMixin
 from six.moves import range
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import change_names
 import change_object_names

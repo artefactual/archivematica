@@ -230,12 +230,12 @@ test-mcp-server: start-mysql  ## Run MCPServer tests.
 test-mcp-server-py36: start-mysql  ## Run MCPServer tests in Python 3.6.
 	$(call run_toxenvs,py36-mcpserver)
 
-__TOXENVS_MCPCLIENT = py27-mcpclient mcpclient-ensure-no-mutable-globals
+__TOXENVS_MCPCLIENT = py27-mcpclient py27-mcpclient-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
 test-mcp-client-py36: start-mysql  ## Run MCPClient tests in Python 3.6.
-	$(call run_toxenvs,py36-mcpclient)
+	$(call run_toxenvs,py36-mcpclient py36-mcpclient-ensure-no-mutable-globals)
 
 __TOXENVS_DASHBOARD = py27-dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
@@ -261,11 +261,16 @@ test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 test-archivematica-common-py36: start-mysql  ## Run Archivematica Common tests in Python 3.6.
 	$(call run_toxenvs,py36-archivematica-common)
 
-__TOXENVS_CHECKFORMIGRATIONS = checkformigrations-dashboard checkformigrations-storage-service
+__TOXENVS_CHECKFORMIGRATIONS = py27-checkformigrations-dashboard checkformigrations-storage-service
 test-checkformigrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_db,DASHBOARDTEST)
 	$(call create_db,SSTEST)
 	$(call run_toxenvs,$(__TOXENVS_CHECKFORMIGRATIONS))
+
+test-checkformigrations-py36: start-mysql  ## Check there are no pending migrations in Python 3.6.
+	$(call create_db,DASHBOARDTEST)
+	$(call create_db,SSTEST)
+	$(call run_toxenvs,py36-checkformigrations-dashboard)
 
 __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.

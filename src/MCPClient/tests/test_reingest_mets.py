@@ -2,7 +2,6 @@
 from lxml import etree
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 
@@ -25,7 +24,6 @@ except ImportError:
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 import archivematicaCreateMETSReingest
 
 REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)

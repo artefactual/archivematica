@@ -97,7 +97,7 @@ class TestViews(TestCase):
         self.assertEqual(FPCommand.active.filter(uuid=fpcommand_id).exists(), False)
 
     def test_fpcommand_revisions(self):
-        fpcommand_id = "11036e14-78d9-4449-8360-e2da394279ad"
+        fpcommand_id = "4cac3267-453e-4456-9306-6d098dacb70d"
         url = reverse("fpr:revision_list", args=["fpcommand", fpcommand_id])
         fpcommand = FPCommand.active.get(uuid=fpcommand_id)
 

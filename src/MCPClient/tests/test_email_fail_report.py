@@ -2,16 +2,11 @@
 
 from __future__ import print_function
 
-import os
 from smtplib import SMTPException
-import sys
 
 from django.core import mail
 import pytest
 import six
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import email_fail_report
 

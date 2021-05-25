@@ -10,6 +10,7 @@ import requests
 from requests.auth import AuthBase
 from six.moves import map
 import six.moves.urllib as urllib
+import six
 
 # archivematicaCommon
 import archivematicaFunctions as am
@@ -305,10 +306,10 @@ def copy_files(source_location, destination_location, files):
     # string.
     for file_ in move_files["files"]:
         try:
-            file_["source"] = file_["source"].decode("utf8")
+            file_["source"] = six.ensure_str(file_["source"])
         except UnicodeDecodeError:
             try:
-                file_["source"] = file_["source"].decode("latin-1")
+                file_["source"] = six.ensure_str(file_["source"], encoding="latin-1")
             except UnicodeError:
                 pass
 

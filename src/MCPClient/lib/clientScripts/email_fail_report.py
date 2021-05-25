@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -185,7 +185,7 @@ def get_content_for(unit_type, unit_name, unit_uuid, html=True):
     else:
         root.append(t2)
 
-    return etree.tostring(root, pretty_print=True)
+    return etree.tostring(root, pretty_print=True, encoding="unicode")
 
 
 def store_report(content, unit_type, unit_name, unit_uuid):

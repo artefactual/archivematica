@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """
 Archivematica Client (Gearman Worker)
@@ -107,7 +107,8 @@ def get_supported_modules(file_):
 
 @auto_close_db
 def handle_batch_task(gearman_job, supported_modules):
-    module_name = supported_modules.get(gearman_job.task)
+    task_name = six.ensure_str(gearman_job.task)
+    module_name = supported_modules.get(task_name)
     gearman_data = six.moves.cPickle.loads(gearman_job.data)
 
     utc_date = getUTCDate()
@@ -128,7 +129,7 @@ def handle_batch_task(gearman_job, supported_modules):
             arguments = arguments.replace(var, unicodeToStr(val))
 
         job = Job(
-            gearman_job.task,
+            task_name,
             task_data["uuid"],
             _parse_command_line(arguments),
             caller_wants_output=task_data["wants_output"],
@@ -203,11 +204,10 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """Execute the command encoded in ``gearman_job`` and return its exit code,
     standard output and standard error as a pickled dict.
     """
-    logger.info("\n\n*** RUNNING TASK: %s", gearman_job.task)
+    task_name = six.ensure_str(gearman_job.task)
+    logger.info("\n\n*** RUNNING TASK: %s", task_name)
 
-    with metrics.task_execution_time_histogram.labels(
-        script_name=gearman_job.task
-    ).time():
+    with metrics.task_execution_time_histogram.labels(script_name=task_name).time():
         try:
             jobs = handle_batch_task(gearman_job, supported_modules)
             results = {}
@@ -248,9 +248,9 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                             results[job.UUID]["stderror"] = job.get_stderr()
 
                         if exit_code == 0:
-                            metrics.job_completed(gearman_job.task)
+                            metrics.job_completed(task_name)
                         else:
-                            metrics.job_failed(gearman_job.task)
+                            metrics.job_failed(task_name)
 
             retryOnFailure("Write task results", write_task_results_callback)
 
@@ -258,12 +258,14 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
         except SystemExit:
             logger.error(
                 "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
-                gearman_job.task,
+                task_name,
             )
             return fail_all_tasks(gearman_job, "Module attempted exit")
         except Exception as e:
             logger.exception(
-                "Exception while processing task %s: %s", gearman_job.task, e
+                "Exception while processing task %s: %s",
+                task_name,
+                e,
             )
             return fail_all_tasks(gearman_job, e)
 
@@ -276,7 +278,7 @@ def start_gearman_worker(supported_modules):
     task_handler = partial(execute_command, supported_modules)
     for client_script in supported_modules:
         logger.info("Registering: %s", client_script)
-        gm_worker.register_task(client_script, task_handler)
+        gm_worker.register_task(six.ensure_binary(client_script), task_handler)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2

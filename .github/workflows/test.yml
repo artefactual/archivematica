@@ -46,6 +46,9 @@ jobs:
           - rule: checkformigrations
             coverage: false
             python_version: py27
+          - rule: checkformigrations-py36
+            coverage: false
+            python_version: py36
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"

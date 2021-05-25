@@ -1,4 +1,5 @@
 ARG TARGET=archivematica-mcp-server
+ARG PYTHON_VERSION=python3
 
 FROM ubuntu:18.04 AS base
 
@@ -36,16 +37,15 @@ RUN set -ex \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		build-essential python-dev python3-dev libyaml-dev clamav \
+		build-essential libyaml-dev clamav \
 	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
 RUN freshclam --quiet
 
-# Install pip, Node.js and Yarn
+# Install Node.js and Yarn
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py | python \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
 	&& apt-get install -y --no-install-recommends \
@@ -60,6 +60,19 @@ RUN set -ex \
 	&& mkdir -p /var/archivematica/sharedDirectory \
 	&& chown -R archivematica:archivematica /var/archivematica
 
+# -----------------------------------------------------------------------------
+
+FROM base AS python2
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		python-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN set -ex \
+	&& curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2.7
+
 COPY requirements-dev.txt /src/requirements-dev.txt
 RUN pip2 install -r /src/requirements-dev.txt
 
@@ -70,14 +83,23 @@ COPY . /src
 FROM base AS python3
 
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.6
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		python3-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN set -ex \
+	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.6 \
+	&& update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 COPY requirements-dev-py3.txt /src/requirements-dev-py3.txt
 RUN pip3 install -r /src/requirements-dev-py3.txt
 
+COPY . /src
+
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-mcp-client
+FROM ${PYTHON_VERSION} AS archivematica-mcp-client
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
@@ -87,7 +109,7 @@ COPY src/archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematic
 USER archivematica
 
 ENV DJANGO_SETTINGS_MODULE settings.common
-ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
+ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/MCPClient/lib/clientScripts:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
 ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES /src/src/MCPClient/lib/archivematicaClientModules
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY /src/src/MCPClient/lib/assets/
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/src/MCPClient/lib/clientScripts/
@@ -96,7 +118,7 @@ ENTRYPOINT ["/src/src/MCPClient/lib/archivematicaClient.py"]
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-mcp-server
+FROM ${PYTHON_VERSION} AS archivematica-mcp-server
 
 USER archivematica
 
@@ -107,7 +129,7 @@ ENTRYPOINT ["/src/src/MCPServer/lib/archivematicaMCP.py"]
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-dashboard
+FROM ${PYTHON_VERSION} AS archivematica-dashboard
 
 RUN set -ex \
 	&& internalDirs=' \
@@ -174,6 +196,24 @@ ENTRYPOINT ["yarn", "run", "test-single-run"]
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-tests
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		python-dev python3-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN set -ex \
+	&& curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2.7 \
+	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.6
+
+COPY requirements-dev.txt /src/requirements-dev.txt
+RUN pip2 install -r /src/requirements-dev.txt
+
+COPY requirements-dev-py3.txt /src/requirements-dev-py3.txt
+RUN pip3 install -r /src/requirements-dev-py3.txt
+
+COPY . /src
 
 # -----------------------------------------------------------------------------
 

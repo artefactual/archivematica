@@ -13,7 +13,8 @@ from uuid import UUID, uuid4
 
 import scandir
 from django.conf import settings
-from django.utils import six, timezone
+from django.utils import timezone
+import six
 
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
@@ -237,7 +238,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
         # below. This allows transfers to be started on UTF-8-encoded directory
         # names.
         source = path.replace(
-            files[location]["location"]["path"].encode("utf8"), "", 1
+            six.ensure_str(files[location]["location"]["path"]), "", 1
         ).lstrip("/")
         # Use the last segment of the path for the destination - basename for a
         # file, or the last folder if not. Keep the trailing / for folders.
@@ -247,7 +248,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
             else os.path.basename(source)
         )
         destination = os.path.join(
-            processing_location["path"].encode("utf8"),
+            six.ensure_str(processing_location["path"]),
             relative_destination,
             last_segment,
         ).replace("%sharedPath%", "")
