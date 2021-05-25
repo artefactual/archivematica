@@ -5,7 +5,6 @@ import csv
 import os
 import random
 import shutil
-import sys
 import tempfile
 import unittest
 
@@ -17,10 +16,6 @@ from six.moves import range
 import six
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
-sys.path.append(
-    os.path.abspath(os.path.join(THIS_DIR, "../../archivematicaCommon/lib"))
-)
 
 from job import Job
 import create_mets_v2

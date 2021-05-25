@@ -1,9 +1,6 @@
 import json
 import os
-import sys
 
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 from job import Job
 import json_metadata_to_csv
 

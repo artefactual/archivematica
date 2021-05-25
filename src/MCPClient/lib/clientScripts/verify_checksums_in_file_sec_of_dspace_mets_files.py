@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -25,6 +25,7 @@ import hashlib
 import os
 import sys
 import lxml.etree as etree
+import six
 
 from archivematicaFunctions import get_file_checksum
 
@@ -46,7 +47,11 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory=
 
         fileFullPath = os.path.join(relativeDirectory, fileLocation)
 
-        if checksumType and checksumType in hashlib.algorithms:
+        if six.PY2:
+            algorithms = hashlib.algorithms
+        else:
+            algorithms = hashlib.algorithms_available
+        if checksumType and checksumType in algorithms:
             checksum2 = get_file_checksum(fileFullPath, checksumType)
             # eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
         else:

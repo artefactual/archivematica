@@ -26,17 +26,12 @@ debugging their preservation workflow.
 """
 
 from __future__ import unicode_literals
-import os
 import subprocess
-import sys
 from uuid import UUID
 
 import pytest
 
 from main.models import Transfer, File, Event, User
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from job import Job
 from verify_checksum import (

@@ -1,12 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import os
-import sys
 import vcr
 
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 import dip_generation_helper
 
 from main.models import ArchivesSpaceDIPObjectResourcePairing

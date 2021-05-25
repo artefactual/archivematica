@@ -12,7 +12,6 @@ from main.models import File
 from main.models import Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 import load_premis_events_from_xml
 
 

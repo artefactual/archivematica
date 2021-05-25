@@ -1,13 +1,11 @@
 # -*- coding: utf8
 import os
 import shutil
-import sys
 import tempfile
 
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from main import models
 

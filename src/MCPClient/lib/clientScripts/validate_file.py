@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Runs zero or more FPR validation commands against the provided file and
 returns an exit code. May also print to stdout, generate an Event model in the
 db, and/or write command-specific stdout to disk.
@@ -144,8 +144,10 @@ class Validator(object):
         if exitstatus != 0:
             self.job.print_error(
                 "Command {description} failed with exit status {status};"
-                " stderr:".format(
-                    description=rule.command.description, status=exitstatus
+                " stderr: {stderr}".format(
+                    description=rule.command.description,
+                    status=exitstatus,
+                    stderr=stderr,
                 )
             )
             return "failed"

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import os
-import sys
 import uuid
 
 import pytest
@@ -24,8 +23,6 @@ from main.models import (
 )
 from version import get_preservation_system_identifier
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 from create_transfer_mets import write_mets
 
 

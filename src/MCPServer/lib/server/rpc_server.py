@@ -19,12 +19,12 @@ import time
 
 from django.conf import settings as django_settings
 from django.db import connection
-from django.utils import six
 from django.utils.six.moves import configparser
 from gearman import GearmanWorker
 import gearman
 from lxml import etree
 from six.moves import cPickle
+import six
 
 from archivematicaFunctions import strToUnicode
 from main.models import Job, SIP, Transfer
@@ -128,7 +128,7 @@ class RPCServer(GearmanWorker):
     def _register_tasks(self):
         for ability, handler in self._handlers():
             logger.debug("Registering ability %s", ability)
-            self.register_task(ability, handler)
+            self.register_task(six.ensure_binary(ability), handler)
 
     def _handlers(self):
         members = inspect.getmembers(self, predicate=inspect.ismethod)

@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     if: github.event.label.name == 'AMAUAT'
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
+    name: "Test ${{ matrix.tag }} ${{ matrix.python_version }} on ${{ matrix.browser }}"
     runs-on: "ubuntu-18.04"
     strategy:
       matrix:
@@ -24,6 +24,9 @@ jobs:
         browser:
           - "Firefox"
           - "Chrome"
+        python_version:
+          - "python2"
+          - "python3"
         exclude:
           - tag: "black-box"
             browser: Firefox
@@ -46,11 +49,14 @@ jobs:
       - name: "Build images"
         run: |
           make -C hack/ build
+        env:
+          PYTHON_VERSION: ${{ matrix.python_version }}
       - name: "Start services"
         run: |
           docker-compose up -d
         env:
           cluster.routing.allocation.disk.threshold_enabled: false
+          PYTHON_VERSION: ${{ matrix.python_version }}
         working-directory: ./hack
       - name: "Bootstrap services"
         run: |

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """Ensure there are no mutable globals in the client scripts
 
@@ -24,6 +24,7 @@ import types
 
 import django
 import prometheus_client
+import six
 
 from archivematicaClient import get_supported_modules
 
@@ -35,8 +36,13 @@ from archivematicaClient import get_supported_modules
 GOOD_GLOBAL_TYPES = (
     types.ModuleType,
     types.FunctionType,
-    types.TypeType,
-    types.ClassType,
+)
+if six.PY2:
+    GOOD_GLOBAL_TYPES += (
+        types.TypeType,
+        types.ClassType,
+    )
+GOOD_GLOBAL_TYPES += (
     django.db.models.base.ModelBase,
     logging.Logger,
     int,
@@ -113,7 +119,7 @@ def analyze_module(module_name):
         val = getattr(module, attr)
         if attr.startswith("__"):
             continue
-        if isinstance(val, (types.TypeType, types.ClassType)):
+        if six.PY2 and isinstance(val, (types.TypeType, types.ClassType)):
             for class_attr in dir(val):
                 global2modules_funcs_2 = collect_globals(
                     "{}.{}".format(attr, class_attr),

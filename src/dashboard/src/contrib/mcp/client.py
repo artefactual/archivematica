@@ -113,7 +113,7 @@ class MCPClient(object):
             data["user_id"] = self.user.id
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
-            ability,
+            six.ensure_binary(ability),
             six.moves.cPickle.dumps(data, protocol=0),
             background=False,
             wait_until_complete=True,
@@ -159,7 +159,7 @@ class MCPClient(object):
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job(
-            b"getJobsAwaitingApproval", "".encode("utf8")
+            b"getJobsAwaitingApproval", six.moves.cPickle.dumps({}, protocol=0)
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
             return six.moves.cPickle.loads(completed_job_request.result)

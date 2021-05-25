@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # Collects characterization commands for the provided file, then either
 # a) Inserts the tool's XML output into the database, or
@@ -97,7 +97,7 @@ def main(job, file_path, file_uuid, sip_uuid):
             and rule.command.output_format.pronom_id == "fmt/101"
         ):
             try:
-                etree.fromstring(stdout)
+                etree.fromstring(stdout.encode("utf8"))
                 insertIntoFPCommandOutput(file_uuid, stdout, rule.uuid)
                 job.write_output(
                     'Saved XML output for command "{}" ({})'.format(

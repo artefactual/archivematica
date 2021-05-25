@@ -9,6 +9,7 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-tests"
+        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     volumes:
       - "../:/src"
     links:

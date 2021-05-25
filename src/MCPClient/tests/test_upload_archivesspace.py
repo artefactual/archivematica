@@ -1,13 +1,8 @@
 """Tests for the upload_archivesspace.py client script."""
 
-import os
-import sys
 import uuid
 
 import pytest
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 import upload_archivesspace
 

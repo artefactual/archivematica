@@ -1,12 +1,6 @@
-import os
-import sys
-
 from py.error import EEXIST
 import pytest
 from six.moves import range
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(THIS_DIR, "../lib/clientScripts")))
 
 from assign_file_uuids import find_mets_file
 

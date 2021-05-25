@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -181,7 +181,7 @@ class ClamdScanner(ScannerBase):
 
     def pass_by_stream(self, path):
         logger.info("File contents being streamed to Clamdscan.")
-        return self.client.instream(open(path))
+        return self.client.instream(open(path, "rb"))
 
 
 class ClamScanner(ScannerBase):
