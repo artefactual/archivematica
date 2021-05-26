@@ -187,6 +187,9 @@ services:
   archivematica-storage-service:
     build:
       context: "submodules/archivematica-storage-service"
+      args:
+        TARGET: "archivematica-storage-service"
+        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"
