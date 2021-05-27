@@ -38,7 +38,7 @@
       "state": "latest"
     },
     {
-      "name": "python-dev",
+      "name": "python3.6-dev",
       "state": "latest"
     },
     {

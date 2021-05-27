@@ -43,7 +43,7 @@
       "state": "latest"
     },
     {
-      "name": "python-devel",
+      "name": "python3-devel",
       "state": "latest"
     },
     {
