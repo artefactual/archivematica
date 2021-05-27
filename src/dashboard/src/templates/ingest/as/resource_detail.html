@@ -25,9 +25,9 @@
   </h1>
 
   {% if reset_url %}
-    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">{% trans "Restart matching" %}</a>
+    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">{% trans "Restart matching" %}</a></div>
   {% else %}
-    <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a>
+    <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a></div>
   {% endif %}
   <a class='btn btn-default' href="{% url 'ingest:ingest_upload_as_match_dip_objects_to_resource_levels' uuid resource_id %}">{% trans "Assign DIP objects to this resource" %}</a>
   <a class="btn btn-default" href="{% url 'ingest:ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>

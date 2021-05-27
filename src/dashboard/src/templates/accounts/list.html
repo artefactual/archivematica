@@ -41,6 +41,7 @@
                 <a class="btn btn-default edit btn-sm" href="{% url 'accounts:edit' item.id %}">{% trans "Edit" %}</a>
                 <a class="btn btn-danger btn-sm" href="{% url 'accounts:delete' item.id %}">{% trans "Delete" %}</a>
               {% endif %}
+            </td>
           </tr>
 
         {% endfor %}
@@ -55,6 +56,6 @@
 
   </div>
 
-</td>
+</div>
 
 {% endblock %}

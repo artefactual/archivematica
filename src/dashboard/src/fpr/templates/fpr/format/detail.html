@@ -71,8 +71,9 @@
               <a href="{% url 'fpr:formatversion_detail' format.slug version.slug %}">{% trans "View" %}</a>
               {% if request.user.is_superuser %}
                 | <a href="{% url 'fpr:formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a>
-                | <a href="{% url 'fpr:formatversion_delete' format.slug version.slug %}">{{ version.enabled|yesno:_("Disable,Enable") }}</a></td>
+                | <a href="{% url 'fpr:formatversion_delete' format.slug version.slug %}">{{ version.enabled|yesno:_("Disable,Enable") }}</a>
               {% endif %}
+            </td>
           </tr>
         {% endfor %}
         </tbody>
