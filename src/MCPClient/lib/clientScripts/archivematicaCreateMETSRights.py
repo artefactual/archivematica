@@ -26,6 +26,7 @@
 import sys
 import uuid
 import lxml.etree as etree
+import six
 
 # dashboard
 from main.models import RightsStatement
@@ -69,7 +70,17 @@ def _add_start_end_date_complex_type(name, elem, start_date, end_date, end_date_
 
 
 def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
-    """[(fileUUID, fileUUIDTYPE), (sipUUID, sipUUIDTYPE), (transferUUID, transferUUIDType)]"""
+    """Create the premis:rightsStatement elements of a file to be included
+    in its amdSec in the METS file.
+
+    :param job: MCPClient Job
+    :param metadataAppliesToList: list of tuples of (
+        UUID of File/SIP/Transfer, PK from MetadataAppliesToType,
+    )
+    :param fileUUID: string with UUID of the File
+    :param state: create_mets_v2.MetsState object
+    :return ret: list of lxml Element objects
+    """
     ret = []
     for metadataAppliesToidentifier, metadataAppliesToType in metadataAppliesToList:
         statements = RightsStatement.objects.filter(
@@ -128,7 +139,7 @@ def createRightsStatement(job, statement, fileUUID, state):
             ).text = copyright.copyrightstatus
             copyrightJurisdiction = copyright.copyrightjurisdiction
             copyrightJurisdictionCode = getCodeForCountry(
-                copyrightJurisdiction.__str__().upper()
+                six.ensure_str(copyrightJurisdiction).upper()
             )
             if copyrightJurisdictionCode is not None:
                 copyrightJurisdiction = copyrightJurisdictionCode
