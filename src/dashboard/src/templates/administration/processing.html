@@ -21,7 +21,7 @@
         {% for item in files %}
         <tr>
           <td>
-            <span title="{{ item.2 }}">{{ item.1 }}</attr>
+            <span title="{{ item.2 }}">{{ item.1 }}</span>
           </td>
           <td>
             <a class="btn btn-default btn-sm" href="{% url 'administration:processing_edit' item.1 %}">{% trans "Edit" %}</a>
@@ -63,6 +63,6 @@
 
   </div>
 
-</span>
+</div>
 
 {% endblock %}
