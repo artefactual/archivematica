@@ -20,19 +20,20 @@ from __future__ import absolute_import, unicode_literals
 
 import json
 import os
+import uuid
 
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from elasticsearch import Elasticsearch
-import pandas as pd
 import pytest
 from six.moves.urllib.parse import urlencode
 from six import StringIO
 
 from components.archival_storage import atom
 from components import helpers
+from main.models import DashboardSetting
 
 import metsrw
 
@@ -41,6 +42,16 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
 JSON_MIME = "application/json"
+
+
+@pytest.fixture
+def amsetup(db):
+    setting, _ = DashboardSetting.objects.get_or_create(
+        name="dashboard_uuid", defaults={"value": str(uuid.uuid4())}
+    )
+    return {
+        "uuid": setting.value,
+    }
 
 
 @pytest.fixture
@@ -83,28 +94,12 @@ def test_load_premis(mets_document):
 
 
 @pytest.fixture
-def username():
-    return "test"
-
-
-@pytest.fixture
-def password():
-    return "test"
-
-
-@pytest.fixture
 def mets_hdr():
     return """<?xml version='1.0' encoding='UTF-8'?>
     <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
         <mets:metsHdr CREATEDATE="2020-01-20T15:22:15"/>
     </mets:mets>
     """
-
-
-def dashboard_login_and_setup(client, django_user_model, username, password):
-    django_user_model.objects.create_user(username=username, password=password)
-    client.login(username=username, password=password)
-    helpers.set_setting("dashboard_uuid", "test-uuid")
 
 
 def get_streaming_response(streaming_content):
@@ -114,21 +109,17 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-def test_get_mets_unknown_mets(client, mocker, django_user_model, username, password):
-    dashboard_login_and_setup(client, django_user_model, username, password)
+def test_get_mets_unknown_mets(mocker, amsetup, admin_client):
     mocker.patch("elasticSearchFunctions.get_client")
     mocker.patch("elasticSearchFunctions.get_aip_data", side_effect=IndexError())
-    response = client.get(
+    response = admin_client.get(
         "/archival-storage/download/aip/11111111-1111-1111-1111-111111111111/mets_download/"
     )
     assert isinstance(response, HttpResponseNotFound)
 
 
-def test_get_mets_known_mets(
-    client, mocker, django_user_model, username, password, mets_hdr
-):
+def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
     sip_uuid = "22222222-2222-2222-2222-222222222222"
-    dashboard_login_and_setup(client, django_user_model, username, password)
     mocker.patch("elasticSearchFunctions.get_client")
     mocker.patch(
         "elasticSearchFunctions.get_aip_data",
@@ -143,7 +134,7 @@ def test_get_mets_known_mets(
         "components.helpers.stream_mets_from_storage_service",
         return_value=mock_response,
     )
-    response = client.get(
+    response = admin_client.get(
         "/archival-storage/download/aip/{}/mets_download/".format(sip_uuid)
     )
     response_text = get_streaming_response(response.streaming_content)
@@ -152,16 +143,13 @@ def test_get_mets_known_mets(
     assert response.get(CONTENT_DISPOSITION) == mock_content_disposition
 
 
-def test_get_pointer_unknown_pointer(
-    client, mocker, django_user_model, username, password
-):
+def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
     sip_uuid = "33333333-3333-3333-3333-333333333331"
     pointer_url = (
         "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
             sip_uuid
         )
     )
-    dashboard_login_and_setup(client, django_user_model, username, password)
     mocker.patch("elasticSearchFunctions.get_client")
     mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
     mock_status_code = 404
@@ -171,7 +159,7 @@ def test_get_pointer_unknown_pointer(
         "components.helpers.stream_file_from_storage_service",
         return_value=mock_response,
     )
-    response = client.get(
+    response = admin_client.get(
         "/archival-storage/download/aip/{}/pointer_file/".format(sip_uuid)
     )
     assert isinstance(response, HttpResponse)
@@ -179,9 +167,7 @@ def test_get_pointer_unknown_pointer(
     assert json.loads(response.content) == mock_error_message
 
 
-def test_get_pointer_known_pointer(
-    client, mocker, django_user_model, username, password, mets_hdr
-):
+def test_get_pointer_known_pointer(mocker, amsetup, admin_client, mets_hdr):
     sip_uuid = "44444444-4444-4444-4444-444444444444"
     pointer_url = (
         "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
@@ -190,7 +176,6 @@ def test_get_pointer_known_pointer(
     )
     pointer_file = "pointer.{}.xml".format(sip_uuid)
     content_disposition = 'attachment; filename="{}"'.format(pointer_file)
-    dashboard_login_and_setup(client, django_user_model, username, password)
     mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
     mock_content_type = "application/xml"
     mock_response = StreamingHttpResponse(mets_hdr)
@@ -200,7 +185,7 @@ def test_get_pointer_known_pointer(
         "components.helpers.stream_file_from_storage_service",
         return_value=mock_response,
     )
-    response = client.get(
+    response = admin_client.get(
         "/archival-storage/download/aip/{}/pointer_file/".format(sip_uuid)
     )
     response_text = get_streaming_response(response.streaming_content)
@@ -209,7 +194,20 @@ def test_get_pointer_known_pointer(
     assert response.get(CONTENT_DISPOSITION) == content_disposition
 
 
-def test_search_as_csv(client, mocker, django_user_model, username, password, tmp_path):
+def test_search_rejects_unsupported_file_mime(amsetup, admin_client):
+    params = {"requestFile": "true", "file_mime": "application/json"}
+    response = admin_client.get(
+        "{}?{}".format(
+            reverse("archival_storage:archival_storage_search"),
+            urlencode(params),
+        )
+    )
+
+    assert response.status_code == 400
+    assert response.content == b"Please use ?mimeType=text/csv"
+
+
+def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
     """Test search as CSV
 
     Test the new route via the Archival Storage tab to be able to
@@ -217,24 +215,6 @@ def test_search_as_csv(client, mocker, django_user_model, username, password, tm
     that various headers are set as well as testing whether or not the
     data is returned correctly.
     """
-    dashboard_login_and_setup(client, django_user_model, username, password)
-    CSV_MIME = "text/csv"
-    RESULT_FILENAME = "test-filename.csv"
-    RESULT_DISPOSITION = 'attachment; filename="{}"'.format(RESULT_FILENAME)
-    ordered_headers = [
-        "Name",
-        "UUID",
-        "AICID",
-        "Count AIPs in AIC",
-        "Size",
-        "File count",
-        "Accession IDs",
-        "Created date (UTC)",
-        "Status",
-        "Type",
-        "Encrypted",
-        "Location",
-    ]
     mock_augmented_result = [
         {
             "status": "Stored",
@@ -275,47 +255,34 @@ def test_search_as_csv(client, mocker, django_user_model, username, password, tm
     )
     REQUEST_PARAMS = {
         "requestFile": True,
-        "mimeType": CSV_MIME,
-        "fileName": RESULT_FILENAME,
+        "mimeType": "text/csv",
+        "fileName": "test-filename.csv",
         "returnAll": True,
     }
-    response = client.get(
-        "/archival-storage/search/?{}".format(urlencode(REQUEST_PARAMS))
+    response = admin_client.get(
+        "{}?{}".format(
+            reverse("archival_storage:archival_storage_search"),
+            urlencode(REQUEST_PARAMS),
+        )
     )
 
     # Check that our response headers are going to be useful to the caller.
-    assert response.get("content-type") == CSV_MIME
-    assert response.get("content-disposition") == RESULT_DISPOSITION
+    assert response.get(CONTENT_TYPE) == "text/csv"
+    assert (
+        response.get(CONTENT_DISPOSITION) == 'attachment; filename="test-filename.csv"'
+    )
 
     streamed_content = b"".join([content for content in response.streaming_content])
     csv_file = StringIO(streamed_content.decode("utf8"))
-    data_frame = pd.read_csv(csv_file, header=0, encoding="utf8")
 
-    # Make sure that our headers come out as expected and in the right order.
-    assert list(data_frame.columns.values) == ordered_headers
-
-    # Make some assertions about the quality and consistency of the rest of our
-    # data as it is returned particularly those we're encoding as Unicode.
-    accession_ids = data_frame["Accession IDs"]
-    assert pd.isnull(accession_ids[0])
-    assert accession_ids[1] == "; ".join(mock_augmented_result[1].get("accessionids"))
-
-    encrypted = data_frame["Encrypted"]
-    assert encrypted[0] == mock_augmented_result[0].get("encrypted")
-    assert encrypted[1] == mock_augmented_result[1].get("encrypted")
-
-    size = data_frame["Size"]
-    assert size[0] == mock_augmented_result[0].get("size")
-    assert size[1] == mock_augmented_result[1].get("size")
-
-    location = data_frame["Location"]
-    assert location[0] == mock_augmented_result[0].get("location")
-    assert location[1] == mock_augmented_result[1].get("location")
+    assert csv_file.read() == (
+        '"Name","UUID","AICID","Count AIPs in AIC","Size","File count","Accession IDs","Created date (UTC)","Status","Type","Encrypted","Location"\n'
+        '"tz","a341dbc0-9715-4806-8477-fb407b105a5e","AIC#2040","2","200.1 KB","2","","2020-07-16 22:21:40+00:00","Stored","AIC","False","/var/archivematica/AIPStore"\n'
+        '"tz","22423d5c-f992-4979-9390-1cb61c87da14","","","152.1 KB","2","Àà; Éé; Îî; Ôô; Ùù","2020-07-16 22:23:20+00:00","Stored","AIP","True","thé cloud"\n'
+    )
 
 
-def test_search_as_csv_invalid_route(
-    client, mocker, django_user_model, username, password, tmp_path
-):
+def test_search_as_csv_invalid_route(mocker, amsetup, admin_client, tmp_path):
     """Test search as CSV invalid rute
 
     Given the ability to download the Elasticsearch AIP index table as a
@@ -324,7 +291,6 @@ def test_search_as_csv_invalid_route(
     rudimentary test to just ensure that we can successfully NOT
     download the results as a CSV.
     """
-    dashboard_login_and_setup(client, django_user_model, username, password)
     MOCK_TOTAL = 10
     AUG_RESULTS = {"mock": "response"}
     mocker.patch("elasticSearchFunctions.get_client", return_value=Elasticsearch())
@@ -342,8 +308,11 @@ def test_search_as_csv_invalid_route(
         return_value=[AUG_RESULTS],
     )
     REQUEST_PARAMS = {"requestFile": False}
-    response = client.get(
-        "/archival-storage/search/?{}".format(urlencode(REQUEST_PARAMS))
+    response = admin_client.get(
+        "{}?{}".format(
+            reverse("archival_storage:archival_storage_search"),
+            urlencode(REQUEST_PARAMS),
+        )
     )
     expected_result = {
         "iTotalRecords": MOCK_TOTAL,

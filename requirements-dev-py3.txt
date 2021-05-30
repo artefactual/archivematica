@@ -56,11 +56,9 @@ mozilla-django-oidc==1.2.4  # via -r requirements-py3.txt
 multidict==5.1.0          # via yarl
 mysqlclient==1.4.6        # via -r requirements-py3.txt, agentarchives
 ndg-httpsclient==0.5.1    # via -r requirements-py3.txt
-numpy==1.19.5             # via -r requirements-py3.txt, pandas
 olefile==0.46             # via -r requirements-py3.txt, opf-fido
 opf-fido==1.4.1           # via -r requirements-py3.txt
 packaging==20.9           # via pytest, tox
-pandas==0.24.2            # via -r requirements-py3.txt
 pip-tools==5.4.0          # via -r requirements-py3.txt
 pluggy==0.13.1            # via pytest, tox
 prometheus-client==0.7.1  # via -r requirements-py3.txt, django-prometheus
@@ -78,10 +76,10 @@ pytest-pythonpath==0.7.3  # via -r requirements-dev-py3.in
 pytest-randomly==1.2.3    # via -r requirements-dev-py3.in
 pytest==4.6.11            # via -r requirements-dev-py3.in, pytest-cov, pytest-django, pytest-mock, pytest-pythonpath, pytest-randomly
 python-cas==1.5.0         # via -r requirements-py3.txt, django-cas-ng
-python-dateutil==2.6.0    # via -r requirements-py3.txt, django-tastypie, pandas
+python-dateutil==2.6.0    # via -r requirements-py3.txt, django-tastypie
 python-ldap==3.2.0        # via -r requirements-py3.txt, pyldap
 python-mimeparse==1.6.0   # via -r requirements-py3.txt, django-tastypie
-pytz==2021.1              # via -r requirements-py3.txt, django, pandas
+pytz==2021.1              # via -r requirements-py3.txt, django
 pyyaml==5.4.1             # via vcrpy
 requests==2.21.0          # via -r requirements-py3.txt, agentarchives, amclient, mozilla-django-oidc, python-cas
 scandir==1.10.0           # via -r requirements-py3.txt
