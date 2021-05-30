@@ -30,7 +30,6 @@ metsrw==0.3.20
 mysqlclient==1.4.6
 ndg-httpsclient
 opf-fido==1.4.1
-pandas==0.24.2
 pathlib2==2.3.4 ; python_version < '3'
 pip==20.3
 pip-tools==5.4.0
