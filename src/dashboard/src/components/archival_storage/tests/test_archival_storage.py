@@ -267,7 +267,7 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
     )
 
     # Check that our response headers are going to be useful to the caller.
-    assert response.get(CONTENT_TYPE) == "text/csv"
+    assert response.get(CONTENT_TYPE) == "text/csv; charset=utf-8"
     assert (
         response.get(CONTENT_DISPOSITION) == 'attachment; filename="test-filename.csv"'
     )
