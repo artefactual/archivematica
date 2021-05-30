@@ -26,7 +26,6 @@ django-braces==1.0.0      # via -r requirements-py3.txt
 django-cas-ng==3.6.0      # via -r requirements-py3.txt
 django-extensions==1.7.9  # via -r requirements-py3.txt
 django-forms-bootstrap==3.1.0  # via -r requirements-py3.txt
-django-model-utils==1.3.1  # via -r requirements-py3.txt
 django-prometheus==1.0.15  # via -r requirements-py3.txt
 git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r requirements-py3.txt
 django-tastypie==0.13.2   # via -r requirements-py3.txt
