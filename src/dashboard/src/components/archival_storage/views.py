@@ -268,7 +268,7 @@ def search_as_csv(es_results, file_name):
         content_type=CSV_MIMETYPE,
     )
     response["Content-Disposition"] = 'attachment; filename="{}"'.format(file_name)
-    response["mimetype"] = "{}; charset={}".format(CSV_MIMETYPE, "utf-8")
+    response["Content-Type"] = "{}; charset={}".format(CSV_MIMETYPE, "utf-8")
 
     return response
 
