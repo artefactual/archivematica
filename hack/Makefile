@@ -261,16 +261,16 @@ test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 test-archivematica-common-py36: start-mysql  ## Run Archivematica Common tests in Python 3.6.
 	$(call run_toxenvs,py36-archivematica-common)
 
-__TOXENVS_CHECKFORMIGRATIONS = py27-checkformigrations-dashboard checkformigrations-storage-service
-test-checkformigrations: start-mysql  ## Check there are no pending migrations.
+__TOXENVS_MIGRATIONS = py27-migrations-dashboard migrations-storage-service
+test-migrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_db,DASHBOARDTEST)
 	$(call create_db,SSTEST)
-	$(call run_toxenvs,$(__TOXENVS_CHECKFORMIGRATIONS))
+	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS))
 
-test-checkformigrations-py36: start-mysql  ## Check there are no pending migrations in Python 3.6.
+test-migrations-py36: start-mysql  ## Check there are no pending migrations in Python 3.6.
 	$(call create_db,DASHBOARDTEST)
 	$(call create_db,SSTEST)
-	$(call run_toxenvs,py36-checkformigrations-dashboard)
+	$(call run_toxenvs,py36-migrations-dashboard)
 
 __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.

@@ -43,10 +43,10 @@ jobs:
           - rule: storage-service-py36
             coverage: false
             python_version: py36
-          - rule: checkformigrations
+          - rule: migrations
             coverage: false
             python_version: py27
-          - rule: checkformigrations-py36
+          - rule: migrations-py36
             coverage: false
             python_version: py36
     steps:
