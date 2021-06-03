@@ -34,7 +34,7 @@ elasticsearch==6.8.2      # via -r requirements-py3.txt
 filelock==3.0.12          # via tox, virtualenv
 funcparserlib==0.3.6      # via mockldap
 future==0.18.2            # via -r requirements-py3.txt, metsrw
-git+https://github.com/artefactual-labs/python-gearman.git@ca95b5757245df0369d21ced359957b1aaa79e55#egg=gearman3 ; python_version > "3"  # via -r requirements-py3.txt
+gearman3==0.2.1 ; python_version > "3"  # via -r requirements-py3.txt
 gevent==1.3.6             # via -r requirements-py3.txt
 greenlet==1.0.0           # via -r requirements-py3.txt, gevent
 gunicorn==19.9.0          # via -r requirements-py3.txt
