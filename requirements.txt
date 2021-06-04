@@ -69,5 +69,5 @@ urllib3==1.24.3           # via amclient, elasticsearch, requests
 whitenoise==3.3.0         # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==20.3                 # via -r requirements.in, pip-tools
+pip==20.3 ; python_version < "3"  # via -r requirements.in, pip-tools
 setuptools==44.1.1        # via josepy, opf-fido

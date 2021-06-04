@@ -105,5 +105,5 @@ wrapt==1.12.1             # via vcrpy
 zipp==1.2.0               # via importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==20.3                 # via -r requirements.txt, pip-tools
+pip==20.3 ; python_version < "3"  # via -r requirements.txt, pip-tools
 setuptools==44.1.1        # via -r requirements.txt, josepy, opf-fido
