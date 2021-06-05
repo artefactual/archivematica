@@ -38,7 +38,7 @@ pyasn1
 pyopenssl
 python-dateutil==2.6.0
 pytz
-requests==2.21.0
+requests~=2.25
 scandir==1.10.0    # via pathlib2
 six==1.14.0
 unidecode==0.04.19
