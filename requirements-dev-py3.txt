@@ -14,7 +14,7 @@ bagit==1.7.0              # via -r requirements-py3.txt
 brotli==0.5.2             # via -r requirements-py3.txt
 certifi==2021.5.30        # via -r requirements-py3.txt, requests
 cffi==1.14.5              # via -r requirements-py3.txt, cryptography
-chardet==3.0.4            # via -r requirements-py3.txt, requests
+chardet==4.0.0            # via -r requirements-py3.txt, requests
 clamd==1.0.2              # via -r requirements-py3.txt
 click==8.0.1              # via -r requirements-py3.txt, pip-tools
 coverage==4.2             # via -r requirements-dev-py3.in, pytest-cov
@@ -38,7 +38,7 @@ gearman3==0.2.1 ; python_version >= "3"  # via -r requirements-py3.txt
 gevent==1.3.6             # via -r requirements-py3.txt
 greenlet==1.1.0           # via -r requirements-py3.txt, gevent
 gunicorn==19.9.0          # via -r requirements-py3.txt
-idna==2.8                 # via -r requirements-py3.txt, requests, yarl
+idna==2.10                # via -r requirements-py3.txt, requests, yarl
 importlib-metadata==4.5.0  # via -r requirements-py3.txt, click, pluggy, pytest, tox, virtualenv
 importlib-resources==5.1.4  # via virtualenv
 inotify_simple==1.1.8     # via -r requirements-py3.txt
@@ -80,14 +80,14 @@ python-ldap==3.2.0        # via -r requirements-py3.txt, pyldap
 python-mimeparse==1.6.0   # via -r requirements-py3.txt, django-tastypie
 pytz==2021.1              # via -r requirements-py3.txt, django
 pyyaml==5.4.1             # via vcrpy
-requests==2.21.0          # via -r requirements-py3.txt, agentarchives, amclient, mozilla-django-oidc, python-cas
+requests==2.25.1          # via -r requirements-py3.txt, agentarchives, amclient, mozilla-django-oidc, python-cas
 scandir==1.10.0           # via -r requirements-py3.txt
 six==1.14.0               # via -r requirements-py3.txt, amclient, django-extensions, metsrw, mozilla-django-oidc, opf-fido, pip-tools, pyopenssl, pytest, python-cas, python-dateutil, tox, vcrpy, virtualenv
 toml==0.10.2              # via tox
 tox==3.23.1               # via -r requirements-dev-py3.in
 typing-extensions==3.10.0.0  # via -r requirements-py3.txt, importlib-metadata, yarl
 unidecode==0.04.19        # via -r requirements-py3.txt
-urllib3==1.24.3           # via -r requirements-py3.txt, amclient, elasticsearch, requests
+urllib3==1.26.5           # via -r requirements-py3.txt, amclient, elasticsearch, requests
 vcrpy==1.13.0             # via -r requirements-dev-py3.in
 virtualenv==20.4.7        # via tox
 wcwidth==0.2.5            # via pytest
