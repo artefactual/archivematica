@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-27 22:11+0000\n"
+"POT-Creation-Date: 2021-06-07 15:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
@@ -147,6 +147,7 @@ msgid "False"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:218
+#: media/js/backlog/backlog-search.js:19
 msgid "Deletion requested"
 msgstr ""
 
@@ -184,7 +185,7 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:246
 #: media/js/archival_storage/archival_storage_search.js:261
 #: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
-#: media/js/ingest.js:217 media/js/transfer.js:154
+#: media/js/ingest.js:224 media/js/transfer.js:161
 msgid "Actions"
 msgstr "Actions"
 
@@ -342,10 +343,6 @@ msgstr ": activer le tri descendant"
 msgid "Request deletion"
 msgstr "Demander la suppression"
 
-#: media/js/backlog/backlog-search.js:19
-msgid "Delete requested"
-msgstr ""
-
 #: media/js/backlog/backlog-search.js:40
 msgid "Filename"
 msgstr "Nom du fichier"
@@ -373,7 +370,7 @@ msgid "Yes"
 msgstr "Oui"
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:590 media/js/jobs.js:686
+#: media/js/ingest.js:131 media/js/jobs.js:603 media/js/jobs.js:706
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -397,7 +394,11 @@ msgstr "Vous ne pouvez pas déplacer un répertoire dans son sous-répertoire."
 msgid "OK"
 msgstr "OK"
 
-#: media/js/ingest.js:74
+#: media/js/ingest.js:71
+msgid "It is not possible to remove active SIPs."
+msgstr ""
+
+#: media/js/ingest.js:81
 msgid ""
 "Are you sure you want to remove this SIP from the dashboard? Note that this "
 "does not delete the SIP or related entities."
@@ -405,45 +406,45 @@ msgstr ""
 "Voulez-vous vraiment effacer ce SIP du tableau de bord ? Cela ne supprimera "
 "pas le SIP ou les entités liées."
 
-#: media/js/ingest.js:76 media/js/transfer.js:76
+#: media/js/ingest.js:83 media/js/transfer.js:83
 #, javascript-format
 msgid "Directory: %s"
 msgstr "Répertoire : %s"
 
-#: media/js/ingest.js:77 media/js/transfer.js:77
+#: media/js/ingest.js:84 media/js/transfer.js:84
 #, javascript-format
 msgid "UUID: %s"
 msgstr "UUID : %s"
 
-#: media/js/ingest.js:84 media/js/transfer.js:84
+#: media/js/ingest.js:91 media/js/transfer.js:91
 msgid "Remove SIP"
 msgstr "Effacer le SIP"
 
-#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
+#: media/js/ingest.js:102 media/js/jobs.js:674 media/js/transfer.js:102
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: media/js/ingest.js:146
+#: media/js/ingest.js:153
 msgid "Dublin Core metadata editor"
 msgstr "Éditeur de métadonnées Dublin Core"
 
-#: media/js/ingest.js:153 media/js/jobs.js:535
+#: media/js/ingest.js:160 media/js/jobs.js:535
 msgid "Close"
 msgstr "Fermer"
 
-#: media/js/ingest.js:174
+#: media/js/ingest.js:181
 msgid "Error"
 msgstr "Erreur"
 
-#: media/js/ingest.js:241
+#: media/js/ingest.js:248
 msgid "Report"
 msgstr "Rapport"
 
-#: media/js/ingest.js:244
+#: media/js/ingest.js:251
 msgid "Match DIP objects to resources"
 msgstr "Faire correspondre les objets DIP aux ressources"
 
-#: media/js/ingest.js:303
+#: media/js/ingest.js:310
 msgid "Loading..."
 msgstr "Chargement … "
 
@@ -491,11 +492,7 @@ msgstr "Examiner"
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr "%(directory) &raquo; %(type) &raquo; Tâches"
 
-#: media/js/jobs.js:590
-msgid "Select an action..."
-msgstr "Sélectionner une action..."
-
-#: media/js/jobs.js:644
+#: media/js/jobs.js:664
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
@@ -504,41 +501,41 @@ msgstr ""
 "terminés? Veuillez noter que cette action n'effacera pas les %(unit)ss ou "
 "les entités associées."
 
-#: media/js/jobs.js:650
+#: media/js/jobs.js:670
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr "Retirer tous les %ss terminés"
 
-#: media/js/jobs.js:664
+#: media/js/jobs.js:684
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr "Il n'y avait aucun %s complété à retirer"
 
-#: media/js/jobs.js:668
+#: media/js/jobs.js:688
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr "Suppression réussie des éléments suivants %ss: %s"
 
-#: media/js/jobs.js:674
+#: media/js/jobs.js:694
 #, javascript-format
 msgid "Failed to remove all completed %ss"
 msgstr "Échec de la suppression de tous les éléments terminés %ss"
 
-#: media/js/jobs.js:800
+#: media/js/jobs.js:826
 msgid "Previous"
 msgstr "Précédent"
 
-#: media/js/jobs.js:815
+#: media/js/jobs.js:841
 msgid "Next"
 msgstr "Suivant"
 
-#: media/js/jobs.js:853
+#: media/js/jobs.js:879
 msgid "Error trying to connect to database. Trying again..."
 msgstr ""
 "Erreur lors de la tentative de connexion à la base de données. Essayer de "
 "nouveau..."
 
-#: media/js/jobs.js:903
+#: media/js/jobs.js:929
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr ""
 "Erreur lors de la tentative de connexion au serveur MPC. Essayer de "
@@ -734,7 +731,11 @@ msgstr "%s date de fin"
 msgid "Create new %s?"
 msgstr "Créer un nouveau %(type) ?"
 
-#: media/js/transfer.js:74
+#: media/js/transfer.js:71
+msgid "It is not possible to remove active transfers."
+msgstr ""
+
+#: media/js/transfer.js:81
 msgid ""
 "Are you sure you want to remove this transfer from the dashboard? Note that "
 "this does not delete the transfer or related entities."
@@ -750,6 +751,9 @@ msgstr "Erreur: Le chemin d'accès sélectionné existe déjà."
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr "Êtes-vous certain de vouloir retirer %s?"
+
+#~ msgid "Select an action..."
+#~ msgstr "Sélectionner une action..."
 
 #~ msgctxt "Archivists's Toolkit: specific property required"
 #~ msgid "Property %(name) required."
