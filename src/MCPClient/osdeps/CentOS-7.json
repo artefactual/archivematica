@@ -148,7 +148,7 @@
   "osdeps_repokeys": [],
   "osdeps_repos": [
     {
-      "baseurl": "https://packages.archivematica.org/1.11.x/centos-extras",
+      "baseurl": "https://packages.archivematica.org/1.13.x/centos-extras",
       "description": "archivematica extras",
       "enabled": "yes",
       "gpgcheck": "no",
