@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-27 22:11+0000\n"
+"POT-Creation-Date: 2021-06-07 15:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2017\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -146,6 +146,7 @@ msgid "False"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:218
+#: media/js/backlog/backlog-search.js:19
 msgid "Deletion requested"
 msgstr ""
 
@@ -183,7 +184,7 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:246
 #: media/js/archival_storage/archival_storage_search.js:261
 #: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
-#: media/js/ingest.js:217 media/js/transfer.js:154
+#: media/js/ingest.js:224 media/js/transfer.js:161
 msgid "Actions"
 msgstr "Åtgärder"
 
@@ -341,10 +342,6 @@ msgstr ": aktivera för att sortera kolumnen fallande"
 msgid "Request deletion"
 msgstr "Begär radering"
 
-#: media/js/backlog/backlog-search.js:19
-msgid "Delete requested"
-msgstr ""
-
 #: media/js/backlog/backlog-search.js:40
 msgid "Filename"
 msgstr "Filnamn"
@@ -372,7 +369,7 @@ msgid "Yes"
 msgstr "Ja"
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:590 media/js/jobs.js:686
+#: media/js/ingest.js:131 media/js/jobs.js:603 media/js/jobs.js:706
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -396,7 +393,11 @@ msgstr "Du kan inte flytta en mapp till dess undermapp."
 msgid "OK"
 msgstr "OK"
 
-#: media/js/ingest.js:74
+#: media/js/ingest.js:71
+msgid "It is not possible to remove active SIPs."
+msgstr ""
+
+#: media/js/ingest.js:81
 msgid ""
 "Are you sure you want to remove this SIP from the dashboard? Note that this "
 "does not delete the SIP or related entities."
@@ -404,45 +405,45 @@ msgstr ""
 "Är du säker på att du vill radera denna SIP från översiktsvyn? Notera att "
 "detta inte raderar SIP:en eller relaterade objekt."
 
-#: media/js/ingest.js:76 media/js/transfer.js:76
+#: media/js/ingest.js:83 media/js/transfer.js:83
 #, javascript-format
 msgid "Directory: %s"
 msgstr "Mapp: %s"
 
-#: media/js/ingest.js:77 media/js/transfer.js:77
+#: media/js/ingest.js:84 media/js/transfer.js:84
 #, javascript-format
 msgid "UUID: %s"
 msgstr "UUID: %s"
 
-#: media/js/ingest.js:84 media/js/transfer.js:84
+#: media/js/ingest.js:91 media/js/transfer.js:91
 msgid "Remove SIP"
 msgstr "Radera SIP"
 
-#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
+#: media/js/ingest.js:102 media/js/jobs.js:674 media/js/transfer.js:102
 msgid "Confirm"
 msgstr "Bekräfta"
 
-#: media/js/ingest.js:146
+#: media/js/ingest.js:153
 msgid "Dublin Core metadata editor"
 msgstr "Dublin Core metadata redigerare"
 
-#: media/js/ingest.js:153 media/js/jobs.js:535
+#: media/js/ingest.js:160 media/js/jobs.js:535
 msgid "Close"
 msgstr "Stäng"
 
-#: media/js/ingest.js:174
+#: media/js/ingest.js:181
 msgid "Error"
 msgstr "Fel"
 
-#: media/js/ingest.js:241
+#: media/js/ingest.js:248
 msgid "Report"
 msgstr "Rapport"
 
-#: media/js/ingest.js:244
+#: media/js/ingest.js:251
 msgid "Match DIP objects to resources"
 msgstr "Matcha DIP-objekt med resurser"
 
-#: media/js/ingest.js:303
+#: media/js/ingest.js:310
 msgid "Loading..."
 msgstr "Laddar..."
 
@@ -490,11 +491,7 @@ msgstr "Inspektera"
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr "%(directory) &raquo; %(type) &raquo; Uppgifter"
 
-#: media/js/jobs.js:590
-msgid "Select an action..."
-msgstr "Välj en åtgärd..."
-
-#: media/js/jobs.js:644
+#: media/js/jobs.js:664
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
@@ -502,39 +499,39 @@ msgstr ""
 "Är du säker på att du vill ta bort alla färdigställda %(unit)s från "
 "översiktsvyn? Notera att detta inte raderar %(unit)s eller relaterade objekt."
 
-#: media/js/jobs.js:650
+#: media/js/jobs.js:670
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr "Ta bort alla avslutade %s"
 
-#: media/js/jobs.js:664
+#: media/js/jobs.js:684
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr "Det fanns inga avslutade %s att ta bort"
 
-#: media/js/jobs.js:668
+#: media/js/jobs.js:688
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr "Radering av följande %s: %s lyckad"
 
-#: media/js/jobs.js:674
+#: media/js/jobs.js:694
 #, javascript-format
 msgid "Failed to remove all completed %ss"
 msgstr "Avlägsning av alla avslutade %s misslyckades"
 
-#: media/js/jobs.js:800
+#: media/js/jobs.js:826
 msgid "Previous"
 msgstr "Föregående"
 
-#: media/js/jobs.js:815
+#: media/js/jobs.js:841
 msgid "Next"
 msgstr "Nästa"
 
-#: media/js/jobs.js:853
+#: media/js/jobs.js:879
 msgid "Error trying to connect to database. Trying again..."
 msgstr "Fel under anslutning till databas. Försöker igen..."
 
-#: media/js/jobs.js:903
+#: media/js/jobs.js:929
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr "Fel under anslutning till MCP-server. Försöker igen..."
 
@@ -721,7 +718,11 @@ msgstr "%s slutdatum"
 msgid "Create new %s?"
 msgstr "Skapa ny %(type)?"
 
-#: media/js/transfer.js:74
+#: media/js/transfer.js:71
+msgid "It is not possible to remove active transfers."
+msgstr ""
+
+#: media/js/transfer.js:81
 msgid ""
 "Are you sure you want to remove this transfer from the dashboard? Note that "
 "this does not delete the transfer or related entities."
@@ -737,6 +738,9 @@ msgstr "Fel: vald sökväg existerar redan."
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr "Är du säker på att du vill radera %s?"
+
+#~ msgid "Select an action..."
+#~ msgstr "Välj en åtgärd..."
 
 #~ msgctxt "Archivists's Toolkit: specific property required"
 #~ msgid "Property %(name) required."

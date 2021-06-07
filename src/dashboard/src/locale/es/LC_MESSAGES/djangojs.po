@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-27 22:11+0000\n"
+"POT-Creation-Date: 2021-06-07 15:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: María Jesús Colmenero <mjcolmenero@gmail.com>, 2018\n"
 "Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
@@ -144,6 +144,7 @@ msgid "False"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:218
+#: media/js/backlog/backlog-search.js:19
 msgid "Deletion requested"
 msgstr ""
 
@@ -181,7 +182,7 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:246
 #: media/js/archival_storage/archival_storage_search.js:261
 #: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
-#: media/js/ingest.js:217 media/js/transfer.js:154
+#: media/js/ingest.js:224 media/js/transfer.js:161
 msgid "Actions"
 msgstr "Acciones"
 
@@ -337,10 +338,6 @@ msgstr ""
 msgid "Request deletion"
 msgstr ""
 
-#: media/js/backlog/backlog-search.js:19
-msgid "Delete requested"
-msgstr ""
-
 #: media/js/backlog/backlog-search.js:40
 msgid "Filename"
 msgstr "Nombre del archivo"
@@ -368,7 +365,7 @@ msgid "Yes"
 msgstr "Sí"
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:124 media/js/jobs.js:590 media/js/jobs.js:686
+#: media/js/ingest.js:131 media/js/jobs.js:603 media/js/jobs.js:706
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -392,51 +389,55 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: media/js/ingest.js:74
+#: media/js/ingest.js:71
+msgid "It is not possible to remove active SIPs."
+msgstr ""
+
+#: media/js/ingest.js:81
 msgid ""
 "Are you sure you want to remove this SIP from the dashboard? Note that this "
 "does not delete the SIP or related entities."
 msgstr ""
 
-#: media/js/ingest.js:76 media/js/transfer.js:76
+#: media/js/ingest.js:83 media/js/transfer.js:83
 #, javascript-format
 msgid "Directory: %s"
 msgstr ""
 
-#: media/js/ingest.js:77 media/js/transfer.js:77
+#: media/js/ingest.js:84 media/js/transfer.js:84
 #, javascript-format
 msgid "UUID: %s"
 msgstr ""
 
-#: media/js/ingest.js:84 media/js/transfer.js:84
+#: media/js/ingest.js:91 media/js/transfer.js:91
 msgid "Remove SIP"
 msgstr ""
 
-#: media/js/ingest.js:95 media/js/jobs.js:654 media/js/transfer.js:95
+#: media/js/ingest.js:102 media/js/jobs.js:674 media/js/transfer.js:102
 msgid "Confirm"
 msgstr "Confirmar"
 
-#: media/js/ingest.js:146
+#: media/js/ingest.js:153
 msgid "Dublin Core metadata editor"
 msgstr ""
 
-#: media/js/ingest.js:153 media/js/jobs.js:535
+#: media/js/ingest.js:160 media/js/jobs.js:535
 msgid "Close"
 msgstr "Cerrar"
 
-#: media/js/ingest.js:174
+#: media/js/ingest.js:181
 msgid "Error"
 msgstr "Error"
 
-#: media/js/ingest.js:241
+#: media/js/ingest.js:248
 msgid "Report"
 msgstr ""
 
-#: media/js/ingest.js:244
+#: media/js/ingest.js:251
 msgid "Match DIP objects to resources"
 msgstr ""
 
-#: media/js/ingest.js:303
+#: media/js/ingest.js:310
 msgid "Loading..."
 msgstr ""
 
@@ -484,49 +485,45 @@ msgstr ""
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr ""
 
-#: media/js/jobs.js:590
-msgid "Select an action..."
-msgstr ""
-
-#: media/js/jobs.js:644
+#: media/js/jobs.js:664
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
 msgstr ""
 
-#: media/js/jobs.js:650
+#: media/js/jobs.js:670
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:664
+#: media/js/jobs.js:684
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr ""
 
-#: media/js/jobs.js:668
+#: media/js/jobs.js:688
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr ""
 
-#: media/js/jobs.js:674
+#: media/js/jobs.js:694
 #, javascript-format
 msgid "Failed to remove all completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:800
+#: media/js/jobs.js:826
 msgid "Previous"
 msgstr "Previa"
 
-#: media/js/jobs.js:815
+#: media/js/jobs.js:841
 msgid "Next"
 msgstr "Siguiente"
 
-#: media/js/jobs.js:853
+#: media/js/jobs.js:879
 msgid "Error trying to connect to database. Trying again..."
 msgstr ""
 
-#: media/js/jobs.js:903
+#: media/js/jobs.js:929
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr ""
 
@@ -698,7 +695,11 @@ msgstr ""
 msgid "Create new %s?"
 msgstr ""
 
-#: media/js/transfer.js:74
+#: media/js/transfer.js:71
+msgid "It is not possible to remove active transfers."
+msgstr ""
+
+#: media/js/transfer.js:81
 msgid ""
 "Are you sure you want to remove this transfer from the dashboard? Note that "
 "this does not delete the transfer or related entities."
