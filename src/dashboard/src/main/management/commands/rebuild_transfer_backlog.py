@@ -405,6 +405,15 @@ def _convert_checksum_algo(algo):
     return algo.replace("-", "").lower()
 
 
+def _get_transfer_mets_path(transfer_dir):
+    mets_relative_path = "metadata/submissionDocumentation/METS.xml"
+    try:
+        bagit.Bag(str(transfer_dir))
+        return str(transfer_dir / "data" / mets_relative_path)
+    except bagit.BagError:
+        return str(transfer_dir / mets_relative_path)
+
+
 def _import_self_describing_transfer(
     cmd, es_client, stdout, transfer_dir, transfer_uuid, size
 ):
@@ -436,9 +445,7 @@ def _import_self_describing_transfer(
 
     # The transfer did not exist, we need to populate everything else.
     if created:
-        mets = metsrw.METSDocument.fromfile(
-            str(transfer_dir / "data/metadata/submissionDocumentation/METS.xml")
-        )
+        mets = metsrw.METSDocument.fromfile(_get_transfer_mets_path(transfer_dir))
 
         try:
             alt_id = mets.alternate_ids[0]
