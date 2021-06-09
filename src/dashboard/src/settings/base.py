@@ -466,7 +466,7 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
 # login-related settings
 LOGIN_URL = "/administration/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
-LOGIN_EXEMPT_URLS = [r"^administration/accounts/login", r"^api"]
+LOGIN_EXEMPT_URLS = [r"^administration/accounts/login", r"^api", r"^jsi18n"]
 # Django debug toolbar
 try:
     import debug_toolbar  # noqa: F401
