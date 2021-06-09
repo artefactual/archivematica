@@ -18,13 +18,6 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 $(function() {
-  // add job viewer to generate dialogs with
-  var job = new Job();
-  job.set({'type': 'Approve Normalization'});
-  job.sip = new Sip();
-  job.sip.set({'directory': '{{ sipname }}'});
-  var jobView = new BaseJobView({model: job});
-
   // add popovers
   $($.find('a.file-location'))
     .popover({
