@@ -53,16 +53,6 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-"""
-def mock_amclient_details(mocker, side_effect=None):
-    mocker.patch(
-        "components.helpers.get_setting", return_value="http://storage-service-url/"
-    )
-    amclient_mock = mocker.Mock(**{"extract_file.side_effect": side_effect})
-    mocker.patch("components.helpers.AMClient", return_value=amclient_mock)
-"""
-
-
 def mock_amclient_details(mocker, return_value=None, side_effect=None):
     mocker.patch(
         "components.helpers.get_setting", return_value="http://storage-service-url/"
@@ -193,3 +183,14 @@ def test_stream_pointer_from_storage_no_content_type(mocker, tmpdir, mets_hdr):
     assert response.get(CONTENT_DISPOSITION) == content_disposition
     response_text = get_streaming_response(response.streaming_content)
     assert response_text == mets_hdr
+
+
+def test_send_file(tmp_path):
+    # Contents of dashboard/src/media/images/1x1-pixel.png
+    data = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x01\x03\x00\x00\x00%\xdbV\xca\x00\x00\x00\x03PLTE\x00\x00\x00\xa7z=\xda\x00\x00\x00\x01tRNS\x00@\xe6\xd8f\x00\x00\x00\nIDAT\x08\x1dc`\x00\x00\x00\x02\x00\x01\xcf\xc85\xe5\x00\x00\x00\x00IEND\xaeB`\x82"
+    f = tmp_path / "image.png"
+    f.write_bytes(data)
+    request = None
+    response = helpers.send_file(request, str(f))
+    assert response["Content-Type"] == "image/png"
+    assert response["Content-Length"] == "95"

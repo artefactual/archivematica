@@ -1117,8 +1117,7 @@ def download_by_uuid(request, uuid, preview_file=False):
     not_found_err = helpers.json_response(
         {
             "success": False,
-            "message": _("File with UUID %(uuid)s " "could not be found")
-            % {"uuid": uuid},
+            "message": _("File with UUID %(uuid)s could not be found") % {"uuid": uuid},
         },
         status_code=404,
     )
