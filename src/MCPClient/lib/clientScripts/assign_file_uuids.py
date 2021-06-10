@@ -197,6 +197,17 @@ def assign_sip_file_uuid(
     file_uuid = str(uuid.uuid4())
     file_path_relative_to_sip = file_path.replace(sip_directory, "%SIPDirectory%", 1)
 
+    matching_file = File.objects.filter(
+        currentlocation=file_path_relative_to_sip,
+        sip=sip_uuid,
+    ).first()
+    if matching_file:
+        job.print_error("File already has UUID: {}".format(matching_file.uuid))
+        if update_use:
+            matching_file.filegrpuse = use
+            matching_file.save()
+        return
+
     job.print_output("Generated UUID for file {}.".format(file_uuid))
     addFileToSIP(
         file_path_relative_to_sip,
