@@ -28,7 +28,7 @@ urlpatterns = [
     url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/download/$", views.download_by_uuid),
     url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/preview/$", views.preview_by_uuid),
     url(r"^contents/arrange/$", views.arrange_contents, name="contents_arrange"),
-    url(r"^contents/$", views.contents),
+    url(r"^contents/$", views.contents, name="contents"),
     url(
         r"^children/location/(?P<location_uuid>" + settings.UUID_REGEX + ")/$",
         views.directory_children_proxy_to_storage_server,

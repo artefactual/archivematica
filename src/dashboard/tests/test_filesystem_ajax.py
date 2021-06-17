@@ -606,3 +606,23 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
         mock_stream_file_from_ss.assert_called_once_with(
             TEST_SS_URL, "Storage service returned {}; check logs?", preview
         )
+
+
+def test_contents_sorting(db, tmp_path, admin_client):
+    (tmp_path / "1").mkdir()
+    (tmp_path / "e").mkdir()
+    (tmp_path / "a").mkdir()
+    (tmp_path / "0").mkdir()
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    response = admin_client.get(
+        reverse("filesystem_ajax:contents"), {"path": str(tmp_path)}
+    )
+    content = json.loads(response.content.decode("utf8"))
+
+    assert [child["name"] for child in content["children"]] == [
+        b64encode_string("0"),
+        b64encode_string("1"),
+        b64encode_string("a"),
+        b64encode_string("e"),
+    ]
