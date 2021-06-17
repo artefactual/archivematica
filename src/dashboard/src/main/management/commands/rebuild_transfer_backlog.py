@@ -9,10 +9,29 @@ It also requests the Storage Service to reindex the transfers.
 This must be run on the same system that Archivematica is installed on, since
 it uses code from the Archivematica codebase.
 
-The one required parameter is the path to the directory where Transfer Backlog
-location is stored.
+Based on https://git.io/vN6v6.
 
-Copied from https://git.io/vN6v6.
+Optional parameters:
+
+``--transfer-backlog-dir [storage_location_path]`` : path where the Transfer
+Backlog storage location is located in the local filesystem.
+Default: /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog.
+
+``--no-prompt`` : do not ask for confirmation.
+
+``--from-storage-service`` : uses the Storage Service API to determine
+which stored transfers need to be re-indexed. Temporarily downloads a
+copy of each transfer via the API for indexing. This enables reindexing
+of packages stored in encrypted locations as well as some remote locations.
+
+``--delete-all`` : will delete the entire AIP Elasticsearch index before
+starting to reindex
+
+``-u`` or ``--uuid`` : only reindex the transfer that has the matching UUID.
+
+``--skip-to``: starts reindexing from the specified uuid. Useful if a previous
+reindex attempt was interrupted for some reason. Mutually exclusive
+with ``--uuid`` option
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -88,6 +107,24 @@ class Command(DashboardCommand):
             help="Pipeline UUID to use when filtering packages from Storage Service",
             default=am.get_dashboard_uuid(),
         )
+        parser.add_argument(
+            "--delete-all",
+            action="store_true",
+            help="Delete all transfers information in the index before starting.",
+        )
+        parser.add_argument(
+            "-u",
+            "--uuid",
+            action="store",
+            default=None,
+            help="Specify a single transfer by UUID to process",
+        )
+        parser.add_argument(
+            "--skip-to",
+            action="store",
+            default=None,
+            help="Specify starting transfer UUID to process. Mutually exclusive with --uuid option",
+        )
 
     def handle(self, *args, **options):
         """Entry point of the rebuild_transfer_backlog command."""
@@ -103,6 +140,9 @@ class Command(DashboardCommand):
 
         if not self.confirm(options["no_prompt"]):
             sys.exit(0)
+
+        if options["uuid"] and options["skip_to"]:
+            raise CommandError("Arguments --uuid and --skip-to are mutually exclusive.")
 
         # Ignore elasticsearch-py logging events unless they're errors.
         logging.getLogger("elasticsearch").setLevel(logging.ERROR)
@@ -132,22 +172,33 @@ class Command(DashboardCommand):
                 )
             )
 
-        indexes = [es.TRANSFERS_INDEX, es.TRANSFER_FILES_INDEX]
-        self.delete_indexes(es_client, indexes)
-        self.create_indexes(es_client, indexes)
+        if options["delete_all"]:
+            indexes = [es.TRANSFERS_INDEX, es.TRANSFER_FILES_INDEX]
+            self.delete_indexes(es_client, indexes)
+            self.create_indexes(es_client, indexes)
 
         if options["from_storage_service"]:
             pipeline_uuid = options["pipeline"]
-            self.populate_data_from_storage_service(es_client, pipeline_uuid)
+            self.populate_data_from_storage_service(
+                es_client,
+                pipeline_uuid,
+                uuid=options["uuid"],
+                skip_to=options["skip_to"],
+            )
         else:
-            self.populate_data_from_files(es_client, transfer_backlog_dir)
+            self.populate_data_from_files(
+                es_client,
+                transfer_backlog_dir,
+                uuid=options["uuid"],
+                skip_to=options["skip_to"],
+            )
 
     def confirm(self, no_prompt):
         """Ask user to confirm the operation."""
         if no_prompt:
             return True
         self.warning(
-            "WARNING: This script will delete your current"
+            "WARNING: This script will overwrite your current"
             " Elasticsearch transfer data, rebuilding it using"
             " files."
         )
@@ -174,10 +225,13 @@ class Command(DashboardCommand):
         self.stdout.write("Creating indexes...")
         es.create_indexes_if_needed(es_client, indexes)
 
-    def populate_data_from_files(self, es_client, transfer_backlog_dir):
+    def populate_data_from_files(
+        self, es_client, transfer_backlog_dir, uuid=None, skip_to=None
+    ):
         """Populate indices and/or database from files."""
         transfer_backlog_dir = Path(transfer_backlog_dir)
         processed = 0
+        skip_found = False
         for transfer_dir in transfer_backlog_dir.glob("*"):
             if transfer_dir.name == ".gitignore" or transfer_dir.is_file():
                 continue
@@ -189,6 +243,15 @@ class Command(DashboardCommand):
             except bagit.BagError:
                 bag = None
             transfer_uuid = transfer_dir.name[-36:]
+            # If skip_to option specified, skip until uuid found
+            if skip_to and (skip_to.lower() == transfer_uuid.lower()):
+                skip_found = True
+            if skip_to and (not skip_found):
+                self.info("Skipping {}".format(transfer_uuid))
+                continue
+            # If specified a single transfer uuid, skip all others
+            if uuid and (uuid.lower() != transfer_uuid.lower()):
+                continue
             if bag and "External-Identifier" in bag.info:
                 self.info(
                     "Importing self-describing transfer {}.".format(transfer_uuid)
@@ -209,7 +272,9 @@ class Command(DashboardCommand):
             processed += 1
         self.success("{} transfers indexed!".format(processed))
 
-    def populate_data_from_storage_service(self, es_client, pipeline_uuid):
+    def populate_data_from_storage_service(
+        self, es_client, pipeline_uuid, uuid=None, skip_to=None
+    ):
         """Populate indices and/or database from Storage Service.
 
         :param es_client: Elasticsearch client.
@@ -223,8 +288,18 @@ class Command(DashboardCommand):
             transfers, pipeline_uuid=pipeline_uuid
         )
         processed = 0
+        skip_found = False
         for transfer in filtered_transfers:
             transfer_uuid = transfer["uuid"]
+            # If skip_to option specified, skip until uuid found
+            if skip_to and (skip_to.lower() == transfer_uuid.lower()):
+                skip_found = True
+            if skip_to and (not skip_found):
+                self.info("Skipping {}".format(transfer_uuid))
+                continue
+            # If specified a single transfer uuid, skip all others
+            if uuid and (uuid.lower() != transfer_uuid.lower()):
+                continue
             temp_backlog_dir = tempfile.mkdtemp()
             try:
                 local_package = storageService.download_package(
