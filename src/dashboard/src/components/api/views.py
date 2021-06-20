@@ -371,7 +371,7 @@ def start_transfer_api(request):
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist("paths[]", [])
-    paths = [base64.b64decode(path) for path in paths]
+    paths = [base64.b64decode(path).decode("utf8") for path in paths]
     row_ids = request.POST.getlist("row_ids[]", [""])
     try:
         response = filesystem_ajax_views.start_transfer(

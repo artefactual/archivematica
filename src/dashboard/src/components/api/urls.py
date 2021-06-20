@@ -32,7 +32,7 @@ urlpatterns = [
         views.status,
         {"unit_type": "unitTransfer"},
     ),
-    url(r"transfer/start_transfer/", views.start_transfer_api),
+    url(r"transfer/start_transfer/", views.start_transfer_api, name="start_transfer"),
     url(r"transfer/reingest", views.reingest, {"target": "transfer"}),
     url(
         r"ingest/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
