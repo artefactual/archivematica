@@ -24,14 +24,17 @@ which stored transfers need to be re-indexed. Temporarily downloads a
 copy of each transfer via the API for indexing. This enables reindexing
 of packages stored in encrypted locations as well as some remote locations.
 
-``--delete-all`` : will delete the entire AIP Elasticsearch index before
-starting to reindex
+``--delete-all`` : will delete the entire AIP Elasticsearch index and create
+an empty index before starting to reindex
 
 ``-u`` or ``--uuid`` : only reindex the transfer that has the matching UUID.
 
 ``--skip-to``: starts reindexing from the specified uuid. Useful if a previous
 reindex attempt was interrupted for some reason. Mutually exclusive
 with ``--uuid`` option
+
+``--delete``: before re-reindexing a transfer, will delete any data found in Elasticsearch with a matching UUID. In contrast with the ``--delete-all``, it does not delete the entire index.
+
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -125,6 +128,12 @@ class Command(DashboardCommand):
             default=None,
             help="Specify starting transfer UUID to process. Mutually exclusive with --uuid option",
         )
+        parser.add_argument(
+            "-d",
+            "--delete",
+            action="store_true",
+            help="Delete AIP-related Elasticsearch data before" " indexing AIP data",
+        )
 
     def handle(self, *args, **options):
         """Entry point of the rebuild_transfer_backlog command."""
@@ -184,6 +193,7 @@ class Command(DashboardCommand):
                 pipeline_uuid,
                 uuid=options["uuid"],
                 skip_to=options["skip_to"],
+                delete=options["delete"],
             )
         else:
             self.populate_data_from_files(
@@ -191,6 +201,7 @@ class Command(DashboardCommand):
                 transfer_backlog_dir,
                 uuid=options["uuid"],
                 skip_to=options["skip_to"],
+                delete=options["delete"],
             )
 
     def confirm(self, no_prompt):
@@ -226,7 +237,7 @@ class Command(DashboardCommand):
         es.create_indexes_if_needed(es_client, indexes)
 
     def populate_data_from_files(
-        self, es_client, transfer_backlog_dir, uuid=None, skip_to=None
+        self, es_client, transfer_backlog_dir, uuid=None, skip_to=None, delete=False
     ):
         """Populate indices and/or database from files."""
         transfer_backlog_dir = Path(transfer_backlog_dir)
@@ -252,11 +263,18 @@ class Command(DashboardCommand):
             # If specified a single transfer uuid, skip all others
             if uuid and (uuid.lower() != transfer_uuid.lower()):
                 continue
+            # if delete option specified delete before reindexing
+            if delete:
+                self.info("Deleting index data of {}".format(transfer_uuid))
+                es.remove_backlog_transfer(es_client, transfer_uuid)
+                es.remove_backlog_transfer_files(es_client, transfer_uuid)
+
             if bag and "External-Identifier" in bag.info:
                 self.info(
                     "Importing self-describing transfer {}.".format(transfer_uuid)
                 )
                 size = am.get_bag_size(bag, str(transfer_dir))
+
                 _import_self_describing_transfer(
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
@@ -266,6 +284,7 @@ class Command(DashboardCommand):
                     size = am.get_bag_size(bag, str(transfer_dir))
                 else:
                     size = am.walk_dir(str(transfer_dir))
+
                 _import_pipeline_dependant_transfer(
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
@@ -273,7 +292,7 @@ class Command(DashboardCommand):
         self.success("{} transfers indexed!".format(processed))
 
     def populate_data_from_storage_service(
-        self, es_client, pipeline_uuid, uuid=None, skip_to=None
+        self, es_client, pipeline_uuid, uuid=None, skip_to=None, delete=False
     ):
         """Populate indices and/or database from Storage Service.
 
@@ -300,6 +319,12 @@ class Command(DashboardCommand):
             # If specified a single transfer uuid, skip all others
             if uuid and (uuid.lower() != transfer_uuid.lower()):
                 continue
+            # if delete option specified delete before reindexing
+            if delete:
+                self.info("Deleting index data of {}".format(transfer_uuid))
+                es.remove_backlog_transfer(es_client, transfer_uuid)
+                es.remove_backlog_transfer_files(es_client, transfer_uuid)
+
             temp_backlog_dir = tempfile.mkdtemp()
             try:
                 local_package = storageService.download_package(
