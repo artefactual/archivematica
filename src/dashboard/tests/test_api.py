@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import base64
 import datetime
 import json
 import os
@@ -603,3 +604,25 @@ def test_copy_metadata_files_api(mocker):
         "message": "Metadata files added successfully.",
         "error": None,
     }
+
+
+def test_start_transfer_api_decodes_paths(mocker, admin_client):
+    start_transfer_view = mocker.patch(
+        "components.filesystem_ajax.views.start_transfer",
+        return_value={},
+    )
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    admin_client.post(
+        reverse("api:start_transfer"),
+        {
+            "name": "my transfer",
+            "type": "zipfile",
+            "accession": "my accession",
+            "access_system_id": "system id",
+            "paths[]": [base64.b64encode(b"/a/path")],
+            "row_ids[]": ["row1"],
+        },
+    )
+    start_transfer_view.assert_called_once_with(
+        "my transfer", "zipfile", "my accession", "system id", ["/a/path"], ["row1"]
+    )
