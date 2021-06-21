@@ -12,6 +12,8 @@
     - [Gunicorn variables](#gunicorn-variables)
     - [LDAP variables](#ldap-variables)
     - [CAS variables](#cas-variables)
+    - [OIDC variables](#oidc-variables)
+    - [CSP variables](#csp-variables)
   - [Logging configuration](#logging-configuration)
 
 ## Introduction
@@ -84,10 +86,6 @@ location for this file is `/etc/nginx/sites-available/dashboard.conf`.
 - [`archivematica-dashboard.service`](./archivematica-dashboard.service) -
   systemd config sample.  The default location for this file is
   `/etc/systemd/system/archivematica-dashboard.service`.
-
-- [`archivematica-dashboard.conf`](./archivematica-dashboard.conf) - upstart
-   config sample, for use on Ubuntu 14.04 where systemd is not available. The
-   default location for this file is /etc/init/archivematica-dashboard.conf.
 
 These are fairly basic example files, that can be extended or customised to
 meet local needs.  Depending on the method used to install your Archivematica
@@ -236,6 +234,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `integer`
     - **Default:** `10`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED`**:
+    - **Description:** **Experimental** support for [Control Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) headers.
+    - **Config file example:** `Dashboard.csp_enabled`
+    - **Type:** `boolean`
+    - **Default:** `False`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED`**:
     - **Description:** Determines if Prometheus metrics should be collected.
     - **Config file example:** `Dashboard.prometheus_enabled`
@@ -296,85 +300,85 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `0`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_BACKEND`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_BACKEND`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.backend`
     - **Type:** `string`
     - **Default:** `django.core.mail.backends.console.EmailBackend`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_HOST`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.host`
     - **Type:** `string`
     - **Default:** `smtp.gmail.com`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_USER`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_USER`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.host_user`
     - **Type:** `string`
     - **Default:** `your_email@example.com`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_PASSWORD`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_HOST_PASSWORD`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.host_password`
     - **Type:** `string`
     - **Default:** `None`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_PORT`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_PORT`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.port`
     - **Type:** `integer`
     - **Default:** `587`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_CERTFILE`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_CERTFILE`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.ssl_certfile`
     - **Type:** `string`
     - **Default:** `None`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_KEYFILE`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_SSL_KEYFILE`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.ssl_keyfile`
     - **Type:** `string`
     - **Default:** `None`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_USE_SSL`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_USE_SSL`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.use_ssl`
     - **Type:** `boolean`
     - **Default:** `False`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_USE_TLS`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_USE_TLS`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.use_tls`
     - **Type:** `boolean`
     - **Default:** `True`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_FILE_PATH`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_FILE_PATH`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.file_path`
     - **Type:** `string`
     - **Default:** `None`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_DEFAULT_FROM_EMAIL`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_DEFAULT_FROM_EMAIL`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.default_from_email`
     - **Type:** `string`
     - **Default:** `webmaster@example.com`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SUBJECT_PREFIX`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_SUBJECT_PREFIX`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.subject_prefix`
     - **Type:** `string`
     - **Default:** `[Archivematica]`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_TIMEOUT`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_TIMEOUT`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details.
     - **Config file example:** `email.timeout`
     - **Type:** `integer`
     - **Default:** `300`
 
-- ** `ARCHIVEMATICA_DASHBOARD_EMAIL_SERVER_EMAIL`**:
+- **`ARCHIVEMATICA_DASHBOARD_EMAIL_SERVER_EMAIL`**:
     - **Description:** an email setting. See [Sending email](https://docs.djangoproject.com/en/1.8/topics/email/) for more details. When the value is `None`, Archivematica uses the value in `EMAIL_HOST_USER`.
     - **Config file example:** `email.server_email`
     - **Type:** `string`
@@ -667,6 +671,17 @@ These variables specify the behaviour of OpenID Connect (OIDC) authentication. O
     - **Description:** Algorithm used by the ID provider to sign ID tokens
     - **Type:** `string`
     - **Default:** `HS256`
+
+### CSP variables
+
+**CSP support is experimental, please share your feedback!**
+
+These variables specify the behaviour of the Content Security Policy (CSP) headers. Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED` is set.
+
+- **`CSP_SETTINGS_FILE`**:
+    - **Description:** Path to a Python module with overrides of the [`django-csp` policy settings](https://django-csp.readthedocs.io/en/latest/configuration.html#policy-settings). An `ImproperlyConfigured` exception will be raised if the Python module cannot be imported.
+    - **Type:** `string`
+    - **Default:** ``
 
 ## Logging configuration
 
