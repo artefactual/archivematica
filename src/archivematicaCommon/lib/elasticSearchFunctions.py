@@ -821,6 +821,8 @@ def _index_transfer_files(
                 bulk_extractor_reports = _list_bulk_extractor_reports(path, file_uuid)
                 if f.modificationtime is not None:
                     modification_date = f.modificationtime.strftime("%Y-%m-%d")
+                else:
+                    modification_date = ""
             except File.DoesNotExist:
                 file_uuid, modification_date = "", ""
                 formats = []
