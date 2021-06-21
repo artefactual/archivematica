@@ -20,12 +20,13 @@ django-auth-ldap==1.3.0   # via -r requirements.in
 django-autoslug==1.9.3    # via -r requirements.in
 django-braces==1.0.0      # via -r requirements.in
 django-cas-ng==3.6.0      # via -r requirements.in
+django-csp==3.7.0         # via -r requirements.in
 django-extensions==1.7.9  # via -r requirements.in
 django-forms-bootstrap==3.1.0  # via -r requirements.in
 django-prometheus==1.0.15  # via -r requirements.in
 git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r requirements.in
 django-tastypie==0.13.2   # via -r requirements.in
-django==1.11.29           # via -r requirements.in, django-auth-ldap, django-cas-ng, mozilla-django-oidc
+django==1.11.29           # via -r requirements.in, django-auth-ldap, django-cas-ng, django-csp, mozilla-django-oidc
 elasticsearch==6.8.2      # via -r requirements.in
 enum34==1.1.6 ; python_version < "3.4"  # via -r requirements.in, cryptography
 functools32==3.2.3.post2  # via jsonschema

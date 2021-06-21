@@ -24,12 +24,13 @@ django-auth-ldap==1.3.0   # via -r requirements-py3.txt
 django-autoslug==1.9.3    # via -r requirements-py3.txt
 django-braces==1.0.0      # via -r requirements-py3.txt
 django-cas-ng==3.6.0      # via -r requirements-py3.txt
+django-csp==3.7.0         # via -r requirements-py3.txt
 django-extensions==1.7.9  # via -r requirements-py3.txt
 django-forms-bootstrap==3.1.0  # via -r requirements-py3.txt
 django-prometheus==1.0.15  # via -r requirements-py3.txt
 git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76#egg=django-shibboleth-remoteuser  # via -r requirements-py3.txt
 django-tastypie==0.13.2   # via -r requirements-py3.txt
-django==1.11.29           # via -r requirements-py3.txt, django-auth-ldap, django-cas-ng, mozilla-django-oidc
+django==1.11.29           # via -r requirements-py3.txt, django-auth-ldap, django-cas-ng, django-csp, mozilla-django-oidc
 elasticsearch==6.8.2      # via -r requirements-py3.txt
 filelock==3.0.12          # via tox, virtualenv
 funcparserlib==0.3.6      # via mockldap

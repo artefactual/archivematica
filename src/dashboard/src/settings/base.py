@@ -27,10 +27,22 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
-from six import StringIO
+import six
 
 from appconfig import Config, process_search_enabled
 import email_settings
+
+
+def _get_settings_from_file(path):
+    try:
+        result = {}
+        with open(path, "rb") as f:
+            code = compile(f.read(), path, "exec")
+            six.exec_(code, result, result)
+        return result
+    except Exception as err:
+        raise ImproperlyConfigured("{} could not be imported: {}".format(path, err))
+
 
 CONFIG_MAPPING = {
     # [Dashboard]
@@ -123,6 +135,11 @@ CONFIG_MAPPING = {
         "option": "polling_interval",
         "type": "int",
     },
+    "csp_enabled": {
+        "section": "Dashboard",
+        "option": "csp_enabled",
+        "type": "boolean",
+    },
     "prometheus_enabled": {
         "section": "Dashboard",
         "option": "prometheus_enabled",
@@ -176,6 +193,7 @@ oidc_authentication = False
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
+csp_enabled = False
 prometheus_enabled = False
 audit_log_middleware = False
 polling_interval = 10
@@ -209,7 +227,7 @@ timeout = 300
 """
 
 config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO(CONFIG_DEFAULTS))
+config.read_defaults(six.StringIO(CONFIG_DEFAULTS))
 config.read_files(["/etc/archivematica/archivematicaCommon/dbsettings"])
 
 
@@ -597,6 +615,16 @@ if OIDC_AUTHENTICATION:
     INSTALLED_APPS += ["mozilla_django_oidc"]
 
     from .components.oidc_auth import *  # noqa
+
+CSP_ENABLED = config.get("csp_enabled")
+if CSP_ENABLED:
+    MIDDLEWARE.insert(0, "csp.middleware.CSPMiddleware")
+
+    from .components.csp import *  # noqa
+
+    CSP_SETTINGS_FILE = os.environ.get("CSP_SETTINGS_FILE", "")
+    if CSP_SETTINGS_FILE:
+        globals().update(_get_settings_from_file(CSP_SETTINGS_FILE))
 
 PROMETHEUS_ENABLED = config.get("prometheus_enabled")
 if PROMETHEUS_ENABLED:
