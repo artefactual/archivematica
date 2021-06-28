@@ -46,7 +46,7 @@ def get_aip_info(aic_dir, job):
         os.remove(file_path)
         aips.append({"name": aip_name, "uuid": filename})
 
-    # Fetch the METS file and parse out the Dublic Core metadata with the label
+    # Fetch the METS file and parse out the Dublin Core metadata with the label
     for aip in aips:
         mets_in_aip = "{aip_name}-{aip_uuid}/data/METS.{aip_uuid}.xml".format(
             aip_name=aip["name"], aip_uuid=aip["uuid"]
@@ -123,7 +123,7 @@ def create_mets_file(aic, aips, job):
     file_uuid = str(uuid.uuid4())
     basename = os.path.join("metadata", "METS.{}.xml".format(file_uuid))
     filename = os.path.join(aic["dir"], basename)
-    with open(filename, "w") as f:
+    with open(filename, "wb") as f:
         f.write(
             etree.tostring(
                 mets, pretty_print=True, xml_declaration=True, encoding="utf-8"
