@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import subprocess
 
 import mock
 
@@ -52,3 +53,41 @@ class TestUsage(TestCase):
         self.assertEqual(mock_mount_path.call_count, 5)
         self.assertEqual(mock_dir_size.call_count, 5)
         self.assertEqual(mock_dir_used.call_count, 45)
+
+    @mock.patch(
+        "subprocess.check_output",
+        side_effect=[
+            subprocess.CalledProcessError(1, cmd="du", output=b"unknown error ocurred"),
+            subprocess.CalledProcessError(
+                1, cmd="du", output=b"14141414\t/var/archivematica/sharedDirectory/\n"
+            ),
+        ],
+    )
+    @mock.patch(
+        "components.administration.views._usage_check_directory_volume_size",
+        return_value=10737418240,
+    )
+    @mock.patch(
+        "components.administration.views._get_shared_dirs",
+        return_value={},
+    )
+    def test_calculation_with_disk_usage_errors(
+        self, check_output, dir_size, shared_dirs
+    ):
+        """Test calculations of the usage view when the `du` call raises errors.
+
+        We've mocked the helper that iterates disk usage on each
+        shared directory so `du` is only called twice in this test
+        case:
+
+        - First with the mount point to which we raise an unknown
+          error that results in a 0 bytes calculation
+        - Then with the SHARED_DIRECTORY root to which we return
+          parseable output that results in a valid integer
+        """
+        response = self.client.get("/administration/usage/?calculate=yes")
+        assert response.context["root"] == {"path": "/", "size": 10737418240, "used": 0}
+        assert response.context["shared"] == {
+            "path": "/var/archivematica/sharedDirectory/",
+            "used": 14141414,
+        }
