@@ -394,7 +394,7 @@ def _usage_get_directory_used_bytes(path):
         # from CalledProcessError.output.
         byte_count = 0
         try:
-            byte_count = int(err.output.split("\t")[0])
+            byte_count = int(err.output.decode("utf8").split("\t")[0])
             logger.warning(
                 "Non-zero exit code while determining usage of %s. "
                 "Some directories may be missing from total.",
