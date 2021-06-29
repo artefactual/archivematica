@@ -15,11 +15,21 @@ in unknown state.
 An optional parameter ``--keep-failed`` may be passed to prevent failed packages
 from being purged.
 
-An optional parameter ``--age`` may be passed to exclude recent packages, i.e.
-it indicates how old a package must be in order to be purged.
+An optional parameter ``--keep-searches`` may be passed to retain search
+documents.
 
-Execution example used to purge packages that completed more than six hours ago.
-./manage.py purge_transient_processing_data --age='0 00:06:00'
+By default, this command only purges packages of a certain age. It uses
+``--age='0 00:06:00'``, meaning that no packages will be removed if they have
+not completed processing more than six hours ago. Optionally, users can pass
+other values.
+
+``/manage.py purge_transient_processing_data --age='0 00:12:00'`` purges
+packages that completed processing at least twelve hours ago.
+
+``/manage.py purge_transient_processing_data --age=0`` can be used to target
+all packages that completed processing regardless their age. This form is
+generally not recommended because it can affect SIPs being created from
+recently purged transfers.
 """
 from __future__ import unicode_literals
 
@@ -59,6 +69,11 @@ class Command(DashboardCommand):
             help="Do not purge failed packages.",
         )
         parser.add_argument(
+            "--keep-searches",
+            action="store_true",
+            help="Do not purge search documents.",
+        )
+        parser.add_argument(
             "-q",
             "--quiet",
             action="store_true",
@@ -66,16 +81,18 @@ class Command(DashboardCommand):
         )
         parser.add_argument(
             "--age",
+            default="0 00:06:00",
             help=(
                 "Only purge packages of a certain age (completion date). "
                 "Supported formats are: "
                 '"%%d %%H:%%M:%%S.%%f" or ISO 8601 durations. '
-                'E.g. express "36 hours" as "1 12:00:00" or "P1DT12H".'
+                'E.g. express "36 hours" as "1 12:00:00" or "P1DT12H". '
+                'Default value is "0 00:06:00", i.e. "6 hours".'
             ),
         )
 
     def handle(self, *args, **options):
-        if django_settings.SEARCH_ENABLED:
+        if not options["keep_searches"] and django_settings.SEARCH_ENABLED:
             # Ignore elasticsearch-py logging events unless they're errors.
             logging.getLogger("elasticsearch").setLevel(logging.ERROR)
             logging.getLogger("archivematica.common").setLevel(logging.ERROR)
@@ -90,7 +107,7 @@ class Command(DashboardCommand):
             "include_unknown": options["purge_unknown"],
             "include_failed": not options["keep_failed"],
         }
-        if options["age"]:
+        if options["age"] != "0":
             duration = parse_duration(options["age"])
             if duration is None:
                 raise CommandError("Age could not be parsed.")
@@ -125,7 +142,10 @@ class Command(DashboardCommand):
                     models.SIP.objects.filter(pk=package_id),
                     options["quiet"],
                 )
-                if es.AIPS_INDEX in django_settings.SEARCH_ENABLED:
+                if (
+                    not options["keep_searches"]
+                    and es.AIPS_INDEX in django_settings.SEARCH_ENABLED
+                ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
                     es.delete_aip(es_client, package_id)
@@ -163,7 +183,10 @@ class Command(DashboardCommand):
                     models.Transfer.objects.filter(pk=package_id),
                     options["quiet"],
                 )
-                if es.TRANSFERS_INDEX in django_settings.SEARCH_ENABLED:
+                if (
+                    not options["keep_searches"]
+                    and es.TRANSFERS_INDEX in django_settings.SEARCH_ENABLED
+                ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
                     es.remove_backlog_transfer(es_client, package_id)
