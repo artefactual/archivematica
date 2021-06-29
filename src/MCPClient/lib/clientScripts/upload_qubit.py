@@ -89,10 +89,10 @@ def start(job, data):
             .replace("%sharedPath%", "/var/archivematica/sharedDirectory/")
         )
     else:
-        return error(job, "Directory not found: %s" % directory)
+        return error(job, "Cannot determine directory")
 
     # Check if exists
-    if os.path.exists(directory) is False:
+    if not os.path.exists(directory):
         log("Directory not found: %s" % directory)
 
         # Trying with uploadedDIPs
@@ -118,7 +118,7 @@ def start(job, data):
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
-        target = six.moves.cPickle.loads(str(access.target))
+        target = six.moves.cPickle.loads(access.target.encode("utf8"))
         log("Target: %s" % (target["target"]))
     except:
         return error(job, "No target was selected")
