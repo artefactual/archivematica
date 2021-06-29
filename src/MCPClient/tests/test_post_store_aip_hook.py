@@ -4,6 +4,7 @@ import os
 import vcr
 
 from django.test import TestCase
+import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import post_store_aip_hook
@@ -56,3 +57,56 @@ class TestDSpaceToArchivesSpace(TestCase):
             )
             assert rc == 0
             assert c.all_played
+
+
+@pytest.fixture
+def shared_dir(tmp_path):
+    result = tmp_path / "sharedDirectory"
+    result.mkdir()
+    return result
+
+
+@pytest.fixture
+def processing_dir(shared_dir):
+    result = shared_dir / "currentlyProcessing"
+    result.mkdir()
+    return result
+
+
+@pytest.fixture
+def sip(db):
+    return models.SIP.objects.create()
+
+
+@pytest.fixture
+def transfer(db, processing_dir):
+    transfer_location = processing_dir / "transfer"
+    transfer_location.mkdir()
+    return models.Transfer.objects.create(currentlocation=str(transfer_location))
+
+
+@pytest.fixture
+def file_(db, sip, transfer):
+    return models.File.objects.create(sip=sip, transfer=transfer)
+
+
+@pytest.fixture
+def custom_settings(settings, shared_dir, processing_dir):
+    settings.SHARED_DIRECTORY = str(shared_dir)
+    settings.PROCESSING_DIRECTORY = str(processing_dir)
+    return settings
+
+
+def test_post_store_hook_deletes_transfer_directory(
+    db, mocker, sip, transfer, file_, custom_settings
+):
+    job = mocker.Mock()
+
+    # The transfer directory exists before calling the delete function
+    assert os.path.exists(transfer.currentlocation)
+
+    result = post_store_aip_hook.delete_transfer_directory(job, sip.uuid)
+
+    # The transfer directory is returned and has been deleted
+    assert result == transfer.currentlocation
+    assert not os.path.exists(transfer.currentlocation)

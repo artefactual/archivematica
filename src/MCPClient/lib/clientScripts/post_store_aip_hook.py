@@ -18,7 +18,6 @@ from main import models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from databaseFunctions import deUnicode
 import elasticSearchFunctions
 import storageService as storage_service
 from archivematicaFunctions import find_transfer_path_from_ingest, strToUnicode
@@ -45,7 +44,6 @@ def delete_transfer_directory(job, sip_uuid):
         .distinct()
         .get()
     )
-    current_location = deUnicode(current_location)
     transfer_path = os.path.abspath(
         find_transfer_path_from_ingest(
             current_location, strToUnicode(mcpclient_settings.SHARED_DIRECTORY)
