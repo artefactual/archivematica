@@ -132,7 +132,7 @@ class Command(DashboardCommand):
             "-d",
             "--delete",
             action="store_true",
-            help="Delete AIP-related Elasticsearch data before" " indexing AIP data",
+            help="Delete AIP-related Elasticsearch data before indexing AIP data",
         )
 
     def handle(self, *args, **options):
@@ -162,7 +162,9 @@ class Command(DashboardCommand):
             self.info('Rebuilding "transfers" index from packages in Storage Service.')
         else:
             if not os.path.exists(transfer_backlog_dir):
-                raise CommandError("Directory does not exist: %s", transfer_backlog_dir)
+                raise CommandError(
+                    "Directory does not exist: %s" % transfer_backlog_dir
+                )
             self.info(
                 'Rebuilding "transfers" index from {}.'.format(transfer_backlog_dir)
             )
