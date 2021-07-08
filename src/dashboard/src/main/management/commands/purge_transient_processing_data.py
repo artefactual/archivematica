@@ -19,11 +19,11 @@ An optional parameter ``--keep-searches`` may be passed to retain search
 documents.
 
 By default, this command only purges packages of a certain age. It uses
-``--age='0 00:06:00'``, meaning that no packages will be removed if they have
+``--age='0 06:00:00'``, meaning that no packages will be removed if they have
 not completed processing more than six hours ago. Optionally, users can pass
 other values.
 
-``/manage.py purge_transient_processing_data --age='0 00:12:00'`` purges
+``/manage.py purge_transient_processing_data --age='0 12:00:00'`` purges
 packages that completed processing at least twelve hours ago.
 
 ``/manage.py purge_transient_processing_data --age=0`` can be used to target
@@ -81,13 +81,13 @@ class Command(DashboardCommand):
         )
         parser.add_argument(
             "--age",
-            default="0 00:06:00",
+            default="0 06:00:00",
             help=(
                 "Only purge packages of a certain age (completion date). "
                 "Supported formats are: "
                 '"%%d %%H:%%M:%%S.%%f" or ISO 8601 durations. '
                 'E.g. express "36 hours" as "1 12:00:00" or "P1DT12H". '
-                'Default value is "0 00:06:00", i.e. "6 hours".'
+                'Default value is "0 06:00:00", i.e. "6 hours".'
             ),
         )
 

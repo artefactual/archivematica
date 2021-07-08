@@ -21,7 +21,7 @@ def search_enabled(settings):
 
 @pytest.fixture()
 def old_transfer(transfer):
-    transfer.completed_at = timezone.now() - parse_duration("0 00:12:00")
+    transfer.completed_at = timezone.now() - parse_duration("0 12:00:00")
     transfer.save()
 
     return transfer
@@ -29,7 +29,7 @@ def old_transfer(transfer):
 
 @pytest.fixture()
 def old_sip(sip):
-    sip.completed_at = timezone.now() - parse_duration("0 00:12:00")
+    sip.completed_at = timezone.now() - parse_duration("0 12:00:00")
     sip.save()
 
     return sip
@@ -61,7 +61,7 @@ def test_purge_command_keeps_package_with_failed_status(search_disabled, old_tra
 
 @pytest.mark.django_db
 def test_purge_command_skips_recent_packages(search_disabled, transfer):
-    call_command("purge_transient_processing_data", "--age", "0 00:06:00")
+    call_command("purge_transient_processing_data", "--age", "0 06:00:00")
 
     assert models.Transfer.objects.filter(pk=transfer.pk).count() == 1
 
@@ -70,7 +70,7 @@ def test_purge_command_skips_recent_packages(search_disabled, transfer):
 def test_purge_command_removes_package_matching_age_criteria(
     search_disabled, old_transfer
 ):
-    call_command("purge_transient_processing_data", "--age", "0 00:06:00")
+    call_command("purge_transient_processing_data", "--age", "0 06:00:00")
 
     assert models.Transfer.objects.filter(pk=old_transfer.pk).count() == 0
 
