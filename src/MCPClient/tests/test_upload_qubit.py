@@ -60,7 +60,6 @@ def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
         ),
     )
 
-    mcp_job = mocker.Mock()
     opts = mocker.Mock(
         uuid=sip.uuid,
         rsync_target=False,
@@ -73,6 +72,7 @@ def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
     )
 
     assert upload_qubit.start(mcp_job, opts) == 0
+    assert mcp_job.get_exit_code() == 0
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
@@ -91,7 +91,6 @@ def test_first_run(db, mocker, mcp_job, job, transfer, sip):
         ),
     )
 
-    mcp_job = mocker.Mock()
     opts = mocker.Mock(
         uuid=sip.uuid,
         rsync_target=False,
@@ -104,6 +103,7 @@ def test_first_run(db, mocker, mcp_job, job, transfer, sip):
     )
 
     assert upload_qubit.start(mcp_job, opts) == 0
+    assert mcp_job.get_exit_code() == 0
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
