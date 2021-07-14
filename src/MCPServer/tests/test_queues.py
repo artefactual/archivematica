@@ -1,5 +1,5 @@
 import concurrent.futures
-from six.moves import queue as Queue
+import queue
 import threading
 import time
 import uuid
@@ -188,7 +188,7 @@ def test_queue_next_job_raises_full(
 
     assert package_queue.job_queue.qsize() == 1
 
-    with pytest.raises(Queue.Full):
+    with pytest.raises(queue.Full):
         package_queue.queue_next_job()
 
 

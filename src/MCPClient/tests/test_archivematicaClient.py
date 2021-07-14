@@ -11,7 +11,7 @@ def test_handle_batch_task_replaces_non_ascii_arguments(mocker):
     mocker.patch("archivematicaClient.Task")
     mocker.patch("archivematicaClient.retryOnFailure")
     mocker.patch(
-        "six.moves.cPickle.loads",
+        "pickle.loads",
         return_value={
             "tasks": {
                 "some_task_uuid": {

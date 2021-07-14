@@ -21,6 +21,7 @@ import mimetypes
 import os
 import pprint
 import requests
+from urllib.parse import urlencode, urljoin
 from wsgiref.util import FileWrapper
 
 from django.conf import settings as django_settings
@@ -32,7 +33,6 @@ from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.translation import ugettext as _
 from tastypie.models import ApiKey
-from six.moves.urllib.parse import urlencode, urljoin
 
 from amclient import AMClient
 

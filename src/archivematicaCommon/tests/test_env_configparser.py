@@ -1,9 +1,9 @@
+from io import StringIO
 import os
 
 from django.test import TestCase
 import pytest
-from six import StringIO
-import six.moves.configparser as ConfigParser
+import configparser
 
 from env_configparser import EnvConfigParser
 
@@ -65,7 +65,7 @@ tls = on
 foo = bar
 """
         )
-        with pytest.raises(ConfigParser.NoSectionError):
+        with pytest.raises(configparser.NoSectionError):
             assert config.get("undefined_section", "foo")
 
     def test_unknown_option(self):
@@ -79,7 +79,7 @@ foo = bar
 foo = bar
 """
         )
-        with pytest.raises(ConfigParser.NoOptionError):
+        with pytest.raises(configparser.NoOptionError):
             assert config.get("main", "undefined_option")
 
     def test_unknown_option_with_fallback(self):

@@ -1,8 +1,8 @@
 import os
+import pickle
 import uuid
 
 import pytest
-import six.moves.cPickle
 
 from main import models
 
@@ -32,7 +32,7 @@ def job(sip, tmp_path):
 def access(db, sip):
     return models.Access.objects.create(
         sipuuid=sip.uuid,
-        target=six.moves.cPickle.dumps({"target": "atom-description-id"}, protocol=0),
+        target=pickle.dumps({"target": "atom-description-id"}, protocol=0),
     )
 
 

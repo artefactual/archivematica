@@ -3,7 +3,7 @@
 ``host`` and `port`` are replaced by ``base_url``.
 """
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from django.db import migrations
 

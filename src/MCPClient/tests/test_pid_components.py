@@ -14,7 +14,6 @@ from main.models import Directory, File, SIP, DashboardSetting, Transfer
 
 import pytest
 import vcr
-import six
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -532,11 +531,7 @@ def test_pid_declaration_exceptions(data, mocker, job):
     try:
         DeclarePIDs(job).pid_declaration(unit_uuid="", sip_directory="")
     except DeclarePIDsException as err:
-        json_error = (
-            "No JSON object could be decoded"
-            if six.PY2
-            else "Expecting value: line 15 column 1 (char 336)"
-        )
+        json_error = "Expecting value: line 15 column 1 (char 336)"
         assert json_error in str(
             err
         ), "Error message something other than anticipated for invalid JSON"

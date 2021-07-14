@@ -7,7 +7,7 @@ import logging
 import uuid
 
 from django.conf import settings
-from django.utils.six.moves import cPickle
+import pickle
 from gearman import GearmanClient
 from gearman.constants import JOB_COMPLETE, JOB_FAILED, JOB_UNKNOWN
 import six
@@ -204,7 +204,7 @@ class GearmanTaskBatch:
             task_uuid = str(task.uuid)
             data["tasks"][task_uuid] = self.serialize_task(task)
 
-        pickled_data = cPickle.dumps(data, protocol=0)
+        pickled_data = pickle.dumps(data, protocol=0)
 
         self.pending = client.submit_job(
             task=six.ensure_binary(job.name),
@@ -222,7 +222,7 @@ class GearmanTaskBatch:
         elif not self.pending.result:
             raise ValueError("Unexpected empty result from Gearman job")
 
-        job_result = cPickle.loads(self.pending.result)
+        job_result = pickle.loads(self.pending.result)
 
         try:
             return job_result["task_results"]

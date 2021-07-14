@@ -1,11 +1,11 @@
 import logging
 import os
 import platform
+import urllib
 
 from django.conf import settings as django_settings
 import requests
 from requests.auth import AuthBase
-import six.moves.urllib as urllib
 import six
 
 # archivematicaCommon

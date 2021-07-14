@@ -32,7 +32,6 @@ from django.db import IntegrityError
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 import six
 
@@ -225,7 +224,6 @@ class Access(models.Model):
         return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
 
 
-@python_2_unicode_compatible
 class DublinCore(models.Model):
     """ DublinCore metadata associated with a SIP or Transfer. """
 
@@ -286,7 +284,6 @@ class DublinCore(models.Model):
             return str(_("Untitled"))
 
 
-@python_2_unicode_compatible
 class MetadataAppliesToType(models.Model):
     """
     What type of unit (SIP, DIP, Transfer etc) the metadata link is.
@@ -313,7 +310,6 @@ class MetadataAppliesToType(models.Model):
         return str(self.description)
 
 
-@python_2_unicode_compatible
 class Event(models.Model):
     """ PREMIS Events associated with Files. """
 
@@ -352,7 +348,6 @@ class Event(models.Model):
         )
 
 
-@python_2_unicode_compatible
 class Derivation(models.Model):
     """
     Link between original and normalized files.
@@ -430,7 +425,6 @@ PACKAGE_STATUS_CHOICES = (
 )
 
 
-@python_2_unicode_compatible
 class SIP(models.Model):
     """ Information on SIP units. """
 
@@ -589,7 +583,6 @@ class Transfer(models.Model):
         return self.status == PACKAGE_STATUS_PROCESSING
 
 
-@python_2_unicode_compatible
 class SIPArrange(models.Model):
     """ Information about arranged files: original and arranged location, current status. """
 
@@ -677,7 +670,6 @@ class Identifier(models.Model):
         db_table = "Identifiers"
 
 
-@python_2_unicode_compatible
 class File(models.Model):
     """ Information about Files in units (Transfers, SIPs). """
 
@@ -757,7 +749,6 @@ class File(models.Model):
         return self.transfer.type == Transfer.ARCHIVEMATICA_AIP and not self.sip
 
 
-@python_2_unicode_compatible
 class Directory(models.Model):
     """Information about Directories in units (Transfers, SIPs).
     Note: Directory instances are only created if the user explicitly
@@ -832,7 +823,6 @@ class Directory(models.Model):
         return cls.objects.bulk_create(paths)
 
 
-@python_2_unicode_compatible
 class FileFormatVersion(models.Model):
     """
     Link between a File and the FormatVersion it is identified as.
@@ -1095,7 +1085,6 @@ class Report(models.Model):
         db_table = "Reports"
 
 
-@python_2_unicode_compatible
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column="pk")
     metadataappliestotype = models.ForeignKey(
@@ -1684,7 +1673,6 @@ class TransferMetadataSet(models.Model):
         db_table = "TransferMetadataSets"
 
 
-@python_2_unicode_compatible
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1734,7 +1722,6 @@ class TransferMetadataFieldValue(models.Model):
 # to leave room for future expansion. The possible taxonomy terms are
 # designed to be editable, and forms to do so exist. (Forms for editing and
 # defining new fields are present in the code but currently disabled.)
-@python_2_unicode_compatible
 class Taxonomy(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1750,7 +1737,6 @@ class Taxonomy(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1768,7 +1754,6 @@ class TaxonomyTerm(models.Model):
         return self.term
 
 
-@python_2_unicode_compatible
 class FPCommandOutput(models.Model):
     file = models.ForeignKey(
         "File", db_column="fileUUID", to_field="uuid", on_delete=models.CASCADE
@@ -1806,7 +1791,6 @@ class FileID(models.Model):
         db_table = "FilesIDs"
 
 
-@python_2_unicode_compatible
 class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length=1024)  # seems long, but AtoM allows this much

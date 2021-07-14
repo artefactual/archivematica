@@ -1,10 +1,10 @@
 import math
+import pickle
 import uuid
 
 import gearman
 import pytest
 import six
-from six.moves import cPickle
 
 from server.jobs import Job
 from server.tasks import GearmanTaskBackend, Task
@@ -46,7 +46,7 @@ def format_gearman_request(tasks):
             "wants_output": task.wants_output,
         }
 
-    return cPickle.dumps(request, protocol=0)
+    return pickle.dumps(request, protocol=0)
 
 
 def format_gearman_response(task_results):
@@ -56,7 +56,7 @@ def format_gearman_response(task_results):
         task_uuid = str(task_uuid)
         response["task_results"][task_uuid] = task_data
 
-    return cPickle.dumps(response, protocol=0)
+    return pickle.dumps(response, protocol=0)
 
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
@@ -74,7 +74,7 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
 
     assert submit_job_kwargs["task"] == six.ensure_binary(simple_job.name)
     # Comparing pickled strings is fragile, so compare the python version
-    assert cPickle.loads(submit_job_kwargs["data"]) == cPickle.loads(task_data)
+    assert pickle.loads(submit_job_kwargs["data"]) == pickle.loads(task_data)
     try:
         uuid.UUID(six.ensure_text(submit_job_kwargs["unique"]))
     except ValueError:
@@ -147,7 +147,7 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
 
     def mock_jobs_completed(*args):
         job_request.state = gearman.JOB_FAILED
-        job_request.exception = cPickle.dumps(Exception("Error!"), protocol=0)
+        job_request.exception = pickle.dumps(Exception("Error!"), protocol=0)
 
         return [job_request]
 

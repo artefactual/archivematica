@@ -2,7 +2,6 @@ from smtplib import SMTPException
 
 from django.core import mail
 import pytest
-import six
 
 import email_fail_report
 
@@ -41,7 +40,7 @@ def test_send_email_ok(settings):
 
 def test_send_email_err(monkeypatch):
     monkeypatch.setattr(
-        "django.core.mail.send_mail.{}".format("func_code" if six.PY2 else "__code__"),
+        "django.core.mail.send_mail.__code__",
         fake_send_email_with_exception.__code__,
     )
     with pytest.raises(SMTPException):

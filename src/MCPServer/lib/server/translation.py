@@ -4,13 +4,12 @@ i18n handling.
 
 import pprint
 
-from django.utils.six import text_type, python_2_unicode_compatible
+from django.utils.six import text_type
 
 FALLBACK_LANG = "en"
 UNKNOWN_TRANSLATION_LABEL = "<unknown>"
 
 
-@python_2_unicode_compatible
 class TranslationLabel:
     """Mixin for easy access to translated messages.
 

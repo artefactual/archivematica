@@ -9,7 +9,6 @@ import logging
 
 from django.db import connection, models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.six import python_2_unicode_compatible
 
 from autoslug import AutoSlugField
 from django_extensions.db.fields import UUIDField
@@ -130,7 +129,6 @@ class FormatManager(models.Manager):
             return ret
 
 
-@python_2_unicode_compatible
 class Format(models.Model):
     """User-friendly description of format.
 
@@ -163,7 +161,6 @@ class Format(models.Model):
         return f"{self.group.description}: {self.description}"
 
 
-@python_2_unicode_compatible
 class FormatGroup(models.Model):
     """ Group/classification for formats.  Eg. image, video, audio. """
 
@@ -181,7 +178,6 @@ class FormatGroup(models.Model):
         return f"{self.description}"
 
 
-@python_2_unicode_compatible
 class FormatVersion(VersionedModel, models.Model):
     """ Format that a tool identifies. """
 
@@ -249,7 +245,6 @@ class FormatVersion(VersionedModel, models.Model):
 # ########### ID TOOLS ############
 
 
-@python_2_unicode_compatible
 class IDCommand(VersionedModel, models.Model):
     """Command to run an IDToolConfig and parse the output.
 
@@ -312,7 +307,6 @@ class IDCommand(VersionedModel, models.Model):
         super().save(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class IDRule(VersionedModel, models.Model):
     """ Mapping between an IDCommand output and a FormatVersion. """
 
@@ -369,7 +363,6 @@ class IDRule(VersionedModel, models.Model):
         }
 
 
-@python_2_unicode_compatible
 class IDTool(models.Model):
     """ Tool used to identify formats.  Eg. DROID """
 
@@ -404,7 +397,6 @@ class IDTool(models.Model):
 # ########### NORMALIZATION ############
 
 
-@python_2_unicode_compatible
 class FPRule(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -507,7 +499,6 @@ class FPRule(VersionedModel, models.Model):
         }
 
 
-@python_2_unicode_compatible
 class FPCommand(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -580,7 +571,6 @@ class FPCommand(VersionedModel, models.Model):
         return f"{self.description}"
 
 
-@python_2_unicode_compatible
 class FPTool(models.Model):
     """ Tool used to perform normalization.  Eg. convert, ffmpeg, ps2pdf. """
 

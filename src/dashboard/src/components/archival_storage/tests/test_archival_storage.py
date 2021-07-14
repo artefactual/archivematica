@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from io import StringIO
 import json
 import os
+from urllib.parse import urlencode
 import uuid
 
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
@@ -25,8 +27,6 @@ from django.test.client import Client
 from django.urls import reverse
 from elasticsearch import Elasticsearch
 import pytest
-from six.moves.urllib.parse import urlencode
-from six import StringIO
 
 from components.archival_storage import atom
 from components import helpers

@@ -1,5 +1,3 @@
-import six
-
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 
@@ -28,8 +26,7 @@ class PasswordComplexityValidator:
         has_number = False
         has_special = False
 
-        unicode_password = six.ensure_text(password, errors="ignore")
-        for char in unicode_password:
+        for char in password:
             if char.islower():
                 has_lower = True
             elif char.isupper():

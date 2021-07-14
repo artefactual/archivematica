@@ -28,6 +28,7 @@ import collections
 import errno
 import glob
 import hashlib
+from itertools import zip_longest
 import locale
 import os
 import pprint
@@ -42,7 +43,6 @@ except ImportError:
 from django.apps import apps
 import scandir
 import six
-from six.moves import zip_longest
 from lxml import etree
 from namespaces import NSMAP, xml_find_premis
 

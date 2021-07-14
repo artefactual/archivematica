@@ -9,19 +9,20 @@ the client is ready to handle application-level exceptions.
 from collections import OrderedDict
 
 import calendar
+import configparser
 import inspect
+from io import StringIO
 import logging
+import pickle
 from socket import gethostname
 import re
 import time
 
 from django.conf import settings as django_settings
 from django.db import connection
-from django.utils.six.moves import configparser
 from gearman import GearmanWorker
 import gearman
 from lxml import etree
-from six.moves import cPickle
 import six
 
 from archivematicaFunctions import strToUnicode
@@ -149,7 +150,7 @@ class RPCServer(GearmanWorker):
         except IndexError:
             raise err
         parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
-        parser.readfp(six.StringIO(config))
+        parser.readfp(StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
@@ -168,7 +169,7 @@ class RPCServer(GearmanWorker):
         def wrap(worker, job):
             args = [worker, job]
             if opts["expect_payload"]:
-                payload = cPickle.loads(job.data)
+                payload = pickle.loads(job.data)
                 if not isinstance(payload, dict):
                     raise UnexpectedPayloadError("Payload is not a dictionary")
                 args.append(payload)
@@ -186,7 +187,7 @@ class RPCServer(GearmanWorker):
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
                 resp = {"error": True, "handler": name, "message": str(err)}
-            return cPickle.dumps(resp, protocol=0)
+            return pickle.dumps(resp, protocol=0)
 
         return wrap
 

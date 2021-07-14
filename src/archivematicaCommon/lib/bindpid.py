@@ -133,9 +133,9 @@ Example::
 """
 
 import argparse
+import configparser
 import os
 
-import six.moves.configparser as configparser
 
 try:
     from jinja2 import Template

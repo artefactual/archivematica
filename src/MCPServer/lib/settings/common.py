@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from io import StringIO
 import json
 import logging
 import logging.config
@@ -22,7 +23,6 @@ import math
 import multiprocessing
 import os
 
-from six import StringIO
 
 from appconfig import Config, process_search_enabled, process_watched_directory_interval
 import email_settings

@@ -16,11 +16,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import pickle
 
 from django.conf import settings
 from django.utils.translation import get_language
 import gearman
-import six.moves.cPickle
+import six
 
 from main.models import Job
 
@@ -63,7 +64,7 @@ class TimeoutError(RPCGearmanClientError):
     """Deadline exceeded.
 
     >> response = client.submit_job(
-           "doSomething", cPickle.dumps(data, protocol=0),
+           "doSomething", pickle.dumps(data, protocol=0),
            background=False, wait_until_complete=True,
            poll_timeout=INFLIGHT_POLL_TIMEOUT)
        if response.state == gearman.JOB_CREATED:
@@ -112,7 +113,7 @@ class MCPClient:
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
             six.ensure_binary(ability),
-            six.moves.cPickle.dumps(data, protocol=0),
+            pickle.dumps(data, protocol=0),
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -122,7 +123,7 @@ class MCPClient:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
             raise RPCError(f"{ability} failed (check the logs)")
-        payload = six.moves.cPickle.loads(response.result)
+        payload = pickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)
         return payload
@@ -135,7 +136,7 @@ class MCPClient:
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job(b"approveJob", six.moves.cPickle.dumps(data, protocol=0))
+        gm_client.submit_job(b"approveJob", pickle.dumps(data, protocol=0))
         gm_client.shutdown()
         return
 
@@ -157,10 +158,10 @@ class MCPClient:
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job(
-            b"getJobsAwaitingApproval", six.moves.cPickle.dumps({}, protocol=0)
+            b"getJobsAwaitingApproval", pickle.dumps({}, protocol=0)
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
-            return six.moves.cPickle.loads(completed_job_request.result)
+            return pickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 

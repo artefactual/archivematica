@@ -18,9 +18,11 @@
 import json
 import logging
 import os
+import pickle
 import re
 import requests
 import shutil
+from urllib.parse import urljoin
 import uuid
 
 from django.conf import settings as django_settings
@@ -32,8 +34,6 @@ from django.shortcuts import render, redirect
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import View
-import six.moves.cPickle
-from six.moves.urllib.parse import urljoin
 
 from contrib.mcp.client import MCPClient
 from components import advanced_search
@@ -320,16 +320,14 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = six.moves.cPickle.dumps(
-                {"target": request.POST["target"]}, protocol=0
-            )
+            access.target = pickle.dumps({"target": request.POST["target"]}, protocol=0)
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)
     elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = six.moves.cPickle.loads(str(access.target))
+            data = pickle.loads(str(access.target))
         except:
             raise Http404
         return helpers.json_response(data)

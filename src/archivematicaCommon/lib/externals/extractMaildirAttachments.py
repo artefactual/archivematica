@@ -6,11 +6,10 @@
 # Author Joseph Perry
 # date Aug 10 2010
 
+from io import StringIO
 import email
 import sys
 import uuid
-
-from six import StringIO
 
 
 def parse_attachment(message_part, state, attachments=None):

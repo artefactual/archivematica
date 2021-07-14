@@ -2,7 +2,7 @@
 Exposes various metrics via Prometheus.
 """
 
-import six.moves.configparser
+import configparser
 import datetime
 import functools
 import os
@@ -192,7 +192,7 @@ def skip_if_prometheus_disabled(func):
 def init_counter_labels():
     # Zero our counters to start, by intializing all labels. Non-zero starting points
     # cause problems when measuring rates.
-    modules_config = six.moves.configparser.RawConfigParser()
+    modules_config = configparser.RawConfigParser()
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
         job_counter.labels(script_name=script_name)

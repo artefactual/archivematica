@@ -1,8 +1,8 @@
+from io import StringIO
 import os
 
 from django.core.exceptions import ImproperlyConfigured
 import pytest
-from six import StringIO
 
 from appconfig import Config, process_search_enabled
 

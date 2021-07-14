@@ -23,7 +23,6 @@ import types
 
 import django
 import prometheus_client
-import six
 
 from archivematicaClient import get_supported_modules
 
@@ -35,13 +34,6 @@ from archivematicaClient import get_supported_modules
 GOOD_GLOBAL_TYPES = (
     types.ModuleType,
     types.FunctionType,
-)
-if six.PY2:
-    GOOD_GLOBAL_TYPES += (
-        types.TypeType,
-        types.ClassType,
-    )
-GOOD_GLOBAL_TYPES += (
     django.db.models.base.ModelBase,
     logging.Logger,
     int,
@@ -118,15 +110,6 @@ def analyze_module(module_name):
         val = getattr(module, attr)
         if attr.startswith("__"):
             continue
-        if six.PY2 and isinstance(val, (types.TypeType, types.ClassType)):
-            for class_attr in dir(val):
-                global2modules_funcs_2 = collect_globals(
-                    f"{attr}.{class_attr}",
-                    getattr(val, class_attr),
-                    module,
-                    module_name,
-                    global2modules_funcs_2,
-                )
         elif isinstance(val, types.FunctionType):
             global2modules_funcs_2 = collect_globals(
                 attr, val, module, module_name, global2modules_funcs_2

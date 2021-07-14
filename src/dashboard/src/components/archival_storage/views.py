@@ -31,7 +31,6 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.timezone import make_aware, get_current_timezone
 from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
-import six
 
 from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
 from components import advanced_search, helpers
@@ -222,12 +221,6 @@ def generate_search_as_csv_rows(csvwriter, es_results):
     # Header.
     yield csvwriter.writerow(_ORDERED_DICT_ES_FIELDS.values())
 
-    def encode(item):
-        """Only needed in Python 2."""
-        if six.PY2 and isinstance(item, str):
-            return item.encode("utf-8")
-        return item
-
     # Rows.
     keys = _ORDERED_DICT_ES_FIELDS.keys()
     current_timezone = get_current_timezone()
@@ -251,7 +244,7 @@ def generate_search_as_csv_rows(csvwriter, es_results):
             created = row[es.ES_FIELD_CREATED]
         row[es.ES_FIELD_CREATED] = created
 
-        yield csvwriter.writerow([encode(item) for item in row.values()])
+        yield csvwriter.writerow([item for item in row.values()])
 
 
 def search_as_csv(es_results, file_name):

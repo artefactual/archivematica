@@ -14,7 +14,7 @@ New validators must be added to the `` _VALIDATORS`` registry.
 
 import collections
 import csv
-from six import StringIO
+from io import StringIO
 
 
 class ValidationError(Exception):

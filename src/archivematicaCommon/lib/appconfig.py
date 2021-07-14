@@ -16,7 +16,7 @@ current appconfig Config object and the section.
 
 from django.core.exceptions import ImproperlyConfigured
 
-import six.moves.configparser as ConfigParser
+import configparser
 
 from env_configparser import EnvConfigParser
 
@@ -69,7 +69,7 @@ class Config:
 
         try:
             return getattr(self.config, getter)(**kwargs)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             raise ImproperlyConfigured(self.UNDEFINED_ATTR_MSG % attr)
 
     def get_from_opts_list(self, attr, attr_opts_list, default=None):
@@ -89,8 +89,8 @@ class Config:
             try:
                 return getattr(self.config, getter)(**kwargs)
             except (
-                ConfigParser.NoSectionError,
-                ConfigParser.NoOptionError,
+                configparser.NoSectionError,
+                configparser.NoOptionError,
                 ValueError,
             ):
                 pass
