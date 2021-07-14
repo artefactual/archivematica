@@ -97,7 +97,6 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-server"
-        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -122,7 +121,6 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-client"
-        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -160,7 +158,6 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-dashboard"
-        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -189,7 +186,6 @@ services:
       context: "submodules/archivematica-storage-service"
       args:
         TARGET: "archivematica-storage-service"
-        PYTHON_VERSION: ${PYTHON_VERSION:-python3}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"
