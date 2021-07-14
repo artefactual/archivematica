@@ -163,7 +163,7 @@ def generate_project_client_package(
     job.pyprint("Path to the output tabfile", csv_path)
 
     divs_with_dmdsecs = structmap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
-    with open(csv_path, "wb") as csv_file:
+    with open(csv_path, "w") as csv_file:
         writer = csv.writer(csv_file, delimiter="\t")
 
         # Iterate through every div and create a row for each
