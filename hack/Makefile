@@ -223,54 +223,34 @@ test-build:  ## Build archivematica-tests image.
 		--build-arg TARGET=archivematica-tests \
 			../
 
-__TOXENVS_MCPSERVER := py27-mcpserver
+__TOXENVS_MCPSERVER := py36-mcpserver
 test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
-test-mcp-server-py36: start-mysql  ## Run MCPServer tests in Python 3.6.
-	$(call run_toxenvs,py36-mcpserver)
-
-__TOXENVS_MCPCLIENT = py27-mcpclient py27-mcpclient-ensure-no-mutable-globals
+__TOXENVS_MCPCLIENT = py36-mcpclient py36-mcpclient-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
-test-mcp-client-py36: start-mysql  ## Run MCPClient tests in Python 3.6.
-	$(call run_toxenvs,py36-mcpclient py36-mcpclient-ensure-no-mutable-globals)
-
-__TOXENVS_DASHBOARD = py27-dashboard
+__TOXENVS_DASHBOARD = py36-dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
-test-dashboard-py36: start-mysql  ## Run Dashboard tests in Python 3.6.
-	$(call run_toxenvs,py36-dashboard)
-
-__TOXENVS_STORAGE_SERVICE = py27-storage-service
+__TOXENVS_STORAGE_SERVICE = py36-storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
-
-test-storage-service-py36: start-mysql  ## Run Storage Service tests in Python 3.6.
-	$(call run_toxenvs,py36-storage-service)
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-__TOXENVS_ARCHIVEMATICA_COMMON = py27-archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON = py36-archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
 
-test-archivematica-common-py36: start-mysql  ## Run Archivematica Common tests in Python 3.6.
-	$(call run_toxenvs,py36-archivematica-common)
-
-__TOXENVS_MIGRATIONS = py27-migrations-dashboard migrations-storage-service
+__TOXENVS_MIGRATIONS = py36-migrations-dashboard migrations-storage-service
 test-migrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_db,DASHBOARDTEST)
 	$(call create_db,SSTEST)
 	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS))
-
-test-migrations-py36: start-mysql  ## Check there are no pending migrations in Python 3.6.
-	$(call create_db,DASHBOARDTEST)
-	$(call create_db,SSTEST)
-	$(call run_toxenvs,py36-migrations-dashboard)
 
 __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.
