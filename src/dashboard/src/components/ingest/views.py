@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import json
 import logging
@@ -182,7 +180,7 @@ def ingest_metadata_add_files(request, sip_uuid):
             ),
         )
     else:
-        logging.debug("Source directories found: {}".format(source_directories))
+        logging.debug(f"Source directories found: {source_directories}")
         if not source_directories:
             messages.warning(
                 request,
@@ -223,7 +221,7 @@ def aic_metadata_add(request, uuid):
         watched_dir = django_settings.WATCH_DIRECTORY
         name = dc.title if dc.title else dc.identifier
         name = slugify(name).replace("-", "_")
-        dir_name = "{name}-{uuid}".format(name=name, uuid=uuid)
+        dir_name = f"{name}-{uuid}"
         destination = os.path.join(watched_dir, "system", "createAIC", dir_name)
 
         destination_db = destination.replace(shared_dir, "%sharedPath%") + "/"
@@ -490,7 +488,7 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         object_count += len([e for e in this_node["children"] if not e.get("children")])
 
         this_node["properties"]["object count"] = object_count
-        this_node["properties"]["display_string"] = "{} objects".format(object_count)
+        this_node["properties"]["display_string"] = f"{object_count} objects"
         # If any children of a dir are draggable, the whole dir should be
         # Otherwise, directories have the draggability of their first child
         this_node["properties"]["not_draggable"] = (

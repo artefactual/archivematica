@@ -62,7 +62,6 @@ from socket import gethostname
 import time
 
 import django
-from six.moves import zip
 import six
 
 django.setup()
@@ -273,7 +272,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
-    host_id = "{}_{}".format(gethostname(), os.getpid())
+    host_id = f"{gethostname()}_{os.getpid()}"
     gm_worker.set_client_id(host_id)
     task_handler = partial(execute_command, supported_modules)
     for client_script in supported_modules:

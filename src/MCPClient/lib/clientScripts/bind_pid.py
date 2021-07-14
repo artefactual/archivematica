@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # This file is part of Archivematica.
 #
@@ -97,7 +96,7 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
     """Add the newly minted handle to the ``File`` model as an identifier in its
     m2m ``identifiers`` attribute.
     """
-    pid = "{}/{}".format(naming_authority, file_uuid)
+    pid = f"{naming_authority}/{file_uuid}"
     purl = "{}/{}".format(resolver_url.rstrip("/"), pid)
     file_mdl = File.objects.get(uuid=file_uuid)
     existing_ids = file_mdl.identifiers.all()

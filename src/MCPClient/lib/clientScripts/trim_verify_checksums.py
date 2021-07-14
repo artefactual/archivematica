@@ -96,7 +96,7 @@ def call(jobs):
                             for path, fileUUID in fileID.items():
                                 eventDetail = 'program="python"; module="hashlib.md5()"'
                                 eventOutcome = "Pass"
-                                eventOutcomeDetailNote = "%s %s" % (
+                                eventOutcomeDetailNote = "{} {}".format(
                                     xmlFile.__str__(),
                                     "verified",
                                 )

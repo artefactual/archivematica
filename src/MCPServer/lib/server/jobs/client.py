@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """
 Jobs remotely executed by on MCP client.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 import ast
 import logging
 
 from django.conf import settings
-from django.utils import six
 
 from server import metrics
 from server.db import auto_close_old_connections
@@ -27,13 +23,12 @@ def _escape_for_command_line(value):
     # escape slashes, quotes, backticks
     value = value.replace("\\", "\\\\")
     value = value.replace('"', '\\"')
-    value = value.replace("`", "\`")
+    value = value.replace("`", r"\`")
 
     return value
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ClientScriptJob(Job):
+class ClientScriptJob(Job, metaclass=abc.ABCMeta):
     """A job with one or more Tasks, executed via mcp client script.
 
     Tasks are batched into groups of TASK_BATCH_SIZE, sent to mcp client via gearman.
@@ -52,7 +47,7 @@ class ClientScriptJob(Job):
     capture_task_output = False
 
     def __init__(self, *args, **kwargs):
-        super(ClientScriptJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Lazy initialize in `run` method
         self.task_backend = None
@@ -98,7 +93,7 @@ class ClientScriptJob(Job):
         if command is None:
             return None
 
-        for key, replacement in six.iteritems(replacements):
+        for key, replacement in replacements.items():
             escaped_replacement = _escape_for_command_line(replacement)
             command = command.replace(key, escaped_replacement)
 
@@ -106,7 +101,7 @@ class ClientScriptJob(Job):
 
     @auto_close_old_connections()
     def run(self, *args, **kwargs):
-        super(ClientScriptJob, self).run(*args, **kwargs)
+        super().run(*args, **kwargs)
 
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
 

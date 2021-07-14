@@ -50,7 +50,7 @@ def call(jobs):
                 fileCount = 0
                 exitCode = 0
 
-                for line in open(os.path.join(transferPath, "manifest.txt"), "r"):
+                for line in open(os.path.join(transferPath, "manifest.txt")):
                     if line.startswith(" Directory of "):
                         if topDirectory is None:
                             topDirectory = line.strip()
@@ -80,7 +80,7 @@ def call(jobs):
                     if line.find("<DIR>") != -1:
                         isDir = True
 
-                    sections = re.split("\s+", line.strip())
+                    sections = re.split(r"\s+", line.strip())
                     baseName = sections[-1]  # assumes no spaces in file name
                     path = os.path.join(transferPath, currentDirectory, baseName)
 

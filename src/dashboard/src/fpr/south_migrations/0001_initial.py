@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from south.db import db
 from south.v2 import SchemaMigration
 
@@ -9,7 +6,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'Agent'
         db.create_table(
-            u"Agent",
+            "Agent",
             (
                 (
                     "uuid",
@@ -39,11 +36,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["Agent"])
+        db.send_create_signal("fpr", ["Agent"])
 
         # Adding model 'CommandType'
         db.create_table(
-            u"CommandType",
+            "CommandType",
             (
                 (
                     "uuid",
@@ -75,11 +72,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["CommandType"])
+        db.send_create_signal("fpr", ["CommandType"])
 
         # Adding model 'Command'
         db.create_table(
-            u"Command",
+            "Command",
             (
                 (
                     "uuid",
@@ -155,11 +152,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["Command"])
+        db.send_create_signal("fpr", ["Command"])
 
         # Adding model 'CommandsSupportedBy'
         db.create_table(
-            u"CommandsSupportedBy",
+            "CommandsSupportedBy",
             (
                 (
                     "uuid",
@@ -193,11 +190,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["CommandsSupportedBy"])
+        db.send_create_signal("fpr", ["CommandsSupportedBy"])
 
         # Adding model 'FileIDType'
         db.create_table(
-            u"FileIDType",
+            "FileIDType",
             (
                 (
                     "uuid",
@@ -231,11 +228,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FileIDType"])
+        db.send_create_signal("fpr", ["FileIDType"])
 
         # Adding model 'FileID'
         db.create_table(
-            u"FileID",
+            "FileID",
             (
                 (
                     "uuid",
@@ -287,11 +284,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FileID"])
+        db.send_create_signal("fpr", ["FileID"])
 
         # Adding model 'CommandClassification'
         db.create_table(
-            u"CommandClassification",
+            "CommandClassification",
             (
                 (
                     "uuid",
@@ -325,11 +322,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["CommandClassification"])
+        db.send_create_signal("fpr", ["CommandClassification"])
 
         # Adding model 'CommandRelationship'
         db.create_table(
-            u"CommandRelationship",
+            "CommandRelationship",
             (
                 (
                     "uuid",
@@ -373,11 +370,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["CommandRelationship"])
+        db.send_create_signal("fpr", ["CommandRelationship"])
 
         # Adding model 'FileIDsBySingleID'
         db.create_table(
-            u"FileIDsBySingleID",
+            "FileIDsBySingleID",
             (
                 (
                     "uuid",
@@ -422,38 +419,38 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FileIDsBySingleID"])
+        db.send_create_signal("fpr", ["FileIDsBySingleID"])
 
     def backwards(self, orm):
         # Deleting model 'Agent'
-        db.delete_table(u"Agent")
+        db.delete_table("Agent")
 
         # Deleting model 'CommandType'
-        db.delete_table(u"CommandType")
+        db.delete_table("CommandType")
 
         # Deleting model 'Command'
-        db.delete_table(u"Command")
+        db.delete_table("Command")
 
         # Deleting model 'CommandsSupportedBy'
-        db.delete_table(u"CommandsSupportedBy")
+        db.delete_table("CommandsSupportedBy")
 
         # Deleting model 'FileIDType'
-        db.delete_table(u"FileIDType")
+        db.delete_table("FileIDType")
 
         # Deleting model 'FileID'
-        db.delete_table(u"FileID")
+        db.delete_table("FileID")
 
         # Deleting model 'CommandClassification'
-        db.delete_table(u"CommandClassification")
+        db.delete_table("CommandClassification")
 
         # Deleting model 'CommandRelationship'
-        db.delete_table(u"CommandRelationship")
+        db.delete_table("CommandRelationship")
 
         # Deleting model 'FileIDsBySingleID'
-        db.delete_table(u"FileIDsBySingleID")
+        db.delete_table("FileIDsBySingleID")
 
     models = {
-        u"fpr.agent": {
+        "fpr.agent": {
             "Meta": {"object_name": "Agent", "db_table": "u'Agent'"},
             "agentIdentifierType": (
                 "django.db.models.fields.CharField",
@@ -486,7 +483,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'uuid'"},
             ),
         },
-        u"fpr.command": {
+        "fpr.command": {
             "Meta": {"object_name": "Command", "db_table": "u'Command'"},
             "command": (
                 "django.db.models.fields.TextField",
@@ -554,7 +551,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "null": "True"},
             ),
         },
-        u"fpr.commandclassification": {
+        "fpr.commandclassification": {
             "Meta": {
                 "object_name": "CommandClassification",
                 "db_table": "u'CommandClassification'",
@@ -585,7 +582,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandrelationship": {
+        "fpr.commandrelationship": {
             "Meta": {
                 "object_name": "CommandRelationship",
                 "db_table": "u'CommandRelationship'",
@@ -626,7 +623,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandssupportedby": {
+        "fpr.commandssupportedby": {
             "Meta": {
                 "object_name": "CommandsSupportedBy",
                 "db_table": "u'CommandsSupportedBy'",
@@ -657,7 +654,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandtype": {
+        "fpr.commandtype": {
             "Meta": {"object_name": "CommandType", "db_table": "u'CommandType'"},
             "enabled": (
                 "django.db.models.fields.IntegerField",
@@ -681,7 +678,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.fileid": {
+        "fpr.fileid": {
             "Meta": {"object_name": "FileID", "db_table": "u'FileID'"},
             "description": (
                 "django.db.models.fields.TextField",
@@ -728,7 +725,7 @@ class Migration(SchemaMigration):
                 },
             ),
         },
-        u"fpr.fileidsbysingleid": {
+        "fpr.fileidsbysingleid": {
             "Meta": {
                 "object_name": "FileIDsBySingleID",
                 "db_table": "u'FileIDsBySingleID'",
@@ -766,7 +763,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.fileidtype": {
+        "fpr.fileidtype": {
             "Meta": {"object_name": "FileIDType", "db_table": "u'FileIDType'"},
             "description": (
                 "django.db.models.fields.TextField",

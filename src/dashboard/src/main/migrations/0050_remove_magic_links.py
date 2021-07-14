@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Migration to replace magic links with unit variables."""
-from __future__ import absolute_import, unicode_literals
 
 from collections import namedtuple
 

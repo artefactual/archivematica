@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import errno
 import os
@@ -30,7 +28,6 @@ import django.http
 import django.template.defaultfilters
 from django.utils.translation import ugettext as _, ungettext
 import six
-from six.moves import map, zip
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -285,8 +282,8 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
                 transfer_metadata_set_row_uuid=row_id,
             )
         except Exception as e:
-            logger.exception("Error starting transfer {}: {}".format(filepath, e))
-            raise Exception("Error starting transfer {}: {}".format(filepath, e))
+            logger.exception(f"Error starting transfer {filepath}: {e}")
+            raise Exception(f"Error starting transfer {filepath}: {e}")
 
     shutil.rmtree(temp_dir)
     return {"message": _("Copy successful."), "path": destination}
@@ -306,7 +303,7 @@ def _copy_to_start_transfer(
         # default to standard transfer
         type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, "standardTransfer")
         destination = os.path.join(
-            ACTIVE_TRANSFER_DIR, type_subdir, "{}-{}".format(basename, temp_uuid)
+            ACTIVE_TRANSFER_DIR, type_subdir, f"{basename}-{temp_uuid}"
         )
         destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
 
@@ -453,7 +450,7 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
     arrange_log = os.path.join(staging_abs_path, "logs", "arrange.log")
     with open(arrange_log, "w") as f:
         log = (
-            "%s -> %s\n" % (file_["source"], file_["destination"])
+            "{} -> {}\n".format(file_["source"], file_["destination"])
             for file_ in files
             if file_.get("uuid")
         )
@@ -553,7 +550,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             ).split("/", 1)
             transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
-            is_bagit = transfer_parts[1].startswith(u"data/")
+            is_bagit = transfer_parts[1].startswith("data/")
             # Copy metadata & logs to tmp/, where later scripts expect
             for directory in ("logs", "metadata"):
                 source = [DEFAULT_BACKLOG_PATH, transfer_name, directory, "."]
@@ -563,7 +560,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                     "source": os.path.join(*source),
                     "destination": os.path.join(
                         "tmp",
-                        "transfer-{}".format(arranged_file.transfer_uuid),
+                        f"transfer-{arranged_file.transfer_uuid}",
                         directory,
                         ".",
                     ),
@@ -855,9 +852,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     :param list destinations: List of paths within arrange folder. All paths should start with DEFAULT_ARRANGE_PATH
     :param bool fetch_children: If True, will fetch all children of the provided path(s) to copy to the destination.
     """
-    if isinstance(sources, six.string_types) or isinstance(
-        destinations, six.string_types
-    ):
+    if isinstance(sources, str) or isinstance(destinations, str):
         fetch_children = True
         sources = [sources]
         destinations = [destinations]

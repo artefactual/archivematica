@@ -1,12 +1,7 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import abc
 
-from django.utils import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class TaskBackend(object):
+class TaskBackend(metaclass=abc.ABCMeta):
     """Handles out of process `Task` execution.
 
     Currently we only have one backend, `GearmanTaskBackend`.

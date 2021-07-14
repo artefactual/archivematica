@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # This file is part of Archivematica.
 #
@@ -22,7 +21,6 @@
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
 # @author Justin Simpson <jsimpson@artefactual.com>
-from __future__ import absolute_import, print_function
 
 from django.db import connection
 

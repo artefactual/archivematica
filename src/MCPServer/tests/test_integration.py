@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import concurrent.futures
 import os
 import threading
@@ -89,7 +87,7 @@ def dummy_file_replacements(request):
     for x in range(3):
         files.append(
             {
-                r"%relativeLocation%": "transfer_path/file{}".format(x),
+                r"%relativeLocation%": f"transfer_path/file{x}",
                 r"%fileUUID%": str(uuid.uuid4()),
             }
         )

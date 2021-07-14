@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Unit tests against the Convert Dataverse Structure MCP Client script."""
 
-from __future__ import print_function
 from collections import namedtuple
 import os
 
@@ -169,7 +167,7 @@ dv_8 = DataverseMDIndex(
 )
 
 
-class TestDataverseExample(object):
+class TestDataverseExample:
     """Dataverse test runner class."""
 
     write_dir = "fixtures/dataverse/dataverse_sources/dataverse_mets/"
@@ -179,7 +177,7 @@ class TestDataverseExample(object):
     FIXTURES_DIR = os.path.join(THIS_DIR, fixture_path)
 
     def _create_mets(self, fname, tmpdir):
-        mets_file_name = "METS.{}.dataverse.xml".format(fname)
+        mets_file_name = f"METS.{fname}.dataverse.xml"
         job = Job("stub", "stub", ["", ""])
         convert_dataverse_structure.convert_dataverse_to_mets(
             job=job,
@@ -205,7 +203,7 @@ class TestDataverseExample(object):
         try:
             mets = metsrw.METSDocument.fromfile(mets_path)
         except metsrw.MetsError:
-            pytest.fail("Could not parse mets {}".format(mets_path))
+            pytest.fail(f"Could not parse mets {mets_path}")
 
         assert (
             len(mets.all_files()) == fixture.all_file_count
@@ -247,7 +245,7 @@ class TestDataverseExample(object):
         try:
             mets = metsrw.METSDocument.fromfile(mets_path)
         except metsrw.MetsError:
-            pytest.fail("Could not parse mets {}".format(mets_path))
+            pytest.fail(f"Could not parse mets {mets_path}")
 
         mets_root = mets.serialize()
 
@@ -330,7 +328,7 @@ class TestDataverseExample(object):
         try:
             mets = metsrw.METSDocument.fromfile(mets_path)
         except metsrw.MetsError:
-            pytest.fail("Could not parse mets {}".format(mets_path))
+            pytest.fail(f"Could not parse mets {mets_path}")
 
         mets_root = mets.serialize()
 

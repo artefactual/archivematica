@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Parse the transfer METS file created as part of a Dataverse transfer and
 validate against the objects expected to be part of the SIP generated during
@@ -126,7 +125,7 @@ def get_db_objects(job, mets, transfer_uuid):
                 "Multiple entries for `%s` found. Exception: %s", base_name, err
             )
             return None
-        job.pyprint("Adding mapping dict [{}] entry: {}".format(entry, file_entry))
+        job.pyprint(f"Adding mapping dict [{entry}] entry: {file_entry}")
         mapping[entry] = file_entry
     return mapping
 
@@ -152,9 +151,9 @@ def add_external_agents(job, unit_path):
     """
     agents_jsonfile = os.path.join(unit_path, "metadata", "agents.json")
     try:
-        with open(agents_jsonfile, "r") as agents_file:
+        with open(agents_jsonfile) as agents_file:
             agents_json = json.load(agents_file)
-    except (OSError, IOError):
+    except OSError:
         return None
 
     agent_id = None

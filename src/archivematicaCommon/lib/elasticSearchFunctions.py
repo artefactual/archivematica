@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
@@ -19,7 +18,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
-from __future__ import absolute_import, division, print_function
 
 import calendar
 import copy
@@ -44,7 +42,6 @@ from externals import xmltodict
 from elasticsearch import Elasticsearch, ImproperlyConfigured
 from elasticsearch.helpers import bulk
 
-from six.moves import range
 
 logger = logging.getLogger("archivematica.common")
 
@@ -837,7 +834,7 @@ def _index_transfer_files(
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                printfn("Indexing {} (UUID: {})".format(relative_path, file_uuid))
+                printfn(f"Indexing {relative_path} (UUID: {file_uuid})")
 
                 # TODO: Index Backlog Location UUID?
                 indexData = {
@@ -864,7 +861,7 @@ def _index_transfer_files(
 
                 files_indexed = files_indexed + 1
             else:
-                printfn("Skipping indexing {}".format(relative_path))
+                printfn(f"Skipping indexing {relative_path}")
 
     return files_indexed
 
@@ -984,7 +981,7 @@ def _get_file_metadata(file_pointer_division, doc):
     result = {}
     elements_with_metadata = []
     for DMDID in file_pointer_division.attrib.get("DMDID", "").split():
-        dmdSec = ns.xml_find_premis(doc, 'mets:dmdSec[@ID="{}"]'.format(DMDID))
+        dmdSec = ns.xml_find_premis(doc, f'mets:dmdSec[@ID="{DMDID}"]')
         if dmdSec is not None:
             elements_with_metadata += _get_descriptive_section_metadata(dmdSec)
     if elements_with_metadata:
@@ -1011,11 +1008,11 @@ def _get_directory_metadata(directory, doc):
     result = {}
     elements_with_metadata = []
     for DMDID in directory.attrib.get("DMDID", "").split():
-        dmdSec = ns.xml_find_premis(doc, 'mets:dmdSec[@ID="{}"]'.format(DMDID))
+        dmdSec = ns.xml_find_premis(doc, f'mets:dmdSec[@ID="{DMDID}"]')
         if dmdSec is not None:
             elements_with_metadata += _get_descriptive_section_metadata(dmdSec)
     for ADMID in directory.attrib.get("ADMID", "").split():
-        amdSec = ns.xml_find_premis(doc, 'mets:amdSec[@ID="{}"]'.format(ADMID))
+        amdSec = ns.xml_find_premis(doc, f'mets:amdSec[@ID="{ADMID}"]')
         if amdSec is not None:
             # look for bag/disk image metadata
             elements_with_metadata += ns.xml_findall_premis(
@@ -1157,7 +1154,7 @@ def _get_amdSec(admID, doc):
     :param doc: ElementTree object.
     :return: amdSec.
     """
-    return ns.xml_find_premis(doc, "mets:amdSec[@ID='{}']".format(admID))
+    return ns.xml_find_premis(doc, f"mets:amdSec[@ID='{admID}']")
 
 
 def _get_file_uuid(amdSec):
@@ -1286,9 +1283,7 @@ def get_file_tags(client, uuid):
 
     count = results["hits"]["total"]
     if count == 0:
-        raise EmptySearchResultError(
-            "No matches found for file with UUID {}".format(uuid)
-        )
+        raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
             "{} matches found for file with UUID {}; unable to fetch a single result".format(
@@ -1317,9 +1312,7 @@ def set_file_tags(client, uuid, tags):
 
     count = len(document_ids)
     if count == 0:
-        raise EmptySearchResultError(
-            "No matches found for file with UUID {}".format(uuid)
-        )
+        raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
             "{} matches found for file with UUID {}; unable to fetch a single result".format(
@@ -1451,9 +1444,7 @@ def _update_field(client, index, uuid, field, value):
     document_id = _document_id_from_field_query(client, index, ES_FIELD_UUID, uuid)
 
     if document_id is None:
-        logger.error(
-            "Unable to find document with UUID {} in index {}".format(uuid, index)
-        )
+        logger.error(f"Unable to find document with UUID {uuid} in index {index}")
         return
 
     client.update(
@@ -1577,7 +1568,7 @@ def augment_raw_search_results(raw_results):
 
     for item in raw_results["hits"]["hits"]:
         clone = item["_source"].copy()
-        clone["document_id"] = item[u"_id"]
+        clone["document_id"] = item["_id"]
         modifiedResults.append(clone)
 
     return modifiedResults

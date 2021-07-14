@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Import ``PREMISRights``.
 
 Similar to ``rights_from_csv`` in that it imports rights statements. In this
@@ -7,9 +6,6 @@ module, we load a ``premisrw.PREMISRights`` object into the database.
 This module does not use the ``__`` notation for accessors offered by
 ``premisrw``.
 """
-from __future__ import absolute_import, unicode_literals
-
-import six
 
 from components.helpers import get_metadata_type_id_by_description
 from main.models import (
@@ -54,7 +50,7 @@ def _create_rights_statement(md_type, obj_id, rights_statement):
         other_rights_information = rights_statement.other_rights_information[0]
         _create_rights_basis_other(db_stmt, other_rights_information)
     else:
-        raise ValueError("Unsupported basis: {}".format(db_stmt.rightsbasis))
+        raise ValueError(f"Unsupported basis: {db_stmt.rightsbasis}")
 
     for item in rights_statement.rights_granted:
         _create_rights_granted(db_stmt, item)
@@ -362,13 +358,13 @@ def _get_dates(abctuple, attr, prefix=""):
     except (AttributeError, IndexError, TypeError):
         return {}
 
-    startdate_key = "{}startdate".format(prefix)
-    enddate_key = "{}enddate".format(prefix)
+    startdate_key = f"{prefix}startdate"
+    enddate_key = f"{prefix}enddate"
 
     suffix = "applicable"
     if prefix.endswith(suffix):
         prefix = prefix[: -len(suffix)]
-    enddateopen_key = "{}enddateopen".format(prefix)
+    enddateopen_key = f"{prefix}enddateopen"
 
     ret = {}
 
@@ -401,7 +397,7 @@ def _set_list(abctuple, attr, relmanager, fkprops):
     if not isinstance(values, tuple):
         values = (values,)
     for item in values:
-        if isinstance(fkprops, six.string_types):
+        if isinstance(fkprops, str):
             create_kwargs = {fkprops: item}
         else:
             create_kwargs = {k: getattr(item, v) for k, v in fkprops}
@@ -413,7 +409,7 @@ def _get_simple_attr(abctuple, attr, prop, modifier=None):
         value = getattr(abctuple, attr)
     except AttributeError:
         return {}
-    if not isinstance(value, six.string_types):
+    if not isinstance(value, str):
         raise TypeError("Expected string type")
     if modifier is not None:
         value = modifier(value)

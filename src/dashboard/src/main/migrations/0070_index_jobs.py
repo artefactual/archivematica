@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations, models
 
 
@@ -16,18 +13,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterIndexTogether(
             name="job",
-            index_together=set(
-                [
-                    ("sipuuid", "createdtime", "createdtimedec"),
-                    (
-                        "sipuuid",
-                        "currentstep",
-                        "microservicegroup",
-                        "microservicechainlink",
-                    ),
-                    ("sipuuid", "jobtype", "createdtime", "createdtimedec"),
-                    ("jobtype", "currentstep"),
-                ]
-            ),
+            index_together={
+                ("sipuuid", "createdtime", "createdtimedec"),
+                (
+                    "sipuuid",
+                    "currentstep",
+                    "microservicegroup",
+                    "microservicechainlink",
+                ),
+                ("sipuuid", "jobtype", "createdtime", "createdtimedec"),
+                ("jobtype", "currentstep"),
+            },
         ),
     ]

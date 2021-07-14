@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # This file is part of Archivematica.
 #
@@ -58,12 +57,12 @@ def hilite(string, status=True):
         attr.append("32")
     else:
         attr.append("31")
-    return "\x1b[%sm%s\x1b[0m" % (";".join(attr), string)
+    return "\x1b[{}m{}\x1b[0m".format(";".join(attr), string)
 
 
 # Print to stdout
 def log(message, access=None):
-    logger.error("%s %s" % (PREFIX, hilite(message)))
+    logger.error(f"{PREFIX} {hilite(message)}")
     if access:
         access.status = message
         access.save()
@@ -71,7 +70,7 @@ def log(message, access=None):
 
 # Print to stderr and exit
 def error(job, message, code=1):
-    job.pyprint("%s %s" % (PREFIX, hilite(message, False)), file=sys.stderr)
+    job.pyprint(f"{PREFIX} {hilite(message, False)}", file=sys.stderr)
     return 1
 
 
@@ -182,7 +181,7 @@ def start(job, data):
             # Update upload status
             # - percentage in match.group(1)
             # - ETA in match.group(2)
-            access.status = "Sending... %s (ETA: %s)" % (match.group(1), match.group(2))
+            access.status = f"Sending... {match.group(1)} (ETA: {match.group(2)})"
             access.statuscode = 10
             access.save()
             log(access.status)
@@ -220,7 +219,7 @@ def start(job, data):
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
     atom_url_prefix = ";" if data.version == 1 else ""
-    deposit_url = "%s/%ssword/deposit/%s" % (
+    deposit_url = "{}/{}sword/deposit/{}".format(
         data.url,
         atom_url_prefix,
         target["target"],
@@ -229,7 +228,7 @@ def start(job, data):
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
-    access.resource = "%s/%s" % (data.url, target["target"])
+    access.resource = "{}/{}".format(data.url, target["target"])
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 

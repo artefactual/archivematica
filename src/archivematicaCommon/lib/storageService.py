@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import logging
 import os
 import platform
@@ -8,7 +5,6 @@ import platform
 from django.conf import settings as django_settings
 import requests
 from requests.auth import AuthBase
-from six.moves import map
 import six.moves.urllib as urllib
 import six
 
@@ -45,7 +41,7 @@ class ApiKeyAuth(AuthBase):
         self.apikey = apikey or am.get_setting("storage_service_apikey", None)
 
     def __call__(self, r):
-        r.headers["Authorization"] = "ApiKey {0}:{1}".format(self.username, self.apikey)
+        r.headers["Authorization"] = f"ApiKey {self.username}:{self.apikey}"
         return r
 
 
@@ -68,11 +64,11 @@ def _storage_api_session(timeout=django_settings.STORAGE_SERVICE_CLIENT_QUICK_TI
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
             self.timeout = timeout
-            super(HTTPAdapterWithTimeout, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
         def send(self, *args, **kwargs):
             kwargs["timeout"] = self.timeout
-            return super(HTTPAdapterWithTimeout, self).send(*args, **kwargs)
+            return super().send(*args, **kwargs)
 
     session = requests.session()
     session.auth = ApiKeyAuth()
@@ -116,7 +112,7 @@ def create_pipeline(
 ):
     pipeline = {
         "uuid": am.get_setting("dashboard_uuid"),
-        "description": "Archivematica on {}".format(platform.node()),
+        "description": f"Archivematica on {platform.node()}",
         "create_default_locations": create_default_locations,
         "shared_path": shared_path,
         "api_username": api_username,
@@ -207,9 +203,7 @@ def get_first_location(**kwargs):
     except IndexError:
         # No locations were found.  Catch the IndexError from the .[0] lookup,
         # and show a more helpful error in the logs.
-        kwargs_string = ", ".join(
-            "%s=%r" % (key, value) for (key, value) in kwargs.items()
-        )
+        kwargs_string = ", ".join(f"{key}={value!r}" for (key, value) in kwargs.items())
         raise ResourceNotFound(
             "No locations found for %s.  Please check your storage service config."
             % kwargs_string
@@ -257,7 +251,7 @@ def location_description_from_slug(aip_location_slug):
 
 
 def get_default_location(purpose):
-    url = _storage_service_url() + "location/default/{}".format(purpose)
+    url = _storage_service_url() + f"location/default/{purpose}"
     with ss_api_timer(function="get_default_location"):
         response = _storage_api_session().get(url)
     response.raise_for_status()
@@ -576,7 +570,7 @@ def get_file_metadata(**kwargs):
     with ss_api_timer(function="get_file_metadata"):
         response = _storage_api_slow_session().get(url, params=kwargs)
     if 400 <= response.status_code < 500:
-        raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
+        raise ResourceNotFound(f"No file found for arguments: {kwargs}")
     return response.json()
 
 
@@ -599,7 +593,7 @@ def index_backlogged_transfer_contents(transfer_uuid, file_set):
     with ss_api_timer(function="index_backlogged_transfer_contents"):
         response = _storage_api_slow_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
-        raise Error("Unable to add files to transfer: {}".format(response.text))
+        raise Error(f"Unable to add files to transfer: {response.text}")
 
 
 def reindex_file(transfer_uuid):
@@ -616,7 +610,7 @@ def download_package(package_uuid, download_directory):
     amclient.directory = download_directory
     local_filename = amclient.download_package(package_uuid)
     if local_filename is None:
-        raise Error("Unable to download package {}".format(local_filename))
+        raise Error(f"Unable to download package {local_filename}")
     return local_filename
 
 
@@ -641,7 +635,7 @@ def filter_packages(
     """
     if pipeline_uuid is None:
         pipeline_uuid = am.get_dashboard_uuid()
-    origin_pipeline = "/api/v2/pipeline/{}/".format(pipeline_uuid)
+    origin_pipeline = f"/api/v2/pipeline/{pipeline_uuid}/"
 
     if filter_replicas:
         return [

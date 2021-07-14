@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Allow JHOVE bytestream to convey partial pass message instead of fail."""
-from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Migration for PID Binding: persistent identifier creation & resolution."""
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations, models
 

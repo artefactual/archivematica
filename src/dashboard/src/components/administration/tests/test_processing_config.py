@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os
 import tempfile
 import shutil
@@ -10,7 +8,7 @@ from django.test import TestCase
 from components import helpers
 from processing import DEFAULT_PROCESSING_CONFIG, AUTOMATED_PROCESSING_CONFIG
 
-import mock
+from unittest import mock
 import pytest
 
 

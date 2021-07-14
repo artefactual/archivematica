@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Database related functionality.
 
@@ -18,8 +17,6 @@ all SQL queries and allow us to check that all logged queries occur within the
 wrapper. Note though, this will result in _very_ verbose logs.
 """
 
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import threading
@@ -68,7 +65,7 @@ class DebugAutoCloseOldConnections(AutoCloseOldConnections):
             "Entered auto close connections (depth %s)",
             thread_locals.auto_close_connections_depth,
         )
-        return super(DebugAutoCloseOldConnections, self).__enter__()
+        return super().__enter__()
 
     def __exit__(self, *exc):
         thread_locals.auto_close_connections_depth -= 1

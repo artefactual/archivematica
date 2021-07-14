@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # flake8: noqa
 
 # This file is part of Archivematica.
@@ -18,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import json
 import logging
@@ -38,10 +35,10 @@ def _get_settings_from_file(path):
         result = {}
         with open(path, "rb") as f:
             code = compile(f.read(), path, "exec")
-            six.exec_(code, result, result)
+            exec(code, result, result)
         return result
     except Exception as err:
-        raise ImproperlyConfigured("{} could not be imported: {}".format(path, err))
+        raise ImproperlyConfigured(f"{path} could not be imported: {err}")
 
 
 CONFIG_MAPPING = {
@@ -473,7 +470,7 @@ LOGGING = {
 }
 
 if os.path.isfile(LOGGING_CONFIG_FILE):
-    with open(LOGGING_CONFIG_FILE, "rt") as f:
+    with open(LOGGING_CONFIG_FILE) as f:
         LOGGING = logging.config.dictConfig(json.load(f))
 else:
     logging.config.dictConfig(LOGGING)
@@ -501,7 +498,7 @@ GEARMAN_SERVER = config.get("gearman_server")
 POLLING_INTERVAL = config.get("polling_interval")
 
 TASKS_PER_PAGE = 10  # for paging in tasks dialog
-UUID_REGEX = "[\w]{8}(-[\w]{4}){3}-[\w]{12}"
+UUID_REGEX = r"[\w]{8}(-[\w]{4}){3}-[\w]{12}"
 
 MICROSERVICES_HELP = {
     "Approve transfer": _(

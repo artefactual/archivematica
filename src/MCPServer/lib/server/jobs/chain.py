@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Job chain logic.
 
@@ -10,7 +8,6 @@ provided by previous jobs in the same chain (e.g. choices for a decision).
 This module knows about all `Job` subclasses, and will instantiate the correct
 one by looking at the workflow.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 
@@ -57,12 +54,12 @@ def get_job_class_for_link(link):
     elif manager_name == "linkTaskManagerUnitVariableLinkPull":
         job_class = GetUnitVarLinkJob
     else:
-        raise ValueError("Unknown manager type {}".format(manager_name))
+        raise ValueError(f"Unknown manager type {manager_name}")
 
     return job_class
 
 
-class JobChain(object):
+class JobChain:
     """
     Creates jobs as necessary based on the workflow chain and package given.
 

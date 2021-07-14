@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.urls import reverse
 import pytest
-import mock
+from unittest import mock
 
 from components import helpers
 from components.accounts.backends import CustomCASBackend

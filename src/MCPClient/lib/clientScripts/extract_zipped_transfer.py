@@ -46,7 +46,7 @@ def extract(job, target, destinationDirectory):
     if file_extension != ".tgz" and file_extension != ".gz":
         job.pyprint("Unzipping...")
 
-        command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
+        command = f"""/usr/bin/7z x -bd -o"{destinationDirectory}" "{target}" """
         exitC, stdOut, stdErr = executeOrRun(
             "command", command, printing=False, capture_output=True
         )

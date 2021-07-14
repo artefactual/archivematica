@@ -1,4 +1,3 @@
-# -*- coding: utf8
 from lxml import etree
 import os
 

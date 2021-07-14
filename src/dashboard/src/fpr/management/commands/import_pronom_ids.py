@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
 import os
 import sys
 import uuid
@@ -69,7 +66,7 @@ def choose_output(output_format, output_file, sql, migration):
         print(migration, file=output_file)
 
 
-class PronomFormat(object):
+class PronomFormat:
     def __init__(self, xml):
         self.puid = xml.find(".puid").text
         self.format_name = xml.find(".name").text
@@ -120,7 +117,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
         # we don't want to do anything.
         try:
             FormatVersion.objects.get(pronom_id=puid)
-            print("Ignoring {}".format(puid))
+            print(f"Ignoring {puid}")
             continue
         except (FormatVersion.DoesNotExist, FormatVersion.MultipleObjectsReturned):
             print("DOES NOT EXIST OK!")

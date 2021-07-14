@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Migration to change workflow related to DIP upload and storage."""
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations
 
@@ -17,7 +15,7 @@ def data_migration(apps, schema_editor):
                                  /         |
                             move to        |
                             uploadedDIPs/  |
-                                         \ |
+                                         \\ |
                                       Store DIP?
                                          /  \
                                        Yes   No
@@ -108,15 +106,15 @@ def data_migration(apps, schema_editor):
     try:
         MicroServiceChainChoice.objects.get(id=reject_dip_chain_choice_uuid).delete()
     except MicroServiceChainChoice.DoesNotExist:
-        print("Chain choice {} does not exist".format(reject_dip_chain_choice_uuid))
+        print(f"Chain choice {reject_dip_chain_choice_uuid} does not exist")
     try:
         MicroServiceChainLink.objects.get(id=reject_dip_link_uuid).delete()
     except MicroServiceChainLink.DoesNotExist:
-        print("Chain link {} does not exist".format(reject_dip_link_uuid))
+        print(f"Chain link {reject_dip_link_uuid} does not exist")
     try:
         MicroServiceChain.objects.get(id=reject_dip_chain_uuid).delete()
     except MicroServiceChain.DoesNotExist:
-        print("Chain {} does not exist".format(reject_dip_chain_uuid))
+        print(f"Chain {reject_dip_chain_uuid} does not exist")
 
     ###########################################################################
     # 2. Modifications to the "Store DIP" chain

@@ -1,5 +1,3 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
 import os
 import uuid
 
@@ -62,5 +60,5 @@ def test_start_synchronously(db, mocker, sip, job, access):
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
-    assert access.resource == "{}/atom-description-id".format(opts.url)
+    assert access.resource == f"{opts.url}/atom-description-id"
     assert access.status == "Deposited synchronously"

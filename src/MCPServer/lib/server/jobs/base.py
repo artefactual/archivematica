@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """
 A base class for other Job types to inherit from.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 import logging
 import uuid
 
-from django.utils import six, timezone
+from django.utils import timezone
 
 from server.db import auto_close_old_connections
 
@@ -19,8 +16,7 @@ from main import models
 logger = logging.getLogger("archivematica.mcp.server.jobs")
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Job(object):
+class Job(metaclass=abc.ABCMeta):
     """
     A single job, corresponding to a workflow link, and the `Job` model in the
     database.

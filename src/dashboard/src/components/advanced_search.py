@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import logging
 
@@ -179,7 +177,7 @@ def _normalize_date(date):
     try:
         return dateutil.parser.parse(date).strftime("%Y-%m-%d")
     except ValueError:
-        raise ValueError("Invalid date received ({}); ignoring date query".format(date))
+        raise ValueError(f"Invalid date received ({date}); ignoring date query")
 
 
 def _query_clause(index, queries, ops, fields, types):

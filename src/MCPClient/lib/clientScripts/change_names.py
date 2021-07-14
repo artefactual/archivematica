@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -98,5 +97,4 @@ def change_tree(start_path, old_start_path):
         yield old_path, changed_path, is_dir, was_changed
 
         if is_dir:
-            for result in change_tree(changed_path, old_path):
-                yield result
+            yield from change_tree(changed_path, old_path)

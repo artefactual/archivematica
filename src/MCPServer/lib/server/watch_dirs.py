@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Watched directory handling.
 
@@ -8,7 +7,6 @@ want to remove in future; however, currently they are used extensively in all
 workflows, as many chains start the next chain by moving a transfer or SIP t
 the appropriate watched directory.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os
@@ -86,7 +84,7 @@ def watch_directories_inotify(
     for watched_dir in watched_dirs:
         path = os.path.join(WATCHED_BASE_DIR, watched_dir.path.lstrip("/"))
         if not os.path.isdir(path):
-            raise OSError('The path "{}" is not a directory.'.format(path))
+            raise OSError(f'The path "{path}" is not a directory.')
 
         descriptor = inotify.add_watch(path, watch_flags)
         watches[descriptor] = (path, watched_dir)
@@ -132,4 +130,4 @@ def watch_directories(*args, **kwargs):
     elif method == "poll":
         watch_directories_poll(*args, **kwargs)
     else:
-        raise RuntimeError("Unexpected watch method {}".format(method))
+        raise RuntimeError(f"Unexpected watch method {method}")

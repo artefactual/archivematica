@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import uuid
 
 from django.urls import reverse
@@ -25,7 +23,7 @@ def transfer(db):
 
 
 @pytest.mark.django_db()
-class TestMarkHiddenView(object):
+class TestMarkHiddenView:
     def test_it_rejects_non_admins(self, install, client, transfer):
         url = reverse(
             "unit:mark_hidden",
@@ -45,7 +43,7 @@ class TestMarkHiddenView(object):
         assert resp.status_code == 405
 
     def test_it_rejects_unknown_package_types(self, install, admin_client, transfer):
-        url = "/tranfser/{}/delete/".format(transfer.pk)
+        url = f"/tranfser/{transfer.pk}/delete/"
         resp = admin_client.delete(url)
 
         assert resp.status_code == 404
@@ -85,7 +83,7 @@ class TestMarkHiddenView(object):
 
 
 @pytest.mark.django_db()
-class TestMarkCompletedHiddenView(object):
+class TestMarkCompletedHiddenView:
     def test_it_rejects_non_admins(self, install, client, transfer):
         url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
         resp = client.delete(url)

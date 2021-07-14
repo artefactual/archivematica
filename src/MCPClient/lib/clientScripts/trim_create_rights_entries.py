@@ -66,7 +66,7 @@ def getTimedeltaFromRetensionSchedule(RetentionSchedule):
         entry = "0"
         for c in part:
             if c in string.digits:
-                entry = "%s%s" % (entry, c)
+                entry = f"{entry}{c}"
         rs.append(entry)
     for entry in rs:
         ret += int(entry)

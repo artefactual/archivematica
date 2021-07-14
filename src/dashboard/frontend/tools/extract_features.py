@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
 
 import argparse
 import json
 import os
 import sys
 
-from six.moves import zip
 
 FILES = ["pii", "ccn"]
 HEADERS = ["offset", "content", "context"]

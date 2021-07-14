@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
 import functools
 
-import six
 import six.moves.configparser as ConfigParser
 
 
@@ -50,8 +46,7 @@ class EnvConfigParser(ConfigParser.SafeConfigParser):
         self._environ = env or os.environ
         self._prefix = prefix.rstrip("_")
         kwargs = {}
-        if six.PY3:
-            kwargs["inline_comment_prefixes"] = (";",)
+        kwargs["inline_comment_prefixes"] = (";",)
         ConfigParser.SafeConfigParser.__init__(self, defaults, **kwargs)
 
     def _get_envvar(self, section, option):

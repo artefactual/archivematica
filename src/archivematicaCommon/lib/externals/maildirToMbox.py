@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # source: https://gist.github.com/1709069
 # author/owner: nyergler github gist
 """
@@ -32,7 +31,6 @@ cur, tmp, and the subfolders, which are hidden directories with names like
 [mbox_filename] will be newly created, as well as a [mbox_filename].sbd the
 directory.
 """
-from __future__ import absolute_import, print_function
 
 import mailbox
 import sys
@@ -76,7 +74,7 @@ def maildir2mailbox2(dirname, mboxname):
     ]
     for curfold in listofdirs:
         curlist = [mboxname] + curfold.split(".")
-        curpath = os.path.join(*[dn + ".sbd" for dn in curlist if dn])
+        curpath = os.path.join(*(dn + ".sbd" for dn in curlist if dn))
         if not os.path.exists(curpath):
             os.makedirs(curpath)
         print("| " + curfold + " -> " + curpath[:-4])

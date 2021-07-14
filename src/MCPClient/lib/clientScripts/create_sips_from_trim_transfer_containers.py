@@ -59,7 +59,7 @@ def call(jobs):
                         )
                         continue
 
-                    sipName = "%s-%s" % (transferName, container)
+                    sipName = f"{transferName}-{container}"
 
                     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
                     destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"

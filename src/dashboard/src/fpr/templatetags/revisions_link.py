@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django import template
 import django.template.base as base
 from django.urls import reverse

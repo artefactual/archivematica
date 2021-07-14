@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
 
 from django.urls import reverse
 from django.test import TestCase, Client
-import mock
+from unittest import mock
 
 from archivematicaFunctions import b64encode_string
 from components import helpers
@@ -13,7 +10,7 @@ from components.api import validators
 from version import get_full_version
 
 
-class MCPClientMock(object):
+class MCPClientMock:
     def __init__(self, fails=False):
         self.fails = fails
 
@@ -109,26 +106,26 @@ class TestAPIv2(TestCase):
 class TestValidate(TestCase):
     fixtures = ["test_user"]
 
-    VALID_AVALON_CSV = u"""Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
+    VALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Label,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note
 ,,Symphony no. 3,"Mahler, Gustav, 1860-1911",,,,,,,,1996,,,,yes,assets/agz3068a.wav,no,CD 1,,,,local,This was batch ingested without skip transcoding
 ,,Féte (Excerpt),"Langlais, Jean, 1907-1991","Young, Christopher C. (Christopher Clark)",,,,,William and Gayle Cook Music Library,,2010,"Recorded on May 2, 2010, Auer Concert Hall, Indiana University, Bloomington.",Organ music,,yes,assets/OrganClip.mp4,yes,,,,,local,This was batch ingested with multiple quality level skip transcoding
 ,,Beginning Responsibility: Lunchroom Manners,Coronet Films,,,,,,Coronet Films,,1959,"The rude, clumsy puppet Mr. Bungle shows kids how to behave in the school cafeteria - the assumption being that kids actually want to behave during lunch. This film has a cult following since it appeared on a Pee Wee Herman HBO special.",Social engineering,Puppet theater,yes,assets/lunchroom_manners_512kb.high.mp4,yes,Lunchroom 1,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom Again,local,This was batch ingested with skip transcoding and with structure
 """
 
-    INVALID_AVALON_CSV = u"""Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
+    INVALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note
 ,,Symphony no. 3,"Mahler, Gustav, 1860-1911",,,,,,,,1996,,,,Yes,assets/agz3068a.wav,no,CD 1,,,,local,This was batch ingested without skip transcoding
 ,,Féte (Excerpt),"Langlais, Jean, 1907-1991","Young, Christopher C. (Christopher Clark)",,,,,William and Gayle Cook Music Library,,2010,"Recorded on May 2, 2010, Auer Concert Hall, Indiana University, Bloomington.",Organ music,,Yes,assets/OrganClip.mp4,yes,,,,,local,This was batch ingested with multiple quality level skip transcoding
 ,,Beginning Responsibility: Lunchroom Manners,Coronet Films,,,,,,Coronet Films,,1959,"The rude, clumsy puppet Mr. Bungle shows kids how to behave in the school cafeteria - the assumption being that kids actually want to behave during lunch. This film has a cult following since it appeared on a Pee Wee Herman HBO special.",Social engineering,Puppet theater,Yes,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom 1,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom Again,local,This was batch ingested with skip transcoding and with structure
 """
 
-    VALID_RIGHTS_CSV = u"""file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+    VALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
 objects/45212966d0256a6ac70d81db_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
 objects/45212966d0256a6ac70d81db_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,allow,2014-01-01,open,,,,
 """
 
-    INVALID_RIGHTS_CSV = u"""file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+    INVALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
 objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
 objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,,2014-01-01,open,,,,
 """

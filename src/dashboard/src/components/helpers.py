@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import json
 import logging
@@ -35,9 +33,6 @@ from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpRespons
 from django.utils.translation import ugettext as _
 from tastypie.models import ApiKey
 from six.moves.urllib.parse import urlencode, urljoin
-from six.moves import range
-from six.moves import zip
-import six
 
 from amclient import AMClient
 
@@ -68,7 +63,7 @@ def dictfetchall(cursor):
 
 
 def _is_numeric(v):
-    return isinstance(v, six.integer_types + (float,))
+    return isinstance(v, (int,) + (float,))
 
 
 def keynat(string, fmt="%9s"):
@@ -83,7 +78,7 @@ def keynat(string, fmt="%9s"):
     """
     if _is_numeric(string):
         string = str(string)
-    if not isinstance(string, six.string_types):
+    if not isinstance(string, str):
         result = (
             "",
             string.__class__.__name__,
@@ -350,9 +345,9 @@ def stream_mets_from_storage_service(
     """Enable the streaming of an individual AIP METS file from the Storage
     Service.
     """
-    absolute_transfer_name = "{}-{}".format(transfer_name, sip_uuid)
-    mets_name = "METS.{}.xml".format(sip_uuid)
-    mets_path = "{}/data/{}".format(absolute_transfer_name, mets_name)
+    absolute_transfer_name = f"{transfer_name}-{sip_uuid}"
+    mets_name = f"METS.{sip_uuid}.xml"
+    mets_path = f"{absolute_transfer_name}/data/{mets_name}"
     # We can't get a lot of debug information from AMClient yet, so we try to
     # download and then open, returning an error if the file can't be accessed.
     try:
@@ -374,7 +369,7 @@ def stream_mets_from_storage_service(
         }
         return json_response(err_response, status_code=response.status_code)
     content_type = "application/xml"
-    content_disposition = "attachment; filename={};".format(mets_name)
+    content_disposition = f"attachment; filename={mets_name};"
     return _prepare_stream_response(
         payload=response,
         content_type=content_type,

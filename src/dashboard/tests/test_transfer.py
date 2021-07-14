@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -25,11 +22,11 @@ class TestTransferViews(TestCase):
         response = self.client.post(
             url,
             {
-                "title": u"Mi pequeña transferencia",
-                "is_part_of": u"1234aéiou",
+                "title": "Mi pequeña transferencia",
+                "is_part_of": "1234aéiou",
                 "creator": "El Creador",
                 "subject": "Un Tema",
-                "description": u"La Descripción",
+                "description": "La Descripción",
                 "publisher": "El Publicista",
                 "contributor": "Un colaborador",
                 "date": "2019-01-01",
@@ -39,11 +36,11 @@ class TestTransferViews(TestCase):
         transfer_metadata = DublinCore.objects.get(
             metadataappliestoidentifier=transfer_uuid
         )
-        assert transfer_metadata.title == u"Mi pequeña transferencia"
-        assert transfer_metadata.is_part_of == u"AIC#1234aéiou"
+        assert transfer_metadata.title == "Mi pequeña transferencia"
+        assert transfer_metadata.is_part_of == "AIC#1234aéiou"
         assert transfer_metadata.creator == "El Creador"
         assert transfer_metadata.subject == "Un Tema"
-        assert transfer_metadata.description == u"La Descripción"
+        assert transfer_metadata.description == "La Descripción"
         assert transfer_metadata.publisher == "El Publicista"
         assert transfer_metadata.contributor == "Un colaborador"
         assert transfer_metadata.date == "2019-01-01"

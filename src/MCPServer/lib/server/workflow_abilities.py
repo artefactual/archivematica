@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """The abilities module allows for the description of abilities and their
 dependencies across Archivematica components (i.e., dashboard, MCPServer, and
 MCPClient).
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.conf import settings
 

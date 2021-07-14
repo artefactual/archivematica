@@ -56,7 +56,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     ).text
     etree.SubElement(
         dublincore, ns.dctermsBNS + "provenance"
-    ).text = "Department: %s; OPR: %s" % (
+    ).text = "Department: {}; OPR: {}".format(
         root.find("Container/Department").text,
         root.find("Container/OPR").text,
     )
@@ -73,7 +73,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     )
     etree.SubElement(
         dublincore, ns.dctermsBNS + "extent"
-    ).text = "{} digital objects".format(files.count())
+    ).text = f"{files.count()} digital objects"
 
     files = File.objects.filter(
         removedtime__isnull=True,
@@ -96,7 +96,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
             if maxDateMod is None or dateMod > maxDateMod:
                 maxDateMod = dateMod
 
-    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "%s/%s" % (
+    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "{}/{}".format(
         minDateMod,
         maxDateMod,
     )

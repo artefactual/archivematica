@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 """Package management."""
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 import ast
@@ -164,7 +161,7 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
         return filepath
     if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            "{}_{}".format(strToUnicode(original.as_posix()), attempt),
+            f"{strToUnicode(original.as_posix())}_{attempt}",
             original,
             attempt,
         )
@@ -177,7 +174,7 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
     period_position = basename.index(".")
     non_extension = basename[0:period_position]
     extension = basename[period_position:]
-    new_basename = "{}_{}{}".format(non_extension, attempt, extension)
+    new_basename = f"{non_extension}_{attempt}{extension}"
     new_filepath = basedirectory / new_basename
     return _pad_destination_filepath_if_it_already_exists(
         new_filepath, original, attempt
@@ -188,7 +185,7 @@ def _check_filepath_exists(filepath):
     if filepath == "":
         return "No filepath provided."
     if not os.path.exists(filepath):
-        return "Filepath {} does not exist.".format(filepath)
+        return f"Filepath {filepath} does not exist."
     if ".." in filepath:  # check for trickery
         return "Illegal path."
     return None
@@ -327,7 +324,7 @@ def create_package(
     if type_ is None or type_ == "disk image":
         type_ = "standard"
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
-        raise ValueError("Unexpected type of package provided '{}'".format(type_))
+        raise ValueError(f"Unexpected type of package provided '{type_}'")
     if not path:
         raise ValueError("No path provided.")
     if isinstance(auto_approve, bool) is False:
@@ -485,7 +482,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
 
 
-class LocationPath(object):
+class LocationPath:
     """Path wraps a path that is a pair of two values: UUID and path."""
 
     uuid, path = None, None
@@ -500,7 +497,7 @@ class LocationPath(object):
             self.path = parts[2]
 
     def __repr__(self):
-        return "%s (uuid=%r, sep=%r, path=%r)" % (
+        return "{} (uuid={!r}, sep={!r}, path={!r})".format(
             self.__class__,
             self.uuid,
             self.sep,
@@ -540,8 +537,7 @@ def get_file_replacement_mapping(file_obj, unit_directory):
     return mapping
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Package(object):
+class Package(metaclass=abc.ABCMeta):
     """A `Package` can be a Transfer, a SIP, or a DIP."""
 
     def __init__(self, current_path, uuid):
@@ -619,7 +615,7 @@ class Package(object):
     @property
     def package_name(self):
         basename = os.path.basename(self.current_path.rstrip("/"))
-        return basename.replace("-" + six.text_type(self.uuid), "")
+        return basename.replace("-" + str(self.uuid), "")
 
     @property
     @auto_close_old_connections()
@@ -642,7 +638,7 @@ class Package(object):
         mapping = BASE_REPLACEMENTS.copy()
         mapping.update(
             {
-                r"%SIPUUID%": six.text_type(self.uuid),
+                r"%SIPUUID%": str(self.uuid),
                 r"%SIPName%": self.package_name,
                 r"%SIPLogsDirectory%": os.path.join(self.current_path, "logs", ""),
                 r"%SIPObjectsDirectory%": os.path.join(
@@ -718,7 +714,7 @@ class Package(object):
         if not value:
             value = ""
         else:
-            value = six.text_type(value)
+            value = str(value)
 
         unit_var, created = models.UnitVariable.objects.update_or_create(
             unittype=self.UNIT_VARIABLE_TYPE,
@@ -795,9 +791,7 @@ class DIP(SIPDIP):
         pass
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(DIP, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
         mapping[r"%unitType%"] = "DIP"
 
         if filter_subdir_path:
@@ -863,9 +857,7 @@ class Transfer(Package):
         self.processing_configuration = transfer.processing_configuration
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(Transfer, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
 
         mapping.update(
             {
@@ -884,7 +876,7 @@ class SIP(SIPDIP):
     JOB_UNIT_TYPE = "unitSIP"
 
     def __init__(self, *args, **kwargs):
-        super(SIP, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.aip_filename = None
         self.sip_type = None
@@ -897,9 +889,7 @@ class SIP(SIPDIP):
         self.sip_type = sip.sip_type
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(SIP, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
 
         mapping.update(
             {
@@ -912,7 +902,7 @@ class SIP(SIPDIP):
         return mapping
 
 
-class PackageContext(object):
+class PackageContext:
     """Package context tracks choices made previously while processing"""
 
     def __init__(self, *items):
@@ -921,11 +911,10 @@ class PackageContext(object):
             self._data[key] = value
 
     def __repr__(self):
-        return "PackageContext({!r})".format(dict(self._data.items()))
+        return f"PackageContext({dict(self._data.items())!r})"
 
     def __iter__(self):
-        for key, value in six.iteritems(self._data):
-            yield key, value
+        yield from self._data.items()
 
     def __len__(self):
         return len(self._data)

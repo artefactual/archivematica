@@ -1,6 +1,3 @@
-# -*- coding: utf8
-from __future__ import print_function
-
 import os
 
 from django.test import TestCase
@@ -411,7 +408,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
             THIS_DIR, "fixtures/rights-unicode-filepath.csv"
         )
         parser = rights_from_csv.RightCsvReader(
-            Job("stub", "stub", []), self.transfer_uuid, u"%s" % rights_csv_filepath
+            Job("stub", "stub", []), self.transfer_uuid, "%s" % rights_csv_filepath
         )
         rows_processed = parser.parse()
 

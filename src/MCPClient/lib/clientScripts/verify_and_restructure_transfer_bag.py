@@ -61,9 +61,7 @@ def restructureBagForComplianceFileUUIDsAssigned(
                 # We move the existing top-level metadata folder, or merge it
                 # with what is currently there, before the next set of
                 # directory operations to move everything up a level below.
-                job.pyprint(
-                    "{}: moving/merging {} to {}".format(dir, dirPath, dirDataPath)
-                )
+                job.pyprint(f"{dir}: moving/merging {dirPath} to {dirDataPath}")
                 move_or_merge(dirPath, dirDataPath)
 
             # move to the top level

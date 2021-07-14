@@ -86,7 +86,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
 
     for (path, dirs, files) in scandir.walk(objectsDirectory):
         for file in files:
-            m = re.search("_me\.[a-zA-Z0-9]{2,4}$", file)
+            m = re.search(r"_me\.[a-zA-Z0-9]{2,4}$", file)
             if m is not None:
                 file1Full = os.path.join(path, file).replace(
                     SIPDirectory, "%SIPDirectory%", 1

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import math
 import uuid
 
@@ -15,7 +13,7 @@ from server.tasks import GearmanTaskBackend, Task
 class MockJob(Job):
     def __init__(self, *args, **kwargs):
         self.name = kwargs.pop("name", "")
-        super(MockJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self, *args, **kwargs):
         pass
@@ -43,7 +41,7 @@ def format_gearman_request(tasks):
         task_uuid = str(task.uuid)
         request["tasks"][task_uuid] = {
             "uuid": task_uuid,
-            "createdDate": task.start_timestamp.isoformat(str(" ")),
+            "createdDate": task.start_timestamp.isoformat(" "),
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
@@ -185,7 +183,7 @@ def test_gearman_multiple_batches(
     tasks = []
     for i in range(5):
         task = Task(
-            "a argument string {}".format(i),
+            f"a argument string {i}",
             "/tmp/stdoutfile",
             "/tmp/stderrfile",
             {r"%relativeLocation%": "testfile"},
@@ -221,8 +219,8 @@ def test_gearman_multiple_batches(
                             task.uuid,
                             {
                                 "exitCode": 0,
-                                "stdout": "stdout example {}".format(index),
-                                "stderr": "stderr example {}".format(index),
+                                "stdout": f"stdout example {index}",
+                                "stderr": f"stderr example {index}",
                             },
                         )
                         for task in task_batches[index]

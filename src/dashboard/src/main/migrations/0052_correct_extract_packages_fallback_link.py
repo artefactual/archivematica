@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """Migration to ensure that if extract contents from compressed archives
 fails that the workflow doesn't continue to trudge along to completion where
 there is a likelihood of other errors.
 """
-from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """Migration to update "Resume after normalization file identification tool
 selected." chain link to exit with the successful status.
 """
-from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

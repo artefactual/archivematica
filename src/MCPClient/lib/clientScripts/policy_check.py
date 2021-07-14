@@ -48,7 +48,7 @@ def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
 logger = get_script_logger("archivematica.mcp.client.policyCheck")
 
 
-class PolicyChecker(object):
+class PolicyChecker:
     """Checks a file against one or more policies.
     Checks whether a given file conforms to all of the MediaConch policies
     that the system is configured to run against that type of file, given the
@@ -132,13 +132,9 @@ class PolicyChecker(object):
                 " a policy check.".format(uuid=self.file_uuid)
             )
             if not self._file_is_derivative(for_access=True):
-                self.job.pyprint(
-                    "File {uuid} is not a derivative.".format(uuid=self.file_uuid)
-                )
+                self.job.pyprint(f"File {self.file_uuid} is not a derivative.")
             if not self._file_is_for_access():
-                self.job.pyprint(
-                    "File {uuid} is not for access.".format(uuid=self.file_uuid)
-                )
+                self.job.pyprint(f"File {self.file_uuid} is not for access.")
             return False
         else:
             return True
@@ -227,7 +223,7 @@ class PolicyChecker(object):
             rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
         # Check for default rules.
         if not rules:
-            rules = FPRule.active.filter(purpose="default_{}".format(self.purpose))
+            rules = FPRule.active.filter(purpose=f"default_{self.purpose}")
         return rules
 
     def _execute_rule_command(self, rule):
@@ -342,7 +338,7 @@ class PolicyChecker(object):
             if not os.path.isdir(policy_dirpath):
                 os.makedirs(policy_dirpath)
             filename = os.path.basename(self.file_path)
-            stdout_path = os.path.join(policy_dirpath, "{}.xml".format(filename))
+            stdout_path = os.path.join(policy_dirpath, f"{filename}.xml")
             with open(stdout_path, "w") as f:
                 f.write(mc_stdout)
 

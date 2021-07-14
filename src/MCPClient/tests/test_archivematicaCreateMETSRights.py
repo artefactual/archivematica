@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import uuid
 
 from create_mets_v2 import MetsState

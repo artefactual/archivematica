@@ -1,7 +1,3 @@
-# -*- coding: utf8
-
-from __future__ import print_function
-
 from smtplib import SMTPException
 
 from django.core import mail

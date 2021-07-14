@@ -52,7 +52,7 @@ def identify_dspace_files(
                 continue
             if filename is None:  # Filename not an attribute
                 continue
-            job.write_output("File: %s Use: %s\n" % (filename, use))
+            job.write_output(f"File: {filename} Use: {use}\n")
             full_path = os.path.join(relative_dir, filename)
             db_location = full_path.replace(transfer_dir, "%transferDirectory%")
             if use == "TEXT":

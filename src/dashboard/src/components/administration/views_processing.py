@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import os
 import re
@@ -38,9 +36,9 @@ logger = logging.getLogger("archivematica.dashboard")
 def list(request):
     files = []
     ignored = []
-    for item in iglob("{}/*ProcessingMCP.xml".format(helpers.processing_config_path())):
+    for item in iglob(f"{helpers.processing_config_path()}/*ProcessingMCP.xml"):
         basename = os.path.basename(item)
-        name = re.sub("ProcessingMCP\.xml$", "", basename)
+        name = re.sub(r"ProcessingMCP\.xml$", "", basename)
         if re.match(ProcessingConfigurationForm.NAME_REGEX, name) is None:
             ignored.append((basename, name, item))
             continue
@@ -53,7 +51,7 @@ def list(request):
 def edit(request, name=None):
     def _report_error(error=None, error_msg=None):
         if error is not None:
-            logger.exception("{} {}".format(error_msg, error))
+            logger.exception(f"{error_msg} {error}")
             messages.error(request, error_msg)
         return redirect("administration:processing")
 
@@ -84,7 +82,7 @@ def edit(request, name=None):
     # Load existing configuration.
     try:
         form.load_config(name)
-    except IOError:
+    except OSError:
         raise Http404
     except Exception as err:
         return _report_error(err, _("Failed to load processing configuration."))
@@ -95,7 +93,7 @@ def delete(request, name):
     if name == "default":
         return redirect("administration:processing")
     config_path = os.path.join(
-        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+        helpers.processing_config_path(), f"{name}ProcessingMCP.xml"
     )
     try:
         os.remove(config_path)
@@ -106,7 +104,7 @@ def delete(request, name):
 
 def download(request, name):
     config_path = os.path.join(
-        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+        helpers.processing_config_path(), f"{name}ProcessingMCP.xml"
     )
     if not os.path.isfile(config_path):
         raise Http404

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 HTML.py - v0.04 2009-07-28 Philippe Lagadec
 
@@ -11,8 +10,6 @@ Project website: http://www.decalage.info/python/html
 License: CeCILL (open-source GPL compatible), see source code for details.
          http://www.cecill.info
 """
-from __future__ import absolute_import, print_function
-from six.moves import range
 
 __version__ = "0.04"
 __date__ = "2009-07-28"
@@ -99,7 +96,7 @@ TABLE_STYLE_THINBORDER = "border: 1px solid #000000; border-collapse: collapse;"
 # === CLASSES ==================================================================
 
 
-class TableCell(object):
+class TableCell:
     """
     a TableCell object is used to create a cell in a HTML table. (TD or TH)
 
@@ -164,22 +161,22 @@ class TableCell(object):
         if self.style:
             self.attribs["style"] = self.style
         for attr in self.attribs:
-            attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
+            attribs_str += f' {attr}="{self.attribs[attr]}"'
         if self.text:
             text = str(self.text)
         else:
             # An empty cell should at least contain a non-breaking space
             text = "&nbsp;"
         if self.header:
-            return "  <TH%s>%s</TH>\n" % (attribs_str, text)
+            return f"  <TH{attribs_str}>{text}</TH>\n"
         else:
-            return "  <TD%s>%s</TD>\n" % (attribs_str, text)
+            return f"  <TD{attribs_str}>{text}</TD>\n"
 
 
 # ------------------------------------------------------------------------------
 
 
-class TableRow(object):
+class TableRow:
     """
     a TableRow object is used to create a row in a HTML table. (TR tag)
 
@@ -225,7 +222,7 @@ class TableRow(object):
         if self.bgcolor:
             self.attribs["bgcolor"] = self.bgcolor
         for attr in self.attribs:
-            attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
+            attribs_str += f' {attr}="{self.attribs[attr]}"'
         result = " <TR%s>\n" % attribs_str
         for cell in self.cells:
             col = self.cells.index(cell)  # cell column index
@@ -251,7 +248,7 @@ class TableRow(object):
 # ------------------------------------------------------------------------------
 
 
-class Table(object):
+class Table:
     """
     a Table object is used to create a HTML table. (TABLE tag)
 
@@ -327,7 +324,7 @@ class Table(object):
         if self.cellpadding:
             self.attribs["cellpadding"] = self.cellpadding
         for attr in self.attribs:
-            attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
+            attribs_str += f' {attr}="{self.attribs[attr]}"'
         result = "<TABLE%s>\n" % attribs_str
         # insert column tags and attributes if specified:
         if self.col_width:
@@ -363,7 +360,7 @@ class Table(object):
 # -----------------------------------------------------------------------------
 
 
-class List(object):
+class List:
     """
     a List object is used to create an ordered or unordered list in HTML.
     (UL/OL tag)
@@ -395,12 +392,12 @@ class List(object):
         if self.start:
             self.attribs["start"] = self.start
         for attr in self.attribs:
-            attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
+            attribs_str += f' {attr}="{self.attribs[attr]}"'
         if self.ordered:
             tag = "OL"
         else:
             tag = "UL"
-        result = "<%s%s>\n" % (tag, attribs_str)
+        result = f"<{tag}{attribs_str}>\n"
         for line in self.lines:
             result += " <LI>%s\n" % str(line)
         result += "</%s>\n" % tag
@@ -411,11 +408,11 @@ class List(object):
 
 # much simpler definition of a link as a function:
 def Link(text, url):
-    return '<a href="%s">%s</a>' % (url, text)
+    return f'<a href="{url}">{text}</a>'
 
 
 def link(text, url):
-    return '<a href="%s">%s</a>' % (url, text)
+    return f'<a href="{url}">{text}</a>'
 
 
 def table(*args, **kwargs):

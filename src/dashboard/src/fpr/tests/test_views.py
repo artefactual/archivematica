@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
@@ -57,22 +54,22 @@ class TestViews(TestCase):
         self.assertEqual(fpcommand.description, "Copying file to access directory")
 
         form_data = {
-            u"verification_command": [u"ef3ea000-0c3c-4cae-adc2-aa2a6ccbffce"],
-            u"description": [u"new description"],
-            u"tool": [u"0efc346e-6373-4799-819d-17cc0f21f827"],
-            u"event_detail_command": [u""],
-            u"output_location": [
-                u"%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"
+            "verification_command": ["ef3ea000-0c3c-4cae-adc2-aa2a6ccbffce"],
+            "description": ["new description"],
+            "tool": ["0efc346e-6373-4799-819d-17cc0f21f827"],
+            "event_detail_command": [""],
+            "output_location": [
+                "%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"
             ],
-            u"command_usage": [u"normalization"],
-            u"command": [
-                u'cp -R "%inputFile%" "%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"'
+            "command_usage": ["normalization"],
+            "command": [
+                'cp -R "%inputFile%" "%outputDirectory%%prefix%%fileName%%postfix%%fileExtensionWithDot%"'
             ],
-            u"csrfmiddlewaretoken": [
-                u"k5UUufiJuSOLNOGJYlU2ODow5iKPhOuLc9Q0EmUoIXsQLZ7r5Ede7Pf0pSQEm0lP"
+            "csrfmiddlewaretoken": [
+                "k5UUufiJuSOLNOGJYlU2ODow5iKPhOuLc9Q0EmUoIXsQLZ7r5Ede7Pf0pSQEm0lP"
             ],
-            u"output_format": [u"0ab4cd40-90e7-4d75-b294-498177b3897d"],
-            u"script_type": [u"command"],
+            "output_format": ["0ab4cd40-90e7-4d75-b294-498177b3897d"],
+            "script_type": ["command"],
         }
         resp = self.client.post(url, follow=True, data=form_data)
         self.assertEqual(resp.status_code, 200)

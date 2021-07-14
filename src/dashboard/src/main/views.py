@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 from django.conf import settings as django_settings
 from django.urls import reverse
@@ -323,7 +321,7 @@ def formdata(request, type, parent_id, delete_id=None):
 
 class CustomShibbolethLogoutView(ShibbolethLogoutView):
     def get(self, request, *args, **kwargs):
-        response = super(CustomShibbolethLogoutView, self).get(request, *args, **kwargs)
+        response = super().get(request, *args, **kwargs)
         # LOGOUT_SESSION_KEY is set by the standard logout to prevent re-login
         # which is useful to prevent bouncing straight back to login under
         # certain setups, but not here where we want the Django session state

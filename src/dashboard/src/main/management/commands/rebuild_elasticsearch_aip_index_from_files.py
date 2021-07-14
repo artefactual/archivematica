@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Recreate the Elasticsearch index from AIPs stored on disk.
 
 This is a copy of: https://github.com/artefactual/archivematica-devtools/blob/1fd49faf2b415a4f4229da832445d22b35c262f4/tools/rebuild-elasticsearch-aip-index-from-files.

@@ -14,8 +14,6 @@ import namespaces as ns
 # dashboard
 from main import models
 
-from django.utils import six
-
 
 def _create_premis_object(premis_object_type):
     """Return new PREMIS element container (``lxml._Element`` instance).
@@ -406,7 +404,7 @@ def add_events(job, mets, sip_uuid):
         fsentry.add_premis_event(createmets2.createEvent(event))
 
     # Add PREMIS agents.
-    for fsentry in six.itervalues(visited):
+    for fsentry in visited.values():
         for identifier_type, identifier_value in _extract_event_agents(fsentry):
             try:
                 agent = agents[(identifier_type, identifier_value)]

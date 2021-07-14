@@ -1,4 +1,3 @@
-# -*- coding: utf8
 from lxml import etree
 import os
 import shutil
@@ -15,7 +14,6 @@ from namespaces import NSMAP, nsmap_for_premis2
 from version import get_preservation_system_identifier
 
 import metsrw
-from six.moves import range
 
 try:
     from pathlib import Path

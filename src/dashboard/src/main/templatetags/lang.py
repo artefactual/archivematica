@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django import template
 
 register = template.Library()
@@ -13,4 +10,4 @@ def standardize_lang_code(language_code):
     head, sep, tail = language_code.partition("-")
     if sep == "":
         return head
-    return "{}_{}".format(head, tail.upper())
+    return f"{head}_{tail.upper()}"

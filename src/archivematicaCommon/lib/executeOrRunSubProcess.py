@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -20,7 +19,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import, print_function
 
 import io
 import subprocess
@@ -75,7 +73,7 @@ def launchSubProcess(
 
     try:
         # Split command strings but pass through arrays untouched
-        if isinstance(command, six.string_types):
+        if isinstance(command, str):
             command = shlex.split(command)
         else:
             command.extend(arguments)
@@ -88,7 +86,7 @@ def launchSubProcess(
             my_env["LANGUAGE"] = my_env["LANG"]
         my_env.update(env_updates)
 
-        if isinstance(stdIn, six.string_types) or isinstance(stdIn, bytes):
+        if isinstance(stdIn, str) or isinstance(stdIn, bytes):
             stdin_pipe = subprocess.PIPE
             stdin_string = stdIn
         elif isinstance(stdIn, file_types):

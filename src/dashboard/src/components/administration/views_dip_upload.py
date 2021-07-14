@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.contrib import messages
 from django.shortcuts import render
 from django.utils.translation import ugettext as _

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from base64 import b64encode
 import json
 import os
@@ -11,7 +8,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client, RequestFactory
 import pytest
-import mock
+from unittest import mock
 
 try:
     from pathlib import Path
@@ -279,25 +276,25 @@ class TestSIPArrange(TestCase):
                 assert response_dict["sip_uuid"] == sip_uuid
 
                 create_arranged_sip_mock.assert_called_once_with(
-                    u"staging/newsip/",
+                    "staging/newsip/",
                     [
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg",
-                            "destination": u"staging/newsip/objects/evelyn_s_photo.jpg",
-                            "uuid": u"4fa8f739-b633-4c0f-8833-d108a4f4e88d",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg",
+                            "destination": "staging/newsip/objects/evelyn_s_photo.jpg",
+                            "uuid": "4fa8f739-b633-4c0f-8833-d108a4f4e88d",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
-                            "destination": u"staging/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
-                            "uuid": u"7f889d5d-7849-490e-a8e6-ccb9595445d7",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "destination": "staging/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "uuid": "7f889d5d-7849-490e-a8e6-ccb9595445d7",
                         },
                     ],
                     sip_uuid,
@@ -310,7 +307,7 @@ class TestSIPArrange(TestCase):
         where files in backlogged transfers such as `data/logs/*` would cause
         the endpoint to fail.
         """
-        sip_uuid = u"a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIP.objects.create(uuid=sip_uuid)
         models.SIPArrange.objects.all().delete()
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
@@ -355,29 +352,29 @@ class TestSIPArrange(TestCase):
                 assert response_dict["sip_uuid"] == sip_uuid
 
                 create_arranged_sip_mock.assert_called_once_with(
-                    u"staging/testsip/",
+                    "staging/testsip/",
                     [
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
-                            "destination": u"staging/testsip/data/objects/MARBLES.TGA",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+                            "destination": "staging/testsip/data/objects/MARBLES.TGA",
                             "uuid": None,
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
-                            "destination": u"staging/testsip/data/logs/BagIt/bagit.txt",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+                            "destination": "staging/testsip/data/logs/BagIt/bagit.txt",
                             "uuid": None,
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
-                            "destination": u"staging/testsip/data/metadata/manifest-md5.txt",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+                            "destination": "staging/testsip/data/metadata/manifest-md5.txt",
                             "uuid": None,
                         },
                     ],
@@ -450,7 +447,7 @@ class TestSIPArrange(TestCase):
         where files in backlogged transfers such as `data/logs/*` would cause
         the endpoint to fail.
         """
-        sip_uuid = u"a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIPArrange.objects.all().delete()
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/")
@@ -522,7 +519,7 @@ def test_copy_metadata_files(mocker):
     sip_uuid = str(uuid.uuid4())
     models.SIP.objects.create(
         uuid=sip_uuid,
-        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+        currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
 
     # Call the view with a mocked request
@@ -545,7 +542,7 @@ def test_copy_metadata_files(mocker):
     # Verify the copier helper was called with the right parameters
     _copy_from_transfer_sources_mock.assert_called_once_with(
         ["locationuuid:/some/path"],
-        "more/path/metadataReminder/mysip-{}/metadata".format(sip_uuid),
+        f"more/path/metadataReminder/mysip-{sip_uuid}/metadata",
     )
 
 
@@ -568,7 +565,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     TEST_UUID = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
     TEST_SS_URL = "http://test-url"
     TEST_BACKLOG_LOCATION_PATH = "/path/to/test/location"
-    TEST_RELPATH = "transfer-{}/data/objects/bird.mp3".format(TEST_UUID)
+    TEST_RELPATH = f"transfer-{TEST_UUID}/data/objects/bird.mp3"
     TEST_ABSPATH = os.path.join(TEST_BACKLOG_LOCATION_PATH, "originals", TEST_RELPATH)
 
     mock_get_file_info = mocker.patch("elasticSearchFunctions.get_transfer_file_info")
@@ -593,7 +590,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     )
 
     factory = RequestFactory()
-    request = factory.get("/filesystem/{}/download/".format(TEST_UUID))
+    request = factory.get(f"/filesystem/{TEST_UUID}/download/")
 
     views.download_by_uuid(request, TEST_UUID, preview_file=preview)
 

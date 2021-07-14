@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Archivematica MCPServer API (Gearman RPC).
 
 We have plans to replace this server with gRPC.
@@ -7,7 +6,6 @@ TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import OrderedDict
 
 import calendar
@@ -109,13 +107,13 @@ class RPCServer(GearmanWorker):
     APPROVE_AIP_REINGEST_CHAIN_ID = "9520386f-bb6d-4fb9-a6b6-5845ef39375f"
 
     def __init__(self, workflow, shutdown_event, package_queue, executor):
-        super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
+        super().__init__(host_list=[django_settings.GEARMAN_SERVER])
         self.workflow = workflow
         self.shutdown_event = shutdown_event
         self.package_queue = package_queue
         self.executor = executor
         self._register_tasks()
-        client_id = "{}_MCPServer".format(gethostname()).encode("utf-8")
+        client_id = f"{gethostname()}_MCPServer".encode()
         self.set_client_id(client_id)
 
     def after_poll(self, any_activity):
@@ -143,7 +141,7 @@ class RPCServer(GearmanWorker):
     def _get_ability_details(self, handler):
         docstring = str(inspect.getdoc(handler))
         match = self.ability_regex.search(docstring)
-        err = ValueError("Unexpected docstring format: {}".format(docstring))
+        err = ValueError(f"Unexpected docstring format: {docstring}")
         if match is None:
             raise err
         try:
@@ -222,21 +220,19 @@ class RPCServer(GearmanWorker):
         ret = etree.Element("choicesAvailableForUnits")
         for uuid, choice in self.package_queue.jobs_awaiting_decisions().items():
             unit_choices = etree.SubElement(ret, "choicesAvailableForUnit")
-            etree.SubElement(unit_choices, "UUID").text = six.text_type(choice.uuid)
+            etree.SubElement(unit_choices, "UUID").text = str(choice.uuid)
             unit = etree.SubElement(unit_choices, "unit")
             etree.SubElement(unit, "type").text = choice.package.__class__.__name__
             unitXML = etree.SubElement(unit, "unitXML")
-            etree.SubElement(unitXML, "UUID").text = six.text_type(choice.package.uuid)
+            etree.SubElement(unitXML, "UUID").text = str(choice.package.uuid)
             etree.SubElement(
                 unitXML, "currentPath"
             ).text = choice.package.current_path_for_db
             choices = etree.SubElement(unit_choices, "choices")
             for id_, description in choice.get_choices().items():
                 choice = etree.SubElement(choices, "choice")
-                etree.SubElement(choice, "chainAvailable").text = six.text_type(id_)
-                etree.SubElement(choice, "description").text = six.text_type(
-                    description
-                )
+                etree.SubElement(choice, "chainAvailable").text = str(id_)
+                etree.SubElement(choice, "description").text = str(description)
 
         return etree.tostring(ret, pretty_print=True)
 
@@ -353,7 +349,7 @@ class RPCServer(GearmanWorker):
             model_attrs = unit_types[payload["type"]]
             lang = payload["lang"]
         except KeyError as err:
-            raise UnexpectedPayloadError("Missing parameter: {}".format(err))
+            raise UnexpectedPayloadError(f"Missing parameter: {err}")
         model = model_attrs[0]
         sql = """
         SELECT SIPUUID,
@@ -432,7 +428,7 @@ class RPCServer(GearmanWorker):
             id_ = payload["id"]
             lang = payload["lang"]
         except KeyError as err:
-            raise UnexpectedPayloadError("Missing parameter: {}".format(err))
+            raise UnexpectedPayloadError(f"Missing parameter: {err}")
         jobs_qs = Job.objects.filter(sipuuid=id_)
         if not jobs_qs:
             raise NotFoundError("Unit not found")

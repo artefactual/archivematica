@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import os
 
 from django.utils.six.moves import StringIO
@@ -60,7 +56,7 @@ def test_load_valid_document(path):
     first_chain = next(itervalues(chains))
     assert isinstance(first_chain, workflow.Chain)
     assert str(first_chain) == first_chain.id
-    assert repr(first_chain) == "Chain <{}>".format(first_chain.id)
+    assert repr(first_chain) == f"Chain <{first_chain.id}>"
     assert isinstance(first_chain.link, workflow.Link)
     assert isinstance(first_chain.link, workflow.BaseLink)
     assert isinstance(first_chain["description"], workflow.TranslationLabel)
@@ -69,7 +65,7 @@ def test_load_valid_document(path):
     links = wf.get_links()
     assert len(links) > 0
     first_link = next(itervalues(links))
-    assert repr(first_link) == "Link <{}>".format(first_link.id)
+    assert repr(first_link) == f"Link <{first_link.id}>"
     assert isinstance(first_link, workflow.Link)
     assert first_link.config == first_link._src["config"]
 

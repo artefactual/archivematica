@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
-
 from collections import namedtuple
 import json
 import subprocess
@@ -31,7 +28,7 @@ def parse_mediaconch_data(target):
         output = subprocess.check_output(args)
     except subprocess.CalledProcessError:
         raise MediaConchException(
-            "MediaConch failed when running: %s" % (" ".join(args),)
+            "MediaConch failed when running: {}".format(" ".join(args))
         )
     try:
         return Parse(etree_el=etree.fromstring(output), stdout=output)
@@ -84,7 +81,7 @@ def get_impl_checks(doc):
     'fail'.
     """
     impl_checks = {}
-    path = ".%smedia/%simplementationChecks" % (NS, NS)
+    path = f".{NS}media/{NS}implementationChecks"
     for impl_check_el in doc.iterfind(path):
         impl_check_name = get_impl_check_name(impl_check_el)
         impl_check_result = get_impl_check_result(impl_check_el)
@@ -129,7 +126,7 @@ def get_event_outcome_information_detail(impl_checks):
     if info == "pass":
         if passed_impl_checks:
             return info, "{} {}".format(prefix, " ".join(passed_impl_checks))
-        return (info, "{} All checks passed.".format(prefix))
+        return (info, f"{prefix} All checks passed.")
     else:
         return (info, "{} {}".format(prefix, " ".join(failed_impl_checks)))
 

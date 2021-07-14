@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.urls import reverse
@@ -49,7 +46,7 @@ def toggle_enabled(request, category, uuid):
     obj.enabled = not obj.enabled
     obj.save()
 
-    return redirect("fpr:{}_list".format(category))
+    return redirect(f"fpr:{category}_list")
 
 
 # ########### FORMATS ############
@@ -758,7 +755,7 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
             detail_view_name = entity_name + "_edit"
         else:
             detail_view_name = entity_name + "_detail"
-        detail_view_name = "fpr:{}".format(detail_view_name)
+        detail_view_name = f"fpr:{detail_view_name}"
 
         try:
             parent_key_value = None

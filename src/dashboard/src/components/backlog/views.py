@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import json
 import logging
@@ -311,7 +309,7 @@ def save_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON success confirmation
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = json.dumps(request.body.decode("utf8"))
     helpers.set_setting(setting_name, state)
     return helpers.json_response({"success": True})
@@ -324,7 +322,7 @@ def load_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON state
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = helpers.get_setting(setting_name)
     if state:
         return HttpResponse(

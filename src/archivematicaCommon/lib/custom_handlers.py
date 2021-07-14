@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import logging
 import logging.config
 import logging.handlers
@@ -22,9 +19,7 @@ class CallbackHandler(logging.Handler):
     def __init__(self, callback, module_name=None):
         logging.Handler.__init__(self)
         self.formatter = logging.Formatter(
-            "{}: ".format(module_name) + STANDARD_FORMAT
-            if module_name
-            else SCRIPT_FILE_FORMAT
+            f"{module_name}: " + STANDARD_FORMAT if module_name else SCRIPT_FILE_FORMAT
         )
         self.callback = callback
 

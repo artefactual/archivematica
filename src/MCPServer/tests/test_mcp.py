@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import threading
 import uuid
 
@@ -47,9 +45,7 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
     watched_dir_handler(package_queue, str(path), watched_dir)
 
     # The Transfer manager should have been called with the right arguments.
-    create_mock.assert_called_once_with(
-        uuid=transfer_uuid, currentlocation="{}/".format(path)
-    )
+    create_mock.assert_called_once_with(uuid=transfer_uuid, currentlocation=f"{path}/")
 
 
 @pytest.mark.django_db(transaction=True)

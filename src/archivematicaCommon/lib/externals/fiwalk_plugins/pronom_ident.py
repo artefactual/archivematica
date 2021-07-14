@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-# encoding: utf-8
 """
 pronom-ident.py - Identify a bitstream against PRONOM; uses fido
 """
-from __future__ import print_function
 
 # https://github.com/anarchivist/fiwalk-dgi/blob/master/python/pronom_ident.py
 # Author  anarchivist
-from __future__ import absolute_import
 
 import os
 import sys
@@ -51,11 +48,9 @@ class FiwalkFido(fido.Fido):
             # till here matey!
             if self.zip:
                 self.identify_contents(filename, type=self.container_type(matches))
-        except IOError:
+        except OSError:
             # print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
-            sys.stderr.write(
-                "FIDO: Error in identify_file: Path is {0}\n".format(filename)
-            )
+            sys.stderr.write(f"FIDO: Error in identify_file: Path is {filename}\n")
 
     def parse_matches(self, fullname, matches, delta_t, matchtype=""):
         out = {}

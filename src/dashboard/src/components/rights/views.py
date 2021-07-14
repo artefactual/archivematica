@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import logging
 import re
@@ -102,7 +100,7 @@ def rights_parse_agent_id(input):
             int(agentRaw)
             agentId = int(agentRaw)
         except ValueError:
-            agentRe = re.compile("(.*)\[(\d*)\]")
+            agentRe = re.compile(r"(.*)\[(\d*)\]")
             match = agentRe.match(agentRaw)
             if match:
                 agentId = match.group(2)

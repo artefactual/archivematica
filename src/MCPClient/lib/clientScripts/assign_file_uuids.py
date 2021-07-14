@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # This file is part of Archivematica.
 #
@@ -38,7 +37,6 @@ import uuid
 
 import django
 from django.db import transaction
-from django.utils import six
 
 django.setup()
 # dashboard
@@ -80,12 +78,10 @@ def get_file_info_from_mets(job, mets, file_path_relative_to_sip):
     entry = mets.get_file(path=file_path_relative_to_sip)
     if not entry:
         job.print_error(
-            "FSEntry for file {} not found in METS".format(file_path_relative_to_sip)
+            f"FSEntry for file {file_path_relative_to_sip} not found in METS"
         )
         return {}
-    job.print_output(
-        "File {} with UUID {} found in METS.".format(entry.path, entry.file_uuid)
-    )
+    job.print_output(f"File {entry.path} with UUID {entry.file_uuid} found in METS.")
 
     # Get original path
     amdsec = entry.amdsecs[0]
@@ -134,7 +130,7 @@ def assign_transfer_file_uuid(
     if filename == PROCESSING_MCP_FILENAME:
         return
 
-    if isinstance(file_path, six.binary_type):
+    if isinstance(file_path, bytes):
         file_path = file_path.decode("utf-8")
 
     file_path_relative_to_sip = file_path.replace(
@@ -153,7 +149,7 @@ def assign_transfer_file_uuid(
 
     if not file_uuid:
         file_uuid = str(uuid.uuid4())
-        job.print_output("Generated UUID for file {}".format(file_uuid))
+        job.print_output(f"Generated UUID for file {file_uuid}")
 
     addFileToTransfer(
         file_path_relative_to_sip,
@@ -191,7 +187,7 @@ def assign_sip_file_uuid(
     if filename == PROCESSING_MCP_FILENAME:
         return
 
-    if isinstance(file_path, six.binary_type):
+    if isinstance(file_path, bytes):
         file_path = file_path.decode("utf-8")
 
     file_uuid = str(uuid.uuid4())
@@ -202,13 +198,13 @@ def assign_sip_file_uuid(
         sip=sip_uuid,
     ).first()
     if matching_file:
-        job.print_error("File already has UUID: {}".format(matching_file.uuid))
+        job.print_error(f"File already has UUID: {matching_file.uuid}")
         if update_use:
             matching_file.filegrpuse = use
             matching_file.save()
         return
 
-    job.print_output("Generated UUID for file {}.".format(file_uuid))
+    job.print_output(f"Generated UUID for file {file_uuid}.")
     addFileToSIP(
         file_path_relative_to_sip,
         file_uuid,
@@ -287,7 +283,7 @@ def call(jobs):
             try:
                 mets_file = find_mets_file(kwargs["sip_directory"])
             except OSError as err:
-                job.print_error("METS file not found: {}".format(err))
+                job.print_error(f"METS file not found: {err}")
             if mets_file:
                 job.print_output(
                     "Reading METS file {} for reingested file information.".format(

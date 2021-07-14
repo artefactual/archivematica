@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import subprocess
 
-import mock
+from unittest import mock
 
 from django.conf import settings
 from django.test import TestCase

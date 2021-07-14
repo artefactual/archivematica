@@ -41,7 +41,7 @@ def get_aip_info(aic_dir, job):
     ]
     for filename in files:
         file_path = os.path.join(aic_dir, filename)
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             aip_name = f.readline()
         os.remove(file_path)
         aips.append({"name": aip_name, "uuid": filename})
@@ -103,7 +103,7 @@ def create_mets_file(aic, aips, job):
     )
     # Add <extent> with number of AIPs
     extent = etree.SubElement(dublincore, ns.dctermsBNS + "extent")
-    extent.text = "{} AIPs".format(len(aips))
+    extent.text = f"{len(aips)} AIPs"
     xml_data.append(dublincore)
 
     # Add elements for each AIP
@@ -121,7 +121,7 @@ def create_mets_file(aic, aips, job):
 
     # Write out the file
     file_uuid = str(uuid.uuid4())
-    basename = os.path.join("metadata", "METS.{}.xml".format(file_uuid))
+    basename = os.path.join("metadata", f"METS.{file_uuid}.xml")
     filename = os.path.join(aic["dir"], basename)
     with open(filename, "wb") as f:
         f.write(

@@ -24,17 +24,16 @@ from executeOrRunSubProcess import executeOrRun
 
 # dashboard
 from django.db.models import F
-from django.utils import six
 
 
 def toStrFromUnicode(inputString, encoding="utf-8"):
     """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, six.string_types):
+    if isinstance(inputString, str):
         inputString = inputString.encode(encoding)
     return inputString
 
 
-class Command(object):
+class Command:
     def __init__(self, job, command, replacement_dict, on_success=None, opts=None):
         self.fpcommand = command
         self.command = command.command
@@ -69,7 +68,7 @@ class Command(object):
             )
 
     def __str__(self):
-        return u"[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
+        return "[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
             self.fpcommand,
             self.command,
             self.verification_command,
@@ -128,7 +127,7 @@ class Command(object):
         return self.exit_code
 
 
-class CommandLinker(object):
+class CommandLinker:
     def __init__(self, job, fprule, command, replacement_dict, opts, on_success):
         self.fprule = fprule
         self.command = command

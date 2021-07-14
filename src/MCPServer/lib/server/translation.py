@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 i18n handling.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import pprint
 
@@ -13,7 +11,7 @@ UNKNOWN_TRANSLATION_LABEL = "<unknown>"
 
 
 @python_2_unicode_compatible
-class TranslationLabel(object):
+class TranslationLabel:
     """Mixin for easy access to translated messages.
 
     The JSON-encoded workflow uses ``object`` (mapping type) to associate
@@ -50,7 +48,7 @@ class TranslationLabel(object):
         self._src = translations
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, pprint.saferepr(self._src))
+        return f"{self.__class__.__name__}({pprint.saferepr(self._src)})"
 
     def __str__(self):
         return self.get_label()
@@ -61,7 +59,7 @@ class TranslationLabel(object):
     def _prepare_lang(self, lang):
         parts = lang.partition("-")
         if parts[1] == "-":
-            return "{}_{}".format(parts[0], parts[2].upper())
+            return f"{parts[0]}_{parts[2].upper()}"
         return lang
 
     def get_label(self, lang=FALLBACK_LANG, fallback_label=None):

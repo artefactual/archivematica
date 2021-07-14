@@ -1,6 +1,5 @@
 """Tests for the archivematica_clamscan.py client script."""
 
-from __future__ import absolute_import
 
 from collections import OrderedDict, namedtuple
 

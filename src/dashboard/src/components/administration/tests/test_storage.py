@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-import mock
+from unittest import mock
 
 from django.test import TestCase
 
@@ -144,7 +141,7 @@ class TestStorage(TestCase):
             for loc in locations
             if loc["uuid"] == "817f9ef7-dcf7-450d-bfeb-7dba00abedd5"
         ]
-        self.assertEqual(used_loc[0]["quota"], u"10.0\xa0GB")
-        self.assertEqual(used_loc[0]["used"], u"5.0\xa0GB")
+        self.assertEqual(used_loc[0]["quota"], "10.0\xa0GB")
+        self.assertEqual(used_loc[0]["used"], "5.0\xa0GB")
         # Purpose is formatted
         self.assertEqual(used_loc[0]["purpose"], "AIP Storage")

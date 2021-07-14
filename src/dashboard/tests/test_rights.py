@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from metsrw.plugins import premisrw
 import pytest
 import uuid
@@ -193,7 +190,7 @@ def test_mdtype():
     assert isinstance(load._mdtype(Transfer()), MetadataAppliesToType)
     assert isinstance(load._mdtype(SIP()), MetadataAppliesToType)
 
-    class UnknownClass(object):
+    class UnknownClass:
         pass
 
     with pytest.raises(TypeError) as excinfo:

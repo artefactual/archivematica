@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -22,7 +20,6 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 
 # stdlib, alphabetical by import source
-from __future__ import absolute_import
 
 import itertools
 import logging
@@ -66,7 +63,7 @@ class UUIDPkField(UUIDField):
         kwargs.setdefault("max_length", 36)
         kwargs["primary_key"] = True
         kwargs["db_column"] = "pk"
-        super(UUIDPkField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class BlobTextField(models.TextField):
@@ -154,8 +151,8 @@ class DashboardSettingManager(models.Manager):
                 [
                     DashboardSetting(
                         scope=scope,
-                        name=six.text_type(name),
-                        value=six.text_type(value),
+                        name=str(name),
+                        value=str(value),
                     )
                     for name, value in items.items()
                 ]
@@ -177,7 +174,7 @@ class DashboardSetting(models.Model):
     objects = DashboardSettingManager()
 
     class Meta:
-        db_table = u"DashboardSettings"
+        db_table = "DashboardSettings"
 
     def __str__(self):
         return "[scope={}|name={}]: {}".format(
@@ -222,7 +219,7 @@ class Access(models.Model):
     updatedtime = models.DateTimeField(db_column="updatedTime", auto_now=True)
 
     class Meta:
-        db_table = u"Accesses"
+        db_table = "Accesses"
 
     def get_title(self):
         return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
@@ -280,13 +277,13 @@ class DublinCore(models.Model):
     )
 
     class Meta:
-        db_table = u"Dublincore"
+        db_table = "Dublincore"
 
     def __str__(self):
         if self.title:
-            return u"%s" % self.title
+            return "%s" % self.title
         else:
-            return six.text_type(_("Untitled"))
+            return str(_("Untitled"))
 
 
 @python_2_unicode_compatible
@@ -310,10 +307,10 @@ class MetadataAppliesToType(models.Model):
     lastmodified = models.DateTimeField(db_column="lastModified", auto_now=True)
 
     class Meta:
-        db_table = u"MetadataAppliesToTypes"
+        db_table = "MetadataAppliesToTypes"
 
     def __str__(self):
-        return six.text_type(self.description)
+        return str(self.description)
 
 
 @python_2_unicode_compatible
@@ -342,10 +339,10 @@ class Event(models.Model):
     agents = models.ManyToManyField("Agent")
 
     class Meta:
-        db_table = u"Events"
+        db_table = "Events"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(type)s event on %(file_uuid)s (%(detail)s)")
             % {
                 "type": self.event_type,
@@ -388,10 +385,10 @@ class Derivation(models.Model):
     )
 
     class Meta:
-        db_table = u"Derivations"
+        db_table = "Derivations"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(derived)s derived from %(src)s in %(event)s")
             % {
                 "derived": self.derived_file,
@@ -465,10 +462,10 @@ class SIP(models.Model):
     objects = PackageManager()
 
     class Meta:
-        db_table = u"SIPs"
+        db_table = "SIPs"
 
     def __str__(self):
-        return six.text_type(_("SIP: {path}") % {"path": self.currentpath})
+        return str(_("SIP: {path}") % {"path": self.currentpath})
 
     def update_active_agent(self, user_id):
         UnitVariable.objects.update_active_agent("SIP", self.uuid, user_id)
@@ -540,7 +537,7 @@ class Transfer(models.Model):
     ARCHIVEMATICA_AIP = "Archivematica AIP"
 
     class Meta:
-        db_table = u"Transfers"
+        db_table = "Transfers"
 
     def update_active_agent(self, user_id):
         UnitVariable.objects.update_active_agent("Transfer", self.uuid, user_id)
@@ -616,7 +613,7 @@ class SIPArrange(models.Model):
         verbose_name = _("Arranged SIPs")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(original)s -> %(arrange)s")
             % {"original": self.original_path, "arrange": self.arrange_path}
         )
@@ -674,10 +671,10 @@ class Identifier(models.Model):
     )
 
     def __str__(self):
-        return u"Identifier {i.value} of type {i.type}".format(i=self)
+        return "Identifier {i.value} of type {i.type}".format(i=self)
 
     class Meta:
-        db_table = u"Identifiers"
+        db_table = "Identifiers"
 
 
 @python_2_unicode_compatible
@@ -730,7 +727,7 @@ class File(models.Model):
     identifiers = models.ManyToManyField("Identifier")
 
     class Meta:
-        db_table = u"Files"
+        db_table = "Files"
         # Additional fields indexed via raw migration (as they are blobs):
         # ("transfer", "currentlocation"),
         # ("sip", "currentlocation"),
@@ -739,7 +736,7 @@ class File(models.Model):
         index_together = (("sip", "filegrpuse"),)
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("File %(uuid)s:%(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
@@ -790,10 +787,10 @@ class Directory(models.Model):
     identifiers = models.ManyToManyField("Identifier")
 
     class Meta:
-        db_table = u"Directories"
+        db_table = "Directories"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
@@ -855,10 +852,10 @@ class FileFormatVersion(models.Model):
     )
 
     class Meta:
-        db_table = u"FilesIdentifiedIDs"
+        db_table = "FilesIdentifiedIDs"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(file)s is %(format)s")
             % {"file": self.file_uuid, "format": self.format_version}
         )
@@ -920,7 +917,7 @@ class Job(models.Model):
     objects = JobQuerySet.as_manager()
 
     class Meta:
-        db_table = u"Jobs"
+        db_table = "Jobs"
         index_together = (
             ("sipuuid", "createdtime", "createdtimedec"),
             ("sipuuid", "jobtype", "createdtime", "createdtimedec"),
@@ -984,7 +981,7 @@ class Task(models.Model):
     exitcode = models.BigIntegerField(db_column="exitCode", null=True, blank=True)
 
     class Meta:
-        db_table = u"Tasks"
+        db_table = "Tasks"
 
 
 class AgentManager(models.Manager):
@@ -1056,13 +1053,13 @@ class Agent(models.Model):
 
     def __str__(self):
         return (
-            u"{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
+            "{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
                 a=self
             )
         )
 
     class Meta:
-        db_table = u"Agents"
+        db_table = "Agents"
 
 
 class UserProfile(models.Model):
@@ -1079,7 +1076,7 @@ class UserProfile(models.Model):
     )
 
     class Meta:
-        db_table = u"main_userprofile"
+        db_table = "main_userprofile"
 
 
 class Report(models.Model):
@@ -1095,7 +1092,7 @@ class Report(models.Model):
     created = models.DateTimeField(db_column="created", auto_now_add=True)
 
     class Meta:
-        db_table = u"Reports"
+        db_table = "Reports"
 
 
 @python_2_unicode_compatible
@@ -1142,11 +1139,11 @@ class RightsStatement(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatement"
+        db_table = "RightsStatement"
         verbose_name = _("Rights Statement")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(basis)s for %(unit)s (%(id)s)")
             % {
                 "basis": self.rightsbasis,
@@ -1205,7 +1202,7 @@ class RightsStatementCopyright(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementCopyright"
+        db_table = "RightsStatementCopyright"
         verbose_name = _("Rights: Copyright")
 
 
@@ -1232,7 +1229,7 @@ class RightsStatementCopyrightDocumentationIdentifier(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementCopyrightDocumentationIdentifier"
+        db_table = "RightsStatementCopyrightDocumentationIdentifier"
         verbose_name = _("Rights: Copyright: Docs ID")
 
 
@@ -1248,7 +1245,7 @@ class RightsStatementCopyrightNote(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementCopyrightNote"
+        db_table = "RightsStatementCopyrightNote"
         verbose_name = _("Rights: Copyright: Note")
 
 
@@ -1282,7 +1279,7 @@ class RightsStatementLicense(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementLicense"
+        db_table = "RightsStatementLicense"
         verbose_name = _("Rights: License")
 
 
@@ -1309,7 +1306,7 @@ class RightsStatementLicenseDocumentationIdentifier(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementLicenseDocumentationIdentifier"
+        db_table = "RightsStatementLicenseDocumentationIdentifier"
         verbose_name = _("Rights: License: Docs ID")
 
 
@@ -1325,7 +1322,7 @@ class RightsStatementLicenseNote(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementLicenseNote"
+        db_table = "RightsStatementLicenseNote"
         verbose_name = _("Rights: License: Note")
 
 
@@ -1357,7 +1354,7 @@ class RightsStatementRightsGranted(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementRightsGranted"
+        db_table = "RightsStatementRightsGranted"
         verbose_name = _("Rights: Granted")
 
 
@@ -1374,7 +1371,7 @@ class RightsStatementRightsGrantedNote(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementRightsGrantedNote"
+        db_table = "RightsStatementRightsGrantedNote"
         verbose_name = _("Rights: Granted: Note")
 
 
@@ -1389,7 +1386,7 @@ class RightsStatementRightsGrantedRestriction(models.Model):
     restriction = models.TextField(db_column="restriction")
 
     class Meta:
-        db_table = u"RightsStatementRightsGrantedRestriction"
+        db_table = "RightsStatementRightsGrantedRestriction"
         verbose_name = _("Rights: Granted: Restriction")
 
 
@@ -1433,7 +1430,7 @@ class RightsStatementStatuteInformation(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementStatuteInformation"
+        db_table = "RightsStatementStatuteInformation"
         verbose_name = _("Rights: Statute")
 
 
@@ -1449,7 +1446,7 @@ class RightsStatementStatuteInformationNote(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementStatuteInformationNote"
+        db_table = "RightsStatementStatuteInformationNote"
         verbose_name = _("Rights: Statute: Note")
 
 
@@ -1476,7 +1473,7 @@ class RightsStatementStatuteDocumentationIdentifier(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementStatuteDocumentationIdentifier"
+        db_table = "RightsStatementStatuteDocumentationIdentifier"
         verbose_name = _("Rights: Statute: Docs ID")
 
 
@@ -1512,7 +1509,7 @@ class RightsStatementOtherRightsInformation(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementOtherRightsInformation"
+        db_table = "RightsStatementOtherRightsInformation"
         verbose_name = _("Rights: Other")
 
 
@@ -1539,7 +1536,7 @@ class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementOtherRightsDocumentationIdentifier"
+        db_table = "RightsStatementOtherRightsDocumentationIdentifier"
         verbose_name = _("Rights: Other: Docs ID")
 
 
@@ -1555,7 +1552,7 @@ class RightsStatementOtherRightsInformationNote(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementOtherRightsNote"
+        db_table = "RightsStatementOtherRightsNote"
         verbose_name = _("Rights: Other: Note")
 
 
@@ -1576,7 +1573,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
     )
 
     class Meta:
-        db_table = u"RightsStatementLinkingAgentIdentifier"
+        db_table = "RightsStatementLinkingAgentIdentifier"
         verbose_name = _("Rights: Agent")
 
 
@@ -1627,7 +1624,7 @@ class UnitVariable(models.Model):
     objects = UnitVariableManager()
 
     class Meta:
-        db_table = u"UnitVariables"
+        db_table = "UnitVariables"
         # Fields indexed via raw migration (as they are blobs):
         # ("unituuid", "unittype", "variable")
 
@@ -1647,7 +1644,7 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
         )
 
     class Meta:
-        db_table = u"ArchivesSpaceDIPObjectResourcePairing"
+        db_table = "ArchivesSpaceDIPObjectResourcePairing"
         # Table name length is fine, but if the verbose name is too
         # long it can result in confusing errors when trying to
         # set up permissions: https://code.djangoproject.com/ticket/18866
@@ -1684,7 +1681,7 @@ class TransferMetadataSet(models.Model):
     createdbyuserid = models.IntegerField(db_column="createdByUserID")
 
     class Meta:
-        db_table = u"TransferMetadataSets"
+        db_table = "TransferMetadataSets"
 
 
 @python_2_unicode_compatible
@@ -1706,7 +1703,7 @@ class TransferMetadataField(models.Model):
     sortorder = models.IntegerField(default=0, db_column="sortOrder")
 
     class Meta:
-        db_table = u"TransferMetadataFields"
+        db_table = "TransferMetadataFields"
 
     def __str__(self):
         return self.fieldlabel
@@ -1730,7 +1727,7 @@ class TransferMetadataFieldValue(models.Model):
     fieldvalue = models.TextField(blank=True, db_column="fieldValue")
 
     class Meta:
-        db_table = u"TransferMetadataFieldValues"
+        db_table = "TransferMetadataFieldValues"
 
 
 # Taxonomies and their field definitions are in separate tables
@@ -1747,7 +1744,7 @@ class Taxonomy(models.Model):
     type = models.CharField(max_length=50, default="open")
 
     class Meta:
-        db_table = u"Taxonomies"
+        db_table = "Taxonomies"
 
     def __str__(self):
         return self.name
@@ -1765,7 +1762,7 @@ class TaxonomyTerm(models.Model):
     term = models.CharField(max_length=255, db_column="term")
 
     class Meta:
-        db_table = u"TaxonomyTerms"
+        db_table = "TaxonomyTerms"
 
     def __str__(self):
         return self.term
@@ -1784,7 +1781,7 @@ class FPCommandOutput(models.Model):
     # Table name is main_fpcommandoutput
 
     def __str__(self):
-        return u"<file: {file}; rule: {rule}; content: {content}".format(
+        return "<file: {file}; rule: {rule}; content: {content}".format(
             file=self.file, rule=self.rule, content=self.content[:20]
         )
 
@@ -1817,7 +1814,7 @@ class LevelOfDescription(models.Model):
     sortorder = models.IntegerField(default=0, db_column="sortOrder")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(sortorder)s: %(name)s")
             % {"sortorder": self.sortorder, "name": self.name}
         )

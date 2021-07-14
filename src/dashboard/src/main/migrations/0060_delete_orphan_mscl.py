@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Migration for the deletion of an orphan chain link in the workflow."""
-from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

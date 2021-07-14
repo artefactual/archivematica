@@ -211,7 +211,7 @@ def main(job, transfer_id, transfer_path, created_at):
             size,
         )
     except StorageServiceCreateFileError as err:
-        errmsg = "Moving to backlog failed: {}.".format(err)
+        errmsg = f"Moving to backlog failed: {err}."
         logger.warning(errmsg)
         raise Exception(errmsg + " See logs for more details.")
     logger.info("Transfer moved (%s).", pprint.pformat(new_file))

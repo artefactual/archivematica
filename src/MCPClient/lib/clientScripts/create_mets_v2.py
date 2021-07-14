@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # This file is part of Archivematica.
 #
@@ -85,12 +84,12 @@ from bagit import Bag, BagError
 SIP_DIR_VAR = r"%SIPDirectory%"
 
 
-class ErrorAccumulator(object):
+class ErrorAccumulator:
     def __init__(self):
         self.error_count = 0
 
 
-class MetsState(object):
+class MetsState:
     def __init__(
         self, globalAmdSecCounter=0, globalTechMDCounter=0, globalDigiprovMDCounter=0
     ):
@@ -338,7 +337,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                     etree.SubElement(dc, elem_namespace + key).text = six.ensure_text(v)
                 except UnicodeDecodeError:
                     job.pyprint(
-                        "Skipping DC value; not valid UTF-8: {}".format(v),
+                        f"Skipping DC value; not valid UTF-8: {v}",
                         file=sys.stderr,
                     )
         else:  # not a dublin core item
@@ -359,7 +358,7 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
                     ).text = six.ensure_text(v)
                 except UnicodeDecodeError:
                     job.pyprint(
-                        "Skipping DC value; not valid UTF-8: {}".format(v),
+                        f"Skipping DC value; not valid UTF-8: {v}",
                         file=sys.stderr,
                     )
     return ret
@@ -888,7 +887,7 @@ def _fixup_path_input_by_user(job, path):
     """Fix-up paths submitted by a user, e.g. in custom structmap examples so
     that they don't have to anticipate the Archivematica normalization process.
     """
-    return os.path.join("", *[change_name(name) for name in path.split(os.path.sep)])
+    return os.path.join("", *(change_name(name) for name in path.split(os.path.sep)))
 
 
 def include_custom_structmap(
@@ -917,7 +916,7 @@ def include_custom_structmap(
             id_ = structMap.get("ID")
             if not id_:
                 state.globalStructMapCounter += 1
-                structMap.set("ID", "structMap_{}".format(state.globalStructMapCounter))
+                structMap.set("ID", f"structMap_{state.globalStructMapCounter}")
             ret.append(structMap)
             # CONTENTIDS will map to fptrs and area elements where present.
             fptrs = root.xpath("//mets:fptr", namespaces={"mets": ns.metsNS})
@@ -1106,7 +1105,7 @@ def createFileSec(
 
             # Create <div TYPE="Item"> and child <fptr>
             # <fptr FILEID="file-<UUID>" LABEL="filename.ext">
-            fileId = "file-{}".format(f.uuid)
+            fileId = f"file-{f.uuid}"
             label = item if not label else label
             fileDiv = etree.SubElement(
                 structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE="Item"
@@ -1314,7 +1313,7 @@ def build_arranged_structmap(job, original_structmap, sip_uuid):
     structmap = copy.deepcopy(original_structmap)
     structmap.attrib["TYPE"] = "logical"
     structmap.attrib["LABEL"] = "Hierarchical"
-    structmap.attrib["ID"] = "structMap_{}".format(uuid4())
+    structmap.attrib["ID"] = f"structMap_{uuid4()}"
     root_div = structmap.find("./mets:div", namespaces=ns.NSMAP)
     del root_div.attrib["TYPE"]
     objects = root_div.find('./mets:div[@LABEL="objects"]', namespaces=ns.NSMAP)
@@ -1323,7 +1322,7 @@ def build_arranged_structmap(job, original_structmap, sip_uuid):
     # not have intellectual arrangement, so don't need to be
     # represented in this structMap.
     for label in ("submissionDocumentation", "metadata"):
-        div = objects.find('.mets:div[@LABEL="{}"]'.format(label), namespaces=ns.NSMAP)
+        div = objects.find(f'.mets:div[@LABEL="{label}"]', namespaces=ns.NSMAP)
         if div is not None:
             objects.remove(div)
 
@@ -1390,7 +1389,7 @@ def find_bag_metadata(job, bag_logs_path):
         return Bag(bag_logs_path).info
     except BagError:
         job.pyprint(
-            "Unable to locate or parse bag metadata at: {}".format(bag_logs_path),
+            f"Unable to locate or parse bag metadata at: {bag_logs_path}",
             file=sys.stderr,
         )
         return {}
@@ -1411,7 +1410,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
         return
 
     state.globalAmdSecCounter += 1
-    label = "amdSec_{}".format(state.globalAmdSecCounter)
+    label = f"amdSec_{state.globalAmdSecCounter}"
     struct_map.set("ADMID", label)
 
     source_md_counter = 1
@@ -1420,7 +1419,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
 
     for filename in transfer:
         sourcemd = etree.SubElement(
-            el, ns.metsBNS + "sourceMD", {"ID": "sourceMD_{}".format(source_md_counter)}
+            el, ns.metsBNS + "sourceMD", {"ID": f"sourceMD_{source_md_counter}"}
         )
         mdwrap = etree.SubElement(sourcemd, ns.metsBNS + "mdWrap", {"MDTYPE": "OTHER"})
         xmldata = etree.SubElement(mdwrap, ns.metsBNS + "xmlData")
@@ -1431,7 +1430,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
 
     for filename in source:
         sourcemd = etree.SubElement(
-            el, ns.metsBNS + "sourceMD", {"ID": "sourceMD_{}".format(source_md_counter)}
+            el, ns.metsBNS + "sourceMD", {"ID": f"sourceMD_{source_md_counter}"}
         )
         source_md_counter += 1
         attributes = {
@@ -1448,7 +1447,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
             continue
 
         sourcemd = etree.SubElement(
-            el, ns.metsBNS + "sourceMD", {"ID": "sourceMD_{}".format(source_md_counter)}
+            el, ns.metsBNS + "sourceMD", {"ID": f"sourceMD_{source_md_counter}"}
         )
         source_md_counter += 1
         mdwrap = etree.SubElement(
@@ -1491,14 +1490,9 @@ def write_validator_tester(tree, filename):
         etree.tostring(tree, pretty_print=True, xml_declaration=True, encoding="utf-8")
     )
 
-    if six.PY2:
-        import cgi
+    import html
 
-        file_contents = cgi.escape(file_contents)
-    else:
-        import html
-
-        file_contents = html.escape(file_contents, quote=False)
+    file_contents = html.escape(file_contents, quote=False)
 
     with open(validate_filename, "w") as f:
         f.write(file_contents)
@@ -1606,7 +1600,7 @@ def get_normative_structmap(
     normativeStructMap = parser.makeelement(
         ns.metsBNS + "structMap",
         TYPE="logical",
-        ID="structMap_{}".format(state.globalStructMapCounter),
+        ID=f"structMap_{state.globalStructMapCounter}",
         LABEL="Normative Directory Structure",
     )
     normativeStructMapDiv = etree.SubElement(
@@ -1729,7 +1723,7 @@ def main(
     structMap = etree.Element(
         ns.metsBNS + "structMap",
         TYPE="physical",
-        ID="structMap_{}".format(state.globalStructMapCounter),
+        ID=f"structMap_{state.globalStructMapCounter}",
         LABEL="Archivematica default",
     )
     sip_dir_name = os.path.basename(baseDirectoryPath.rstrip("/"))

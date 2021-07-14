@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import six
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 
 
-class PasswordComplexityValidator(object):
+class PasswordComplexityValidator:
     """Custom password complexity validator.
 
     To pass validation, passwords must contain at least three of:

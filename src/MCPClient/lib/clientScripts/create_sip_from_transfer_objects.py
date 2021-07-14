@@ -89,7 +89,7 @@ def call(jobs):
                     sip_uuid = str(uuid.uuid4())
 
                 destSIPDir = os.path.join(
-                    autoProcessSIPDirectory, "{}-{}".format(sipName, sip_uuid)
+                    autoProcessSIPDirectory, f"{sipName}-{sip_uuid}"
                 )
 
                 # TODO: it's not clear in which case a SIP would already exist

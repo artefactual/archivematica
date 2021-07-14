@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Test Storage Service
 
 Tests for the Archivematica Common Storage Service helpers.

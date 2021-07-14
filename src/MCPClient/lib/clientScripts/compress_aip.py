@@ -44,11 +44,11 @@ def compress_aip(
     try:
         program, compression_algorithm = compression.split("-")
     except ValueError:
-        msg = "Invalid program-compression algorithm: {}".format(compression)
+        msg = f"Invalid program-compression algorithm: {compression}"
         job.pyprint(msg, file=sys.stderr)
         return 255
 
-    archive_path = "{name}-{uuid}".format(name=sip_name, uuid=sip_uuid)
+    archive_path = f"{sip_name}-{sip_uuid}"
     uncompressed_location = sip_directory + archive_path
 
     # Even though no actual compression is taking place,
@@ -75,8 +75,8 @@ def compress_aip(
             compressed_location=compressed_location,
         )
         tool_info_command = (
-            'echo program="7z"\; '
-            'algorithm="{}"\; '
+            r'echo program="7z"\; '
+            r'algorithm="{}"\; '
             'version="`7z | grep Version`"'.format(compression_algorithm)
         )
     elif program == "pbzip2":
@@ -88,8 +88,8 @@ def compress_aip(
             compressed_location=compressed_location,
         )
         tool_info_command = (
-            'echo program="pbzip2"\; '
-            'algorithm="{}"\; '
+            r'echo program="pbzip2"\; '
+            r'algorithm="{}"\; '
             'version="$((pbzip2 -V) 2>&1)"'.format(compression_algorithm)
         )
     elif program == "gzip":
@@ -101,12 +101,12 @@ def compress_aip(
             compressed_location=compressed_location,
         )
         tool_info_command = (
-            'echo program="gzip"\; '
-            'algorithm="{}"\; '
+            r'echo program="gzip"\; '
+            r'algorithm="{}"\; '
             'version="$((gzip -V) 2>&1)"'.format(compression_algorithm)
         )
     else:
-        msg = "Program {} not recognized, exiting script prematurely.".format(program)
+        msg = f"Program {program} not recognized, exiting script prematurely."
         job.pyprint(msg, file=sys.stderr)
         return 255
 
@@ -133,7 +133,7 @@ def compress_aip(
     )
     job.write_output(tool_info)
     job.write_error(tool_info_err)
-    tool_output = 'Standard Output="{}"; Standard Error="{}"'.format(std_out, std_err)
+    tool_output = f'Standard Output="{std_out}"; Standard Error="{std_err}"'
     databaseFunctions.insertIntoEvents(
         eventType="compression",
         eventDetail=tool_info,

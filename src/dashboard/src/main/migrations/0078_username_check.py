@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Ensures that the username attribute does not exceed maximum expected length.
 
 Column ``auth_user.username`` has a max_length of 150 characters since Django
@@ -18,7 +17,6 @@ at this point:
 The error will not be raised when ``--no-input`` is used, which may be useful
 for users that want to deal with the situation later or ignore it entirely.
 """
-from __future__ import unicode_literals
 
 import sys
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import logging
 import os
@@ -76,7 +74,7 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
     """
     with tempfile.NamedTemporaryFile() as temp:
         # Download METS file
-        mets_path = "{}-{}/data/METS.{}.xml".format(aip_name, aip_uuid, aip_uuid)
+        mets_path = f"{aip_name}-{aip_uuid}/data/METS.{aip_uuid}.xml"
         logger.debug("Extracting file %s into %s", mets_path, temp.name)
         try:
             extract_file(aip_uuid, mets_path, temp.name)

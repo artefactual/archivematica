@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Jobs relating to user decisions.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import OrderedDict
 
 import abc
 import logging
 import threading
-
-from django.utils import six
 
 from server.db import auto_close_old_connections
 from server.jobs.base import Job
@@ -23,8 +19,7 @@ from main import models
 logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 
 
-@six.add_metaclass(abc.ABCMeta)
-class DecisionJob(Job):
+class DecisionJob(Job, metaclass=abc.ABCMeta):
     """A Job that handles a workflow decision point.
 
     The `run` method checks if a choice has been preconfigured. If so,
@@ -34,7 +29,7 @@ class DecisionJob(Job):
     """
 
     def __init__(self, *args, **kwargs):
-        super(DecisionJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._awaiting_decision_event = threading.Event()
 
@@ -47,7 +42,7 @@ class DecisionJob(Job):
         return self.link.workflow
 
     def run(self, *args, **kwargs):
-        super(DecisionJob, self).run(*args, **kwargs)
+        super().run(*args, **kwargs)
 
         logger.info("Running %s (package %s)", self.description, self.package.uuid)
         # Reload the package, in case the path has changed
@@ -72,7 +67,7 @@ class DecisionJob(Job):
         return load_preconfigured_choice(self.package.current_path, self.link.id)
 
     def mark_awaiting_decision(self):
-        super(DecisionJob, self).mark_awaiting_decision()
+        super().mark_awaiting_decision()
 
         self._awaiting_decision_event.set()
 
@@ -120,7 +115,7 @@ class NextChainDecisionJob(DecisionJob):
         from server.jobs import JobChain
 
         if choice not in self.get_choices():
-            raise ValueError("{} is not one of the available choices".format(choice))
+            raise ValueError(f"{choice} is not one of the available choices")
 
         chain = self.workflow.get_chain(choice)
         logger.info("Using user selected chain %s for link %s", chain.id, self.link.id)
@@ -157,7 +152,7 @@ class OutputDecisionJob(DecisionJob):
     @auto_close_old_connections()
     def decide(self, choice):
         if choice not in self.get_choices():
-            raise ValueError("{} is not one of the available choices".format(choice))
+            raise ValueError(f"{choice} is not one of the available choices")
 
         # Pass the choice to the next job. This case is only used to select
         # an AIP store URI, and the value of execute (script_name here) is a
@@ -249,7 +244,7 @@ class UpdateContextDecisionJob(DecisionJob):
 
     def _format_items(self, items):
         """Wrap replacement items with the ``%`` wildcard character."""
-        return {"%{}%".format(key): value for key, value in six.iteritems(items)}
+        return {f"%{key}%": value for key, value in items.items()}
 
     def load_preconfigured_context(self):
         normalized_choice_id = self.CHOICE_MAPPING.get(self.link.id, self.link.id)
@@ -284,7 +279,7 @@ class UpdateContextDecisionJob(DecisionJob):
 
         for index, item in enumerate(self.link.config["replacements"]):
             # item description is already translated in workflow
-            choices[six.text_type(index)] = item["description"]
+            choices[str(index)] = item["description"]
             self.choice_items.append(self._format_items(item["items"]))
 
         return choices
@@ -293,7 +288,7 @@ class UpdateContextDecisionJob(DecisionJob):
     def decide(self, choice, user_id=None):
         # TODO: DRY with sibling classes
         if choice not in self.get_choices():
-            raise ValueError("{} is not one of the available choices".format(choice))
+            raise ValueError(f"{choice} is not one of the available choices")
 
         choice_index = int(choice)
         items = self.choice_items[choice_index]

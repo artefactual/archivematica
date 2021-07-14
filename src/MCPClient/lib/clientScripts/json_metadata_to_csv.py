@@ -5,7 +5,6 @@ import json
 import os
 
 import six
-from six.moves import range
 
 
 def fetch_keys(objects):
@@ -69,7 +68,7 @@ def encode_item(item):
     """
     if not item:  # Handle case where json contains null.
         return
-    elif isinstance(item, six.string_types):
+    elif isinstance(item, str):
         return item.encode("utf-8")
     elif isinstance(item, (list, tuple)):
         return [i.encode("utf-8") if i else "" for i in item]

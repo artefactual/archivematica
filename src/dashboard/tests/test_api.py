@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import base64
 import datetime
 import json
@@ -220,7 +217,7 @@ class TestAPI(TestCase):
         """It should return a 400 error as the status cannot be determined."""
         bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
         Transfer.objects.create(uuid=bogus_transfer_id)
-        resp = self.client.get("/api/transfer/status/{}".format(bogus_transfer_id))
+        resp = self.client.get(f"/api/transfer/status/{bogus_transfer_id}")
         self._test_api_error(
             resp,
             status_code=400,
@@ -297,11 +294,11 @@ class TestAPI(TestCase):
     @e2e
     def test_unit_jobs_with_bogus_unit_uuid(self):
         bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get("/api/v2beta/jobs/{}".format(bogus_unit_uuid))
+        resp = self.client.get(f"/api/v2beta/jobs/{bogus_unit_uuid}")
         self._test_api_error(
             resp,
             status_code=400,
-            message=("No jobs found for unit: {}".format(bogus_unit_uuid)),
+            message=(f"No jobs found for unit: {bogus_unit_uuid}"),
         )
 
     @e2e
@@ -317,7 +314,7 @@ class TestAPI(TestCase):
             endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
             exitcode=0,
         )
-        resp = self.client.get("/api/v2beta/jobs/{}".format(sip_uuid))
+        resp = self.client.get(f"/api/v2beta/jobs/{sip_uuid}")
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         # payload contains a mapping for each job
@@ -433,11 +430,11 @@ class TestAPI(TestCase):
     @e2e
     def test_task_with_bogus_task_uuid(self):
         bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get("/api/v2beta/task/{}".format(bogus_task_uuid))
+        resp = self.client.get(f"/api/v2beta/task/{bogus_task_uuid}")
         self._test_api_error(
             resp,
             status_code=400,
-            message=("Task with UUID {} does not exist".format(bogus_task_uuid)),
+            message=(f"Task with UUID {bogus_task_uuid} does not exist"),
         )
 
     @e2e
@@ -584,7 +581,7 @@ def test_copy_metadata_files_api(mocker):
     sip_uuid = str(uuid.uuid4())
     SIP.objects.create(
         uuid=sip_uuid,
-        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+        currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
 
     # Call the endpoint with a mocked request

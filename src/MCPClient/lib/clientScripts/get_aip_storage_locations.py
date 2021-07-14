@@ -34,7 +34,7 @@ def get_aip_storage_locations(purpose, job):
         }
     choices["default"] = {
         "description": "Default Location",
-        "uri": "/api/v2/location/default/{}/".format(purpose),
+        "uri": f"/api/v2/location/default/{purpose}/",
     }
     job.pyprint(json.dumps(choices, indent=4, sort_keys=True))
 

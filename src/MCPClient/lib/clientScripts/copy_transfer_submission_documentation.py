@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import
 import os
 import re
 import shutil

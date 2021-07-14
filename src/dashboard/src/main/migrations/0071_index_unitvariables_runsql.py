@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 """A MySQL specific index for UnitVariables."""
-from __future__ import absolute_import, unicode_literals
 
 from django.db import migrations
 

@@ -1,7 +1,6 @@
 """
 Exposes various metrics via Prometheus.
 """
-from __future__ import absolute_import, unicode_literals
 
 import six.moves.configparser
 import datetime
@@ -23,7 +22,6 @@ from common_metrics import (
     TASK_DURATION_BUCKETS,
 )
 from version import get_full_version
-from six.moves import range
 
 
 job_counter = Counter(

@@ -25,7 +25,6 @@ import csv
 import os
 
 import django
-import six
 
 django.setup()
 from django.db import transaction
@@ -36,11 +35,11 @@ from main import models
 
 class RightsRowException(Exception):
     def __init__(self, message, reader):
-        message = "[Row {}] {}".format(reader.rows_processed + 1, message)
-        super(RightsRowException, self).__init__(message)
+        message = f"[Row {reader.rows_processed + 1}] {message}"
+        super().__init__(message)
 
 
-class RightCsvReader(object):
+class RightCsvReader:
 
     metadata_applies_to_type = None
     current_row = None
@@ -86,7 +85,7 @@ class RightCsvReader(object):
         ).first()
 
         # Use universal newline mode to support unusual newlines, like \r
-        with open(self.rights_csv_filepath, "rU") as f:
+        with open(self.rights_csv_filepath) as f:
             reader = csv.DictReader(f)
             for row in reader:
                 self.parse_row(row)
@@ -169,7 +168,7 @@ class RightCsvReader(object):
         basis = self.column_value("basis").lower().capitalize()
 
         if basis not in dict(models.RightsStatement.RIGHTS_BASIS_CHOICES):
-            raise RightsRowException("Invalid basis: {}".format(basis), self)
+            raise RightsRowException(f"Invalid basis: {basis}", self)
 
         # Get file data
         filepath = self.column_value("file")
@@ -192,14 +191,12 @@ class RightCsvReader(object):
         """Check for invalid/missing columns."""
         for column_name in row.keys():
             if column_name not in self.allowed_column_names:
-                raise RightsRowException(
-                    "Invalid column found: {}".format(column_name), self
-                )
+                raise RightsRowException(f"Invalid column found: {column_name}", self)
 
         for column_name in self.required_column_names:
             if column_name not in row:
                 raise RightsRowException(
-                    "Missing required column: {}".format(column_name), self
+                    f"Missing required column: {column_name}", self
                 )
 
     def column_value(self, column_name):
@@ -220,7 +217,7 @@ class RightCsvReader(object):
         self, model_instance, attribute_to_column_map
     ):
         """Using a dict that maps model attributes to column names, set a model instance's attributes."""
-        for attribute, column_name in six.iteritems(attribute_to_column_map):
+        for attribute, column_name in attribute_to_column_map.items():
             self.set_model_instance_attribute_to_row_column_if_set(
                 model_instance, attribute, column_name
             )

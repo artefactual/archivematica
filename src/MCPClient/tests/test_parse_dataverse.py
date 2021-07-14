@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8
 
 """Tests for the parse Dataverse functionality in Archivematica."""
 

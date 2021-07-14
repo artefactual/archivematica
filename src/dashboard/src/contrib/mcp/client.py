@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
 
 import logging
 
@@ -48,7 +46,7 @@ class RPCServerError(RPCGearmanClientError):
     GENERIC_ERROR_MSG = "The server failed to process the request"
 
     def __init__(self, payload=None):
-        super(RPCServerError, self).__init__(self._process_error(payload))
+        super().__init__(self._process_error(payload))
 
     def _process_error(self, payload):
         """Extracts the error message from the payload."""
@@ -57,7 +55,7 @@ class RPCServerError(RPCGearmanClientError):
         message = payload.get("message", "Unknown error message")
         handler = payload.get("function")
         if handler:
-            message += " [handler=%s]" % (handler,)
+            message += f" [handler={handler}]"
         return message
 
 
@@ -77,21 +75,21 @@ class TimeoutError(RPCGearmanClientError):
     def __init__(self, timeout=None):
         message = "Deadline exceeded"
         if timeout is not None:
-            message = "{}: {}".format(message, timeout)
-        super(TimeoutError, self).__init__(message)
+            message = f"{message}: {timeout}"
+        super().__init__(message)
 
 
 class NoJobFoundError(RPCGearmanClientError):
     def __init__(self, message=None):
         if message is None:
             message = "No job was found"
-        super(NoJobFoundError, self).__init__(message)
+        super().__init__(message)
 
 
 INFLIGHT_POLL_TIMEOUT = 30.0
 
 
-class MCPClient(object):
+class MCPClient:
     """MCPServer client (RPC via Gearman)."""
 
     def __init__(self, user):
@@ -123,7 +121,7 @@ class MCPClient(object):
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
-            raise RPCError("{} failed (check the logs)".format(ability))
+            raise RPCError(f"{ability} failed (check the logs)")
         payload = six.moves.cPickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)

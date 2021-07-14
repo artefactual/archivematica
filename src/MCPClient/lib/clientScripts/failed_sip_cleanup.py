@@ -38,7 +38,7 @@ def main(job, fail_type, sip_uuid):
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="Cleanup from failed/rejected SIPs.")
-    parser.add_argument("fail_type", help='"%s" or "%s"' % (REJECTED, FAILED))
+    parser.add_argument("fail_type", help=f'"{REJECTED}" or "{FAILED}"')
     parser.add_argument("sip_uuid", help="%SIPUUID%")
 
     with transaction.atomic():

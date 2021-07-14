@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
 
 import os
 import uuid
@@ -316,7 +315,7 @@ def test_transfer_mets_structmap_format(
     assert root_div_labels[0] == tmp_path.name
     assert subdir_div_labels[0] == subdir_path.name
     assert file_div_labels[0] == file_path.name
-    assert file_ids[0] == "file-{}".format(file_obj.uuid)
+    assert file_ids[0] == f"file-{file_obj.uuid}"
 
     # Test that both (empty and not empty) dirs show up in logical structmap
     assert subdir_div_labels[1] == subdir_path.name
@@ -337,7 +336,7 @@ def test_transfer_mets_filegrp_format(
     )
     expected_file_path = subdir_path.relative_to(tmp_path) / file_path.name
 
-    assert file_entries[0].get("ID") == "file-{}".format(file_obj.uuid)
+    assert file_entries[0].get("ID") == f"file-{file_obj.uuid}"
     assert file_entries[0][0].get("{http://www.w3.org/1999/xlink}href") == str(
         expected_file_path
     )

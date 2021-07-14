@@ -88,7 +88,7 @@ def test_json_csv_conversion(tmpdir):
         jsonfile.write(JSON)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV
@@ -101,7 +101,7 @@ def test_json_csv_conversion_with_int_val(tmpdir):
         jsonfile.write(JSON_INT_VAL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
     assert csvdata == CSV_INT_VAL
 
@@ -113,7 +113,7 @@ def test_json_csv_conversion_with_repeated_columns(tmpdir):
         jsonfile.write(JSON_MULTICOLUMN)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_MULTICOLUMN
@@ -126,7 +126,7 @@ def test_json_csv_with_null_data(tmpdir):
         jsonfile.write(JSON_NULL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_NULL
@@ -139,7 +139,7 @@ def test_json_csv_with_nested_null_data(tmpdir):
         jsonfile.write(JSON_NESTED_NULL)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
 
     assert csvdata == CSV_NESTED_NULL
@@ -173,6 +173,6 @@ def test_json_csv_keys_vals_vary(tmpdir):
         jsonfile.write(JSON_KEYS_VALS_VARY)
     job = Job("stub", "stub", ["", json_path])
     json_metadata_to_csv.call([job])
-    with open(csv_path, "rU") as csvfile:
+    with open(csv_path) as csvfile:
         csvdata = csvfile.read()
     assert CSV_KEYS_VALS_VARY == csvdata

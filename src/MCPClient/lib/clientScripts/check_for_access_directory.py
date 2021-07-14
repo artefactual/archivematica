@@ -100,7 +100,7 @@ def something(
                     dipPath = os.path.join(
                         DIPDirectory,
                         "objects",
-                        "%s-%s" % (objectUUID, os.path.basename(accessPath)),
+                        f"{objectUUID}-{os.path.basename(accessPath)}",
                     )
                     if copy:
                         job.pyprint("TODO - copy not supported yet")

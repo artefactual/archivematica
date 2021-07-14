@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Processing configuration.
 
 This module lists the processing configuration fields where the user has the
 ability to establish predefined choices via the user interface, and handles
 processing config file operations.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import abc
 import logging
@@ -15,7 +12,6 @@ import shutil
 
 from django.conf import settings
 from lxml import etree
-import six
 
 from server.workflow_abilities import choice_is_available
 import storageService as storage_service
@@ -24,8 +20,7 @@ import storageService as storage_service
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ProcessingConfigField(object):
+class ProcessingConfigField(metaclass=abc.ABCMeta):
     def __init__(self, link_id, name, **kwargs):
         self.link_id = link_id
         self.name = name
@@ -319,7 +314,7 @@ def copy_processing_config(processing_config, destination_path):
     dest = os.path.join(destination_path, "processingMCP.xml")
     try:
         shutil.copyfile(src, dest)
-    except IOError:
+    except OSError:
         logger.warning(
             "Processing configuration could not be copied: (from=%s to=%s)",
             src,

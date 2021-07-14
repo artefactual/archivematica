@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import json
 
 from django.conf import settings
@@ -25,7 +23,7 @@ class CustomCASBackend(CASBackend):
         # configured, add an email address for this user, using rule
         # username@domain.
         if settings.CAS_AUTOCONFIGURE_EMAIL and settings.CAS_EMAIL_DOMAIN:
-            user.email = "{0}@{1}".format(user.username, settings.CAS_EMAIL_DOMAIN)
+            user.email = f"{user.username}@{settings.CAS_EMAIL_DOMAIN}"
             user.save()
         return user
 
@@ -66,7 +64,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         return info
 
     def create_user(self, user_info):
-        user = super(CustomOIDCBackend, self).create_user(user_info)
+        user = super().create_user(user_info)
         for attr, value in user_info.items():
             setattr(user, attr, value)
         user.save()

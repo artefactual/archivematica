@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Resolve pending jobs.
 
 This is an interactive command used to resolve processing jobs
@@ -13,7 +12,6 @@ Not recommended for general use, i.e. if Archivematica provides an
 interactive command-line interface in the future it will rely on
 public APIs. This is an alternative to the old mcp-rpc-cli command.
 """
-from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import CommandError
@@ -130,11 +128,11 @@ class Command(DashboardCommand):
         for idx, choice in enumerate(packages.getchildren(), 1):
             package_type = choice.find("./unit/type").text
             package_id = choice.find("./unit/unitXML/UUID").text
-            self.stdout.write(" [{}] {} {}".format(idx, package_type, package_id))
+            self.stdout.write(f" [{idx}] {package_type} {package_id}")
 
     def print_pending_job_decisions(self, package_type, package_id, job, decisions):
-        self.stdout.write("{}: {}".format(package_type, package_id))
-        self.stdout.write("Job: {}".format(job))
+        self.stdout.write(f"{package_type}: {package_id}")
+        self.stdout.write(f"Job: {job}")
         for idx, choice in enumerate(decisions.getchildren(), 1):
             description = choice.find("./description").text
-            self.stdout.write(" [{}] {}".format(idx, description))
+            self.stdout.write(f" [{idx}] {description}")

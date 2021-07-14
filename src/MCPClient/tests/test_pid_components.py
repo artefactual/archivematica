@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Unit tests for the various components associated with PID (persistent
 identifier binding and declaration in Archivematica.
@@ -7,7 +6,6 @@ identifier binding and declaration in Archivematica.
 The tests in this module cover both the two bind_pid(s) microservice jobs but
 also limited unit testing in create_mets_v2 (AIP METS generation).
 """
-from __future__ import unicode_literals
 from itertools import chain
 import os
 
@@ -17,8 +15,6 @@ from main.models import Directory, File, SIP, DashboardSetting, Transfer
 import pytest
 import vcr
 import six
-from six.moves import range
-from six.moves import zip
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -313,8 +309,8 @@ def test_bind_pids(data, mocker, job):
             "hdl" in pid_types
         ), "An expected hdl persistent identifier isn't in the result set"
         assert "URI" in pid_types, "An expected URI isn't in the result set"
-        bound_hdl = "{}{}".format(BOUND_HDL, mdl.pk)
-        bound_uri = "{}{}".format(BOUND_URI, mdl.pk)
+        bound_hdl = f"{BOUND_HDL}{mdl.pk}"
+        bound_uri = f"{BOUND_URI}{mdl.pk}"
         pids = []
         for pid in bound:
             pids.append(pid[1])
@@ -381,8 +377,8 @@ def test_bind_pid(data, job):
             "hdl" in bound
         ), "An expected hdl persistent identifier isn't in the result set"
         assert "URI" in bound, "An expected URI isn't in the result set"
-        bound_hdl = "{}{}".format(BOUND_HDL, file_mdl.pk)
-        bound_uri = "{}{}".format(BOUND_URI, file_mdl.pk)
+        bound_hdl = f"{BOUND_HDL}{file_mdl.pk}"
+        bound_uri = f"{BOUND_URI}{file_mdl.pk}"
         assert bound.get("hdl") == bound_hdl
         assert bound.get("URI") == bound_uri
         # Then test to see that the PREMIS objects are created correctly in

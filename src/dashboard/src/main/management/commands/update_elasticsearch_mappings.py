@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Update Elasticsearch mappings for Archivematica 1.12
 
 This command updates the Elasticsearch mappings for the aips and
@@ -10,7 +9,6 @@ Execution example:
 
 ./manage.py update_elasticsearch_mappings
 """
-from __future__ import absolute_import, print_function
 
 import sys
 

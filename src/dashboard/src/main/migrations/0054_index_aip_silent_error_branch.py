@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
 
 # Can't use apps.get_model for this model as we need to access class attributes.

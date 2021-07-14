@@ -132,10 +132,7 @@ if __name__ == "__main__":
         )
 
     module_to_run = sys.argv[1]
-    if six.PY2:
-        buffer = sys.stdin
-    else:
-        buffer = sys.stdin.buffer
+    buffer = sys.stdin.buffer
     environment = six.moves.cPickle.load(buffer)
 
     sys.path = environment["sys.path"]

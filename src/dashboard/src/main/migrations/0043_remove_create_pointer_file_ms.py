@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Migration to remove the "Create AIP Pointer File" micro-service."""
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import migrations
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Purge transient processing data.
 
 This command purges package-related data that is generated during processing
@@ -31,7 +30,6 @@ all packages that completed processing regardless their age. This form is
 generally not recommended because it can affect SIPs being created from
 recently purged transfers.
 """
-from __future__ import unicode_literals
 
 import logging
 import traceback
@@ -41,7 +39,6 @@ from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
-import six
 
 import elasticSearchFunctions as es
 from main.management.commands import DashboardCommand
@@ -100,7 +97,7 @@ class Command(DashboardCommand):
                 es.setup_reading_from_conf(django_settings)
                 es_client = es.get_client()
             except ElasticsearchException as err:
-                raise CommandError("Unable to connect to Elasticsearch: {}".format(err))
+                raise CommandError(f"Unable to connect to Elasticsearch: {err}")
 
         # Build look-up options.
         kwargs = {
@@ -118,9 +115,7 @@ class Command(DashboardCommand):
         for sip in sips:
             package_id = sip.pk
             if not options["quiet"]:
-                self.warning(
-                    "» SIP {} with status {}".format(package_id, sip.status_str)
-                )
+                self.warning(f"» SIP {package_id} with status {sip.status_str}")
             if options["dry_run"]:
                 continue
             try:
@@ -151,7 +146,7 @@ class Command(DashboardCommand):
                     es.delete_aip(es_client, package_id)
                     es.delete_aip_files(es_client, package_id)
             except Exception as err:
-                self.error("  Error: {}".format(err))
+                self.error(f"  Error: {err}")
                 self.stdout.write(traceback.print_exc())
 
         self.info("Purging transfers...")
@@ -192,12 +187,12 @@ class Command(DashboardCommand):
                     es.remove_backlog_transfer(es_client, package_id)
                     es.remove_backlog_transfer_files(es_client, package_id)
             except Exception as err:
-                self.error("  Error: {}".format(err))
+                self.error(f"  Error: {err}")
                 self.stdout.write(traceback.format_exc())
 
     def delete_queryset(self, queryset, quiet):
         result = queryset.delete()
         if not quiet and result and len(result) == 2:
             matches = result[1]
-            for model, count in six.iteritems(matches):
-                self.info("  Purging {} objects: {} rows deleted.".format(model, count))
+            for model, count in matches.items():
+                self.info(f"  Purging {model} objects: {count} rows deleted.")

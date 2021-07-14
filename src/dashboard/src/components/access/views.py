@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import base64
 from functools import wraps
 import json
@@ -220,7 +217,7 @@ def record_children(client, request, record_id=""):
 def get_digital_object_component_path(record_id, component_id, create=True):
     mapping = create_arranged_directory(record_id)
     component_path = os.path.join(
-        mapping.arrange_path, "digital_object_component_{}".format(component_id), ""
+        mapping.arrange_path, f"digital_object_component_{component_id}", ""
     )
     if create:
         filesystem_views.create_arrange_directories([component_path])

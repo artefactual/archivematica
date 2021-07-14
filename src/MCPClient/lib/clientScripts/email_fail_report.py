@@ -111,7 +111,7 @@ def get_unit_statistical_data_html(unit_type, unit_uuid):
     values = (unit_type,)
     unit_type = unit_type.lower()
     if unit_type not in ("sip", "transfer"):
-        raise ValueError("Unexpected value in unit_type: {}".format(unit_type))
+        raise ValueError(f"Unexpected value in unit_type: {unit_type}")
     with connection.cursor() as cursor:
         values += get_processing_time(cursor, unit_type, unit_uuid)
         values += get_file_stats(cursor, unit_type, unit_uuid)
@@ -237,7 +237,7 @@ def call(jobs):
                     )
                     job.set_status(1)
                     continue
-                subject = "Archivematica Fail Report for %s: %s-%s" % (
+                subject = "Archivematica Fail Report for {}: {}-{}".format(
                     args.unit_type,
                     args.unit_name,
                     args.unit_uuid,

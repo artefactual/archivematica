@@ -32,7 +32,6 @@ import django
 
 django.setup()
 from django.db import transaction
-from django.utils import six
 
 # dashboard
 from main.models import File
@@ -43,7 +42,7 @@ from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import unicodeToStr
 
 
-class State(object):
+class State:
     def __init__(self):
         self.error_count = 0
         self.sourceFilePath = None
@@ -171,7 +170,7 @@ def handle_job(job):
                             "Message-ID"
                         ][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        if isinstance(out["subject"], six.binary_type):
+                        if isinstance(out["subject"], bytes):
                             etree.SubElement(msg, "Subject").text = out[
                                 "subject"
                             ].decode("utf-8")
@@ -209,12 +208,12 @@ def handle_job(job):
                                     "attachments",
                                     maildirsub,
                                     subDir,
-                                    "%s_%s" % (attachedFileUUID, attachment.name),
+                                    f"{attachedFileUUID}_{attachment.name}",
                                 )
                                 job.pyprint("\tAttachment path:", filePath)
                                 filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
-                                eventDetail = "Unpacked from: {%s}%s" % (
+                                eventDetail = "Unpacked from: {{{}}}{}".format(
                                     sourceFileUUID,
                                     sourceFilePath,
                                 )

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # flake8: noqa
 
 # This file is part of Archivematica.
@@ -20,7 +18,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 """Test settings and globals."""
-from __future__ import absolute_import
 
 import ldap
 from django_auth_ldap.config import LDAPSearch

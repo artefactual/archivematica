@@ -31,7 +31,6 @@ import traceback
 
 # archivematicaCommon
 import archivematicaFunctions
-from six.moves import zip
 
 
 def parseMetadata(job, SIPPath, state):
@@ -99,7 +98,7 @@ def parseMetadataCSV(job, metadataCSVFilePath):
     """
     metadata = {}
     # use universal newline mode to support unusual newlines, like \r
-    with open(metadataCSVFilePath, "rU") as f:
+    with open(metadataCSVFilePath) as f:
         reader = csv.reader(f)
         # Parse first row as header
         header = next(reader)

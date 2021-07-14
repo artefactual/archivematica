@@ -13,7 +13,6 @@ Alternatively, they can include the 'section' and a 'process_function' callback
 where a specific parsing process can be defined. Those callbacks must accept the
 current appconfig Config object and the section.
 """
-from __future__ import absolute_import
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -22,7 +21,7 @@ import six.moves.configparser as ConfigParser
 from env_configparser import EnvConfigParser
 
 
-class Config(object):
+class Config:
     """EnvConfigParser wrapper"""
 
     def __init__(self, env_prefix, attrs):
@@ -107,7 +106,7 @@ def process_search_enabled(config, section):
     with the enabled parts. It may raise ImproperlyConfigured if the
     string value is empty or it contains an unrecognized search part.
     """
-    ALLOWED_SEARCH_PARTS = set(["aips", "transfers"])
+    ALLOWED_SEARCH_PARTS = {"aips", "transfers"}
     options = [
         {
             "section": section,

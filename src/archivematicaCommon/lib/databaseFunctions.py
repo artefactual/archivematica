@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -19,7 +18,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import, print_function
 
 from functools import wraps
 import logging
@@ -32,9 +30,6 @@ import uuid
 from django.db import close_old_connections
 from django.utils import timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
-
-import six
-from six.moves import range
 
 from common_metrics import db_retry_timer
 
@@ -67,7 +62,7 @@ def getDeciDate(date):
             ret += c
         # else:
         #     ret += replacementChar
-    return str("{:10.10f}".format(float(ret)))
+    return str(f"{float(ret):10.10f}")
 
 
 def insertIntoFiles(
@@ -306,7 +301,7 @@ def deUnicode(unicode_string):
     """
     if unicode_string is None:
         return None
-    return six.text_type(unicode_string).encode("utf-8")
+    return str(unicode_string).encode("utf-8")
 
 
 def retryOnFailure(description, callback, retries=10):

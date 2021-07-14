@@ -1,6 +1,3 @@
-# -*- coding: utf8
-from __future__ import print_function, unicode_literals
-
 import os
 import shutil
 import uuid
@@ -14,7 +11,6 @@ from job import Job
 from main.models import Directory, Event, File, Transfer, SIP, User
 
 from . import TempDirMixin
-from six.moves import range
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -125,7 +121,7 @@ def sip_file_obj(db, sip, tmp_path, subdir_path):
 
 @pytest.fixture()
 def multiple_file_paths(subdir_path):
-    paths = [(subdir_path / "bülk-filé{}".format(x)) for x in range(11)]
+    paths = [(subdir_path / f"bülk-filé{x}") for x in range(11)]
     for path in paths:
         path.write_text("Hello world")
 

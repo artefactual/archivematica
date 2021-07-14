@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from uuid import uuid4
 
@@ -8,7 +7,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 from job import Job
 
 
-UNICODE = six.ensure_text("‘你好‘")
+UNICODE = "‘你好‘"
 NON_ASCII_BYTES = six.ensure_binary("‘你好‘")
 
 
@@ -17,21 +16,21 @@ def test_job_encoding():
 
     job.pyprint(UNICODE)
     stdout = job.get_stdout()
-    expected_stdout = u"{}\n".format(UNICODE)
+    expected_stdout = f"{UNICODE}\n"
     expected_output = six.ensure_binary(UNICODE + "\n")
     assert job.output == expected_output
     assert stdout == expected_stdout
-    assert isinstance(job.output, six.binary_type)
-    assert isinstance(stdout, six.text_type)
+    assert isinstance(job.output, bytes)
+    assert isinstance(stdout, str)
 
     job.print_error(NON_ASCII_BYTES)
     stderr = job.get_stderr()
-    expected_stderr = u"{}\n".format(NON_ASCII_BYTES.decode("utf-8"))
+    expected_stderr = "{}\n".format(NON_ASCII_BYTES.decode("utf-8"))
     expected_error = NON_ASCII_BYTES + b"\n"
     assert job.error == expected_error
     assert stderr == expected_stderr
-    assert isinstance(job.error, six.binary_type)
-    assert isinstance(stderr, six.text_type)
+    assert isinstance(job.error, bytes)
+    assert isinstance(stderr, str)
 
     job_dump = job.dump()
     assert job.UUID in job_dump

@@ -1,4 +1,3 @@
-# -*- coding: latin-1 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
