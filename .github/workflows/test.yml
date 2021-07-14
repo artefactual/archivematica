@@ -15,38 +15,20 @@ jobs:
         include:
           - rule: mcp-server
             coverage: true
-            python_version: py27
-          - rule: mcp-server-py36
-            coverage: true
             python_version: py36
           - rule: mcp-client
-            coverage: true
-            python_version: py27
-          - rule: mcp-client-py36
             coverage: true
             python_version: py36
           - rule: dashboard
             coverage: true
-            python_version: py27
-          - rule: dashboard-py36
-            coverage: true
             python_version: py36
           - rule: archivematica-common
-            coverage: true
-            python_version: py27
-          - rule: archivematica-common-py36
             coverage: true
             python_version: py36
           - rule: storage-service
             coverage: false
-            python_version: py27
-          - rule: storage-service-py36
-            coverage: false
             python_version: py36
           - rule: migrations
-            coverage: false
-            python_version: py27
-          - rule: migrations-py36
             coverage: false
             python_version: py36
     steps:
