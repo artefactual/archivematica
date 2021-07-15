@@ -55,8 +55,6 @@ import namespaces as ns
 
 logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
 
-PROCESSING_MCP_FILENAME = "processingMCP.xml"
-
 TRANSFER = "Transfer"
 SIP = "SIP"
 
@@ -131,9 +129,6 @@ def assign_transfer_file_uuid(
     We open a database transaction for each chunk of 10 files, in an
     attempt to balance performance with reasonable transaction lengths.
     """
-    if filename == PROCESSING_MCP_FILENAME:
-        return
-
     if isinstance(file_path, six.binary_type):
         file_path = file_path.decode("utf-8")
 
@@ -188,9 +183,6 @@ def assign_sip_file_uuid(
     filter_subdir=None,
 ):
     """Write SIP file to database with new UUID."""
-    if filename == PROCESSING_MCP_FILENAME:
-        return
-
     if isinstance(file_path, six.binary_type):
         file_path = file_path.decode("utf-8")
 
