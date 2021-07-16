@@ -17,6 +17,12 @@ SRCDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../src)
 NULL :=
 SPACE := $(NULL) $(NULL)
 
+PYTHON_VERSION ?= 3.6
+TOXENV_BASEPYTHON = py$(subst .,,$(PYTHON_VERSION))
+
+foo:
+	@echo ${TOXENV_BASEPYTHON}
+
 define compose_all
 	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
 endef
@@ -223,30 +229,30 @@ test-build:  ## Build archivematica-tests image.
 		--build-arg TARGET=archivematica-tests \
 			../
 
-__TOXENVS_MCPSERVER := py36-mcpserver
+__TOXENVS_MCPSERVER := ${TOXENV_BASEPYTHON}-mcpserver
 test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
-__TOXENVS_MCPCLIENT = py36-mcpclient py36-mcpclient-ensure-no-mutable-globals
+__TOXENVS_MCPCLIENT = ${TOXENV_BASEPYTHON}-mcpclient ${TOXENV_BASEPYTHON}-mcpclient-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
-__TOXENVS_DASHBOARD = py36-dashboard
+__TOXENVS_DASHBOARD = ${TOXENV_BASEPYTHON}-dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
-__TOXENVS_STORAGE_SERVICE = py36-storage-service
+__TOXENVS_STORAGE_SERVICE = ${TOXENV_BASEPYTHON}-storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-__TOXENVS_ARCHIVEMATICA_COMMON = py36-archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON = ${TOXENV_BASEPYTHON}-archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
 
-__TOXENVS_MIGRATIONS = py36-migrations-dashboard migrations-storage-service
+__TOXENVS_MIGRATIONS = ${TOXENV_BASEPYTHON}-migrations-dashboard ${TOXENV_BASEPYTHON}-migrations-storage-service
 test-migrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_db,DASHBOARDTEST)
 	$(call create_db,SSTEST)
