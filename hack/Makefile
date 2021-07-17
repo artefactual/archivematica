@@ -18,10 +18,7 @@ NULL :=
 SPACE := $(NULL) $(NULL)
 
 PYTHON_VERSION ?= 3.6
-TOXENV_BASEPYTHON = py$(subst .,,$(PYTHON_VERSION))
-
-foo:
-	@echo ${TOXENV_BASEPYTHON}
+TOX_PYTHON_VERSION := py$(subst .,,$(PYTHON_VERSION))
 
 define compose_all
 	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
@@ -39,14 +36,14 @@ define run_toxenvs
 	$(call compose_tests, \
 		run \
 			-e DJANGO_SETTINGS_MODULE=settings.testmysql \
-			-e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),${PYTEST_ADDOPTS}) \
+			-e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),$(PYTEST_ADDOPTS)) \
 			--user $(CALLER_UID):$(CALLER_GID) \
 			--workdir /src \
 			--rm \
 			--entrypoint tox \
 				archivematica-tests \
 					$(subst $(SPACE), -e ,$(SPACE)$(1)) \
-					${TOXARGS})
+					$(TOXARGS))
 endef
 
 start-mysql: test-build
@@ -70,13 +67,13 @@ define drop_db
 endef
 
 create-volumes:  ## Create external data volumes.
-	mkdir -p ${AM_PIPELINE_DATA}
+	mkdir -p $(AM_PIPELINE_DATA)
 	docker volume create \
 		--opt type=none \
 		--opt o=bind \
 		--opt device=$(AM_PIPELINE_DATA) \
 			am-pipeline-data
-	mkdir -p ${SS_LOCATION_DATA}
+	mkdir -p $(SS_LOCATION_DATA)
 	docker volume create \
 		--opt type=none \
 		--opt o=bind \
@@ -84,7 +81,7 @@ create-volumes:  ## Create external data volumes.
 			ss-location-data
 
 build:  # Build Compose services.
-	docker-compose build
+	docker-compose build --build-arg PYTHON_VERSION=$(PYTHON_VERSION)
 
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
@@ -202,12 +199,12 @@ db:  ## Connect to the MySQL server using the CLI.
 flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete ALL user data.
 
 flush-shared-dir-mcp-configs:  ## Delete processing configurations - it restarts MCPServer.
-	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml
-	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/automatedProcessingMCP.xml
+	rm -f $(AM_PIPELINE_DATA)/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml
+	rm -f $(AM_PIPELINE_DATA)/sharedMicroServiceTasksConfigs/processingMCPConfigs/automatedProcessingMCP.xml
 	docker-compose restart archivematica-mcp-server
 
 flush-shared-dir:  ## Delete contents of the shared directory data volume.
-	rm -rf ${AM_PIPELINE_DATA}/*
+	rm -rf $(AM_PIPELINE_DATA)/*
 
 flush-search:  ## Delete Elasticsearch indices.
 	docker-compose exec archivematica-mcp-client curl -XDELETE "http://elasticsearch:9200/aips,aipfiles,transfers,transferfiles"
@@ -227,38 +224,51 @@ test-build:  ## Build archivematica-tests image.
 		-t archivematica-tests \
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-tests \
+		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
 			../
 
-__TOXENVS_MCPSERVER := ${TOXENV_BASEPYTHON}-mcpserver
+__TOXENVS_MCPSERVER := $(TOX_PYTHON_VERSION)-mcpserver
 test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
-__TOXENVS_MCPCLIENT = ${TOXENV_BASEPYTHON}-mcpclient ${TOXENV_BASEPYTHON}-mcpclient-ensure-no-mutable-globals
+__TOXENVS_MCPCLIENT := $(TOX_PYTHON_VERSION)-mcpclient $(TOX_PYTHON_VERSION)-mcpclient-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
-__TOXENVS_DASHBOARD = ${TOXENV_BASEPYTHON}-dashboard
+__TOXENVS_DASHBOARD := $(TOX_PYTHON_VERSION)-dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
-__TOXENVS_STORAGE_SERVICE = ${TOXENV_BASEPYTHON}-storage-service
+__TOXENVS_STORAGE_SERVICE := $(TOX_PYTHON_VERSION)-storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-__TOXENVS_ARCHIVEMATICA_COMMON = ${TOXENV_BASEPYTHON}-archivematica-common
+__TOXENVS_ARCHIVEMATICA_COMMON := $(TOX_PYTHON_VERSION)-archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
 
-__TOXENVS_MIGRATIONS = ${TOXENV_BASEPYTHON}-migrations-dashboard ${TOXENV_BASEPYTHON}-migrations-storage-service
-test-migrations: start-mysql  ## Check there are no pending migrations.
+create-dashboard-test-db: start-mysql
 	$(call create_db,DASHBOARDTEST)
+
+create-storage-service-test-db: start-mysql
 	$(call create_db,SSTEST)
+
+__TOXENVS_MIGRATIONS_DASHBOARD := $(TOX_PYTHON_VERSION)-migrations-dashboard
+test-migrations-dashboard: create-dashboard-test-db  ## Check there are no pending migrations in the Dashboard.
+	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS_DASHBOARD))
+
+__TOXENVS_MIGRATIONS_STORAGE_SERVICE := $(TOX_PYTHON_VERSION)-migrations-storage-service
+test-migrations-storage-service: create-storage-service-test-db  ## Check there are no pending migrations in the Storage Service.
+	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS_STORAGE_SERVICE))
+
+__TOXENVS_MIGRATIONS := $(__TOXENVS_MIGRATIONS_DASHBOARD) $(__TOXENVS_MIGRATIONS_STORAGE_SERVICE)
+test-migrations: create-dashboard-test-db create-storage-service-test-db  ## Check there are no pending migrations in the Dashboard and Storage Service.
 	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS))
 
-__TOXENVS_LINTING = linting
+__TOXENVS_LINTING := linting
 test-linting:  ## Check linting.
 	$(call run_toxenvs,$(__TOXENVS_LINTING))
 
@@ -331,6 +341,7 @@ test-frontend:  ## Run Dashboard JS tests.
 		-t archivematica-dashboard-testing \
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-dashboard-testing \
+		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
 			../
 	docker run \
 		-e HOME=/tmp/yarn-config \

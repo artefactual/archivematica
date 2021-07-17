@@ -9,7 +9,7 @@ on:
       - "dev/drop-py27"
 jobs:
   test:
-    name: "Test ${{ matrix.rule }} python-${{ matrix.python_version }}"
+    name: "Test ${{ matrix.rule }} on ${{ matrix.python_version_in.docker }}"
     runs-on: "ubuntu-18.04"
     strategy:
       fail-fast: false
@@ -19,16 +19,21 @@ jobs:
           - mcp-client
           - dashboard
           - archivematica-common
-          - storage-service
-          - migrations
-        python_version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
+          - migrations-dashboard
+        python_version_in:
+          - docker: "3.6"
+            tox: "py36"
+          - docker: "3.7"
+            tox: "py37"
+          - docker: "3.8"
+            tox: "py38"
+          - docker: "3.9"
+            tox: "py39"
         exclude:
           - rule: dashboard
-            python_version: 3.9
+            python_version_in:
+              docker: "3.9"
+              tox: "py39"
         include:
           - rule: mcp-server
             coverage: true
@@ -41,9 +46,6 @@ jobs:
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
-      - name: "Check out the archivematica-storage-service submodule"
-        run: |
-          git submodule update --init hack/submodules/archivematica-storage-service/
       - name: "Set up pip cache"
         uses: "actions/cache@v2"
         with:
@@ -65,10 +67,10 @@ jobs:
         uses: "actions/cache@v2"
         with:
           path: /tmp/.docker-cache-old
-          key: ${{ runner.os }}-docker-${{ matrix.python_version}}-${{ matrix.rule }}-${{ github.sha }}
+          key: ${{ runner.os }}-docker-${{ matrix.python_version_in.docker }}-${{ matrix.rule }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.python_version}}-${{ matrix.rule }}-
-            ${{ runner.os }}-docker-${{ matrix.python_version }}-
+            ${{ runner.os }}-docker-${{ matrix.python_version_in.docker }}-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ matrix.python_version_in.docker }}-
             ${{ runner.os }}-docker-
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v2"
@@ -76,7 +78,7 @@ jobs:
           context: .
           file: ./hack/Dockerfile
           target: archivematica-tests
-          build-args: PYTHON_VERSION=${{ matrix.python_version }}
+          build-args: PYTHON_VERSION=${{ matrix.python_version_in.docker }}
           tags: archivematica-tests:latest
           push: false
           load: true
@@ -92,7 +94,7 @@ jobs:
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv
-          PYTHON_VERSION: ${{ matrix.python_version }}
+          PYTHON_VERSION: ${{ matrix.python_version_in.docker }}
       - name: "Run make rule with coverage"
         if: "matrix.coverage"
         run: |
@@ -100,7 +102,7 @@ jobs:
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
-          PYTHON_VERSION: ${{ matrix.python_version }}
+          PYTHON_VERSION: ${{ matrix.python_version_in.docker }}
       - name: "Upload coverage report"
         if: matrix.coverage && github.repository == 'artefactual/archivematica'
         uses: "codecov/codecov-action@v1"
@@ -108,7 +110,8 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: true
           verbose: true
-          name: ${{ matrix.rule }}-${{ matrix.python_version }}
+          name: ${{ matrix.rule }}-${{ matrix.python_version_in.docker }}
+          flags: ${{ matrix.python_version_in.tox }}
       - name: "Set newest docker cache"
         run: |
           rm -rf /tmp/.docker-cache-old

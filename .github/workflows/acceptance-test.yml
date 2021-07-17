@@ -8,7 +8,7 @@ on:
       - "dev/drop-py27"
 jobs:
   test:
-    name: "Test ${{ matrix.tag }} python-${{ matrix.python_version }} on ${{ matrix.browser }}"
+    name: "Test ${{ matrix.tag }} on ${{ matrix.python_version }} and ${{ matrix.browser }}"
     runs-on: "ubuntu-18.04"
     strategy:
       fail-fast: false
