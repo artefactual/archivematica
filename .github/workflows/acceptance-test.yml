@@ -5,7 +5,7 @@ on:
     types: [labeled]
   push:
     branches:
-      - "dev/drop-py27"
+      - "dev/upgrade-django"
 jobs:
   test:
     name: "Test ${{ matrix.tag }} on ${{ matrix.python_version }} and ${{ matrix.browser }}"
