@@ -60,6 +60,7 @@ import logging
 import os
 from socket import gethostname
 import time
+import resource
 
 import django
 from six.moves import zip
@@ -76,6 +77,7 @@ from databaseFunctions import getUTCDate, retryOnFailure
 from django.db import transaction
 import shlex
 import importlib
+from prometheus_client.process_collector import ProcessCollector
 
 from databaseFunctions import auto_close_db
 import fork_runner
@@ -247,6 +249,9 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                             results[job.UUID]["stdout"] = job.get_stdout()
                             results[job.UUID]["stderror"] = job.get_stderr()
 
+                        ru_maxrss, process_resident_memory_bytes = mem_usage()
+                        logger.warning("@@@ | resident %s MB | maxrss %s MB | %s", process_resident_memory_bytes, ru_maxrss, task_name)
+
                         if exit_code == 0:
                             metrics.job_completed(task_name)
                         else:
@@ -268,6 +273,19 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
                 e,
             )
             return fail_all_tasks(gearman_job, e)
+
+
+def mem_usage():
+    # Using resource
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    rss = usage.ru_maxrss  # upper bound?
+    ru_maxrss = (rss * resource.getpagesize()) / (1024**2)
+
+    # Using ProcessCollector
+    c = ProcessCollector(registry=None)
+    process_resident_memory_bytes = c.collect()[1].samples[0].value / 1024**2
+
+    return (ru_maxrss, process_resident_memory_bytes)
 
 
 def start_gearman_worker(supported_modules):
