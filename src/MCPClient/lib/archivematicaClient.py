@@ -150,7 +150,7 @@ def handle_batch_task(gearman_job, supported_modules):
     module = importlib.import_module("clientScripts." + module_name)
 
     # Our module can indicate that it should be run concurrently...
-    if hasattr(module, "concurrent_instances"):
+    if hasattr(module, "concurrent_instances___________DISABLED"):
         fork_runner.call(
             "clientScripts." + module_name,
             jobs,
