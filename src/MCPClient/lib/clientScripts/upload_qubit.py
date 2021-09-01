@@ -105,11 +105,12 @@ def start(job, data):
     try:
         # This upload was called before, restore Access record
         access = models.Access.objects.get(sipuuid=data.uuid)
-    except:  # First time this job is called, create new Access record
+    except models.Access.DoesNotExist:  # First time this job is called, create new Access record
         access = models.Access(sipuuid=data.uuid)
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
+            # Django converts to text since Access.target is a TextField.
             access.target = six.moves.cPickle.dumps(
                 {"target": transfers[0].access_system_id}, protocol=0
             )
@@ -118,9 +119,10 @@ def start(job, data):
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
-        target = six.moves.cPickle.loads(access.target.encode("utf8"))
+        access_target = six.ensure_binary(access.target)
+        target = six.moves.cPickle.loads(access_target)
         log("Target: %s" % (target["target"]))
-    except:
+    except Exception:
         return error(job, "No target was selected")
 
     # Rsync if data.rsync_target option was passed to this script
