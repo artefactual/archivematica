@@ -4,8 +4,10 @@ import os
 import uuid
 
 import pytest
-import six.moves.cPickle
+import six
+from six.moves import cPickle as pickle
 
+from job import Job
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,9 +15,21 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import upload_qubit
 
 
+@pytest.fixture()
+def mcp_job():
+    return Job("stub", "stub", [])
+
+
 @pytest.fixture
 def sip(db):
     return models.SIP.objects.create(uuid=str(uuid.uuid4()))
+
+
+@pytest.fixture
+def transfer(db, sip):
+    transfer = models.Transfer.objects.create(access_system_id="atom-description-id")
+    models.File.objects.create(sip=sip, transfer=transfer)
+    return transfer
 
 
 @pytest.fixture
@@ -34,11 +48,11 @@ def job(sip, tmp_path):
 def access(db, sip):
     return models.Access.objects.create(
         sipuuid=sip.uuid,
-        target=six.moves.cPickle.dumps({"target": "atom-description-id"}, protocol=0),
+        target=pickle.dumps({"target": "atom-description-id"}, protocol=0),
     )
 
 
-def test_start_synchronously(db, mocker, sip, job, access):
+def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
     mocker.patch(
         "requests.request",
         return_value=mocker.Mock(
@@ -46,7 +60,7 @@ def test_start_synchronously(db, mocker, sip, job, access):
         ),
     )
 
-    job = mocker.Mock()
+    mcp_job = mocker.Mock()
     opts = mocker.Mock(
         uuid=sip.uuid,
         rsync_target=False,
@@ -58,9 +72,43 @@ def test_start_synchronously(db, mocker, sip, job, access):
         debug=True,
     )
 
-    assert upload_qubit.start(job, opts) == 0
+    assert upload_qubit.start(mcp_job, opts) == 0
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
     assert access.resource == "{}/atom-description-id".format(opts.url)
     assert access.status == "Deposited synchronously"
+    assert pickle.loads(six.ensure_binary(access.target)) == {
+        "target": "atom-description-id"
+    }
+
+
+def test_first_run(db, mocker, mcp_job, job, transfer, sip):
+    mocker.patch(
+        "requests.request",
+        return_value=mocker.Mock(
+            status_code=200, headers={"Location": "http://example.com"}
+        ),
+    )
+
+    mcp_job = mocker.Mock()
+    opts = mocker.Mock(
+        uuid=sip.uuid,
+        rsync_target=False,
+        rsync_command=None,
+        version=2,
+        url="http://example.com",
+        email="",
+        password="",
+        debug=True,
+    )
+
+    assert upload_qubit.start(mcp_job, opts) == 0
+
+    access = models.Access.objects.get(sipuuid=sip.uuid)
+    assert access.statuscode == 14
+    assert access.resource == "{}/atom-description-id".format(opts.url)
+    assert access.status == "Deposited synchronously"
+    assert pickle.loads(six.ensure_binary(access.target)) == {
+        "target": "atom-description-id"
+    }
