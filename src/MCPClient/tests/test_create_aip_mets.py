@@ -17,7 +17,7 @@ import six
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-from job import Job
+from client.job import Job
 import create_mets_v2
 import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights

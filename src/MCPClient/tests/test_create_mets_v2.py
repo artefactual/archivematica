@@ -7,7 +7,7 @@ from lxml import etree
 import pytest
 import six
 
-from job import Job
+from client.job import Job
 from main.models import (
     SIP,
     File,

@@ -11,8 +11,7 @@ import uuid
 
 from django.utils import six, timezone
 
-from server.db import auto_close_old_connections
-
+from dbconns import auto_close_old_connections
 from main import models
 
 

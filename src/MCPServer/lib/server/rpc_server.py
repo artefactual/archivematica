@@ -27,8 +27,8 @@ from six.moves import cPickle
 import six
 
 from archivematicaFunctions import strToUnicode
+from dbconns import auto_close_old_connections
 from main.models import Job, SIP, Transfer
-from server.db import auto_close_old_connections
 from server.packages import create_package, get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
 

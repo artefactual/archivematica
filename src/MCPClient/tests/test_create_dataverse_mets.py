@@ -10,7 +10,7 @@ import os
 import pytest
 
 import metsrw
-from job import Job
+from client.job import Job
 
 import convert_dataverse_structure
 

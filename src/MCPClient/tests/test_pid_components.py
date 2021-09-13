@@ -11,7 +11,7 @@ from __future__ import unicode_literals
 from itertools import chain
 import os
 
-from job import Job
+from client.job import Job
 from main.models import Directory, File, SIP, DashboardSetting, Transfer
 
 import pytest

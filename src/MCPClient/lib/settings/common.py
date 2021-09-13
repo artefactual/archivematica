@@ -15,16 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import configparser
 import importlib.util
 import json
 import logging
 import logging.config
+import multiprocessing
 import os
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 import six
-
 
 from appconfig import Config, process_search_enabled
 import email_settings
@@ -44,8 +45,25 @@ def _get_settings_from_file(path):
     return {attr: getattr(module, attr) for attr in attrs}
 
 
+def workers(config, section):
+    try:
+        return config.config.getint(section, "workers")
+    except (configparser.Error, ValueError):
+        return multiprocessing.cpu_count()
+
+
 CONFIG_MAPPING = {
     # [MCPClient]
+    "workers": {
+        "section": "MCPClient",
+        "option": "workers",
+        "process_function": workers,
+    },
+    "max_tasks_per_child": {
+        "section": "MCPClient",
+        "option": "max_tasks_per_child",
+        "type": "int",
+    },
     "shared_directory": {
         "section": "MCPClient",
         "option": "sharedDirectoryMounted",
@@ -220,6 +238,8 @@ agentarchives_client_timeout = 300
 prometheus_bind_address =
 prometheus_bind_port =
 time_zone = UTC
+workers =
+max_tasks_per_child = 10
 clamav_client_timeout = 86400
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
@@ -269,11 +289,7 @@ DATABASES = {
         "PASSWORD": config.get("db_password"),
         "HOST": config.get("db_host"),
         "PORT": config.get("db_port"),
-        # Recycling connections in MCPClient is not an option because this is
-        # a threaded application. We need a connection pool but we don't have
-        # one we can rely on at the moment - django_mysqlpool does not support
-        # Py3 and seems abandoned.
-        "CONN_MAX_AGE": 0,
+        "CONN_MAX_AGE": 3600,  # 1 hour
     }
 }
 
@@ -335,6 +351,8 @@ else:
     logging.config.dictConfig(LOGGING)
 
 
+WORKERS = config.get("workers")
+MAX_TASKS_PER_CHILD = config.get("max_tasks_per_child")
 SHARED_DIRECTORY = config.get("shared_directory")
 PROCESSING_DIRECTORY = config.get("processing_directory")
 REJECTED_DIRECTORY = config.get("rejected_directory")
@@ -377,7 +395,6 @@ globals().update(email_settings.get_settings(config))
 
 METADATA_XML_VALIDATION_ENABLED = config.get("metadata_xml_validation_enabled")
 if METADATA_XML_VALIDATION_ENABLED:
-
     METADATA_XML_VALIDATION_SETTINGS_FILE = os.environ.get(
         "METADATA_XML_VALIDATION_SETTINGS_FILE", ""
     )
@@ -394,7 +411,8 @@ if METADATA_XML_VALIDATION_ENABLED:
         ):
             raise ImproperlyConfigured(
                 "The metadata XML validation settings file {} does not contain "
-                "the right settings: an XML_VALIDATION dictionary and an XML_VALIDATION_FAIL_ON_ERROR boolean".format(
+                "the right settings: an XML_VALIDATION dictionary and "
+                "an XML_VALIDATION_FAIL_ON_ERROR boolean".format(
                     METADATA_XML_VALIDATION_SETTINGS_FILE
                 )
             )

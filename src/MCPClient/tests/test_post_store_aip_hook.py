@@ -8,7 +8,7 @@ import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import post_store_aip_hook
-from job import Job
+from client.job import Job
 
 from main import models
 

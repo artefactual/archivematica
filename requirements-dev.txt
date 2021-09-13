@@ -174,7 +174,7 @@ pluggy==0.13.1
     # via
     #   pytest
     #   tox
-prometheus-client==0.7.1
+prometheus-client==0.11.0
     # via
     #   -r requirements.txt
     #   django-prometheus
@@ -280,7 +280,7 @@ tomli==1.2.1
     #   pep517
 tox==3.24.4
     # via -r requirements-dev.in
-typing-extensions==3.10.0.0
+typing-extensions==3.10.0.2
     # via
     #   -r requirements.txt
     #   importlib-metadata
@@ -309,7 +309,7 @@ wrapt==1.13.2
     # via vcrpy
 yarl==1.7.0
     # via vcrpy
-zipp==3.5.0
+zipp==3.6.0
     # via
     #   -r requirements.txt
     #   importlib-metadata

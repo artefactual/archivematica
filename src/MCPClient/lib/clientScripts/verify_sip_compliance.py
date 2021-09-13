@@ -26,7 +26,7 @@ import sys
 
 import scandir
 
-import metrics
+from client import metrics
 
 
 REQUIRED_DIRECTORIES = (

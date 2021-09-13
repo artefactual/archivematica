@@ -6,7 +6,7 @@ import shutil
 
 import pytest
 
-from job import Job
+from client.job import Job
 
 import restructure_dip_for_content_dm_upload
 
@@ -45,7 +45,7 @@ def test_restructure_dip_for_content_dm_upload(job, dip_directory):
         .splitlines()
     )
 
-    assert not job.error
+    assert job.error.getbuffer().nbytes == 0
     assert job.get_exit_code() == 0
     assert (
         csv_data[0]

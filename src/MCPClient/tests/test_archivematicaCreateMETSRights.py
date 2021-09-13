@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import uuid
 
 from create_mets_v2 import MetsState
-from job import Job
+from client.job import Job
 from main import models
 from namespaces import NSMAP
 import pytest

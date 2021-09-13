@@ -1,17 +1,25 @@
 """
 Exposes various metrics via Prometheus.
 """
-from __future__ import absolute_import, unicode_literals
-
 import six.moves.configparser
 import datetime
 import functools
-import os
+
+import django
+
+django.setup()
 
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
-from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
+from prometheus_client import (
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
+    multiprocess,
+    start_http_server,
+)
 
 from fpr.models import FormatVersion
 from main.models import File, FileFormatVersion, Transfer
@@ -22,7 +30,6 @@ from common_metrics import (
     PROCESSING_TIME_BUCKETS,
     TASK_DURATION_BUCKETS,
 )
-from version import get_full_version
 from six.moves import range
 
 
@@ -35,6 +42,7 @@ job_processed_timestamp = Gauge(
     "mcpclient_job_success_timestamp",
     "Timestamp of most recent job processed, labeled by script",
     ["script_name"],
+    multiprocess_mode="livesum",
 )
 job_error_counter = Counter(
     "mcpclient_job_error_total",
@@ -45,6 +53,7 @@ job_error_timestamp = Gauge(
     "mcpclient_job_error_timestamp",
     "Timestamp of most recent job failure, labeled by script",
     ["script_name"],
+    multiprocess_mode="livesum",
 )
 
 task_execution_time_histogram = Histogram(
@@ -52,10 +61,6 @@ task_execution_time_histogram = Histogram(
     "Histogram of worker task execution times in seconds, labeled by script",
     ["script_name"],
     buckets=TASK_DURATION_BUCKETS,
-)
-waiting_for_gearman_time_counter = Counter(
-    "mcpclient_gearman_sleep_time_seconds",
-    "Total worker sleep after gearman error times in seconds",
 )
 
 transfer_started_counter = Counter(
@@ -67,6 +72,7 @@ transfer_started_timestamp = Gauge(
     "mcpclient_transfer_started_timestamp",
     "Timestamp of most recent transfer started, by transfer type",
     ["transfer_type"],
+    multiprocess_mode="livesum",
 )
 transfer_completed_counter = Counter(
     "mcpclient_transfer_completed_total",
@@ -77,6 +83,7 @@ transfer_completed_timestamp = Gauge(
     "mcpclient_transfer_completed_timestamp",
     "Timestamp of most recent transfer completed, by transfer type",
     ["transfer_type"],
+    multiprocess_mode="livesum",
 )
 transfer_error_counter = Counter(
     "mcpclient_transfer_error_total",
@@ -87,6 +94,7 @@ transfer_error_timestamp = Gauge(
     "mcpclient_transfer_error_timestamp",
     "Timestamp of most recent transfer failure, by transfer type, error type",
     ["transfer_type", "failure_type"],
+    multiprocess_mode="livesum",
 )
 transfer_files_histogram = Histogram(
     "mcpclient_transfer_files",
@@ -103,7 +111,9 @@ transfer_size_histogram = Histogram(
 
 sip_started_counter = Counter("mcpclient_sip_started_total", "Number of SIPs started")
 sip_started_timestamp = Gauge(
-    "mcpclient_sip_started_timestamp", "Timestamp of most recent SIP started"
+    "mcpclient_sip_started_timestamp",
+    "Timestamp of most recent SIP started",
+    multiprocess_mode="livesum",
 )
 sip_error_counter = Counter(
     "mcpclient_sip_error_total",
@@ -114,15 +124,20 @@ sip_error_timestamp = Gauge(
     "mcpclient_sip_error_timestamp",
     "Timestamp of most recent SIP failure, by error type",
     ["failure_type"],
+    multiprocess_mode="livesum",
 )
 
 aips_stored_counter = Counter("mcpclient_aips_stored_total", "Number of AIPs stored")
 dips_stored_counter = Counter("mcpclient_dips_stored_total", "Number of DIPs stored")
 aips_stored_timestamp = Gauge(
-    "mcpclient_aips_stored_timestamp", "Timestamp of most recent AIP stored"
+    "mcpclient_aips_stored_timestamp",
+    "Timestamp of most recent AIP stored",
+    multiprocess_mode="livesum",
 )
 dips_stored_timestamp = Gauge(
-    "mcpclient_dips_stored_timestamp", "Timestamp of most recent DIP stored"
+    "mcpclient_dips_stored_timestamp",
+    "Timestamp of most recent DIP stored",
+    multiprocess_mode="livesum",
 )
 aip_processing_time_histogram = Histogram(
     "mcpclient_aip_processing_seconds",
@@ -170,9 +185,6 @@ aip_original_file_timestamps_histogram = Histogram(
     + list(range(2015, datetime.date.today().year + 2))
     + [float("inf")],
 )
-
-archivematica_info = Info("archivematica_version", "Archivematica version info")
-environment_info = Info("environment_variables", "Environment Variables")
 
 
 # There's no central place to pull these constants from currently
@@ -231,14 +243,21 @@ def init_counter_labels():
 
 
 @skip_if_prometheus_disabled
+def worker_exit(process_id):
+    multiprocess.mark_process_dead(process_id)
+
+
+@skip_if_prometheus_disabled
 def start_prometheus_server():
+    registry = CollectorRegistry()
+    multiprocess.MultiProcessCollector(registry)
+
     init_counter_labels()
 
-    archivematica_info.info({"version": get_full_version()})
-    environment_info.info(os.environ)
-
     return start_http_server(
-        settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
+        settings.PROMETHEUS_BIND_PORT,
+        addr=settings.PROMETHEUS_BIND_ADDRESS,
+        registry=registry,
     )
 
 

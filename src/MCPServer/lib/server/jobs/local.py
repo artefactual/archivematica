@@ -10,9 +10,9 @@ import logging
 
 from django.utils import six
 
+from dbconns import auto_close_old_connections
 from main import models
 
-from server.db import auto_close_old_connections
 from server.jobs.base import Job
 
 

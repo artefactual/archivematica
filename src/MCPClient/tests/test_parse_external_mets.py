@@ -8,7 +8,7 @@ import pytest
 import six
 
 from main import models
-from job import Job
+from client.job import Job
 
 import parse_external_mets
 
@@ -40,7 +40,7 @@ def test_mets_not_found(job, transfer_dir):
     exit_code = parse_external_mets.main(
         job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_dir)
     )
-    error = six.ensure_text(job.error)
+    error = six.ensure_text(job.error.getvalue())
 
     # It does not fail but the error is recorded.
     assert error == "[Errno 17] No METS file found in {}\n".format(
@@ -57,11 +57,11 @@ def test_mets_cannot_parse(job, transfer_dir):
     exit_code = parse_external_mets.main(
         job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_dir)
     )
-    error = six.ensure_text(job.output)
+    stdout = six.ensure_text(job.output.getvalue())
 
     # It does not fail but the error is recorded.
     # TODO: why are we not communicating this error?
-    assert "Error parsing reingest METS" in error
+    assert "Error parsing reingest METS" in stdout
     assert exit_code == 0
 
 
@@ -75,7 +75,7 @@ def test_mets_is_parsed(db, job, transfer_dir):
         metadataappliestotype_id=models.MetadataAppliesToType.SIP_TYPE,
     )
 
-    assert not job.error
+    assert job.error.getbuffer().nbytes == 0
     assert exit_code == 0
 
     assert len(dc_items) == 1

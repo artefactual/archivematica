@@ -21,53 +21,16 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import absolute_import, print_function
 
-from functools import wraps
 import logging
-import string
 import sys
-import random
-import time
 import uuid
 
-from django.db import close_old_connections
 from django.utils import timezone
 from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
 
 import six
-from six.moves import range
-
-from common_metrics import db_retry_timer
 
 LOGGER = logging.getLogger("archivematica.common")
-
-
-def auto_close_db(f):
-    """Decorator to ensure the db connection is closed when the function returns."""
-
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        finally:
-            close_old_connections()
-
-    return wrapper
-
-
-def getUTCDate():
-    """Returns a timezone-aware representation of the current datetime in UTC."""
-    return timezone.now()
-
-
-def getDeciDate(date):
-    valid = "." + string.digits
-    ret = ""
-    for c in date:
-        if c in valid:
-            ret += c
-        # else:
-        #     ret += replacementChar
-    return str("{:10.10f}".format(float(ret)))
 
 
 def insertIntoFiles(
@@ -93,7 +56,7 @@ def insertIntoFiles(
     :returns: None
     """
     if enteredSystem is None:
-        enteredSystem = getUTCDate()
+        enteredSystem = timezone.now()
 
     if not originalLocation:
         originalLocation = filePath
@@ -186,7 +149,7 @@ def insertIntoEvents(
     :returns Event: The created event object.
     """
     if eventDateTime is None:
-        eventDateTime = getUTCDate()
+        eventDateTime = timezone.now()
 
     # Assume the Agent is Archivematica & the current user
     if not agents:
@@ -258,7 +221,7 @@ def fileWasRemoved(
     :param str eventOutcome: The eventOutcome for the logged event. Can be blank.
     """
     if utcDate is None:
-        utcDate = getUTCDate()
+        utcDate = timezone.now()
 
     eventIdentifierUUID = uuid.uuid4().__str__()
     eventType = "file removed"
@@ -309,27 +272,3 @@ def deUnicode(unicode_string):
     if unicode_string is None:
         return None
     return six.text_type(unicode_string).encode("utf-8")
-
-
-def retryOnFailure(description, callback, retries=10):
-    with db_retry_timer(description=description):
-        for retry in range(0, retries + 1):
-            try:
-                callback()
-                break
-            except Exception as e:
-                if retry == retries:
-                    LOGGER.error(
-                        'Failed to complete transaction "%s" after %s retries',
-                        description,
-                        retries,
-                    )
-                    raise e
-                else:
-                    LOGGER.debug(
-                        'Retrying "%s" transaction after caught exception (retry %d): %s',
-                        description,
-                        retry + 1,
-                        e,
-                    )
-                    time.sleep(random.uniform(0, 2))

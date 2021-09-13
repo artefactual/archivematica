@@ -1,7 +1,7 @@
 import json
 import os
 
-from job import Job
+from client.job import Job
 import json_metadata_to_csv
 
 

@@ -26,6 +26,7 @@ debugging their preservation workflow.
 """
 
 from __future__ import unicode_literals
+import io
 import subprocess
 from uuid import UUID
 
@@ -33,7 +34,7 @@ import pytest
 
 from main.models import Transfer, File, Event, User
 
-from job import Job
+from client.job import Job
 from verify_checksum import (
     Hashsum,
     NoHashCommandAvailable,
@@ -237,7 +238,7 @@ class TestHashsum(object):
         ), self.assert_exception_string
         assert ret == 1, self.assert_return_value.format(ret)
         # Flush job.error as it isn't flushed automatically.
-        job.error = b""
+        job.error = io.BytesIO()
         mock = mocker.patch.object(hashsum, "_call", return_value=improper_formatting)
         mock.side_effect = subprocess.CalledProcessError(
             returncode=1, cmd="sha1sum", output=improper_formatting

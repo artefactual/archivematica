@@ -10,7 +10,7 @@ import six
 from django.test import TestCase
 from pytest_django.asserts import assertQuerysetEqual
 
-from job import Job
+from client.job import Job
 from main.models import Directory, Event, File, Transfer, SIP, User
 
 from . import TempDirMixin

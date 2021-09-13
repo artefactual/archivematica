@@ -23,10 +23,13 @@ import sys
 import types
 
 import django
+
+django.setup()
+
 import prometheus_client
 import six
 
-from archivematicaClient import get_supported_modules
+from client.loader import get_supported_modules
 
 
 # These are the global types that should not be potentially dangerous to use.
@@ -43,7 +46,6 @@ if six.PY2:
         types.ClassType,
     )
 GOOD_GLOBAL_TYPES += (
-    django.db.models.base.ModelBase,
     logging.Logger,
     int,
     str,

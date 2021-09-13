@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Database related functionality.
+Database connections management.
 
 This module implements an `auto_close_old_connections` decorator/context manager.
 In order to be able to re-use database connections in the Django ORM outside of
@@ -18,17 +18,10 @@ all SQL queries and allow us to check that all logged queries occur within the
 wrapper. Note though, this will result in _very_ verbose logs.
 """
 
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+import contextlib
 import logging
 import threading
 import traceback
-
-try:
-    from contextlib import ContextDecorator
-except ImportError:
-    from contextdecorator import ContextDecorator  # py2 backport
 
 from django.conf import settings
 from django.db import close_old_connections
@@ -38,7 +31,7 @@ logger = logging.getLogger("archivematica.mcp.server.db")
 thread_locals = threading.local()
 
 
-class AutoCloseOldConnections(ContextDecorator):
+class AutoCloseOldConnections(contextlib.ContextDecorator):
     """
     Decorator to ensure that db connections older than CONN_MAX_AGE are
     closed before execution. Normally, one would close connections after

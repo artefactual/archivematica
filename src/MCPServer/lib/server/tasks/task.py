@@ -10,11 +10,10 @@ import logging
 import os
 import uuid
 
+from dbconns import auto_close_old_connections
 from main import models
 
 from django.utils import timezone
-
-from server.db import auto_close_old_connections
 
 
 logger = logging.getLogger("archivematica.mcp.server.tasks")

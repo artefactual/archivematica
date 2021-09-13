@@ -19,9 +19,9 @@ import six
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import unicodeToStr
+from dbconns import auto_close_old_connections
 from main import models
 
-from server.db import auto_close_old_connections
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path

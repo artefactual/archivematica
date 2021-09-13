@@ -11,12 +11,12 @@ import threading
 
 from django.utils import six
 
-from server.db import auto_close_old_connections
 from server.jobs.base import Job
 from server.processing_config import load_preconfigured_choice, load_processing_xml
 from server.translation import TranslationLabel
 from server.workflow_abilities import choice_is_available
 
+from dbconns import auto_close_old_connections
 from main import models
 
 

@@ -13,10 +13,10 @@ from django.conf import settings
 from django.utils import six
 
 from server import metrics
-from server.db import auto_close_old_connections
 from server.jobs.base import Job
 from server.tasks import Task, get_task_backend
 
+from dbconns import auto_close_old_connections
 from main import models
 
 
