@@ -2,7 +2,7 @@
 
 coverage==4.2
 mock
-mockldap==0.2.8
+git+https://github.com/artefactual-labs/mockldap@v0.3.1#egg=mockldap
 pytest>=4,<5
 pytest-cov==2.4.0
 pytest-django>=3,<4
