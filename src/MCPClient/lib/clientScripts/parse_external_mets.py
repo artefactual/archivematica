@@ -7,7 +7,7 @@ import os
 # archivematicaCommon
 from custom_handlers import get_script_logger
 
-from assign_file_uuids import find_mets_file
+from archivematicaFunctions import find_mets_file
 import parse_mets_to_db
 
 logger = get_script_logger("archivematica.mcp.client.parse_external_mets")
@@ -15,7 +15,11 @@ logger = get_script_logger("archivematica.mcp.client.parse_external_mets")
 
 def parse_reingest_mets(job, transfer_uuid, transfer_path):
     # Parse METS to extract information needed by later microservices
-    mets_path = find_mets_file(transfer_path)
+    try:
+        mets_path = find_mets_file(transfer_path)
+    except OSError as err:
+        job.print_error(str(err))
+        return
     try:
         root = etree.parse(mets_path)
     except Exception:
