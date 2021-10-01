@@ -2766,7 +2766,7 @@
           "link_id": "c5ecb5a9-d697-4188-844f-9a756d8734fa"
         }
       },
-      "fallback_job_status": "Completed successfully",
+      "fallback_job_status": "Failed",
       "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
       "group": {
         "en": "Extract packages",
