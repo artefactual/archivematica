@@ -31,6 +31,7 @@ import pytest
 from six.moves.urllib.parse import urlencode
 from six import StringIO
 
+from agentarchives.atom.client import CommunicationError
 from components.archival_storage import atom
 from components import helpers
 from main.models import DashboardSetting
@@ -366,3 +367,39 @@ class TestArchivalStorageDataTableState(TestCase):
         payload = json.loads(response.content.decode("utf8"))
         assert payload["error"] is True
         assert payload["message"] == "Setting not found"
+
+
+def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
+    mocker, amsetup, admin_client, tmpdir
+):
+    sip_uuid = uuid.uuid4()
+    file_path = tmpdir.mkdir("file")
+    mocker.patch("elasticSearchFunctions.get_client")
+    mocker.patch(
+        "elasticSearchFunctions.get_aip_data",
+        return_value={
+            "_source": {
+                "name": "transfer-{}".format(sip_uuid),
+                "filePath": str(file_path),
+            }
+        },
+    )
+    mocker.patch(
+        "components.archival_storage.forms.get_atom_client",
+        return_value=mocker.Mock(
+            **{
+                "find_parent_id_for_component.side_effect": CommunicationError(
+                    404, mocker.Mock(url="http://example.com")
+                )
+            }
+        ),
+    )
+
+    response = admin_client.post(
+        reverse("archival_storage:view_aip", args=[sip_uuid]),
+        {"submit-upload-form": "1", "upload-slug": "missing-slug"},
+    )
+
+    assert "Description with slug missing-slug not found!" in response.content.decode(
+        "utf8"
+    )
