@@ -50,14 +50,15 @@ class UploadMetadataOnlyAtomForm(forms.Form):
                 _("Connection establishment failed: AtoM server cannot be reached.")
             )
         except CommunicationError as e:
-            if "404" in e.message:
+            message = str(e)
+            if "404" in message:
                 raise forms.ValidationError(
                     _("Description with slug %(slug)s not found!"),
                     code="notfound",
                     params={"slug": slug},
                 )
             raise forms.ValidationError(
-                _("Unknown error: %(error)s"), code="error", params={"error": e.message}
+                _("Unknown error: %(error)s"), code="error", params={"error": message}
             )
         return slug
 

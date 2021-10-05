@@ -151,7 +151,7 @@ if __name__ == "__main__":
             six.moves.cPickle.dump(
                 {
                     "uncaught_exception": {
-                        "message": e.message,
+                        "message": str(e),
                         "type": type(e).__name__,
                         "traceback": traceback.format_exc(),
                     }
