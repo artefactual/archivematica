@@ -306,6 +306,11 @@ def search(request):
 
     if "query" not in request.GET:
         queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
+    # Use "indexedAt" field in aipfiles index for date range queries.
+    # This works for AIPs as well because of how AIP UUIDs are collected by
+    # first searching the aipfiles index.
+    if types[0] == "range":
+        fields = ["indexedAt"]
     query = advanced_search.assemble_query(queries, ops, fields, types)
     file_mode = request.GET.get("file_mode") == "true"
 

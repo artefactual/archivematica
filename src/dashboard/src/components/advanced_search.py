@@ -17,9 +17,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
+from datetime import datetime, timedelta
 import logging
-
-import dateutil.parser
 
 logger = logging.getLogger("archivematica.dashboard.advanced_search")
 
@@ -175,9 +174,23 @@ def _parse_date_range(field):
     return field.split(":")[:2]
 
 
-def _normalize_date(date):
+def _normalize_date(date, end_date=False):
+    """Format date as Unix timestamp.
+
+    Add one day to end date to make date range inclusive (this will require
+    using lt rather than lte in queries for end dates).
+
+    :param date: Date string in format YYYY-MM-DD (str)
+    :param end_date: Flag indicating if date is end date (bool)
+
+    :returns: Unix timestamp (int)
+    :raises: ValueError if invalid date received
+    """
     try:
-        return dateutil.parser.parse(date).strftime("%Y-%m-%d")
+        dt = datetime.strptime(date, "%Y-%m-%d")
+        if end_date:
+            dt = dt + timedelta(days=1)
+        return dt.timestamp()
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
@@ -207,11 +220,11 @@ def _query_clause(index, queries, ops, fields, types):
         start, end = _parse_date_range(queries[index])
         try:
             start = _normalize_date(start)
-            end = _normalize_date(end)
+            end = _normalize_date(end, end_date=True)
         except ValueError as e:
             logger.info(str(e))
             return
-        query = {"range": {fields[index]: {"gte": start, "lte": end}}}
+        query = {"range": {fields[index]: {"gte": start, "lt": end}}}
 
     return query
 
