@@ -2410,6 +2410,39 @@
         "sv": "Bearbeta leveransdokumentation"
       }
     },
+    "17db556d-bd50-4903-a68c-f1df88687d01": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"%SIPDirectory%\"",
+        "execute": "extractMetadataBag_v0.0",
+        "filter_file_end": null,
+        "filter_file_start": null,
+        "filter_subdir": null,
+        "stderr_file": null,
+        "stdout_file": null
+      },
+      "description": {
+        "en": "Extract metadata bag",
+        "es": "Extraer bag con metadatos"
+      },
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully",
+          "link_id": "33533fbb-1607-434f-a82b-cf938c05f60b"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "fallback_link_id": "33533fbb-1607-434f-a82b-cf938c05f60b",
+      "group": {
+        "en": "Reingest AIP",
+        "fr": "Réacquistion de l’AIP",
+        "ja": "AIPの再インジェスト",
+        "no": "Gjenopplast AIP",
+        "pt_BR": "Readmitir AIP",
+        "sv": "Återingestera AIP"
+      }
+    },
     "180ae3d0-aa6c-4ed4-ab94-d0a2121e7f21": {
       "config": {
         "@manager": "linkTaskManagerFiles",
@@ -3864,7 +3897,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "33533fbb-1607-434f-a82b-cf938c05f60b"
+          "link_id": "17db556d-bd50-4903-a68c-f1df88687d01"
         }
       },
       "fallback_job_status": "Failed",

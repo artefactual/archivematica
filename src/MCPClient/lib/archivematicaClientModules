@@ -95,6 +95,7 @@ checkforaccessdirectory_v0.0 = check_for_access_directory
 declarepids_v0.0 = pid_declaration
 bindpids_v0.0 = bind_pids
 extractzippedtransfer_v0.0 = extract_zipped_transfer
+extractmetadatabag_v0.0 = extract_metadata_bag
 assignuuidstodirectories_v0.0 = assign_uuids_to_directories
 bagit_v0.0 = bag_with_empty_directories
 haspackages_v0.0 = has_packages
