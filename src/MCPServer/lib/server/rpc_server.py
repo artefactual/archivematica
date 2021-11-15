@@ -106,7 +106,7 @@ class RPCServer(GearmanWorker):
     # values in our workflow data. This is mostly true to things related to
     # types of transfers and its approvals. This value in particular supports
     # the partial approval of AIP reingest.
-    APPROVE_AIP_REINGEST_CHAIN_ID = "9520386f-bb6d-4fb9-a6b6-5845ef39375f"
+    APPROVE_AIP_REINGEST_CHAIN_ID = "260ef4ea-f87d-4acf-830d-d0de41e6d2af"
 
     def __init__(self, workflow, shutdown_event, package_queue, executor):
         super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
