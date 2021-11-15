@@ -47,7 +47,7 @@ urlpatterns = [
         views.mark_hidden,
     ),
     url(r"^(?P<unit_type>transfer|ingest)/delete/", views.mark_completed_hidden),
-    url(r"^ingest/reingest/approve", views.reingest_approve),
+    url(r"^ingest/reingest/approve", views.reingest_approve, name="reingest_approve"),
     url(r"^ingest/reingest", views.reingest, {"target": "ingest"}),
     url(r"^ingest/completed", views.completed_ingests),
     url(r"^ingest/copy_metadata_files/$", views.copy_metadata_files_api),

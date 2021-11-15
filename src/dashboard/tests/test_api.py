@@ -626,3 +626,29 @@ def test_start_transfer_api_decodes_paths(mocker, admin_client):
     start_transfer_view.assert_called_once_with(
         "my transfer", "zipfile", "my accession", "system id", ["/a/path"], ["row1"]
     )
+
+
+def test_reingest_approve(mocker, admin_client):
+    mocker.patch("six.moves.cPickle")
+    job_complete = mocker.patch(
+        "contrib.mcp.client.gearman.JOB_COMPLETE",
+    )
+    mocker.patch(
+        "gearman.GearmanClient",
+        return_value=mocker.Mock(
+            **{"submit_job.return_value": mocker.Mock(state=job_complete)}
+        ),
+    )
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    response = admin_client.post(
+        reverse("api:reingest_approve"),
+        {
+            "uuid": "sip-uuid",
+        },
+    )
+
+    assert (
+        json.loads(response.content.decode("utf8")).get("message")
+        == "Approval successful."
+    )

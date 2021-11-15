@@ -561,7 +561,7 @@ def reingest_approve(request):
         return _error_response('"uuid" is required.')
     try:
         client = MCPClient(request.user)
-        client.approve_partial_reingest(sip_uuid, request.user.id)
+        client.approve_partial_reingest(sip_uuid)
     except Exception as err:
         msg = "Unable to approve the partial reingest."
         LOGGER.error("%s %s (sip_uuid=%s)", msg, err, sip_uuid)
