@@ -511,7 +511,7 @@ class TestSIPArrange(TestCase):
 
 
 @pytest.mark.django_db
-def test_copy_metadata_files(mocker):
+def test_copy_metadata_files(mocker, rf):
     # Mock helper that actually copies files from the transfer source locations
     _copy_from_transfer_sources_mock = mocker.patch(
         "components.filesystem_ajax.views._copy_from_transfer_sources",
@@ -526,11 +526,12 @@ def test_copy_metadata_files(mocker):
     )
 
     # Call the view with a mocked request
-    request = mocker.Mock(
-        **{
-            "POST.get.return_value": sip_uuid,
-            "POST.getlist.return_value": [b64encode_string("locationuuid:/some/path")],
-        }
+    request = rf.post(
+        reverse("filesystem_ajax:copy_metadata_files"),
+        {
+            "sip_uuid": sip_uuid,
+            "source_paths[]": [b64encode_string("locationuuid:/some/path")],
+        },
     )
     result = views.copy_metadata_files(request)
 
