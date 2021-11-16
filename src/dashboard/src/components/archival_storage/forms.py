@@ -78,7 +78,6 @@ class ReingestAIPForm(forms.Form):
     processing_config = forms.CharField(
         required=False,
         initial="default",
-        help_text=_("Only needed in full re-ingest"),
         widget=forms.TextInput(attrs={"placeholder": _("default")}),
     )
 
