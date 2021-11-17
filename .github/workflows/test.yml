@@ -6,11 +6,13 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
+      - "dev/issue-1485-permissions-take-two"
 jobs:
   test:
     name: "Test ${{ matrix.rule }}"
     runs-on: "ubuntu-18.04"
     strategy:
+      fail-fast: false
       matrix:
         include:
           - rule: mcp-server
