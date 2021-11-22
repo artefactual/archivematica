@@ -23,7 +23,7 @@
       "state": "latest"
     },
     {
-      "name": "policycoreutils-python",
+      "name": "python3-policycoreutils",
       "state": "latest"
     },
     {
