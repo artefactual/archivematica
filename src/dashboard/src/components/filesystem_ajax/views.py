@@ -960,10 +960,10 @@ def copy_metadata_files(request):
 
     paths = [b64decode_string(p) for p in paths]
     sip = models.SIP.objects.get(uuid=sip_uuid)
-    relative_path = sip.currentpath.replace("%sharedPath%", "", 1)
-    relative_path = os.path.join(relative_path, "metadata")
+    sip_path = sip.currentpath.replace("%sharedPath%", "", 1)
+    metadata_directory_path = os.path.join(sip_path, sip.get_metadata_directory_path())
 
-    error, message = _copy_from_transfer_sources(paths, relative_path)
+    error, message = _copy_from_transfer_sources(paths, metadata_directory_path)
 
     if not error:
         message = _("Metadata files added successfully.")

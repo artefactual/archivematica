@@ -511,7 +511,17 @@ class TestSIPArrange(TestCase):
 
 
 @pytest.mark.django_db
-def test_copy_metadata_files(mocker, rf):
+@pytest.mark.parametrize(
+    "set_partial_reingest_flag, expected_metadata_dir",
+    [
+        (False, "metadata"),
+        (True, os.path.join("data", "objects", "metadata")),
+    ],
+    ids=["regular_sip", "partial_reingest"],
+)
+def test_copy_metadata_files(
+    mocker, rf, set_partial_reingest_flag, expected_metadata_dir
+):
     # Mock helper that actually copies files from the transfer source locations
     _copy_from_transfer_sources_mock = mocker.patch(
         "components.filesystem_ajax.views._copy_from_transfer_sources",
@@ -520,10 +530,12 @@ def test_copy_metadata_files(mocker, rf):
 
     # Create a SIP
     sip_uuid = str(uuid.uuid4())
-    models.SIP.objects.create(
+    sip = models.SIP.objects.create(
         uuid=sip_uuid,
         currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
     )
+    if set_partial_reingest_flag:
+        sip.set_partial_reingest()
 
     # Call the view with a mocked request
     request = rf.post(
@@ -546,7 +558,9 @@ def test_copy_metadata_files(mocker, rf):
     # Verify the copier helper was called with the right parameters
     _copy_from_transfer_sources_mock.assert_called_once_with(
         ["locationuuid:/some/path"],
-        "more/path/metadataReminder/mysip-{}/metadata".format(sip_uuid),
+        "more/path/metadataReminder/mysip-{}/{}".format(
+            sip_uuid, expected_metadata_dir
+        ),
     )
 
 
