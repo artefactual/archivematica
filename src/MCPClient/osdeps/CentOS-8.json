@@ -29,10 +29,6 @@
       "state": "latest"
     },
     {
-      "name": "fits",
-      "state": "latest"
-    },
-    {
       "name": "gearmand",
       "state": "latest"
     },
