@@ -56,16 +56,17 @@ def watched_dir_handler(package_queue, path, watched_dir):
 
     package = None
     package_type = watched_dir["unit_type"]
+    watched_dir_path = watched_dir["path"]
     is_dir = os.path.isdir(path)
 
     if package_type == "SIP" and is_dir:
-        package = SIP.get_or_create_from_db_by_path(path)
+        package = SIP.get_or_create_from_db_by_path(path, watched_dir_path)
     elif package_type == "DIP" and is_dir:
-        package = DIP.get_or_create_from_db_by_path(path)
+        package = DIP.get_or_create_from_db_by_path(path, watched_dir_path)
     elif package_type == "Transfer" and is_dir:
-        package = Transfer.get_or_create_from_db_by_path(path)
+        package = Transfer.get_or_create_from_db_by_path(path, watched_dir_path)
     elif package_type == "Transfer" and not is_dir:
-        package = Transfer.get_or_create_from_db_by_path(path)
+        package = Transfer.get_or_create_from_db_by_path(path, watched_dir_path)
     else:
         raise ValueError("Unexpected unit type given for file {}".format(path))
 
