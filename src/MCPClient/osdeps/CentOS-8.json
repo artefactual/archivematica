@@ -85,11 +85,7 @@
       "state": "latest"
     },
     {
-      "name": "java-1.7.0-openjdk-headless",
-      "state": "latest"
-    },
-    {
-      "name": "openjpeg",
+      "name": "openjpeg2",
       "state": "latest"
     },
     {
@@ -130,10 +126,6 @@
     },
     {
       "name": "tree",
-      "state": "latest"
-    },
-    {
-      "name": "ufraw",
       "state": "latest"
     },
     {
