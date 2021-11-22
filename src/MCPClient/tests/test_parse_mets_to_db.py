@@ -1,8 +1,10 @@
 # -*- coding: utf8
 from lxml import etree
 import os
+import uuid
 
 from django.test import TestCase
+import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import parse_mets_to_db
@@ -648,3 +650,36 @@ class TestParseFiles(TestCase):
             ).exists()
             is False
         )
+
+
+@pytest.fixture
+def sip(tmp_path):
+    sip_uuid = str(uuid.uuid4())
+    current_path = tmp_path / "my-sip"
+    current_path.mkdir()
+    return models.SIP.objects.create(uuid=sip_uuid, currentpath=str(current_path))
+
+
+@pytest.mark.django_db
+def test_main_sets_aip_reingest_type(mocker, sip):
+    mocker.patch("os.path")
+    mocker.patch("parse_mets_to_db.etree")
+    job = None
+    assert not models.SIP.objects.filter(uuid=sip.uuid, sip_type="AIP-REIN").exists()
+
+    parse_mets_to_db.main(job, sip.uuid, sip.currentpath)
+
+    assert models.SIP.objects.filter(uuid=sip.uuid, sip_type="AIP-REIN").exists()
+
+
+@pytest.mark.django_db
+def test_main_unsets_partial_reingest_flag(mocker, sip):
+    mocker.patch("os.path")
+    mocker.patch("parse_mets_to_db.etree")
+    job = None
+    sip.set_partial_reingest()
+    assert sip.is_partial_reingest()
+
+    parse_mets_to_db.main(job, sip.uuid, sip.currentpath)
+
+    assert not sip.is_partial_reingest()

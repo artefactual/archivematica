@@ -551,6 +551,9 @@ def main(job, sip_uuid, sip_path):
 
     parse_rights(job, sip_uuid, root)
 
+    if sip.count():
+        sip.first().unset_partial_reingest()
+
 
 def call(jobs):
     parser = argparse.ArgumentParser()
