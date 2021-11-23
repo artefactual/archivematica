@@ -141,6 +141,14 @@
       "enabled": "yes",
       "gpgcheck": "no",
       "name": "archivematica-extras"
+    },
+    {
+      "baseurl": "https://jenkins-ci.archivematica.org/repos/am-packbuild/centos8-extras",
+      "description": "archivematica centos8 extras",
+      "enabled": "yes",
+      "gpgcheck": "no",
+      "name": "archivematica-centos8-extras"
     }
+
   ]
 }
