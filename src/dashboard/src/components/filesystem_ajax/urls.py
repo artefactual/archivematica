@@ -45,5 +45,7 @@ urlpatterns = [
         views.copy_from_arrange_to_completed,
         name="copy_from_arrange",
     ),
-    url(r"^copy_metadata_files/$", views.copy_metadata_files),
+    url(
+        r"^copy_metadata_files/$", views.copy_metadata_files, name="copy_metadata_files"
+    ),
 ]

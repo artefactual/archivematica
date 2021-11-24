@@ -744,7 +744,7 @@ class SIPDIP(Package):
 
     @classmethod
     @auto_close_old_connections()
-    def get_or_create_from_db_by_path(cls, path):
+    def get_or_create_from_db_by_path(cls, path, watched_dir_path=None):
         """Matches a directory to a database SIP by its appended UUID, or path."""
         path = path.replace(_get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1)
         package_type = cls.UNIT_VARIABLE_TYPE
@@ -775,6 +775,10 @@ class SIPDIP(Package):
                     sip_type=package_type,
                     diruuids=False,
                 )
+        if package_type == "SIP" and watched_dir_path == "/system/reingestAIP/":
+            # SIP package is a partial (objects or metadata-only) reingest.
+            # Full reingests use a different workflow chain.
+            sip_obj.set_partial_reingest()
         logger.info(
             "%s %s %s (%s)",
             package_type,
@@ -819,7 +823,7 @@ class Transfer(Package):
 
     @classmethod
     @auto_close_old_connections()
-    def get_or_create_from_db_by_path(cls, path):
+    def get_or_create_from_db_by_path(cls, path, watched_dir_path=None):
         """Matches a directory to a database Transfer by its appended UUID, or path."""
         path = path.replace(_get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1)
 

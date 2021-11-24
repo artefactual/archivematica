@@ -473,6 +473,28 @@ class SIP(models.Model):
     def update_active_agent(self, user_id):
         UnitVariable.objects.update_active_agent("SIP", self.uuid, user_id)
 
+    def set_partial_reingest(self):
+        UnitVariable.objects.set_partial_reingest(self.uuid)
+
+    def is_partial_reingest(self):
+        return UnitVariable.objects.is_partial_reingest(self.uuid)
+
+    def unset_partial_reingest(self):
+        UnitVariable.objects.unset_partial_reingest(self.uuid)
+
+    def get_metadata_directory_path(self):
+        """
+        Get the path of the `metadata` directory relative to the SIP directory.
+        """
+        if not self.is_partial_reingest():
+            return "metadata"
+        else:
+            # Unapproved partial reingests have not been "flattened"
+            # yet, so they still have a bag-like structure and their
+            # `metadata` directory is not at the top of level the SIP
+            # directory but contained in the `objects` directory
+            return os.path.join("data", "objects", "metadata")
+
     def add_custom_identifier(self, scheme, value):
         """Allow callers to add custom identifiers to the model's instance."""
         self.identifiers.create(type=scheme, value=value)
@@ -1586,6 +1608,23 @@ class UnitVariableManager(models.Manager):
         defaults = {"variablevalue": value, "microservicechainlink": link_id}
         return self.get_queryset().update_or_create(
             unittype=unit_type, unituuid=unit_uuid, variable=variable, defaults=defaults
+        )
+
+    def set_partial_reingest(self, unit_id):
+        self.update_variable("SIP", unit_id, "isPartialReingest", "true")
+
+    def is_partial_reingest(self, unit_id):
+        return (
+            self.get_queryset()
+            .filter(unittype="SIP", unituuid=unit_id, variable="isPartialReingest")
+            .exists()
+        )
+
+    def unset_partial_reingest(self, unit_id):
+        return (
+            self.get_queryset()
+            .filter(unittype="SIP", unituuid=unit_id, variable="isPartialReingest")
+            .delete()
         )
 
     def update_active_agent(self, unit_type, unit_id, user_id):
