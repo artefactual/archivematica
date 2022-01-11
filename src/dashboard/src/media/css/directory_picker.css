@@ -54,15 +54,19 @@
   background-image: none;
 }
 
-/* Layout of directory items using CSS Grid */
+/* Entry layout using CSS Grid */
 
-.backbone-file-explorer-directory {
+.backbone-file-explorer-entry {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 30px 1fr;
-  grid-template-columns: 30px 1fr;
+  -ms-grid-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
 }
 
-.backbone-file-explorer-directory > span {
+.backbone-file-explorer-entry > span {
   height: 100%;
+}
+
+.backbone-file-explorer-directory_entry_actions {
+  padding-left: 5px;
 }
