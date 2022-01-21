@@ -1,63 +1,123 @@
 ---
-name: "Acceptance Test"
+name: "Acceptance Tests"
 on:
-  pull_request:
-    types: [labeled]
+  # pull_request:
+  #   types: [labeled]
+  push:
+    branches:
+      - "dev/amauat-reusable-workflows"
 jobs:
-  test:
-    if: github.event.label.name == 'AMAUAT'
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
-    runs-on: "ubuntu-18.04"
-    strategy:
-      matrix:
-        tag:
-          - "aip-encrypt"
-          - "aip-encrypt-mirror"
-          - "black-box"
-          - "icc"
-          - "ipc preservation"
-          - "ipc access"
-          - "mo-aip-reingest"
-          - "tcc"
-          - "tpc"
-          - "uuids-dirs"
-        browser:
-          - "Firefox"
-          - "Chrome"
-        exclude:
-          - tag: "black-box"
-            browser: Firefox
-          - tag: "ipc preservation"
-            browser: Firefox
-          - tag: "ipc access"
-            browser: Firefox
-    steps:
-      - name: "Check out repository"
-        uses: "actions/checkout@v2"
-        with:
-          submodules: true
-      - name: "Create external volumes"
-        run: |
-          make -C hack/ create-volumes
-      - name: "Start MySQL"
-        run: |
-          docker-compose up -d mysql
-        working-directory: ./hack
-      - name: "Build images"
-        run: |
-          make -C hack/ build
-      - name: "Start services"
-        run: |
-          docker-compose up -d
-        env:
-          cluster.routing.allocation.disk.threshold_enabled: false
-        working-directory: ./hack
-      - name: "Bootstrap services"
-        run: |
-          make -C hack/ bootstrap
-      - name: "Restart services"
-        run: |
-          make -C hack/ restart-am-services
-      - name: "Run AMAUAT tag"
-        run: |
-          make -C hack/ test-at-behave TAGS="${{ matrix.tag }}" BROWSER=${{ matrix.browser }}
+  aip-encrypt-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: aip-encrypt
+      browser: Firefox
+  aip-encrypt-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: aip-encrypt
+      browser: Chrome
+  aip-encrypt-mirror-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: aip-encrypt-mirror
+      browser: Firefox
+  aip-encrypt-mirror-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: aip-encrypt-mirror
+      browser: Chrome
+  black-box-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: black-box
+      browser: Chrome
+  icc-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: icc
+      browser: Firefox
+  icc-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: icc
+      browser: Chrome
+  ipc_preservation-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: ipc preservation
+      browser: Firefox
+  ipc_preservation-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: ipc preservation
+      browser: Chrome
+  ipc_access-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: ipc access
+      browser: Firefox
+  ipc_access-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: ipc access
+      browser: Chrome
+  mo-aip-reingest-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: mo-aip-reingest
+      browser: Firefox
+  mo-aip-reingest-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: mo-aip-reingest
+      browser: Chrome
+  tcc-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: tcc
+      browser: Firefox
+  tcc-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: tcc
+      browser: Chrome
+  tpc-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: tpc
+      browser: Firefox
+  tpc-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: tpc
+      browser: Chrome
+  uuids-dirs-firefox:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: uuids-dirs
+      browser: Firefox
+  uuids-dirs-chrome:
+    # if: github.event.label.name == 'AMAUAT'
+    uses: artefactual/archivematica/.github/workflows/acceptance-test-run.yml@dev/amauat-reusable-workflows
+    with:
+      tags: uuids-dirs
+      browser: Chrome

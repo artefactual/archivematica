@@ -1,0 +1,44 @@
+---
+name: "Acceptance Test"
+on:
+  workflow_call:
+    inputs:
+      tags:
+        required: true
+        type: string
+      browser:
+        required: true
+        type: string
+jobs:
+  test:
+    runs-on: "ubuntu-18.04"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v2"
+        with:
+          submodules: true
+      - name: "Create external volumes"
+        run: |
+          make -C hack/ create-volumes
+      - name: "Start MySQL"
+        run: |
+          docker-compose up -d mysql
+        working-directory: ./hack
+      - name: "Build images"
+        run: |
+          make -C hack/ build
+      - name: "Start services"
+        run: |
+          docker-compose up -d
+        env:
+          cluster.routing.allocation.disk.threshold_enabled: false
+        working-directory: ./hack
+      - name: "Bootstrap services"
+        run: |
+          make -C hack/ bootstrap
+      - name: "Restart services"
+        run: |
+          make -C hack/ restart-am-services
+      - name: "Run AMAUAT tag"
+        run: |
+          make -C hack/ test-at-behave TAGS="${{ inputs.tags }}" BROWSER=${{ inputs.browser }}
