@@ -104,8 +104,8 @@ class TestElasticSearchFunctions(unittest.TestCase):
             for item in actions:
                 try:
                     dmd_section = item["_source"]["METS"]["dmdSec"]
-                    metadata_container = dmd_section["mets:xmlData_dict_list"][0]
-                    dc = metadata_container["dcterms:dublincore_dict_list"][0]
+                    metadata_container = dmd_section["mets:xmlData_dict"]
+                    dc = metadata_container["dcterms:dublincore_dict"]
                 except (KeyError, IndexError):
                     dc = None
                 indexed_data[item["_source"]["filePath"]] = dc
@@ -390,8 +390,8 @@ def test_index_aipfile_dmdsec(
         for item in actions:
             try:
                 dmd_section = item["_source"]["METS"]["dmdSec"]
-                metadata_container = dmd_section["mets:xmlData_dict_list"][0]
-                dc = metadata_container["dcterms:dublincore_dict_list"][0]
+                metadata_container = dmd_section["mets:xmlData_dict"]
+                dc = metadata_container["dcterms:dublincore_dict"]
             except (KeyError, IndexError):
                 dc = None
             indexed_data[item["_source"]["filePath"]] = dc

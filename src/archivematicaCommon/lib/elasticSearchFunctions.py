@@ -71,7 +71,7 @@ ES_FIELD_UUID = "uuid"
 
 
 class ElasticsearchError(Exception):
-    """ Not operational errors. """
+    """Not operational errors."""
 
     pass
 
@@ -613,9 +613,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
                 # Index amdSec information.
                 xml = etree.tostring(amdSec)
-                indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
-                    _normalize_dict_values(xmltodict.parse(xml))
-                )
+                indexData["METS"]["amdSec"] = _normalize_dict(xmltodict.parse(xml))
 
             indexData["FILEUUID"] = fileUUID
 
@@ -651,9 +649,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
                         )
                         if dmd_section_info is not None:
                             xml = etree.tostring(dmd_section_info)
-                            data = _rename_dict_keys_with_child_dicts(
-                                _normalize_dict_values(xmltodict.parse(xml))
-                            )
+                            data = _normalize_dict(xmltodict.parse(xml))
                             indexData["METS"]["dmdSec"] = data
                             break
 
@@ -1046,64 +1042,31 @@ def _get_aip_metadata(doc):
     return result
 
 
-def _rename_dict_keys_with_child_dicts(data):
-    """Rename dictionary keys.
+def _normalize_dict(data):
+    """Normalize dictionary from xmltodict for ES indexing.
 
-    To avoid Elasticsearch schema collisions, if a dict value is itself a
-    dict then rename the dict key to differentiate it from similar instances
-    where the same key has a different value type.
+    Because an XML element may contain text value or other elements, conversion
+    to a dict can result in different value types for the same key. This causes
+    problems in the Elasticsearch index as it expects consistent types. This
+    function recurses a dict and appends "_dict" to the keys with a dict value.
     """
     new = {}
-    for key in data:
-        if isinstance(data[key], dict):
-            new[key + "_data"] = _rename_dict_keys_with_child_dicts(data[key])
-        elif isinstance(data[key], list):
-            # Elasticsearch's lists are typed; a list of strings and
-            # a list of objects are not the same type. Check the type
-            # of the first object in the list and use that as the tag,
-            # rather than just tagging this "_list"
-            type_of_list = type(data[key][0]).__name__
-            value = _rename_list_elements_if_they_are_dicts(data[key])
-            new[key + "_" + type_of_list + "_list"] = value
+    for key, value in data.items():
+        dict_key = key + "_dict"
+        if isinstance(value, dict):
+            new[dict_key] = _normalize_dict(value)
+        elif isinstance(value, list):
+            for item in value:
+                new_key = key
+                if isinstance(item, dict):
+                    new_key = dict_key
+                    item = _normalize_dict(item)
+                if new_key not in new:
+                    new[new_key] = []
+                new[new_key].append(item)
         else:
-            new[key] = data[key]
+            new[key] = value
     return new
-
-
-def _rename_list_elements_if_they_are_dicts(data):
-    for index, value in enumerate(data):
-        if isinstance(value, list):
-            data[index] = _rename_list_elements_if_they_are_dicts(value)
-        elif isinstance(value, dict):
-            data[index] = _rename_dict_keys_with_child_dicts(value)
-    return data
-
-
-def _normalize_dict_values(data):
-    """Normalize dictionary values.
-
-    Because an XML document node may include one or more children, conversion
-    to a dict can result in the converted child being one of two types.
-    this causes problems in an Elasticsearch index as it expects consistant
-    types to be indexed.
-    The below function recurses a dict and if a dict's value is another dict,
-    it encases it in a list.
-    """
-    for key in data:
-        if isinstance(data[key], dict):
-            data[key] = [_normalize_dict_values(data[key])]
-        elif isinstance(data[key], list):
-            data[key] = _normalize_list_dict_elements(data[key])
-    return data
-
-
-def _normalize_list_dict_elements(data):
-    for index, value in enumerate(data):
-        if isinstance(value, list):
-            data[index] = _normalize_list_dict_elements(value)
-        elif isinstance(value, dict):
-            data[index] = _normalize_dict_values(value)
-    return data
 
 
 def _get_file_formats(f):
