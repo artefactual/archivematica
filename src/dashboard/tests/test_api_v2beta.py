@@ -140,7 +140,7 @@ objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,op
 
     def _post(self, validator_name, payload, content_type="text/csv; charset=utf-8"):
         return self.client.post(
-            reverse("api:validate", args=[validator_name]),
+            reverse("api:v2beta_validate", args=[validator_name]),
             payload,
             content_type=content_type,
         )

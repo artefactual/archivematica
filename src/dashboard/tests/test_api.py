@@ -207,7 +207,9 @@ class TestAPI(TestCase):
     def test_status(self):
         load_fixture(["jobs-transfer-complete"])
         resp = self.client.get(
-            "/api/transfer/status/3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+            reverse(
+                "api:transfer_status", args=["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
+            ),
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -220,7 +222,7 @@ class TestAPI(TestCase):
         """It should return a 400 error as the status cannot be determined."""
         bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
         Transfer.objects.create(uuid=bogus_transfer_id)
-        resp = self.client.get("/api/transfer/status/{}".format(bogus_transfer_id))
+        resp = self.client.get(reverse("api:transfer_status", args=[bogus_transfer_id]))
         self._test_api_error(
             resp,
             status_code=400,
@@ -249,7 +251,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_transfers(self):
         load_fixture(["jobs-transfer-complete"])
-        resp = self.client.get("/api/transfer/completed")
+        resp = self.client.get(reverse("api:completed_transfers"))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
@@ -262,7 +264,7 @@ class TestAPI(TestCase):
         """Bogus transfers should be excluded and handled gracefully."""
         load_fixture(["jobs-transfer-complete"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
-        resp = self.client.get("/api/transfer/completed")
+        resp = self.client.get(reverse("api:completed_transfers"))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
@@ -273,7 +275,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_ingests(self):
         load_fixture(["jobs-sip-complete"])
-        resp = self.client.get("/api/ingest/completed")
+        resp = self.client.get(reverse("api:completed_ingests"))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
@@ -286,7 +288,7 @@ class TestAPI(TestCase):
         """Bogus ingests should be excluded and handled gracefully."""
         load_fixture(["jobs-sip-complete"])
         SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
-        resp = self.client.get("/api/ingest/completed")
+        resp = self.client.get(reverse("api:completed_ingests"))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         assert payload == {
@@ -297,7 +299,7 @@ class TestAPI(TestCase):
     @e2e
     def test_unit_jobs_with_bogus_unit_uuid(self):
         bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get("/api/v2beta/jobs/{}".format(bogus_unit_uuid))
+        resp = self.client.get(reverse("api:v2beta_jobs", args=[bogus_unit_uuid]))
         self._test_api_error(
             resp,
             status_code=400,
@@ -317,7 +319,7 @@ class TestAPI(TestCase):
             endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
             exitcode=0,
         )
-        resp = self.client.get("/api/v2beta/jobs/{}".format(sip_uuid))
+        resp = self.client.get(reverse("api:v2beta_jobs", args=[sip_uuid]))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         # payload contains a mapping for each job
@@ -348,7 +350,8 @@ class TestAPI(TestCase):
         load_fixture(["jobs-rejected"])
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
-            "/api/v2beta/jobs/{}?microservice={}".format(sip_uuid, "Reject transfer")
+            reverse("api:v2beta_jobs", args=[sip_uuid]),
+            {"microservice": "Reject transfer"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -362,9 +365,8 @@ class TestAPI(TestCase):
         assert job["tasks"] == []
         # Test that microservice search also works with a "Microservice:" prefix
         resp = self.client.get(
-            "/api/v2beta/jobs/{}?microservice={}".format(
-                sip_uuid, "Microservice: Reject transfer"
-            )
+            reverse("api:v2beta_jobs", args=[sip_uuid]),
+            {"microservice": "Microservice: Reject transfer"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -384,9 +386,8 @@ class TestAPI(TestCase):
         job.save()
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
-            "/api/v2beta/jobs/{}?link_uuid={}".format(
-                sip_uuid, "11111111-1111-1111-1111-111111111111"
-            )
+            reverse("api:v2beta_jobs", args=[sip_uuid]),
+            {"link_uuid": "11111111-1111-1111-1111-111111111111"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -404,9 +405,8 @@ class TestAPI(TestCase):
         load_fixture(["jobs-rejected"])
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
-            "/api/v2beta/jobs/{}?name={}".format(
-                sip_uuid, "Move to the rejected directory"
-            )
+            reverse("api:v2beta_jobs", args=[sip_uuid]),
+            {"name": "Move to the rejected directory"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -420,9 +420,8 @@ class TestAPI(TestCase):
         assert job["tasks"] == []
         # Test that name search also works with a "Job:" prefix
         resp = self.client.get(
-            "/api/v2beta/jobs/{}?name={}".format(
-                sip_uuid, "Job: Move to the rejected directory"
-            )
+            reverse("api:v2beta_jobs", args=[sip_uuid]),
+            {"name": "Job: Move to the rejected directory"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -433,7 +432,7 @@ class TestAPI(TestCase):
     @e2e
     def test_task_with_bogus_task_uuid(self):
         bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get("/api/v2beta/task/{}".format(bogus_task_uuid))
+        resp = self.client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))
         self._test_api_error(
             resp,
             status_code=400,
@@ -452,7 +451,9 @@ class TestAPI(TestCase):
             endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 5)),
             exitcode=0,
         )
-        resp = self.client.get("/api/v2beta/task/12345678-1234-1234-1234-123456789012")
+        resp = self.client.get(
+            reverse("api:v2beta_task", args=["12345678-1234-1234-1234-123456789012"])
+        )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
         # payload is a mapping of task attributes
