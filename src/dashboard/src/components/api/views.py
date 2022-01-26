@@ -210,7 +210,7 @@ def get_unit_status(unit_uuid, unit_type):
         .filter(jobtype="Create SIP from transfer objects")
         .exists()
     ):
-        ret["status"] = "COMPLETE"
+        ret["status"] = "PROCESSING"
         # Get SIP UUID
         sips = (
             models.File.objects.filter(transfer_id=unit_uuid, sip__isnull=False)
@@ -218,6 +218,7 @@ def get_unit_status(unit_uuid, unit_type):
             .distinct()
         )
         if sips:
+            ret["status"] = "COMPLETE"
             ret["sip_uuid"] = sips[0]["sip"]
     elif (
         models.Job.objects.filter(sipuuid=unit_uuid)

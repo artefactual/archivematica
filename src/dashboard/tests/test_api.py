@@ -162,7 +162,9 @@ class TestAPI(TestCase):
     def test_get_unit_status_completed_sip(self):
         """It should return COMPLETE."""
         # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-transfer-complete", "jobs-sip-complete"])
+        load_fixture(
+            ["jobs-processing", "jobs-transfer-complete", "jobs-sip-complete", "files"]
+        )
         # Test
         status = views.get_unit_status(
             "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
@@ -188,6 +190,7 @@ class TestAPI(TestCase):
                 "jobs-processing",
                 "jobs-transfer-complete",
                 "jobs-sip-complete-clean-up-last",
+                "files",
             ]
         )
         # Test
@@ -205,7 +208,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_status(self):
-        load_fixture(["jobs-transfer-complete"])
+        load_fixture(["jobs-transfer-complete", "files"])
         resp = self.client.get(
             reverse(
                 "api:transfer_status", args=["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
@@ -233,14 +236,14 @@ class TestAPI(TestCase):
             ),
         )
 
-    def test__completed_units(self):
-        load_fixture(["jobs-transfer-complete"])
+    def test_completed_units(self):
+        load_fixture(["jobs-transfer-complete", "files"])
         completed = views._completed_units()
         assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
 
-    def test__completed_units_with_bogus_unit(self):
+    def test_completed_units_with_bogus_unit(self):
         """Bogus units should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete"])
+        load_fixture(["jobs-transfer-complete", "files"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         try:
             completed = views._completed_units()
@@ -250,7 +253,7 @@ class TestAPI(TestCase):
 
     @e2e
     def test_completed_transfers(self):
-        load_fixture(["jobs-transfer-complete"])
+        load_fixture(["jobs-transfer-complete", "files"])
         resp = self.client.get(reverse("api:completed_transfers"))
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -262,7 +265,7 @@ class TestAPI(TestCase):
     @e2e
     def test_completed_transfers_with_bogus_transfer(self):
         """Bogus transfers should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete"])
+        load_fixture(["jobs-transfer-complete", "files"])
         Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
         resp = self.client.get(reverse("api:completed_transfers"))
         assert resp.status_code == 200
