@@ -31,6 +31,7 @@ urlpatterns = [
         r"transfer/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
         views.status,
         {"unit_type": "unitTransfer"},
+        name="transfer_status",
     ),
     url(r"transfer/start_transfer/", views.start_transfer_api, name="start_transfer"),
     url(r"transfer/reingest", views.reingest, {"target": "transfer"}),
@@ -73,7 +74,15 @@ urlpatterns = [
         name="processing_configuration_list",
     ),
     url(r"v2beta/package", views.package),
-    url(r"v2beta/validate/([-\w]+)", views.validate, name="validate"),
-    url(r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")", views.unit_jobs),
-    url(r"v2beta/task/(?P<task_uuid>" + settings.UUID_REGEX + ")", views.task),
+    url(r"v2beta/validate/([-\w]+)", views.validate, name="v2beta_validate"),
+    url(
+        r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
+        views.unit_jobs,
+        name="v2beta_jobs",
+    ),
+    url(
+        r"v2beta/task/(?P<task_uuid>" + settings.UUID_REGEX + ")",
+        views.task,
+        name="v2beta_task",
+    ),
 ]
