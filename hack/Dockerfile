@@ -45,7 +45,7 @@ RUN freshclam --quiet
 
 # Install pip, Node.js and Yarn
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.6 \
+	&& curl -s https://bootstrap.pypa.io/pip/3.6/get-pip.py | python3.6 \
 	&& update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
