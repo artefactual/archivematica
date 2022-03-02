@@ -467,7 +467,20 @@ def test_get_directories_with_metadata(physical_struct_map):
 
 
 METS = """<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <mets:dmdSec ID="dmdSec_1">
+  <mets:dmdSec ID="dmdSec_1" CREATED="2022-02-18T18:44:33" STATUS="original">
+    <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+      <mets:xmlData>
+        <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:intellectualEntity" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+          <premis:objectIdentifier>
+            <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+            <premis:objectIdentifierValue>6cebefad-2b19-4874-b014-094ec35a85aa</premis:objectIdentifierValue>
+          </premis:objectIdentifier>
+          <premis:originalName>pics_2-6cebefad-2b19-4874-b014-094ec35a85aa</premis:originalName>
+        </premis:object>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2" CREATED="2022-02-18T18:44:33" STATUS="original">
     <mets:mdWrap MDTYPE="DC">
       <mets:xmlData>
         <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/terms/ https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
@@ -480,12 +493,48 @@ METS = """<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www
       </mets:xmlData>
     </mets:mdWrap>
   </mets:dmdSec>
-  <mets:dmdSec ID="dmdSec_2">
+  <mets:dmdSec ID="dmdSec_3" CREATED="2022-02-18T18:44:33" STATUS="original-superseded" GROUPID="5329fa70-214e-43a8-8974-958bbfc19c4c">
     <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="CUSTOM">
       <mets:xmlData>
         <custom_field>custom field part 1</custom_field>
         <custom_field>custom field part 2</custom_field>
         <custom_field2>custom field 2</custom_field2>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_4" CREATED="2022-02-18T18:44:33" STATUS="deleted">
+    <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="">
+      <mets:xmlData>
+        <record>
+          <idfield>deleted</idfield>
+        </record>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_5" CREATED="2022-02-19T18:44:33" STATUS="update" GROUPID="5329fa70-214e-43a8-8974-958bbfc19c4c">
+    <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="CUSTOM">
+      <mets:xmlData>
+        <custom_field>updated custom field part 1</custom_field>
+        <custom_field>updated custom field part 2</custom_field>
+        <custom_field2>updated custom field 2</custom_field2>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_6" CREATED="2022-02-19T18:44:33" STATUS="update">
+    <mets:mdWrap MDTYPE="OTHER" OTHERMDTYPE="">
+      <mets:xmlData>
+        <record>
+          <idfield>idfield</idfield>
+          <controlfield>controlfield 1</controlfield>
+          <controlfield>controlfield 2</controlfield>
+          <datafield>
+            <subfield>subfield 1</subfield>
+            <subfield>subfield 2</subfield>
+          </datafield>
+          <datafield>
+            <subfield>subfield 3</subfield>
+          </datafield>
+        </record>
       </mets:xmlData>
     </mets:mdWrap>
   </mets:dmdSec>
@@ -516,7 +565,7 @@ def mets():
 def directory():
     result = etree.Element("directory")
     result.set("LABEL", "some/path/to/directory")
-    result.set("DMDID", "dmdSec_1 dmdSec_2")
+    result.set("DMDID", "dmdSec_1 dmdSec_2 dmdSec_3 dmdSec_4 dmdSec_5 dmdSec_6")
     result.set("ADMID", "amdSec_1")
     return result
 
@@ -524,54 +573,72 @@ def directory():
 @pytest.fixture
 def directory_with_no_metadata():
     result = etree.Element("directory")
-    result.set("DMDID", "dmdSec_3")
     return result
-
-
-def test_get_directory_metadata(mets, directory, directory_with_no_metadata):
-    result = elasticSearchFunctions._get_directory_metadata(
-        directory_with_no_metadata, mets
-    )
-    assert result == {}
-    result = elasticSearchFunctions._get_directory_metadata(directory, mets)
-    # all fields are combined into a single dictionary
-    assert result == {
-        "__DIRECTORY_LABEL__": "some/path/to/directory",
-        "FIELD_CONTACT_NAME": ["A.", "R.", "Chivist"],
-        "Payload-Oxum": "63140.2",
-        "custom_field": ["custom field part 1", "custom field part 2"],
-        "custom_field2": "custom field 2",
-        "dc:creator": "AM",
-        "dc:subject": [None, None, None],
-        "dc:title": "Some title",
-    }
 
 
 @pytest.fixture
 def file_pointer():
     result = etree.Element("file")
-    result.set("DMDID", "dmdSec_1 dmdSec_2")
+    result.set("DMDID", "dmdSec_1 dmdSec_2 dmdSec_3 dmdSec_4 dmdSec_5 dmdSec_6")
     return result
 
 
 @pytest.fixture
 def file_pointer_with_no_metadata():
     result = etree.Element("file")
-    result.set("DMDID", "dmdSec_3")
     return result
 
 
-def test_get_file_metadata(mets, file_pointer, file_pointer_with_no_metadata):
-    result = elasticSearchFunctions._get_file_metadata(
-        file_pointer_with_no_metadata, mets
+expected_file_metadata = {
+    "custom_field": ["updated custom field part 1", "updated custom field part 2"],
+    "custom_field2": "updated custom field 2",
+    "dc:creator": "AM",
+    "dc:subject": [None, None, None],
+    "dc:title": "Some title",
+    "record_dict": {
+        "idfield": "idfield",
+        "controlfield": [
+            "controlfield 1",
+            "controlfield 2",
+        ],
+        "datafield_dict": [
+            {
+                "subfield": [
+                    "subfield 1",
+                    "subfield 2",
+                ]
+            },
+            {
+                "subfield": "subfield 3",
+            },
+        ],
+    },
+}
+
+
+expected_directory_metadata = {
+    "__DIRECTORY_LABEL__": "some/path/to/directory",
+    "FIELD_CONTACT_NAME": ["A.", "R.", "Chivist"],
+    "Payload-Oxum": "63140.2",
+    **expected_file_metadata,
+}
+
+
+@pytest.mark.parametrize(
+    "element_fixture_name, method_name, expected_metadata",
+    [
+        ("directory", "_get_directory_metadata", expected_directory_metadata),
+        ("directory_with_no_metadata", "_get_directory_metadata", {}),
+        ("file_pointer", "_get_file_metadata", expected_file_metadata),
+        ("file_pointer_with_no_metadata", "_get_file_metadata", {}),
+    ],
+)
+def test_get_metadata(
+    request, mets, element_fixture_name, method_name, expected_metadata
+):
+    assert (
+        getattr(elasticSearchFunctions, method_name)(
+            request.getfixturevalue(element_fixture_name), mets
+        )
+        == expected_metadata
     )
-    assert result == {}
-    result = elasticSearchFunctions._get_file_metadata(file_pointer, mets)
-    # all fields are combined into a single dictionary
-    assert result == {
-        "custom_field": ["custom field part 1", "custom field part 2"],
-        "custom_field2": "custom field 2",
-        "dc:creator": "AM",
-        "dc:subject": [None, None, None],
-        "dc:title": "Some title",
-    }

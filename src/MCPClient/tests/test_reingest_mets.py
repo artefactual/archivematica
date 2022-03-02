@@ -708,17 +708,17 @@ class TestUpdateDublinCore(TestCase):
             root.find('mets:dmdSec[@ID="dmdSec_3"]', namespaces=NSMAP).get("STATUS")
             is None
         )
-        # Verify original SIP-level marked as original
+        # Verify original SIP-level marked as original-superseded
         assert (
             root.find('mets:dmdSec[@ID="dmdSec_4"]', namespaces=NSMAP).attrib["STATUS"]
-            == "original"
+            == "original-superseded"
         )
         # Verify dmdSec created
         dmdsec = root.xpath(
             'mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2" or @ID="dmdSec_3" or @ID="dmdSec_4")]',
             namespaces=NSMAP,
         )[0]
-        assert dmdsec.attrib["STATUS"] == "updated"
+        assert dmdsec.attrib["STATUS"] == "update"
         assert dmdsec.attrib["CREATED"]
         # Verify fileSec div updated
         assert (
@@ -787,20 +787,20 @@ class TestUpdateDublinCore(TestCase):
             len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP))
             == 3
         )
-        # Verify existing DC marked as original
+        # Verify existing DC marked as original-superseded
         assert (
             root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get("STATUS")
-            == "original"
+            == "original-superseded"
         )
         assert (
             root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP).get("STATUS")
-            == "updated"
+            == "update-superseded"
         )
         # Verify dmdSec created
         dmdsec = root.xpath(
             'mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2")]', namespaces=NSMAP
         )[0]
-        assert dmdsec.attrib["STATUS"] == "updated"
+        assert dmdsec.attrib["STATUS"] == "update"
         assert dmdsec.attrib["CREATED"]
         # Verify fileSec div updated
         assert (
@@ -873,48 +873,17 @@ class TestUpdateDublinCore(TestCase):
 
         assert (
             len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP))
-            == 3
+            == 2
         )
-        # Verify existing DC marked as original
+        # Verify existing DC marked as original-superseded and deleted
         assert (
             root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get("STATUS")
-            == "original"
+            == "original-superseded"
         )
         assert (
             root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP).get("STATUS")
-            == "updated"
+            == "deleted"
         )
-        # Verify dmdSec created
-        dmdsec = root.xpath(
-            'mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2")]', namespaces=NSMAP
-        )[0]
-        assert dmdsec.attrib["STATUS"] == "updated"
-        assert dmdsec.attrib["CREATED"]
-        # Verify fileSec div updated
-        assert (
-            dmdsec.attrib["ID"]
-            in root.find(
-                'mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]',
-                namespaces=NSMAP,
-            ).attrib["DMDID"]
-        )
-        assert (
-            "dmdSec_1"
-            in root.find(
-                'mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]',
-                namespaces=NSMAP,
-            ).attrib["DMDID"]
-        )
-        assert (
-            "dmdSec_2"
-            in root.find(
-                'mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]',
-                namespaces=NSMAP,
-            ).attrib["DMDID"]
-        )
-        # Verify new DC
-        dc_elem = dmdsec.find(".//dcterms:dublincore", namespaces=NSMAP)
-        assert len(dc_elem) == 0
 
 
 class TestUpdateRights(TestCase):
@@ -1995,7 +1964,7 @@ class TestUpdateMetadataCSV(TestCase):
         dmdsec = root.find("mets:dmdSec", namespaces=NSMAP)
         assert dmdsec.attrib["ID"]
         assert dmdsec.attrib["CREATED"]
-        assert dmdsec.attrib["STATUS"] == "original"
+        assert dmdsec.attrib["STATUS"] == "update"
         assert dmdsec.findtext(".//dc:title", namespaces=NSMAP) == "Mountain Tents"
         assert (
             dmdsec.findtext(".//dc:description", namespaces=NSMAP)
@@ -2044,7 +2013,7 @@ class TestUpdateMetadataCSV(TestCase):
         root = mets.serialize()
         assert len(root.findall("mets:dmdSec", namespaces=NSMAP)) == 2
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
-        assert orig.attrib["STATUS"] == "original"
+        assert orig.attrib["STATUS"] == "original-superseded"
         div = root.xpath('.//mets:div[contains(@DMDID,"dmdSec_1")]', namespaces=NSMAP)[
             0
         ]
@@ -2052,7 +2021,7 @@ class TestUpdateMetadataCSV(TestCase):
         dmdid = div.attrib["DMDID"].split()[1]
         new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
         assert new.attrib["CREATED"]
-        assert new.attrib["STATUS"] == "updated"
+        assert new.attrib["STATUS"] == "update"
         assert new.findtext(".//dc:title", namespaces=NSMAP) == "Mountain Tents"
         assert (
             new.findtext(".//dc:description", namespaces=NSMAP) == "Tents on a mountain"
@@ -2079,9 +2048,9 @@ class TestUpdateMetadataCSV(TestCase):
         root = mets.serialize()
         assert len(root.findall("mets:dmdSec", namespaces=NSMAP)) == 3
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
-        assert orig.attrib["STATUS"] == "original"
+        assert orig.attrib["STATUS"] == "original-superseded"
         updated = root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP)
-        assert updated.attrib["STATUS"] == "updated"
+        assert updated.attrib["STATUS"] == "update-superseded"
         div = root.xpath('.//mets:div[contains(@DMDID,"dmdSec_1")]', namespaces=NSMAP)[
             0
         ]
@@ -2089,7 +2058,7 @@ class TestUpdateMetadataCSV(TestCase):
         dmdid = div.attrib["DMDID"].split()[2]
         new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
         assert new.attrib["CREATED"]
-        assert new.attrib["STATUS"] == "updated"
+        assert new.attrib["STATUS"] == "update"
         assert new.findtext(".//dc:title", namespaces=NSMAP) == "Mountain Tents"
         assert (
             new.findtext(".//dc:description", namespaces=NSMAP) == "Tents on a mountain"

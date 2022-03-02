@@ -15,15 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import importlib.util
 import json
 import logging
 import logging.config
 import os
+from pathlib import Path
 
-from six import StringIO
+from django.core.exceptions import ImproperlyConfigured
+import six
+
 
 from appconfig import Config, process_search_enabled
 import email_settings
+
+
+def _get_settings_from_file(path):
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as err:
+        raise ImproperlyConfigured("{} could not be imported: {}".format(path, err))
+    if hasattr(module, "__all__"):
+        attrs = module.__all__
+    else:
+        attrs = [attr for attr in dir(module) if not attr.startswith("_")]
+    return {attr: getattr(module, attr) for attr in attrs}
+
 
 CONFIG_MAPPING = {
     # [MCPClient]
@@ -127,6 +146,11 @@ CONFIG_MAPPING = {
         "option": "prometheus_bind_port",
         "type": "string",
     },
+    "metadata_xml_validation_enabled": {
+        "section": "MCPClient",
+        "option": "metadata_xml_validation_enabled",
+        "type": "boolean",
+    },
     "time_zone": {"section": "MCPClient", "option": "time_zone", "type": "string"},
     # [antivirus]
     "clamav_server": {
@@ -183,6 +207,7 @@ clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = true
+metadata_xml_validation_enabled = false
 index_aip_continue_on_error = false
 capture_client_script_output = true
 temp_dir = /var/archivematica/sharedDirectory/tmp
@@ -227,7 +252,7 @@ timeout = 300
 """
 
 config = Config(env_prefix="ARCHIVEMATICA_MCPCLIENT", attrs=CONFIG_MAPPING)
-config.read_defaults(StringIO(CONFIG_DEFAULTS))
+config.read_defaults(six.StringIO(CONFIG_DEFAULTS))
 config.read_files(
     [
         "/etc/archivematica/archivematicaCommon/dbsettings",
@@ -349,3 +374,27 @@ TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates"}]
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
+
+METADATA_XML_VALIDATION_ENABLED = config.get("metadata_xml_validation_enabled")
+if METADATA_XML_VALIDATION_ENABLED:
+
+    METADATA_XML_VALIDATION_SETTINGS_FILE = os.environ.get(
+        "METADATA_XML_VALIDATION_SETTINGS_FILE", ""
+    )
+    if METADATA_XML_VALIDATION_SETTINGS_FILE:
+        xml_validation_settings = _get_settings_from_file(
+            Path(METADATA_XML_VALIDATION_SETTINGS_FILE)
+        )
+        XML_VALIDATION = xml_validation_settings.get("XML_VALIDATION")
+        XML_VALIDATION_FAIL_ON_ERROR = xml_validation_settings.get(
+            "XML_VALIDATION_FAIL_ON_ERROR"
+        )
+        if not isinstance(XML_VALIDATION, dict) or not isinstance(
+            XML_VALIDATION_FAIL_ON_ERROR, bool
+        ):
+            raise ImproperlyConfigured(
+                "The metadata XML validation settings file {} does not contain "
+                "the right settings: an XML_VALIDATION dictionary and an XML_VALIDATION_FAIL_ON_ERROR boolean".format(
+                    METADATA_XML_VALIDATION_SETTINGS_FILE
+                )
+            )

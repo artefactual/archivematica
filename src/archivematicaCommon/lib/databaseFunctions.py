@@ -183,6 +183,7 @@ def insertIntoEvents(
         eventOutcomeDetailNote element in the AIP METS.
     :param list agents: List of Agent IDs to associate with this. If None
         provided, automatically fetches Agents representing Archivematica.
+    :returns Event: The created event object.
     """
     if eventDateTime is None:
         eventDateTime = getUTCDate()
@@ -204,6 +205,7 @@ def insertIntoEvents(
     )
     # Splat agents list into multiple arguments
     event.agents.add(*agents)
+    return event
 
 
 def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):

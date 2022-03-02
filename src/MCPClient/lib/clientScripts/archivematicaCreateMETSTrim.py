@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
+from datetime import datetime
 import os
 import sys
 import lxml.etree as etree
@@ -34,7 +35,11 @@ import namespaces as ns
 
 def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     # containerMetadata
-    ret = etree.Element(ns.metsBNS + "dmdSec")
+    ret = etree.Element(
+        ns.metsBNS + "dmdSec",
+        STATUS="original",
+        CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    )
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
@@ -106,7 +111,11 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
 
 
 def getTrimFileDmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
-    ret = etree.Element(ns.metsBNS + "dmdSec")
+    ret = etree.Element(
+        ns.metsBNS + "dmdSec",
+        STATUS="original",
+        CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    )
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")

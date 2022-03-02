@@ -8,6 +8,7 @@
   - [Environment variables](#environment-variables)
   - [Configuration file](#configuration-file)
   - [Parameter list](#parameter-list)
+    - [Metadata XML validation variables](#metadata-xml-validation-variables)
   - [Logging configuration](#logging-configuration)
 
 ## Introduction
@@ -207,6 +208,12 @@ This is the full list of variables supported by MCPClient:
     - **Type:** `int`
     - **Default:** `""`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED`**:
+    - **Description:** (**Experimental**) Determines if the XML files in the `metadata` directory of a SIP should be validated against a set of XML schemas, recorded in the METS file and indexed as custom metadata. See the [feature variables](#metadata-xml-validation-variables) section below.
+    - **Config file example:** `MCPClient.metadata_xml_validation_enabled`
+    - **Type:** `boolean`
+    - **Default:** `false`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_SERVER`**:
     - **Description:** configures the `clamdscanner` backend so it knows how to reach the clamd server via UNIX socket (if the value starts with /) or TCP socket (form `host:port`, e.g.: `myclamad:3310`).
     - **Config file example:** `MCPClient.clamav_server`
@@ -368,6 +375,49 @@ This is the full list of variables supported by MCPClient:
     - **Config file example:** `email.server_email`
     - **Type:** `string`
     - **Default:** `None`
+
+### Metadata XML validation variables
+
+**This feature is experimental, please share your feedback!**
+
+These variables specify how XML files contained in the `metadata` directory of a SIP should be validated. Only applicable if `ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED` is set.
+
+- **`METADATA_XML_VALIDATION_SETTINGS_FILE`**:
+    - **Description:** Path to a Python module containing the following Django settings:
+        - `XML_VALIDATION`: a dictionary which keys are strings that contain either an [XML schema location](https://www.w3.org/TR/xmlschema-1/#xsi_schemaLocation), an [XML namespace](https://www.w3.org/TR/xml-names/#sec-namespaces) or an XML element tag, and which values are either strings that contain an absolute local path or an external URL to an XML schema file, or `None` to indicate that no validation should be performed.
+        - `XML_VALIDATION_FAIL_ON_ERROR`: a boolean that indicates if the SIP ingest workflow should stop on validation errors. Defaults to `False`.
+
+      An `ImproperlyConfigured` exception will be raised if the Python module cannot be imported or does not contain the required settings.
+
+      The goal of the validation process is to determine a **validation key** from the root node of each XML file in the `metadata` directory of the SIP and then get an XML schema file to validate against using the `XML_VALIDATION` dictionary. If the value for the validation key is set to `None` the XML metadata file is added to the METS without any validation.
+
+      The validation key of each metadata XML file is determined from its root node in the following order:
+
+        1. The XML schema location defined in the `xsi:noNamespaceSchemaLocation` attribute
+        1. The XML schema location defined in the `xsi:schemaLocation` attribute
+        1. Its XML namespace
+        1. Its tag name
+
+      XML validation works with `DTD`, `XSD` and `RELAX NG` schema types (`.dtd`, `.xsd`, and `.rng`).
+
+      This is how an `XML_VALIDATION` dictionary would look like:
+
+      ```python
+      XML_VALIDATION = {
+          #
+          # Local XML schema
+          "http://www.lido-schema.org": "/etc/archivematica/xml-schemas/lido.xsd",
+          #
+          # External XML schema URL
+          "http://www.loc.gov/MARC21/slim": "https://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd",
+          #
+          # Tag name of the root node. Setting the value to `None` skips validation
+          "metadata": None,
+      }
+      ```
+
+    - **Type:** `string`
+    - **Default:** ``
 
 ## Logging configuration
 

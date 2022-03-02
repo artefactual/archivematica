@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+from datetime import datetime
 from lxml import etree
 from lxml.builder import ElementMaker
 import os
@@ -25,7 +26,7 @@ import storageService as storage_service
 
 
 def get_aip_info(aic_dir, job):
-    """ Get AIP UUID, name and labels from objects directory and METS file. """
+    """Get AIP UUID, name and labels from objects directory and METS file."""
     aips = []
     aic_dir = os.path.join(aic_dir, "objects")
     # Parse out AIP names and UUIDs
@@ -75,7 +76,7 @@ def get_aip_info(aic_dir, job):
 
 
 def create_mets_file(aic, aips, job):
-    """ Create AIC METS file with AIP information. """
+    """Create AIC METS file with AIP information."""
 
     # Prepare constants
     nsmap = {"mets": ns.metsNS, "xlink": ns.xlinkNS, "xsi": ns.xsiNS}
@@ -85,7 +86,12 @@ def create_mets_file(aic, aips, job):
     E = ElementMaker(namespace=ns.metsNS, nsmap=nsmap)
     mets = E.mets(
         E.metsHdr(CREATEDATE=now),
-        E.dmdSec(E.mdWrap(E.xmlData(), MDTYPE="DC"), ID="dmdSec_1"),  # mdWrap  # dmdSec
+        E.dmdSec(
+            E.mdWrap(E.xmlData(), MDTYPE="DC"),
+            ID="dmdSec_1",
+            STATUS="original",
+            CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        ),  # mdWrap  # dmdSec
         E.fileSec(E.fileGrp()),
         E.structMap(
             E.div(TYPE="Archival Information Collection", DMDID="dmdSec_1"),

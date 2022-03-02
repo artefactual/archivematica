@@ -104,7 +104,7 @@ idna==3.2
     #   -r requirements.txt
     #   requests
     #   yarl
-importlib-metadata==4.6.1
+importlib-metadata==4.8.3
     # via
     #   -r requirements.txt
     #   backports.entry-points-selectable
@@ -134,7 +134,7 @@ lxml==4.6.3
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.20
+metsrw==0.3.21
     # via -r requirements.txt
 mock==4.0.3
     # via -r requirements-dev.in

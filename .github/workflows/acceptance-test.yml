@@ -9,6 +9,7 @@ jobs:
     name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
     runs-on: "ubuntu-18.04"
     strategy:
+      fail-fast: false
       matrix:
         tag:
           - "aip-encrypt"
@@ -17,6 +18,7 @@ jobs:
           - "icc"
           - "ipc preservation"
           - "ipc access"
+          - "metadata-xml"
           - "mo-aip-reingest"
           - "tcc"
           - "tpc"
@@ -26,10 +28,6 @@ jobs:
           - "Chrome"
         exclude:
           - tag: "black-box"
-            browser: Firefox
-          - tag: "ipc preservation"
-            browser: Firefox
-          - tag: "ipc access"
             browser: Firefox
     steps:
       - name: "Check out repository"

@@ -70,8 +70,9 @@ gunicorn==19.9.0
     # via -r requirements.in
 idna==3.2
     # via requests
-importlib-metadata==4.6.1
+importlib-metadata==4.8.3
     # via
+    #   -r requirements.in
     #   click
     #   pep517
 inotify_simple==1.1.8
@@ -90,7 +91,7 @@ lxml==4.6.3
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.20
+metsrw==0.3.21
     # via -r requirements.in
 mozilla-django-oidc==1.2.4
     # via -r requirements.in

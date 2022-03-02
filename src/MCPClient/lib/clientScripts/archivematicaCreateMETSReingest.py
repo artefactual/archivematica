@@ -9,6 +9,7 @@ import scandir
 import create_mets_v2 as createmets2
 import archivematicaCreateMETSRights as createmetsrights
 import archivematicaCreateMETSMetadataCSV as createmetscsv
+
 import namespaces as ns
 
 # dashboard
@@ -177,7 +178,7 @@ def update_dublincore(job, mets, sip_uuid):
     Case: No DC in DB, DC in METS: Mark as deleted.
     Case: DC in DB is untouched (METADATA_STATUS_REINGEST): Do nothing
     Case: New DC in DB with METADATA_STATUS_ORIGINAL: Add new DC
-    Case: DC in DB with METADATA_STATUS_UPDATED: mark old, create updated
+    Case: DC in DB with METADATA_STATUS_UPDATED: Add new DC
     """
 
     # Check for DC in DB with METADATA_STATUS_UPDATED or METADATA_STATUS_ORIGINAL
@@ -193,32 +194,20 @@ def update_dublincore(job, mets, sip_uuid):
 
     # Get structMap element related to SIP DC info
     objects_div = mets.get_file(label="objects", type="Directory")
-    job.pyprint("Existing dmdIds for DC metadata:", objects_div.dmdids)
 
     # Create element
     dc_elem = createmets2.getDublinCore(createmets2.SIPMetadataAppliesToType, sip_uuid)
 
     if dc_elem is None:
-        if objects_div.dmdsecs:
+        if objects_div.has_dmdsec("DC"):
+            objects_div.delete_dmdsec("DC")
             job.pyprint("DC metadata was deleted")
-            # Create 'deleted' DC element
-            dc_elem = etree.Element(
-                ns.dctermsBNS + "dublincore",
-                nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS},
-            )
-            dc_elem.set(
-                ns.xsiBNS + "schemaLocation",
-                ns.dctermsNS
-                + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd",
-            )
         else:
-            # No new or updated DC found - return early
             job.pyprint("No updated or new DC metadata found")
-            return mets
-    dmdsec = objects_div.add_dublin_core(dc_elem)
+        return mets
+
+    dmdsec = objects_div.add_dublin_core(dc_elem, status="update")
     job.pyprint("Adding new DC in dmdSec with ID", dmdsec.id_string)
-    if len(objects_div.dmdsecs) > 1:
-        objects_div.dmdsecs[-2].replace_with(dmdsec)
 
     return mets
 
@@ -509,7 +498,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
             file_uuid=f.uuid,
             derived_from=derived_from,
         )
-        metsrw_amdsec = metsrw.AMDSec(tree=amdsec, section_id=amdid)
+        metsrw_amdsec = metsrw.AMDSec.parse(amdsec)
         entry.amdsecs.append(metsrw_amdsec)
         parent_fsentry.add_child(entry)
 
@@ -555,23 +544,6 @@ def _get_directory_fsentry(mets, path):
     return result
 
 
-def _replace_original_dmdsec(dmdsecs, new_dmdsec):
-    """Given a list of dmdSec elements, replace the original one.
-
-    This implementation assumes the first dmdSec of the list is the
-    original one and that all the dmdSec elements are of the same
-    MDTYPE.
-
-    A better approach could rely on the CREATED and STATUS attributes
-    of each dmdSec and the older and newer attribute and the
-    get_status method of the metsrw.SubSecion class. But currently the
-    create_mets_v2 clientScript doesn't use metsrw to create the SIP
-    METS and doesn't set these attributes.
-    """
-    if dmdsecs:
-        dmdsecs[0].replace_with(new_dmdsec)
-
-
 def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
     job.pyprint("Parse new metadata.csv")
     full_path = metadata_csv.currentlocation.replace("%SIPDirectory%", sip_dir, 1)
@@ -607,19 +579,6 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
         job.pyprint(f, "found in database or METS file")
         job.pyprint(f, "was associated with", fsentry.dmdids)
 
-        # Save existing dmdSecs
-        dc_dmdsecs = []
-        non_dc_dmdsecs = []
-        for dmdsec in fsentry.dmdsecs:
-            mdwrap = dmdsec.contents
-            if mdwrap.mdtype == "DC":
-                dc_dmdsecs.append(dmdsec)
-            elif (
-                mdwrap.mdtype == "OTHER"
-                and getattr(mdwrap, "othermdtype", None) == "CUSTOM"
-            ):
-                non_dc_dmdsecs.append(dmdsec)
-
         # Create dmdSec
         new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(job, md, state)
         # Add both
@@ -627,18 +586,16 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
             # need to strip new_d to just the DC part
             new_dc = new_dmdsec.find(".//dcterms:dublincore", namespaces=ns.NSMAP)
             if new_dc is not None:
-                new_metsrw_dmdsec = fsentry.add_dublin_core(new_dc)
-                _replace_original_dmdsec(dc_dmdsecs, new_metsrw_dmdsec)
+                fsentry.add_dublin_core(new_dc, status="update")
             else:
                 new_non_dc = new_dmdsec.find(
                     './/mets:mdWrap[@MDTYPE="OTHER"][@OTHERMDTYPE="CUSTOM"]/mets:xmlData',
                     namespaces=ns.NSMAP,
                 )
                 if new_non_dc is not None:
-                    new_metsrw_dmdsec = fsentry.add_dmdsec(
-                        new_non_dc, "OTHER", othermdtype="CUSTOM"
+                    fsentry.add_dmdsec(
+                        new_non_dc, "OTHER", othermdtype="CUSTOM", status="update"
                     )
-                    _replace_original_dmdsec(non_dc_dmdsecs, new_metsrw_dmdsec)
         job.pyprint(f, "now associated with", fsentry.dmdids)
 
     return mets
@@ -650,7 +607,7 @@ def _get_old_mets_rel_path(sip_uuid):
     )
 
 
-def update_mets(job, sip_dir, sip_uuid, state, keep_normative_structmap=True):
+def update_mets(job, sip_dir, sip_uuid, state):
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     job.pyprint("Looking for old METS at path", old_mets_path)
@@ -665,14 +622,4 @@ def update_mets(job, sip_dir, sip_uuid, state, keep_normative_structmap=True):
     add_new_files(job, mets, sip_uuid, sip_dir)
     delete_files(mets, sip_uuid)
 
-    serialized = mets.serialize()
-    if not keep_normative_structmap:
-        # Remove normative structMap
-        structmaps = serialized.findall(
-            'mets:structMap[@LABEL="Normative Directory Structure"]',
-            namespaces=ns.NSMAP,
-        )
-        for structmap in structmaps:
-            structmap.getparent().remove(structmap)
-            job.pyprint("Removed normative structMap")
-    return serialized
+    return mets

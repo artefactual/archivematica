@@ -24,6 +24,7 @@
 
 import collections
 import copy
+from datetime import datetime
 from glob import glob
 from itertools import chain
 import lxml.etree as etree
@@ -36,12 +37,13 @@ import traceback
 from uuid import uuid4
 
 import django
+import metsrw
 import scandir
 import six
 
 django.setup()
 # dashboard
-from django.utils import timezone
+from django.conf import settings as mcpclient_settings
 from main.models import (
     Agent,
     Derivation,
@@ -57,6 +59,7 @@ from main.models import (
 
 import archivematicaCreateMETSReingest
 from archivematicaCreateMETSMetadataCSV import parseMetadata
+import archivematicaCreateMETSMetadataXML
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import (
     archivematicaCreateMETSRightsDspaceMDRef,
@@ -247,7 +250,11 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
     premis:objectIdentifiers. Cf. https://projects.artefactual.com/issues/11192.
     """
     dir_uuid = dir_mdl.uuid
-    ret = etree.Element(ns.metsBNS + "dmdSec")
+    ret = etree.Element(
+        ns.metsBNS + "dmdSec",
+        STATUS="original",
+        CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    )
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
@@ -307,7 +314,12 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
             if dc is None:
                 state.globalDmdSecCounter += 1
                 ID = "dmdSec_" + state.globalDmdSecCounter.__str__()
-                dmdSec = etree.Element(ns.metsBNS + "dmdSec", ID=ID)
+                dmdSec = etree.Element(
+                    ns.metsBNS + "dmdSec",
+                    ID=ID,
+                    STATUS="original",
+                    CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                )
                 state.dmdSecs.append(dmdSec)
                 ret.append(dmdSec)
                 mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
@@ -345,7 +357,12 @@ def createDmdSecsFromCSVParsedMetadata(job, metadata, state):
             if other is None:
                 state.globalDmdSecCounter += 1
                 ID = "dmdSec_" + state.globalDmdSecCounter.__str__()
-                dmdSec = etree.Element(ns.metsBNS + "dmdSec", ID=ID)
+                dmdSec = etree.Element(
+                    ns.metsBNS + "dmdSec",
+                    ID=ID,
+                    STATUS="original",
+                    CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                )
                 state.dmdSecs.append(dmdSec)
                 ret.append(dmdSec)
                 mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
@@ -401,7 +418,11 @@ def createDublincoreDMDSecFromDBData(
         else:  # break not called, no DC successfully parsed
             return None
     state.globalDmdSecCounter += 1
-    dmdSec = etree.Element(ns.metsBNS + "dmdSec")
+    dmdSec = etree.Element(
+        ns.metsBNS + "dmdSec",
+        STATUS="original",
+        CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    )
     ID = "dmdSec_" + state.globalDmdSecCounter.__str__()
     dmdSec.set("ID", ID)
     mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
@@ -430,7 +451,12 @@ def createDSpaceDMDSec(job, label, dspace_mets_path, directoryPathSTR, state):
     # Create mdRef to DSpace METS file
     state.globalDmdSecCounter += 1
     dmdid = "dmdSec_" + str(state.globalDmdSecCounter)
-    dmdsec = etree.Element(ns.metsBNS + "dmdSec", ID=dmdid)
+    dmdsec = etree.Element(
+        ns.metsBNS + "dmdSec",
+        ID=dmdid,
+        STATUS="original",
+        CREATED=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    )
     dmdsecs[dmdid] = dmdsec
     xptr_dmdids = [
         i.get("ID") for i in root.findall("{http://www.loc.gov/METS/}dmdSec")
@@ -732,7 +758,7 @@ def createDigiprovMD(fileUUID, state):
 
 
 def createEvent(event_record):
-    """ Returns a PREMIS Event. """
+    """Returns a PREMIS Event."""
     event = etree.Element(ns.premisBNS + "event", nsmap={"premis": ns.premisNS})
     event.set(
         ns.xsiBNS + "schemaLocation",
@@ -790,7 +816,7 @@ def createEvent(event_record):
 
 
 def createAgent(agent_record):
-    """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
+    """Creates a PREMIS Agent as a SubElement of digiprovMD."""
     agent = etree.Element(ns.premisBNS + "agent", nsmap={"premis": ns.premisNS})
     agent.set(
         ns.xsiBNS + "schemaLocation",
@@ -1700,179 +1726,193 @@ def main(
     if "REIN" in sipType:
         job.pyprint("Updating METS during reingest")
         # don't keep existing normative structmap if creating one
-        root = archivematicaCreateMETSReingest.update_mets(
+        mets = archivematicaCreateMETSReingest.update_mets(
             job,
             baseDirectoryPath,
             sipUUID,
             state,
-            keep_normative_structmap=createNormativeStructmap,
-        )
-        tree = etree.ElementTree(root)
-        write_mets(tree, XMLFile)
-        return
-
-    state.CSV_METADATA = parseMetadata(job, baseDirectoryPath, state)
-
-    baseDirectoryPath = os.path.join(baseDirectoryPath, "")
-    objectsDirectoryPath = os.path.join(baseDirectoryPath, "objects")
-
-    # Fetch any ``Directory`` objects in the database that are contained within
-    # this SIP and return them as a dict from relative paths to UUIDs. (See
-    # createSIPfromTransferObjects.py for the association of ``Directory``
-    # objects to a ``SIP``.
-    directories = {
-        d.currentlocation.rstrip("/"): d
-        for d in Directory.objects.filter(sip_id=sipUUID).all()
-    }
-
-    state.globalStructMapCounter += 1
-    structMap = etree.Element(
-        ns.metsBNS + "structMap",
-        TYPE="physical",
-        ID="structMap_{}".format(state.globalStructMapCounter),
-        LABEL="Archivematica default",
-    )
-    sip_dir_name = os.path.basename(baseDirectoryPath.rstrip("/"))
-    structMapDiv = etree.SubElement(
-        structMap, ns.metsBNS + "div", TYPE="Directory", LABEL=sip_dir_name
-    )
-
-    if createNormativeStructmap:
-        # Create the normative structmap.
-        state.globalStructMapCounter += 1
-        normativeStructMap = get_normative_structmap(
-            baseDirectoryPath, objectsDirectoryPath, directories, state
         )
     else:
-        job.pyprint("Skipping creation of normative structmap")
-        normativeStructMap = None
+        state.CSV_METADATA = parseMetadata(job, baseDirectoryPath, state)
+        state.xml_metadata_events = {}
 
-    # Delete empty directories, see #8427
-    for root, _, _ in scandir.walk(baseDirectoryPath, topdown=False):
-        try:
-            os.rmdir(root)
-            job.pyprint("Deleted empty directory", root)
-        except OSError:
-            pass
+        baseDirectoryPath = os.path.join(baseDirectoryPath, "")
+        objectsDirectoryPath = os.path.join(baseDirectoryPath, "objects")
 
-    # Get the <dmdSec> for the entire AIP; it is associated to the root
-    # <mets:div> in the physical structMap.
-    sip_mdl = SIP.objects.filter(uuid=sipUUID).first()
-    if sip_mdl:
-        aipDmdSec = getDirDmdSec(sip_mdl, sip_dir_name)
-        state.globalDmdSecCounter += 1
-        state.dmdSecs.append(aipDmdSec)
-        aip_dmd_id = "dmdSec_" + str(state.globalDmdSecCounter)
-        aipDmdSec.set("ID", aip_dmd_id)
-        structMapDiv.set("DMDID", aip_dmd_id)
+        # Fetch any ``Directory`` objects in the database that are contained within
+        # this SIP and return them as a dict from relative paths to UUIDs. (See
+        # createSIPfromTransferObjects.py for the association of ``Directory``
+        # objects to a ``SIP``.
+        directories = {
+            d.currentlocation.rstrip("/"): d
+            for d in Directory.objects.filter(sip_id=sipUUID).all()
+        }
 
-    structMapDivObjects = createFileSec(
-        job,
-        objectsDirectoryPath,
-        structMapDiv,
-        baseDirectoryPath,
-        sipUUID,
-        directories,
-        state,
-        includeAmdSec=includeAmdSec,
-    )
+        state.globalStructMapCounter += 1
+        structMap = etree.Element(
+            ns.metsBNS + "structMap",
+            TYPE="physical",
+            ID="structMap_{}".format(state.globalStructMapCounter),
+            LABEL="Archivematica default",
+        )
+        sip_dir_name = os.path.basename(baseDirectoryPath.rstrip("/"))
+        structMapDiv = etree.SubElement(
+            structMap, ns.metsBNS + "div", TYPE="Directory", LABEL=sip_dir_name
+        )
 
-    el = create_object_metadata(job, structMapDivObjects, baseDirectoryPath, state)
-    if el:
-        state.amdSecs.append(el)
-
-    # In an AIC, the metadata dir is not inside the objects dir
-    metadataDirectoryPath = os.path.join(baseDirectoryPath, "metadata")
-    createFileSec(
-        job,
-        metadataDirectoryPath,
-        structMapDiv,
-        baseDirectoryPath,
-        sipUUID,
-        directories,
-        state,
-        includeAmdSec=includeAmdSec,
-    )
-
-    fileSec = etree.Element(ns.metsBNS + "fileSec")
-    for group in state.globalFileGrpsUses:  # state.globalFileGrps.itervalues():
-        grp = state.globalFileGrps[group]
-        if len(grp) > 0:
-            fileSec.append(grp)
-
-    rootNSMap = {"mets": ns.metsNS, "xsi": ns.xsiNS, "xlink": ns.xlinkNS}
-    root = etree.Element(
-        ns.metsBNS + "mets",
-        nsmap=rootNSMap,
-        attrib={
-            "{"
-            + ns.xsiNS
-            + "}schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
-        },
-    )
-    etree.SubElement(root, ns.metsBNS + "metsHdr").set(
-        "CREATEDATE", timezone.now().strftime("%Y-%m-%dT%H:%M:%S")
-    )
-
-    dc = createDublincoreDMDSecFromDBData(
-        job,
-        SIPMetadataAppliesToType,
-        sipUUID,
-        baseDirectoryPath,
-        state,
-    )
-    if dc is not None:
-        (dmdSec, ID) = dc
-        if structMapDivObjects is not None:
-            structMapDivObjects.set("DMDID", ID)
+        if createNormativeStructmap:
+            # Create the normative structmap.
+            state.globalStructMapCounter += 1
+            normativeStructMap = get_normative_structmap(
+                baseDirectoryPath, objectsDirectoryPath, directories, state
+            )
         else:
-            # AICs have no objects directory but do have DC metadata
-            # Attach the DC metadata to the top level SIP div
-            # See #9822 for details
-            structMapDiv.set("DMDID", ID)
-        root.append(dmdSec)
+            job.pyprint("Skipping creation of normative structmap")
+            normativeStructMap = None
 
-    # Look for Dataverse specific descriptive metatdata.
-    dv = create_dataverse_sip_dmdsec(job, baseDirectoryPath)
-    for dmdSec in dv:
-        dmdid = dmdSec.attrib["ID"]
-        dmdids = structMapDivObjects.get("DMDID", "") + " " + dmdid
-        structMapDivObjects.set("DMDID", dmdids)
-        root.append(dmdSec)
+        # Delete empty directories, see #8427
+        for root, _, _ in scandir.walk(baseDirectoryPath, topdown=False):
+            try:
+                os.rmdir(root)
+                job.pyprint("Deleted empty directory", root)
+            except OSError:
+                pass
 
-    for dmdSec in state.dmdSecs:
-        root.append(dmdSec)
+        # Get the <dmdSec> for the entire AIP; it is associated to the root
+        # <mets:div> in the physical structMap.
+        sip_mdl = SIP.objects.filter(uuid=sipUUID).first()
+        if sip_mdl:
+            aipDmdSec = getDirDmdSec(sip_mdl, sip_dir_name)
+            state.globalDmdSecCounter += 1
+            state.dmdSecs.append(aipDmdSec)
+            aip_dmd_id = "dmdSec_" + str(state.globalDmdSecCounter)
+            aipDmdSec.set("ID", aip_dmd_id)
+            structMapDiv.set("DMDID", aip_dmd_id)
 
-    for amdSec in state.amdSecs:
-        root.append(amdSec)
+        structMapDivObjects = createFileSec(
+            job,
+            objectsDirectoryPath,
+            structMapDiv,
+            baseDirectoryPath,
+            sipUUID,
+            directories,
+            state,
+            includeAmdSec=includeAmdSec,
+        )
 
-    root.append(fileSec)
-    root.append(structMap)
+        el = create_object_metadata(job, structMapDivObjects, baseDirectoryPath, state)
+        if el:
+            state.amdSecs.append(el)
 
-    if normativeStructMap is not None:
-        update_normative_structmap_dmdids(normativeStructMap, structMap)
-        root.append(normativeStructMap)
+        # In an AIC, the metadata dir is not inside the objects dir
+        metadataDirectoryPath = os.path.join(baseDirectoryPath, "metadata")
+        createFileSec(
+            job,
+            metadataDirectoryPath,
+            structMapDiv,
+            baseDirectoryPath,
+            sipUUID,
+            directories,
+            state,
+            includeAmdSec=includeAmdSec,
+        )
 
-    for custom_structmap in include_custom_structmap(job, baseDirectoryPath, state):
-        root.append(custom_structmap)
+        fileSec = etree.Element(ns.metsBNS + "fileSec")
+        for group in state.globalFileGrpsUses:  # state.globalFileGrps.itervalues():
+            grp = state.globalFileGrps[group]
+            if len(grp) > 0:
+                fileSec.append(grp)
 
-    if state.trimStructMap is not None:
-        root.append(state.trimStructMap)
+        rootNSMap = {"mets": ns.metsNS, "xsi": ns.xsiNS, "xlink": ns.xlinkNS}
+        root = etree.Element(
+            ns.metsBNS + "mets",
+            nsmap=rootNSMap,
+            attrib={
+                "{"
+                + ns.xsiNS
+                + "}schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
+            },
+        )
+        etree.SubElement(root, ns.metsBNS + "metsHdr")
 
-    arranged_structmap = build_arranged_structmap(job, structMap, sipUUID)
-    if arranged_structmap is not None:
-        root.append(arranged_structmap)
+        dc = createDublincoreDMDSecFromDBData(
+            job,
+            SIPMetadataAppliesToType,
+            sipUUID,
+            baseDirectoryPath,
+            state,
+        )
+        if dc is not None:
+            (dmdSec, ID) = dc
+            if structMapDivObjects is not None:
+                structMapDivObjects.set("DMDID", ID)
+            else:
+                # AICs have no objects directory but do have DC metadata
+                # Attach the DC metadata to the top level SIP div
+                # See #9822 for details
+                structMapDiv.set("DMDID", ID)
+            root.append(dmdSec)
 
-    printSectionCounters = True
-    if printSectionCounters:
-        job.pyprint("DmdSecs:", state.globalDmdSecCounter)
-        job.pyprint("AmdSecs:", state.globalAmdSecCounter)
-        job.pyprint("TechMDs:", state.globalTechMDCounter)
-        job.pyprint("RightsMDs:", state.globalRightsMDCounter)
-        job.pyprint("DigiprovMDs:", state.globalDigiprovMDCounter)
+        # Look for Dataverse specific descriptive metatdata.
+        dv = create_dataverse_sip_dmdsec(job, baseDirectoryPath)
+        for dmdSec in dv:
+            dmdid = dmdSec.attrib["ID"]
+            dmdids = structMapDivObjects.get("DMDID", "") + " " + dmdid
+            structMapDivObjects.set("DMDID", dmdids)
+            root.append(dmdSec)
 
-    tree = etree.ElementTree(root)
-    write_mets(tree, XMLFile)
+        for dmdSec in state.dmdSecs:
+            root.append(dmdSec)
+
+        for amdSec in state.amdSecs:
+            root.append(amdSec)
+
+        root.append(fileSec)
+        root.append(structMap)
+
+        if normativeStructMap is not None:
+            update_normative_structmap_dmdids(normativeStructMap, structMap)
+            root.append(normativeStructMap)
+
+        for custom_structmap in include_custom_structmap(job, baseDirectoryPath, state):
+            root.append(custom_structmap)
+
+        if state.trimStructMap is not None:
+            root.append(state.trimStructMap)
+
+        arranged_structmap = build_arranged_structmap(job, structMap, sipUUID)
+        if arranged_structmap is not None:
+            root.append(arranged_structmap)
+
+        # Parse METS to metsrw
+        mets = metsrw.METSDocument.fromtree(root)
+
+    # The mets variable is now a metsrw instance on ingest and re-ingest
+    mets, xml_metadata_errors = archivematicaCreateMETSMetadataXML.process_xml_metadata(
+        mets,
+        baseDirectoryPath,
+        sipUUID,
+        sipType,
+        getattr(mcpclient_settings, "XML_VALIDATION", False),
+    )
+
+    subsections_counts = mets.get_subsections_counts()
+    job.pyprint("METS file subsections counts:")
+    for subsection, count in subsections_counts.items():
+        job.pyprint("\t- {} entries: {}".format(subsection, count))
+
+    tree = mets.serialize(normative_structmap=createNormativeStructmap)
+    write_mets(etree.ElementTree(tree), XMLFile)
+
+    if len(xml_metadata_errors):
+        job.pyprint(
+            "Error(s) processing and/or validating XML metadata:\n\t- {}".format(
+                "\n\t- ".join([str(err) for err in xml_metadata_errors])
+            ),
+            file=sys.stderr,
+        )
+        if getattr(mcpclient_settings, "XML_VALIDATION_FAIL_ON_ERROR", False):
+            state.error_accumulator.error_count += 1
 
     if state.error_accumulator.error_count:
         raise Exception(

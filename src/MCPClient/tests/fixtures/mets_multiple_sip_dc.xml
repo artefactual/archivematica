@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1252"?>
 <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
   <mets:metsHdr CREATEDATE="2015-06-15T20:10:16"/>
-  <mets:dmdSec ID="dmdSec_1" STATUS="original">
+  <mets:dmdSec ID="dmdSec_1" STATUS="original-superseded">
     <mets:mdWrap MDTYPE="DC">
       <mets:xmlData>
         <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
@@ -24,7 +24,7 @@
       </mets:xmlData>
     </mets:mdWrap>
   </mets:dmdSec>
-  <mets:dmdSec ID="dmdSec_2" STATUS="updated" CREATED="2015-06-15T21:12:28">
+  <mets:dmdSec ID="dmdSec_2" STATUS="update" CREATED="2015-06-15T21:12:28">
     <mets:mdWrap MDTYPE="DC">
       <mets:xmlData>
         <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">

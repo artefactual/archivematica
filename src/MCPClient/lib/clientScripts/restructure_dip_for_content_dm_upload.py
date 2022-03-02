@@ -114,7 +114,7 @@ def splitDmdSecs(job, dmdSecs):
         return dmdSecPair
     for dmdSec in dmdSecs:
         mdWrap = dmdSec.find("mets:mdWrap", namespaces=ns.NSMAP)
-        if mdWrap.get("MDTYPE") == "OTHER":
+        if mdWrap.get("MDTYPE") == "OTHER" and mdWrap.get("OTHERMDTYPE") == "CUSTOM":
             dmdSecPair["nonDc"] = parseDmdSec(dmdSec)
         if mdWrap.get("MDTYPE") == "DC":
             dmdSecPair["dc"] = parseDmdSec(dmdSec)
