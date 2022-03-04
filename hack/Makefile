@@ -286,7 +286,6 @@ define AT_HELP
       * icc                :Conformance check feature on ingest.
       * ipc                :Policy check feature on ingest.
       * picc               :Policy check feature for preservation derivatives.
-      * mo-aip-reingest    :Metadata-only reingest.
       * tpc                :Policy check feature on transfer.
       * uuids-dirs         :Tests whether UUIDs are assigned to AIP sub-DIRs.
 
@@ -296,9 +295,9 @@ export AT_HELP
 test-at-help:  ## AMAUAT: list commonly used acceptance test tags.
 	@echo "$$AT_HELP"
 
-TAGS ?= mo-aip-reingest
+TAGS ?= black-box
 BROWSER ?= Firefox
-test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-behave TAGS=mo-aip-reingest BROWSER=Firefox`.
+test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-behave TAGS=black-box BROWSER=Firefox`.
 	$(call compose_amauat, \
 		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests /usr/local/bin/behave \
 			--no-capture --no-capture-stderr --no-logcapture \
