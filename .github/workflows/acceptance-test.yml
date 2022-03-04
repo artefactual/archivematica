@@ -19,7 +19,6 @@ jobs:
           - "ipc preservation"
           - "ipc access"
           - "metadata-xml"
-          - "mo-aip-reingest"
           - "tcc"
           - "tpc"
           - "uuids-dirs"
