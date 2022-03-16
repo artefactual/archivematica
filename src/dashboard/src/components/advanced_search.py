@@ -190,7 +190,7 @@ def _normalize_date(date, end_date=False):
         dt = datetime.strptime(date, "%Y-%m-%d")
         if end_date:
             dt = dt + timedelta(days=1)
-        return dt.timestamp()
+        return (dt - datetime(1970, 1, 1)).total_seconds()
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
