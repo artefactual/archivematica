@@ -103,8 +103,8 @@ def get_unit_statistical_data_html(unit_type, unit_uuid):
     fields = [
         "Unit type",
         "Total time processing",
-        "Total file size",
         "Number of files",
+        "Total file size",
         "Average file size KB",
         "Average file size MB",
     ]
