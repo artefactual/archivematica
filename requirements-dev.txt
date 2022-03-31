@@ -23,6 +23,7 @@ brotli==0.5.2
 certifi==2021.5.30
     # via
     #   -r requirements.txt
+    #   elasticsearch
     #   requests
 cffi==1.14.6
     # via
@@ -77,7 +78,7 @@ django-shibboleth-remoteuser @ git+https://github.com/Brown-University-Library/d
     # via -r requirements.txt
 django-tastypie==0.13.2
     # via -r requirements.txt
-elasticsearch==6.8.2
+elasticsearch==7.13.0
     # via -r requirements.txt
 filelock==3.3.1
     # via

@@ -221,7 +221,7 @@ def create_indexes_if_needed(client, indexes):
         # Call get index body functions below for each index
         body = getattr(sys.modules[__name__], "_get_%s_index_body" % index)()
         logger.info('Creating "%s" index ...', index)
-        client.indices.create(index, body=body, ignore=400)
+        client.indices.create(index, body=body, ignore=400, include_type_name=True)
         logger.info("Index created.")
 
 
@@ -1212,7 +1212,13 @@ def search_all_results(client, body, index):
     if isinstance(index, list):
         index = ",".join(index)
 
-    results = client.search(body=body, index=index, size=MAX_QUERY_SIZE)
+    results = client.search(
+        body=body,
+        index=index,
+        size=MAX_QUERY_SIZE,
+        rest_total_hits_as_int=True,
+        track_total_hits=True,
+    )
 
     if results["hits"]["total"] > MAX_QUERY_SIZE:
         logger.warning(
@@ -1284,7 +1290,13 @@ def get_file_tags(client, uuid):
     """
     query = {"query": {"term": {"fileuuid": uuid}}}
 
-    results = client.search(body=query, index=TRANSFER_FILES_INDEX, _source="tags")
+    results = client.search(
+        body=query,
+        index=TRANSFER_FILES_INDEX,
+        _source="tags",
+        rest_total_hits_as_int=True,
+        track_total_hits=True,
+    )
 
     count = results["hits"]["total"]
     if count == 0:
