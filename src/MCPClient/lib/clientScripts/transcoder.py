@@ -69,7 +69,7 @@ class Command(object):
             )
 
     def __str__(self):
-        return u"[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
+        return "[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
             self.fpcommand,
             self.command,
             self.verification_command,

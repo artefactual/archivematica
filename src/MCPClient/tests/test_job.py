@@ -17,7 +17,7 @@ def test_job_encoding():
 
     job.pyprint(UNICODE)
     stdout = job.get_stdout()
-    expected_stdout = u"{}\n".format(UNICODE)
+    expected_stdout = "{}\n".format(UNICODE)
     expected_output = six.ensure_binary(UNICODE + "\n")
     assert job.output == expected_output
     assert stdout == expected_stdout
@@ -26,7 +26,7 @@ def test_job_encoding():
 
     job.print_error(NON_ASCII_BYTES)
     stderr = job.get_stderr()
-    expected_stderr = u"{}\n".format(NON_ASCII_BYTES.decode("utf-8"))
+    expected_stderr = "{}\n".format(NON_ASCII_BYTES.decode("utf-8"))
     expected_error = NON_ASCII_BYTES + b"\n"
     assert job.error == expected_error
     assert stderr == expected_stderr

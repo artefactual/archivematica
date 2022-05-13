@@ -5,7 +5,7 @@ from django.db import migrations
 
 
 def data_migration(apps, schema_editor):
-    """ Create rules for Apple ProRes. """
+    """Create rules for Apple ProRes."""
 
     FPRule = apps.get_model("fpr", "FPRule")
 

@@ -9,9 +9,9 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'FPRule'
         db.create_table(
-            u"fpr_fprule",
+            "fpr_fprule",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "replaces",
                     self.gf("django.db.models.fields.related.ForeignKey")(
@@ -64,13 +64,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FPRule"])
+        db.send_create_signal("fpr", ["FPRule"])
 
         # Adding model 'FPTool'
         db.create_table(
-            u"fpr_fptool",
+            "fpr_fptool",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "uuid",
                     self.gf("django.db.models.fields.CharField")(
@@ -97,13 +97,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FPTool"])
+        db.send_create_signal("fpr", ["FPTool"])
 
         # Adding model 'FormatVersion'
         db.create_table(
-            u"fpr_formatversion",
+            "fpr_formatversion",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "replaces",
                     self.gf("django.db.models.fields.related.ForeignKey")(
@@ -174,13 +174,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FormatVersion"])
+        db.send_create_signal("fpr", ["FormatVersion"])
 
         # Adding model 'IDRule'
         db.create_table(
-            u"fpr_idrule",
+            "fpr_idrule",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "replaces",
                     self.gf("django.db.models.fields.related.ForeignKey")(
@@ -218,13 +218,13 @@ class Migration(SchemaMigration):
                 ("command_output", self.gf("django.db.models.fields.TextField")()),
             ),
         )
-        db.send_create_signal(u"fpr", ["IDRule"])
+        db.send_create_signal("fpr", ["IDRule"])
 
         # Adding model 'IDTool'
         db.create_table(
-            u"fpr_idtool",
+            "fpr_idtool",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "uuid",
                     self.gf("django.db.models.fields.CharField")(
@@ -251,13 +251,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["IDTool"])
+        db.send_create_signal("fpr", ["IDTool"])
 
         # Adding model 'IDCommand'
         db.create_table(
-            u"fpr_idcommand",
+            "fpr_idcommand",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "replaces",
                     self.gf("django.db.models.fields.related.ForeignKey")(
@@ -298,13 +298,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["IDCommand"])
+        db.send_create_signal("fpr", ["IDCommand"])
 
         # Adding model 'FormatGroup'
         db.create_table(
-            u"fpr_formatgroup",
+            "fpr_formatgroup",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "uuid",
                     self.gf("django.db.models.fields.CharField")(
@@ -323,13 +323,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FormatGroup"])
+        db.send_create_signal("fpr", ["FormatGroup"])
 
         # Adding model 'Format'
         db.create_table(
-            u"fpr_format",
+            "fpr_format",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "uuid",
                     self.gf("django.db.models.fields.CharField")(
@@ -354,13 +354,13 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["Format"])
+        db.send_create_signal("fpr", ["Format"])
 
         # Adding model 'FPCommand'
         db.create_table(
-            u"fpr_fpcommand",
+            "fpr_fpcommand",
             (
-                (u"id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
+                ("id", self.gf("django.db.models.fields.AutoField")(primary_key=True)),
                 (
                     "replaces",
                     self.gf("django.db.models.fields.related.ForeignKey")(
@@ -437,11 +437,11 @@ class Migration(SchemaMigration):
                 ),
             ),
         )
-        db.send_create_signal(u"fpr", ["FPCommand"])
+        db.send_create_signal("fpr", ["FPCommand"])
 
         # Adding field 'FileID.format'
         db.add_column(
-            u"FileID",
+            "FileID",
             "format",
             self.gf("django.db.models.fields.related.ForeignKey")(
                 to=orm["fpr.FormatVersion"], to_field="uuid", null=True
@@ -451,7 +451,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'FileIDsBySingleID.replaces'
         db.alter_column(
-            u"FileIDsBySingleID",
+            "FileIDsBySingleID",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=36, null=True, db_column="replaces"
@@ -460,7 +460,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'CommandClassification.replaces'
         db.alter_column(
-            u"CommandClassification",
+            "CommandClassification",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=36, null=True, db_column="replaces"
@@ -469,7 +469,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'FileIDType.replaces'
         db.alter_column(
-            u"FileIDType",
+            "FileIDType",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=36, null=True, db_column="replaces"
@@ -478,7 +478,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'CommandType.replaces'
         db.alter_column(
-            u"CommandType",
+            "CommandType",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=36, null=True, db_column="replaces"
@@ -487,38 +487,38 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         # Deleting model 'FPRule'
-        db.delete_table(u"fpr_fprule")
+        db.delete_table("fpr_fprule")
 
         # Deleting model 'FPTool'
-        db.delete_table(u"fpr_fptool")
+        db.delete_table("fpr_fptool")
 
         # Deleting model 'FormatVersion'
-        db.delete_table(u"fpr_formatversion")
+        db.delete_table("fpr_formatversion")
 
         # Deleting model 'IDRule'
-        db.delete_table(u"fpr_idrule")
+        db.delete_table("fpr_idrule")
 
         # Deleting model 'IDTool'
-        db.delete_table(u"fpr_idtool")
+        db.delete_table("fpr_idtool")
 
         # Deleting model 'IDCommand'
-        db.delete_table(u"fpr_idcommand")
+        db.delete_table("fpr_idcommand")
 
         # Deleting model 'FormatGroup'
-        db.delete_table(u"fpr_formatgroup")
+        db.delete_table("fpr_formatgroup")
 
         # Deleting model 'Format'
-        db.delete_table(u"fpr_format")
+        db.delete_table("fpr_format")
 
         # Deleting model 'FPCommand'
-        db.delete_table(u"fpr_fpcommand")
+        db.delete_table("fpr_fpcommand")
 
         # Deleting field 'FileID.format'
-        db.delete_column(u"FileID", "format_id")
+        db.delete_column("FileID", "format_id")
 
         # Changing field 'FileIDsBySingleID.replaces'
         db.alter_column(
-            u"FileIDsBySingleID",
+            "FileIDsBySingleID",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=50, null=True, db_column="replaces"
@@ -527,7 +527,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'CommandClassification.replaces'
         db.alter_column(
-            u"CommandClassification",
+            "CommandClassification",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=50, null=True, db_column="replaces"
@@ -536,7 +536,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'FileIDType.replaces'
         db.alter_column(
-            u"FileIDType",
+            "FileIDType",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=50, null=True, db_column="replaces"
@@ -545,7 +545,7 @@ class Migration(SchemaMigration):
 
         # Changing field 'CommandType.replaces'
         db.alter_column(
-            u"CommandType",
+            "CommandType",
             "replaces",
             self.gf("django.db.models.fields.CharField")(
                 max_length=50, null=True, db_column="replaces"
@@ -553,7 +553,7 @@ class Migration(SchemaMigration):
         )
 
     models = {
-        u"fpr.agent": {
+        "fpr.agent": {
             "Meta": {"object_name": "Agent", "db_table": "u'Agent'"},
             "agentIdentifierType": (
                 "django.db.models.fields.CharField",
@@ -586,7 +586,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'uuid'"},
             ),
         },
-        u"fpr.command": {
+        "fpr.command": {
             "Meta": {"object_name": "Command", "db_table": "u'Command'"},
             "command": (
                 "django.db.models.fields.TextField",
@@ -654,7 +654,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "null": "True"},
             ),
         },
-        u"fpr.commandclassification": {
+        "fpr.commandclassification": {
             "Meta": {
                 "object_name": "CommandClassification",
                 "db_table": "u'CommandClassification'",
@@ -685,7 +685,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandrelationship": {
+        "fpr.commandrelationship": {
             "Meta": {
                 "object_name": "CommandRelationship",
                 "db_table": "u'CommandRelationship'",
@@ -726,7 +726,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandssupportedby": {
+        "fpr.commandssupportedby": {
             "Meta": {
                 "object_name": "CommandsSupportedBy",
                 "db_table": "u'CommandsSupportedBy'",
@@ -757,7 +757,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.commandtype": {
+        "fpr.commandtype": {
             "Meta": {"object_name": "CommandType", "db_table": "u'CommandType'"},
             "enabled": (
                 "django.db.models.fields.IntegerField",
@@ -781,7 +781,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.fileid": {
+        "fpr.fileid": {
             "Meta": {"object_name": "FileID", "db_table": "u'FileID'"},
             "description": (
                 "django.db.models.fields.TextField",
@@ -802,7 +802,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.FormatVersion']",
+                    "to": "orm['fpr.FormatVersion']",
                     "to_field": "'uuid'",
                     "null": "True",
                 },
@@ -837,7 +837,7 @@ class Migration(SchemaMigration):
                 },
             ),
         },
-        u"fpr.fileidsbysingleid": {
+        "fpr.fileidsbysingleid": {
             "Meta": {
                 "object_name": "FileIDsBySingleID",
                 "db_table": "u'FileIDsBySingleID'",
@@ -875,7 +875,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.fileidtype": {
+        "fpr.fileidtype": {
             "Meta": {"object_name": "FileIDType", "db_table": "u'FileIDType'"},
             "description": (
                 "django.db.models.fields.TextField",
@@ -903,7 +903,7 @@ class Migration(SchemaMigration):
                 {"max_length": "36", "primary_key": "True", "db_column": "'pk'"},
             ),
         },
-        u"fpr.format": {
+        "fpr.format": {
             "Meta": {"ordering": "['group', 'description']", "object_name": "Format"},
             "description": (
                 "django.db.models.fields.CharField",
@@ -913,9 +913,9 @@ class Migration(SchemaMigration):
             "group": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.FormatGroup']", "to_field": "'uuid'", "null": "True"},
+                {"to": "orm['fpr.FormatGroup']", "to_field": "'uuid'", "null": "True"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "slug": (
                 "autoslug.fields.AutoSlugField",
                 [],
@@ -931,14 +931,14 @@ class Migration(SchemaMigration):
                 {"unique": "True", "max_length": "36", "blank": "True"},
             ),
         },
-        u"fpr.formatgroup": {
+        "fpr.formatgroup": {
             "Meta": {"ordering": "['description']", "object_name": "FormatGroup"},
             "description": (
                 "django.db.models.fields.CharField",
                 [],
                 {"max_length": "128"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "slug": (
                 "autoslug.fields.AutoSlugField",
                 [],
@@ -954,7 +954,7 @@ class Migration(SchemaMigration):
                 {"unique": "True", "max_length": "36", "blank": "True"},
             ),
         },
-        u"fpr.formatversion": {
+        "fpr.formatversion": {
             "Meta": {
                 "ordering": "['format', 'description']",
                 "object_name": "FormatVersion",
@@ -981,10 +981,10 @@ class Migration(SchemaMigration):
                     "related_name": "'version_set'",
                     "to_field": "'uuid'",
                     "null": "True",
-                    "to": u"orm['fpr.Format']",
+                    "to": "orm['fpr.Format']",
                 },
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "lastmodified": (
                 "django.db.models.fields.DateTimeField",
                 [],
@@ -1004,7 +1004,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.FormatVersion']",
+                    "to": "orm['fpr.FormatVersion']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1030,7 +1030,7 @@ class Migration(SchemaMigration):
                 {"max_length": "10", "null": "True", "blank": "True"},
             ),
         },
-        u"fpr.fpcommand": {
+        "fpr.fpcommand": {
             "Meta": {"ordering": "['description']", "object_name": "FPCommand"},
             "command": ("django.db.models.fields.TextField", [], {}),
             "command_usage": (
@@ -1056,10 +1056,10 @@ class Migration(SchemaMigration):
                     "related_name": "'+'",
                     "to_field": "'uuid'",
                     "null": "True",
-                    "to": u"orm['fpr.FPCommand']",
+                    "to": "orm['fpr.FPCommand']",
                 },
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "lastmodified": (
                 "django.db.models.fields.DateTimeField",
                 [],
@@ -1069,7 +1069,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.FormatVersion']",
+                    "to": "orm['fpr.FormatVersion']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1084,7 +1084,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.FPCommand']",
+                    "to": "orm['fpr.FPCommand']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1098,7 +1098,7 @@ class Migration(SchemaMigration):
             "tool": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.FPTool']", "to_field": "'uuid'", "null": "True"},
+                {"to": "orm['fpr.FPTool']", "to_field": "'uuid'", "null": "True"},
             ),
             "uuid": (
                 "django.db.models.fields.CharField",
@@ -1113,16 +1113,16 @@ class Migration(SchemaMigration):
                     "related_name": "'+'",
                     "to_field": "'uuid'",
                     "null": "True",
-                    "to": u"orm['fpr.FPCommand']",
+                    "to": "orm['fpr.FPCommand']",
                 },
             ),
         },
-        u"fpr.fprule": {
+        "fpr.fprule": {
             "Meta": {"object_name": "FPRule"},
             "command": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.FPCommand']", "to_field": "'uuid'"},
+                {"to": "orm['fpr.FPCommand']", "to_field": "'uuid'"},
             ),
             "count_attempts": (
                 "django.db.models.fields.IntegerField",
@@ -1147,9 +1147,9 @@ class Migration(SchemaMigration):
             "format": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.FormatVersion']", "to_field": "'uuid'"},
+                {"to": "orm['fpr.FormatVersion']", "to_field": "'uuid'"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "lastmodified": (
                 "django.db.models.fields.DateTimeField",
                 [],
@@ -1160,7 +1160,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.FPRule']",
+                    "to": "orm['fpr.FPRule']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1172,7 +1172,7 @@ class Migration(SchemaMigration):
                 {"unique": "True", "max_length": "36", "blank": "True"},
             ),
         },
-        u"fpr.fptool": {
+        "fpr.fptool": {
             "Meta": {"object_name": "FPTool"},
             "description": (
                 "django.db.models.fields.CharField",
@@ -1184,7 +1184,7 @@ class Migration(SchemaMigration):
                 [],
                 {"default": "True"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "slug": (
                 "autoslug.fields.AutoSlugField",
                 [],
@@ -1197,7 +1197,7 @@ class Migration(SchemaMigration):
             ),
             "version": ("django.db.models.fields.CharField", [], {"max_length": "64"}),
         },
-        u"fpr.idcommand": {
+        "fpr.idcommand": {
             "Meta": {"ordering": "['description']", "object_name": "IDCommand"},
             "config": ("django.db.models.fields.CharField", [], {"max_length": "4"}),
             "description": (
@@ -1210,7 +1210,7 @@ class Migration(SchemaMigration):
                 [],
                 {"default": "True"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "lastmodified": (
                 "django.db.models.fields.DateTimeField",
                 [],
@@ -1220,7 +1220,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.IDCommand']",
+                    "to": "orm['fpr.IDCommand']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1236,7 +1236,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.IDTool']",
+                    "to": "orm['fpr.IDTool']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1248,12 +1248,12 @@ class Migration(SchemaMigration):
                 {"unique": "True", "max_length": "36", "blank": "True"},
             ),
         },
-        u"fpr.idrule": {
+        "fpr.idrule": {
             "Meta": {"object_name": "IDRule"},
             "command": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.IDCommand']", "to_field": "'uuid'"},
+                {"to": "orm['fpr.IDCommand']", "to_field": "'uuid'"},
             ),
             "command_output": ("django.db.models.fields.TextField", [], {}),
             "enabled": (
@@ -1264,9 +1264,9 @@ class Migration(SchemaMigration):
             "format": (
                 "django.db.models.fields.related.ForeignKey",
                 [],
-                {"to": u"orm['fpr.FormatVersion']", "to_field": "'uuid'"},
+                {"to": "orm['fpr.FormatVersion']", "to_field": "'uuid'"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "lastmodified": (
                 "django.db.models.fields.DateTimeField",
                 [],
@@ -1276,7 +1276,7 @@ class Migration(SchemaMigration):
                 "django.db.models.fields.related.ForeignKey",
                 [],
                 {
-                    "to": u"orm['fpr.IDRule']",
+                    "to": "orm['fpr.IDRule']",
                     "to_field": "'uuid'",
                     "null": "True",
                     "blank": "True",
@@ -1288,7 +1288,7 @@ class Migration(SchemaMigration):
                 {"unique": "True", "max_length": "36", "blank": "True"},
             ),
         },
-        u"fpr.idtool": {
+        "fpr.idtool": {
             "Meta": {"object_name": "IDTool"},
             "description": (
                 "django.db.models.fields.CharField",
@@ -1300,7 +1300,7 @@ class Migration(SchemaMigration):
                 [],
                 {"default": "True"},
             ),
-            u"id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
+            "id": ("django.db.models.fields.AutoField", [], {"primary_key": "True"}),
             "slug": (
                 "autoslug.fields.AutoSlugField",
                 [],

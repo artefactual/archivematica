@@ -6,7 +6,7 @@ import os
 from django.conf import settings as django_settings
 
 
-DEFAULT_PROCESSING_CONFIG = u"""<processingMCP>
+DEFAULT_PROCESSING_CONFIG = """<processingMCP>
   <preconfiguredChoices>
     <!-- Select compression level -->
     <preconfiguredChoice>

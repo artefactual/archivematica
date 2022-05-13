@@ -1,7 +1,9 @@
 ARG TARGET=archivematica-mcp-server
+ARG UBUNTU_VERSION=18.04
 
-FROM ubuntu:18.04 AS base
+FROM ubuntu:${UBUNTU_VERSION} AS base
 
+ARG UBUNTU_CODE=bionic
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
@@ -31,12 +33,13 @@ COPY src/MCPClient/osdeps /src/src/MCPClient/osdeps
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
 	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.13.x/ubuntu-externals bionic main" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ ${UBUNTU_CODE} multiverse" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ ${UBUNTU_CODE}-security universe" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ ${UBUNTU_CODE}-updates multiverse" \
+	&& add-apt-repository --no-update --yes "ppa:deadsnakes/ppa" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		build-essential python3-dev libyaml-dev clamav \
+		build-essential python3.7-dev python3.7-distutils libyaml-dev clamav \
 	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -45,8 +48,8 @@ RUN freshclam --quiet
 
 # Install pip, Node.js and Yarn
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/pip/3.6/get-pip.py | python3.6 \
-	&& update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
+	&& curl -s https://bootstrap.pypa.io/get-pip.py | python3.7 \
+	&& update-alternatives --install /usr/bin/python python /usr/bin/python3.7 10 \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
 	&& apt-get install -y --no-install-recommends \
@@ -62,7 +65,7 @@ RUN set -ex \
 	&& chown -R archivematica:archivematica /var/archivematica
 
 COPY requirements-dev.txt /src/requirements-dev.txt
-RUN pip3 install -r /src/requirements-dev.txt
+RUN pip3.7 install -r /src/requirements-dev.txt
 
 COPY . /src
 

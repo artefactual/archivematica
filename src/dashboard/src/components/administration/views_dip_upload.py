@@ -17,7 +17,7 @@ _ATOM_DICTNAME = "upload-qubit_v0.0"
 
 
 def admin_as(request):
-    """ View to configure ArchivesSpace DIP upload. """
+    """View to configure ArchivesSpace DIP upload."""
     if request.method == "POST":
         form = ArchivesSpaceConfigForm(request.POST)
         if form.is_valid():
@@ -31,7 +31,7 @@ def admin_as(request):
 
 
 def admin_atom(request):
-    """ View to configure AtoM DIP upload. """
+    """View to configure AtoM DIP upload."""
     if request.method == "POST":
         form = AtomConfigForm(request.POST)
         if form.is_valid():

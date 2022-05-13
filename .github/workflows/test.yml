@@ -6,31 +6,75 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
+      - "dev/py37"
 jobs:
   test:
-    name: "Test ${{ matrix.rule }}"
+    name: "Test ${{ matrix.rule }} on ${{ matrix.ubuntu_version }}"
     runs-on: "ubuntu-18.04"
     strategy:
+      fail-fast: false
       matrix:
         include:
           - rule: mcp-server
             coverage: true
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: mcp-server
+          #   coverage: true
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
           - rule: mcp-client
             coverage: true
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: mcp-client
+          #   coverage: true
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
           - rule: dashboard
             coverage: true
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: dashboard
+          #   coverage: true
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
           - rule: archivematica-common
             coverage: true
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: archivematica-common
+          #   coverage: true
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
           - rule: storage-service
             coverage: false
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: storage-service
+          #   coverage: false
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
           - rule: migrations
             coverage: false
-            python_version: py36
+            python_version: py37
+            ubuntu_version: 18.04
+            ubuntu_code: bionic
+          # - rule: migrations
+          #   coverage: false
+          #   python_version: py37
+          #   ubuntu_version: 22.04
+          #   ubuntu_code: jammy
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v2"
@@ -58,9 +102,10 @@ jobs:
         uses: "actions/cache@v2"
         with:
           path: /tmp/.docker-cache-old
-          key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
+          key: ${{ runner.os }}-docker-${{ matrix.ubuntu_code }}-${{ matrix.rule }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ matrix.ubuntu_code }}-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ matrix.ubuntu_code }}-
             ${{ runner.os }}-docker-
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v2"
@@ -68,6 +113,9 @@ jobs:
           context: .
           file: ./hack/Dockerfile
           target: archivematica-tests
+          build-args: |
+            UBUNTU_VERSION=${{ matrix.ubuntu_version }}
+            UBUNTU_CODE=${{ matrix.ubuntu_code }}
           tags: archivematica-tests:latest
           push: false
           load: true
@@ -83,6 +131,8 @@ jobs:
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv
+          UBUNTU_VERSION: ${{ matrix.ubuntu_version }}
+          UBUNTU_CODE: ${{ matrix.ubuntu_code }}
       - name: "Run make rule with coverage"
         if: "matrix.coverage"
         run: |
@@ -90,6 +140,8 @@ jobs:
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
+          UBUNTU_VERSION: ${{ matrix.ubuntu_version }}
+          UBUNTU_CODE: ${{ matrix.ubuntu_code }}
       - name: "Upload coverage report"
         if: matrix.coverage && github.repository == 'artefactual/archivematica'
         uses: "codecov/codecov-action@v1"
@@ -98,7 +150,7 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           name: ${{ matrix.rule }}
-          flags: ${{ matrix.python_version }}
+          flags: ${{ matrix.python_version }},${{ matrix.ubuntu_version}}
       - name: "Set newest docker cache"
         run: |
           rm -rf /tmp/.docker-cache-old

@@ -52,7 +52,7 @@ class NameChanger(object):
         + change_names.VERSION
         + '"'
     )
-    EVENT_OUTCOME_DETAIL = u'Original name="{}"; new name="{}"'
+    EVENT_OUTCOME_DETAIL = 'Original name="{}"; new name="{}"'
 
     def __init__(
         self, job, objects_directory, sip_uuid, date, group_type, group_sql, sip_path

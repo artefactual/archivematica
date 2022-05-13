@@ -20,7 +20,7 @@ class TestRightsImportFromCsvBase(TestCase):
     file_2_uuid = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"  # UUID of second file created by files-transfer.json fixture
 
     def get_metadata_applies_to_type_for_file(self):
-        """ Get MetadataAppliesToType instance that allies to files. """
+        """Get MetadataAppliesToType instance that allies to files."""
         return models.MetadataAppliesToType.objects.filter(description="File").first()
 
 
@@ -411,7 +411,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
             THIS_DIR, "fixtures/rights-unicode-filepath.csv"
         )
         parser = rights_from_csv.RightCsvReader(
-            Job("stub", "stub", []), self.transfer_uuid, u"%s" % rights_csv_filepath
+            Job("stub", "stub", []), self.transfer_uuid, "%s" % rights_csv_filepath
         )
         rows_processed = parser.parse()
 

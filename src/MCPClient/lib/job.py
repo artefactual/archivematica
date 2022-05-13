@@ -30,14 +30,14 @@ class Job:
 
     def dump(self):
         return (
-            u"#<%s; exit=%s; code=%s uuid=%s\n"
-            u"=============== STDOUT ===============\n"
-            u"%s"
-            u"\n=============== END STDOUT ===============\n"
-            u"=============== STDERR ===============\n"
-            u"%s"
-            u"\n=============== END STDERR ===============\n"
-            u"\n>"
+            "#<%s; exit=%s; code=%s uuid=%s\n"
+            "=============== STDOUT ===============\n"
+            "%s"
+            "\n=============== END STDOUT ===============\n"
+            "=============== STDERR ===============\n"
+            "%s"
+            "\n=============== END STDERR ===============\n"
+            "\n>"
         ) % (
             self.name,
             self.int_code,

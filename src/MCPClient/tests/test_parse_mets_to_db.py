@@ -16,13 +16,13 @@ from main import models
 
 
 class TestParseDublinCore(TestCase):
-    """ Test parsing SIP-level DublinCore from a METS file into the DB. """
+    """Test parsing SIP-level DublinCore from a METS file into the DB."""
 
     fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_none_found(self):
-        """ It should parse no DC if none is found. """
+        """It should parse no DC if none is found."""
         sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_no_metadata.xml"))
         dc = parse_mets_to_db.parse_dc(Job("stub", "stub", []), sip_uuid, root)
@@ -35,7 +35,7 @@ class TestParseDublinCore(TestCase):
         )
 
     def test_no_sip_dc(self):
-        """ It should ignore file-level DC. """
+        """It should ignore file-level DC."""
         sip_uuid = "f35d2530-45eb-4eb1-aa09-fb30661e7dcd"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_only_file_dc.xml"))
         dc = parse_mets_to_db.parse_dc(Job("stub", "stub", []), sip_uuid, root)
@@ -48,7 +48,7 @@ class TestParseDublinCore(TestCase):
         )
 
     def test_only_original(self):
-        """ It should parse a SIP-level DC if found. """
+        """It should parse a SIP-level DC if found."""
         sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_sip_dc.xml"))
         dc = parse_mets_to_db.parse_dc(Job("stub", "stub", []), sip_uuid, root)
@@ -73,7 +73,7 @@ class TestParseDublinCore(TestCase):
         assert dc.is_part_of == "AIC#43"
 
     def test_get_sip_dc_ignore_file_dc(self):
-        """ It should parse a SIP-level DC even if file-level DC is also present. """
+        """It should parse a SIP-level DC even if file-level DC is also present."""
         sip_uuid = "55972e97-8d35-4b07-abaa-ae260c32d261"
         root = etree.parse(
             os.path.join(THIS_DIR, "fixtures", "mets_sip_and_file_dc.xml")
@@ -100,7 +100,7 @@ class TestParseDublinCore(TestCase):
         assert dc.is_part_of == "AIC#43"
 
     def test_multiple_sip_dc(self):
-        """ It should parse the most recent SIP DC if multiple exist. """
+        """It should parse the most recent SIP DC if multiple exist."""
         sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
         root = etree.parse(
             os.path.join(THIS_DIR, "fixtures", "mets_multiple_sip_dc.xml")
@@ -128,13 +128,13 @@ class TestParseDublinCore(TestCase):
 
 
 class TestParsePremisRights(TestCase):
-    """ Test parsing PREMIS:RIGHTS from a METS file into the DB. """
+    """Test parsing PREMIS:RIGHTS from a METS file into the DB."""
 
     fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_none_found(self):
-        """ It should parse no rights if none found. """
+        """It should parse no rights if none found."""
         sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_no_metadata.xml"))
         rights = parse_mets_to_db.parse_rights(Job("stub", "stub", []), sip_uuid, root)
@@ -208,7 +208,7 @@ class TestParsePremisRights(TestCase):
         assert rgrestriction.restriction == "Allow"
 
     def test_parse_license(self):
-        """ It should parse license rights. """
+        """It should parse license rights."""
         sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
         rights_list = parse_mets_to_db.parse_rights(
@@ -249,7 +249,7 @@ class TestParsePremisRights(TestCase):
         assert rgrestriction.restriction == "Allow"
 
     def test_parse_statute(self):
-        """ It should parse statute rights. """
+        """It should parse statute rights."""
         sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
         rights_list = parse_mets_to_db.parse_rights(
@@ -296,7 +296,7 @@ class TestParsePremisRights(TestCase):
         assert rgrestriction.restriction == "Disallow"
 
     def test_parse_policy(self):
-        """ It should parse policy rights. """
+        """It should parse policy rights."""
         pass
         sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
@@ -342,7 +342,7 @@ class TestParsePremisRights(TestCase):
         assert rgrestriction.restriction == "Conditional"
 
     def test_parse_donor(self):
-        """ It should parse donor rights. """
+        """It should parse donor rights."""
         pass
         sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
         root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
@@ -388,7 +388,7 @@ class TestParsePremisRights(TestCase):
         assert rgrestriction.restriction == "Conditional"
 
     def test_parse_multiple_rights(self):
-        """ It should only parse the most recent rights. """
+        """It should only parse the most recent rights."""
         sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
         root = etree.parse(
             os.path.join(THIS_DIR, "fixtures", "mets_updated_rights.xml")
@@ -441,7 +441,7 @@ class TestParsePremisRights(TestCase):
 
 
 class TestParseFiles(TestCase):
-    """ Test parsing file information from a METS file to the DB. """
+    """Test parsing file information from a METS file to the DB."""
 
     fixture_files = ["formats.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
@@ -576,7 +576,7 @@ class TestParseFiles(TestCase):
         assert pres["derivation_event"] == self.PRES_INFO["derivation_event"]
 
     def test_insert_file_info(self):
-        """ It should insert file info into the DB. """
+        """It should insert file info into the DB."""
         files = [self.METS_INFO, self.PRES_INFO, self.ORIG_INFO]
         parse_mets_to_db.update_files(self.SIP_UUID, files)
         # Verify original file

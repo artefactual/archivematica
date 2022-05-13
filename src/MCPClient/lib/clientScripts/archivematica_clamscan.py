@@ -254,7 +254,7 @@ def queue_event(file_uuid, date, scanner, passed, queue):
 
 
 def get_parser():
-    """ Return a ``Namespace`` with the parsed arguments. """
+    """Return a ``Namespace`` with the parsed arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("file_uuid", metavar="fileUUID")
     parser.add_argument("path", metavar="PATH", help="File or directory location")

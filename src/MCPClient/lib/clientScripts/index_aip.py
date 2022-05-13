@@ -43,7 +43,7 @@ def get_identifiers(job, sip_path):
 
 
 def index_aip(job):
-    """Write AIP information to ElasticSearch. """
+    """Write AIP information to ElasticSearch."""
     sip_uuid = job.args[1]  # %SIPUUID%
     sip_name = job.args[2]  # %SIPName%
     sip_staging_path = job.args[3]  # %SIPDirectory%

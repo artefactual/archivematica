@@ -492,7 +492,7 @@ def extract_file_url(file_uuid, relative_path):
 
 
 def extract_file(uuid, relative_path, save_path):
-    """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
+    """Fetches `relative_path` from package with `uuid` and saves to `save_path`."""
     url = _storage_service_url() + "file/" + uuid + "/extract_file/"
     params = {"relative_path_to_file": relative_path}
     with ss_api_timer(function="extract_file"):
@@ -547,7 +547,7 @@ def request_reingest(package_uuid, reingest_type, processing_config):
 
 
 def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
-    """ Returns the server response. """
+    """Returns the server response."""
 
     api_request = {
         "event_reason": reason_for_deletion,

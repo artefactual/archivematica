@@ -279,25 +279,25 @@ class TestSIPArrange(TestCase):
                 assert response_dict["sip_uuid"] == sip_uuid
 
                 create_arranged_sip_mock.assert_called_once_with(
-                    u"staging/newsip/",
+                    "staging/newsip/",
                     [
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg",
-                            "destination": u"staging/newsip/objects/evelyn_s_photo.jpg",
-                            "uuid": u"4fa8f739-b633-4c0f-8833-d108a4f4e88d",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg",
+                            "destination": "staging/newsip/objects/evelyn_s_photo.jpg",
+                            "uuid": "4fa8f739-b633-4c0f-8833-d108a4f4e88d",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
-                            "destination": u"staging/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
-                            "uuid": u"7f889d5d-7849-490e-a8e6-ccb9595445d7",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "destination": "staging/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg",
+                            "uuid": "7f889d5d-7849-490e-a8e6-ccb9595445d7",
                         },
                     ],
                     sip_uuid,
@@ -310,7 +310,7 @@ class TestSIPArrange(TestCase):
         where files in backlogged transfers such as `data/logs/*` would cause
         the endpoint to fail.
         """
-        sip_uuid = u"a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIP.objects.create(uuid=sip_uuid)
         models.SIPArrange.objects.all().delete()
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
@@ -355,29 +355,29 @@ class TestSIPArrange(TestCase):
                 assert response_dict["sip_uuid"] == sip_uuid
 
                 create_arranged_sip_mock.assert_called_once_with(
-                    u"staging/testsip/",
+                    "staging/testsip/",
                     [
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
-                            "destination": u"staging/testsip/data/objects/MARBLES.TGA",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+                            "destination": "staging/testsip/data/objects/MARBLES.TGA",
                             "uuid": None,
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/logs/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/.",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/.",
                             "destination": "tmp/transfer-a29e7e86-eca9-43b6-b059-6f23a9802dc8/metadata/.",
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
-                            "destination": u"staging/testsip/data/logs/BagIt/bagit.txt",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+                            "destination": "staging/testsip/data/logs/BagIt/bagit.txt",
                             "uuid": None,
                         },
                         {
-                            "source": u"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
-                            "destination": u"staging/testsip/data/metadata/manifest-md5.txt",
+                            "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+                            "destination": "staging/testsip/data/metadata/manifest-md5.txt",
                             "uuid": None,
                         },
                     ],
@@ -450,7 +450,7 @@ class TestSIPArrange(TestCase):
         where files in backlogged transfers such as `data/logs/*` would cause
         the endpoint to fail.
         """
-        sip_uuid = u"a29e7e86-eca9-43b6-b059-6f23a9802dc8"
+        sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIPArrange.objects.all().delete()
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
         models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/")

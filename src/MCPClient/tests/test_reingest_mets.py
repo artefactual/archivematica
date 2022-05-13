@@ -30,7 +30,7 @@ REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
 
 
 class TestUpdateObject(TestCase):
-    """ Test updating the PREMIS:OBJECT in the techMD. (update_object). """
+    """Test updating the PREMIS:OBJECT in the techMD. (update_object)."""
 
     fixture_files = ["sip-reingest.json", "files.json", "events-reingest.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
@@ -46,7 +46,7 @@ class TestUpdateObject(TestCase):
             raise
 
     def test_object_not_updated(self):
-        """ It should do nothing if the object has not been updated. """
+        """It should do nothing if the object has not been updated."""
         # Verify METS state
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -77,7 +77,7 @@ class TestUpdateObject(TestCase):
         )
 
     def test_update_checksum_type(self):
-        """ It should add a new techMD with the new checksum & checksumtype. """
+        """It should add a new techMD with the new checksum & checksumtype."""
         # Set checksumtype values
         self.load_fixture([os.path.join(FIXTURES_DIR, "reingest-checksum.json")])
         models.File.objects.filter(uuid="ae8d4290-fe52-4954-b72a-0f591bee2e2f").update(
@@ -156,7 +156,7 @@ class TestUpdateObject(TestCase):
         )
 
     def test_update_file_id(self):
-        """ It should add a new techMD with the new file ID. """
+        """It should add a new techMD with the new file ID."""
         # Load fixture
         self.load_fixture([os.path.join(FIXTURES_DIR, "reingest-file-id.json")])
         # Verify METS state
@@ -236,7 +236,7 @@ class TestUpdateObject(TestCase):
         )
 
     def test_update_characterization(self):
-        """ It should add a new techMD with the new characterization. """
+        """It should add a new techMD with the new characterization."""
         # Load fixture
         self.load_fixture(
             [
@@ -319,7 +319,7 @@ class TestUpdateObject(TestCase):
         )
 
     def test_update_preservation_derivative(self):
-        """ It should add a new techMD with the new relationship. """
+        """It should add a new techMD with the new relationship."""
         # Load fixture
         self.load_fixture([os.path.join(FIXTURES_DIR, "reingest-preservation.json")])
         # Verify METS state
@@ -555,7 +555,7 @@ class TestUpdateObject(TestCase):
 
 
 class TestUpdateDublinCore(TestCase):
-    """ Test updating SIP-level DublinCore. (update_dublincore) """
+    """Test updating SIP-level DublinCore. (update_dublincore)"""
 
     fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
@@ -566,7 +566,7 @@ class TestUpdateDublinCore(TestCase):
     sip_uuid_updated = "5d78a2a5-57a6-430f-87b2-b89fb3ccb050"
 
     def test_no_dc(self):
-        """ It should do nothing if there is no DC entry. """
+        """It should do nothing if there is no DC entry."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )
@@ -585,7 +585,7 @@ class TestUpdateDublinCore(TestCase):
         )
 
     def test_dc_not_updated(self):
-        """ It should do nothing if the DC has not been modified. """
+        """It should do nothing if the DC has not been modified."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )
@@ -853,7 +853,7 @@ class TestUpdateDublinCore(TestCase):
         assert dc_elem[11].text == "Public Domain"
 
     def test_delete_dc(self):
-        """ It should create a new dmdSec with no values. """
+        """It should create a new dmdSec with no values."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_multiple_sip_dc.xml")
         )
@@ -887,7 +887,7 @@ class TestUpdateDublinCore(TestCase):
 
 
 class TestUpdateRights(TestCase):
-    """ Test updating PREMIS:RIGHTS. (update_rights and add_rights_elements) """
+    """Test updating PREMIS:RIGHTS. (update_rights and add_rights_elements)"""
 
     fixture_files = ["metadata_applies_to_type.json", "rights.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
@@ -898,7 +898,7 @@ class TestUpdateRights(TestCase):
     sip_uuid_updated = "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0"
 
     def test_no_rights(self):
-        """ It should do nothing if there are no rights entries. """
+        """It should do nothing if there are no rights entries."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )
@@ -911,7 +911,7 @@ class TestUpdateRights(TestCase):
         assert root.find("mets:amdSec/mets:rightsMD", namespaces=NSMAP) is None
 
     def test_rights_not_updated(self):
-        """ It should do nothing if the rights have not been modified. """
+        """It should do nothing if the rights have not been modified."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )
@@ -1111,7 +1111,7 @@ class TestUpdateRights(TestCase):
         assert new_rights.find(".//premis:statuteNote", namespaces=NSMAP).text == "SIN"
 
     def test_delete_rights(self):
-        """ It should mark the original rightsMD as obsolete. """
+        """It should mark the original rightsMD as obsolete."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_all_rights.xml")
         )
@@ -1191,7 +1191,7 @@ class TestUpdateRights(TestCase):
 
 
 class TestAddEvents(TestCase):
-    """ Test adding reingest events to all existing files. (add_events) """
+    """Test adding reingest events to all existing files. (add_events)"""
 
     fixture_files = [
         "sip-reingest.json",
@@ -1468,7 +1468,7 @@ class TestAddEvents(TestCase):
 
 
 class TestAddingNewFiles(TestCase):
-    """ Test adding new metadata files to the structMap & fileSec. (add_new_files) """
+    """Test adding new metadata files to the structMap & fileSec. (add_new_files)"""
 
     fixture_files = [
         "sip-reingest.json",
@@ -1481,7 +1481,7 @@ class TestAddingNewFiles(TestCase):
     sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
     def test_no_new_files(self):
-        """ It should not modify the fileSec or structMap if there are no new files. """
+        """It should not modify the fileSec or structMap if there are no new files."""
         # Make sure directory is empty
         sip_dir = Path(tempfile.mkdtemp()) / "emptysip"
         try:
@@ -1623,7 +1623,7 @@ class TestAddingNewFiles(TestCase):
         )
 
     def test_new_metadata_file_in_subdir(self):
-        """ It should add the new subdirs to the structMap. """
+        """It should add the new subdirs to the structMap."""
         sip_dir = os.path.join(FIXTURES_DIR, "metadata_file_in_subdir_sip", "")
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -1857,7 +1857,7 @@ class TestAddingNewFiles(TestCase):
 
 
 class TestDeleteFiles(TestCase):
-    """ Test marking files in the METS as deleted. (delete_files) """
+    """Test marking files in the METS as deleted. (delete_files)"""
 
     fixture_files = ["sip-reingest.json", "files.json", "events-reingest.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
@@ -1931,7 +1931,7 @@ class TestDeleteFiles(TestCase):
 
 
 class TestUpdateMetadataCSV(TestCase):
-    """ Test adding metadata.csv-based DC metadata. (update_metadata_csv) """
+    """Test adding metadata.csv-based DC metadata. (update_metadata_csv)"""
 
     fixture_files = ["sip-reingest.json", "files.json"]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
@@ -1945,7 +1945,7 @@ class TestUpdateMetadataCSV(TestCase):
         )
 
     def test_new_dmdsecs(self):
-        """ It should add file-level dmdSecs. """
+        """It should add file-level dmdSecs."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )
@@ -1972,7 +1972,7 @@ class TestUpdateMetadataCSV(TestCase):
         )
 
     def test_new_dmdsecs_for_directories(self):
-        """ It should add directory-level dmdSecs. """
+        """It should add directory-level dmdSecs."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_sip_and_file_dc.xml")
         )
@@ -2065,7 +2065,7 @@ class TestUpdateMetadataCSV(TestCase):
         )
 
     def test_non_dublincore_dmdsecs(self):
-        """ It should add file-level dmdSecs for non DC metadata. """
+        """It should add file-level dmdSecs for non DC metadata."""
         mets = metsrw.METSDocument.fromfile(
             os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
         )

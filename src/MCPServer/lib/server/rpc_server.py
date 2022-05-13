@@ -150,7 +150,7 @@ class RPCServer(GearmanWorker):
             config = match.group("config")
         except IndexError:
             raise err
-        parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
+        parser = configparser.RawConfigParser({"name": None, "raise_exc": False})
         parser.readfp(six.StringIO(config))
         name = parser.get("config", "name")
         if name is None:

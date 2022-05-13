@@ -97,6 +97,8 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-server"
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-18.04}
+        UBUNTU_CODE: ${UBUNTU_CODE:-bionic}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -121,6 +123,8 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-client"
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-18.04}
+        UBUNTU_CODE: ${UBUNTU_CODE:-bionic}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -160,6 +164,8 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-dashboard"
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-18.04}
+        UBUNTU_CODE: ${UBUNTU_CODE:-bionic}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -188,6 +194,8 @@ services:
       context: "submodules/archivematica-storage-service"
       args:
         TARGET: "archivematica-storage-service"
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-18.04}
+        UBUNTU_CODE: ${UBUNTU_CODE:-bionic}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"

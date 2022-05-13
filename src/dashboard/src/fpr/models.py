@@ -162,12 +162,12 @@ class Format(models.Model):
         ordering = ["group", "description"]
 
     def __str__(self):
-        return u"{}: {}".format(self.group.description, self.description)
+        return "{}: {}".format(self.group.description, self.description)
 
 
 @python_2_unicode_compatible
 class FormatGroup(models.Model):
-    """ Group/classification for formats.  Eg. image, video, audio. """
+    """Group/classification for formats.  Eg. image, video, audio."""
 
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -180,12 +180,12 @@ class FormatGroup(models.Model):
         ordering = ["description"]
 
     def __str__(self):
-        return u"{}".format(self.description)
+        return "{}".format(self.description)
 
 
 @python_2_unicode_compatible
 class FormatVersion(VersionedModel, models.Model):
-    """ Format that a tool identifies. """
+    """Format that a tool identifies."""
 
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -316,7 +316,7 @@ class IDCommand(VersionedModel, models.Model):
 
 @python_2_unicode_compatible
 class IDRule(VersionedModel, models.Model):
-    """ Mapping between an IDCommand output and a FormatVersion. """
+    """Mapping between an IDCommand output and a FormatVersion."""
 
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -373,7 +373,7 @@ class IDRule(VersionedModel, models.Model):
 
 @python_2_unicode_compatible
 class IDTool(models.Model):
-    """ Tool used to identify formats.  Eg. DROID """
+    """Tool used to identify formats.  Eg. DROID"""
 
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -397,7 +397,7 @@ class IDTool(models.Model):
         return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
-        """ Returns string to be slugified. """
+        """Returns string to be slugified."""
         src = "{} {}".format(self.description, self.version)
         encoded = src.encode("utf-8")[: self._meta.get_field("slug").max_length]
         return encoded.decode("utf-8", "ignore")
@@ -579,12 +579,12 @@ class FPCommand(VersionedModel, models.Model):
         ordering = ["description"]
 
     def __str__(self):
-        return u"{}".format(self.description)
+        return "{}".format(self.description)
 
 
 @python_2_unicode_compatible
 class FPTool(models.Model):
-    """ Tool used to perform normalization.  Eg. convert, ffmpeg, ps2pdf. """
+    """Tool used to perform normalization.  Eg. convert, ffmpeg, ps2pdf."""
 
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -604,7 +604,7 @@ class FPTool(models.Model):
         return _("%(description)s") % {"description": self.description}
 
     def _slug(self):
-        """ Returns string to be slugified. """
+        """Returns string to be slugified."""
         src = "{} {}".format(self.description, self.version)
         encoded = src.encode("utf-8")[: self._meta.get_field("slug").max_length]
         return encoded.decode("utf-8", "ignore")
