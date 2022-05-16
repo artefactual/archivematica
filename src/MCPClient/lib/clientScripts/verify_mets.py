@@ -31,8 +31,17 @@ def call(jobs):
                 return
             if not os.path.isfile(mets_xsd):
                 raise VerifyMETSException
-            xmlschema = etree.XMLSchema(etree.parse(mets_xsd))
+            xmlschema = etree.XMLSchema(
+                etree.parse(  # nosec B320
+                    mets_xsd, etree.XMLParser(resolve_entities=False, no_network=True)
+                )
+            )
             # Raise an exception if not valid, e.g. etree.DocumentInvalid
             # otherwise, the document validates correctly and returns.
-            xmlschema.assertValid(etree.parse(mets_structmap))
+            xmlschema.assertValid(
+                etree.parse(  # nosec B320
+                    mets_structmap,
+                    etree.XMLParser(resolve_entities=False, no_network=True),
+                )
+            )
             job.pyprint("Custom structmap validated correctly")

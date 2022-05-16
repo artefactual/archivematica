@@ -387,7 +387,10 @@ def get_premis_object_characteristics_extension(documents):
         # is UTF-8 encoded.
         # See https://lxml.de/parsing.html#python-unicode-strings
         # This only covers the UTF-8 and ASCII cases.
-        xml_element = etree.fromstring(document.content.encode("utf-8"))
+        xml_element = etree.fromstring(  # nosec B320
+            document.content.encode("utf-8"),
+            etree.XMLParser(resolve_entities=False, no_network=True),
+        )
 
         extensions += (("object_characteristics_extension", xml_element),)
 

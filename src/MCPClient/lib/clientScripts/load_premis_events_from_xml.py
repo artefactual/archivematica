@@ -262,7 +262,12 @@ def get_premis_schema(premis_xsd_path, printfn=print):
         log_missing_xsd(premis_xsd_path, printfn)
         return
     try:
-        return etree.XMLSchema(etree.parse(premis_xsd_path))
+        return etree.XMLSchema(
+            etree.parse(  # nosec B320
+                premis_xsd_path,
+                etree.XMLParser(resolve_entities=False, no_network=True),
+            )
+        )
     except (etree.XMLSyntaxError, etree.XMLSchemaParseError) as exception:
         log_invalid_xsd(premis_xsd_path, exception, printfn)
         return
@@ -274,7 +279,10 @@ def get_validated_etree(premis_events_xml_path, premis_schema, printfn=print):
         log_missing_events_xml(premis_events_xml_path, printfn)
         return
     try:
-        result = etree.parse(premis_events_xml_path)
+        result = etree.parse(  # nosec B320
+            premis_events_xml_path,
+            etree.XMLParser(resolve_entities=False, no_network=True),
+        )
         premis_schema.assertValid(result)
         return result
     except (etree.XMLSyntaxError, etree.DocumentInvalid) as exception:
