@@ -2,14 +2,14 @@
 **
 
 # Include
-!/hack/osdeps.py
-!/src/**
-!/pytest.ini
-!/requirements*
-!/tox.ini
-!/LICENSE
-!/COPYRIGHT
-!/TRADEMARK
+!hack/osdeps.py
+!src/**
+!pytest.ini
+!requirements*
+!tox.ini
+!LICENSE
+!COPYRIGHT
+!TRADEMARK
 
 # Exclude
 src/dashboard/frontend/node_modules
