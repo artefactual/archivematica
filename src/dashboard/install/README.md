@@ -18,20 +18,20 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All
+Archivematica components can be configured using multiple methods. All
 components follow the same pattern:
 
 1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
 1. **Configuration file** - if the parameter is not set by an environment
    variable, the component will look for a setting in its default configuration file.
-1. **Application defaults**  - if the parameter is not set in an environment
+1. **Application defaults** - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
 Logging behaviour is configured differently, and provides two methods:
 
 1. **`logging.json` file** - if a JSON file is present in the default location,
-    the contents of the JSON file will control the components logging behaviour.
+   the contents of the JSON file will control the components logging behaviour.
 1. **Application default** - if no JSON file is present, the default logging
    behaviour is to write to standard streams (standard out and standard error).
 
@@ -65,7 +65,7 @@ The Dashboard will look for a configuration file in one location:
 
 Traditionally, the dbsettings file was used to hold mysql login credentials,
 which are then shared with other Archivematica components like MCPClient.
-Non-database parameters can be set in the dbsets,tings file, to override the
+Non-database parameters can be set in the dbsettings file to override the
 application defaults.
 
 The dashboard is a [WSGI](https://wsgi.readthedocs.io/) application. The
@@ -582,7 +582,7 @@ These variables specify the behaviour of LDAP authentication. Only applicable if
     - **Default:** ``
 
 - **`AUTH_LDAP_TLS_REQUIRE_CERT`**:
-    - **Description:** How strict to be regarding TLS cerfiticate verification. Allowed values are "never",
+    - **Description:** How strict to be regarding TLS certificate verification. Allowed values are "never",
     "allow", "try", "demand", or "hard". Corresponds to the TLSVerifyClient OpenLDAP setting.
     - **Type:** `string`
     - **Default:** ``
