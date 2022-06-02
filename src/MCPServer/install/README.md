@@ -10,20 +10,20 @@
 
 ## Introduction
 
-Archivematica components can be configured using multipe methods.  All
+Archivematica components can be configured using multiple methods. All
 components follow the same pattern:
 
 1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
 1. **Configuration file** - if the parameter is not set by an environment
    variable, the component will look for a setting in its default configuration file.
-1. **Application defaults**  - if the parameter is not set in an environment
+1. **Application defaults** - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
 Logging behaviour is configured differently, and provides two methods:
 
 1. **`logging.json` file** - if a JSON file is present in the default location,
-    the contents of the JSON file will control the components logging behaviour.
+   the contents of the JSON file will control the components logging behaviour.
 1. **Application default** - if no JSON file is present, the default logging
    behaviour is to write to standard streams (standard out and standard error).
 

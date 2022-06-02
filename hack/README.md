@@ -1,4 +1,4 @@
-# Archivematica develoment on Docker Compose
+# Archivematica development on Docker Compose
 
 - [Audience](#audience)
 - [Requirements](#requirements)
@@ -334,7 +334,7 @@ database. If this is case, run the following command:
 
     $ docker-compose up -d --force-recreate --build
 
-Additionally you may want to delete all the deta including the stuff in the
+Additionally you may want to delete all the data including the stuff in the
 external volumes:
 
     $ make flush
@@ -463,7 +463,7 @@ e.g.:
 
 1. Edit `MCPClient-base.Dockerfile`.
 2. Build image with new tag.
-3. Update the `FROM` instruciton in `MCPClient.Dockerfile` to use it.
+3. Update the `FROM` instruction in `MCPClient.Dockerfile` to use it.
 4. Build the image of the `archivematica-mcp-client` service.
 5. Test it.
 6. Publish image.
@@ -506,7 +506,7 @@ The defaults are defined in the `Makefile`:
 
 In the event that `make bootstrap` fails to run while installing, the Bootstrap
 components may need to be installed individually inside the application. This
-error message is more likely if you are attemping to install Archivematica on a
+error message is more likely if you are attempting to install Archivematica on a
 Mac.
 
 First, go into the Makefile and comment out everything in the
