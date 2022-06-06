@@ -29,10 +29,6 @@
       "state": "latest"
     },
     {
-      "name": "fits",
-      "state": "latest"
-    },
-    {
       "name": "gearmand",
       "state": "latest"
     },
@@ -89,11 +85,7 @@
       "state": "latest"
     },
     {
-      "name": "java-1.7.0-openjdk-headless",
-      "state": "latest"
-    },
-    {
-      "name": "openjpeg",
+      "name": "openjpeg2",
       "state": "latest"
     },
     {
@@ -137,10 +129,6 @@
       "state": "latest"
     },
     {
-      "name": "ufraw",
-      "state": "latest"
-    },
-    {
       "name": "uuid",
       "state": "latest"
     }
@@ -148,7 +136,7 @@
   "osdeps_repokeys": [],
   "osdeps_repos": [
     {
-      "baseurl": "https://packages.archivematica.org/1.14.x/centos-extras",
+      "baseurl": "https://packages.archivematica.org/1.14.x/centos8-extras",
       "description": "archivematica extras",
       "enabled": "yes",
       "gpgcheck": "no",

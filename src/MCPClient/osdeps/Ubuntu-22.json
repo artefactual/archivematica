@@ -113,10 +113,6 @@
       "state": "latest"
     },
     {
-      "name": "ufraw",
-      "state": "latest"
-    },
-    {
       "name": "unrar-free",
       "state": "latest"
     },
@@ -137,9 +133,9 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.14.x/ubuntu-externals bionic main",
-    "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse",
-    "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe",
-    "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse"
+    "deb [arch=amd64] http://packages.archivematica.org/1.14.x/ubuntu-externals jammy main",
+    "deb http://archive.ubuntu.com/ubuntu/ jammy multiverse",
+    "deb http://archive.ubuntu.com/ubuntu/ jammy-security universe",
+    "deb http://archive.ubuntu.com/ubuntu/ jammy-updates multiverse"
   ]
 }

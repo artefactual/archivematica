@@ -1,0 +1,14 @@
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component"
+  ],
+  "osdeps_packages": [
+    {
+      "name": "libmysqlclient-dev",
+      "state": "latest"
+    }
+  ],
+  "osdeps_repokeys": [],
+  "osdeps_repos": []
+}
