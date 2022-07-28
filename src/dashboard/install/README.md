@@ -499,6 +499,21 @@ These variables specify the behaviour of LDAP authentication. Only applicable if
     - **Type:** `string`
     - **Default:** ``
 
+- **`AUTH_LDAP_USER_FIRST_NAME_ATTR`**:
+    - **Description:** LDAP attribute for first name.
+    - **Type:** `string`
+    - **Default:** `givenName`
+
+- **`AUTH_LDAP_USER_LAST_NAME_ATTR`**:
+    - **Description:** LDAP attribute for last name.
+    - **Type:** `string`
+    - **Default:** `sn`
+
+- **`AUTH_LDAP_USER_EMAIL_ATTR`**:
+    - **Description:** LDAP attribute for email address.
+    - **Type:** `string`
+    - **Default:** `mail
+
 - **`AUTH_LDAP_GROUP_IS_ACTIVE`**:
     - **Description:** Template for LDAP group used to set the Django user `is_active` flag, e.g.
     "cn=active,ou=django,ou=groups,dc=example,dc=com".

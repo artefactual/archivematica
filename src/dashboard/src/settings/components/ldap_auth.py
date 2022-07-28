@@ -29,9 +29,9 @@ if "AUTH_LDAP_USER_SEARCH_BASE_DN" in environ:
     )
 AUTH_LDAP_USER_DN_TEMPLATE = environ.get("AUTH_LDAP_USER_DN_TEMPLATE", None)
 AUTH_LDAP_USER_ATTR_MAP = {
-    "first_name": "givenName",
-    "last_name": "sn",
-    "email": "mail",
+    "first_name": environ.get("AUTH_LDAP_USER_FIRST_NAME_ATTR", "givenName"),
+    "last_name": environ.get("AUTH_LDAP_USER_LAST_NAME_ATTR", "sn"),
+    "email": environ.get("AUTH_LDAP_USER_EMAIL_ATTR", "mail"),
 }
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {}
