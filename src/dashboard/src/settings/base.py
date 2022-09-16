@@ -66,6 +66,11 @@ CONFIG_MAPPING = {
         "option": "elasticsearch_timeout",
         "type": "float",
     },
+    "elasticsearch_max_query_size": {
+        "section": "Dashboard",
+        "option": "elasticsearch_max_query_size",
+        "type": "int",
+    },
     "search_enabled": {
         "section": "Dashboard",
         "process_function": process_search_enabled,
@@ -180,6 +185,7 @@ shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
 elasticsearch_server = 127.0.0.1:9200
 elasticsearch_timeout = 10
+elasticsearch_max_query_size = 10000
 search_enabled = true
 gearman_server = 127.0.0.1:4730
 password_minimum_length = 8
@@ -546,6 +552,7 @@ SHARED_DIRECTORY = config.get("shared_directory")
 WATCH_DIRECTORY = config.get("watch_directory")
 ELASTICSEARCH_SERVER = config.get("elasticsearch_server")
 ELASTICSEARCH_TIMEOUT = config.get("elasticsearch_timeout")
+ELASTICSEARCH_MAX_QUERY_SIZE = config.get("elasticsearch_max_query_size")
 SEARCH_ENABLED = config.get("search_enabled")
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get("storage_service_client_timeout")
 STORAGE_SERVICE_CLIENT_QUICK_TIMEOUT = config.get(

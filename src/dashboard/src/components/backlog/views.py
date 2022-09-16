@@ -20,6 +20,7 @@ from __future__ import absolute_import
 import json
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponse, Http404
@@ -179,7 +180,12 @@ def search(request):
             # add size parameter in terms to override.
             # TODO: Use composite aggregation when it gets out of beta.
             query["aggs"] = {
-                "transfer_uuid": {"terms": {"field": "sipuuid", "size": "10000"}}
+                "transfer_uuid": {
+                    "terms": {
+                        "field": "sipuuid",
+                        "size": str(settings.ELASTICSEARCH_MAX_QUERY_SIZE),
+                    }
+                }
             }
             hits = es_client.search(
                 index=es.TRANSFER_FILES_INDEX,
