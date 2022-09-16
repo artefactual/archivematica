@@ -333,7 +333,12 @@ def search(request):
             # add size parameter in terms to override.
             # TODO: Use composite aggregation when it gets out of beta.
             query["aggs"] = {
-                "aip_uuids": {"terms": {"field": "AIPUUID", "size": "10000"}}
+                "aip_uuids": {
+                    "terms": {
+                        "field": "AIPUUID",
+                        "size": str(settings.ELASTICSEARCH_MAX_QUERY_SIZE),
+                    }
+                }
             }
             # Don't return results, just the aggregation.
             query["size"] = 0

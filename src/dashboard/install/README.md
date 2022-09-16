@@ -143,6 +143,12 @@ variables or in the gunicorn configuration file.
     - **Type:** `float`
     - **Default:** `10`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_MAX_QUERY_SIZE`**:
+    - **Description:** limits the number of results per query that Elasticseach client can retrieve. Note that when using a value greater than 10000, the `total_fields.limit` and `max_result_window` must be increased in indices (For instance, when using `100000` run on ES server linux CLI: `curl -XPUT 'http://localhost:9200/aips,aipfiles,transfers,transferfiles/_settings' -H "Content-Type: application/json"  -d '{"index.mapping.total_fields.limit": 100000, "index.max_result_window": 100000}'`)
+    - **Config file example:** `Dashboard.elasticsearch_max_query_size`
+    - **Type:** `integer`
+    - **Default:** `10000`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED`**:
     - **Description:** controls what Elasticsearch indexes are enabled:
         - When set to `aips`, the Backlog tab, Appraisal tab, and the SIP Arrange pane in the Ingest tab will not be displayed.
