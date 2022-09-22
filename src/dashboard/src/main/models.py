@@ -874,7 +874,7 @@ class JobQuerySet(models.QuerySet):
         TODO(sevein): why is the name not a property of the unit?
         """
         try:
-            job = self.first()
+            job = self[0]
         # No jobs yet, e.g. not started; there will be no directory name yet.
         except IndexError:
             return _("(Unnamed)")
