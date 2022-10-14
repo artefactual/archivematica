@@ -140,7 +140,7 @@ def verify_checksums(job, bag, sip_uuid):
     checksum_type = get_setting(
         "checksum_type", mcpclient_settings.DEFAULT_CHECKSUM_ALGORITHM
     )
-    removableFiles = [e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")]
+    removableFiles = {e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")}
     try:
         verification_count = 0
         verification_skipped_because_reingest = 0
