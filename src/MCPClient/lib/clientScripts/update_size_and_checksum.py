@@ -64,7 +64,7 @@ def get_file_info_from_mets(job, mets, file_):
             "PREMIS:OBJECT not found for file {} in METS".format(file_.uuid)
         )
         return {}
-    premis_object = fsentry.get_premis_objects()[0]
+
     related_object_uuid = None
     for relationship in premis_object.relationship:
         if relationship.sub_type != "is source of":
@@ -215,12 +215,8 @@ def call(jobs):
     parser.add_argument(
         "-s", "--sipDirectory", action="store", dest="sip_directory", default=""
     )
-    parser.add_argument(
-        "-S", "--sipUUID", type=lambda x: str(uuid.UUID(x)), dest="sip_uuid"
-    )
-    parser.add_argument(
-        "-T", "--transferUUID", type=lambda x: str(uuid.UUID(x)), dest="transfer_uuid"
-    )
+    parser.add_argument("-S", "--sipUUID", type=uuid.UUID, dest="sip_uuid")
+    parser.add_argument("-T", "--transferUUID", type=uuid.UUID, dest="transfer_uuid")
     parser.add_argument("-d", "--date", action="store", dest="date", default="")
     parser.add_argument(
         "--filterSubdir", action="store", dest="filter_subdir", default=None
@@ -228,7 +224,7 @@ def call(jobs):
     parser.add_argument(
         "-u",
         "--eventIdentifierUUID",
-        type=lambda x: str(uuid.UUID(x)),
+        type=uuid.UUID,
         dest="event_uuid",
     )
 

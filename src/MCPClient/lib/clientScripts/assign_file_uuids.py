@@ -240,18 +240,14 @@ def call(jobs):
     parser.add_argument(
         "-u",
         "--eventIdentifierUUID",
-        type=lambda x: str(uuid.UUID(x)),
+        type=uuid.UUID,
         dest="event_uuid",
     )
     parser.add_argument(
         "-s", "--sipDirectory", action="store", dest="sip_directory", default=""
     )
-    parser.add_argument(
-        "-S", "--sipUUID", type=lambda x: str(uuid.UUID(x)), dest="sip_uuid"
-    )
-    parser.add_argument(
-        "-T", "--transferUUID", type=lambda x: str(uuid.UUID(x)), dest="transfer_uuid"
-    )
+    parser.add_argument("-S", "--sipUUID", type=uuid.UUID, dest="sip_uuid")
+    parser.add_argument("-T", "--transferUUID", type=uuid.UUID, dest="transfer_uuid")
     parser.add_argument("-e", "--use", action="store", dest="use", default="original")
     parser.add_argument(
         "--filterSubdir", action="store", dest="filter_subdir", default=None

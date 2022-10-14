@@ -40,7 +40,7 @@ SUCCESS_CODE = 0
 FAIL_CODE = 1
 NOT_DERIVATIVE_CODE = 0
 NO_RULES_CODE = 0
-DERIVATIVE_TYPES = ("preservation", "access")
+DERIVATIVE_TYPES = {"preservation", "access"}
 
 
 def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
@@ -95,11 +95,11 @@ class Validator(object):
         rules = self._get_rules()
         if not rules:
             return NO_RULES_CODE
-        rule_outputs = []
+
         for rule in rules:
-            rule_outputs.append(self._execute_rule_command(rule))
-        if "failed" in rule_outputs:
-            return FAIL_CODE
+            if self._execute_rule_command(rule) == "failed":
+                return FAIL_CODE
+
         return SUCCESS_CODE
 
     def _get_rules(self):

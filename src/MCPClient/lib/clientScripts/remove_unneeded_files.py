@@ -22,7 +22,7 @@ from django.conf import settings as mcpclient_settings
 
 
 def remove_file(job, target_file, file_uuid):
-    removableFiles = [e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")]
+    removableFiles = {e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")}
     basename = os.path.basename(target_file)
     if basename in removableFiles:
         job.print_output(
