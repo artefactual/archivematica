@@ -64,7 +64,7 @@ def get_file_info_from_mets(job, mets, file_):
             "PREMIS:OBJECT not found for file {} in METS".format(file_.uuid)
         )
         return {}
-    premis_object = fsentry.get_premis_objects()[0]
+
     related_object_uuid = None
     for relationship in premis_object.relationship:
         if relationship.sub_type != "is source of":
