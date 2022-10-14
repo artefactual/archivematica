@@ -238,19 +238,16 @@ def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--date", action="store", dest="date", default="")
     parser.add_argument(
-        "-u",
-        "--eventIdentifierUUID",
-        type=lambda x: str(uuid.UUID(x)),
-        dest="event_uuid",
+        "-u", "--eventIdentifierUUID", type=uuid.UUID, dest="event_uuid",
     )
     parser.add_argument(
         "-s", "--sipDirectory", action="store", dest="sip_directory", default=""
     )
     parser.add_argument(
-        "-S", "--sipUUID", type=lambda x: str(uuid.UUID(x)), dest="sip_uuid"
+        "-S", "--sipUUID", type=uuid.UUID, dest="sip_uuid"
     )
     parser.add_argument(
-        "-T", "--transferUUID", type=lambda x: str(uuid.UUID(x)), dest="transfer_uuid"
+        "-T", "--transferUUID", type=uuid.UUID, dest="transfer_uuid"
     )
     parser.add_argument("-e", "--use", action="store", dest="use", default="original")
     parser.add_argument(
