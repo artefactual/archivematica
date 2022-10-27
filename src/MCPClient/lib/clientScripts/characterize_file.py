@@ -39,7 +39,7 @@ def main(job, file_path, file_uuid, sip_uuid):
 
     # Check to see whether the file has already been characterized; don't try
     # to characterize it a second time if so.
-    if FPCommandOutput.objects.filter(file_id=file_uuid).count() > 0:
+    if FPCommandOutput.objects.filter(file_id=file_uuid).exists():
         return 0
 
     try:
