@@ -53,12 +53,9 @@ def get_as_system_client():
 
 
 def _get_reset_view(uuid):
-    if (
-        models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
-            dipuuid=uuid
-        ).count()
-        > 0
-    ):
+    if models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
+        dipuuid=uuid
+    ).exists():
         return "ingest:ingest_upload_as_reset"
 
 
@@ -270,7 +267,7 @@ def ingest_upload_as_match(request, uuid):
         records = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
             **criteria
         )
-        if records.count() < 1:
+        if not records.exists():
             models.ArchivesSpaceDIPObjectResourcePairing.objects.create(
                 dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid
             )

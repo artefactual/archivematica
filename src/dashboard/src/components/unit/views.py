@@ -38,9 +38,7 @@ def detail(request, unit_type, unit_uuid):
     """
     jobs = models.Job.objects.filter(sipuuid=unit_uuid)
     name = jobs.get_directory_name()
-    is_waiting = (
-        jobs.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).count() > 0
-    )
+    is_waiting = jobs.filter(currentstep=models.Job.STATUS_AWAITING_DECISION).exists()
     context = {
         "name": name,
         "is_waiting": is_waiting,

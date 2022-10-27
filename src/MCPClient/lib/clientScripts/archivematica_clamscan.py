@@ -222,10 +222,9 @@ class ClamScanner(ScannerBase):
 
 
 def file_already_scanned(file_uuid):
-    return (
-        0
-        < Event.objects.filter(file_uuid_id=file_uuid, event_type="virus check").count()
-    )
+    return Event.objects.filter(
+        file_uuid_id=file_uuid, event_type="virus check"
+    ).exists()
 
 
 def queue_event(file_uuid, date, scanner, passed, queue):
