@@ -11,7 +11,7 @@ import six
 
 
 def dependent_objects(object_):
-    """ Returns all the objects that rely on 'object_'. """
+    """Returns all the objects that rely on 'object_'."""
     related_objects = [
         f
         for f in object_._meta.get_fields()
@@ -93,7 +93,7 @@ def warn_if_viewing_disabled_revision(request, revision):
 
 
 def get_revision_ancestors(model, uuid, ancestors):
-    """ Get revisions that a given revision has replaced. """
+    """Get revisions that a given revision has replaced."""
     revision = model.objects.get(uuid=uuid)
     if revision.replaces:
         ancestors.append(revision.replaces)
@@ -102,7 +102,7 @@ def get_revision_ancestors(model, uuid, ancestors):
 
 
 def get_revision_descendants(model, uuid, decendants):
-    """ Get revisions that have replaces a given revision. """
+    """Get revisions that have replaces a given revision."""
     revision = model.objects.get(uuid=uuid)
     try:
         descendant = model.objects.get(replaces=revision)
@@ -115,7 +115,7 @@ def get_revision_descendants(model, uuid, decendants):
 
 
 def get_current_revision_using_ancestor(model, ancestor_uuid):
-    """ Get the final (active) revision replacing a given revision. """
+    """Get the final (active) revision replacing a given revision."""
     descendants = get_revision_descendants(model, ancestor_uuid, [])
     descendants.reverse()
     if len(descendants):

@@ -553,7 +553,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             ).split("/", 1)
             transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
-            is_bagit = transfer_parts[1].startswith(u"data/")
+            is_bagit = transfer_parts[1].startswith("data/")
             # Copy metadata & logs to tmp/, where later scripts expect
             for directory in ("logs", "metadata"):
                 source = [DEFAULT_BACKLOG_PATH, transfer_name, directory, "."]

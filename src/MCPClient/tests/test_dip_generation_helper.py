@@ -17,7 +17,7 @@ class TestParseArchivesSpaceIDs(TestCase):
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def test_no_archivesspace_csv(self):
-        """ It should do nothing. """
+        """It should do nothing."""
         sip_path = os.path.join(THIS_DIR, "fixtures", "emptysip", "")
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
         rc = dip_generation_helper.parse_archivesspace_ids(sip_path, self.sip_uuid)
@@ -25,7 +25,7 @@ class TestParseArchivesSpaceIDs(TestCase):
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
 
     def test_empty_csv(self):
-        """ It should do nothing if the CSV is empty. """
+        """It should do nothing if the CSV is empty."""
         sip_path = os.path.join(THIS_DIR, "fixtures", "empty_metadata_files", "")
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
         rc = dip_generation_helper.parse_archivesspace_ids(sip_path, self.sip_uuid)
@@ -34,7 +34,7 @@ class TestParseArchivesSpaceIDs(TestCase):
 
     @vcr.use_cassette(os.path.join(THIS_DIR, "fixtures", "test_no_files_in_db.yaml"))
     def test_no_files_in_db(self):
-        """ It should do nothing if no files are found in the DB. """
+        """It should do nothing if no files are found in the DB."""
         sip_path = os.path.join(THIS_DIR, "fixtures", "metadata_csv_sip", "")
         sip_uuid = "dne"
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False

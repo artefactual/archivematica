@@ -563,7 +563,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
 
 
 class TestCreateDigiprovMD(TestCase):
-    """ Test creating PREMIS:EVENTS and PREMIS:AGENTS """
+    """Test creating PREMIS:EVENTS and PREMIS:AGENTS"""
 
     fixture_files = [
         "metadata_applies_to_type.json",
@@ -716,7 +716,7 @@ class TestCreateDigiprovMD(TestCase):
 
 
 class TestRights(TestCase):
-    """ Test archivematicaCreateMETSRights creating rightsMD. """
+    """Test archivematicaCreateMETSRights creating rightsMD."""
 
     fixture_files = ["rights.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]

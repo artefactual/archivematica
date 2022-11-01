@@ -67,7 +67,7 @@ class TestActiveAgent(TestCase):
 def test_create_user_agent(agent_mock):
     agent_mock.objects.update_or_create.return_value = (None, False)
     user_mock = mock.Mock(
-        id=1234, username=u"maría", first_name=u"María", last_name=u"Martínez"
+        id=1234, username="maría", first_name="María", last_name="Martínez"
     )
     models.create_user_agent(None, user_mock)
     agent_mock.objects.update_or_create.assert_called_once_with(

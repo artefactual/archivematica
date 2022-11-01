@@ -307,7 +307,7 @@ def digital_object_components(client, request, record_id=""):
 
 
 def _get_sip_arrange_children(record):
-    """ Recursively check for SIPArrange associations. """
+    """Recursively check for SIPArrange associations."""
     try:
         mapping = SIPArrangeAccessMapping.objects.get(
             system=SIPArrangeAccessMapping.ARCHIVESSPACE, identifier=record["id"]

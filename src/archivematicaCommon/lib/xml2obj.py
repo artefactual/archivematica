@@ -121,7 +121,7 @@ def xml2obj(src):
             items = sorted(self._attrs.items())
             if self.data:
                 items.append(("data", self.data))
-            return u"{%s}" % ", ".join([u"%s:%s" % (k, repr(v)) for k, v in items])
+            return "{%s}" % ", ".join(["%s:%s" % (k, repr(v)) for k, v in items])
 
     class TreeBuilder(xml.sax.handler.ContentHandler):
         def __init__(self):
