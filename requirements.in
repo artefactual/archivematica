@@ -29,7 +29,7 @@ ndg-httpsclient
 opf-fido==1.4.1
 pip~=21.3
 pip-tools==6.4.0
-prometheus_client==0.11.0
+prometheus-client==0.15.0
 pyasn1
 pyopenssl
 python-dateutil==2.6.0
