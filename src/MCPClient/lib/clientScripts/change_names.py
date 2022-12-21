@@ -63,8 +63,9 @@ def change_path(path):
     dirname = os.path.dirname(path)
 
     n = 1
+    max_filename = os.fpathconf(changed_name, 'PC_NAME_MAX')
     file_title, file_extension = os.path.splitext(changed_name)
-    changed_name = os.path.join(dirname, file_title + file_extension)
+    changed_name = os.path.join(dirname, file_title[:max_filename - len(file_extension)] + file_extension)
 
     while os.path.exists(changed_name):
         changed_name = os.path.join(
