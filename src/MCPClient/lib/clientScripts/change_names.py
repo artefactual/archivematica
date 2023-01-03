@@ -64,11 +64,12 @@ def change_path(path, max_filename):
 
     n = 1
     file_title, file_extension = os.path.splitext(changed_name)
-    changed_name = os.path.join(dirname, file_title[:max_filename - len(file_extension)] + file_extension)
+    max_file_title = max_filename - len(file_extension)
+    changed_name = os.path.join(dirname, file_title[:max_file_title] + file_extension)
 
     while os.path.exists(changed_name):
         changed_name = os.path.join(
-            dirname, file_title + REPLACEMENT_CHAR + str(n) + file_extension
+            dirname, file_title[:max_file_title - (len(REPLACEMENT_CHAR) + len(str(n)))] + REPLACEMENT_CHAR + str(n) + file_extension
         )
         n += 1
     shutil.move(path, changed_name)
