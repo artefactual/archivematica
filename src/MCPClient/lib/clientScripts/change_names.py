@@ -53,7 +53,7 @@ def change_name(basename):
     return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, unicode_name)
 
 
-def change_path(path):
+def change_path(path, max_filename):
     basename = os.path.basename(path)
     changed_name = change_name(basename)
 
@@ -64,7 +64,7 @@ def change_path(path):
 
     n = 1
     file_title, file_extension = os.path.splitext(changed_name)
-    changed_name = os.path.join(dirname, file_title + file_extension)
+    changed_name = os.path.join(dirname, file_title[:max_filename - len(file_extension)] + file_extension)
 
     while os.path.exists(changed_name):
         changed_name = os.path.join(
@@ -86,11 +86,12 @@ def change_tree(start_path, old_start_path):
     dir.
     """
     start_path = os.path.abspath(start_path)
+    max_filename = os.pathconf(start_path, 'PC_NAME_MAX')
 
     for dir_entry in scandir(start_path):
         is_dir = dir_entry.is_dir()  # cache is_dir before rename
 
-        changed_name = change_path(dir_entry.path)
+        changed_name = change_path(dir_entry.path, max_filename)
         changed_path = os.path.join(start_path, changed_name)
         old_path = os.path.join(old_start_path, dir_entry.name)
 
