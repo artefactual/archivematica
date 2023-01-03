@@ -313,6 +313,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
     ],
 )
 def test_change_name(basename, expected_name):
+    print(os.pathconf(basename, "PC_NAME_MAX"))
     assert change_names.change_name(basename) == expected_name
 
 
