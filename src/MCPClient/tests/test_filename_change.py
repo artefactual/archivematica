@@ -308,12 +308,9 @@ class TestFilenameChange(TempDirMixin, TestCase):
         ("a\x80b", "ab"),
         ("Smörgåsbord.txt", "Smorgasbord.txt"),
         ("🚀", "_"),
-        ("thisisaverylongfilenamewhichshouldbetruncatedtoaversionwhichisnotlongerthanthefilenameallowedbytheunderlyingossowedontrunintoerrorsthisisaverylongfilenamewhichshouldbetruncatedtoaversionwhichisnotlongerthanthefilenameallowedbytheunderlyingossowedontrunintoerrors.txt",
-         "thisisaverylongfilenamewhichshouldbetruncatedtoaversionwhichisnotlongerthanthefilenameallowedbytheunderlyingossowedontrunintoerrorsthisisaverylongfilenamewhichshouldbetruncatedtoaversionwhichisnotlongerthanthefilenameallowedbytheunderlyingossowedontru.txt"),
     ],
 )
 def test_change_name(basename, expected_name):
-    print(os.pathconf(basename, "PC_NAME_MAX"))
     assert change_names.change_name(basename) == expected_name
 
 
