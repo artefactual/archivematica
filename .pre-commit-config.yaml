@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.3.0
+  rev: v2.5.0
   hooks:
   - id: pretty-format-json
     args: [--no-ensure-ascii, --autofix]
@@ -10,12 +10,12 @@ repos:
         src/(MCPClient/MCPServer|dashboard)/osdeps/.*\.json
       )
 - repo: https://github.com/ambv/black
-  rev: 22.10.0
+  rev: 22.8.0
   hooks:
   - id: black
     args: [--safe, --quiet]
     language_version: python3
-- repo: https://gitlab.com/pycqa/flake8
+- repo: https://github.com/pycqa/flake8
   rev: 5.0.4
   hooks:
   - id: flake8
