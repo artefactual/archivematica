@@ -69,7 +69,11 @@ def change_path(path, max_filename):
 
     while os.path.exists(changed_name):
         changed_name = os.path.join(
-            dirname, file_title[:max_file_title - (len(REPLACEMENT_CHAR) + len(str(n)))] + REPLACEMENT_CHAR + str(n) + file_extension
+            dirname,
+            file_title[:max_file_title - (len(REPLACEMENT_CHAR) + len(str(n)))]
+            + REPLACEMENT_CHAR
+            + str(n)
+            + file_extension,
         )
         n += 1
     shutil.move(path, changed_name)
@@ -87,7 +91,7 @@ def change_tree(start_path, old_start_path):
     dir.
     """
     start_path = os.path.abspath(start_path)
-    max_filename = os.pathconf(start_path, 'PC_NAME_MAX')
+    max_filename = os.pathconf(start_path, "PC_NAME_MAX")
 
     for dir_entry in scandir(start_path):
         is_dir = dir_entry.is_dir()  # cache is_dir before rename
