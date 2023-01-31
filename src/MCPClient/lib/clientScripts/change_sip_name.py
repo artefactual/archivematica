@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+import os
 import sys
 
 import django
@@ -58,7 +59,8 @@ def call(jobs):
                     job.pyprint("invalid unit type: ", unitType, file=sys.stderr)
                     job.set_status(1)
                     continue
-                dst = change_path(SIPDirectory)
+                max_filename = os.pathconf(SIPDirectory, "PC_NAME_MAX")
+                dst = change_path(SIPDirectory, max_filename)
                 if SIPDirectory != dst:
                     dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
                     job.pyprint(
