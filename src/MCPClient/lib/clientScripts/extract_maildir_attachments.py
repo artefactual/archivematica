@@ -233,7 +233,10 @@ def handle_job(job):
                                     type(inst), file=sys.stderr
                                 )  # the exception instance
                                 job.pyprint(inst.args, file=sys.stderr)
-                                job.pyprint(etree.tostring(msg), file=sys.stderr)
+                                job.pyprint(
+                                    etree.tostring(msg, encoding="utf8"),
+                                    file=sys.stderr,
+                                )
                                 job.pyprint(file=sys.stderr)
                                 state.error_count += 1
                 except Exception as inst:

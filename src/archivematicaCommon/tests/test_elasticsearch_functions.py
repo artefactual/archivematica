@@ -201,6 +201,25 @@ class TestElasticSearchFunctions(unittest.TestCase):
             )
             assert indexed_data[path] is None
 
+    @pytest.mark.django_db
+    @mock.patch("elasticSearchFunctions.bulk")
+    def test_index_mets_file_metadata_with_utf8(self, dummy_helpers_bulk):
+        def _bulk(client, actions, stats_only=False, *args, **kwargs):
+            for action in actions:
+                pass
+
+        dummy_helpers_bulk.side_effect = _bulk
+        mets_file_path = os.path.join(
+            THIS_DIR, "fixtures", "test_index_metadata-METS-utf8.xml"
+        )
+        elasticSearchFunctions._index_aip_files(
+            client=self.client,
+            uuid="",
+            mets=etree.parse(mets_file_path).getroot(),
+            name="",
+            identifiers=[],
+        )
+
     @patch("elasticSearchFunctions.create_indexes_if_needed")
     def test_default_setup(self, patch):
         elasticSearchFunctions.setup("elasticsearch:9200")

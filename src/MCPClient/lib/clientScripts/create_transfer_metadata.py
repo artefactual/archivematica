@@ -61,7 +61,7 @@ def call(jobs):
                     encoding="utf-8",
                 )
 
-                job.pyprint(etree.tostring(tree))
+                job.pyprint(etree.tostring(tree, encoding="utf8"))
 
             # This is an odd point to mark the transfer as "completed", but it's the
             # last step in the "Complete Transfer" microservice group before the folder

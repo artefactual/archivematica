@@ -107,7 +107,7 @@ def main(target, xml_file, date, event_uuid, file_uuid, file_grpuse):
         logger.info("Storing output of file characterization...")
         insertIntoFPCommandOutput(
             file_uuid,
-            etree.tostring(fits, pretty_print=False),
+            etree.tostring(fits, pretty_print=False, encoding="utf8"),
             "3a19de70-0e42-4145-976b-3a248d43b462",
         )
 

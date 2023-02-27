@@ -21,4 +21,7 @@ from django.conf.urls import url
 from components.mcp import views
 
 app_name = "mcp"
-urlpatterns = [url(r"execute/$", views.execute), url(r"list/$", views.list)]
+urlpatterns = [
+    url(r"execute/$", views.execute, name="execute"),
+    url(r"list/$", views.list, name="list"),
+]

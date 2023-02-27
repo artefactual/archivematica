@@ -1,0 +1,314 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
+  <mets:metsHdr CREATEDATE="2023-02-16T18:43:23"/>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ https://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Sed dui velit, varius a varius quis namu2016每月学生会参加者会议项目</dc:title>
+          <dc:rights>Public domain</dc:rights>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3" xsi:type="premis:file" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>8806fe35-2dda-40dc-9bb7-10f3997ec647</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>249b32d6e94a980160638a64e9fee122af4dcb1a1f0c3b0fd8735a05ecf0f130</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>1464</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>Microsoft Word </premis:formatName>
+                  <premis:formatVersion>97-2003</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/40</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+              <premis:creatingApplication>
+                <premis:dateCreatedByApplication>2022-05-10T18:53:18Z</premis:dateCreatedByApplication>
+              </premis:creatingApplication>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/C:/in/scelerisquea/nibh/nec/viverra/rhoncusa/augue/neque/aliquet/nisla/sit/amet/viverra/enim/elit/sed/semb/Etiam/condimentum/felis/non/neque/tempora/at/suscipit/maurisb/Sed dui velit, varius a varius quis namu2016每月学生会参加者会议项目.doc</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+    <mets:rightsMD ID="rightsMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:RIGHTS">
+        <mets:xmlData>
+          <premis:rightsStatement xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd">
+            <premis:rightsStatementIdentifier>
+              <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+              <premis:rightsStatementIdentifierValue>6e8a7203-4026-40d9-921d-27f63c95a0de</premis:rightsStatementIdentifierValue>
+            </premis:rightsStatementIdentifier>
+            <premis:rightsBasis>Copyright</premis:rightsBasis>
+            <premis:copyrightInformation>
+              <premis:copyrightStatus>copyrighted</premis:copyrightStatus>
+              <premis:copyrightJurisdiction>us</premis:copyrightJurisdiction>
+              <premis:copyrightStatusDeterminationDate>2021-06-14</premis:copyrightStatusDeterminationDate>
+              <premis:copyrightNote>Aenean at pulvinar odio, vitae gravida dui. Ut nulla diam, sagittis id feugiat at, euismod eget diam. Etiam dapibus velit nec risus tincidunt, et efficitur.</premis:copyrightNote>
+              <premis:copyrightApplicableDates>
+                <premis:startDate>2008-12-31</premis:startDate>
+                <premis:endDate>2026-12-31</premis:endDate>
+              </premis:copyrightApplicableDates>
+            </premis:copyrightInformation>
+            <premis:linkingObjectIdentifier>
+              <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
+              <premis:linkingObjectIdentifierValue>8806fe35-2dda-40dc-9bb7-10f3997ec647</premis:linkingObjectIdentifierValue>
+            </premis:linkingObjectIdentifier>
+          </premis:rightsStatement>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+    <mets:rightsMD ID="rightsMD_2">
+      <mets:mdWrap MDTYPE="PREMIS:RIGHTS">
+        <mets:xmlData>
+          <premis:rightsStatement xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd">
+            <premis:rightsStatementIdentifier>
+              <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+              <premis:rightsStatementIdentifierValue>071d8637-3992-4dc4-8aaf-b1464f9d6594</premis:rightsStatementIdentifierValue>
+            </premis:rightsStatementIdentifier>
+            <premis:rightsBasis>Other</premis:rightsBasis>
+            <premis:otherRightsInformation>
+              <premis:otherRightsBasis>Other</premis:otherRightsBasis>
+              <premis:otherRightsApplicableDates>
+                <premis:startDate>2022-05-31</premis:startDate>
+                <premis:endDate>2016-12-31</premis:endDate>
+              </premis:otherRightsApplicableDates>
+              <premis:otherRightsNote>Sed faucibus foo at car lectus ac pharetra. Fusce leo.</premis:otherRightsNote>
+            </premis:otherRightsInformation>
+            <premis:rightsGranted>
+              <premis:act>publish</premis:act>
+              <premis:restriction>allow</premis:restriction>
+              <premis:termOfGrant>
+                <premis:startDate>2022-05-31</premis:startDate>
+                <premis:endDate>2016-12-31</premis:endDate>
+              </premis:termOfGrant>
+              <premis:rightsGrantedNote>Sed faucibus foo at car lectus ac pharetra. Fusce leo.</premis:rightsGrantedNote>
+            </premis:rightsGranted>
+            <premis:linkingObjectIdentifier>
+              <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
+              <premis:linkingObjectIdentifierValue>8806fe35-2dda-40dc-9bb7-10f3997ec647</premis:linkingObjectIdentifierValue>
+            </premis:linkingObjectIdentifier>
+          </premis:rightsStatement>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+    <mets:rightsMD ID="rightsMD_3">
+      <mets:mdWrap MDTYPE="PREMIS:RIGHTS">
+        <mets:xmlData>
+          <premis:rightsStatement xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd">
+            <premis:rightsStatementIdentifier>
+              <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+              <premis:rightsStatementIdentifierValue>7ef84f68-179d-49c2-b54a-a303a2d6ee64</premis:rightsStatementIdentifierValue>
+            </premis:rightsStatementIdentifier>
+            <premis:rightsBasis>Other</premis:rightsBasis>
+            <premis:otherRightsInformation>
+              <premis:otherRightsBasis>Other</premis:otherRightsBasis>
+              <premis:otherRightsApplicableDates>
+                <premis:startDate>2022-05-31</premis:startDate>
+                <premis:endDate>2016-12-31</premis:endDate>
+              </premis:otherRightsApplicableDates>
+              <premis:otherRightsNote>Sed faucibus foo at car lectus ac pharetra. Fusce leo.</premis:otherRightsNote>
+            </premis:otherRightsInformation>
+            <premis:rightsGranted>
+              <premis:act>disseminate</premis:act>
+              <premis:restriction>allow</premis:restriction>
+              <premis:termOfGrant>
+                <premis:startDate>2022-05-31</premis:startDate>
+                <premis:endDate>2016-12-31</premis:endDate>
+              </premis:termOfGrant>
+              <premis:rightsGrantedNote>Sed faucibus foo at car lectus ac pharetra. Fusce leo.</premis:rightsGrantedNote>
+            </premis:rightsGranted>
+            <premis:linkingObjectIdentifier>
+              <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
+              <premis:linkingObjectIdentifierValue>8806fe35-2dda-40dc-9bb7-10f3997ec647</premis:linkingObjectIdentifierValue>
+            </premis:linkingObjectIdentifier>
+          </premis:rightsStatement>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+    <mets:digiprovMD ID="digiprovMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:EVENT">
+        <mets:xmlData>
+          <premis:event xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:eventIdentifier>
+              <premis:eventIdentifierType>UUID</premis:eventIdentifierType>
+              <premis:eventIdentifierValue>52720ad3-23a6-4604-a059-a05788f1b5ee</premis:eventIdentifierValue>
+            </premis:eventIdentifier>
+            <premis:eventType>ingestion</premis:eventType>
+            <premis:eventDateTime>2023-02-16T14:49:57.544995+00:00</premis:eventDateTime>
+            <premis:eventDetailInformation>
+              <premis:eventDetail></premis:eventDetail>
+            </premis:eventDetailInformation>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome></premis:eventOutcome>
+              <premis:eventOutcomeDetail>
+                <premis:eventOutcomeDetailNote></premis:eventOutcomeDetailNote>
+              </premis:eventOutcomeDetail>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>preservation system</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Archivematica-1.13.2</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>CAM</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Archivematica user pk</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>1</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+          </premis:event>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:digiprovMD>
+    <mets:digiprovMD ID="digiprovMD_397">
+      <mets:mdWrap MDTYPE="PREMIS:EVENT">
+        <mets:xmlData>
+          <premis:event xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:eventIdentifier>
+              <premis:eventIdentifierType>UUID</premis:eventIdentifierType>
+              <premis:eventIdentifierValue>1ff08880-1410-423e-ae58-c0fffa0cb8ae</premis:eventIdentifierValue>
+            </premis:eventIdentifier>
+            <premis:eventType>message digest calculation</premis:eventType>
+            <premis:eventDateTime>2023-02-16T14:53:03.583532+00:00</premis:eventDateTime>
+            <premis:eventDetailInformation>
+              <premis:eventDetail>program="python"; module="hashlib.sha256()"</premis:eventDetail>
+            </premis:eventDetailInformation>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome></premis:eventOutcome>
+              <premis:eventOutcomeDetail>
+                <premis:eventOutcomeDetailNote>249b32d6e94a980160638a64e9fee122af4dcb1a1f0c3b0fd8735a05ecf0f130</premis:eventOutcomeDetailNote>
+              </premis:eventOutcomeDetail>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>preservation system</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Archivematica-1.13.2</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>CAM</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Archivematica user pk</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>1</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+          </premis:event>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:digiprovMD>
+    <mets:digiprovMD ID="digiprovMD_398">
+      <mets:mdWrap MDTYPE="PREMIS:EVENT">
+        <mets:xmlData>
+          <premis:event xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:eventIdentifier>
+              <premis:eventIdentifierType>UUID</premis:eventIdentifierType>
+              <premis:eventIdentifierValue>8bf5967d-7927-4542-9b60-991920bd4987</premis:eventIdentifierValue>
+            </premis:eventIdentifier>
+            <premis:eventType>fixity check</premis:eventType>
+            <premis:eventDateTime>2023-02-16T14:54:28.568213+00:00</premis:eventDateTime>
+            <premis:eventDetailInformation>
+              <premis:eventDetail>Bagit - verifypayloadmanifests</premis:eventDetail>
+            </premis:eventDetailInformation>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome>Pass</premis:eventOutcome>
+              <premis:eventOutcomeDetail>
+                <premis:eventOutcomeDetailNote></premis:eventOutcomeDetailNote>
+              </premis:eventOutcomeDetail>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>preservation system</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Archivematica-1.13.2</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>CAM</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Archivematica user pk</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>1</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+          </premis:event>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:digiprovMD>
+    <mets:digiprovMD ID="digiprovMD_399">
+      <mets:mdWrap MDTYPE="PREMIS:EVENT">
+        <mets:xmlData>
+          <premis:event xmlns:premis="http://www.loc.gov/premis/v3" xsi:schemaLocation="http://www.loc.gov/premis/v3 http://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+            <premis:eventIdentifier>
+              <premis:eventIdentifierType>UUID</premis:eventIdentifierType>
+              <premis:eventIdentifierValue>cbce3eb4-6fe2-4905-8cf3-794be30f70e8</premis:eventIdentifierValue>
+            </premis:eventIdentifier>
+            <premis:eventType>filename change</premis:eventType>
+            <premis:eventDateTime>2023-02-16T14:54:51.515854+00:00</premis:eventDateTime>
+            <premis:eventDetailInformation>
+              <premis:eventDetail>prohibited characters removed: program="change_names"; version="1.10.e9d620acaeaa5ab4ca9c41736b5e3529d527bdc4"</premis:eventDetail>
+            </premis:eventDetailInformation>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome></premis:eventOutcome>
+              <premis:eventOutcomeDetail>
+                <premis:eventOutcomeDetailNote>Original name="%transferDirectory%objects/C:/in/scelerisquea/nibh/nec/viverra/rhoncusa/augue/neque/aliquet/nisla/sit/amet/viverra/enim/elit/sed/semb/Etiam/condimentum/felis/non/neque/tempora/at/suscipit/maurisb/Sed dui velit, varius a varius quis namu2016每月学生会参加者会议项目.doc"; new name="%transferDirectory%objects/C_/Ut_scelerisque_nibh_dolor__Etiam_vel_"</premis:eventOutcomeDetailNote>
+              </premis:eventOutcomeDetail>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>preservation system</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Archivematica-1.13.2</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>CAM</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Archivematica user pk</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>1</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+          </premis:event>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:digiprovMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file ID="file-8806fe35-2dda-40dc-9bb7-10f3997ec647" GROUPID="Group-8806fe35-2dda-40dc-9bb7-10f3997ec647" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/C_/Ut_scelerisque_nibh_dolor__Etiam_vel_.doc" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap TYPE="physical" ID="structMap_1" LABEL="Archivematica default">
+    <mets:div TYPE="Directory" LABEL="5fc8798d-3415-47cc-8065-80d943d40bd9-5bb0ab2b-721a-4a31-9b2d-3059d206750e">
+      <mets:div TYPE="Directory" LABEL="objects">
+        <mets:div LABEL="Sed_dui_velit,_varius_a_varius_quis_namu2016Ut_scelerisque_nibh_dolor__Etiam_vel_.doc" TYPE="Item" DMDID="dmdSec_1">
+          <mets:fptr FILEID="file-8806fe35-2dda-40dc-9bb7-10f3997ec647"/>
+        </mets:div>
+        <mets:div TYPE="Directory" LABEL="submissionDocumentation">
+          <mets:div TYPE="Directory" LABEL="transfer-5fc8798d-3415-47cc-8065-80d943d40bd9-ce308937-b89e-469b-b903-20d5a75fbca2">
+            <mets:div TYPE="Item" LABEL="METS.xml"/>
+          </mets:div>
+        </mets:div>
+        <mets:div TYPE="Directory" LABEL="metadata">
+          <mets:div TYPE="Directory" LABEL="transfers">
+            <mets:div TYPE="Directory" LABEL="5fc8798d-3415-47cc-8065-80d943d40bd9-ce308937-b89e-469b-b903-20d5a75fbca2">
+              <mets:div TYPE="Item" LABEL="rights.csv"/>
+              <mets:div TYPE="Item" LABEL="manifest-sha512.txt"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>
