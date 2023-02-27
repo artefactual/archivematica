@@ -123,7 +123,7 @@ def create_mets_file(aic, aips, job):
         div = etree.SubElement(struct_div, ns.metsBNS + "div", LABEL=label)
         etree.SubElement(div, ns.metsBNS + "fptr", FILEID=file_id)
 
-    job.pyprint(etree.tostring(mets, pretty_print=True))
+    job.pyprint(etree.tostring(mets, pretty_print=True, encoding="utf8"))
 
     # Write out the file
     file_uuid = str(uuid.uuid4())
