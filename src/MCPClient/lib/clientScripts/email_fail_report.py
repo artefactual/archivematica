@@ -146,7 +146,7 @@ def get_unit_job_log_html(sip_uuid):
         tr.set("bgcolor", bgcolor)
         i += 1
 
-    return etree.tostring(table)
+    return etree.tostring(table, encoding="utf8")
 
 
 def get_content_for(unit_type, unit_name, unit_uuid, html=True):
@@ -185,7 +185,7 @@ def get_content_for(unit_type, unit_name, unit_uuid, html=True):
     else:
         root.append(t2)
 
-    return etree.tostring(root, pretty_print=True, encoding="unicode")
+    return etree.tostring(root, pretty_print=True, encoding="utf8")
 
 
 def store_report(content, unit_type, unit_name, unit_uuid):

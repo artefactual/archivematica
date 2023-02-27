@@ -101,7 +101,6 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
         maxDateMod,
     )
 
-    # print etree.tostring(dublincore, pretty_print = True)
     return ret
 
 

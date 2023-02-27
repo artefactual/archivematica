@@ -38,6 +38,6 @@ def list(request):
     response = ""
     if 0 < len(jobs):
         for job in jobs:
-            response += etree.tostring(job)
+            response += etree.tostring(job, encoding="utf8").decode("utf8")
     response = "<MCP>%s</MCP>" % response
     return HttpResponse(response, content_type="text/xml")

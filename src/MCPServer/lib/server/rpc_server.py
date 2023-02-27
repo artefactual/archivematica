@@ -238,7 +238,7 @@ class RPCServer(GearmanWorker):
                     description
                 )
 
-        return etree.tostring(ret, pretty_print=True)
+        return etree.tostring(ret, pretty_print=True, encoding="utf8")
 
     def _package_create_handler(self, worker, job, payload):
         """Create a new package.

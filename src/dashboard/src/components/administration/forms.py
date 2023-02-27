@@ -405,5 +405,5 @@ class PreconfiguredChoices(object):
         etree.SubElement(choice, "goToChain").text = go_to_chain_text
 
     def save(self, config_path):
-        with open(config_path, "w") as f:
-            f.write(etree.tostring(self.xml, pretty_print=True, encoding="unicode"))
+        with open(config_path, "wb") as f:
+            f.write(etree.tostring(self.xml, pretty_print=True, encoding="utf8"))

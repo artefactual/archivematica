@@ -612,7 +612,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
                     accession_ids.add(accession_id)
 
                 # Index amdSec information.
-                xml = etree.tostring(amdSec)
+                xml = etree.tostring(amdSec, encoding="utf8")
                 indexData["METS"]["amdSec"] = _rename_dict_keys_with_child_dicts(
                     _normalize_dict_values(xmltodict.parse(xml))
                 )
@@ -650,7 +650,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
                             ),
                         )
                         if dmd_section_info is not None:
-                            xml = etree.tostring(dmd_section_info)
+                            xml = etree.tostring(dmd_section_info, encoding="utf8")
                             data = _rename_dict_keys_with_child_dicts(
                                 _normalize_dict_values(xmltodict.parse(xml))
                             )
@@ -957,7 +957,9 @@ def _combine_elements(elements):
             container.append(copy.deepcopy(child))
     # parse the container with xmltodict ignoring element attributes
     return (
-        xmltodict.parse(etree.tostring(container), xml_attribs=False).get("container")
+        xmltodict.parse(
+            etree.tostring(container, encoding="utf8"), xml_attribs=False
+        ).get("container")
         or {}
     )
 
