@@ -77,6 +77,16 @@ def parseMetadata(job, SIPPath, state):
     return all_metadata
 
 
+class IgnoreEmptyStringValuesOrderedListsDict(archivematicaFunctions.OrderedListsDict):
+    """
+    OrderedListsDict where all empty string values are ignored.
+    """
+
+    def __setitem__(self, key, value):
+        if value != "":
+            return super().__setitem__(key, value)
+
+
 def parseMetadataCSV(job, metadataCSVFilePath):
     """
     Parses the metadata.csv into a dict with entries for each file.
@@ -109,22 +119,21 @@ def parseMetadataCSV(job, metadataCSVFilePath):
         for row in reader:
             if not row:
                 continue
-            entry_name = row[0]
-            if entry_name.endswith("/"):
-                entry_name = entry_name[:-1]
-            # Strip file/dir name from values
+            filename = row[0].rstrip("/")
+            # Strip file/dir name from metadata columns
             row = row[1:]
-            values = archivematicaFunctions.OrderedListsDict(list(zip(header, row)))
-            if entry_name in metadata and metadata[entry_name] != values:
+            values = IgnoreEmptyStringValuesOrderedListsDict(zip(header, row))
+
+            if filename in metadata and metadata[filename] != values:
                 job.pyprint(
                     "Metadata for",
-                    entry_name,
+                    filename,
                     "being overwritten. Old:",
-                    metadata[entry_name],
+                    metadata[filename],
                     "New:",
                     values,
                     file=sys.stderr,
                 )
-            metadata[entry_name] = values
+            metadata[filename] = values
 
     return collections.OrderedDict(metadata)  # Return a normal OrderedDict
