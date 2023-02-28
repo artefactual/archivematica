@@ -115,16 +115,28 @@ def parseMetadataCSV(job, metadataCSVFilePath):
             # Strip file/dir name from values
             row = row[1:]
             values = archivematicaFunctions.OrderedListsDict(list(zip(header, row)))
-            if entry_name in metadata and metadata[entry_name] != values:
+
+            # filtering the null values/columns from metadata
+            filtered_values = {}
+            for key, value in values.items():
+                value_list = []
+                for each_value in value:
+                    if each_value == "":
+                        continue
+                    else:
+                        value_list.append(each_value)
+                    filtered_values[key] = value_list
+
+            if entry_name in metadata and metadata[entry_name] != filtered_values:
                 job.pyprint(
                     "Metadata for",
                     entry_name,
                     "being overwritten. Old:",
                     metadata[entry_name],
                     "New:",
-                    values,
+                    filtered_values,
                     file=sys.stderr,
                 )
-            metadata[entry_name] = values
+            metadata[entry_name] = filtered_values
 
     return collections.OrderedDict(metadata)  # Return a normal OrderedDict
