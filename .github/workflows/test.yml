@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: "Test ${{ matrix.rule }}"
-    runs-on: "ubuntu-18.04"
+    runs-on: "ubuntu-22.04"
     strategy:
       matrix:
         include:
@@ -33,29 +33,29 @@ jobs:
             python_version: py36
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
       - name: "Check out the archivematica-storage-service submodule"
         run: |
           git submodule update --init hack/submodules/archivematica-storage-service/
       - name: "Set up pip cache"
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v3"
         with:
           path: "~/.cache/pip"
           key: "${{ runner.os }}-pip-${{ github.sha }}"
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: "Set up tox cache"
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v3"
         with:
           path: ./.tox
           key: "${{ runner.os }}-tox-${{ matrix.rule }}-${{ hashFiles('**/tox.ini', '**/requirements*.txt', '**/requirements/*.txt') }}"
       - name: "Set up buildx"
-        uses: "docker/setup-buildx-action@v1"
+        uses: "docker/setup-buildx-action@v2"
         id: buildx
         with:
           install: true
       - name: "Set up docker cache"
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v3"
         with:
           path: /tmp/.docker-cache-old
           key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-docker-${{ matrix.rule }}-
             ${{ runner.os }}-docker-
       - name: "Build archivematica-tests image"
-        uses: "docker/build-push-action@v2"
+        uses: "docker/build-push-action@v4"
         with:
           context: .
           file: ./hack/Dockerfile
@@ -92,7 +92,7 @@ jobs:
           PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
       - name: "Upload coverage report"
         if: matrix.coverage && github.repository == 'artefactual/archivematica'
-        uses: "codecov/codecov-action@v1"
+        uses: "codecov/codecov-action@v3"
         with:
           files: ./coverage.xml
           fail_ci_if_error: true
@@ -105,19 +105,19 @@ jobs:
           mv /tmp/.docker-cache-new /tmp/.docker-cache-old
   frontend:
     name: "Test frontend"
-    runs-on: "ubuntu-18.04"
+    runs-on: "ubuntu-22.04"
     defaults:
       run:
         working-directory: "./src/dashboard/frontend/"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
       - name: "Set up Node JS"
-        uses: "actions/setup-node@v2-beta"
+        uses: "actions/setup-node@v3"
         with:
           node-version: "8"
       - name: "Cache npm packages"
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v3"
         with:
           path: "~/.npm"
           key: "${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}"
@@ -131,12 +131,12 @@ jobs:
           npm run "test-single-run"
   linting:
     name: "Lint"
-    runs-on: "ubuntu-18.04"
+    runs-on: "ubuntu-22.04"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
       - name: "Set up Python 3.7"
-        uses: "actions/setup-python@v2"
+        uses: "actions/setup-python@v4"
         with:
           python-version: "3.7"
       - name: "Install tox"
