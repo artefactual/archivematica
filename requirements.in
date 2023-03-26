@@ -23,8 +23,7 @@ lazy-paged-sequence
 lxml
 metsrw
 mysqlclient
-# TODO: opf-fido will be upgraded separately.
-opf-fido==1.4.1
+opf-fido==1.6.1
 pip
 pip-tools
 prometheus_client
