@@ -72,7 +72,6 @@ from archivematicaCreateMETSTrim import getTrimFileAmdSec
 # archivematicaCommon
 from archivematicaFunctions import escape
 from archivematicaFunctions import normalizeNonDcElementName
-from archivematicaFunctions import strToUnicode
 from create_mets_dataverse_v2 import (
     create_dataverse_sip_dmdsec,
     create_dataverse_tabfile_dmdsec,
@@ -143,9 +142,9 @@ def newChild(parent, tag, text=None, tailText=None, sets=None):
     # TODO convert sets to a dict, and use **dict
     sets = sets or []
     child = etree.SubElement(parent, tag)
-    child.text = strToUnicode(text)
+    child.text = text
     if tailText:
-        child.tail = strToUnicode(tailText)
+        child.tail = tailText
     for set_ in sets:
         key, value = set_
         child.set(key, value)

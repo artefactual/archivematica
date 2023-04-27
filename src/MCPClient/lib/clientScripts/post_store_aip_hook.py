@@ -20,7 +20,7 @@ from main import models
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
-from archivematicaFunctions import find_transfer_path_from_ingest, strToUnicode
+from archivematicaFunctions import find_transfer_path_from_ingest
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
@@ -46,7 +46,7 @@ def delete_transfer_directory(job, sip_uuid):
     )
     transfer_path = os.path.abspath(
         find_transfer_path_from_ingest(
-            current_location, strToUnicode(mcpclient_settings.SHARED_DIRECTORY)
+            current_location, mcpclient_settings.SHARED_DIRECTORY
         )
     )
     if not transfer_path.startswith(mcpclient_settings.PROCESSING_DIRECTORY):

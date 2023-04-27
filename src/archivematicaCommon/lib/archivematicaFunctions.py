@@ -124,21 +124,6 @@ class OrderedListsDict(collections.OrderedDict):
         self[key].append(value)
 
 
-def strToUnicode(string, obstinate=False):
-    """Convert string to Unicode format."""
-    if isinstance(string, six.binary_type):
-        try:
-            string = string.decode("utf8")
-        except UnicodeDecodeError:
-            if obstinate:
-                # Obstinately get a Unicode instance by replacing
-                # indecipherable bytes.
-                string = string.decode("utf8", "replace")
-            else:
-                raise
-    return string
-
-
 def b64encode_string(data):
     return base64.b64encode(data.encode("utf8")).decode("utf8")
 
@@ -319,9 +304,7 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
-        msg = "Assigning UUID {} to directory path {}".format(
-            strToUnicode(dir_uuid), strToUnicode(dir_path)
-        )
+        msg = "Assigning UUID {} to directory path {}".format(dir_uuid, dir_path)
         printfn(msg)
         if logger:
             logger.info(msg)
@@ -410,9 +393,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to construct empty directories, either because"
                 " there is no METS file at {} or because there is no"
-                " objects/ directory at {}".format(
-                    strToUnicode(mets_file_path), strToUnicode(objects_path)
-                )
+                " objects/ directory at {}".format(mets_file_path, objects_path)
             )
         return
     doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
@@ -427,7 +408,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to locate a logical structMap labelled {}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
             )
         return
     root_div_el = logical_struct_map_el.find(
@@ -438,7 +419,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to locate a logical structMap labelled {}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
             )
         return
     paths = div_el_to_dir_paths(root_div_el, include=False)

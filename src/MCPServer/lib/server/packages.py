@@ -17,7 +17,6 @@ from django.utils import timezone
 import six
 
 import storageService as storage_service
-from archivematicaFunctions import strToUnicode
 from main import models
 
 from server.db import auto_close_old_connections
@@ -39,7 +38,7 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 
 def _get_setting(name):
     """Retrieve a Django setting decoded as a unicode string."""
-    return strToUnicode(getattr(settings, name))
+    return getattr(settings, name)
 
 
 # Each package type has its corresponding watched directory and its
@@ -163,7 +162,7 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
         return filepath
     if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            "{}_{}".format(strToUnicode(original.as_posix()), attempt),
+            "{}_{}".format(original.as_posix(), attempt),
             original,
             attempt,
         )
@@ -294,7 +293,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     except OSError as e:
         raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
     else:
-        transfer.currentlocation = strToUnicode(dest.as_posix()).replace(
+        transfer.currentlocation = dest.as_posix().replace(
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()

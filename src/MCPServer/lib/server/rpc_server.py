@@ -26,7 +26,6 @@ from lxml import etree
 from six.moves import cPickle
 import six
 
-from archivematicaFunctions import strToUnicode
 from main.models import Job, SIP, Transfer
 from server.db import auto_close_old_connections
 from server.packages import create_package, get_approve_transfer_chain_id
@@ -254,7 +253,7 @@ class RPCServer(GearmanWorker):
             payload.get("type"),
             payload.get("accession"),
             payload.get("access_system_id"),
-            strToUnicode(payload.get("path")),
+            payload.get("path"),
             payload.get("metadata_set_id"),
             payload.get("user_id"),
             self.workflow,

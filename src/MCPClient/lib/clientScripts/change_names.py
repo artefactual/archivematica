@@ -28,8 +28,6 @@ import shutil
 from scandir import scandir
 from unidecode import unidecode
 
-from archivematicaFunctions import strToUnicode
-
 VERSION = "1.10." + "$Id$".split(" ")[1]
 
 # Letters, digits and a few punctuation characters
@@ -40,17 +38,16 @@ REPLACEMENT_CHAR = "_"
 def change_name(basename):
     if basename == "":
         raise ValueError("change_name received an empty filename.")
-    unicode_basename = strToUnicode(basename)
-    unicode_name = unidecode(unicode_basename)
+    decoded_name = unidecode(basename)
     # We can't return  an empty string here because it will become the new filename.
     # However, in some cases unidecode just strips out all chars (e.g.
     # unidecode(u"🚀") == ""), so if that happens, we to replace the invalid chars with
     # REPLACEMENT_CHAR. This will result in a filename of one or more underscores,
     # which isn't great, but allows processing to continue.
-    if unicode_name == "":
-        unicode_name = unicode_basename
+    if decoded_name == "":
+        decoded_name = basename
 
-    return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, unicode_name)
+    return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, decoded_name)
 
 
 def change_path(path, max_filename):
