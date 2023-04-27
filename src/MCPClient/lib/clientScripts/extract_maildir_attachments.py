@@ -40,7 +40,6 @@ from main.models import File
 # archivematicaCommon
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
-from archivematicaFunctions import unicodeToStr
 
 
 class State(object):
@@ -212,7 +211,6 @@ def handle_job(job):
                                     "%s_%s" % (attachedFileUUID, attachment.name),
                                 )
                                 job.pyprint("\tAttachment path:", filePath)
-                                filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
                                 eventDetail = "Unpacked from: {%s}%s" % (
                                     sourceFileUUID,

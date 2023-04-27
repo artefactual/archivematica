@@ -124,13 +124,6 @@ class OrderedListsDict(collections.OrderedDict):
         self[key].append(value)
 
 
-def unicodeToStr(string):
-    """Convert Unicode to string format."""
-    if isinstance(string, six.text_type):
-        return six.ensure_str(string, "utf-8")
-    return string
-
-
 def strToUnicode(string, obstinate=False):
     """Convert string to Unicode format."""
     if isinstance(string, six.binary_type):

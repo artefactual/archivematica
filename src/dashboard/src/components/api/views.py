@@ -504,7 +504,6 @@ def approve_transfer(request):
     directory = request.POST.get("directory")
     if not directory:
         return _error_response("Please specify a transfer directory.", status_code=500)
-    directory = archivematicaFunctions.unicodeToStr(directory)
     transfer_type = request.POST.get("type", "standard")
     if not transfer_type:
         return _error_response("Please specify a transfer type.", status_code=500)

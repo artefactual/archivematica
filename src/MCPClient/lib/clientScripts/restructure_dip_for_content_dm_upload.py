@@ -184,7 +184,7 @@ def generate_project_client_package(
             for header, value in metadata.items():
                 csv_header.append(header)
                 value = "; ".join(value).replace("\r", "").replace("\n", "")
-                csv_values.append(archivematicaFunctions.unicodeToStr(value))
+                csv_values.append(value)
 
             # Add AIP UUID
             csv_header.append("AIP UUID")

@@ -27,8 +27,6 @@ import re
 
 import six
 
-from archivematicaFunctions import unicodeToStr
-
 from main import models
 
 
@@ -208,9 +206,8 @@ class ReplacementDict(dict):
         ret = []
         for orig in strings:
             if orig is not None:
-                orig = unicodeToStr(orig)
                 for key, value in self.items():
-                    orig = orig.replace(key, unicodeToStr(value))
+                    orig = orig.replace(key, value)
             ret.append(orig)
         return ret
 

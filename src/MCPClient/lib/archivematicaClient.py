@@ -70,7 +70,6 @@ from django.conf import settings as django_settings
 import gearman
 
 from main.models import Task
-from archivematicaFunctions import unicodeToStr
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
@@ -126,7 +125,7 @@ def handle_batch_task(gearman_job, supported_modules):
         )
 
         for var, val in replacements:
-            arguments = arguments.replace(var, unicodeToStr(val))
+            arguments = arguments.replace(var, val)
 
         job = Job(
             task_name,

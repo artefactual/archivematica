@@ -18,7 +18,6 @@ import six
 
 import storageService as storage_service
 from archivematicaFunctions import strToUnicode
-from archivematicaFunctions import unicodeToStr
 from main import models
 
 from server.db import auto_close_old_connections
@@ -340,9 +339,9 @@ def create_package(
     # Create Transfer object.
     kwargs = {"uuid": str(uuid4())}
     if accession is not None:
-        kwargs["accessionid"] = unicodeToStr(accession)
+        kwargs["accessionid"] = accession
     if access_system_id is not None:
-        kwargs["access_system_id"] = unicodeToStr(access_system_id)
+        kwargs["access_system_id"] = access_system_id
     if metadata_set_id is not None:
         try:
             kwargs["transfermetadatasetrow"] = models.TransferMetadataSet.objects.get(

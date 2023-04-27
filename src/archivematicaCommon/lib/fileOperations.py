@@ -37,7 +37,7 @@ from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
 import MySQLdb
-from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
+from archivematicaFunctions import get_setting, get_file_checksum
 
 from main.models import File, Transfer
 
@@ -264,10 +264,6 @@ def updateFileLocation(
     If the file uuid is not provided, will use the SIP uuid and the old path to find the file uuid.
     To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
     """
-
-    src = unicodeToStr(src)
-    dst = unicodeToStr(dst)
-    fileUUID = unicodeToStr(fileUUID)
     if not fileUUID or fileUUID == "None":
         kwargs = {"removedtime__isnull": True, "currentlocation": src}
 
