@@ -1,20 +1,19 @@
-# -*- coding: utf8
-from __future__ import print_function, unicode_literals
-
 import os
 import shutil
 import uuid
 
 import pytest
-import six
 from django.test import TestCase
+from job import Job
+from main.models import Directory
+from main.models import Event
+from main.models import File
+from main.models import SIP
+from main.models import Transfer
+from main.models import User
 from pytest_django.asserts import assertQuerysetEqual
 
-from job import Job
-from main.models import Directory, Event, File, Transfer, SIP, User
-
 from . import TempDirMixin
-from six.moves import range
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -67,7 +66,7 @@ def transfer_dir_obj(db, transfer, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [
             transfer.currentlocation,
-            six.ensure_text(subdir_path.relative_to(tmp_path).as_posix()),
+            subdir_path.relative_to(tmp_path).as_posix(),
             os.path.sep,
         ]
     )
@@ -86,7 +85,7 @@ def sip_dir_obj(db, sip, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [
             sip.currentpath,
-            six.ensure_text(subdir_path.relative_to(tmp_path).as_posix()),
+            subdir_path.relative_to(tmp_path).as_posix(),
             os.path.sep,
         ]
     )
@@ -107,7 +106,7 @@ def sip_file_obj(db, sip, tmp_path, subdir_path):
     relative_path = "".join(
         [
             sip.currentpath,
-            six.ensure_text(file_path.relative_to(tmp_path).as_posix()),
+            file_path.relative_to(tmp_path).as_posix(),
         ]
     )
 
@@ -125,7 +124,7 @@ def sip_file_obj(db, sip, tmp_path, subdir_path):
 
 @pytest.fixture()
 def multiple_file_paths(subdir_path):
-    paths = [(subdir_path / "bülk-filé{}".format(x)) for x in range(11)]
+    paths = [(subdir_path / f"bülk-filé{x}") for x in range(11)]
     for path in paths:
         path.write_text("Hello world")
 
@@ -138,7 +137,7 @@ def multiple_transfer_file_objs(db, transfer, tmp_path, multiple_file_paths):
         "".join(
             [
                 transfer.currentlocation,
-                six.ensure_text(path.relative_to(tmp_path).as_posix()),
+                path.relative_to(tmp_path).as_posix(),
             ]
         )
         for path in multiple_file_paths
@@ -218,7 +217,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
             with open(path, "w") as f:
-                f.write(six.ensure_str(path))
+                f.write(str(path))
 
         try:
             # Change names
@@ -342,7 +341,7 @@ def test_change_transfer_with_multiple_files(
         file_obj.refresh_from_db()
 
         assert file_obj.currentlocation != original_location
-        assert six.ensure_text(subdir_path.as_posix()) not in file_obj.currentlocation
+        assert subdir_path.as_posix() not in file_obj.currentlocation
         assert "bulk-file" in file_obj.currentlocation
         verify_event_details(
             Event.objects.get(file_uuid=file_obj.uuid, event_type="filename change")
@@ -368,9 +367,7 @@ def test_change_transfer_with_directory_uuids(
     transfer_dir_obj.refresh_from_db()
 
     assert transfer_dir_obj.currentlocation != original_location
-    assert (
-        six.ensure_text(subdir_path.as_posix()) not in transfer_dir_obj.currentlocation
-    )
+    assert subdir_path.as_posix() not in transfer_dir_obj.currentlocation
 
 
 @pytest.mark.django_db
@@ -390,11 +387,11 @@ def test_change_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
     sip_dir_obj.refresh_from_db()
 
     assert sip_dir_obj.currentlocation != original_dir_location
-    assert six.ensure_text(subdir_path.as_posix()) not in sip_dir_obj.currentlocation
+    assert subdir_path.as_posix() not in sip_dir_obj.currentlocation
 
     original_file_location = sip_file_obj.currentlocation
     sip_file_obj.refresh_from_db()
 
     assert sip_file_obj.currentlocation != original_file_location
-    assert six.ensure_text(subdir_path.as_posix()) not in sip_file_obj.currentlocation
+    assert subdir_path.as_posix() not in sip_file_obj.currentlocation
     assert "file" in sip_file_obj.currentlocation

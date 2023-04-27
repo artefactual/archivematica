@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf8
-
 """Tests for the parse Dataverse functionality in Archivematica."""
-
 import os
 
-from django.test import TestCase
 import metsrw
-
+from django.test import TestCase
 from job import Job
 from main import models
 

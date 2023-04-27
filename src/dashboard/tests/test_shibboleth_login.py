@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import pytest
+from components import helpers
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
-
-from components import helpers
 
 
 @pytest.mark.skipif(

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,18 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
-
-# archivematicaCommon
-from custom_handlers import get_script_logger
 
 import django
 import scandir
+from custom_handlers import get_script_logger
+
+# archivematicaCommon
 
 django.setup()
 from django.db import connection

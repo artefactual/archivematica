@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
+from components.administration.forms_dip_upload import ArchivesSpaceConfigForm
+from components.administration.forms_dip_upload import AtomConfigForm
 from django.contrib import messages
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-
-from components.administration.forms_dip_upload import (
-    ArchivesSpaceConfigForm,
-    AtomConfigForm,
-)
 from main.models import DashboardSetting
 
 

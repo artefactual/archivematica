@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
-from pprint import pformat
 import shutil
 import sys
+from pprint import pformat
 
 import django
 
@@ -26,7 +26,7 @@ class VerifyChecksumsError(Exception):
 
 def extract_aip(job, aip_path, extract_path):
     os.makedirs(extract_path)
-    command = "atool --extract-to={} -V0 {}".format(extract_path, aip_path)
+    command = f"atool --extract-to={extract_path} -V0 {aip_path}"
     job.pyprint("Running extraction command:", command)
     exit_code, stdout, stderr = executeOrRun(
         "command", command, printing=True, capture_output=True
@@ -57,9 +57,7 @@ def write_premis_event(
             eventOutcomeDetailNote=event_outcome_detail_note,
         )
     except Exception as err:
-        job.pyprint(
-            "Failed to write PREMIS event to database. Error: {error}".format(error=err)
-        )
+        job.pyprint(f"Failed to write PREMIS event to database. Error: {err}")
     else:
         return event_outcome_detail_note
 
@@ -216,9 +214,7 @@ def verify_aip(job):
             bag_path = extract_aip(job, aip_path, extract_dir)
         except Exception as err:
             job.print_error(repr(err))
-            job.pyprint(
-                'Error extracting AIP at "{}"'.format(aip_path), file=sys.stderr
-            )
+            job.pyprint(f'Error extracting AIP at "{aip_path}"', file=sys.stderr)
             return 1
 
     return_code = 0
@@ -228,7 +224,7 @@ def verify_aip(job):
         bag = Bag(bag_path)
         bag.validate(completeness_only=True)
     except BagError as err:
-        job.print_error("Error validating BagIt package: {}".format(err))
+        job.print_error(f"Error validating BagIt package: {err}")
         return_code = 1
 
     if return_code == 0:

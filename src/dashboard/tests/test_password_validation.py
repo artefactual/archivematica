@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import pytest
-
-from django.contrib.auth.password_validation import (
-    get_password_validators,
-    validate_password,
-)
+from django.contrib.auth.password_validation import get_password_validators
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 

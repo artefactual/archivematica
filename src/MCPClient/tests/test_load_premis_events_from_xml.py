@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
 import os
 import sys
 import uuid
 
-from lxml import etree
 import pytest
-
+from lxml import etree
 from main.models import Agent
 from main.models import Event
 from main.models import File
@@ -118,7 +116,7 @@ def test_get_premis_schema_with_invalid_schema(mocker, invalid_xsd_path):
         invalid_xsd_path.as_posix(), printfn
     )
     printfn.assert_called_once_with(
-        "Could not parse the PREMIS XML schema {}".format(invalid_xsd_path.as_posix()),
+        f"Could not parse the PREMIS XML schema {invalid_xsd_path.as_posix()}",
         "The XML document '{}' is not a schema document.".format(
             invalid_xsd_path.as_posix()
         ),
@@ -218,7 +216,7 @@ def test_get_premis_element_children_identifiers(mocker):
     result = load_premis_events_from_xml.get_premis_element_children_identifiers(
         premis_element, "premis:object"
     )
-    assert result == set([("t", "1"), ("t", "2")])
+    assert result == {("t", "1"), ("t", "2")}
 
 
 @pytest.mark.parametrize(
@@ -297,7 +295,7 @@ def test_event_element_factory(mocker, params):
                 [event_outcome_part1, event_outcome_part2],
                 [event_outcome_detail],
             ]
-        }
+        },
     )
     mocker.patch("metsrw.plugins.premisrw.premis_to_data")
     mocker.patch("metsrw.plugins.premisrw.PREMISEvent", return_value=premis_element)
@@ -339,7 +337,7 @@ def test_event_element_factory_prints_datetime_error(mocker):
         identifier_type="e",
         identifier_value="1",
         date_time="foobar",
-        **{"findall.return_value": []}
+        **{"findall.return_value": []},
     )
     mocker.patch("metsrw.plugins.premisrw.premis_to_data")
     mocker.patch("metsrw.plugins.premisrw.PREMISEvent", return_value=premis_element)
@@ -390,7 +388,7 @@ def test_event_element_factory_with_no_event_outcome_detail():
         "identifier",
     ]
     assert sorted(result) == expected_attributes
-    assert result["agents"] == set([("repository code", "NRI")])
+    assert result["agents"] == {("repository code", "NRI")}
     event_datetime = result["event_datetime"]
     assert (event_datetime.year, event_datetime.month, event_datetime.day) == (
         2019,
@@ -450,7 +448,7 @@ def test_get_invalid_file_identifiers(mocker):
     result = load_premis_events_from_xml.get_invalid_file_identifiers(
         files, file_queryset, printfn
     )
-    assert result == set([("f", "no-original-name"), ("f", "nonexistent-name")])
+    assert result == {("f", "no-original-name"), ("f", "nonexistent-name")}
     calls = [
         mocker.call(
             "The premis:object element with premis:objectIdentifierType='f' and premis:objectIdentifierValue='no-original-name' does not contain a premis:originalName element",
@@ -473,8 +471,8 @@ def test_print_unrelated_files(mocker):
         ("f", "4"): {"identifier": ("f", "4")},
     }
     events = {
-        ("e", "1"): {"files": set([("f", "1"), ("f", "2")])},
-        ("e", "2"): {"files": set([("f", "1"), ("f", "4")])},
+        ("e", "1"): {"files": {("f", "1"), ("f", "2")}},
+        ("e", "2"): {"files": {("f", "1"), ("f", "4")}},
     }
     load_premis_events_from_xml.print_unrelated_files(files, events, printfn)
     printfn.assert_called_once_with(
@@ -492,8 +490,8 @@ def test_print_unrelated_agents(mocker):
         ("a", "4"): {"identifier": ("a", "4")},
     }
     events = {
-        ("e", "1"): {"agents": set([("a", "1"), ("a", "2")])},
-        ("e", "2"): {"agents": set([("a", "1"), ("a", "4")])},
+        ("e", "1"): {"agents": {("a", "1"), ("a", "2")}},
+        ("e", "2"): {"agents": {("a", "1"), ("a", "4")}},
     }
     load_premis_events_from_xml.print_unrelated_agents(agents, events, printfn)
     printfn.assert_called_once_with(
@@ -505,9 +503,9 @@ def test_print_unrelated_agents(mocker):
 def test_print_unrelated_events(mocker):
     printfn = mocker.Mock()
     events = {
-        ("e", "1"): {"files": set(["f1"]), "agents": set()},
-        ("e", "2"): {"files": set(["f1"]), "agents": set(["a1"])},
-        ("e", "3"): {"files": set(), "agents": set(["a1"])},
+        ("e", "1"): {"files": {"f1"}, "agents": set()},
+        ("e", "2"): {"files": {"f1"}, "agents": {"a1"}},
+        ("e", "3"): {"files": set(), "agents": {"a1"}},
         ("e", "4"): {"files": set(), "agents": set()},
     }
     load_premis_events_from_xml.print_unrelated_events(events, printfn)
@@ -536,9 +534,9 @@ def test_print_files_related_to_nonexistent_events(mocker):
     printfn = mocker.Mock()
     files = {
         ("f", "1"): {"events": set()},
-        ("f", "2"): {"events": set([("e", "1"), ("e", "2"), ("e", "3")])},
-        ("f", "3"): {"events": set([("e", "2")])},
-        ("f", "4"): {"events": set([("e", "1")])},
+        ("f", "2"): {"events": {("e", "1"), ("e", "2"), ("e", "3")}},
+        ("f", "3"): {"events": {("e", "2")}},
+        ("f", "4"): {"events": {("e", "1")}},
     }
     events = {("e", "1"): {}, ("e", "2"): {}}
     load_premis_events_from_xml.print_files_related_to_nonexistent_events(
@@ -554,9 +552,9 @@ def test_print_agents_related_to_nonexistent_events(mocker):
     printfn = mocker.Mock()
     agents = {
         ("a", "1"): {"events": set()},
-        ("a", "2"): {"events": set([("e", "1"), ("e", "2"), ("e", "3")])},
-        ("a", "3"): {"events": set([("e", "2")])},
-        ("a", "4"): {"events": set([("e", "1")])},
+        ("a", "2"): {"events": {("e", "1"), ("e", "2"), ("e", "3")}},
+        ("a", "3"): {"events": {("e", "2")}},
+        ("a", "4"): {"events": {("e", "1")}},
     }
     events = {("e", "1"): {}, ("e", "2"): {}}
     load_premis_events_from_xml.print_agents_related_to_nonexistent_events(
@@ -573,9 +571,9 @@ def test_print_events_related_to_nonexistent_files(mocker):
     files = {("f", "1"): {}, ("f", "2"): {}}
     events = {
         ("e", "1"): {"files": set()},
-        ("e", "2"): {"files": set([("f", "1"), ("f", "2"), ("f", "3")])},
-        ("e", "3"): {"files": set([("f", "2")])},
-        ("e", "4"): {"files": set([("f", "1")])},
+        ("e", "2"): {"files": {("f", "1"), ("f", "2"), ("f", "3")}},
+        ("e", "3"): {"files": {("f", "2")}},
+        ("e", "4"): {"files": {("f", "1")}},
     }
     load_premis_events_from_xml.print_events_related_to_nonexistent_files(
         events, files, printfn
@@ -591,9 +589,9 @@ def test_print_events_related_to_nonexistent_agents(mocker):
     agents = {("a", "1"): {}, ("a", "2"): {}}
     events = {
         ("e", "1"): {"agents": set()},
-        ("e", "2"): {"agents": set([("a", "1"), ("a", "2"), ("a", "3")])},
-        ("e", "3"): {"agents": set([("a", "2")])},
-        ("e", "4"): {"agents": set([("a", "1")])},
+        ("e", "2"): {"agents": {("a", "1"), ("a", "2"), ("a", "3")}},
+        ("e", "3"): {"agents": {("a", "2")}},
+        ("e", "4"): {"agents": {("a", "1")}},
     }
     load_premis_events_from_xml.print_events_related_to_nonexistent_agents(
         events, agents, printfn
@@ -606,45 +604,45 @@ def test_print_events_related_to_nonexistent_agents(mocker):
 
 def test_relate_files_to_events():
     files = {
-        "f1": {"events": set(["e1", "e3"])},
-        "f2": {"events": set(["e2"])},
+        "f1": {"events": {"e1", "e3"}},
+        "f2": {"events": {"e2"}},
         "f3": {"events": set()},
     }
     events = {
         "e1": {"files": set()},
-        "e2": {"files": set(["f3", "f4"])},
-        "e3": {"files": set(["f1"])},
+        "e2": {"files": {"f3", "f4"}},
+        "e3": {"files": {"f1"}},
     }
     load_premis_events_from_xml.relate_files_to_events(files, events)
     assert events == {
-        "e1": {"files": set(["f1"])},
-        "e2": {"files": set(["f2", "f3", "f4"])},
-        "e3": {"files": set(["f1"])},
+        "e1": {"files": {"f1"}},
+        "e2": {"files": {"f2", "f3", "f4"}},
+        "e3": {"files": {"f1"}},
     }
 
 
 def test_relate_agents_to_events():
     agents = {
-        "a1": {"events": set(["e1", "e3"])},
-        "a2": {"events": set(["e2"])},
+        "a1": {"events": {"e1", "e3"}},
+        "a2": {"events": {"e2"}},
         "a3": {"events": set()},
     }
     events = {
         "e1": {"agents": set()},
-        "e2": {"agents": set(["a3", "a4"])},
-        "e3": {"agents": set(["a1"])},
+        "e2": {"agents": {"a3", "a4"}},
+        "e3": {"agents": {"a1"}},
     }
     load_premis_events_from_xml.relate_agents_to_events(agents, events)
     assert events == {
-        "e1": {"agents": set(["a1"])},
-        "e2": {"agents": set(["a2", "a3", "a4"])},
-        "e3": {"agents": set(["a1"])},
+        "e1": {"agents": {"a1"}},
+        "e2": {"agents": {"a2", "a3", "a4"}},
+        "e3": {"agents": {"a1"}},
     }
 
 
 def test_get_event_agents(mocker):
     printfn = mocker.Mock()
-    event = {"agents": set(["a2", "a3"])}
+    event = {"agents": {"a2", "a3"}}
     agents = {"a1": {"identifier": "a1"}, "a2": {"identifier": "a2"}}
     agent_identifiers = set(agents)
     result = load_premis_events_from_xml.get_event_agents(
@@ -662,7 +660,7 @@ def test_get_event_agents(mocker):
             "expected_result": [{"identifier": "f1"}, {"identifier": "f2"}],
         },
         {
-            "file_identifiers_to_ignore": set(["f2"]),
+            "file_identifiers_to_ignore": {"f2"},
             "expected_result": [{"identifier": "f1"}],
         },
     ],
@@ -670,7 +668,7 @@ def test_get_event_agents(mocker):
 )
 def test_get_event_files(mocker, params):
     printfn = mocker.Mock()
-    event = {"files": set(["f1", "f2", "f3"])}
+    event = {"files": {"f1", "f2", "f3"}}
     files = {"f1": {"identifier": "f1"}, "f2": {"identifier": "f2"}}
     file_identifiers = set(files)
     result = load_premis_events_from_xml.get_event_files(
@@ -773,12 +771,12 @@ def test_get_valid_events(mocker):
     files = {"f1": {"identifier": "f1"}, "f2": {"identifier": "f2"}}
     agents = {"a1": {"identifier": "a1"}, "a2": {"identifier": "a2"}}
     events = {
-        "e1": {"identifier": "e1", "files": set(["f1"]), "agents": set(["a1"])},
-        "e2": {"identifier": "e2", "files": set(), "agents": set(["a2"])},
-        "e3": {"identifier": "e3", "files": set(["f2"]), "agents": set()},
-        "e4": {"identifier": "e4", "files": set(["f3"]), "agents": set()},
+        "e1": {"identifier": "e1", "files": {"f1"}, "agents": {"a1"}},
+        "e2": {"identifier": "e2", "files": set(), "agents": {"a2"}},
+        "e3": {"identifier": "e3", "files": {"f2"}, "agents": set()},
+        "e4": {"identifier": "e4", "files": {"f3"}, "agents": set()},
     }
-    file_identifiers_to_ignore = set(["f3"])
+    file_identifiers_to_ignore = {"f3"}
 
     valid_events, invalid_events_exist = load_premis_events_from_xml.get_valid_events(
         files, agents, events, file_identifiers_to_ignore, printfn
@@ -787,7 +785,7 @@ def test_get_valid_events(mocker):
     assert invalid_events_exist
     assert valid_events == [
         {
-            "event": {"identifier": "e1", "files": set(["f1"]), "agents": set(["a1"])},
+            "event": {"identifier": "e1", "files": {"f1"}, "agents": {"a1"}},
             "event_agents": [{"identifier": "a1"}],
             "event_files": [{"identifier": "f1"}],
         }
@@ -828,8 +826,8 @@ def test_save_events(mocker, transfer, transfer_file, tmp_path, file_path):
                 "event_detail": "the event detail",
                 "event_outcome": "the event outcome",
                 "event_outcome_detail": "the event outcome detail",
-                "files": set([("f", "1")]),
-                "agents": set([("a", "1")]),
+                "files": {("f", "1")},
+                "agents": {("a", "1")},
             },
             "event_files": [
                 {

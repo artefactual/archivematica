@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,25 +14,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import json
 import logging
 
+import elasticSearchFunctions as es
+import requests
+import storageService as storage_service
+from archivematicaFunctions import AMCLIENT_ERROR_CODES
+from archivematicaFunctions import setup_amclient
+from components import advanced_search
+from components import decorators
+from components import helpers
 from django.conf import settings
 from django.contrib import messages
-from django.urls import reverse
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect
+from django.http import Http404
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
+from django.urls import reverse
 from django.utils.translation import ugettext as _
-import requests
-
-from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
-import elasticSearchFunctions as es
-import storageService as storage_service
-
-from components import advanced_search, decorators, helpers
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -317,7 +317,7 @@ def save_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON success confirmation
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = json.dumps(request.body.decode("utf8"))
     helpers.set_setting(setting_name, state)
     return helpers.json_response({"success": True})
@@ -330,7 +330,7 @@ def load_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON state
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = helpers.get_setting(setting_name)
     if state:
         return HttpResponse(

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Convert Dataverse Structure
 
 Given a transfer type Dataverse, read the metadata submission object
@@ -23,17 +21,15 @@ Archivematica documentation:
 
 https://wiki.archivematica.org/Dataverse
 """
-
 import json
 import os
 import sys
 import uuid
 
+import django
 from lxml import etree
 
 # Database functions requires Django to be set up.
-import django
-import six
 
 django.setup()
 
@@ -73,10 +69,10 @@ def output_ddi_elems_info(job, ddi_elems):
     """
     draft = False
     job.pyprint("Fields retrieved from Dataverse:")
-    for ddi_k, ddi_v in six.iteritems(ddi_elems):
+    for ddi_k, ddi_v in ddi_elems.items():
         if ddi_k == "Version Type" and ddi_v == "DRAFT":
             draft = True
-        job.pyprint("{}: {}".format(ddi_k, ddi_v))
+        job.pyprint(f"{ddi_k}: {ddi_v}")
     # Provide information to the user where data in the Dataverse may cause the
     # transfer to fail, e.g. when transferred in a DRAFT state.
     if draft:
@@ -229,7 +225,7 @@ def create_bundle(job, tabfile_json):
         return None
 
     # Else, continue processing.
-    job.pyprint("Creating entries for tabfile bundle {}".format(tabfile_name))
+    job.pyprint(f"Creating entries for tabfile bundle {tabfile_name}")
     base_name = tabfile_name[:-4]
     bundle = metsrw.FSEntry(path=base_name, type="Directory")
     # Find the original file and add it to the METS FS Entries.
@@ -247,13 +243,13 @@ def create_bundle(job, tabfile_json):
         fname = tabfile_datafile.get("filename")
         logger.info("Original Format Label is UNKNOWN, using filename: %s", fname)
     if fname is None:
-        fname = "{}{}".format(base_name, ext)
+        fname = f"{base_name}{ext}"
     checksum_value = tabfile_datafile.get("md5")
     if checksum_value is None:
         return None
     display_checksum_for_user(job, fname, checksum_value)
     original_file = metsrw.FSEntry(
-        path="{}/{}".format(base_name, fname),
+        path=f"{base_name}/{fname}",
         use="original",
         file_uuid=str(uuid.uuid4()),
         checksumtype="MD5",
@@ -263,7 +259,7 @@ def create_bundle(job, tabfile_json):
     if tabfile_datafile.get("originalFormatLabel") != "R Data":
         # RData derivative
         fsentry = metsrw.FSEntry(
-            path="{}/{}.RData".format(base_name, base_name),
+            path=f"{base_name}/{base_name}.RData",
             use="derivative",
             derived_from=original_file,
             file_uuid=str(uuid.uuid4()),
@@ -283,17 +279,17 @@ def create_bundle(job, tabfile_json):
         file_uuid=str(uuid.uuid4()),
     )
     fsentry.add_dmdsec(
-        md="{}/{}-ddi.xml".format(base_name, base_name),
+        md=f"{base_name}/{base_name}-ddi.xml",
         mdtype="DDI",
         mode="mdref",
-        label="{}-ddi.xml".format(base_name),
+        label=f"{base_name}-ddi.xml",
         loctype="OTHER",
         otherloctype="SYSTEM",
     )
     bundle.add_child(fsentry)
     # -ddi.xml
     fsentry = metsrw.FSEntry(
-        path="{}/{}-ddi.xml".format(base_name, base_name),
+        path=f"{base_name}/{base_name}-ddi.xml",
         use="metadata",
         derived_from=original_file,
         file_uuid=str(uuid.uuid4()),
@@ -301,7 +297,7 @@ def create_bundle(job, tabfile_json):
     bundle.add_child(fsentry)
     # citation - endnote
     fsentry = metsrw.FSEntry(
-        path="{}/{}citation-endnote.xml".format(base_name, base_name),
+        path=f"{base_name}/{base_name}citation-endnote.xml",
         use="metadata",
         derived_from=original_file,
         file_uuid=str(uuid.uuid4()),
@@ -309,7 +305,7 @@ def create_bundle(job, tabfile_json):
     bundle.add_child(fsentry)
     # citation - ris
     fsentry = metsrw.FSEntry(
-        path="{}/{}citation-ris.ris".format(base_name, base_name),
+        path=f"{base_name}/{base_name}citation-ris.ris",
         use="metadata",
         derived_from=original_file,
         file_uuid=str(uuid.uuid4()),
@@ -317,7 +313,7 @@ def create_bundle(job, tabfile_json):
     bundle.add_child(fsentry)
     # citation - bib
     fsentry = metsrw.FSEntry(
-        path="{}/{}citation-bib.bib".format(base_name, base_name),
+        path=f"{base_name}/{base_name}citation-bib.bib",
         use="metadata",
         derived_from=original_file,
         file_uuid=str(uuid.uuid4()),
@@ -490,9 +486,9 @@ def load_md_and_return_json(unit_path, dataset_md_name):
     json_path = os.path.join(unit_path, "metadata", dataset_md_name)
     logger.info("Metadata directory exists %s", os.path.exists(json_path))
     try:
-        with open(json_path, "r") as md_file:
+        with open(json_path) as md_file:
             return json.load(md_file)
-    except IOError as err:
+    except OSError as err:
         logger.error("Error opening dataset metadata: %s", err)
         return None
 
@@ -542,7 +538,7 @@ def convert_dataverse_to_mets(
     if sip is None:
         raise ConvertDataverseError("Error creating SIP from Dataverse DDI")
 
-    sip = add_metadata_ref(sip, dataset_md_name, "metadata/{}".format(dataset_md_name))
+    sip = add_metadata_ref(sip, dataset_md_name, f"metadata/{dataset_md_name}")
 
     sip = add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information)
     if sip is None:

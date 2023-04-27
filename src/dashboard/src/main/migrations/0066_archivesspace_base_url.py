@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Migrate the ArchivesSpace connection details.
 
 ``host`` and `port`` are replaced by ``base_url``.
 """
-from __future__ import absolute_import, unicode_literals
-
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from django.db import migrations
 
@@ -43,14 +39,14 @@ def _get_base_url(host, port):
     parts = host.partition(":")
     host = parts[0]
     if parts[1] == ":":
-        return "http://{}:{}".format(host, parts[2])
+        return f"http://{host}:{parts[2]}"
     try:
         port = int(port)
     except (ValueError, TypeError):
         pass
     else:
-        return "http://{}:{}".format(host, port)
-    return "http://{}".format(host)
+        return f"http://{host}:{port}"
+    return f"http://{host}"
 
 
 def _get_host_and_port(base_url):

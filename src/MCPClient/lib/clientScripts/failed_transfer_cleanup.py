@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import os
 
@@ -59,7 +58,7 @@ def call(jobs):
     parser = argparse.ArgumentParser(
         description="Cleanup from failed/rejected Transfers."
     )
-    parser.add_argument("fail_type", help='"%s" or "%s"' % (REJECTED, FAILED))
+    parser.add_argument("fail_type", help=f'"{REJECTED}" or "{FAILED}"')
     parser.add_argument("transfer_uuid", help="%SIPUUID%")
     parser.add_argument("transfer_path", help="%SIPDirectory%")
 

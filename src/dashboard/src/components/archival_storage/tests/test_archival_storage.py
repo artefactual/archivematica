@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2019 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,27 +14,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import, unicode_literals
-
 import json
 import os
 import uuid
+from io import StringIO
+from urllib.parse import urlencode
 
-from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
+import metsrw
+import pytest
+from agentarchives.atom.client import CommunicationError
+from components import helpers
+from components.archival_storage import atom
+from django.http import HttpResponse
+from django.http import HttpResponseNotFound
+from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from elasticsearch import Elasticsearch
-import pytest
-from six.moves.urllib.parse import urlencode
-from six import StringIO
-
-from agentarchives.atom.client import CommunicationError
-from components.archival_storage import atom
-from components import helpers
 from main.models import DashboardSetting
-
-import metsrw
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -124,11 +120,11 @@ def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
     mocker.patch("elasticSearchFunctions.get_client")
     mocker.patch(
         "elasticSearchFunctions.get_aip_data",
-        return_value={"_source": {"name": "transfer-{}".format(sip_uuid)}},
+        return_value={"_source": {"name": f"transfer-{sip_uuid}"}},
     )
     mock_response = StreamingHttpResponse(mets_hdr)
     mock_content_type = "application/xml"
-    mock_content_disposition = "attachment; filename=METS.{}.xml;".format(sip_uuid)
+    mock_content_disposition = f"attachment; filename=METS.{sip_uuid}.xml;"
     mock_response[CONTENT_TYPE] = mock_content_type
     mock_response[CONTENT_DISPOSITION] = mock_content_disposition
     mocker.patch(
@@ -136,7 +132,7 @@ def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
         return_value=mock_response,
     )
     response = admin_client.get(
-        "/archival-storage/download/aip/{}/mets_download/".format(sip_uuid)
+        f"/archival-storage/download/aip/{sip_uuid}/mets_download/"
     )
     response_text = get_streaming_response(response.streaming_content)
     assert response_text == mets_hdr
@@ -161,7 +157,7 @@ def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
         return_value=mock_response,
     )
     response = admin_client.get(
-        "/archival-storage/download/aip/{}/pointer_file/".format(sip_uuid)
+        f"/archival-storage/download/aip/{sip_uuid}/pointer_file/"
     )
     assert isinstance(response, HttpResponse)
     assert response.status_code == mock_status_code
@@ -175,8 +171,8 @@ def test_get_pointer_known_pointer(mocker, amsetup, admin_client, mets_hdr):
             sip_uuid
         )
     )
-    pointer_file = "pointer.{}.xml".format(sip_uuid)
-    content_disposition = 'attachment; filename="{}"'.format(pointer_file)
+    pointer_file = f"pointer.{sip_uuid}.xml"
+    content_disposition = f'attachment; filename="{pointer_file}"'
     mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
     mock_content_type = "application/xml"
     mock_response = StreamingHttpResponse(mets_hdr)
@@ -187,7 +183,7 @@ def test_get_pointer_known_pointer(mocker, amsetup, admin_client, mets_hdr):
         return_value=mock_response,
     )
     response = admin_client.get(
-        "/archival-storage/download/aip/{}/pointer_file/".format(sip_uuid)
+        f"/archival-storage/download/aip/{sip_uuid}/pointer_file/"
     )
     response_text = get_streaming_response(response.streaming_content)
     assert response_text == mets_hdr
@@ -379,7 +375,7 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
         "elasticSearchFunctions.get_aip_data",
         return_value={
             "_source": {
-                "name": "transfer-{}".format(sip_uuid),
+                "name": f"transfer-{sip_uuid}",
                 "filePath": str(file_path),
             }
         },

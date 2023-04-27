@@ -16,22 +16,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
-
 # /src/dashboard/src/main/models.py
-
 import collections
 import csv
 import sys
 import traceback
 
-# archivematicaCommon
 import archivematicaFunctions
-from six.moves import zip
+
+# archivematicaCommon
 
 
 def parseMetadata(job, SIPPath, state):
@@ -109,7 +106,7 @@ def parseMetadataCSV(job, metadataCSVFilePath):
     """
     metadata = {}
     # use universal newline mode to support unusual newlines, like \r
-    with open(metadataCSVFilePath, "rU") as f:
+    with open(metadataCSVFilePath) as f:
         reader = csv.reader(f)
         # Parse first row as header
         header = next(reader)

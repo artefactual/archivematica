@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-import mock
-
-from django.test import TestCase
+from unittest import mock
 
 from components import helpers
+from django.test import TestCase
 
 
 class TestStorage(TestCase):

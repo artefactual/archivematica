@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-
 from fpr import models as fprmodels
 
 
@@ -14,7 +10,7 @@ class FormatForm(forms.ModelForm):
     group = forms.ChoiceField(widget=forms.Select(attrs={"class": "form-control"}))
 
     def __init__(self, *args, **kwargs):
-        super(FormatForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # add 'create' option to the FormatGroup dropdown
         choices = [(f.uuid, f.description) for f in fprmodels.FormatGroup.objects.all()]
         choices.insert(0, ("", "---------"))
@@ -53,7 +49,7 @@ class FormatGroupForm(forms.ModelForm):
 
 class IDToolForm(forms.ModelForm):
     def clean(self):
-        cleaned_data = super(IDToolForm, self).clean()
+        cleaned_data = super().clean()
         if (
             self.instance.pk is None
             and fprmodels.IDTool.objects.filter(
@@ -82,7 +78,7 @@ class IDCommandForm(forms.ModelForm):
 
 class IDRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(IDRuleForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Limit to only enabled formats/commands
         self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
         self.fields["command"].queryset = fprmodels.IDCommand.active.all()
@@ -99,7 +95,7 @@ class FPRuleForm(forms.ModelForm):
     command = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
-        super(FPRuleForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add 'create' option to the FPCommand dropdown
         # Do not include event detail or verification, since those are not run
@@ -118,7 +114,7 @@ class FPRuleForm(forms.ModelForm):
         self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
 
     def clean(self):
-        cleaned_data = super(FPRuleForm, self).clean()
+        cleaned_data = super().clean()
         if self.instance.pk is None:
             try:
                 existing_fprule = fprmodels.FPRule.objects.get(
@@ -172,7 +168,7 @@ class FPCommandForm(forms.ModelForm):
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
-        super(FPCommandForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         verification_commands = fprmodels.FPCommand.active.filter(
             command_usage="verification"

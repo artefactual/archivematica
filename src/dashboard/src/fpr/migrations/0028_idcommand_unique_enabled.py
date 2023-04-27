@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """Make Siegfried the default IDCommand.
 
 We've changed file format identification commands so only one object can be
 enabled. This migration makes Siegfried the new default.
 """
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
 
 

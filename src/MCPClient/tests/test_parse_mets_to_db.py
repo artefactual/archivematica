@@ -1,10 +1,9 @@
-# -*- coding: utf8
-from lxml import etree
 import os
 import uuid
 
-from django.test import TestCase
 import pytest
+from django.test import TestCase
+from lxml import etree
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import parse_mets_to_db

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Bind PID. Command-line utility and module for requesting PID-binding against
 a Handle.net server.
 
@@ -132,12 +130,10 @@ Example::
         </soapenv:Body>
     </soapenv:Envelope>
 """
-from __future__ import absolute_import, print_function, unicode_literals
-
 import argparse
+import configparser
 import os
 
-import six.moves.configparser as configparser
 
 try:
     from jinja2 import Template
@@ -219,7 +215,7 @@ def _validate_handle_server_config(argdict):
     for param in REQ_PARAMS:
         val = argdict.get(param)
         if not val:
-            raise BindPIDException("A value for parameter {} is required".format(param))
+            raise BindPIDException(f"A value for parameter {param} is required")
 
 
 def _validate_entity_type_required_params(argdict):
@@ -229,7 +225,7 @@ def _validate_entity_type_required_params(argdict):
     for param in REQ_ENTITY_PARAMS:
         val = argdict.get(param)
         if not val:
-            raise BindPIDException("A value for parameter {} is required".format(param))
+            raise BindPIDException(f"A value for parameter {param} is required")
     entity_type = argdict["entity_type"]
     et_validation = ENTITY_TYPES.get(entity_type)
     if not et_validation:
@@ -251,14 +247,14 @@ def get_purl(pid, naming_authority, resolver_url):
     '12345'), and a resolver URL."""
     if resolver_url[-1] != "/":
         resolver_url += "/"
-    return "{}{}/{}".format(resolver_url, naming_authority, pid)
+    return f"{resolver_url}{naming_authority}/{pid}"
 
 
 def get_qualified_purl(purl, qualifier):
     """Not sure if this is a handle web API or an idiosyncracy of a wrapper
     around such.
     """
-    return "{}?locatt=view:{}".format(purl, qualifier)
+    return f"{purl}?locatt=view:{qualifier}"
 
 
 def _render_template(template, _params):
@@ -528,7 +524,7 @@ def _parse_config(args):
     if not cf:
         return {}
     if not os.path.isfile(cf):
-        print("Warning: there is no config file at {}".format(cf))
+        print(f"Warning: there is no config file at {cf}")
         return {}
     config = configparser.SafeConfigParser()
     with open(cf) as filei:

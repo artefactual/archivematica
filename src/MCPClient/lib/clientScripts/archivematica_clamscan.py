@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,18 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 import abc
 import argparse
+import errno
+import multiprocessing
 import os
 import re
-import multiprocessing
 import subprocess
 import uuid
-import errno
 
 import django
-import six
 
 django.setup()
 from django.db import transaction
@@ -70,11 +67,11 @@ def clamav_version_parts(ver):
             return version, None
     elif n == 3:
         version, defs, date = parts
-        return version, "{}/{}".format(defs, date)
+        return version, f"{defs}/{date}"
     return None, None
 
 
-class ScannerBase(six.with_metaclass(abc.ABCMeta, object)):
+class ScannerBase(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def scan(self, path):
         """Scan a file and return a tuple of three elements reporting the

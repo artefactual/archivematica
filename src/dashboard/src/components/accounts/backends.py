@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import json
 
+from components.helpers import generate_api_key
 from django.conf import settings
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
 from josepy.jws import JWS
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
-
-from components.helpers import generate_api_key
 
 
 class CustomShibbolethRemoteUserBackend(ShibbolethRemoteUserBackend):
@@ -25,7 +22,7 @@ class CustomCASBackend(CASBackend):
         # configured, add an email address for this user, using rule
         # username@domain.
         if settings.CAS_AUTOCONFIGURE_EMAIL and settings.CAS_EMAIL_DOMAIN:
-            user.email = "{0}@{1}".format(user.username, settings.CAS_EMAIL_DOMAIN)
+            user.email = f"{user.username}@{settings.CAS_EMAIL_DOMAIN}"
             user.save()
         return user
 
@@ -66,7 +63,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         return info
 
     def create_user(self, user_info):
-        user = super(CustomOIDCBackend, self).create_user(user_info)
+        user = super().create_user(user_info)
         for attr, value in user_info.items():
             setattr(user, attr, value)
         user.save()

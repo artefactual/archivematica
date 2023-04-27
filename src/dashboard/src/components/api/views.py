@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,37 +14,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from cgi import parse_header
 import json
-import shutil
 import logging
 import os
-import uuid
 import re
-
-from django.db.models import Q
-import django.http
-from django.conf import settings as django_settings
-from django.views.decorators.csrf import csrf_exempt
-import six
-
-from tastypie.authentication import (
-    ApiKeyAuthentication,
-    MultiAuthentication,
-    SessionAuthentication,
-)
+import shutil
+import uuid
+from cgi import parse_header
 
 import archivematicaFunctions
-from version import get_full_version
-
-from contrib.mcp.client import MCPClient
+import django.http
+from components import helpers
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
-from components import helpers
+from contrib.mcp.client import MCPClient
+from django.conf import settings as django_settings
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from main import models
 from processing import install_builtin_config
+from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import MultiAuthentication
+from tastypie.authentication import SessionAuthentication
+from version import get_full_version
+
 from . import validators
 
 LOGGER = logging.getLogger("archivematica.dashboard")
@@ -285,7 +277,7 @@ def status(request, unit_uuid, unit_type):
     try:
         status_info = get_unit_status(unit_uuid, unit_type)
     except IndexError as err:
-        msg = "Unable to determine the status of the unit {}".format(unit_uuid)
+        msg = f"Unable to determine the status of the unit {unit_uuid}"
         LOGGER.error("%s (%s)", msg, err)
         return _error_response(msg, status_code=400)
     response.update(status_info)
@@ -296,7 +288,7 @@ def status(request, unit_uuid, unit_type):
         return django.http.HttpResponseServerError(  # 500
             json.dumps(response), content_type="application/json"
         )
-    response["message"] = "Fetched status for {} successfully.".format(unit_uuid)
+    response["message"] = f"Fetched status for {unit_uuid} successfully."
     return helpers.json_response(response)
 
 
@@ -421,7 +413,7 @@ def _completed_units(unit_type="transfer"):
     status_err = None
     for unit in units:
         try:
-            status = get_unit_status(unit.uuid, "unit{0}".format(model_name))
+            status = get_unit_status(unit.uuid, f"unit{model_name}")
         except IndexError as err:
             status_err = err
             continue
@@ -624,7 +616,7 @@ def reingest(request, target):
         if name_has_uuid:
             sip_basename = sip_basename[:-37]
 
-        sip_basename = "{}-{}".format(sip_basename, reingest_uuid)
+        sip_basename = f"{sip_basename}-{reingest_uuid}"
         dest = os.path.join(dest, sip_basename)
         if os.path.isdir(dest):
             response = {
@@ -763,7 +755,7 @@ def processing_configuration(request, name):
     """
 
     config_path = os.path.join(
-        helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+        helpers.processing_config_path(), f"{name}ProcessingMCP.xml"
     )
 
     if request.method == "DELETE":
@@ -783,9 +775,9 @@ def processing_configuration(request, name):
 
         try:
             # Attempt to read the file
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 content = f.read()
-        except IOError:
+        except OSError:
             # The file didn't exist, so recreate it from the builtin config
             try:
                 content = install_builtin_config(name)
@@ -813,7 +805,7 @@ def processing_configurations(request):
     config_dir = helpers.processing_config_path()
     CONFIG_FILE_SUFFIX = "ProcessingMCP.xml"
     processing_configs = sorted(
-        [filename[: -len(CONFIG_FILE_SUFFIX)] for filename in os.listdir(config_dir)]
+        filename[: -len(CONFIG_FILE_SUFFIX)] for filename in os.listdir(config_dir)
     )
     return helpers.json_response({"processing_configurations": processing_configs})
 
@@ -866,7 +858,7 @@ def validate(request, validator_name):
     try:
         validator = validators.get_validator(validator_name)
     except validators.ValidatorNotAvailableError as err:
-        return _error_response(six.text_type(err), status_code=404)
+        return _error_response(str(err), status_code=404)
 
     # We could leverage Content-Type so a validator knows the type of document
     # and encoding that it's dealing with. For now, we're just enforcing that
@@ -878,11 +870,9 @@ def validate(request, validator_name):
     try:
         validator.validate(request.read())
     except validators.ValidationError as err:
-        return _ok_response(
-            {"valid": False, "reason": six.text_type(err)}, status_code=400
-        )
+        return _ok_response({"valid": False, "reason": str(err)}, status_code=400)
     except Exception as err:
-        LOGGER.error("Validator {} failed: {}".format(validator_name, err))
+        LOGGER.error(f"Validator {validator_name} failed: {err}")
         return _error_response(
             "Unexepected error in the validation process, see the logs for more details."
         )
@@ -926,7 +916,7 @@ def unit_jobs(request, unit_uuid):
     """Return jobs associated with a unit's UUID"""
     jobs = models.Job.objects.filter(sipuuid=unit_uuid).order_by("createdtime")
     if not jobs.count():
-        return _error_response("No jobs found for unit: {}".format(unit_uuid))
+        return _error_response(f"No jobs found for unit: {unit_uuid}")
     result = []
     microservice = request.GET.get("microservice")
     if microservice is not None:
@@ -960,5 +950,5 @@ def task(request, task_uuid):
     try:
         task = models.Task.objects.get(taskuuid=task_uuid)
     except models.Task.DoesNotExist:
-        return _error_response("Task with UUID {} does not exist".format(task_uuid))
+        return _error_response(f"Task with UUID {task_uuid} does not exist")
     return helpers.json_response(format_task(task, detailed_output=True))

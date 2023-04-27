@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,11 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import sys
 from optparse import OptionParser
@@ -100,7 +97,7 @@ def something(
                     dipPath = os.path.join(
                         DIPDirectory,
                         "objects",
-                        "%s-%s" % (objectUUID, os.path.basename(accessPath)),
+                        f"{objectUUID}-{os.path.basename(accessPath)}",
                     )
                     if copy:
                         job.pyprint("TODO - copy not supported yet")

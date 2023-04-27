@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os
-import tempfile
 import shutil
+import tempfile
+from unittest import mock
 
+import pytest
+from components import helpers
 from django.http import HttpResponse
 from django.test import TestCase
-
-from components import helpers
-from processing import DEFAULT_PROCESSING_CONFIG, AUTOMATED_PROCESSING_CONFIG
-
-import mock
-import pytest
+from processing import AUTOMATED_PROCESSING_CONFIG
+from processing import DEFAULT_PROCESSING_CONFIG
 
 
 @pytest.fixture

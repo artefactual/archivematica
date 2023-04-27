@@ -15,26 +15,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClient
-
 # archivematicaCommon
+from django.db.models import F
 from executeOrRunSubProcess import executeOrRun
 
 # dashboard
-from django.db.models import F
-import six
 
 
 def toStrFromUnicode(inputString, encoding="utf-8"):
     """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, six.string_types):
+    if isinstance(inputString, str):
         inputString = inputString.encode(encoding)
     return inputString
 
 
-class Command(object):
+class Command:
     def __init__(self, job, command, replacement_dict, on_success=None, opts=None):
         self.fpcommand = command
         self.command = command.command
@@ -128,7 +125,7 @@ class Command(object):
         return self.exit_code
 
 
-class CommandLinker(object):
+class CommandLinker:
     def __init__(self, job, fprule, command, replacement_dict, opts, on_success):
         self.fprule = fprule
         self.command = command

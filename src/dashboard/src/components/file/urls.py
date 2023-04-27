@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.conf.urls import url
-from django.conf import settings
-
 from components.file import views
+from django.conf import settings
+from django.conf.urls import url
 
 app_name = "file"
 urlpatterns = [

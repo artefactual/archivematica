@@ -1,27 +1,22 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import concurrent.futures
 import os
 import threading
 import uuid
+from io import StringIO
 
 import pytest
-import six
 from django.utils import timezone
 from lxml import etree
-
 from main import models
-from server.jobs import (
-    DirectoryClientScriptJob,
-    FilesClientScriptJob,
-    GetUnitVarLinkJob,
-    JobChain,
-    NextChainDecisionJob,
-    OutputClientScriptJob,
-    OutputDecisionJob,
-    SetUnitVarLinkJob,
-    UpdateContextDecisionJob,
-)
+from server.jobs import DirectoryClientScriptJob
+from server.jobs import FilesClientScriptJob
+from server.jobs import GetUnitVarLinkJob
+from server.jobs import JobChain
+from server.jobs import NextChainDecisionJob
+from server.jobs import OutputClientScriptJob
+from server.jobs import OutputDecisionJob
+from server.jobs import SetUnitVarLinkJob
+from server.jobs import UpdateContextDecisionJob
 from server.packages import Transfer
 from server.queues import PackageQueue
 from server.tasks import TaskBackend
@@ -32,7 +27,7 @@ FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixture
 INTEGRATION_TEST_PATH = os.path.join(FIXTURES_DIR, "workflow-integration-test.json")
 DEFAULT_STORAGE_LOCATION = "/api/v2/location/default/"
 TEST_PROCESSING_CONFIG = etree.parse(
-    six.moves.StringIO(
+    StringIO(
         """<processingMCP>
   <preconfiguredChoices>
     <!-- Store DIP -->
@@ -90,7 +85,7 @@ def dummy_file_replacements(request):
     for x in range(3):
         files.append(
             {
-                r"%relativeLocation%": "transfer_path/file{}".format(x),
+                r"%relativeLocation%": f"transfer_path/file{x}",
                 r"%fileUUID%": str(uuid.uuid4()),
             }
         )

@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
 
 import databaseFunctions
-
-from main.models import Event, File
-
-from django.test import TestCase
 import pytest
+from django.test import TestCase
+from main.models import Event
+from main.models import File
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

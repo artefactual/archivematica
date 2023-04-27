@@ -6,11 +6,10 @@
 #
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
-
-from lxml import etree
 import multiprocessing
 
 import django
+from lxml import etree
 
 django.setup()
 from django.db import transaction

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.core.paginator import Paginator, EmptyPage
+from django.core.paginator import EmptyPage
+from django.core.paginator import Paginator
 
 
 def pager(objects, items_per_page, current_page_number):

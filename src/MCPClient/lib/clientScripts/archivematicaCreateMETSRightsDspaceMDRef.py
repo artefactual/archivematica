@@ -16,20 +16,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import sys
-import lxml.etree as etree
 
-# dashboard
+import lxml.etree as etree
+import namespaces as ns
 from main.models import File
 
+# dashboard
 # archivematicaCommon
-import namespaces as ns
 
 
 def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
@@ -41,7 +39,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
         "{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}rightsMD"
     ):
         # print "rights id:", item.get("ID")
-        XPTR = "%s %s" % (XPTR, item.get("ID"))
+        XPTR = "{} {}".format(XPTR, item.get("ID"))
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
     mdRef = etree.Element(ns.metsBNS + "mdRef")
     mdRef.set("LABEL", LABEL)
@@ -61,7 +59,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
     try:
         job.pyprint(fileUUID, filePath)
         # Find the mets file. May find none.
-        path = "%SIPDirectory%{}/mets.xml".format(os.path.dirname(filePath))
+        path = f"%SIPDirectory%{os.path.dirname(filePath)}/mets.xml"
         try:
             mets = File.objects.get(currentlocation=path, transfer_id=transferUUID)
         except File.DoesNotExist:
@@ -86,7 +84,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
             if not os.path.isdir(fullDir):
                 continue
 
-            path = "%SIPDirectory%{}/mets.xml".format(fullDir2)
+            path = f"%SIPDirectory%{fullDir2}/mets.xml"
             try:
                 f = File.objects.get(currentlocation=path, transfer_id=transferUUID)
             except File.DoesNotExist:

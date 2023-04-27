@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
 import multiprocessing
 import sys
 
-from bagit import Bag, BagError
+from bagit import Bag
+from bagit import BagError
 
 
 def is_bag(path, printfn=print):

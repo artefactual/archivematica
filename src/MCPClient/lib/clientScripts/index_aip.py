@@ -1,20 +1,18 @@
 #!/usr/bin/env python
-
-from glob import glob
 import os
 import sys
 import traceback
-
-# dashboard
-from main.models import UnitVariable
-
-# archivematicaCommon
-from custom_handlers import get_script_logger
-import elasticSearchFunctions
-import storageService as storage_service
-import identifier_functions
+from glob import glob
 
 import django
+import elasticSearchFunctions
+import identifier_functions
+import storageService as storage_service
+from custom_handlers import get_script_logger
+from main.models import UnitVariable
+
+# dashboard
+# archivematicaCommon
 
 django.setup()
 
@@ -28,12 +26,12 @@ def get_identifiers(job, sip_path):
     identifiers = []
 
     # MODS
-    mods_paths = glob("{}/submissionDocumentation/**/mods/*.xml".format(sip_path))
+    mods_paths = glob(f"{sip_path}/submissionDocumentation/**/mods/*.xml")
     for mods in mods_paths:
         identifiers.extend(identifier_functions.extract_identifiers_from_mods(mods))
 
     # Islandora identifier
-    islandora_path = glob("{}/submissionDocumentation/**/*-METS.xml".format(sip_path))
+    islandora_path = glob(f"{sip_path}/submissionDocumentation/**/*-METS.xml")
     for mets in islandora_path:
         identifiers.extend(identifier_functions.extract_identifier_from_islandora(mets))
 
@@ -62,7 +60,7 @@ def index_aip(job):
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
-    mets_staging_path = os.path.join(sip_staging_path, "METS.{}.xml".format(sip_uuid))
+    mets_staging_path = os.path.join(sip_staging_path, f"METS.{sip_uuid}.xml")
     identifiers = get_identifiers(job, sip_staging_path)
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None

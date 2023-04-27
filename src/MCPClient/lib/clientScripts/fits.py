@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,23 +15,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
-import lxml.etree as etree
 import os
 import tempfile
 
-# archivematicaCommon
+import django
+import lxml.etree as etree
 from archivematicaFunctions import getTagged
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoFPCommandOutput
+from django.db import transaction
 from executeOrRunSubProcess import executeOrRun
 
-import django
-from django.db import transaction
+# archivematicaCommon
 
 django.setup()
 # dashboard

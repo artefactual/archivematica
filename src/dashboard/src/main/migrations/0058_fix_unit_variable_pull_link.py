@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 """Migration to update "Resume after normalization file identification tool
 selected." chain link to exit with the successful status.
 """
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
+from main.models import Job
 
 # Can't use apps.get_model for this model as we need to access class attributes.
-from main.models import Job
 
 
 # Link: "Resume after normalization file identification tool selected."

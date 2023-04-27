@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,16 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-
 """archivematicaFunctions provides various helper functions across the
 different Archivematica modules.
 """
-from __future__ import absolute_import, print_function
-
 import base64
 import collections
 import errno
@@ -34,6 +29,7 @@ import locale
 import os
 import pprint
 import re
+from itertools import zip_longest
 from uuid import uuid4
 
 try:
@@ -43,8 +39,6 @@ except ImportError:
 
 from django.apps import apps
 import scandir
-import six
-from six.moves import zip_longest
 from lxml import etree
 from namespaces import NSMAP, xml_find_premis
 
@@ -120,7 +114,7 @@ class OrderedListsDict(collections.OrderedDict):
         try:
             self[key]
         except KeyError:
-            super(OrderedListsDict, self).__setitem__(key, [])
+            super().__setitem__(key, [])
         self[key].append(value)
 
 
@@ -164,10 +158,10 @@ def getTagged(root, tag):
 def escapeForCommand(string):
     """Escape special characters in a given string."""
     ret = string
-    if isinstance(ret, six.string_types):
+    if isinstance(ret, str):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace('"', '\\"')
-        ret = ret.replace("`", "\`")
+        ret = ret.replace("`", r"\`")
         # ret = ret.replace("'", "\\'")
         # ret = ret.replace("$", "\\$")
     return ret
@@ -178,7 +172,7 @@ def escape(string):
     primarily for arbitrary strings (e.g. filenames, paths) that might not
     be valid unicode to begin with.
     """
-    if isinstance(string, six.binary_type):
+    if isinstance(string, bytes):
         string = string.decode("utf-8", errors="replace")
     return string
 
@@ -260,11 +254,9 @@ def find_mets_file(unit_path):
     if len(mets_paths) == 1:
         return mets_paths[0]
     elif len(mets_paths) == 0:
-        raise OSError(errno.EEXIST, "No METS file found in {}".format(src))
+        raise OSError(errno.EEXIST, f"No METS file found in {src}")
     else:
-        raise OSError(
-            errno.EEXIST, "Multiple METS files found in {}: {}".format(src, mets_paths)
-        )
+        raise OSError(errno.EEXIST, f"Multiple METS files found in {src}: {mets_paths}")
 
 
 def create_directories(directories, basepath="", printing=False, printfn=print):
@@ -304,7 +296,7 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
-        msg = "Assigning UUID {} to directory path {}".format(dir_uuid, dir_path)
+        msg = f"Assigning UUID {dir_uuid} to directory path {dir_path}"
         printfn(msg)
         if logger:
             logger.info(msg)
@@ -448,7 +440,7 @@ def find_transfer_path_from_ingest(transfer_path, shared_path):
     if os.path.isdir(path):
         return path
 
-    path = os.path.join(shared_path, "tmp", "transfer-{}".format(transfer_uuid))
+    path = os.path.join(shared_path, "tmp", f"transfer-{transfer_uuid}")
     if os.path.isdir(path):
         return path
 
@@ -489,7 +481,7 @@ def find_aips_in_aic(aic_root):
         "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
     )
     try:
-        return re.search("\d+", extent.text).group()
+        return re.search(r"\d+", extent.text).group()
     except AttributeError:
         return None
 
@@ -529,8 +521,8 @@ def relative_path_to_aip_mets_file(uuid, current_path):
     :returns: Relative path to AIP METS file.
     """
     package_name_without_extensions = package_name_from_path(current_path)
-    mets_name = "METS.{}.xml".format(uuid)
-    mets_path = "{}/data/{}".format(package_name_without_extensions, mets_name)
+    mets_name = f"METS.{uuid}.xml"
+    mets_path = f"{package_name_without_extensions}/data/{mets_name}"
     return mets_path
 
 

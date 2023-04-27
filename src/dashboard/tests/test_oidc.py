@@ -1,8 +1,7 @@
 import pytest
+from components.accounts.backends import CustomOIDCBackend
 from django.conf import settings
 from django.test import TestCase
-
-from components.accounts.backends import CustomOIDCBackend
 
 
 @pytest.mark.skipif(

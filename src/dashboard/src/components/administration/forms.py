@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,20 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import, division
-
 import os
-from lxml import etree
 
+from components import helpers
+from contrib.mcp.client import MCPClient
 from django import forms
 from django.conf import settings
-from django.forms.widgets import TextInput, Select
+from django.forms.widgets import Select
+from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _
-
-from contrib.mcp.client import MCPClient
-from components import helpers
-from installer.forms import site_url_field, load_site_url
-from main.models import Agent, TaxonomyTerm
+from installer.forms import load_site_url
+from installer.forms import site_url_field
+from lxml import etree
+from main.models import Agent
+from main.models import TaxonomyTerm
 
 
 class AgentForm(forms.ModelForm):
@@ -198,7 +197,7 @@ class GeneralSettingsForm(SettingsForm):
     site_url = site_url_field
 
     def __init__(self, *args, **kwargs):
-        super(GeneralSettingsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         load_site_url(self.fields["site_url"])
 
 
@@ -301,7 +300,7 @@ class ProcessingConfigurationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user")
-        super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.load_processing_config_fields(user)
         self.create_fields()
 
@@ -332,7 +331,7 @@ class ProcessingConfigurationForm(forms.Form):
 
     def get_processing_config_path(self, name):
         return os.path.join(
-            helpers.processing_config_path(), "{}ProcessingMCP.xml".format(name)
+            helpers.processing_config_path(), f"{name}ProcessingMCP.xml"
         )
 
     def load_config(self, name):
@@ -381,13 +380,13 @@ class ProcessingConfigurationForm(forms.Form):
                     "Unknown value for processing field %s: %s", link_id, choice
                 )
             for applies_to, go_to_chain, label in matches:
-                comment = "{}: {}".format(self.fields[link_id].label, label)
+                comment = f"{self.fields[link_id].label}: {label}"
                 config.add_choice(applies_to, go_to_chain, comment)
 
         config.save(self.get_processing_config_path(name))
 
 
-class PreconfiguredChoices(object):
+class PreconfiguredChoices:
     """
     Encode processing configuration XML documents and optionally write to disk.
     """
@@ -398,7 +397,7 @@ class PreconfiguredChoices(object):
 
     def add_choice(self, applies_to_text, go_to_chain_text, comment=None):
         if comment is not None:
-            comment = etree.Comment(" {} ".format(comment))
+            comment = etree.Comment(f" {comment} ")
             self.choices.append(comment)
         choice = etree.SubElement(self.choices, "preconfiguredChoice")
         etree.SubElement(choice, "appliesTo").text = applies_to_text

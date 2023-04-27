@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,11 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 from django import forms
-from main import models
 from django.conf import settings
+from main import models
 
 
 class DublinCoreMetadataForm(forms.ModelForm):
@@ -62,7 +59,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
     aic_prefix = "AIC#"
 
     def __init__(self, *args, **kwargs):
-        super(DublinCoreMetadataForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields:
             if isinstance(self.fields[field].widget, forms.widgets.TextInput):
                 self.fields[field].widget.attrs = settings.INPUT_WITH_HELP_ATTRS
@@ -76,7 +73,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
         # UPDATED to indicate this.
         if self.instance.status == models.METADATA_STATUS_REINGEST:
             self.instance.status = models.METADATA_STATUS_UPDATED
-        return super(DublinCoreMetadataForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def clean_is_part_of(self):
         data = self.cleaned_data["is_part_of"]
@@ -108,7 +105,7 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
         widgets = DublinCoreMetadataForm.Meta.widgets.copy()
 
     def __init__(self, *args, **kwargs):
-        super(AICDublinCoreMetadataForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["identifier"].required = True
 
     def clean_identifier(self):

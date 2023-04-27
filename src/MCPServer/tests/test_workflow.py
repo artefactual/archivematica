@@ -1,15 +1,10 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import os
+from io import StringIO
 
-from six.moves import StringIO
-from six import next, itervalues
-from django.utils.translation import ugettext_lazy
 import pytest
-
-from server import translation, workflow
+from django.utils.translation import ugettext_lazy
+from server import translation
+from server import workflow
 
 
 ASSETS_DIR = os.path.join(
@@ -57,10 +52,10 @@ def test_load_valid_document(path):
 
     chains = wf.get_chains()
     assert len(chains) > 0
-    first_chain = next(itervalues(chains))
+    first_chain = next(iter(chains.values()))
     assert isinstance(first_chain, workflow.Chain)
     assert str(first_chain) == first_chain.id
-    assert repr(first_chain) == "Chain <{}>".format(first_chain.id)
+    assert repr(first_chain) == f"Chain <{first_chain.id}>"
     assert isinstance(first_chain.link, workflow.Link)
     assert isinstance(first_chain.link, workflow.BaseLink)
     assert isinstance(first_chain["description"], workflow.TranslationLabel)
@@ -68,8 +63,8 @@ def test_load_valid_document(path):
 
     links = wf.get_links()
     assert len(links) > 0
-    first_link = next(itervalues(links))
-    assert repr(first_link) == "Link <{}>".format(first_link.id)
+    first_link = next(iter(links.values()))
+    assert repr(first_link) == f"Link <{first_link.id}>"
     assert isinstance(first_link, workflow.Link)
     assert first_link.config == first_link._src["config"]
 
@@ -89,7 +84,7 @@ def test_load_valid_document(path):
     )
 
     # Test normalization of job statuses.
-    link = next(itervalues(links))
+    link = next(iter(links.values()))
     valid_statuses = workflow._STATUSES.values()
     assert link["fallback_job_status"] in valid_statuses
     for item in link["exit_codes"].values():

@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import TestCase
-
 from components import helpers
-from fpr.models import FPTool, IDTool, FPCommand
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
+from fpr.models import FPCommand
+from fpr.models import FPTool
+from fpr.models import IDTool
 
 
 class TestViews(TestCase):

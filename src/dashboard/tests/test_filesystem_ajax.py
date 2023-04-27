@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
 import os
-import uuid
 import tempfile
+import uuid
+from unittest import mock
 
-from django.urls import reverse
-from django.test import TestCase
-from django.test.client import Client, RequestFactory
 import pytest
-import mock
+from django.test import TestCase
+from django.test.client import Client
+from django.test.client import RequestFactory
+from django.urls import reverse
 
 try:
     from pathlib import Path
@@ -516,7 +514,7 @@ def test_copy_metadata_files(
     sip_uuid = str(uuid.uuid4())
     sip = models.SIP.objects.create(
         uuid=sip_uuid,
-        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+        currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
     if set_partial_reingest_flag:
         sip.set_partial_reingest()
@@ -567,7 +565,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     TEST_UUID = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
     TEST_SS_URL = "http://test-url"
     TEST_BACKLOG_LOCATION_PATH = "/path/to/test/location"
-    TEST_RELPATH = "transfer-{}/data/objects/bird.mp3".format(TEST_UUID)
+    TEST_RELPATH = f"transfer-{TEST_UUID}/data/objects/bird.mp3"
     TEST_ABSPATH = os.path.join(TEST_BACKLOG_LOCATION_PATH, "originals", TEST_RELPATH)
 
     mock_get_file_info = mocker.patch("elasticSearchFunctions.get_transfer_file_info")
@@ -592,7 +590,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     )
 
     factory = RequestFactory()
-    request = factory.get("/filesystem/{}/download/".format(TEST_UUID))
+    request = factory.get(f"/filesystem/{TEST_UUID}/download/")
 
     views.download_by_uuid(request, TEST_UUID, preview_file=preview)
 

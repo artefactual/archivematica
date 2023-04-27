@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import json
-import requests
 
 import pytest
-
+import requests
 from amclient import AMClient
 from components import helpers
 
@@ -41,8 +37,8 @@ def setup_ptr_info(sip_uuid):
             sip_uuid
         )
     )
-    pointer_file = "pointer.{}.xml".format(sip_uuid)
-    content_disposition = 'attachment; filename="{}"'.format(pointer_file)
+    pointer_file = f"pointer.{sip_uuid}.xml"
+    content_disposition = f'attachment; filename="{pointer_file}"'
     return pointer_url, pointer_file, content_disposition
 
 
@@ -103,11 +99,9 @@ def test_stream_mets_from_storage_no_file(mocker, tmp_path):
 
 def test_stream_mets_from_storage_success(mocker, mets_hdr, tmpdir):
     sip_uuid = "33333333-3333-3333-3333-333333333333"
-    mets_file = "METS.{}.xml".format(sip_uuid)
+    mets_file = f"METS.{sip_uuid}.xml"
     mock_response = requests.Response()
-    mock_response.headers = {
-        CONTENT_DISPOSITION: "attachment; filename={};".format(mets_file)
-    }
+    mock_response.headers = {CONTENT_DISPOSITION: f"attachment; filename={mets_file};"}
     mock_response.status_code = RESPONSE_200
     mock_response.raw = mets_stream(tmpdir, mets_hdr)
     mock_amclient_details(mocker, return_value=mock_response)

@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-import bagit
-from mock import patch
-import pytest
-from six.moves import range
+from unittest.mock import patch
 
 import archivematicaFunctions as am
+import bagit
+import pytest
 
 
 def test_find_mets_file_match(tmp_path):
@@ -21,19 +17,17 @@ def test_find_mets_file_ambiguous_mets_file(tmp_path):
     metadata_dir = tmp_path / "metadata"
     metadata_dir.mkdir()
     for i in range(3):
-        mets_file = metadata_dir / ("METS.{}.xml".format(i))
+        mets_file = metadata_dir / (f"METS.{i}.xml")
         mets_file.touch()
 
     with pytest.raises(
-        OSError, match="Multiple METS files found in {}/metadata".format(tmp_path)
+        OSError, match=f"Multiple METS files found in {tmp_path}/metadata"
     ):
         am.find_mets_file(str(tmp_path))
 
 
 def test_find_mets_file_no_mets_file(tmp_path):
-    with pytest.raises(
-        OSError, match="No METS file found in {}/metadata".format(tmp_path)
-    ):
+    with pytest.raises(OSError, match=f"No METS file found in {tmp_path}/metadata"):
         am.find_mets_file(str(tmp_path))
 
 

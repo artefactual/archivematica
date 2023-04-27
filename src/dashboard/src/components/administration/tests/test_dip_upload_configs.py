@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.urls import reverse
-from django.test import TestCase
-
 from components import helpers
-from components.administration.views_dip_upload import _AS_DICTNAME, _ATOM_DICTNAME
+from components.administration.views_dip_upload import _AS_DICTNAME
+from components.administration.views_dip_upload import _ATOM_DICTNAME
+from django.test import TestCase
+from django.urls import reverse
 from main.models import DashboardSetting
 
 

@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 # Documentation: http://docs.gunicorn.org/en/stable/configure.html
 # Example: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
-from __future__ import absolute_import
-
 import os
 import shutil
 import tempfile
@@ -56,7 +53,7 @@ if (
     and workers != "1"
 ):
     prometheus_multiproc_dir = tempfile.mkdtemp(prefix="prometheus-stats")
-    raw_env = ["prometheus_multiproc_dir={}".format(prometheus_multiproc_dir)]
+    raw_env = [f"prometheus_multiproc_dir={prometheus_multiproc_dir}"]
 
     def child_exit(server, worker):
         # Lazy import to avoid checking for the existance of

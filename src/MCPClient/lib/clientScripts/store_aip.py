@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,20 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import argparse
 import os
-from pprint import pformat
 import shutil
+from pprint import pformat
 from uuid import uuid4
 
-# storageService requires Django to be set up
 import django
 import scandir
+
+# storageService requires Django to be set up
 
 django.setup()
 from django.db import transaction
@@ -173,7 +171,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     related_package_uuid = None
     if sip_type == "DIP":
         uuid = str(uuid4())
-        job.pyprint("Checking if DIP {} parent AIP has been created...".format(uuid))
+        job.pyprint(f"Checking if DIP {uuid} parent AIP has been created...")
 
         # Set related package UUID, so a relationship to the parent AIP can be
         # created if if AIP has been stored. If the AIP hasn't yet been stored
@@ -244,11 +242,11 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
             related_package_uuid,
         )
     except StorageServiceCreateFileError as err:
-        errmsg = "{} creation failed: {}.".format(sip_type, err)
+        errmsg = f"{sip_type} creation failed: {err}."
         logger.warning(errmsg)
         raise Exception(errmsg + " See logs for more details.")
 
-    message = "Storage Service created {}:\n{}".format(sip_type, pformat(new_file))
+    message = f"Storage Service created {sip_type}:\n{pformat(new_file)}"
     logger.info(message)
     job.pyprint(message)
 

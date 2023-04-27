@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,15 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
-import uuid
-import shutil
 import os
+import shutil
 import sys
+import uuid
 
 import django
 from django.db import transaction
@@ -59,7 +56,7 @@ def call(jobs):
                         )
                         continue
 
-                    sipName = "%s-%s" % (transferName, container)
+                    sipName = f"{transferName}-{container}"
 
                     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
                     destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"

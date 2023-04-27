@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import logging
 
+from components.helpers import generate_api_key
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.dispatch import receiver
 from django_auth_ldap.backend import populate_user
 from django_cas_ng.signals import cas_user_authenticated
-
-from components.helpers import generate_api_key
 
 logger = logging.getLogger("archivematica.dashboard")
 

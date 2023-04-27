@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,36 +14,36 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from collections import OrderedDict
 import csv
-from datetime import datetime
 import json
 import logging
 import os
 import uuid
+from collections import OrderedDict
+from datetime import datetime
 
-from django.contrib import messages
-from django.conf import settings
-from django.http import HttpResponse, Http404, StreamingHttpResponse
-from django.shortcuts import render, redirect
-from django.template.defaultfilters import filesizeformat
-from django.utils.timezone import make_aware, get_current_timezone
-from django.utils.translation import ugettext as _
-from elasticsearch import ElasticsearchException
-import six
-
-from archivematicaFunctions import setup_amclient, AMCLIENT_ERROR_CODES
-from components import advanced_search, helpers
-from components.archival_storage import forms
-from components.archival_storage.atom import (
-    upload_dip_metadata_to_atom,
-    AtomMetadataUploadError,
-)
 import databaseFunctions
 import elasticSearchFunctions as es
 import storageService as storage_service
+from archivematicaFunctions import AMCLIENT_ERROR_CODES
+from archivematicaFunctions import setup_amclient
+from components import advanced_search
+from components import helpers
+from components.archival_storage import forms
+from components.archival_storage.atom import AtomMetadataUploadError
+from components.archival_storage.atom import upload_dip_metadata_to_atom
+from django.conf import settings
+from django.contrib import messages
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import StreamingHttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.template.defaultfilters import filesizeformat
+from django.utils.timezone import get_current_timezone
+from django.utils.timezone import make_aware
+from django.utils.translation import ugettext as _
+from elasticsearch import ElasticsearchException
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -224,12 +223,6 @@ def generate_search_as_csv_rows(csvwriter, es_results):
     # Header.
     yield csvwriter.writerow(_ORDERED_DICT_ES_FIELDS.values())
 
-    def encode(item):
-        """Only needed in Python 2."""
-        if six.PY2 and isinstance(item, six.text_type):
-            return item.encode("utf-8")
-        return item
-
     # Rows.
     keys = _ORDERED_DICT_ES_FIELDS.keys()
     current_timezone = get_current_timezone()
@@ -253,11 +246,11 @@ def generate_search_as_csv_rows(csvwriter, es_results):
             created = row[es.ES_FIELD_CREATED]
         row[es.ES_FIELD_CREATED] = created
 
-        yield csvwriter.writerow([encode(item) for item in row.values()])
+        yield csvwriter.writerow(list(row.values()))
 
 
 def search_as_csv(es_results, file_name):
-    class echo(object):
+    class echo:
         """File-like object that returns the value written."""
 
         def write(self, value):
@@ -268,7 +261,7 @@ def search_as_csv(es_results, file_name):
         generate_search_as_csv_rows(writer, es_results),
         content_type=CSV_MIMETYPE,
     )
-    response["Content-Disposition"] = 'attachment; filename="{}"'.format(file_name)
+    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
     response["Content-Type"] = "{}; charset={}".format(CSV_MIMETYPE, "utf-8")
 
     return response
@@ -291,7 +284,7 @@ def search(request):
     file_name = request.GET.get(FILE_NAME, "archival-storage-report.csv")
 
     if request_file and file_mime != CSV_MIMETYPE:
-        return HttpResponse("Please use ?mimeType={}".format(CSV_MIMETYPE), status=400)
+        return HttpResponse(f"Please use ?mimeType={CSV_MIMETYPE}", status=400)
 
     # Configure page-size requirements for the search.
     DEFAULT_PAGE_SIZE = 10
@@ -507,7 +500,7 @@ def create_aic(request):
 
     # Make a list of UUIDs from from comma-separated string in request.
     aip_uuids = uuids.split(",")
-    logger.info("AIC AIP UUIDs: {}".format(aip_uuids))
+    logger.info(f"AIC AIP UUIDs: {aip_uuids}")
 
     # Use the AIP UUIDs to fetch names, which are used to produce files below.
     query = {"query": {"terms": {"uuid": aip_uuids}}}
@@ -526,7 +519,7 @@ def create_aic(request):
         os.chmod(destination, DIRECTORY_PERMISSIONS)
     except OSError as e:
         messages.error(request, "Error creating AIC")
-        logger.exception("Error creating AIC: {}".format(e))
+        logger.exception(f"Error creating AIC: {e}")
         return redirect("archival_storage:archival_storage_index")
 
     # Create an entry for the SIP (AIC) in the database.
@@ -782,7 +775,7 @@ def view_aip(request, uuid):
         "created": source.get("created"),
         "status": AIP_STATUS_DESCRIPTIONS[source.get("status", es.STATUS_UPLOADED)],
         "encrypted": source.get("encrypted", False),
-        "size": "{0:.2f} MB".format(source.get("size", 0)),
+        "size": "{:.2f} MB".format(source.get("size", 0)),
         "location_basename": os.path.basename(source.get("filePath")),
         "active_tab": active_tab,
         "forms": {
@@ -802,7 +795,7 @@ def save_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON success confirmation
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = json.dumps(request.body.decode("utf8"))
     helpers.set_setting(setting_name, state)
     return helpers.json_response({"success": True})
@@ -815,7 +808,7 @@ def load_state(request, table):
     :param table: Name of table to store state for.
     :return: JSON state
     """
-    setting_name = "{}_datatable_state".format(table)
+    setting_name = f"{table}_datatable_state"
     state = helpers.get_setting(setting_name)
     if state:
         return HttpResponse(

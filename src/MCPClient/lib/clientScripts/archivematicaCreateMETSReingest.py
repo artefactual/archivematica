@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 import copy
-from lxml import etree
 import os
 
-import metsrw
-import scandir
-
-import create_mets_v2 as createmets2
-import archivematicaCreateMETSRights as createmetsrights
 import archivematicaCreateMETSMetadataCSV as createmetscsv
-
+import archivematicaCreateMETSRights as createmetsrights
+import create_mets_v2 as createmets2
+import metsrw
 import namespaces as ns
-
-# dashboard
+import scandir
+from lxml import etree
 from main import models
 
-import six
+# dashboard
 
 
 def _create_premis_object(premis_object_type):
@@ -395,7 +391,7 @@ def add_events(job, mets, sip_uuid):
         fsentry.add_premis_event(createmets2.createEvent(event))
 
     # Add PREMIS agents.
-    for fsentry in six.itervalues(visited):
+    for fsentry in visited.values():
         for identifier_type, identifier_value in _extract_event_agents(fsentry):
             try:
                 agent = agents[(identifier_type, identifier_value)]

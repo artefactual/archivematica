@@ -1,11 +1,10 @@
 import uuid
 
+import elasticSearchFunctions as es
+import pytest
 from django.core.management import call_command
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
-import pytest
-
-import elasticSearchFunctions as es
 from main import models
 
 

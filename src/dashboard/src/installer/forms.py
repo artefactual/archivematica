@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,15 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _
-
 from main.models import DashboardSetting
 
 
@@ -65,7 +61,7 @@ class SuperUserCreationForm(UserCreationForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(SuperUserCreationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         load_site_url(self.fields["site_url"])
 
     def save(self, commit=True):
@@ -100,7 +96,7 @@ class OrganizationForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(OrganizationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         load_site_url(self.fields["site_url"])
 
 

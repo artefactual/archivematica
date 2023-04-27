@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
-
-from django.urls import reverse
-from django.test import TestCase, Client
-import mock
+from unittest import mock
 
 from archivematicaFunctions import b64encode_string
 from components import helpers
 from components.api import validators
+from django.test import Client
+from django.test import TestCase
+from django.urls import reverse
 from version import get_full_version
 
 
-class MCPClientMock(object):
+class MCPClientMock:
     def __init__(self, fails=False):
         self.fails = fails
 

@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
+
 import pytest
-
-from dicts import ReplacementDict, ChoicesDict
+from dicts import ChoicesDict
+from dicts import ReplacementDict
 from dicts import setup as setup_dicts
-
 from main import models
 
 TRANSFER = models.Transfer(

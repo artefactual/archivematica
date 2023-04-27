@@ -1,16 +1,10 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
-
 import os
 import shutil
 
-import pytest
-import six
-
-from main import models
-from job import Job
-
 import parse_external_mets
+import pytest
+from job import Job
+from main import models
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +34,7 @@ def test_mets_not_found(job, transfer_dir):
     exit_code = parse_external_mets.main(
         job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_dir)
     )
-    error = six.ensure_text(job.error)
+    error = job.error
 
     # It does not fail but the error is recorded.
     assert error == "[Errno 17] No METS file found in {}\n".format(
@@ -57,7 +51,7 @@ def test_mets_cannot_parse(job, transfer_dir):
     exit_code = parse_external_mets.main(
         job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_dir)
     )
-    error = six.ensure_text(job.output)
+    error = str(job.output)
 
     # It does not fail but the error is recorded.
     # TODO: why are we not communicating this error?

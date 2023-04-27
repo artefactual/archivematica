@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Archivematica MCPServer API (Gearman RPC).
 
 We have plans to replace this server with gRPC.
@@ -7,28 +6,28 @@ TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from collections import OrderedDict
-
 import calendar
+import configparser
 import inspect
 import logging
-from socket import gethostname
+import pickle
 import re
 import time
+from collections import OrderedDict
+from io import StringIO
+from socket import gethostname
 
+import gearman
 from django.conf import settings as django_settings
 from django.db import connection
-from six.moves import configparser
 from gearman import GearmanWorker
-import gearman
 from lxml import etree
-from six.moves import cPickle
-import six
-
-from main.models import Job, SIP, Transfer
+from main.models import Job
+from main.models import SIP
+from main.models import Transfer
 from server.db import auto_close_old_connections
-from server.packages import create_package, get_approve_transfer_chain_id
+from server.packages import create_package
+from server.packages import get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
 
 
@@ -108,13 +107,13 @@ class RPCServer(GearmanWorker):
     APPROVE_AIP_REINGEST_CHAIN_ID = "260ef4ea-f87d-4acf-830d-d0de41e6d2af"
 
     def __init__(self, workflow, shutdown_event, package_queue, executor):
-        super(RPCServer, self).__init__(host_list=[django_settings.GEARMAN_SERVER])
+        super().__init__(host_list=[django_settings.GEARMAN_SERVER])
         self.workflow = workflow
         self.shutdown_event = shutdown_event
         self.package_queue = package_queue
         self.executor = executor
         self._register_tasks()
-        client_id = "{}_MCPServer".format(gethostname()).encode("utf-8")
+        client_id = f"{gethostname()}_MCPServer".encode()
         self.set_client_id(client_id)
 
     def after_poll(self, any_activity):
@@ -127,7 +126,7 @@ class RPCServer(GearmanWorker):
     def _register_tasks(self):
         for ability, handler in self._handlers():
             logger.debug("Registering ability %s", ability)
-            self.register_task(six.ensure_binary(ability), handler)
+            self.register_task(ability.encode(), handler)
 
     def _handlers(self):
         members = inspect.getmembers(self, predicate=inspect.ismethod)
@@ -142,7 +141,7 @@ class RPCServer(GearmanWorker):
     def _get_ability_details(self, handler):
         docstring = str(inspect.getdoc(handler))
         match = self.ability_regex.search(docstring)
-        err = ValueError("Unexpected docstring format: {}".format(docstring))
+        err = ValueError(f"Unexpected docstring format: {docstring}")
         if match is None:
             raise err
         try:
@@ -150,7 +149,7 @@ class RPCServer(GearmanWorker):
         except IndexError:
             raise err
         parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
-        parser.readfp(six.StringIO(config))
+        parser.readfp(StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
@@ -169,7 +168,7 @@ class RPCServer(GearmanWorker):
         def wrap(worker, job):
             args = [worker, job]
             if opts["expect_payload"]:
-                payload = cPickle.loads(job.data)
+                payload = pickle.loads(job.data)
                 if not isinstance(payload, dict):
                     raise UnexpectedPayloadError("Payload is not a dictionary")
                 args.append(payload)
@@ -187,7 +186,7 @@ class RPCServer(GearmanWorker):
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
                 resp = {"error": True, "handler": name, "message": str(err)}
-            return cPickle.dumps(resp, protocol=0)
+            return pickle.dumps(resp, protocol=0)
 
         return wrap
 
@@ -221,21 +220,19 @@ class RPCServer(GearmanWorker):
         ret = etree.Element("choicesAvailableForUnits")
         for uuid, choice in self.package_queue.jobs_awaiting_decisions().items():
             unit_choices = etree.SubElement(ret, "choicesAvailableForUnit")
-            etree.SubElement(unit_choices, "UUID").text = six.text_type(choice.uuid)
+            etree.SubElement(unit_choices, "UUID").text = str(choice.uuid)
             unit = etree.SubElement(unit_choices, "unit")
             etree.SubElement(unit, "type").text = choice.package.__class__.__name__
             unitXML = etree.SubElement(unit, "unitXML")
-            etree.SubElement(unitXML, "UUID").text = six.text_type(choice.package.uuid)
+            etree.SubElement(unitXML, "UUID").text = str(choice.package.uuid)
             etree.SubElement(
                 unitXML, "currentPath"
             ).text = choice.package.current_path_for_db
             choices = etree.SubElement(unit_choices, "choices")
             for id_, description in choice.get_choices().items():
                 choice = etree.SubElement(choices, "choice")
-                etree.SubElement(choice, "chainAvailable").text = six.text_type(id_)
-                etree.SubElement(choice, "description").text = six.text_type(
-                    description
-                )
+                etree.SubElement(choice, "chainAvailable").text = str(id_)
+                etree.SubElement(choice, "description").text = str(description)
 
         return etree.tostring(ret, pretty_print=True, encoding="utf8")
 
@@ -352,7 +349,7 @@ class RPCServer(GearmanWorker):
             model_attrs = unit_types[payload["type"]]
             lang = payload["lang"]
         except KeyError as err:
-            raise UnexpectedPayloadError("Missing parameter: {}".format(err))
+            raise UnexpectedPayloadError(f"Missing parameter: {err}")
         model = model_attrs[0]
         sql = """
         SELECT SIPUUID,
@@ -431,7 +428,7 @@ class RPCServer(GearmanWorker):
             id_ = payload["id"]
             lang = payload["lang"]
         except KeyError as err:
-            raise UnexpectedPayloadError("Missing parameter: {}".format(err))
+            raise UnexpectedPayloadError(f"Missing parameter: {err}")
         jobs_qs = Job.objects.filter(sipuuid=id_)
         if not jobs_qs:
             raise NotFoundError("Unit not found")

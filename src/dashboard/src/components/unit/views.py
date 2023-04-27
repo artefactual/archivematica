@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,15 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import logging
 
 import django.http
-from django.shortcuts import render
-
 from components import helpers
 from contrib.mcp.client import MCPClient
+from django.shortcuts import render
 from main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")

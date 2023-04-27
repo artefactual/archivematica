@@ -1,24 +1,23 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import datetime
 import json
 import os
 import tempfile
 import uuid
 
+import archivematicaFunctions
+import pytest
+from components import helpers
+from components.api import views
 from django.core.management import call_command
-from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
-import pytest
-
-import archivematicaFunctions
-from components.api import views
-from components import helpers
-from main.models import Job, SIP, Task, Transfer
+from main.models import Job
+from main.models import SIP
+from main.models import Task
+from main.models import Transfer
 from processing import install_builtin_config
 
 
@@ -305,7 +304,7 @@ class TestAPI(TestCase):
         self._test_api_error(
             resp,
             status_code=400,
-            message=("No jobs found for unit: {}".format(bogus_unit_uuid)),
+            message=(f"No jobs found for unit: {bogus_unit_uuid}"),
         )
 
     @e2e
@@ -438,7 +437,7 @@ class TestAPI(TestCase):
         self._test_api_error(
             resp,
             status_code=400,
-            message=("Task with UUID {} does not exist".format(bogus_task_uuid)),
+            message=(f"Task with UUID {bogus_task_uuid} does not exist"),
         )
 
     @e2e
@@ -587,7 +586,7 @@ def test_copy_metadata_files_api(mocker):
     sip_uuid = str(uuid.uuid4())
     SIP.objects.create(
         uuid=sip_uuid,
-        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+        currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
 
     # Call the endpoint with a mocked request
@@ -634,7 +633,7 @@ def test_start_transfer_api_decodes_paths(mocker, admin_client):
 
 
 def test_reingest_approve(mocker, admin_client):
-    mocker.patch("six.moves.cPickle")
+    mocker.patch("contrib.mcp.client.pickle")
     job_complete = mocker.patch(
         "contrib.mcp.client.gearman.JOB_COMPLETE",
     )

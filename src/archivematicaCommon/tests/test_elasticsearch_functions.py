@@ -1,22 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
-
-import mock
-import pytest
 import unittest
-import vcr
+from unittest import mock
 
 import elasticSearchFunctions
-
+import pytest
+import vcr
 from lxml import etree
-import six
 
 try:
     from unittest.mock import ANY, patch
 except ImportError:
-    from mock import ANY, patch
+    from unittest.mock import ANY, patch
 
 
 from main.models import Directory, Identifier, SIP
@@ -119,7 +113,7 @@ class TestElasticSearchFunctions(unittest.TestCase):
         )
         mets_object_id = "771aa252-7930-4e68-b73e-f91416b1d4a4"
         uuid = "f42a260a-9b53-4555-847e-8a4329c81662"
-        sipName = "DemoTransfer-{}".format(uuid)
+        sipName = f"DemoTransfer-{uuid}"
         identifiers = []
         elasticSearchFunctions._index_aip_files(
             client=self.client,
@@ -359,7 +353,7 @@ def test_index_aipfile_fileuuid(
         client=None,
         uuid=aipuuid,
         mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
-        name="{}-{}".format(aipname, aipuuid),
+        name=f"{aipname}-{aipuuid}",
         identifiers=[],
     )
 
@@ -425,7 +419,7 @@ def test_index_aipfile_dmdsec(
         identifiers=[],
     )
 
-    for key, value in six.iteritems(dmdsec_dict["dublincore_dict"]):
+    for key, value in dmdsec_dict["dublincore_dict"].items():
         assert indexed_data[dmdsec_dict["filePath"]][key] == value
 
 
@@ -481,7 +475,7 @@ def physical_struct_map():
 
 def test_get_directories_with_metadata(physical_struct_map):
     result = elasticSearchFunctions._get_directories_with_metadata(physical_struct_map)
-    labels = sorted([directory.attrib["LABEL"] for directory in result])
+    labels = sorted(directory.attrib["LABEL"] for directory in result)
     assert labels == ["Demo-166e916c-0676-4324-8045-bfc628bebcea", "artwork", "objects"]
 
 

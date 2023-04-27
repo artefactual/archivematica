@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf8
-
 """verify_mets.py
 
 Verify METS documents provided to the script. Its first, and primary use so
 far is to verify the validity of custom structmaps included with transfers and
 supplied on ingest after appraisal.
 """
-from __future__ import unicode_literals
-from lxml import etree
 import os
+
+from lxml import etree
 
 
 class VerifyMETSException(Exception):

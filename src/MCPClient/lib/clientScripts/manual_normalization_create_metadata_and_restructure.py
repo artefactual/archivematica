@@ -10,7 +10,6 @@ Add a derivative link.
 :param fileUUID: UUID of the preservation file.
 :param filePath: Path on disk of the preservation file.
 """
-
 import os
 import uuid
 
@@ -75,9 +74,7 @@ def main(job):
                     filePath.index("manualNormalization/preservation/") :
                 ]
             except ValueError:
-                job.print_error(
-                    "{0} not in manualNormalization directory".format(filePath)
-                )
+                job.print_error(f"{filePath} not in manualNormalization directory")
                 return 4
             original = fileOperations.findFileInNormalizationCSV(
                 csv_path,
@@ -89,7 +86,7 @@ def main(job):
             if original is None:
                 if isinstance(e, File.DoesNotExist):
                     job.print_error(
-                        "No matching file for: {0}".format(
+                        "No matching file for: {}".format(
                             filePath.replace(SIPDirectory, "%SIPDirectory%")
                         )
                     )

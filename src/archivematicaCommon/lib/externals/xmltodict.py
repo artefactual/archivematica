@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
 import xml.parsers.expat
 
 __author__ = "Martin Blech"
@@ -38,9 +35,7 @@ class DictSAXHandler:
         self.path.append((name, attrs or None))
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
-            attrs = dict(
-                (self.attr_prefix + key, value) for (key, value) in attrs.items()
-            )
+            attrs = {self.attr_prefix + key: value for (key, value) in attrs.items()}
             self.item = self.xml_attribs and attrs or None
             self.data = None
 
@@ -163,5 +158,5 @@ if __name__ == "__main__":
             handle_item([], root)
     except KeyboardInterrupt:
         pass
-    except IOError as e:
+    except OSError as e:
         print(e)

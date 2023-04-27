@@ -1,22 +1,20 @@
 #!/usr/bin/env python
-
 import argparse
 import logging
 import os
 
-from main.models import ArchivesSpaceDIPObjectResourcePairing, File
-from fpr.models import FormatVersion
-
-# archivematicaCommon
-from xml2obj import mets_file
-
-# Third party dependencies, alphabetical by import source
-from agentarchives.archivesspace import ArchivesSpaceClient
-from agentarchives.archivesspace import ArchivesSpaceError
-
-# initialize Django (required for Django 1.7)
 import django
 import scandir
+from agentarchives.archivesspace import ArchivesSpaceClient
+from agentarchives.archivesspace import ArchivesSpaceError
+from fpr.models import FormatVersion
+from main.models import ArchivesSpaceDIPObjectResourcePairing
+from main.models import File
+from xml2obj import mets_file
+
+# archivematicaCommon
+# Third party dependencies, alphabetical by import source
+# initialize Django (required for Django 1.7)
 
 django.setup()
 from django.db import transaction
@@ -94,10 +92,10 @@ def upload_to_archivesspace(
         or len(access_conditions) == 0
         or len(use_conditions) == 0
     ):
-        logger.debug("Looking for mets: {}".format(dip_uuid))
-        mets_source = os.path.join(dip_location, "METS.{}.xml".format(dip_uuid))
+        logger.debug(f"Looking for mets: {dip_uuid}")
+        mets_source = os.path.join(dip_location, f"METS.{dip_uuid}.xml")
         mets = mets_file(mets_source)
-        logger.debug("Found mets file at path: {}".format(mets_source))
+        logger.debug(f"Found mets file at path: {mets_source}")
 
     all_files_paired_successfully = True
     for f in files:
@@ -105,7 +103,7 @@ def upload_to_archivesspace(
         uuid = file_name[0:36]
 
         if uuid not in pairs:
-            logger.error("Skipping file {} ({}) - no pairing found".format(f, uuid))
+            logger.error(f"Skipping file {f} ({uuid}) - no pairing found")
             all_files_paired_successfully = False
             continue
 
@@ -213,9 +211,7 @@ def upload_to_archivesspace(
         if format_name is not None:
             format_name = as_formats.get(format_name)
 
-        logger.info(
-            "Uploading {} to ArchivesSpace record {}".format(file_name, as_resource)
-        )
+        logger.info(f"Uploading {file_name} to ArchivesSpace record {as_resource}")
         try:
             client.add_digital_object(
                 parent_archival_object=as_resource,

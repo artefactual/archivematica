@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,14 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
-from optparse import OptionParser
 import re
+from optparse import OptionParser
 
 import django
 import scandir
@@ -86,7 +83,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
 
     for (path, dirs, files) in scandir.walk(objectsDirectory):
         for file in files:
-            m = re.search("_me\.[a-zA-Z0-9]{2,4}$", file)
+            m = re.search(r"_me\.[a-zA-Z0-9]{2,4}$", file)
             if m is not None:
                 file1Full = os.path.join(path, file).replace(
                     SIPDirectory, "%SIPDirectory%", 1

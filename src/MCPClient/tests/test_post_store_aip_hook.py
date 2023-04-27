@@ -1,10 +1,8 @@
-# -*- coding: utf8
 import os
 
-import vcr
-
-from django.test import TestCase
 import pytest
+import vcr
+from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 import post_store_aip_hook

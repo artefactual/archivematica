@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import json
 
+from components import helpers
+from components.helpers import generate_api_key
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from tastypie.models import ApiKey
-
-from components import helpers
-from components.helpers import generate_api_key
 
 
 class TestAuth(TestCase):
@@ -79,7 +74,7 @@ class TestAuth(TestCase):
 
         for url in self.API_URLS:
             response = self.client.get(
-                url, HTTP_AUTHORIZATION="ApiKey test:{}".format(key), follow=False
+                url, HTTP_AUTHORIZATION=f"ApiKey test:{key}", follow=False
             )
 
             self.assertEqual(response.status_code, 200)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Assign UUIDs to all directories in a unit, i.e., Transfer.
 
 This client script assigns a UUID to all subdirectories of a Transfer by
@@ -29,10 +26,9 @@ the --include-dirs option is something other than 'Yes', the script will exit
 without doing anything.
 
 """
-
 import argparse
-from functools import wraps
 import os
+from functools import wraps
 
 import django
 import scandir

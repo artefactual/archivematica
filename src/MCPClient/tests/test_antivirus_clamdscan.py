@@ -1,18 +1,12 @@
 """Tests for the archivematica_clamscan.py client script."""
-
-from __future__ import print_function
-
 import errno
-
 from collections import namedtuple
-from clamd import (
-    ClamdNetworkSocket,
-    ClamdUnixSocket,
-    BufferTooLongError,
-    ConnectionError,
-)
 
 import archivematica_clamscan
+from clamd import BufferTooLongError
+from clamd import ClamdNetworkSocket
+from clamd import ClamdUnixSocket
+from clamd import ConnectionError
 
 
 def setup_clamdscanner(

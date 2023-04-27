@@ -1,20 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
 import logging
 import os
 
+import elasticSearchFunctions
+import requests
+import storageService as storage_service
+from components import helpers
 from django.conf import settings as django_settings
 from django.views.generic import View
-import requests
-from six.moves import zip
-
-from components import helpers
 from main import models
-
-import elasticSearchFunctions
-import storageService as storage_service
 
 
 logger = logging.getLogger("archivematica.dashboard")

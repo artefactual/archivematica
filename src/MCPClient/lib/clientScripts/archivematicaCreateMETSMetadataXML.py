@@ -16,22 +16,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica. If not, see <http://www.gnu.org/licenses/>.
-
 """Management of XML metadata files."""
-
 import csv
-from lxml import etree
 from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
-import requests
 
-from importlib_metadata import version
 import create_mets_v2 as createmets2
-
-from databaseFunctions import insertIntoEvents
 import namespaces as ns
-
+import requests
+from databaseFunctions import insertIntoEvents
+from importlib_metadata import version
+from lxml import etree
 from main import models
 
 
@@ -64,12 +60,10 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
                 try:
                     metadata_file = models.File.objects.get(
                         sip_id=sip_uuid,
-                        currentlocation="%SIPDirectory%{}".format(xml_rel_path),
+                        currentlocation=f"%SIPDirectory%{xml_rel_path}",
                     )
                 except models.File.DoesNotExist:
-                    xml_metadata_errors.append(
-                        "No uuid for file: {}".format(xml_rel_path)
-                    )
+                    xml_metadata_errors.append(f"No uuid for file: {xml_rel_path}")
                     continue
                 valid, errors = _validate_xml(tree, schema_uri)
                 _add_validation_event(
@@ -187,9 +181,7 @@ def _get_schema_uri(tree, xml_validation):
         key = tree.xpath("local-name(.)")
         checked_keys.append(key)
     if not key or key not in xml_validation:
-        raise ValueError(
-            "XML validation schema not found for keys: {}".format(checked_keys)
-        )
+        raise ValueError(f"XML validation schema not found for keys: {checked_keys}")
     return xml_validation[key]
 
 
@@ -215,9 +207,7 @@ def _validate_xml(tree, schema_uri):
         try:
             schema_uri = Path(schema_uri).as_uri()
         except ValueError:
-            return False, [
-                "XML schema local path {} must be absolute".format(schema_uri)
-            ]
+            return False, [f"XML schema local path {schema_uri} must be absolute"]
     try:
         with urlopen(schema_uri) as f:
             if schema_type == "dtd":
@@ -238,11 +228,9 @@ def _validate_xml(tree, schema_uri):
                 schema_contents = etree.parse(f)
                 schema = etree.RelaxNG(schema_contents)
             else:
-                return False, [
-                    "Unknown XML validation schema type: {}".format(schema_type)
-                ]
+                return False, [f"Unknown XML validation schema type: {schema_type}"]
     except etree.LxmlError as err:
-        return False, ["Could not parse schema file: {}".format(schema_uri), err]
+        return False, [f"Could not parse schema file: {schema_uri}", err]
     if not schema.validate(tree):
         return False, schema.error_log
     return True, []

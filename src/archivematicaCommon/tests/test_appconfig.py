@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
+from io import StringIO
 
-from django.core.exceptions import ImproperlyConfigured
 import pytest
-from six import StringIO
-
-from appconfig import Config, process_search_enabled
+from appconfig import Config
+from appconfig import process_search_enabled
+from django.core.exceptions import ImproperlyConfigured
 
 
 CONFIG_MAPPING = {

@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8
-
 import errno
 import filecmp
 import os
 import shutil
 
 import scandir
-
 from custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.move_or_merge")

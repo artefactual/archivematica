@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
+from components import helpers
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
-
-from components import helpers
+from django.urls import reverse
 from installer.middleware import _load_exempt_urls
 
 

@@ -1,21 +1,18 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import math
+import pickle
 import uuid
 
 import gearman
 import pytest
-import six
-from six.moves import cPickle
-
 from server.jobs import Job
-from server.tasks import GearmanTaskBackend, Task
+from server.tasks import GearmanTaskBackend
+from server.tasks import Task
 
 
 class MockJob(Job):
     def __init__(self, *args, **kwargs):
         self.name = kwargs.pop("name", "")
-        super(MockJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self, *args, **kwargs):
         pass
@@ -43,12 +40,12 @@ def format_gearman_request(tasks):
         task_uuid = str(task.uuid)
         request["tasks"][task_uuid] = {
             "uuid": task_uuid,
-            "createdDate": task.start_timestamp.isoformat(str(" ")),
+            "createdDate": task.start_timestamp.isoformat(" "),
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
 
-    return cPickle.dumps(request, protocol=0)
+    return pickle.dumps(request, protocol=0)
 
 
 def format_gearman_response(task_results):
@@ -58,7 +55,7 @@ def format_gearman_response(task_results):
         task_uuid = str(task_uuid)
         response["task_results"][task_uuid] = task_data
 
-    return cPickle.dumps(response, protocol=0)
+    return pickle.dumps(response, protocol=0)
 
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
@@ -74,11 +71,11 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
 
     submit_job_kwargs = mock_client.return_value.submit_job.call_args[1]
 
-    assert submit_job_kwargs["task"] == six.ensure_binary(simple_job.name)
+    assert submit_job_kwargs["task"] == simple_job.name.encode()
     # Comparing pickled strings is fragile, so compare the python version
-    assert cPickle.loads(submit_job_kwargs["data"]) == cPickle.loads(task_data)
+    assert pickle.loads(submit_job_kwargs["data"]) == pickle.loads(task_data)
     try:
-        uuid.UUID(six.ensure_text(submit_job_kwargs["unique"]))
+        uuid.UUID(submit_job_kwargs["unique"].decode())
     except ValueError:
         pytest.fail("Expected unique to be a valid UUID.")
     assert submit_job_kwargs["wait_until_complete"] is False
@@ -149,7 +146,7 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
 
     def mock_jobs_completed(*args):
         job_request.state = gearman.JOB_FAILED
-        job_request.exception = cPickle.dumps(Exception("Error!"), protocol=0)
+        job_request.exception = pickle.dumps(Exception("Error!"), protocol=0)
 
         return [job_request]
 
@@ -185,7 +182,7 @@ def test_gearman_multiple_batches(
     tasks = []
     for i in range(5):
         task = Task(
-            "a argument string {}".format(i),
+            f"a argument string {i}",
             "/tmp/stdoutfile",
             "/tmp/stderrfile",
             {r"%relativeLocation%": "testfile"},
@@ -221,8 +218,8 @@ def test_gearman_multiple_batches(
                             task.uuid,
                             {
                                 "exitCode": 0,
-                                "stdout": "stdout example {}".format(index),
-                                "stderr": "stderr example {}".format(index),
+                                "stdout": f"stdout example {index}",
+                                "stderr": f"stderr example {index}",
                             },
                         )
                         for task in task_batches[index]

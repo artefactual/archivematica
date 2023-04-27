@@ -1,22 +1,14 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import uuid
 
 import pytest
-
 from main import models
-
-from server.packages import (
-    Package,
-    DIP,
-    SIP,
-    Transfer,
-    _determine_transfer_paths,
-    _move_to_internal_shared_dir,
-    _pad_destination_filepath_if_it_already_exists,
-)
+from server.packages import _determine_transfer_paths
+from server.packages import _move_to_internal_shared_dir
+from server.packages import _pad_destination_filepath_if_it_already_exists
+from server.packages import DIP
+from server.packages import Package
+from server.packages import SIP
+from server.packages import Transfer
 
 try:
     from pathlib import Path
@@ -79,7 +71,7 @@ def test_dip_get_or_create_from_db_path_without_uuid(tmp_path):
 @pytest.mark.django_db(transaction=True)
 def test_dip_get_or_create_from_db_path_with_uuid(tmp_path):
     dip_uuid = uuid.uuid4()
-    dip_path = tmp_path / "test-dip-{}".format(dip_uuid)
+    dip_path = tmp_path / f"test-dip-{dip_uuid}"
 
     dip = DIP.get_or_create_from_db_by_path(str(dip_path))
 
@@ -113,7 +105,7 @@ def test_transfer_get_or_create_from_db_path_without_uuid(tmp_path):
 @pytest.mark.django_db(transaction=True)
 def test_transfer_get_or_create_from_db_path_with_uuid(tmp_path):
     transfer_uuid = uuid.uuid4()
-    transfer_path = tmp_path / "test-transfer-{}".format(transfer_uuid)
+    transfer_path = tmp_path / f"test-transfer-{transfer_uuid}"
 
     transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
 
@@ -137,12 +129,8 @@ def test_package_get_or_create_from_db_by_path_updates_model(
 ):
     settings.SHARED_DIRECTORY = "custom-shared-path"
     package_id = uuid.uuid4()
-    path_src = (
-        tmp_path / r"%sharedPath%" / "src" / "test-transfer-{}".format(package_id)
-    )
-    path_dst = (
-        tmp_path / r"%sharedPath%" / "dst" / "test-transfer-{}".format(package_id)
-    )
+    path_src = tmp_path / r"%sharedPath%" / "src" / f"test-transfer-{package_id}"
+    path_dst = tmp_path / r"%sharedPath%" / "dst" / f"test-transfer-{package_id}"
 
     package_obj_src = package_class.get_or_create_from_db_by_path(str(path_src))
     package_obj_dst = package_class.get_or_create_from_db_by_path(str(path_dst))
@@ -170,7 +158,7 @@ def test_reload_file_list(tmp_path):
     # Create a transfer that will be updated through time to simulate
     # Archivematica's processing.
     transfer_uuid = uuid.uuid4()
-    transfer_path = tmp_path / "test-transfer-{}".format(transfer_uuid)
+    transfer_path = tmp_path / f"test-transfer-{transfer_uuid}"
     transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
 
     # Add files to the transfer to simulate a transfer existing on disk.
@@ -286,7 +274,7 @@ def test_package_files_with_non_ascii_names(tmp_path):
 
     # Create a Transfer package
     transfer_uuid = uuid.uuid4()
-    transfer_path = tmp_path / "test-transfer-{}".format(transfer_uuid)
+    transfer_path = tmp_path / f"test-transfer-{transfer_uuid}"
     transfer = Transfer.get_or_create_from_db_by_path(str(transfer_path))
 
     # Add a file to the transfer with non-ascii name

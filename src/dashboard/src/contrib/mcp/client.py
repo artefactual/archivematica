@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,15 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import logging
+import pickle
 
+import gearman
 from django.conf import settings
 from django.utils.translation import get_language
-import gearman
-import six.moves.cPickle
-
 from main.models import Job
 
 
@@ -48,7 +44,7 @@ class RPCServerError(RPCGearmanClientError):
     GENERIC_ERROR_MSG = "The server failed to process the request"
 
     def __init__(self, payload=None):
-        super(RPCServerError, self).__init__(self._process_error(payload))
+        super().__init__(self._process_error(payload))
 
     def _process_error(self, payload):
         """Extracts the error message from the payload."""
@@ -57,7 +53,7 @@ class RPCServerError(RPCGearmanClientError):
         message = payload.get("message", "Unknown error message")
         handler = payload.get("function")
         if handler:
-            message += " [handler=%s]" % (handler,)
+            message += f" [handler={handler}]"
         return message
 
 
@@ -77,21 +73,21 @@ class TimeoutError(RPCGearmanClientError):
     def __init__(self, timeout=None):
         message = "Deadline exceeded"
         if timeout is not None:
-            message = "{}: {}".format(message, timeout)
-        super(TimeoutError, self).__init__(message)
+            message = f"{message}: {timeout}"
+        super().__init__(message)
 
 
 class NoJobFoundError(RPCGearmanClientError):
     def __init__(self, message=None):
         if message is None:
             message = "No job was found"
-        super(NoJobFoundError, self).__init__(message)
+        super().__init__(message)
 
 
 INFLIGHT_POLL_TIMEOUT = 30.0
 
 
-class MCPClient(object):
+class MCPClient:
     """MCPServer client (RPC via Gearman)."""
 
     def __init__(self, user):
@@ -113,8 +109,8 @@ class MCPClient(object):
             data["user_id"] = self.user.id
         client = gearman.GearmanClient([self.server])
         response = client.submit_job(
-            six.ensure_binary(ability),
-            six.moves.cPickle.dumps(data, protocol=0),
+            ability.encode(),
+            pickle.dumps(data, protocol=0),
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -123,8 +119,8 @@ class MCPClient(object):
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
-            raise RPCError("{} failed (check the logs)".format(ability))
-        payload = six.moves.cPickle.loads(response.result)
+            raise RPCError(f"{ability} failed (check the logs)")
+        payload = pickle.loads(response.result)
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)
         return payload
@@ -137,7 +133,7 @@ class MCPClient(object):
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job(b"approveJob", six.moves.cPickle.dumps(data, protocol=0))
+        gm_client.submit_job(b"approveJob", pickle.dumps(data, protocol=0))
         gm_client.shutdown()
         return
 
@@ -159,10 +155,10 @@ class MCPClient(object):
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job(
-            b"getJobsAwaitingApproval", six.moves.cPickle.dumps({}, protocol=0)
+            b"getJobsAwaitingApproval", pickle.dumps({}, protocol=0)
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
-            return six.moves.cPickle.loads(completed_job_request.result)
+            return pickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 

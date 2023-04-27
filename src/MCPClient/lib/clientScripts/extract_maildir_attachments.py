@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,12 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
-from lxml import etree
 import mailbox
 import os
 import sys
@@ -29,10 +25,10 @@ import traceback
 import uuid
 
 import django
+from lxml import etree
 
 django.setup()
 from django.db import transaction
-import six
 
 # dashboard
 from main.models import File
@@ -42,7 +38,7 @@ from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 
 
-class State(object):
+class State:
     def __init__(self):
         self.error_count = 0
         self.sourceFilePath = None
@@ -170,7 +166,7 @@ def handle_job(job):
                             "Message-ID"
                         ][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        if isinstance(out["subject"], six.binary_type):
+                        if isinstance(out["subject"], bytes):
                             etree.SubElement(msg, "Subject").text = out[
                                 "subject"
                             ].decode("utf-8")
@@ -208,11 +204,11 @@ def handle_job(job):
                                     "attachments",
                                     maildirsub,
                                     subDir,
-                                    "%s_%s" % (attachedFileUUID, attachment.name),
+                                    f"{attachedFileUUID}_{attachment.name}",
                                 )
                                 job.pyprint("\tAttachment path:", filePath)
                                 writeFile(filePath, attachment)
-                                eventDetail = "Unpacked from: {%s}%s" % (
+                                eventDetail = "Unpacked from: {{{}}}{}".format(
                                     sourceFileUUID,
                                     sourceFilePath,
                                 )

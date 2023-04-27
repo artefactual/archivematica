@@ -1,27 +1,22 @@
-# -*- coding: utf-8 -*-
 """
 The PackageQueue class handles job queueing, as it relates to packages.
 """
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import functools
 import logging
+import queue as Queue
 import threading
 
 from django.conf import settings
-import six
-from six.moves import queue as Queue
-
 from server import metrics
 from server.jobs import DecisionJob
-from server.packages import DIP, SIP
+from server.packages import DIP
+from server.packages import SIP
 
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 
 
-class PackageQueue(object):
+class PackageQueue:
     """Package queue.
 
     This queue throttles `Job` objects belonging to packages, so that at most
@@ -333,7 +328,7 @@ class PackageQueue(object):
 
     def await_decision(self, job):
         """Mark a job as awaiting user input to proceed."""
-        job_id = six.text_type(job.uuid)
+        job_id = str(job.uuid)
         with self.waiting_choices_lock:
             self.waiting_choices[job_id] = job
 
@@ -349,7 +344,7 @@ class PackageQueue(object):
 
     def decide(self, job_uuid, choice, user_id=None):
         """Make a decision on a job waiting for user input."""
-        job_uuid = six.text_type(job_uuid)
+        job_uuid = str(job_uuid)
 
         with self.waiting_choices_lock:
             decision = self.waiting_choices[job_uuid]

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,19 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from django.shortcuts import redirect, render
-from django.utils.translation import ugettext as _
-from tastypie.models import ApiKey
-
 from components import helpers
 from components.administration.forms import StorageSettingsForm
-from installer.forms import OrganizationForm, SuperUserCreationForm
-from installer.steps import setup_pipeline, setup_pipeline_in_ss
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+from installer.forms import OrganizationForm
+from installer.forms import SuperUserCreationForm
+from installer.steps import setup_pipeline
+from installer.steps import setup_pipeline_in_ss
+from tastypie.models import ApiKey
 
 
 def welcome(request):

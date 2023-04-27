@@ -1,5 +1,3 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
 import collections
 import csv
 import os
@@ -10,10 +8,7 @@ import unittest
 
 import scandir
 from django.test import TestCase
-
 from lxml import etree
-from six.moves import range
-import six
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,7 +44,7 @@ class TestNormativeStructMap(TempDirMixin, TestCase):
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def setUp(self):
-        super(TestNormativeStructMap, self).setUp()
+        super().setUp()
         self.sip_dir = self.tmpdir / "sip"
         self.sip_object_dir = self.sip_dir / "objects"
         shutil.copytree(
@@ -200,7 +195,7 @@ class TestDublinCore(TestCase):
                 ("dc.subject", ["Glaives"]),
                 ("dc.description", ["Glaives are cool"]),
                 ("dc.publisher", ["Tortall Press"]),
-                ("dc.contributor", ["雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["雪 ユキ"]),
                 ("dc.date", ["2015"]),
                 ("dc.type", ["Archival Information Package"]),
                 ("dc.format", ["parchement"]),
@@ -269,7 +264,7 @@ class TestDublinCore(TestCase):
         data = collections.OrderedDict(
             [
                 ("Title", ["Yamani Weapons"]),
-                ("Contributor", ["雪 ユキ".encode("utf8")]),
+                ("Contributor", ["雪 ユキ"]),
                 (
                     "Long Description",
                     ["This is about how glaives are used in the Yamani Islands"],
@@ -312,10 +307,10 @@ class TestDublinCore(TestCase):
         data = collections.OrderedDict(
             [
                 ("dc.title", ["Yamani Weapons"]),
-                ("dc.contributor", ["雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["雪 ユキ"]),
                 ("dcterms.isPartOf", ["AIC#42"]),
                 ("Title", ["Yamani Weapons"]),
-                ("Contributor", ["雪 ユキ".encode("utf8")]),
+                ("Contributor", ["雪 ユキ"]),
                 (
                     "Long Description",
                     ["This is about how glaives are used in the Yamani Islands"],
@@ -389,8 +384,8 @@ class TestDublinCore(TestCase):
         """It should create multiple elements for repeated input."""
         data = collections.OrderedDict(
             [
-                ("dc.contributor", ["Yuki", "雪 ユキ".encode("utf8")]),
-                ("Contributor", ["Yuki", "雪 ユキ".encode("utf8")]),
+                ("dc.contributor", ["Yuki", "雪 ユキ"]),
+                ("Contributor", ["Yuki", "雪 ユキ"]),
             ]
         )
         # Test
@@ -443,7 +438,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
     """Test parsing the metadata.csv."""
 
     def setUp(self):
-        super(TestCSVMetadata, self).setUp()
+        super().setUp()
         self.metadata_file = self.tmpdir / "metadata.csv"
 
     def test_parse_metadata_csv(self):
@@ -523,7 +518,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
     def test_parse_metadata_csv_non_ascii(self):
         """It should parse unicode."""
         # Create metadata.csv
-        data = [["Filename", "dc.title"], ["objects/foo.jpg", six.ensure_str("元気です")]]
+        data = [["Filename", "dc.title"], ["objects/foo.jpg", "元気です"]]
         with open(self.metadata_file.as_posix(), "w") as f:
             writer = csv.writer(f)
             for row in data:
@@ -537,7 +532,7 @@ class TestCSVMetadata(TempDirMixin, TestCase):
         assert dc
         assert "objects/foo.jpg" in dc
         assert "dc.title" in dc["objects/foo.jpg"]
-        assert dc["objects/foo.jpg"]["dc.title"] == [six.ensure_str("元気です")]
+        assert dc["objects/foo.jpg"]["dc.title"] == ["元気です"]
 
     def test_parse_metadata_csv_blank_rows(self):
         """It should skip blank rows."""
@@ -775,7 +770,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
     @staticmethod
     def count_dir_objects(path):
         """Count all objects on a given path tree."""
-        return sum([len(files) for _, dir_, files in scandir.walk(path)])
+        return sum(len(files) for _, dir_, files in scandir.walk(path))
 
     @staticmethod
     def validate_mets(mets_xsd, mets_structmap):
@@ -981,7 +976,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             # All custom structmaps that are used and return from this function
             # should remain valid.
             self.validate_mets(self.mets_xsd_path, custom_structmap)
-            assert custom_structmap.tag == "{{{}}}structMap".format(ns.metsNS)
+            assert custom_structmap.tag == f"{{{ns.metsNS}}}structMap"
             if not res.structmap_id:
                 assert custom_structmap.attrib["ID"].lower() == "structmap_{}".format(
                     self.state.globalStructMapCounter
@@ -994,7 +989,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
                 "//*[@FILEID]", namespaces={"mets:": ns.metsNS}
             )
             assert len(fids) == res.replaced_count, "Count of FILEIDs is incorrect"
-            assert len(set([fid.attrib["FILEID"] for fid in fids])) == len(
+            assert len({fid.attrib["FILEID"] for fid in fids}) == len(
                 res.files
             ), "Uneven replacement of IDs for files in structmap"
             for fileid in [fid.attrib["FILEID"] for fid in fids]:

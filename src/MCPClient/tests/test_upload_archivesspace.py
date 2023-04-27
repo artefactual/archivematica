@@ -1,9 +1,7 @@
 """Tests for the upload_archivesspace.py client script."""
-
 import uuid
 
 import pytest
-
 import upload_archivesspace
 
 
@@ -31,7 +29,7 @@ def test_get_files_from_dip_with_empty_dip_location(tmpdir, mocker):
     with pytest.raises(ValueError):
         upload_archivesspace.get_files_from_dip(str(dip))
         pytest.fail("cannot find dip")
-    logger.error.assert_called_once_with("no files in {}/objects".format(str(dip)))
+    logger.error.assert_called_once_with(f"no files in {str(dip)}/objects")
 
 
 def test_get_pairs(mocker):
@@ -72,7 +70,7 @@ def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
     mocker.patch(
         "upload_archivesspace.get_pairs", return_value={file_uuid: "myresource"}
     )
-    files = ["file/{}-path".format(file_uuid)]
+    files = [f"file/{file_uuid}-path"]
     success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", uri, "", "", "", "", "", ""
     )
@@ -90,7 +88,7 @@ def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
             "size": None,
             "title": "",
             # whole point of this test is to check this path is correct
-            "uri": "http://some/uri/{}-path".format(file_uuid),
+            "uri": f"http://some/uri/{file_uuid}-path",
             "use_conditions": "",
             "use_statement": "",
             "xlink_actuate": "",
@@ -157,15 +155,15 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
     mocker.patch("upload_archivesspace.mets_file")
     client_mock = mocker.Mock()
     files = [
-        "/path/to/{}-image.jpg".format(file1_uuid),
-        "/path/to/{}-video.avi".format(file2_uuid),
-        "/path/to/{}-audio.mp3".format(file3_uuid),
+        f"/path/to/{file1_uuid}-image.jpg",
+        f"/path/to/{file2_uuid}-video.avi",
+        f"/path/to/{file3_uuid}-audio.mp3",
     ]
     success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
     )
     logger.error.assert_called_once_with(
-        "Skipping file {} ({}) - no pairing found".format(files[1], file2_uuid)
+        f"Skipping file {files[1]} ({file2_uuid}) - no pairing found"
     )
     assert not success
 
@@ -191,16 +189,16 @@ def test_upload_to_archivesspace_when_upload_fails(db, mocker):
 
     client_mock = mocker.Mock(**{"add_digital_object.side_effect": fail_video_upload})
     files = [
-        "/path/to/{}-image.jpg".format(file1_uuid),
-        "/path/to/{}-video.avi".format(file2_uuid),
-        "/path/to/{}-audio.mp3".format(file3_uuid),
+        f"/path/to/{file1_uuid}-image.jpg",
+        f"/path/to/{file2_uuid}-video.avi",
+        f"/path/to/{file3_uuid}-audio.mp3",
     ]
     success = upload_archivesspace.upload_to_archivesspace(
         files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
     )
     logger.error.assert_called_once_with(
         "Could not upload {} to ArchivesSpace record myresource. Error: {}".format(
-            "{}-video.avi".format(file2_uuid), "error with ArchivesSpace"
+            f"{file2_uuid}-video.avi", "error with ArchivesSpace"
         )
     )
     assert not success

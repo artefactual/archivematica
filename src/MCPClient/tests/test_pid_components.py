@@ -1,24 +1,21 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Unit tests for the various components associated with PID (persistent
 identifier binding and declaration in Archivematica.
 
 The tests in this module cover both the two bind_pid(s) microservice jobs but
 also limited unit testing in create_mets_v2 (AIP METS generation).
 """
-from __future__ import unicode_literals
-from itertools import chain
 import os
-
-from job import Job
-from main.models import Directory, File, SIP, DashboardSetting, Transfer
+from itertools import chain
 
 import pytest
 import vcr
-import six
-from six.moves import range
-from six.moves import zip
+from job import Job
+from main.models import DashboardSetting
+from main.models import Directory
+from main.models import File
+from main.models import SIP
+from main.models import Transfer
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -313,8 +310,8 @@ def test_bind_pids(data, mocker, job):
             "hdl" in pid_types
         ), "An expected hdl persistent identifier isn't in the result set"
         assert "URI" in pid_types, "An expected URI isn't in the result set"
-        bound_hdl = "{}{}".format(BOUND_HDL, mdl.pk)
-        bound_uri = "{}{}".format(BOUND_URI, mdl.pk)
+        bound_hdl = f"{BOUND_HDL}{mdl.pk}"
+        bound_uri = f"{BOUND_URI}{mdl.pk}"
         pids = []
         for pid in bound:
             pids.append(pid[1])
@@ -381,8 +378,8 @@ def test_bind_pid(data, job):
             "hdl" in bound
         ), "An expected hdl persistent identifier isn't in the result set"
         assert "URI" in bound, "An expected URI isn't in the result set"
-        bound_hdl = "{}{}".format(BOUND_HDL, file_mdl.pk)
-        bound_uri = "{}{}".format(BOUND_URI, file_mdl.pk)
+        bound_hdl = f"{BOUND_HDL}{file_mdl.pk}"
+        bound_uri = f"{BOUND_URI}{file_mdl.pk}"
         assert bound.get("hdl") == bound_hdl
         assert bound.get("URI") == bound_uri
         # Then test to see that the PREMIS objects are created correctly in
@@ -536,11 +533,7 @@ def test_pid_declaration_exceptions(data, mocker, job):
     try:
         DeclarePIDs(job).pid_declaration(unit_uuid="", sip_directory="")
     except DeclarePIDsException as err:
-        json_error = (
-            "No JSON object could be decoded"
-            if six.PY2
-            else "Expecting value: line 15 column 1 (char 336)"
-        )
+        json_error = "Expecting value: line 15 column 1 (char 336)"
         assert json_error in str(
             err
         ), "Error message something other than anticipated for invalid JSON"

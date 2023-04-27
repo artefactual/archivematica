@@ -2,19 +2,17 @@
 import argparse
 import csv
 
-# dashboard
+import archivematicaFunctions
+import django
+from agentarchives import archivesspace
+from custom_handlers import get_script_logger
 from django.db.models import Q
 from main import models
 
+# dashboard
 # archivematicaCommon
-from custom_handlers import get_script_logger
-import archivematicaFunctions
-
 # Third party dependencies, alphabetical by import source
-from agentarchives import archivesspace
-
 # initialize Django (required for Django 1.7)
-import django
 
 django.setup()
 from django.db import transaction
@@ -59,7 +57,7 @@ def parse_archivesspaceids_csv(files):
     file_info = {}
     # SIP is last, so takes priority
     for csv_path in files:
-        with open(csv_path, "rU") as f:
+        with open(csv_path) as f:
             reader = csv.reader(f)
             for row in reader:
                 filename = row[0]

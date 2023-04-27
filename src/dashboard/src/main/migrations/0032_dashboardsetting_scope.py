@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import ast
 
-from django.db import migrations, models
-
-from main.models import DashboardSetting, DashboardSettingManager, Job
+from django.db import migrations
+from django.db import models
+from main.models import DashboardSetting
+from main.models import DashboardSettingManager
+from main.models import Job
 
 
 def data_migration_atom_to_dict(apps, schema_editor):
@@ -53,12 +52,10 @@ def data_migration_atom_to_dict(apps, schema_editor):
     )
 
     qs = apps.get_model("main", "DashboardSetting").objects.filter(
-        name__in=["{}{}".format(old_prefix, field) for field in fields]
+        name__in=[f"{old_prefix}{field}" for field in fields]
     )
     old_dict = dict(qs.values_list("name", "value"))
-    new_dict = {
-        field: old_dict.get("{}{}".format(old_prefix, field)) for field in fields
-    }
+    new_dict = {field: old_dict.get(f"{old_prefix}{field}") for field in fields}
 
     # Set new dict and delete previous tuples. Reminder: migrations run inside
     # a transaction.
@@ -172,7 +169,7 @@ def data_migration_as_to_dict(apps, schema_editor):
             pass
         else:
             for arg_name in cmd_args:
-                attr_name = str("%{}%".format(arg_name))
+                attr_name = str(f"%{arg_name}%")
                 if attr_name in replacementdic:
                     config_dict[arg_name] = replacementdic[attr_name]
         mscrd.delete()  # As LinkTaskManagerReplacementDicFromChoice will look up DashboardSetting
@@ -241,7 +238,7 @@ def data_migration_atk_to_dict(apps, schema_editor):
             pass
         else:
             for arg_name in cmd_args:
-                attr_name = str("%{}%".format(arg_name))
+                attr_name = str(f"%{arg_name}%")
                 if attr_name in replacementdic:
                     config_dict[arg_name] = replacementdic[attr_name]
         mscrd.delete()  # As LinkTaskManagerReplacementDicFromChoice will look up DashboardSetting

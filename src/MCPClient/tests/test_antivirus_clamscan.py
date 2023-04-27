@@ -1,12 +1,8 @@
 """Tests for the archivematica_clamscan.py client script."""
-
-from __future__ import print_function
-
 import subprocess
 
-import pytest
-
 import archivematica_clamscan
+import pytest
 
 
 @pytest.mark.parametrize(

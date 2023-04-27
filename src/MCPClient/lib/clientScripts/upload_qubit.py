@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,24 +15,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
-import six.moves.cPickle
 import getpass
 import optparse
 import os
+import pickle
 import re
 import subprocess
 import sys
 import tempfile
 import time
 
-# archivematicaCommon
+import django
+import requests
 from custom_handlers import get_script_logger
 
+# archivematicaCommon
 # externals
-import requests
-
-import django
 
 django.setup()
 from django.conf import settings as mcpclient_settings
@@ -58,12 +54,12 @@ def hilite(string, status=True):
         attr.append("32")
     else:
         attr.append("31")
-    return "\x1b[%sm%s\x1b[0m" % (";".join(attr), string)
+    return "\x1b[{}m{}\x1b[0m".format(";".join(attr), string)
 
 
 # Print to stdout
 def log(message, access=None):
-    logger.error("%s %s" % (PREFIX, hilite(message)))
+    logger.error(f"{PREFIX} {hilite(message)}")
     if access:
         access.status = message
         access.save()
@@ -71,7 +67,7 @@ def log(message, access=None):
 
 # Print to stderr and exit
 def error(job, message, code=1):
-    job.pyprint("%s %s" % (PREFIX, hilite(message, False)), file=sys.stderr)
+    job.pyprint(f"{PREFIX} {hilite(message, False)}", file=sys.stderr)
     return 1
 
 
@@ -105,22 +101,23 @@ def start(job, data):
     try:
         # This upload was called before, restore Access record
         access = models.Access.objects.get(sipuuid=data.uuid)
-    except models.Access.DoesNotExist:  # First time this job is called, create new Access record
+    except (
+        models.Access.DoesNotExist
+    ):  # First time this job is called, create new Access record
         access = models.Access(sipuuid=data.uuid)
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
             # Django converts to text since Access.target is a TextField.
-            access.target = six.moves.cPickle.dumps(
+            access.target = pickle.dumps(
                 {"target": transfers[0].access_system_id}, protocol=0
-            )
+            ).decode()
         access.save()
 
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
     try:
-        access_target = six.ensure_binary(access.target)
-        target = six.moves.cPickle.loads(access_target)
+        target = pickle.loads(access.target.encode())
         log("Target: %s" % (target["target"]))
     except Exception:
         return error(job, "No target was selected")
@@ -184,7 +181,7 @@ def start(job, data):
             # Update upload status
             # - percentage in match.group(1)
             # - ETA in match.group(2)
-            access.status = "Sending... %s (ETA: %s)" % (match.group(1), match.group(2))
+            access.status = f"Sending... {match.group(1)} (ETA: {match.group(2)})"
             access.statuscode = 10
             access.save()
             log(access.status)
@@ -222,7 +219,7 @@ def start(job, data):
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
     atom_url_prefix = ";" if data.version == 1 else ""
-    deposit_url = "%s/%ssword/deposit/%s" % (
+    deposit_url = "{}/{}sword/deposit/{}".format(
         data.url,
         atom_url_prefix,
         target["target"],
@@ -231,7 +228,7 @@ def start(job, data):
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
-    access.resource = "%s/%s" % (data.url, target["target"])
+    access.resource = "{}/{}".format(data.url, target["target"])
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 
@@ -327,7 +324,6 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
-
                 (opts, args) = parser.parse_args(job.args[1:])
 
                 # Make sure that archivematica user is executing this script

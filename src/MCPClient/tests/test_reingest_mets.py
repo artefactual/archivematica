@@ -1,21 +1,17 @@
-# -*- coding: utf8
-from lxml import etree
 import os
 import shutil
 import tempfile
 import unittest
 
+import metsrw
 from django.core.management import call_command
 from django.test import TestCase
-
-from main import models
-
 from job import Job
-from namespaces import NSMAP, nsmap_for_premis2
+from lxml import etree
+from main import models
+from namespaces import NSMAP
+from namespaces import nsmap_for_premis2
 from version import get_preservation_system_identifier
-
-import metsrw
-from six.moves import range
 
 try:
     from pathlib import Path

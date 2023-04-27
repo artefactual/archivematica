@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
 
-from django.urls import reverse
+import archivematicaFunctions
+from components import helpers
 from django.test import TestCase
 from django.test.client import Client
-
-import archivematicaFunctions
+from django.urls import reverse
 from main import models
-from components import helpers
 
 
 class TestAccessAPI(TestCase):

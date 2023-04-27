@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,23 +14,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
+from archivematicaFunctions import escape
+from components import helpers
+from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.urls import reverse
-from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.utils.translation import get_language, ugettext as _
+from django.utils.translation import get_language
+from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import last_modified
 from django.views.i18n import JavaScriptCatalog
-from shibboleth.views import ShibbolethLogoutView, LOGOUT_SESSION_KEY
-
-from contrib.mcp.client import MCPClient
-from main import models
 from lxml import etree
-from components import helpers
-from archivematicaFunctions import escape
+from main import models
+from shibboleth.views import LOGOUT_SESSION_KEY
+from shibboleth.views import ShibbolethLogoutView
 
 
 @cache_page(86400, key_prefix="js18n-%s" % get_language())
@@ -323,7 +323,7 @@ def formdata(request, type, parent_id, delete_id=None):
 
 class CustomShibbolethLogoutView(ShibbolethLogoutView):
     def get(self, request, *args, **kwargs):
-        response = super(CustomShibbolethLogoutView, self).get(request, *args, **kwargs)
+        response = super().get(request, *args, **kwargs)
         # LOGOUT_SESSION_KEY is set by the standard logout to prevent re-login
         # which is useful to prevent bouncing straight back to login under
         # certain setups, but not here where we want the Django session state

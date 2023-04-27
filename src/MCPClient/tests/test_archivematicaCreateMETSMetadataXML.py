@@ -4,19 +4,17 @@ Tests for XML metadata management on the METS creation process:
 
 archivematicaCreateMETSMetadataXML.process_xml_metadata()
 """
-
 from pathlib import Path
 from uuid import uuid4
 
-from importlib_metadata import version
-from lxml.etree import parse
 import metsrw
 import pytest
 import requests
-
-from main.models import File, SIP
-
 from archivematicaCreateMETSMetadataXML import process_xml_metadata
+from importlib_metadata import version
+from lxml.etree import parse
+from main.models import File
+from main.models import SIP
 
 
 METADATA_DIR = Path("objects") / "metadata"
@@ -84,7 +82,7 @@ def make_metadata_file(db, sip):
         return File.objects.create(
             uuid=uuid4(),
             sip_id=sip.uuid,
-            currentlocation="%SIPDirectory%{}".format(rel_path),
+            currentlocation=f"%SIPDirectory%{rel_path}",
         )
 
     return _make_metadata_file
@@ -472,14 +470,14 @@ def test_multiple_dmdsecs(settings, make_metadata_file, make_mock_mets, sip):
     metadata_file_uuids = []
     for mdkey in mdkeys:
         xml_validation[mdkey] = None
-        csv_contents += "objects,{}.xml,{}\n".format(mdkey, mdkey)
-        csv_contents += "objects/directory,{}.xml,{}\n".format(mdkey, mdkey)
-        csv_contents += "objects/directory/file.txt,{}.xml,{}\n".format(mdkey, mdkey)
-        metadata_file_rel_path = TRANSFER_METADATA_DIR / "{}.xml".format(mdkey)
+        csv_contents += f"objects,{mdkey}.xml,{mdkey}\n"
+        csv_contents += f"objects/directory,{mdkey}.xml,{mdkey}\n"
+        csv_contents += f"objects/directory/file.txt,{mdkey}.xml,{mdkey}\n"
+        metadata_file_rel_path = TRANSFER_METADATA_DIR / f"{mdkey}.xml"
         metadata_file = make_metadata_file(metadata_file_rel_path)
         metadata_file_path = sip.currentpath / metadata_file_rel_path
         metadata_file_path.write_text(
-            '<?xml version="1.0" encoding="UTF-8"?><{}/>'.format(mdkey)
+            f'<?xml version="1.0" encoding="UTF-8"?><{mdkey}/>'
         )
         metadata_file_uuids.append(str(metadata_file.uuid))
     metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV

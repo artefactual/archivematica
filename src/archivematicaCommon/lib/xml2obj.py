@@ -1,16 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
 import re
 import xml.sax.handler
 from collections import defaultdict
 
-import six
-
 
 class Tree(defaultdict):
     def __init__(self, value=None):
-        super(Tree, self).__init__(Tree)
+        super().__init__(Tree)
         self.value = value
 
 
@@ -55,7 +50,7 @@ def mets_file(src):
 def test_mets(src):
     mets = mets_file(src)
     for f in mets:
-        print("uuid is {}".format(f))
+        print(f"uuid is {f}")
         for p in mets[f]["premis"]:
             print(
                 "{} rights = {} {}".format(
@@ -76,7 +71,7 @@ def xml2obj(src):
     def _name_mangle(name):
         return non_id_char.sub("_", name)
 
-    class DataNode(object):
+    class DataNode:
         def __init__(self):
             self._attrs = {}  # XML attributes and child elements
             self.data = None  # child text data
@@ -86,7 +81,7 @@ def xml2obj(src):
             return 1
 
         def __getitem__(self, key):
-            if isinstance(key, six.string_types):
+            if isinstance(key, str):
                 return self._attrs.get(key, None)
             else:
                 return [self][key]
@@ -121,7 +116,7 @@ def xml2obj(src):
             items = sorted(self._attrs.items())
             if self.data:
                 items.append(("data", self.data))
-            return "{%s}" % ", ".join(["%s:%s" % (k, repr(v)) for k, v in items])
+            return "{%s}" % ", ".join([f"{k}:{repr(v)}" for k, v in items])
 
     class TreeBuilder(xml.sax.handler.ContentHandler):
         def __init__(self):
@@ -154,7 +149,7 @@ def xml2obj(src):
             self.text_parts.append(content)
 
     builder = TreeBuilder()
-    if isinstance(src, six.string_types):
+    if isinstance(src, str):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 osdeps retrieves the list of packages needed for a given distro
 across the different Archivematica components.
@@ -17,7 +16,6 @@ automatically install the osdeps dependencies:
 
     ./osdeps.py Ubuntu-18 1 | xargs apt-get install
 """
-
 import json
 import sys
 from pathlib import Path

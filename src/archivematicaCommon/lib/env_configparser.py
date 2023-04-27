@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-import os
+import configparser
 import functools
-
-import six
-import six.moves.configparser as ConfigParser
+import os
 
 
 def fallback_option(fn):
@@ -13,7 +8,7 @@ def fallback_option(fn):
         fallback = kwargs.pop("fallback", None)
         try:
             return fn(*args, **kwargs)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             if fallback:
                 return fallback
             raise
@@ -21,7 +16,7 @@ def fallback_option(fn):
     return functools.wraps(fn)(wrapper)
 
 
-class EnvConfigParser(ConfigParser.SafeConfigParser):
+class EnvConfigParser(configparser.SafeConfigParser):
     """
     EnvConfigParser enables the user to provide configuration defaults using
     the string environment, e.g. given:
@@ -50,9 +45,8 @@ class EnvConfigParser(ConfigParser.SafeConfigParser):
         self._environ = env or os.environ
         self._prefix = prefix.rstrip("_")
         kwargs = {}
-        if six.PY3:
-            kwargs["inline_comment_prefixes"] = (";",)
-        ConfigParser.SafeConfigParser.__init__(self, defaults, **kwargs)
+        kwargs["inline_comment_prefixes"] = (";",)
+        configparser.SafeConfigParser.__init__(self, defaults, **kwargs)
 
     def _get_envvar(self, section, option):
         for key in (
@@ -67,19 +61,19 @@ class EnvConfigParser(ConfigParser.SafeConfigParser):
         ret = self._get_envvar(section, option)
         if ret:
             return ret
-        return ConfigParser.SafeConfigParser.get(self, section, option, **kwargs)
+        return configparser.SafeConfigParser.get(self, section, option, **kwargs)
 
     @fallback_option
     def getint(self, *args, **kwargs):
-        return ConfigParser.SafeConfigParser.getint(self, *args, **kwargs)
+        return configparser.SafeConfigParser.getint(self, *args, **kwargs)
 
     @fallback_option
     def getfloat(self, *args, **kwargs):
-        return ConfigParser.SafeConfigParser.getfloat(self, *args, **kwargs)
+        return configparser.SafeConfigParser.getfloat(self, *args, **kwargs)
 
     @fallback_option
     def getboolean(self, *args, **kwargs):
-        return ConfigParser.SafeConfigParser.getboolean(self, *args, **kwargs)
+        return configparser.SafeConfigParser.getboolean(self, *args, **kwargs)
 
     @fallback_option
     def getiboolean(self, *args, **kwargs):

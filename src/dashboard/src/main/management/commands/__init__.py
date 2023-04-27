@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import time
 
-from django.conf import settings as django_settings
-from django.core.management.base import BaseCommand, CommandError
-from elasticsearch import ElasticsearchException
-from six.moves import input
-
 import elasticSearchFunctions as es
+from django.conf import settings as django_settings
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from elasticsearch import ElasticsearchException
 
 
 class DashboardCommand(BaseCommand):
@@ -55,7 +51,7 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
         es.setup_reading_from_conf(django_settings)
         es_client = es.get_client()
     except ElasticsearchException as err:
-        raise CommandError("Unable to connect to Elasticsearch: {}".format(err))
+        raise CommandError(f"Unable to connect to Elasticsearch: {err}")
 
     if delete_all:
         cmd.info("Deleting all AIPs in the 'aips' and 'aipfiles' indices")

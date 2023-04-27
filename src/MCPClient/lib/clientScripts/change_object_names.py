@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
@@ -25,7 +23,6 @@ import unicodedata
 import uuid
 
 import django
-import six
 
 django.setup()
 from django.db import transaction
@@ -40,7 +37,7 @@ import change_names
 logger = get_script_logger("archivematica.mcp.client.changeObjectNames")
 
 
-class NameChanger(object):
+class NameChanger:
     """
     Class to track batch filename changes of files and directories, both in the
     filesystem and in the database.
@@ -58,12 +55,12 @@ class NameChanger(object):
         self, job, objects_directory, sip_uuid, date, group_type, group_sql, sip_path
     ):
         if group_type not in ("%SIPDirectory%", "%transferDirectory%"):
-            raise ValueError("Unexpected group type: {}".format(group_type))
+            raise ValueError(f"Unexpected group type: {group_type}")
 
-        if isinstance(objects_directory, six.binary_type):
+        if isinstance(objects_directory, bytes):
             objects_directory = objects_directory.decode("utf-8")
 
-        if isinstance(sip_path, six.binary_type):
+        if isinstance(sip_path, bytes):
             sip_path = sip_path.decode("utf-8")
 
         if group_sql == "transfer_id":
@@ -73,7 +70,7 @@ class NameChanger(object):
             self.transfer = None
             self.sip = SIP.objects.get(uuid=sip_uuid)
         else:
-            raise ValueError("Unexpected group sql: {}".format(group_sql))
+            raise ValueError(f"Unexpected group sql: {group_sql}")
 
         self.job = job
         self.objects_directory = objects_directory

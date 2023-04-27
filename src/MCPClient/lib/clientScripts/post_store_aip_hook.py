@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-
 import argparse
-import shutil
 import os
+import shutil
 import sys
 
-import requests
-
 import django
+import requests
 
 django.setup()
 from django.conf import settings as mcpclient_settings

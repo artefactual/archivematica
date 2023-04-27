@@ -1,7 +1,6 @@
 import uuid
 
 import pytest
-
 from main import models
 
 

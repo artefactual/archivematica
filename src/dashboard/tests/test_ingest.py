@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import os
+from unittest import mock
 
-from django.urls import reverse
-from django.test import TestCase
-from django.test.client import Client
-import mock
 import pytest
-
 from agentarchives.archivesspace import ArchivesSpaceError
+from archivematicaFunctions import b64decode_string
 from components import helpers
 from components.ingest.views import _adjust_directories_draggability
 from components.ingest.views import _es_results_to_appraisal_tab_format
 from components.ingest.views_as import get_as_system_client
-from archivematicaFunctions import b64decode_string
+from django.test import TestCase
+from django.test.client import Client
+from django.urls import reverse
 from main.models import DashboardSetting
 
 

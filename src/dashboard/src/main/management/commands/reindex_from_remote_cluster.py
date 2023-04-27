@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Reindex Elasticsearch data from remote cluster.
 
 Creates the Elasticsearch 6.x indexes based on the configuration and reindexes
@@ -12,16 +11,13 @@ Execution example:
     https://192.168.168.196:9200 \
     -u test -p 1234
 """
-from __future__ import absolute_import, print_function
-
 import json
 import sys
 
 import elasticsearch
-from django.conf import settings
-
-from main.management.commands import DashboardCommand
 import elasticSearchFunctions
+from django.conf import settings
+from main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):
@@ -155,10 +151,10 @@ class Command(DashboardCommand):
                 response = es_client.reindex(body=body)
             except elasticsearch.TransportError as exc:
                 fails += 1
-                self.error("Error: {}. Details:\n{}".format(exc, exc.info))
+                self.error(f"Error: {exc}. Details:\n{exc.info}")
             except Exception as exc:
                 fails += 1
-                self.error("Error: {}".format(exc))
+                self.error(f"Error: {exc}")
             else:
                 self.info("Response:\n%s" % json.dumps(response, indent=4))
 

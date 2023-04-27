@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,22 +15,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mark Jordan <mark2jordan@gmail.com>
-
 import argparse
 import collections
 import csv
-from lxml import etree
 import os
 import re
 import sys
 
-# archivematicaCommon
 import archivematicaFunctions
 import namespaces as ns
+from lxml import etree
+
+# archivematicaCommon
 
 
 def parseDmdSec(dmdSec, label="[Placeholder title]"):

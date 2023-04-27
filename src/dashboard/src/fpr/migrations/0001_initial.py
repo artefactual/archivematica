@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
-from django.db import models, migrations
 import autoslug.fields
 import django_extensions.db.fields
+from django.db import migrations
+from django.db import models
 
 
 class Migration(migrations.Migration):

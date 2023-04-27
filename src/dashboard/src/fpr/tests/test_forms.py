@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.test import TestCase
-
-from fpr.forms import FPRuleForm, IDToolForm
-from fpr.models import Format, FormatGroup, FormatVersion, FPCommand, FPRule
+from fpr.forms import FPRuleForm
+from fpr.forms import IDToolForm
+from fpr.models import Format
+from fpr.models import FormatGroup
+from fpr.models import FormatVersion
+from fpr.models import FPCommand
+from fpr.models import FPRule
 
 
 class TestForms(TestCase):

@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Test Storage Service
 
 Tests for the Archivematica Common Storage Service helpers.
 """
-
 import json
 
 import pytest
 from requests import Response
-
-from storageService import (
-    location_description_from_slug,
-    retrieve_storage_location_description,
-)
+from storageService import location_description_from_slug
+from storageService import retrieve_storage_location_description
 
 
 def mock_response(status_code, content_type, content):

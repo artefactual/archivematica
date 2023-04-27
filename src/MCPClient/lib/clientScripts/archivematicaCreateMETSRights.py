@@ -16,24 +16,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 # /src/dashboard/src/main/models.py
-
 import sys
 import uuid
-import lxml.etree as etree
-import six
 
-# dashboard
+import lxml.etree as etree
+import namespaces as ns
+from countryCodes import getCodeForCountry
 from main.models import RightsStatement
 
+# dashboard
 # archivematicaCommon
-from countryCodes import getCodeForCountry
-import namespaces as ns
 
 RIGHTS_BASIS_OTHER = ["Policy", "Donor"]
 
@@ -139,7 +135,7 @@ def createRightsStatement(job, statement, fileUUID, state):
             ).text = copyright.copyrightstatus
             copyrightJurisdiction = copyright.copyrightjurisdiction
             copyrightJurisdictionCode = getCodeForCountry(
-                six.ensure_str(copyrightJurisdiction).upper()
+                str(copyrightJurisdiction).upper()
             )
             if copyrightJurisdictionCode is not None:
                 copyrightJurisdiction = copyrightJurisdictionCode
@@ -175,7 +171,6 @@ def createRightsStatement(job, statement, fileUUID, state):
             for (
                 identifier
             ) in license.rightsstatementlicensedocumentationidentifier_set.all():
-
                 licenseDocumentIdentifier = etree.SubElement(
                     licenseInformation, ns.premisBNS + "licenseDocumentationIdentifier"
                 )

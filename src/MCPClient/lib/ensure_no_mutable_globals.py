@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Ensure there are no mutable globals in the client scripts
 
 This executable ensures that there are no mutable globals being accessed by
@@ -12,20 +11,17 @@ creates a dict from said globals to the list of modules::functions/methods that
 access them. If the dict is non-empty, it is printed and an exit code of 1 is
 returned. Otherwise a happy message is printed and 0 is returned.
 """
-
-from __future__ import print_function
-from dis import HAVE_ARGUMENT, opmap
 import importlib
 import logging
 import os
 import pprint
 import sys
 import types
+from dis import HAVE_ARGUMENT
+from dis import opmap
 
 import django
 import prometheus_client
-import six
-
 from archivematicaClient import get_supported_modules
 
 
@@ -36,13 +32,6 @@ from archivematicaClient import get_supported_modules
 GOOD_GLOBAL_TYPES = (
     types.ModuleType,
     types.FunctionType,
-)
-if six.PY2:
-    GOOD_GLOBAL_TYPES += (
-        types.TypeType,
-        types.ClassType,
-    )
-GOOD_GLOBAL_TYPES += (
     django.db.models.base.ModelBase,
     logging.Logger,
     int,
@@ -101,9 +90,9 @@ def collect_globals(attr, val, module, module_name, global2modules_funcs_3):
     those keys a list of the functions (or methods), i.e., named ``attr``
     reverencing object ``val``, that access said globals.
     """
-    module_func = "{}:{}".format(module_name, attr)
+    module_func = f"{module_name}:{attr}"
     for fg_attr in get_globals(val, module):
-        key = "{}, {}".format(fg_attr, type(getattr(module, fg_attr)))
+        key = f"{fg_attr}, {type(getattr(module, fg_attr))}"
         global2modules_funcs_3.setdefault(key, []).append(module_func)
     return global2modules_funcs_3
 
@@ -119,15 +108,6 @@ def analyze_module(module_name):
         val = getattr(module, attr)
         if attr.startswith("__"):
             continue
-        if six.PY2 and isinstance(val, (types.TypeType, types.ClassType)):
-            for class_attr in dir(val):
-                global2modules_funcs_2 = collect_globals(
-                    "{}.{}".format(attr, class_attr),
-                    getattr(val, class_attr),
-                    module,
-                    module_name,
-                    global2modules_funcs_2,
-                )
         elif isinstance(val, types.FunctionType):
             global2modules_funcs_2 = collect_globals(
                 attr, val, module, module_name, global2modules_funcs_2
