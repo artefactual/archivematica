@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import base64
 import json
 
 from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 
+import archivematicaFunctions
 from main import models
 from components import helpers
 
@@ -51,7 +51,7 @@ class TestAccessAPI(TestCase):
         response_dict = json.loads(response.content.decode("utf8"))
         assert "entries" in response_dict
         assert (
-            base64.b64encode(b"evelyn_s_photo.jpg").decode("utf8")
+            archivematicaFunctions.b64encode_string("evelyn_s_photo.jpg")
             in response_dict["entries"]
         )
         assert len(response_dict["entries"]) == 1

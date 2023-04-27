@@ -17,7 +17,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-import base64
 from cgi import parse_header
 import json
 import shutil
@@ -372,7 +371,7 @@ def start_transfer_api(request):
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist("paths[]", [])
-    paths = [base64.b64decode(path).decode("utf8") for path in paths]
+    paths = [archivematicaFunctions.b64decode_string(path) for path in paths]
     row_ids = request.POST.getlist("row_ids[]", [""])
     try:
         response = filesystem_ajax_views.start_transfer(
@@ -833,8 +832,8 @@ def _package_create(request):
     """Create a package."""
     try:
         payload = json.loads(request.body.decode("utf8"))
-        path = base64.b64decode(payload.get("path"))
-    except (TypeError, ValueError):
+        path = archivematicaFunctions.b64decode_string(payload.get("path"))
+    except (TypeError, ValueError, AttributeError):
         return helpers.json_response(
             {"error": True, "message": 'Parameter "path" cannot be decoded.'}, 400
         )

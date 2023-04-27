@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import base64
 import datetime
 import json
 import os
@@ -16,7 +15,7 @@ from django.utils.timezone import make_aware
 from lxml import etree
 import pytest
 
-from archivematicaFunctions import b64encode_string
+import archivematicaFunctions
 from components.api import views
 from components import helpers
 from main.models import Job, SIP, Task, Transfer
@@ -595,7 +594,9 @@ def test_copy_metadata_files_api(mocker):
     request = mocker.Mock(
         **{
             "POST.get.return_value": sip_uuid,
-            "POST.getlist.return_value": [b64encode_string("locationuuid:/some/path")],
+            "POST.getlist.return_value": [
+                archivematicaFunctions.b64encode_string("locationuuid:/some/path")
+            ],
             "method": "POST",
         }
     )
@@ -623,7 +624,7 @@ def test_start_transfer_api_decodes_paths(mocker, admin_client):
             "type": "zipfile",
             "accession": "my accession",
             "access_system_id": "system id",
-            "paths[]": [base64.b64encode(b"/a/path")],
+            "paths[]": [archivematicaFunctions.b64encode_string("/a/path")],
             "row_ids[]": ["row1"],
         },
     )

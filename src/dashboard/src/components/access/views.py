@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import base64
 from functools import wraps
 import json
 import logging
@@ -14,6 +13,7 @@ from django.utils import timezone
 
 from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
 
+import archivematicaFunctions
 from components import helpers
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
@@ -403,7 +403,9 @@ def access_copy_to_arrange(request, record_id=""):
     if mapping is None:
         response = {"success": False, "message": "Unable to create directory."}
         return helpers.json_response(response, status_code=400)
-    sourcepath = base64.b64decode(request.POST.get("filepath", "")).lstrip("/")
+    sourcepath = archivematicaFunctions.b64decode_string(
+        request.POST.get("filepath", "")
+    ).lstrip("/")
     return filesystem_views.copy_to_arrange(
         request, sourcepath=sourcepath, destination=mapping.arrange_path + "/"
     )
