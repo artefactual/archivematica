@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import abc
 
-from django.utils import six
+import six
 
 
 @six.add_metaclass(abc.ABCMeta)

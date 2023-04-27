@@ -32,7 +32,7 @@ import django
 
 django.setup()
 from django.db import transaction
-from django.utils import six
+import six
 
 # dashboard
 from main.models import File

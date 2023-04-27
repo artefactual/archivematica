@@ -9,7 +9,8 @@ import abc
 import logging
 import uuid
 
-from django.utils import six, timezone
+import six
+from django.utils import timezone
 
 from server.db import auto_close_old_connections
 

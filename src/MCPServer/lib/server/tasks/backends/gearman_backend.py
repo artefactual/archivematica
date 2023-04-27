@@ -8,7 +8,7 @@ import logging
 import uuid
 
 from django.conf import settings
-from django.utils.six.moves import cPickle
+from six.moves import cPickle
 from gearman import GearmanClient
 from gearman.constants import JOB_COMPLETE, JOB_FAILED, JOB_UNKNOWN
 import six

@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pprint
 
-from django.utils.six import text_type, python_2_unicode_compatible
+from six import text_type, python_2_unicode_compatible
 
 FALLBACK_LANG = "en"
 UNKNOWN_TRANSLATION_LABEL = "<unknown>"

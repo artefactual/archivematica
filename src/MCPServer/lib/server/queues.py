@@ -10,7 +10,7 @@ import logging
 import threading
 
 from django.conf import settings
-from django.utils import six
+import six
 from six.moves import queue as Queue
 
 from server import metrics

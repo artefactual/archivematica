@@ -9,7 +9,7 @@ import abc
 import logging
 import threading
 
-from django.utils import six
+import six
 
 from server.db import auto_close_old_connections
 from server.jobs.base import Job

@@ -19,7 +19,7 @@ import time
 
 from django.conf import settings as django_settings
 from django.db import connection
-from django.utils.six.moves import configparser
+from six.moves import configparser
 from gearman import GearmanWorker
 import gearman
 from lxml import etree

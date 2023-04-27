@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import os
 
-from django.utils.six.moves import StringIO
-from django.utils.six import next, itervalues
+from six.moves import StringIO
+from six import next, itervalues
 from django.utils.translation import ugettext_lazy
 import pytest
 

@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import abc
 import logging
 
-from django.utils import six
+import six
 
 from main import models
 

@@ -11,7 +11,7 @@ import logging
 
 from django.db import connection, models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.six import python_2_unicode_compatible
+from six import python_2_unicode_compatible
 
 from autoslug import AutoSlugField
 from django_extensions.db.fields import UUIDField

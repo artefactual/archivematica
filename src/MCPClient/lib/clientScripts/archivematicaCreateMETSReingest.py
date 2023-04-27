@@ -15,7 +15,7 @@ import namespaces as ns
 # dashboard
 from main import models
 
-from django.utils import six
+import six
 
 
 def _create_premis_object(premis_object_type):

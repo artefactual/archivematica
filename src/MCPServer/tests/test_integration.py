@@ -6,7 +6,8 @@ import threading
 import uuid
 
 import pytest
-from django.utils import six, timezone
+import six
+from django.utils import timezone
 from lxml import etree
 
 from main import models

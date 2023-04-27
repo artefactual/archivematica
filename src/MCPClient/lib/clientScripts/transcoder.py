@@ -24,7 +24,7 @@ from executeOrRunSubProcess import executeOrRun
 
 # dashboard
 from django.db.models import F
-from django.utils import six
+import six
 
 
 def toStrFromUnicode(inputString, encoding="utf-8"):

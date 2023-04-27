@@ -10,7 +10,7 @@ import ast
 import logging
 
 from django.conf import settings
-from django.utils import six
+import six
 
 from server import metrics
 from server.db import auto_close_old_connections
