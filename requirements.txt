@@ -157,7 +157,6 @@ scandir==1.10.0
     # via -r requirements.in
 six==1.14.0
     # via
-    #   -r requirements.in
     #   amclient
     #   django-extensions
     #   metsrw
