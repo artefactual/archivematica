@@ -33,15 +33,14 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// SchedulerServiceSayProcedure is the fully-qualified name of the SchedulerService's Say RPC.
-	SchedulerServiceSayProcedure = "/archivematica.ccp.scheduler.v1.SchedulerService/Say"
+	// SchedulerServiceWorkProcedure is the fully-qualified name of the SchedulerService's Work RPC.
+	SchedulerServiceWorkProcedure = "/archivematica.ccp.scheduler.v1.SchedulerService/Work"
 )
 
 // SchedulerServiceClient is a client for the archivematica.ccp.scheduler.v1.SchedulerService
 // service.
 type SchedulerServiceClient interface {
-	// Say is a unary request demo.
-	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
+	Work(context.Context) *connect_go.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse]
 }
 
 // NewSchedulerServiceClient constructs a client for the
@@ -55,9 +54,9 @@ type SchedulerServiceClient interface {
 func NewSchedulerServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) SchedulerServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &schedulerServiceClient{
-		say: connect_go.NewClient[v1.SayRequest, v1.SayResponse](
+		work: connect_go.NewClient[v1.WorkRequest, v1.WorkResponse](
 			httpClient,
-			baseURL+SchedulerServiceSayProcedure,
+			baseURL+SchedulerServiceWorkProcedure,
 			opts...,
 		),
 	}
@@ -65,19 +64,18 @@ func NewSchedulerServiceClient(httpClient connect_go.HTTPClient, baseURL string,
 
 // schedulerServiceClient implements SchedulerServiceClient.
 type schedulerServiceClient struct {
-	say *connect_go.Client[v1.SayRequest, v1.SayResponse]
+	work *connect_go.Client[v1.WorkRequest, v1.WorkResponse]
 }
 
-// Say calls archivematica.ccp.scheduler.v1.SchedulerService.Say.
-func (c *schedulerServiceClient) Say(ctx context.Context, req *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
-	return c.say.CallUnary(ctx, req)
+// Work calls archivematica.ccp.scheduler.v1.SchedulerService.Work.
+func (c *schedulerServiceClient) Work(ctx context.Context) *connect_go.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse] {
+	return c.work.CallBidiStream(ctx)
 }
 
 // SchedulerServiceHandler is an implementation of the
 // archivematica.ccp.scheduler.v1.SchedulerService service.
 type SchedulerServiceHandler interface {
-	// Say is a unary request demo.
-	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
+	Work(context.Context, *connect_go.BidiStream[v1.WorkRequest, v1.WorkResponse]) error
 }
 
 // NewSchedulerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -87,9 +85,9 @@ type SchedulerServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle(SchedulerServiceSayProcedure, connect_go.NewUnaryHandler(
-		SchedulerServiceSayProcedure,
-		svc.Say,
+	mux.Handle(SchedulerServiceWorkProcedure, connect_go.NewBidiStreamHandler(
+		SchedulerServiceWorkProcedure,
+		svc.Work,
 		opts...,
 	))
 	return "/archivematica.ccp.scheduler.v1.SchedulerService/", mux
@@ -98,6 +96,6 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect_go.
 // UnimplementedSchedulerServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSchedulerServiceHandler struct{}
 
-func (UnimplementedSchedulerServiceHandler) Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.scheduler.v1.SchedulerService.Say is not implemented"))
+func (UnimplementedSchedulerServiceHandler) Work(context.Context, *connect_go.BidiStream[v1.WorkRequest, v1.WorkResponse]) error {
+	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.scheduler.v1.SchedulerService.Work is not implemented"))
 }

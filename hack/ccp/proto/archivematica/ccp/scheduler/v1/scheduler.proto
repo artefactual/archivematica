@@ -3,16 +3,46 @@ syntax = "proto3";
 package archivematica.ccp.scheduler.v1;
 
 service SchedulerService {
-  // Say is a unary request demo.
-  rpc Say(SayRequest) returns (SayResponse) {}
+  rpc Work(stream WorkRequest) returns (stream WorkResponse) {}
 }
 
-// SayRequest describes the sentence said to the ELIZA program.
-message SayRequest {
-  string sentence = 1;
+// WorkRequest is sent by the worker.
+message WorkRequest {
+  oneof request {
+    CanDo can_do = 1; // CAN_DO - notify the scheduler that the worker is able to perform the given function.
+    PreSleep pre_sleep = 2; // PRE_SLEEP - notify the scheduler that the worker is about to sleep, and that it should be woken up with a NOOP.
+    GrabJob grab_job = 3; // GRAB_JOB - request the scheduler any available jobs on the queue. The server will respond with either NO_JOB or JOB_ASSIGN.
+    SetClientId set_client_id = 4; // SET_CLIENT_ID - sents the worker ID in the scheduler.
+  }
+
+  message CanDo {
+    string function = 1;
+  }
+
+  message PreSleep {}
+
+  message GrabJob {}
+
+  message SetClientId {
+    string client_id = 1;
+  }
 }
 
-// SayResponse describes the sentence responded by the ELIZA program.
-message SayResponse {
-  string sentence = 1;
+// WorkResponse is sent by the scheduler.
+message WorkResponse {
+  oneof response {
+    NoOp no_op = 1; // NOOP - wake up a sleeping worker so that it may grab a pending job.
+    NoJob no_job = 2; // NO_JOB - in response to a GRAB_JOB request to notify the worker there are no pending jobs that need to run.
+    JobAssign job_assign = 3; // JOB_ASSIGN - in response to a GRAB_JOB request to give the worker information needed to run the job.
+  }
+
+  message NoOp {}
+
+  message NoJob {}
+
+  message JobAssign {
+    string job_handle = 1; // Job handle, a unique identifier for the job
+    string function_name = 2; // Name of the function the worker should perform
+    bytes workload = 3; // Workload for the job, can be binary data
+  }
 }
