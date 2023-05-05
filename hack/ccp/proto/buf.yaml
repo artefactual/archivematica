@@ -1,0 +1,8 @@
+version: v1
+name: buf.build/bufbuild/eliza
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

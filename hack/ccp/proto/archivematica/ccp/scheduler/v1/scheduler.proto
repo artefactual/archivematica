@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package archivematica.ccp.scheduler.v1;
+
+service SchedulerService {
+  // Say is a unary request demo.
+  rpc Say(SayRequest) returns (SayResponse) {}
+}
+
+// SayRequest describes the sentence said to the ELIZA program.
+message SayRequest {
+  string sentence = 1;
+}
+
+// SayResponse describes the sentence responded by the ELIZA program.
+message SayResponse {
+  string sentence = 1;
+}

@@ -1,0 +1,609 @@
+{
+  "$id": "https://www.archivematica.org/labs/workflow/schema/v1.json",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "chain": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/definitions/translations"
+        },
+        "link_id": {
+          "$ref": "#/definitions/uuid"
+        }
+      },
+      "required": [
+        "link_id",
+        "description"
+      ],
+      "type": "object"
+    },
+    "job_status": {
+      "enum": [
+        "Completed successfully",
+        "Failed"
+      ],
+      "type": "string"
+    },
+    "link": {
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/link_model_StandardTaskFile"
+            },
+            {
+              "$ref": "#/definitions/link_model_StandardTaskDir"
+            },
+            {
+              "$ref": "#/definitions/link_model_ReplacementDic"
+            },
+            {
+              "$ref": "#/definitions/link_model_ChainChoice"
+            },
+            {
+              "$ref": "#/definitions/link_model_GetServiceOutput"
+            },
+            {
+              "$ref": "#/definitions/link_model_GetServiceOutputPrompt"
+            },
+            {
+              "$ref": "#/definitions/link_model_GetUnitVar"
+            },
+            {
+              "$ref": "#/definitions/link_model_SetUnitVar"
+            }
+          ]
+        },
+        "description": {
+          "$ref": "#/definitions/translations"
+        },
+        "end": {
+          "type": "boolean"
+        },
+        "exit_codes": {
+          "additionalProperties": {
+            "properties": {
+              "job_status": {
+                "oneOf": [
+                  {
+                    "$ref": "#/definitions/job_status"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "link_id": {
+                "oneOf": [
+                  {
+                    "$ref": "#/definitions/uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "minProperties": 0,
+          "type": "object"
+        },
+        "fallback_job_status": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/job_status"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fallback_link_id": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "group": {
+          "$ref": "#/definitions/translations"
+        }
+      },
+      "required": [
+        "config",
+        "exit_codes",
+        "fallback_job_status",
+        "fallback_link_id",
+        "description",
+        "group"
+      ],
+      "type": "object"
+    },
+    "link_model_ChainChoice": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerChoice",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "MicroServiceChainChoice",
+          "type": "string"
+        },
+        "chain_choices": {
+          "items": [
+            {
+              "$ref": "#/definitions/uuid"
+            }
+          ],
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "chain_choices"
+      ],
+      "type": "object"
+    },
+    "link_model_GetServiceOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "StandardTaskConfig",
+          "type": "string"
+        },
+        "arguments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "execute": {
+          "type": "string"
+        },
+        "filter_file_end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_file_start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_subdir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stderr_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stdout_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "execute",
+        "arguments",
+        "filter_file_start",
+        "filter_file_end",
+        "filter_subdir",
+        "stdout_file",
+        "stderr_file"
+      ],
+      "type": "object"
+    },
+    "link_model_GetServiceOutputPrompt": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "StandardTaskConfig",
+          "type": "string"
+        },
+        "arguments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "execute": {
+          "type": "string"
+        },
+        "filter_file_end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_file_start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_subdir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stderr_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stdout_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "execute",
+        "arguments",
+        "filter_file_start",
+        "filter_file_end",
+        "filter_subdir",
+        "stdout_file",
+        "stderr_file"
+      ],
+      "type": "object"
+    },
+    "link_model_GetUnitVar": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerUnitVariableLinkPull",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "TaskConfigUnitVariableLinkPull",
+          "type": "string"
+        },
+        "chain_id": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variable": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "chain_id",
+        "variable"
+      ],
+      "type": "object"
+    },
+    "link_model_ReplacementDic": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerReplacementDicFromChoice",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "MicroServiceChoiceReplacementDic",
+          "type": "string"
+        },
+        "replacements": {
+          "items": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "$ref": "#/definitions/translations"
+                },
+                "id": {
+                  "$ref": "#/definitions/uuid"
+                },
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "items"
+              ],
+              "type": "object"
+            }
+          ],
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "replacements"
+      ],
+      "type": "object"
+    },
+    "link_model_SetUnitVar": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerSetUnitVariable",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "TaskConfigSetUnitVariable",
+          "type": "string"
+        },
+        "chain_id": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variable": {
+          "type": "string"
+        },
+        "variable_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "chain_id",
+        "variable",
+        "variable_value"
+      ],
+      "type": "object"
+    },
+    "link_model_StandardTaskDir": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerDirectories",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "StandardTaskConfig",
+          "type": "string"
+        },
+        "arguments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "execute": {
+          "type": "string"
+        },
+        "filter_file_end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_file_start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_subdir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stderr_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stdout_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "execute",
+        "arguments",
+        "filter_file_start",
+        "filter_file_end",
+        "filter_subdir",
+        "stdout_file",
+        "stderr_file"
+      ],
+      "type": "object"
+    },
+    "link_model_StandardTaskFile": {
+      "additionalProperties": false,
+      "properties": {
+        "@manager": {
+          "pattern": "linkTaskManagerFiles",
+          "type": "string"
+        },
+        "@model": {
+          "pattern": "StandardTaskConfig",
+          "type": "string"
+        },
+        "arguments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "execute": {
+          "type": "string"
+        },
+        "filter_file_end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_file_start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filter_subdir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stderr_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stdout_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "@manager",
+        "@model",
+        "execute",
+        "arguments",
+        "filter_file_start",
+        "filter_file_end",
+        "filter_subdir",
+        "stdout_file",
+        "stderr_file"
+      ],
+      "type": "object"
+    },
+    "translations": {
+      "additionalProperties": false,
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-zA-Z]{2,3}([-_/][a-zA-Z]{2,3})?$": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "en"
+      ],
+      "type": "object"
+    },
+    "uuid": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "watched_dir": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_id": {
+          "$ref": "#/definitions/uuid"
+        },
+        "only_dirs": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "unit_type": {
+          "enum": [
+            "Transfer",
+            "DIP",
+            "SIP"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "chain_id",
+        "only_dirs",
+        "path",
+        "unit_type"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "In-progress JSON Schema document for Archivematica JSON-encoded workflows.",
+  "properties": {
+    "chains": {
+      "additionalProperties": {
+        "$ref": "#/definitions/chain"
+      },
+      "type": "object"
+    },
+    "links": {
+      "additionalProperties": {
+        "$ref": "#/definitions/link"
+      },
+      "type": "object"
+    },
+    "watched_directories": {
+      "items": {
+        "$ref": "#/definitions/watched_dir"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "chains",
+    "links",
+    "watched_directories"
+  ],
+  "title": "Archivematica Workflow JSON Schema",
+  "type": "object"
+}
