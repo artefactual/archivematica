@@ -5,8 +5,10 @@ import (
 	"flag"
 	"io"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
+	"syscall"
 
 	"github.com/peterbourgon/ff/v3"
 	"github.com/peterbourgon/ff/v3/ffcli"
@@ -62,9 +64,22 @@ func (c *Config) Exec(ctx context.Context, args []string) error {
 	}
 	c.sharedDir = filepath.Join(configDir, "ccp", "shared")
 
+	ctx, cancel := context.WithCancel(ctx)
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() { <-ch; cancel() }()
+
 	s := NewServer(logger, c)
-	s.Run(ctx)
-	s.Close()
+	if err := s.Run(ctx); err != nil {
+		s.Close()
+		return err
+	}
+
+	<-ctx.Done()
+
+	if err := s.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
