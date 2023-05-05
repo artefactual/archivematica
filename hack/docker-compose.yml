@@ -40,9 +40,11 @@ services:
       - "127.0.0.1:62001:3306"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:6.5.4"
+    image: "docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2"
     environment:
+      - "discovery.type=single-node"
       - "cluster.name=am-cluster"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "node.name=am-node"
       - "network.host=0.0.0.0"
       - "bootstrap.memory_lock=true"

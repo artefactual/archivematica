@@ -4,7 +4,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-    method: GET
+    method: POST
     uri: http://elasticsearch:9200/aipfiles/_search
   response:
     body: {string: !!python/unicode '{"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":2,"max_score":0.2876821,"hits":[{"_index":"aipfiles","_type":"_doc","_id":"lRsZBWgBn49OAVhMXuMC","_score":0.2876821,"_source":{"origin":"1a14043f-68ef-4bfe-a129-e2e4cdbe391b","METS":{"dmdSec":{"ns0:xmlData_dict_list":[{"@xmlns:ns1":"http://www.loc.gov/premis/v3","@xmlns:ns0":"http://www.loc.gov/METS/","@xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance","ns1:object_dict_list":[{"ns1:originalName":"20181231153024-b34521a3-1c63-43dd-b901-584416f36c91","@version":"3.0","@xsi:type":"premis:intellectualEntity","ns1:objectIdentifier_dict_list":[{"ns1:objectIdentifierType":"UUID","ns1:objectIdentifierValue":"b34521a3-1c63-43dd-b901-584416f36c91"}],"@xsi:schemaLocation":"http://www.loc.gov/premis/v3
@@ -98,7 +98,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-    method: GET
+    method: POST
     uri: http://elasticsearch:9200/aipfiles/_search
   response:
     body: {string: !!python/unicode '{"took":0,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}

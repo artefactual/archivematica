@@ -4,7 +4,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-    method: GET
+    method: POST
     uri: http://elasticsearch:9200/aips/_search?_source=uuid
   response:
     body: {string: !!python/unicode '{"took":2,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":1,"max_score":0.2876821,"hits":[{"_index":"aips","_type":"_doc","_id":"lBsZBWgBn49OAVhMXeO8","_score":0.2876821,"_source":{"uuid":"b34521a3-1c63-43dd-b901-584416f36c91"}}]}}'}
@@ -30,7 +30,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-    method: GET
+    method: POST
     uri: http://elasticsearch:9200/aips/_search?_source=uuid
   response:
     body: {string: !!python/unicode '{"took":0,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}

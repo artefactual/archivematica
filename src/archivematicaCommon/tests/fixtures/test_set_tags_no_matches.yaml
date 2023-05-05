@@ -4,8 +4,8 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-    method: GET
-    uri: http://elasticsearch:9200/transferfiles/_search?size=10000
+    method: POST
+    uri: http://elasticsearch:9200/transferfiles/_search?rest_total_hits_as_int=true&size=10000&track_total_hits=true
   response:
     body: {string: !!python/unicode '{"took":0,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}
     headers:

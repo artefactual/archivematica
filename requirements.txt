@@ -15,7 +15,9 @@ bagit==1.7.0
 brotli==0.5.2
     # via -r requirements.in
 certifi==2021.5.30
-    # via requests
+    # via
+    #   elasticsearch
+    #   requests
 cffi==1.14.6
     # via cryptography
 charset-normalizer==2.0.1
@@ -56,7 +58,7 @@ django-shibboleth-remoteuser @ git+https://github.com/Brown-University-Library/d
     # via -r requirements.in
 django-tastypie==0.13.2
     # via -r requirements.in
-elasticsearch==6.8.2
+elasticsearch==7.13.0
     # via -r requirements.in
 future==0.18.2
     # via metsrw

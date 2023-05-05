@@ -365,6 +365,8 @@ def search(request):
             size=page_size,
             sort=order_by + ":" + sort_direction if order_by else "",
             _source=source,
+            rest_total_hits_as_int=True,
+            track_total_hits=True,
         )
 
         if file_mode:
