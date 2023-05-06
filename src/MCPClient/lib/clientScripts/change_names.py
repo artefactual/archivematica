@@ -22,7 +22,6 @@ import os
 import re
 import shutil
 
-from scandir import scandir
 from unidecode import unidecode
 
 VERSION = "1.10." + "$Id$".split(" ")[1]
@@ -87,7 +86,7 @@ def change_tree(start_path, old_start_path):
     start_path = os.path.abspath(start_path)
     max_filename = os.pathconf(start_path, "PC_NAME_MAX")
 
-    for dir_entry in scandir(start_path):
+    for dir_entry in os.scandir(start_path):
         is_dir = dir_entry.is_dir()  # cache is_dir before rename
 
         changed_name = change_path(dir_entry.path, max_filename)

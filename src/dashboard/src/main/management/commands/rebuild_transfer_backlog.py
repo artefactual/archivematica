@@ -43,33 +43,26 @@ import sys
 import tempfile
 import time
 import traceback
+from pathlib import Path
 from subprocess import CalledProcessError
 
-try:
-    from os import scandir
-except ImportError:
-    from scandir import scandir
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
-from django.conf import settings as django_settings
-from django.core.management.base import CommandError
-
 import archivematicaFunctions as am
-from fileOperations import addFileToTransfer, extract_package
+import bagit
 import elasticSearchFunctions as es
 import metsrw
 import storageService
-
-from fpr.models import FormatVersion
 from components.rights.load import load_rights
-from main.management.commands import boolean_input, DashboardCommand
-from main.models import Agent, Transfer, FileFormatVersion, FileID
-
-import bagit
+from django.conf import settings as django_settings
+from django.core.management.base import CommandError
+from fileOperations import addFileToTransfer
+from fileOperations import extract_package
+from fpr.models import FormatVersion
+from main.management.commands import boolean_input
+from main.management.commands import DashboardCommand
+from main.models import Agent
+from main.models import FileFormatVersion
+from main.models import FileID
+from main.models import Transfer
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -344,7 +337,7 @@ class Command(DashboardCommand):
                 continue
             local_package_without_extension = am.package_name_from_path(local_package)
             transfer_indexed = False
-            for entry in scandir(temp_backlog_dir):
+            for entry in os.scandir(temp_backlog_dir):
                 if entry.is_dir() and entry.name == local_package_without_extension:
                     transfer_path = entry.path
                     self.info(

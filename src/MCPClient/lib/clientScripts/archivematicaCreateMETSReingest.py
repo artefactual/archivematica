@@ -7,7 +7,6 @@ import archivematicaCreateMETSRights as createmetsrights
 import create_mets_v2 as createmets2
 import metsrw
 import namespaces as ns
-import scandir
 from lxml import etree
 from main import models
 
@@ -419,7 +418,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
     objects_dir = os.path.join(sip_dir, "objects")
-    for dirpath, _, filenames in scandir.walk(objects_dir):
+    for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
             current_loc = os.path.join(dirpath, filename).replace(

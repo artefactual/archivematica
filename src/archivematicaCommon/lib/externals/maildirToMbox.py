@@ -36,8 +36,6 @@ import mailbox
 import os
 import sys
 
-import scandir
-
 
 def maildir2mailbox(maildirname, mboxfilename):
     """
@@ -69,7 +67,7 @@ def maildir2mailbox2(dirname, mboxname):
     # if not os.path.exists(mboxdirname): os.makedirs(mboxdirname)
 
     listofdirs = [
-        dn for dn in scandir.walk(dirname).next()[1] if dn not in ["new", "cur", "tmp"]
+        dn for dn in os.walk(dirname).next()[1] if dn not in ["new", "cur", "tmp"]
     ]
     for curfold in listofdirs:
         curlist = [mboxname] + curfold.split(".")

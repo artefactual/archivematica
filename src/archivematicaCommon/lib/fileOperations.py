@@ -23,19 +23,16 @@ import shutil
 import subprocess
 import sys
 import uuid
+from pathlib import Path
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
+import MySQLdb
+from archivematicaFunctions import get_file_checksum
+from archivematicaFunctions import get_setting
+from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents
-import MySQLdb
-from archivematicaFunctions import get_setting, get_file_checksum
-
-from main.models import File, Transfer
+from main.models import File
+from main.models import Transfer
 
 
 def updateSizeAndChecksum(

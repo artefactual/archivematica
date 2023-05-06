@@ -5,8 +5,8 @@ import random
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
-import scandir
 from django.test import TestCase
 from lxml import etree
 
@@ -23,10 +23,6 @@ from . import TempDirMixin
 import namespaces as ns
 from version import get_preservation_system_identifier
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 # XXX we can probably replace this given the am common import...
 NSMAP = {
@@ -770,7 +766,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
     @staticmethod
     def count_dir_objects(path):
         """Count all objects on a given path tree."""
-        return sum(len(files) for _, dir_, files in scandir.walk(path))
+        return sum(len(files) for _, dir_, files in os.walk(path))
 
     @staticmethod
     def validate_mets(mets_xsd, mets_structmap):

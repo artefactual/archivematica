@@ -2,22 +2,17 @@ import json
 import os
 import tempfile
 import uuid
+from pathlib import Path
 from unittest import mock
 
 import pytest
+from archivematicaFunctions import b64encode_string
+from components import helpers
+from components.filesystem_ajax import views
 from django.test import TestCase
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.urls import reverse
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
-from archivematicaFunctions import b64encode_string
-from components import helpers
-from components.filesystem_ajax import views
 from main import models
 
 

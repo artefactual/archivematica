@@ -32,7 +32,6 @@ import os
 import uuid
 
 import django
-import scandir
 from django.db import transaction
 
 django.setup()
@@ -212,7 +211,7 @@ def assign_uuids_to_files_in_dir(**kwargs):
     """
     target_dir = kwargs["target_dir"]
     transfer_uuid = kwargs["transfer_uuid"]
-    for root, _, filenames in scandir.walk(target_dir):
+    for root, _, filenames in os.walk(target_dir):
         for file_chunk in chunk_iterable(filenames):
             with transaction.atomic():
                 for filename in file_chunk:

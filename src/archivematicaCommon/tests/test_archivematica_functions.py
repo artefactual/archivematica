@@ -61,14 +61,14 @@ def test_get_bag_size_bag_missing_oxum(tmpdir):
     # Remove Payload-Oxum from bag.info
     del bag.info["Payload-Oxum"]
     bag.save()
-    # Test returned value against expected
+    # Test returned value against expected)
     size_on_disk = am.walk_dir(bag_dir.strpath)
     size = am.get_bag_size(bag, bag_dir.strpath)
     assert size == size_on_disk
     # Verify directory was walked
-    with patch("archivematicaFunctions.os") as mock_os:
+    with patch("os.path") as mock_os_path:
         am.get_bag_size(bag, bag_dir.strpath)
-        mock_os.path.getsize.assert_called()
+        mock_os_path.getsize.assert_called()
 
 
 def test_package_name_from_path():

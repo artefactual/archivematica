@@ -22,7 +22,6 @@ import os
 import sys
 
 import metrics
-import scandir
 
 
 REQUIRED_DIRECTORIES = (
@@ -37,7 +36,7 @@ ALLOWABLE_FILES = ("processingMCP.xml",)
 
 def checkDirectory(job, directory, ret=0):
     try:
-        for directory, subDirectories, files in scandir.walk(directory):
+        for directory, subDirectories, files in os.walk(directory):
             for file in files:
                 os.path.join(directory, file)
     except Exception as inst:

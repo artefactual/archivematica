@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 
 import pytest
 from main import models
@@ -9,11 +10,6 @@ from server.packages import DIP
 from server.packages import Package
 from server.packages import SIP
 from server.packages import Transfer
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 
 @pytest.mark.parametrize(
@@ -154,7 +150,6 @@ def test_package_get_or_create_from_db_by_path_updates_model(
 
 @pytest.mark.django_db(transaction=True)
 def test_reload_file_list(tmp_path):
-
     # Create a transfer that will be updated through time to simulate
     # Archivematica's processing.
     transfer_uuid = uuid.uuid4()
@@ -271,7 +266,6 @@ def test_reload_file_list(tmp_path):
 
 @pytest.mark.django_db(transaction=True)
 def test_package_files_with_non_ascii_names(tmp_path):
-
     # Create a Transfer package
     transfer_uuid = uuid.uuid4()
     transfer_path = tmp_path / f"test-transfer-{transfer_uuid}"

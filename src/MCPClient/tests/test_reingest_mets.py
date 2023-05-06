@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 import metsrw
 from django.core.management import call_command
@@ -12,11 +13,6 @@ from main import models
 from namespaces import NSMAP
 from namespaces import nsmap_for_premis2
 from version import get_preservation_system_identifier
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")

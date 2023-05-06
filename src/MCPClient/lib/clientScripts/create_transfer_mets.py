@@ -24,7 +24,6 @@ import os
 import uuid
 
 import django
-import scandir
 from django.db.models import Prefetch
 from lxml import etree
 
@@ -193,7 +192,7 @@ class FSEntriesTree:
         return os.path.relpath(path, start=self.root_path)
 
     def build_tree(self, path, parent=None):
-        dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
+        dir_entries = sorted(os.scandir(path), key=lambda d: d.name)
         for dir_entry in dir_entries:
             entry_relative_path = os.path.relpath(dir_entry.path, start=self.root_path)
             if dir_entry.is_dir():

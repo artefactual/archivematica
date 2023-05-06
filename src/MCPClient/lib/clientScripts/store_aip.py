@@ -25,7 +25,6 @@ from pprint import pformat
 from uuid import uuid4
 
 import django
-import scandir
 
 # storageService requires Django to be set up
 
@@ -207,7 +206,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # If AIP is a directory, calculate size recursively
     if os.path.isdir(aip_path):
         size = 0
-        for dirpath, _, filenames in scandir.walk(aip_path):
+        for dirpath, _, filenames in os.walk(aip_path):
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)
                 size += os.path.getsize(file_path)

@@ -4,11 +4,11 @@ import ast
 import collections
 import logging
 import os
+from pathlib import Path
 from tempfile import mkdtemp
 from uuid import UUID
 from uuid import uuid4
 
-import scandir
 import storageService as storage_service
 from django.conf import settings
 from django.utils import timezone
@@ -17,11 +17,6 @@ from server.db import auto_close_old_connections
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 
 logger = logging.getLogger("archivematica.mcp.server.packages")
@@ -684,7 +679,7 @@ class Package(metaclass=abc.ABCMeta):
                     files_returned_already.add(file_obj_mapped.get("%inputFile%"))
                     yield file_obj_mapped
 
-            for basedir, subdirs, files in scandir.walk(start_path):
+            for basedir, subdirs, files in os.walk(start_path):
                 for file_name in files:
                     if (
                         filter_filename_start

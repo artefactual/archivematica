@@ -31,7 +31,6 @@ import os
 from functools import wraps
 
 import django
-import scandir
 
 django.setup()
 # dashboard
@@ -107,7 +106,7 @@ def _get_subdir_paths(root_path):
     exclude_paths = (root_path, os.path.join(root_path, "objects"))
     return (
         format_subdir_path(dir_path, root_path)
-        for dir_path, __, ___ in scandir.walk(root_path)
+        for dir_path, __, ___ in os.walk(root_path)
         if dir_path not in exclude_paths
     )
 

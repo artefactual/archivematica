@@ -30,19 +30,14 @@ import os
 import pprint
 import re
 from itertools import zip_longest
+from pathlib import Path
 from uuid import uuid4
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
-from django.apps import apps
-import scandir
-from lxml import etree
-from namespaces import NSMAP, xml_find_premis
-
 from amclient import AMClient
+from django.apps import apps
+from lxml import etree
+from namespaces import NSMAP
+from namespaces import xml_find_premis
 
 REQUIRED_DIRECTORIES = (
     "logs",
@@ -319,7 +314,7 @@ def walk_dir(dir_path):
     :return: size in bytes (int)
     """
     size = 0
-    for dirpath, _, filenames in scandir.walk(dir_path):
+    for dirpath, _, filenames in os.walk(dir_path):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             size += os.path.getsize(file_path)

@@ -33,7 +33,6 @@ import sys
 import uuid
 
 import django
-import scandir
 from django.db import transaction
 
 django.setup()
@@ -202,7 +201,7 @@ class Hashsum:
     @staticmethod
     def _count_files(path):
         """Walk the directories on a given path and count the number of files."""
-        return sum(len(files) for _, _, files in scandir.walk(path))
+        return sum(len(files) for _, _, files in os.walk(path))
 
 
 def get_file_queryset(transfer_uuid):

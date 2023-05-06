@@ -255,8 +255,6 @@ requests==2.26.0
     #   amclient
     #   mozilla-django-oidc
     #   python-cas
-scandir==1.10.0
-    # via -r requirements.txt
 six==1.14.0
     # via
     #   -r requirements.txt
