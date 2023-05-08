@@ -1,0 +1,34 @@
+version: 2
+
+sql:
+  - schema: mysql/schema.sql
+    queries: mysql/query.sql
+    engine: mysql
+    gen:
+      go:
+        package: mysql
+        out: mysql
+        emit_prepared_queries: true
+        emit_interface: true
+        emit_empty_slices: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        rename:
+          "pk": "ID"
+          "uuid": "UUID"
+          "jobuuid": "ID"
+          "jobtype": "Type"
+          "sipuuid": "SIPID"
+          "createdtime": "CreatedAt"
+          "updatedtime": "UpdatedAt"
+
+          # table todo
+          # left: name of table, lowercase, also singualrized otherwise it doesn't match
+
+        overrides:
+          - column: "*.*uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+              pointer: false

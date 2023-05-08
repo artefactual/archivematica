@@ -252,6 +252,9 @@ upgrade-requirements-amauat: test-at-build  ## Run pip-upgrade for AMAUATs
 db:  ## Connect to the MySQL server using the CLI.
 	docker compose exec mysql mysql -hlocalhost -uroot -p12345
 
+dbschemadump:  ## Dump shema.
+	@docker-compose exec mysql mysqldump -hlocalhost -uroot -p12345 --no-data --skip-add-drop-table MCP
+
 flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete ALL user data.
 
 flush-shared-dir-mcp-configs:  ## Delete processing configurations - it restarts MCPServer.

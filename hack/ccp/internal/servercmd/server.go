@@ -1,20 +1,24 @@
 package servercmd
 
 import (
-	"context"
-	"os"
+	"errors"
+	"fmt"
 	"path/filepath"
-	"time"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
+	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
+	"github.com/artefactual/archivematica/hack/ccp/internal/scheduler"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/gohugoio/hugo/watcher"
 )
 
 type Server struct {
-	logger  logr.Logger
-	config  *Config
-	batcher *watcher.Batcher
+	logger     logr.Logger
+	config     *Config
+	controller *controller.Controller
+	watcher    *watcher.Batcher
+	scheduler  *scheduler.Server
 }
 
 func NewServer(logger logr.Logger, config *Config) *Server {
@@ -24,45 +28,60 @@ func NewServer(logger logr.Logger, config *Config) *Server {
 	}
 }
 
-func (s *Server) Run(ctx context.Context) error {
+func (s *Server) Run() error {
 	s.logger.V(1).Info("Loading workflow.")
 	wf, err := workflow.Default()
 	if err != nil {
-		return err
+		return fmt.Errorf("error loading workflow: %v", err)
 	}
 
 	s.logger.V(1).Info("Creating shared directories.", "path", s.config.sharedDir)
 	if err := createSharedDirs(s.config.sharedDir); err != nil {
-		return err
+		return fmt.Errorf("error creating shared directories: %v", err)
 	}
 
-	watchedDirs := filepath.Join(s.config.sharedDir, "watchedDirectories")
-	s.logger.V(1).Info("Setting up filesystem watchers.", "path", watchedDirs)
-	s.batcher, err = watcher.New(time.Second, time.Second, false)
-	if err != nil {
-		return err
+	processingConfigsDir := filepath.Join(s.config.sharedDir, "sharedMicroServiceTasksConfigs/processingMCPConfigs")
+	s.logger.V(1).Info("Creating default processing configurations.", "path", processingConfigsDir)
+	if err := processing.InstallBuiltinConfigs(processingConfigsDir); err != nil {
+		return fmt.Errorf("error creating default processing configurations: %v", err)
 	}
-	for _, wd := range wf.WatchedDirectories {
-		wdPath := filepath.Join(watchedDirs, wd.Path)
-		info, err := os.Stat(wdPath)
-		if err != nil {
-			continue
-		}
-		if !info.IsDir() {
-			continue
-		}
-		if err := s.batcher.Add(wdPath); err != nil {
-			continue
-		}
+
+	watchedDir := filepath.Join(s.config.sharedDir, "watchedDirectories")
+
+	s.logger.V(1).Info("Creating controller.")
+	s.controller = controller.New(s.logger.WithName("controller"), wf, s.config.sharedDir, watchedDir)
+	if err := s.controller.Run(); err != nil {
+		return fmt.Errorf("error creating controller: %v", err)
+	}
+
+	s.logger.V(1).Info("Creating filesystem watchers.", "path", watchedDir)
+	if s.watcher, err = watch(s.logger.WithName("watcher"), s.controller, wf, watchedDir); err != nil {
+		return fmt.Errorf("error creating filesystem watchers: %v", err)
+	}
+
+	s.logger.V(1).Info("Creating scheduler.")
+	s.scheduler = scheduler.New(s.logger.WithName("scheduler"))
+	if err := s.scheduler.Run(); err != nil {
+		return fmt.Errorf("error creating scheduler: %v", err)
 	}
 
 	return nil
 }
 
 func (s *Server) Close() error {
-	if s.batcher != nil {
-		s.batcher.Close()
+	var errs error
+
+	if s.controller != nil {
+		errors.Join(errs, s.controller.Close())
 	}
 
-	return nil
+	if s.watcher != nil {
+		s.watcher.Close()
+	}
+
+	if s.scheduler != nil {
+		errors.Join(errs, s.scheduler.Close())
+	}
+
+	return errs
 }

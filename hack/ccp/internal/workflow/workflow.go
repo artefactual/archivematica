@@ -4,6 +4,8 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 //go:embed assets/*
@@ -40,27 +42,36 @@ func LoadFromJSON(blob []byte) (*Document, error) {
 
 type I18nField map[string]string
 
+func (f I18nField) String() string {
+	s, ok := f["en"]
+	if ok {
+		return s
+	}
+	return ""
+}
+
 type WatchedDirectory struct {
-	ChainID  string `json:"chain_id"`
-	OnlyDirs bool   `json:"only_dirs"`
-	Path     string `json:"path"`
-	UnitType string `json:"unit_type"`
+	ChainID  uuid.UUID `json:"chain_id"`
+	OnlyDirs bool      `json:"only_dirs"`
+	Path     string    `json:"path"`
+	UnitType string    `json:"unit_type"`
 }
 
 type Chain struct {
-	ID          string    `json:"-"`
+	ID          uuid.UUID `json:"-"`
 	Description I18nField `json:"description"`
-	LinkID      string    `json:"link_id"`
+	LinkID      uuid.UUID `json:"link_id"`
 	Start       bool      `json:"start"`
 }
 
 type Link struct {
-	ID                string                `json:"-"`
+	ID                uuid.UUID             `json:"-"`
+	Manager           string                `json:"-"`
 	Config            interface{}           `json:"config"`
 	Description       I18nField             `json:"description"`
 	ExitCodes         map[int]*LinkExitCode `json:"exit_codes"`
 	FallbackJobStatus string                `json:"fallback_job_status"`
-	FallbackLinkID    string                `json:"fallback_link_id"`
+	FallbackLinkID    uuid.UUID             `json:"fallback_link_id"`
 	Group             I18nField             `json:"group"`
 	End               bool                  `json:"end"`
 }
@@ -71,7 +82,8 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 	// First pass to retrieve model attribute.
 	configModel := struct {
 		Config struct {
-			Model string `json:"@model"`
+			Manager string `json:"@manager"`
+			Model   string `json:"@model"`
 		} `json:"config"`
 	}{}
 	if err := json.Unmarshal(b, &configModel); err != nil {
@@ -91,6 +103,8 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*l = Link(link)
+
+	l.Manager = configModel.Config.Manager
 
 	switch configModel.Config.Model {
 	case "MicroServiceChainChoice":
@@ -112,7 +126,7 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 		}
 		l.Config = config
 	case "TaskConfigSetUnitVariable":
-		config := LinkTaskConfigUnitVariableLinkPull{}
+		config := LinkTaskConfigSetUnitVariable{}
 		if err := json.Unmarshal(rawConfig.Config, &config); err != nil {
 			return err
 		}
@@ -131,14 +145,34 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 }
 
 type LinkExitCode struct {
-	JobStatus string `json:"job_status"`
-	LinkID    string `json:"link_id"`
+	JobStatus string    `json:"job_status"`
+	LinkID    uuid.UUID `json:"link_id"`
 }
 
 type Document struct {
-	WatchedDirectories []*WatchedDirectory `json:"watched_directories"`
-	Chains             map[string]*Chain   `json:"chains"`
-	Links              map[string]*Link    `json:"links"`
+	WatchedDirectories []*WatchedDirectory  `json:"watched_directories"`
+	Chains             map[uuid.UUID]*Chain `json:"chains"`
+	Links              map[uuid.UUID]*Link  `json:"links"`
+}
+
+type documentProxy Document
+
+func (d *Document) UnmarshalJSON(b []byte) error {
+	dp := documentProxy{}
+	if err := json.Unmarshal(b, &dp); err != nil {
+		return err
+	}
+	*d = Document(dp)
+
+	for id, v := range d.Chains {
+		v.ID = id
+	}
+
+	for id, v := range d.Links {
+		v.ID = id
+	}
+
+	return nil
 }
 
 type sharedLink struct {
@@ -148,7 +182,7 @@ type sharedLink struct {
 
 type LinkMicroServiceChainChoice struct {
 	sharedLink
-	Choices []string `json:"chain_choices"`
+	Choices []uuid.UUID `json:"chain_choices"`
 }
 
 type ConfigReplacement struct {
@@ -175,14 +209,14 @@ type LinkStandardTaskConfig struct {
 
 type LinkTaskConfigSetUnitVariable struct {
 	sharedLink
-	Variable      string `json:"variable"`
-	VariableValue string `json:"variable_value"`
-	ChainID       string `json:"chain_id"`
+	Variable      string    `json:"variable"`
+	VariableValue string    `json:"variable_value"`
+	ChainID       uuid.UUID `json:"chain_id"`
 }
 
 type LinkTaskConfigUnitVariableLinkPull struct {
 	sharedLink
-	Variable      string `json:"variable"`
-	VariableValue string `json:"variable_value"`
-	ChainID       string `json:"chain_id"`
+	Variable      string    `json:"variable"`
+	VariableValue string    `json:"variable_value"`
+	ChainID       uuid.UUID `json:"chain_id"`
 }

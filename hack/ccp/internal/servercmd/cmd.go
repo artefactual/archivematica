@@ -26,6 +26,7 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 
 	fs := flag.NewFlagSet("ccp server", flag.ExitOnError)
 	fs.String("config", "", "Configuration file in the TOML file format")
+	fs.StringVar(&cfg.sharedDir, "shared-dir", "", "Shared directory")
 
 	rootConfig.RegisterFlags(fs)
 
@@ -58,19 +59,19 @@ func (c *Config) Exec(ctx context.Context, args []string) error {
 	}
 	logger.Info("Starting...", keys...)
 
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return err
+	if c.sharedDir == "" {
+		configDir, err := os.UserConfigDir()
+		if err != nil {
+			return err
+		}
+		c.sharedDir = filepath.Join(configDir, "ccp", "shared")
 	}
-	c.sharedDir = filepath.Join(configDir, "ccp", "shared")
 
-	ctx, cancel := context.WithCancel(ctx)
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGQUIT)
-	go func() { <-ch; cancel() }()
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
 	s := NewServer(logger, c)
-	if err := s.Run(ctx); err != nil {
+	if err := s.Run(); err != nil {
 		s.Close()
 		return err
 	}

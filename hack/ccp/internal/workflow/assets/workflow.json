@@ -12079,9 +12079,7 @@
       "config": {
         "@manager": "linkTaskManagerChoice",
         "@model": "MicroServiceChainChoice",
-        "chain_choices": [
-          "5727faac-88af-40e8-8c10-268644b0142d"
-        ]
+        "chain_choices": ["5727faac-88af-40e8-8c10-268644b0142d"]
       },
       "description": {
         "en": "Reminder: add metadata if desired",

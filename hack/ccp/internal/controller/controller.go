@@ -1,0 +1,196 @@
+package controller
+
+import (
+	"context"
+	"fmt"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
+	"github.com/fsnotify/fsnotify"
+	"github.com/go-logr/logr"
+	"golang.org/x/sync/errgroup"
+)
+
+const maxConcurrentPackages = 2
+
+type Controller struct {
+	logger logr.Logger
+
+	// wf is the workflow document.
+	wf *workflow.Document
+
+	sharedDir string
+
+	watchedDir string
+
+	// activePackages is the list of active packages.
+	activePackages []*Package
+
+	// queuedPackages is the list of queued packages, FIFO style.
+	queuedPackages []*Package
+
+	// sync.Mutex protects the internal Package slices.
+	sync.Mutex
+
+	// group is a collection of goroutines used for processing packages.
+	group         *errgroup.Group
+	groupCtx      context.Context
+	groupCancel   context.CancelFunc
+	groupChildCtx context.Context
+
+	// close is used to broadcast all goroutines the closing signal.
+	close chan struct{}
+
+	// closeOnce guarantees that the closing procedure runs only once.
+	closeOnce sync.Once
+}
+
+func New(logger logr.Logger, wf *workflow.Document, sharedDir, watchedDir string) *Controller {
+	c := &Controller{
+		logger:         logger,
+		wf:             wf,
+		sharedDir:      sharedDir,
+		watchedDir:     watchedDir,
+		activePackages: []*Package{},
+		queuedPackages: []*Package{},
+		close:          make(chan struct{}),
+	}
+
+	c.groupCtx, c.groupCancel = context.WithCancel(context.Background())
+	c.group, c.groupChildCtx = errgroup.WithContext(c.groupCtx)
+	c.group.SetLimit(10)
+
+	return c
+}
+
+func (c *Controller) Run() error {
+	go func() {
+		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				c.pick()
+			case <-c.close:
+				return
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (c *Controller) HandleWatchedDirEvents(evs []fsnotify.Event) error {
+	for _, ev := range evs {
+		if ev.Op&fsnotify.Create == fsnotify.Create {
+			if err := c.handle(ev.Name); err != nil {
+				c.logger.Info("Failed to handle event.", "err", err, "path", ev.Name)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Controller) handle(path string) error {
+	rel, err := filepath.Rel(c.watchedDir, path)
+	if err != nil {
+		return err
+	}
+
+	dir, _ := filepath.Split(rel)
+	dir = trim(dir)
+
+	var match bool
+	for _, wd := range c.wf.WatchedDirectories {
+		if trim(wd.Path) == dir {
+			match = true
+			c.logger.V(2).Info("Identified new package.", "path", path, "type", wd.UnitType)
+			c.queue(path, wd)
+			c.pick()
+			break
+		}
+	}
+	if !match {
+		return fmt.Errorf("unmatched event")
+	}
+
+	return nil
+}
+
+func (c *Controller) queue(path string, wd *workflow.WatchedDirectory) {
+	c.Lock()
+	defer c.Unlock()
+
+	p := NewPackage(path, wd)
+	c.queuedPackages = append(c.queuedPackages, p)
+}
+
+func (c *Controller) pick() {
+	c.Lock()
+	defer c.Unlock()
+
+	if len(c.activePackages) == maxConcurrentPackages {
+		c.logger.V(2).Info("Not accepting new packages at this time.", "active", len(c.activePackages), "max", maxConcurrentPackages)
+		return
+	}
+
+	var current *Package
+	if len(c.queuedPackages) > 0 {
+		current = c.queuedPackages[0]
+		c.activePackages = append(c.activePackages, current)
+		c.queuedPackages = c.queuedPackages[1:]
+	}
+
+	if current == nil {
+		return
+	}
+
+	c.group.Go(func() error {
+		logger := c.logger.V(2).WithValues("package", current)
+
+		defer c.deactivate(current)
+
+		logger.Info("Processing started.")
+		err := NewIterator(logger, c.wf, current).Process(c.groupCtx) // Block.
+		if err != nil {
+			logger.Info("Processing failed.", "err", err)
+		} else {
+			logger.Info("Processing completed successfully")
+		}
+
+		return err
+	})
+}
+
+// deactivate removes a package from the activePackages queue.
+func (c *Controller) deactivate(p *Package) {
+	c.Lock()
+	defer c.Unlock()
+
+	for i, item := range c.activePackages {
+		if item.name == p.name {
+			c.activePackages = append(c.activePackages[:i], c.activePackages[i+1:]...)
+			break
+		}
+	}
+}
+
+func (c *Controller) Close() error {
+	var err error
+
+	c.closeOnce.Do(func() {
+		close(c.close)
+		c.groupCancel()
+		err = c.group.Wait()
+	})
+
+	return err
+}
+
+func trim(path string) string {
+	return strings.Trim(path, string(filepath.Separator))
+}
