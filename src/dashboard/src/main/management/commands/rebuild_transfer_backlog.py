@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Recreate the ``transfers`` Elasticsearch index from the Transfer Backlog.
 
 This is useful if the Elasticsearch index has been deleted or damaged
@@ -36,44 +35,34 @@ with ``--uuid`` option
 ``--delete``: before re-reindexing a transfer, will delete any data found in Elasticsearch with a matching UUID. In contrast with the ``--delete-all``, it does not delete the entire index.
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
-
-import multiprocessing
 import logging
+import multiprocessing
 import os
 import shutil
-from subprocess import CalledProcessError
 import sys
 import tempfile
-import traceback
 import time
-
-try:
-    from os import scandir
-except ImportError:
-    from scandir import scandir
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
-from django.conf import settings as django_settings
-from django.core.management.base import CommandError
-import six
+import traceback
+from pathlib import Path
+from subprocess import CalledProcessError
 
 import archivematicaFunctions as am
-from fileOperations import addFileToTransfer, extract_package
+import bagit
 import elasticSearchFunctions as es
 import metsrw
 import storageService
-
-from fpr.models import FormatVersion
 from components.rights.load import load_rights
-from main.management.commands import boolean_input, DashboardCommand
-from main.models import Agent, Transfer, FileFormatVersion, FileID
-
-import bagit
+from django.conf import settings as django_settings
+from django.core.management.base import CommandError
+from fileOperations import addFileToTransfer
+from fileOperations import extract_package
+from fpr.models import FormatVersion
+from main.management.commands import boolean_input
+from main.management.commands import DashboardCommand
+from main.models import Agent
+from main.models import FileFormatVersion
+from main.models import FileID
+from main.models import Transfer
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -165,9 +154,7 @@ class Command(DashboardCommand):
                 raise CommandError(
                     "Directory does not exist: %s" % transfer_backlog_dir
                 )
-            self.info(
-                'Rebuilding "transfers" index from {}.'.format(transfer_backlog_dir)
-            )
+            self.info(f'Rebuilding "transfers" index from {transfer_backlog_dir}.')
 
         # Connect to Elasticsearch.
         es.setup_reading_from_conf(django_settings)
@@ -260,28 +247,26 @@ class Command(DashboardCommand):
             if skip_to and (skip_to.lower() == transfer_uuid.lower()):
                 skip_found = True
             if skip_to and (not skip_found):
-                self.info("Skipping {}".format(transfer_uuid))
+                self.info(f"Skipping {transfer_uuid}")
                 continue
             # If specified a single transfer uuid, skip all others
             if uuid and (uuid.lower() != transfer_uuid.lower()):
                 continue
             # if delete option specified delete before reindexing
             if delete:
-                self.info("Deleting index data of {}".format(transfer_uuid))
+                self.info(f"Deleting index data of {transfer_uuid}")
                 es.remove_backlog_transfer(es_client, transfer_uuid)
                 es.remove_backlog_transfer_files(es_client, transfer_uuid)
 
             if bag and "External-Identifier" in bag.info:
-                self.info(
-                    "Importing self-describing transfer {}.".format(transfer_uuid)
-                )
+                self.info(f"Importing self-describing transfer {transfer_uuid}.")
                 size = am.get_bag_size(bag, str(transfer_dir))
 
                 _import_self_describing_transfer(
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             else:
-                self.info("Rebuilding known transfer {}.".format(transfer_uuid))
+                self.info(f"Rebuilding known transfer {transfer_uuid}.")
                 if bag:
                     size = am.get_bag_size(bag, str(transfer_dir))
                 else:
@@ -291,7 +276,7 @@ class Command(DashboardCommand):
                     self, es_client, self.stdout, transfer_dir, transfer_uuid, size
                 )
             processed += 1
-        self.success("{} transfers indexed!".format(processed))
+        self.success(f"{processed} transfers indexed!")
 
     def populate_data_from_storage_service(
         self, es_client, pipeline_uuid, uuid=None, skip_to=None, delete=False
@@ -316,14 +301,14 @@ class Command(DashboardCommand):
             if skip_to and (skip_to.lower() == transfer_uuid.lower()):
                 skip_found = True
             if skip_to and (not skip_found):
-                self.info("Skipping {}".format(transfer_uuid))
+                self.info(f"Skipping {transfer_uuid}")
                 continue
             # If specified a single transfer uuid, skip all others
             if uuid and (uuid.lower() != transfer_uuid.lower()):
                 continue
             # if delete option specified delete before reindexing
             if delete:
-                self.info("Deleting index data of {}".format(transfer_uuid))
+                self.info(f"Deleting index data of {transfer_uuid}")
                 es.remove_backlog_transfer(es_client, transfer_uuid)
                 es.remove_backlog_transfer_files(es_client, transfer_uuid)
 
@@ -345,14 +330,14 @@ class Command(DashboardCommand):
                 extract_package(local_package, temp_backlog_dir)
             except CalledProcessError as err:
                 self.error(
-                    "Transfer {0} not indexed. File extraction from tar failed: {1}.".format(
+                    "Transfer {} not indexed. File extraction from tar failed: {}.".format(
                         transfer_uuid, err
                     )
                 )
                 continue
             local_package_without_extension = am.package_name_from_path(local_package)
             transfer_indexed = False
-            for entry in scandir(temp_backlog_dir):
+            for entry in os.scandir(temp_backlog_dir):
                 if entry.is_dir() and entry.name == local_package_without_extension:
                     transfer_path = entry.path
                     self.info(
@@ -378,7 +363,7 @@ class Command(DashboardCommand):
                         transfer_uuid
                     )
                 )
-        self.success("{} transfers indexed!".format(processed))
+        self.success(f"{processed} transfers indexed!")
 
 
 def _import_dir_from_fsentry(cmd, fsentry, transfer_uuid):
@@ -402,7 +387,7 @@ def _import_file_from_fsentry(cmd, fsentry, transfer_uuid):
             break
 
     file_obj = addFileToTransfer(
-        "%transferDirectory%{}".format(fsentry.path),
+        f"%transferDirectory%{fsentry.path}",
         fsentry.file_uuid,
         transfer_uuid,
         None,
@@ -465,7 +450,7 @@ def _load_event(file_obj, event):
         event_detail = getattr(event, event_detail_attr)
     except AttributeError:
         raise
-    if isinstance(event_detail, six.text_type):
+    if isinstance(event_detail, str):
         create_kwargs["event_detail"] = event.event_detail
 
     try:
@@ -474,10 +459,10 @@ def _load_event(file_obj, event):
         pass
     else:
         event_outcome = event_outcome_information.event_outcome
-        if isinstance(event_outcome, six.text_type):
+        if isinstance(event_outcome, str):
             create_kwargs["event_outcome"] = event_outcome
         event_outcome_note = event_outcome_information.event_outcome_detail_note
-        if isinstance(event_outcome_note, six.text_type):
+        if isinstance(event_outcome_note, str):
             create_kwargs["event_outcome_detail"] = event_outcome_note
 
     event_obj = file_obj.event_set.create(**create_kwargs)
@@ -594,9 +579,7 @@ def _import_pipeline_dependant_transfer(
     try:
         Transfer.objects.get(uuid=transfer_uuid)
     except Transfer.DoesNotExist:
-        cmd.warning(
-            "Skipping transfer {} - not found in the database!".format(transfer_uuid)
-        )
+        cmd.warning(f"Skipping transfer {transfer_uuid} - not found in the database!")
         return
     es.index_transfer_and_files(
         es_client,

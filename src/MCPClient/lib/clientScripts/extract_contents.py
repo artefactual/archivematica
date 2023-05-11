@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-
 import os
 import sys
 import uuid
 
 import django
-import scandir
 from django.db import transaction
 
 django.setup()
@@ -38,7 +36,7 @@ def temporary_directory(file_path, date, file_path_cache):
 
 
 def tree(root):
-    for dirpath, __, files in scandir.walk(root):
+    for dirpath, __, files in os.walk(root):
         for file in files:
             yield os.path.join(dirpath, file)
 
@@ -64,7 +62,7 @@ def assign_uuid(
     relative_package_path = package_filename.replace(
         sip_directory, TRANSFER_DIRECTORY, 1
     )
-    package_detail = "{} ({})".format(relative_package_path, package_uuid)
+    package_detail = f"{relative_package_path} ({package_uuid})"
     event_detail = "Unpacked from: " + package_detail
     addFileToTransfer(
         relative_path,
@@ -99,7 +97,7 @@ def _get_subdir_paths(job, root_path, path_prefix_to_repl, original_location):
 
     # Return a generator here that contains information about the current path
     # and the original path for the PREMIS information in the METS file.
-    for dir_path, __, ___ in scandir.walk(root_path):
+    for dir_path, __, ___ in os.walk(root_path):
         formatted_path = format_subdir_path(dir_path, path_prefix_to_repl)
         for dir_uuid in get_dir_uuids([formatted_path], logger, printfn=job.pyprint):
             dir_uuid["originalLocation"] = formatted_path.replace(
@@ -281,7 +279,7 @@ def call(jobs):
                 delete = False
                 if job.args[5] == "True":
                     delete = True
-                job.pyprint("Deleting?: {}".format(delete), file=sys.stderr)
+                job.pyprint(f"Deleting?: {delete}", file=sys.stderr)
                 job.set_status(
                     main(
                         job,

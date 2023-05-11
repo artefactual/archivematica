@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,18 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import shutil
 
+import archivematicaFunctions
+from custom_handlers import get_script_logger
 
 # archivematicaCommon
-from custom_handlers import get_script_logger
-import archivematicaFunctions
 
 
 logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
@@ -37,7 +34,7 @@ def _move_file(job, src, dst, exit_on_error=True):
     job.pyprint("Moving", src, "to", dst)
     try:
         shutil.move(src, dst)
-    except IOError:
+    except OSError:
         job.pyprint("Could not move", src)
         if exit_on_error:
             raise
@@ -107,6 +104,6 @@ def call(jobs):
                     printing=True,
                     printfn=job.pyprint,
                 )
-            except IOError as err:
+            except OSError as err:
                 job.print_error(repr(err))
                 job.set_status(1)

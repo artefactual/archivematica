@@ -16,21 +16,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
-from __future__ import unicode_literals
-
 import argparse
 import logging
 import os
 import uuid
 
 import django
-import scandir
-from lxml import etree
 from django.db.models import Prefetch
-import six
+from lxml import etree
 
 django.setup()
 import metsrw
@@ -75,7 +70,7 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
     transfer_dir_path = os.path.expanduser(transfer_dir_path)
     transfer_dir_path = os.path.normpath(transfer_dir_path)
 
-    db_base_path = r"%{}%".format(base_path_placeholder)
+    db_base_path = rf"%{base_path_placeholder}%"
 
     mets = metsrw.METSDocument()
     mets.objid = str(transfer_uuid)
@@ -127,7 +122,7 @@ def clean_date(date_string):
     return date_string.replace("/", "-")
 
 
-class FSEntriesTree(object):
+class FSEntriesTree:
     """
     Builds a tree of FSEntry objects from the path given, and looks up required data
     from the database.
@@ -197,7 +192,7 @@ class FSEntriesTree(object):
         return os.path.relpath(path, start=self.root_path)
 
     def build_tree(self, path, parent=None):
-        dir_entries = sorted(scandir.scandir(path), key=lambda d: d.name)
+        dir_entries = sorted(os.scandir(path), key=lambda d: d.name)
         for dir_entry in dir_entries:
             entry_relative_path = os.path.relpath(dir_entry.path, start=self.root_path)
             if dir_entry.is_dir():
@@ -222,8 +217,7 @@ class FSEntriesTree(object):
 
         while offset < total_count:
             batch = queryset[offset:limit]
-            for item in batch:
-                yield item
+            yield from batch
             offset += self.QUERY_BATCH_SIZE
             limit += self.QUERY_BATCH_SIZE
 
@@ -267,11 +261,11 @@ class FSEntriesTree(object):
         )
 
         for rights in transfer_rights:
-            for path, fsentry in six.iteritems(self.file_index):
+            for path, fsentry in self.file_index.items():
                 premis_rights = rights_to_premis(rights, fsentry.file_uuid)
                 fsentry.add_premis_rights(premis_rights)
 
-        for path, fsentry in six.iteritems(self.file_index):
+        for path, fsentry in self.file_index.items():
             file_rights = self.rights_queryset.filter(
                 metadataappliestoidentifier=fsentry.file_uuid,
                 metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,
@@ -300,7 +294,7 @@ class FSEntriesTree(object):
 
     def check_for_missing_file_uuids(self):
         missing = []
-        for path, fsentry in six.iteritems(self.file_index):
+        for path, fsentry in self.file_index.items():
             if fsentry.file_uuid is None:
                 logger.info("No record in database for file: %s", path)
                 missing.append(path)
@@ -401,21 +395,21 @@ def get_premis_rights_documentation_identifiers(rights_type, identifiers):
         value_tag_name = "other_rights_documentation_identifier_value"
         role_tag_name = "other_rights_documentation_role"
     else:
-        tag_name = "{}_documentation_identifier".format(rights_type)
-        type_tag_name = "{}_documentation_identifier_type".format(rights_type)
-        value_tag_name = "{}_documentation_identifier_value".format(rights_type)
-        role_tag_name = "{}_documentation_role".format(rights_type)
+        tag_name = f"{rights_type}_documentation_identifier"
+        type_tag_name = f"{rights_type}_documentation_identifier_type"
+        value_tag_name = f"{rights_type}_documentation_identifier_value"
+        role_tag_name = f"{rights_type}_documentation_role"
 
     data = ()
     for identifier in identifiers:
         identifier_type = getattr(
-            identifier, "{}documentationidentifiertype".format(rights_type)
+            identifier, f"{rights_type}documentationidentifiertype"
         )
         identifier_value = getattr(
-            identifier, "{}documentationidentifiervalue".format(rights_type)
+            identifier, f"{rights_type}documentationidentifiervalue"
         )
         identifier_role = getattr(
-            identifier, "{}documentationidentifierrole".format(rights_type)
+            identifier, f"{rights_type}documentationidentifierrole"
         )
 
         data += (
@@ -434,14 +428,14 @@ def get_premis_rights_applicable_dates(rights_type, rights_obj):
     if rights_type == "otherrights":
         tag_name = "other_rights_applicable_dates"
     else:
-        tag_name = "{}_applicable_dates".format(rights_type)
+        tag_name = f"{rights_type}_applicable_dates"
 
-    start_date = getattr(rights_obj, "{}applicablestartdate".format(rights_type))
-    end_date_open = getattr(rights_obj, "{}enddateopen".format(rights_type), False)
+    start_date = getattr(rights_obj, f"{rights_type}applicablestartdate")
+    end_date_open = getattr(rights_obj, f"{rights_type}enddateopen", False)
     if end_date_open:
         end_date = "OPEN"
     else:
-        end_date = getattr(rights_obj, "{}applicableenddate".format(rights_type))
+        end_date = getattr(rights_obj, f"{rights_type}applicableenddate")
 
     data = (tag_name,)
     if start_date:

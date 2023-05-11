@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,13 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import argparse
-import shutil
 import os
+import shutil
 import sys
 
 import django
@@ -46,7 +44,7 @@ def extract(job, target, destinationDirectory):
     if file_extension != ".tgz" and file_extension != ".gz":
         job.pyprint("Unzipping...")
 
-        command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
+        command = f"""/usr/bin/7z x -bd -o"{destinationDirectory}" "{target}" """
         exitC, stdOut, stdErr = executeOrRun(
             "command", command, printing=False, capture_output=True
         )

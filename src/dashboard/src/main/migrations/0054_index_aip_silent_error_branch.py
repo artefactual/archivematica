@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
+from main.models import Job
 
 # Can't use apps.get_model for this model as we need to access class attributes.
-from main.models import Job
 
 
 NEW_EXIT_CODE_PK = "c2638a7b-3308-4a0b-895a-001e09fd407a"

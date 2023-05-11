@@ -2,20 +2,18 @@
 Gearman task backend. Submits `Task` objects to gearman for processing,
 and returns results.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
+import pickle
 import uuid
 
 from django.conf import settings
-from django.utils.six.moves import cPickle
 from gearman import GearmanClient
-from gearman.constants import JOB_COMPLETE, JOB_FAILED, JOB_UNKNOWN
-import six
-
+from gearman.constants import JOB_COMPLETE
+from gearman.constants import JOB_FAILED
+from gearman.constants import JOB_UNKNOWN
 from server import metrics
-from server.tasks.task import Task
 from server.tasks.backends.base import TaskBackend
+from server.tasks.task import Task
 
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
@@ -121,8 +119,7 @@ class GearmanTaskBackend(TaskBackend):
                     continue
 
                 if batch.complete or batch.failed:
-                    for task in batch.update_task_results():
-                        yield task
+                    yield from batch.update_task_results()
 
                     batch.collected = True
                     completed_request_count += 1
@@ -166,7 +163,7 @@ class GearmanTaskBackend(TaskBackend):
             del self.current_task_batches[job.uuid]
 
 
-class GearmanTaskBatch(object):
+class GearmanTaskBatch:
     """A collection of `Task` objects, to be submitted as one gearman job."""
 
     def __init__(self):
@@ -188,8 +185,8 @@ class GearmanTaskBatch(object):
 
     def serialize_task(self, task):
         return {
-            "uuid": six.text_type(task.uuid),
-            "createdDate": task.start_timestamp.isoformat(str(" ")),
+            "uuid": str(task.uuid),
+            "createdDate": task.start_timestamp.isoformat(" "),
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
@@ -203,15 +200,15 @@ class GearmanTaskBatch(object):
 
         data = {"tasks": {}}
         for task in self.tasks:
-            task_uuid = six.text_type(task.uuid)
+            task_uuid = str(task.uuid)
             data["tasks"][task_uuid] = self.serialize_task(task)
 
-        pickled_data = cPickle.dumps(data, protocol=0)
+        pickled_data = pickle.dumps(data, protocol=0)
 
         self.pending = client.submit_job(
-            task=six.ensure_binary(job.name),
+            task=job.name.encode(),
             data=pickled_data,
-            unique=six.ensure_binary(six.text_type(self.uuid)),
+            unique=str(self.uuid).encode(),
             wait_until_complete=False,
             background=False,
             max_retries=0,
@@ -224,7 +221,7 @@ class GearmanTaskBatch(object):
         elif not self.pending.result:
             raise ValueError("Unexpected empty result from Gearman job")
 
-        job_result = cPickle.loads(self.pending.result)
+        job_result = pickle.loads(self.pending.result)
 
         try:
             return job_result["task_results"]
@@ -246,7 +243,7 @@ class GearmanTaskBatch(object):
         else:
             result = self.result()
             for task in self.tasks:
-                task_id = six.text_type(task.uuid)
+                task_id = str(task.uuid)
                 task_result = result[task_id]
                 task.exit_code = task_result["exitCode"]
                 task.stdout = task_result.get("stdout", "")

@@ -1,32 +1,22 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
-from functools import wraps
 import json
 import logging
+from functools import wraps
 
-from django.contrib import messages
-from django.urls import reverse
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-    HttpResponseServerError,
-)
-from django.utils.translation import ugettext as _
-
-from contrib.mcp.client import MCPClient
+from agentarchives.archivesspace import ArchivesSpaceClient
+from agentarchives.archivesspace import ArchivesSpaceError
+from agentarchives.archivesspace import AuthenticationError
+from agentarchives.archivesspace import ConnectionError
 from components import advanced_search
-from main import models
-
-from agentarchives.archivesspace import (
-    ArchivesSpaceError,
-    ArchivesSpaceClient,
-    AuthenticationError,
-    ConnectionError,
-)
-
 from components.ingest import pair_matcher
+from contrib.mcp.client import MCPClient
+from django.contrib import messages
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseServerError
+from django.urls import reverse
+from django.utils.translation import ugettext as _
+from main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

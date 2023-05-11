@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from server import workflow
 from server.workflow_abilities import choice_is_available
 

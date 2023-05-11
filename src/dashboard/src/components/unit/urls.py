@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,12 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from django.conf.urls import url
-from django.conf import settings
-
 from components.unit import views
+from django.conf import settings
+from django.conf.urls import url
 
 app_name = "unit"
 # The first segment of these urls is '^(?P<unit_type>transfer|ingest)/'

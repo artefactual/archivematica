@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Recreate the Elasticsearch index from AIPs stored on disk.
 
 This is a copy of: https://github.com/artefactual/archivematica-devtools/blob/1fd49faf2b415a4f4229da832445d22b35c262f4/tools/rebuild-elasticsearch-aip-index-from-files.
@@ -33,23 +32,21 @@ should not be used if there are AIPs stored that are not locally accessible.
 (this is useful when the system /tmp directory used by default is on a volume
 with limited space).
 """
-
-import shutil
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 
-import scandir
-from lxml import etree
-
-from django.core.management.base import CommandError
-from main.management.commands import DashboardCommand, setup_es_for_aip_reindexing
 import archivematicaFunctions as am
-import storageService as storage_service
 import elasticSearchFunctions
 import namespaces as ns
+import storageService as storage_service
+from django.core.management.base import CommandError
+from lxml import etree
+from main.management.commands import DashboardCommand
+from main.management.commands import setup_es_for_aip_reindexing
 
 
 def extract_file(archive_path, destination_dir, relative_path):
@@ -183,7 +180,6 @@ def is_hex(string):
 
 
 class Command(DashboardCommand):
-
     help = __doc__
 
     def add_arguments(self, parser):
@@ -264,7 +260,7 @@ class Command(DashboardCommand):
         name_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
         dir_regex = r"-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
-        for root, directories, files in scandir.walk(options["rootdir"]):
+        for root, directories, files in os.walk(options["rootdir"]):
             # Ignore top-level directories inside ``rootdir`` that are not hex,
             # e.g. we walk ``0771`` but we're ignoring ``transferBacklog``.
             if root == options["rootdir"]:

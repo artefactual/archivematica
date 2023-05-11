@@ -1,26 +1,18 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from base64 import b64encode
 import json
 import os
-import uuid
 import tempfile
+import uuid
+from pathlib import Path
+from unittest import mock
 
-from django.urls import reverse
-from django.test import TestCase
-from django.test.client import Client, RequestFactory
 import pytest
-import mock
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
 from archivematicaFunctions import b64encode_string
 from components import helpers
 from components.filesystem_ajax import views
+from django.test import TestCase
+from django.test.client import Client
+from django.test.client import RequestFactory
+from django.urls import reverse
 from main import models
 
 
@@ -45,26 +37,22 @@ class TestSIPArrange(TestCase):
         assert response.status_code == 200
         response_dict = json.loads(response.content.decode("utf8"))
         assert "directories" in response_dict
-        assert b64encode(b"newsip").decode("utf8") in response_dict["directories"]
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["directories"]
+        assert b64encode_string("newsip") in response_dict["directories"]
+        assert b64encode_string("toplevel") in response_dict["directories"]
         assert len(response_dict["directories"]) == 2
         assert "entries" in response_dict
-        assert b64encode(b"newsip").decode("utf8") in response_dict["entries"]
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["entries"]
+        assert b64encode_string("newsip") in response_dict["entries"]
+        assert b64encode_string("toplevel") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
         assert "properties" in response_dict
-        assert b64encode(b"newsip").decode("utf8") in response_dict["properties"]
+        assert b64encode_string("newsip") in response_dict["properties"]
         assert (
-            response_dict["properties"][b64encode(b"newsip").decode("utf8")][
-                "display_string"
-            ]
+            response_dict["properties"][b64encode_string("newsip")]["display_string"]
             == "2 objects"
         )
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["properties"]
+        assert b64encode_string("toplevel") in response_dict["properties"]
         assert (
-            response_dict["properties"][b64encode(b"toplevel").decode("utf8")][
-                "display_string"
-            ]
+            response_dict["properties"][b64encode_string("toplevel")]["display_string"]
             == "1 object"
         )
         assert len(response_dict) == 3
@@ -73,36 +61,25 @@ class TestSIPArrange(TestCase):
         # Folder, without /
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange/newsip/objects/")},
+            {"path": b64encode_string("/arrange/newsip/objects/")},
             follow=True,
         )
         # Verify
         assert response.status_code == 200
-        response_dict = json.loads(response.content.decode("utf8"))
+        response_dict = json.loads(response.content)
         assert "directories" in response_dict
-        assert (
-            b64encode(b"evelyn_s_second_photo").decode("utf8")
-            in response_dict["directories"]
-        )
+        assert b64encode_string("evelyn_s_second_photo") in response_dict["directories"]
         assert len(response_dict["directories"]) == 1
         assert "entries" in response_dict
-        assert (
-            b64encode(b"evelyn_s_photo.jpg").decode("utf8") in response_dict["entries"]
-        )
-        assert (
-            b64encode(b"evelyn_s_second_photo").decode("utf8")
-            in response_dict["entries"]
-        )
+        assert b64encode_string("evelyn_s_photo.jpg") in response_dict["entries"]
+        assert b64encode_string("evelyn_s_second_photo") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
         assert "properties" in response_dict
+        assert b64encode_string("evelyn_s_second_photo") in response_dict["properties"]
         assert (
-            b64encode(b"evelyn_s_second_photo").decode("utf8")
-            in response_dict["properties"]
-        )
-        assert (
-            response_dict["properties"][
-                b64encode(b"evelyn_s_second_photo").decode("utf8")
-            ]["display_string"]
+            response_dict["properties"][b64encode_string("evelyn_s_second_photo")][
+                "display_string"
+            ]
             == "1 object"
         )
         assert len(response_dict) == 3
@@ -110,7 +87,7 @@ class TestSIPArrange(TestCase):
     def test_arrange_contents_404(self):
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange/nosuchpath/")},
+            {"path": b64encode_string("/arrange/nosuchpath/")},
             follow=True,
         )
         assert response.status_code == 404
@@ -121,7 +98,7 @@ class TestSIPArrange(TestCase):
         models.SIPArrange.objects.all().delete()
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange/")},
+            {"path": b64encode_string("/arrange/")},
             follow=True,
         )
         assert response.status_code == 200
@@ -137,17 +114,17 @@ class TestSIPArrange(TestCase):
         # Check to-be-deleted exists
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange").decode("utf8")},
+            {"path": b64encode_string("/arrange")},
             follow=True,
         )
         assert (
-            b64encode(b"newsip").decode("utf8")
+            b64encode_string("newsip")
             in json.loads(response.content.decode("utf8"))["directories"]
         )
         # Delete files
         response = self.client.post(
             reverse("filesystem_ajax:delete_arrange"),
-            data={"filepath": b64encode(b"/arrange/newsip/").decode("utf8")},
+            data={"filepath": b64encode_string("/arrange/newsip/")},
             follow=True,
         )
         assert response.status_code == 200
@@ -157,35 +134,35 @@ class TestSIPArrange(TestCase):
         # Check deleted
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange").decode("utf8")},
+            {"path": b64encode_string("/arrange")},
             follow=True,
         )
         assert response.status_code == 200
         response_dict = json.loads(response.content.decode("utf8"))
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["directories"]
+        assert b64encode_string("toplevel") in response_dict["directories"]
         assert len(response_dict["directories"]) == 1
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["entries"]
+        assert b64encode_string("toplevel") in response_dict["entries"]
         assert len(response_dict["entries"]) == 1
 
     def test_create_arranged_directories(self):
         # Verify does not exist already
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange")},
+            {"path": b64encode_string("/arrange")},
             follow=True,
         )
         assert (
-            b64encode(b"new_dir")
+            b64encode_string("new_dir")
             not in json.loads(response.content.decode("utf8"))["directories"]
         )
         assert (
-            b64encode(b"new_dir")
+            b64encode_string("new_dir")
             not in json.loads(response.content.decode("utf8"))["entries"]
         )
         # Create directory
         response = self.client.post(
             reverse("filesystem_ajax:create_directory_within_arrange"),
-            data={"paths[]": b64encode(b"/arrange/new_dir").decode("utf8")},
+            data={"paths[]": b64encode_string("/arrange/new_dir")},
             follow=True,
         )
         assert response.status_code == 201
@@ -195,18 +172,18 @@ class TestSIPArrange(TestCase):
         # Check created
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange")},
+            {"path": b64encode_string("/arrange")},
             follow=True,
         )
         assert response.status_code == 200
         response_dict = json.loads(response.content.decode("utf8"))
-        assert b64encode(b"new_dir").decode("utf8") in response_dict["directories"]
-        assert b64encode(b"newsip").decode("utf8") in response_dict["directories"]
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["directories"]
+        assert b64encode_string("new_dir") in response_dict["directories"]
+        assert b64encode_string("newsip") in response_dict["directories"]
+        assert b64encode_string("toplevel") in response_dict["directories"]
         assert len(response_dict["directories"]) == 3
-        assert b64encode(b"new_dir").decode("utf8") in response_dict["entries"]
-        assert b64encode(b"newsip").decode("utf8") in response_dict["entries"]
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["entries"]
+        assert b64encode_string("new_dir") in response_dict["entries"]
+        assert b64encode_string("newsip") in response_dict["entries"]
+        assert b64encode_string("toplevel") in response_dict["entries"]
         assert len(response_dict["entries"]) == 3
 
     def test_move_within_arrange(self):
@@ -214,8 +191,8 @@ class TestSIPArrange(TestCase):
         response = self.client.post(
             reverse("filesystem_ajax:copy_to_arrange"),
             data={
-                "filepath": b64encode(b"/arrange/newsip/").decode("utf8"),
-                "destination": b64encode(b"/arrange/toplevel/").decode("utf8"),
+                "filepath": b64encode_string("/arrange/newsip/"),
+                "destination": b64encode_string("/arrange/toplevel/"),
             },
             follow=True,
         )
@@ -226,31 +203,31 @@ class TestSIPArrange(TestCase):
         # Check gone from parent
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange")},
+            {"path": b64encode_string("/arrange")},
             follow=True,
         )
         assert response.status_code == 200
         response_dict = json.loads(response.content.decode("utf8"))
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["directories"]
-        assert b64encode(b"newsip").decode("utf8") not in response_dict["directories"]
+        assert b64encode_string("toplevel") in response_dict["directories"]
+        assert b64encode_string("newsip") not in response_dict["directories"]
         assert len(response_dict["directories"]) == 1
-        assert b64encode(b"toplevel").decode("utf8") in response_dict["entries"]
-        assert b64encode(b"newsip").decode("utf8") not in response_dict["entries"]
+        assert b64encode_string("toplevel") in response_dict["entries"]
+        assert b64encode_string("newsip") not in response_dict["entries"]
         assert len(response_dict["entries"]) == 1
 
         # Check now in subdirectory
         response = self.client.get(
             reverse("filesystem_ajax:contents_arrange"),
-            {"path": b64encode(b"/arrange/toplevel")},
+            {"path": b64encode_string("/arrange/toplevel")},
             follow=True,
         )
         assert response.status_code == 200
         response_dict = json.loads(response.content.decode("utf8"))
-        assert b64encode(b"subsip").decode("utf8") in response_dict["directories"]
-        assert b64encode(b"newsip").decode("utf8") in response_dict["directories"]
+        assert b64encode_string("subsip") in response_dict["directories"]
+        assert b64encode_string("newsip") in response_dict["directories"]
         assert len(response_dict["directories"]) == 2
-        assert b64encode(b"subsip").decode("utf8") in response_dict["entries"]
-        assert b64encode(b"newsip").decode("utf8") in response_dict["entries"]
+        assert b64encode_string("subsip") in response_dict["entries"]
+        assert b64encode_string("newsip") in response_dict["entries"]
         assert len(response_dict["entries"]) == 2
 
     def test_copy_from_arrange_to_completed(self):
@@ -267,7 +244,7 @@ class TestSIPArrange(TestCase):
                 response = self.client.post(
                     reverse("filesystem_ajax:copy_from_arrange"),
                     data={
-                        "filepath": b64encode(b"/arrange/newsip/").decode("utf8"),
+                        "filepath": b64encode_string("/arrange/newsip/"),
                         "uuid": sip_uuid,
                     },
                     follow=True,
@@ -343,7 +320,7 @@ class TestSIPArrange(TestCase):
                 response = self.client.post(
                     reverse("filesystem_ajax:copy_from_arrange"),
                     data={
-                        "filepath": b64encode(b"/arrange/testsip/").decode("utf8"),
+                        "filepath": b64encode_string("/arrange/testsip/"),
                         "uuid": sip_uuid,
                     },
                     follow=True,
@@ -388,7 +365,7 @@ class TestSIPArrange(TestCase):
         response = self.client.post(
             reverse("filesystem_ajax:copy_from_arrange"),
             data={
-                "filepath": b64encode(b"/arrange/testsip/").decode("utf8"),
+                "filepath": b64encode_string("/arrange/testsip/"),
                 "uuid": "invalid-uuid",
             },
             follow=True,
@@ -404,7 +381,7 @@ class TestSIPArrange(TestCase):
         response = self.client.post(
             reverse("filesystem_ajax:copy_from_arrange"),
             data={
-                "filepath": b64encode(b"/path/testsip/").decode("utf8"),
+                "filepath": b64encode_string("/path/testsip/"),
                 "uuid": "607df760-a0be-4fef-875a-74ea00c61bf9",
             },
             follow=True,
@@ -417,7 +394,7 @@ class TestSIPArrange(TestCase):
         response = self.client.post(
             reverse("filesystem_ajax:copy_from_arrange"),
             data={
-                "filepath": b64encode(b"/arrange/testsip").decode("utf8"),
+                "filepath": b64encode_string("/arrange/testsip"),
                 "uuid": "607df760-a0be-4fef-875a-74ea00c61bf9",
             },
             follow=True,
@@ -434,7 +411,7 @@ class TestSIPArrange(TestCase):
         response = self.client.post(
             reverse("filesystem_ajax:copy_from_arrange"),
             data={
-                "filepath": b64encode(b"/arrange/testsip/").decode("utf8"),
+                "filepath": b64encode_string("/arrange/testsip/"),
                 "uuid": "607df760-a0be-4fef-875a-74ea00c61bf9",
             },
             follow=True,
@@ -490,7 +467,7 @@ class TestSIPArrange(TestCase):
                     response = self.client.post(
                         reverse("filesystem_ajax:copy_from_arrange"),
                         data={
-                            "filepath": b64encode(b"/arrange/testsip/").decode("utf8"),
+                            "filepath": b64encode_string("/arrange/testsip/"),
                             "uuid": sip_uuid,
                         },
                         follow=True,
@@ -532,7 +509,7 @@ def test_copy_metadata_files(
     sip_uuid = str(uuid.uuid4())
     sip = models.SIP.objects.create(
         uuid=sip_uuid,
-        currentpath="%sharedPath%more/path/metadataReminder/mysip-{}/".format(sip_uuid),
+        currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
     if set_partial_reingest_flag:
         sip.set_partial_reingest()
@@ -583,7 +560,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     TEST_UUID = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
     TEST_SS_URL = "http://test-url"
     TEST_BACKLOG_LOCATION_PATH = "/path/to/test/location"
-    TEST_RELPATH = "transfer-{}/data/objects/bird.mp3".format(TEST_UUID)
+    TEST_RELPATH = f"transfer-{TEST_UUID}/data/objects/bird.mp3"
     TEST_ABSPATH = os.path.join(TEST_BACKLOG_LOCATION_PATH, "originals", TEST_RELPATH)
 
     mock_get_file_info = mocker.patch("elasticSearchFunctions.get_transfer_file_info")
@@ -608,7 +585,7 @@ def test_download_by_uuid(mocker, local_path_exists, preview):
     )
 
     factory = RequestFactory()
-    request = factory.get("/filesystem/{}/download/".format(TEST_UUID))
+    request = factory.get(f"/filesystem/{TEST_UUID}/download/")
 
     views.download_by_uuid(request, TEST_UUID, preview_file=preview)
 

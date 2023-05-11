@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,12 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-import os
 import logging
+import os
 
-from archivematicaFunctions import b64encode_string, unicodeToStr
+from archivematicaFunctions import b64encode_string
 from components import helpers
 
 
@@ -28,10 +25,8 @@ logger = logging.getLogger("archivematica.dashboard")
 
 
 def sorted_directory_list(path):
-    cleaned = []
-    entries = os.listdir(unicodeToStr(path))
-    cleaned = [unicodeToStr(entry) for entry in entries]
-    return sorted(cleaned, key=helpers.keynat)
+    entries = os.listdir(path)
+    return sorted(entries, key=helpers.keynat)
 
 
 def directory_to_dict(path, directory={}, entry=False):

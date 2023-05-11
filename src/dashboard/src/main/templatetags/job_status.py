@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2018 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,10 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 from django.template import Library
-
 from main.models import Job
 
 register = Library()

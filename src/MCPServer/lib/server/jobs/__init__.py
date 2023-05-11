@@ -12,24 +12,19 @@ concrete types of jobs, handled by subclasses:
     * `DecisionJob`, handling workflow decision points
     * `LocalJob`, handling work done directly on MCPServer
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-
 from server.jobs.base import Job
 from server.jobs.chain import JobChain
-from server.jobs.client import (
-    ClientScriptJob,
-    DirectoryClientScriptJob,
-    FilesClientScriptJob,
-    OutputClientScriptJob,
-)
-from server.jobs.decisions import (
-    DecisionJob,
-    NextChainDecisionJob,
-    OutputDecisionJob,
-    UpdateContextDecisionJob,
-)
-from server.jobs.local import GetUnitVarLinkJob, LocalJob, SetUnitVarLinkJob
+from server.jobs.client import ClientScriptJob
+from server.jobs.client import DirectoryClientScriptJob
+from server.jobs.client import FilesClientScriptJob
+from server.jobs.client import OutputClientScriptJob
+from server.jobs.decisions import DecisionJob
+from server.jobs.decisions import NextChainDecisionJob
+from server.jobs.decisions import OutputDecisionJob
+from server.jobs.decisions import UpdateContextDecisionJob
+from server.jobs.local import GetUnitVarLinkJob
+from server.jobs.local import LocalJob
+from server.jobs.local import SetUnitVarLinkJob
 
 __all__ = (
     "ClientScriptJob",

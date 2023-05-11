@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Bind a PID to the input ``SIP`` model and possibly also to all of the
 ``Directory`` models corresponding to all of the subdirectories within the SIP.
 
@@ -40,12 +37,11 @@ The required arguments are the SIP's UUID and the path to the
 shared directory where SIPs are stored. If the --bind-pids option is something
 other than 'Yes', the script will continue to the next job without doing anything.
 """
-
 import argparse
-from functools import wraps
-from itertools import chain
 import os
 import sys
+from functools import wraps
+from itertools import chain
 
 import django
 

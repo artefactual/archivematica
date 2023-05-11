@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,18 +14,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import logging
 import uuid
 
-from django.conf import settings as django_settings
-from django.contrib.auth import get_user_model
-from tastypie.models import ApiKey
-
-from main.models import Agent, DashboardSetting, User
 import components.helpers as helpers
 import storageService as storage_service
+from django.conf import settings as django_settings
+from django.contrib.auth import get_user_model
+from main.models import Agent
+from main.models import DashboardSetting
+from main.models import User
+from tastypie.models import ApiKey
 
 
 logger = logging.getLogger("archivematica.dashboard")

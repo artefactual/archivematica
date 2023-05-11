@@ -1,29 +1,28 @@
 """
 Exposes various metrics via Prometheus.
 """
-from __future__ import absolute_import, unicode_literals
-
-import six.moves.configparser
+import configparser
 import datetime
 import functools
 import os
 
+from common_metrics import PACKAGE_FILE_COUNT_BUCKETS
+from common_metrics import PACKAGE_SIZE_BUCKETS
+from common_metrics import PROCESSING_TIME_BUCKETS
+from common_metrics import TASK_DURATION_BUCKETS
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
-from prometheus_client import Counter, Gauge, Histogram, Info, start_http_server
-
 from fpr.models import FormatVersion
-from main.models import File, FileFormatVersion, Transfer
-
-from common_metrics import (
-    PACKAGE_FILE_COUNT_BUCKETS,
-    PACKAGE_SIZE_BUCKETS,
-    PROCESSING_TIME_BUCKETS,
-    TASK_DURATION_BUCKETS,
-)
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import Transfer
+from prometheus_client import Counter
+from prometheus_client import Gauge
+from prometheus_client import Histogram
+from prometheus_client import Info
+from prometheus_client import start_http_server
 from version import get_full_version
-from six.moves import range
 
 
 job_counter = Counter(
@@ -194,7 +193,7 @@ def skip_if_prometheus_disabled(func):
 def init_counter_labels():
     # Zero our counters to start, by intializing all labels. Non-zero starting points
     # cause problems when measuring rates.
-    modules_config = six.moves.configparser.RawConfigParser()
+    modules_config = configparser.RawConfigParser()
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
         job_counter.labels(script_name=script_name)

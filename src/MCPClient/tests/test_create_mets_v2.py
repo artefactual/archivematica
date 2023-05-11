@@ -1,24 +1,18 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from contextlib import ExitStack as does_not_raise
 import uuid
+from contextlib import ExitStack as does_not_raise
 
-from lxml import etree
 import pytest
-import six
-
+from create_mets_v2 import createDMDIDsFromCSVMetadata
+from create_mets_v2 import main
 from job import Job
-from main.models import (
-    SIP,
-    File,
-    DublinCore,
-    MetadataAppliesToType,
-    Event,
-    RightsStatement,
-)
+from lxml import etree
+from main.models import DublinCore
+from main.models import Event
+from main.models import File
+from main.models import MetadataAppliesToType
+from main.models import RightsStatement
+from main.models import SIP
 from namespaces import NSMAP
-
-from create_mets_v2 import main, createDMDIDsFromCSVMetadata
 
 
 def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(mocker):
@@ -28,8 +22,8 @@ def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(mocker):
     state_mock = mocker.Mock(
         **{
             "CSV_METADATA": {
-                six.ensure_str("montréal"): "montreal metadata",
-                six.ensure_str("dvořák"): "dvorak metadata",
+                "montréal": "montreal metadata",
+                "dvořák": "dvorak metadata",
             }
         }
     )
@@ -174,12 +168,12 @@ def file_obj(db, sip, sip_path, file_path):
 
 
 def test_simple_mets(job, sip_path, sip, file_obj):
-    mets_path = sip_path / "METS.{}.xml".format(sip.uuid)
+    mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         job,
         sipType="SIP",
         baseDirectoryPath=sip.currentpath,
-        XMLFile=six.text_type(mets_path),
+        XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=False,
         createNormativeStructmap=False,
@@ -205,12 +199,12 @@ def test_simple_mets(job, sip_path, sip, file_obj):
 
 
 def test_aip_mets_includes_dublincore(job, sip_path, sip, sip_dublincore, file_obj):
-    mets_path = sip_path / "METS.{}.xml".format(sip.uuid)
+    mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         job,
         sipType="SIP",
         baseDirectoryPath=sip.currentpath,
-        XMLFile=six.text_type(mets_path),
+        XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
         createNormativeStructmap=True,
@@ -239,12 +233,12 @@ def test_aip_mets_includes_dublincore(job, sip_path, sip, sip_dublincore, file_o
 def test_aip_mets_includes_dublincore_via_metadata_csv(
     job, sip_path, sip, file_obj, metadata_csv
 ):
-    mets_path = sip_path / "METS.{}.xml".format(sip.uuid)
+    mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         job,
         sipType="SIP",
         baseDirectoryPath=sip.currentpath,
-        XMLFile=six.text_type(mets_path),
+        XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
         createNormativeStructmap=True,
@@ -269,12 +263,12 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
 def test_aip_mets_normative_directory_structure(
     job, sip_path, sip, file_obj, metadata_csv, empty_dir_path
 ):
-    mets_path = sip_path / "METS.{}.xml".format(sip.uuid)
+    mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         job,
         sipType="SIP",
         baseDirectoryPath=sip.currentpath,
-        XMLFile=six.text_type(mets_path),
+        XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
         createNormativeStructmap=True,

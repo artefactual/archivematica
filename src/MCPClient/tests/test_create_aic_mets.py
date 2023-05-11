@@ -1,11 +1,8 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
 import os
 import uuid
 
-from lxml import etree
-
 import namespaces as ns
+from lxml import etree
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -67,6 +64,6 @@ def test_create_aic_mets(db, mocker, tmp_path):
         for e in aic_mets.findall("mets:fileSec//mets:file", namespaces=ns.NSMAP)
     ]
     assert sorted(listed_aips) == [
-        "{}-{}".format(aip1_name, aip1_uuid),
-        "{}-{}".format(aip2_name, aip2_uuid),
+        f"{aip1_name}-{aip1_uuid}",
+        f"{aip2_name}-{aip2_uuid}",
     ]

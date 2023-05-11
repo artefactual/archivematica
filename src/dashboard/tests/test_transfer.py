@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.urls import reverse
+from components import helpers
 from django.test import TestCase
 from django.test.client import Client
-
-from components import helpers
+from django.urls import reverse
 from main.models import DublinCore
 
 

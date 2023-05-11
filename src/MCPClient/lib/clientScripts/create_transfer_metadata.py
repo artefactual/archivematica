@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
 from argparse import ArgumentParser
-from lxml import etree
 
 import django
+from lxml import etree
 
 django.setup()
 # dashboard

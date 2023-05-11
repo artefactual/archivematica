@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-
 import argparse
 import datetime
-from lxml import etree
 import os
 import uuid
 
 import django
 from django.db import transaction
+from lxml import etree
 
 django.setup()
 # dashboard

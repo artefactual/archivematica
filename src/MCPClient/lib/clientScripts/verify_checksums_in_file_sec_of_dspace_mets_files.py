@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,17 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import hashlib
 import os
 import sys
-import lxml.etree as etree
-import six
 
+import lxml.etree as etree
 from archivematicaFunctions import get_file_checksum
 
 
@@ -47,10 +43,7 @@ def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory=
 
         fileFullPath = os.path.join(relativeDirectory, fileLocation)
 
-        if six.PY2:
-            algorithms = hashlib.algorithms
-        else:
-            algorithms = hashlib.algorithms_available
+        algorithms = hashlib.algorithms_available
         if checksumType and checksumType in algorithms:
             checksum2 = get_file_checksum(fileFullPath, checksumType)
             # eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)

@@ -1,5 +1,4 @@
 import pytest
-
 from components.advanced_search import _normalize_date
 
 

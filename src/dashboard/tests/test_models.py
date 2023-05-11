@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from django.db import IntegrityError
-from django.test import TestCase
-import mock
+from unittest import mock
 
 import pytest
-
+from django.db import IntegrityError
+from django.test import TestCase
 from main import models
 
 
@@ -103,7 +99,7 @@ def test_sip_arrange_create_many_with_integrity_error(mocker):
     assert arrange2_mock.save.called_once()
 
 
-class TestJobModel(object):
+class TestJobModel:
     """Tests for the Job model."""
 
     @pytest.mark.parametrize(

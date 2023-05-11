@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,17 +15,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import re
 import os
+import re
 import sys
 import uuid
 
-# fileOperations, databaseFunctions requires Django to be set up
 import django
+
+# fileOperations, databaseFunctions requires Django to be set up
 
 django.setup()
 from django.db import transaction
@@ -50,7 +49,7 @@ def call(jobs):
                 fileCount = 0
                 exitCode = 0
 
-                for line in open(os.path.join(transferPath, "manifest.txt"), "r"):
+                for line in open(os.path.join(transferPath, "manifest.txt")):
                     if line.startswith(" Directory of "):
                         if topDirectory is None:
                             topDirectory = line.strip()
@@ -80,7 +79,7 @@ def call(jobs):
                     if line.find("<DIR>") != -1:
                         isDir = True
 
-                    sections = re.split("\s+", line.strip())
+                    sections = re.split(r"\s+", line.strip())
                     baseName = sections[-1]  # assumes no spaces in file name
                     path = os.path.join(transferPath, currentDirectory, baseName)
 

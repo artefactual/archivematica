@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,16 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-
 """archivematicaFunctions provides various helper functions across the
 different Archivematica modules.
 """
-from __future__ import absolute_import, print_function
-
 import base64
 import collections
 import errno
@@ -34,21 +29,15 @@ import locale
 import os
 import pprint
 import re
+from itertools import zip_longest
+from pathlib import Path
 from uuid import uuid4
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
-from django.apps import apps
-import scandir
-import six
-from six.moves import zip_longest
-from lxml import etree
-from namespaces import NSMAP, xml_find_premis
-
 from amclient import AMClient
+from django.apps import apps
+from lxml import etree
+from namespaces import NSMAP
+from namespaces import xml_find_premis
 
 REQUIRED_DIRECTORIES = (
     "logs",
@@ -120,30 +109,8 @@ class OrderedListsDict(collections.OrderedDict):
         try:
             self[key]
         except KeyError:
-            super(OrderedListsDict, self).__setitem__(key, [])
+            super().__setitem__(key, [])
         self[key].append(value)
-
-
-def unicodeToStr(string):
-    """Convert Unicode to string format."""
-    if isinstance(string, six.text_type):
-        return six.ensure_str(string, "utf-8")
-    return string
-
-
-def strToUnicode(string, obstinate=False):
-    """Convert string to Unicode format."""
-    if isinstance(string, six.binary_type):
-        try:
-            string = string.decode("utf8")
-        except UnicodeDecodeError:
-            if obstinate:
-                # Obstinately get a Unicode instance by replacing
-                # indecipherable bytes.
-                string = string.decode("utf8", "replace")
-            else:
-                raise
-    return string
 
 
 def b64encode_string(data):
@@ -186,10 +153,10 @@ def getTagged(root, tag):
 def escapeForCommand(string):
     """Escape special characters in a given string."""
     ret = string
-    if isinstance(ret, six.string_types):
+    if isinstance(ret, str):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace('"', '\\"')
-        ret = ret.replace("`", "\`")
+        ret = ret.replace("`", r"\`")
         # ret = ret.replace("'", "\\'")
         # ret = ret.replace("$", "\\$")
     return ret
@@ -200,7 +167,7 @@ def escape(string):
     primarily for arbitrary strings (e.g. filenames, paths) that might not
     be valid unicode to begin with.
     """
-    if isinstance(string, six.binary_type):
+    if isinstance(string, bytes):
         string = string.decode("utf-8", errors="replace")
     return string
 
@@ -282,11 +249,9 @@ def find_mets_file(unit_path):
     if len(mets_paths) == 1:
         return mets_paths[0]
     elif len(mets_paths) == 0:
-        raise OSError(errno.EEXIST, "No METS file found in {}".format(src))
+        raise OSError(errno.EEXIST, f"No METS file found in {src}")
     else:
-        raise OSError(
-            errno.EEXIST, "Multiple METS files found in {}: {}".format(src, mets_paths)
-        )
+        raise OSError(errno.EEXIST, f"Multiple METS files found in {src}: {mets_paths}")
 
 
 def create_directories(directories, basepath="", printing=False, printfn=print):
@@ -326,9 +291,7 @@ def get_dir_uuids(dir_paths, logger=None, printfn=print):
     """
     for dir_path in dir_paths:
         dir_uuid = str(uuid4())
-        msg = "Assigning UUID {} to directory path {}".format(
-            strToUnicode(dir_uuid), strToUnicode(dir_path)
-        )
+        msg = f"Assigning UUID {dir_uuid} to directory path {dir_path}"
         printfn(msg)
         if logger:
             logger.info(msg)
@@ -351,7 +314,7 @@ def walk_dir(dir_path):
     :return: size in bytes (int)
     """
     size = 0
-    for dirpath, _, filenames in scandir.walk(dir_path):
+    for dirpath, _, filenames in os.walk(dir_path):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             size += os.path.getsize(file_path)
@@ -417,9 +380,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to construct empty directories, either because"
                 " there is no METS file at {} or because there is no"
-                " objects/ directory at {}".format(
-                    strToUnicode(mets_file_path), strToUnicode(objects_path)
-                )
+                " objects/ directory at {}".format(mets_file_path, objects_path)
             )
         return
     doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
@@ -434,7 +395,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to locate a logical structMap labelled {}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
             )
         return
     root_div_el = logical_struct_map_el.find(
@@ -445,7 +406,7 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
             logger.info(
                 "Unable to locate a logical structMap labelled {}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(strToUnicode(NORMATIVE_STRUCTMAP_LABEL))
+                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
             )
         return
     paths = div_el_to_dir_paths(root_div_el, include=False)
@@ -474,7 +435,7 @@ def find_transfer_path_from_ingest(transfer_path, shared_path):
     if os.path.isdir(path):
         return path
 
-    path = os.path.join(shared_path, "tmp", "transfer-{}".format(transfer_uuid))
+    path = os.path.join(shared_path, "tmp", f"transfer-{transfer_uuid}")
     if os.path.isdir(path):
         return path
 
@@ -515,7 +476,7 @@ def find_aips_in_aic(aic_root):
         "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:extent",
     )
     try:
-        return re.search("\d+", extent.text).group()
+        return re.search(r"\d+", extent.text).group()
     except AttributeError:
         return None
 
@@ -555,8 +516,8 @@ def relative_path_to_aip_mets_file(uuid, current_path):
     :returns: Relative path to AIP METS file.
     """
     package_name_without_extensions = package_name_from_path(current_path)
-    mets_name = "METS.{}.xml".format(uuid)
-    mets_path = "{}/data/{}".format(package_name_without_extensions, mets_name)
+    mets_name = f"METS.{uuid}.xml"
+    mets_path = f"{package_name_without_extensions}/data/{mets_name}"
     return mets_path
 
 

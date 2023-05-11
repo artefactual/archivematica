@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,21 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 import argparse
-from lxml import etree
 
 import django
+from custom_handlers import get_script_logger
 from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import connection
 from django.db import transaction
-
-from main.models import Job, Report
-
-from custom_handlers import get_script_logger
 from externals.HTML import HTML
+from lxml import etree
+from main.models import Job
+from main.models import Report
 
 
 django.setup()
@@ -111,7 +108,7 @@ def get_unit_statistical_data_html(unit_type, unit_uuid):
     values = (unit_type,)
     unit_type = unit_type.lower()
     if unit_type not in ("sip", "transfer"):
-        raise ValueError("Unexpected value in unit_type: {}".format(unit_type))
+        raise ValueError(f"Unexpected value in unit_type: {unit_type}")
     with connection.cursor() as cursor:
         values += get_processing_time(cursor, unit_type, unit_uuid)
         values += get_file_stats(cursor, unit_type, unit_uuid)
@@ -146,7 +143,7 @@ def get_unit_job_log_html(sip_uuid):
         tr.set("bgcolor", bgcolor)
         i += 1
 
-    return etree.tostring(table, encoding="utf8")
+    return etree.tostring(table, encoding="utf8").decode()
 
 
 def get_content_for(unit_type, unit_name, unit_uuid, html=True):
@@ -185,7 +182,7 @@ def get_content_for(unit_type, unit_name, unit_uuid, html=True):
     else:
         root.append(t2)
 
-    return etree.tostring(root, pretty_print=True, encoding="utf8")
+    return etree.tostring(root, pretty_print=True, encoding="utf8").decode()
 
 
 def store_report(content, unit_type, unit_name, unit_uuid):
@@ -237,7 +234,7 @@ def call(jobs):
                     )
                     job.set_status(1)
                     continue
-                subject = "Archivematica Fail Report for %s: %s-%s" % (
+                subject = "Archivematica Fail Report for {}: {}-{}".format(
                     args.unit_type,
                     args.unit_name,
                     args.unit_uuid,

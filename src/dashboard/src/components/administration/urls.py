@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,14 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from django.conf.urls import url, include
-from django.conf import settings
-from django.views.generic import TemplateView
-
-from components.administration import views, views_dip_upload, views_processing
+from components.administration import views
+from components.administration import views_dip_upload
+from components.administration import views_processing
 from components.administration.forms import ProcessingConfigurationForm
+from django.conf import settings
+from django.conf.urls import include
+from django.conf.urls import url
+from django.views.generic import TemplateView
 
 
 app_name = "administration"
@@ -58,22 +57,22 @@ urlpatterns = [
     url(r"^processing/$", views_processing.list, name="processing"),
     url(r"^processing/add/$", views_processing.edit, name="processing_add"),
     url(
-        r"^processing/edit/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
+        rf"^processing/edit/{ProcessingConfigurationForm.NAME_URL_REGEX}/$",
         views_processing.edit,
         name="processing_edit",
     ),
     url(
-        r"^processing/reset/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
+        rf"^processing/reset/{ProcessingConfigurationForm.NAME_URL_REGEX}/$",
         views_processing.reset,
         name="processing_reset",
     ),
     url(
-        r"^processing/delete/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
+        rf"^processing/delete/{ProcessingConfigurationForm.NAME_URL_REGEX}/$",
         views_processing.delete,
         name="processing_delete",
     ),
     url(
-        r"^processing/download/{}/$".format(ProcessingConfigurationForm.NAME_URL_REGEX),
+        rf"^processing/download/{ProcessingConfigurationForm.NAME_URL_REGEX}/$",
         views_processing.download,
         name="processing_download",
     ),

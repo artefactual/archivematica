@@ -4,11 +4,9 @@ import uuid
 
 import pytest
 from django.utils import timezone
-
 from main import models
-
-from server import workflow
 from server import rpc_server
+from server import workflow
 
 
 ASSETS_DIR = pathlib.Path(__file__).parent.parent / "lib" / "assets"

@@ -1,13 +1,13 @@
 import uuid
 
-from main.models import Agent, File, Transfer, User
-
-from lxml import etree
 import metsrw
-import pytest
-
-
 import move_to_backlog
+import pytest
+from lxml import etree
+from main.models import Agent
+from main.models import File
+from main.models import Transfer
+from main.models import User
 
 
 @pytest.fixture

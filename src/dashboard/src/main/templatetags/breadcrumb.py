@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,15 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import logging
 
-from django.template import Node, Variable, Library
-from django.utils.encoding import smart_text
-from django.template.defaulttags import url
+from django.template import Library
+from django.template import Node
+from django.template import Variable
 from django.template import VariableDoesNotExist
-from six.moves import map
+from django.template.defaulttags import url
+from django.utils.encoding import smart_text
 
 logger = logging.getLogger("archivematica.dashboard")
 register = Library()
@@ -129,6 +127,6 @@ class UrlBreadcrumbNode(Node):
 
 def create_crumb(title, url=None):
     if url:
-        return '<li><a href="%s">%s</a>&nbsp;</li>' % (url, title)
+        return f'<li><a href="{url}">{title}</a>&nbsp;</li>'
     else:
         return "<li>%s</li>" % title

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,15 +14,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import, print_function, unicode_literals
-
-from django.core.management.base import BaseCommand, CommandError
-from django.http import QueryDict
-from django.utils import termcolors
-
 from components import helpers
 from components.administration.forms import StorageSettingsForm
-from installer.steps import create_super_user, setup_pipeline, setup_pipeline_in_ss
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from django.http import QueryDict
+from django.utils import termcolors
+from installer.steps import create_super_user
+from installer.steps import setup_pipeline
+from installer.steps import setup_pipeline_in_ss
 
 
 class Command(BaseCommand):

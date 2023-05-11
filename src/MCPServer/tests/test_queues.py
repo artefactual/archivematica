@@ -1,13 +1,15 @@
 import concurrent.futures
-from six.moves import queue as Queue
+import queue as Queue
 import threading
 import time
 import uuid
 
 import pytest
-
-from server.jobs import DecisionJob, Job
-from server.packages import Transfer, SIP, DIP
+from server.jobs import DecisionJob
+from server.jobs import Job
+from server.packages import DIP
+from server.packages import SIP
+from server.packages import Transfer
 from server.queues import PackageQueue
 from server.workflow import Link
 
@@ -26,7 +28,7 @@ def _process_one_job(queue):
 
 class MockJob(Job):
     def __init__(self, *args, **kwargs):
-        super(MockJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.job_ran = threading.Event()
 
@@ -38,7 +40,7 @@ class MockDecisionJob(DecisionJob):
     """Mock Job that passes our checks for DecisionJob."""
 
     def __init__(self, *args, **kwargs):
-        super(MockDecisionJob, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.job_ran = threading.Event()
         self.decision = None

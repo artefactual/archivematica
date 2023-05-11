@@ -1,21 +1,12 @@
-# -*- coding: utf-8 -*-
-# vim:fileencoding=utf8
-
 # Author Ian Lewis
 # http://www.ianlewis.org/en/parsing-email-attachments-python
-
-
 # Modification
 # Author Joseph Perry
 # date Aug 10 2010
-from __future__ import absolute_import, print_function
-
 import email
 import sys
 import uuid
-
-import six
-from six import StringIO
+from io import StringIO
 
 
 def parse_attachment(message_part, state, attachments=None):
@@ -72,7 +63,7 @@ def parse_attachment(message_part, state, attachments=None):
                         % (state.sourceFileUUID, state.sourceFilePath, params),
                         file=sys.stderr,
                     )
-                    filename = six.text_type(uuid.uuid4())
+                    filename = str(uuid.uuid4())
                     print(
                         "Attempting extraction with random filename: %s" % (filename),
                         file=sys.stderr,

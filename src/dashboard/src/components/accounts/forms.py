@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,19 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 from django import forms
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
-from django.contrib.auth.password_validation import (
-    password_validators_help_text_html,
-    validate_password,
-)
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import password_validators_help_text_html
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-
 from main.models import UserProfile
 
 
@@ -36,7 +30,7 @@ class UserCreationForm(UserCreationForm):
     is_superuser = forms.BooleanField(label="Administrator", required=False)
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super().save(commit=False)
         if commit:
             user.save()
         return user
@@ -63,7 +57,7 @@ class UserCreationForm(UserCreationForm):
         return password2
 
     def _post_clean(self):
-        super(UserCreationForm, self)._post_clean()
+        super()._post_clean()
         # Validate the password after self.instance is updated with form data
         # by super().
         password = self.cleaned_data.get("password1")
@@ -102,7 +96,7 @@ class UserChangeForm(UserChangeForm):
         if "suppress_administrator_toggle" in kwargs:
             del kwargs["suppress_administrator_toggle"]
 
-        super(UserChangeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if suppress_administrator_toggle:
             del self.fields["is_superuser"]
@@ -123,7 +117,7 @@ class UserChangeForm(UserChangeForm):
         return data
 
     def clean(self):
-        cleaned_data = super(UserChangeForm, self).clean()
+        cleaned_data = super().clean()
         if (
             cleaned_data.get("password") != ""
             or cleaned_data.get("password_confirmation") != ""
@@ -137,7 +131,7 @@ class UserChangeForm(UserChangeForm):
         return cleaned_data
 
     def _post_clean(self):
-        super(UserChangeForm, self)._post_clean()
+        super()._post_clean()
         # Validate the password after self.instance is updated with form data
         # by super().
         password = self.cleaned_data.get("password")
@@ -148,7 +142,7 @@ class UserChangeForm(UserChangeForm):
                 self.add_error("password", error)
 
     def save(self, commit=True):
-        user = super(UserChangeForm, self).save(commit=False)
+        user = super().save(commit=False)
         if commit:
             user.save()
         return user

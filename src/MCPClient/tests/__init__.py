@@ -1,11 +1,7 @@
 import shutil
 import tempfile
 import unittest
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
+from pathlib import Path
 
 
 class TempDirMixin(unittest.TestCase):
@@ -15,7 +11,7 @@ class TempDirMixin(unittest.TestCase):
     """
 
     def setUp(self):
-        super(TempDirMixin, self).setUp()
+        super().setUp()
         self.tmpdir = Path(tempfile.mkdtemp())
         self.addCleanup(self._cleanup)
 

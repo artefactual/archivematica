@@ -1,7 +1,4 @@
-# -*- encoding: utf-8
-
 import pytest
-
 from move_or_merge import move_or_merge
 
 

@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
-from server.translation import UNKNOWN_TRANSLATION_LABEL, TranslationLabel
+from server.translation import TranslationLabel
+from server.translation import UNKNOWN_TRANSLATION_LABEL
 
 
 def test_translation_label(mocker):

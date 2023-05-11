@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.test import TestCase
-
 from fpr.models import IDCommand
 from fpr.utils import get_revision_descendants
 

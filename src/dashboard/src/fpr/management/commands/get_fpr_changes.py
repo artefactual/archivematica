@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
 import itertools
 import json
 
@@ -23,9 +20,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print(args, options)
         # Load JSON
-        with open(options["old_json"], "rU") as f:
+        with open(options["old_json"]) as f:
             old_json = json.load(f)
-        with open(options["new_json"], "rU") as f:
+        with open(options["new_json"]) as f:
             new_json = json.load(f)
 
         # Put JSONs in a set - must freeze to be hashable
@@ -47,16 +44,16 @@ class Command(BaseCommand):
             "fpr.idtool",
             "fpr.fptool",
         )
-        old_not_versioned = set(
+        old_not_versioned = {
             (x["model"], x["pk"])
             for x in old_json_set
             if x["model"] in not_versioned_models
-        )
-        updated_not_versioned = set(
+        }
+        updated_not_versioned = {
             (x["model"], x["pk"])
             for x in new_entries
             if x["model"] in not_versioned_models
-        )
+        }
         updated_pks = updated_not_versioned & old_not_versioned
         print("Items that are not versioned and were updated", updated_pks)
 

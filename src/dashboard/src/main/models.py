@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,33 +14,27 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # This Django model module was auto-generated and then updated manually
 # Needs some cleanups, make sure each model has its primary_key=True
 # Feel free to rename the models, but don't rename db_table values or field names.
-
 # stdlib, alphabetical by import source
-from __future__ import absolute_import
-
 import itertools
 import logging
 import os
 import re
 
-# Core Django, alphabetical by import source
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.db import models, transaction
+from django.db import models
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-import six
-
-# Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
-
 from version import get_preservation_system_identifier
+
+# Core Django, alphabetical by import source
+# Third party dependencies, alphabetical by import source
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 
@@ -66,7 +58,7 @@ class UUIDPkField(UUIDField):
         kwargs.setdefault("max_length", 36)
         kwargs["primary_key"] = True
         kwargs["db_column"] = "pk"
-        super(UUIDPkField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class BlobTextField(models.TextField):
@@ -94,9 +86,9 @@ def create_user_agent(sender, instance, **kwargs):
             "identifiertype": "Archivematica user pk",
             "identifiervalue": str(instance.id),
             "name": 'username="{}", first_name="{}", last_name="{}"'.format(
-                six.ensure_str(instance.username),
-                six.ensure_str(instance.first_name),
-                six.ensure_str(instance.last_name),
+                instance.username,
+                instance.first_name,
+                instance.last_name,
             ),
             "agenttype": "Archivematica user",
         },
@@ -154,8 +146,8 @@ class DashboardSettingManager(models.Manager):
                 [
                     DashboardSetting(
                         scope=scope,
-                        name=six.text_type(name),
-                        value=six.text_type(value),
+                        name=str(name),
+                        value=str(value),
                     )
                     for name, value in items.items()
                 ]
@@ -228,7 +220,6 @@ class Access(models.Model):
         return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
 
 
-@python_2_unicode_compatible
 class DublinCore(models.Model):
     """DublinCore metadata associated with a SIP or Transfer."""
 
@@ -286,10 +277,9 @@ class DublinCore(models.Model):
         if self.title:
             return "%s" % self.title
         else:
-            return six.text_type(_("Untitled"))
+            return str(_("Untitled"))
 
 
-@python_2_unicode_compatible
 class MetadataAppliesToType(models.Model):
     """
     What type of unit (SIP, DIP, Transfer etc) the metadata link is.
@@ -313,10 +303,9 @@ class MetadataAppliesToType(models.Model):
         db_table = "MetadataAppliesToTypes"
 
     def __str__(self):
-        return six.text_type(self.description)
+        return str(self.description)
 
 
-@python_2_unicode_compatible
 class Event(models.Model):
     """PREMIS Events associated with Files."""
 
@@ -345,7 +334,7 @@ class Event(models.Model):
         db_table = "Events"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(type)s event on %(file_uuid)s (%(detail)s)")
             % {
                 "type": self.event_type,
@@ -355,7 +344,6 @@ class Event(models.Model):
         )
 
 
-@python_2_unicode_compatible
 class Derivation(models.Model):
     """
     Link between original and normalized files.
@@ -391,7 +379,7 @@ class Derivation(models.Model):
         db_table = "Derivations"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(derived)s derived from %(src)s in %(event)s")
             % {
                 "derived": self.derived_file,
@@ -433,7 +421,6 @@ PACKAGE_STATUS_CHOICES = (
 )
 
 
-@python_2_unicode_compatible
 class SIP(models.Model):
     """Information on SIP units."""
 
@@ -468,7 +455,7 @@ class SIP(models.Model):
         db_table = "SIPs"
 
     def __str__(self):
-        return six.text_type(_("SIP: {path}") % {"path": self.currentpath})
+        return str(_("SIP: {path}") % {"path": self.currentpath})
 
     def update_active_agent(self, user_id):
         UnitVariable.objects.update_active_agent("SIP", self.uuid, user_id)
@@ -614,7 +601,6 @@ class Transfer(models.Model):
         return self.status == PACKAGE_STATUS_PROCESSING
 
 
-@python_2_unicode_compatible
 class SIPArrange(models.Model):
     """Information about arranged files: original and arranged location, current status."""
 
@@ -638,7 +624,7 @@ class SIPArrange(models.Model):
         verbose_name = _("Arranged SIPs")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(original)s -> %(arrange)s")
             % {"original": self.original_path, "arrange": self.arrange_path}
         )
@@ -702,7 +688,6 @@ class Identifier(models.Model):
         db_table = "Identifiers"
 
 
-@python_2_unicode_compatible
 class File(models.Model):
     """Information about Files in units (Transfers, SIPs)."""
 
@@ -761,7 +746,7 @@ class File(models.Model):
         index_together = (("sip", "filegrpuse"),)
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("File %(uuid)s:%(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
@@ -782,7 +767,6 @@ class File(models.Model):
         return self.transfer.type == Transfer.ARCHIVEMATICA_AIP and not self.sip
 
 
-@python_2_unicode_compatible
 class Directory(models.Model):
     """Information about Directories in units (Transfers, SIPs).
     Note: Directory instances are only created if the user explicitly
@@ -815,7 +799,7 @@ class Directory(models.Model):
         db_table = "Directories"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
@@ -857,7 +841,6 @@ class Directory(models.Model):
         return cls.objects.bulk_create(paths)
 
 
-@python_2_unicode_compatible
 class FileFormatVersion(models.Model):
     """
     Link between a File and the FormatVersion it is identified as.
@@ -880,7 +863,7 @@ class FileFormatVersion(models.Model):
         db_table = "FilesIdentifiedIDs"
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(file)s is %(format)s")
             % {"file": self.file_uuid, "format": self.format_version}
         )
@@ -1010,7 +993,6 @@ class Task(models.Model):
 
 
 class AgentManager(models.Manager):
-
     # Objects with static identifiers. Item with ID 1 was abandoned.
     DEFAULT_ORGANIZATION_AGENT_PK = 2
 
@@ -1120,7 +1102,6 @@ class Report(models.Model):
         db_table = "Reports"
 
 
-@python_2_unicode_compatible
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column="pk")
     metadataappliestotype = models.ForeignKey(
@@ -1168,7 +1149,7 @@ class RightsStatement(models.Model):
         verbose_name = _("Rights Statement")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(basis)s for %(unit)s (%(id)s)")
             % {
                 "basis": self.rightsbasis,
@@ -1726,7 +1707,6 @@ class TransferMetadataSet(models.Model):
         db_table = "TransferMetadataSets"
 
 
-@python_2_unicode_compatible
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1776,7 +1756,6 @@ class TransferMetadataFieldValue(models.Model):
 # to leave room for future expansion. The possible taxonomy terms are
 # designed to be editable, and forms to do so exist. (Forms for editing and
 # defining new fields are present in the code but currently disabled.)
-@python_2_unicode_compatible
 class Taxonomy(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1792,7 +1771,6 @@ class Taxonomy(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1810,7 +1788,6 @@ class TaxonomyTerm(models.Model):
         return self.term
 
 
-@python_2_unicode_compatible
 class FPCommandOutput(models.Model):
     file = models.ForeignKey(
         "File", db_column="fileUUID", to_field="uuid", on_delete=models.CASCADE
@@ -1848,7 +1825,6 @@ class FileID(models.Model):
         db_table = "FilesIDs"
 
 
-@python_2_unicode_compatible
 class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length=1024)  # seems long, but AtoM allows this much
@@ -1856,7 +1832,7 @@ class LevelOfDescription(models.Model):
     sortorder = models.IntegerField(default=0, db_column="sortOrder")
 
     def __str__(self):
-        return six.text_type(
+        return str(
             _("%(sortorder)s: %(name)s")
             % {"sortorder": self.sortorder, "name": self.name}
         )

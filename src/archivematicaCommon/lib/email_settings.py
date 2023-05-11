@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Email settings and globals.
 
@@ -13,7 +12,6 @@ backends are:
 
 By default, the Console backend will be used.
 """
-from __future__ import absolute_import
 
 CONFIG_MAPPING = {
     # [email]

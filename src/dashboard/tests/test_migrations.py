@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import importlib
 
 import pytest
@@ -44,6 +41,8 @@ def test_0066_get_base_url(host_and_port, base_url):
 )
 def test_0066_get_host_and_port(base_url, host_and_port):
     """Test _get_host_and_port."""
-    assert host_and_port == mod._get_host_and_port(base_url), "Failed with arg %s" % (
+    assert host_and_port == mod._get_host_and_port(
+        base_url
+    ), "Failed with arg {}".format(
         base_url,
     )

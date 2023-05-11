@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,28 +14,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import, print_function
-
-from functools import wraps
 import logging
+import random
 import string
 import sys
-import random
 import time
 import uuid
-
-from django.db import close_old_connections
-from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP
-
-import six
-from six.moves import range
+from functools import wraps
 
 from common_metrics import db_retry_timer
+from django.db import close_old_connections
+from django.utils import timezone
+from main.models import Agent
+from main.models import Derivation
+from main.models import Event
+from main.models import File
+from main.models import FPCommandOutput
+from main.models import SIP
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -67,7 +64,7 @@ def getDeciDate(date):
             ret += c
         # else:
         #     ret += replacementChar
-    return str("{:10.10f}".format(float(ret)))
+    return str(f"{float(ret):10.10f}")
 
 
 def insertIntoFiles(
@@ -308,7 +305,7 @@ def deUnicode(unicode_string):
     """
     if unicode_string is None:
         return None
-    return six.text_type(unicode_string).encode("utf-8")
+    return str(unicode_string).encode("utf-8")
 
 
 def retryOnFailure(description, callback, retries=10):

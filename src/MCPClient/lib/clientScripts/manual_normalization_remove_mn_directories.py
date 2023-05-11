@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,16 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import sys
 
 import django
-import scandir
 
 django.setup()
 from django.db import transaction
@@ -39,13 +35,13 @@ import databaseFunctions
 
 def recursivelyRemoveEmptyDirectories(job, dir):
     error_count = 0
-    for root, dirs, files in scandir.walk(dir, topdown=False):
+    for root, dirs, files in os.walk(dir, topdown=False):
         for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))
             except OSError as e:
                 job.pyprint(
-                    "{0} could not be deleted: {1}".format(directory, e.args),
+                    f"{directory} could not be deleted: {e.args}",
                     file=sys.stderr,
                 )
                 error_count += 1
@@ -88,7 +84,7 @@ def call(jobs):
                         os.rmdir(manual_normalization_dir)
                     except OSError as e:
                         job.pyprint(
-                            "{0} could not be deleted: {1}".format(
+                            "{} could not be deleted: {}".format(
                                 manual_normalization_dir, e.args
                             ),
                             file=sys.stderr,

@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.contrib.auth.models import User
 from django.test import TestCase
+from main.templatetags.user import api_key
+from main.templatetags.user import logout_link
 from tastypie.models import ApiKey
-
-from main.templatetags.user import api_key, logout_link
 
 
 class TestAPIKeyTemplateTag(TestCase):

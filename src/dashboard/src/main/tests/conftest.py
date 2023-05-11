@@ -1,8 +1,7 @@
 import uuid
 
-from django.utils import timezone
 import pytest
-
+from django.utils import timezone
 from main import models
 
 

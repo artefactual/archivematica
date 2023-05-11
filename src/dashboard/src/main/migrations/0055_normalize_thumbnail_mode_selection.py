@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 """Add a new mode selection prior to generating thumbnails. The user can
 choose to generate thumbnails (the previous default), skip generating thumbnails
 entirely, or to only generate thumbnails if there is an active FPRule for the
 given file type.
 """
-from __future__ import absolute_import, unicode_literals
-
-from django.db import migrations
 from dateutil.parser import parse as parse_date
+from django.db import migrations
+from django.db.models import F
+from django.db.models import Func
+from django.db.models import Value
 from django.db.models.functions import Concat
-from django.db.models import Value, Func, F
 
 
 def data_migration_down(apps, schema_editor):

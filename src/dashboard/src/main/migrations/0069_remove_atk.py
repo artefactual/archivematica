@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 """Remove Archivists' Toolkit data and model."""
-from __future__ import absolute_import, unicode_literals
-
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 
 
 def data_migration_up(apps, _):

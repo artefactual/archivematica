@@ -1,16 +1,14 @@
-from __future__ import print_function
 import datetime
 import logging
 import os
 import sys
 import uuid
 
-from django.db import transaction
-from django.utils import dateparse, timezone
-from lxml import etree
 import metsrw
-import six
-
+from django.db import transaction
+from django.utils import dateparse
+from django.utils import timezone
+from lxml import etree
 from main.models import Agent
 from main.models import Event
 from main.models import File
@@ -45,14 +43,12 @@ def log_filename_mismatch(file_identifier, original_name, printfn=print):
 
 
 def log_missing_xsd(path, printfn=print):
-    printfn(
-        "The PREMIS XML schema asset {} is unavailable".format(path), file=sys.stderr
-    )
+    printfn(f"The PREMIS XML schema asset {path} is unavailable", file=sys.stderr)
 
 
 def log_invalid_xsd(path, exception, printfn=print):
     printfn(
-        "Could not parse the PREMIS XML schema {}".format(path),
+        f"Could not parse the PREMIS XML schema {path}",
         str(exception),
         file=sys.stderr,
     )
@@ -91,7 +87,7 @@ def log_event_without_agents(event_identifier, printfn=print):
 
 
 def log_missing_events_xml(path, printfn=print):
-    printfn("No events XML file found at path {}".format(path))
+    printfn(f"No events XML file found at path {path}")
 
 
 def log_invalid_event_datetime(premis_element, printfn=print):
@@ -215,7 +211,7 @@ def log_event_related_to_nonexistent_agents(
 
 
 def log_event_id_change(event_id, new_event_id, printfn=print):
-    printfn("Changed event identifier from {} to {}".format(event_id, new_event_id))
+    printfn(f"Changed event identifier from {event_id} to {new_event_id}")
 
 
 def log_event_successfully_created(db_event, printfn=print):
@@ -234,7 +230,7 @@ class PREMISFile(metsrw.plugins.premisrw.PREMISObject):
 
     @property
     def schema(self):
-        object_schema = super(PREMISFile, self).schema
+        object_schema = super().schema
         return object_schema + (("original_name",),)
 
 
@@ -248,7 +244,7 @@ def parse_datetime(value):
                 parsed_date, datetime.datetime.min.time()
             )
     if value and parsed_datetime is None:
-        raise ValueError("Unable to parse '{}' as a datetime".format(value))
+        raise ValueError(f"Unable to parse '{value}' as a datetime")
     # If we didn't get a timezone, use the one configured in Django settings
     if parsed_datetime is not None and parsed_datetime.tzinfo is None:
         parsed_datetime = parsed_datetime.replace(
@@ -362,7 +358,7 @@ def get_premis_element_children_text_attribute(
             [
                 getattr(e, attribute_name)
                 for e in premis_element.findall(selector)
-                if isinstance(getattr(e, attribute_name), six.string_types)
+                if isinstance(getattr(e, attribute_name), str)
             ]
         )
         or None
@@ -376,7 +372,7 @@ def get_identifier(premis_element):
 def file_element_factory(element, printfn=print):
     premis_element = PREMISFile(data=metsrw.plugins.premisrw.premis_to_data(element))
     result = {"identifier": get_identifier(premis_element)}
-    if isinstance(premis_element.original_name, six.string_types):
+    if isinstance(premis_element.original_name, str):
         result["original_name"] = premis_element.original_name.strip()
     else:
         result["original_name"] = ""
@@ -450,7 +446,7 @@ def get_invalid_file_identifiers(files, file_queryset, printfn=print):
     empty or if its filename is not found in the transfer's file queryset.
     """
     result = set()
-    for file_identifier, file_ in six.iteritems(files):
+    for file_identifier, file_ in files.items():
         original_name = file_["original_name"]
         if not original_name:
             log_missing_original_name(file_identifier, printfn)
@@ -472,7 +468,7 @@ def print_unrelated_files(files, events, printfn=print):
     """
     result = False
     related_files = set()
-    for event in six.itervalues(events):
+    for event in events.values():
         related_files.update(event["files"])
     for file_identifier in files:
         if file_identifier not in related_files:
@@ -490,7 +486,7 @@ def print_unrelated_agents(agents, events, printfn=print):
     """
     result = False
     related_agents = set()
-    for event in six.itervalues(events):
+    for event in events.values():
         related_agents.update(event["agents"])
     for agent_identifier in agents:
         if agent_identifier not in related_agents:
@@ -507,7 +503,7 @@ def print_unrelated_events(events, printfn=print):
     Return a boolean indicating if there are unrelated event elements.
     """
     result = False
-    for event_identifier, event in six.iteritems(events):
+    for event_identifier, event in events.items():
         if not event["files"]:
             log_unrelated_event_to_files(event_identifier, printfn)
             result = True
@@ -539,7 +535,7 @@ def print_files_related_to_nonexistent_events(files, events, printfn=print):
     """
     result = False
     event_identifiers = set(events)
-    for file_identifier, file_ in six.iteritems(files):
+    for file_identifier, file_ in files.items():
         nonexistent_identifiers = file_["events"].difference(event_identifiers)
         if nonexistent_identifiers:
             log_file_related_to_nonexistent_events(
@@ -559,7 +555,7 @@ def print_agents_related_to_nonexistent_events(agents, events, printfn=print):
     """
     result = False
     event_identifiers = set(events)
-    for agent_identifier, agent in six.iteritems(agents):
+    for agent_identifier, agent in agents.items():
         nonexistent_identifiers = agent["events"].difference(event_identifiers)
         if nonexistent_identifiers:
             log_agent_related_to_nonexistent_events(
@@ -579,7 +575,7 @@ def print_events_related_to_nonexistent_files(events, files, printfn=print):
     """
     result = False
     file_identifiers = set(files)
-    for event_identifier, event in six.iteritems(events):
+    for event_identifier, event in events.items():
         nonexistent_identifiers = event["files"].difference(file_identifiers)
         if nonexistent_identifiers:
             log_event_related_to_nonexistent_files(
@@ -599,7 +595,7 @@ def print_events_related_to_nonexistent_agents(events, agents, printfn=print):
     """
     result = False
     agent_identifiers = set(agents)
-    for event_identifier, event in six.iteritems(events):
+    for event_identifier, event in events.items():
         nonexistent_identifiers = event["agents"].difference(agent_identifiers)
         if nonexistent_identifiers:
             log_event_related_to_nonexistent_agents(
@@ -671,9 +667,7 @@ def ensure_event_id_is_uuid(event_id, printfn=print):
     try:
         uuid.UUID(event_id, version=4)
         if Event.objects.filter(event_id=event_id).exists():
-            raise ValueError(
-                "There is already an event with this event_id {}".format(event_id)
-            )
+            raise ValueError(f"There is already an event with this event_id {event_id}")
     except ValueError:
         new_event_id = uuid.uuid4()
         log_event_id_change(event_id, new_event_id, printfn)
@@ -727,7 +721,7 @@ def relate_files_to_events(files, events):
     Ensure the identifier of a file is included in the events collection
     for all its related events.
     """
-    for file_identifier, file_ in six.iteritems(files):
+    for file_identifier, file_ in files.items():
         for event_identifier in file_["events"]:
             if event_identifier in events:
                 events[event_identifier]["files"].add(file_identifier)
@@ -738,7 +732,7 @@ def relate_agents_to_events(agents, events):
     Ensure the identifier of an agent is included in the events collection
     for all its related events.
     """
-    for agent_identifier, agent in six.iteritems(agents):
+    for agent_identifier, agent in agents.items():
         for event_identifier in agent["events"]:
             if event_identifier in events:
                 events[event_identifier]["agents"].add(agent_identifier)
@@ -759,7 +753,7 @@ def get_valid_events(files, agents, events, file_identifiers_to_ignore, printfn=
     file_identifiers = set(files)
     agent_identifiers = set(agents)
 
-    for event in six.itervalues(events):
+    for event in events.values():
         # get the agents for this event
         event_agents = get_event_agents(event, agents, agent_identifiers, printfn)
         if not event_agents:

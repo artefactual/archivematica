@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,20 +15,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import, print_function
-
 import io
-import subprocess
-import shlex
-import uuid
 import os
+import shlex
+import subprocess
 import sys
-
-import six
+import uuid
 
 # https://stackoverflow.com/a/36321030
 try:
@@ -75,7 +69,7 @@ def launchSubProcess(
 
     try:
         # Split command strings but pass through arrays untouched
-        if isinstance(command, six.string_types):
+        if isinstance(command, str):
             command = shlex.split(command)
         else:
             command.extend(arguments)
@@ -88,12 +82,15 @@ def launchSubProcess(
             my_env["LANGUAGE"] = my_env["LANG"]
         my_env.update(env_updates)
 
-        if isinstance(stdIn, six.string_types) or isinstance(stdIn, bytes):
+        if isinstance(stdIn, str):
             stdin_pipe = subprocess.PIPE
-            stdin_string = stdIn
+            communicate_input = stdIn.encode()
+        elif isinstance(stdIn, bytes):
+            stdin_pipe = subprocess.PIPE
+            communicate_input = stdIn
         elif isinstance(stdIn, file_types):
             stdin_pipe = stdIn
-            stdin_string = ""
+            communicate_input = None
         else:
             raise Exception("stdIn must be a string or a file object")
         if capture_output:
@@ -105,7 +102,9 @@ def launchSubProcess(
                 stdin=stdin_pipe,
                 env=my_env,
             )
-            stdOut, stdError = p.communicate(input=six.ensure_binary(stdin_string))
+            std_out, std_error = p.communicate(input=communicate_input)
+            stdOut = std_out.decode()
+            stdError = std_error.decode()
         else:
             # Ignore the stdout of the subprocess, capturing only stderr
             with open(os.devnull, "w") as devnull:
@@ -116,7 +115,8 @@ def launchSubProcess(
                     stdout=devnull,
                     stderr=subprocess.PIPE,
                 )
-                __, stdError = p.communicate(input=six.ensure_binary(stdin_string))
+                __, std_error = p.communicate(input=communicate_input)
+                stdError = std_error.decode()
         retcode = p.returncode
         # If we are not capturing output and the subprocess has succeeded, set
         # its stderr to the empty string.
@@ -124,17 +124,18 @@ def launchSubProcess(
             stdError = ""
         # append the output to stderror and stdout
         if printing:
-            print(six.ensure_text(stdOut))
-            print(six.ensure_text(stdError), file=sys.stderr)
+            print(stdOut)
+            print(stdError, file=sys.stderr)
     except OSError as ose:
         print("Execution failed:", ose, file=sys.stderr)
         return -1, "Config Error!", ose.__str__()
     except Exception as inst:
-        print("Execution failed:", command, file=sys.stderr)
+        command_str = " ".join(command)
+        print("Execution failed:", command_str, file=sys.stderr)
         print(type(inst), file=sys.stderr)  # the exception instance
         print(inst.args, file=sys.stderr)
-        return -1, "Execution failed:", command
-    return retcode, six.ensure_text(stdOut), six.ensure_text(stdError)
+        return -1, "Execution failed:", command_str
+    return retcode, stdOut, stdError
 
 
 def createAndRunScript(

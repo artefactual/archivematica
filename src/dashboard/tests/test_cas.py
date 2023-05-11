@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from unittest import mock
 
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.test import TestCase, RequestFactory
-from django.test.client import Client
-from django.urls import reverse
 import pytest
-import mock
-
 from components import helpers
 from components.accounts.backends import CustomCASBackend
 from components.accounts.signals import _cas_user_is_administrator
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.test import RequestFactory
+from django.test import TestCase
+from django.test.client import Client
+from django.urls import reverse
 
 TEST_CAS_USER = "casuser"
 TEST_CAS_ADMIN_ATTRIBUTE = "usertype"

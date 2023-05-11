@@ -4,23 +4,19 @@ Stored in the `Task` model.
 
 Tasks are passed to MCPClient for processing.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os
 import uuid
 
-from main import models
-
 from django.utils import timezone
-
+from main import models
 from server.db import auto_close_old_connections
 
 
 logger = logging.getLogger("archivematica.mcp.server.tasks")
 
 
-class Task(object):
+class Task:
     """A task object, representing an individual command (usually run on a file or
     directory).
 

@@ -1,9 +1,9 @@
-from django.urls import reverse
-from six.moves import cPickle as pickle
-from lxml import etree
+import pickle as pickle
 
-from externals import xmltodict
 from components.mcp import views
+from django.urls import reverse
+from externals import xmltodict
+from lxml import etree
 
 
 FILE_FORMAT_IDENTIFICATION_CHOICES = """

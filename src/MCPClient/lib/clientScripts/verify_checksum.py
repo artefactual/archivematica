@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Verify Checksum Job
 
 Archivematica wraps the hashsum utility to verify checksums provided to the
@@ -29,9 +26,6 @@ us to easily call each of the tools packaged against its different algorithms:
     * SHA256
     * SHA512
 """
-
-from __future__ import print_function, unicode_literals
-
 import datetime
 import os
 import subprocess
@@ -39,11 +33,9 @@ import sys
 import uuid
 
 import django
-import scandir
 from django.db import transaction
 
 django.setup()
-from archivematicaFunctions import strToUnicode
 from main.models import Event, File, Transfer
 
 from custom_handlers import get_script_logger
@@ -64,7 +56,7 @@ class PREMISFailure(Exception):
     """
 
 
-class Hashsum(object):
+class Hashsum:
     """Class to capture various functions around calling Hashsum as a mechanism
     for comparing user-supplied checksums in Archivematica.
     """
@@ -150,12 +142,12 @@ class Hashsum(object):
                     or self.IMPROPER_STRING in line
                 ):
                     self.job.pyprint(
-                        "{}: {}".format(self.get_ext(self.hashfile), line),
+                        f"{self.get_ext(self.hashfile)}: {line}",
                         file=sys.stderr,
                     )
                 if line.endswith(self.FAILED_OPEN):
                     self.job.pyprint(
-                        "{}: {}".format(self.get_ext(self.hashfile), line),
+                        f"{self.get_ext(self.hashfile)}: {line}",
                         file=sys.stderr,
                     )
             return err.returncode
@@ -209,7 +201,7 @@ class Hashsum(object):
     @staticmethod
     def _count_files(path):
         """Walk the directories on a given path and count the number of files."""
-        return sum([len(files) for _, _, files in scandir.walk(path)])
+        return sum(len(files) for _, _, files in os.walk(path))
 
 
 def get_file_queryset(transfer_uuid):
@@ -260,7 +252,7 @@ def run_hashsum_commands(job):
     transfer_dir = None
     transfer_uuid = None
     try:
-        transfer_dir = strToUnicode(job.args[1])
+        transfer_dir = job.args[1]
         transfer_uuid = job.args[2]
     except IndexError:
         logger.error("Cannot access expected module arguments: %s", job.args)
@@ -292,7 +284,7 @@ def run_hashsum_commands(job):
             result = hashsum.compare_hashes(transfer_dir=transfer_dir)
             # Add to PREMIS on success only.
             if result == 0:
-                job.pyprint("{}: Comparison was OK".format(Hashsum.get_ext(hashfile)))
+                job.pyprint(f"{Hashsum.get_ext(hashfile)}: Comparison was OK")
                 write_premis_event_per_file(
                     file_uuids=file_queryset,
                     transfer_uuid=transfer_uuid,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,12 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
-from __future__ import absolute_import, division, print_function
-
 import calendar
 import copy
 import datetime
@@ -29,22 +25,23 @@ import os
 import re
 import sys
 import time
-from lxml import etree
 
-from django.db.models import Min, Q
-from main.models import File, Identifier, Transfer
-
-# archivematicaCommon
-from archivematicaFunctions import get_dashboard_uuid
 import namespaces as ns
 import version
-
-from externals import xmltodict
-
-from elasticsearch import Elasticsearch, ImproperlyConfigured
+from archivematicaFunctions import get_dashboard_uuid
+from django.db.models import Min
+from django.db.models import Q
+from elasticsearch import Elasticsearch
+from elasticsearch import ImproperlyConfigured
 from elasticsearch.helpers import bulk
+from externals import xmltodict
+from lxml import etree
+from main.models import File
+from main.models import Identifier
+from main.models import Transfer
 
-from six.moves import range
+# archivematicaCommon
+
 
 logger = logging.getLogger("archivematica.common")
 
@@ -833,7 +830,7 @@ def _index_transfer_files(
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                printfn("Indexing {} (UUID: {})".format(relative_path, file_uuid))
+                printfn(f"Indexing {relative_path} (UUID: {file_uuid})")
 
                 # TODO: Index Backlog Location UUID?
                 indexData = {
@@ -860,7 +857,7 @@ def _index_transfer_files(
 
                 files_indexed = files_indexed + 1
             else:
-                printfn("Skipping indexing {}".format(relative_path))
+                printfn(f"Skipping indexing {relative_path}")
 
     return files_indexed
 
@@ -971,7 +968,7 @@ def _get_latest_dmd_secs(dmd_id, doc):
     # Build a mapping of dmdSec by metadata type.
     dmd_secs = {}
     for id in dmd_id.split():
-        dmd_sec = ns.xml_find_premis(doc, 'mets:dmdSec[@ID="{}"]'.format(id))
+        dmd_sec = ns.xml_find_premis(doc, f'mets:dmdSec[@ID="{id}"]')
         if not dmd_sec:
             continue
         # Use mdWrap MDTYPE and OTHERMDTYPE to generate a unique key.
@@ -1052,7 +1049,7 @@ def _get_directory_metadata(directory, doc):
         for dmd_sec in _get_latest_dmd_secs(dmd_id, doc):
             elements_with_metadata += _get_descriptive_section_metadata(dmd_sec)
     for ADMID in directory.attrib.get("ADMID", "").split():
-        amd_sec = ns.xml_find_premis(doc, 'mets:amdSec[@ID="{}"]'.format(ADMID))
+        amd_sec = ns.xml_find_premis(doc, f'mets:amdSec[@ID="{ADMID}"]')
         if amd_sec is not None:
             # look for bag/disk image metadata
             elements_with_metadata += ns.xml_findall_premis(
@@ -1161,7 +1158,7 @@ def _get_amdSec(admID, doc):
     :param doc: ElementTree object.
     :return: amdSec.
     """
-    return ns.xml_find_premis(doc, "mets:amdSec[@ID='{}']".format(admID))
+    return ns.xml_find_premis(doc, f"mets:amdSec[@ID='{admID}']")
 
 
 def _get_file_uuid(amdSec):
@@ -1290,9 +1287,7 @@ def get_file_tags(client, uuid):
 
     count = results["hits"]["total"]
     if count == 0:
-        raise EmptySearchResultError(
-            "No matches found for file with UUID {}".format(uuid)
-        )
+        raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
             "{} matches found for file with UUID {}; unable to fetch a single result".format(
@@ -1321,9 +1316,7 @@ def set_file_tags(client, uuid, tags):
 
     count = len(document_ids)
     if count == 0:
-        raise EmptySearchResultError(
-            "No matches found for file with UUID {}".format(uuid)
-        )
+        raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
             "{} matches found for file with UUID {}; unable to fetch a single result".format(
@@ -1455,9 +1448,7 @@ def _update_field(client, index, uuid, field, value):
     document_id = _document_id_from_field_query(client, index, ES_FIELD_UUID, uuid)
 
     if document_id is None:
-        logger.error(
-            "Unable to find document with UUID {} in index {}".format(uuid, index)
-        )
+        logger.error(f"Unable to find document with UUID {uuid} in index {index}")
         return
 
     client.update(

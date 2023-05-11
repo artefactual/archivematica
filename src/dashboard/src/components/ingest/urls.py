@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,13 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
-from django.conf.urls import url
-from django.conf import settings
-
 from components.ingest import views
 from components.ingest import views_as
+from django.conf import settings
+from django.conf.urls import url
 
 app_name = "ingest"
 urlpatterns = [
@@ -43,12 +39,12 @@ urlpatterns = [
         name="ingest_metadata_add",
     ),
     url(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/(?P<id>\d+)/$",
+        r"^(?P<uuid>" + settings.UUID_REGEX + r")/metadata/(?P<id>\d+)/$",
         views.ingest_metadata_edit,
         name="ingest_metadata_edit",
     ),
     url(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/delete/(?P<id>\d+)/$",
+        r"^(?P<uuid>" + settings.UUID_REGEX + r")/metadata/delete/(?P<id>\d+)/$",
         views.ingest_metadata_delete,
         name="ingest_metadata_delete",
     ),
@@ -69,7 +65,7 @@ urlpatterns = [
     url(
         r"^normalization-report/(?P<uuid>"
         + settings.UUID_REGEX
-        + ")/(?P<current_page>\d+)/$",
+        + r")/(?P<current_page>\d+)/$",
         views.ingest_normalization_report,
         name="ingest_normalization_report_page",
     ),

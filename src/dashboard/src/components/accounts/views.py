@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,25 +14,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
+import components.decorators as decorators
+from components.accounts.forms import ApiKeyForm
+from components.accounts.forms import UserChangeForm
+from components.accounts.forms import UserCreationForm
+from components.accounts.forms import UserProfileForm
+from components.helpers import generate_api_key
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
-from django.contrib import messages
-from django.urls import reverse
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.urls import reverse
 from django.utils.translation import ugettext as _
-
-from tastypie.models import ApiKey
-
-from components.accounts.forms import UserCreationForm, UserProfileForm
-from components.accounts.forms import UserChangeForm
-from components.accounts.forms import ApiKeyForm
-import components.decorators as decorators
-from components.helpers import generate_api_key
 from main.models import UserProfile
+from tastypie.models import ApiKey
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")

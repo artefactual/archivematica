@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Execute the .call(jobs) function of a clientScripts module from multiple
 processes.
@@ -11,19 +10,16 @@ them to the MCP Client.
 This is invoked when a clientScripts module provides a `concurrent_instances`
 function (indicating that it supports being run as a subprocess).
 """
-
-
-import six.moves.cPickle
 import importlib
 import logging
 import multiprocessing
 import os
+import pickle
 import sys
 import tempfile
 import traceback
 
 import django
-import six
 
 django.setup()
 from databaseFunctions import auto_close_db
@@ -100,13 +96,13 @@ def _run_jobs(module_name, jobs):
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), THIS_SCRIPT),
                 module_name,
             ],
-            six.moves.cPickle.dumps(environment, protocol=0),
+            pickle.dumps(environment, protocol=0),
             printing=False,
             capture_output=True,
         )
 
         with os.fdopen(fd, "rb") as f:
-            result = six.moves.cPickle.load(f)
+            result = pickle.load(f)
 
             if isinstance(result, dict) and result["uncaught_exception"]:
                 e = result["uncaught_exception"]
@@ -132,11 +128,8 @@ if __name__ == "__main__":
         )
 
     module_to_run = sys.argv[1]
-    if six.PY2:
-        buffer = sys.stdin
-    else:
-        buffer = sys.stdin.buffer
-    environment = six.moves.cPickle.load(buffer)
+    buffer = sys.stdin.buffer
+    environment = pickle.load(buffer)
 
     sys.path = environment["sys.path"]
     jobs = environment["jobs"]
@@ -146,9 +139,9 @@ if __name__ == "__main__":
         try:
             module = importlib.import_module(module_to_run)
             module.call(jobs)
-            six.moves.cPickle.dump(jobs, f, protocol=0)
+            pickle.dump(jobs, f, protocol=0)
         except Exception as e:
-            six.moves.cPickle.dump(
+            pickle.dump(
                 {
                     "uncaught_exception": {
                         "message": str(e),

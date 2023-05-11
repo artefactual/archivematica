@@ -1,18 +1,13 @@
-from __future__ import unicode_literals
-
 import os
 
 import pytest
-
-from server.processing_config import (
-    get_processing_fields,
-    processing_configuration_file_exists,
-    processing_fields,
-    StorageLocationField,
-    ChainChoicesField,
-    SharedChainChoicesField,
-    ReplaceDictField,
-)
+from server.processing_config import ChainChoicesField
+from server.processing_config import get_processing_fields
+from server.processing_config import processing_configuration_file_exists
+from server.processing_config import processing_fields
+from server.processing_config import ReplaceDictField
+from server.processing_config import SharedChainChoicesField
+from server.processing_config import StorageLocationField
 from server.workflow import load
 
 

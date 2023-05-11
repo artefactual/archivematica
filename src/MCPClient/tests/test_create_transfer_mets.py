@@ -1,29 +1,27 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
-
 import os
 import uuid
 
-import pytest
-from lxml import etree
-
 import metsrw
-from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
-
-from fpr.models import Format, FormatGroup, FormatVersion, FPCommand, FPRule, FPTool
-from main.models import (
-    Agent,
-    DashboardSetting,
-    Directory,
-    Event,
-    File,
-    FPCommandOutput,
-    RightsStatement,
-    Transfer,
-)
-from version import get_preservation_system_identifier
-
+import pytest
 from create_transfer_mets import write_mets
+from fpr.models import Format
+from fpr.models import FormatGroup
+from fpr.models import FormatVersion
+from fpr.models import FPCommand
+from fpr.models import FPRule
+from fpr.models import FPTool
+from lxml import etree
+from main.models import Agent
+from main.models import DashboardSetting
+from main.models import Directory
+from main.models import Event
+from main.models import File
+from main.models import FPCommandOutput
+from main.models import RightsStatement
+from main.models import Transfer
+from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
+from version import get_preservation_system_identifier
 
 
 PREMIS_NAMESPACES = PREMIS_3_0_NAMESPACES
@@ -316,7 +314,7 @@ def test_transfer_mets_structmap_format(
     assert root_div_labels[0] == tmp_path.name
     assert subdir_div_labels[0] == subdir_path.name
     assert file_div_labels[0] == file_path.name
-    assert file_ids[0] == "file-{}".format(file_obj.uuid)
+    assert file_ids[0] == f"file-{file_obj.uuid}"
 
     # Test that both (empty and not empty) dirs show up in logical structmap
     assert subdir_div_labels[1] == subdir_path.name
@@ -337,7 +335,7 @@ def test_transfer_mets_filegrp_format(
     )
     expected_file_path = subdir_path.relative_to(tmp_path) / file_path.name
 
-    assert file_entries[0].get("ID") == "file-{}".format(file_obj.uuid)
+    assert file_entries[0].get("ID") == f"file-{file_obj.uuid}"
     assert file_entries[0][0].get("{http://www.w3.org/1999/xlink}href") == str(
         expected_file_path
     )

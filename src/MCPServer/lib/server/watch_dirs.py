@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Watched directory handling.
 
@@ -8,17 +7,15 @@ want to remove in future; however, currently they are used extensively in all
 workflows, as many chains start the next chain by moving a transfer or SIP t
 the appropriate watched directory.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os
-import scandir
 import sys
 import time
 import warnings
 
 from django.conf import settings
-from inotify_simple import INotify, flags
+from inotify_simple import flags
+from inotify_simple import INotify
 
 
 IS_LINUX = sys.platform.startswith("linux")
@@ -45,7 +42,7 @@ def watch_directories_poll(
 
         for watched_dir in watched_dirs:
             path = os.path.join(WATCHED_BASE_DIR, watched_dir.path.lstrip("/"))
-            for item in scandir.scandir(path):
+            for item in os.scandir(path):
                 if watched_dir.only_dirs and not item.is_dir():
                     continue
                 elif item.path in known_paths:
@@ -86,13 +83,13 @@ def watch_directories_inotify(
     for watched_dir in watched_dirs:
         path = os.path.join(WATCHED_BASE_DIR, watched_dir.path.lstrip("/"))
         if not os.path.isdir(path):
-            raise OSError('The path "{}" is not a directory.'.format(path))
+            raise OSError(f'The path "{path}" is not a directory.')
 
         descriptor = inotify.add_watch(path, watch_flags)
         watches[descriptor] = (path, watched_dir)
 
         # If the directory already has something in it, trigger callbacks
-        for item in scandir.scandir(path):
+        for item in os.scandir(path):
             if watched_dir.only_dirs and not item.is_dir():
                 continue
             logger.debug(
@@ -132,4 +129,4 @@ def watch_directories(*args, **kwargs):
     elif method == "poll":
         watch_directories_poll(*args, **kwargs)
     else:
-        raise RuntimeError("Unexpected watch method {}".format(method))
+        raise RuntimeError(f"Unexpected watch method {method}")

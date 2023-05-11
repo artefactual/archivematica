@@ -14,20 +14,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 import importlib.util
 import json
-import logging
 import logging.config
 import os
+from io import StringIO
 from pathlib import Path
 
-from django.core.exceptions import ImproperlyConfigured
-import six
-
-
-from appconfig import Config, process_search_enabled
 import email_settings
+from appconfig import Config
+from appconfig import process_search_enabled
+from django.core.exceptions import ImproperlyConfigured
 
 
 def _get_settings_from_file(path):
@@ -36,7 +33,7 @@ def _get_settings_from_file(path):
     try:
         spec.loader.exec_module(module)
     except Exception as err:
-        raise ImproperlyConfigured("{} could not be imported: {}".format(path, err))
+        raise ImproperlyConfigured(f"{path} could not be imported: {err}")
     if hasattr(module, "__all__"):
         attrs = module.__all__
     else:
@@ -252,7 +249,7 @@ timeout = 300
 """
 
 config = Config(env_prefix="ARCHIVEMATICA_MCPCLIENT", attrs=CONFIG_MAPPING)
-config.read_defaults(six.StringIO(CONFIG_DEFAULTS))
+config.read_defaults(StringIO(CONFIG_DEFAULTS))
 config.read_files(
     [
         "/etc/archivematica/archivematicaCommon/dbsettings",
@@ -329,7 +326,7 @@ LOGGING = {
 }
 
 if os.path.isfile(LOGGING_CONFIG_FILE):
-    with open(LOGGING_CONFIG_FILE, "rt") as f:
+    with open(LOGGING_CONFIG_FILE) as f:
         LOGGING = logging.config.dictConfig(json.load(f))
 else:
     logging.config.dictConfig(LOGGING)
@@ -377,7 +374,6 @@ globals().update(email_settings.get_settings(config))
 
 METADATA_XML_VALIDATION_ENABLED = config.get("metadata_xml_validation_enabled")
 if METADATA_XML_VALIDATION_ENABLED:
-
     METADATA_XML_VALIDATION_SETTINGS_FILE = os.environ.get(
         "METADATA_XML_VALIDATION_SETTINGS_FILE", ""
     )

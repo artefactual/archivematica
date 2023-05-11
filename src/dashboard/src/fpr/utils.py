@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from django.apps import apps
 from django.contrib import messages
 from django.utils.translation import ugettext as _
-import six
 
 
 # ########## DEPENDENCIES ############
@@ -42,7 +38,7 @@ def update_references_to_object(
     # don't need to update references if it's a newly created object
     if old_object is None:
         return
-    for model in six.itervalues(get_fpr_models()):
+    for model in get_fpr_models().values():
         for field in model._meta.fields:
             # update each foreign key reference to the target model
             if (

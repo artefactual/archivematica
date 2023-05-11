@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 # flake8: noqa
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -18,10 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Development settings and globals."""
-from __future__ import absolute_import
-
 import os
 
 from .base import *

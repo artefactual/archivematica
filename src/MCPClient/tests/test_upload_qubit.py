@@ -1,12 +1,8 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
 import os
+import pickle as pickle
 import uuid
 
 import pytest
-import six
-from six.moves import cPickle as pickle
-
 from job import Job
 from main import models
 
@@ -76,11 +72,9 @@ def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
-    assert access.resource == "{}/atom-description-id".format(opts.url)
+    assert access.resource == f"{opts.url}/atom-description-id"
     assert access.status == "Deposited synchronously"
-    assert pickle.loads(six.ensure_binary(access.target)) == {
-        "target": "atom-description-id"
-    }
+    assert pickle.loads(access.target.encode()) == {"target": "atom-description-id"}
 
 
 def test_first_run(db, mocker, mcp_job, job, transfer, sip):
@@ -107,8 +101,6 @@ def test_first_run(db, mocker, mcp_job, job, transfer, sip):
 
     access = models.Access.objects.get(sipuuid=sip.uuid)
     assert access.statuscode == 14
-    assert access.resource == "{}/atom-description-id".format(opts.url)
+    assert access.resource == f"{opts.url}/atom-description-id"
     assert access.status == "Deposited synchronously"
-    assert pickle.loads(six.ensure_binary(access.target)) == {
-        "target": "atom-description-id"
-    }
+    assert pickle.loads(access.target.encode()) == {"target": "atom-description-id"}

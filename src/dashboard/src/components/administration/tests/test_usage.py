@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import subprocess
-
-import mock
-
-from django.conf import settings
-from django.test import TestCase
+from unittest import mock
 
 from components import helpers
+from django.conf import settings
+from django.test import TestCase
 
 
 class TestUsage(TestCase):

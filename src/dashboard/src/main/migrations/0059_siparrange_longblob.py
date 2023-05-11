@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
-from django.db import migrations, OperationalError
-import main.models
 import django_extensions.db.fields
+import main.models
+from django.db import migrations
+from django.db import OperationalError
 
 
 def drop_original_path_unique_key(apps, schema_editor):
@@ -31,7 +29,7 @@ def drop_original_path_unique_key(apps, schema_editor):
         if not row:
             return
         index_name = row[0]
-        cursor.execute("ALTER TABLE main_siparrange DROP INDEX %s" % (index_name,))
+        cursor.execute(f"ALTER TABLE main_siparrange DROP INDEX {index_name}")
 
 
 class Migration(migrations.Migration):

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Bind a PID to the input ``File`` model.
 
 This client script binds a PID to a ``File`` model. This means making a single
@@ -41,12 +38,11 @@ The idea is to allow for PURL resolution like:
 The sole command-line argument is the File's UUID. If the --bind-pids option
 is something other than 'Yes', the script will exit without doing anything.
 """
-
 import argparse
 from functools import wraps
 
-from django.db import transaction
 import django
+from django.db import transaction
 
 django.setup()
 # dashboard
@@ -97,7 +93,7 @@ def _update_file_mdl(file_uuid, naming_authority, resolver_url):
     """Add the newly minted handle to the ``File`` model as an identifier in its
     m2m ``identifiers`` attribute.
     """
-    pid = "{}/{}".format(naming_authority, file_uuid)
+    pid = f"{naming_authority}/{file_uuid}"
     purl = "{}/{}".format(resolver_url.rstrip("/"), pid)
     file_mdl = File.objects.get(uuid=file_uuid)
     existing_ids = file_mdl.identifiers.all()

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -17,13 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 """Handle Unstored DIP.
 
 This client script hanles an unstored DIP by moving it to the rejected/
 directory if it has *not* been uploaded and doing nothing otherwise.
 """
-
 import os
 import shutil
 

@@ -14,19 +14,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import division
-
 import json
-import logging
 import logging.config
 import math
 import multiprocessing
 import os
+from io import StringIO
 
-from six import StringIO
-
-from appconfig import Config, process_search_enabled, process_watched_directory_interval
 import email_settings
+from appconfig import Config
+from appconfig import process_search_enabled
+from appconfig import process_watched_directory_interval
 
 CONFIG_MAPPING = {
     # [MCPServer]
@@ -247,7 +245,7 @@ LOGGING = {
 }
 
 if os.path.isfile(LOGGING_CONFIG_FILE):
-    with open(LOGGING_CONFIG_FILE, "rt") as f:
+    with open(LOGGING_CONFIG_FILE) as f:
         LOGGING = logging.config.dictConfig(json.load(f))
 else:
     logging.config.dictConfig(LOGGING)

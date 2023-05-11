@@ -1,29 +1,23 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-import base64
-from functools import wraps
 import json
 import logging
 import os
 import uuid
+from functools import wraps
 
+import archivematicaFunctions
+import components.filesystem_ajax.views as filesystem_views
 import django.http
-from django.shortcuts import redirect
-from django.utils import timezone
-
-from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
-
+from agentarchives.archivesspace import ArchivesSpaceError
+from agentarchives.archivesspace import AuthenticationError
 from components import helpers
 from components.ingest.views_as import get_as_system_client
-import components.filesystem_ajax.views as filesystem_views
-from main.models import (
-    SIP,
-    SIPArrange,
-    SIPArrangeAccessMapping,
-    ArchivesSpaceDigitalObject,
-    DublinCore,
-)
+from django.shortcuts import redirect
+from django.utils import timezone
+from main.models import ArchivesSpaceDigitalObject
+from main.models import DublinCore
+from main.models import SIP
+from main.models import SIPArrange
+from main.models import SIPArrangeAccessMapping
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -220,7 +214,7 @@ def record_children(client, request, record_id=""):
 def get_digital_object_component_path(record_id, component_id, create=True):
     mapping = create_arranged_directory(record_id)
     component_path = os.path.join(
-        mapping.arrange_path, "digital_object_component_{}".format(component_id), ""
+        mapping.arrange_path, f"digital_object_component_{component_id}", ""
     )
     if create:
         filesystem_views.create_arrange_directories([component_path])
@@ -403,7 +397,9 @@ def access_copy_to_arrange(request, record_id=""):
     if mapping is None:
         response = {"success": False, "message": "Unable to create directory."}
         return helpers.json_response(response, status_code=400)
-    sourcepath = base64.b64decode(request.POST.get("filepath", "")).lstrip("/")
+    sourcepath = archivematicaFunctions.b64decode_string(
+        request.POST.get("filepath", "")
+    ).lstrip("/")
     return filesystem_views.copy_to_arrange(
         request, sourcepath=sourcepath, destination=mapping.arrange_path + "/"
     )

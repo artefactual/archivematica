@@ -1,23 +1,18 @@
-# -*- coding: utf-8 -*-
 """
 :mod:`fpr.models`
 
 Describes the data model for the FPR
 
 """
-from __future__ import absolute_import
-
 import logging
 
-from django.db import connection, models
-from django.utils.translation import ugettext_lazy as _
-from django.utils.six import python_2_unicode_compatible
-
 from autoslug import AutoSlugField
-from django_extensions.db.fields import UUIDField
-
-from django.core.validators import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.validators import ValidationError
+from django.db import connection
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import UUIDField
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +27,10 @@ class Enabled(models.Manager):
     Filters by enabled=True."""
 
     def get_queryset(self):
-        return super(Enabled, self).get_queryset().filter(enabled=True)
+        return super().get_queryset().filter(enabled=True)
 
     def get_query_set(self):
-        return super(Enabled, self).get_query_set().filter(enabled=True)
+        return super().get_query_set().filter(enabled=True)
 
 
 # ########### MIXINS ############
@@ -64,7 +59,7 @@ class VersionedModel(models.Model):
             )
             replacing.enabled = False
             replacing.save()
-        super(VersionedModel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
@@ -132,7 +127,6 @@ class FormatManager(models.Manager):
             return ret
 
 
-@python_2_unicode_compatible
 class Format(models.Model):
     """User-friendly description of format.
 
@@ -162,10 +156,9 @@ class Format(models.Model):
         ordering = ["group", "description"]
 
     def __str__(self):
-        return "{}: {}".format(self.group.description, self.description)
+        return f"{self.group.description}: {self.description}"
 
 
-@python_2_unicode_compatible
 class FormatGroup(models.Model):
     """Group/classification for formats.  Eg. image, video, audio."""
 
@@ -180,10 +173,9 @@ class FormatGroup(models.Model):
         ordering = ["description"]
 
     def __str__(self):
-        return "{}".format(self.description)
+        return f"{self.description}"
 
 
-@python_2_unicode_compatible
 class FormatVersion(VersionedModel, models.Model):
     """Format that a tool identifies."""
 
@@ -219,7 +211,7 @@ class FormatVersion(VersionedModel, models.Model):
         ordering = ["format", "description"]
 
     def validate_unique(self, *args, **kwargs):
-        super(FormatVersion, self).validate_unique(*args, **kwargs)
+        super().validate_unique(*args, **kwargs)
 
         if len(self.pronom_id) > 0:
             qs = self.__class__._default_manager.filter(
@@ -251,7 +243,6 @@ class FormatVersion(VersionedModel, models.Model):
 # ########### ID TOOLS ############
 
 
-@python_2_unicode_compatible
 class IDCommand(VersionedModel, models.Model):
     """Command to run an IDToolConfig and parse the output.
 
@@ -311,10 +302,9 @@ class IDCommand(VersionedModel, models.Model):
                 if cmd != self:
                     cmd.enabled = False
                     cmd.save()
-        super(IDCommand, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class IDRule(VersionedModel, models.Model):
     """Mapping between an IDCommand output and a FormatVersion."""
 
@@ -340,7 +330,7 @@ class IDRule(VersionedModel, models.Model):
         verbose_name = _("Format identification rule")
 
     def validate_unique(self, *args, **kwargs):
-        super(IDRule, self).validate_unique(*args, **kwargs)
+        super().validate_unique(*args, **kwargs)
 
         qs = self.__class__._default_manager.filter(
             command=self.command, command_output=self.command_output, enabled=1
@@ -371,7 +361,6 @@ class IDRule(VersionedModel, models.Model):
         }
 
 
-@python_2_unicode_compatible
 class IDTool(models.Model):
     """Tool used to identify formats.  Eg. DROID"""
 
@@ -398,7 +387,7 @@ class IDTool(models.Model):
 
     def _slug(self):
         """Returns string to be slugified."""
-        src = "{} {}".format(self.description, self.version)
+        src = f"{self.description} {self.version}"
         encoded = src.encode("utf-8")[: self._meta.get_field("slug").max_length]
         return encoded.decode("utf-8", "ignore")
 
@@ -406,7 +395,6 @@ class IDTool(models.Model):
 # ########### NORMALIZATION ############
 
 
-@python_2_unicode_compatible
 class FPRule(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -509,7 +497,6 @@ class FPRule(VersionedModel, models.Model):
         }
 
 
-@python_2_unicode_compatible
 class FPCommand(VersionedModel, models.Model):
     uuid = UUIDField(
         editable=False, unique=True, version=4, help_text=_("Unique identifier")
@@ -579,10 +566,9 @@ class FPCommand(VersionedModel, models.Model):
         ordering = ["description"]
 
     def __str__(self):
-        return "{}".format(self.description)
+        return f"{self.description}"
 
 
-@python_2_unicode_compatible
 class FPTool(models.Model):
     """Tool used to perform normalization.  Eg. convert, ffmpeg, ps2pdf."""
 
@@ -605,6 +591,6 @@ class FPTool(models.Model):
 
     def _slug(self):
         """Returns string to be slugified."""
-        src = "{} {}".format(self.description, self.version)
+        src = f"{self.description} {self.version}"
         encoded = src.encode("utf-8")[: self._meta.get_field("slug").max_length]
         return encoded.decode("utf-8", "ignore")

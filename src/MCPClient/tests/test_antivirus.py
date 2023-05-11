@@ -1,13 +1,11 @@
 """Tests for the archivematica_clamscan.py client script."""
-
-from __future__ import absolute_import
-
-from collections import OrderedDict, namedtuple
-
-import pytest
-from . import test_antivirus_clamdscan
+from collections import namedtuple
+from collections import OrderedDict
 
 import archivematica_clamscan
+import pytest
+
+from . import test_antivirus_clamdscan
 
 
 def test_get_scanner(settings):

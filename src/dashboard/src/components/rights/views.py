@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,20 +14,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import logging
 import re
-
-from django.urls import reverse
-from django.forms.models import inlineformset_factory
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-from django.utils.translation import ugettext as _
 
 from components import decorators
 from components import helpers
 from components.rights import forms
+from django.forms.models import inlineformset_factory
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.urls import reverse
+from django.utils.translation import ugettext as _
 from main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
@@ -102,7 +99,7 @@ def rights_parse_agent_id(input):
             int(agentRaw)
             agentId = int(agentRaw)
         except ValueError:
-            agentRe = re.compile("(.*)\[(\d*)\]")
+            agentRe = re.compile(r"(.*)\[(\d*)\]")
             match = agentRe.match(agentRaw)
             if match:
                 agentId = match.group(2)

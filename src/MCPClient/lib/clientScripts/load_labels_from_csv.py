@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,11 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import csv
 import os
 
@@ -47,7 +44,7 @@ def call(jobs):
                     continue
 
                 # use universal newline mode to support unusual newlines, like \r
-                with open(fileLabels, "rbU") as f:
+                with open(fileLabels, "rb") as f:
                     reader = csv.reader(f)
                     for row in reader:
                         if labelFirst:

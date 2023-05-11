@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 import json
 import os
-
-from django.conf import settings as django_settings
-from django.urls import reverse
-from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseRedirect
 import xml.etree.ElementTree as ElementTree
 
-from main import models
 from components import helpers
-
+from django.conf import settings as django_settings
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
 from lazy_paged_sequence import LazyPagedSequence
+from main import models
 
 PAGE_SIZE = 30
 

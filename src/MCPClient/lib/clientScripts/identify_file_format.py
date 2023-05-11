@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import multiprocessing
 import uuid
@@ -121,7 +120,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
     job.print_output("IDCommand UUID:", command.uuid)
     job.print_output("IDTool:", command.tool.description)
     job.print_output("IDTool UUID:", command.tool.uuid)
-    job.print_output("File: ({}) {}".format(file_uuid, file_path))
+    job.print_output(f"File: ({file_uuid}) {file_path}")
 
     file_ = File.objects.get(uuid=file_uuid)
 
@@ -149,10 +148,8 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
     output = output.strip()
 
     if exitcode != 0:
-        job.print_error(
-            "Error: IDCommand with UUID {} exited non-zero.".format(command_uuid)
-        )
-        job.print_error("Error: {}".format(err))
+        job.print_error(f"Error: IDCommand with UUID {command_uuid} exited non-zero.")
+        job.print_error(f"Error: {err}")
         return 255
 
     job.print_output("Command output:", output)
@@ -181,7 +178,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
         write_identification_event(file_uuid, command, success=False)
         return 255
     except FormatVersion.DoesNotExist:
-        job.print_error("Error: No FPR format record found for PUID {}".format(output))
+        job.print_error(f"Error: No FPR format record found for PUID {output}")
         write_identification_event(file_uuid, command, success=False)
         return 255
 
@@ -191,7 +188,7 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
     if not created:  # Update the version if it wasn't created new
         ffv.format_version = version
         ffv.save()
-    job.print_output("{} identified as a {}".format(file_path, version.description))
+    job.print_output(f"{file_path} identified as a {version.description}")
 
     write_identification_event(file_uuid, command, format=version.pronom_id)
     write_file_id(file_uuid=file_uuid, format=version, output=output)

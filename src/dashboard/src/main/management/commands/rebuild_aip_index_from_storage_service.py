@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Recreate the Elasticsearch AIPs indices from the Storage Service.
 
 This is useful if the Elasticsearch index has been deleted or damaged, but you
@@ -33,21 +32,19 @@ recreate them using the most recent version of the ES mappings.
 Execution example:
 ./manage.py rebuild_aip_index_from_storage_service --delete-all
 """
-from __future__ import absolute_import, print_function
-
 import logging
-from lxml import etree
 import os
 import shutil
 import sys
 import tempfile
 
-from elasticsearch import ElasticsearchException
-
 import archivematicaFunctions as am
 import elasticSearchFunctions as es
-from main.management.commands import DashboardCommand, setup_es_for_aip_reindexing
 import storageService
+from elasticsearch import ElasticsearchException
+from lxml import etree
+from main.management.commands import DashboardCommand
+from main.management.commands import setup_es_for_aip_reindexing
 
 PACKAGE_TYPES_TO_INDEX = ("AIP", "AIC")
 
@@ -217,9 +214,7 @@ class Command(DashboardCommand):
 
         if not os.path.isfile(mets_download_path):
             error_message = "Unable to download AIP METS file from Storage Service"
-            self.error(
-                "Error indexing package {0}. Details: {1}".format(uuid, error_message)
-            )
+            self.error(f"Error indexing package {uuid}. Details: {error_message}")
             return False
 
         aips_in_aic = None
@@ -237,9 +232,7 @@ class Command(DashboardCommand):
         )
 
         if delete_before_reindexing:
-            self.info(
-                "Deleting package {} from 'aips' and 'aipfiles' indices.".format(uuid)
-            )
+            self.info(f"Deleting package {uuid} from 'aips' and 'aipfiles' indices.")
             es.delete_aip(es_client, uuid)
             es.delete_aip_files(es_client, uuid)
 
@@ -256,10 +249,10 @@ class Command(DashboardCommand):
                 encrypted=package_info.get("encrypted", False),
                 location=location_description,
             )
-            self.info("Successfully indexed package {}".format(uuid))
+            self.info(f"Successfully indexed package {uuid}")
             os.remove(mets_download_path)
             return True
         except (ElasticsearchException, etree.XMLSyntaxError) as err:
-            self.error("Error indexing package {0}. Details: {1}".format(uuid, err))
+            self.error(f"Error indexing package {uuid}. Details: {err}")
             os.remove(mets_download_path)
             return False

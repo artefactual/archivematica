@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Shared directory setup.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os
 
 from django.conf import settings
-
-from processing import BUILTIN_CONFIGS, install_builtin_config
+from processing import BUILTIN_CONFIGS
+from processing import install_builtin_config
 
 
 logger = logging.getLogger("archivematica.mcp.server.shareddirs")

@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8
-
 import errno
 import filecmp
 import os
 import shutil
-
-import scandir
 
 from custom_handlers import get_script_logger
 
@@ -73,7 +69,7 @@ def move_or_merge(src, dst):
             shutil.move(src, dst)
         else:
             logger.info("dst: %s exists, copying src files one-by-one", dst)
-            for root, _, filenames in scandir.walk(src):
+            for root, _, filenames in os.walk(src):
                 rel_root = os.path.relpath(root, start=src)
                 for f in filenames:
                     _move_file(

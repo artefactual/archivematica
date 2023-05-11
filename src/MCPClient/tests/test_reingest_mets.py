@@ -1,26 +1,18 @@
-# -*- coding: utf8
-from lxml import etree
 import os
 import shutil
 import tempfile
 import unittest
-
-from django.core.management import call_command
-from django.test import TestCase
-
-from main import models
-
-from job import Job
-from namespaces import NSMAP, nsmap_for_premis2
-from version import get_preservation_system_identifier
+from pathlib import Path
 
 import metsrw
-from six.moves import range
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
+from django.core.management import call_command
+from django.test import TestCase
+from job import Job
+from lxml import etree
+from main import models
+from namespaces import NSMAP
+from namespaces import nsmap_for_premis2
+from version import get_preservation_system_identifier
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")

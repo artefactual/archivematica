@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
-import vcr
 
+import vcr
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -6,25 +6,27 @@
 #
 agentarchives==0.7.0
     # via -r requirements.in
-amclient==1.1.1
+amclient==1.2.3
     # via -r requirements.in
 ammcpc==0.1.3
     # via -r requirements.in
-bagit==1.7.0
+attrs==22.2.0
+    # via jsonschema
+bagit==1.8.1
     # via -r requirements.in
-brotli==0.5.2
+brotli==1.0.9
     # via -r requirements.in
-certifi==2021.5.30
+certifi==2023.5.7
     # via requests
-cffi==1.14.6
+cffi==1.15.1
     # via cryptography
-charset-normalizer==2.0.1
+charset-normalizer==2.0.12
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-click==8.0.1
+click==8.0.4
     # via pip-tools
-cryptography==3.4.7
+cryptography==40.0.2
     # via
     #   josepy
     #   mozilla-django-oidc
@@ -36,62 +38,59 @@ django==1.11.29
     #   django-cas-ng
     #   django-csp
     #   mozilla-django-oidc
-django-auth-ldap==1.3.0
+django-auth-ldap==2.2.0
     # via -r requirements.in
-django-autoslug==1.9.3
-    # via -r requirements.in
-django-braces==1.0.0
+django-autoslug==1.9.8
     # via -r requirements.in
 django-cas-ng==3.6.0
     # via -r requirements.in
-django-csp==3.7.0
+django-csp==3.7
     # via -r requirements.in
 django-extensions==1.7.9
     # via -r requirements.in
 django-forms-bootstrap==3.1.0
     # via -r requirements.in
-django-prometheus==1.0.15
+django-prometheus==2.0.0
     # via -r requirements.in
 django-shibboleth-remoteuser @ git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@67d270c65c201606fb86d548493d4b3fd8cc7a76
     # via -r requirements.in
-django-tastypie==0.13.2
+django-tastypie==0.14.3
     # via -r requirements.in
 elasticsearch==6.8.2
     # via -r requirements.in
-future==0.18.2
+future==0.18.3
     # via metsrw
 gearman3==0.2.1
     # via -r requirements.in
-gevent==1.3.6
+gevent==22.10.2
     # via -r requirements.in
-greenlet==1.1.0
+greenlet==2.0.2
     # via gevent
-gunicorn==19.9.0
+gunicorn==20.1.0
     # via -r requirements.in
-idna==3.2
+idna==3.4
     # via requests
 importlib-metadata==4.8.3
     # via
     #   -r requirements.in
     #   click
+    #   jsonschema
     #   pep517
-inotify_simple==1.1.8
+inotify-simple==1.3.5
     # via -r requirements.in
-josepy==1.8.0
+josepy==1.13.0
     # via mozilla-django-oidc
-jsonschema==2.6.0
+jsonschema==3.2.0
     # via -r requirements.in
 lazy-paged-sequence==0.3
     # via -r requirements.in
-logutils==0.3.3
-    # via -r requirements.in
-lxml==4.6.3
+lxml==4.9.2
     # via
     #   -r requirements.in
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.21
+metsrw==0.3.22
     # via -r requirements.in
 mozilla-django-oidc==1.2.4
     # via -r requirements.in
@@ -99,100 +98,97 @@ mysqlclient==1.4.6
     # via
     #   -r requirements.in
     #   agentarchives
-ndg-httpsclient==0.5.1
-    # via -r requirements.in
 olefile==0.46
     # via opf-fido
 opf-fido==1.4.1
     # via -r requirements.in
-pep517==0.12.0
+pep517==0.13.0
     # via pip-tools
 pip-tools==6.4.0
     # via -r requirements.in
-prometheus-client==0.7.1
+prometheus-client==0.16.0
     # via
     #   -r requirements.in
     #   django-prometheus
-pyasn1==0.4.8
+pyasn1==0.5.0
     # via
-    #   -r requirements.in
-    #   ndg-httpsclient
     #   pyasn1-modules
     #   python-ldap
-pyasn1-modules==0.2.8
+pyasn1-modules==0.3.0
     # via python-ldap
-pycparser==2.20
+pycparser==2.21
     # via cffi
-pyldap==3.0.0.post1
-    # via django-auth-ldap
-pyopenssl==20.0.1
-    # via
-    #   -r requirements.in
-    #   josepy
-    #   ndg-httpsclient
-python-cas==1.5.0
+pyopenssl==23.1.1
+    # via josepy
+pyrsistent==0.18.0
+    # via jsonschema
+python-cas==1.6.0
     # via django-cas-ng
-python-dateutil==2.6.0
+python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   django-tastypie
-python-ldap==3.2.0
+python-ldap==3.4.3
     # via
     #   -r requirements.in
-    #   pyldap
+    #   django-auth-ldap
 python-mimeparse==1.6.0
     # via django-tastypie
-pytz==2021.1
-    # via
-    #   -r requirements.in
-    #   django
-requests==2.26.0
+pytz==2023.3
+    # via django
+requests==2.27.1
     # via
     #   -r requirements.in
     #   agentarchives
     #   amclient
     #   mozilla-django-oidc
     #   python-cas
-scandir==1.10.0
-    # via -r requirements.in
-six==1.14.0
+six==1.16.0
     # via
-    #   -r requirements.in
     #   amclient
     #   django-extensions
+    #   jsonschema
     #   metsrw
     #   mozilla-django-oidc
     #   opf-fido
-    #   pyopenssl
     #   python-cas
     #   python-dateutil
-tomli==1.2.1
+tomli==1.2.3
     # via pep517
-typing-extensions==3.10.0.0
+typing-extensions==4.1.1
     # via importlib-metadata
-unidecode==0.04.19
+unidecode==1.3.6
     # via -r requirements.in
-urllib3==1.26.6
+urllib3==1.26.15
     # via
     #   amclient
     #   elasticsearch
     #   requests
-wheel==0.37.0
+wheel==0.37.1
     # via pip-tools
-whitenoise==3.3.0
+whitenoise==5.3.0
     # via -r requirements.in
-zipp==3.5.0
+zipp==3.6.0
     # via
     #   importlib-metadata
     #   pep517
+zope.event==4.6
+    # via gevent
+zope.interface==5.5.2
+    # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==21.3.1
     # via
     #   -r requirements.in
     #   pip-tools
-setuptools==57.1.0
+setuptools==59.6.0
     # via
+    #   gevent
+    #   gunicorn
     #   josepy
+    #   jsonschema
     #   opf-fido
     #   pip-tools
+    #   zope.event
+    #   zope.interface

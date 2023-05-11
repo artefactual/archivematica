@@ -6,13 +6,13 @@ removed" event in the database. Command line required arguments are the path to
 the file and its UUID. There is a default list of file names that are deleted;
 however, this can be overridden in MCPClient/clientConfig.conf s
 """
-
 import os
 import shutil
 
-# databaseFunctions requires Django to be set up
 import django
 from django.db import transaction
+
+# databaseFunctions requires Django to be set up
 
 django.setup()
 # archivematicaCommon

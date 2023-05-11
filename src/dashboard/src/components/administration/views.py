@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,40 +14,39 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import collections
 import logging
 import os
 import shutil
 import subprocess
 
-from django.conf import settings as django_settings
-from django.urls import reverse
-from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Max, Min
-from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
-from django.shortcuts import redirect, render
-from django.template.defaultfilters import filesizeformat
-from django.utils.translation import ugettext as _
-
-from main import models
-from components.administration.forms import (
-    AgentForm,
-    HandleForm,
-    GeneralSettingsForm,
-    StorageSettingsForm,
-    ChecksumSettingsForm,
-    TaxonomyTermForm,
-)
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers
-from installer.steps import setup_pipeline_in_ss
 import storageService as storage_service
-
-from version import get_full_version, get_preservation_system_identifier
+from components.administration.forms import AgentForm
+from components.administration.forms import ChecksumSettingsForm
+from components.administration.forms import GeneralSettingsForm
+from components.administration.forms import HandleForm
+from components.administration.forms import StorageSettingsForm
+from components.administration.forms import TaxonomyTermForm
+from django.conf import settings as django_settings
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Max
+from django.db.models import Min
+from django.http import Http404
+from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.template.defaultfilters import filesizeformat
+from django.urls import reverse
+from django.utils.translation import ugettext as _
+from installer.steps import setup_pipeline_in_ss
+from main import models
+from version import get_full_version
+from version import get_preservation_system_identifier
 
 
 logger = logging.getLogger("archivematica.dashboard")

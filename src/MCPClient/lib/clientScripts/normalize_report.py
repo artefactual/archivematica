@@ -1,20 +1,22 @@
 #!/usr/bin/env python
-
-from argparse import ArgumentParser
 import logging
 import os.path
+from argparse import ArgumentParser
 
+import components.helpers as helpers
 import django
+from custom_handlers import get_script_logger
 from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import transaction
-from django.template import Context, Template
-
-from main.models import File, Job, Report, SIP, Task
-import components.helpers as helpers
-
-from custom_handlers import get_script_logger
+from django.template import Context
+from django.template import Template
+from main.models import File
+from main.models import Job
+from main.models import Report
+from main.models import SIP
+from main.models import Task
 
 
 django.setup()

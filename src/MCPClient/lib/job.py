@@ -4,15 +4,12 @@ performed--corresponding to a Task on the MCP Server side.  Jobs are run in
 batches by clientScript modules and populated with an exit code, standard out
 and standard error information.
 """
-
-import traceback
-import sys
 import logging
-
+import sys
+import traceback
 from contextlib import contextmanager
-from custom_handlers import CallbackHandler
 
-import six
+from custom_handlers import CallbackHandler
 
 LOGGER = logging.getLogger("archivematica.mcp.client.job")
 
@@ -25,8 +22,8 @@ class Job:
         self.caller_wants_output = caller_wants_output
         self.int_code = 0
         self.status_code = "success"
-        self.output = b""
-        self.error = b""
+        self.output = ""
+        self.error = ""
 
     def dump(self):
         return (
@@ -63,29 +60,22 @@ class Job:
         self.status_code = status_code
 
     def write_output(self, s):
-        self.output += six.ensure_binary(s)
+        self.output += s
 
     def write_error(self, s):
-        self.error += six.ensure_binary(s)
+        self.error += s
 
     def print_output(self, *args):
-        self.write_output(" ".join([self._to_str(x) for x in args]) + "\n")
+        self.write_output(" ".join([str(x) for x in args]) + "\n")
 
     def print_error(self, *args):
-        self.write_error(" ".join([self._to_str(x) for x in args]) + "\n")
-
-    @staticmethod
-    def _to_str(thing):
-        try:
-            return six.ensure_str(thing)
-        except TypeError:
-            return str(thing)
+        self.write_error(" ".join([str(x) for x in args]) + "\n")
 
     def pyprint(self, *objects, **kwargs):
         file = kwargs.get("file", sys.stdout)
         sep = kwargs.get("sep", " ")
         end = kwargs.get("end", "\n")
-        msg = sep.join([self._to_str(x) for x in objects]) + end
+        msg = sep.join([str(x) for x in objects]) + end
         if file == sys.stdout:
             self.write_output(msg)
         elif file == sys.stderr:
@@ -97,10 +87,10 @@ class Job:
         return self.int_code
 
     def get_stdout(self):
-        return self.output.decode("utf-8")
+        return self.output
 
     def get_stderr(self):
-        return self.error.decode("utf-8")
+        return self.error
 
     @contextmanager
     def JobContext(self, logger=None):

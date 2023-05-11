@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,19 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage MCPClient
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import re
 import shutil
 
-from scandir import scandir
 from unidecode import unidecode
-
-from archivematicaFunctions import strToUnicode
 
 VERSION = "1.10." + "$Id$".split(" ")[1]
 
@@ -40,17 +34,16 @@ REPLACEMENT_CHAR = "_"
 def change_name(basename):
     if basename == "":
         raise ValueError("change_name received an empty filename.")
-    unicode_basename = strToUnicode(basename)
-    unicode_name = unidecode(unicode_basename)
+    decoded_name = unidecode(basename)
     # We can't return  an empty string here because it will become the new filename.
     # However, in some cases unidecode just strips out all chars (e.g.
     # unidecode(u"🚀") == ""), so if that happens, we to replace the invalid chars with
     # REPLACEMENT_CHAR. This will result in a filename of one or more underscores,
     # which isn't great, but allows processing to continue.
-    if unicode_name == "":
-        unicode_name = unicode_basename
+    if decoded_name == "":
+        decoded_name = basename
 
-    return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, unicode_name)
+    return ALLOWED_CHARS.sub(REPLACEMENT_CHAR, decoded_name)
 
 
 def change_path(path, max_filename):
@@ -93,7 +86,7 @@ def change_tree(start_path, old_start_path):
     start_path = os.path.abspath(start_path)
     max_filename = os.pathconf(start_path, "PC_NAME_MAX")
 
-    for dir_entry in scandir(start_path):
+    for dir_entry in os.scandir(start_path):
         is_dir = dir_entry.is_dir()  # cache is_dir before rename
 
         changed_name = change_path(dir_entry.path, max_filename)
@@ -104,5 +97,4 @@ def change_tree(start_path, old_start_path):
         yield old_path, changed_path, is_dir, was_changed
 
         if is_dir:
-            for result in change_tree(changed_path, old_path):
-                yield result
+            yield from change_tree(changed_path, old_path)

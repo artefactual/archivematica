@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Validation of transfer documents.
 
 Usage example::
@@ -12,19 +11,16 @@ does not pass. The exception may include a message with more details.
 
 New validators must be added to the `` _VALIDATORS`` registry.
 """
-from __future__ import absolute_import
-
 import collections
 import csv
-from io import BytesIO
-from six import PY2, StringIO
+from io import StringIO
 
 
 class ValidationError(Exception):
     """Validators should raise this exception when the input is invalid."""
 
 
-class BaseValidator(object):
+class BaseValidator:
     def validate(self, string):
         """Validator must implement this method.
 
@@ -106,10 +102,8 @@ class AvalonValidator(BaseValidator):
                 row.remove("")
             if x[0] == " " or x[-1] == " ":
                 raise ValidationError(
-                    (
-                        "Header fields cannot have leading or trailing blanks. Invalid field: "
-                        + str(x)
-                    )
+                    "Header fields cannot have leading or trailing blanks. Invalid field: "
+                    + str(x)
                 )
 
         if not (set(row).issubset(set(all_headers))):
@@ -127,9 +121,7 @@ class AvalonValidator(BaseValidator):
         if not (all(x in row for x in req_headers)):
             if "Bibliographic ID" not in row:
                 raise ValidationError(
-                    (
-                        "One of the required headers is missing: Title, Date Issued, File."
-                    )
+                    "One of the required headers is missing: Title, Date Issued, File."
                 )
         return True
 
@@ -169,20 +161,18 @@ class AvalonValidator(BaseValidator):
                     f in row for f in ["Other Identifier", "Other Identifier Type"]
                 ):
                     raise ValidationError(
-                        ("Other Identifier Type field missing its required pair.")
+                        "Other Identifier Type field missing its required pair."
                     )
             if field == "Related Item Label":
                 if not all(
                     f in row for f in ["Related Item URL", "Related Item Label"]
                 ):
                     raise ValidationError(
-                        ("Related Item Label field missing its required pair.")
+                        "Related Item Label field missing its required pair."
                     )
             if field == "Note Type":
                 if not all(f in row for f in ["Note", "Note Type"]):
-                    raise ValidationError(
-                        ("Note Type field missing its required pair.")
-                    )
+                    raise ValidationError("Note Type field missing its required pair.")
 
     @staticmethod
     def _check_file_exts(row, file_cols):
@@ -197,7 +187,7 @@ class AvalonValidator(BaseValidator):
                 q in row[c] for q in [".high.", ".medium.", ".low"]
             ):
                 raise ValidationError(
-                    ("Filepath " + row[c] + " contains" " more than one period.")
+                    "Filepath " + row[c] + " contains" " more than one period."
                 )
 
     @staticmethod
@@ -211,17 +201,12 @@ class AvalonValidator(BaseValidator):
             if row[c]:
                 if not (row[c].lower() == "yes" or row[c].lower() == "no"):
                     raise ValidationError(
-                        (
-                            "Publish/Hidden fields must have boolean value (yes or no). Value is "
-                            + str(row[c])
-                        )
+                        "Publish/Hidden fields must have boolean value (yes or no). Value is "
+                        + str(row[c])
                     )
 
     def validate(self, string):
-        if PY2:
-            csvfile = BytesIO(string)
-        else:
-            csvfile = StringIO(string.decode("utf8"))
+        csvfile = StringIO(string.decode("utf8"))
         csvr = csv.reader(csvfile)
         for i, row in enumerate(csvr):
             if i == 0:
@@ -289,10 +274,8 @@ class RightsValidator(BaseValidator):
 
         if not (all(x in row for x in req_columns)):
             raise ValidationError(
-                (
-                    "One of the required columns is missing: {}".format(
-                        ", ".join(req_columns)
-                    )
+                "One of the required columns is missing: {}".format(
+                    ", ".join(req_columns)
                 )
             )
         return True
@@ -393,10 +376,7 @@ class RightsValidator(BaseValidator):
             return True
 
     def validate(self, string):
-        if PY2:
-            csvfile = BytesIO(string)
-        else:
-            csvfile = StringIO(string.decode("utf8"))
+        csvfile = StringIO(string.decode("utf8"))
         csvr = csv.reader(csvfile)
         for i, row in enumerate(csvr):
             if i == 0:
@@ -405,7 +385,7 @@ class RightsValidator(BaseValidator):
             if i >= 1:
                 basis = self._check_basis(row, columns)
                 if basis.lower() in ["copyright", "statute"]:
-                    getattr(self, "_check_{}".format(basis.lower()))(row, columns)
+                    getattr(self, f"_check_{basis.lower()}")(row, columns)
                 self._check_documentation(row, columns)
                 self._check_restriction(row, columns)
         try:
@@ -429,7 +409,7 @@ class ValidatorNotAvailableError(ValueError):
     def __init__(self, *args, **kwargs):
         if not (args or kwargs):
             args = (self.default,)
-        super(ValidatorNotAvailableError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 def get_validator(name):

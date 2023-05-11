@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-
-import os
 import multiprocessing
+import os
 from uuid import uuid4
 
 import django
@@ -115,7 +114,7 @@ def main(job, task_uuid, file_uuid):
     #
     # Skip derivatives to avoid double-scanning them; only look at them as a fallback.
     if file_.filegrpuse != "original":
-        job.print_error("{} is not an original; not transcribing".format(file_uuid))
+        job.print_error(f"{file_uuid} is not an original; not transcribing")
         return 0
 
     rules = fetch_rules_for(file_)
@@ -134,7 +133,7 @@ def main(job, task_uuid, file_uuid):
             noun = "original"
         else:
             noun = file_.filegrpuse + " derivative"
-        job.print_error("Transcribing {} {}".format(noun, file_.uuid))
+        job.print_error(f"Transcribing {noun} {file_.uuid}")
 
     rd = ReplacementDict.frommodel(file_=file_, type_="file")
 

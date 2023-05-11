@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,14 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 import argparse
 import os
 import uuid
 
-# fileOperations requires Django to be set up
 import django
 from django.db import transaction
+
+# fileOperations requires Django to be set up
 
 django.setup()
 
@@ -53,16 +52,14 @@ def get_file_info_from_mets(job, mets, file_):
     """
     fsentry = mets.get_file(file_uuid=file_.uuid)
     if not fsentry:
-        job.print_error("FSEntry with UUID {} not found in METS".format(file_.uuid))
+        job.print_error(f"FSEntry with UUID {file_.uuid} not found in METS")
         return {}
 
     # Get the UUID of a preservation derivative, if one exists
     try:
         premis_object = fsentry.get_premis_objects()[0]
     except IndexError:
-        job.print_error(
-            "PREMIS:OBJECT not found for file {} in METS".format(file_.uuid)
-        )
+        job.print_error(f"PREMIS:OBJECT not found for file {file_.uuid} in METS")
         return {}
 
     related_object_uuid = None
@@ -167,7 +164,7 @@ def update_size_and_checksum_for_file(
                 file_uuid_id=file_.uuid, format_version=info["format_version"]
             )
 
-    job.print_output("Updating file size and checksum for file {}".format(file_.uuid))
+    job.print_output(f"Updating file size and checksum for file {file_.uuid}")
     updateSizeAndChecksum(file_.uuid, file_path, date, event_uuid, **kw)
 
 
@@ -247,9 +244,9 @@ def call(jobs):
             try:
                 mets_file = find_mets_file(args.sip_directory)
             except OSError as err:
-                job.print_error("METS file not found: {}".format(err))
+                job.print_error(f"METS file not found: {err}")
             if mets_file:
-                job.print_output("Reading METS file {}".format(mets_file))
+                job.print_output(f"Reading METS file {mets_file}")
                 mets = metsrw.METSDocument.fromfile(mets_file)
 
             job.set_status(

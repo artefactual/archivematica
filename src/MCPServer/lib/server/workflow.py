@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Workflow decoder and validator.
 
 The main function to start working with this module is ``load``. It decodes the
@@ -15,19 +13,16 @@ MCPServer to read workflow links that can be instances of three different
 classes ``Chain``, ``Link`` and ``WatchedDir``. They have different method
 sets.
 """
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
 import os
 
-from django.utils.six import text_type, python_2_unicode_compatible
-from jsonschema import validate, FormatChecker
-from jsonschema.exceptions import ValidationError
-
-from server.jobs import Job
-from server.translation import FALLBACK_LANG, TranslationLabel
 from django.conf import settings as django_settings
+from jsonschema import FormatChecker
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+from server.jobs import Job
+from server.translation import FALLBACK_LANG
+from server.translation import TranslationLabel
 
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
@@ -42,7 +37,7 @@ def _invert_job_statuses():
     """Return an inverted dict of job statuses, i.e. indexed by labels."""
     statuses = {}
     for status in Job.STATUSES:
-        label = text_type(status[1])
+        label = str(status[1])
         statuses[label] = status[0]
 
     return statuses
@@ -54,8 +49,7 @@ def _invert_job_statuses():
 _STATUSES = _invert_job_statuses()
 
 
-@python_2_unicode_compatible
-class Workflow(object):
+class Workflow:
     def __init__(self, parsed_obj):
         self._src = parsed_obj
         self._decode_chains()
@@ -98,8 +92,7 @@ class Workflow(object):
         return self.links[link_id]
 
 
-@python_2_unicode_compatible
-class BaseLink(object):
+class BaseLink:
     def __str__(self):
         return self.id
 
@@ -127,7 +120,7 @@ class Chain(BaseLink):
         self._decode_translations()
 
     def __repr__(self):
-        return "Chain <{}>".format(self.id)
+        return f"Chain <{self.id}>"
 
     def __getitem__(self, key):
         return self._src[key]
@@ -149,7 +142,7 @@ class Link(BaseLink):
         self._decode_translations()
 
     def __repr__(self):
-        return "Link <{}>".format(self.id)
+        return f"Link <{self.id}>"
 
     def __getitem__(self, key):
         return self._src[key]
@@ -184,7 +177,7 @@ class Link(BaseLink):
         return self._src.get("end", False)
 
     def get_next_link(self, code):
-        code = text_type(code)
+        code = str(code)
         try:
             link_id = self._src["exit_codes"][code]["link_id"]
         except KeyError:
@@ -193,7 +186,7 @@ class Link(BaseLink):
 
     def get_status_id(self, code):
         """Return the expected Job status ID given an exit code."""
-        code = text_type(code)
+        code = str(code)
         try:
             status_id = self._src["exit_codes"][code]["job_status"]
         except KeyError:
@@ -211,7 +204,7 @@ class WatchedDir(BaseLink):
         return self.path
 
     def __repr__(self):
-        return "Watched directory <{}>".format(self.path)
+        return f"Watched directory <{self.path}>"
 
     def __getitem__(self, key):
         return self._src[key]
@@ -231,7 +224,7 @@ class WatchedDir(BaseLink):
 
 class WorkflowJSONDecoder(json.JSONDecoder):
     def decode(self, foo, **kwargs):
-        parsed_json = super(WorkflowJSONDecoder, self).decode(foo, **kwargs)
+        parsed_json = super().decode(foo, **kwargs)
         return Workflow(parsed_json)
 
 

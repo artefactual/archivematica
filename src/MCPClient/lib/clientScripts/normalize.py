@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import csv
 import errno
@@ -8,12 +7,10 @@ import shutil
 import traceback
 import uuid
 
+import django
 from django.utils import timezone
 
 from . import transcoder
-
-import django
-import scandir
 
 django.setup()
 # dashboard
@@ -101,7 +98,7 @@ def check_manual_normalization(job, opts):
     if os.path.isfile(normalization_csv):
         found = False
         # use universal newline mode to support unusual newlines, like \r
-        with open(normalization_csv, "rbU") as csv_file:
+        with open(normalization_csv, "rb") as csv_file:
             reader = csv.reader(csv_file)
             # Search the file for an original filename that matches the one provided
             try:
@@ -189,7 +186,7 @@ def check_manual_normalization(job, opts):
             "Multiple files matching path {} found. Returning the shortest one."
         )
         ret = sorted(matches, key=lambda f: f.currentlocation)[0]
-        job.print_output("Returning file at {}".format(ret.currentlocation))
+        job.print_output(f"Returning file at {ret.currentlocation}")
         return ret
     return matches[0]
 
@@ -209,7 +206,7 @@ def once_normalized(job, command, opts, replacement_dict):
     if os.path.isfile(command.output_location):
         transcoded_files.append(command.output_location)
     elif os.path.isdir(command.output_location):
-        for w in scandir.walk(command.output_location):
+        for w in os.walk(command.output_location):
             path, _, files = w
             for p in files:
                 p = os.path.join(path, p)
@@ -226,7 +223,7 @@ def once_normalized(job, command, opts, replacement_dict):
         command.fpcommand.uuid
     )
     if command.event_detail_command is not None:
-        event_detail_output += "; {}".format(command.event_detail_command.std_out)
+        event_detail_output += f"; {command.event_detail_command.std_out}"
     for ef in transcoded_files:
         if "thumbnails" in opts.purpose:
             continue

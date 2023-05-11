@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
-
-from django.db import migrations, models
 import main.models
+from django.db import migrations
+from django.db import models
 
 
 def data_migration(apps, schema_editor):

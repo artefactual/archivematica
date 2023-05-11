@@ -16,21 +16,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
-
-from datetime import datetime
 import os
 import sys
-import lxml.etree as etree
+from datetime import datetime
 
-# dashboard
+import lxml.etree as etree
+import namespaces as ns
 from main.models import File
 
-import namespaces as ns
+# dashboard
 
 
 def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
@@ -61,7 +59,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     ).text
     etree.SubElement(
         dublincore, ns.dctermsBNS + "provenance"
-    ).text = "Department: %s; OPR: %s" % (
+    ).text = "Department: {}; OPR: {}".format(
         root.find("Container/Department").text,
         root.find("Container/OPR").text,
     )
@@ -78,7 +76,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     )
     etree.SubElement(
         dublincore, ns.dctermsBNS + "extent"
-    ).text = "{} digital objects".format(files.count())
+    ).text = f"{files.count()} digital objects"
 
     files = File.objects.filter(
         removedtime__isnull=True,
@@ -101,7 +99,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
             if maxDateMod is None or dateMod > maxDateMod:
                 maxDateMod = dateMod
 
-    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "%s/%s" % (
+    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "{}/{}".format(
         minDateMod,
         maxDateMod,
     )

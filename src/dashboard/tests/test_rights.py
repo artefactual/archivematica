@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from metsrw.plugins import premisrw
-import pytest
 import uuid
 
+import pytest
 from components.rights import load
-from main.models import File, Transfer, SIP, MetadataAppliesToType
+from main.models import File
+from main.models import MetadataAppliesToType
+from main.models import SIP
+from main.models import Transfer
+from metsrw.plugins import premisrw
 
 
 RIGHTS_STATEMENT_IDENTIFIER = (
@@ -193,7 +193,7 @@ def test_mdtype():
     assert isinstance(load._mdtype(Transfer()), MetadataAppliesToType)
     assert isinstance(load._mdtype(SIP()), MetadataAppliesToType)
 
-    class UnknownClass(object):
+    class UnknownClass:
         pass
 
     with pytest.raises(TypeError) as excinfo:

@@ -1,17 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf8
-
 """verify_mets.py
 
 Verify METS documents provided to the script. Its first, and primary use so
 far is to verify the validity of custom structmaps included with transfers and
 supplied on ingest after appraisal.
 """
-from __future__ import unicode_literals
-from lxml import etree
 import os
 
-from archivematicaFunctions import strToUnicode
+from lxml import etree
 
 
 class VerifyMETSException(Exception):
@@ -22,9 +18,7 @@ def call(jobs):
     """Primary entry point for this script."""
     for job in jobs:
         with job.JobContext():
-            mets_structmap = os.path.join(
-                strToUnicode(job.args[1]), "metadata", "mets_structmap.xml"
-            )
+            mets_structmap = os.path.join(job.args[1], "metadata", "mets_structmap.xml")
             mets_xsd = job.args[2]
             if not os.path.isfile(mets_structmap):
                 job.pyprint("Custom structmap not supplied with package")

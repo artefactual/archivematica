@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
 
 
@@ -10,6 +7,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterIndexTogether(
-            name="file", index_together=set([("sip", "filegrpuse")])
+            name="file", index_together={("sip", "filegrpuse")}
         )
     ]

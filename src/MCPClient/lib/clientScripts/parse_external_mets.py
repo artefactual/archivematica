@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-
 import argparse
-from lxml import etree
 import os
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
-from archivematicaFunctions import find_mets_file
 import parse_mets_to_db
+from archivematicaFunctions import find_mets_file
+from custom_handlers import get_script_logger
+from lxml import etree
+
+# archivematicaCommon
 
 logger = get_script_logger("archivematica.mcp.client.parse_external_mets")
 

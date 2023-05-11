@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Archivematica Client (Gearman Worker)
 
@@ -31,7 +30,6 @@ back to the database.  The exit code of each job is returned to Gearman and
 communicated back to the MCP Server (where it is ultimately used to decide which
 task to run next).
 """
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -48,29 +46,24 @@ task to run next).
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
-
-import six.moves.configparser
-import six.moves.cPickle
-from functools import partial
+import configparser
 import logging
 import os
-from socket import gethostname
+import pickle
 import time
+from functools import partial
+from socket import gethostname
 
 import django
-from six.moves import zip
-import six
 
 django.setup()
 from django.conf import settings as django_settings
 import gearman
 
 from main.models import Task
-from archivematicaFunctions import unicodeToStr
 from databaseFunctions import getUTCDate, retryOnFailure
 
 from django.db import transaction
@@ -96,7 +89,7 @@ def get_supported_modules(file_):
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
     supported_modules = {}
-    supported_modules_config = six.moves.configparser.RawConfigParser()
+    supported_modules_config = configparser.RawConfigParser()
     supported_modules_config.read(file_)
     for client_script, module_name in supported_modules_config.items(
         "supportedBatchCommands"
@@ -107,15 +100,15 @@ def get_supported_modules(file_):
 
 @auto_close_db
 def handle_batch_task(gearman_job, supported_modules):
-    task_name = six.ensure_str(gearman_job.task)
+    task_name = gearman_job.task.decode()
     module_name = supported_modules.get(task_name)
-    gearman_data = six.moves.cPickle.loads(gearman_job.data)
+    gearman_data = pickle.loads(gearman_job.data)
 
     utc_date = getUTCDate()
     jobs = []
     for task_uuid in gearman_data["tasks"]:
         task_data = gearman_data["tasks"][task_uuid]
-        arguments = six.ensure_str(task_data["arguments"])
+        arguments = str(task_data["arguments"])
 
         replacements = list(replacement_dict.items()) + list(
             {
@@ -126,7 +119,7 @@ def handle_batch_task(gearman_job, supported_modules):
         )
 
         for var, val in replacements:
-            arguments = arguments.replace(var, unicodeToStr(val))
+            arguments = arguments.replace(var, val)
 
         job = Job(
             task_name,
@@ -172,7 +165,7 @@ def _shlex_unescape(s):
 
 
 def fail_all_tasks(gearman_job, reason):
-    gearman_data = six.moves.cPickle.loads(gearman_job.data)
+    gearman_data = pickle.loads(gearman_job.data)
 
     result = {}
 
@@ -196,7 +189,7 @@ def fail_all_tasks(gearman_job, reason):
     for task_uuid in gearman_data["tasks"]:
         result[task_uuid] = {"exitCode": 1}
 
-    return six.moves.cPickle.dumps({"task_results": result}, protocol=0)
+    return pickle.dumps({"task_results": result}, protocol=0)
 
 
 @auto_close_db
@@ -204,7 +197,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     """Execute the command encoded in ``gearman_job`` and return its exit code,
     standard output and standard error as a pickled dict.
     """
-    task_name = six.ensure_str(gearman_job.task)
+    task_name = gearman_job.task.decode()
     logger.info("\n\n*** RUNNING TASK: %s", task_name)
 
     with metrics.task_execution_time_histogram.labels(script_name=task_name).time():
@@ -254,7 +247,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
 
             retryOnFailure("Write task results", write_task_results_callback)
 
-            return six.moves.cPickle.dumps({"task_results": results}, protocol=0)
+            return pickle.dumps({"task_results": results}, protocol=0)
         except SystemExit:
             logger.error(
                 "IMPORTANT: Task %s attempted to call exit()/quit()/sys.exit(). This module should be fixed!",
@@ -273,12 +266,12 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
 def start_gearman_worker(supported_modules):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
-    host_id = "{}_{}".format(gethostname(), os.getpid())
+    host_id = f"{gethostname()}_{os.getpid()}"
     gm_worker.set_client_id(host_id)
     task_handler = partial(execute_command, supported_modules)
     for client_script in supported_modules:
         logger.info("Registering: %s", client_script)
-        gm_worker.register_task(six.ensure_binary(client_script), task_handler)
+        gm_worker.register_task(client_script.encode(), task_handler)
     fail_max_sleep = 30
     fail_sleep = 1
     fail_sleep_incrementor = 2

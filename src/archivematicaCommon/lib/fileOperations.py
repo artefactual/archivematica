@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -15,31 +14,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import absolute_import, print_function
-
 import csv
 import os
-import uuid
-import sys
 import shutil
 import subprocess
+import sys
+import uuid
+from pathlib import Path
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
-
+import MySQLdb
+from archivematicaFunctions import get_file_checksum
+from archivematicaFunctions import get_setting
+from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents
-import MySQLdb
-from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
-
-from main.models import File, Transfer
+from main.models import File
+from main.models import Transfer
 
 
 def updateSizeAndChecksum(
@@ -75,7 +68,7 @@ def updateSizeAndChecksum(
             fileUUID=fileUUID,
             eventType="message digest calculation",
             eventDateTime=date,
-            eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
+            eventDetail=f'program="python"; module="hashlib.{checksumType}()"',
             eventOutcomeDetailNote=checksum,
         )
 
@@ -264,10 +257,6 @@ def updateFileLocation(
     If the file uuid is not provided, will use the SIP uuid and the old path to find the file uuid.
     To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
     """
-
-    src = unicodeToStr(src)
-    dst = unicodeToStr(dst)
-    fileUUID = unicodeToStr(fileUUID)
     if not fileUUID or fileUUID == "None":
         kwargs = {"removedtime__isnull": True, "currentlocation": src}
 
@@ -292,7 +281,7 @@ def updateFileLocation(
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = 'Original name="%s"; new name="%s"' % (src, dst)
+        eventOutcomeDetailNote = f'Original name="{src}"; new name="{dst}"'
     # CREATE THE EVENT
     insertIntoEvents(
         fileUUID=f.uuid,
@@ -345,7 +334,7 @@ def findFileInNormalizationCSV(
     :returns: Path to the origin file for `target_file`. Note this is the path from normalization.csv, so will be the original location.
     """
     # use universal newline mode to support unusual newlines, like \r
-    with open(csv_path, "rbU") as csv_file:
+    with open(csv_path, "rb") as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
         # Get original name of target file, to handle filename changes.
@@ -383,7 +372,7 @@ def findFileInNormalizationCSV(
                 original, access, preservation = row
                 if commandClassification == "access" and access == target_file:
                     printfn(
-                        "Found access file ({0}) for original ({1})".format(
+                        "Found access file ({}) for original ({})".format(
                             access, original
                         )
                     )
@@ -393,7 +382,7 @@ def findFileInNormalizationCSV(
                     and preservation == target_file
                 ):
                     printfn(
-                        "Found preservation file ({0}) for original ({1})".format(
+                        "Found preservation file ({}) for original ({})".format(
                             preservation, original
                         )
                     )

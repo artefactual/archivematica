@@ -1,14 +1,9 @@
-# -*- coding: utf8
-from __future__ import unicode_literals
-
 import os
 import shutil
 
 import pytest
-
-from job import Job
-
 import restructure_dip_for_content_dm_upload
+from job import Job
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +29,7 @@ def test_restructure_dip_for_content_dm_upload(job, dip_directory):
     job.args = (
         None,
         "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
-        "--dipDir={}".format(dip_directory),
+        f"--dipDir={dip_directory}",
     )
     jobs = [job]
 

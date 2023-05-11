@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -16,15 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-
 import os
 import sys
-
-import scandir
 
 import metrics
 
@@ -41,7 +36,7 @@ ALLOWABLE_FILES = ("processingMCP.xml",)
 
 def checkDirectory(job, directory, ret=0):
     try:
-        for directory, subDirectories, files in scandir.walk(directory):
+        for directory, subDirectories, files in os.walk(directory):
             for file in files:
                 os.path.join(directory, file)
     except Exception as inst:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Migration to create a Dataverse Transfer Type.
 
 This migration introduces a new transfer type for Dataverse,
@@ -16,13 +15,11 @@ performed.
 Once the tasks have completed, the workflow is picked up from where it would
 normally for a standard transfer type.
 """
-from __future__ import absolute_import, unicode_literals
-
 from django.db import migrations
+from main.models import Job
 
 # We can't use apps.get_model for this model as we need to access class
 # attributes.
-from main.models import Job
 
 # The usual default next MS in Archivematica is the failed transfer MS. The
 # task that this points to is Email Fail Report.

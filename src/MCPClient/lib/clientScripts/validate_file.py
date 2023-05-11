@@ -14,11 +14,10 @@ Arguments:
     [FILE_PATH] [FILE_UUID] [SIP_UUID] [SHARED_PATH] [FILE_TYPE]
 
 """
-
 import ast
 import os
-from pprint import pformat
 import sys
+from pprint import pformat
 
 import django
 from django.db import transaction
@@ -53,7 +52,7 @@ def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
 logger = get_script_logger("archivematica.mcp.client.validateFile")
 
 
-class Validator(object):
+class Validator:
     """A validator validates a file, during transfer or ingest, using FPR
     config.
 
@@ -112,7 +111,7 @@ class Validator(object):
             rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
         # Check default rules.
         if not rules:
-            rules = FPRule.active.filter(purpose="default_{}".format(self.purpose))
+            rules = FPRule.active.filter(purpose=f"default_{self.purpose}")
         return rules
 
     def _execute_rule_command(self, rule):
@@ -168,11 +167,11 @@ class Validator(object):
         # boolean attribute.
         if output.get("eventOutcomeInformation") == "pass":
             self.job.print_output(
-                'Command "{}" was successful'.format(rule.command.description)
+                f'Command "{rule.command.description}" was successful'
             )
         elif output.get("eventOutcomeInformation") == "partial pass":
             self.job.print_output(
-                'Command "{}" was partially successful'.format(rule.command.description)
+                f'Command "{rule.command.description}" was partially successful'
             )
         else:
             self.job.pyprint(
@@ -207,7 +206,7 @@ class Validator(object):
         stdout = output.get("stdout")
         if stdout and self.sip_pres_val_dir:
             filename = os.path.basename(self.file_path)
-            stdout_path = os.path.join(self.sip_pres_val_dir, "{}.xml".format(filename))
+            stdout_path = os.path.join(self.sip_pres_val_dir, f"{filename}.xml")
             with open(stdout_path, "w") as f:
                 f.write(stdout)
 

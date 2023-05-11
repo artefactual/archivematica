@@ -1,35 +1,22 @@
-# -*- coding: utf-8 -*-
-
 """Package management."""
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import abc
 import ast
 import collections
 import logging
 import os
+from pathlib import Path
 from tempfile import mkdtemp
-from uuid import UUID, uuid4
-
-import scandir
-from django.conf import settings
-from django.utils import timezone
-import six
+from uuid import UUID
+from uuid import uuid4
 
 import storageService as storage_service
-from archivematicaFunctions import strToUnicode
-from archivematicaFunctions import unicodeToStr
+from django.conf import settings
+from django.utils import timezone
 from main import models
-
 from server.db import auto_close_old_connections
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 
 logger = logging.getLogger("archivematica.mcp.server.packages")
@@ -40,7 +27,7 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 
 def _get_setting(name):
     """Retrieve a Django setting decoded as a unicode string."""
-    return strToUnicode(getattr(settings, name))
+    return getattr(settings, name)
 
 
 # Each package type has its corresponding watched directory and its
@@ -164,7 +151,7 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
         return filepath
     if filepath.is_dir():
         return _pad_destination_filepath_if_it_already_exists(
-            "{}_{}".format(strToUnicode(original.as_posix()), attempt),
+            f"{original.as_posix()}_{attempt}",
             original,
             attempt,
         )
@@ -177,7 +164,7 @@ def _pad_destination_filepath_if_it_already_exists(filepath, original=None, atte
     period_position = basename.index(".")
     non_extension = basename[0:period_position]
     extension = basename[period_position:]
-    new_basename = "{}_{}{}".format(non_extension, attempt, extension)
+    new_basename = f"{non_extension}_{attempt}{extension}"
     new_filepath = basedirectory / new_basename
     return _pad_destination_filepath_if_it_already_exists(
         new_filepath, original, attempt
@@ -188,7 +175,7 @@ def _check_filepath_exists(filepath):
     if filepath == "":
         return "No filepath provided."
     if not os.path.exists(filepath):
-        return "Filepath {} does not exist.".format(filepath)
+        return f"Filepath {filepath} does not exist."
     if ".." in filepath:  # check for trickery
         return "Illegal path."
     return None
@@ -237,9 +224,9 @@ def _copy_from_transfer_sources(paths, relative_destination):
         # be UTF-8 encoded prior. Same reasoning applies to ``destination``
         # below. This allows transfers to be started on UTF-8-encoded directory
         # names.
-        source = path.replace(
-            six.ensure_str(files[location]["location"]["path"]), "", 1
-        ).lstrip("/")
+        source = path.replace(str(files[location]["location"]["path"]), "", 1).lstrip(
+            "/"
+        )
         # Use the last segment of the path for the destination - basename for a
         # file, or the last folder if not. Keep the trailing / for folders.
         last_segment = (
@@ -248,7 +235,7 @@ def _copy_from_transfer_sources(paths, relative_destination):
             else os.path.basename(source)
         )
         destination = os.path.join(
-            six.ensure_str(processing_location["path"]),
+            str(processing_location["path"]),
             relative_destination,
             last_segment,
         ).replace("%sharedPath%", "")
@@ -295,7 +282,7 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     except OSError as e:
         raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
     else:
-        transfer.currentlocation = strToUnicode(dest.as_posix()).replace(
+        transfer.currentlocation = dest.as_posix().replace(
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
@@ -327,7 +314,7 @@ def create_package(
     if type_ is None or type_ == "disk image":
         type_ = "standard"
     if type_ not in PACKAGE_TYPE_STARTING_POINTS:
-        raise ValueError("Unexpected type of package provided '{}'".format(type_))
+        raise ValueError(f"Unexpected type of package provided '{type_}'")
     if not path:
         raise ValueError("No path provided.")
     if isinstance(auto_approve, bool) is False:
@@ -340,9 +327,9 @@ def create_package(
     # Create Transfer object.
     kwargs = {"uuid": str(uuid4())}
     if accession is not None:
-        kwargs["accessionid"] = unicodeToStr(accession)
+        kwargs["accessionid"] = accession
     if access_system_id is not None:
-        kwargs["access_system_id"] = unicodeToStr(access_system_id)
+        kwargs["access_system_id"] = access_system_id
     if metadata_set_id is not None:
         try:
             kwargs["transfermetadatasetrow"] = models.TransferMetadataSet.objects.get(
@@ -485,7 +472,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
 
 
-class LocationPath(object):
+class LocationPath:
     """Path wraps a path that is a pair of two values: UUID and path."""
 
     uuid, path = None, None
@@ -500,7 +487,7 @@ class LocationPath(object):
             self.path = parts[2]
 
     def __repr__(self):
-        return "%s (uuid=%r, sep=%r, path=%r)" % (
+        return "{} (uuid={!r}, sep={!r}, path={!r})".format(
             self.__class__,
             self.uuid,
             self.sep,
@@ -540,8 +527,7 @@ def get_file_replacement_mapping(file_obj, unit_directory):
     return mapping
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Package(object):
+class Package(metaclass=abc.ABCMeta):
     """A `Package` can be a Transfer, a SIP, or a DIP."""
 
     def __init__(self, current_path, uuid):
@@ -619,7 +605,7 @@ class Package(object):
     @property
     def package_name(self):
         basename = os.path.basename(self.current_path.rstrip("/"))
-        return basename.replace("-" + six.text_type(self.uuid), "")
+        return basename.replace("-" + str(self.uuid), "")
 
     @property
     @auto_close_old_connections()
@@ -642,7 +628,7 @@ class Package(object):
         mapping = BASE_REPLACEMENTS.copy()
         mapping.update(
             {
-                r"%SIPUUID%": six.text_type(self.uuid),
+                r"%SIPUUID%": str(self.uuid),
                 r"%SIPName%": self.package_name,
                 r"%SIPLogsDirectory%": os.path.join(self.current_path, "logs", ""),
                 r"%SIPObjectsDirectory%": os.path.join(
@@ -693,7 +679,7 @@ class Package(object):
                     files_returned_already.add(file_obj_mapped.get("%inputFile%"))
                     yield file_obj_mapped
 
-            for basedir, subdirs, files in scandir.walk(start_path):
+            for basedir, subdirs, files in os.walk(start_path):
                 for file_name in files:
                     if (
                         filter_filename_start
@@ -718,7 +704,7 @@ class Package(object):
         if not value:
             value = ""
         else:
-            value = six.text_type(value)
+            value = str(value)
 
         unit_var, created = models.UnitVariable.objects.update_or_create(
             unittype=self.UNIT_VARIABLE_TYPE,
@@ -799,9 +785,7 @@ class DIP(SIPDIP):
         pass
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(DIP, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
         mapping[r"%unitType%"] = "DIP"
 
         if filter_subdir_path:
@@ -867,9 +851,7 @@ class Transfer(Package):
         self.processing_configuration = transfer.processing_configuration
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(Transfer, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
 
         mapping.update(
             {
@@ -888,7 +870,7 @@ class SIP(SIPDIP):
     JOB_UNIT_TYPE = "unitSIP"
 
     def __init__(self, *args, **kwargs):
-        super(SIP, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.aip_filename = None
         self.sip_type = None
@@ -901,9 +883,7 @@ class SIP(SIPDIP):
         self.sip_type = sip.sip_type
 
     def get_replacement_mapping(self, filter_subdir_path=None):
-        mapping = super(SIP, self).get_replacement_mapping(
-            filter_subdir_path=filter_subdir_path
-        )
+        mapping = super().get_replacement_mapping(filter_subdir_path=filter_subdir_path)
 
         mapping.update(
             {
@@ -916,7 +896,7 @@ class SIP(SIPDIP):
         return mapping
 
 
-class PackageContext(object):
+class PackageContext:
     """Package context tracks choices made previously while processing"""
 
     def __init__(self, *items):
@@ -925,11 +905,10 @@ class PackageContext(object):
             self._data[key] = value
 
     def __repr__(self):
-        return "PackageContext({!r})".format(dict(self._data.items()))
+        return f"PackageContext({dict(self._data.items())!r})"
 
     def __iter__(self):
-        for key, value in six.iteritems(self._data):
-            yield key, value
+        yield from self._data.items()
 
     def __len__(self):
         return len(self._data)
