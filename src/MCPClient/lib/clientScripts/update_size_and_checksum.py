@@ -28,10 +28,10 @@ django.setup()
 
 from main.models import File, FileFormatVersion
 
-from archivematicaFunctions import chunk_iterable, find_mets_file
+from archivematicaFunctions import find_mets_file
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoDerivations
-from fileOperations import updateSizeAndChecksum
+from fileOperations import get_size_and_checksum, updateSizeAndChecksum
 
 import metsrw
 
@@ -117,7 +117,7 @@ def get_sip_file_queryset(sip_uuid, filter_subdir):
     return files
 
 
-def update_size_and_checksum_for_file(
+def get_size_and_checksum_for_file(
     job,
     file_,
     mets,
@@ -129,7 +129,7 @@ def update_size_and_checksum_for_file(
     event_uuid,
     filter_subdir,
 ):
-    """Update size and checksum for file in database.
+    """Get size and checksum for a file.
 
     If file is from Archivematica AIP transfer, try to extract and use
     the size, checksum, and checksum type values from the METS.
@@ -145,7 +145,9 @@ def update_size_and_checksum_for_file(
         )
 
     if not os.path.exists(file_path):
-        return
+        return {}
+
+    kw["filePath"] = file_path
 
     if file_.in_reingested_aip and mets:
         info = get_file_info_from_mets(job, mets, file_)
@@ -156,54 +158,21 @@ def update_size_and_checksum_for_file(
             add_event=False,
         )
         if info.get("derivation"):
-            insertIntoDerivations(
-                sourceFileUUID=file_.uuid, derivedFileUUID=info["derivation"]
-            )
+            kw["derivation"] = info["derivation"]
         if info.get("format_version"):
-            FileFormatVersion.objects.create(
-                file_uuid_id=file_.uuid, format_version=info["format_version"]
-            )
+            kw["formatVersion"] = info["format_version"]
 
-    job.print_output(f"Updating file size and checksum for file {file_.uuid}")
-    updateSizeAndChecksum(file_.uuid, file_path, date, event_uuid, **kw)
+    fileSize, checksum, checksumType = get_size_and_checksum(
+        file_path,
+        file_size=kw.get("fileSize"),
+        checksum=kw.get("checksum"),
+        checksum_type=kw.get("checksumType"),
+    )
+    kw.update(
+        {"fileSize": fileSize, "checksum": checksum, "checksumType": checksumType}
+    )
 
-
-def update_files(
-    job,
-    files,
-    mets,
-    shared_path,
-    sip_directory,
-    sip_uuid,
-    transfer_uuid,
-    date,
-    event_uuid,
-    filter_subdir,
-):
-    """Update file sizes and checksums for each file in list.
-
-    We open a database transaction for each chunk of 10 files, in an
-    attempt to balance performance with reasonable transaction lengths.
-    """
-    for file_chunk in chunk_iterable(files):
-        with transaction.atomic():
-            for file_ in file_chunk:
-                if not file_:
-                    continue
-                update_size_and_checksum_for_file(
-                    job,
-                    file_,
-                    mets,
-                    shared_path,
-                    sip_directory,
-                    sip_uuid,
-                    transfer_uuid,
-                    date,
-                    event_uuid,
-                    filter_subdir,
-                )
-
-    return 0
+    return kw
 
 
 def call(jobs):
@@ -225,6 +194,8 @@ def call(jobs):
         dest="event_uuid",
     )
 
+    state = []
+
     for job in jobs:
         with job.JobContext(logger=logger):
             args = parser.parse_args(job.args[1:])
@@ -233,7 +204,7 @@ def call(jobs):
             if all(TRANSFER_SIP_UUIDS) or not any(TRANSFER_SIP_UUIDS):
                 job.print_error("SIP exclusive-or Transfer UUID must be defined")
                 job.set_status(2)
-                return
+                continue
 
             files = get_transfer_file_queryset(args.transfer_uuid, args.filter_subdir)
             if args.sip_uuid:
@@ -249,10 +220,12 @@ def call(jobs):
                 job.print_output(f"Reading METS file {mets_file}")
                 mets = metsrw.METSDocument.fromfile(mets_file)
 
-            job.set_status(
-                update_files(
+            for file_ in files:
+                if not file_:
+                    continue
+                file_info = get_size_and_checksum_for_file(
                     job,
-                    files,
+                    file_,
                     mets,
                     args.sharedPath,
                     args.sip_directory,
@@ -262,4 +235,26 @@ def call(jobs):
                     args.event_uuid,
                     args.filter_subdir,
                 )
+                if file_info:
+                    state.append((file_.uuid, file_info, args))
+
+            job.set_status(0)
+
+    with transaction.atomic():
+        for file_uuid, file_info, args in state:
+            file_path = file_info.pop("filePath")
+            derivation = file_info.pop("derivation", None)
+            format_version = file_info.pop("formatVersion", None)
+            if derivation is not None:
+                insertIntoDerivations(
+                    sourceFileUUID=file_uuid,
+                    derivedFileUUID=derivation,
+                )
+            if format_version is not None:
+                FileFormatVersion.objects.create(
+                    file_uuid_id=file_uuid,
+                    format_version=format_version,
+                )
+            updateSizeAndChecksum(
+                file_uuid, file_path, args.date, args.event_uuid, **file_info
             )
