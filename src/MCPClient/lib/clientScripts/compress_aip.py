@@ -45,7 +45,7 @@ def compress_aip(
     except ValueError:
         msg = f"Invalid program-compression algorithm: {compression}"
         job.pyprint(msg, file=sys.stderr)
-        return 255
+        return 255, {}
 
     archive_path = f"{sip_name}-{sip_uuid}"
     uncompressed_location = sip_directory + archive_path
@@ -56,8 +56,7 @@ def compress_aip(
     # Setting it to an empty string ensures the common
     # "%SIPDirectory%%AIPFilename%" pattern still points at the right thing.
     if program == "None":
-        update_unit(sip_uuid, uncompressed_location)
-        return 0
+        return 0, {"sip_uuid": sip_uuid, "location": uncompressed_location}
 
     job.pyprint(
         "Compressing {} with {}, algorithm {}, level {}".format(
@@ -107,7 +106,9 @@ def compress_aip(
     else:
         msg = f"Program {program} not recognized, exiting script prematurely."
         job.pyprint(msg, file=sys.stderr)
-        return 255
+        return 255, {}
+
+    result = {"sip_uuid": sip_uuid, "location": compressed_location}
 
     job.pyprint("Executing command:", command)
     exit_code, std_out, std_err = executeOrRun(
@@ -118,12 +119,12 @@ def compress_aip(
 
     # Add new AIP File
     file_uuid = sip_uuid
-    databaseFunctions.insertIntoFiles(
-        fileUUID=file_uuid,
-        filePath=compressed_location.replace(sip_directory, "%SIPDirectory%", 1),
-        sipUUID=sip_uuid,
-        use="aip",
-    )
+    result["file"] = {
+        "file_uuid": file_uuid,
+        "file_path": compressed_location.replace(sip_directory, "%SIPDirectory%", 1),
+        "sip_uuid": sip_uuid,
+        "use": "aip",
+    }
 
     # Add compression event
     job.pyprint("Tool info command:", tool_info_command)
@@ -133,16 +134,14 @@ def compress_aip(
     job.write_output(tool_info)
     job.write_error(tool_info_err)
     tool_output = f'Standard Output="{std_out}"; Standard Error="{std_err}"'
-    databaseFunctions.insertIntoEvents(
-        eventType="compression",
-        eventDetail=tool_info,
-        eventOutcomeDetailNote=tool_output,
-        fileUUID=file_uuid,
-    )
+    result["event"] = {
+        "event_type": "compression",
+        "event_detail": tool_info,
+        "event_outcome_detail_note": tool_output,
+        "file_uuid": file_uuid,
+    }
 
-    update_unit(sip_uuid, compressed_location)
-
-    return exit_code
+    return exit_code, result
 
 
 def call(jobs):
@@ -153,17 +152,37 @@ def call(jobs):
     parser.add_argument("sip_name", type=str, help="%SIPName%")
     parser.add_argument("sip_uuid", type=str, help="%SIPUUID%")
 
+    state = []
+
+    for job in jobs:
+        with job.JobContext():
+            args = parser.parse_args(job.args[1:])
+            status, result = compress_aip(
+                job,
+                args.compression,
+                args.compression_level,
+                args.sip_directory,
+                args.sip_name,
+                args.sip_uuid,
+            )
+            job.set_status(status)
+            if result:
+                state.append(result)
+
     with transaction.atomic():
-        for job in jobs:
-            with job.JobContext():
-                args = parser.parse_args(job.args[1:])
-                job.set_status(
-                    compress_aip(
-                        job,
-                        args.compression,
-                        args.compression_level,
-                        args.sip_directory,
-                        args.sip_name,
-                        args.sip_uuid,
-                    )
+        for result in state:
+            update_unit(result["sip_uuid"], result["location"])
+            if "file" in result:
+                databaseFunctions.insertIntoFiles(
+                    fileUUID=result["file"]["file_uuid"],
+                    filePath=result["file"]["file_path"],
+                    sipUUID=result["file"]["sip_uuid"],
+                    use=result["file"]["use"],
+                )
+            if "event" in result:
+                databaseFunctions.insertIntoEvents(
+                    eventType=result["event"]["event_type"],
+                    eventDetail=result["event"]["event_detail"],
+                    eventOutcomeDetailNote=result["event"]["event_outcome_detail_note"],
+                    fileUUID=result["event"]["file_uuid"],
                 )
