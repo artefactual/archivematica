@@ -35,6 +35,17 @@ from main.models import File
 from main.models import Transfer
 
 
+def get_size_and_checksum(file_path, file_size=None, checksum=None, checksum_type=None):
+    if not file_size:
+        file_size = os.path.getsize(file_path)
+    if not checksum_type:
+        checksum_type = get_setting("checksum_type", "sha256")
+    if not checksum:
+        checksum = get_file_checksum(file_path, checksum_type)
+
+    return (file_size, checksum, checksum_type)
+
+
 def updateSizeAndChecksum(
     fileUUID,
     filePath,
@@ -52,12 +63,12 @@ def updateSizeAndChecksum(
     Finally, insert the corresponding Event. This behavior can be cancelled
     using the boolean keyword 'add_event'.
     """
-    if not fileSize:
-        fileSize = os.path.getsize(filePath)
-    if not checksumType:
-        checksumType = get_setting("checksum_type", "sha256")
-    if not checksum:
-        checksum = get_file_checksum(filePath, checksumType)
+    fileSize, checksum, checksumType = get_size_and_checksum(
+        file_path=filePath,
+        file_size=fileSize,
+        checksum=checksum,
+        checksum_type=checksumType,
+    )
 
     File.objects.filter(uuid=fileUUID).update(
         size=fileSize, checksum=checksum, checksumtype=checksumType
