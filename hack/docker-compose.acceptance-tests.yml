@@ -9,6 +9,7 @@ services:
     security_opt:
       - "seccomp:./etc/docker/seccomp/chrome.json"
     volumes:
+      - "/dev/shm:/dev/shm"
       - "./submodules/archivematica-acceptance-tests:/home/archivematica/acceptance-tests:rw"
       - "./submodules/archivematica-sampledata:/home/archivematica/archivematica-sampledata:ro"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
