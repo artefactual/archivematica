@@ -67,8 +67,8 @@ def send_email(subject, to, content):
 def get_file_stats(cursor, unit_type, unit_uuid):
     sql = """
         SELECT
-            COUNT(fileUUID)                        AS 'Number of files',
             sum(fileSize)                          AS 'Total file size',
+            COUNT(fileUUID)                        AS 'Number of files',
             sum(fileSize)/count(fileUUID)/1000     AS 'Average file size KB',
             sum(fileSize)/count(fileUUID)/1000000  AS 'Average file size MB'
         FROM Files
