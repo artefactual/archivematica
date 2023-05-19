@@ -2,7 +2,11 @@ import itertools
 import json
 
 from django.core.management.base import BaseCommand
-from frozendict import frozendict
+
+
+class frozendict(dict):
+    def __hash__(self):
+        return hash((frozenset(self), frozenset(self.values())))
 
 
 class Command(BaseCommand):

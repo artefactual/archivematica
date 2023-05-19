@@ -12,9 +12,12 @@ from fpr.models import IDRule
 from lxml import etree
 
 
+# Introduced in fpr/migrations/0035_python3_compatibility.py
+FILE_BY_EXTENSION_CMD_UUID = "8546b624-7894-4201-8df6-f239d5e0d5ba"
+
 archivematica_formats = {}
 unknown_format_group = FormatGroup.objects.get(description="Unknown")
-file_by_extension = IDCommand.objects.get(description="Identify by File Extension")
+file_by_extension = IDCommand.objects.get(uuid=FILE_BY_EXTENSION_CMD_UUID)
 
 SQL_OUTPUT = "sql"
 MIGRATIONS_OUTPUT = "migration"
@@ -117,16 +120,13 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
             continue
         # If a FormatVersion with this PUID already exists,
         # we don't want to do anything.
-        try:
-            FormatVersion.objects.get(pronom_id=puid)
+        if FormatVersion.objects.filter(pronom_id=puid).exists():
             print(f"Ignoring {puid}")
             continue
-        except (FormatVersion.DoesNotExist, FormatVersion.MultipleObjectsReturned):
-            print("DOES NOT EXIST OK!")
-            pass
 
+        print(f"Format {puid} does not exist")
         new_format = PronomFormat(format)
-        print("Importing", new_format.version_name, file=sys.stderr)
+        print("Importing", new_format.version_name, new_format.puid)
         parent_format = archivematica_formats.get(new_format.format_name)
         if not parent_format:
             try:
@@ -137,7 +137,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
                     group=unknown_format_group,
                     uuid=str(uuid.uuid4()),
                 )
-                migration = """    Format.objects.create(description="{}", group_id="{}", uuid="{}")""".format(
+                migration = '''    Format.objects.create(description="""{}""", group_id="{}", uuid="{}")'''.format(
                     new_format.format_name,
                     unknown_format_group.uuid,
                     parent_format.uuid,
@@ -154,7 +154,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
             uuid=str(uuid.uuid4()),
         )
         sql = save_object(format_version)
-        migration = """    FormatVersion.objects.create(format_id="{}", pronom_id="{}", description="{}", version="{}", uuid="{}")""".format(
+        migration = '''    FormatVersion.objects.create(format_id="{}", pronom_id="{}", description="""{}""", version="{}", uuid="{}")'''.format(
             parent_format.uuid,
             new_format.puid,
             new_format.version_name,
@@ -166,17 +166,18 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
         # If an extension is listed, set up a new IDRule so that
         # the `Files by Extension` IDCommand can find them.
         if new_format.extension:
-            # First check to see if a rule already exists: if it does, delete it
+            # First check to see if rules already exist: if they do, delete them
             # IDRules can only map an extension to a single format and we don't know which extension to map to.
-            try:
-                rule = IDRule.objects.get(command_output=new_format.extension)
-                rule.delete()
+            deleted_count, _ = rule = IDRule.objects.filter(
+                command_output=new_format.extension
+            ).delete()
+            if deleted_count:
                 sql = connection.queries[-1]["sql"]
                 migration = """    IDRule.objects.filter(command_output="{}").delete()""".format(
                     new_format.extension
                 )
                 choose_output(output_format, output_file, sql, migration)
-            except IDRule.DoesNotExist:
+            else:
                 rule = IDRule(
                     format=format_version,
                     command=file_by_extension,
