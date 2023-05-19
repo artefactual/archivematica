@@ -135,7 +135,7 @@ lxml==4.9.2
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.22
+metsrw==0.3.23
     # via -r requirements.txt
 mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in

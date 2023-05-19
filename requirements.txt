@@ -92,7 +92,7 @@ lxml==4.9.2
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.22
+metsrw==0.3.23
     # via -r requirements.in
 mozilla-django-oidc==1.2.4
     # via -r requirements.in
