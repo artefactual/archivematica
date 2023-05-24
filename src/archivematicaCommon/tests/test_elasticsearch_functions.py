@@ -1,19 +1,16 @@
 import os
 import unittest
 from unittest import mock
+from unittest.mock import ANY
+from unittest.mock import patch
 
 import elasticSearchFunctions
 import pytest
 import vcr
 from lxml import etree
-
-try:
-    from unittest.mock import ANY, patch
-except ImportError:
-    from unittest.mock import ANY, patch
-
-
-from main.models import Directory, Identifier, SIP
+from main.models import Directory
+from main.models import Identifier
+from main.models import SIP
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
