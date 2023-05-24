@@ -117,8 +117,6 @@ class JobChain:
             self.chain_completed()
             raise StopIteration
 
-    next = __next__  # py2 compatability
-
     @property
     def id(self):
         return self.chain.id

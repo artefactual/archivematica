@@ -19,11 +19,7 @@ wrapper. Note though, this will result in _very_ verbose logs.
 import logging
 import threading
 import traceback
-
-try:
-    from contextlib import ContextDecorator
-except ImportError:
-    from contextdecorator import ContextDecorator  # py2 backport
+from contextlib import ContextDecorator
 
 from django.conf import settings
 from django.db import close_old_connections
