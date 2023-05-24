@@ -54,7 +54,6 @@ archivematica-storage-service    74.6
 clamavd                         545.6
 gearmand                          1.6
 mysql                           530.4
-redis                             1.8
 nginx                             2.5
 elasticsearch                   229.3
 fits                             70.7
@@ -265,7 +264,6 @@ are connected to Gearman:
 | --------------------------------------- | -------------- | ----------- |
 | mysql                                   | `tcp/3306`     | `tcp/62001` |
 | elasticsearch                           | `tcp/9200`     | `tcp/62002` |
-| redis                                   | `tcp/6379`     | `tcp/62003` |
 | gearman                                 | `tcp/4730`     | `tcp/62004` |
 | fits                                    | `tcp/2113`     | `tcp/62005` |
 | clamavd                                 | `tcp/3310`     | `tcp/62006` |
