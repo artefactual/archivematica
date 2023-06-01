@@ -17,7 +17,7 @@ __root_dir="$(cd "$(dirname "${__compose_dir}")" && pwd)"
 cd ${__compose_dir}
 
 function dashboard::manage {
-	docker-compose run \
+	docker compose run \
 		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
 		--workdir=/src/src/dashboard/src \
@@ -26,7 +26,7 @@ function dashboard::manage {
 }
 
 function storage::manage {
-	docker-compose run \
+	docker compose run \
 		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
 		--workdir=/src/storage_service \
@@ -43,7 +43,7 @@ echo "Dashboard: extracting messages..."
 dashboard::manage makemessages --all --domain django
 dashboard::manage makemessages --all --domain djangojs --ignore build/*
 
-docker-compose run \
+docker compose run \
 	--user=$(id -u):$(id -g) \
 	--rm --no-deps \
 	--workdir=/src/src/dashboard/frontend \

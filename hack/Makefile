@@ -1,10 +1,5 @@
 .DEFAULT_GOAL := help
 
-# Ensure that Composes uses BuildKit.
-export COMPOSE_DOCKER_CLI_BUILD=1
-export DOCKER_BUILDKIT=1
-export BUILDKIT_PROGRESS=plain
-
 # Paths for Docker named volumes
 AM_PIPELINE_DATA ?= $(HOME)/.am/am-pipeline-data
 SS_LOCATION_DATA ?= $(HOME)/.am/ss-location-data
@@ -18,15 +13,15 @@ NULL :=
 SPACE := $(NULL) $(NULL)
 
 define compose_all
-	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
+	docker compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
 endef
 
 define compose_amauat
-	docker-compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml $(1)
+	docker compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml $(1)
 endef
 
 define compose_tests
-	docker-compose -f docker-compose.yml -f docker-compose.tests.yml $(1)
+	docker compose -f docker-compose.yml -f docker-compose.tests.yml $(1)
 endef
 
 define run_toxenvs
@@ -53,14 +48,14 @@ start-mysql: test-build
 					/src/hack/wait-for-it.sh mysql:3306 --timeout=30)
 
 define create_db
-	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
+	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
 		DROP DATABASE IF EXISTS `$(1)`; \
 		CREATE DATABASE `$(1)`; \
 		GRANT ALL ON `$(1)`.* TO "archivematica"@"%" IDENTIFIED BY "demo";'
 endef
 
 define drop_db
-	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
+	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
 endef
 
 create-volumes:  ## Create external data volumes.
@@ -78,21 +73,21 @@ create-volumes:  ## Create external data volumes.
 			ss-location-data
 
 build:  # Build Compose services.
-	docker-compose build
+	docker compose build
 
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Boostrap Storage Service (new database).
-	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
+	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS SS; \
 		CREATE DATABASE SS; \
 		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
-	docker-compose run \
+	docker compose run \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
 				migrate --noinput
-	docker-compose run \
+	docker compose run \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
@@ -104,10 +99,10 @@ bootstrap-storage-service:  ## Boostrap Storage Service (new database).
 					--superuser
 	# SS needs to be restarted so the local space is created.
 	# See #303 (https://git.io/vNKlM) for more details.
-	docker-compose restart archivematica-storage-service
+	docker compose restart archivematica-storage-service
 
 makemigrations-ss:
-	docker-compose run \
+	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
@@ -115,7 +110,7 @@ makemigrations-ss:
 				makemigrations
 
 manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG=shell`
-	docker-compose run \
+	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/src/dashboard/src/manage.py \
@@ -123,7 +118,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 				$(ARG)
 
 manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG='shell --help'`
-	docker-compose run \
+	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--entrypoint /src/storage_service/manage.py \
@@ -131,16 +126,16 @@ manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [opt
 				$(ARG)
 
 bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
-	docker-compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
+	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS MCP; \
 		CREATE DATABASE MCP; \
 		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
-	docker-compose run \
+	docker compose run \
 		--rm \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
-	docker-compose run \
+	docker compose run \
 		--rm \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
@@ -157,7 +152,7 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 					--site-url="http://archivematica-dashboard:8000"
 
 bootstrap-dashboard-frontend:  ## Build front-end assets.
-	docker-compose run \
+	docker compose run \
 		-e HOME=/tmp/yarn-config \
 		--rm \
 		--no-deps \
@@ -167,13 +162,13 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
-	docker-compose restart archivematica-mcp-server
-	docker-compose restart archivematica-mcp-client
-	docker-compose restart archivematica-dashboard
-	docker-compose restart archivematica-storage-service
+	docker compose restart archivematica-mcp-server
+	docker compose restart archivematica-mcp-client
+	docker compose restart archivematica-dashboard
+	docker compose restart archivematica-storage-service
 
 compile-requirements-am:  ## Run pip-compile for Archivematica
-	docker-compose run --workdir /src \
+	docker compose run --workdir /src \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
 		--rm \
 		--no-deps \
@@ -182,7 +177,7 @@ compile-requirements-am:  ## Run pip-compile for Archivematica
 			-c "make pip-compile"
 
 compile-requirements-ss:  ## Run pip-compile for Storage Service
-	docker-compose run --workdir /src/requirements \
+	docker compose run --workdir /src/requirements \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
 		--rm \
 		--no-deps \
@@ -191,20 +186,20 @@ compile-requirements-ss:  ## Run pip-compile for Storage Service
 			-c "make pip-compile"
 
 db:  ## Connect to the MySQL server using the CLI.
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345
+	docker compose exec mysql mysql -hlocalhost -uroot -p12345
 
 flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete ALL user data.
 
 flush-shared-dir-mcp-configs:  ## Delete processing configurations - it restarts MCPServer.
 	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml
 	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/automatedProcessingMCP.xml
-	docker-compose restart archivematica-mcp-server
+	docker compose restart archivematica-mcp-server
 
 flush-shared-dir:  ## Delete contents of the shared directory data volume.
 	rm -rf ${AM_PIPELINE_DATA}/*
 
 flush-search:  ## Delete Elasticsearch indices.
-	docker-compose exec archivematica-mcp-client curl -XDELETE "http://elasticsearch:9200/aips,aipfiles,transfers,transferfiles"
+	docker compose exec archivematica-mcp-client curl -XDELETE "http://elasticsearch:9200/aips,aipfiles,transfers,transferfiles"
 
 flush-logs:  ## Delete container logs - requires root privileges.
 	@./helpers/flush-docker-logs.sh
