@@ -58,6 +58,10 @@ define drop_db
 	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE IF EXISTS `$(1)`;'
 endef
 
+define create_dbs
+	$(foreach test_db,$(1),$(call create_db,$(test_db));)
+endef
+
 create-volumes:  ## Create external data volumes.
 	mkdir -p ${AM_PIPELINE_DATA}
 	docker volume create \
@@ -84,11 +88,13 @@ bootstrap-storage-service:  ## Boostrap Storage Service (new database).
 		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
 	docker compose run \
 		--rm \
+		--no-deps \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
 				migrate --noinput
 	docker compose run \
 		--rm \
+		--no-deps \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
 				create_user \
@@ -105,6 +111,7 @@ makemigrations-ss:
 	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
+		--no-deps \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
 				makemigrations
@@ -113,6 +120,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
+		--no-deps \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
 				$(ARG)
@@ -121,6 +129,7 @@ manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [opt
 	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
+		--no-deps \
 		--entrypoint /src/storage_service/manage.py \
 			archivematica-storage-service \
 				$(ARG)
@@ -132,11 +141,13 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
 	docker compose run \
 		--rm \
+		--no-deps \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
 	docker compose run \
 		--rm \
+		--no-deps \
 		--entrypoint /src/src/dashboard/src/manage.py \
 			archivematica-dashboard \
 				install \
@@ -206,8 +217,13 @@ flush-logs:  ## Delete container logs - requires root privileges.
 
 # These include the database names used in the settings.testmysql
 # modules plus the prefixed and suffixed variations used by Django and
-# tox
-__TEST_DBS := DASHBOARDTEST MCPCLIENTTEST MCPSERVERTEST SSTEST test_DASHBOARDTEST test_DASHBOARDTEST_archivematica-common test_DASHBOARDTEST_dashboard test_MCP test_MCPCLIENTTEST test_MCPCLIENTTEST_mcp-client test_MCPSERVERTEST test_MCPSERVERTEST_mcp-server test_SS test_SSTEST test_SSTEST_storage-service
+# tox when running in parallel mode
+__TEST_DBS_MCPCLIENT = MCPCLIENTTEST test_MCPCLIENTTEST test_MCPCLIENTTEST_mcp-client
+__TEST_DBS_MIGRATIONS = DASHBOARDTEST SSTEST
+__TEST_DBS_DASHBOARD = DASHBOARDTEST test_DASHBOARDTEST test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_archivematica-common
+__TEST_DBS_MCPSERVER = MCPSERVERTEST test_MCPSERVERTEST test_MCPSERVERTEST_mcp-server
+__TEST_DBS_STORAGE_SERVICE = test_SSTEST test_SSTEST_storage-service
+__TEST_DBS := $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_MIGRATIONS) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_MCPSERVER) $(__TEST_DBS_STORAGE_SERVICE) test_MCP test_SS
 flush-test-dbs: start-mysql
 	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
@@ -220,18 +236,22 @@ test-build:  ## Build archivematica-tests image.
 
 __TOXENVS_MCPSERVER := mcp-server
 test-mcp-server: start-mysql  ## Run MCPServer tests.
+	$(call create_dbs,$(__TEST_DBS_MCPSERVER))
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
 __TOXENVS_MCPCLIENT = mcp-client mcp-client-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
+	$(call create_dbs,$(__TEST_DBS_MCPCLIENT))
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
 __TOXENVS_DASHBOARD = dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
+	$(call create_dbs,$(__TEST_DBS_DASHBOARD))
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
 __TOXENVS_STORAGE_SERVICE = storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
+	$(call create_dbs,$(__TEST_DBS_STORAGE_SERVICE))
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
@@ -239,12 +259,12 @@ test-storage-service-integration:  ## Run Storage Service unit and integration t
 
 __TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
+	$(call create_dbs,$(__TEST_DBS_DASHBOARD))
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
 
 __TOXENVS_MIGRATIONS = migrations-dashboard migrations-storage-service
 test-migrations: start-mysql  ## Check there are no pending migrations.
-	$(call create_db,DASHBOARDTEST)
-	$(call create_db,SSTEST)
+	$(call create_dbs,$(__TEST_DBS_MIGRATIONS))
 	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS))
 
 __TOXENVS_LINTING = linting
@@ -253,6 +273,7 @@ test-linting:  ## Check linting.
 
 __TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
 test-all: start-mysql  ## Run all tests.
+	$(call create_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
 	$(call run_toxenvs,$(__TOXENVS_ALL))
 
 test-at-build:  ## AMAUAT: build image.
