@@ -1,5 +1,5 @@
 ---
-version: "2.1"
+name: am
 
 volumes:
 
@@ -16,11 +16,13 @@ volumes:
   # host - the expectation being that these directories are actually mounted
   # filesystems from elsewhere.
   archivematica_pipeline_data:
-    external:
-      name: "am-pipeline-data"
+    name: "am-pipeline-data"
+    external: true
+
   archivematica_storage_service_location_data:
-    external:
-      name: "ss-location-data"
+    name: "ss-location-data"
+    external: true
+
 
 services:
 
@@ -51,6 +53,12 @@ services:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsSL http://localhost:9200/_cat/health?h=status | grep -q -v 'red'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     volumes:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
     ports:
@@ -177,6 +185,10 @@ services:
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+        restart: true
     links:
       - "mysql"
       - "gearmand"
