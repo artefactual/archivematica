@@ -31,6 +31,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
+	github.com/tailscale/hujson v0.0.0-20221223112325-20486734a56a // indirect
 	github.com/tdewolff/parse/v2 v2.6.5 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

@@ -6,24 +6,24 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/tailscale/hujson"
 )
 
 //go:embed assets/*
 var assets embed.FS
 
 func LoadEmbedded(name string) (*Document, error) {
-	data, err := assets.ReadFile(name)
+	blob, err := assets.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 
-	var doc Document
-	err = json.Unmarshal(data, &doc)
+	doc, err := LoadFromJSON(blob)
 	if err != nil {
 		return nil, err
 	}
 
-	return &doc, nil
+	return doc, nil
 }
 
 func Default() (*Document, error) {
@@ -32,6 +32,11 @@ func Default() (*Document, error) {
 }
 
 func LoadFromJSON(blob []byte) (*Document, error) {
+	blob, err := hujson.Standardize(blob)
+	if err != nil {
+		return nil, err
+	}
+
 	var d Document
 	if err := json.Unmarshal(blob, &d); err != nil {
 		return nil, fmt.Errorf("error decoding workflow: %v", err)
