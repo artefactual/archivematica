@@ -10,4 +10,5 @@ type Config struct {
 	rootConfig *rootcmd.Config
 	out        io.Writer
 	sharedDir  string
+	workflow   string
 }

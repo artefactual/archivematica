@@ -27,6 +27,7 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 	fs := flag.NewFlagSet("ccp server", flag.ExitOnError)
 	fs.String("config", "", "Configuration file in the TOML file format")
 	fs.StringVar(&cfg.sharedDir, "shared-dir", "", "Shared directory")
+	fs.StringVar(&cfg.workflow, "workflow", "", "Workflow document")
 
 	rootConfig.RegisterFlags(fs)
 

@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/tailscale/hujson"
@@ -11,6 +12,11 @@ import (
 
 //go:embed assets/*
 var assets embed.FS
+
+func Default() (*Document, error) {
+	const name = "assets/workflow.json"
+	return LoadEmbedded(name)
+}
 
 func LoadEmbedded(name string) (*Document, error) {
 	blob, err := assets.ReadFile(name)
@@ -26,9 +32,18 @@ func LoadEmbedded(name string) (*Document, error) {
 	return doc, nil
 }
 
-func Default() (*Document, error) {
-	const name = "assets/workflow.json"
-	return LoadEmbedded(name)
+func LoadFromFile(path string) (*Document, error) {
+	blob, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := LoadFromJSON(blob)
+	if err != nil {
+		return nil, err
+	}
+
+	return doc, nil
 }
 
 func LoadFromJSON(blob []byte) (*Document, error) {

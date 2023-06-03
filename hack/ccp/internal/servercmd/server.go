@@ -30,7 +30,15 @@ func NewServer(logger logr.Logger, config *Config) *Server {
 
 func (s *Server) Run() error {
 	s.logger.V(1).Info("Loading workflow.")
-	wf, err := workflow.Default()
+	var (
+		wf  *workflow.Document
+		err error
+	)
+	if path := s.config.workflow; path != "" {
+		wf, err = workflow.LoadFromFile(path)
+	} else {
+		wf, err = workflow.Default()
+	}
 	if err != nil {
 		return fmt.Errorf("error loading workflow: %v", err)
 	}
