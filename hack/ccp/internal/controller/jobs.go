@@ -82,25 +82,30 @@ func newNextChainDecisionJob(logger logr.Logger, p *Package, wl *workflow.Link) 
 }
 
 func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
+	// When we have a preconfigured choice.
 	choice, err := l.p.PreconfiguredChoice(l.wl.ID)
 	if err != nil {
-		return uuid.UUID{}, err
+		return uuid.Nil, err
 	}
-
-	// When we have a preconfigured choice.
 	if choice != nil {
-		ret, err := uuid.Parse(choice.GoToChain)
-		if err != nil {
-			return uuid.UUID{}, err
+		if ret, err := uuid.Parse(choice.GoToChain); err != nil {
+			l.logger.Info("Preconfigured choice is not a valid UUID.", "choice", choice.GoToChain, "err", err)
+		} else {
+			return ret, nil
 		}
-		return ret, nil
 	}
 
-	// Await until choice is made.
-	if decision, err := l.p.AwaitDecision(ctx); err != nil {
-		return uuid.UUID{}, err
+	// Build decision options.
+	opts := make([]option, len(l.config.Choices))
+	for i, item := range l.config.Choices {
+		opts[i] = option(item.String())
+	}
+
+	// Wait for decision resolution.
+	if decision, err := l.p.AwaitDecision(ctx, opts); err != nil {
+		return uuid.Nil, err
 	} else {
-		return decision, nil
+		return decision.uuid(), nil
 	}
 }
 

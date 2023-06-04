@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
@@ -17,9 +18,7 @@ type Package struct {
 	base      string
 	name      string
 	watchedAt *workflow.WatchedDirectory
-	decision  chan uuid.UUID
-	once      sync.Once
-	driver    packageDriver
+	decision  decision
 }
 
 func NewPackage(path string, wd *workflow.WatchedDirectory) *Package {
@@ -29,15 +28,14 @@ func NewPackage(path string, wd *workflow.WatchedDirectory) *Package {
 		base:      base,
 		name:      name,
 		watchedAt: wd,
-		decision:  make(chan uuid.UUID),
 	}
 }
 
-func (p Package) String() string {
+func (p *Package) String() string {
 	return p.name
 }
 
-func (p Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, error) {
+func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, error) {
 	f, err := os.Open(filepath.Join(p.path, "processingMCP.xml"))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -61,38 +59,84 @@ func (p Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, erro
 	return nil, nil
 }
 
-func (p *Package) ResolveDecision(decision uuid.UUID) error {
-	select {
-	case p.decision <- decision:
-		return nil
-	default:
-		return errors.New("can't resolve")
-	}
+// Decide resolves an awaiting decision.
+func (p *Package) Decide(opt option) error {
+	return p.decision.resolve(opt)
 }
 
-func (p *Package) AwaitDecision(ctx context.Context) (uuid.UUID, error) {
+// AwaitDecision builds a new decision and waits for its resolution.
+func (p *Package) AwaitDecision(ctx context.Context, opts []option) (option, error) {
+	p.decision.build(opts...)
+
 	for {
 		select {
-		case d := <-p.decision:
+		case d := <-p.decision.recv:
 			return d, nil
 		case <-ctx.Done():
-			return uuid.Nil, ctx.Err()
+			return option(""), ctx.Err()
 		}
 	}
 }
 
-type packageDriver interface {
-	reload() error
+// Decision provides the current awaiting decision.
+func (p *Package) Decision() []option {
+	return p.decision.decision()
 }
 
-type transfer struct{}
+type decision struct {
+	opts     []option
+	recv     chan option
+	unsolved atomic.Bool
+	sync.Mutex
+}
 
-func (p *transfer) reload() error { return nil }
+func (pd *decision) build(opts ...option) {
+	pd.Lock()
+	pd.opts = opts
+	pd.recv = make(chan option) // is this ok?
+	pd.Unlock()
 
-type dip struct{}
+	pd.unsolved.Store(true)
+}
 
-func (p *dip) reload() error { return nil }
+func (pd *decision) resolve(opt option) error {
+	if !pd.unsolved.Load() {
+		return errors.New("decision is not pending resolution")
+	}
 
-type sip struct{}
+	select {
+	case pd.recv <- opt:
+		pd.unsolved.Store(false)
+	default:
+		return errors.New("resolve can't proceed because nobody is listening")
+	}
 
-func (p *sip) reload() error { return nil }
+	return nil
+}
+
+func (pd *decision) decision() []option {
+	if !pd.unsolved.Load() {
+		return nil
+	}
+
+	var opts []option
+	if pd.unsolved.Load() {
+		pd.Lock()
+		opts = make([]option, len(pd.opts))
+		copy(opts, pd.opts)
+		pd.Unlock()
+	}
+
+	return opts
+}
+
+// option is a single selectable decision choice.
+type option string
+
+func (do option) uuid() uuid.UUID {
+	id, err := uuid.Parse(string(do))
+	if err != nil {
+		return uuid.Nil
+	}
+	return id
+}

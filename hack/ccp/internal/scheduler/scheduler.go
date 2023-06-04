@@ -99,7 +99,9 @@ func (s *Server) Close() error {
 	defer cancel()
 
 	if s.server != nil {
-		s.server.Shutdown(ctx)
+		if err := s.server.Shutdown(ctx); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -84,7 +84,7 @@ func (c *Controller) Run() error {
 	return nil
 }
 
-func (c *Controller) HandleWatchedDirEvents(evs []fsnotify.Event) error {
+func (c *Controller) HandleWatchedDirEvents(evs []fsnotify.Event) {
 	for _, ev := range evs {
 		if ev.Op&fsnotify.Create == fsnotify.Create {
 			if err := c.handle(ev.Name); err != nil {
@@ -92,7 +92,6 @@ func (c *Controller) HandleWatchedDirEvents(evs []fsnotify.Event) error {
 			}
 		}
 	}
-	return nil
 }
 
 func (c *Controller) handle(path string) error {
@@ -179,9 +178,24 @@ func (c *Controller) deactivate(p *Package) {
 	}
 }
 
-func (c *Controller) AwaitingDecisions() {
+// Decisions provide awaiting decisions for all active packages.
+func (c *Controller) Decisions() []string {
 	c.Lock()
 	defer c.Unlock()
+
+	ret := []string{}
+
+	for _, item := range c.activePackages {
+		opts := item.Decision()
+		ln := len(opts)
+		if ln == 0 {
+			continue
+		}
+		ret = append(ret, fmt.Sprintf("package %s has an awaiting decision with %d options available", item, ln))
+
+	}
+
+	return ret
 }
 
 func (c *Controller) Close() error {

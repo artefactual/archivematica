@@ -81,7 +81,7 @@ func submitTransfer(t *testing.T, sharedDir *fs.Dir, name, dest string) string {
 	assert.NilError(t, err)
 
 	// Write transfer contents.
-	f, err := os.OpenFile(filepath.Join(transferDir, "foo.jpg"), os.O_RDWR|os.O_CREATE, os.FileMode(0o660))
+	f, err := os.OpenFile(filepath.Join(transferDir, "foo.jpg"), os.O_RDWR|os.O_CREATE, fileMode)
 	assert.NilError(t, err)
 	_, err = f.Write([]byte("foobar"))
 	assert.NilError(t, err)

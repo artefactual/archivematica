@@ -19,12 +19,12 @@ func InstallBuiltinConfigs(path string) error {
 		path = filepath.Join(path, fmt.Sprintf("%sProcessingMCP.xml", name))
 		blob, err := xml.MarshalIndent(config, "", "  ")
 		if err != nil {
-			errors.Join(errs, fmt.Errorf("cannot encode %s: %v", path, err))
+			errs = errors.Join(errs, fmt.Errorf("cannot encode %s: %v", path, err))
 			continue
 		}
 		err = os.WriteFile(path, blob, os.FileMode(0o660))
 		if err != nil {
-			errors.Join(errs, fmt.Errorf("cannot write %s: %v", path, err))
+			errs = errors.Join(errs, fmt.Errorf("cannot write %s: %v", path, err))
 			continue
 		}
 	}

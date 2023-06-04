@@ -80,7 +80,7 @@ func (s *Server) Close() error {
 	var errs error
 
 	if s.controller != nil {
-		errors.Join(errs, s.controller.Close())
+		errs = errors.Join(errs, s.controller.Close())
 	}
 
 	if s.watcher != nil {
@@ -88,7 +88,7 @@ func (s *Server) Close() error {
 	}
 
 	if s.scheduler != nil {
-		errors.Join(errs, s.scheduler.Close())
+		errs = errors.Join(errs, s.scheduler.Close())
 	}
 
 	return errs
