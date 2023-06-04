@@ -60,7 +60,7 @@ func (p Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, erro
 	return nil, nil
 }
 
-func (p *Package) Resolve(decision uuid.UUID) error {
+func (p *Package) ResolveDecision(decision uuid.UUID) error {
 	select {
 	case p.decision <- decision:
 		return nil
@@ -69,7 +69,7 @@ func (p *Package) Resolve(decision uuid.UUID) error {
 	}
 }
 
-func (p *Package) Await(ctx context.Context) (uuid.UUID, error) {
+func (p *Package) AwaitDecision(ctx context.Context) (uuid.UUID, error) {
 	for {
 		select {
 		case d := <-p.decision:

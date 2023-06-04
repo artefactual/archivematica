@@ -110,27 +110,27 @@ func (i *Iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 func (i *Iterator) buildJob(wl *workflow.Link) (j job, err error) {
 	switch wl.Manager {
 
-	// Executable jobs - dispatched to the worker pool.
-	case "linkTaskManagerDirectories":
-		j, err = newStandardTask(i.logger, i.p, wl)
-	case "linkTaskManagerFiles":
-		j, err = newStandardTask(i.logger, i.p, wl)
-	case "linkTaskManagerGetMicroserviceGeneratedListInStdOut":
-		j, err = newStandardTask(i.logger, i.p, wl)
-
 	// Decision jobs - handles workflow decision points.
 	case "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList":
-		panic("X")
+		j, err = newOutputDecisionJob(i.logger, i.p, wl)
 	case "linkTaskManagerChoice":
-		j, err = newChainChoice(i.logger, i.p, wl)
+		j, err = newNextChainDecisionJob(i.logger, i.p, wl)
 	case "linkTaskManagerReplacementDicFromChoice":
-		j, err = newChoiceReplacementDict(i.logger, i.p, wl)
+		j, err = newUpdateContextDecisionJob(i.logger, i.p, wl)
+
+	// Executable jobs - dispatched to the worker pool.
+	case "linkTaskManagerDirectories":
+		j, err = newDirectoryClientScriptJob(i.logger, i.p, wl)
+	case "linkTaskManagerFiles":
+		j, err = newFilesClientScriptJob(i.logger, i.p, wl)
+	case "linkTaskManagerGetMicroserviceGeneratedListInStdOut":
+		j, err = newOutputClientScriptJob(i.logger, i.p, wl)
 
 	// Local jobs - executed directly.
 	case "linkTaskManagerSetUnitVariable":
-		j, err = newSetUnitVariable(i.logger, i.p, wl)
+		j, err = newSetUnitVarLinkJob(i.logger, i.p, wl)
 	case "linkTaskManagerUnitVariableLinkPull":
-		j, err = newGetUnitVariable(i.logger, i.p, wl)
+		j, err = newGetUnitVarLinkJob(i.logger, i.p, wl)
 
 	default:
 		err = fmt.Errorf("unknown job manager: %q", wl.Manager)

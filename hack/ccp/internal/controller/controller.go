@@ -36,13 +36,13 @@ type Controller struct {
 	sync.Mutex
 
 	// group is a collection of goroutines used for processing packages.
-	group         *errgroup.Group
-	groupCtx      context.Context
-	groupCancel   context.CancelFunc
-	groupChildCtx context.Context
+	group *errgroup.Group
 
-	// close is used to broadcast all goroutines the closing signal.
-	close chan struct{}
+	// groupCtx is the context associated to the errgroup.
+	groupCtx context.Context
+
+	// groupCancel tells active goroutines in the errgroup to abandon.
+	groupCancel context.CancelFunc
 
 	// closeOnce guarantees that the closing procedure runs only once.
 	closeOnce sync.Once
@@ -56,26 +56,26 @@ func New(logger logr.Logger, wf *workflow.Document, sharedDir, watchedDir string
 		watchedDir:     watchedDir,
 		activePackages: []*Package{},
 		queuedPackages: []*Package{},
-		close:          make(chan struct{}),
 	}
 
 	c.groupCtx, c.groupCancel = context.WithCancel(context.Background())
-	c.group, c.groupChildCtx = errgroup.WithContext(c.groupCtx)
+	c.group, _ = errgroup.WithContext(c.groupCtx)
 	c.group.SetLimit(10)
 
 	return c
 }
 
+// Run tries to start processing queued transfers.
 func (c *Controller) Run() error {
 	go func() {
-		ticker := time.NewTicker(time.Second)
+		ticker := time.NewTicker(time.Second / 4)
 		defer ticker.Stop()
 
 		for {
 			select {
 			case <-ticker.C:
 				c.pick()
-			case <-c.close:
+			case <-c.groupCtx.Done():
 				return
 			}
 		}
@@ -179,11 +179,15 @@ func (c *Controller) deactivate(p *Package) {
 	}
 }
 
+func (c *Controller) AwaitingDecisions() {
+	c.Lock()
+	defer c.Unlock()
+}
+
 func (c *Controller) Close() error {
 	var err error
 
 	c.closeOnce.Do(func() {
-		close(c.close)
 		c.groupCancel()
 		err = c.group.Wait()
 	})
