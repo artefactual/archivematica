@@ -19,6 +19,7 @@ type Package struct {
 	watchedAt *workflow.WatchedDirectory
 	decision  chan uuid.UUID
 	once      sync.Once
+	driver    packageDriver
 }
 
 func NewPackage(path string, wd *workflow.WatchedDirectory) *Package {
@@ -79,3 +80,19 @@ func (p *Package) AwaitDecision(ctx context.Context) (uuid.UUID, error) {
 		}
 	}
 }
+
+type packageDriver interface {
+	reload() error
+}
+
+type transfer struct{}
+
+func (p *transfer) reload() error { return nil }
+
+type dip struct{}
+
+func (p *dip) reload() error { return nil }
+
+type sip struct{}
+
+func (p *sip) reload() error { return nil }
