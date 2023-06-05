@@ -31,17 +31,43 @@ type Agent struct {
 	Agenttype            string
 }
 
-type ArchivesSpaceDIPObjectResourcePairing_row struct {
+type Archivesspacedipobjectresourcepairing struct {
 	ID         int32
 	Dipuuid    uuid.UUID
 	Fileuuid   uuid.UUID
 	Resourceid string
 }
 
+type AuthGroup struct {
+	ID   int32
+	Name string
+}
+
 type AuthGroupPermission struct {
 	ID           int32
 	GroupID      int32
 	PermissionID int32
+}
+
+type AuthPermission struct {
+	ID            int32
+	Name          string
+	ContentTypeID int32
+	Codename      string
+}
+
+type AuthUser struct {
+	ID          int32
+	Password    string
+	LastLogin   sql.NullTime
+	IsSuperuser bool
+	Username    string
+	FirstName   string
+	LastName    string
+	Email       string
+	IsStaff     bool
+	IsActive    bool
+	DateJoined  time.Time
 }
 
 type AuthUserGroup struct {
@@ -86,6 +112,12 @@ type Directory struct {
 	Transferuuid     uuid.UUID
 }
 
+type DjangoContentType struct {
+	ID       int32
+	AppLabel string
+	Model    string
+}
+
 type DjangoMigration struct {
 	ID      int32
 	App     string
@@ -93,7 +125,13 @@ type DjangoMigration struct {
 	Applied time.Time
 }
 
-type Dublincore_row struct {
+type DjangoSession struct {
+	SessionKey  string
+	SessionData string
+	ExpireDate  time.Time
+}
+
+type Dublincore struct {
 	ID                          int32
 	Metadataappliestoidentifier sql.NullString
 	Title                       string
@@ -171,6 +209,109 @@ type Filesidentifiedid struct {
 	Fileid   string
 }
 
+type FprFormat struct {
+	ID          int32
+	UUID        uuid.UUID
+	Description string
+	Slug        string
+	GroupID     sql.NullString
+}
+
+type FprFormatgroup struct {
+	ID          int32
+	UUID        uuid.UUID
+	Description string
+	Slug        string
+}
+
+type FprFormatversion struct {
+	ID                 int32
+	Enabled            bool
+	Lastmodified       time.Time
+	UUID               uuid.UUID
+	Version            sql.NullString
+	PronomID           sql.NullString
+	Description        sql.NullString
+	AccessFormat       bool
+	PreservationFormat bool
+	Slug               string
+	FormatID           sql.NullString
+	ReplacesID         sql.NullString
+}
+
+type FprFpcommand struct {
+	ID                    int32
+	Enabled               bool
+	Lastmodified          time.Time
+	UUID                  uuid.UUID
+	Description           string
+	Command               string
+	ScriptType            string
+	OutputLocation        sql.NullString
+	CommandUsage          string
+	EventDetailCommandID  sql.NullString
+	OutputFormatID        sql.NullString
+	ReplacesID            sql.NullString
+	ToolID                sql.NullString
+	VerificationCommandID sql.NullString
+}
+
+type FprFprule struct {
+	ID            int32
+	Enabled       bool
+	Lastmodified  time.Time
+	UUID          uuid.UUID
+	Purpose       string
+	CountAttempts int32
+	CountOkay     int32
+	CountNotOkay  int32
+	CommandID     string
+	FormatID      string
+	ReplacesID    sql.NullString
+}
+
+type FprFptool struct {
+	ID          int32
+	UUID        uuid.UUID
+	Description string
+	Version     string
+	Enabled     bool
+	Slug        string
+}
+
+type FprIdcommand struct {
+	ID           int32
+	Enabled      bool
+	Lastmodified time.Time
+	UUID         uuid.UUID
+	Description  string
+	Config       string
+	Script       string
+	ScriptType   string
+	ReplacesID   sql.NullString
+	ToolID       sql.NullString
+}
+
+type FprIdrule struct {
+	ID            int32
+	Enabled       bool
+	Lastmodified  time.Time
+	UUID          uuid.UUID
+	CommandOutput string
+	CommandID     string
+	FormatID      string
+	ReplacesID    sql.NullString
+}
+
+type FprIdtool struct {
+	ID          int32
+	UUID        uuid.UUID
+	Description string
+	Version     string
+	Enabled     bool
+	Slug        string
+}
+
 type Identifier struct {
 	ID    int32
 	Type  sql.NullString
@@ -192,6 +333,55 @@ type Job struct {
 	Microservicechainlinkspk sql.NullString
 }
 
+type MainArchivesspacedigitalobject struct {
+	ID         int32
+	Resourceid string
+	Label      string
+	Title      string
+	Started    bool
+	Remoteid   string
+	SipID      sql.NullString
+}
+
+type MainFpcommandoutput struct {
+	ID       int32
+	Content  sql.NullString
+	Fileuuid uuid.UUID
+	Ruleuuid uuid.UUID
+}
+
+type MainLevelofdescription struct {
+	ID        string
+	Name      string
+	Sortorder int32
+}
+
+type MainSiparrange struct {
+	ID                 int32
+	OriginalPath       sql.NullString
+	ArrangePath        []byte
+	FileUuid           uuid.UUID
+	TransferUuid       uuid.UUID
+	SipCreated         bool
+	AipCreated         bool
+	LevelOfDescription string
+	SipID              sql.NullString
+}
+
+type MainSiparrangeaccessmapping struct {
+	ID          int32
+	ArrangePath string
+	System      string
+	Identifier  string
+}
+
+type MainUserprofile struct {
+	ID           int32
+	AgentID      int32
+	UserID       int32
+	SystemEmails bool
+}
+
 type Metadataappliestotype struct {
 	ID           string
 	Description  string
@@ -208,21 +398,18 @@ type Report struct {
 	Created        time.Time
 }
 
-type RightsStatementCopyrightDocumentationIdentifier_row struct {
-	ID                                    int32
-	Copyrightdocumentationidentifiertype  string
-	Copyrightdocumentationidentifiervalue string
-	Copyrightdocumentationidentifierrole  sql.NullString
-	Fkrightsstatementcopyrightinformation int32
+type Rightsstatement struct {
+	ID                             int32
+	Metadataappliestoidentifier    string
+	Rightsstatementidentifiertype  string
+	Rightsstatementidentifiervalue string
+	Fkagent                        int32
+	Rightsbasis                    string
+	Metadataappliestotype          string
+	Status                         string
 }
 
-type RightsStatementCopyrightNote_row struct {
-	ID                                    int32
-	Copyrightnote                         string
-	Fkrightsstatementcopyrightinformation int32
-}
-
-type RightsStatementCopyright_row struct {
+type Rightsstatementcopyright struct {
 	ID                               int32
 	Copyrightstatus                  string
 	Copyrightjurisdiction            string
@@ -233,21 +420,21 @@ type RightsStatementCopyright_row struct {
 	Fkrightsstatement                int32
 }
 
-type RightsStatementLicenseDocumentationIdentifier_row struct {
-	ID                                  int32
-	Licensedocumentationidentifiertype  string
-	Licensedocumentationidentifiervalue string
-	Licensedocumentationidentifierrole  sql.NullString
-	Fkrightsstatementlicense            int32
+type Rightsstatementcopyrightdocumentationidentifier struct {
+	ID                                    int32
+	Copyrightdocumentationidentifiertype  string
+	Copyrightdocumentationidentifiervalue string
+	Copyrightdocumentationidentifierrole  sql.NullString
+	Fkrightsstatementcopyrightinformation int32
 }
 
-type RightsStatementLicenseNote_row struct {
-	ID                       int32
-	Licensenote              string
-	Fkrightsstatementlicense int32
+type Rightsstatementcopyrightnote struct {
+	ID                                    int32
+	Copyrightnote                         string
+	Fkrightsstatementcopyrightinformation int32
 }
 
-type RightsStatementLicense_row struct {
+type Rightsstatementlicense struct {
 	ID                           int32
 	Licenseterms                 sql.NullString
 	Licenseapplicablestartdate   sql.NullString
@@ -256,14 +443,28 @@ type RightsStatementLicense_row struct {
 	Fkrightsstatement            int32
 }
 
-type RightsStatementLinkingAgentIdentifier_row struct {
+type Rightsstatementlicensedocumentationidentifier struct {
+	ID                                  int32
+	Licensedocumentationidentifiertype  string
+	Licensedocumentationidentifiervalue string
+	Licensedocumentationidentifierrole  sql.NullString
+	Fkrightsstatementlicense            int32
+}
+
+type Rightsstatementlicensenote struct {
+	ID                       int32
+	Licensenote              string
+	Fkrightsstatementlicense int32
+}
+
+type Rightsstatementlinkingagentidentifier struct {
 	ID                          int32
 	Linkingagentidentifiertype  string
 	Linkingagentidentifiervalue string
 	Fkrightsstatement           int32
 }
 
-type RightsStatementOtherRightsDocumentationIdentifier_row struct {
+type Rightsstatementotherrightsdocumentationidentifier struct {
 	ID                                      int32
 	Otherrightsdocumentationidentifiertype  string
 	Otherrightsdocumentationidentifiervalue string
@@ -271,7 +472,7 @@ type RightsStatementOtherRightsDocumentationIdentifier_row struct {
 	Fkrightsstatementotherrightsinformation int32
 }
 
-type RightsStatementOtherRightsInformation_row struct {
+type Rightsstatementotherrightsinformation struct {
 	ID                               int32
 	Otherrightsbasis                 string
 	Otherrightsapplicablestartdate   sql.NullString
@@ -280,25 +481,13 @@ type RightsStatementOtherRightsInformation_row struct {
 	Fkrightsstatement                int32
 }
 
-type RightsStatementOtherRightsNote_row struct {
+type Rightsstatementotherrightsnote struct {
 	ID                                      int32
 	Otherrightsnote                         string
 	Fkrightsstatementotherrightsinformation int32
 }
 
-type RightsStatementRightsGrantedNote_row struct {
-	ID                             int32
-	Rightsgrantednote              string
-	Fkrightsstatementrightsgranted int32
-}
-
-type RightsStatementRightsGrantedRestriction_row struct {
-	ID                             int32
-	Restriction                    string
-	Fkrightsstatementrightsgranted int32
-}
-
-type RightsStatementRightsGranted_row struct {
+type Rightsstatementrightsgranted struct {
 	ID                int32
 	Act               string
 	Startdate         sql.NullString
@@ -307,7 +496,19 @@ type RightsStatementRightsGranted_row struct {
 	Fkrightsstatement int32
 }
 
-type RightsStatementStatuteDocumentationIdentifier_row struct {
+type Rightsstatementrightsgrantednote struct {
+	ID                             int32
+	Rightsgrantednote              string
+	Fkrightsstatementrightsgranted int32
+}
+
+type Rightsstatementrightsgrantedrestriction struct {
+	ID                             int32
+	Restriction                    string
+	Fkrightsstatementrightsgranted int32
+}
+
+type Rightsstatementstatutedocumentationidentifier struct {
 	ID                                  int32
 	Statutedocumentationidentifiertype  string
 	Statutedocumentationidentifiervalue string
@@ -315,13 +516,7 @@ type RightsStatementStatuteDocumentationIdentifier_row struct {
 	Fkrightsstatementstatuteinformation int32
 }
 
-type RightsStatementStatuteInformationNote_row struct {
-	ID                                  int32
-	Statutenote                         string
-	Fkrightsstatementstatuteinformation int32
-}
-
-type RightsStatementStatuteInformation_row struct {
+type Rightsstatementstatuteinformation struct {
 	ID                                  int32
 	Statutejurisdiction                 string
 	Statutecitation                     string
@@ -332,15 +527,10 @@ type RightsStatementStatuteInformation_row struct {
 	Fkrightsstatement                   int32
 }
 
-type RightsStatement_row struct {
-	ID                             int32
-	Metadataappliestoidentifier    string
-	Rightsstatementidentifiertype  string
-	Rightsstatementidentifiervalue string
-	Fkagent                        int32
-	Rightsbasis                    string
-	Metadataappliestotype          string
-	Status                         string
+type Rightsstatementstatuteinformationnote struct {
+	ID                                  int32
+	Statutenote                         string
+	Fkrightsstatementstatuteinformation int32
 }
 
 type Sip struct {
@@ -375,6 +565,21 @@ type Task struct {
 	Stderror  string
 	Exitcode  sql.NullInt64
 	ID        uuid.UUID
+}
+
+type TastypieApiaccess struct {
+	ID            int32
+	Identifier    string
+	Url           string
+	RequestMethod string
+	Accessed      int32
+}
+
+type TastypieApikey struct {
+	ID      int32
+	Key     string
+	Created time.Time
+	UserID  int32
 }
 
 type Taxonomy struct {
@@ -441,209 +646,4 @@ type Unitvariable struct {
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
 	Microservicechainlink sql.NullString
-}
-
-type auth_group_row struct {
-	ID   int32
-	Name string
-}
-
-type auth_permission_row struct {
-	ID            int32
-	Name          string
-	ContentTypeID int32
-	Codename      string
-}
-
-type auth_user_row struct {
-	ID          int32
-	Password    string
-	LastLogin   sql.NullTime
-	IsSuperuser bool
-	Username    string
-	FirstName   string
-	LastName    string
-	Email       string
-	IsStaff     bool
-	IsActive    bool
-	DateJoined  time.Time
-}
-
-type django_content_type_row struct {
-	ID       int32
-	AppLabel string
-	Model    string
-}
-
-type django_session_row struct {
-	SessionKey  string
-	SessionData string
-	ExpireDate  time.Time
-}
-
-type fpr_format_row struct {
-	ID          int32
-	UUID        uuid.UUID
-	Description string
-	Slug        string
-	GroupID     sql.NullString
-}
-
-type fpr_formatgroup_row struct {
-	ID          int32
-	UUID        uuid.UUID
-	Description string
-	Slug        string
-}
-
-type fpr_formatversion_row struct {
-	ID                 int32
-	Enabled            bool
-	Lastmodified       time.Time
-	UUID               uuid.UUID
-	Version            sql.NullString
-	PronomID           sql.NullString
-	Description        sql.NullString
-	AccessFormat       bool
-	PreservationFormat bool
-	Slug               string
-	FormatID           sql.NullString
-	ReplacesID         sql.NullString
-}
-
-type fpr_fpcommand_row struct {
-	ID                    int32
-	Enabled               bool
-	Lastmodified          time.Time
-	UUID                  uuid.UUID
-	Description           string
-	Command               string
-	ScriptType            string
-	OutputLocation        sql.NullString
-	CommandUsage          string
-	EventDetailCommandID  sql.NullString
-	OutputFormatID        sql.NullString
-	ReplacesID            sql.NullString
-	ToolID                sql.NullString
-	VerificationCommandID sql.NullString
-}
-
-type fpr_fprule_row struct {
-	ID            int32
-	Enabled       bool
-	Lastmodified  time.Time
-	UUID          uuid.UUID
-	Purpose       string
-	CountAttempts int32
-	CountOkay     int32
-	CountNotOkay  int32
-	CommandID     string
-	FormatID      string
-	ReplacesID    sql.NullString
-}
-
-type fpr_fptool_row struct {
-	ID          int32
-	UUID        uuid.UUID
-	Description string
-	Version     string
-	Enabled     bool
-	Slug        string
-}
-
-type fpr_idcommand_row struct {
-	ID           int32
-	Enabled      bool
-	Lastmodified time.Time
-	UUID         uuid.UUID
-	Description  string
-	Config       string
-	Script       string
-	ScriptType   string
-	ReplacesID   sql.NullString
-	ToolID       sql.NullString
-}
-
-type fpr_idrule_row struct {
-	ID            int32
-	Enabled       bool
-	Lastmodified  time.Time
-	UUID          uuid.UUID
-	CommandOutput string
-	CommandID     string
-	FormatID      string
-	ReplacesID    sql.NullString
-}
-
-type fpr_idtool_row struct {
-	ID          int32
-	UUID        uuid.UUID
-	Description string
-	Version     string
-	Enabled     bool
-	Slug        string
-}
-
-type main_archivesspacedigitalobject_row struct {
-	ID         int32
-	Resourceid string
-	Label      string
-	Title      string
-	Started    bool
-	Remoteid   string
-	SipID      sql.NullString
-}
-
-type main_fpcommandoutput_row struct {
-	ID       int32
-	Content  sql.NullString
-	Fileuuid uuid.UUID
-	Ruleuuid uuid.UUID
-}
-
-type main_levelofdescription_row struct {
-	ID        string
-	Name      string
-	Sortorder int32
-}
-
-type main_siparrange_row struct {
-	ID                 int32
-	OriginalPath       sql.NullString
-	ArrangePath        []byte
-	FileUuid           uuid.UUID
-	TransferUuid       uuid.UUID
-	SipCreated         bool
-	AipCreated         bool
-	LevelOfDescription string
-	SipID              sql.NullString
-}
-
-type main_siparrangeaccessmapping_row struct {
-	ID          int32
-	ArrangePath string
-	System      string
-	Identifier  string
-}
-
-type main_userprofile_row struct {
-	ID           int32
-	AgentID      int32
-	UserID       int32
-	SystemEmails bool
-}
-
-type tastypie_apiaccess_row struct {
-	ID            int32
-	Identifier    string
-	Url           string
-	RequestMethod string
-	Accessed      int32
-}
-
-type tastypie_apikey_row struct {
-	ID      int32
-	Key     string
-	Created time.Time
-	UserID  int32
 }

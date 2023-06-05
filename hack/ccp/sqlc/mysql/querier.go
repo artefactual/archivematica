@@ -6,6 +6,7 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -15,6 +16,8 @@ type Querier interface {
 	CleanUpActiveTransfers(ctx context.Context) error
 	CleanUpAwaitingJobs(ctx context.Context) error
 	CreateJob(ctx context.Context, arg *CreateJobParams) error
+	CreateWorkflowUnitVariable(ctx context.Context, arg *CreateWorkflowUnitVariableParams) error
+	ReadWorkflowUnitVariable(ctx context.Context, arg *ReadWorkflowUnitVariableParams) (sql.NullString, error)
 }
 
 var _ Querier = (*Queries)(nil)

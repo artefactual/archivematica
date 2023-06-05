@@ -7,6 +7,7 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
 
 	uuid "github.com/google/uuid"
 )
@@ -57,11 +58,7 @@ func (q *Queries) CleanUpAwaitingJobs(ctx context.Context) error {
 }
 
 const createJob = `-- name: CreateJob :exec
-INSERT INTO Jobs (
-  jobUUID, jobType
-) VALUES (
-  ?, ?
-)
+INSERT INTO Jobs (jobUUID, jobType) VALUES (?, ?)
 `
 
 type CreateJobParams struct {
@@ -72,4 +69,45 @@ type CreateJobParams struct {
 func (q *Queries) CreateJob(ctx context.Context, arg *CreateJobParams) error {
 	_, err := q.exec(ctx, q.createJobStmt, createJob, arg.ID, arg.Type)
 	return err
+}
+
+const createWorkflowUnitVariable = `-- name: CreateWorkflowUnitVariable :exec
+INSERT INTO UnitVariables (unitType, unitUUID, variable, variableValue, microServiceChainLink) VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE variableValue = VALUES(variableValue), microServiceChainLink = VALUES(microServiceChainLink)
+`
+
+type CreateWorkflowUnitVariableParams struct {
+	Unittype              sql.NullString
+	Unituuid              uuid.UUID
+	Variable              sql.NullString
+	Variablevalue         sql.NullString
+	Microservicechainlink sql.NullString
+}
+
+func (q *Queries) CreateWorkflowUnitVariable(ctx context.Context, arg *CreateWorkflowUnitVariableParams) error {
+	_, err := q.exec(ctx, q.createWorkflowUnitVariableStmt, createWorkflowUnitVariable,
+		arg.Unittype,
+		arg.Unituuid,
+		arg.Variable,
+		arg.Variablevalue,
+		arg.Microservicechainlink,
+	)
+	return err
+}
+
+const readWorkflowUnitVariable = `-- name: ReadWorkflowUnitVariable :one
+SELECT microServiceChainLink FROM UnitVariables WHERE unitType = ? AND unitUUID = ? AND variable = ?
+`
+
+type ReadWorkflowUnitVariableParams struct {
+	Unittype sql.NullString
+	Unituuid uuid.UUID
+	Variable sql.NullString
+}
+
+func (q *Queries) ReadWorkflowUnitVariable(ctx context.Context, arg *ReadWorkflowUnitVariableParams) (sql.NullString, error) {
+	row := q.queryRow(ctx, q.readWorkflowUnitVariableStmt, readWorkflowUnitVariable, arg.Unittype, arg.Unituuid, arg.Variable)
+	var microservicechainlink sql.NullString
+	err := row.Scan(&microservicechainlink)
+	return microservicechainlink, err
 }

@@ -42,6 +42,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createJobStmt, err = db.PrepareContext(ctx, createJob); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateJob: %w", err)
 	}
+	if q.createWorkflowUnitVariableStmt, err = db.PrepareContext(ctx, createWorkflowUnitVariable); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateWorkflowUnitVariable: %w", err)
+	}
+	if q.readWorkflowUnitVariableStmt, err = db.PrepareContext(ctx, readWorkflowUnitVariable); err != nil {
+		return nil, fmt.Errorf("error preparing query ReadWorkflowUnitVariable: %w", err)
+	}
 	return &q, nil
 }
 
@@ -75,6 +81,16 @@ func (q *Queries) Close() error {
 	if q.createJobStmt != nil {
 		if cerr := q.createJobStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createJobStmt: %w", cerr)
+		}
+	}
+	if q.createWorkflowUnitVariableStmt != nil {
+		if cerr := q.createWorkflowUnitVariableStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createWorkflowUnitVariableStmt: %w", cerr)
+		}
+	}
+	if q.readWorkflowUnitVariableStmt != nil {
+		if cerr := q.readWorkflowUnitVariableStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing readWorkflowUnitVariableStmt: %w", cerr)
 		}
 	}
 	return err
@@ -114,25 +130,29 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                         DBTX
-	tx                         *sql.Tx
-	cleanUpActiveJobsStmt      *sql.Stmt
-	cleanUpActiveSIPsStmt      *sql.Stmt
-	cleanUpActiveTasksStmt     *sql.Stmt
-	cleanUpActiveTransfersStmt *sql.Stmt
-	cleanUpAwaitingJobsStmt    *sql.Stmt
-	createJobStmt              *sql.Stmt
+	db                             DBTX
+	tx                             *sql.Tx
+	cleanUpActiveJobsStmt          *sql.Stmt
+	cleanUpActiveSIPsStmt          *sql.Stmt
+	cleanUpActiveTasksStmt         *sql.Stmt
+	cleanUpActiveTransfersStmt     *sql.Stmt
+	cleanUpAwaitingJobsStmt        *sql.Stmt
+	createJobStmt                  *sql.Stmt
+	createWorkflowUnitVariableStmt *sql.Stmt
+	readWorkflowUnitVariableStmt   *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                         tx,
-		tx:                         tx,
-		cleanUpActiveJobsStmt:      q.cleanUpActiveJobsStmt,
-		cleanUpActiveSIPsStmt:      q.cleanUpActiveSIPsStmt,
-		cleanUpActiveTasksStmt:     q.cleanUpActiveTasksStmt,
-		cleanUpActiveTransfersStmt: q.cleanUpActiveTransfersStmt,
-		cleanUpAwaitingJobsStmt:    q.cleanUpAwaitingJobsStmt,
-		createJobStmt:              q.createJobStmt,
+		db:                             tx,
+		tx:                             tx,
+		cleanUpActiveJobsStmt:          q.cleanUpActiveJobsStmt,
+		cleanUpActiveSIPsStmt:          q.cleanUpActiveSIPsStmt,
+		cleanUpActiveTasksStmt:         q.cleanUpActiveTasksStmt,
+		cleanUpActiveTransfersStmt:     q.cleanUpActiveTransfersStmt,
+		cleanUpAwaitingJobsStmt:        q.cleanUpAwaitingJobsStmt,
+		createJobStmt:                  q.createJobStmt,
+		createWorkflowUnitVariableStmt: q.createWorkflowUnitVariableStmt,
+		readWorkflowUnitVariableStmt:   q.readWorkflowUnitVariableStmt,
 	}
 }
