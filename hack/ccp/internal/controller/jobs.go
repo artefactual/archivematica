@@ -109,15 +109,34 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	}
 }
 
-// Job.
+// updateContextDecisionJob is a job that updates the chain context based on a user choice.
 //
-// Manager: linkTaskManagerReplacementDicFromChoice.
+// Manager: linkTaskManagerReplacementDicFromChoice (14 matches).
 // Class: UpdateContextDecisionJob(DecisionJob) (decisions.py).
 type updateContextDecisionJob struct {
 	logger logr.Logger
 	p      *Package
 	wl     *workflow.Link
 	config *workflow.LinkMicroServiceChoiceReplacementDic
+}
+
+// nolint: unused
+var updateContextDecisionJobChoiceMapping = map[string]string{
+	// Decision point "Assign UUIDs to directories?".
+	"8882bad4-561c-4126-89c9-f7f0c083d5d7": "bd899573-694e-4d33-8c9b-df0af802437d",
+	"e10a31c3-56df-4986-af7e-2794ddfe8686": "bd899573-694e-4d33-8c9b-df0af802437d",
+	"d6f6f5db-4cc2-4652-9283-9ec6a6d181e5": "bd899573-694e-4d33-8c9b-df0af802437d",
+	"1563f22f-f5f7-4dfe-a926-6ab50d408832": "bd899573-694e-4d33-8c9b-df0af802437d",
+	// Decision "Yes" (for "Assign UUIDs to directories?").
+	"7e4cf404-e62d-4dc2-8d81-6141e390f66f": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
+	"2732a043-b197-4cbc-81ab-4e2bee9b74d3": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
+	"aa793efa-1b62-498c-8f92-cab187a99a2a": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
+	"efd98ddb-80a6-4206-80bf-81bf00f84416": "2dc3f487-e4b0-4e07-a4b3-6216ed24ca14",
+	// Decision "No" (for "Assign UUIDs to directories?").
+	"0053c670-3e61-4a3e-a188-3a2dd1eda426": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
+	"8e93e523-86bb-47e1-a03a-4b33e13f8c5e": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
+	"6dfbeff8-c6b1-435b-833a-ed764229d413": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
+	"dc0ee6b6-ed5f-42a3-bc8f-c9c7ead03ed1": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
 }
 
 func newUpdateContextDecisionJob(logger logr.Logger, p *Package, wl *workflow.Link) (*updateContextDecisionJob, error) {

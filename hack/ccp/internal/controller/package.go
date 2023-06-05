@@ -131,6 +131,9 @@ func (pd *decision) decision() []option {
 }
 
 // option is a single selectable decision choice.
+//
+// In most cases, an option is the UUID of a workflow item, but there is one
+// exception: "Store DIP location", containing a location path.
 type option string
 
 func (do option) uuid() uuid.UUID {
