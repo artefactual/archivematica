@@ -16,7 +16,7 @@ var builtinConfigs = map[string]ProcessingConfig{
 func InstallBuiltinConfigs(path string) error {
 	var errs error
 	for name, config := range builtinConfigs {
-		path = filepath.Join(path, fmt.Sprintf("%sProcessingMCP.xml", name))
+		path := filepath.Join(path, fmt.Sprintf("%sProcessingMCP.xml", name))
 		blob, err := xml.MarshalIndent(config, "", "  ")
 		if err != nil {
 			errs = errors.Join(errs, fmt.Errorf("cannot encode %s: %v", path, err))
