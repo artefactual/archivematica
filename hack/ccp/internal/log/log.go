@@ -1,7 +1,8 @@
 package log
 
 import (
-	"fmt"
+	"io"
+	"os"
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zapr"
@@ -10,25 +11,38 @@ import (
 )
 
 // Logger returns a new application logger based on the Zap logger.
-func Logger(appName string, level int, debug bool) (logr.Logger, error) {
-	var zconfig zap.Config
-	if debug {
-		encoderConfig := zap.NewDevelopmentEncoderConfig()
-		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		zconfig = zap.NewDevelopmentConfig()
-		zconfig.EncoderConfig = encoderConfig
-	} else {
-		zconfig = zap.NewProductionConfig()
+func Logger(w io.Writer, appName string, level int, debug bool) (logr.Logger, error) {
+	var encoder zapcore.Encoder
+	{
+		if debug {
+			config := zap.NewDevelopmentEncoderConfig()
+			config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+			encoder = zapcore.NewConsoleEncoder(config)
+		} else {
+			config := zap.NewProductionEncoderConfig()
+			encoder = zapcore.NewJSONEncoder(config)
+		}
 	}
 
-	zconfig.Level = zap.NewAtomicLevelAt(zapcore.Level(-level))
+	var writer zapcore.WriteSyncer
+	{
+		writer = zapcore.Lock(zapcore.AddSync(os.Stdout))
+	}
 
-	zlogger, err := zconfig.Build()
+	var levelEnabler zapcore.LevelEnabler
+	{
+		levelEnabler = zap.NewAtomicLevelAt(zapcore.Level(-level))
+	}
+
+	zlogger := zap.New(zapcore.NewCore(encoder, writer, levelEnabler))
 	zlogger = zlogger.Named(appName)
-	defer func() { _ = zlogger.Sync() }()
-	if err != nil {
-		return logr.Discard(), fmt.Errorf("zap logger error: %v", err)
-	}
 
 	return zapr.NewLogger(zlogger), nil
+}
+
+// Sync flushes buffered logs.
+func Sync(logger logr.Logger) {
+	if logger, ok := logger.GetSink().(zapr.Underlier); ok {
+		_ = logger.GetUnderlying().Core().Sync()
+	}
 }

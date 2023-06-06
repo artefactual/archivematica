@@ -47,10 +47,11 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 }
 
 func (c *Config) Exec(ctx context.Context, args []string) error {
-	logger, err := log.Logger("ccp.server", c.rootConfig.Verbosity, c.rootConfig.Debug)
+	logger, err := log.Logger(c.out, "ccp.server", c.rootConfig.Verbosity, c.rootConfig.Debug)
 	if err != nil {
 		return err
 	}
+	defer log.Sync(logger)
 
 	keys := []interface{}{
 		"version", "TODO",

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	out := os.Stdout
+	out := os.Stderr
 	rootCommand, rootConfig := rootcmd.New()
 
 	rootCommand.Subcommands = []*ffcli.Command{
