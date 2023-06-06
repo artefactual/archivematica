@@ -50,7 +50,19 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("error creating database store: %v", err)
 	}
-	s.store.CleanUpActiveJobs(context.Background())
+
+	s.logger.V(1).Info("Cleaning up database.")
+	{
+		ctx := context.Background()
+		err = errors.Join(err, s.store.CleanUpActiveTasks(ctx))
+		err = errors.Join(err, s.store.CleanUpActiveTransfers(ctx))
+		err = errors.Join(err, s.store.CleanUpAwaitingJobs(ctx))
+		err = errors.Join(err, s.store.CleanUpActiveSIPs(ctx))
+		err = errors.Join(err, s.store.CleanUpActiveJobs(ctx))
+	}
+	if err != nil {
+		return fmt.Errorf("error cleaning up database: %v", err)
+	}
 
 	s.logger.V(1).Info("Creating shared directories.", "path", s.config.sharedDir)
 	if err := createSharedDirs(s.config.sharedDir); err != nil {

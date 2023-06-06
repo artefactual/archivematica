@@ -23,42 +23,51 @@ type storeImpl struct {
 	querier sqlc.Querier
 }
 
-func newStore(pool *sql.DB, querier sqlc.Querier) *storeImpl {
+func newStore(logger logr.Logger, pool *sql.DB, querier sqlc.Querier) *storeImpl {
 	return &storeImpl{
+		logger:  logger,
 		pool:    pool,
 		querier: querier,
 	}
 }
 
 func (s *storeImpl) CleanUpActiveJobs(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpActiveJobs")
 	return s.querier.CleanUpActiveJobs(ctx)
 }
 
 func (s *storeImpl) CleanUpActiveSIPs(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpActiveSIPs")
 	return s.querier.CleanUpActiveSIPs(ctx)
 }
 
 func (s *storeImpl) CleanUpActiveTasks(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpActiveTasks")
 	return s.querier.CleanUpActiveTasks(ctx)
 }
 
 func (s *storeImpl) CleanUpActiveTransfers(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpActiveTransfers")
 	return s.querier.CleanUpActiveTransfers(ctx)
 }
 
 func (s *storeImpl) CleanUpAwaitingJobs(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpAwaitingJobs")
 	return s.querier.CleanUpActiveJobs(ctx)
 }
 
 func (s *storeImpl) CreateJob(ctx context.Context, arg *sqlc.CreateJobParams) error {
+	s.logger.V(2).Info("Running query.", "method", "CreateJob")
 	return s.querier.CreateJob(ctx, arg)
 }
 
 func (s *storeImpl) CreateWorkflowUnitVariable(ctx context.Context, arg *sqlc.CreateWorkflowUnitVariableParams) error {
+	s.logger.V(2).Info("Running query.", "method", "CreateWorkflowUnitVariable")
 	return s.querier.CreateWorkflowUnitVariable(ctx, arg)
 }
 
 func (s *storeImpl) ReadWorkflowUnitVariable(ctx context.Context, arg *sqlc.ReadWorkflowUnitVariableParams) (sql.NullString, error) {
+	s.logger.V(2).Info("Running query.", "method", "ReadWorkflowUnitVariable")
 	return s.querier.ReadWorkflowUnitVariable(ctx, arg)
 }
 
@@ -72,6 +81,8 @@ func createStore(logger logr.Logger, driver, dsn string) (*storeImpl, error) {
 	switch strings.ToLower(driver) {
 	case "mysql":
 		{
+			logger = logger.WithName("mysql")
+
 			pool, err := connectMySQL(dsn)
 			if err != nil {
 				return nil, err
@@ -91,7 +102,7 @@ func createStore(logger logr.Logger, driver, dsn string) (*storeImpl, error) {
 				return nil, err
 			}
 
-			store = newStore(pool, querier)
+			store = newStore(logger, pool, querier)
 		}
 	default:
 		return nil, fmt.Errorf("unsupported db driver: %q", driver)
