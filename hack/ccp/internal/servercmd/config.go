@@ -11,4 +11,10 @@ type Config struct {
 	out        io.Writer
 	sharedDir  string
 	workflow   string
+	db         databaseConfig
+}
+
+type databaseConfig struct {
+	driver string
+	dsn    string
 }

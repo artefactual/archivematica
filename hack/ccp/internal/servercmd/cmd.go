@@ -28,6 +28,8 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 	fs.String("config", "", "Configuration file in the TOML file format")
 	fs.StringVar(&cfg.sharedDir, "shared-dir", "", "Shared directory")
 	fs.StringVar(&cfg.workflow, "workflow", "", "Workflow document")
+	fs.StringVar(&cfg.db.driver, "db.driver", "", "Database driver")
+	fs.StringVar(&cfg.db.dsn, "db.dsn", "", "Database DSN")
 
 	rootConfig.RegisterFlags(fs)
 

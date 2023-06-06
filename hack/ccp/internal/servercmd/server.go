@@ -1,6 +1,7 @@
 package servercmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 type Server struct {
 	logger     logr.Logger
 	config     *Config
+	store      store
 	controller *controller.Controller
 	watcher    *watcher.Batcher
 	scheduler  *scheduler.Server
@@ -42,6 +44,13 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("error loading workflow: %v", err)
 	}
+
+	s.logger.V(1).Info("Creating database store.")
+	s.store, err = createStore(s.logger.WithName("store"), s.config.db.driver, s.config.db.dsn)
+	if err != nil {
+		return fmt.Errorf("error creating database store: %v", err)
+	}
+	s.store.CleanUpActiveJobs(context.Background())
 
 	s.logger.V(1).Info("Creating shared directories.", "path", s.config.sharedDir)
 	if err := createSharedDirs(s.config.sharedDir); err != nil {
@@ -73,11 +82,19 @@ func (s *Server) Run() error {
 		return fmt.Errorf("error creating scheduler: %v", err)
 	}
 
+	s.logger.V(1).Info("Ready.")
+
 	return nil
 }
 
 func (s *Server) Close() error {
 	var errs error
+
+	s.logger.Info("Shutting down...")
+
+	if s.store != nil {
+		errs = errors.Join(errs, s.store.Close())
+	}
 
 	if s.controller != nil {
 		errs = errors.Join(errs, s.controller.Close())
