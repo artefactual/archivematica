@@ -40,17 +40,18 @@ func TestServerCmd(t *testing.T) {
 		cmd := servercmd.New(&rootcmd.Config{}, bytes.NewBuffer([]byte{}))
 		assert.NilError(t, cmd.Parse(args))
 
-		var err error
-		done := make(chan struct{})
+		done := make(chan error)
 		go func() {
-			err = cmd.Exec(ctx, []string{})
-			done <- struct{}{}
+			done <- cmd.Exec(ctx, []string{})
 		}()
 
-		// Wait for application to start watching directories.
-		time.Sleep(time.Millisecond * 100)
+		// Wait for application to start watching directories and other things to start.
+		time.Sleep(time.Second / 2)
 
-		// Server is running!
+		// Server is likely running, but let's try to receive to see if it failed.
+		if err, ok := <-done; ok {
+			assert.NilError(t, err)
+		}
 
 		// Submit transfers.
 		for i := 0; i < 1; i++ {
@@ -61,8 +62,8 @@ func TestServerCmd(t *testing.T) {
 		time.Sleep(time.Second * 3)
 
 		cancel()
-		<-done
 
+		err := <-done
 		assert.NilError(t, err)
 	})
 }
