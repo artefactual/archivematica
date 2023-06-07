@@ -3,6 +3,7 @@ package servercmd
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -22,6 +23,8 @@ type storeImpl struct {
 	pool    *sql.DB
 	querier sqlc.Querier
 }
+
+var _ store = (*storeImpl)(nil)
 
 func newStore(logger logr.Logger, pool *sql.DB, querier sqlc.Querier) *storeImpl {
 	return &storeImpl{
@@ -72,7 +75,13 @@ func (s *storeImpl) ReadWorkflowUnitVariable(ctx context.Context, arg *sqlc.Read
 }
 
 func (s *storeImpl) Close() error {
-	return nil
+	var err error
+
+	if s.pool != nil {
+		err = errors.Join(err, s.pool.Close())
+	}
+
+	return err
 }
 
 func createStore(logger logr.Logger, driver, dsn string) (*storeImpl, error) {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
@@ -16,6 +17,8 @@ import (
 
 type Server struct {
 	logger     logr.Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
 	config     *Config
 	store      store
 	controller *controller.Controller
@@ -24,10 +27,14 @@ type Server struct {
 }
 
 func NewServer(logger logr.Logger, config *Config) *Server {
-	return &Server{
+	s := &Server{
 		logger: logger,
 		config: config,
 	}
+
+	s.ctx, s.cancel = context.WithCancel(context.Background())
+
+	return s
 }
 
 func (s *Server) Run() error {
@@ -53,7 +60,9 @@ func (s *Server) Run() error {
 
 	s.logger.V(1).Info("Cleaning up database.")
 	{
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(s.ctx, time.Second*10)
+		defer cancel()
+
 		err = errors.Join(err, s.store.CleanUpActiveTasks(ctx))
 		err = errors.Join(err, s.store.CleanUpActiveTransfers(ctx))
 		err = errors.Join(err, s.store.CleanUpAwaitingJobs(ctx))
@@ -102,10 +111,15 @@ func (s *Server) Run() error {
 func (s *Server) Close() error {
 	var errs error
 
-	s.logger.Info("Shutting down...")
+	s.logger.Info("Shutting down...", "store", s.store)
 
-	if s.store != nil {
-		errs = errors.Join(errs, s.store.Close())
+	s.cancel()
+
+	switch s := s.store.(type) {
+	case *storeImpl:
+		if s != nil {
+			errs = errors.Join(errs, s.Close())
+		}
 	}
 
 	if s.controller != nil {
