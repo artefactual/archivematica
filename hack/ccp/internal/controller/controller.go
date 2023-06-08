@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-logr/logr"
@@ -18,6 +19,8 @@ const maxConcurrentPackages = 2
 
 type Controller struct {
 	logger logr.Logger
+
+	store store.Store
 
 	// wf is the workflow document.
 	wf *workflow.Document
@@ -48,9 +51,10 @@ type Controller struct {
 	closeOnce sync.Once
 }
 
-func New(logger logr.Logger, wf *workflow.Document, sharedDir, watchedDir string) *Controller {
+func New(logger logr.Logger, store store.Store, wf *workflow.Document, sharedDir, watchedDir string) *Controller {
 	c := &Controller{
 		logger:         logger,
+		store:          store,
 		wf:             wf,
 		sharedDir:      sharedDir,
 		watchedDir:     watchedDir,

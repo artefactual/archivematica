@@ -10,6 +10,7 @@ import (
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/scheduler"
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/gohugoio/hugo/watcher"
@@ -20,7 +21,7 @@ type Server struct {
 	ctx        context.Context
 	cancel     context.CancelFunc
 	config     *Config
-	store      store
+	store      store.Store
 	controller *controller.Controller
 	watcher    *watcher.Batcher
 	scheduler  *scheduler.Server
@@ -53,7 +54,7 @@ func (s *Server) Run() error {
 	}
 
 	s.logger.V(1).Info("Creating database store.")
-	s.store, err = createStore(s.logger.WithName("store"), s.config.db.driver, s.config.db.dsn)
+	s.store, err = store.Create(s.logger.WithName("store"), s.config.db.driver, s.config.db.dsn)
 	if err != nil {
 		return fmt.Errorf("error creating database store: %v", err)
 	}
@@ -87,7 +88,7 @@ func (s *Server) Run() error {
 	watchedDir := filepath.Join(s.config.sharedDir, "watchedDirectories")
 
 	s.logger.V(1).Info("Creating controller.")
-	s.controller = controller.New(s.logger.WithName("controller"), wf, s.config.sharedDir, watchedDir)
+	s.controller = controller.New(s.logger.WithName("controller"), s.store, wf, s.config.sharedDir, watchedDir)
 	if err := s.controller.Run(); err != nil {
 		return fmt.Errorf("error creating controller: %v", err)
 	}
@@ -115,11 +116,8 @@ func (s *Server) Close() error {
 
 	s.cancel()
 
-	switch s := s.store.(type) {
-	case *storeImpl:
-		if s != nil {
-			errs = errors.Join(errs, s.Close())
-		}
+	if s.store.Running() {
+		errs = errors.Join(errs, s.Close())
 	}
 
 	if s.controller != nil {
