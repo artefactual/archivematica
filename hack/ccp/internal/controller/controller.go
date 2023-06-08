@@ -36,7 +36,7 @@ type Controller struct {
 	queuedPackages []*Package
 
 	// sync.Mutex protects the internal Package slices.
-	sync.Mutex
+	mu sync.Mutex
 
 	// group is a collection of goroutines used for processing packages.
 	group *errgroup.Group
@@ -125,16 +125,16 @@ func (c *Controller) handle(path string) error {
 }
 
 func (c *Controller) queue(path string, wd *workflow.WatchedDirectory) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	p := NewPackage(path, wd)
 	c.queuedPackages = append(c.queuedPackages, p)
 }
 
 func (c *Controller) pick() {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if len(c.activePackages) == maxConcurrentPackages {
 		c.logger.V(2).Info("Not accepting new packages at this time.", "active", len(c.activePackages), "max", maxConcurrentPackages)
@@ -171,8 +171,8 @@ func (c *Controller) pick() {
 
 // deactivate removes a package from the activePackages queue.
 func (c *Controller) deactivate(p *Package) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	for i, item := range c.activePackages {
 		if item.name == p.name {
@@ -184,8 +184,8 @@ func (c *Controller) deactivate(p *Package) {
 
 // Decisions provide awaiting decisions for all active packages.
 func (c *Controller) Decisions() []string {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	ret := []string{}
 
