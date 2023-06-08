@@ -3,16 +3,13 @@ syntax = "proto3";
 package archivematica.ccp.admin.v1;
 
 service AdminService {
-  // Say is a unary request demo.
-  rpc Say(SayRequest) returns (SayResponse) {}
+  rpc AwaitingDecisions(AwaitingDecisionsRequest) returns (AwaitingDecisionsResponse) {}
 }
 
-// SayRequest describes the sentence said to the ELIZA program.
-message SayRequest {
+message AwaitingDecisionsRequest {
   string sentence = 1;
 }
 
-// SayResponse describes the sentence responded by the ELIZA program.
-message SayResponse {
+message AwaitingDecisionsResponse {
   string sentence = 1;
 }

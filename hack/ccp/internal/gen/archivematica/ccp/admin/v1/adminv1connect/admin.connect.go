@@ -33,14 +33,14 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AdminServiceSayProcedure is the fully-qualified name of the AdminService's Say RPC.
-	AdminServiceSayProcedure = "/archivematica.ccp.admin.v1.AdminService/Say"
+	// AdminServiceAwaitingDecisionsProcedure is the fully-qualified name of the AdminService's
+	// AwaitingDecisions RPC.
+	AdminServiceAwaitingDecisionsProcedure = "/archivematica.ccp.admin.v1.AdminService/AwaitingDecisions"
 )
 
 // AdminServiceClient is a client for the archivematica.ccp.admin.v1.AdminService service.
 type AdminServiceClient interface {
-	// Say is a unary request demo.
-	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
+	AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error)
 }
 
 // NewAdminServiceClient constructs a client for the archivematica.ccp.admin.v1.AdminService
@@ -53,9 +53,9 @@ type AdminServiceClient interface {
 func NewAdminServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) AdminServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &adminServiceClient{
-		say: connect_go.NewClient[v1.SayRequest, v1.SayResponse](
+		awaitingDecisions: connect_go.NewClient[v1.AwaitingDecisionsRequest, v1.AwaitingDecisionsResponse](
 			httpClient,
-			baseURL+AdminServiceSayProcedure,
+			baseURL+AdminServiceAwaitingDecisionsProcedure,
 			opts...,
 		),
 	}
@@ -63,18 +63,17 @@ func NewAdminServiceClient(httpClient connect_go.HTTPClient, baseURL string, opt
 
 // adminServiceClient implements AdminServiceClient.
 type adminServiceClient struct {
-	say *connect_go.Client[v1.SayRequest, v1.SayResponse]
+	awaitingDecisions *connect_go.Client[v1.AwaitingDecisionsRequest, v1.AwaitingDecisionsResponse]
 }
 
-// Say calls archivematica.ccp.admin.v1.AdminService.Say.
-func (c *adminServiceClient) Say(ctx context.Context, req *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
-	return c.say.CallUnary(ctx, req)
+// AwaitingDecisions calls archivematica.ccp.admin.v1.AdminService.AwaitingDecisions.
+func (c *adminServiceClient) AwaitingDecisions(ctx context.Context, req *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error) {
+	return c.awaitingDecisions.CallUnary(ctx, req)
 }
 
 // AdminServiceHandler is an implementation of the archivematica.ccp.admin.v1.AdminService service.
 type AdminServiceHandler interface {
-	// Say is a unary request demo.
-	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
+	AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error)
 }
 
 // NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -84,9 +83,9 @@ type AdminServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle(AdminServiceSayProcedure, connect_go.NewUnaryHandler(
-		AdminServiceSayProcedure,
-		svc.Say,
+	mux.Handle(AdminServiceAwaitingDecisionsProcedure, connect_go.NewUnaryHandler(
+		AdminServiceAwaitingDecisionsProcedure,
+		svc.AwaitingDecisions,
 		opts...,
 	))
 	return "/archivematica.ccp.admin.v1.AdminService/", mux
@@ -95,6 +94,6 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect_go.HandlerO
 // UnimplementedAdminServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAdminServiceHandler struct{}
 
-func (UnimplementedAdminServiceHandler) Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.admin.v1.AdminService.Say is not implemented"))
+func (UnimplementedAdminServiceHandler) AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.admin.v1.AdminService.AwaitingDecisions is not implemented"))
 }

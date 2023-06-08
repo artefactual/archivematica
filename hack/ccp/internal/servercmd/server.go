@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/api/admin"
+	"github.com/artefactual/archivematica/hack/ccp/internal/api/scheduler"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
-	"github.com/artefactual/archivematica/hack/ccp/internal/scheduler"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
@@ -24,6 +25,7 @@ type Server struct {
 	store      store.Store
 	controller *controller.Controller
 	watcher    *watcher.Batcher
+	admin      *admin.Server
 	scheduler  *scheduler.Server
 }
 
@@ -98,10 +100,16 @@ func (s *Server) Run() error {
 		return fmt.Errorf("error creating filesystem watchers: %v", err)
 	}
 
-	s.logger.V(1).Info("Creating scheduler.")
-	s.scheduler = scheduler.New(s.logger.WithName("scheduler"))
+	s.logger.V(1).Info("Creating admin API.")
+	s.admin = admin.New(s.logger.WithName("api.admin"))
+	if err := s.admin.Run(); err != nil {
+		return fmt.Errorf("error creating admin API: %v", err)
+	}
+
+	s.logger.V(1).Info("Creating scheduler API.")
+	s.scheduler = scheduler.New(s.logger.WithName("api.scheduler"))
 	if err := s.scheduler.Run(); err != nil {
-		return fmt.Errorf("error creating scheduler: %v", err)
+		return fmt.Errorf("error creating scheduler API: %v", err)
 	}
 
 	s.logger.V(1).Info("Ready.")
@@ -126,6 +134,10 @@ func (s *Server) Close() error {
 
 	if s.watcher != nil {
 		s.watcher.Close()
+	}
+
+	if s.admin != nil {
+		errs = errors.Join(errs, s.admin.Close())
 	}
 
 	if s.scheduler != nil {

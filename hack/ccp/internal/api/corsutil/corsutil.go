@@ -1,4 +1,4 @@
-package scheduler
+package corsutil
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func newCORS() *cors.Cors {
+func New() *cors.Cors {
 	// To let web developers play with the demo service from browsers, we need a
 	// very permissive CORS setup.
 	return cors.New(cors.Options{

@@ -1,10 +1,7 @@
-package scheduler
+package admin
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"os"
@@ -15,8 +12,9 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
-	schedulerv1 "github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/scheduler/v1"
-	"github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/scheduler/v1/schedulerv1connect"
+	"github.com/artefactual/archivematica/hack/ccp/internal/api/corsutil"
+	adminv1 "github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1"
+	"github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1/adminv1connect"
 )
 
 type Server struct {
@@ -33,11 +31,11 @@ func New(logger logr.Logger) *Server {
 
 func (s *Server) Run() error {
 	mux := http.NewServeMux()
-	mux.Handle(schedulerv1connect.NewSchedulerServiceHandler(
+	mux.Handle(adminv1connect.NewAdminServiceHandler(
 		s, connect.WithCompressMinBytes(1024),
 	))
 
-	addr := "localhost:11111"
+	addr := "localhost:11112"
 	if port := os.Getenv("PORT"); port != "" {
 		addr = ":" + port
 	}
@@ -45,7 +43,7 @@ func (s *Server) Run() error {
 	s.server = &http.Server{
 		Addr: addr,
 		Handler: h2c.NewHandler(
-			newCORS().Handler(mux),
+			corsutil.New().Handler(mux),
 			&http2.Server{},
 		),
 		ReadHeaderTimeout: time.Second,
@@ -60,6 +58,7 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
+		s.logger.Info("Listening...", "addr", s.ln.Addr())
 		err := s.server.Serve(s.ln)
 		if err != nil && err != http.ErrServerClosed {
 			s.logger.Error(err, "Failed to start http.Server")
@@ -69,29 +68,8 @@ func (s *Server) Run() error {
 	return nil
 }
 
-func (s *Server) Work(ctx context.Context, stream *connect.BidiStream[schedulerv1.WorkRequest, schedulerv1.WorkResponse]) error {
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		_, err := stream.Receive()
-		if err != nil && errors.Is(err, io.EOF) {
-			return nil
-		} else if err != nil {
-			return fmt.Errorf("receive request: %w", err)
-		}
-
-		resp := &schedulerv1.WorkResponse{
-			Response: &schedulerv1.WorkResponse_NoJob_{
-				NoJob: &schedulerv1.WorkResponse_NoJob{},
-			},
-		}
-
-		if err := stream.Send(resp); err != nil {
-			return fmt.Errorf("send response: %w", err)
-		}
-	}
+func (s *Server) AwaitingDecisions(ctx context.Context, req *connect.Request[adminv1.AwaitingDecisionsRequest]) (*connect.Response[adminv1.AwaitingDecisionsResponse], error) {
+	return connect.NewResponse(&adminv1.AwaitingDecisionsResponse{}), nil
 }
 
 func (s *Server) Close() error {
