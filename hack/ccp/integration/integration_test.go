@@ -34,6 +34,8 @@ func TestServerCmd(t *testing.T) {
 		args := []string{
 			"-v=10",
 			"--debug",
+			"--db.driver=mysql",
+			"--db.dsn=root:12345@tcp(127.0.0.1:62001)/MCP",
 			"--shared-dir=" + sharedDir.Path(),
 		}
 
@@ -49,7 +51,9 @@ func TestServerCmd(t *testing.T) {
 		time.Sleep(time.Second / 2)
 
 		// Server is likely running, but let's try to receive to see if it failed.
-		if err, ok := <-done; ok {
+		select {
+		case <-time.After(time.Second / 2):
+		case err := <-done:
 			assert.NilError(t, err)
 		}
 
@@ -59,7 +63,7 @@ func TestServerCmd(t *testing.T) {
 		}
 
 		// Wait for all processing to complete.
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * 10)
 
 		cancel()
 

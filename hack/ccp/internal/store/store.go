@@ -16,6 +16,7 @@ import (
 type Store interface {
 	sqlc.Querier
 	Running() bool
+	Close() error
 }
 
 type StoreImpl struct {

@@ -117,7 +117,7 @@ func (s *Server) Close() error {
 	s.cancel()
 
 	if s.store.Running() {
-		errs = errors.Join(errs, s.Close())
+		errs = errors.Join(errs, s.store.Close())
 	}
 
 	if s.controller != nil {
