@@ -3,13 +3,18 @@ syntax = "proto3";
 package archivematica.ccp.admin.v1;
 
 service AdminService {
-  rpc AwaitingDecisions(AwaitingDecisionsRequest) returns (AwaitingDecisionsResponse) {}
+  rpc ListActivePackages(ListActivePackagesRequest) returns (ListActivePackagesResponse) {}
+  rpc ListAwaitingDecisions(ListAwaitingDecisionsRequest) returns (ListAwaitingDecisionsResponse) {}
 }
 
-message AwaitingDecisionsRequest {
-  string sentence = 1;
+message ListActivePackagesRequest {}
+
+message ListActivePackagesResponse {
+  repeated string value = 1;
 }
 
-message AwaitingDecisionsResponse {
-  string sentence = 1;
+message ListAwaitingDecisionsRequest {}
+
+message ListAwaitingDecisionsResponse {
+  repeated string value = 1;
 }

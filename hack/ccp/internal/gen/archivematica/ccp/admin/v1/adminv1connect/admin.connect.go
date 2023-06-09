@@ -33,14 +33,18 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AdminServiceAwaitingDecisionsProcedure is the fully-qualified name of the AdminService's
-	// AwaitingDecisions RPC.
-	AdminServiceAwaitingDecisionsProcedure = "/archivematica.ccp.admin.v1.AdminService/AwaitingDecisions"
+	// AdminServiceListActivePackagesProcedure is the fully-qualified name of the AdminService's
+	// ListActivePackages RPC.
+	AdminServiceListActivePackagesProcedure = "/archivematica.ccp.admin.v1.AdminService/ListActivePackages"
+	// AdminServiceListAwaitingDecisionsProcedure is the fully-qualified name of the AdminService's
+	// ListAwaitingDecisions RPC.
+	AdminServiceListAwaitingDecisionsProcedure = "/archivematica.ccp.admin.v1.AdminService/ListAwaitingDecisions"
 )
 
 // AdminServiceClient is a client for the archivematica.ccp.admin.v1.AdminService service.
 type AdminServiceClient interface {
-	AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error)
+	ListActivePackages(context.Context, *connect_go.Request[v1.ListActivePackagesRequest]) (*connect_go.Response[v1.ListActivePackagesResponse], error)
+	ListAwaitingDecisions(context.Context, *connect_go.Request[v1.ListAwaitingDecisionsRequest]) (*connect_go.Response[v1.ListAwaitingDecisionsResponse], error)
 }
 
 // NewAdminServiceClient constructs a client for the archivematica.ccp.admin.v1.AdminService
@@ -53,9 +57,14 @@ type AdminServiceClient interface {
 func NewAdminServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) AdminServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &adminServiceClient{
-		awaitingDecisions: connect_go.NewClient[v1.AwaitingDecisionsRequest, v1.AwaitingDecisionsResponse](
+		listActivePackages: connect_go.NewClient[v1.ListActivePackagesRequest, v1.ListActivePackagesResponse](
 			httpClient,
-			baseURL+AdminServiceAwaitingDecisionsProcedure,
+			baseURL+AdminServiceListActivePackagesProcedure,
+			opts...,
+		),
+		listAwaitingDecisions: connect_go.NewClient[v1.ListAwaitingDecisionsRequest, v1.ListAwaitingDecisionsResponse](
+			httpClient,
+			baseURL+AdminServiceListAwaitingDecisionsProcedure,
 			opts...,
 		),
 	}
@@ -63,17 +72,24 @@ func NewAdminServiceClient(httpClient connect_go.HTTPClient, baseURL string, opt
 
 // adminServiceClient implements AdminServiceClient.
 type adminServiceClient struct {
-	awaitingDecisions *connect_go.Client[v1.AwaitingDecisionsRequest, v1.AwaitingDecisionsResponse]
+	listActivePackages    *connect_go.Client[v1.ListActivePackagesRequest, v1.ListActivePackagesResponse]
+	listAwaitingDecisions *connect_go.Client[v1.ListAwaitingDecisionsRequest, v1.ListAwaitingDecisionsResponse]
 }
 
-// AwaitingDecisions calls archivematica.ccp.admin.v1.AdminService.AwaitingDecisions.
-func (c *adminServiceClient) AwaitingDecisions(ctx context.Context, req *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error) {
-	return c.awaitingDecisions.CallUnary(ctx, req)
+// ListActivePackages calls archivematica.ccp.admin.v1.AdminService.ListActivePackages.
+func (c *adminServiceClient) ListActivePackages(ctx context.Context, req *connect_go.Request[v1.ListActivePackagesRequest]) (*connect_go.Response[v1.ListActivePackagesResponse], error) {
+	return c.listActivePackages.CallUnary(ctx, req)
+}
+
+// ListAwaitingDecisions calls archivematica.ccp.admin.v1.AdminService.ListAwaitingDecisions.
+func (c *adminServiceClient) ListAwaitingDecisions(ctx context.Context, req *connect_go.Request[v1.ListAwaitingDecisionsRequest]) (*connect_go.Response[v1.ListAwaitingDecisionsResponse], error) {
+	return c.listAwaitingDecisions.CallUnary(ctx, req)
 }
 
 // AdminServiceHandler is an implementation of the archivematica.ccp.admin.v1.AdminService service.
 type AdminServiceHandler interface {
-	AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error)
+	ListActivePackages(context.Context, *connect_go.Request[v1.ListActivePackagesRequest]) (*connect_go.Response[v1.ListActivePackagesResponse], error)
+	ListAwaitingDecisions(context.Context, *connect_go.Request[v1.ListAwaitingDecisionsRequest]) (*connect_go.Response[v1.ListAwaitingDecisionsResponse], error)
 }
 
 // NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -83,9 +99,14 @@ type AdminServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle(AdminServiceAwaitingDecisionsProcedure, connect_go.NewUnaryHandler(
-		AdminServiceAwaitingDecisionsProcedure,
-		svc.AwaitingDecisions,
+	mux.Handle(AdminServiceListActivePackagesProcedure, connect_go.NewUnaryHandler(
+		AdminServiceListActivePackagesProcedure,
+		svc.ListActivePackages,
+		opts...,
+	))
+	mux.Handle(AdminServiceListAwaitingDecisionsProcedure, connect_go.NewUnaryHandler(
+		AdminServiceListAwaitingDecisionsProcedure,
+		svc.ListAwaitingDecisions,
 		opts...,
 	))
 	return "/archivematica.ccp.admin.v1.AdminService/", mux
@@ -94,6 +115,10 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect_go.HandlerO
 // UnimplementedAdminServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAdminServiceHandler struct{}
 
-func (UnimplementedAdminServiceHandler) AwaitingDecisions(context.Context, *connect_go.Request[v1.AwaitingDecisionsRequest]) (*connect_go.Response[v1.AwaitingDecisionsResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.admin.v1.AdminService.AwaitingDecisions is not implemented"))
+func (UnimplementedAdminServiceHandler) ListActivePackages(context.Context, *connect_go.Request[v1.ListActivePackagesRequest]) (*connect_go.Response[v1.ListActivePackagesResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.admin.v1.AdminService.ListActivePackages is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) ListAwaitingDecisions(context.Context, *connect_go.Request[v1.ListAwaitingDecisionsRequest]) (*connect_go.Response[v1.ListAwaitingDecisionsResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.admin.v1.AdminService.ListAwaitingDecisions is not implemented"))
 }

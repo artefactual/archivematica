@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -84,9 +83,16 @@ func (s *Server) Run() error {
 	return nil
 }
 
-func (s *Server) AwaitingDecisions(ctx context.Context, req *connect.Request[adminv1.AwaitingDecisionsRequest]) (*connect.Response[adminv1.AwaitingDecisionsResponse], error) {
-	fmt.Println(s.ctrl.Decisions())
-	return connect.NewResponse(&adminv1.AwaitingDecisionsResponse{}), nil
+func (s *Server) ListActivePackages(ctx context.Context, req *connect.Request[adminv1.ListActivePackagesRequest]) (*connect.Response[adminv1.ListActivePackagesResponse], error) {
+	return connect.NewResponse(&adminv1.ListActivePackagesResponse{
+		Value: s.ctrl.Active(),
+	}), nil
+}
+
+func (s *Server) ListAwaitingDecisions(ctx context.Context, req *connect.Request[adminv1.ListAwaitingDecisionsRequest]) (*connect.Response[adminv1.ListAwaitingDecisionsResponse], error) {
+	return connect.NewResponse(&adminv1.ListAwaitingDecisionsResponse{
+		Value: s.ctrl.Decisions(),
+	}), nil
 }
 
 func (s *Server) Close() error {

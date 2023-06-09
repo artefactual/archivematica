@@ -182,7 +182,20 @@ func (c *Controller) deactivate(p *Package) {
 	}
 }
 
-// Decisions provide awaiting decisions for all active packages.
+// Active lists all active packages.
+func (c *Controller) Active() []string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	ret := make([]string, len(c.activePackages))
+	for i, item := range c.activePackages {
+		ret[i] = item.String()
+	}
+
+	return ret
+}
+
+// Decisions lists awaiting decisions for all active packages.
 func (c *Controller) Decisions() []string {
 	c.mu.Lock()
 	defer c.mu.Unlock()
