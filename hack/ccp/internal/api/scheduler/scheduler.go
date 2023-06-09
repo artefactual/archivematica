@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/bufbuild/connect-go"
+	grpchealth "github.com/bufbuild/connect-grpchealth-go"
+	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
 	"github.com/go-logr/logr"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -34,9 +36,23 @@ func New(logger logr.Logger, config Config) *Server {
 }
 
 func (s *Server) Run() error {
+	compress1KB := connect.WithCompressMinBytes(1024)
+
 	mux := http.NewServeMux()
 	mux.Handle(schedulerv1connect.NewSchedulerServiceHandler(
-		s, connect.WithCompressMinBytes(1024),
+		s, compress1KB,
+	))
+	mux.Handle(grpchealth.NewHandler(
+		grpchealth.NewStaticChecker(schedulerv1connect.SchedulerServiceName),
+		compress1KB,
+	))
+	mux.Handle(grpcreflect.NewHandlerV1(
+		grpcreflect.NewStaticReflector(schedulerv1connect.SchedulerServiceName),
+		compress1KB,
+	))
+	mux.Handle(grpcreflect.NewHandlerV1Alpha(
+		grpcreflect.NewStaticReflector(schedulerv1connect.SchedulerServiceName),
+		compress1KB,
 	))
 
 	s.server = &http.Server{

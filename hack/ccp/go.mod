@@ -15,13 +15,15 @@ require (
 	go.uber.org/zap v1.19.0
 	golang.org/x/net v0.9.0
 	golang.org/x/sync v0.2.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.30.0
 	gotest.tools/v3 v3.4.0
 )
 
 require (
 	github.com/bep/godartsass v0.16.0 // indirect
 	github.com/bep/golibsass v1.1.0 // indirect
+	github.com/bufbuild/connect-grpchealth-go v1.1.0 // indirect
+	github.com/bufbuild/connect-grpcreflect-go v1.1.0 // indirect
 	github.com/cli/safeexec v1.0.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
