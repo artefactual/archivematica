@@ -2,9 +2,58 @@ syntax = "proto3";
 
 package archivematica.ccp.admin.v1;
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+// MCPServer
+//
+//   _job_approve_handler
+//     [Approve awaiting decision]
+//     Params: jobUUID, chain, user_id
+//     Return: <string> - informative only.
+//
+//   _job_awaiting_approval_handler
+//     [List awaiting decisions]
+//     Params: <none>
+//     Return: <string> - xml (choicesAvailableForUnits).
+//
+//   _package_create_handler
+//     [Start processing of a new package asynchronously]
+//     Params: name, type, accession, access_system_id, path, metadata_set_id, user_id.
+//     Return: <string> - identifier of the package deferred for processing.
+//
+//   _approve_transfer_by_path_handler
+//     [Approve transfer by path] (could be deprecated if automation-tools is updated)
+//     Params: db_transfer_path, transfer_type, user_id
+//     Return: <string> - job.sipuuid
+//
+//   _approve_partial_reingest_handler
+//     [Approve reingest]
+//     Params: sip_uuid, user_id
+//     Return: <void>
+//
+//   _get_processing_config_fields_handler
+//     [List processing configurations]
+//     Params: lang
+//     Return: <list[object]> - processing fields
+//
+//   _units_statuses_handler
+//     [List currently processing units] (should not hit the database)
+//     Params: type, lang
+//     Return: <object>
+//
+//   _unit_status_handler
+//     [Read processing details of a specific unit]
+//     Params: unit_id, lang
+//     Return: <object> - unit, jobs
+//
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 service AdminService {
   rpc ListActivePackages(ListActivePackagesRequest) returns (ListActivePackagesResponse) {}
+
   rpc ListAwaitingDecisions(ListAwaitingDecisionsRequest) returns (ListAwaitingDecisionsResponse) {}
+
+  rpc ResolveAwaitingDecision(ResolveAwaitingDecisionRequest) returns (ResolveAwaitingDecisionResponse) {}
 }
 
 message ListActivePackagesRequest {}
@@ -18,3 +67,7 @@ message ListAwaitingDecisionsRequest {}
 message ListAwaitingDecisionsResponse {
   repeated string value = 1;
 }
+
+message ResolveAwaitingDecisionRequest {}
+
+message ResolveAwaitingDecisionResponse {}

@@ -95,6 +95,10 @@ func (s *Server) ListAwaitingDecisions(ctx context.Context, req *connect.Request
 	}), nil
 }
 
+func (s *Server) ResolveAwaitingDecision(ctx context.Context, req *connect.Request[adminv1.ResolveAwaitingDecisionRequest]) (*connect.Response[adminv1.ResolveAwaitingDecisionResponse], error) {
+	return connect.NewResponse(&adminv1.ResolveAwaitingDecisionResponse{}), nil
+}
+
 func (s *Server) Close() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
