@@ -154,7 +154,11 @@ func newUpdateContextDecisionJob(logger logr.Logger, p *Package, wl *workflow.Li
 }
 
 func (l *updateContextDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
-	return l.wl.ExitCodes[0].LinkID, nil
+	id := l.wl.ExitCodes[0].LinkID
+	if id == nil || *id == uuid.Nil {
+		return uuid.Nil, errors.New("ops")
+	}
+	return *id, nil
 }
 
 // Job.

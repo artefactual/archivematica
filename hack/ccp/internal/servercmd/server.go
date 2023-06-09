@@ -120,7 +120,7 @@ func (s *Server) Run() error {
 func (s *Server) Close() error {
 	var errs error
 
-	s.logger.Info("Shutting down...", "store", s.store)
+	s.logger.Info("Shutting down...")
 
 	s.cancel()
 

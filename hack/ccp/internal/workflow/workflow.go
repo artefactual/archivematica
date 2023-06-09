@@ -85,15 +85,15 @@ type Chain struct {
 }
 
 type Link struct {
-	ID                uuid.UUID             `json:"-"`
-	Manager           string                `json:"-"`
-	Config            interface{}           `json:"config"`
-	Description       I18nField             `json:"description"`
-	ExitCodes         map[int]*LinkExitCode `json:"exit_codes"`
-	FallbackJobStatus string                `json:"fallback_job_status"`
-	FallbackLinkID    uuid.UUID             `json:"fallback_link_id"`
-	Group             I18nField             `json:"group"`
-	End               bool                  `json:"end"`
+	ID                uuid.UUID            `json:"-"`
+	Manager           string               `json:"-"`
+	Config            interface{}          `json:"config"`
+	Description       I18nField            `json:"description"`
+	ExitCodes         map[int]LinkExitCode `json:"exit_codes"`
+	FallbackJobStatus string               `json:"fallback_job_status"`
+	FallbackLinkID    *uuid.UUID           `json:"fallback_link_id"`
+	Group             I18nField            `json:"group"`
+	End               bool                 `json:"end"`
 }
 
 type linkProxy Link
@@ -165,14 +165,14 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 }
 
 type LinkExitCode struct {
-	JobStatus string    `json:"job_status"`
-	LinkID    uuid.UUID `json:"link_id"`
+	JobStatus string     `json:"job_status"`
+	LinkID    *uuid.UUID `json:"link_id"`
 }
 
 type Document struct {
-	WatchedDirectories []*WatchedDirectory  `json:"watched_directories"`
 	Chains             map[uuid.UUID]*Chain `json:"chains"`
 	Links              map[uuid.UUID]*Link  `json:"links"`
+	WatchedDirectories []*WatchedDirectory  `json:"watched_directories"`
 }
 
 type documentProxy Document
