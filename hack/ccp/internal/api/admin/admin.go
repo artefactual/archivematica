@@ -2,9 +2,9 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/bufbuild/connect-go"
@@ -13,19 +13,24 @@ import (
 	"golang.org/x/net/http2/h2c"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/corsutil"
+	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	adminv1 "github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1"
 	"github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1/adminv1connect"
 )
 
 type Server struct {
 	logger logr.Logger
+	config Config
+	ctrl   *controller.Controller
 	server *http.Server
 	ln     net.Listener
 }
 
-func New(logger logr.Logger) *Server {
+func New(logger logr.Logger, config Config, ctrl *controller.Controller) *Server {
 	return &Server{
 		logger: logger,
+		config: config,
+		ctrl:   ctrl,
 	}
 }
 
@@ -35,13 +40,8 @@ func (s *Server) Run() error {
 		s, connect.WithCompressMinBytes(1024),
 	))
 
-	addr := "localhost:11112"
-	if port := os.Getenv("PORT"); port != "" {
-		addr = ":" + port
-	}
-
 	s.server = &http.Server{
-		Addr: addr,
+		Addr: s.config.Listen,
 		Handler: h2c.NewHandler(
 			corsutil.New().Handler(mux),
 			&http2.Server{},
@@ -53,7 +53,7 @@ func (s *Server) Run() error {
 	}
 
 	var err error
-	if s.ln, err = net.Listen("tcp", addr); err != nil {
+	if s.ln, err = net.Listen("tcp", s.config.Listen); err != nil {
 		return err
 	}
 
@@ -69,6 +69,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) AwaitingDecisions(ctx context.Context, req *connect.Request[adminv1.AwaitingDecisionsRequest]) (*connect.Response[adminv1.AwaitingDecisionsResponse], error) {
+	fmt.Println(s.ctrl.Decisions())
 	return connect.NewResponse(&adminv1.AwaitingDecisionsResponse{}), nil
 }
 

@@ -36,6 +36,8 @@ func TestServerCmd(t *testing.T) {
 			"--debug",
 			"--db.driver=mysql",
 			"--db.dsn=root:12345@tcp(127.0.0.1:62001)/MCP",
+			"--api.admin.listen=:22300",
+			"--api.scheduler.listen=:22301",
 			"--shared-dir=" + sharedDir.Path(),
 		}
 

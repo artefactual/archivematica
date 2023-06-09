@@ -7,7 +7,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/bufbuild/connect-go"
@@ -22,13 +21,15 @@ import (
 
 type Server struct {
 	logger logr.Logger
+	config Config
 	server *http.Server
 	ln     net.Listener
 }
 
-func New(logger logr.Logger) *Server {
+func New(logger logr.Logger, config Config) *Server {
 	return &Server{
 		logger: logger,
+		config: config,
 	}
 }
 
@@ -38,13 +39,8 @@ func (s *Server) Run() error {
 		s, connect.WithCompressMinBytes(1024),
 	))
 
-	addr := "localhost:11111"
-	if port := os.Getenv("PORT"); port != "" {
-		addr = ":" + port
-	}
-
 	s.server = &http.Server{
-		Addr: addr,
+		Addr: s.config.Listen,
 		Handler: h2c.NewHandler(
 			corsutil.New().Handler(mux),
 			&http2.Server{},
@@ -56,7 +52,7 @@ func (s *Server) Run() error {
 	}
 
 	var err error
-	if s.ln, err = net.Listen("tcp", addr); err != nil {
+	if s.ln, err = net.Listen("tcp", s.config.Listen); err != nil {
 		return err
 	}
 

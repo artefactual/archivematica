@@ -101,13 +101,13 @@ func (s *Server) Run() error {
 	}
 
 	s.logger.V(1).Info("Creating admin API.")
-	s.admin = admin.New(s.logger.WithName("api.admin"))
+	s.admin = admin.New(s.logger.WithName("api.admin"), s.config.api.admin, s.controller)
 	if err := s.admin.Run(); err != nil {
 		return fmt.Errorf("error creating admin API: %v", err)
 	}
 
 	s.logger.V(1).Info("Creating scheduler API.")
-	s.scheduler = scheduler.New(s.logger.WithName("api.scheduler"))
+	s.scheduler = scheduler.New(s.logger.WithName("api.scheduler"), s.config.api.scheduler)
 	if err := s.scheduler.Run(); err != nil {
 		return fmt.Errorf("error creating scheduler API: %v", err)
 	}
