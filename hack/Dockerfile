@@ -2,6 +2,10 @@ ARG TARGET=archivematica-mcp-server
 
 FROM ubuntu:18.04 AS base
 
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG PYTHON_VERSION=3.6
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
@@ -9,12 +13,25 @@ RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		apt-transport-https \
+		build-essential \
 		curl \
 		gettext \
 		git \
 		gpg-agent \
+		libbz2-dev \
+		libffi-dev \
+		liblzma-dev \
+		libncursesw5-dev \
+		libreadline-dev \
+		libsqlite3-dev \
+		libssl-dev \
+		libxml2-dev \
+		libxmlsec1-dev \
 		locales \
 		software-properties-common \
+		tk-dev \
+		xz-utils \
+		zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set the locale
@@ -36,7 +53,7 @@ RUN set -ex \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		build-essential python3-dev libyaml-dev clamav \
+		libyaml-dev clamav \
 	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -45,8 +62,6 @@ RUN freshclam --quiet
 
 # Install pip, Node.js and Yarn
 RUN set -ex \
-	&& curl -s https://bootstrap.pypa.io/pip/3.6/get-pip.py | python3.6 \
-	&& update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
 	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
 	&& apt-get install -y --no-install-recommends \
@@ -54,15 +69,27 @@ RUN set -ex \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
-	&& groupadd --gid 333 --system archivematica \
-	&& useradd -m --uid 333 --gid 333 --system archivematica
-
-RUN set -ex \
+	&& groupadd --gid ${GROUP_ID} --system archivematica \
+	&& useradd -m --uid ${USER_ID} --gid ${GROUP_ID} --create-home --home-dir /home/archivematica --system archivematica \
 	&& mkdir -p /var/archivematica/sharedDirectory \
 	&& chown -R archivematica:archivematica /var/archivematica
 
+USER archivematica
+
+ENV PYENV_ROOT="/home/archivematica/.pyenv"
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
+RUN set -ex \
+	&& curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+	&& pyenv install ${PYTHON_VERSION} \
+	&& pyenv global ${PYTHON_VERSION}
+
 COPY requirements-dev.txt /src/requirements-dev.txt
-RUN pip3 install -r /src/requirements-dev.txt
+
+RUN set -ex \
+	&& pyenv exec python${PYTHON_VERSION} -m pip install --upgrade pip setuptools \
+	&& pyenv exec python${PYTHON_VERSION} -m pip install --requirement /src/requirements-dev.txt \
+	&& pyenv rehash
 
 COPY . /src
 
@@ -70,12 +97,12 @@ COPY . /src
 
 FROM base AS archivematica-mcp-client
 
+ARG PYTHON_VERSION=3.6
+
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
 COPY src/archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
 COPY src/archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
-
-USER archivematica
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/MCPClient/lib/clientScripts:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
@@ -83,35 +110,42 @@ ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES /src/src/MCPClient/lib/ar
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY /src/src/MCPClient/lib/assets/
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/src/MCPClient/lib/clientScripts/
 
-ENTRYPOINT ["/src/src/MCPClient/lib/archivematicaClient.py"]
+ENTRYPOINT pyenv exec python${PYTHON_VERSION} /src/src/MCPClient/lib/archivematicaClient.py
 
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-mcp-server
 
-USER archivematica
+ARG PYTHON_VERSION=3.6
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
 
-ENTRYPOINT ["/src/src/MCPServer/lib/archivematicaMCP.py"]
+ENTRYPOINT pyenv exec python${PYTHON_VERSION} /src/src/MCPServer/lib/archivematicaMCP.py
 
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-dashboard
 
+ARG PYTHON_VERSION=3.6
+
+USER root
+
 RUN set -ex \
 	&& internalDirs=' \
+		/src/src/dashboard/frontend \
 		/src/src/dashboard/src/static \
 		/src/src/dashboard/src/media \
 	' \
 	&& mkdir -p $internalDirs \
-	&& chown -R archivematica:archivematica $internalDirs \
+	&& chown -R archivematica $internalDirs
+
+USER archivematica
+
+RUN set -ex \
 	&& yarn --cwd=/src/src/dashboard/frontend install --frozen-lockfile
 
 WORKDIR /src/src/dashboard/src
-
-USER archivematica
 
 ENV DJANGO_SETTINGS_MODULE settings.local
 ENV PYTHONPATH /src/src/dashboard/src/:/src/src/archivematicaCommon/lib/
@@ -127,7 +161,7 @@ ENV DJANGO_SETTINGS_MODULE settings.production
 
 EXPOSE 8000
 
-ENTRYPOINT ["/usr/local/bin/gunicorn", "--config=/src/src/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
+ENTRYPOINT pyenv exec python${PYTHON_VERSION} -m gunicorn --config=/src/src/dashboard/install/dashboard.gunicorn-config.py wsgi:application
 
 # -----------------------------------------------------------------------------
 

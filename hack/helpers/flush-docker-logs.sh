@@ -14,7 +14,7 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     exit
 fi
 
-for container_id in $(docker-compose ps --quiet); do
+for container_id in $(docker compose ps --quiet); do
     logpath=$(docker inspect --format='{{.LogPath}}' ${container_id})
     echo "Removing ${logpath}..."
     echo '' > $(docker inspect --format='{{.LogPath}}' ${container_id})

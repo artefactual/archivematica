@@ -1,5 +1,5 @@
 ---
-version: "2.1"
+name: am
 
 volumes:
 
@@ -16,16 +16,18 @@ volumes:
   # host - the expectation being that these directories are actually mounted
   # filesystems from elsewhere.
   archivematica_pipeline_data:
-    external:
-      name: "am-pipeline-data"
+    name: "am-pipeline-data"
+    external: true
+
   archivematica_storage_service_location_data:
-    external:
-      name: "ss-location-data"
+    name: "ss-location-data"
+    external: true
+
 
 services:
 
   mysql:
-    image: "percona:5.6"
+    image: "percona:5.7"
     user: "mysql"
     command: "--character-set-server=utf8 --collation-server=utf8_general_ci"
     environment:
@@ -40,7 +42,7 @@ services:
       - "127.0.0.1:62001:3306"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:6.5.4"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:6.8.23"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -51,6 +53,15 @@ services:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "curl -fsSL http://localhost:9200/_cat/health?h=status | sed -r 's/^[[:space:]]+|[[:space:]]+$//g' | grep -q -E 'green|yellow'",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     volumes:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
     ports:
@@ -97,6 +108,9 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-server"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -121,6 +135,9 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-mcp-client"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -160,6 +177,9 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-dashboard"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -177,6 +197,10 @@ services:
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+        restart: true
     links:
       - "mysql"
       - "gearmand"
@@ -188,6 +212,9 @@ services:
       context: "submodules/archivematica-storage-service"
       args:
         TARGET: "archivematica-storage-service"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"

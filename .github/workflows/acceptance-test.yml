@@ -38,14 +38,14 @@ jobs:
           make -C hack/ create-volumes
       - name: "Start MySQL"
         run: |
-          docker-compose up -d mysql
+          docker compose up -d mysql
         working-directory: ./hack
       - name: "Build images"
         run: |
           make -C hack/ build
       - name: "Start services"
         run: |
-          docker-compose up -d
+          docker compose up -d
         env:
           cluster.routing.allocation.disk.threshold_enabled: false
         working-directory: ./hack

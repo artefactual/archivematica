@@ -715,7 +715,7 @@ will be handled by whichever process is managing Archivematica's services. For
 example on Ubuntu 16.04, Ubuntu 18.04 or CentOS 7, Archivematica's processes are
 managed by systemd. Logs for the Dashboard can be accessed using
 `sudo journalctl -u archivematica-dashboard`. When running Archivematica using
-docker, `docker-compose logs` commands can be used to access the logs from
+docker, `docker compose logs` commands can be used to access the logs from
 different containers.
 
 The dashboard will look in `/etc/archivematica` for a file called

@@ -43,10 +43,6 @@
       "state": "latest"
     },
     {
-      "name": "python3-devel",
-      "state": "latest"
-    },
-    {
       "name": "openldap-devel",
       "state": "latest"
     },

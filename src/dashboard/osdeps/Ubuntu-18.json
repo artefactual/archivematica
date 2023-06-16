@@ -38,10 +38,6 @@
       "state": "latest"
     },
     {
-      "name": "python3.6-dev",
-      "state": "latest"
-    },
-    {
       "name": "libsasl2-dev",
       "state": "latest"
     },

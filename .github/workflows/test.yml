@@ -15,22 +15,16 @@ jobs:
         include:
           - rule: mcp-server
             coverage: true
-            python_version: py36
           - rule: mcp-client
             coverage: true
-            python_version: py36
           - rule: dashboard
             coverage: true
-            python_version: py36
           - rule: archivematica-common
             coverage: true
-            python_version: py36
           - rule: storage-service
             coverage: false
-            python_version: py36
           - rule: migrations
             coverage: false
-            python_version: py36
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v3"
@@ -98,7 +92,6 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           name: ${{ matrix.rule }}
-          flags: ${{ matrix.python_version }}
       - name: "Set newest docker cache"
         run: |
           rm -rf /tmp/.docker-cache-old
