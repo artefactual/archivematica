@@ -13,8 +13,8 @@ import (
 	"github.com/peterbourgon/ff/v3"
 	"github.com/peterbourgon/ff/v3/ffcli"
 	"github.com/peterbourgon/ff/v3/fftoml"
+	"go.artefactual.dev/tools/log"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/log"
 	"github.com/artefactual/archivematica/hack/ccp/internal/rootcmd"
 )
 
@@ -51,23 +51,17 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 }
 
 func (c *Config) Exec(ctx context.Context, args []string) error {
-	logger, err := log.Logger(c.out, "ccp.server", c.rootConfig.Verbosity, c.rootConfig.Debug)
-	if err != nil {
-		return err
-	}
+	logger := log.New(c.out, log.WithDebug(c.rootConfig.Debug), log.WithLevel(c.rootConfig.Verbosity))
 	defer log.Sync(logger)
-
-	keys := []interface{}{
-		"version", "TODO",
-		"commit", "TODO",
-		"pid", os.Getpid(),
-		"go", runtime.Version(),
-	}
-	logger.Info("Starting...", keys...)
+	logger.Info("Starting...",
+		"version", "TODO", "commit", "TODO",
+		"pid", os.Getpid(), "go", runtime.Version(),
+	)
 
 	if c.sharedDir == "" {
 		configDir, err := os.UserConfigDir()
 		if err != nil {
+			logger.Error(err, "Failed to determine the user configuration directory.")
 			return err
 		}
 		c.sharedDir = filepath.Join(configDir, "ccp", "shared")
@@ -78,6 +72,7 @@ func (c *Config) Exec(ctx context.Context, args []string) error {
 
 	s := NewServer(logger, c)
 	if err := s.Run(); err != nil {
+		logger.Error(err, "Failed to start server.")
 		s.Close()
 		return err
 	}
@@ -85,6 +80,7 @@ func (c *Config) Exec(ctx context.Context, args []string) error {
 	<-ctx.Done()
 
 	if err := s.Close(); err != nil {
+		logger.Error(err, "Failed to close server gracefully.")
 		return err
 	}
 
