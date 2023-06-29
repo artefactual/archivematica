@@ -52,6 +52,7 @@ task to run next).
 import configparser
 import logging
 import os
+import pathlib
 import pickle
 import time
 from functools import partial
@@ -307,6 +308,11 @@ def start_gearman_worker(supported_modules):
 
 if __name__ == "__main__":
     metrics.start_prometheus_server()
+
+    # Use local XML schemas for validation.
+    os.environ["XML_CATALOG_FILES"] = str(
+        pathlib.Path(__file__).parent / "assets" / "catalog" / "catalog.xml"
+    )
 
     try:
         start_gearman_worker(get_supported_modules(django_settings.CLIENT_MODULES_FILE))

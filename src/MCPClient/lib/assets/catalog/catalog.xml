@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+  <group prefer="system">
+    <system
+      systemId="http://www.loc.gov/standards/xlink/xlink.xsd"
+      uri="../mets/xlink.xsd"/>
+
+    <system
+      systemId="http://www.loc.gov/standards/mets/version1121/mets.xsd"
+      uri="../mets/mets.xsd"/>
+
+    <system
+      systemId="http://www.loc.gov/standards/premis/v3/premis.xsd"
+      uri="../premis/premis.xsd"/>
+
+    <!-- mets-reader-writer still validates against PREMIS 2.2 -->
+    <system
+      systemId="http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd"
+      uri="../premis/premis-v2-2.xsd" />
+
+  </group>
+
+</catalog>
