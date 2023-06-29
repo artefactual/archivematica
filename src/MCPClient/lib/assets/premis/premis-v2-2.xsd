@@ -1,0 +1,1387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+via XML Spy. editor: Ray Denenberg, Library of Congress; rden@loc.gov   
+ 
+                             *********************************************************************************************
+                             *                                                                                                                    
+                             *                                                    PREMIS                                                   
+                             *                                     Preservation Metadata Schema                                
+                             *                                                                                                                  
+                             *                                                  VERSION 2.2                                            
+                             *                                                  May 15, 2012                       
+                            *                                                                                                                   
+                             *                            (supercedes version 2.1 of January 6, 2011)                       
+                             * 
+                             *           Modified:
+                             *               - July 2, 2012: removed extraneous whitespace within an element name. 
+                             *               - September 28, 2012: 
+                             *                    copyrightDocumentationIdentifier and licenseDocumentationIdentifier
+                             *                     changed to repeatable. They had been defined as non-repeatable in error. 
+                             *                                                                                                                  
+                             *********************************************************************************************
+
+
+
+**********************************************************************************************************************************
+Changes in version 2.2:
+
+1.	Complex element copyrightDocumentationIdentifier added to copyrightInformation (under rightsStatement). It has the following subelements:
+         copyrightDocumentationIdentifierType 
+         copyrightDocumentationIdentifierValue
+         copyrightDocumentationRole 
+
+                  In addition, copyrightApplicableDates (with a start and end date) is added to copyrightInformation.
+
+2. Complex element licenseDocumentationIdentifier is added to licenseInformation (under rightsStatement).   It is intended to replace existing element licenseIdentifier,  which is retained for backward compatibility.  It has subelements:
+        licenseDocumentationIdentifierType 
+    	licenseDocumentationIdentifierValue 
+        licenseDocumentationRole 
+The first two correspond to the existing subelements of licenseIndentifier:
+        licenseIdentifierType 
+    	licenseIdentifierValue 
+(The role element is added.)
+
+                  In addition, licenseApplicableDates (with a start and end date) is added to licenseInformation.
+
+3. Complex element statuteDocumentationIdentifier is added to statuteInformation (under rightsStatement). It has the following subelements:
+	  statuteDocumentationIdentifierType 
+      statuteDocumentationIdentifierValue 
+      statuteDocumentationRole 
+
+                  In addition, statuteApplicableDates (with a start and end date) is added to statuteInformation.
+
+4. Complex element otherRightsInformation is added to rightsStatement.  It has four subelements:
+     (1) otherRightsDocumentationIdentifier    - a complex element with subelements:
+		          otherRightsDocumentationIdentifierType 
+	  	          otherRightsDocumentationIdentifierValue
+		          otherRightsDocumentationRole 
+	   (2) otherRightsBasis  (simple)
+	   (3) otherRightsApplicableDates (with start and end dates) 
+	   (4) otherRightsNote (simple)
+
+5. Complex element termOfRestriction is added to rightsGranted (under rightsStatement). It has a start and end date. 
+
+6. countryCode definition added. Used by copyrightJurisdiction and statuteJurisdiction. Typed as xs:string, it does not introduce a substantive change, butt is introduced to reinforce the recommendation that a standard jurisdictional code be used.
+
+7. The pattern.... 
+	<xs:pattern value="OPEN"/>
+is added to the list of patterns supported in EDTF.
+
+*************************************************************************************************************************************   
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="info:lc/xmlns/premis-v2" targetNamespace="info:lc/xmlns/premis-v2" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!--   
+ Import XLink-->
+	<xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.loc.gov/standards/xlink/xlink.xsd"/>
+	<!-- 	
+
+An instance is 
+(1) One or more of <object>, <event>, <agent>, <rights> all wrapped within a <premis> container; or
+(2) any one of  <object>, <event>, <agent>, <rights>  by itself. 
+
+Thus the root element is one of the following:  <premis>, <object>, <event>, <agent>, <rights> 
+
+********************************************************************************************
+*                                                                                                                 *
+*                            Root element declarations                                               *
+*                                                                                                                 *
+*********************************************************************************************
+
+-->
+	<xs:element name="premis" type="premisComplexType"/>
+	<xs:element name="object" type="objectComplexType"/>
+	<xs:element name="event" type="eventComplexType"/>
+	<xs:element name="agent" type="agentComplexType"/>
+	<xs:element name="rights" type="rightsComplexType"/>
+	<!-- 	
+
+
+*************************************************************************************************
+*                                                                                                                       *
+*                          definitions of complex types for the root elements                      *
+*                                                                                                                       *
+*************************************************************************************************
+
+************************************ premisComplexType 
+-->
+	<xs:complexType name="premisComplexType">
+		<xs:sequence>
+			<xs:element ref="object" maxOccurs="unbounded"/>
+			<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="agent" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="rights" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="version" type="versionSimpleType" use="required"/>
+	</xs:complexType>
+	<!-- 	
+
+*************************************************************************************************
+*                                                                                                                       *
+*   objectComplexType  (and the three major <object>  category definitions)            *
+*                                                                                                                       *
+*************************************************************************************************
+
+-->
+	<xs:complexType name="objectComplexType" abstract="true"/>
+	<!--
+***************  
+The three "types":  'file', 'representation', and 'bitstream'. These are the values for the xsi:type attribute in an instance. 
+For an object of type file: <object xsi:type="file">  will mean that the complexType "file" will be validated. 
+For an object of type representation: <object xsi:type="representation">  will mean that the complexType "representation" will be validated. 
+For an object of type bitstream: <object xsi:type="bitstream">  will mean that the complexType "bitstream" will be validated. 
+******************
+
+******* file
+-->
+	<xs:complexType name="file">
+		<xs:complexContent>
+			<xs:extension base="objectComplexType">
+				<xs:sequence>
+					<xs:element ref="objectIdentifier" maxOccurs="unbounded"/>
+					<!-- Data dictionary lists objectCategory here, values:  'file', 'representation', or  'bitstream'. It is omitted and instead the mechanism described in the preceding comment is used to signify the category of the object. Using this mechanism allows for the specific definition, corresponding to the category, to be validated. In the older version there was a single defintion so specific vaidation based on category was not possible.  -->
+					<xs:element ref="preservationLevel" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="significantProperties" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="objectCharacteristics" maxOccurs="unbounded"/>
+					<xs:element ref="originalName" minOccurs="0"/>
+					<xs:element ref="storage" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="environment" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="signatureInformation" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="relationship" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingEventIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingIntellectualEntityIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingRightsStatementIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="xmlID" type="xs:ID"/>
+				<xs:attribute name="version" type="versionSimpleType"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--
+*********** representation
+  	-->
+	<xs:complexType name="representation">
+		<xs:complexContent>
+			<xs:extension base="objectComplexType">
+				<xs:sequence>
+					<xs:element ref="objectIdentifier" maxOccurs="unbounded"/>
+					<xs:element ref="preservationLevel" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="significantProperties" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="originalName" minOccurs="0"/>
+					<xs:element ref="environment" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="relationship" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingEventIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingIntellectualEntityIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingRightsStatementIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="xmlID" type="xs:ID"/>
+				<xs:attribute name="version" type="versionSimpleType"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--
+*********** bitstream
+  	-->
+	<xs:complexType name="bitstream">
+		<xs:complexContent>
+			<xs:extension base="objectComplexType">
+				<xs:sequence>
+					<xs:element ref="objectIdentifier" maxOccurs="unbounded"/>
+					<xs:element ref="significantProperties" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="objectCharacteristics" maxOccurs="unbounded"/>
+					<xs:element ref="storage" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="environment" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="signatureInformation" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="relationship" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingEventIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingIntellectualEntityIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="linkingRightsStatementIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="xmlID" type="xs:ID"/>
+				<xs:attribute name="version" type="versionSimpleType"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- 	
+
+************************************eventComplexType
+
+-->
+	<xs:complexType name="eventComplexType">
+		<xs:sequence>
+			<xs:element ref="eventIdentifier"/>
+			<xs:element ref="eventType"/>
+			<xs:element ref="eventDateTime"/>
+			<xs:element ref="eventDetail" minOccurs="0"/>
+			<xs:element ref="eventOutcomeInformation" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingAgentIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingObjectIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="xmlID" type="xs:ID"/>
+		<xs:attribute name="version" type="versionSimpleType"/>
+	</xs:complexType>
+	<!-- 	
+                      
+**************************  agentComplexType
+-->
+	<xs:complexType name="agentComplexType">
+		<xs:sequence>
+			<xs:element ref="agentIdentifier" maxOccurs="unbounded"/>
+			<xs:element ref="agentName" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="agentType" minOccurs="0"/>
+			<xs:element ref="agentNote" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="agentExtension" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingEventIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingRightsStatementIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="xmlID" type="xs:ID"/>
+		<xs:attribute name="version" type="versionSimpleType"/>
+	</xs:complexType>
+	<!-- 	
+
+******************* rightsComplexType
+
+-->
+	<xs:complexType name="rightsComplexType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element ref="rightsStatement"/>
+			<xs:element ref="rightsExtension"/>
+			<xs:element ref="mdSec"/>
+		</xs:choice>
+		<xs:attribute name="xmlID" type="xs:ID"/>
+		<xs:attribute name="version" type="versionSimpleType"/>
+	</xs:complexType>
+	<!--
+
+********************************************************************************************
+********************************************************************************************
+*                                                                                                                 *
+*                     subsidiary  complexType definitions                                         *
+*                                                                                                                 *
+*********************************************************************************************
+*********************************************************************************************
+-->
+	<!--
+******* agentIdentifierComplexType
+-->
+	<xs:complexType name="agentIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="agentIdentifierType"/>
+			<xs:element ref="agentIdentifierValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--
+****************contentLocationComplexType
+-->
+	<xs:complexType name="contentLocationComplexType">
+		<xs:sequence>
+			<xs:element ref="contentLocationType"/>
+			<xs:element ref="contentLocationValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--
+******** copyrightDocumentationIdentifierComplexType  ****** New in version 2.2 ******
+-->
+	<xs:complexType name="copyrightDocumentationIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="copyrightDocumentationIdentifierType"/>
+			<xs:element ref="copyrightDocumentationIdentifierValue"/>
+			<xs:element ref="copyrightDocumentationRole" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******** copyrightInformationComplexType
+-->
+	<xs:complexType name="copyrightInformationComplexType">
+		<xs:sequence>
+			<xs:element ref="copyrightStatus"/>
+			<xs:element ref="copyrightJurisdiction"/>
+			<xs:element ref="copyrightStatusDeterminationDate" minOccurs="0"/>
+			<xs:element ref="copyrightNote" minOccurs="0" maxOccurs="unbounded"/>
+			<!-- The following two elements are new in version 2.2 -->
+			<xs:element ref="copyrightDocumentationIdentifier" minOccurs="0" maxOccurs="unbounded"/> 
+			                                          <!-- *******************  maxOccurs="unbounded" added Sept. 28, 2012. it had been omitted in error -->
+			<xs:element ref="copyrightApplicableDates" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+****************creatingApplicationComplexType
+-->
+	<xs:complexType name="creatingApplicationComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="creatingApplicationName"/>
+				<xs:element ref="creatingApplicationVersion" minOccurs="0"/>
+				<xs:element ref="dateCreatedByApplication" minOccurs="0"/>
+				<xs:element ref="creatingApplicationExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:element ref="creatingApplicationVersion"/>
+				<xs:element ref="dateCreatedByApplication" minOccurs="0"/>
+				<xs:element ref="creatingApplicationExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:element ref="dateCreatedByApplication"/>
+				<xs:element ref="creatingApplicationExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="creatingApplicationExtension"/>
+				<xs:element ref="mdSec"/>
+			</xs:choice>
+			<!-- -->
+		</xs:choice>
+		<!-- All of the  elements individually are optional, but at least one must occur. And those occuring must occur in the specified order. And some are non-repeatable. XML schema doesn't provide an easy way to define such a construct.  If  sequencing and non-repeatability didn't apply,  you could use CHOICE minOccurs="1" maxOccurs="unbounded". Or if the requirement that at least one must occur didn't apply you could use a single sequence all with minOccurs="0". But given these constraints the above structure is necessary. -->
+	</xs:complexType>
+	<!--  
+****************dependencyComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="dependencyComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="dependencyName" maxOccurs="unbounded"/>
+				<xs:element ref="dependencyIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:element ref="dependencyIdentifier" maxOccurs="unbounded"/>
+		</xs:choice>
+	</xs:complexType>
+	<!--  
+****************dependencyIdentifierComplexType
+-->
+	<xs:complexType name="dependencyIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="dependencyIdentifierType"/>
+			<xs:element ref="dependencyIdentifierValue"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************environmentComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="environmentComplexType">
+		<xs:choice>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="environmentCharacteristic"/>
+				<xs:element ref="environmentPurpose" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentNote" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="dependency" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="software" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="hardware" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="environmentPurpose" maxOccurs="unbounded"/>
+				<xs:element ref="environmentNote" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="dependency" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="software" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="hardware" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="environmentNote" maxOccurs="unbounded"/>
+				<xs:element ref="dependency" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="software" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="hardware" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="dependency" maxOccurs="unbounded"/>
+				<xs:element ref="software" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="hardware" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="software" maxOccurs="unbounded"/>
+				<xs:element ref="hardware" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:sequence>
+				<xs:element ref="hardware" maxOccurs="unbounded"/>
+				<xs:element ref="environmentExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!-- -->
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="environmentExtension"/>
+				<xs:element ref="mdSec"/>
+			</xs:choice>
+			<!-- -->
+		</xs:choice>
+	</xs:complexType>
+	<!--
+   ****eventIdentifierComplexType
+-->
+	<xs:complexType name="eventIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="eventIdentifierType"/>
+			<xs:element ref="eventIdentifierValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--
+   ****eventOutcomeDetailComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="eventOutcomeDetailComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="eventOutcomeDetailNote"/>
+				<xs:element ref="eventOutcomeDetailExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!---->
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="eventOutcomeDetailExtension"/>
+				<xs:element ref="mdSec"/>
+			</xs:choice>
+			<!-- -->
+		</xs:choice>
+	</xs:complexType>
+	<!--
+   ****eventOutcomeInformationComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="eventOutcomeInformationComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="eventOutcome"/>
+				<xs:element ref="eventOutcomeDetail" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:element ref="eventOutcomeDetail" maxOccurs="unbounded"/>
+		</xs:choice>
+	</xs:complexType>
+	<!--   
+*******fixityComplexType
+-->
+	<xs:complexType name="fixityComplexType">
+		<xs:sequence>
+			<xs:element ref="messageDigestAlgorithm"/>
+			<xs:element ref="messageDigest"/>
+			<xs:element ref="messageDigestOriginator" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+*******formatComplexType
+-->
+	<xs:complexType name="formatComplexType">
+		<xs:sequence>
+			<xs:choice>
+				<!-- one or both of formatDesignation and/or formatRegistry required; followed optionally by formatNote -->
+				<xs:sequence>
+					<xs:element ref="formatDesignation"/>
+					<xs:element ref="formatRegistry" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element ref="formatRegistry"/>
+			</xs:choice>
+			<xs:element ref="formatNote" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+*******formatDesignationComplexType
+-->
+	<xs:complexType name="formatDesignationComplexType">
+		<xs:sequence>
+			<xs:element ref="formatName"/>
+			<xs:element ref="formatVersion" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--	  
+*******formatRegistryComplexType
+  -->
+	<xs:complexType name="formatRegistryComplexType">
+		<xs:sequence>
+			<xs:element ref="formatRegistryName"/>
+			<xs:element ref="formatRegistryKey"/>
+			<xs:element ref="formatRegistryRole" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************hardwareComplexType
+-->
+	<xs:complexType name="hardwareComplexType">
+		<xs:sequence>
+			<xs:element ref="hwName"/>
+			<xs:element ref="hwType"/>
+			<xs:element ref="hwOtherInformation" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************inhibitorsComplexType
+-->
+	<xs:complexType name="inhibitorsComplexType">
+		<xs:sequence>
+			<xs:element ref="inhibitorType"/>
+			<xs:element ref="inhibitorTarget" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="inhibitorKey" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******* licenseDocumentationIdentifierComplexType     ****** New in version 2.2 ******
+-->
+	<xs:complexType name="licenseDocumentationIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="licenseDocumentationIdentifierType"/>
+			<xs:element ref="licenseDocumentationIdentifierValue"/>
+			<xs:element ref="licenseDocumentationRole" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******* licenseIdentifierComplexType
+-->
+	<xs:complexType name="licenseIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="licenseIdentifierType"/>
+			<xs:element ref="licenseIdentifierValue"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******* licenseInformationComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="licenseInformationComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<!-- the following choice is introduced in version 2.2.  Previously it had been simply <licenseIdentifier> . In version 2.2 <licenseDocumentationIdentifier> is introduced as an alternative choice. <licenseIdentifier> is retained as an alternative for backward compatibility, however <licenseDocumentationIdentifier> is the preferred alternative. 
+
+licenseApplicableDates  is new in 2.2
+-->
+				<xs:choice>
+					<xs:element ref="licenseIdentifier"/>
+					<xs:element ref="licenseDocumentationIdentifier" maxOccurs="unbounded"/>
+                                         <!-- *******************  maxOccurs="unbounded" added Sept. 28, 2012. it had been omitted in error -->
+				</xs:choice>
+				<!-- -->
+				<xs:element ref="licenseTerms" minOccurs="0"/>
+				<xs:element ref="licenseNote" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="licenseApplicableDates" minOccurs="0"/>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:element ref="licenseTerms"/>
+				<xs:element ref="licenseNote" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="licenseApplicableDates" minOccurs="0"/>
+			</xs:sequence>
+						<xs:sequence>
+			<xs:element ref="licenseNote" maxOccurs="unbounded"/>
+			<xs:element ref="licenseApplicableDates" minOccurs="0"/>
+			</xs:sequence>
+						<xs:element ref="licenseApplicableDates"/>
+		</xs:choice>
+	</xs:complexType>
+	<!--
+******* linkingAgentIdentifierComplexType
+-->
+	<xs:complexType name="linkingAgentIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="linkingAgentIdentifierType"/>
+			<xs:element ref="linkingAgentIdentifierValue"/>
+			<xs:element ref="linkingAgentRole" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="LinkAgentXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************"linkingEventIdentifierComplexType
+-->
+	<xs:complexType name="linkingEventIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="linkingEventIdentifierType"/>
+			<xs:element ref="linkingEventIdentifierValue"/>
+		</xs:sequence>
+		<xs:attribute name="LinkEventXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--
+*******linkingObjectIdentifierComplexType	
+-->
+	<xs:complexType name="linkingObjectIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="linkingObjectIdentifierType"/>
+			<xs:element ref="linkingObjectIdentifierValue"/>
+			<xs:element ref="linkingObjectRole" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="LinkObjectXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************linkingIntellectualEntityIdentifierComplexType
+-->
+	<xs:complexType name="linkingIntellectualEntityIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="linkingIntellectualEntityIdentifierType"/>
+			<xs:element ref="linkingIntellectualEntityIdentifierValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************linkingRightsStatementIdentifierComplexType
+-->
+	<xs:complexType name="linkingRightsStatementIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="linkingRightsStatementIdentifierType"/>
+			<xs:element ref="linkingRightsStatementIdentifierValue"/>
+		</xs:sequence>
+		<xs:attribute name="LinkPermissionStatementXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************objectCharacteristicsComplexType
+-->
+	<xs:complexType name="objectCharacteristicsComplexType">
+		<xs:sequence>
+			<xs:element ref="compositionLevel"/>
+			<xs:element ref="fixity" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="size" minOccurs="0"/>
+			<xs:element ref="format" maxOccurs="unbounded"/>
+			<xs:element ref="creatingApplication" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="inhibitors" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="objectCharacteristicsExtension" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  	
+*******objectIdentifierComplexType
+-->
+	<xs:complexType name="objectIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="objectIdentifierType"/>
+			<xs:element ref="objectIdentifierValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************originalNameComplexType
+-->
+	<xs:complexType name="originalNameComplexType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attributeGroup ref="xlink:simpleLink"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--  
+****************otherRightsDocumentationIdentifierComplexType     ****** New in version 2.2 ******
+-->
+	<xs:complexType name="otherRightsDocumentationIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="otherRightsDocumentationIdentifierType"/>
+			<xs:element ref="otherRightsDocumentationIdentifierValue"/>
+			<xs:element ref="otherRightsDocumentationRole" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************otherRightsInformationComplexType     ****** New in version 2.2 ******
+-->
+	<xs:complexType name="otherRightsInformationComplexType">
+		<xs:sequence>
+			<xs:element ref="otherRightsDocumentationIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="otherRightsBasis"/>
+			<xs:element ref="otherRightsApplicableDates" minOccurs="0"/>
+			<xs:element ref="otherRightsNote" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************preservationLevelComplexType
+-->
+	<xs:complexType name="preservationLevelComplexType">
+		<xs:sequence>
+			<xs:element ref="preservationLevelValue"/>
+			<xs:element ref="preservationLevelRole" minOccurs="0"/>
+			<xs:element ref="preservationLevelRationale" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="preservationLevelDateAssigned" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************relatedEventIdentificationComplexType
+-->
+	<xs:complexType name="relatedEventIdentificationComplexType">
+		<xs:sequence>
+			<xs:element ref="relatedEventIdentifierType"/>
+			<xs:element ref="relatedEventIdentifierValue"/>
+			<xs:element ref="relatedEventSequence" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="RelEventXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************relatedObjectIdentificationComplexType
+-->
+	<xs:complexType name="relatedObjectIdentificationComplexType">
+		<xs:sequence>
+			<xs:element ref="relatedObjectIdentifierType"/>
+			<xs:element ref="relatedObjectIdentifierValue"/>
+			<xs:element ref="relatedObjectSequence" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="RelObjectXmlID" type="xs:IDREF"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************relationshipComplexType
+-->
+	<xs:complexType name="relationshipComplexType">
+		<xs:sequence>
+			<xs:element ref="relationshipType"/>
+			<xs:element ref="relationshipSubType"/>
+			<xs:element ref="relatedObjectIdentification" maxOccurs="unbounded"/>
+			<xs:element ref="relatedEventIdentification" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******** rightsGrantedComplexType
+-->
+	<xs:complexType name="rightsGrantedComplexType">
+		<xs:sequence>
+			<xs:element ref="act"/>
+			<xs:element ref="restriction" minOccurs="0" maxOccurs="unbounded"/>
+			<!-- -->
+			<xs:element ref="termOfGrant" minOccurs="0"/>
+			<!-- Previously( in 2.1), termOfGrant (above) was mandatory. In 2.2 it is changed to  optional , and termOfRestriction (below) is added. Either one, or both, may occur.-->
+			<xs:element ref="termOfRestriction" minOccurs="0"/>
+						<!-- -->
+			<xs:element ref="rightsGrantedNote" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- 	
+******* rightsStatementComplexType
+-->
+	<xs:complexType name="rightsStatementComplexType">
+		<xs:sequence>
+			<xs:element ref="rightsStatementIdentifier"/>
+			<xs:element ref="rightsBasis"/>
+			<xs:element ref="copyrightInformation" minOccurs="0"/>
+			<xs:element ref="licenseInformation" minOccurs="0"/>
+			<xs:element ref="statuteInformation" minOccurs="0" maxOccurs="unbounded"/>
+			<!--The  following element (otherRightsInformation) is new in 2.2 -->
+			<xs:element ref="otherRightsInformation" minOccurs="0"/>
+			<xs:element ref="rightsGranted" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingObjectIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="linkingAgentIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+*******rightsStatementIdentifierComplexType
+-->
+	<xs:complexType name="rightsStatementIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="rightsStatementIdentifierType"/>
+			<xs:element ref="rightsStatementIdentifierValue"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+	</xs:complexType>
+	<!--  
+****************signatureComplexType
+-->
+	<xs:complexType name="signatureComplexType">
+		<xs:sequence>
+			<xs:element ref="signatureEncoding"/>
+			<xs:element ref="signer" minOccurs="0"/>
+			<xs:element ref="signatureMethod"/>
+			<xs:element ref="signatureValue"/>
+			<xs:element ref="signatureValidationRules"/>
+			<xs:element ref="signatureProperties" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="keyInformation" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************signatureInformationComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="signatureInformationComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="signature"/>
+				<xs:element ref="signatureInformationExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="signatureInformationExtension"/>
+				<xs:element ref="mdSec"/>
+			</xs:choice>
+		</xs:choice>
+		<!-- -->
+	</xs:complexType>
+	<!-- 
+****************significantPropertiesComplexType
+                                   See comment for "creatingApplicationComplexType"
+ -->
+	<xs:complexType name="significantPropertiesComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="significantPropertiesType"/>
+				<xs:element ref="significantPropertiesValue" minOccurs="0"/>
+				<xs:element ref="significantPropertiesExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:element ref="significantPropertiesValue"/>
+				<xs:element ref="significantPropertiesExtension" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="mdSec" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<!---->
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="significantPropertiesExtension"/>
+				<xs:element ref="mdSec"/>
+			</xs:choice>
+			<!-- -->
+		</xs:choice>
+	</xs:complexType>
+	<!--  
+****************softwareComplexType
+-->
+	<xs:complexType name="softwareComplexType">
+		<xs:sequence>
+			<xs:element ref="swName"/>
+			<xs:element ref="swVersion" minOccurs="0"/>
+			<xs:element ref="swType"/>
+			<xs:element ref="swOtherInformation" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="swDependency" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************startAndEndDateComplexType     ****** New in version 2.2 ******
+-->
+	<xs:complexType name="startAndEndDateComplexType">
+		<xs:sequence>
+			<xs:element ref="startDate"/>
+			<xs:element ref="endDate" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******* statuteDocumentationIdentifierComplexType     ****** New in version 2.2 ******
+-->
+	<xs:complexType name="statuteDocumentationIdentifierComplexType">
+		<xs:sequence>
+			<xs:element ref="statuteDocumentationIdentifierType"/>
+			<xs:element ref="statuteDocumentationIdentifierValue"/>
+			<xs:element ref="statuteDocumentationRole" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+******* statuteInformationComplexType
+-->
+	<xs:complexType name="statuteInformationComplexType">
+		<xs:sequence>
+			<xs:element ref="statuteJurisdiction"/>
+			<xs:element ref="statuteCitation"/>
+			<xs:element ref="statuteInformationDeterminationDate" minOccurs="0"/>
+			<xs:element ref="statuteNote" minOccurs="0" maxOccurs="unbounded"/>
+			<!-- the  following two elements are new in 2.2 -->
+			<xs:element ref="statuteDocumentationIdentifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="statuteApplicableDates" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--  
+****************storageComplexType
+                                   See comment for "creatingApplicationComplexType"
+-->
+	<xs:complexType name="storageComplexType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element ref="contentLocation"/>
+				<xs:element ref="storageMedium" minOccurs="0"/>
+			</xs:sequence>
+			<xs:element ref="storageMedium"/>
+		</xs:choice>
+	</xs:complexType>
+	<!-- 
+********************************************************************************************
+*                                                                                                                 *
+*                                   Element declarations                                               *
+*                                                                                                                 *
+*********************************************************************************************
+
+****** string type element declarations
+ 	-->
+	<xs:element name="act" type="xs:string"/>
+	<xs:element name="agentIdentifierType" type="xs:string"/>
+	<xs:element name="agentIdentifierValue" type="xs:string"/>
+	<xs:element name="agentName" type="xs:string"/>
+	<xs:element name="agentNote" type="xs:string"/>
+	<xs:element name="agentType" type="xs:string"/>
+	<xs:element name="contentLocationType" type="xs:string"/>
+	<xs:element name="contentLocationValue" type="xs:string"/>
+	<!-- Following three elements are new in version 2.2 -->
+	<xs:element name="copyrightDocumentationIdentifierType" type="xs:string"/>
+	<xs:element name="copyrightDocumentationRole" type="xs:string"/>
+	<xs:element name="copyrightDocumentationIdentifierValue" type="xs:string"/>
+	<!-- -->
+	<xs:element name="copyrightStatus" type="xs:string"/>
+	<!-- definition of copyrightJurisdiction changed in 2.2 -->
+	<xs:element name="copyrightJurisdiction" type="countryCode"/>
+	<xs:element name="copyrightNote" type="xs:string"/>
+	<xs:element name="creatingApplicationName" type="xs:string"/>
+	<xs:element name="creatingApplicationVersion" type="xs:string"/>
+	<xs:element name="dependencyIdentifierType" type="xs:string"/>
+	<xs:element name="dependencyIdentifierValue" type="xs:string"/>
+	<xs:element name="dependencyName" type="xs:string"/>
+	<xs:element name="environmentCharacteristic" type="xs:string"/>
+	<xs:element name="environmentNote" type="xs:string"/>
+	<xs:element name="environmentPurpose" type="xs:string"/>
+	<xs:element name="eventDetail" type="xs:string"/>
+	<xs:element name="eventIdentifierType" type="xs:string"/>
+	<xs:element name="eventIdentifierValue" type="xs:string"/>
+	<xs:element name="eventOutcome" type="xs:string"/>
+	<xs:element name="eventOutcomeDetailNote" type="xs:string"/>
+	<xs:element name="formatName" type="xs:string"/>
+	<xs:element name="formatNote" type="xs:string"/>
+	<xs:element name="formatRegistryName" type="xs:string"/>
+	<xs:element name="formatRegistryKey" type="xs:string"/>
+	<xs:element name="formatRegistryRole" type="xs:string"/>
+	<xs:element name="formatVersion" type="xs:string"/>
+	<xs:element name="hwOtherInformation" type="xs:string"/>
+	<xs:element name="hwName" type="xs:string"/>
+	<xs:element name="hwType" type="xs:string"/>
+	<xs:element name="inhibitorKey" type="xs:string"/>
+	<xs:element name="inhibitorTarget" type="xs:string"/>
+	<xs:element name="inhibitorType" type="xs:string"/>
+	<!-- Following three elements are new in version 2.2 -->
+	<xs:element name="licenseDocumentationIdentifierType" type="xs:string"/>
+	<xs:element name="licenseDocumentationRole" type="xs:string"/>
+	<xs:element name="licenseDocumentationIdentifierValue" type="xs:string"/>
+	<!-- -->
+	<xs:element name="licenseIdentifierType" type="xs:string"/>
+	<xs:element name="licenseIdentifierValue" type="xs:string"/>
+	<xs:element name="licenseNote" type="xs:string"/>
+	<xs:element name="licenseTerms" type="xs:string"/>
+	<xs:element name="linkingAgentIdentifierType" type="xs:string"/>
+	<xs:element name="linkingAgentIdentifierValue" type="xs:string"/>
+	<xs:element name="linkingAgentRole" type="xs:string"/>
+	<xs:element name="linkingEventIdentifierType" type="xs:string"/>
+	<xs:element name="linkingEventIdentifierValue" type="xs:string"/>
+	<xs:element name="linkingIntellectualEntityIdentifierType" type="xs:string"/>
+	<xs:element name="linkingIntellectualEntityIdentifierValue" type="xs:string"/>
+	<xs:element name="linkingObjectIdentifierType" type="xs:string"/>
+	<xs:element name="linkingObjectRole" type="xs:string"/>
+	<xs:element name="linkingObjectIdentifierValue" type="xs:string"/>
+	<xs:element name="linkingRightsStatementIdentifierType" type="xs:string"/>
+	<xs:element name="linkingRightsStatementIdentifierValue" type="xs:string"/>
+	<xs:element name="messageDigest" type="xs:string"/>
+	<xs:element name="messageDigestAlgorithm" type="xs:string"/>
+	<xs:element name="messageDigestOriginator" type="xs:string"/>
+	<xs:element name="objectIdentifierType" type="xs:string"/>
+	<xs:element name="objectIdentifierValue" type="xs:string"/>
+	<!-- Following five elements are new in version 2.2 -->
+	<xs:element name="otherRightsBasis" type="xs:string"/>
+	<xs:element name="otherRightsDocumentationRole" type="xs:string"/>
+	<xs:element name="otherRightsDocumentationIdentifierType" type="xs:string"/>
+	<xs:element name="otherRightsDocumentationIdentifierValue" type="xs:string"/>
+	<xs:element name="otherRightsNote" type="xs:string"/>
+	<!-- -->
+	<xs:element name="preservationLevelValue" type="xs:string"/>
+	<xs:element name="preservationLevelRole" type="xs:string"/>
+	<xs:element name="preservationLevelRationale" type="xs:string"/>
+	<xs:element name="relatedEventIdentifierType" type="xs:string"/>
+	<xs:element name="relatedEventIdentifierValue" type="xs:string"/>
+	<xs:element name="relatedObjectIdentifierType" type="xs:string"/>
+	<xs:element name="relatedObjectIdentifierValue" type="xs:string"/>
+	<xs:element name="relationshipType" type="xs:string"/>
+	<xs:element name="relationshipSubType" type="xs:string"/>
+	<xs:element name="restriction" type="xs:string"/>
+	<xs:element name="rightsBasis" type="xs:string"/>
+	<xs:element name="rightsGrantedNote" type="xs:string"/>
+	<xs:element name="rightsStatementIdentifierType" type="xs:string"/>
+	<xs:element name="rightsStatementIdentifierValue" type="xs:string"/>
+	<xs:element name="signatureEncoding" type="xs:string"/>
+	<xs:element name="signatureMethod" type="xs:string"/>
+	<xs:element name="signatureProperties" type="xs:string"/>
+	<xs:element name="signatureValue" type="xs:string"/>
+	<xs:element name="signatureValidationRules" type="xs:string"/>
+	<xs:element name="signer" type="xs:string"/>
+	<xs:element name="significantPropertiesType" type="xs:string"/>
+	<xs:element name="significantPropertiesValue" type="xs:string"/>
+	<xs:element name="storageMedium" type="xs:string"/>
+	<xs:element name="statuteCitation" type="xs:string"/>
+	<!-- Following three elements are new in version 2.2 -->
+	<xs:element name="statuteDocumentationIdentifierType" type="xs:string"/>
+	<xs:element name="statuteDocumentationIdentifierValue" type="xs:string"/>
+	<xs:element name="statuteDocumentationRole" type="xs:string"/>
+	<!-- definition of statuteJurisdiction changed in 2.2 -->
+	<xs:element name="statuteJurisdiction" type="countryCode"/>
+	<xs:element name="statuteNote" type="xs:string"/>
+	<xs:element name="swName" type="xs:string"/>
+	<xs:element name="swVersion" type="xs:string"/>
+	<xs:element name="swType" type="xs:string"/>
+	<xs:element name="swDependency" type="xs:string"/>
+	<xs:element name="swOtherInformation" type="xs:string"/>
+	<!-- 
+****** complex  type element declarations
+ 	-->
+	<xs:element name="agentIdentifier" type="agentIdentifierComplexType"/>
+	<xs:element name="contentLocation" type="contentLocationComplexType"/>
+	<!-- The following element (copyrightDocumentationIdentifier)  is new in version 2.2 -->
+	<xs:element name="copyrightDocumentationIdentifier" type="copyrightDocumentationIdentifierComplexType"/>
+	<xs:element name="copyrightInformation" type="copyrightInformationComplexType"/>
+	<xs:element name="creatingApplication" type="creatingApplicationComplexType"/>
+	<xs:element name="dependency" type="dependencyComplexType"/>
+	<xs:element name="dependencyIdentifier" type="dependencyIdentifierComplexType"/>
+	<xs:element name="environment" type="environmentComplexType"/>
+	<xs:element name="eventIdentifier" type="eventIdentifierComplexType"/>
+	<xs:element name="eventOutcomeDetail" type="eventOutcomeDetailComplexType"/>
+	<xs:element name="eventOutcomeInformation" type="eventOutcomeInformationComplexType"/>
+	<xs:element name="eventType" type="xs:string"/>
+	<xs:element name="fixity" type="fixityComplexType"/>
+	<xs:element name="format" type="formatComplexType"/>
+	<xs:element name="formatDesignation" type="formatDesignationComplexType"/>
+	<xs:element name="formatRegistry" type="formatRegistryComplexType"/>
+	<xs:element name="hardware" type="hardwareComplexType"/>
+	<xs:element name="inhibitors" type="inhibitorsComplexType"/>
+	<!-- the following element (licenseDocumentationIdentifier) is new in version 2.2 -->
+	<xs:element name="licenseDocumentationIdentifier" type="licenseDocumentationIdentifierComplexType"/>
+	<xs:element name="licenseIdentifier" type="licenseIdentifierComplexType"/>
+	<xs:element name="licenseInformation" type="licenseInformationComplexType"/>
+	<xs:element name="linkingAgentIdentifier" type="linkingAgentIdentifierComplexType"/>
+	<xs:element name="linkingEventIdentifier" type="linkingEventIdentifierComplexType"/>
+	<xs:element name="linkingIntellectualEntityIdentifier" type="linkingIntellectualEntityIdentifierComplexType"/>
+	<xs:element name="linkingObjectIdentifier" type="linkingObjectIdentifierComplexType"/>
+	<xs:element name="linkingRightsStatementIdentifier" type="linkingRightsStatementIdentifierComplexType"/>
+	<xs:element name="objectCharacteristics" type="objectCharacteristicsComplexType"/>
+	<xs:element name="objectIdentifier" type="objectIdentifierComplexType"/>
+	<xs:element name="originalName" type="originalNameComplexType"/>
+	<!-- Following two elements new in 2.2 -->
+	<xs:element name="otherRightsDocumentationIdentifier" type="otherRightsDocumentationIdentifierComplexType"/>
+	<xs:element name="otherRightsInformation" type="otherRightsInformationComplexType"/>
+	<!-- -->
+	<xs:element name="preservationLevel" type="preservationLevelComplexType"/>
+	<xs:element name="relatedEventIdentification" type="relatedEventIdentificationComplexType"/>
+	<xs:element name="relatedObjectIdentification" type="relatedObjectIdentificationComplexType"/>
+	<xs:element name="relationship" type="relationshipComplexType"/>
+	<xs:element name="rightsGranted" type="rightsGrantedComplexType"/>
+	<xs:element name="rightsStatement" type="rightsStatementComplexType"/>
+	<xs:element name="rightsStatementIdentifier" type="rightsStatementIdentifierComplexType"/>
+	<xs:element name="signature" type="signatureComplexType"/>
+	<xs:element name="signatureInformation" type="signatureInformationComplexType"/>
+	<xs:element name="significantProperties" type="significantPropertiesComplexType"/>
+	<!--  the following elelment (statuteDocumentationIdentifier) is new in 2.2 -->
+	<xs:element name="statuteDocumentationIdentifier" type="statuteDocumentationIdentifierComplexType"/>
+	<xs:element name="statuteInformation" type="statuteInformationComplexType"/>
+	<xs:element name="software" type="softwareComplexType"/>
+	<xs:element name="storage" type="storageComplexType"/>
+	<!-- 
+****** other xs  type  element declarations
+ 	-->
+	<xs:element name="compositionLevel" type="xs:nonNegativeInteger"/>
+	<xs:element name="relatedEventSequence" type="xs:nonNegativeInteger"/>
+	<xs:element name="relatedObjectSequence" type="xs:nonNegativeInteger"/>
+	<xs:element name="size" type="xs:long"/>
+	<!-- 
+****** date type  element declarations
+ 	-->
+	<xs:element name="dateCreatedByApplication" type="edtfSimpleType"/>
+	<xs:element name="endDate" type="edtfSimpleType"/>
+	<!-- the following element (copyRightApplicableDates) is  new in 2.2 -->
+	<xs:element name="copyrightApplicableDates" type="startAndEndDateComplexType"/>
+	<xs:element name="copyrightStatusDeterminationDate" type="edtfSimpleType"/>
+	<xs:element name="eventDateTime" type="edtfSimpleType"/>
+	<!-- the following element (licenseApplicableDates) is  new in 2.2 -->
+	<xs:element name="licenseApplicableDates" type="startAndEndDateComplexType"/>
+	<xs:element name="preservationLevelDateAssigned" type="edtfSimpleType"/>
+	<xs:element name="startDate" type="edtfSimpleType"/>
+	<!-- the following element (otherRightsApplicableDates) is  new in 2.2 -->
+	<xs:element name="otherRightsApplicableDates" type="startAndEndDateComplexType"/>
+	<!-- the following element (statuteApplicableDates) is  new in 2.2 -->
+	<xs:element name="statuteApplicableDates" type="startAndEndDateComplexType"/>
+	<xs:element name="statuteInformationDeterminationDate" type="edtfSimpleType"/>
+	<xs:element name="termOfGrant" type="startAndEndDateComplexType"/>
+	<xs:element name="termOfRestriction" type="startAndEndDateComplexType"/>
+	<!-- 
+****** extension  type  element declarations
+ 	-->
+	<xs:element name="agentExtension" type="extensionComplexType"/>
+	<xs:element name="creatingApplicationExtension" type="extensionComplexType"/>
+	<xs:element name="environmentExtension" type="extensionComplexType"/>
+	<xs:element name="eventOutcomeDetailExtension" type="extensionComplexType"/>
+	<xs:element name="keyInformation" type="extensionComplexType"/>
+	<xs:element name="objectCharacteristicsExtension" type="extensionComplexType"/>
+	<xs:element name="rightsExtension" type="extensionComplexType"/>
+	<xs:element name="signatureInformationExtension" type="extensionComplexType"/>
+	<xs:element name="significantPropertiesExtension" type="extensionComplexType"/>
+	<!--
+******************************************************************************************************
+************************************ Global Definitions  *******************************************
+******************************************************************************************************
+-->
+	<!--
+************** countryCode definition
+
+ countryCode added 2.2. Used by copyrightJurisdiction and statuteJurisdiction.  Although typed as xs:string, it is recommended that a standard jurisdictional code (such as ISO 3166-1 alpha-2 or alpha-3 country codes) be used, to ensure international uniqueness.  (Note: this does not introduce a substantive change. It is introduced to reinforce this recommendation.)
+-->
+	<xs:simpleType name="countryCode">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!--
+************** version definition
+-->
+	<xs:simpleType name="versionSimpleType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="2.0"/>
+			<xs:enumeration value="2.1"/>
+			<xs:enumeration value="2.2"/>
+			<!-- 2.2 value added in version 2.2 -->
+		</xs:restriction>
+	</xs:simpleType>
+	<!--  
+****************	extensionComplexType	
+-->
+	<xs:complexType name="extensionComplexType">
+		<xs:sequence>
+			<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- 	
+****************************************************************************************************
+
+                               date/time Definition:  edtfSimpleType 
+                                       Extended Date/Time Format
+
+****************************************************************************************************
+
+edtfSimpleType  is the type used throughout the schema for "date"  and "dateTime" type elements: dateCreatedByApplication, copyrightStatusDeterminationDate, eventDateTime, preservationLevelDateAssigned, statuteInformationDeterminationDate, and others. 
+
+It is based on the edtf specification, and introduced into the PREMIS schema in version 2.0.  However this schema has not keet pace with the development of that spec, which has changed considerably since the release of version 2.0.
+
+edtfSimpleType  is the union of three simple types: xsDate, xs:dateTime -  and edtfRegularExpressions, as folloiws:
+ -->
+	<xs:simpleType name="edtfSimpleType">
+		<xs:union memberTypes="xs:date xs:dateTime edtfRegularExpressions"/>
+	</xs:simpleType>
+	<!-- 
+"xs:union" (above) means that any string conforming to any one of the types in the union will validate.  xs:date and xs:dateTime are built-in W3C schema types.  edtfRegularExpressions is a set of  regular expressions which are described below. So any string that conforms to one of the two built-in types or any of the  regular expressions will validate. 
+
+
+******** edftRegularExpressions
+-->
+	<xs:simpleType name="edtfRegularExpressions">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d{2}(\d{2}|\?\?|\d(\d|\?))(-(\d{2}|\?\?))?~?\??"/>
+			<xs:pattern value="\d{6}(\d{2}|\?\?)~?\??"/>
+			<xs:pattern value="\d{8}T\d{6}"/>
+			<xs:pattern value="((\d{4}(-\d{2})?)|UNKNOWN)/((\d{4}(-\d{2})?)|UNKNOWN|OPEN)"/>
+			<xs:pattern value="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}((Z|(\+|-)\d{2}:\d{2}))?/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}((Z|(\+|-)\d{2}:\d{2}))?"/>
+			<!-- The following, "OPEN", introduced in version 2.2 -->
+			<xs:pattern value="OPEN"/>
+			<!-- 
+
+The first  pattern: 	
+<xs:pattern value="\d{2}(\d{2}|\?\?|\d(\d|\?))(-(\d{2}|\?\?))?~?\??"/>,  
+
+is for year (yyyy) or year-month (yyyy-mm).   The last or last two digits of year may be '?'  meaning "one year in that range but not sure which year", for example 19?? means some year from 1990 to 1999.  Similarly month may be '??' so that 2004-?? "means some month in 2004".  And the entire string may end with '?' or '~' for "uncertain" or "approximate".
+Hyphen must separate year and month.
+
+The second pattern:
+			<xs:pattern value="\d{6}(\d{2}|\?\?)~?\??"/>,
+
+is for  yearMonthDay - yyyymmdd,  where 'dd' may be '??'  so '200412??' means "some day during the month of 12/2004". 
+The whole  string may be followed by '?' or '~'  to mean "questionable" or "approximate".     hyphens are  not allowed for this pattern. 
+
+The Third patten:
+			<xs:pattern value="\d{8}T\d{6}"/>,
+
+is for  date and time with  T separator:'yyyymmddThhmmss'.  Hyphens in date and colons in time not allowed for this pattern.   
+
+The following pattern:
+			<xs:pattern value="((\d{4}(-\d{2})?)|UNKNOWN)/((\d{4}(-\d{2})?)|UNKNOWN|OPEN)"/>
+
+is for  a date range.  in years:  'yyyy/yyyy'; or year/month: yyyy-mm/yyyy-mm.    Beginning or end of range value may be 'UNKNOWN'. End of range value may be 'OPEN'.
+hyphens mandatory when month is present. 
+
+The  pattern  ...
+	<xs:pattern value="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}((Z|(\+|-)\d{2}:\d{2}))?/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}((Z|(\+|-)\d{2}:\d{2}))?"></xs:pattern>
+
+....  supports time zones, e.g.
+
+2010-04-19T22:41:44Z/2010-04-19T22:48:50Z
+Or
+2010-04-19T22:41:44+02:00/2010-04-19T22:48:50+02:00.
+
+The pattern....
+	<xs:pattern value="OPEN"/>
+is introduced in version 2.2 to accomodate date elements that are structured into startDate and endDate.
+EDTF supports expression of start and end date in a single string (an interval). However, some date elements are still structured into a start and end date, and "OPEN" needs to be supported as an end date. Prior to this version, "OPEN" was valid only within an interval. This allow it to be used as a standalone date. It is intended to be used as such only as the end date of a structured date, but this cannot be enforced.
+
+-->
+		</xs:restriction>
+	</xs:simpleType>
+	<!--
+
+****************************************************************************************************************************************
+****************************************************************************************************************************************
+Following is the definition of the <mdSec> element  (first introcuced in version 2.1).  <mdSec> is offered as an alternative to an extension  element, wherever an extension element occurs. 
+
+                             *********************************************************************************************
+                             *********************************************************************************************
+                             *                                                                                                                  *
+                             *                                          <mdSec> element                                             *
+                             *                                                                                                                  *
+                             *                                                                                                                  *
+                             *********************************************************************************************
+                            *********************************************************************************************                        
+-->
+	<xs:element name="mdSec" type="mdSecDefinition"/>
+	<!--
+
+************ mdSecDefinition
+
+<mdSec> is a generalization of several METS metadata type elements: <dmdSec>, <amdSec>, etc. all of METS 
+type "mdSecType".  PREMIS generalized these into a single element because it does not distinguish between 
+these different types of metadata (e.g. administrative vs. descriptive). 
+ 
+<mdSec>  includes one or both of <mdRef> and <mdWrap>, a reference to external metadata and a wrapper of 
+internal metadata, respectively. <mdRef> is an empty element with a link (an attribute) to external metadata.  
+<mdWrap> includes the metadata, either as <xmlData> or <binData>.
+
+-->
+	<xs:complexType name="mdSecDefinition">
+		<xs:all>
+			<xs:element ref="mdRef" minOccurs="0"/>
+			<xs:element ref="mdWrap" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="ID" type="xs:ID" use="required"/>
+		<xs:attribute name="GROUPID" type="xs:string"/>
+		<xs:attribute name="ADMID" type="xs:IDREFS"/>
+		<xs:attribute name="CREATED" type="edtfSimpleType"/>
+		<xs:attribute name="STATUS" type="xs:string"/>
+	</xs:complexType>
+	<!--
+
+************ mdRefDefinition
+<mdRef> (metadata reference)  is an empty element providing pointers (via xlink and XPTR attributes) to metadata outside the PREMIS document.  
+-->
+	<xs:complexType name="mdRefDefinition">
+		<xs:attribute name="ID" type="xs:ID"/>
+		<xs:attribute name="LOCTYPE" type="LOCTYPEDefinition" use="required"/>
+		<xs:attribute name="OTHERLOCTYPE" type="xs:string"/>
+		<xs:attributeGroup ref="xlink:simpleLink"/>
+		<xs:attributeGroup ref="metadataAttributeGroup"/>
+		<xs:attributeGroup ref="filecoreAttributeGroup"/>
+		<xs:attribute name="LABEL" type="xs:string"/>
+		<xs:attribute name="XPTR" type="xs:string"/>
+		<!-- -->
+		<!-- 
+         <LOCTYPE> must be supplied, and its value may be "other"
+         in which case <OTHERLOCTYPE> should be supplied.
+-->
+	</xs:complexType>
+	<!-- 
+********* mdWrapDefinition
+-->
+	<xs:complexType name="mdWrapDefinition">
+		<xs:choice>
+			<xs:element ref="binData" minOccurs="0"/>
+			<xs:element ref="xmlData" minOccurs="0"/>
+		</xs:choice>
+		<xs:attribute name="ID" type="xs:ID"/>
+		<xs:attributeGroup ref="metadataAttributeGroup"/>
+		<xs:attributeGroup ref="filecoreAttributeGroup"/>
+		<xs:attribute name="LABEL" type="xs:string"/>
+		<!--
+						<mdWrap> (metadata wrapper) wraps metadata in one of the following forms: 
+1) XML-encoded (belonging to any namespace) wrapped in an <xmlData>  element. . 
+2) Arbitrary Base64 encoded  wrapped in a <binData>  element. 
+-->
+	</xs:complexType>
+	<!-- 
+xmlDataDefinition 
+-->
+	<xs:complexType name="xmlDataDefinition">
+		<xs:sequence>
+			<xs:any namespace="##any" processContents="lax" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- 
+MDTYPEDefinition
+-->
+	<xs:simpleType name="MDTYPEDefinition">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MIX"/>
+			<xs:enumeration value="LC-VIDEO"/>
+			<xs:enumeration value="LC-AUDIO"/>
+			<xs:enumeration value="TEXTMD"/>
+			<xs:enumeration value="METSRIGHTS"/>
+			<xs:enumeration value="CDLCopyright"/>
+			<xs:enumeration value="XMLSignature"/>
+			<xs:enumeration value="OTHER"/>
+		</xs:restriction>
+		<!-- this list of values differs from the list in METS -->
+	</xs:simpleType>
+	<!--
+LOCTYPEDefinition
+-->
+	<xs:simpleType name="LOCTYPEDefinition">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ARK"/>
+			<xs:enumeration value="URN"/>
+			<xs:enumeration value="URL"/>
+			<xs:enumeration value="PURL"/>
+			<xs:enumeration value="HANDLE"/>
+			<xs:enumeration value="DOI"/>
+			<xs:enumeration value="OTHER"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--
+CHECKSUMTYPEDefinition
+-->
+	<xs:simpleType name="CHECKSUMTYPEDefinition">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Adler-32"/>
+			<xs:enumeration value="CRC32"/>
+			<xs:enumeration value="HAVAL"/>
+			<xs:enumeration value="MD5"/>
+			<xs:enumeration value="MNP"/>
+			<xs:enumeration value="SHA-1"/>
+			<xs:enumeration value="SHA-256"/>
+			<xs:enumeration value="SHA-384"/>
+			<xs:enumeration value="SHA-512"/>
+			<xs:enumeration value="TIGER"/>
+			<xs:enumeration value="WHIRLPOOL"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--
+*************** attribute group definitions
+-->
+	<!--
+
+**** metadataAttributeGroup
+-->
+	<xs:attributeGroup name="metadataAttributeGroup">
+		<xs:attribute name="MDTYPE" type="MDTYPEDefinition" use="required"/>
+		<xs:attribute name="OTHERMDTYPE" type="xs:string"/>
+		<xs:attribute name="MDTYPEVERSION" type="xs:string"/>
+	</xs:attributeGroup>
+	<!--
+
+**** filecoreAttributeGroup
+-->
+	<xs:attributeGroup name="filecoreAttributeGroup">
+		<xs:attribute name="MIMETYPE" type="xs:string"/>
+		<xs:attribute name="SIZE" type="xs:long"/>
+		<xs:attribute name="CREATED" type="edtfSimpleType"/>
+		<xs:attribute name="CHECKSUM" type="xs:string"/>
+		<xs:attribute name="CHECKSUMTYPE" type="CHECKSUMTYPEDefinition"/>
+	</xs:attributeGroup>
+	<!-- 
+Element Declarations 
+-->
+	<xs:element name="binData" type="xs:base64Binary"/>
+	<xs:element name="mdRef" type="mdRefDefinition"/>
+	<xs:element name="mdWrap" type="mdWrapDefinition"/>
+	<xs:element name="xmlData" type="xmlDataDefinition"/>
+	<!-- -->
+</xs:schema>
