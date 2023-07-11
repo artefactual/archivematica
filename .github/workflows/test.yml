@@ -11,6 +11,7 @@ jobs:
     name: "Test ${{ matrix.rule }}"
     runs-on: "ubuntu-22.04"
     strategy:
+      fail-fast: false
       matrix:
         include:
           - rule: mcp-server
