@@ -399,3 +399,112 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     assert "Description with slug missing-slug not found!" in response.content.decode(
         "utf8"
     )
+
+
+def test_create_aic_fails_if_query_is_not_passed(amsetup, admin_client):
+    params = {}
+    response = admin_client.get(
+        "{}?{}".format(
+            reverse("archival_storage:create_aic"),
+            urlencode(params),
+        ),
+        follow=True,
+    )
+
+    assert "Unable to create AIC: No AIPs selected" in response.content.decode()
+
+
+def test_create_aic_creates_temporary_files(
+    mocker, admin_client, settings, tmp_path, amsetup
+):
+    aipfiles_search_results = {
+        "aggregations": {
+            "aip_uuids": {
+                "buckets": [
+                    {"key": "a79e23a1-fd5d-4e54-bc02-b88521f9f35b", "doc_count": 15},
+                    {"key": "786e25a5-fa60-48ab-9ff7-baabc52a9591", "doc_count": 15},
+                ]
+            }
+        }
+    }
+    aip_search_results = {
+        "_shards": {"failed": 0, "skipped": 0, "successful": 5, "total": 5},
+        "hits": {
+            "hits": [
+                {
+                    "_id": "LkAKUIkB6j_bcPXdWtl-",
+                    "_index": "aips",
+                    "_score": None,
+                    "_source": {
+                        "AICID": None,
+                        "accessionids": [],
+                        "countAIPsinAIC": None,
+                        "created": 1689264994,
+                        "encrypted": False,
+                        "isPartOf": None,
+                        "location": "Store AIP in standard " "Archivematica Directory",
+                        "name": "artefactual",
+                        "size": 4.80488395690918,
+                        "status": "UPLOADED",
+                        "uuid": "a79e23a1-fd5d-4e54-bc02-b88521f9f35b",
+                    },
+                    "_type": "_doc",
+                    "sort": ["artefactual"],
+                },
+                {
+                    "_id": "HEAIUIkB6j_bcPXdedka",
+                    "_index": "aips",
+                    "_score": None,
+                    "_source": {
+                        "AICID": None,
+                        "accessionids": [],
+                        "countAIPsinAIC": None,
+                        "created": 1689264872,
+                        "encrypted": False,
+                        "isPartOf": None,
+                        "location": "Store AIP in standard " "Archivematica Directory",
+                        "name": "bunny_1",
+                        "size": 4.805169105529785,
+                        "status": "UPLOADED",
+                        "uuid": "786e25a5-fa60-48ab-9ff7-baabc52a9591",
+                    },
+                    "_type": "_doc",
+                    "sort": ["bunny_1"],
+                },
+            ],
+            "max_score": None,
+            "total": 2,
+        },
+        "timed_out": False,
+        "took": 4,
+    }
+    mocker.patch(
+        "elasticSearchFunctions.get_client",
+        return_value=mocker.Mock(
+            **{"search.side_effect": [aipfiles_search_results, aip_search_results]}
+        ),
+    )
+    mocker.patch("databaseFunctions.createSIP")
+    mocker.patch("uuid.uuid4", return_value="1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
+    d = tmp_path / "test-aic"
+    d.mkdir()
+    (d / "tmp").mkdir()
+    settings.SHARED_DIRECTORY = str(d)
+
+    params = {"query": "", "field": "", "fieldName": "", "type": "term"}
+    response = admin_client.get(
+        "{}?{}".format(
+            reverse("archival_storage:create_aic"),
+            urlencode(params),
+        ),
+    )
+
+    assert response.status_code == 302
+    expected_file_contents = {
+        ("a79e23a1-fd5d-4e54-bc02-b88521f9f35b", "artefactual"),
+        ("786e25a5-fa60-48ab-9ff7-baabc52a9591", "bunny_1"),
+    }
+    temporary_files = set()
+    for path in (d / "tmp" / "1e23e6e2-02d7-4b2d-a648-caffa3b489f3").iterdir():
+        temporary_files.add((path.name, path.read_text().strip()))
+    assert expected_file_contents == temporary_files

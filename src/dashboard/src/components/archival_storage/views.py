@@ -488,23 +488,46 @@ def search_augment_file_results(es_client, raw_results):
 
 
 def create_aic(request):
-    """Create an AIC from POSTed list of AIP UUIDs.
+    """Create an AIC from POSTed list of search params.
 
     :param request: Django request object.
     :return: Redirect to appropriate view.
     """
-    uuids = request.GET.get("uuids")
-    if not uuids:
+
+    if "query" not in request.GET:
         messages.error(request, "Unable to create AIC: No AIPs selected")
         return redirect("archival_storage:archival_storage_index")
 
-    # Make a list of UUIDs from from comma-separated string in request.
-    aip_uuids = uuids.split(",")
+    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+
+    if types[0] == "range":
+        fields = ["indexedAt"]
+    query = advanced_search.assemble_query(queries, ops, fields, types)
+    es_client = es.get_client()
+
+    try:
+        query["aggs"] = {
+            "aip_uuids": {
+                "terms": {
+                    "field": "AIPUUID",
+                    "size": str(settings.ELASTICSEARCH_MAX_QUERY_SIZE),
+                }
+            }
+        }
+        query["size"] = 0
+        results = es_client.search(body=query, index=es.AIP_FILES_INDEX)
+        buckets = results["aggregations"]["aip_uuids"]["buckets"]
+        aip_uuids = [bucket["key"] for bucket in buckets]
+
+    except ElasticsearchException:
+        err_desc = "Error accessing AIPs index"
+        logger.exception(err_desc)
+        return HttpResponse(err_desc)
+
     logger.info(f"AIC AIP UUIDs: {aip_uuids}")
 
     # Use the AIP UUIDs to fetch names, which are used to produce files below.
     query = {"query": {"terms": {"uuid": aip_uuids}}}
-    es_client = es.get_client()
     results = es_client.search(
         body=query, index=es.AIPS_INDEX, _source="uuid,name", size=es.MAX_QUERY_SIZE
     )
