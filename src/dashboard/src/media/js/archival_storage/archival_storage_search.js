@@ -408,20 +408,10 @@ $(document).ready(function() {
     }
   });
 
+  // hide create_aic button by default
+  $("#create-aic-btn").hide();
   $("#create-aic-btn").click(function() {
-    var aip_uuids = []
-    // Get object containing UUIDs from the DataTable.
-    var table_uuids = $('#id_show_files').prop('checked')
-      ? []
-      : $('#archival-storage-entries').DataTable().column(1).data();
-    // Add each UUID in the returned object to our clean aip_uuids array.
-    for (i = 0; i < table_uuids.length; i++) {
-      aip_uuids.push(table_uuids[i]);
-    }
-    // Redirect window URL to Django create_aic view, including the AIP UUIDs
-    // as a comma-separated string in the URL parameters.
-    var uuids_string = aip_uuids.join(",");
-    window.location = "/archival-storage/search/create_aic/?uuids=" + uuids_string;
+    window.location = "/archival-storage/search/create_aic/?" + search.toUrlParams()
   });
 
   // Vars and functions to Enable the download of the Archival Storage table
