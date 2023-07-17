@@ -58,15 +58,13 @@ django-tastypie==0.14.3
     # via -r requirements.in
 elasticsearch==6.8.2
     # via -r requirements.in
-future==0.18.3
-    # via metsrw
 gearman3==0.2.1
     # via -r requirements.in
 gevent==22.10.2
     # via -r requirements.in
 greenlet==2.0.2
     # via gevent
-gunicorn==20.1.0
+gunicorn==21.0.1
     # via -r requirements.in
 idna==3.4
     # via requests
@@ -74,6 +72,7 @@ importlib-metadata==4.8.3
     # via
     #   -r requirements.in
     #   click
+    #   gunicorn
     #   jsonschema
     #   pep517
 importlib-resources==5.4.0
@@ -86,13 +85,13 @@ jsonschema==3.2.0
     # via -r requirements.in
 lazy-paged-sequence==0.3
     # via -r requirements.in
-lxml==4.9.2
+lxml==4.9.3
     # via
     #   -r requirements.in
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.3.23
+metsrw==0.4.0
     # via -r requirements.in
 mozilla-django-oidc==1.2.4
     # via -r requirements.in
@@ -104,11 +103,13 @@ olefile==0.46
     # via opf-fido
 opf-fido==1.6.1
     # via -r requirements.in
+packaging==21.3
+    # via gunicorn
 pep517==0.13.0
     # via pip-tools
 pip-tools==6.4.0
     # via -r requirements.in
-prometheus-client==0.16.0
+prometheus-client==0.17.1
     # via
     #   -r requirements.in
     #   django-prometheus
@@ -120,8 +121,10 @@ pyasn1-modules==0.3.0
     # via python-ldap
 pycparser==2.21
     # via cffi
-pyopenssl==23.1.1
+pyopenssl==23.2.0
     # via josepy
+pyparsing==3.1.0
+    # via packaging
 pyrsistent==0.18.0
     # via jsonschema
 python-cas==1.6.0
@@ -151,7 +154,6 @@ six==1.16.0
     #   amclient
     #   django-extensions
     #   jsonschema
-    #   metsrw
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
@@ -162,7 +164,7 @@ typing-extensions==4.1.1
     # via importlib-metadata
 unidecode==1.3.6
     # via -r requirements.in
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   amclient
     #   elasticsearch
@@ -189,7 +191,6 @@ pip==21.3.1
 setuptools==59.6.0
     # via
     #   gevent
-    #   gunicorn
     #   josepy
     #   jsonschema
     #   pip-tools
