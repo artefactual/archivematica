@@ -5,20 +5,28 @@
   <group prefer="system">
     <system
       systemId="http://www.loc.gov/standards/xlink/xlink.xsd"
-      uri="../mets/xlink.xsd"/>
+      uri="../mets/xlink.xsd" />
 
     <system
       systemId="http://www.loc.gov/standards/mets/version1121/mets.xsd"
-      uri="../mets/mets.xsd"/>
+      uri="../mets/mets.xsd" />
 
     <system
       systemId="http://www.loc.gov/standards/premis/v3/premis.xsd"
-      uri="../premis/premis.xsd"/>
+      uri="../premis/premis.xsd" />
 
     <!-- mets-reader-writer still validates against PREMIS 2.2 -->
     <system
       systemId="http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd"
       uri="../premis/premis-v2-2.xsd" />
+
+    <system
+      systemId="http://www.loc.gov/mods/xml.xsd"
+      uri="../mods/xml.xsd" />
+
+    <system
+      systemId="http://www.loc.gov/standards/mods/v3/mods.xsd"
+      uri="../mods/mods.xsd" />
 
   </group>
 
