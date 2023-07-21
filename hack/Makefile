@@ -105,7 +105,7 @@ bootstrap-storage-service:  ## Boostrap Storage Service (new database).
 					--superuser
 	# SS needs to be restarted so the local space is created.
 	# See #303 (https://git.io/vNKlM) for more details.
-	docker compose restart archivematica-storage-service
+	docker compose restart --no-deps archivematica-storage-service
 
 makemigrations-ss:
 	docker compose run \
@@ -173,10 +173,10 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
-	docker compose restart archivematica-mcp-server
-	docker compose restart archivematica-mcp-client
-	docker compose restart archivematica-dashboard
-	docker compose restart archivematica-storage-service
+	docker compose restart --no-deps archivematica-mcp-server
+	docker compose restart --no-deps archivematica-mcp-client
+	docker compose restart --no-deps archivematica-dashboard
+	docker compose restart --no-deps archivematica-storage-service
 
 compile-requirements-am:  ## Run pip-compile for Archivematica
 	docker compose run --workdir /src \
@@ -204,7 +204,7 @@ flush: flush-shared-dir flush-search bootstrap restart-am-services  ## Delete AL
 flush-shared-dir-mcp-configs:  ## Delete processing configurations - it restarts MCPServer.
 	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml
 	rm -f ${AM_PIPELINE_DATA}/sharedMicroServiceTasksConfigs/processingMCPConfigs/automatedProcessingMCP.xml
-	docker compose restart archivematica-mcp-server
+	docker compose restart --no-deps archivematica-mcp-server
 
 flush-shared-dir:  ## Delete contents of the shared directory data volume.
 	rm -rf ${AM_PIPELINE_DATA}/*
