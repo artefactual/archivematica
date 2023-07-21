@@ -68,16 +68,17 @@ RUN set -ex \
 		yarn nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
+ENV PYENV_ROOT="/pyenv/data"
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
 RUN set -ex \
 	&& groupadd --gid ${GROUP_ID} --system archivematica \
-	&& useradd -m --uid ${USER_ID} --gid ${GROUP_ID} --create-home --home-dir /home/archivematica --system archivematica \
+	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
 	&& mkdir -p /var/archivematica/sharedDirectory \
-	&& chown -R archivematica:archivematica /var/archivematica
+	&& mkdir -p /pyenv \
+	&& chown -R archivematica:archivematica /var/archivematica /pyenv
 
 USER archivematica
-
-ENV PYENV_ROOT="/home/archivematica/.pyenv"
-ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 RUN set -ex \
 	&& curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
