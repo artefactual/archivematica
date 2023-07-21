@@ -50,7 +50,12 @@ start-mysql: test-build
 define create_db
 	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
 		DROP DATABASE IF EXISTS `$(1)`; \
-		CREATE DATABASE `$(1)`; \
+		CREATE DATABASE `$(1)`;'
+	$(call grant_all_on_db,$(1))
+endef
+
+define grant_all_on_db
+	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
 		GRANT ALL ON `$(1)`.* TO "archivematica"@"%" IDENTIFIED BY "demo";'
 endef
 
@@ -60,6 +65,10 @@ endef
 
 define create_dbs
 	$(foreach test_db,$(1),$(call create_db,$(test_db));)
+endef
+
+define grant_all_on_dbs
+	$(foreach test_db,$(1),$(call grant_all_on_db,$(test_db));)
 endef
 
 create-volumes:  ## Create external data volumes.
@@ -82,10 +91,7 @@ build:  # Build Compose services.
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Boostrap Storage Service (new database).
-	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
-		DROP DATABASE IF EXISTS SS; \
-		CREATE DATABASE SS; \
-		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
+	$(call create_db,SS)
 	docker compose run \
 		--rm \
 		--no-deps \
@@ -135,10 +141,7 @@ manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [opt
 				$(ARG)
 
 bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
-	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e "\
-		DROP DATABASE IF EXISTS MCP; \
-		CREATE DATABASE MCP; \
-		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
+	$(call create_db,MCP)
 	docker compose run \
 		--rm \
 		--no-deps \
@@ -236,22 +239,22 @@ test-build:  ## Build archivematica-tests image.
 
 __TOXENVS_MCPSERVER := mcp-server
 test-mcp-server: start-mysql  ## Run MCPServer tests.
-	$(call create_dbs,$(__TEST_DBS_MCPSERVER))
+	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER))
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
 __TOXENVS_MCPCLIENT = mcp-client mcp-client-ensure-no-mutable-globals
 test-mcp-client: start-mysql  ## Run MCPClient tests.
-	$(call create_dbs,$(__TEST_DBS_MCPCLIENT))
+	$(call grant_all_on_dbs,$(__TEST_DBS_MCPCLIENT))
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
 
 __TOXENVS_DASHBOARD = dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
-	$(call create_dbs,$(__TEST_DBS_DASHBOARD))
+	$(call grant_all_on_dbs,$(__TEST_DBS_DASHBOARD))
 	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
 
 __TOXENVS_STORAGE_SERVICE = storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
-	$(call create_dbs,$(__TEST_DBS_STORAGE_SERVICE))
+	$(call grant_all_on_dbs,$(__TEST_DBS_STORAGE_SERVICE))
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
@@ -259,7 +262,7 @@ test-storage-service-integration:  ## Run Storage Service unit and integration t
 
 __TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
-	$(call create_dbs,$(__TEST_DBS_DASHBOARD))
+	$(call grant_all_on_dbs,$(__TEST_DBS_DASHBOARD))
 	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
 
 __TOXENVS_MIGRATIONS = migrations-dashboard migrations-storage-service
@@ -273,7 +276,7 @@ test-linting:  ## Check linting.
 
 __TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
 test-all: start-mysql  ## Run all tests.
-	$(call create_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
+	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
 	$(call run_toxenvs,$(__TOXENVS_ALL))
 
 test-at-build:  ## AMAUAT: build image.
