@@ -47,18 +47,23 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         Extract user details from JSON web tokens
         These map to fields on the user field.
         """
-        id_info = json.loads(JWS.from_compact(id_token).payload.decode("utf-8"))
-        access_info = json.loads(JWS.from_compact(access_token).payload.decode("utf-8"))
+        def decode_token(token):
+            sig = JWS.from_compact(token.encode("utf-8"))
+            payload = sig.payload.decode("utf-8")
+            return json.loads(payload)
+
+        access_info = decode_token(access_token)
+        id_info = decode_token(id_token)
 
         info = {}
 
         for oidc_attr, user_attr in settings.OIDC_ACCESS_ATTRIBUTE_MAP.items():
-            assert user_attr not in info
-            info[user_attr] = access_info[oidc_attr]
+            if oidc_attr in access_info:
+                info.setdefault(user_attr, access_info.get[oidc_attr])
 
         for oidc_attr, user_attr in settings.OIDC_ID_ATTRIBUTE_MAP.items():
-            assert user_attr not in info
-            info[user_attr] = id_info[oidc_attr]
+            if oidc_attr in id_info:
+                info.setdefault(user_attr, id_info[oidc_attr])
 
         return info
 
