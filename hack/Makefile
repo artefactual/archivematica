@@ -88,7 +88,7 @@ create-volumes:  ## Create external data volumes.
 build:  # Build Compose services.
 	docker compose build
 
-bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
+bootstrap: bootstrap-storage-service bootstrap-dashboard-db  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Boostrap Storage Service (new database).
 	$(call create_db,SS)
