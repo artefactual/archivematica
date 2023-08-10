@@ -509,7 +509,7 @@ def get_file_replacement_mapping(file_obj, unit_directory):
 
     mapping.update(
         {
-            r"%fileUUID%": file_obj.pk,
+            r"%fileUUID%": str(file_obj.pk),
             r"%originalLocation%": file_obj.originallocation,
             r"%currentLocation%": file_obj.currentlocation,
             r"%fileGrpUse%": file_obj.filegrpuse,

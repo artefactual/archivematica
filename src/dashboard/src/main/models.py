@@ -22,6 +22,7 @@ import itertools
 import logging
 import os
 import re
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -30,7 +31,7 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.fields import UUIDField
+from django_extensions.db import fields
 from version import get_preservation_system_identifier
 
 # Core Django, alphabetical by import source
@@ -53,7 +54,34 @@ BULK_CREATE_BATCH_SIZE = 2000
 # CUSTOM FIELDS
 
 
-class UUIDPkField(UUIDField):
+class UUIDField(models.UUIDField):
+    """Customize Django's UUIDField default behaviour.
+    This subclass maintains backward compatibility with django-extension's
+    UUIDField data to avoid data migrations.
+    By default, Django's UUIDField stores UUIDs as CHAR(32) columns with
+    hexadecimal digits only. This subclass stores the hyphens as well using
+    VARCHAR(36) columns instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs["max_length"] = 36
+        models.Field.__init__(self, *args, **kwargs)
+
+    def db_type(self, connection):
+        return "varchar(%s)" % self.max_length
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return None
+        if not isinstance(value, uuid.UUID):
+            value = self.to_python(value)
+
+        if connection.features.has_native_uuid_field:
+            return value
+        return str(value)
+
+
+class UUIDPkField(fields.UUIDField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 36)
         kwargs["primary_key"] = True
@@ -181,7 +209,7 @@ class Access(models.Model):
     """Information about an upload to AtoM for a SIP."""
 
     id = models.AutoField(primary_key=True, db_column="pk")
-    sipuuid = models.CharField(max_length=36, db_column="SIPUUID", blank=True)
+    sipuuid = UUIDField(default=uuid.uuid4, db_column="SIPUUID", blank=True)
     # Qubit ID (slug) generated or preexisting if a new description was not created
     resource = models.TextField(db_column="resource", blank=True)
     # Before the UploadDIP micro-service is executed, a dialog shows up and ask the user
@@ -292,7 +320,7 @@ class MetadataAppliesToType(models.Model):
     TRANSFER_TYPE = "45696327-44c5-4e78-849b-e027a189bf4d"
     FILE_TYPE = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
 
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     description = models.CharField(max_length=50, db_column="description")
     replaces = models.CharField(
         max_length=36, db_column="replaces", null=True, blank=True
@@ -311,7 +339,7 @@ class Event(models.Model):
 
     id = models.AutoField(primary_key=True, db_column="pk", editable=False)
     event_id = UUIDField(
-        auto=False, null=True, unique=True, db_column="eventIdentifierUUID"
+        default=uuid.uuid4, null=True, unique=True, db_column="eventIdentifierUUID"
     )
     file_uuid = models.ForeignKey(
         "File",
@@ -424,7 +452,7 @@ PACKAGE_STATUS_CHOICES = (
 class SIP(models.Model):
     """Information on SIP units."""
 
-    uuid = models.CharField(max_length=36, primary_key=True, db_column="sipUUID")
+    uuid = UUIDField(primary_key=True, db_column="sipUUID", default=uuid.uuid4)
     createdtime = models.DateTimeField(db_column="createdTime", auto_now_add=True)
     # If currentpath is null, this SIP is understood to not have been started yet.
     currentpath = models.TextField(db_column="currentPath", null=True, blank=True)
@@ -517,7 +545,7 @@ class SIP(models.Model):
 class Transfer(models.Model):
     """Information on Transfer units."""
 
-    uuid = models.CharField(max_length=36, primary_key=True, db_column="transferUUID")
+    uuid = UUIDField(default=uuid.uuid4, primary_key=True, db_column="transferUUID")
     currentlocation = models.TextField(db_column="currentLocation")
     type = models.CharField(max_length=50, db_column="type")
     accessionid = models.TextField(db_column="accessionID")
@@ -606,8 +634,8 @@ class SIPArrange(models.Model):
 
     original_path = BlobTextField(null=True, blank=True, default=None)
     arrange_path = BlobTextField()
-    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None, unique=True)
-    transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    file_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4, unique=True)
+    transfer_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4)
     sip = models.ForeignKey(
         SIP,
         to_field="uuid",
@@ -691,7 +719,7 @@ class Identifier(models.Model):
 class File(models.Model):
     """Information about Files in units (Transfers, SIPs)."""
 
-    uuid = models.CharField(max_length=36, primary_key=True, db_column="fileUUID")
+    uuid = UUIDField(default=uuid.uuid4, primary_key=True, db_column="fileUUID")
     sip = models.ForeignKey(
         SIP,
         db_column="sipUUID",
@@ -773,7 +801,7 @@ class Directory(models.Model):
     configures Archivematica to assign UUIDs to directories.
     """
 
-    uuid = models.CharField(max_length=36, primary_key=True, db_column="directoryUUID")
+    uuid = UUIDField(default=uuid.uuid4, primary_key=True, db_column="directoryUUID")
     sip = models.ForeignKey(
         SIP,
         db_column="sipUUID",
@@ -887,15 +915,15 @@ class JobQuerySet(models.QuerySet):
 
 
 class Job(models.Model):
-    jobuuid = UUIDField(db_column="jobUUID", primary_key=True)
+    jobuuid = UUIDField(db_column="jobUUID", primary_key=True, default=uuid.uuid4)
     jobtype = models.CharField(max_length=250, db_column="jobType", blank=True)
     createdtime = models.DateTimeField(db_column="createdTime")
     createdtimedec = models.DecimalField(
         db_column="createdTimeDec", max_digits=26, decimal_places=10, default=0.0
     )
     directory = models.TextField(blank=True)
-    sipuuid = models.CharField(
-        max_length=36, db_column="SIPUUID", db_index=True
+    sipuuid = UUIDField(
+        db_column="SIPUUID", db_index=True, default=uuid.uuid4
     )  # Foreign key to SIPs or Transfers
     unittype = models.CharField(max_length=50, db_column="unitType", blank=True)
     STATUS_UNKNOWN = 0
@@ -918,7 +946,7 @@ class Job(models.Model):
     )
     hidden = models.BooleanField(default=False)
     microservicechainlink = UUIDField(
-        auto=False, null=True, blank=True, db_column="MicroServiceChainLinksPK"
+        default=uuid.uuid4, null=True, blank=True, db_column="MicroServiceChainLinksPK"
     )
     subjobof = models.CharField(max_length=36, db_column="subJobOf", blank=True)
 
@@ -963,7 +991,7 @@ class Job(models.Model):
 
 
 class Task(models.Model):
-    taskuuid = models.CharField(max_length=36, primary_key=True, db_column="taskUUID")
+    taskuuid = UUIDField(default=uuid.uuid4, primary_key=True, db_column="taskUUID")
     job = models.ForeignKey(
         "Job", db_column="jobuuid", to_field="jobuuid", on_delete=models.CASCADE
     )
@@ -1626,12 +1654,12 @@ class UnitVariableManager(models.Manager):
 
 
 class UnitVariable(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     unittype = models.CharField(
         max_length=50, null=True, blank=True, db_column="unitType"
     )
-    unituuid = models.CharField(
-        max_length=36,
+    unituuid = UUIDField(
+        default=uuid.uuid4,
         null=True,
         help_text=_("Semantically a foreign key to SIP or Transfer"),
         db_column="unitUUID",
@@ -1639,7 +1667,7 @@ class UnitVariable(models.Model):
     variable = models.TextField(null=True, db_column="variable")
     variablevalue = models.TextField(null=True, db_column="variableValue")
     microservicechainlink = UUIDField(
-        auto=False, null=True, blank=True, db_column="microServiceChainLink"
+        default=uuid.uuid4, null=True, blank=True, db_column="microServiceChainLink"
     )
     createdtime = models.DateTimeField(db_column="createdTime", auto_now_add=True)
     updatedtime = models.DateTimeField(db_column="updatedTime", auto_now=True)
@@ -1655,8 +1683,8 @@ class UnitVariable(models.Model):
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column="pk")
     # TODO these should be foreign keys?
-    dipuuid = models.CharField(max_length=50, db_column="dipUUID")
-    fileuuid = models.CharField(max_length=50, db_column="fileUUID")
+    dipuuid = UUIDField(default=uuid.uuid4, db_column="dipUUID")
+    fileuuid = UUIDField(default=uuid.uuid4, db_column="fileUUID")
     # This field holds URL fragments, for instance:
     # /repositories/2/archival_objects/1
     resourceid = models.CharField(max_length=150, db_column="resourceId")
@@ -1699,7 +1727,7 @@ class ArchivesSpaceDigitalObject(models.Model):
 
 
 class TransferMetadataSet(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     createdtime = models.DateTimeField(db_column="createdTime", auto_now_add=True)
     createdbyuserid = models.IntegerField(db_column="createdByUserID")
 
@@ -1708,7 +1736,7 @@ class TransferMetadataSet(models.Model):
 
 
 class TransferMetadataField(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     createdtime = models.DateTimeField(
         db_column="createdTime", auto_now_add=True, null=True
     )
@@ -1732,7 +1760,7 @@ class TransferMetadataField(models.Model):
 
 
 class TransferMetadataFieldValue(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     createdtime = models.DateTimeField(db_column="createdTime", auto_now_add=True)
     set = models.ForeignKey(
         "TransferMetadataSet",
@@ -1757,7 +1785,7 @@ class TransferMetadataFieldValue(models.Model):
 # designed to be editable, and forms to do so exist. (Forms for editing and
 # defining new fields are present in the code but currently disabled.)
 class Taxonomy(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     createdtime = models.DateTimeField(
         db_column="createdTime", auto_now_add=True, null=True
     )
@@ -1772,7 +1800,7 @@ class Taxonomy(models.Model):
 
 
 class TaxonomyTerm(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     createdtime = models.DateTimeField(
         db_column="createdTime", auto_now_add=True, null=True
     )
@@ -1826,7 +1854,7 @@ class FileID(models.Model):
 
 
 class LevelOfDescription(models.Model):
-    id = UUIDPkField()
+    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
     name = models.CharField(max_length=1024)  # seems long, but AtoM allows this much
     # sortorder should be unique, but is not defined so here to enable swapping
     sortorder = models.IntegerField(default=0, db_column="sortOrder")

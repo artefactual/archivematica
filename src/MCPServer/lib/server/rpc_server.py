@@ -394,8 +394,8 @@ class RPCServer(GearmanWorker):
                 except KeyError:
                     continue
                 new_job = {}
-                new_job["uuid"] = job_.jobuuid
-                new_job["link_id"] = job_.microservicechainlink
+                new_job["uuid"] = str(job_.jobuuid)
+                new_job["link_id"] = str(job_.microservicechainlink)
                 new_job["currentstep"] = job_.currentstep
                 new_job["timestamp"] = "%d.%s" % (
                     calendar.timegm(job_.createdtime.timetuple()),
@@ -405,7 +405,7 @@ class RPCServer(GearmanWorker):
                 new_job["type"] = link.get_label("description", lang)
                 try:
                     new_job["choices"] = _pull_choices(
-                        job_.jobuuid, lang, jobs_awaiting_for_approval
+                        str(job_.jobuuid), lang, jobs_awaiting_for_approval
                     )
                 except JobNotWaitingForApprovalError:
                     pass

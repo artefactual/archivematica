@@ -24,7 +24,7 @@ class TestViews(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.context["form"].initial["tool"], None)
 
-        resp = self.client.get(url, {"parent": 12345})
+        resp = self.client.get(url, {"parent": "c80458d9-2b62-40f4-b61c-936bfb72901d"})
         self.assertEqual(resp.context["form"].initial["tool"], None)
 
         resp = self.client.get(url, {"parent": tool.uuid})
@@ -41,7 +41,7 @@ class TestViews(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.context["form"].initial["tool"], None)
 
-        resp = self.client.get(url, {"parent": 12345})
+        resp = self.client.get(url, {"parent": "d993bdcf-a944-4df8-b960-1b20c14ffe68"})
         self.assertEqual(resp.context["form"].initial["tool"], None)
 
         resp = self.client.get(url, {"parent": tool.uuid})

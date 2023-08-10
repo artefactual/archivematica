@@ -98,11 +98,9 @@ def test_purge_command_removes_search_documents(search_enabled, old_transfer, mo
 
     call_command("purge_transient_processing_data")
 
-    mock_remove_backlog_transfer.assert_called_once_with(
-        mocker.ANY, str(old_transfer.pk)
-    )
+    mock_remove_backlog_transfer.assert_called_once_with(mocker.ANY, old_transfer.pk)
     mock_remove_backlog_transfer_files.assert_called_once_with(
-        mocker.ANY, str(old_transfer.pk)
+        mocker.ANY, old_transfer.pk
     )
 
 

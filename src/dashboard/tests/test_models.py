@@ -1,3 +1,4 @@
+import uuid
 from unittest import mock
 
 import pytest
@@ -32,30 +33,33 @@ class TestActiveAgent(TestCase):
         )
 
     def test_unitvariable_update_variable(self):
+        link_id = uuid.uuid4()
+        UNIT_ID = uuid.uuid4()
         obj, created = models.UnitVariable.objects.update_variable(
-            "UNIT_TYPE", "UNIT_ID", "VARIABLE", "VALUE", "LINK_ID"
+            "UNIT_TYPE", UNIT_ID, "VARIABLE", "VALUE", link_id
         )
         assert created is True
         assert isinstance(obj, models.UnitVariable)
         models.UnitVariable.objects.get(
             unittype="UNIT_TYPE",
-            unituuid="UNIT_ID",
+            unituuid=UNIT_ID,
             variable="VARIABLE",
             variablevalue="VALUE",
-            microservicechainlink="LINK_ID",
+            microservicechainlink=link_id,
         )
 
+        new_link_id = uuid.uuid4()
         obj, created = models.UnitVariable.objects.update_variable(
-            "UNIT_TYPE", "UNIT_ID", "VARIABLE", "NEW_VALUE", "NEW_LINK_ID"
+            "UNIT_TYPE", UNIT_ID, "VARIABLE", "NEW_VALUE", new_link_id
         )
         assert created is False
         assert isinstance(obj, models.UnitVariable)
         models.UnitVariable.objects.get(
             unittype="UNIT_TYPE",
-            unituuid="UNIT_ID",
+            unituuid=UNIT_ID,
             variable="VARIABLE",
             variablevalue="NEW_VALUE",
-            microservicechainlink="NEW_LINK_ID",
+            microservicechainlink=new_link_id,
         )
 
 

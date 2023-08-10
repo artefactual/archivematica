@@ -79,7 +79,6 @@ def upload_to_archivesspace(
     dip_location,
     inherit_notes,
 ):
-
     if not uri.endswith("/"):
         uri += "/"
     pairs = get_pairs(dip_uuid)

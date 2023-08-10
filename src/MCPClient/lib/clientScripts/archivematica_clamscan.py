@@ -219,9 +219,12 @@ class ClamScanner(ScannerBase):
 
 
 def file_already_scanned(file_uuid):
-    return Event.objects.filter(
-        file_uuid_id=file_uuid, event_type="virus check"
-    ).exists()
+    return (
+        file_uuid != "None"
+        and Event.objects.filter(
+            file_uuid_id=file_uuid, event_type="virus check"
+        ).exists()
+    )
 
 
 def queue_event(file_uuid, date, scanner, passed, queue):
@@ -274,7 +277,6 @@ def get_scanner():
     """
     choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
     if choice not in SCANNERS_NAMES:
-
         logger.warning(
             "Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):" ' "%s"; using %s.',
             choice,

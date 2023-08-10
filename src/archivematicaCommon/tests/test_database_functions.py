@@ -1,4 +1,5 @@
 import os
+import uuid
 
 import databaseFunctions
 import pytest
@@ -16,11 +17,13 @@ class TestDatabaseFunctions(TestCase):
 
     # insertIntoFiles
     def test_insert_into_files_with_sip(self):
-        path = "%sharedDirectory%/no_such_file"
+        path = "%sharedDirectory%/"
         assert File.objects.filter(currentlocation=path).count() == 0
 
         databaseFunctions.insertIntoFiles(
-            "uuid", path, sipUUID="0049fa6c-152f-44a0-93b0-c5e856a02292"
+            "690c2fb5-7fee-4c29-a8b2-e3758ab9871e",
+            path,
+            sipUUID="0049fa6c-152f-44a0-93b0-c5e856a02292",
         )
         assert File.objects.filter(currentlocation=path).count() == 1
 
@@ -104,7 +107,8 @@ class TestDatabaseFunctions(TestCase):
         assert 2 in agents  # organization
 
     def test_get_agent_returns_none_for_invalid_uuid(self):
-        assert databaseFunctions.getAMAgentsForFile("no such file") == []
+        fileuuid = str(uuid.uuid4())
+        assert databaseFunctions.getAMAgentsForFile(fileuuid) == []
 
     def test_get_agent_returns_none_if_no_unit_variable(self):
         agents = databaseFunctions.getAMAgentsForFile(
@@ -115,18 +119,30 @@ class TestDatabaseFunctions(TestCase):
     # insertIntoEvents
 
     def test_insert_into_events(self):
-        assert Event.objects.filter(event_id="new_event").count() == 0
+        assert (
+            Event.objects.filter(
+                event_id="15a3467d-4c7f-45a5-b879-401b73b7cf7a"
+            ).count()
+            == 0
+        )
         databaseFunctions.insertIntoEvents(
             fileUUID="88c8f115-80bc-4da4-a1e6-0158f5df13b9",
-            eventIdentifierUUID="new_event",
+            eventIdentifierUUID="15a3467d-4c7f-45a5-b879-401b73b7cf7a",
         )
-        assert Event.objects.filter(event_id="new_event").count() == 1
+        assert (
+            Event.objects.filter(
+                event_id="15a3467d-4c7f-45a5-b879-401b73b7cf7a"
+            ).count()
+            == 1
+        )
 
     def test_insert_into_event_fetches_correct_agent_from_file(self):
         databaseFunctions.insertIntoEvents(
             fileUUID="88c8f115-80bc-4da4-a1e6-0158f5df13b9",
-            eventIdentifierUUID="event_agent_id",
+            eventIdentifierUUID="fdbf54da-2b21-4364-be3a-a99ad788cdb6",
         )
-        agents = Event.objects.get(event_id="event_agent_id").agents
+        agents = Event.objects.get(
+            event_id="fdbf54da-2b21-4364-be3a-a99ad788cdb6"
+        ).agents
         assert agents.get(id=2)
         assert agents.get(id=5)

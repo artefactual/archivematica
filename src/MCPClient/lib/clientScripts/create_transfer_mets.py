@@ -69,9 +69,7 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
     """
     transfer_dir_path = os.path.expanduser(transfer_dir_path)
     transfer_dir_path = os.path.normpath(transfer_dir_path)
-
     db_base_path = rf"%{base_path_placeholder}%"
-
     mets = metsrw.METSDocument()
     mets.objid = str(transfer_uuid)
 
@@ -86,7 +84,7 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
         mets.agents.append(agent)
 
     try:
-        transfer = Transfer.objects.get(uuid=transfer_uuid)
+        transfer = Transfer.objects.get(uuid=str(transfer_uuid))
     except Transfer.DoesNotExist:
         logger.info("No record in database for transfer: %s", transfer_uuid)
         raise
@@ -225,7 +223,6 @@ class FSEntriesTree:
         file_objs = self.file_queryset.filter(
             transfer=self.transfer, removedtime__isnull=True
         )
-
         for file_obj in self._batch_query(file_objs):
             try:
                 fsentry = self.file_index[file_obj.currentlocation]
@@ -235,8 +232,7 @@ class FSEntriesTree:
                     file_obj.currentlocation,
                 )
                 continue
-
-            fsentry.file_uuid = file_obj.uuid
+            fsentry.file_uuid = str(file_obj.uuid)
             fsentry.checksum = file_obj.checksum
             fsentry.checksumtype = convert_to_premis_hash_function(
                 file_obj.checksumtype
@@ -342,12 +338,15 @@ def get_premis_relationship_data(derivations, originals):
                 (
                     "related_object_identification",
                     ("related_object_identifier_type", "UUID"),
-                    ("related_object_identifier_value", derivation.derived_file_id),
+                    (
+                        "related_object_identifier_value",
+                        str(derivation.derived_file_id),
+                    ),
                 ),
                 (
                     "related_event_identification",
                     ("related_event_identifier_type", "UUID"),
-                    ("related_event_identifier_value", derivation.event_id),
+                    ("related_event_identifier_value", str(derivation.event_id)),
                 ),
             ),
         )
@@ -360,12 +359,12 @@ def get_premis_relationship_data(derivations, originals):
                 (
                     "related_object_identification",
                     ("related_object_identifier_type", "UUID"),
-                    ("related_object_identifier_value", original.source_file_id),
+                    ("related_object_identifier_value", str(original.source_file_id)),
                 ),
                 (
                     "related_event_identification",
                     ("related_event_identifier_type", "UUID"),
-                    ("related_event_identifier_value", original.event_id),
+                    ("related_event_identifier_value", str(original.event_id)),
                 ),
             ),
         )
@@ -550,7 +549,6 @@ def get_premis_other_rights_information(rights):
 def get_premis_rights_granted(rights):
     rights_granted_info = ()
     for rights_granted in rights.rightsstatementrightsgranted_set.all():
-
         start_date = clean_date(rights_granted.startdate)
         if rights_granted.enddateopen:
             end_date = "OPEN"
@@ -580,7 +578,7 @@ def get_premis_object_identifiers(uuid, additional_identifiers):
         (
             "object_identifier",
             ("object_identifier_type", "UUID"),
-            ("object_identifier_value", uuid),
+            ("object_identifier_value", str(uuid)),
         ),
     )
     for identifier in additional_identifiers:
@@ -588,7 +586,7 @@ def get_premis_object_identifiers(uuid, additional_identifiers):
             (
                 "object_identifier",
                 ("object_identifier_type", identifier.type),
-                ("object_identifier_value", identifier.value),
+                ("object_identifier_value", str(identifier.value)),
             ),
         )
 
@@ -602,7 +600,6 @@ def file_obj_to_premis(file_obj):
     Returns:
         lxml.etree._Element
     """
-
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
     format_data = get_premis_format_data(file_obj.fileid_set.all())
     original_name = escape(file_obj.originallocation)
@@ -644,7 +641,6 @@ def file_obj_to_premis(file_obj):
         + (object_characteristics, ("original_name", original_name))
         + relationship_data
     )
-
     return metsrw.plugins.premisrw.data_to_premis(
         premis_data, premis_version=FILE_PREMIS_META["version"]
     )
@@ -686,7 +682,7 @@ def event_to_premis(event):
         (
             "event_identifier",
             ("event_identifier_type", "UUID"),
-            ("event_identifier_value", event.event_id),
+            ("event_identifier_value", str(event.event_id)),
         ),
         ("event_type", event.event_type),
         ("event_date_time", event.event_datetime),
@@ -707,7 +703,7 @@ def event_to_premis(event):
             (
                 "linking_agent_identifier",
                 ("linking_agent_identifier_type", agent.identifiertype),
-                ("linking_agent_identifier_value", agent.identifiervalue),
+                ("linking_agent_identifier_value", str(agent.identifiervalue)),
             ),
         )
 
@@ -729,7 +725,7 @@ def agent_to_premis(agent):
         (
             "agent_identifier",
             ("agent_identifier_type", agent.identifiertype),
-            ("agent_identifier_value", agent.identifiervalue),
+            ("agent_identifier_value", str(agent.identifiervalue)),
         ),
         ("agent_name", agent.name),
         ("agent_type", agent.agenttype),
@@ -767,7 +763,7 @@ def rights_to_premis(rights, file_uuid):
         (
             "rights_statement_identifier",
             ("rights_statement_identifier_type", id_type),
-            ("rights_statement_identifier_value", id_value),
+            ("rights_statement_identifier_value", str(id_value)),
         ),
         ("rights_basis", rights_basis),
     )
@@ -798,7 +794,7 @@ def rights_to_premis(rights, file_uuid):
         (
             "linking_object_identifier",
             ("linking_object_identifier_type", "UUID"),
-            ("linking_object_identifier_value", file_uuid),
+            ("linking_object_identifier_value", str(file_uuid)),
         ),
     )
 

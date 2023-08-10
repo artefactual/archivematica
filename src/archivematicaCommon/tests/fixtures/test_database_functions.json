@@ -1,6 +1,6 @@
 [
     {
-        "pk": 1,
+        "pk": "86099c41-4840-41f5-baab-a46f0b75629c",
         "model": "main.file",
         "fields": {
             "checksum": "",
@@ -19,7 +19,6 @@
         }
     },
     {
-        "pk": 1,
         "model": "main.unitvariable",
         "fields": {
             "createdtime": "2014-10-30T00:00:00",
@@ -32,7 +31,7 @@
         }
     },
     {
-        "pk": 1,
+        "pk": "8cf85a9d-df96-4285-92ba-f152d5a2bde9",
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
@@ -44,7 +43,7 @@
         }
     },
     {
-        "pk": 2,
+        "pk": "bc57f005-d6f9-46c0-b10f-3d27ebd0da46",
         "model": "main.file",
         "fields": {
             "checksum": "",
@@ -63,7 +62,6 @@
         }
     },
     {
-        "pk": 2,
         "model": "main.unitvariable",
         "fields": {
             "createdtime": "2014-10-30T00:00:00",
@@ -76,7 +74,7 @@
         }
     },
     {
-        "pk": 1,
+        "pk": "3aeaccce-f83f-474e-9ce8-c5737da07d70",
         "model": "main.transfer",
         "fields": {
             "accessionid": "",
@@ -93,7 +91,7 @@
         }
     },
     {
-        "pk": 3,
+        "pk": "21004071-3502-44a4-b8ab-38708e9247c4",
         "model": "main.file",
         "fields": {
             "checksum": "",
@@ -112,7 +110,6 @@
         }
     },
     {
-        "pk": 3,
         "model": "main.unitvariable",
         "fields": {
             "createdtime": "2014-10-30T00:00:00",
@@ -125,7 +122,7 @@
         }
     },
     {
-        "pk": 2,
+        "pk": "bf66f17d-f05e-4ad2-8dca-510f681407d9",
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
@@ -137,7 +134,7 @@
         }
     },
     {
-        "pk": 2,
+        "pk": "1ff4f465-239e-4217-88b2-a7946c8feeaa",
         "model": "main.transfer",
         "fields": {
             "accessionid": "",
@@ -154,7 +151,6 @@
         }
     },
     {
-        "pk": 4,
         "model": "main.unitvariable",
         "fields": {
             "createdtime": "2014-10-30T00:00:00",
@@ -167,7 +163,7 @@
         }
     },
     {
-        "pk": 4,
+        "pk": "f44b36aa-d64b-48f0-9bfd-4bef0f755e68",
         "model": "main.file",
         "fields": {
             "checksum": "",
@@ -186,7 +182,7 @@
         }
     },
     {
-        "pk": 4,
+        "pk": "81bc0c8e-f51e-4d43-b441-e64d788abbc9",
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
@@ -198,7 +194,7 @@
         }
     },
     {
-        "pk": 5,
+        "pk": "3f58925e-4a70-49e4-ab97-ebf131d1a9c2",
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
@@ -210,7 +206,7 @@
         }
     },
     {
-        "pk": 3,
+        "pk": "2cfe13fd-f20a-4189-8dd8-41d1f87f0e2b",
         "model": "main.transfer",
         "fields": {
             "accessionid": "Accession ID",

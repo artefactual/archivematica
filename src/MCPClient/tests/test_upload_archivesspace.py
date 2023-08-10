@@ -65,6 +65,7 @@ def test_delete_pairs(mocker):
 )
 def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
     file_uuid = str(uuid.uuid4())
+    dip_uuid = str(uuid.uuid4())
     client_mock = mocker.Mock()
     mocker.patch("upload_archivesspace.mets_file")
     mocker.patch(
@@ -72,7 +73,7 @@ def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
     )
     files = [f"file/{file_uuid}-path"]
     success = upload_archivesspace.upload_to_archivesspace(
-        files, client_mock, "", "", "", "", uri, "", "", "", "", "", ""
+        files, client_mock, "", "", "", "", uri, dip_uuid, "", "", "", "", ""
     )
     client_mock.add_digital_object.assert_called_once_with(
         **{
@@ -81,7 +82,7 @@ def test_upload_to_archivesspace_adds_trailing_slash_to_uri(db, mocker, uri):
             "format_version": None,
             "identifier": file_uuid,
             "inherit_notes": "",
-            "location_of_originals": "",
+            "location_of_originals": dip_uuid,
             "object_type": "",
             "parent_archival_object": "myresource",
             "restricted": False,
@@ -147,6 +148,7 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
     file3_uuid = uuid.uuid4()
+    dip_uuid = uuid.uuid4()
     mocker.patch(
         "upload_archivesspace.get_pairs",
         return_value={str(file1_uuid): "myresource", str(file3_uuid): "myresource"},
@@ -160,7 +162,7 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(db, mocker):
         f"/path/to/{file3_uuid}-audio.mp3",
     ]
     success = upload_archivesspace.upload_to_archivesspace(
-        files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
+        files, client_mock, "", "", "", "", "", dip_uuid, "", "", "", "", ""
     )
     logger.error.assert_called_once_with(
         f"Skipping file {files[1]} ({file2_uuid}) - no pairing found"
@@ -172,6 +174,7 @@ def test_upload_to_archivesspace_when_upload_fails(db, mocker):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
     file3_uuid = uuid.uuid4()
+    dip_uuid = uuid.uuid4()
     mocker.patch(
         "upload_archivesspace.get_pairs",
         return_value={
@@ -189,12 +192,12 @@ def test_upload_to_archivesspace_when_upload_fails(db, mocker):
 
     client_mock = mocker.Mock(**{"add_digital_object.side_effect": fail_video_upload})
     files = [
-        f"/path/to/{file1_uuid}-image.jpg",
-        f"/path/to/{file2_uuid}-video.avi",
-        f"/path/to/{file3_uuid}-audio.mp3",
+        f"/path/to/{str(file1_uuid)}-image.jpg",
+        f"/path/to/{str(file2_uuid)}-video.avi",
+        f"/path/to/{str(file3_uuid)}-audio.mp3",
     ]
     success = upload_archivesspace.upload_to_archivesspace(
-        files, client_mock, "", "", "", "", "", "", "", "", "", "", ""
+        files, client_mock, "", "", "", "", "", dip_uuid, "", "", "", "", ""
     )
     logger.error.assert_called_once_with(
         "Could not upload {} to ArchivesSpace record myresource. Error: {}".format(

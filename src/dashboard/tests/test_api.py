@@ -380,15 +380,15 @@ class TestAPI(TestCase):
         load_fixture(["jobs-rejected"])
         # add chain links to the fixture jobs
         job = Job.objects.get(jobuuid="59ace00b-4830-4314-a7d9-38fdbef64896")
-        job.microservicechainlink = "11111111-1111-1111-1111-111111111111"
+        job.microservicechainlink = "0b8f1929-5beb-4998-a2d5-40e4873fa887"
         job.save()
         job = Job.objects.get(jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774")
-        job.microservicechainlink = "22222222-2222-2222-2222-222222222222"
+        job.microservicechainlink = "2208efc0-ba99-4b36-bb8d-99330fcc25da"
         job.save()
         sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
         resp = self.client.get(
             reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"link_uuid": "11111111-1111-1111-1111-111111111111"},
+            {"link_uuid": "0b8f1929-5beb-4998-a2d5-40e4873fa887"},
         )
         assert resp.status_code == 200
         payload = json.loads(resp.content.decode("utf8"))
@@ -398,7 +398,7 @@ class TestAPI(TestCase):
         assert job["name"] == "Create SIP(s)"
         assert job["status"] == "COMPLETE"
         assert job["microservice"] == "Create SIP from Transfer"
-        assert job["link_uuid"] == "11111111-1111-1111-1111-111111111111"
+        assert job["link_uuid"] == "0b8f1929-5beb-4998-a2d5-40e4873fa887"
         assert job["tasks"] == []
 
     @e2e

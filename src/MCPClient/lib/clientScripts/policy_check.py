@@ -80,7 +80,7 @@ class PolicyChecker:
         if not self.is_manually_normalized_access_derivative:
             try:
                 self.file_model = File.objects.get(uuid=self.file_uuid)
-            except File.DoesNotExist:
+            except (File.DoesNotExist, django.core.exceptions.ValidationError):
                 self.job.pyprint(
                     "Not performing a policy check because there is no file"
                     " with UUID {}.".format(self.file_uuid)
@@ -154,7 +154,7 @@ class PolicyChecker:
                 derived_file__uuid=self.file_uuid, event__event_type=event_type
             )
             return True
-        except Derivation.DoesNotExist:
+        except (Derivation.DoesNotExist, django.core.exceptions.ValidationError):
             return False
 
     def _get_policies_dir(self):

@@ -72,7 +72,11 @@ def update_object(job, mets):
     # Iterate through original files
     for fsentry in mets.all_files():
         # Only update original files
-        if fsentry.use != "original" or fsentry.type != "Item" or not fsentry.file_uuid:
+        if (
+            fsentry.use != "original"
+            or fsentry.type != "Item"
+            or not str(fsentry.file_uuid)
+        ):
             continue
 
         # Copy techMD
@@ -101,7 +105,7 @@ def update_object(job, mets):
             fixity.find("premis:messageDigest", namespaces=ns.NSMAP).text = f.checksum
 
         # If FileID exists, update file ID
-        if models.FileID.objects.filter(file_id=fsentry.file_uuid):
+        if models.FileID.objects.filter(file_id=str(fsentry.file_uuid)):
             job.pyprint("Updating format for", fsentry.file_uuid)
             modified = True
             # Delete old formats
@@ -119,7 +123,7 @@ def update_object(job, mets):
 
         # If FPCommand output exists, update objectCharacteristicsExtension
         if models.FPCommandOutput.objects.filter(
-            file_id=fsentry.file_uuid,
+            file_id=str(fsentry.file_uuid),
             rule__purpose__in=["characterization", "default_characterization"],
         ).exists():
             job.pyprint(
@@ -143,7 +147,7 @@ def update_object(job, mets):
 
         # If Derivation exists, update relationships
         if models.Derivation.objects.filter(
-            source_file_id=fsentry.file_uuid, event__isnull=False
+            source_file_id=str(fsentry.file_uuid), event__isnull=False
         ):
             job.pyprint("Updating relationships for", fsentry.file_uuid)
             modified = True
@@ -375,7 +379,7 @@ def add_events(job, mets, sip_uuid):
     for event in models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid).iterator():
         job.pyprint("Adding", event.event_type, "event to file", event.file_uuid_id)
         try:
-            fsentry = fsentries[event.file_uuid_id]
+            fsentry = fsentries[str(event.file_uuid_id)]
         except KeyError:
             job.pyprint(
                 "File with UUID",
@@ -433,7 +437,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
                 if rel_path != old_mets_rel_path:
                     job.pyprint(rel_path, "not found in METS, must be new file")
                     f = models.File.objects.get(
-                        currentlocation=current_loc, sip_id=sip_uuid
+                        currentlocation=current_loc, sip_id=str(sip_uuid)
                     )
                     new_files.append(f)
                     if rel_path == "objects/metadata/metadata.csv":
@@ -455,20 +459,20 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     for f in new_files:
         # Create amdSecs
-        job.pyprint("Adding amdSec for", f.currentlocation, "(", f.uuid, ")")
+        job.pyprint("Adding amdSec for", f.currentlocation, "(", str(f.uuid), ")")
         amdsec, amdid = createmets2.getAMDSec(
             job,
-            fileUUID=f.uuid,
+            fileUUID=str(f.uuid),
             filePath=None,  # Only needed if use=original
             use=f.filegrpuse,
-            sip_uuid=sip_uuid,
+            sip_uuid=str(sip_uuid),
             transferUUID=None,  # Only needed if use=original
             itemdirectoryPath=None,  # Only needed if use=original
             typeOfTransfer=None,  # Only needed if use=original
             baseDirectoryPath=sip_dir,
             state=state,
         )
-        job.pyprint(f.uuid, "has amdSec with ID", amdid)
+        job.pyprint(str(f.uuid), "has amdSec with ID", amdid)
 
         # Create parent directories if needed
         dirs = os.path.dirname(
@@ -485,12 +489,12 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
         derived_from = None
         if f.original_file_set.exists():
             original_f = f.original_file_set.get().source_file
-            derived_from = mets.get_file(file_uuid=original_f.uuid)
+            derived_from = mets.get_file(file_uuid=str(original_f.uuid))
         entry = metsrw.FSEntry(
             path=f.currentlocation.replace("%SIPDirectory%", "", 1),
             use=f.filegrpuse,
             type="Item",
-            file_uuid=f.uuid,
+            file_uuid=str(f.uuid),
             derived_from=derived_from,
         )
         metsrw_amdsec = metsrw.AMDSec.parse(amdsec)
@@ -514,7 +518,7 @@ def delete_files(mets, sip_uuid):
         sip_id=sip_uuid, event__event_type="deletion"
     ).values_list("uuid", flat=True)
     for file_uuid in deleted_files:
-        df = mets.get_file(file_uuid=file_uuid)
+        df = mets.get_file(file_uuid=str(file_uuid))
         df.use = "deleted"
         df.path = None
         df.label = None
@@ -554,7 +558,7 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
         file_obj = None
         try:
             file_obj = models.File.objects.get(
-                sip_id=sip_uuid, originallocation__endswith="%" + f
+                sip_id=str(sip_uuid), originallocation__endswith="%" + f
             )
         except models.File.DoesNotExist:
             try:
@@ -564,7 +568,7 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
             except models.File.DoesNotExist:
                 pass
         if file_obj is not None:
-            fsentry = mets.get_file(file_uuid=file_obj.uuid)
+            fsentry = mets.get_file(file_uuid=str(file_obj.uuid))
         else:
             fsentry = _get_directory_fsentry(mets, f)
         if fsentry is None:

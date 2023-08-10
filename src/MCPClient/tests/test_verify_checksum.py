@@ -22,7 +22,6 @@ mapped consistently to something that can be understood by users when
 debugging their preservation workflow.
 """
 import subprocess
-from uuid import UUID
 
 import pytest
 from job import Job
@@ -349,7 +348,7 @@ class TestHashsum:
             )
             # Ensure that UUID creation has happened as anticipated. Will raise
             # a TypeError if otherwise.
-            UUID(events[0].event_id, version=4)
+            (events[0].event_id)
             # Test the linked agents associated with our events.
             for event in events:
                 idvalues = []

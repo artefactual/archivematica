@@ -118,8 +118,10 @@ class ReplacementDict(dict):
             else:
                 sipdir = relative_location
 
-            rd["%SIPUUID%"] = sip.uuid
-            sip_name = os.path.basename(sipdir.rstrip("/")).replace("-" + sip.uuid, "")
+            rd["%SIPUUID%"] = str(sip.uuid)
+            sip_name = os.path.basename(sipdir.rstrip("/")).replace(
+                "-" + str(sip.uuid), ""
+            )
             rd["%SIPName%"] = sip_name
             rd["%currentPath%"] = sipdir
             rd["%SIPDirectory%"] = sipdir
@@ -133,7 +135,7 @@ class ReplacementDict(dict):
                 rd["%relativeLocation%"] = relative_location
 
         if file_:
-            rd["%fileUUID%"] = file_.uuid
+            rd["%fileUUID%"] = str(file_.uuid)
             try:
                 base_location = file_.sip.currentpath
             except:

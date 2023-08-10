@@ -297,21 +297,24 @@ class TestSIPArrange(TestCase):
             arrange_path="/arrange/testsip/data/objects/MARBLES.TGA",
             original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+            file_uuid="fe077212-094f-4df9-ac51-1bc35be0d95e",
         )
         models.SIPArrange.objects.create(
             arrange_path="/arrange/testsip/data/logs/BagIt/bagit.txt",
             original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+            file_uuid="0cf82e9a-0a54-45e8-bdff-700c2fed513c",
         )
         models.SIPArrange.objects.create(
             arrange_path="/arrange/testsip/data/metadata/manifest-md5.txt",
             original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
+            file_uuid="33c7b9a5-6031-4c89-847d-708fc285b1c1",
         )
 
         with mock.patch(
             "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
-            return_value=("12345", None),
+            return_value=("369cdbfc-69b1-4003-8f8c-31a537d03e85", None),
         ):
             with mock.patch(
                 "components.filesystem_ajax.views._create_arranged_sip",
@@ -337,7 +340,7 @@ class TestSIPArrange(TestCase):
                         {
                             "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
                             "destination": "staging/testsip/data/objects/MARBLES.TGA",
-                            "uuid": None,
+                            "uuid": "fe077212-094f-4df9-ac51-1bc35be0d95e",
                         },
                         {
                             "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/.",
@@ -350,12 +353,12 @@ class TestSIPArrange(TestCase):
                         {
                             "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
                             "destination": "staging/testsip/data/logs/BagIt/bagit.txt",
-                            "uuid": None,
+                            "uuid": "0cf82e9a-0a54-45e8-bdff-700c2fed513c",
                         },
                         {
                             "source": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
                             "destination": "staging/testsip/data/metadata/manifest-md5.txt",
-                            "uuid": None,
+                            "uuid": "33c7b9a5-6031-4c89-847d-708fc285b1c1",
                         },
                     ],
                     sip_uuid,

@@ -132,15 +132,13 @@ def main(job):
 
     job.print_output(f"matched: {{{originalFileUUID}}}{originalFilePath}")
     dstDir = os.path.join(opts.sipDirectory, "DIP", "objects")
-    dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
+    dstFile = f"{originalFileUUID}-{os.path.basename(opts.filePath)}"
 
     # ensure unique output file name
     i = 0
     while os.path.exists(os.path.join(dstDir, dstFile)):
         i += 1
-        dstFile = (
-            originalFileUUID + "-" + str(i) + "-" + os.path.basename(opts.filePath)
-        )
+        dstFile = f"{originalFileUUID}-{i}-{os.path.basename(opts.filePath)}"
 
     try:
         if not os.path.isdir(dstDir):
