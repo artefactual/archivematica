@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import migrations
 
 
@@ -54,7 +56,7 @@ def data_migration(apps, schema_editor):
     FPRule = apps.get_model("fpr", "FPRule")
 
     # Skip if the existing command is not replace_command_uuid.
-    replace_command_uuid = "3bd47271-a3fa-4627-be97-9f7f69ddeefd"
+    replace_command_uuid = uuid.UUID("3bd47271-a3fa-4627-be97-9f7f69ddeefd")
     rule = FPRule.objects.get(enabled=True, purpose="default_thumbnail")
     if rule.command_id != replace_command_uuid:
         return

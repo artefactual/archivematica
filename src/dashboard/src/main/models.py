@@ -56,8 +56,10 @@ BULK_CREATE_BATCH_SIZE = 2000
 
 class UUIDField(models.UUIDField):
     """Customize Django's UUIDField default behaviour.
+
     This subclass maintains backward compatibility with django-extension's
     UUIDField data to avoid data migrations.
+
     By default, Django's UUIDField stores UUIDs as CHAR(32) columns with
     hexadecimal digits only. This subclass stores the hyphens as well using
     VARCHAR(36) columns instead.
