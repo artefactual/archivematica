@@ -1,3 +1,5 @@
+import uuid
+
 import main.models
 from django.db import migrations
 from django.db import models
@@ -22,13 +24,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (

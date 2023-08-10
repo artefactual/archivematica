@@ -31,7 +31,6 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db import fields
 from version import get_preservation_system_identifier
 
 # Core Django, alphabetical by import source
@@ -81,14 +80,6 @@ class UUIDField(models.UUIDField):
         if connection.features.has_native_uuid_field:
             return value
         return str(value)
-
-
-class UUIDPkField(fields.UUIDField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_length", 36)
-        kwargs["primary_key"] = True
-        kwargs["db_column"] = "pk"
-        super().__init__(*args, **kwargs)
 
 
 class BlobTextField(models.TextField):

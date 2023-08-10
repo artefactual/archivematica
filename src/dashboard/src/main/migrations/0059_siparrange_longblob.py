@@ -1,4 +1,5 @@
-import django_extensions.db.fields
+import uuid
+
 import main.models
 from django.db import migrations
 from django.db import OperationalError
@@ -46,9 +47,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="siparrange",
             name="file_uuid",
-            field=django_extensions.db.fields.UUIDField(
+            field=main.models.UUIDField(
                 null=True,
-                default=None,
+                default=uuid.uuid4,
                 editable=False,
                 max_length=36,
                 blank=True,

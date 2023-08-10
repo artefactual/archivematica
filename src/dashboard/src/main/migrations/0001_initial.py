@@ -1,4 +1,5 @@
-import django_extensions.db.fields
+import uuid
+
 import main.models
 from django.db import migrations
 from django.db import models
@@ -18,7 +19,12 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sipuuid",
-                    models.CharField(max_length=36, db_column="SIPUUID", blank=True),
+                    main.models.UUIDField(
+                        max_length=36,
+                        db_column="SIPUUID",
+                        blank=True,
+                        default=uuid.uuid4,
+                    ),
                 ),
                 ("resource", models.TextField(db_column="resource", blank=True)),
                 ("target", models.TextField(db_column="target", blank=True)),
@@ -185,13 +191,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "event_id",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         null=True,
                         db_column="eventIdentifierUUID",
                         editable=False,
                         max_length=36,
                         blank=True,
                         unique=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("event_type", models.TextField(db_column="eventType", blank=True)),
@@ -221,11 +228,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "uuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,
                         db_column="fileUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("originallocation", models.TextField(db_column="originalLocation")),
@@ -367,13 +375,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "jobuuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="jobUUID",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -391,7 +400,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("directory", models.TextField(blank=True)),
-                ("sipuuid", models.CharField(max_length=36, db_column="SIPUUID")),
+                (
+                    "sipuuid",
+                    main.models.UUIDField(
+                        max_length=36, db_column="SIPUUID", default=uuid.uuid4
+                    ),
+                ),
                 (
                     "unittype",
                     models.CharField(max_length=50, db_column="unitType", blank=True),
@@ -422,13 +436,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -454,13 +469,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("description", models.TextField(db_column="description")),
@@ -487,13 +503,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -517,13 +534,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -553,13 +571,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("exitcode", models.IntegerField(default=0, db_column="exitCode")),
@@ -615,13 +634,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1473,11 +1493,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "uuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,
                         db_column="sipUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("createdtime", models.DateTimeField(db_column="createdTime")),
@@ -1543,8 +1564,8 @@ class Migration(migrations.Migration):
                 ("arrange_path", models.CharField(max_length=255)),
                 (
                     "file_uuid",
-                    django_extensions.db.fields.UUIDField(
-                        default=None,
+                    main.models.UUIDField(
+                        default=uuid.uuid4,
                         max_length=36,
                         null=True,
                         editable=False,
@@ -1553,8 +1574,8 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "transfer_uuid",
-                    django_extensions.db.fields.UUIDField(
-                        default=None,
+                    main.models.UUIDField(
+                        default=uuid.uuid4,
                         max_length=36,
                         null=True,
                         editable=False,
@@ -1572,13 +1593,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1653,11 +1675,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "taskuuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,
                         db_column="taskUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("createdtime", models.DateTimeField(db_column="createdTime")),
@@ -1705,13 +1728,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1749,13 +1773,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1792,13 +1817,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("variable", models.TextField(blank=True)),
@@ -1834,13 +1860,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("variable", models.TextField(blank=True)),
@@ -1876,13 +1903,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("description", models.TextField(blank=True)),
@@ -1910,13 +1938,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1939,13 +1968,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -1972,11 +2002,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "uuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,
                         db_column="transferUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("currentlocation", models.TextField(db_column="currentLocation")),
@@ -2021,13 +2052,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -2061,13 +2093,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -2092,13 +2125,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -2115,13 +2149,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -2132,11 +2167,12 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "unituuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         help_text="Semantically a foreign key to SIP or Transfer",
                         max_length=36,
                         null=True,
                         db_column="unitUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("variable", models.TextField(null=True, db_column="variable")),
@@ -2172,13 +2208,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -2213,13 +2250,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    main.models.UUIDPkField(
+                    main.models.UUIDField(
                         primary_key=True,
                         db_column="pk",
                         serialize=False,
                         editable=False,
                         max_length=36,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("description", models.TextField(null=True)),
