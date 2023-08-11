@@ -1,11 +1,12 @@
+import uuid
+
 import autoslug.fields
-import django_extensions.db.fields
+import main.models
 from django.db import migrations
 from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = []
 
     operations = [
@@ -271,12 +272,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -302,12 +304,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -335,12 +338,13 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("version", models.CharField(max_length=10, null=True, blank=True)),
@@ -400,12 +404,13 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("description", models.CharField(max_length=256)),
@@ -492,12 +497,13 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -563,12 +569,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -598,12 +605,13 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (
@@ -671,12 +679,13 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 ("command_output", models.TextField()),
@@ -722,12 +731,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    django_extensions.db.fields.UUIDField(
+                    main.models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
                         editable=False,
                         blank=True,
+                        default=uuid.uuid4,
                     ),
                 ),
                 (

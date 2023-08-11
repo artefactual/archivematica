@@ -1,4 +1,6 @@
-import django_extensions.db.fields
+import uuid
+
+import main.models
 from django.db import migrations
 
 
@@ -56,23 +58,25 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="microservicechainlink",
-            field=django_extensions.db.fields.UUIDField(
+            field=main.models.UUIDField(
                 max_length=36,
                 null=True,
                 editable=False,
                 db_column="MicroServiceChainLinksPK",
                 blank=True,
+                default=uuid.uuid4,
             ),
         ),
         migrations.AlterField(
             model_name="unitvariable",
             name="microservicechainlink",
-            field=django_extensions.db.fields.UUIDField(
+            field=main.models.UUIDField(
                 max_length=36,
                 null=True,
                 editable=False,
                 db_column="microServiceChainLink",
                 blank=True,
+                default=uuid.uuid4,
             ),
         ),
         migrations.DeleteModel(name="MicroServiceChain"),

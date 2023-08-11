@@ -1,3 +1,5 @@
+import uuid
+
 from django.test import TestCase
 from fpr.models import IDCommand
 from fpr.utils import get_revision_descendants
@@ -13,4 +15,6 @@ class TestUtils(TestCase):
         self.assertEqual(descendants, [123, cmd2])
 
         with self.assertRaises(IDCommand.DoesNotExist):
-            descendants = get_revision_descendants(IDCommand, "12345", [])
+            descendants = get_revision_descendants(
+                IDCommand, uuid.UUID("aa5ccdbd-7ede-43f9-8752-56b5ce1c0bdb"), []
+            )

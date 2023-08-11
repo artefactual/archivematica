@@ -269,7 +269,7 @@ def createRightsStatement(job, statement, fileUUID, state):
     ).text = "UUID"
     etree.SubElement(
         linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierValue"
-    ).text = fileUUID
+    ).text = str(fileUUID)
     return rightsStatement
 
 

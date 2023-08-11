@@ -580,7 +580,7 @@ class TestParseFiles(TestCase):
         parse_mets_to_db.update_files(self.SIP_UUID, files)
         # Verify original file
         orig = models.File.objects.get(uuid=self.ORIG_INFO["uuid"])
-        assert orig.sip_id == self.SIP_UUID
+        assert orig.sip_id == uuid.UUID(self.SIP_UUID)
         assert orig.transfer is None
         assert orig.originallocation == self.ORIG_INFO["original_path"]
         assert orig.currentlocation == self.ORIG_INFO["current_path"]
@@ -601,7 +601,7 @@ class TestParseFiles(TestCase):
         )
         # Verify preservation file
         pres = models.File.objects.get(uuid=self.PRES_INFO["uuid"])
-        assert pres.sip_id == self.SIP_UUID
+        assert pres.sip_id == uuid.UUID(self.SIP_UUID)
         assert pres.transfer is None
         assert pres.originallocation == self.PRES_INFO["original_path"]
         assert pres.currentlocation == self.PRES_INFO["current_path"]
@@ -621,7 +621,7 @@ class TestParseFiles(TestCase):
         )
         # Verify original file
         mets = models.File.objects.get(uuid=self.METS_INFO["uuid"])
-        assert mets.sip_id == self.SIP_UUID
+        assert mets.sip_id == uuid.UUID(self.SIP_UUID)
         assert mets.transfer is None
         assert mets.originallocation == self.METS_INFO["original_path"]
         assert mets.currentlocation == self.METS_INFO["current_path"]

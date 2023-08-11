@@ -96,16 +96,16 @@ def insertIntoFiles(
         originalLocation = filePath
 
     kwargs = {
-        "uuid": fileUUID,
+        "uuid": str(fileUUID),
         "originallocation": originalLocation,
         "currentlocation": filePath,
         "enteredsystem": enteredSystem,
         "filegrpuse": use,
     }
     if transferUUID != "" and sipUUID == "":
-        kwargs["transfer_id"] = transferUUID
+        kwargs["transfer_id"] = str(transferUUID)
     elif transferUUID == "" and sipUUID != "":
-        kwargs["sip_id"] = sipUUID
+        kwargs["sip_id"] = str(sipUUID)
     else:
         print(
             "not supported yet - both SIP and transfer UUID's defined (or neither defined)",

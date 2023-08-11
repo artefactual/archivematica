@@ -230,7 +230,9 @@ def _add_identifier(object_elem, identifier, bns=ns.premisBNS):
     idfr_type, idfr_val = identifier
     objectIdentifier = etree.SubElement(object_elem, bns + "objectIdentifier")
     etree.SubElement(objectIdentifier, bns + "objectIdentifierType").text = idfr_type
-    etree.SubElement(objectIdentifier, bns + "objectIdentifierValue").text = idfr_val
+    etree.SubElement(objectIdentifier, bns + "objectIdentifierValue").text = str(
+        idfr_val
+    )
     return object_elem
 
 
@@ -527,7 +529,7 @@ def create_premis_object(fileUUID):
     :param str fileUUID: UUID of the File to create an object for
     :return: premis:object Element, suitable for inserting into mets:xmlData
     """
-    f = File.objects.get(uuid=fileUUID)
+    f = File.objects.get(uuid=str(fileUUID))
     # PREMIS:OBJECT
     object_elem = etree.Element(ns.premisBNS + "object", nsmap={"premis": ns.premisNS})
     object_elem.set(ns.xsiBNS + "type", "premis:file")
@@ -657,7 +659,7 @@ def create_premis_object_derivations(fileUUID):
         ).text = "UUID"
         etree.SubElement(
             relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierValue"
-        ).text = derivation.derived_file_id
+        ).text = str(derivation.derived_file_id)
 
         relatedEventIdentifier = etree.SubElement(
             relationship, ns.premisBNS + "relatedEventIdentifier"
@@ -667,7 +669,7 @@ def create_premis_object_derivations(fileUUID):
         ).text = "UUID"
         etree.SubElement(
             relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierValue"
-        ).text = derivation.event_id
+        ).text = str(derivation.event_id)
 
         elements.append(relationship)
 
@@ -691,7 +693,7 @@ def create_premis_object_derivations(fileUUID):
         ).text = "UUID"
         etree.SubElement(
             relatedObjectIdentifier, ns.premisBNS + "relatedObjectIdentifierValue"
-        ).text = derivation.source_file_id
+        ).text = str(derivation.source_file_id)
 
         relatedEventIdentifier = etree.SubElement(
             relationship, ns.premisBNS + "relatedEventIdentifier"
@@ -701,7 +703,7 @@ def create_premis_object_derivations(fileUUID):
         ).text = "UUID"
         etree.SubElement(
             relatedEventIdentifier, ns.premisBNS + "relatedEventIdentifierValue"
-        ).text = derivation.event_id
+        ).text = str(derivation.event_id)
 
         elements.append(relationship)
 
@@ -714,7 +716,7 @@ def createDigiprovMD(fileUUID, state):
     """
     ret = []
 
-    events = Event.objects.filter(file_uuid_id=fileUUID)
+    events = Event.objects.filter(file_uuid_id=str(fileUUID))
     for event_record in events:
         state.globalDigiprovMDCounter += 1
         digiprovMD = etree.Element(
@@ -730,7 +732,7 @@ def createDigiprovMD(fileUUID, state):
         xmlData.append(createEvent(event_record))
 
     for agent in Agent.objects.extend_queryset_with_preservation_system(
-        Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
+        Agent.objects.filter(event__file_uuid_id=str(fileUUID)).distinct()
     ):
         state.globalDigiprovMDCounter += 1
         digiprovMD = etree.Element(
@@ -761,10 +763,9 @@ def createEvent(event_record):
     etree.SubElement(
         eventIdentifier, ns.premisBNS + "eventIdentifierType"
     ).text = "UUID"
-    etree.SubElement(
-        eventIdentifier, ns.premisBNS + "eventIdentifierValue"
-    ).text = event_record.event_id
-
+    etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = str(
+        event_record.event_id
+    )
     etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
     etree.SubElement(
         event, ns.premisBNS + "eventDateTime"
@@ -895,7 +896,7 @@ def getAMDSec(
             )
             AMD.append(digiprovMD)
 
-    for a in createDigiprovMD(fileUUID, state):
+    for a in createDigiprovMD(str(fileUUID), state):
         AMD.append(a)
 
     return ret
@@ -1136,7 +1137,7 @@ def createFileSec(
             GROUPID = ""
             if f.filegrpuuid:
                 # GROUPID was determined elsewhere
-                GROUPID = "Group-%s" % (f.filegrpuuid)
+                GROUPID = f"Group-{f.filegrpuuid}"
                 if use == "TRIM file metadata":
                     use = "metadata"
 
@@ -1147,7 +1148,7 @@ def createFileSec(
                 "maildirFile",
             ):
                 # These files are in a group defined by themselves
-                GROUPID = "Group-%s" % (f.uuid)
+                GROUPID = f"Group-{f.uuid}"
                 if use == "maildirFile":
                     use = "original"
                 # Check for CSV-based Dublincore dmdSec
@@ -1193,7 +1194,7 @@ def createFileSec(
                 }
                 original_file = File.objects.filter(**kwargs).first()
                 if original_file is not None:
-                    GROUPID = "Group-" + original_file.uuid
+                    GROUPID = f"Group-{original_file.uuid}"
 
             elif use in ("preservation", "text/ocr", "derivative"):
                 # Derived files should be in the original file's group
@@ -1205,7 +1206,7 @@ def createFileSec(
                         " where the derived file is {}".format(f.uuid)
                     )
                     raise
-                GROUPID = "Group-" + d.source_file_id
+                GROUPID = f"Group-{d.source_file_id}"
 
             elif use == "service":
                 # Service files are in the original file's group
@@ -1223,10 +1224,10 @@ def createFileSec(
                     "currentlocation__startswith": fileFileIDPath,
                 }
                 original_file = File.objects.get(**kwargs)
-                GROUPID = "Group-" + original_file.uuid
+                GROUPID = f"Group-{original_file.uuid}"
 
             elif use == "TRIM container metadata":
-                GROUPID = "Group-%s" % (f.uuid)
+                GROUPID = f"Group-{f.uuid}"
                 use = "metadata"
 
             # Special DSPACEMETS processing
@@ -1765,7 +1766,7 @@ def main(
 
         # Get the <dmdSec> for the entire AIP; it is associated to the root
         # <mets:div> in the physical structMap.
-        sip_mdl = SIP.objects.filter(uuid=sipUUID).first()
+        sip_mdl = SIP.objects.filter(uuid=str(sipUUID)).first()
         if sip_mdl:
             aipDmdSec = getDirDmdSec(sip_mdl, sip_dir_name)
             state.globalDmdSecCounter += 1

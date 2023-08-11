@@ -434,7 +434,7 @@ def completed_units_efficient(unit_type="transfer", include_failed=True):
                 first = False
             else:
                 first = True
-            current_uuid = uuid
+            current_uuid = str(uuid)
             if (
                 job_type
                 in ("Create SIP from transfer objects", "Move transfer to backlog")
@@ -445,7 +445,7 @@ def completed_units_efficient(unit_type="transfer", include_failed=True):
                     or "failed" in ms_group.lower()
                 )
             ):
-                completed.add(uuid)
+                completed.add(str(uuid))
     return list(completed)
 
 

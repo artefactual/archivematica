@@ -1,5 +1,7 @@
+import uuid
+
+import main.models
 from django.db import migrations
-from django.db import models
 
 
 class Migration(migrations.Migration):
@@ -10,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="sipuuid",
-            field=models.CharField(max_length=36, db_column="SIPUUID", db_index=True),
+            field=main.models.UUIDField(
+                max_length=36, db_column="SIPUUID", db_index=True, default=uuid.uuid4
+            ),
         ),
         migrations.AlterIndexTogether(
             name="job",

@@ -190,7 +190,7 @@ def arrange_contents(request, path=None):
             )
         if item.file_uuid:
             properties[entry] = properties.get(entry, {})  # Default empty dict
-            properties[entry]["file_uuid"] = item.file_uuid
+            properties[entry]["file_uuid"] = str(item.file_uuid)
         if len(path_parts) > 1:  # Path is a directory
             directories.add(entry)
             # Don't add directories to the object count
@@ -386,7 +386,7 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
     currentpath = sip_path.replace(shared_dir, "%sharedPath%", 1) + "/"
     sip_path = helpers.pad_destination_filepath_if_it_already_exists(sip_path)
     try:
-        sip = models.SIP.objects.get(uuid=sip_uuid)
+        sip = models.SIP.objects.get(uuid=str(sip_uuid))
     except models.SIP.DoesNotExist:
         # Create a SIP object if none exists
         path = os.path.join(sip_path.replace(shared_dir, "%sharedPath%", 1), "")
@@ -498,7 +498,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
         except ValueError:
             response = {
                 "message": _("Provided UUID (%(uuid)s) is not a valid UUID!")
-                % {"uuid": sip_uuid},
+                % {"uuid": str(sip_uuid)},
                 "error": True,
             }
             status_code = 400
@@ -538,7 +538,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                 {
                     "source": arranged_file.original_path.lstrip("/"),
                     "destination": destination,
-                    "uuid": arranged_file.file_uuid,
+                    "uuid": str(arranged_file.file_uuid),
                 }
             )
             # Get transfer folder name
@@ -557,7 +557,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                     "source": os.path.join(*source),
                     "destination": os.path.join(
                         "tmp",
-                        f"transfer-{arranged_file.transfer_uuid}",
+                        f"transfer-{str(arranged_file.transfer_uuid)}",
                         directory,
                         ".",
                     ),

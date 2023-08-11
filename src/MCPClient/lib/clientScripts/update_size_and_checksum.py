@@ -50,7 +50,7 @@ def get_file_info_from_mets(job, mets, file_):
     checksum and checksum_type, as they are described in the original METS
     document of the transfer. The dict will be empty or missing keys on error.
     """
-    fsentry = mets.get_file(file_uuid=file_.uuid)
+    fsentry = mets.get_file(file_uuid=str(file_.uuid))
     if not fsentry:
         job.print_error(f"FSEntry with UUID {file_.uuid} not found in METS")
         return {}

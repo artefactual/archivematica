@@ -67,7 +67,7 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
                     continue
                 valid, errors = _validate_xml(tree, schema_uri)
                 _add_validation_event(
-                    mets, metadata_file.uuid, schema_uri, valid, errors
+                    mets, str(metadata_file.uuid), schema_uri, valid, errors
                 )
                 if not valid:
                     xml_metadata_errors += errors
@@ -251,5 +251,5 @@ def _add_validation_event(mets, file_uuid, schema_uri, valid, errors):
         "eventOutcomeDetailNote": "\n".join([str(err) for err in errors]),
     }
     event_object = insertIntoEvents(file_uuid, **event_data)
-    metadata_fsentry = mets.get_file(file_uuid=file_uuid)
+    metadata_fsentry = mets.get_file(file_uuid=str(file_uuid))
     metadata_fsentry.add_premis_event(createmets2.createEvent(event_object))

@@ -809,7 +809,7 @@ def _index_transfer_files(
             ).lstrip("data/")
             try:
                 f = File.objects.get(currentlocation=currentlocation, transfer_id=uuid)
-                file_uuid = f.uuid
+                file_uuid = str(f.uuid)
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(path, file_uuid)
                 if f.modificationtime is not None:

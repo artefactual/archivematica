@@ -287,7 +287,7 @@ def get_events_from_db(uuid):
             (
                 "event_identifier",
                 ("event_identifier_type", "UUID"),
-                ("event_identifier_value", event_mdl.event_id),
+                ("event_identifier_value", str(event_mdl.event_id)),
             ),
             ("event_type", event_mdl.event_type),
             ("event_date_time", event_mdl.event_datetime.isoformat()),

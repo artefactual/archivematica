@@ -1,3 +1,5 @@
+import uuid
+
 import main.models
 from django.db import migrations
 from django.db import models
@@ -228,11 +230,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "uuid",
-                    models.CharField(
+                    main.models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,
                         db_column="directoryUUID",
+                        default=uuid.uuid4,
                     ),
                 ),
                 (

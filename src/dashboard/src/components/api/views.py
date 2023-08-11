@@ -210,7 +210,7 @@ def get_unit_status(unit_uuid, unit_type):
         )
         if sips:
             ret["status"] = "COMPLETE"
-            ret["sip_uuid"] = sips[0]["sip"]
+            ret["sip_uuid"] = str(sips[0]["sip"])
     elif (
         models.Job.objects.filter(sipuuid=unit_uuid)
         .filter(jobtype="Move transfer to backlog")
@@ -271,11 +271,11 @@ def status(request, unit_uuid, unit_type):
     )
     response["directory"] = os.path.basename(os.path.normpath(directory))
     response["name"] = response["directory"].replace("-" + unit_uuid, "", 1)
-    response["uuid"] = unit_uuid
+    response["uuid"] = str(unit_uuid)
 
     # Get status (including new SIP uuid, current microservice)
     try:
-        status_info = get_unit_status(unit_uuid, unit_type)
+        status_info = get_unit_status(str(unit_uuid), unit_type)
     except IndexError as err:
         msg = f"Unable to determine the status of the unit {unit_uuid}"
         LOGGER.error("%s (%s)", msg, err)
@@ -418,7 +418,7 @@ def _completed_units(unit_type="transfer"):
             status_err = err
             continue
         if status.get("status") == "COMPLETE":
-            completed.append(unit.uuid)
+            completed.append(str(unit.uuid))
     if status_err:
         LOGGER.warning(
             "Unable to determine status of at least one unit," " e.g.: unit %s (%s)",
@@ -520,7 +520,7 @@ def approve_transfer(request):
         msg = "Unable to start the transfer."
         LOGGER.error("%s %s (db_transfer_path=%s)", msg, err, db_transfer_path)
         return _error_response(msg, status_code=500)
-    return _ok_response("Approval successful.", uuid=unit_uuid)
+    return _ok_response("Approval successful.", uuid=str(unit_uuid))
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
@@ -889,7 +889,7 @@ def format_datetime(value):
 
 def format_task(task, detailed_output=False):
     """Format task attributes for endpoint response"""
-    result = {"uuid": task.taskuuid, "exit_code": task.exitcode}
+    result = {"uuid": str(task.taskuuid), "exit_code": task.exitcode}
     if detailed_output:
         result.update(
             {
@@ -929,15 +929,18 @@ def unit_jobs(request, unit_uuid):
     if name is not None:
         name = remove_prefix(name, "Job:")
         jobs = jobs.filter(jobtype=name.strip())
+
     for job in jobs.prefetch_related("task_set"):
+        job_link_uuid = job.microservicechainlink
+        link_uuid = str(job_link_uuid) if job_link_uuid is not None else None
         tasks = [format_task(task) for task in job.task_set.all()]
         result.append(
             {
-                "uuid": job.jobuuid,
+                "uuid": str(job.jobuuid),
                 "name": job.jobtype,
                 "status": JOB_STATUS_CODE_LABELS.get(job.currentstep),
                 "microservice": job.microservicegroup,
-                "link_uuid": job.microservicechainlink,
+                "link_uuid": link_uuid,
                 "tasks": tasks,
             }
         )

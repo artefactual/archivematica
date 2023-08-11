@@ -89,7 +89,7 @@ class Workflow:
         return self.chains[chain_id]
 
     def get_link(self, link_id):
-        return self.links[link_id]
+        return self.links[str(link_id)]
 
 
 class BaseLink:

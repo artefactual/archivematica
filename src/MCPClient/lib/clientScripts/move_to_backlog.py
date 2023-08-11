@@ -156,7 +156,7 @@ def _record_backlog_event(transfer_id, transfer_path, created_at):
 
     for file_obj in File.objects.filter(transfer_id=transfer_id).iterator():
         try:
-            fsentry = fsentries[file_obj.uuid]
+            fsentry = fsentries[str(file_obj.uuid)]
         except KeyError:
             continue
         event_id, event_type = str(uuid.uuid4()), "placement in backlog"

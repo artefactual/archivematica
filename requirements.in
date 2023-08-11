@@ -8,7 +8,6 @@ brotli
 clamd
 django-autoslug==1.9.8
 django-csp
-django-extensions==1.7.9
 django-forms-bootstrap>=3.0.0,<4.0.0
 django-prometheus>=2.0,<2.1
 django-tastypie==0.14.3
