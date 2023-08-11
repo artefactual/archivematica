@@ -64,8 +64,6 @@ django-cas-ng==3.6.0
     # via -r requirements.txt
 django-csp==3.7
     # via -r requirements.txt
-django-extensions==1.7.9
-    # via -r requirements.txt
 django-forms-bootstrap==3.1.0
     # via -r requirements.txt
 django-prometheus==2.0.0
@@ -251,7 +249,6 @@ six==1.16.0
     # via
     #   -r requirements.txt
     #   amclient
-    #   django-extensions
     #   jsonschema
     #   mozilla-django-oidc
     #   opf-fido
