@@ -22,7 +22,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from installer.forms import OrganizationForm
 from installer.forms import SuperUserCreationForm
 from installer.steps import setup_pipeline

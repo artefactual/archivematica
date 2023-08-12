@@ -1,5 +1,5 @@
 from components.appraisal import views
-from django.conf.urls import url
+from django.urls import path
 
 app_name = "appraisal"
-urlpatterns = [url(r"^$", views.appraisal, name="appraisal_index")]
+urlpatterns = [path("", views.appraisal, name="appraisal_index")]

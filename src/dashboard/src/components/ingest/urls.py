@@ -17,129 +17,130 @@
 from components.ingest import views
 from components.ingest import views_as
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
+from django.urls import re_path
 
 app_name = "ingest"
 urlpatterns = [
-    url(r"^$", views.ingest_grid, name="ingest_index"),
-    url(r"^sips/$", views.SipsView.as_view()),
-    url(
+    path("", views.ingest_grid, name="ingest_index"),
+    path("sips/", views.SipsView.as_view()),
+    re_path(
         r"^aic/(?P<uuid>" + settings.UUID_REGEX + ")/metadata/add/$",
         views.aic_metadata_add,
         name="aic_metadata_add",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/$",
         views.ingest_metadata_list,
         name="ingest_metadata_list",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/add/$",
         views.ingest_metadata_edit,
         name="ingest_metadata_add",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + r")/metadata/(?P<id>\d+)/$",
         views.ingest_metadata_edit,
         name="ingest_metadata_edit",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + r")/metadata/delete/(?P<id>\d+)/$",
         views.ingest_metadata_delete,
         name="ingest_metadata_delete",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/event_detail/$",
         views.ingest_metadata_event_detail,
         name="ingest_metadata_event_detail",
     ),
-    url(
+    re_path(
         r"^(?P<sip_uuid>" + settings.UUID_REGEX + ")/metadata/add_files/$",
         views.ingest_metadata_add_files,
         name="ingest_metadata_add_files",
     ),
-    url(r"^upload/url/check/$", views.ingest_upload_destination_url_check),
-    url(r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/$", views.ingest_upload),
-    url(r"^status/$", views.ingest_status),
-    url(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.ingest_status),
-    url(
+    path("upload/url/check/", views.ingest_upload_destination_url_check),
+    re_path(r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/$", views.ingest_upload),
+    path("status/", views.ingest_status),
+    re_path(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.ingest_status),
+    re_path(
         r"^normalization-report/(?P<uuid>"
         + settings.UUID_REGEX
         + r")/(?P<current_page>\d+)/$",
         views.ingest_normalization_report,
         name="ingest_normalization_report_page",
     ),
-    url(
+    re_path(
         r"^normalization-report/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.ingest_normalization_report,
         name="ingest_normalization_report",
     ),
-    url(
+    re_path(
         r"^preview/(?P<browse_type>[\w-]+)/(?P<jobuuid>" + settings.UUID_REGEX + ")/$",
         views.ingest_browse,
     ),
-    url(
+    re_path(
         r"^backlog/file/download/(?P<uuid>" + settings.UUID_REGEX + ")/",
         views.transfer_file_download,
     ),
-    url(r"^backlog/$", views.transfer_backlog, {"ui": "legacy"}),
-    url(r"^appraisal_list/$", views.transfer_backlog, {"ui": "appraisal"}),
+    path("backlog/", views.transfer_backlog, {"ui": "legacy"}),
+    path("appraisal_list/", views.transfer_backlog, {"ui": "appraisal"}),
 ]
 
 # ArchivesSpace
 urlpatterns += [
-    url(
+    re_path(
         r"^(?P<uuid>"
         + settings.UUID_REGEX
         + ")/upload/as/match/resource/(?P<resource_id>.+)/$",
         views_as.ingest_upload_as_match_dip_objects_to_resource_levels,
         name="ingest_upload_as_match_dip_objects_to_resource_levels",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>"
         + settings.UUID_REGEX
         + ")/upload/as/match/resourcecomponent/(?P<resource_component_id>.+)/$",
         views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels,
         name="ingest_upload_as_match_dip_objects_to_resource_component_levels",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>"
         + settings.UUID_REGEX
         + ")/upload/as/resource/(?P<resource_id>.+)/$",
         views_as.ingest_upload_as_resource,
         name="ingest_upload_as_resource",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>"
         + settings.UUID_REGEX
         + ")/upload/as/resourcecomponent/(?P<resource_component_id>.+)/$",
         views_as.ingest_upload_as_resource_component,
         name="ingest_upload_as_resource_component",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/save/$",
         views_as.ingest_upload_as_save,
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/match/$",
         views_as.ingest_upload_as_match,
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/reset/$",
         views_as.ingest_upload_as_reset,
         name="ingest_upload_as_reset",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/review/$",
         views_as.ingest_upload_as_review_matches,
         name="ingest_upload_as_review_matches",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/complete/$",
         views_as.complete_matching,
         name="complete_matching",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/$",
         views_as.ingest_upload_as,
         name="ingest_upload_as",

@@ -25,7 +25,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")

@@ -16,42 +16,43 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.transfer import views
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
+from django.urls import re_path
 
 app_name = "transfer"
 urlpatterns = [
-    url(r"^$", views.grid, name="transfer_index"),
+    path("", views.grid, name="transfer_index"),
     # Transfer metadata set functions
-    url(r"^create_metadata_set_uuid/$", views.create_metadata_set_uuid),
-    url(
+    path("create_metadata_set_uuid/", views.create_metadata_set_uuid),
+    re_path(
         r"^rename_metadata_set/(?P<set_uuid>"
         + settings.UUID_REGEX
         + r")/(?P<placeholder_id>[\w\-]+)/$",
         views.rename_metadata_set,
     ),
-    url(
+    re_path(
         r"^cleanup_metadata_set/(?P<set_uuid>" + settings.UUID_REGEX + ")/$",
         views.cleanup_metadata_set,
     ),
-    url(r"^locations/$", views.transfer_source_locations),
-    url(
+    path("locations/", views.transfer_source_locations),
+    re_path(
         r"^component/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.component,
         name="component",
     ),
-    url(r"^status/$", views.status),
-    url(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.status),
-    url(
+    path("status/", views.status),
+    re_path(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.status),
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/$",
         views.transfer_metadata_list,
         name="transfer_metadata_list",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/add/$",
         views.transfer_metadata_edit,
         name="transfer_metadata_add",
     ),
-    url(
+    re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + r")/metadata/(?P<id>\d+)/$",
         views.transfer_metadata_edit,
         name="transfer_metadata_edit",

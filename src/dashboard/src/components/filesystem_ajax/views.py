@@ -33,8 +33,8 @@ from archivematicaFunctions import b64decode_string
 from archivematicaFunctions import b64encode_string
 from components import helpers
 from django.conf import settings as django_settings
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from main import models
 
 
@@ -89,7 +89,7 @@ def _prepare_browse_response(response):
             prop["display_string"] = prop["verbose name"].strip()
         elif "object count" in prop:
             try:
-                prop["display_string"] = ungettext(
+                prop["display_string"] = ngettext(
                     "%(count)d object", "%(count)d objects", prop["object count"]
                 ) % {"count": prop["object count"]}
             except TypeError:  # 'object_count' val can be a string, see SS:space.py

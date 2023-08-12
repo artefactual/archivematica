@@ -37,7 +37,7 @@ from django.http import HttpResponseRedirect
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 from django.utils.dateformat import format
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from main import models
 from tastypie.models import ApiKey
 

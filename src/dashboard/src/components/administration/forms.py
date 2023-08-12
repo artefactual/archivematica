@@ -22,7 +22,7 @@ from django import forms
 from django.conf import settings
 from django.forms.widgets import Select
 from django.forms.widgets import TextInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from installer.forms import load_site_url
 from installer.forms import site_url_field
 from lxml import etree

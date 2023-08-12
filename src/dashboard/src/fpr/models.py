@@ -12,7 +12,7 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.validators import ValidationError
 from django.db import connection
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from main.models import UUIDField
 
 

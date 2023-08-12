@@ -15,37 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django.conf import settings
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import path
+from django.urls import re_path
 from main import views
 
 
 app_name = "main"
 urlpatterns = [
     # Index
-    url(r"^$", views.home, name="main_index"),
+    path("", views.home, name="main_index"),
     # JavaScript i18n catalog
-    url(
-        r"^jsi18n/$",
+    path(
+        "jsi18n/",
         views.cached_javascript_catalog,
         {"domain": "djangojs"},
         name="javascript-catalog",
     ),
     # Forbidden
-    url(r"forbidden/$", views.forbidden, name="forbidden"),
+    path("forbidden/", views.forbidden, name="forbidden"),
     # Jobs and tasks (is part of ingest)
-    url(r"tasks/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.tasks),
-    url(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task, name="task"),
+    re_path(r"tasks/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.tasks),
+    re_path(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task, name="task"),
     # Access
-    url(r"access/$", views.access_list, name="access_index"),
-    url(r"access/(?P<id>\d+)/delete/$", views.access_delete, name="access_delete"),
+    path("access/", views.access_list, name="access_index"),
+    path("access/<int:id>/delete/", views.access_delete, name="access_delete"),
     # JSON feeds
-    url(r"status/$", views.status),
-    url(
+    path("status/", views.status),
+    re_path(
         r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$",
         views.formdata_delete,
     ),
-    url(r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$", views.formdata),
+    re_path(r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$", views.formdata),
 ]
 
 if "shibboleth" in settings.INSTALLED_APPS:
@@ -54,7 +55,7 @@ if "shibboleth" in settings.INSTALLED_APPS:
     # the shibboleth lib)
     class shibboleth_urls:
         urlpatterns = [
-            url(r"^logout/$", views.CustomShibbolethLogoutView.as_view(), name="logout")
+            path("logout/", views.CustomShibbolethLogoutView.as_view(), name="logout")
         ]
 
-    urlpatterns += [url(r"^shib/", include(shibboleth_urls, namespace="shibboleth"))]
+    urlpatterns += [path("shib/", include(shibboleth_urls, namespace="shibboleth"))]

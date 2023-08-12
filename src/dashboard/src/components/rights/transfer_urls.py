@@ -15,20 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.rights import views
-from django.conf.urls import url
+from django.urls import path
 
 app_name = "rights_transfer"
 urlpatterns = [
-    url(r"^$", views.transfer_rights_list, name="index"),
-    url(r"^add/$", views.transfer_rights_edit, name="add"),
-    url(r"^delete/(?P<id>\d+)/$", views.transfer_rights_delete),
-    url(
-        r"^grants/(?P<id>\d+)/delete/$",
+    path("", views.transfer_rights_list, name="index"),
+    path("add/", views.transfer_rights_edit, name="add"),
+    path("delete/<int:id>/", views.transfer_rights_delete),
+    path(
+        "grants/<int:id>/delete/",
         views.transfer_rights_grant_delete,
         name="grant_delete",
     ),
-    url(
-        r"^grants/(?P<id>\d+)/$", views.transfer_rights_grants_edit, name="grants_edit"
-    ),
-    url(r"^(?P<id>\d+)/$", views.transfer_rights_edit, name="edit"),
+    path("grants/<int:id>/", views.transfer_rights_grants_edit, name="grants_edit"),
+    path("<int:id>/", views.transfer_rights_edit, name="edit"),
 ]

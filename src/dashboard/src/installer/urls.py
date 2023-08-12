@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from django.conf.urls import url
+from django.urls import path
 from installer import views
 
 app_name = "installer"
 urlpatterns = [
-    url(r"welcome/$", views.welcome, name="welcome"),
-    url(r"storagesetup/$", views.storagesetup, name="storagesetup"),
+    path("welcome/", views.welcome, name="welcome"),
+    path("storagesetup/", views.storagesetup, name="storagesetup"),
 ]

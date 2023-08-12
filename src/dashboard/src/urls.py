@@ -15,42 +15,43 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django.conf import settings
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import path
+from django.urls import re_path
 
 
 urlpatterns = [
-    url(r"^mcp/", include("components.mcp.urls")),
-    url(r"^installer/", include("installer.urls")),
-    url(r"^administration/accounts/", include("components.accounts.urls")),
-    url(r"^archival-storage/", include("components.archival_storage.urls")),
-    url(r"^fpr/", include("fpr.urls")),
-    url(
+    path("mcp/", include("components.mcp.urls")),
+    path("installer/", include("installer.urls")),
+    path("administration/accounts/", include("components.accounts.urls")),
+    path("archival-storage/", include("components.archival_storage.urls")),
+    path("fpr/", include("fpr.urls")),
+    re_path(
         r"^(?P<unit_type>transfer|ingest)/", include("components.unit.urls")
     ),  # URLs common to transfer & ingest
-    url(
+    re_path(
         r"^transfer/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
         include("components.rights.transfer_urls"),
     ),
-    url(r"^transfer/", include("components.transfer.urls")),
-    url(r"^appraisal/", include("components.appraisal.urls")),
-    url(
+    path("transfer/", include("components.transfer.urls")),
+    path("appraisal/", include("components.appraisal.urls")),
+    re_path(
         r"^ingest/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
         include("components.rights.ingest_urls"),
     ),
-    url(r"^ingest/", include("components.ingest.urls")),
-    url(r"^administration/", include("components.administration.urls")),
-    url(r"^filesystem/", include("components.filesystem_ajax.urls")),
-    url(r"^api/", include("components.api.urls")),
-    url(r"^file/", include("components.file.urls")),
-    url(r"^access/", include("components.access.urls")),
-    url(r"^backlog/", include("components.backlog.urls")),
-    url(r"", include("main.urls")),
+    path("ingest/", include("components.ingest.urls")),
+    path("administration/", include("components.administration.urls")),
+    path("filesystem/", include("components.filesystem_ajax.urls")),
+    path("api/", include("components.api.urls")),
+    path("file/", include("components.file.urls")),
+    path("access/", include("components.access.urls")),
+    path("backlog/", include("components.backlog.urls")),
+    path("", include("main.urls")),
 ]
 
 if settings.PROMETHEUS_ENABLED:
     # Include prometheus metrics at /metrics
-    urlpatterns.append(url("", include("django_prometheus.urls")))
+    urlpatterns.append(path("", include("django_prometheus.urls")))
 
 if settings.OIDC_AUTHENTICATION:
-    urlpatterns.append(url(r"^oidc/", include("mozilla_django_oidc.urls")))
+    urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))

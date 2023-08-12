@@ -2,7 +2,7 @@ from components.administration.forms_dip_upload import ArchivesSpaceConfigForm
 from components.administration.forms_dip_upload import AtomConfigForm
 from django.contrib import messages
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from main.models import DashboardSetting
 
 

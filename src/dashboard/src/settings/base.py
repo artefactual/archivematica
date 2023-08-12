@@ -24,7 +24,7 @@ import email_settings
 from appconfig import Config
 from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 def _get_settings_from_file(path):

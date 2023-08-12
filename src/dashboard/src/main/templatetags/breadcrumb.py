@@ -21,7 +21,7 @@ from django.template import Node
 from django.template import Variable
 from django.template import VariableDoesNotExist
 from django.template.defaulttags import url
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 logger = logging.getLogger("archivematica.dashboard")
 register = Library()
@@ -88,7 +88,7 @@ class BreadcrumbNode(Node):
 
         else:
             title = title.strip("'").strip('"')
-            title = smart_text(title)
+            title = smart_str(title)
 
         url = None
 
@@ -119,7 +119,7 @@ class UrlBreadcrumbNode(Node):
                 title = ""
         else:
             title = title.strip("'").strip('"')
-            title = smart_text(title)
+            title = smart_str(title)
 
         url = self.url_node.render(context)
         return create_crumb(title, url)
