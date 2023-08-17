@@ -2,6 +2,7 @@ import uuid
 
 import main.models
 from django.db import migrations
+from django.db import models
 from django.db import OperationalError
 
 
@@ -34,7 +35,6 @@ def drop_original_path_unique_key(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0058_fix_unit_variable_pull_link")]
 
     operations = [
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="siparrange",
             name="arrange_path",
-            field=main.models.BlobTextField(),
+            field=models.BinaryField(),
         ),
         migrations.AlterField(
             model_name="siparrange",
@@ -59,6 +59,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="siparrange",
             name="original_path",
-            field=main.models.BlobTextField(default=None, null=True, blank=True),
+            field=models.BinaryField(default=None, null=True, blank=True),
         ),
     ]

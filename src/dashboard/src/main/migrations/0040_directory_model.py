@@ -240,11 +240,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "originallocation",
-                    main.models.BlobTextField(db_column="originalLocation"),
+                    models.BinaryField(db_column="originalLocation"),
                 ),
                 (
                     "currentlocation",
-                    main.models.BlobTextField(null=True, db_column="currentLocation"),
+                    models.BinaryField(null=True, db_column="currentLocation"),
                 ),
                 (
                     "enteredsystem",

@@ -82,19 +82,6 @@ class UUIDField(models.UUIDField):
         return str(value)
 
 
-class BlobTextField(models.TextField):
-    """
-    Text field backed by `longblob` instead of `longtext`.
-
-    Used for storing strings that need to match paths on disk with filenames unchanged.
-
-    BLOBs are byte strings (bynary character set and collation).
-    """
-
-    def db_type(self, connection):
-        return "longblob"
-
-
 # SIGNALS
 
 
@@ -625,8 +612,8 @@ class Transfer(models.Model):
 class SIPArrange(models.Model):
     """Information about arranged files: original and arranged location, current status."""
 
-    original_path = BlobTextField(null=True, blank=True, default=None)
-    arrange_path = BlobTextField()
+    original_path = models.BinaryField(null=True, blank=True, default=None)
+    arrange_path = models.BinaryField()
     file_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4, unique=True)
     transfer_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4)
     sip = models.ForeignKey(
@@ -731,8 +718,8 @@ class File(models.Model):
     )
 
     # both actually `longblob` in the database
-    originallocation = BlobTextField(db_column="originalLocation")
-    currentlocation = BlobTextField(db_column="currentLocation", null=True)
+    originallocation = models.BinaryField(db_column="originalLocation")
+    currentlocation = models.BinaryField(db_column="currentLocation", null=True)
     filegrpuse = models.CharField(
         max_length=50, db_column="fileGrpUse", default="Original"
     )
@@ -811,8 +798,8 @@ class Directory(models.Model):
         blank=True,
         on_delete=models.CASCADE,
     )
-    originallocation = BlobTextField(db_column="originalLocation")
-    currentlocation = BlobTextField(db_column="currentLocation", null=True)
+    originallocation = models.BinaryField(db_column="originalLocation")
+    currentlocation = models.BinaryField(db_column="currentLocation", null=True)
     enteredsystem = models.DateTimeField(db_column="enteredSystem", auto_now_add=True)
     identifiers = models.ManyToManyField("Identifier")
 

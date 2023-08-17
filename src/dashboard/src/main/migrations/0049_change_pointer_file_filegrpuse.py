@@ -23,7 +23,7 @@ def data_migration_down(apps, schema_editor):
 def update_pointer_files_filegrpuse(apps, filegrpuse):
     """Change filegrpuse of existing pointer files."""
     File = apps.get_model("main", "File")
-    location = "%SIPDirectory%pointer.xml"
+    location = b"%SIPDirectory%pointer.xml"
     pointer_files = File.objects.filter(
         originallocation=location, currentlocation=location
     )
