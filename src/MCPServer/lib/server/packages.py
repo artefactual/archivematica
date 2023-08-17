@@ -500,18 +500,20 @@ class LocationPath:
 
 def get_file_replacement_mapping(file_obj, unit_directory):
     mapping = BASE_REPLACEMENTS.copy()
-    dirname = os.path.dirname(file_obj.currentlocation)
-    name, ext = os.path.splitext(file_obj.currentlocation)
+    dirname = os.path.dirname(file_obj.currentlocation.decode())
+    name, ext = os.path.splitext(file_obj.currentlocation.decode())
     name = os.path.basename(name)
 
-    absolute_path = file_obj.currentlocation.replace(r"%SIPDirectory%", unit_directory)
+    absolute_path = file_obj.currentlocation.decode().replace(
+        r"%SIPDirectory%", unit_directory
+    )
     absolute_path = absolute_path.replace(r"%transferDirectory%", unit_directory)
 
     mapping.update(
         {
             r"%fileUUID%": str(file_obj.pk),
-            r"%originalLocation%": file_obj.originallocation,
-            r"%currentLocation%": file_obj.currentlocation,
+            r"%originalLocation%": file_obj.originallocation.decode(),
+            r"%currentLocation%": file_obj.currentlocation.decode(),
             r"%fileGrpUse%": file_obj.filegrpuse,
             r"%fileDirectory%": dirname,
             r"%fileName%": name,
