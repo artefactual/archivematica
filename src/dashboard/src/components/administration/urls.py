@@ -46,7 +46,7 @@ urlpatterns = [
         views.atom_levels_of_description,
         name="atom_levels_of_description",
     ),
-    path("i18n/", include("django.conf.urls.i18n", namespace="django_i18n")),
+    path("i18n/", include(("django.conf.urls.i18n", "i18n"), namespace="i18n")),
     path(
         "language/",
         TemplateView.as_view(template_name="administration/language.html"),

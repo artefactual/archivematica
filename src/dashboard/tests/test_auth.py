@@ -4,9 +4,9 @@ from components import helpers
 from components.helpers import generate_api_key
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 from tastypie.models import ApiKey
 
 

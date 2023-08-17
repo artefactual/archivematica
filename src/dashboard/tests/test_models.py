@@ -83,8 +83,8 @@ def test_create_user_agent(agent_mock):
 
 def test_sip_arrange_create_many(db):
     arranges = [
-        models.SIPArrange(original_path=None, arrange_path="a.txt", file_uuid=None),
-        models.SIPArrange(original_path=None, arrange_path="b.txt", file_uuid=None),
+        models.SIPArrange(original_path=None, arrange_path=b"a.txt", file_uuid=None),
+        models.SIPArrange(original_path=None, arrange_path=b"b.txt", file_uuid=None),
     ]
     assert not models.SIPArrange.objects.count()
     models.SIPArrange.create_many(arranges)

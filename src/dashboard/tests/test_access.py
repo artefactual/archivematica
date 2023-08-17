@@ -32,7 +32,8 @@ class TestAccessAPI(TestCase):
         mapping = models.SIPArrangeAccessMapping.objects.get(
             system=models.SIPArrangeAccessMapping.ARCHIVESSPACE, identifier=record_id
         )
-        assert models.SIPArrange.objects.get(arrange_path=mapping.arrange_path + "/")
+        arrange_path = mapping.arrange_path.encode() + b"/"
+        assert models.SIPArrange.objects.get(arrange_path=arrange_path)
 
     def test_arrange_contents(self):
         record_id = "/repositories/2/archival_objects/1"

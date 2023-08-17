@@ -5,7 +5,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
-        "originallocation": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3N1Ym1pc3Npb25Eb2N1bWVudGF0aW9uL3RyYW5zZmVyLW5vLW1ldGFkYXRhLTQ2MjYwODA3LWVjZTEtNGEwZS1iNzBhLTk4MTRjNzAxMTQ2Yi9NRVRTLnhtbA==",
         "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
         "filegrpuse": "submissionDocumentation",
         "removedtime": null,
@@ -13,7 +13,7 @@
         "checksum": "51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a",
         "enteredsystem": "2015-06-24T17:22:09Z",
         "modificationtime": "2015-06-24T17:22:09Z",
-        "currentlocation": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3N1Ym1pc3Npb25Eb2N1bWVudGF0aW9uL3RyYW5zZmVyLW5vLW1ldGFkYXRhLTQ2MjYwODA3LWVjZTEtNGEwZS1iNzBhLTk4MTRjNzAxMTQ2Yi9NRVRTLnhtbA==",
         "size": 12222
     }
 },
@@ -23,7 +23,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
-        "originallocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2V2ZWx5bl9zX3Bob3RvLTYzODNiNzMxLTk5ZTAtNDMyZC1hOTExLWEwZDJkZmQxY2U3Ni50aWY=",
         "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
         "filegrpuse": "preservation",
         "removedtime": null,
@@ -31,7 +31,7 @@
         "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
         "enteredsystem": "2015-06-24T17:22:09Z",
         "modificationtime": "2015-06-24T17:22:09Z",
-        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2V2ZWx5bl9zX3Bob3RvLTYzODNiNzMxLTk5ZTAtNDMyZC1hOTExLWEwZDJkZmQxY2U3Ni50aWY=",
         "size": 1446772
     }
 },
@@ -41,7 +41,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
-        "originallocation": "%SIPDirectory%objects/evelyn's photo.jpg",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2V2ZWx5bidzIHBob3RvLmpwZw==",
         "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
         "filegrpuse": "original",
         "removedtime": null,
@@ -49,7 +49,7 @@
         "checksum": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
         "enteredsystem": "2015-06-24T17:22:09Z",
         "modificationtime": "2015-06-24T17:22:09Z",
-        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo.jpg",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2V2ZWx5bl9zX3Bob3RvLmpwZw==",
         "size": 158131
     }
 },
@@ -59,7 +59,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
-        "originallocation": "%SIPDirectory%metadata/metadata.csv",
+        "originallocation": "JVNJUERpcmVjdG9yeSVtZXRhZGF0YS9tZXRhZGF0YS5jc3Y=",
         "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -67,7 +67,7 @@
         "checksum": "e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
         "enteredsystem": "2015-06-24T17:32:09Z",
         "modificationtime": "2015-06-24T17:32:09Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/metadata.csv",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL21ldGFkYXRhLmNzdg==",
         "size": 154
     }
 }

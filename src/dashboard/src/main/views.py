@@ -30,7 +30,6 @@ from django.views.decorators.http import last_modified
 from django.views.i18n import JavaScriptCatalog
 from lxml import etree
 from main import models
-from shibboleth.views import LOGOUT_SESSION_KEY
 from shibboleth.views import ShibbolethLogoutView
 
 
@@ -322,12 +321,4 @@ def formdata(request, type, parent_id, delete_id=None):
 
 
 class CustomShibbolethLogoutView(ShibbolethLogoutView):
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        # LOGOUT_SESSION_KEY is set by the standard logout to prevent re-login
-        # which is useful to prevent bouncing straight back to login under
-        # certain setups, but not here where we want the Django session state
-        # to reflect the SP session state
-        if LOGOUT_SESSION_KEY in request.session:
-            del request.session[LOGOUT_SESSION_KEY]
-        return response
+    pass
