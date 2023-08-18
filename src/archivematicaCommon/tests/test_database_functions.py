@@ -11,21 +11,20 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestDatabaseFunctions(TestCase):
-
     fixture_files = ["agents.json", "test_database_functions.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     # insertIntoFiles
     def test_insert_into_files_with_sip(self):
         path = "%sharedDirectory%/"
-        assert File.objects.filter(currentlocation=path).count() == 0
+        assert File.objects.filter(currentlocation=path.encode()).count() == 0
 
         databaseFunctions.insertIntoFiles(
             "690c2fb5-7fee-4c29-a8b2-e3758ab9871e",
             path,
             sipUUID="0049fa6c-152f-44a0-93b0-c5e856a02292",
         )
-        assert File.objects.filter(currentlocation=path).count() == 1
+        assert File.objects.filter(currentlocation=path.encode()).count() == 1
 
     def test_insert_into_files_raises_if_no_sip_or_transfer_provided(self):
         with pytest.raises(Exception) as excinfo:
@@ -63,9 +62,14 @@ class TestDatabaseFunctions(TestCase):
             sipUUID="0049fa6c-152f-44a0-93b0-c5e856a02292",
             originalLocation=original_location,
         )
-        assert File.objects.filter(originallocation=original_location).count() == 1
         assert (
-            File.objects.get(originallocation=original_location).currentlocation
+            File.objects.filter(originallocation=original_location.encode()).count()
+            == 1
+        )
+        assert (
+            File.objects.get(
+                originallocation=original_location.encode()
+            ).currentlocation.decode()
             != original_location
         )
 
@@ -80,7 +84,7 @@ class TestDatabaseFunctions(TestCase):
         assert (
             File.objects.filter(uuid="554661f1-b331-452c-a583-0c582ebcb298")[
                 0
-            ].originallocation
+            ].originallocation.decode()
             == file_path
         )
 
