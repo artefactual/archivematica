@@ -144,7 +144,7 @@ def verify_checksums(job, bag, sip_uuid):
         verification_skipped_because_reingest = 0
         for file_ in File.objects.filter(sip_id=sip_uuid):
             if (
-                os.path.basename(file_.originallocation) in removableFiles
+                os.path.basename(file_.originallocation.decode()) in removableFiles
                 or file_.removedtime
                 or not file_.currentlocation.decode().startswith(
                     "%SIPDirectory%objects/"

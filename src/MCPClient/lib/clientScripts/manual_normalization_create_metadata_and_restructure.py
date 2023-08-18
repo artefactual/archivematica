@@ -53,7 +53,7 @@ def main(job):
 
     try:
         path_condition = Q(currentlocation__startswith=filePathLike1) | Q(
-            currentlocation=filePathLike2
+            currentlocation=filePathLike2.encode()
         )
         original_file = File.objects.get(
             path_condition,
@@ -129,7 +129,9 @@ def main(job):
     i = basename.rfind(".")
     dstFile = basename[:i] + "-" + fileUUID + basename[i:]
     dstDir = os.path.dirname(
-        original_file.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1)
+        original_file.currentlocation.decode().replace(
+            "%SIPDirectory%", SIPDirectory, 1
+        )
     )
     dst = os.path.join(dstDir, dstFile)
     dstR = dst.replace(SIPDirectory, "%SIPDirectory%", 1)
@@ -142,7 +144,7 @@ def main(job):
     job.print_output("Renaming preservation file", filePath, "to", dst)
     os.rename(filePath, dst)
     # Update the preservation file's location
-    File.objects.filter(uuid=fileUUID).update(currentlocation=dstR)
+    File.objects.filter(uuid=fileUUID).update(currentlocation=dstR.encode())
 
     try:
         # Normalization event already exists, so just update it

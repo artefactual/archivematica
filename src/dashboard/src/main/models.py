@@ -841,8 +841,8 @@ class Directory(models.Model):
                     **{
                         "uuid": dir_uuid,
                         unit_type: unit_mdl,
-                        "originallocation": orig_path,
-                        "currentlocation": dir_path,
+                        "originallocation": orig_path.encode(),
+                        "currentlocation": dir_path.encode(),
                     }
                 )
             )

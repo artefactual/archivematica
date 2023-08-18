@@ -79,7 +79,7 @@ def call(jobs):
                 # ``Transfer``. If so, this fact gets recorded in the new ``SIP`` model.
                 dir_mdls = Directory.objects.filter(
                     transfer_id=transferUUID,
-                    currentlocation__startswith=b"%transferDirectory%objects",
+                    currentlocation__startswith="%transferDirectory%objects",
                 )
                 diruuids = dir_mdls.count() > 0
 
@@ -150,9 +150,9 @@ def call(jobs):
                     )
                     if os.path.isdir(currentSIPDirPath):
                         dir_mdl.currentlocation = (
-                            dir_mdl.currentlocation.decode().replace(
-                                "%transferDirectory%", "%SIPDirectory%"
-                            )
+                            dir_mdl.currentlocation.decode()
+                            .replace("%transferDirectory%", "%SIPDirectory%")
+                            .encode()
                         )
                         dir_mdl.sip = sip
                         dir_mdl.save()
@@ -166,7 +166,7 @@ def call(jobs):
                 # current location/ owning SIP'
                 files = File.objects.filter(
                     transfer_id=transferUUID,
-                    currentlocation__startswith=b"%transferDirectory%objects",
+                    currentlocation__startswith="%transferDirectory%objects",
                     removedtime__isnull=True,
                 )
                 for f in files:
@@ -174,8 +174,10 @@ def call(jobs):
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isfile(currentSIPFilePath):
-                        f.currentlocation = f.currentlocation.decode().replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                        f.currentlocation = (
+                            f.currentlocation.decode()
+                            .replace("%transferDirectory%", "%SIPDirectory%")
+                            .encode()
                         )
                         f.sip = sip
                         f.save()

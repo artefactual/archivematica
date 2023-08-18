@@ -65,7 +65,7 @@ def exit_on_known_exception(func):
     @wraps(func)
     def wrapped(*_args, **kwargs):
         try:
-            func(*_args, **kwargs)
+            return func(*_args, **kwargs)
         except (DirsUUIDsException, DirsUUIDsWarning) as exc:
             return exc.exit_code
 

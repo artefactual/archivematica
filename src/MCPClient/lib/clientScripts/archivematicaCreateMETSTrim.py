@@ -87,7 +87,7 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     minDateMod = None
     maxDateMod = None
     for f in files:
-        fileMetadataXmlPath = f.currentlocation.replace(
+        fileMetadataXmlPath = f.currentlocation.decode().replace(
             "%SIPDirectory%", baseDirectoryPath, 1
         )
         if os.path.isfile(fileMetadataXmlPath):
@@ -128,7 +128,9 @@ def getTrimFileDmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
         job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
-        xmlFilePath = f.currentlocation.replace("%SIPDirectory%", baseDirectoryPath, 1)
+        xmlFilePath = f.currentlocation.decode().replace(
+            "%SIPDirectory%", baseDirectoryPath, 1
+        )
         dublincore = etree.SubElement(
             xmlData,
             ns.dctermsBNS + "dublincore",
@@ -165,10 +167,11 @@ def getTrimFileAmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
         job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
-        label = os.path.basename(f.currentlocation)
+        label = os.path.basename(f.currentlocation.decode())
         attrib = {
             "LABEL": label,
-            ns.xlinkBNS + "href": f.currentlocation.replace("%SIPDirectory%", "", 1),
+            ns.xlinkBNS
+            + "href": f.currentlocation.decode().replace("%SIPDirectory%", "", 1),
             "MDTYPE": "OTHER",
             "OTHERMDTYPE": "CUSTOM",
             "LOCTYPE": "OTHER",
@@ -189,7 +192,8 @@ def getTrimAmdSec(job, baseDirectoryPath, sipUUID):
     for f in files:
         attrib = {
             "LABEL": "ContainerMetadata.xml",
-            ns.xlinkBNS + "href": f.currentlocation.replace("%SIPDirectory%", "", 1),
+            ns.xlinkBNS
+            + "href": f.currentlocation.decode().replace("%SIPDirectory%", "", 1),
             "MDTYPE": "OTHER",
             "OTHERMDTYPE": "CUSTOM",
             "LOCTYPE": "OTHER",

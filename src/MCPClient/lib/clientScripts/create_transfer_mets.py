@@ -31,7 +31,7 @@ django.setup()
 import metsrw
 
 # archivematicaCommon
-from archivematicaFunctions import get_dashboard_uuid, escape
+from archivematicaFunctions import get_dashboard_uuid
 from countryCodes import getCodeForCountry
 
 # dashboard
@@ -602,7 +602,7 @@ def file_obj_to_premis(file_obj):
     """
     premis_digest_algorithm = convert_to_premis_hash_function(file_obj.checksumtype)
     format_data = get_premis_format_data(file_obj.fileid_set.all())
-    original_name = escape(file_obj.originallocation)
+    original_name = file_obj.originallocation.decode()
     object_identifiers = get_premis_object_identifiers(
         file_obj.uuid, file_obj.identifiers.all()
     )
@@ -653,7 +653,7 @@ def dir_obj_to_premis(dir_obj):
     Returns:
         lxml.etree._Element
     """
-    original_name = escape(dir_obj.originallocation)
+    original_name = dir_obj.originallocation.decode()
     object_identifiers = get_premis_object_identifiers(
         dir_obj.uuid, dir_obj.identifiers.all()
     )

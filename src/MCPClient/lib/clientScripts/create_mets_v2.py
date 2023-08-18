@@ -65,7 +65,6 @@ from archivematicaCreateMETSTrim import getTrimAmdSec
 from archivematicaCreateMETSTrim import getTrimFileAmdSec
 
 # archivematicaCommon
-from archivematicaFunctions import escape
 from archivematicaFunctions import normalizeNonDcElementName
 from create_mets_dataverse_v2 import (
     create_dataverse_sip_dmdsec,
@@ -267,9 +266,9 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
     for identifier in chain((("UUID", dir_uuid),), _get_mdl_identifiers(dir_mdl)):
         object_elem = _add_identifier(object_elem, identifier, bns=ns.premisBNS)
     try:
-        original_name = escape(dir_mdl.originallocation)
+        original_name = dir_mdl.originallocation.decode()
     except AttributeError:  # SIP model won't have originallocation
-        original_name = escape(relativeDirectoryPath)
+        original_name = relativeDirectoryPath
     etree.SubElement(object_elem, ns.premisBNS + "originalName").text = original_name
     return ret
 
@@ -571,9 +570,9 @@ def create_premis_object(fileUUID):
     for elem in create_premis_object_characteristics_extensions(fileUUID):
         objectCharacteristics.append(elem)
 
-    etree.SubElement(object_elem, ns.premisBNS + "originalName").text = escape(
-        f.originallocation
-    )
+    etree.SubElement(
+        object_elem, ns.premisBNS + "originalName"
+    ).text = f.originallocation.decode()
 
     for elem in create_premis_object_derivations(fileUUID):
         object_elem.append(elem)
@@ -776,7 +775,7 @@ def createEvent(event_record):
     )
     etree.SubElement(
         eventDetailInformation, ns.premisBNS + "eventDetail"
-    ).text = escape(event_record.event_detail)
+    ).text = event_record.event_detail
 
     eventOutcomeInformation = etree.SubElement(
         event, ns.premisBNS + "eventOutcomeInformation"
@@ -789,7 +788,7 @@ def createEvent(event_record):
     )
     etree.SubElement(
         eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote"
-    ).text = escape(event_record.event_outcome_detail)
+    ).text = event_record.event_outcome_detail
 
     # linkingAgentIdentifier
     for agent in Agent.objects.extend_queryset_with_preservation_system(
@@ -1258,7 +1257,9 @@ def createFileSec(
             # there's a Dataverse METS with additional metadata.
             if f.originallocation.decode().endswith(".tab"):
                 dv_metadata = create_dataverse_tabfile_dmdsec(
-                    job, baseDirectoryPath, os.path.basename(f.originallocation)
+                    job,
+                    baseDirectoryPath,
+                    os.path.basename(f.originallocation.decode()),
                 )
                 state.dmdSecs.extend(dv_metadata)
                 ids = " ".join([ds.get("ID") for ds in dv_metadata])
@@ -1734,7 +1735,7 @@ def main(
         # createSIPfromTransferObjects.py for the association of ``Directory``
         # objects to a ``SIP``.
         directories = {
-            d.currentlocation.rstrip("/"): d
+            d.currentlocation.decode().rstrip("/"): d
             for d in Directory.objects.filter(sip_id=sipUUID).all()
         }
 
