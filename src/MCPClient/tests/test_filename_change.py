@@ -73,8 +73,8 @@ def transfer_dir_obj(db, transfer, tmp_path, subdir_path):
     dir_obj = Directory.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
-        originallocation=dir_obj_path,
-        currentlocation=dir_obj_path,
+        originallocation=dir_obj_path.encode(),
+        currentlocation=dir_obj_path.encode(),
     )
 
     return dir_obj
@@ -92,8 +92,8 @@ def sip_dir_obj(db, sip, tmp_path, subdir_path):
     dir_obj = Directory.objects.create(
         uuid=uuid.uuid4(),
         sip=sip,
-        originallocation=dir_obj_path,
-        currentlocation=dir_obj_path,
+        originallocation=dir_obj_path.encode(),
+        currentlocation=dir_obj_path.encode(),
     )
 
     return dir_obj
@@ -113,8 +113,8 @@ def sip_file_obj(db, sip, tmp_path, subdir_path):
     return File.objects.create(
         uuid=uuid.uuid4(),
         sip=sip,
-        originallocation=relative_path,
-        currentlocation=relative_path,
+        originallocation=relative_path.encode(),
+        currentlocation=relative_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -147,8 +147,8 @@ def multiple_transfer_file_objs(db, transfer, tmp_path, multiple_file_paths):
         File(
             uuid=uuid.uuid4(),
             transfer=transfer,
-            originallocation=relative_path,
-            currentlocation=relative_path,
+            originallocation=relative_path.encode(),
+            currentlocation=relative_path.encode(),
             removedtime=None,
             size=113318,
             checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -212,7 +212,9 @@ class TestFilenameChange(TempDirMixin, TestCase):
             "%sharedPath%currentlyProcessing", str(self.tmpdir)
         )
         for f in File.objects.filter(transfer_id=self.transfer_uuid):
-            path = f.currentlocation.replace("%transferDirectory%", transfer_path)
+            path = f.currentlocation.decode().replace(
+                "%transferDirectory%", transfer_path
+            )
             dirname = os.path.dirname(path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
@@ -245,7 +247,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
                 )
             )
             assert File.objects.get(
-                currentlocation="%transferDirectory%objects/takusan_directories/need_name_change/checking_here/evelyn_s_photo.jpg"
+                currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/evelyn_s_photo.jpg"
             )
             event = Event.objects.get(
                 file_uuid="47813453-6872-442b-9d65-6515be3c5aa1",
@@ -260,7 +262,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
                 )
             )
             assert File.objects.get(
-                currentlocation="%transferDirectory%objects/no_name_change/needed_here/lion.svg"
+                currentlocation=b"%transferDirectory%objects/no_name_change/needed_here/lion.svg"
             )
             assert not Event.objects.filter(
                 file_uuid="60e5c61b-14ef-4e92-89ec-9b9201e68adb",
@@ -278,7 +280,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
                 )
             )
             assert File.objects.get(
-                currentlocation="%transferDirectory%objects/takusan_directories/need_name_change/checking_here/lionXie_Zhen_.svg"
+                currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/lionXie_Zhen_.svg"
             )
             assert Event.objects.filter(
                 file_uuid="791e07ea-ad44-4315-b55b-44ec771e95cf",
@@ -289,7 +291,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
                 os.path.join(transfer_path, "objects", "has_space", "lion.svg")
             )
             assert File.objects.get(
-                currentlocation="%transferDirectory%objects/has_space/lion.svg"
+                currentlocation=b"%transferDirectory%objects/has_space/lion.svg"
             )
             assert Event.objects.filter(
                 file_uuid="8a1f0b59-cf94-47ef-8078-647b77c8a147",
@@ -340,9 +342,9 @@ def test_change_transfer_with_multiple_files(
         original_location = file_obj.currentlocation
         file_obj.refresh_from_db()
 
-        assert file_obj.currentlocation != original_location
-        assert subdir_path.as_posix() not in file_obj.currentlocation
-        assert "bulk-file" in file_obj.currentlocation
+        assert file_obj.currentlocation.decode() != original_location
+        assert subdir_path.as_posix() not in file_obj.currentlocation.decode()
+        assert "bulk-file" in file_obj.currentlocation.decode()
         verify_event_details(
             Event.objects.get(file_uuid=file_obj.uuid, event_type="filename change")
         )
@@ -367,7 +369,7 @@ def test_change_transfer_with_directory_uuids(
     transfer_dir_obj.refresh_from_db()
 
     assert transfer_dir_obj.currentlocation != original_location
-    assert subdir_path.as_posix() not in transfer_dir_obj.currentlocation
+    assert subdir_path.as_posix() not in transfer_dir_obj.currentlocation.decode()
 
 
 @pytest.mark.django_db
@@ -387,11 +389,11 @@ def test_change_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
     sip_dir_obj.refresh_from_db()
 
     assert sip_dir_obj.currentlocation != original_dir_location
-    assert subdir_path.as_posix() not in sip_dir_obj.currentlocation
+    assert subdir_path.as_posix() not in sip_dir_obj.currentlocation.decode()
 
     original_file_location = sip_file_obj.currentlocation
     sip_file_obj.refresh_from_db()
 
     assert sip_file_obj.currentlocation != original_file_location
-    assert subdir_path.as_posix() not in sip_file_obj.currentlocation
-    assert "file" in sip_file_obj.currentlocation
+    assert subdir_path.as_posix() not in sip_file_obj.currentlocation.decode()
+    assert "file" in sip_file_obj.currentlocation.decode()

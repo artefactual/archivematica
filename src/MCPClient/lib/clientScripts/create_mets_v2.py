@@ -1067,7 +1067,7 @@ def createFileSec(
             kwargs = {
                 "removedtime__isnull": True,
                 "sip_id": sipUUID,
-                "currentlocation": directoryPathSTR,
+                "currentlocation": directoryPathSTR.encode(),
             }
             try:
                 f = File.objects.get(**kwargs)
@@ -1155,7 +1155,9 @@ def createFileSec(
                 if use == "original":
                     DMDIDS = createDMDIDsFromCSVMetadata(
                         job,
-                        f.originallocation.replace("%transferDirectory%", "", 1),
+                        f.originallocation.decode().replace(
+                            "%transferDirectory%", "", 1
+                        ),
                         state,
                     )
                     if DMDIDS:
@@ -1190,7 +1192,9 @@ def createFileSec(
                     "removedtime__isnull": True,
                     "sip_id": sipUUID,
                     "filegrpuse": "original",
-                    "originallocation__startswith": os.path.dirname(f.originallocation),
+                    "originallocation__startswith": os.path.dirname(
+                        f.originallocation.decode()
+                    ),
                 }
                 original_file = File.objects.filter(**kwargs).first()
                 if original_file is not None:
@@ -1252,7 +1256,7 @@ def createFileSec(
 
             # Special Dataverse processing. If there's .tab file, check if
             # there's a Dataverse METS with additional metadata.
-            if f.originallocation.endswith(".tab"):
+            if f.originallocation.decode().endswith(".tab"):
                 dv_metadata = create_dataverse_tabfile_dmdsec(
                     job, baseDirectoryPath, os.path.basename(f.originallocation)
                 )

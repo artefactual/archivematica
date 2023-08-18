@@ -84,7 +84,7 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
         mets.agents.append(agent)
 
     try:
-        transfer = Transfer.objects.get(uuid=str(transfer_uuid))
+        transfer = Transfer.objects.get(uuid=transfer_uuid)
     except Transfer.DoesNotExist:
         logger.info("No record in database for transfer: %s", transfer_uuid)
         raise
@@ -225,11 +225,11 @@ class FSEntriesTree:
         )
         for file_obj in self._batch_query(file_objs):
             try:
-                fsentry = self.file_index[file_obj.currentlocation]
+                fsentry = self.file_index[file_obj.currentlocation.decode()]
             except KeyError:
                 logger.info(
                     "File is no longer present on the filesystem: %s",
-                    file_obj.currentlocation,
+                    file_obj.currentlocation.decode(),
                 )
                 continue
             fsentry.file_uuid = str(file_obj.uuid)
@@ -278,11 +278,11 @@ class FSEntriesTree:
 
         for dir_obj in self._batch_query(dir_objs):
             try:
-                fsentry = self.dir_index[dir_obj.currentlocation]
+                fsentry = self.dir_index[dir_obj.currentlocation.decode()]
             except KeyError:
                 logger.info(
                     "Directory is no longer present on the filesystem: %s",
-                    dir_obj.currentlocation,
+                    dir_obj.currentlocation.decode(),
                 )
             else:
                 premis_intellectual_entity = dir_obj_to_premis(dir_obj)

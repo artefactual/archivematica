@@ -127,13 +127,15 @@ class NameChanger:
         # We pass through _all_ objects here, as they may not be normalized in
         # the db :(
         for file_obj in self.file_queryset.iterator():
-            old_location = unicodedata.normalize("NFC", file_obj.currentlocation)
+            old_location = unicodedata.normalize(
+                "NFC", file_obj.currentlocation.decode()
+            )
             try:
                 changed_location = self.files_index[old_location]
             except KeyError:
                 continue
 
-            file_obj.currentlocation = changed_location
+            file_obj.currentlocation = changed_location.encode()
             file_obj.save()
 
             change_event = Event(
@@ -176,13 +178,15 @@ class NameChanger:
         # We pass through _all_ objects here, as they may not be normalized in
         # the db :(
         for dir_obj in self.directory_queryset.iterator():
-            old_location = unicodedata.normalize("NFC", dir_obj.currentlocation)
+            old_location = unicodedata.normalize(
+                "NFC", dir_obj.currentlocation.decode()
+            )
             try:
                 changed_location = self.dirs_index[old_location]
             except KeyError:
                 continue
 
-            dir_obj.currentlocation = changed_location
+            dir_obj.currentlocation = changed_location.encode()
             dir_obj.save()
 
             # TODO: Dir name changes don't generate events?

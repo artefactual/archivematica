@@ -79,7 +79,7 @@ def call(jobs):
                 # ``Transfer``. If so, this fact gets recorded in the new ``SIP`` model.
                 dir_mdls = Directory.objects.filter(
                     transfer_id=transferUUID,
-                    currentlocation__startswith="%transferDirectory%objects",
+                    currentlocation__startswith=b"%transferDirectory%objects",
                 )
                 diruuids = dir_mdls.count() > 0
 
@@ -145,12 +145,14 @@ def call(jobs):
                 # objects/ directory. For each subdirectory, confirm it's in the SIP
                 # objects/ directory, and update the current location and owning SIP.
                 for dir_mdl in dir_mdls:
-                    currentSIPDirPath = dir_mdl.currentlocation.replace(
+                    currentSIPDirPath = dir_mdl.currentlocation.decode().replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isdir(currentSIPDirPath):
-                        dir_mdl.currentlocation = dir_mdl.currentlocation.replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                        dir_mdl.currentlocation = (
+                            dir_mdl.currentlocation.decode().replace(
+                                "%transferDirectory%", "%SIPDirectory%"
+                            )
                         )
                         dir_mdl.sip = sip
                         dir_mdl.save()
@@ -164,15 +166,15 @@ def call(jobs):
                 # current location/ owning SIP'
                 files = File.objects.filter(
                     transfer_id=transferUUID,
-                    currentlocation__startswith="%transferDirectory%objects",
+                    currentlocation__startswith=b"%transferDirectory%objects",
                     removedtime__isnull=True,
                 )
                 for f in files:
-                    currentSIPFilePath = f.currentlocation.replace(
+                    currentSIPFilePath = f.currentlocation.decode().replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isfile(currentSIPFilePath):
-                        f.currentlocation = f.currentlocation.replace(
+                        f.currentlocation = f.currentlocation.decode().replace(
                             "%transferDirectory%", "%SIPDirectory%"
                         )
                         f.sip = sip

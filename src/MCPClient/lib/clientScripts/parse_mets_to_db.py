@@ -156,7 +156,7 @@ def update_files(sip_uuid, files):
             checksum=file_info["checksum"],
             checksumtype=file_info["checksumtype"],
             size=file_info["size"],
-            currentlocation=file_info["current_path"],
+            currentlocation=file_info["current_path"].encode(),
         )
         if file_info["format_version"]:
             # Add Format ID

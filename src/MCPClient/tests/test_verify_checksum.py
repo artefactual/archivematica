@@ -71,8 +71,8 @@ class TestHashsum:
             checksum="f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e",
             enteredsystem="2017-01-04T19:35:20Z",
             modificationtime="2017-01-04T19:35:20Z",
-            originallocation="%transferDirectory%objects/has space/lion.svg",
-            currentlocation="%transferDirectory%objects/has space/lion.svg",
+            originallocation=b"%transferDirectory%objects/has space/lion.svg",
+            currentlocation=b"%transferDirectory%objects/has space/lion.svg",
             size=18324,
         )
         return transfer

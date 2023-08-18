@@ -146,12 +146,14 @@ def verify_checksums(job, bag, sip_uuid):
             if (
                 os.path.basename(file_.originallocation) in removableFiles
                 or file_.removedtime
-                or not file_.currentlocation.startswith("%SIPDirectory%objects/")
+                or not file_.currentlocation.decode().startswith(
+                    "%SIPDirectory%objects/"
+                )
                 or file_.filegrpuse == "manualNormalization"
             ):
                 continue
             file_path = os.path.join(
-                "data", file_.currentlocation.replace("%SIPDirectory%", "", 1)
+                "data", file_.currentlocation.decode().replace("%SIPDirectory%", "", 1)
             )
             assert_checksum_types_match(job, file_, sip_uuid, checksum_type)
             expected_checksum = get_expected_checksum(

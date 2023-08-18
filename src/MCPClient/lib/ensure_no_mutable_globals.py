@@ -38,7 +38,6 @@ GOOD_GLOBAL_TYPES = (
     str,
     tuple,
     django.conf.LazySettings,
-    django.db.DefaultConnectionProxy,
     prometheus_client.Counter,
     prometheus_client.Gauge,
     prometheus_client.Histogram,

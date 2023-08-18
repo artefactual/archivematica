@@ -582,8 +582,8 @@ class TestParseFiles(TestCase):
         orig = models.File.objects.get(uuid=self.ORIG_INFO["uuid"])
         assert orig.sip_id == uuid.UUID(self.SIP_UUID)
         assert orig.transfer is None
-        assert orig.originallocation == self.ORIG_INFO["original_path"]
-        assert orig.currentlocation == self.ORIG_INFO["current_path"]
+        assert orig.originallocation.decode() == self.ORIG_INFO["original_path"]
+        assert orig.currentlocation.decode() == self.ORIG_INFO["current_path"]
         assert orig.filegrpuse == self.ORIG_INFO["use"]
         assert orig.filegrpuuid == ""
         assert orig.checksum == self.ORIG_INFO["checksum"]
@@ -603,8 +603,8 @@ class TestParseFiles(TestCase):
         pres = models.File.objects.get(uuid=self.PRES_INFO["uuid"])
         assert pres.sip_id == uuid.UUID(self.SIP_UUID)
         assert pres.transfer is None
-        assert pres.originallocation == self.PRES_INFO["original_path"]
-        assert pres.currentlocation == self.PRES_INFO["current_path"]
+        assert pres.originallocation.decode() == self.PRES_INFO["original_path"]
+        assert pres.currentlocation.decode() == self.PRES_INFO["current_path"]
         assert pres.filegrpuse == self.PRES_INFO["use"]
         assert pres.filegrpuuid == ""
         assert pres.checksum == self.PRES_INFO["checksum"]
@@ -623,8 +623,8 @@ class TestParseFiles(TestCase):
         mets = models.File.objects.get(uuid=self.METS_INFO["uuid"])
         assert mets.sip_id == uuid.UUID(self.SIP_UUID)
         assert mets.transfer is None
-        assert mets.originallocation == self.METS_INFO["original_path"]
-        assert mets.currentlocation == self.METS_INFO["current_path"]
+        assert mets.originallocation.decode() == self.METS_INFO["original_path"]
+        assert mets.currentlocation.decode() == self.METS_INFO["current_path"]
         assert mets.filegrpuse == self.METS_INFO["use"]
         assert mets.filegrpuuid == ""
         assert mets.checksum == self.METS_INFO["checksum"]
