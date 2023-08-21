@@ -163,11 +163,10 @@ def test_reload_file_list(tmp_path):
     first_file = objects_path / "file.txt"
     first_file.touch()
 
+    current_location = Path(transfer.REPLACEMENT_PATH_STRING, "objects", "file.txt")
     kwargs = {
         "uuid": uuid.uuid4(),
-        "currentlocation": "".join(
-            [transfer.REPLACEMENT_PATH_STRING, str(Path("/objects/file.txt"))]
-        ),
+        "currentlocation": bytes(current_location),
         "filegrpuse": "original",
         "transfer_id": transfer_uuid,
     }
@@ -188,16 +187,14 @@ def test_reload_file_list(tmp_path):
         if file_info.get("%fileUUID%") != "None":
             continue
         assert file_info.get("%relativeLocation%") == str(new_file)
-        file_path = "".join(
-            [
-                transfer.REPLACEMENT_PATH_STRING,
-                "/objects",
-                file_info.get("%relativeLocation%").split("objects")[1],
-            ]
+        file_path = Path(
+            transfer.REPLACEMENT_PATH_STRING,
+            "objects",
+            Path(file_info.get("%relativeLocation%")).relative_to(objects_path),
         )
         kwargs = {
             "uuid": uuid.uuid4(),
-            "currentlocation": file_path,
+            "currentlocation": bytes(file_path),
             "filegrpuse": "original",
             "transfer_id": transfer_uuid,
         }
@@ -214,18 +211,16 @@ def test_reload_file_list(tmp_path):
     new_file = sub_dir / "another_new_file.txt"
     new_file.touch()
     for file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
-        file_path = "".join(
-            [
-                transfer.REPLACEMENT_PATH_STRING,
-                "/objects",
-                file_info.get("%relativeLocation%").split("objects")[1],
-            ]
-        )
         if file_info.get("%fileUUID%") != "None":
             continue
+        file_path = Path(
+            transfer.REPLACEMENT_PATH_STRING,
+            "objects",
+            Path(file_info.get("%relativeLocation%")).relative_to(Path(objects_path)),
+        )
         kwargs = {
             "uuid": uuid.uuid4(),
-            "currentlocation": file_path,
+            "currentlocation": bytes(file_path),
             "filegrpuse": "original",
             "transfer_id": transfer_uuid,
         }
@@ -279,11 +274,10 @@ def test_package_files_with_non_ascii_names(tmp_path):
     file_.touch()
 
     # Create a File model instance for the transfer file
+    current_location = Path(transfer.REPLACEMENT_PATH_STRING, "objects", "montréal.txt")
     kwargs = {
         "uuid": uuid.uuid4(),
-        "currentlocation": "".join(
-            [transfer.REPLACEMENT_PATH_STRING, "/objects/montréal.txt"]
-        ),
+        "currentlocation": bytes(current_location),
         "filegrpuse": "original",
         "transfer_id": transfer_uuid,
     }
@@ -295,7 +289,7 @@ def test_package_files_with_non_ascii_names(tmp_path):
 
     # And it is the file we just created
     assert result[0]["%fileUUID%"] == str(kwargs["uuid"])
-    assert result[0]["%currentLocation%"] == kwargs["currentlocation"]
+    assert result[0]["%currentLocation%"] == current_location.as_posix()
     assert result[0]["%fileGrpUse%"] == kwargs["filegrpuse"]
 
 

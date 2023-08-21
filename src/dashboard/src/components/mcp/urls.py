@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.mcp import views
-from django.conf.urls import url
+from django.urls import path
 
 app_name = "mcp"
 urlpatterns = [
-    url(r"execute/$", views.execute, name="execute"),
-    url(r"list/$", views.list, name="list"),
+    path("execute/", views.execute, name="execute"),
+    path("list/", views.list, name="list"),
 ]

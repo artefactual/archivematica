@@ -136,11 +136,11 @@ def get_size_and_checksum_for_file(
     """
     kw = {}
     if transfer_uuid:
-        file_path = file_.currentlocation.replace(
+        file_path = file_.currentlocation.decode().replace(
             TRANSFER_REPLACEMENT_PATH_STRING, sip_directory
         )
     else:
-        file_path = file_.currentlocation.replace(
+        file_path = file_.currentlocation.decode().replace(
             SIP_REPLACEMENT_PATH_STRING, sip_directory
         )
 

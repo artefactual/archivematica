@@ -16,22 +16,23 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.backlog import views
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
+from django.urls import re_path
 
 app_name = "backlog"
 urlpatterns = [
-    url(r"^$", views.execute, name="backlog_index"),
-    url(r"search/$", views.search, name="backlog_search"),
-    url(
+    path("", views.execute, name="backlog_index"),
+    path("search/", views.search, name="backlog_search"),
+    re_path(
         r"delete/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.delete,
         name="backlog_delete",
     ),
-    url(
+    re_path(
         r"download/(?P<uuid>" + settings.UUID_REGEX + ")/$",
         views.download,
         name="backlog_download",
     ),
-    url(r"save_state/(?P<table>[-\w]+)/$", views.save_state, name="save_state"),
-    url(r"load_state/(?P<table>[-\w]+)/$", views.load_state, name="load_state"),
+    re_path(r"save_state/(?P<table>[-\w]+)/$", views.save_state, name="save_state"),
+    re_path(r"load_state/(?P<table>[-\w]+)/$", views.load_state, name="load_state"),
 ]

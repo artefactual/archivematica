@@ -372,8 +372,8 @@ def _import_dir_from_fsentry(cmd, fsentry, transfer_uuid):
     Directory.objects.create(
         uuid=uuid.uuid4(),  # TODO: what goes here?
         transfer_id=transfer_uuid,
-        originallocation="TODO",
-        currentlocation="TODO")
+        originallocation=b"TODO",
+        currentlocation=b"TODO")
     """
 
 

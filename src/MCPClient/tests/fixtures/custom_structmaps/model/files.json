@@ -5,7 +5,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/test_file.flac",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5mbGFj",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -13,7 +13,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/test_file.flac",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5mbGFj",
         "size": 2600
     }
 },
@@ -23,7 +23,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/test_file.mp3",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5tcDM=",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -31,7 +31,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/test_file.mp3",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5tcDM=",
         "size": 2600
     }
 },
@@ -41,7 +41,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/test_file.jpg",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5qcGc=",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -49,7 +49,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/test_file.jpg",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5qcGc=",
         "size": 2600
     }
 },
@@ -59,7 +59,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/test_file.png",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5wbmc=",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -67,7 +67,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/test_file.png",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3Rlc3RfZmlsZS5wbmc=",
         "size": 2600
     }
 },
@@ -77,7 +77,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/nested_dir/nested_file.rdata",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL25lc3RlZF9kaXIvbmVzdGVkX2ZpbGUucmRhdGE=",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -85,7 +85,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/nested_dir/nested_file.rdata",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL25lc3RlZF9kaXIvbmVzdGVkX2ZpbGUucmRhdGE=",
         "size": 2600
     }
 },
@@ -95,7 +95,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/página_de_prueba.png",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3DDoWdpbmFfZGVfcHJ1ZWJhLnBuZw==",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -103,7 +103,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/página_de_prueba.png",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3DDoWdpbmFfZGVfcHJ1ZWJhLnBuZw==",
         "size": 2600
     }
 },
@@ -113,7 +113,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/página_de_prueba.jpg",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3DDoWdpbmFfZGVfcHJ1ZWJhLmpwZw==",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -121,7 +121,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/página_de_prueba.jpg",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL3DDoWdpbmFfZGVfcHJ1ZWJhLmpwZw==",
         "size": 2600
     }
 },
@@ -131,7 +131,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/duplicate_file_name.png",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2R1cGxpY2F0ZV9maWxlX25hbWUucG5n",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -139,7 +139,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/duplicate_file_name.png",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2R1cGxpY2F0ZV9maWxlX25hbWUucG5n",
         "size": 2600
     }
 },
@@ -149,7 +149,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/nested_dir/duplicate_file_name.png",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL25lc3RlZF9kaXIvZHVwbGljYXRlX2ZpbGVfbmFtZS5wbmc=",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -157,7 +157,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/nested_dir/duplicate_file_name.png",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL25lc3RlZF9kaXIvZHVwbGljYXRlX2ZpbGVfbmFtZS5wbmc=",
         "size": 2600
     }
 },
@@ -167,7 +167,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/dir-with-dashes/file with spaces.bin",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2Rpci13aXRoLWRhc2hlcy9maWxlIHdpdGggc3BhY2VzLmJpbg==",
         "transfer": null,
         "filegrpuse": "original",
         "removedtime": null,
@@ -175,7 +175,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/dir-with-dashes/file with spaces.bin",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL2Rpci13aXRoLWRhc2hlcy9maWxlIHdpdGggc3BhY2VzLmJpbg==",
         "size": 2600
     }
 },
@@ -185,7 +185,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9tZXRzX3N0cnVjdG1hcC54bWw=",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -193,7 +193,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9tZXRzX3N0cnVjdG1hcC54bWw=",
         "size": 2600
     }
 },
@@ -203,7 +203,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/simple_book_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9zaW1wbGVfYm9va19zdHJ1Y3RtYXAueG1s",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -211,7 +211,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/simple_book_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9zaW1wbGVfYm9va19zdHJ1Y3RtYXAueG1s",
         "size": 2600
     }
 },
@@ -221,7 +221,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_area_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9tZXRzX2FyZWFfc3RydWN0bWFwLnhtbA==",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -229,7 +229,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/mets_area_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9tZXRzX2FyZWFfc3RydWN0bWFwLnhtbA==",
         "size": 2600
     }
 },
@@ -239,7 +239,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/unicode_simple_book_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS91bmljb2RlX3NpbXBsZV9ib29rX3N0cnVjdG1hcC54bWw=",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -247,7 +247,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/unicode_simple_book_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS91bmljb2RlX3NpbXBsZV9ib29rX3N0cnVjdG1hcC54bWw=",
         "size": 2600
     }
 },
@@ -257,7 +257,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/nested_file_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9uZXN0ZWRfZmlsZV9zdHJ1Y3RtYXAueG1s",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -265,7 +265,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/nested_file_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9uZXN0ZWRfZmlsZV9zdHJ1Y3RtYXAueG1s",
         "size": 2600
     }
 },
@@ -275,7 +275,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9wYXRoX3dpdGhfc3BhY2VzX3N0cnVjdG1hcC54bWw=",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -283,7 +283,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/path_with_spaces_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9wYXRoX3dpdGhfc3BhY2VzX3N0cnVjdG1hcC54bWw=",
         "size": 2600
     }
 },
@@ -293,7 +293,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/complex_book_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9jb21wbGV4X2Jvb2tfc3RydWN0bWFwLnhtbA==",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -301,7 +301,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/complex_book_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9jb21wbGV4X2Jvb2tfc3RydWN0bWFwLnhtbA==",
         "size": 2600
     }
 },
@@ -311,7 +311,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/broken_structmap.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9icm9rZW5fc3RydWN0bWFwLnhtbA==",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -319,7 +319,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/broken_structmap.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9icm9rZW5fc3RydWN0bWFwLnhtbA==",
         "size": 2600
     }
 },
@@ -329,7 +329,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/no-contentids.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9uby1jb250ZW50aWRzLnhtbA==",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -337,7 +337,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/no-contentids.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9uby1jb250ZW50aWRzLnhtbA==",
         "size": 2600
     }
 },
@@ -347,7 +347,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/file_does_not_exist.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9maWxlX2RvZXNfbm90X2V4aXN0LnhtbA==",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -355,7 +355,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/file_does_not_exist.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9maWxlX2RvZXNfbm90X2V4aXN0LnhtbA==",
         "size": 2600
     }
 },
@@ -365,7 +365,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/empty_filenames.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9lbXB0eV9maWxlbmFtZXMueG1s",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -373,7 +373,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/empty_filenames.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9lbXB0eV9maWxlbmFtZXMueG1s",
         "size": 2600
     }
 },
@@ -383,7 +383,7 @@
     "fields": {
         "filegrpuuid": "",
         "sip": "3a915449-d1bb-4920-b274-c917c7bb5929",
-        "originallocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/missing_contentid.xml",
+        "originallocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9taXNzaW5nX2NvbnRlbnRpZC54bWw=",
         "transfer": null,
         "filegrpuse": "metadata",
         "removedtime": null,
@@ -391,7 +391,7 @@
         "checksum": "",
         "enteredsystem": "2019-04-10T23:13:00Z",
         "modificationtime": "1970-01-01T00:00:00Z",
-        "currentlocation": "%SIPDirectory%objects/metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51/missing_contentid.xml",
+        "currentlocation": "JVNJUERpcmVjdG9yeSVvYmplY3RzL21ldGFkYXRhL3RyYW5zZmVycy9jdXN0b20tc3RydWN0bWFwLTQxYWIxZjFhLTM0ZDAtNGE4My1hMmEzLTBhZDFiMWVlMWM1MS9taXNzaW5nX2NvbnRlbnRpZC54bWw=",
         "size": 2600
     }
 }

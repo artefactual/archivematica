@@ -55,5 +55,5 @@ def call(jobs):
                             filePath = row[0]
                         filePath = os.path.join("%transferDirectory%objects/", filePath)
                         File.objects.filter(
-                            originallocation=filePath, transfer_id=transferUUID
+                            originallocation=filePath.encode(), transfer_id=transferUUID
                         ).update(label=label)

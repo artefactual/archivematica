@@ -137,9 +137,11 @@ def report(uuid):
         failed_tasks[jobtype] = tasks.values("filename", "fileuuid", "exitcode")
         for item in failed_tasks[jobtype]:
             try:
-                item["location"] = File.objects.get(
-                    uuid=item["fileuuid"]
-                ).currentlocation.replace("%SIPDirectory%", "")
+                item["location"] = (
+                    File.objects.get(uuid=item["fileuuid"])
+                    .currentlocation.decode()
+                    .replace("%SIPDirectory%", "")
+                )
             except File.DoesNotExist:
                 pass
 
@@ -152,7 +154,7 @@ def report(uuid):
     ctxdict = {
         "uuid": uuid,
         "name": os.path.basename(sip.currentpath.rstrip("/")).replace(
-            "-" + sip.uuid, ""
+            "-" + str(sip.uuid), ""
         ),
         "pipeline_uuid": helpers.get_setting("dashboard_uuid"),
         "failed_tasks": failed_tasks,

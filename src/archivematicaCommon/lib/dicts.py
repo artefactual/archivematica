@@ -143,16 +143,16 @@ class ReplacementDict(dict):
 
             if expand_path and sipdir is not None:
                 base_location = base_location.replace("%sharedPath%", shared_path)
-                origin = file_.originallocation.replace(
+                origin = file_.originallocation.decode().replace(
                     "%transferDirectory%", base_location
                 )
-                current_location = file_.currentlocation.replace(
+                current_location = file_.currentlocation.decode().replace(
                     "%transferDirectory%", base_location
                 )
                 current_location = current_location.replace("%SIPDirectory%", sipdir)
             else:
-                origin = file_.originallocation
-                current_location = file_.currentlocation
+                origin = file_.originallocation.decode()
+                current_location = file_.currentlocation.decode()
             rd["%originalLocation%"] = origin
             rd["%currentLocation%"] = current_location
             rd["%fileDirectory%"] = os.path.dirname(current_location)

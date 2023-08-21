@@ -92,9 +92,11 @@ def check_manual_normalization(job, opts):
     )
     # Get original name of target file, to handle filename changes.
     file_ = File.objects.get(uuid=opts.file_uuid)
-    bname = file_.originallocation.replace(
-        "%transferDirectory%objects/", "", 1
-    ).replace("%SIPDirectory%objects/", "", 1)
+    bname = (
+        file_.originallocation.decode()
+        .replace("%transferDirectory%objects/", "", 1)
+        .replace("%SIPDirectory%objects/", "", 1)
+    )
     if os.path.isfile(normalization_csv):
         found = False
         # use universal newline mode to support unusual newlines, like \r
@@ -185,8 +187,8 @@ def check_manual_normalization(job, opts):
         job.print_output(
             "Multiple files matching path {} found. Returning the shortest one."
         )
-        ret = sorted(matches, key=lambda f: f.currentlocation)[0]
-        job.print_output(f"Returning file at {ret.currentlocation}")
+        ret = sorted(matches, key=lambda f: f.currentlocation.decode())[0]
+        job.print_output(f"Returning file at {ret.currentlocation.decode()}")
         return ret
     return matches[0]
 
@@ -342,13 +344,13 @@ def main(job, opts):
     except File.DoesNotExist:
         job.print_error("File with uuid", opts.file_uuid, "does not exist in database.")
         return NO_RULE_FOUND
-    job.print_output("File found:", file_.uuid, file_.currentlocation)
+    job.print_output("File found:", file_.uuid, file_.currentlocation.decode())
 
     # Unless normalization file group use is submissionDocumentation, skip the
     # submissionDocumentation directory
     if (
         opts.normalize_file_grp_use != "submissionDocumentation"
-        and file_.currentlocation.startswith(
+        and file_.currentlocation.decode().startswith(
             "%SIPDirectory%objects/submissionDocumentation"
         )
     ):
@@ -399,7 +401,7 @@ def main(job, opts):
         job.print_output(
             os.path.basename(opts.file_path),
             "was already manually normalized into",
-            manually_normalized_file.currentlocation,
+            manually_normalized_file.currentlocation.decode(),
         )
         if "preservation" in opts.purpose:
             # Add derivation link and associated event
@@ -440,7 +442,7 @@ def main(job, opts):
         try:
             rule = get_default_rule(opts.purpose)
             job.print_output(
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 "not identified or without rule",
                 "- Falling back to default",
                 opts.purpose,
@@ -449,7 +451,7 @@ def main(job, opts):
         except FPRule.DoesNotExist:
             job.print_output(
                 "Not normalizing",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - No rule or default rule found to normalize for",
                 opts.purpose,
             )
@@ -493,7 +495,7 @@ def main(job, opts):
         except FPRule.DoesNotExist:
             job.print_output(
                 "Not retrying normalizing for",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - No default rule found to normalize for",
                 opts.purpose,
             )

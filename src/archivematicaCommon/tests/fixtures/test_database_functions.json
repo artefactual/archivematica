@@ -4,7 +4,7 @@
         "model": "main.file",
         "fields": {
             "checksum": "",
-            "currentlocation": "file_with_sip_agent",
+            "currentlocation": "ZmlsZV93aXRoX3NpcF9hZ2VudA==",
             "enteredsystem": "2014-10-30T00:00:00",
             "modificationtime": "2014-10-30T00:00:00",
             "filegrpuse": "original",
@@ -47,7 +47,7 @@
         "model": "main.file",
         "fields": {
             "checksum": "",
-            "currentlocation": "file_with_transfer_agent",
+            "currentlocation": "ZmlsZV93aXRoX3RyYW5zZmVyX2FnZW50",
             "enteredsystem": "2014-10-30T00:00:00",
             "modificationtime": "2014-10-30T00:00:00",
             "filegrpuse": "original",
@@ -95,7 +95,7 @@
         "model": "main.file",
         "fields": {
             "checksum": "",
-            "currentlocation": "file_with_sip_agent",
+            "currentlocation": "ZmlsZV93aXRoX3NpcF9hZ2VudA==",
             "enteredsystem": "2014-10-30T00:00:00",
             "modificationtime": "2014-10-30T00:00:00",
             "filegrpuse": "original",
@@ -167,7 +167,7 @@
         "model": "main.file",
         "fields": {
             "checksum": "",
-            "currentlocation": "file_with_no_unit_var",
+            "currentlocation": "ZmlsZV93aXRoX25vX3VuaXRfdmFy",
             "enteredsystem": "2014-10-30T00:00:00",
             "modificationtime": "2014-10-30T00:00:00",
             "filegrpuse": "original",

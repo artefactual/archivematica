@@ -42,7 +42,7 @@ from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import make_aware
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from elasticsearch import ElasticsearchException
 
 logger = logging.getLogger("archivematica.dashboard")

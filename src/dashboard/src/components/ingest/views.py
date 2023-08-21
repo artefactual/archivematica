@@ -44,7 +44,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.text import slugify
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from main import forms
 from main import models
@@ -254,7 +254,7 @@ def ingest_metadata_event_detail(request, uuid):
 
     # Add path for original and derived files to each form
     for form in formset:
-        form.original_file = form.instance.file_uuid.originallocation.replace(
+        form.original_file = form.instance.file_uuid.originallocation.decode().replace(
             "%transferDirectory%objects/", "", 1
         )
         form.derived_file = (
@@ -262,7 +262,8 @@ def ingest_metadata_event_detail(request, uuid):
                 derived_file__filegrpuse="preservation"
             )
             .get()
-            .derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
+            .derived_file.originallocation.decode()
+            .replace("%transferDirectory%objects/", "", 1)
         )
 
     # Get name of SIP from directory name of most recent job
@@ -697,5 +698,7 @@ def transfer_file_download(request, uuid):
     path_to_transfer = transfer.currentlocation.replace(
         "%sharedPath%", shared_directory_path
     )
-    path_to_file = file.currentlocation.replace("%transferDirectory%", path_to_transfer)
+    path_to_file = file.currentlocation.decode().replace(
+        "%transferDirectory%", path_to_transfer
+    )
     return helpers.send_file(request, path_to_file)

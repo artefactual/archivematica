@@ -74,8 +74,8 @@ def file_obj(db, transfer, tmp_path, file_path):
     file_obj = File.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
-        originallocation=file_obj_path,
-        currentlocation=file_obj_path,
+        originallocation=file_obj_path.encode(),
+        currentlocation=file_obj_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -94,8 +94,8 @@ def file_obj2(db, transfer, tmp_path, file_path2):
     return File.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
-        originallocation=file_obj_path,
-        currentlocation=file_obj_path,
+        originallocation=file_obj_path.encode(),
+        currentlocation=file_obj_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -111,8 +111,8 @@ def dir_obj(db, transfer, tmp_path, subdir_path):
     dir_obj = Directory.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
-        originallocation=dir_obj_path,
-        currentlocation=dir_obj_path,
+        originallocation=dir_obj_path.encode(),
+        currentlocation=dir_obj_path.encode(),
     )
     dir_obj.identifiers.create(type="TEST ID", value="12345")
 

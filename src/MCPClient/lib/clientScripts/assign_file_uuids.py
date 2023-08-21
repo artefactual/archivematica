@@ -121,9 +121,6 @@ def assign_transfer_file_uuid(
     We open a database transaction for each chunk of 10 files, in an
     attempt to balance performance with reasonable transaction lengths.
     """
-    if isinstance(file_path, bytes):
-        file_path = file_path.decode("utf-8")
-
     file_path_relative_to_sip = file_path.replace(
         sip_directory, "%transferDirectory%", 1
     )
@@ -156,7 +153,9 @@ def assign_transfer_file_uuid(
     # Update the current location to reflect what's on disk.
     if transfer.type == Transfer.ARCHIVEMATICA_AIP and mets:
         job.print_output("Updating current location for", file_uuid, "with", info)
-        File.objects.filter(uuid=file_uuid).update(currentlocation=info["current_path"])
+        File.objects.filter(uuid=file_uuid).update(
+            currentlocation=info["current_path"].encode()
+        )
 
 
 def assign_sip_file_uuid(
@@ -175,14 +174,11 @@ def assign_sip_file_uuid(
     filter_subdir=None,
 ):
     """Write SIP file to database with new UUID."""
-    if isinstance(file_path, bytes):
-        file_path = file_path.decode("utf-8")
-
     file_uuid = str(uuid.uuid4())
     file_path_relative_to_sip = file_path.replace(sip_directory, "%SIPDirectory%", 1)
 
     matching_file = File.objects.filter(
-        currentlocation=file_path_relative_to_sip,
+        currentlocation=file_path_relative_to_sip.encode(),
         sip=sip_uuid,
     ).first()
     if matching_file:

@@ -97,8 +97,8 @@ def insertIntoFiles(
 
     kwargs = {
         "uuid": str(fileUUID),
-        "originallocation": originalLocation,
-        "currentlocation": filePath,
+        "originallocation": originalLocation.encode(),
+        "currentlocation": filePath.encode(),
         "enteredsystem": enteredSystem,
         "filegrpuse": use,
     }

@@ -31,5 +31,5 @@ class ForceDefaultLanguageMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
-        if "HTTP_ACCEPT_LANGUAGE" in request.META:
+        if "accept-language" in request.headers:
             del request.META["HTTP_ACCEPT_LANGUAGE"]

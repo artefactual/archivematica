@@ -290,24 +290,24 @@ class TestSIPArrange(TestCase):
         sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIP.objects.create(uuid=sip_uuid)
         models.SIPArrange.objects.all().delete()
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/")
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/objects/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/data/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/data/objects/")
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/objects/MARBLES.TGA",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+            arrange_path=b"/arrange/testsip/data/objects/MARBLES.TGA",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
             file_uuid="fe077212-094f-4df9-ac51-1bc35be0d95e",
         )
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/logs/BagIt/bagit.txt",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+            arrange_path=b"/arrange/testsip/data/logs/BagIt/bagit.txt",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
             file_uuid="0cf82e9a-0a54-45e8-bdff-700c2fed513c",
         )
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/metadata/manifest-md5.txt",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+            arrange_path=b"/arrange/testsip/data/metadata/manifest-md5.txt",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
             file_uuid="33c7b9a5-6031-4c89-847d-708fc285b1c1",
         )
@@ -409,7 +409,7 @@ class TestSIPArrange(TestCase):
     def test_copy_from_arrange_to_completed_rejects_empty_arrangements(self):
         models.SIP.objects.create(uuid="607df760-a0be-4fef-875a-74ea00c61bf9")
         models.SIPArrange.objects.all().delete()
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/")
 
         response = self.client.post(
             reverse("filesystem_ajax:copy_from_arrange"),
@@ -432,22 +432,22 @@ class TestSIPArrange(TestCase):
         """
         sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIPArrange.objects.all().delete()
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/")
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/")
-        models.SIPArrange.objects.create(arrange_path="/arrange/testsip/data/objects/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/data/")
+        models.SIPArrange.objects.create(arrange_path=b"/arrange/testsip/data/objects/")
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/objects/MARBLES.TGA",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
+            arrange_path=b"/arrange/testsip/data/objects/MARBLES.TGA",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/objects/MARBLES.TGA",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
         )
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/logs/BagIt/bagit.txt",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
+            arrange_path=b"/arrange/testsip/data/logs/BagIt/bagit.txt",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/logs/BagIt/bagit.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
         )
         models.SIPArrange.objects.create(
-            arrange_path="/arrange/testsip/data/metadata/manifest-md5.txt",
-            original_path="originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
+            arrange_path=b"/arrange/testsip/data/metadata/manifest-md5.txt",
+            original_path=b"originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/data/metadata/manifest-md5.txt",
             transfer_uuid="a29e7e86-eca9-43b6-b059-6f23a9802dc8",
         )
 

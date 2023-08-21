@@ -2,7 +2,7 @@ import os
 from io import StringIO
 
 import pytest
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 from server import translation
 from server import workflow
 
@@ -18,9 +18,9 @@ def test_invert_job_statuses(mocker):
     mocker.patch(
         "server.jobs.Job.STATUSES",
         (
-            (1, ugettext_lazy("Uno")),
-            (2, ugettext_lazy("Dos")),
-            (3, ugettext_lazy("Tres")),
+            (1, gettext_lazy("Uno")),
+            (2, gettext_lazy("Dos")),
+            (3, gettext_lazy("Tres")),
         ),
     )
     ret = workflow._invert_job_statuses()

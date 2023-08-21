@@ -58,7 +58,7 @@ def get_db_objects(job, mets, transfer_uuid):
         )
         try:
             file_entry = File.objects.get(
-                originallocation=item_path, transfer_id=transfer_uuid
+                originallocation=item_path.encode(), transfer_id=transfer_uuid
             )
             # If we retrieve the object there is still a chance that the
             # file has been removed by Archivematica e.g. via extract
@@ -93,7 +93,7 @@ def get_db_objects(job, mets, transfer_uuid):
                 base_name = os.path.basename(entry.path)
                 item_path = os.path.join(transfer_objects_directory, base_name)
                 file_entry = File.objects.get(
-                    originallocation=item_path, transfer_id=transfer_uuid
+                    originallocation=item_path.encode(), transfer_id=transfer_uuid
                 )
                 # If we retrieve the object there is still a chance that the
                 # file has been removed by Archivematica e.g. via extract
@@ -220,7 +220,9 @@ def validate_checksums(job, mapping, unit_path):
             ):
                 logger.info("File: %s removed by extract packages?", entry.label)
                 continue
-            path_ = file_entry.currentlocation.replace("%transferDirectory%", unit_path)
+            path_ = file_entry.currentlocation.decode().replace(
+                "%transferDirectory%", unit_path
+            )
             if os.path.isdir(path_):
                 continue
             verify_checksum(

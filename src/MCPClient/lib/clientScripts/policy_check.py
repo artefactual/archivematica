@@ -202,7 +202,8 @@ class PolicyChecker:
         )
         try:
             return File.objects.get(
-                originallocation=manually_normalized_file_path, sip_id=self.sip_uuid
+                originallocation=manually_normalized_file_path.encode(),
+                sip_id=self.sip_uuid,
             ).uuid
         except (File.DoesNotExist, File.MultipleObjectsReturned):
             return None

@@ -61,12 +61,14 @@ def archivematicaCreateMETSRightsDspaceMDRef(
         # Find the mets file. May find none.
         path = f"%SIPDirectory%{os.path.dirname(filePath)}/mets.xml"
         try:
-            mets = File.objects.get(currentlocation=path, transfer_id=transferUUID)
+            mets = File.objects.get(
+                currentlocation=path.encode(), transfer_id=transferUUID
+            )
         except File.DoesNotExist:
             pass
         else:
             metsFileUUID = mets.uuid
-            metsLoc = mets.currentlocation.replace("%SIPDirectory%", "", 1)
+            metsLoc = mets.currentlocation.decode().replace("%SIPDirectory%", "", 1)
             metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
             LABEL = "mets.xml-%s" % (metsFileUUID)
             ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
@@ -86,12 +88,14 @@ def archivematicaCreateMETSRightsDspaceMDRef(
 
             path = f"%SIPDirectory%{fullDir2}/mets.xml"
             try:
-                f = File.objects.get(currentlocation=path, transfer_id=transferUUID)
+                f = File.objects.get(
+                    currentlocation=path.encode(), transfer_id=transferUUID
+                )
             except File.DoesNotExist:
                 pass
             else:
                 metsFileUUID = f.uuid
-                metsLoc = f.currentlocation.replace("%SIPDirectory%", "", 1)
+                metsLoc = f.currentlocation.decode().replace("%SIPDirectory%", "", 1)
                 metsLocation = os.path.join(fullDir, "mets.xml")
                 job.pyprint(metsLocation)
                 LABEL = "mets.xml-" + metsFileUUID

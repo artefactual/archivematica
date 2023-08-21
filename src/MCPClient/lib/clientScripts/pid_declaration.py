@@ -56,7 +56,7 @@ class DeclarePIDs:
         def wrapped(*args, **kwargs):
             try:
                 func(*args, **kwargs)
-            except (DeclarePIDsExceptionNonCritical) as err:
+            except DeclarePIDsExceptionNonCritical as err:
                 return err.exit_code
 
         return wrapped
@@ -88,14 +88,14 @@ class DeclarePIDs:
                     identifier_type,
                     identifier,
                     "Directory",
-                    os.path.basename(os.path.split(mdl.currentlocation)[0]),
+                    os.path.basename(os.path.split(mdl.currentlocation.decode())[0]),
                 )
             else:
                 msg = "Identifier {}: {} added for: {}: {}".format(
                     identifier_type,
                     identifier,
                     "File",
-                    os.path.basename(mdl.currentlocation),
+                    os.path.basename(mdl.currentlocation.decode()),
                 )
             self.job.pyprint(msg)
         except KeyError:
@@ -158,14 +158,17 @@ class DeclarePIDs:
                     self._add_identifier_to_model(mdl, id_)
                     continue
                 try:
-                    mdl = File.objects.get(sip_id=unit_uuid, currentlocation=file_path)
+                    mdl = File.objects.get(
+                        sip_id=unit_uuid, currentlocation=file_path.encode()
+                    )
                     self._add_identifier_to_model(mdl, id_)
                     continue
                 except File.DoesNotExist:
                     pass
                 try:
                     mdl = Directory.objects.get(
-                        sip_id=unit_uuid, currentlocation=os.path.join(file_path, "")
+                        sip_id=unit_uuid,
+                        currentlocation=os.path.join(file_path, "").encode(),
                     )
                     self._add_identifier_to_model(mdl, id_)
                 except Directory.DoesNotExist:
@@ -179,11 +182,15 @@ class DeclarePIDs:
     def _retrieve_identifiers_path(self, unit_uuid, sip_directory):
         """Retrieve a path to the identifiers.json file from the database."""
         try:
-            return File.objects.get(
-                sip_id=unit_uuid,
-                filegrpuse="metadata",
-                currentlocation__endswith="identifiers.json",
-            ).currentlocation.replace(self.SIP_DIRECTORY, sip_directory)
+            return (
+                File.objects.get(
+                    sip_id=unit_uuid,
+                    filegrpuse="metadata",
+                    currentlocation__endswith="identifiers.json",
+                )
+                .currentlocation.decode()
+                .replace(self.SIP_DIRECTORY, sip_directory)
+            )
         except File.DoesNotExist:
             self.job.pyprint("No identifiers.json file found", file=sys.stderr)
             raise DeclarePIDsExceptionNonCritical()

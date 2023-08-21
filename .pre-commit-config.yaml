@@ -19,6 +19,11 @@ repos:
   hooks:
   - id: reorder-python-imports
     args: [--py3-plus, --py36-plus]
+- repo: https://github.com/adamchainz/django-upgrade
+  rev: "1.14.0"
+  hooks:
+  - id: django-upgrade
+    args: [--target-version, "3.2"]
 - repo: https://github.com/ambv/black
   rev: 22.8.0
   hooks:

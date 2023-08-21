@@ -85,8 +85,8 @@ def metadata_csv(sip, sip_path, objects_path):
     file_obj = File.objects.create(
         uuid=uuid.uuid4(),
         sip=sip,
-        originallocation=originallocation,
-        currentlocation=currentlocation,
+        originallocation=originallocation.encode(),
+        currentlocation=currentlocation.encode(),
         size=1024,
         filegrpuse="metadata",
         checksum="f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b",
@@ -135,8 +135,8 @@ def file_obj(db, sip, sip_path, file_path):
     file_obj = File.objects.create(
         uuid=uuid.uuid4(),
         sip=sip,
-        originallocation=originallocation,
-        currentlocation=currentlocation,
+        originallocation=originallocation.encode(),
+        currentlocation=currentlocation.encode(),
         size=113318,
         filegrpuse="original",
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",

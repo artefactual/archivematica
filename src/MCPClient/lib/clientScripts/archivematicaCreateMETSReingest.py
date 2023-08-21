@@ -437,7 +437,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
                 if rel_path != old_mets_rel_path:
                     job.pyprint(rel_path, "not found in METS, must be new file")
                     f = models.File.objects.get(
-                        currentlocation=current_loc, sip_id=str(sip_uuid)
+                        currentlocation=current_loc.encode(), sip_id=str(sip_uuid)
                     )
                     new_files.append(f)
                     if rel_path == "objects/metadata/metadata.csv":
@@ -476,7 +476,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
         # Create parent directories if needed
         dirs = os.path.dirname(
-            f.currentlocation.replace("%SIPDirectory%objects/", "", 1)
+            f.currentlocation.decode().replace("%SIPDirectory%objects/", "", 1)
         ).split("/")
         parent_fsentry = objects_fsentry
         for dirname in (d for d in dirs if d):
@@ -491,7 +491,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
             original_f = f.original_file_set.get().source_file
             derived_from = mets.get_file(file_uuid=str(original_f.uuid))
         entry = metsrw.FSEntry(
-            path=f.currentlocation.replace("%SIPDirectory%", "", 1),
+            path=f.currentlocation.decode().replace("%SIPDirectory%", "", 1),
             use=f.filegrpuse,
             type="Item",
             file_uuid=str(f.uuid),
@@ -545,7 +545,9 @@ def _get_directory_fsentry(mets, path):
 
 def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
     job.pyprint("Parse new metadata.csv")
-    full_path = metadata_csv.currentlocation.replace("%SIPDirectory%", sip_dir, 1)
+    full_path = metadata_csv.currentlocation.decode().replace(
+        "%SIPDirectory%", sip_dir, 1
+    )
     csvmetadata = createmetscsv.parseMetadataCSV(job, full_path)
 
     # FIXME This doesn't support having both DC and non-DC metadata in dmdSecs
@@ -607,7 +609,6 @@ def _get_old_mets_rel_path(sip_uuid):
 
 
 def update_mets(job, sip_dir, sip_uuid, state):
-
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     job.pyprint("Looking for old METS at path", old_mets_path)
 

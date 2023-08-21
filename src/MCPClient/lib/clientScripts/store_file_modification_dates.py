@@ -46,7 +46,7 @@ def main(transfer_uuid, shared_directory_path):
     for transfer_file in files:
         try:
             file_path_relative_to_shared_directory = (
-                transfer_file.currentlocation.replace(
+                transfer_file.currentlocation.decode().replace(
                     "%transferDirectory%", transfer.currentlocation, 1
                 )
             )

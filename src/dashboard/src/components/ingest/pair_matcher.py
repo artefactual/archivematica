@@ -240,7 +240,7 @@ def remove_review_matches_prefixes(path):
 
 def review_matches(client, request, template, uuid, matches=[]):
     object_paths = {
-        file_.uuid: remove_review_matches_prefixes(file_.currentlocation)
+        file_.uuid: remove_review_matches_prefixes(file_.currentlocation.decode())
         for file_ in models.File.objects.filter(sip=uuid)
     }
     for match in matches:
@@ -279,7 +279,7 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
         for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
             object_path = item2.attrib["{http://www.w3.org/1999/xlink}href"]
             file = models.File.objects.get(
-                sip=uuid, currentlocation="%SIPDirectory%" + object_path
+                sip=uuid, currentlocation=("%SIPDirectory%" + object_path).encode()
             )
             object_path = remove_objects_prefix(object_path)
             paths.append(object_path)

@@ -17,7 +17,7 @@
 from agentarchives.atom.client import CommunicationError
 from components.archival_storage.atom import get_atom_client
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from requests import ConnectionError
 from requests import Timeout
 

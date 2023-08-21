@@ -453,7 +453,9 @@ def get_invalid_file_identifiers(files, file_queryset, printfn=print):
             result.add(file_identifier)
             continue
         original_location = "".join([TRANSFER_ORIGINAL_LOCATION_PREFIX, original_name])
-        if not file_queryset.filter(originallocation=original_location).exists():
+        if not file_queryset.filter(
+            originallocation=original_location.encode()
+        ).exists():
             log_filename_mismatch(file_identifier, original_name, printfn)
             result.add(file_identifier)
     return result
@@ -676,20 +678,17 @@ def ensure_event_id_is_uuid(event_id, printfn=print):
 
 
 def save_events(valid_events, file_queryset, printfn=print):
-
     for valid_event in valid_events:
-
         event = valid_event["event"]
 
         db_agents = get_or_create_agents(valid_event["event_agents"])
 
         for file_ in valid_event["event_files"]:
-
             # get database file from originalName
             db_file = file_queryset.get(
-                originallocation="".join(
-                    [TRANSFER_ORIGINAL_LOCATION_PREFIX, file_["original_name"]]
-                )
+                originallocation=(
+                    "".join([TRANSFER_ORIGINAL_LOCATION_PREFIX, file_["original_name"]])
+                ).encode()
             )
 
             # ensure the event identifier is uuid
@@ -778,7 +777,6 @@ def get_valid_events(files, agents, events, file_identifiers_to_ignore, printfn=
 
 
 def main(job):
-
     # extract arguments from job
     transfer_uuid, xsd_path, xml_path = job.args[1:4]
 

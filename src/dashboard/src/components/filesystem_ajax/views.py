@@ -33,8 +33,8 @@ from archivematicaFunctions import b64decode_string
 from archivematicaFunctions import b64encode_string
 from components import helpers
 from django.conf import settings as django_settings
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from main import models
 
 
@@ -89,7 +89,7 @@ def _prepare_browse_response(response):
             prop["display_string"] = prop["verbose name"].strip()
         elif "object count" in prop:
             try:
-                prop["display_string"] = ungettext(
+                prop["display_string"] = ngettext(
                     "%(count)d object", "%(count)d objects", prop["object count"]
                 ) % {"count": prop["object count"]}
             except TypeError:  # 'object_count' val can be a string, see SS:space.py
@@ -154,12 +154,11 @@ def arrange_contents(request, path=None):
     # Query SIP Arrangement for results
     # Get all the paths that are not in SIPs and start with base_path.  We don't
     # need the objects, just the arrange_path
-    paths = (
-        models.SIPArrange.objects.filter(sip_created=False)
-        .filter(aip_created=False)
-        .filter(arrange_path__startswith=base_path)
-        .order_by("arrange_path")
-    )
+    paths = models.SIPArrange.objects.filter(
+        sip_created=False,
+        aip_created=False,
+        arrange_path__startswith=base_path,
+    ).order_by("arrange_path")
 
     if len(paths) == 0 and base_path != DEFAULT_ARRANGE_PATH:
         response = {
@@ -176,7 +175,7 @@ def arrange_contents(request, path=None):
     properties = {}
     for item in paths:
         # Strip common prefix
-        path_parts = item.arrange_path.replace(base_path, "", 1).split("/")
+        path_parts = item.arrange_path.decode().replace(base_path, "", 1).split("/")
         entry = path_parts[0]
         if not entry:
             continue
@@ -411,7 +410,7 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
             in_sip_path = "/".join(file_["destination"].split("/")[2:])
             currentlocation = "%SIPDirectory%" + in_sip_path
             models.File.objects.filter(uuid=file_["uuid"]).update(
-                sip=sip_uuid, currentlocation=currentlocation
+                sip=sip_uuid, currentlocation=currentlocation.encode()
             )
             # Get all ancestor directory paths of the file's destination.
             subdir = os.path.dirname(currentlocation)
@@ -523,28 +522,30 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             "copy_from_arrange_to_completed: staging_sip_path: %s", staging_sip_path
         )
         # Fetch all files with 'filepath' as prefix, and have a source path
-        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(
-            arrange_path__startswith=filepath
+        arrange = models.SIPArrange.objects.filter(
+            sip_created=False, arrange_path__startswith=filepath
         )
         arrange_files = arrange.filter(original_path__isnull=False)
 
         # Collect file and directory information. Change path to be in staging, not arrange
         files = []
         for arranged_file in arrange_files:
-            destination = arranged_file.arrange_path.replace(
+            destination = arranged_file.arrange_path.decode().replace(
                 filepath, staging_sip_path, 1
             )
             files.append(
                 {
-                    "source": arranged_file.original_path.lstrip("/"),
+                    "source": arranged_file.original_path.decode().lstrip("/"),
                     "destination": destination,
                     "uuid": str(arranged_file.file_uuid),
                 }
             )
             # Get transfer folder name
-            transfer_parts = arranged_file.original_path.replace(
-                DEFAULT_BACKLOG_PATH, "", 1
-            ).split("/", 1)
+            transfer_parts = (
+                arranged_file.original_path.decode()
+                .replace(DEFAULT_BACKLOG_PATH, "", 1)
+                .split("/", 1)
+            )
             transfer_name = transfer_parts[0]
             # Determine if the transfer is a BagIt package
             is_bagit = transfer_parts[1].startswith("data/")
@@ -588,7 +589,9 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             for arranged_entry in arrange:
                 # Update arrange_path to be relative to new SIP's objects
                 # Use normpath to strip trailing / from directories
-                relative_path = arranged_entry.arrange_path.replace(filepath, "", 1)
+                relative_path = arranged_entry.arrange_path.decode().replace(
+                    filepath, "", 1
+                )
                 if relative_path == "objects/":
                     # If objects directory created manually, delete it as we
                     # don't want the LoD for it, and it's not needed elsewhere
@@ -596,7 +599,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
                     continue
                 relative_path = relative_path.replace("objects/", "", 1)
                 relative_path = os.path.normpath(relative_path)
-                arranged_entry.arrange_path = relative_path
+                arranged_entry.arrange_path = relative_path.encode()
                 arranged_entry.sip_id = sip_uuid
                 arranged_entry.sip_created = True
                 arranged_entry.save()
@@ -618,7 +621,7 @@ def create_arrange_directories(paths):
     arranges = [
         models.SIPArrange(
             original_path=None,
-            arrange_path=os.path.join(path, ""),  # ensure ends with /
+            arrange_path=os.path.join(path, "").encode(),  # ensure ends with /
             file_uuid=None,
         )
         for path in paths
@@ -670,13 +673,15 @@ def _move_files_within_arrange(sourcepath, destination):
             # we retain the folder name when we move the files.
             source_parent = "/".join(sourcepath.split("/")[:-2]) + "/"
             for entry in folder_contents:
-                entry.arrange_path = entry.arrange_path.replace(
-                    source_parent, destination, 1
+                entry.arrange_path = (
+                    entry.arrange_path.decode()
+                    .replace(source_parent, destination, 1)
+                    .encode()
                 )
                 entry.save()
         else:  # source is a file
             models.SIPArrange.objects.filter(arrange_path=sourcepath).update(
-                arrange_path=destination + os.path.basename(sourcepath)
+                arrange_path=(destination + os.path.basename(sourcepath)).encode()
             )
     else:  # destination is a file (this should have been caught by JS)
         raise ValueError(_("You cannot drag and drop onto a file."))

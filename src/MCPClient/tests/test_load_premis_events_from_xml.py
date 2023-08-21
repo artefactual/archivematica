@@ -436,7 +436,7 @@ def test_get_invalid_file_identifiers(mocker):
     valid_filenames = ["".join([prefix, "object1"]), "".join([prefix, "object2"])]
 
     def mock_filter(originallocation):
-        return_value = originallocation in valid_filenames
+        return_value = originallocation.decode() in valid_filenames
         return mocker.Mock(**{"exists.return_value": return_value})
 
     file_queryset = mocker.Mock(**{"filter.side_effect": mock_filter})
@@ -756,8 +756,8 @@ def transfer_file(db, transfer, tmp_path, file_path):
     result = File.objects.create(
         uuid=uuid.uuid4(),
         transfer=transfer,
-        originallocation=path,
-        currentlocation=path,
+        originallocation=path.encode(),
+        currentlocation=path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",

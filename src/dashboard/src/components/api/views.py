@@ -769,7 +769,7 @@ def processing_configuration(request, name):
                 {"success": False, "error": msg}, status_code=404
             )
     else:
-        accepted_types = request.META.get("HTTP_ACCEPT", "").lower()
+        accepted_types = request.headers.get("accept", "").lower()
         if accepted_types != "*/*" and "xml" not in accepted_types:
             return django.http.HttpResponse(status=415)
 
@@ -863,7 +863,7 @@ def validate(request, validator_name):
     # We could leverage Content-Type so a validator knows the type of document
     # and encoding that it's dealing with. For now, we're just enforcing that
     # "text/csv; charset=utf-8" is used, which is used by Avalon's validator.
-    mime_type, props = parse_header(request.META.get("CONTENT_TYPE", ""))
+    mime_type, props = parse_header(request.headers.get("content-type", ""))
     if mime_type != "text/csv" or props.get("charset") != "utf-8":
         return _error_response('Content type should be "text/csv; charset=utf-8"')
 

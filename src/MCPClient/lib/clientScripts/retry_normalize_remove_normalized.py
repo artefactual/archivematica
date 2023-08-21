@@ -64,7 +64,9 @@ def removePreservationFiles(job, SIPDirectory, SIPUUID):
                 file_.removedtime = timezone.now()
                 file_.save()
                 os.remove(
-                    file_.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1)
+                    file_.currentlocation.decode().replace(
+                        "%SIPDirectory%", SIPDirectory, 1
+                    )
                 )
             except Exception:
                 job.pyprint("Error removing preservation files", file=sys.stderr)

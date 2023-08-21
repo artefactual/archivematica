@@ -35,7 +35,7 @@ def something(job, SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, da
     exitCode = 0
     job.pyprint(SIPDirectory)
     # For every file, & directory Try to find the matching file & directory in the objects directory
-    for (path, dirs, files) in os.walk(serviceDirectory):
+    for path, dirs, files in os.walk(serviceDirectory):
         for file in files:
             servicePreExtension = "_me"
             originalPreExtension = "_m"
@@ -59,7 +59,9 @@ def something(job, SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, da
                 )  # service
 
             f = File.objects.get(
-                currentlocation=file1Full, removedtime__isnull=True, sip_id=SIPUUID
+                currentlocation=file1Full.encode(),
+                removedtime__isnull=True,
+                sip_id=SIPUUID,
             )
             f.filegrpuse = "service"
 
@@ -80,7 +82,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
     if not searchForRegularExpressions:
         return
 
-    for (path, dirs, files) in os.walk(objectsDirectory):
+    for path, dirs, files in os.walk(objectsDirectory):
         for file in files:
             m = re.search(r"_me\.[a-zA-Z0-9]{2,4}$", file)
             if m is not None:
@@ -93,7 +95,9 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
                 )  # original
 
                 f = File.objects.get(
-                    currentlocation=file1Full, removedtime__isnull=True, sip_id=SIPUUID
+                    currentlocation=file1Full.encode(),
+                    removedtime__isnull=True,
+                    sip_id=SIPUUID,
                 )
                 f.filegrpuse = "service"
 

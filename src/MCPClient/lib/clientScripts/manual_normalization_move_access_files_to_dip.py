@@ -70,7 +70,7 @@ def main(job):
         try:
             f = File.objects.get(currentlocation__startswith=filePathLike, **kwargs)
         except (File.DoesNotExist, File.MultipleObjectsReturned):
-            f = File.objects.get(currentlocation=filePathLike2, **kwargs)
+            f = File.objects.get(currentlocation=filePathLike2.encode(), **kwargs)
     except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         # Original file was not found, or there is more than one original file with
         # the same filename (differing extensions)

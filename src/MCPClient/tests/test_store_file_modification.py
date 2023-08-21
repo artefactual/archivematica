@@ -41,7 +41,9 @@ class TestStoreFileModification(TestCase):
         transfer.save()
 
         for f in models.File.objects.filter(transfer_id=self.transfer_uuid):
-            path = f.currentlocation.replace("%transferDirectory%", transfer_path)
+            path = f.currentlocation.decode().replace(
+                "%transferDirectory%", transfer_path
+            )
             dirname = os.path.dirname(path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)

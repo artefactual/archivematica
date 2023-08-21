@@ -145,12 +145,14 @@ def call(jobs):
                 # objects/ directory. For each subdirectory, confirm it's in the SIP
                 # objects/ directory, and update the current location and owning SIP.
                 for dir_mdl in dir_mdls:
-                    currentSIPDirPath = dir_mdl.currentlocation.replace(
+                    currentSIPDirPath = dir_mdl.currentlocation.decode().replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isdir(currentSIPDirPath):
-                        dir_mdl.currentlocation = dir_mdl.currentlocation.replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                        dir_mdl.currentlocation = (
+                            dir_mdl.currentlocation.decode()
+                            .replace("%transferDirectory%", "%SIPDirectory%")
+                            .encode()
                         )
                         dir_mdl.sip = sip
                         dir_mdl.save()
@@ -168,12 +170,14 @@ def call(jobs):
                     removedtime__isnull=True,
                 )
                 for f in files:
-                    currentSIPFilePath = f.currentlocation.replace(
+                    currentSIPFilePath = f.currentlocation.decode().replace(
                         "%transferDirectory%", tmpSIPDir
                     )
                     if os.path.isfile(currentSIPFilePath):
-                        f.currentlocation = f.currentlocation.replace(
-                            "%transferDirectory%", "%SIPDirectory%"
+                        f.currentlocation = (
+                            f.currentlocation.decode()
+                            .replace("%transferDirectory%", "%SIPDirectory%")
+                            .encode()
                         )
                         f.sip = sip
                         f.save()

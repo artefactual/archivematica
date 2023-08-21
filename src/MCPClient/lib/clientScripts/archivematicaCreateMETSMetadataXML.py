@@ -60,7 +60,7 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
                 try:
                     metadata_file = models.File.objects.get(
                         sip_id=sip_uuid,
-                        currentlocation=f"%SIPDirectory%{xml_rel_path}",
+                        currentlocation=f"%SIPDirectory%{xml_rel_path}".encode(),
                     )
                 except models.File.DoesNotExist:
                     xml_metadata_errors.append(f"No uuid for file: {xml_rel_path}")

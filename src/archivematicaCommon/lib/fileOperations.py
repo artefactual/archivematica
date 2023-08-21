@@ -190,7 +190,7 @@ def updateDirectoryLocation(
     files = File.objects.filter(**kwargs)
 
     for f in files:
-        f.currentlocation = f.currentlocation.replace(srcDB, dstDB)
+        f.currentlocation = f.currentlocation.decode().replace(srcDB, dstDB).encode()
         f.save()
     if os.path.isdir(dst):
         if dst.endswith("/"):
@@ -221,7 +221,7 @@ def updateFileLocation2(
     # Fetch the file UUID
     kwargs = {
         "removedtime__isnull": True,
-        "currentlocation": srcDB,
+        "currentlocation": srcDB.encode(),
         unitIdentifierType: unitIdentifier,
     }
 
@@ -245,7 +245,7 @@ def updateFileLocation2(
     printfn("Moving", src, "to", dst)
     shutil.move(src, dst)
     # Update the DB
-    f.currentlocation = dstDB
+    f.currentlocation = dstDB.encode()
     f.save()
 
 
@@ -285,7 +285,7 @@ def updateFileLocation(
         f = File.objects.get(uuid=fileUUID)
 
     # UPDATE THE CURRENT FILE PATH
-    f.currentlocation = dst
+    f.currentlocation = dst.encode()
     f.save()
 
     if not createEvent:
@@ -314,7 +314,7 @@ def getFileUUIDLike(
         "currentlocation__contains": srcDB,
         unitIdentifierType: unitIdentifier,
     }
-    return {f.currentlocation: f.uuid for f in File.objects.filter(**kwargs)}
+    return {f.currentlocation.decode(): f.uuid for f in File.objects.filter(**kwargs)}
 
 
 def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
@@ -371,9 +371,11 @@ def findFileInNormalizationCSV(
                 file=sys.stderr,
             )
             raise FindFileInNormalizatonCSVError(2)
-        target_file = f.originallocation.replace(
-            "%transferDirectory%objects/", "", 1
-        ).replace("%SIPDirectory%objects/", "", 1)
+        target_file = (
+            f.originallocation.decode()
+            .replace("%transferDirectory%objects/", "", 1)
+            .replace("%SIPDirectory%objects/", "", 1)
+        )
         try:
             for row in reader:
                 if not row:

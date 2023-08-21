@@ -17,35 +17,35 @@
 import django.contrib.auth.views
 from components.accounts import views
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
 
 
 app_name = "accounts"
 urlpatterns = [
-    url(r"^$", views.list, name="accounts_index"),
-    url(r"add/$", views.add, name="add"),
-    url(r"(?P<id>\d+)/delete/$", views.delete, name="delete"),
-    url(r"(?P<id>\d+)/edit/$", views.edit, name="edit"),
-    url(r"profile/$", views.profile, name="profile"),
-    url(r"list/$", views.list),
+    path("", views.list, name="accounts_index"),
+    path("add/", views.add, name="add"),
+    path("<int:id>/delete/", views.delete, name="delete"),
+    path("<int:id>/edit/", views.edit, name="edit"),
+    path("profile/", views.profile, name="profile"),
+    path("list/", views.list),
 ]
 
 if "django_cas_ng" in settings.INSTALLED_APPS:
     import django_cas_ng.views
 
     urlpatterns += [
-        url(r"login/$", django_cas_ng.views.LoginView.as_view(), name="login"),
-        url(r"logout/$", django_cas_ng.views.LogoutView.as_view(), name="logout"),
+        path("login/", django_cas_ng.views.LoginView.as_view(), name="login"),
+        path("logout/", django_cas_ng.views.LogoutView.as_view(), name="logout"),
     ]
 
 else:
     urlpatterns += [
-        url(
-            r"login/$",
+        path(
+            "login/",
             django.contrib.auth.views.LoginView.as_view(
                 template_name="accounts/login.html"
             ),
             name="login",
         ),
-        url(r"logout/$", django.contrib.auth.views.logout_then_login, name="logout"),
+        path("logout/", django.contrib.auth.views.logout_then_login, name="logout"),
     ]

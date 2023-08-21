@@ -27,7 +27,7 @@ from django.conf import settings as django_settings
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from main import models
 
 logger = logging.getLogger("archivematica.dashboard")

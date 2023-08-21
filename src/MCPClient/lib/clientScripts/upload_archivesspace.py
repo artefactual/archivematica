@@ -180,7 +180,7 @@ def upload_to_archivesspace(
             # Set some variables based on the original, we will override most
             # of these if there is an access derivative
             size = os.path.getsize(f)
-            original_name = os.path.basename(original_file.originallocation)
+            original_name = os.path.basename(original_file.originallocation.decode())
         try:
             access_file = File.objects.get(
                 filegrpuse="access", original_file_set__source_file=uuid
@@ -190,7 +190,7 @@ def upload_to_archivesspace(
             pass
         else:
             # HACK remove DIP from the path because create DIP doesn't
-            access_file_path = access_file.currentlocation.replace(
+            access_file_path = access_file.currentlocation.decode().replace(
                 "%SIPDirectory%DIP/", dip_location
             )
             size = os.path.getsize(access_file_path)
@@ -232,7 +232,6 @@ def upload_to_archivesspace(
                 inherit_notes=inherit_notes,
             )
         except ArchivesSpaceError as error:
-
             logger.error(
                 "Could not upload {} to ArchivesSpace record {}. Error: {}".format(
                     file_name, as_resource, str(error)

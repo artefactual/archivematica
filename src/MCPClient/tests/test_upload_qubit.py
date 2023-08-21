@@ -44,7 +44,7 @@ def job(sip, tmp_path):
 def access(db, sip):
     return models.Access.objects.create(
         sipuuid=sip.uuid,
-        target=pickle.dumps({"target": "atom-description-id"}, protocol=0),
+        target=pickle.dumps({"target": "atom-description-id"}, protocol=0).decode(),
     )
 
 

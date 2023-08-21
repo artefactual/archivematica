@@ -134,7 +134,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         except:
             job.pyprint(
                 "Not extracting contents from",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - file format not identified",
                 file=sys.stderr,
             )
@@ -142,7 +142,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         if format_id.format_version is None:
             job.pyprint(
                 "Not extracting contents from",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - file format not identified",
                 file=sys.stderr,
             )
@@ -158,7 +158,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         except FPCommand.DoesNotExist:
             job.pyprint(
                 "Not extracting contents from",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - No rule found to extract",
                 file=sys.stderr,
             )
@@ -168,13 +168,13 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         if already_extracted(file_):
             job.pyprint(
                 "Not extracting contents from",
-                os.path.basename(file_.currentlocation),
+                os.path.basename(file_.currentlocation.decode()),
                 " - extraction already happened.",
                 file=sys.stderr,
             )
             continue
 
-        file_to_be_extracted_path = file_.currentlocation.replace(
+        file_to_be_extracted_path = file_.currentlocation.decode().replace(
             TRANSFER_DIRECTORY, sip_directory
         )
         extraction_target, file_path_cache = temporary_directory(
@@ -219,7 +219,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
             # extracted files are properly tracked by Archivematica
             for extracted_file in tree(extraction_target):
                 extracted_file_original_location = extracted_file.replace(
-                    extraction_target, file_.originallocation, 1
+                    extraction_target, file_.originallocation.decode(), 1
                 )
                 assign_uuid(
                     job,
@@ -242,7 +242,10 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
             # its contents
             if delete:
                 delete_and_record_package_file(
-                    job, file_to_be_extracted_path, file_.uuid, file_.currentlocation
+                    job,
+                    file_to_be_extracted_path,
+                    file_.uuid,
+                    file_.currentlocation.decode(),
                 )
 
     if extracted:
@@ -260,7 +263,7 @@ def create_extracted_dir_uuids(
             job=job,
             root_path=extraction_target,
             path_prefix_to_repl=sip_directory,
-            original_location=file_.originallocation,
+            original_location=file_.originallocation.decode(),
         ),
         unit_mdl=transfer_mdl,
     )

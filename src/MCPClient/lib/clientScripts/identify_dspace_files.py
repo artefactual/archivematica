@@ -60,7 +60,7 @@ def identify_dspace_files(
                 continue
 
             File.objects.filter(
-                currentlocation=db_location, transfer_id=transfer_uuid
+                currentlocation=db_location.encode(), transfer_id=transfer_uuid
             ).update(filegrpuse=db_use)
 
 

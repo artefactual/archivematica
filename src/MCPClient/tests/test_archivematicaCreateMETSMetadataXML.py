@@ -82,7 +82,7 @@ def make_metadata_file(db, sip):
         return File.objects.create(
             uuid=uuid4(),
             sip_id=sip.uuid,
-            currentlocation=f"%SIPDirectory%{rel_path}",
+            currentlocation=f"%SIPDirectory%{rel_path}".encode(),
         )
 
     return _make_metadata_file

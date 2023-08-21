@@ -98,12 +98,11 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
         # Get file object (for fileUUID, to see if in DIP)
         logger.debug('Getting file object: filename="%s" ref_id="%s"', filename, ref_id)
         try:
-
             f = models.File.objects.get(
-                Q(originallocation="%transferDirectory%" + filename)
-                | Q(originallocation="%transferDirectory%objects/" + filename)
-                | Q(originallocation="%SIPDirectory%" + filename)
-                | Q(originallocation="%SIPDirectory%objects/" + filename),
+                Q(originallocation=b"%transferDirectory%" + filename.encode())
+                | Q(originallocation=b"%transferDirectory%objects/" + filename.encode())
+                | Q(originallocation=b"%SIPDirectory%" + filename.encode())
+                | Q(originallocation=b"%SIPDirectory%objects/" + filename.encode()),
                 sip_id=sip_uuid,
             )
         except models.File.DoesNotExist:

@@ -37,7 +37,6 @@ class RightsRowException(Exception):
 
 
 class RightCsvReader:
-
     metadata_applies_to_type = None
     current_row = None
     rows_processed = 0
@@ -170,7 +169,7 @@ class RightCsvReader:
         # Get file data
         filepath = self.column_value("file")
         transfer_file = models.File.objects.get(
-            originallocation="%transferDirectory%" + filepath,
+            originallocation=("%transferDirectory%" + filepath).encode(),
             transfer_id=self.transfer_uuid,
         )
 
