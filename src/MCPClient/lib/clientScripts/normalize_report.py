@@ -8,6 +8,7 @@ import django
 from custom_handlers import get_script_logger
 from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import transaction
 from django.template import Context
@@ -17,7 +18,6 @@ from main.models import Job
 from main.models import Report
 from main.models import SIP
 from main.models import Task
-
 
 django.setup()
 
@@ -113,7 +113,7 @@ def report(uuid):
 
     try:
         sip = SIP.objects.get(uuid=uuid)
-    except SIP.DoesNotExist:
+    except (SIP.DoesNotExist, ValidationError):
         logger.error("SIP with UUID %s not found.", uuid)
         return 1
 
@@ -142,7 +142,7 @@ def report(uuid):
                     .currentlocation.decode()
                     .replace("%SIPDirectory%", "")
                 )
-            except File.DoesNotExist:
+            except (File.DoesNotExist, ValidationError):
                 pass
 
     if not len(failed_tasks):

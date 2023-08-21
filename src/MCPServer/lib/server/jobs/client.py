@@ -6,13 +6,13 @@ import ast
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from main import models
 from server import metrics
 from server.db import auto_close_old_connections
 from server.jobs.base import Job
 from server.tasks import get_task_backend
 from server.tasks import Task
-
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.client")
 
@@ -198,6 +198,7 @@ class FilesClientScriptJob(ClientScriptJob):
         except (
             models.UnitVariable.DoesNotExist,
             models.UnitVariable.MultipleObjectsReturned,
+            ValidationError,
         ):
             var = None
 

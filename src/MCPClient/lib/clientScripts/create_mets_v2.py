@@ -75,7 +75,7 @@ import namespaces as ns
 from change_names import change_name
 
 from bagit import Bag, BagError
-
+from django.core.exceptions import ValidationError
 
 SIP_DIR_VAR = r"%SIPDirectory%"
 
@@ -1070,7 +1070,7 @@ def createFileSec(
             }
             try:
                 f = File.objects.get(**kwargs)
-            except File.DoesNotExist:
+            except (File.DoesNotExist, ValidationError):
                 job.pyprint(
                     'No uuid for file: "', directoryPathSTR, '"', file=sys.stderr
                 )
@@ -1203,7 +1203,7 @@ def createFileSec(
                 # Derived files should be in the original file's group
                 try:
                     d = Derivation.objects.get(derived_file_id=f.uuid)
-                except Derivation.DoesNotExist:
+                except (Derivation.DoesNotExist, ValidationError):
                     job.pyprint(
                         "Fatal error: unable to locate a Derivation object"
                         " where the derived file is {}".format(f.uuid)

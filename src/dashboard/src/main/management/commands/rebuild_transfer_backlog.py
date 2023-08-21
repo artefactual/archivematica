@@ -53,6 +53,7 @@ import metsrw
 import storageService
 from components.rights.load import load_rights
 from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 from fileOperations import addFileToTransfer
 from fileOperations import extract_package
@@ -578,7 +579,7 @@ def _import_pipeline_dependant_transfer(
     """
     try:
         Transfer.objects.get(uuid=transfer_uuid)
-    except Transfer.DoesNotExist:
+    except (Transfer.DoesNotExist, ValidationError):
         cmd.warning(f"Skipping transfer {transfer_uuid} - not found in the database!")
         return
     es.index_transfer_and_files(

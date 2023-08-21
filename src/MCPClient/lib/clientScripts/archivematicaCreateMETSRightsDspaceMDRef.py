@@ -24,6 +24,7 @@ import sys
 
 import lxml.etree as etree
 import namespaces as ns
+from django.core.exceptions import ValidationError
 from main.models import File
 
 # dashboard
@@ -64,7 +65,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
             mets = File.objects.get(
                 currentlocation=path.encode(), transfer_id=transferUUID
             )
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             pass
         else:
             metsFileUUID = mets.uuid
@@ -91,7 +92,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
                 f = File.objects.get(
                     currentlocation=path.encode(), transfer_id=transferUUID
                 )
-            except File.DoesNotExist:
+            except (File.DoesNotExist, ValidationError):
                 pass
             else:
                 metsFileUUID = f.uuid

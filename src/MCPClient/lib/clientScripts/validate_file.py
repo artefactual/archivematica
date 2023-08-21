@@ -20,6 +20,7 @@ import sys
 from pprint import pformat
 
 import django
+from django.core.exceptions import ValidationError
 from django.db import transaction
 
 django.setup()
@@ -105,7 +106,7 @@ class Validator:
         """Return all FPR rules that apply to files of this type."""
         try:
             fmt = FormatVersion.active.get(fileformatversion__file_uuid=self.file_uuid)
-        except FormatVersion.DoesNotExist:
+        except (FormatVersion.DoesNotExist, ValidationError):
             rules = fmt = None
         if fmt:
             rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
@@ -227,7 +228,7 @@ class Validator:
                 derived_file__uuid=self.file_uuid, event__event_type="normalization"
             )
             return True
-        except Derivation.DoesNotExist:
+        except (Derivation.DoesNotExist, ValidationError):
             return False
 
     def _file_is_access_derivative(self):
@@ -242,11 +243,11 @@ class Validator:
                         derived_file__uuid=self.file_uuid, event__isnull=True
                     )
                     return True
-                except Derivation.DoesNotExist:
+                except (Derivation.DoesNotExist, ValidationError):
                     return False
             else:
                 return False
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             return False
 
     def _not_derivative_msg(self):
@@ -264,7 +265,7 @@ class Validator:
             return self._sip_logs_dir
         try:
             sip_model = SIP.objects.get(uuid=self.sip_uuid)
-        except (SIP.DoesNotExist, SIP.MultipleObjectsReturned):
+        except (SIP.DoesNotExist, SIP.MultipleObjectsReturned, ValidationError):
             self.job.print_error(
                 "Warning: unable to retrieve SIP model corresponding to SIP"
                 " UUID {}".format(self.sip_uuid)

@@ -11,13 +11,13 @@ from uuid import uuid4
 
 import storageService as storage_service
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from main import models
 from server.db import auto_close_old_connections
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
-
 
 logger = logging.getLogger("archivematica.mcp.server.packages")
 
@@ -335,7 +335,7 @@ def create_package(
             kwargs["transfermetadatasetrow"] = models.TransferMetadataSet.objects.get(
                 id=metadata_set_id
             )
-        except models.TransferMetadataSet.DoesNotExist:
+        except (models.TransferMetadataSet.DoesNotExist, ValidationError):
             pass
     transfer = models.Transfer.objects.create(**kwargs)
     if not processing_configuration_file_exists(processing_config):
@@ -371,7 +371,7 @@ def _capture_transfer_failure(fn):
         except Exception as err:
             # The main purpose of this decorator is to update the Transfer with
             # the new state (fail). If the Transfer does not exist we give up.
-            if isinstance(err, models.Transfer.DoesNotExist):
+            if isinstance(err, models.Transfer.DoesNotExist, ValidationError):
                 raise
             else:
                 logger.exception("Exception occurred during transfer processing")

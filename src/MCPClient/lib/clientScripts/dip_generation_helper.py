@@ -6,13 +6,9 @@ import archivematicaFunctions
 import django
 from agentarchives import archivesspace
 from custom_handlers import get_script_logger
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from main import models
-
-# dashboard
-# archivematicaCommon
-# Third party dependencies, alphabetical by import source
-# initialize Django (required for Django 1.7)
 
 django.setup()
 from django.db import transaction
@@ -105,7 +101,7 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
                 | Q(originallocation=b"%SIPDirectory%objects/" + filename.encode()),
                 sip_id=sip_uuid,
             )
-        except models.File.DoesNotExist:
+        except (models.File.DoesNotExist, ValidationError):
             logger.error("%s not found in database, skipping", filename)
             continue
         except models.File.MultipleObjectsReturned:

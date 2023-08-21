@@ -40,7 +40,7 @@ import storageService as storage_service
 from archivematicaFunctions import escape
 
 import metrics
-
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
@@ -198,7 +198,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
             related_package = UnitVariable.objects.get(
                 unituuid=sip_uuid, variable="relatedPackage"
             )
-        except UnitVariable.DoesNotExist:
+        except (UnitVariable.DoesNotExist, ValidationError):
             pass
         else:
             related_package_uuid = related_package.variablevalue
@@ -221,7 +221,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         dc = DublinCore.objects.get(
             metadataappliestotype_id=sip_metadata_uuid, metadataappliestoidentifier=uuid
         )
-    except DublinCore.DoesNotExist:
+    except (DublinCore.DoesNotExist, ValidationError):
         aip_subtype = "Archival Information Package"
     else:
         aip_subtype = dc.type

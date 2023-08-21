@@ -1,15 +1,20 @@
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
+from django.core.exceptions import ValidationError
 from main import models
 from server.packages import _determine_transfer_paths
 from server.packages import _move_to_internal_shared_dir
 from server.packages import _pad_destination_filepath_if_it_already_exists
+from server.packages import create_package
 from server.packages import DIP
 from server.packages import Package
 from server.packages import SIP
 from server.packages import Transfer
+from server.queues import PackageQueue
+from server.workflow import Workflow
 
 
 @pytest.mark.parametrize(
@@ -60,7 +65,7 @@ def test_dip_get_or_create_from_db_path_without_uuid(tmp_path):
     assert dip.current_path == str(dip_path)
     try:
         models.SIP.objects.get(uuid=dip.uuid)
-    except models.SIP.DoesNotExist:
+    except (models.SIP.DoesNotExist, ValidationError):
         pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
 
 
@@ -75,7 +80,7 @@ def test_dip_get_or_create_from_db_path_with_uuid(tmp_path):
     assert dip.current_path == str(dip_path)
     try:
         models.SIP.objects.get(uuid=dip_uuid)
-    except models.SIP.DoesNotExist:
+    except (models.SIP.DoesNotExist, ValidationError):
         pytest.fail("DIP.get_or_create_from_db_by_path didn't create a SIP model")
 
 
@@ -109,7 +114,7 @@ def test_transfer_get_or_create_from_db_path_with_uuid(tmp_path):
     assert transfer.current_path == str(transfer_path)
     try:
         models.Transfer.objects.get(uuid=transfer_uuid)
-    except models.Transfer.DoesNotExist:
+    except (models.Transfer.DoesNotExist, ValidationError):
         pytest.fail(
             "Transfer.get_or_create_from_db_by_path didn't create a Transfer model"
         )
@@ -140,7 +145,7 @@ def test_package_get_or_create_from_db_by_path_updates_model(
     )
     try:
         model.objects.get(**{"uuid": package_id, loc_attribute: path_dst})
-    except models.Transfer.DoesNotExist:
+    except (models.Transfer.DoesNotExist, ValidationError):
         pytest.fail(
             "Method {}.get_or_create_from_db_by_path didn't update {} model".format(
                 package_class.__name__, model.__name__
@@ -392,3 +397,36 @@ def test_package_statuses(tmp_path, package_class, model_class):
     Package.cleanup_old_db_entries()
 
     assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_FAILED
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package(mocker, tmp_path, admin_user, settings):
+    package_queue = mocker.Mock(spec=PackageQueue)
+    executor = mocker.Mock(spec=ThreadPoolExecutor)
+    workflow = mocker.Mock(spec=Workflow)
+
+    d = tmp_path / "sub"
+    d.mkdir()
+    (d / "tmp").mkdir()
+    settings.SHARED_DIRECTORY = str(d)
+
+    # Verify there are no existing transfers.
+    assert models.Transfer.objects.count() == 0
+
+    create_package(
+        package_queue,
+        executor,
+        "foobar",
+        "standard",
+        "",
+        "",
+        d.as_posix(),
+        "",
+        admin_user.pk,
+        workflow,
+        auto_approve=True,
+        processing_config="automated",
+    )
+
+    # Verify a transfer was added.
+    assert models.Transfer.objects.count() == 1

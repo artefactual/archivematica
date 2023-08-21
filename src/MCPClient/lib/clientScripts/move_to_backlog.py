@@ -29,7 +29,7 @@ import storageService as storage_service
 
 from bagit import make_bag
 import metsrw
-
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.move_to_backlog")
 
@@ -134,7 +134,7 @@ def _transfer_agents(transfer_id):
         var = UnitVariable.objects.get(
             unittype="Transfer", unituuid=transfer_id, variable="activeAgent"
         )
-    except UnitVariable.DoesNotExist:
+    except (UnitVariable.DoesNotExist, ValidationError):
         pass
     else:
         query |= Q(id=var.variablevalue)

@@ -38,7 +38,7 @@ from archivematicaFunctions import (
 
 from custom_handlers import get_script_logger
 import bag
-
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 
@@ -150,7 +150,7 @@ def call(jobs):
                     sip = None
                     try:
                         transfer = Transfer.objects.get(uuid=sip_uuid)
-                    except Transfer.DoesNotExist:
+                    except (Transfer.DoesNotExist, ValidationError):
                         sip = SIP.objects.get(uuid=sip_uuid)
 
                     if transfer:

@@ -24,6 +24,7 @@ import os
 import uuid
 
 import django
+from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from lxml import etree
 
@@ -85,7 +86,7 @@ def write_mets(mets_path, transfer_dir_path, base_path_placeholder, transfer_uui
 
     try:
         transfer = Transfer.objects.get(uuid=transfer_uuid)
-    except Transfer.DoesNotExist:
+    except (Transfer.DoesNotExist, ValidationError):
         logger.info("No record in database for transfer: %s", transfer_uuid)
         raise
 

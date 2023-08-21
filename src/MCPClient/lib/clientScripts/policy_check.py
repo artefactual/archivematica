@@ -26,6 +26,7 @@ from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
 from lib import setup_dicts
+from django.core.exceptions import ValidationError
 
 # Note that linkTaskManagerFiles.py will take the highest exit code it has seen
 # from all tasks and will use that as the exit code of the job as a whole.
@@ -80,7 +81,7 @@ class PolicyChecker:
         if not self.is_manually_normalized_access_derivative:
             try:
                 self.file_model = File.objects.get(uuid=self.file_uuid)
-            except (File.DoesNotExist, django.core.exceptions.ValidationError):
+            except (File.DoesNotExist, ValidationError):
                 self.job.pyprint(
                     "Not performing a policy check because there is no file"
                     " with UUID {}.".format(self.file_uuid)
@@ -154,7 +155,7 @@ class PolicyChecker:
                 derived_file__uuid=self.file_uuid, event__event_type=event_type
             )
             return True
-        except (Derivation.DoesNotExist, django.core.exceptions.ValidationError):
+        except (Derivation.DoesNotExist, ValidationError):
             return False
 
     def _get_policies_dir(self):
@@ -205,7 +206,7 @@ class PolicyChecker:
                 originallocation=manually_normalized_file_path.encode(),
                 sip_id=self.sip_uuid,
             ).uuid
-        except (File.DoesNotExist, File.MultipleObjectsReturned):
+        except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             return None
 
     def _get_rules(self):
@@ -217,7 +218,7 @@ class PolicyChecker:
             file_uuid = self._get_manually_normalized_access_derivative_file_uuid()
         try:
             fmt = FormatVersion.active.get(fileformatversion__file_uuid=file_uuid)
-        except FormatVersion.DoesNotExist:
+        except (FormatVersion.DoesNotExist, ValidationError):
             rules = fmt = None
         if fmt:
             rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
@@ -373,7 +374,11 @@ class PolicyChecker:
             unit_type = "Transfer"
         try:
             unit_model = model_cls.objects.get(uuid=self.sip_uuid)
-        except (model_cls.DoesNotExist, model_cls.MultipleObjectsReturned):
+        except (
+            model_cls.DoesNotExist,
+            model_cls.MultipleObjectsReturned,
+            ValidationError,
+        ):
             self.job.print_error(
                 "Warning: unable to retrieve {unit_type} model corresponding"
                 " to {unit_type} UUID {sip_uuid}".format(
@@ -411,7 +416,7 @@ class PolicyChecker:
             return self._sip_subm_doc_dir
         try:
             sip_model = SIP.objects.get(uuid=self.sip_uuid)
-        except (SIP.DoesNotExist, SIP.MultipleObjectsReturned):
+        except (SIP.DoesNotExist, SIP.MultipleObjectsReturned, ValidationError):
             self.job.print_error(
                 "Warning: unable to retrieve SIP model corresponding to SIP"
                 " UUID {} (when attempting to get the path to"

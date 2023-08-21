@@ -26,6 +26,7 @@ import create_mets_v2 as createmets2
 import namespaces as ns
 import requests
 from databaseFunctions import insertIntoEvents
+from django.core.exceptions import ValidationError
 from importlib_metadata import version
 from lxml import etree
 from main import models
@@ -62,7 +63,7 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
                         sip_id=sip_uuid,
                         currentlocation=f"%SIPDirectory%{xml_rel_path}".encode(),
                     )
-                except models.File.DoesNotExist:
+                except (models.File.DoesNotExist, ValidationError):
                     xml_metadata_errors.append(f"No uuid for file: {xml_rel_path}")
                     continue
                 valid, errors = _validate_xml(tree, schema_uri)

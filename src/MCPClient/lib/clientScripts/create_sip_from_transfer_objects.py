@@ -33,6 +33,7 @@ from main.models import File, Directory, SIP, Transfer, UnitVariable, Agent
 
 # archivematicaCommon
 import archivematicaFunctions
+from django.core.exceptions import ValidationError
 
 
 def call(jobs):
@@ -117,7 +118,7 @@ def call(jobs):
                         unituuid=transferUUID,
                         variable="activeAgent",
                     )
-                except UnitVariable.DoesNotExist:
+                except (UnitVariable.DoesNotExist, ValidationError):
                     unit_variable = None
                 if unit_variable:
                     try:

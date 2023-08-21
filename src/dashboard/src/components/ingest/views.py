@@ -36,6 +36,7 @@ from components.ingest.views_NormalizationReport import getNormalizationReportQu
 from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.http import HttpResponse
@@ -147,7 +148,7 @@ def ingest_metadata_edit(request, uuid, id=None):
                 metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
             )
             id = dc.id
-        except models.DublinCore.DoesNotExist:
+        except (models.DublinCore.DoesNotExist, ValidationError):
             dc = models.DublinCore(
                 metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
             )
@@ -204,7 +205,7 @@ def aic_metadata_add(request, uuid):
             metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
         )
         id = dc.id
-    except models.DublinCore.DoesNotExist:
+    except (models.DublinCore.DoesNotExist, ValidationError):
         dc = models.DublinCore(
             metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
         )

@@ -41,6 +41,7 @@ from custom_handlers import get_script_logger
 from archivematicaFunctions import get_dir_uuids, format_subdir_path, str2bool
 
 from django.db import transaction
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.assignUUIDsToDirectories")
 
@@ -92,7 +93,7 @@ def _get_transfer_mdl(transfer_uuid):
         transfer_mdl.diruuids = True
         transfer_mdl.save()
         return transfer_mdl
-    except Transfer.DoesNotExist:
+    except (Transfer.DoesNotExist, ValidationError):
         logger.warning("There is no transfer with UUID %s", transfer_uuid)
         raise DirsUUIDsException
 

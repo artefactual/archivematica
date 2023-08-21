@@ -24,6 +24,7 @@ from components import helpers
 from components.ingest.forms import DublinCoreMetadataForm
 from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -157,7 +158,7 @@ def transfer_metadata_edit(request, uuid, id=None):
                 metadataappliestoidentifier__exact=uuid,
             )
             return redirect("transfer:transfer_metadata_edit", uuid, dc.id)
-        except models.DublinCore.DoesNotExist:
+        except (models.DublinCore.DoesNotExist, ValidationError):
             dc = models.DublinCore(
                 metadataappliestotype=transfer_metadata_type_id(),
                 metadataappliestoidentifier=uuid,
