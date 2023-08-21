@@ -20,6 +20,7 @@ from custom_handlers import get_script_logger
 import databaseFunctions
 from main.models import Agent, File
 import metsrw
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.parse_dataverse_mets")
 transfer_objects_directory = "%transferDirectory%objects"
@@ -74,7 +75,7 @@ def get_db_objects(job, mets, transfer_uuid):
                     file_entry.originallocation,
                 )
                 continue
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             logger.debug(
                 "Could not find file type: '%s' in the database: %s with " "path: %s",
                 entry.type,
@@ -109,7 +110,7 @@ def get_db_objects(job, mets, transfer_uuid):
                         file_entry.originallocation,
                     )
                     continue
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             logger.error(
                 "Could not find file type: '%s' in the database: %s with "
                 "path: %s. Checksum: '%s'",

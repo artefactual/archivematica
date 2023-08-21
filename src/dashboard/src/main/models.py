@@ -25,6 +25,7 @@ import re
 import uuid
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
@@ -503,7 +504,7 @@ class SIP(models.Model):
             unit_variable = UnitVariable.objects.get(
                 unittype="SIP", unituuid=self.uuid, variable="activeAgent"
             )
-        except UnitVariable.DoesNotExist:
+        except (UnitVariable.DoesNotExist, ValidationError):
             pass
         else:
             agent_lookups = agent_lookups | models.Q(id=unit_variable.variablevalue)
@@ -571,7 +572,7 @@ class Transfer(models.Model):
             unit_variable = UnitVariable.objects.get(
                 unittype="Transfer", unituuid=self.uuid, variable="activeAgent"
             )
-        except UnitVariable.DoesNotExist:
+        except (UnitVariable.DoesNotExist, ValidationError):
             pass
         else:
             agent_lookups = agent_lookups | models.Q(id=unit_variable.variablevalue)
@@ -591,7 +592,7 @@ class Transfer(models.Model):
                 unituuid=self.uuid,
                 variable="processingConfiguration",
             )
-        except UnitVariable.DoesNotExist:
+        except (UnitVariable.DoesNotExist, ValidationError):
             result = None
         else:
             result = unit_variable.variablevalue

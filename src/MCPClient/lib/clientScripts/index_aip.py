@@ -9,6 +9,7 @@ import elasticSearchFunctions
 import identifier_functions
 import storageService as storage_service
 from custom_handlers import get_script_logger
+from django.core.exceptions import ValidationError
 from main.models import UnitVariable
 
 # dashboard
@@ -70,7 +71,7 @@ def index_aip(job):
                 unittype="SIP", unituuid=sip_uuid, variable="AIPsinAIC"
             )
             aips_in_aic = uv.variablevalue
-        except UnitVariable.DoesNotExist:
+        except (UnitVariable.DoesNotExist, ValidationError):
             pass
     # Delete ES index before creating new one if reingesting
     if "REIN" in sip_type:

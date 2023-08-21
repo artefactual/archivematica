@@ -7,6 +7,7 @@ import archivematicaCreateMETSRights as createmetsrights
 import create_mets_v2 as createmets2
 import metsrw
 import namespaces as ns
+from django.core.exceptions import ValidationError
 from lxml import etree
 from main import models
 
@@ -562,12 +563,12 @@ def update_metadata_csv(job, mets, metadata_csv, sip_uuid, sip_dir, state):
             file_obj = models.File.objects.get(
                 sip_id=str(sip_uuid), originallocation__endswith="%" + f
             )
-        except models.File.DoesNotExist:
+        except (models.File.DoesNotExist, ValidationError):
             try:
                 file_obj = models.File.objects.get(
                     sip_id=sip_uuid, currentlocation__endswith="%" + f
                 )
-            except models.File.DoesNotExist:
+            except (models.File.DoesNotExist, ValidationError):
                 pass
         if file_obj is not None:
             fsentry = mets.get_file(file_uuid=str(file_obj.uuid))

@@ -25,6 +25,7 @@ from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
 
 from lib import setup_dicts
+from django.core.exceptions import ValidationError
 
 
 def concurrent_instances():
@@ -43,7 +44,7 @@ def main(job, file_path, file_uuid, sip_uuid):
 
     try:
         format = FormatVersion.active.get(fileformatversion__file_uuid=file_uuid)
-    except FormatVersion.DoesNotExist:
+    except (FormatVersion.DoesNotExist, ValidationError):
         rules = format = None
 
     if format:

@@ -39,6 +39,7 @@ from clamd import (
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
 from main.models import Event, File
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
@@ -291,7 +292,7 @@ def get_size(file_uuid, path):
     if file_uuid != "None":
         try:
             return File.objects.get(uuid=file_uuid).size
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             pass
     # Our fallback.
     try:

@@ -39,6 +39,8 @@ from django.db import transaction
 # dashboard
 import main.models as models
 
+from django.core.exceptions import ValidationError
+
 # moved after django.setup()
 logger = get_script_logger("archivematica.upload.qubit")
 
@@ -102,7 +104,8 @@ def start(job, data):
         # This upload was called before, restore Access record
         access = models.Access.objects.get(sipuuid=data.uuid)
     except (
-        models.Access.DoesNotExist
+        models.Access.DoesNotExist,
+        ValidationError,
     ):  # First time this job is called, create new Access record
         access = models.Access(sipuuid=data.uuid)
         # Look for access system ID

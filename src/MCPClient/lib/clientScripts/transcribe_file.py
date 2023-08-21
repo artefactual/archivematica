@@ -20,6 +20,7 @@ import fileOperations
 
 from django.conf import settings as mcpclient_settings
 from lib import setup_dicts
+from django.core.exceptions import ValidationError
 
 
 def concurrent_instances():
@@ -80,7 +81,7 @@ def fetch_rules_for(file_):
         return FPRule.objects.filter(
             format=format.format_version, purpose="transcription"
         )
-    except FileFormatVersion.DoesNotExist:
+    except (FileFormatVersion.DoesNotExist, ValidationError):
         return []
 
 

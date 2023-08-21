@@ -26,6 +26,7 @@ from datetime import datetime
 
 import lxml.etree as etree
 import namespaces as ns
+from django.core.exceptions import ValidationError
 from main.models import File
 
 # dashboard
@@ -124,7 +125,7 @@ def getTrimFileDmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
             filegrpuuid=fileUUID,
             filegrpuse="TRIM file metadata",
         )
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
@@ -163,7 +164,7 @@ def getTrimFileAmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
             filegrpuuid=fileUUID,
             filegrpuse="TRIM file metadata",
         )
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         job.pyprint("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:

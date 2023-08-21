@@ -17,6 +17,7 @@ from xml2obj import mets_file
 
 django.setup()
 from django.db import transaction
+from django.core.exceptions import ValidationError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -167,13 +168,13 @@ def upload_to_archivesspace(
             fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
             format_version = fv.description
             format_name = fv.format.description
-        except FormatVersion.DoesNotExist:
+        except (FormatVersion.DoesNotExist, ValidationError):
             format_name = format_version = None
 
         # Client wants access copy info
         try:
             original_file = File.objects.get(filegrpuse="original", uuid=uuid)
-        except (File.DoesNotExist, File.MultipleObjectsReturned):
+        except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             original_name = ""
             size = format_name = format_version = None
         else:
@@ -185,7 +186,7 @@ def upload_to_archivesspace(
             access_file = File.objects.get(
                 filegrpuse="access", original_file_set__source_file=uuid
             )
-        except (File.DoesNotExist, File.MultipleObjectsReturned):
+        except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             # Just use original file info
             pass
         else:

@@ -25,6 +25,7 @@ from main.models import Event, File
 # archivematicaCommon
 import databaseFunctions
 import fileOperations
+from django.core.exceptions import ValidationError
 
 
 def main(job):
@@ -61,7 +62,7 @@ def main(job):
             filegrpuse="original",
             sip_id=SIPUUID,
         )
-    except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
+    except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError) as e:
         # Original file was not found, or there is more than one original file with
         # the same filename (differing extensions)
         # Look for a CSV that will specify the mapping
@@ -84,7 +85,7 @@ def main(job):
                 printfn=job.pyprint,
             )
             if original is None:
-                if isinstance(e, File.DoesNotExist):
+                if isinstance(e, File.DoesNotExist, ValidationError):
                     job.print_error(
                         "No matching file for: {}".format(
                             filePath.replace(SIPDirectory, "%SIPDirectory%")
@@ -106,7 +107,7 @@ def main(job):
                 sip_id=SIPUUID,
             )
         else:
-            if isinstance(e, File.DoesNotExist):
+            if isinstance(e, File.DoesNotExist, ValidationError):
                 job.print_error(
                     "No matching file for: ",
                     filePath.replace(SIPDirectory, "%SIPDirectory%", 1),
@@ -158,7 +159,7 @@ def main(job):
             "Updated the eventOutcomeDetailNote of an existing normalization"
             " Event for file {}. Not creating a Derivation object".format(fileUUID)
         )
-    except Event.DoesNotExist:
+    except (Event.DoesNotExist, ValidationError):
         # No normalization event was created in normalize.py - probably manually
         # normalized during Ingest
         derivationEventUUID = str(uuid.uuid4())

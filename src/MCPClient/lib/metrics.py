@@ -11,6 +11,7 @@ from common_metrics import PACKAGE_SIZE_BUCKETS
 from common_metrics import PROCESSING_TIME_BUCKETS
 from common_metrics import TASK_DURATION_BUCKETS
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils import timezone
 from fpr.models import FormatVersion
@@ -23,7 +24,6 @@ from prometheus_client import Histogram
 from prometheus_client import Info
 from prometheus_client import start_http_server
 from version import get_full_version
-
 
 job_counter = Counter(
     "mcpclient_job_total",
@@ -283,7 +283,7 @@ def aip_stored(sip_uuid, size):
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
@@ -333,7 +333,7 @@ def dip_stored(sip_uuid, size):
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
@@ -355,7 +355,7 @@ def transfer_started(transfer_type):
 def transfer_completed(transfer_uuid):
     try:
         transfer = Transfer.objects.get(uuid=transfer_uuid)
-    except Transfer.DoesNotExist:
+    except (Transfer.DoesNotExist, ValidationError):
         return
 
     transfer_type = transfer.type or "Unknown"

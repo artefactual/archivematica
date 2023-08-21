@@ -4,10 +4,10 @@ Jobs executed locally in MCP server.
 import abc
 import logging
 
+from django.core.exceptions import ValidationError
 from main import models
 from server.db import auto_close_old_connections
 from server.jobs.base import Job
-
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.local")
 
@@ -40,7 +40,7 @@ class GetUnitVarLinkJob(LocalJob):
                 unituuid=self.package.uuid,
                 variable=self.link.config["variable"],
             )
-        except models.UnitVariable.DoesNotExist:
+        except (models.UnitVariable.DoesNotExist, ValidationError):
             link_id = self.link.config["chain_id"]
         else:
             link_id = unitvar.microservicechainlink

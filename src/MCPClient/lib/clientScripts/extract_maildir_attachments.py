@@ -29,6 +29,7 @@ from lxml import etree
 
 django.setup()
 from django.db import transaction
+from django.core.exceptions import ValidationError
 
 # dashboard
 from main.models import File
@@ -84,7 +85,7 @@ def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
             transfer_id=transferUUID,
             currentlocation__startswith=sourceFilePath,
         ).uuid
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         return ""
 
 

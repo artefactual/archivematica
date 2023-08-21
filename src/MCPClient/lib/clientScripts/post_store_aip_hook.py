@@ -20,6 +20,8 @@ import elasticSearchFunctions
 import storageService as storage_service
 from archivematicaFunctions import find_transfer_path_from_ingest
 
+from django.core.exceptions import ValidationError
+
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
 COMPLETED = 0
@@ -58,7 +60,7 @@ def dspace_handle_to_archivesspace(job, sip_uuid):
     # Get association to ArchivesSpace if it exists
     try:
         digital_object = models.ArchivesSpaceDigitalObject.objects.get(sip_id=sip_uuid)
-    except models.ArchivesSpaceDigitalObject.DoesNotExist:
+    except (models.ArchivesSpaceDigitalObject.DoesNotExist, ValidationError):
         job.pyprint("SIP", sip_uuid, "not associated with an ArchivesSpace component")
         return NO_ACTION
     job.pyprint(

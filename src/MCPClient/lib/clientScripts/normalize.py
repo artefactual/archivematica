@@ -25,7 +25,7 @@ from dicts import ReplacementDict
 
 from django.conf import settings as mcpclient_settings
 from .lib import setup_dicts
-
+from django.core.exceptions import ValidationError
 
 # Return codes
 SUCCESS = 0
@@ -341,7 +341,7 @@ def main(job, opts):
     # Find the file and it's FormatVersion (file identification)
     try:
         file_ = File.objects.get(uuid=opts.file_uuid)
-    except File.DoesNotExist:
+    except (File.DoesNotExist, ValidationError):
         job.print_error("File with uuid", opts.file_uuid, "does not exist in database.")
         return NO_RULE_FOUND
     job.print_output("File found:", file_.uuid, file_.currentlocation.decode())
@@ -417,7 +417,7 @@ def main(job, opts):
     do_fallback = False
     try:
         format_id = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
-    except FileFormatVersion.DoesNotExist:
+    except (FileFormatVersion.DoesNotExist, ValidationError):
         format_id = None
 
     # Look up the normalization command in the FPR

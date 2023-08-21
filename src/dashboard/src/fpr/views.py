@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -9,7 +10,6 @@ from django.utils.translation import gettext as _
 from fpr import forms as fprforms
 from fpr import models as fprmodels
 from fpr import utils
-
 
 CLASS_CATEGORY_MAP = {
     "format": fprmodels.Format,
@@ -412,7 +412,7 @@ def idcommand_edit(request, uuid=None):
         initial["tool"] = fprmodels.IDTool.objects.get(
             uuid=request.GET["parent"], enabled=True
         )
-    except (KeyError, fprmodels.IDTool.DoesNotExist):
+    except (KeyError, fprmodels.IDTool.DoesNotExist, ValidationError):
         initial["tool"] = None
 
     form = fprforms.IDCommandForm(
@@ -659,7 +659,7 @@ def fpcommand_edit(request, uuid=None):
             initial["tool"] = fprmodels.FPTool.objects.get(
                 uuid=request.GET["parent"], enabled=True
             )
-        except (KeyError, fprmodels.FPTool.DoesNotExist):
+        except (KeyError, fprmodels.FPTool.DoesNotExist, ValidationError):
             initial["tool"] = None
         form = fprforms.FPCommandForm(instance=fpcommand, initial=initial)
         utils.warn_if_replacing_with_old_revision(request, fpcommand)

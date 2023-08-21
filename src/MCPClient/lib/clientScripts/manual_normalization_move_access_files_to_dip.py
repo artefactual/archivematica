@@ -32,6 +32,7 @@ import fileOperations
 
 # --sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser
+from django.core.exceptions import ValidationError
 
 
 def main(job):
@@ -69,9 +70,9 @@ def main(job):
         }
         try:
             f = File.objects.get(currentlocation__startswith=filePathLike, **kwargs)
-        except (File.DoesNotExist, File.MultipleObjectsReturned):
+        except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             f = File.objects.get(currentlocation=filePathLike2.encode(), **kwargs)
-    except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
+    except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError) as e:
         # Original file was not found, or there is more than one original file with
         # the same filename (differing extensions)
         # Look for a CSV that will specify the mapping
@@ -90,7 +91,7 @@ def main(job):
                 csv_path, "access", access_file, unitIdentifier, printfn=job.pyprint
             )
             if original is None:
-                if isinstance(e, File.DoesNotExist):
+                if isinstance(e, File.DoesNotExist, ValidationError):
                     job.print_error(
                         "No matching file for: {}".format(
                             opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%")
@@ -113,7 +114,7 @@ def main(job):
             }
             f = File.objects.get(**kwargs)
         else:
-            if isinstance(e, File.DoesNotExist):
+            if isinstance(e, File.DoesNotExist, ValidationError):
                 job.print_error(
                     "No matching file for: ",
                     opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1),

@@ -18,6 +18,7 @@ django.setup()
 from main.models import Directory, File, SIP
 
 from change_names import change_name
+from django.core.exceptions import ValidationError
 
 
 class DeclarePIDsException(Exception):
@@ -163,7 +164,7 @@ class DeclarePIDs:
                     )
                     self._add_identifier_to_model(mdl, id_)
                     continue
-                except File.DoesNotExist:
+                except (File.DoesNotExist, ValidationError):
                     pass
                 try:
                     mdl = Directory.objects.get(
@@ -171,7 +172,7 @@ class DeclarePIDs:
                         currentlocation=os.path.join(file_path, "").encode(),
                     )
                     self._add_identifier_to_model(mdl, id_)
-                except Directory.DoesNotExist:
+                except (Directory.DoesNotExist, ValidationError):
                     pass
         self.job.pyprint(
             "{} identifiers added for {} objects in the package".format(
@@ -191,7 +192,7 @@ class DeclarePIDs:
                 .currentlocation.decode()
                 .replace(self.SIP_DIRECTORY, sip_directory)
             )
-        except File.DoesNotExist:
+        except (File.DoesNotExist, ValidationError):
             self.job.pyprint("No identifiers.json file found", file=sys.stderr)
             raise DeclarePIDsExceptionNonCritical()
 

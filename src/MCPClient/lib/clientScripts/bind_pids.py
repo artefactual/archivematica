@@ -48,6 +48,7 @@ import django
 django.setup()
 from django.db import transaction
 from lxml import etree
+from django.core.exceptions import ValidationError
 
 # dashboard
 from main.models import DashboardSetting, Directory, SIP
@@ -102,7 +103,7 @@ def _add_pid_to_mdl_identifiers(mdl, config):
 def _get_sip(sip_uuid):
     try:
         return SIP.objects.get(uuid=sip_uuid)
-    except SIP.DoesNotExist:
+    except (SIP.DoesNotExist, ValidationError):
         raise BindPIDsException
 
 

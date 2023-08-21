@@ -29,6 +29,7 @@ from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
 from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from main import models
@@ -247,13 +248,13 @@ def status(request, unit_uuid, unit_type):
     if unit_type == "unitTransfer":
         try:
             unit = models.Transfer.objects.get(uuid=unit_uuid)
-        except models.Transfer.DoesNotExist:
+        except (models.Transfer.DoesNotExist, ValidationError):
             unit = None
         response["type"] = "transfer"
     elif unit_type == "unitSIP":
         try:
             unit = models.SIP.objects.get(uuid=unit_uuid)
-        except models.SIP.DoesNotExist:
+        except (models.SIP.DoesNotExist, ValidationError):
             unit = None
         response["type"] = "SIP"
 
@@ -739,7 +740,7 @@ def path_metadata(request):
             file_lod.level_of_description = models.LevelOfDescription.objects.get(
                 pk=request.POST["level_of_description"]
             ).name
-        except (KeyError, models.LevelOfDescription.DoesNotExist):
+        except (KeyError, models.LevelOfDescription.DoesNotExist, ValidationError):
             file_lod.level_of_description = ""
         file_lod.save()
         body = {"success": True}
@@ -952,6 +953,6 @@ def task(request, task_uuid):
     """Return details of a task"""
     try:
         task = models.Task.objects.get(taskuuid=task_uuid)
-    except models.Task.DoesNotExist:
+    except (models.Task.DoesNotExist, ValidationError):
         return _error_response(f"Task with UUID {task_uuid} does not exist")
     return helpers.json_response(format_task(task, detailed_output=True))
