@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0005_update_tool_versions")]
 
     operations = [

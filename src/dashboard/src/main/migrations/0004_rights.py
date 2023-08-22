@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0003_archivesspacedipobjectresourcepairing_data")]
 
     operations = [

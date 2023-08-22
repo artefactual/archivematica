@@ -92,7 +92,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0003_archivesspacedipobjectresourcepairing")]
 
     operations = [migrations.RunPython(data_migration)]

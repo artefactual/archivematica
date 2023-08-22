@@ -171,7 +171,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0045_archivesspace_config_dict")]
 
     operations = [migrations.RunPython(data_migration)]

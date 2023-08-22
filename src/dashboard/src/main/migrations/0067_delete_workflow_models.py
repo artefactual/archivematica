@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0066_archivesspace_base_url")]
 
     operations = [

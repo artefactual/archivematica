@@ -18,7 +18,6 @@ def reverse_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0009_pronom_90")]
 
     operations = [migrations.RunPython(data_migration, reverse_migration)]

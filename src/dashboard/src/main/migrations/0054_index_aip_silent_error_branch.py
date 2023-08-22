@@ -35,7 +35,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0053_remove_mcp_unused_field")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

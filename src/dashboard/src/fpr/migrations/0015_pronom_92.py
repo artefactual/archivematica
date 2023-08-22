@@ -49,7 +49,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0014_fix_fits_command")]
 
     operations = [migrations.RunPython(data_migration)]

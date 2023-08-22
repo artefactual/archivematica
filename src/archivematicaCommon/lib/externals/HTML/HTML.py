@@ -406,6 +406,7 @@ class List:
 
 # == FUNCTIONS ===============================================================
 
+
 # much simpler definition of a link as a function:
 def Link(text, url):
     return f'<a href="{url}">{text}</a>'
@@ -430,7 +431,6 @@ def list(*args, **kwargs):
 # Show sample usage when this file is launched as a script.
 
 if __name__ == "__main__":
-
     # open an HTML file to show output in a browser
     f = open("test.html", "w")
 

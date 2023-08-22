@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0007_django_upgrade_tweaks")]
 
     def merge_tables(apps, schema_editor):

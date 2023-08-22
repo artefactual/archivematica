@@ -14832,7 +14832,6 @@ def load_fixtures(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0001_initial")]
 
     operations = [migrations.RunPython(load_fixtures)]

@@ -57,7 +57,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0013_normalization_rules_mov")]
 
     operations = [migrations.RunPython(data_migration)]

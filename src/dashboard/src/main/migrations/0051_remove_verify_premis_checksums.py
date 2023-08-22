@@ -54,7 +54,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0050_remove_magic_links")]
 
     operations = [migrations.RunPython(data_migration)]

@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0052_correct_extract_packages_fallback_link")]
 
     operations = [

@@ -15,7 +15,6 @@ def delete_orphan_mscl(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0059_siparrange_longblob")]
 
     operations = [migrations.RunPython(delete_orphan_mscl, migrations.RunPython.noop)]

@@ -30,7 +30,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0012_file_id_text")]
 
     operations = [migrations.RunPython(data_migration)]

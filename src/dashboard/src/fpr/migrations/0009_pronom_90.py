@@ -10,7 +10,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0008_update_django_autoslug")]
 
     operations = [migrations.RunPython(data_migration)]

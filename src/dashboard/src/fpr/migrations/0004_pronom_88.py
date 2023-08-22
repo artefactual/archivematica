@@ -10,7 +10,6 @@ def load_fixtures(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0003_pronom_84")]
 
     operations = [migrations.RunPython(load_fixtures)]

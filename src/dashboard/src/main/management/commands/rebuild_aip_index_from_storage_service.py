@@ -79,7 +79,6 @@ def get_aips_in_aic(mets_root, temp_dir, uuid):
 
 
 class Command(DashboardCommand):
-
     help = __doc__
 
     def add_arguments(self, parser):

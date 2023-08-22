@@ -9,7 +9,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0046_optional_normative_structmap")]
 
     operations = [migrations.RunPython(data_migration)]

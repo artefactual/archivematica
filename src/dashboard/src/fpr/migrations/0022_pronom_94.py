@@ -10,7 +10,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0021_normalize_jp2_with_ffmpeg_for_preservation")]
 
     operations = [migrations.RunPython(data_migration)]

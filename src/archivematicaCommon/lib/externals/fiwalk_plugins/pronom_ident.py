@@ -59,7 +59,7 @@ class FiwalkFido(fido.Fido):
             out["pronomMatchType"] = "fail"
         else:
             i = 0
-            for (f, s) in matches:
+            for f, s in matches:
                 i += 1
                 out["pronomMatchType"] = matchtype
                 out["pronomPuid"] = self.get_puid(f)

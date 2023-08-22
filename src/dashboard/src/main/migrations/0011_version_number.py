@@ -9,7 +9,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0010_dip_upload_store")]
 
     operations = [migrations.RunPython(data_migration)]

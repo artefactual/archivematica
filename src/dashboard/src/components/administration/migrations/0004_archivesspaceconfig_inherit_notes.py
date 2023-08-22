@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("administration", "0003_archivesspace_help_text")]
 
     operations = [

@@ -26,7 +26,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0043_remove_create_pointer_file_ms")]
 
     operations = [migrations.RunPython(data_migration)]

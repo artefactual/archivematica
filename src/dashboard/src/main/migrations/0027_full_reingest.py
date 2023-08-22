@@ -124,7 +124,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0026_agent_m2m_event")]
 
     operations = [migrations.RunPython(data_migration)]

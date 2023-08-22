@@ -12,7 +12,6 @@ def data_migration_up(apps, _):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0068_version_number")]
 
     operations = [

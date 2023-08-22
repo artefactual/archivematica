@@ -18,7 +18,6 @@ from main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):
-
     help = __doc__
 
     def handle(self, *args, **options):

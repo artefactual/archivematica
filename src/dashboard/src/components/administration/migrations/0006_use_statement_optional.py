@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("administration", "0005_archivesspace_inherit_note_default")]
 
     operations = [

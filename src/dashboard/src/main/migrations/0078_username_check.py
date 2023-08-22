@@ -51,7 +51,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("main", "0077_uuid_fields"),
         ("auth", "0007_alter_validators_add_error_messages"),

@@ -56,7 +56,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0024_update_fido")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

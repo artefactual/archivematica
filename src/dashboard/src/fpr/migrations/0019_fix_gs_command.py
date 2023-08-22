@@ -15,7 +15,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0018_slug_unique")]
 
     operations = [migrations.RunPython(data_migration)]

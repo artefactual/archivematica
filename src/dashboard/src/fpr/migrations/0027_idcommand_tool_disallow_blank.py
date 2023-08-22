@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0026_fits_nailgun_compat")]
 
     operations = [
