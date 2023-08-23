@@ -56,7 +56,7 @@ endef
 
 define grant_all_on_db
 	docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e '\
-		GRANT ALL ON `$(1)`.* TO "archivematica"@"%" IDENTIFIED BY "demo";'
+		GRANT ALL ON `$(1)`.* TO "archivematica"@"%";'
 endef
 
 define drop_db
