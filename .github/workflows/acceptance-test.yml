@@ -43,6 +43,8 @@ jobs:
       - name: "Build images"
         run: |
           make -C hack/ build
+        env:
+          PYTHON_VERSION: "3.9"
       - name: "Start services"
         run: |
           docker compose up -d

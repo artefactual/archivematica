@@ -8,42 +8,24 @@ on:
       - "stable/**"
 jobs:
   test:
-    name: "Test ${{ matrix.rule }}"
+    name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
     runs-on: "ubuntu-22.04"
     strategy:
       fail-fast: false
       matrix:
+        rule: ["mcp-server", "mcp-client", "dashboard", "archivematica-common"]
+        python-version: ["3.8", "3.9", "3.10"]
         include:
-          - rule: mcp-server
-            coverage: true
-          - rule: mcp-client
-            coverage: true
-          - rule: dashboard
-            coverage: true
-          - rule: archivematica-common
-            coverage: true
-          - rule: storage-service
-            coverage: false
-          - rule: migrations
-            coverage: false
+          - rule: "storage-service"
+            python-version: "3.9"
+          - rule: "migrations"
+            python-version: "3.9"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v3"
       - name: "Check out the archivematica-storage-service submodule"
         run: |
           git submodule update --init hack/submodules/archivematica-storage-service/
-      - name: "Set up pip cache"
-        uses: "actions/cache@v3"
-        with:
-          path: "~/.cache/pip"
-          key: "${{ runner.os }}-pip-${{ github.sha }}"
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: "Set up tox cache"
-        uses: "actions/cache@v3"
-        with:
-          path: ./.tox
-          key: "${{ runner.os }}-tox-${{ matrix.rule }}-${{ hashFiles('**/tox.ini', '**/requirements*.txt', '**/requirements/*.txt') }}"
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@v2"
         id: buildx
@@ -53,9 +35,10 @@ jobs:
         uses: "actions/cache@v3"
         with:
           path: /tmp/.docker-cache-old
-          key: ${{ runner.os }}-docker-${{ matrix.rule }}-${{ github.sha }}
+          key: ${{ runner.os }}-docker-${{ matrix.python-version }}-${{ matrix.rule }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ matrix.python-version }}-${{ matrix.rule }}-
+            ${{ runner.os }}-docker-${{ matrix.python-version }}-
             ${{ runner.os }}-docker-
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v4"
@@ -63,6 +46,8 @@ jobs:
           context: .
           file: ./hack/Dockerfile
           target: archivematica-tests
+          build-args: |
+            PYTHON_VERSION=${{ matrix.python-version }}
           tags: archivematica-tests:latest
           push: false
           load: true
@@ -72,25 +57,18 @@ jobs:
         run: |
           make -C hack/ create-volumes
       - name: "Run make rule"
-        if: "! matrix.coverage"
-        run: |
-          make -C hack/ test-${{ matrix.rule }}
-        env:
-          TOXARGS: -vv
-          PYTEST_ADDOPTS: -vv
-      - name: "Run make rule with coverage"
-        if: "matrix.coverage"
         run: |
           make -C hack/ test-${{ matrix.rule }}
         env:
           TOXARGS: -vv
           PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
+          PYTHON_VERSION: ${{ matrix.python-version }}
       - name: "Upload coverage report"
-        if: matrix.coverage && github.repository == 'artefactual/archivematica'
+        if: matrix.rule != 'storage-service' && matrix.rule != 'migrations' && github.repository == 'artefactual/archivematica'
         uses: "codecov/codecov-action@v3"
         with:
           files: ./coverage.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
           name: ${{ matrix.rule }}
       - name: "Set newest docker cache"
@@ -129,10 +107,13 @@ jobs:
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v3"
-      - name: "Set up Python 3.8"
+      - name: "Set up Python 3.9"
         uses: "actions/setup-python@v4"
         with:
-          python-version: "3.8"
+          python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements-dev.txt
       - name: "Install tox"
         run: |
           python -m pip install --upgrade pip
