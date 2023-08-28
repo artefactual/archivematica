@@ -109,7 +109,7 @@ services:
         TARGET: "archivematica-mcp-server"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -136,7 +136,7 @@ services:
         TARGET: "archivematica-mcp-client"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
@@ -178,7 +178,7 @@ services:
         TARGET: "archivematica-dashboard"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -213,7 +213,7 @@ services:
         TARGET: "archivematica-storage-service"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"

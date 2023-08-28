@@ -4,7 +4,7 @@ FROM ubuntu:22.04 AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.9
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
@@ -54,7 +54,7 @@ RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		libyaml-dev clamav \
-	&& /src/hack/osdeps.py Ubuntu-22 1 | grep -v -E "nginx|postfix|python3.6-dev" | xargs apt-get install -y --no-install-recommends \
+	&& /src/hack/osdeps.py Ubuntu-22 1 | grep -v -E "nginx|postfix|python3.9-dev" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
@@ -104,7 +104,7 @@ USER archivematica
 
 FROM base AS archivematica-mcp-client
 
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.9
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
@@ -123,7 +123,7 @@ ENTRYPOINT pyenv exec python${PYTHON_VERSION} /src/src/MCPClient/lib/archivemati
 
 FROM base AS archivematica-mcp-server
 
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.9
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
@@ -134,7 +134,7 @@ ENTRYPOINT pyenv exec python${PYTHON_VERSION} /src/src/MCPServer/lib/archivemati
 
 FROM base AS archivematica-dashboard
 
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.9
 
 USER root
 

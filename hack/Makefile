@@ -235,6 +235,7 @@ test-build:  ## Build archivematica-tests image.
 		-t archivematica-tests \
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-tests \
+		--build-arg PYTHON_VERSION=${PYTHON_VERSION} \
 			../
 
 __TOXENVS_MCPSERVER := mcp-server
