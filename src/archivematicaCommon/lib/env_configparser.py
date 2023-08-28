@@ -16,7 +16,7 @@ def fallback_option(fn):
     return functools.wraps(fn)(wrapper)
 
 
-class EnvConfigParser(configparser.SafeConfigParser):
+class EnvConfigParser(configparser.RawConfigParser):
     """
     EnvConfigParser enables the user to provide configuration defaults using
     the string environment, e.g. given:
@@ -46,7 +46,7 @@ class EnvConfigParser(configparser.SafeConfigParser):
         self._prefix = prefix.rstrip("_")
         kwargs = {}
         kwargs["inline_comment_prefixes"] = (";",)
-        configparser.SafeConfigParser.__init__(self, defaults, **kwargs)
+        super().__init__(defaults, **kwargs)
 
     def _get_envvar(self, section, option):
         for key in (
@@ -61,19 +61,19 @@ class EnvConfigParser(configparser.SafeConfigParser):
         ret = self._get_envvar(section, option)
         if ret:
             return ret
-        return configparser.SafeConfigParser.get(self, section, option, **kwargs)
+        return super().get(section, option, **kwargs)
 
     @fallback_option
     def getint(self, *args, **kwargs):
-        return configparser.SafeConfigParser.getint(self, *args, **kwargs)
+        return super().getint(*args, **kwargs)
 
     @fallback_option
     def getfloat(self, *args, **kwargs):
-        return configparser.SafeConfigParser.getfloat(self, *args, **kwargs)
+        return super().getfloat(*args, **kwargs)
 
     @fallback_option
     def getboolean(self, *args, **kwargs):
-        return configparser.SafeConfigParser.getboolean(self, *args, **kwargs)
+        return super().getboolean(*args, **kwargs)
 
     @fallback_option
     def getiboolean(self, *args, **kwargs):

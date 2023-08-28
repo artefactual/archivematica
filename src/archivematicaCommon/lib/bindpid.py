@@ -526,7 +526,7 @@ def _parse_config(args):
     if not os.path.isfile(cf):
         print(f"Warning: there is no config file at {cf}")
         return {}
-    config = configparser.SafeConfigParser()
+    config = configparser.RawConfigParser()
     with open(cf) as filei:
         try:
             config.read_file(filei)

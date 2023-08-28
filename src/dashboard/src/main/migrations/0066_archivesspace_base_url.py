@@ -2,6 +2,7 @@
 
 ``host`` and `port`` are replaced by ``base_url``.
 """
+import sys
 from urllib.parse import urlparse
 
 from django.db import migrations
@@ -58,12 +59,17 @@ def _get_host_and_port(base_url):
     base_url = base_url or ""
     host, port = "", ""
     try:
-        base_url = urlparse(base_url)
+        parsed = urlparse(base_url)
     except AttributeError:
         return host, port
-    host = base_url.netloc
+    host = parsed.netloc
     if not host:
-        host = base_url.path
+        # In some cases Python3.9+ may parse the host as the scheme.
+        # See https://bugs.python.org/issue27657
+        if sys.version_info >= (3, 9) and base_url.partition(":")[0] == parsed.scheme:
+            host = f"{parsed.scheme}:{parsed.path}"
+        else:
+            host = parsed.path
     parts = host.partition(":")
     if parts[1] == ":":
         host, port = parts[0], parts[2]

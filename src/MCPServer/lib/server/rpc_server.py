@@ -148,8 +148,8 @@ class RPCServer(GearmanWorker):
             config = match.group("config")
         except IndexError:
             raise err
-        parser = configparser.SafeConfigParser({"name": None, "raise_exc": False})
-        parser.readfp(StringIO(config))
+        parser = configparser.RawConfigParser({"name": None, "raise_exc": False})
+        parser.read_file(StringIO(config))
         name = parser.get("config", "name")
         if name is None:
             raise ValueError(
@@ -159,7 +159,7 @@ class RPCServer(GearmanWorker):
             name,
             {
                 "raise_exc": parser.getboolean("config", "raise_exc"),
-                "expect_payload": "payload" in inspect.getargspec(handler).args,
+                "expect_payload": "payload" in inspect.getfullargspec(handler).args,
             },
         )
 
