@@ -35,6 +35,7 @@ from uuid import uuid4
 import django
 import lxml.etree as etree
 import metsrw
+import multiprocessing
 
 django.setup()
 # dashboard
@@ -1934,22 +1935,32 @@ def call(jobs):
         default=False,
     )
 
-    for job in jobs:
-        with job.JobContext(logger=logger):
-            opts, _ = parser.parse_args(job.args[1:])
-            sipType = opts.sip_type
-            baseDirectoryPath = opts.baseDirectoryPath
-            XMLFile = opts.xmlFile
-            sipUUID = opts.sipUUID
-            includeAmdSec = opts.amdSec
-            createNormativeStructmap = opts.createNormativeStructmap
+    processes = []
 
-            main(
-                job,
-                sipType,
-                baseDirectoryPath,
-                XMLFile,
-                sipUUID,
-                includeAmdSec,
-                createNormativeStructmap,
-            )
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                opts, _ = parser.parse_args(job.args[1:])
+                sipType = opts.sip_type
+                baseDirectoryPath = opts.baseDirectoryPath
+                XMLFile = opts.xmlFile
+                sipUUID = opts.sipUUID
+                includeAmdSec = opts.amdSec
+                createNormativeStructmap = opts.createNormativeStructmap
+
+                process_args = (
+                    job,
+                    sipType,
+                    baseDirectoryPath,
+                    XMLFile,
+                    sipUUID,
+                    includeAmdSec,
+                    createNormativeStructmap,
+                )
+
+                process = multiprocessing.Process(target=main, args=process_args)
+                processes.append(process)
+                process.start()
+    finally:
+        for process in processes:
+            process.join()

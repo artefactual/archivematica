@@ -25,6 +25,7 @@ from pprint import pformat
 from uuid import uuid4
 
 import django
+import multiprocessing
 
 # storageService requires Django to be set up
 
@@ -344,6 +345,18 @@ def get_agents_from_db(uuid):
     return agents
 
 
+def store_aip_in_transaction(
+    job, aip_destination_uri, aip_filename, sip_uuid, sip_name, sip_type
+):
+    try:
+        with transaction.atomic():
+            store_aip(
+                job, aip_destination_uri, aip_filename, sip_uuid, sip_name, sip_type
+            )
+    except Exception as e:
+        logger.warning("Exception in store_aip_in_transaction: %s", str(e))
+
+
 def call(jobs):
     parser = argparse.ArgumentParser(description="Create AIP pointer file.")
     parser.add_argument("aip_destination_uri", type=str, help="%AIPsStore%")
@@ -352,17 +365,26 @@ def call(jobs):
     parser.add_argument("sip_name", type=str, help="%SIPName%")
     parser.add_argument("sip_type", type=str, help="%SIPType%")
 
-    with transaction.atomic():
+    processes = []
+
+    try:
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
-                job.set_status(
-                    store_aip(
-                        job,
-                        args.aip_destination_uri,
-                        args.aip_filename,
-                        args.sip_uuid,
-                        args.sip_name,
-                        args.sip_type,
-                    )
+                process_args = (
+                    job,
+                    args.aip_destination_uri,
+                    args.aip_filename,
+                    args.sip_uuid,
+                    args.sip_name,
+                    args.sip_type,
                 )
+
+                process = multiprocessing.Process(
+                    target=store_aip_in_transaction, args=process_args
+                )
+                processes.append(process)
+                process.start()
+    finally:
+        for process in processes:
+            process.join()

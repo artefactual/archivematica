@@ -9,6 +9,7 @@ import django
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.db import transaction
+import multiprocessing
 
 # archivematicaCommon
 from archivematicaFunctions import get_setting
@@ -252,8 +253,28 @@ def verify_aip(job):
     return return_code
 
 
+def verify_aip_and_set_status_in_transaction(job):
+    try:
+        with transaction.atomic():
+            result = verify_aip(job)
+            job.set_status(result)
+    except Exception as e:
+        logger.error(
+            "Excepción en verify_aip_and_set_status_in_transaction: %s", str(e)
+        )
+
+
 def call(jobs):
-    with transaction.atomic():
+    processes = []
+
+    try:
         for job in jobs:
             with job.JobContext():
-                job.set_status(verify_aip(job))
+                process = multiprocessing.Process(
+                    target=verify_aip_and_set_status_in_transaction, args=(job,)
+                )
+                processes.append(process)
+                process.start()
+    finally:
+        for process in processes:
+            process.join()

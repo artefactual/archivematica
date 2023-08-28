@@ -29,6 +29,7 @@ from lxml import etree
 
 django.setup()
 import metsrw
+import multiprocessing
 
 # archivematicaCommon
 from archivematicaFunctions import get_dashboard_uuid, escape
@@ -550,7 +551,6 @@ def get_premis_other_rights_information(rights):
 def get_premis_rights_granted(rights):
     rights_granted_info = ()
     for rights_granted in rights.rightsstatementrightsgranted_set.all():
-
         start_date = clean_date(rights_granted.startdate)
         if rights_granted.enddateopen:
             end_date = "OPEN"
@@ -818,9 +818,21 @@ def call(jobs):
     parser.add_argument("-S", "--sipUUID", dest="sip_uuid")
     parser.add_argument("-x", "--xmlFile", dest="xml_file")
 
-    for job in jobs:
-        with job.JobContext(logger=logger):
-            args = parser.parse_args(job.args[1:])
-            write_mets(
-                args.xml_file, args.base_path, args.base_path_string, args.sip_uuid
-            )
+    processes = []
+
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                args = parser.parse_args(job.args[1:])
+                process_args = (
+                    args.xml_file,
+                    args.base_path,
+                    args.base_path_string,
+                    args.sip_uuid,
+                )
+                process = multiprocessing.Process(target=write_mets, args=process_args)
+                processes.append(process)
+                process.start()
+    finally:
+        for process in processes:
+            process.join()

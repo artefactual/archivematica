@@ -2,6 +2,7 @@
 import os
 import sys
 import traceback
+import multiprocessing
 from glob import glob
 
 import django
@@ -115,17 +116,28 @@ def filter_status_code(status_code):
         status_code = 179
     return status_code
 
+def call_index_aip(job):
+    try:
+        with job.JobContext(logger=logger):
+            status_code = index_aip(job)
+            job.set_status(filter_status_code(status_code))
+    except Exception as err:
+        # We want to capture any exception so ``filter_status_code``
+        # makes the last call on what is the status returned.
+        status_code = 1
+        job.print_error(repr(err))
+        job.print_error(traceback.format_exc())
+        job.set_status(filter_status_code(status_code))
 
 def call(jobs):
-    for job in jobs:
-        with job.JobContext(logger=logger):
-            try:
-                status_code = index_aip(job)
-            except Exception as err:
-                # We want to capture any exception so ``filter_status_code``
-                # makes the last call on what is the status returned.
-                status_code = 1
-                job.print_error(repr(err))
-                job.print_error(traceback.format_exc())
+    processes = []
 
-            job.set_status(filter_status_code(status_code))
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                process = multiprocessing.Process(target=call_index_aip, args=(job,))
+                processes.append(process)
+                process.start()
+    finally:
+        for process in processes:
+            process.join()
