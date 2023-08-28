@@ -9,10 +9,11 @@ clamd
 django-autoslug
 django-csp
 django-forms-bootstrap
-django-prometheus>=2.2,<2.3
+django-prometheus>=2.2,<2.3; python_version == "3.6"
+django-prometheus
 django-tastypie
 elasticsearch>=6.0.0,<7.0.0
-gearman3
+git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797#egg=gearman3
 gevent
 gunicorn
 importlib-metadata
@@ -27,9 +28,11 @@ pip
 pip-tools
 prometheus_client
 python-dateutil
-requests~=2.27
+requests~=2.27; python_version == "3.6"
+requests
 unidecode
-whitenoise>=5.3.0,<6.0
+whitenoise>=5.3.0,<6.0; python_version == "3.6"
+whitenoise
 
 # Required by LDAP authentication
 django-auth-ldap
@@ -39,4 +42,5 @@ python-ldap
 django-cas-ng
 
 # Required for OpenID Connect authentication
-mozilla-django-oidc~=2.0
+mozilla-django-oidc~=2.0; python_version == "3.6"
+mozilla-django-oidc
