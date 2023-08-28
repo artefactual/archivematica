@@ -11,6 +11,7 @@ SRCDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../src)
 
 NULL :=
 SPACE := $(NULL) $(NULL)
+COMMA := ,
 
 define compose_all
 	docker compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml -f docker-compose.pmm.yml $(1)
@@ -34,7 +35,7 @@ define run_toxenvs
 			--rm \
 			--entrypoint tox \
 				archivematica-tests \
-					$(subst $(SPACE), -e ,$(SPACE)$(1)) \
+					-e $(subst $(SPACE),$(COMMA),$(strip $(1))) \
 					${TOXARGS})
 endef
 
