@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import threading
 import traceback
 from glob import glob
 
@@ -116,16 +117,29 @@ def filter_status_code(status_code):
     return status_code
 
 
-def call(jobs):
-    for job in jobs:
+def call_index_aip(job):
+    try:
         with job.JobContext(logger=logger):
-            try:
-                status_code = index_aip(job)
-            except Exception as err:
-                # We want to capture any exception so ``filter_status_code``
-                # makes the last call on what is the status returned.
-                status_code = 1
-                job.print_error(repr(err))
-                job.print_error(traceback.format_exc())
-
+            status_code = index_aip(job)
             job.set_status(filter_status_code(status_code))
+    except Exception as err:
+        # We want to capture any exception so ``filter_status_code``
+        # makes the last call on what is the status returned.
+        status_code = 1
+        job.print_error(repr(err))
+        job.print_error(traceback.format_exc())
+        job.set_status(filter_status_code(status_code))
+
+
+def call(jobs):
+    threads = []
+
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                thread = threading.Thread(target=call_index_aip, args=(job,))
+                threads.append(thread)
+                thread.start()
+    finally:
+        for thread in threads:
+            thread.join()

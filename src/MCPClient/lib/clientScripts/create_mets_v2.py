@@ -25,6 +25,7 @@ import os
 import pprint
 import re
 import sys
+import threading
 import traceback
 from datetime import datetime
 from glob import glob
@@ -1934,22 +1935,32 @@ def call(jobs):
         default=False,
     )
 
-    for job in jobs:
-        with job.JobContext(logger=logger):
-            opts, _ = parser.parse_args(job.args[1:])
-            sipType = opts.sip_type
-            baseDirectoryPath = opts.baseDirectoryPath
-            XMLFile = opts.xmlFile
-            sipUUID = opts.sipUUID
-            includeAmdSec = opts.amdSec
-            createNormativeStructmap = opts.createNormativeStructmap
+    threads = []
 
-            main(
-                job,
-                sipType,
-                baseDirectoryPath,
-                XMLFile,
-                sipUUID,
-                includeAmdSec,
-                createNormativeStructmap,
-            )
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                opts, _ = parser.parse_args(job.args[1:])
+                sipType = opts.sip_type
+                baseDirectoryPath = opts.baseDirectoryPath
+                XMLFile = opts.xmlFile
+                sipUUID = opts.sipUUID
+                includeAmdSec = opts.amdSec
+                createNormativeStructmap = opts.createNormativeStructmap
+
+                thread_args = (
+                    job,
+                    sipType,
+                    baseDirectoryPath,
+                    XMLFile,
+                    sipUUID,
+                    includeAmdSec,
+                    createNormativeStructmap,
+                )
+
+                thread = threading.Thread(target=main, args=thread_args)
+                threads.append(thread)
+                thread.start()
+    finally:
+        for thread in threads:
+            thread.join()

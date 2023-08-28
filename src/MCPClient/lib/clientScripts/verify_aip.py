@@ -2,6 +2,7 @@
 import os
 import shutil
 import sys
+import threading
 from pprint import pformat
 
 import django
@@ -252,8 +253,28 @@ def verify_aip(job):
     return return_code
 
 
+def verify_aip_and_set_status_in_transaction(job):
+    try:
+        with transaction.atomic():
+            result = verify_aip(job)
+            job.set_status(result)
+    except Exception as e:
+        logger.error(
+            "Excepción en verify_aip_and_set_status_in_transaction: %s", str(e)
+        )
+
+
 def call(jobs):
-    with transaction.atomic():
+    threads = []
+
+    try:
         for job in jobs:
             with job.JobContext():
-                job.set_status(verify_aip(job))
+                thread = threading.Thread(
+                    target=verify_aip_and_set_status_in_transaction, args=(job,)
+                )
+                threads.append(thread)
+                thread.start()
+    finally:
+        for thread in threads:
+            thread.join()

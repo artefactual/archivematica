@@ -21,6 +21,7 @@
 import argparse
 import logging
 import os
+import threading
 import uuid
 
 import django
@@ -550,7 +551,6 @@ def get_premis_other_rights_information(rights):
 def get_premis_rights_granted(rights):
     rights_granted_info = ()
     for rights_granted in rights.rightsstatementrightsgranted_set.all():
-
         start_date = clean_date(rights_granted.startdate)
         if rights_granted.enddateopen:
             end_date = "OPEN"
@@ -818,9 +818,21 @@ def call(jobs):
     parser.add_argument("-S", "--sipUUID", dest="sip_uuid")
     parser.add_argument("-x", "--xmlFile", dest="xml_file")
 
-    for job in jobs:
-        with job.JobContext(logger=logger):
-            args = parser.parse_args(job.args[1:])
-            write_mets(
-                args.xml_file, args.base_path, args.base_path_string, args.sip_uuid
-            )
+    threads = []
+
+    try:
+        for job in jobs:
+            with job.JobContext(logger=logger):
+                args = parser.parse_args(job.args[1:])
+                thread_args = (
+                    args.xml_file,
+                    args.base_path,
+                    args.base_path_string,
+                    args.sip_uuid,
+                )
+                thread = threading.Thread(target=write_mets, args=thread_args)
+                threads.append(thread)
+                thread.start()
+    finally:
+        for thread in threads:
+            thread.join()
