@@ -78,6 +78,11 @@ JHOVE_VALIDATION_RULES = (
     "fdd758b0-99a6-4447-b082-3a1098f13bf6",
     "ff989185-1b11-4f96-8075-e605e4cf4be4",
     "ffa25cf6-c1a5-45f2-9bee-798aa04df172",
+    "5df96ec2-b5a3-48b5-8599-3f292ff525c1",
+    "cc464095-02b3-471b-8f1d-221aecf37741",
+    "27c0dabc-fda4-4060-ab77-ce6e86f424c8",
+    "886eeaba-55b3-4ed9-9441-59aa1454ecdc",
+    "7497c57b-ee7a-420f-b197-e1752a0f071f",
 )
 
 NEW_JHOVE_VALIDATION_CMD = r"""
