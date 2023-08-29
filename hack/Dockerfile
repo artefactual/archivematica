@@ -1,6 +1,6 @@
 ARG TARGET=archivematica-mcp-server
 
-FROM ubuntu:18.04 AS base
+FROM ubuntu:22.04 AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -47,14 +47,14 @@ COPY src/MCPServer/osdeps /src/src/MCPServer/osdeps
 COPY src/MCPClient/osdeps /src/src/MCPClient/osdeps
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
-	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.14.x/ubuntu-externals bionic main" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-security universe" \
-	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse" \
+	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.15.x/ubuntu-externals jammy main" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy multiverse" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy-security universe" \
+	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy-updates multiverse" \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		libyaml-dev clamav \
-	&& /src/hack/osdeps.py Ubuntu-18 1 | grep -v -E "nginx|postfix" | xargs apt-get install -y --no-install-recommends \
+	&& /src/hack/osdeps.py Ubuntu-22 1 | grep -v -E "nginx|postfix|python3.6-dev" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
