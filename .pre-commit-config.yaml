@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v4.4.0
   hooks:
   - id: pretty-format-json
     args: [--no-ensure-ascii, --autofix]
@@ -10,28 +10,28 @@ repos:
         src/(MCPClient/MCPServer|dashboard)/osdeps/.*\.json
       )
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.31.0
+  rev: v3.10.1
   hooks:
   - id: pyupgrade
-    args: [--py3-plus, --py36-plus]
+    args: [--py38-plus]
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v2.6.0
+  rev: v3.10.0
   hooks:
   - id: reorder-python-imports
-    args: [--py3-plus, --py36-plus]
+    args: [--py38-plus]
 - repo: https://github.com/adamchainz/django-upgrade
-  rev: "1.14.0"
+  rev: "1.14.1"
   hooks:
   - id: django-upgrade
     args: [--target-version, "3.2"]
-- repo: https://github.com/ambv/black
-  rev: 22.8.0
+- repo: https://github.com/psf/black
+  rev: "23.7.0"
   hooks:
   - id: black
     args: [--safe, --quiet]
     language_version: python3
 - repo: https://github.com/pycqa/flake8
-  rev: 5.0.4
+  rev: "6.1.0"
   hooks:
   - id: flake8
     language_version: python3

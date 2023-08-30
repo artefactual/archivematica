@@ -68,7 +68,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0028_idcommand_unique_enabled")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

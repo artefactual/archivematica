@@ -35,7 +35,7 @@ class Config:
     UNDEFINED_ATTR_MSG = "The following configuration attribute must be defined: %s."
 
     def read_defaults(self, fp):
-        self.config.readfp(fp)
+        self.config.read_file(fp)
 
     def read_files(self, files):
         self.config.read(files)

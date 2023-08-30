@@ -22,7 +22,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0016_update_idtools")]
 
     operations = [migrations.RunPython(data_migration)]

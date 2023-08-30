@@ -11,7 +11,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("administration", "0004_archivesspaceconfig_inherit_notes")]
 
     operations = [migrations.RunPython(data_migration)]

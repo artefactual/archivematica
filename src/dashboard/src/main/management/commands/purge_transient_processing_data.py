@@ -44,7 +44,6 @@ from main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):
-
     help = __doc__
 
     def add_arguments(self, parser):

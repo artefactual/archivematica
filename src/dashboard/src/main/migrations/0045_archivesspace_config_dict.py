@@ -45,7 +45,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0044_update_idtools")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

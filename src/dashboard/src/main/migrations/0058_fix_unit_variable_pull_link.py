@@ -26,7 +26,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0057_7zip_no_compression")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

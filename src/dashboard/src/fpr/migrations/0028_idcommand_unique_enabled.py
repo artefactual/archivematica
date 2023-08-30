@@ -48,7 +48,6 @@ def data_migration_up(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0027_idcommand_tool_disallow_blank")]
 
     operations = [migrations.RunPython(data_migration_up, migrations.RunPython.noop)]

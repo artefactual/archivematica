@@ -29,7 +29,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0030_rights_import")]
 
     operations = [

@@ -49,7 +49,7 @@ def something(
     exitCode = 179
     job.pyprint(SIPDirectory)
     # For every file, & directory Try to find the matching file & directory in the objects directory
-    for (path, dirs, files) in os.walk(accessDirectory):
+    for path, dirs, files in os.walk(accessDirectory):
         for file in files:
             accessPath = os.path.join(path, file)
             objectPath = accessPath.replace(accessDirectory, objectsDirectory, 1)

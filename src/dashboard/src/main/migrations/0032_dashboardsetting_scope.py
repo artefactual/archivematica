@@ -255,7 +255,6 @@ def data_migration_atk_to_dict(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("main", "0031_job_currentstep_choices"),
         ("administration", "0006_use_statement_optional"),

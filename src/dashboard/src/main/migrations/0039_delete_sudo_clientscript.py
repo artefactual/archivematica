@@ -19,7 +19,6 @@ def data_migration(apps, schema_editor):
     )
 
     for mscl in MicroServiceChainLink.objects.filter(currenttask=tc):
-
         # Find the next chain link
         next_mscl = MicroServiceChainLinkExitCode.objects.get(
             microservicechainlink=mscl, exitcode=0
@@ -50,7 +49,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0038_fix_workflow_store_dip")]
 
     operations = [migrations.RunPython(data_migration)]

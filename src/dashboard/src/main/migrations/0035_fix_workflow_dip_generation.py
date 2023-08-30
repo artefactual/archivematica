@@ -22,6 +22,5 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0034_add_readme_to_aips")]
     operations = [migrations.RunPython(data_migration)]

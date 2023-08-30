@@ -25,7 +25,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0055_normalize_thumbnail_mode_selection")]
 
     operations = [

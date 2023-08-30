@@ -85,7 +85,6 @@ def data_migration_down(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0030_update_jhove_command")]
 
     operations = [migrations.RunPython(data_migration_up, data_migration_down)]

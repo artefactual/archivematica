@@ -37,7 +37,6 @@ def load_fixtures(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0002_initial_data")]
 
     operations = [migrations.RunPython(load_fixtures)]

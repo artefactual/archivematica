@@ -37,7 +37,6 @@ SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(
 def get_script_logger(
     name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", level=logging.INFO
 ):
-
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,

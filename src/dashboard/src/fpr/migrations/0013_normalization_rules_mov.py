@@ -51,7 +51,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("fpr", "0012_mediaconch_policy_checks")]
 
     operations = [migrations.RunPython(data_migration)]

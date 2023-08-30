@@ -13,7 +13,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0013_upload_archivesspace_inherit_notes")]
 
     operations = [migrations.RunPython(data_migration)]

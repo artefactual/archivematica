@@ -18,7 +18,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0028_version_number")]
 
     operations = [migrations.RunPython(data_migration)]

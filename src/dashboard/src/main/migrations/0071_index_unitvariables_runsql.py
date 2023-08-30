@@ -21,7 +21,6 @@ def drop_index(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0070_index_jobs")]
 
     # MySQL specific syntax

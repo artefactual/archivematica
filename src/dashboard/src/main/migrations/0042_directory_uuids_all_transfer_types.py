@@ -88,7 +88,6 @@ def data_migration(apps, schema_editor):
     }
 
     for meta in transfer_types.values():
-
         next_chain_link = MicroServiceChainLink.objects.get(
             id=meta["next_chain_link_uuid"]
         )
@@ -154,7 +153,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0041_bind_pids")]
 
     operations = [migrations.RunPython(data_migration)]

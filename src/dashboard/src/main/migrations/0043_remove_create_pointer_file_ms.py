@@ -62,7 +62,6 @@ def data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("main", "0042_directory_uuids_all_transfer_types")]
 
     operations = [migrations.RunPython(data_migration)]
