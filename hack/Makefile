@@ -192,7 +192,7 @@ compile-requirements-am:  ## Run pip-compile for Archivematica
 			-c "make pip-compile"
 
 compile-requirements-ss:  ## Run pip-compile for Storage Service
-	docker compose run --workdir /src/requirements \
+	docker compose run --workdir /src \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
 		--rm \
 		--no-deps \
