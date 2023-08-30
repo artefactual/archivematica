@@ -133,7 +133,7 @@
     }
   ],
   "osdeps_repos": [
-    "deb [arch=amd64] http://packages.archivematica.org/1.14.x/ubuntu-externals focal main",
+    "deb [arch=amd64] http://packages.archivematica.org/1.15.x/ubuntu-externals focal main",
     "deb http://archive.ubuntu.com/ubuntu/ focal multiverse",
     "deb http://archive.ubuntu.com/ubuntu/ focal-security universe",
     "deb http://archive.ubuntu.com/ubuntu/ focal-updates multiverse"
