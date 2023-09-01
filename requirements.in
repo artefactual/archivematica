@@ -22,7 +22,6 @@ jsonschema
 lazy-paged-sequence
 lxml
 metsrw
-mysqlclient
 opf-fido
 pip
 pip-tools

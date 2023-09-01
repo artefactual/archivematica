@@ -97,9 +97,7 @@ metsrw==0.4.0
 mozilla-django-oidc==3.0.0
     # via -r requirements.in
 mysqlclient==2.2.0
-    # via
-    #   -r requirements.in
-    #   agentarchives
+    # via agentarchives
 olefile==0.46
     # via opf-fido
 opf-fido==1.6.1

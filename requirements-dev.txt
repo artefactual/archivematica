@@ -198,7 +198,7 @@ pyopenssl==23.2.0
     # via
     #   -r requirements.txt
     #   josepy
-pyproject-api==1.5.4
+pyproject-api==1.6.1
     # via tox
 pyproject-hooks==1.0.0
     # via
@@ -281,7 +281,7 @@ tomli==2.0.1
     #   pyproject-hooks
     #   pytest
     #   tox
-tox==4.10.0
+tox==4.11.0
     # via -r requirements-dev.in
 typing-extensions==4.7.1
     # via
@@ -299,7 +299,7 @@ urllib3==1.26.16
     #   vcrpy
 vcrpy==5.1.0
     # via -r requirements-dev.in
-virtualenv==20.24.3
+virtualenv==20.24.4
     # via tox
 wheel==0.41.2
     # via
