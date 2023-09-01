@@ -25,7 +25,6 @@ import sys
 import uuid
 from pathlib import Path
 
-import MySQLdb
 from archivematicaFunctions import get_file_checksum
 from archivematicaFunctions import get_setting
 from databaseFunctions import insertIntoEvents
@@ -120,9 +119,7 @@ def addFileToTransfer(
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
-        eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(
-            transfer.accessionid
-        ).decode("utf-8")
+        eventOutcomeDetailNote = f"accession#{transfer.accessionid}"
         insertIntoEvents(
             fileUUID=fileUUID,
             eventType="registration",
