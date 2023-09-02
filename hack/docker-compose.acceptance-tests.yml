@@ -6,7 +6,7 @@ services:
       context: "./submodules/archivematica-acceptance-tests"
       dockerfile: "Dockerfile"
     security_opt:
-      - "seccomp:./etc/docker/seccomp/chrome.json"
+      - "seccomp:unconfined"
     volumes:
       - "/dev/shm:/dev/shm"
       - "./submodules/archivematica-acceptance-tests:/home/archivematica/acceptance-tests:rw"
