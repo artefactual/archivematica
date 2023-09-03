@@ -5,11 +5,15 @@ services:
     build:
       context: "./submodules/archivematica-acceptance-tests"
       dockerfile: "Dockerfile"
+      args:
+        TARGET: "archivematica-acceptance-tests"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     security_opt:
       - "seccomp:unconfined"
     volumes:
       - "/dev/shm:/dev/shm"
-      - "./submodules/archivematica-acceptance-tests:/home/archivematica/acceptance-tests:rw"
       - "./submodules/archivematica-sampledata:/home/archivematica/archivematica-sampledata:ro"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
     links:
