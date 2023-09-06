@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class FprAppConfig(AppConfig):
+class FPRAppConfig(AppConfig):
     default_auto_field = "django.db.models.AutoField"
     name = "fpr"
