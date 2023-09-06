@@ -75,6 +75,7 @@ services:
 
   fits:
     image: "artefactual/fits-ngserver:0.8.4"
+    user: ${USER_ID:-1000}
     ports:
       - "127.0.0.1:62005:2113"
     volumes:
