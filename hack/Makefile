@@ -320,7 +320,7 @@ TAGS ?= black-box
 BROWSER ?= Firefox
 test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-behave TAGS=black-box BROWSER=Firefox`.
 	$(call compose_amauat, \
-		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests /usr/local/bin/behave \
+		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
 			--no-capture --no-capture-stderr --no-logcapture \
 			$(subst $(SPACE), --tags=,$(SPACE)$(TAGS)) --no-skipped -v --stop \
 			-D driver_name=$(BROWSER) \
