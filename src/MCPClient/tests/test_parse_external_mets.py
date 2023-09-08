@@ -3,7 +3,7 @@ import shutil
 
 import parse_external_mets
 import pytest
-from job import Job
+from client.job import Job
 from main import models
 
 

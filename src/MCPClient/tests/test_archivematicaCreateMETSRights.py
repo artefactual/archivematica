@@ -2,8 +2,8 @@ import uuid
 
 import archivematicaCreateMETSRights
 import pytest
+from client.job import Job
 from create_mets_v2 import MetsState
-from job import Job
 from main import models
 from namespaces import NSMAP
 

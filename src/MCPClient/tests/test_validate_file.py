@@ -1,11 +1,11 @@
 import pytest
+from client.job import Job
 from fpr.models import Format
 from fpr.models import FormatGroup
 from fpr.models import FormatVersion
 from fpr.models import FPCommand
 from fpr.models import FPRule
 from fpr.models import FPTool
-from job import Job
 from main.models import Event
 from main.models import File
 from main.models import FileFormatVersion

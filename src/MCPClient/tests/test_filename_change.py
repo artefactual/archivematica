@@ -3,8 +3,8 @@ import shutil
 import uuid
 
 import pytest
+from client.job import Job
 from django.test import TestCase
-from job import Job
 from main.models import Directory
 from main.models import Event
 from main.models import File

@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 from assign_file_uuids import call
-from job import Job
+from client.job import Job
 from main import models
 
 

@@ -18,7 +18,7 @@
 import os
 import sys
 
-import metrics
+from client import metrics
 
 
 REQUIRED_DIRECTORIES = (

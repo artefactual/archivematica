@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 import restructure_dip_for_content_dm_upload
-from job import Job
+from client.job import Job
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

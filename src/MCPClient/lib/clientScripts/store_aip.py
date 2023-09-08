@@ -36,7 +36,7 @@ from custom_handlers import get_script_logger
 import storageService as storage_service
 from archivematicaFunctions import escape
 
-import metrics
+from client import metrics
 from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")

@@ -8,7 +8,7 @@ django.setup()
 # dashboard
 from main.models import Transfer
 
-import metrics
+from client import metrics
 
 
 def fetch_set(sip_uuid):

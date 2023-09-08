@@ -1,7 +1,7 @@
 import check_for_access_directory
 import pytest
+from client.job import Job
 from django.utils import timezone
-from job import Job
 from main.models import Event
 from main.models import File
 from main.models import SIP

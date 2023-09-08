@@ -5,11 +5,11 @@ import abc
 import ast
 import logging
 
+from dbconns import auto_close_old_connections
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from main import models
 from server import metrics
-from server.db import auto_close_old_connections
 from server.jobs.base import Job
 from server.tasks import get_task_backend
 from server.tasks import Task

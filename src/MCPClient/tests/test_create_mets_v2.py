@@ -2,9 +2,9 @@ import uuid
 from contextlib import ExitStack as does_not_raise
 
 import pytest
+from client.job import Job
 from create_mets_v2 import createDMDIDsFromCSVMetadata
 from create_mets_v2 import main
-from job import Job
 from lxml import etree
 from main.models import DublinCore
 from main.models import Event

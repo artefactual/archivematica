@@ -21,8 +21,11 @@ from dis import HAVE_ARGUMENT
 from dis import opmap
 
 import django
+
+django.setup()
+
 import prometheus_client
-from archivematicaClient import get_supported_modules
+from client.loader import get_supported_modules
 
 
 # These are the global types that should not be potentially dangerous to use.
@@ -32,7 +35,6 @@ from archivematicaClient import get_supported_modules
 GOOD_GLOBAL_TYPES = (
     types.ModuleType,
     types.FunctionType,
-    django.db.models.base.ModelBase,
     logging.Logger,
     int,
     str,

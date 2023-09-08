@@ -24,7 +24,7 @@ debugging their preservation workflow.
 import subprocess
 
 import pytest
-from job import Job
+from client.job import Job
 from main.models import Event
 from main.models import File
 from main.models import Transfer

@@ -18,6 +18,7 @@ from io import StringIO
 from socket import gethostname
 
 import gearman
+from dbconns import auto_close_old_connections
 from django.conf import settings as django_settings
 from django.db import connection
 from gearman import GearmanWorker
@@ -25,7 +26,6 @@ from lxml import etree
 from main.models import Job
 from main.models import SIP
 from main.models import Transfer
-from server.db import auto_close_old_connections
 from server.packages import create_package
 from server.packages import get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields

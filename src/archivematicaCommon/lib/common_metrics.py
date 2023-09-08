@@ -64,14 +64,6 @@ PACKAGE_SIZE_BUCKETS = (
 )
 
 
-db_retry_time_counter = Counter(
-    "common_db_retry_time_seconds",
-    (
-        "Total time waiting to retry database transactions in seconds, labeled "
-        "by operation description"
-    ),
-    ["description"],
-)
 ss_api_time_counter = Counter(
     "common_ss_api_request_duration_seconds",
     (
@@ -80,16 +72,6 @@ ss_api_time_counter = Counter(
     ),
     ["function"],
 )
-
-
-@contextmanager
-def db_retry_timer(*args, **kwargs):
-    start_time = time.time()
-    try:
-        yield
-    finally:
-        duration = time.time() - start_time
-        db_retry_time_counter.labels(**kwargs).inc(duration)
 
 
 @contextmanager
