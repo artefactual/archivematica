@@ -94,13 +94,7 @@ RUN set -ex \
 	&& pyenv exec python${PYTHON_VERSION} -m pip install --requirement /src/requirements-dev.txt \
 	&& pyenv rehash
 
-COPY . /src
-
-# Allow Django's compilemessages to write *.mo files to the messages subdirectories.
-USER root
-RUN set -ex \
-	&& find /src/src/dashboard/src/locale -type d -name 'LC_MESSAGES' -exec chown archivematica:archivematica '{}' \;
-USER archivematica
+COPY --chown=${USER_ID}:${GROUP_ID} . /src
 
 # -----------------------------------------------------------------------------
 
