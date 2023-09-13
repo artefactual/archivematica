@@ -25,11 +25,7 @@ import subprocess
 import sys
 import uuid
 
-# https://stackoverflow.com/a/36321030
-try:
-    file_types = (file, io.IOBase)
-except NameError:
-    file_types = (io.IOBase,)
+file_types = (io.IOBase,)
 
 
 def launchSubProcess(

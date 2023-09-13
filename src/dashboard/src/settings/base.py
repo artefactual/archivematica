@@ -19,6 +19,9 @@ import json
 import logging.config
 import os
 from io import StringIO
+from typing import Any
+from typing import Dict
+from typing import List
 
 import email_settings
 from appconfig import Config
@@ -350,7 +353,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-TEMPLATES = [
+TEMPLATES: List[Dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(BASE_PATH, "templates")],
@@ -474,7 +477,7 @@ LOGGING = {
 
 if os.path.isfile(LOGGING_CONFIG_FILE):
     with open(LOGGING_CONFIG_FILE) as f:
-        LOGGING = logging.config.dictConfig(json.load(f))
+        logging.config.dictConfig(json.load(f))
 else:
     logging.config.dictConfig(LOGGING)
 

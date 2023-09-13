@@ -20,11 +20,13 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
+from typing import Any
+from typing import Dict
 
 import namespaces as ns
 from lxml import etree
 
-VERSION_MAP = {
+VERSION_MAP: Dict[Any, Any] = {
     # Only change exit code if AIP format changes. If unknown, default to latest
     # version. Currently, all AIPs are the same format so no special cases
     # required.

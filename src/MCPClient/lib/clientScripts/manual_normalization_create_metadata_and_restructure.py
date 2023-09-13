@@ -62,7 +62,11 @@ def main(job):
             filegrpuse="original",
             sip_id=SIPUUID,
         )
-    except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError) as e:
+    except (
+        File.DoesNotExist,
+        File.MultipleObjectsReturned,
+        ValidationError,
+    ) as error:
         # Original file was not found, or there is more than one original file with
         # the same filename (differing extensions)
         # Look for a CSV that will specify the mapping
@@ -85,7 +89,7 @@ def main(job):
                 printfn=job.pyprint,
             )
             if original is None:
-                if isinstance(e, File.DoesNotExist, ValidationError):
+                if isinstance(error, File.DoesNotExist, ValidationError):
                     job.print_error(
                         "No matching file for: {}".format(
                             filePath.replace(SIPDirectory, "%SIPDirectory%")
@@ -107,13 +111,13 @@ def main(job):
                 sip_id=SIPUUID,
             )
         else:
-            if isinstance(e, File.DoesNotExist, ValidationError):
+            if isinstance(error, File.DoesNotExist, ValidationError):
                 job.print_error(
                     "No matching file for: ",
                     filePath.replace(SIPDirectory, "%SIPDirectory%", 1),
                 )
                 return 3
-            elif isinstance(e, File.MultipleObjectsReturned):
+            elif isinstance(error, File.MultipleObjectsReturned):
                 job.print_error(
                     "Too many possible files for: ",
                     filePath.replace(SIPDirectory, "%SIPDirectory%", 1),

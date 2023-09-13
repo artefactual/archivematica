@@ -145,8 +145,8 @@ if __name__ == "__main__":
     import sys
     import marshal
 
-    (item_depth,) = sys.argv[1:]
-    item_depth = int(item_depth)
+    (item_depth_value,) = sys.argv[1:]
+    item_depth = int(item_depth_value)
 
     def handle_item(item_type, item):
         marshal.dump((item_type, item), sys.stdout)

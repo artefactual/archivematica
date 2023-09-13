@@ -40,3 +40,10 @@ repos:
   hooks:
   - id: mypy
     additional_dependencies: [types-all]
+    exclude: |
+      (?x)^(
+        src/dashboard/install/dashboard.gunicorn-config\.py |
+        src/dashboard/frontend/tools/extract_features\.py |
+        src/dashboard/src/fpr/migrations-data/mc_validate_cmd\.py |
+        src/MCPClient/lib/ensure_no_mutable_globals\.py
+      )

@@ -20,6 +20,7 @@ import logging
 import threading
 import traceback
 from contextlib import ContextDecorator
+from typing import Any
 
 from django.conf import settings
 from django.db import close_old_connections
@@ -84,6 +85,7 @@ class CheckCloseConnectionsHandler(logging.Handler):
             )
 
 
+auto_close_old_connections: Any = None
 if settings.DEBUG:
     logger.debug("Using DEBUG auto_close_old_connections")
     auto_close_old_connections = DebugAutoCloseOldConnections

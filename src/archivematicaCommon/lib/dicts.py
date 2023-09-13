@@ -20,6 +20,8 @@
 import ast
 import os
 import re
+from typing import Any
+from typing import Dict
 
 from main import models
 
@@ -47,7 +49,7 @@ def replace_string_values(string, **kwargs):
     return rd.replace(string)[0]
 
 
-class ReplacementDict(dict):
+class ReplacementDict(Dict[Any, Any]):
     @staticmethod
     def fromstring(s):
         """
