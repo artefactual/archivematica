@@ -26,7 +26,7 @@ from django.utils.deprecation import MiddlewareMixin
 EXEMPT_URLS = None
 
 
-def _load_exempt_urls():
+def _load_exempt_urls() -> None:
     global EXEMPT_URLS
     EXEMPT_URLS = [re_compile("{}$".format(settings.LOGIN_URL.lstrip("/")))]
     if hasattr(settings, "LOGIN_EXEMPT_URLS"):

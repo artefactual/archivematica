@@ -20,11 +20,17 @@
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
 # @author Justin Simpson <jsimpson@artefactual.com>
+from typing import Any
+from typing import Dict
+from typing import List
+
 from components import helpers
 from django.db import connection
 
 
-def getNormalizationReportQuery(sipUUID, idsRestriction=""):
+def getNormalizationReportQuery(
+    sipUUID: str, idsRestriction: str = ""
+) -> List[Dict[Any, Any]]:
     if idsRestriction:
         idsRestriction = "AND (%s)" % idsRestriction
 
@@ -150,7 +156,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     """
 
     cursor.execute(sql, (sipUUID, sipUUID))
-    objects = helpers.dictfetchall(cursor)
+    objects: List[Dict[Any, Any]] = helpers.dictfetchall(cursor)
     return objects
 
 

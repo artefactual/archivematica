@@ -21,6 +21,9 @@ import re
 import shutil
 import uuid
 from cgi import parse_header
+from typing import Any
+from typing import Callable
+from typing import Iterable
 
 import archivematicaFunctions
 import django.http
@@ -31,6 +34,7 @@ from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from main import models
 from processing import install_builtin_config
@@ -57,7 +61,7 @@ JOB_STATUS_CODE_LABELS = {
 }
 
 
-def _api_endpoint(expected_methods):
+def _api_endpoint(expected_methods: Iterable[str]) -> Callable[[Any], HttpResponse]:
     """
     Decorator for authenticated API calls that handles boilerplate code.
 

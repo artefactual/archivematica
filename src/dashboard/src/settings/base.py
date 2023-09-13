@@ -30,9 +30,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 
-def _get_settings_from_file(path):
+def _get_settings_from_file(path: str) -> Dict[str, Any]:
     try:
-        result = {}
+        result: Dict[str, Any] = {}
         with open(path, "rb") as f:
             code = compile(f.read(), path, "exec")
             exec(code, result, result)

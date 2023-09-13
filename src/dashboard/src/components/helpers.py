@@ -19,6 +19,9 @@ import logging
 import mimetypes
 import os
 import pprint
+from typing import Any
+from typing import Dict
+from typing import List
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 from wsgiref.util import FileWrapper
@@ -59,7 +62,7 @@ def pr(object):
 # Used for raw SQL queries to return data in dictionaries instead of lists
 
 
-def dictfetchall(cursor):
+def dictfetchall(cursor: Any) -> List[Dict[Any, Any]]:
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
     return [dict(list(zip([col[0] for col in desc], row))) for row in cursor.fetchall()]
