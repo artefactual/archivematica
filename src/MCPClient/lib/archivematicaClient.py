@@ -57,6 +57,8 @@ import pickle
 import time
 from functools import partial
 from socket import gethostname
+from typing import Dict
+from typing import NoReturn
 
 import django
 
@@ -85,13 +87,13 @@ replacement_dict = {
 }
 
 
-def get_supported_modules(file_):
+def get_supported_modules(client_modules_file_path: str) -> Dict[str, str]:
     """Create and return the ``supported_modules`` dict by parsing the MCPClient
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
     supported_modules = {}
     supported_modules_config = configparser.RawConfigParser()
-    supported_modules_config.read(file_)
+    supported_modules_config.read(client_modules_file_path)
     for client_script, module_name in supported_modules_config.items(
         "supportedBatchCommands"
     ):
@@ -264,7 +266,7 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
             return fail_all_tasks(gearman_job, e)
 
 
-def start_gearman_worker(supported_modules):
+def start_gearman_worker(supported_modules: Dict[str, str]) -> NoReturn:
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     host_id = f"{gethostname()}_{os.getpid()}"

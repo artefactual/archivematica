@@ -20,6 +20,8 @@ import logging.config
 import os
 from io import StringIO
 from pathlib import Path
+from typing import Any
+from typing import Dict
 
 import email_settings
 from appconfig import Config
@@ -27,8 +29,10 @@ from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
 
 
-def _get_settings_from_file(path):
+def _get_settings_from_file(path: Path) -> Dict[str, Any]:
     spec = importlib.util.spec_from_file_location(path.stem, path)
+    if spec is None or spec.loader is None:
+        raise ImproperlyConfigured(f"{path} could not be imported")
     module = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(module)
