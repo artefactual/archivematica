@@ -8,31 +8,36 @@ import abc
 import logging
 import os
 import shutil
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
 
 import storageService as storage_service
 from django.conf import settings
 from lxml import etree
 from server.workflow_abilities import choice_is_available
 
-
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 
 
 class ProcessingConfigField(metaclass=abc.ABCMeta):
-    def __init__(self, link_id, name, **kwargs):
+    def __init__(
+        self, link_id: str, name: str, **kwargs: Union[str, List[str]]
+    ) -> None:
         self.link_id = link_id
         self.name = name
         self.options = self.read_config(kwargs)
 
     @abc.abstractmethod
-    def read_config(self, options):
+    def read_config(self, options: Any) -> Any:
         """Implementors must use this method to process additional config."""
 
     @abc.abstractmethod
-    def add_choices(self, workflow, lang):
+    def add_choices(self, workflow: Any, lang: str) -> None:
         """Implementors must use this method to add field choices."""
 
-    def to_dict(self, workflow, lang):
+    def to_dict(self, workflow: Any, lang: str) -> Dict[str, Any]:
         """It generates a dictionary with all the information needed to feed
         a drop-down, including its choices and where they apply in workflow
         which can be more than a single entry.
@@ -41,7 +46,7 @@ class ProcessingConfigField(metaclass=abc.ABCMeta):
         than a single decision point.
         """
         self.link = workflow.get_link(self.link_id)
-        self.choices = []
+        self.choices: List[Any] = []
         self.add_choices(workflow, lang)
         return {
             "id": self.link.id,

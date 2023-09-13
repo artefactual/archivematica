@@ -251,7 +251,7 @@ else:
     logging.config.dictConfig(LOGGING)
 
 
-def concurrent_packages_default():
+def concurrent_packages_default() -> int:
     """Default to 1/2 of CPU count, rounded up."""
     cpu_count = multiprocessing.cpu_count()
     return int(math.ceil(cpu_count / 2))
