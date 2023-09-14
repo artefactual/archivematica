@@ -508,7 +508,7 @@ class TestProcessingConfigurationAPI(TestCase):
         with self.settings(SHARED_DIRECTORY=self.shared_dir):
             response = self.client.get(
                 reverse("api:processing_configuration", args=["default"]),
-                HTTP_ACCEPT="xml",
+                headers={"accept": "xml"},
             )
             assert response.status_code == 200
             assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
@@ -525,7 +525,7 @@ class TestProcessingConfigurationAPI(TestCase):
 
             response = self.client.get(
                 reverse("api:processing_configuration", args=["default"]),
-                HTTP_ACCEPT="xml",
+                headers={"accept": "xml"},
             )
             assert response.status_code == 200
             assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
@@ -536,7 +536,7 @@ class TestProcessingConfigurationAPI(TestCase):
     def test_404_for_non_existent_config(self):
         response = self.client.get(
             reverse("api:processing_configuration", args=["nonexistent"]),
-            HTTP_ACCEPT="xml",
+            headers={"accept": "xml"},
         )
         assert response.status_code == 404
 

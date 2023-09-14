@@ -74,7 +74,7 @@ class TestAuth(TestCase):
 
         for url in self.API_URLS:
             response = self.client.get(
-                url, HTTP_AUTHORIZATION=f"ApiKey test:{key}", follow=False
+                url, headers={"authorization": f"ApiKey test:{key}"}, follow=False
             )
 
             self.assertEqual(response.status_code, 200)

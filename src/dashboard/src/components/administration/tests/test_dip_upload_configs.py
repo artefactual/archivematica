@@ -60,15 +60,23 @@ class TestDipUploadAsConfig(TestCase):
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors)
 
-        self.assertFormError(response, "form", "user", "This field is required.")
-        self.assertFormError(response, "form", "xlink_show", "This field is required.")
         self.assertFormError(
-            response, "form", "xlink_actuate", "This field is required."
+            response.context["form"], "user", "This field is required."
         )
-        self.assertFormError(response, "form", "uri_prefix", "This field is required.")
-        self.assertFormError(response, "form", "repository", "This field is required.")
         self.assertFormError(
-            response, "form", "restrictions", "This field is required."
+            response.context["form"], "xlink_show", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "xlink_actuate", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "uri_prefix", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "repository", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "restrictions", "This field is required."
         )
 
         self.assertIsInstance(config, dict)
@@ -128,8 +136,14 @@ class TestDipUploadAtomConfig(TestCase):
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors)
 
-        self.assertFormError(response, "form", "email", "This field is required.")
-        self.assertFormError(response, "form", "password", "This field is required.")
-        self.assertFormError(response, "form", "version", "This field is required.")
+        self.assertFormError(
+            response.context["form"], "email", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "password", "This field is required."
+        )
+        self.assertFormError(
+            response.context["form"], "version", "This field is required."
+        )
 
         self.assertIsInstance(config, dict)
