@@ -37,7 +37,7 @@ cryptography==41.0.7
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==3.2.23
+django==4.2.5
     # via
     #   -r requirements.in
     #   django-auth-ldap
