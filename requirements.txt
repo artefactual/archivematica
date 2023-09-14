@@ -37,7 +37,7 @@ cryptography==41.0.3
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==3.2.20
+django==4.2.5
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -136,8 +136,6 @@ python-ldap==3.4.3
     #   django-auth-ldap
 python-mimeparse==1.6.0
     # via django-tastypie
-pytz==2023.3
-    # via django
 referencing==0.30.2
     # via
     #   jsonschema

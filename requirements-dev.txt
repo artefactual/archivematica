@@ -63,7 +63,7 @@ cryptography==41.0.3
     #   pyopenssl
 distlib==0.3.7
     # via virtualenv
-django==3.2.20
+django==4.2.5
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -236,10 +236,6 @@ python-mimeparse==1.6.0
     # via
     #   -r requirements.txt
     #   django-tastypie
-pytz==2023.3
-    # via
-    #   -r requirements.txt
-    #   django
 pyyaml==6.0.1
     # via vcrpy
 referencing==0.30.2
