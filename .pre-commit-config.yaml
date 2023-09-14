@@ -42,8 +42,13 @@ repos:
     additional_dependencies: [types-all]
     exclude: |
       (?x)^(
-        src/dashboard/install/dashboard.gunicorn-config\.py |
+        src/archivematicaCommon/lib/externals/extractMaildirAttachments\.py |
+        src/archivematicaCommon/lib/externals/fiwalk_plugins/pronom_ident\.py |
+        src/archivematicaCommon/lib/externals/HTML/HTML\.py |
+        src/archivematicaCommon/lib/externals/maildirToMbox\.py |
+        src/archivematicaCommon/lib/externals/xmltodict\.py |
         src/dashboard/frontend/tools/extract_features\.py |
+        src/dashboard/install/dashboard.gunicorn-config\.py |
         src/dashboard/src/fpr/migrations-data/mc_validate_cmd\.py |
         src/MCPClient/lib/ensure_no_mutable_globals\.py
       )
