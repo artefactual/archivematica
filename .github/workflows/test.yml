@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         rule: ["mcp-server", "mcp-client", "dashboard", "archivematica-common"]
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10","3.11"]
         include:
           - rule: "storage-service"
             python-version: "3.9"
