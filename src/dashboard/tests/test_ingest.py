@@ -80,6 +80,21 @@ class TestIngest(TestCase):
         )
         assert title in response.content.decode("utf8")
 
+    def test_ingest_upload_get(self):
+        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
+        access_target = {"target": "description-slug"}
+        Access.objects.create(
+            sipuuid=sip_uuid,
+            target=pickle.dumps(access_target, protocol=0).decode(),
+        )
+
+        response = self.client.get(
+            reverse("ingest:ingest_upload", args=[sip_uuid]),
+        )
+
+        assert response.status_code == 200
+        assert json.loads(response.content) == access_target
+
     def test_ingest_upload_post(self):
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
         access_target = {"target": "description-slug"}

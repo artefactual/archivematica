@@ -333,7 +333,7 @@ def ingest_upload(request, uuid):
     elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = pickle.loads(str(access.target))
+            data = pickle.loads(access.target.encode())
         except:
             raise Http404
         return helpers.json_response(data)
