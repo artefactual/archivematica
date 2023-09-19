@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
 from main.models import Job
+from main.models import LevelOfDescription
 from main.models import SIP
 from main.models import Task
 from main.models import Transfer
@@ -466,6 +467,23 @@ class TestAPI(TestCase):
         assert payload["time_started"] == "2019-06-18T00:00:00"
         assert payload["time_ended"] == "2019-06-18T00:00:05"
         assert payload["duration"] == 5
+
+    @e2e
+    def test_get_levels_of_description(self):
+        LevelOfDescription.objects.create(name="Item", sortorder=2)
+        LevelOfDescription.objects.create(name="Collection", sortorder=0)
+        LevelOfDescription.objects.create(name="Fonds", sortorder=1)
+        expected = ["Collection", "Fonds", "Item"]
+
+        resp = self.client.get(reverse("api:get_levels_of_description"))
+        payload = json.loads(resp.content.decode("utf8"))
+
+        result = []
+        for level_of_description in payload:
+            name = next(iter(level_of_description.values()))
+            result.append(name)
+
+        assert result == expected
 
 
 class TestProcessingConfigurationAPI(TestCase):
