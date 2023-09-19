@@ -680,7 +680,7 @@ def get_levels_of_description(request):
     each level of description.
     """
     levels = models.LevelOfDescription.objects.all().order_by("sortorder")
-    response = [{level.id: level.name} for level in levels]
+    response = [{str(level.id): level.name} for level in levels]
     return helpers.json_response(response)
 
 
