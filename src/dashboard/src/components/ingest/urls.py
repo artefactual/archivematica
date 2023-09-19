@@ -60,7 +60,11 @@ urlpatterns = [
         name="ingest_metadata_add_files",
     ),
     path("upload/url/check/", views.ingest_upload_destination_url_check),
-    re_path(r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/$", views.ingest_upload),
+    re_path(
+        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/$",
+        views.ingest_upload,
+        name="ingest_upload",
+    ),
     path("status/", views.ingest_status),
     re_path(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.ingest_status),
     re_path(

@@ -324,7 +324,9 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except:
                 access = models.Access(sipuuid=uuid)
-            access.target = pickle.dumps({"target": request.POST["target"]}, protocol=0)
+            access.target = pickle.dumps(
+                {"target": request.POST["target"]}, protocol=0
+            ).decode()
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)
