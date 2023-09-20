@@ -141,7 +141,7 @@ def main(job):
     try:
         if not os.path.isdir(dstDir):
             os.makedirs(dstDir)
-    except:
+    except Exception:
         pass
 
     # Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.

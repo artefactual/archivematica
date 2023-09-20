@@ -254,7 +254,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     createdCopyright = models.RightsStatementCopyright.objects.get(
                         rightsstatement=createdRights
                     )
-                except:
+                except Exception:
                     createdCopyright = models.RightsStatementCopyright(
                         rightsstatement=createdRights
                     )
@@ -280,7 +280,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     createdCopyright = models.RightsStatementCopyright.objects.get(
                         rightsstatement=createdRights
                     )
-                except:
+                except Exception:
                     createdCopyright = models.RightsStatementCopyright(
                         rightsstatement=createdRights
                     )
@@ -324,7 +324,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     createdLicense = models.RightsStatementLicense.objects.get(
                         rightsstatement=createdRights
                     )
-                except:
+                except Exception:
                     createdLicense = models.RightsStatementLicense(
                         rightsstatement=createdRights
                     )
@@ -350,7 +350,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                     createdLicense = models.RightsStatementLicense.objects.get(
                         rightsstatement=createdRights
                     )
-                except:
+                except Exception:
                     createdLicense = models.RightsStatementLicense(
                         rightsstatement=createdRights
                     )
@@ -533,7 +533,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                             rightsstatement=createdRights
                         )
                     )
-                except:
+                except Exception:
                     createdOther = models.RightsStatementOtherRightsInformation(
                         rightsstatement=createdRights
                     )
@@ -561,7 +561,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
                             rightsstatement=createdRights
                         )
                     )
-                except:
+                except Exception:
                     createdOther = models.RightsStatementOtherRightsInformation(
                         rightsstatement=createdRights
                     )
@@ -594,7 +594,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
             url = reverse("rights_%s:edit" % section, args=[uuid, createdRights.pk])
             try:
                 url = url + "?created=" + new_content_type_created
-            except:
+            except Exception:
                 pass
             return redirect(url)
     else:
@@ -751,7 +751,7 @@ def rights_holders_lookup(request, id):
     try:
         agent = models.RightsStatementLinkingAgentIdentifier.objects.get(pk=id)
         result = agent.linkingagentidentifiervalue + " [" + str(agent.id) + "]"
-    except:
+    except Exception:
         result = ""
     return HttpResponse(result)
 

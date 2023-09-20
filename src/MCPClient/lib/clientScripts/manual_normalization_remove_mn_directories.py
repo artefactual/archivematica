@@ -32,7 +32,7 @@ import databaseFunctions
 
 def recursivelyRemoveEmptyDirectories(job, dir):
     error_count = 0
-    for root, dirs, files in os.walk(dir, topdown=False):
+    for root, dirs, _ in os.walk(dir, topdown=False):
         for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))

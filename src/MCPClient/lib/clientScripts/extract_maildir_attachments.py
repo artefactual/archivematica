@@ -46,7 +46,7 @@ class State:
 def writeFile(filePath, fileContents):
     try:
         os.makedirs(os.path.dirname(filePath))
-    except:
+    except Exception:
         pass
     FILE = open(filePath, "w")
     FILE.writelines(fileContents)
@@ -59,9 +59,11 @@ def addFile(
     transferUUID,
     date,
     eventDetail="",
-    fileUUID=uuid.uuid4().__str__(),
+    fileUUID=None,
 ):
-    taskUUID = uuid.uuid4().__str__()
+    if fileUUID is None:
+        fileUUID = str(uuid.uuid4())
+    taskUUID = str(uuid.uuid4())
     filePathRelativeToSIP = filePath.replace(transferPath, "%transferDirectory%", 1)
     addFileToTransfer(
         filePathRelativeToSIP,
@@ -72,7 +74,7 @@ def addFile(
         sourceType="unpacking",
         eventDetail=eventDetail,
     )
-    updateSizeAndChecksum(fileUUID, filePath, date, uuid.uuid4.__str__())
+    updateSizeAndChecksum(fileUUID, filePath, date, str(uuid.uuid4()))
 
 
 def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
@@ -93,8 +95,10 @@ def addKeyFileToNormalizeMaildirOffOf(
     transferUUID,
     date,
     eventDetail="",
-    fileUUID=uuid.uuid4().__str__(),
+    fileUUID=None,
 ):
+    if fileUUID is None:
+        fileUUID = str(uuid.uuid4())
     basename = os.path.basename(mirrorDir)
     dirname = os.path.dirname(mirrorDir)
     outFile = os.path.join(dirname, basename + ".archivematicaMaildir")
@@ -248,7 +252,7 @@ def handle_job(job):
         mirrorDir = os.path.join(transferDir, "objects/attachments", maildirsub)
         try:
             os.makedirs(mirrorDir)
-        except:
+        except Exception:
             pass
         eventDetail = "added for normalization purposes"
         fileUUID = uuid.uuid4().__str__()

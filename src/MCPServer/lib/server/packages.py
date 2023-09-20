@@ -681,7 +681,7 @@ class Package(metaclass=abc.ABCMeta):
                     files_returned_already.add(file_obj_mapped.get("%inputFile%"))
                     yield file_obj_mapped
 
-            for basedir, subdirs, files in os.walk(start_path):
+            for basedir, _, files in os.walk(start_path):
                 for file_name in files:
                     if (
                         filter_filename_start

@@ -122,10 +122,9 @@ class ClamdScanner(ScannerBase):
             state, details = result[result_key]
         except Exception as err:
             passed = ClamdScanner.clamd_exception_handler(err)
-        finally:
-            if state == "OK":
-                passed = True
-            return passed, state, details
+        if state == "OK":
+            passed = True
+        return passed, state, details
 
     @staticmethod
     def clamd_exception_handler(err):
@@ -297,7 +296,7 @@ def get_size(file_uuid, path):
     # Our fallback.
     try:
         return os.path.getsize(path)
-    except:
+    except Exception:
         return None
 
 
@@ -349,7 +348,7 @@ def scan_file(event_queue, file_uuid, path, date, task_uuid):
         else:
             passed, state, details = None, None, None
 
-    except:
+    except Exception:
         logger.error("Unexpected error scanning file %s", path, exc_info=True)
         return 1
     else:

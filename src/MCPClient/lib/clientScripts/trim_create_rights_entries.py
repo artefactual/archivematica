@@ -109,7 +109,7 @@ def call(jobs):
                     try:
                         tree = etree.parse(xmlFilePath)
                         root = tree.getroot()
-                    except:
+                    except Exception:
                         job.pyprint(
                             "Error parsing: ",
                             xmlFilePath.replace(transferPath, "%transferDirectory%", 1),
@@ -122,7 +122,7 @@ def call(jobs):
                             "Container/RetentionSchedule"
                         ).text
                         DateClosed = root.find("Container/DateClosed").text
-                    except:
+                    except Exception:
                         job.pyprint(
                             "Error retrieving values from: ",
                             xmlFilePath.replace(transferPath, "%transferDirectory%", 1),

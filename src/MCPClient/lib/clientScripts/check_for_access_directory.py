@@ -166,7 +166,7 @@ def call(jobs):
                         os.mkdir(DIPDirectory)
                     if not os.path.isdir(os.path.join(DIPDirectory, "objects")):
                         os.mkdir(os.path.join(DIPDirectory, "objects"))
-                except:
+                except Exception:
                     job.pyprint("error creating DIP directory")
 
                 exitCode = main(

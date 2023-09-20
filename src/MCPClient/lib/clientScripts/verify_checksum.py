@@ -191,12 +191,9 @@ class Hashsum:
     @staticmethod
     def _count_lines(path):
         """Count the number of lines in a checksum file."""
-        count = 0
         with open(path) as hashfile:
-            for count, _ in enumerate(hashfile):
-                pass
-        # Negate zero-based count.
-        return count + 1
+            count = sum(1 for _ in hashfile)
+        return count
 
     @staticmethod
     def _count_files(path):

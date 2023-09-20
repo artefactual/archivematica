@@ -102,7 +102,7 @@ TOTAL_FIELDS_LIMIT = 10000
 DEPTH_LIMIT = 1000
 
 
-def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=[AIPS_INDEX, TRANSFERS_INDEX]):
+def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=(AIPS_INDEX, TRANSFERS_INDEX)):
     """Initialize and share the Elasticsearch client.
 
     Share it as the attribute _es_client in the current module. An additional
@@ -172,7 +172,7 @@ def _wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10)
 
         try:
             health = client.cluster.health()
-        except:
+        except Exception:
             print("ERROR: failed health check.")
             health["status"] = None
 
@@ -801,9 +801,8 @@ def _index_transfer_files(
             # The BagIt is created when the package is sent to backlog hence
             # the locations in the database do not reflect the BagIt paths.
             # Strip the "data/" part when looking up the file entry.
-            currentlocation = "%transferDirectory%" + os.path.relpath(
-                filepath, path
-            ).lstrip("data/")
+            stripped_path = re.sub(r"^data/", "", os.path.relpath(filepath, path))
+            currentlocation = "%transferDirectory%" + stripped_path
             try:
                 f = File.objects.get(
                     currentlocation=currentlocation.encode(), transfer_id=uuid
@@ -821,7 +820,7 @@ def _index_transfer_files(
                 bulk_extractor_reports = []
 
             # Get file path info
-            relative_path = filepath.replace(path, transfer_name + "/")
+            stripped_path = filepath.replace(path, transfer_name + "/")
             file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
             # Size in megabytes
@@ -829,12 +828,12 @@ def _index_transfer_files(
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                printfn(f"Indexing {relative_path} (UUID: {file_uuid})")
+                printfn(f"Indexing {stripped_path} (UUID: {file_uuid})")
 
                 # TODO: Index Backlog Location UUID?
                 indexData = {
                     "filename": filename,
-                    "relative_path": relative_path,
+                    "relative_path": stripped_path,
                     "fileuuid": file_uuid,
                     "sipuuid": uuid,
                     "accessionid": accession_id,
@@ -856,7 +855,7 @@ def _index_transfer_files(
 
                 files_indexed = files_indexed + 1
             else:
-                printfn(f"Skipping indexing {relative_path}")
+                printfn(f"Skipping indexing {stripped_path}")
 
     return files_indexed
 

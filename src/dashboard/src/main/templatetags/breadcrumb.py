@@ -83,7 +83,7 @@ class BreadcrumbNode(Node):
             try:
                 val = self.vars[0]
                 title = val.resolve(context)
-            except:
+            except Exception:
                 title = ""
 
         else:
@@ -115,7 +115,7 @@ class UrlBreadcrumbNode(Node):
             try:
                 val = self.title
                 title = val.resolve(context)
-            except:
+            except Exception:
                 title = ""
         else:
             title = title.strip("'").strip('"')
