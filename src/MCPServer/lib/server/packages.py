@@ -712,7 +712,7 @@ class Package(metaclass=abc.ABCMeta):
             unittype=self.UNIT_VARIABLE_TYPE,
             unituuid=self.uuid,
             variable=key,
-            defaults=dict(variablevalue=value, microservicechainlink=chain_link_id),
+            defaults={"variablevalue": value, "microservicechainlink": chain_link_id},
         )
         if created:
             message = "New UnitVariable %s created for %s: %s (MSCL: %s)"

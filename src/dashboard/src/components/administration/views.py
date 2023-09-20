@@ -561,7 +561,7 @@ def general(request):
     )
 
     forms = (general_form, storage_form, checksum_form)
-    if all([form.is_valid() for form in forms]):
+    if all(form.is_valid() for form in forms):
         for item in forms:
             item.save()
         messages.info(request, _("Saved."))

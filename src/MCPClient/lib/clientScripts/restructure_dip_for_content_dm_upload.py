@@ -82,9 +82,9 @@ def getItemCountType(structMap):
     """
     divs_with_dmdsecs = structMap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
     # If any are TYPE Directory, then it is compound
-    if any([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
+    if any(e.get("TYPE") == "Directory" for e in divs_with_dmdsecs):
         # If all are TYPE Directory then it is bulk
-        if all([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
+        if all(e.get("TYPE") == "Directory" for e in divs_with_dmdsecs):
             return "compound-dirs"
         else:
             return "compound-files"

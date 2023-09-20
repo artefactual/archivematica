@@ -271,7 +271,7 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
         response.get(CONTENT_DISPOSITION) == 'attachment; filename="test-filename.csv"'
     )
 
-    streamed_content = b"".join([content for content in response.streaming_content])
+    streamed_content = b"".join(list(response.streaming_content))
     csv_file = StringIO(streamed_content.decode("utf8"))
 
     assert csv_file.read() == (
