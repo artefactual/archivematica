@@ -290,12 +290,6 @@ LOCALE_PATHS = [os.path.join(BASE_PATH, "locale")]
 
 SITE_ID = 1
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-
 # Enable timezone support, for more info see:
 # https://docs.djangoproject.com/en/dev/topics/i18n/timezones/
 USE_TZ = True
