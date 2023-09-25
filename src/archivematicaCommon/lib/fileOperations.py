@@ -266,7 +266,7 @@ def updateFileLocation(
     To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
     """
     if not fileUUID or fileUUID == "None":
-        kwargs = {"removedtime__isnull": True, "currentlocation": src}
+        kwargs = {"removedtime__isnull": True, "currentlocation": src.encode()}
 
         if sipUUID:
             kwargs["sip_id"] = sipUUID
