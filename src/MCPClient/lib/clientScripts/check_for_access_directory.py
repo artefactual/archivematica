@@ -35,7 +35,7 @@ from fileOperations import updateFileLocation
 from fileOperations import rename
 
 
-def something(
+def main(
     job,
     SIPDirectory,
     accessDirectory,
@@ -45,11 +45,10 @@ def something(
     date,
     copy=False,
 ):
-    # exitCode = 435
     exitCode = 179
     job.pyprint(SIPDirectory)
     # For every file, & directory Try to find the matching file & directory in the objects directory
-    for path, dirs, files in os.walk(accessDirectory):
+    for path, _, files in os.walk(accessDirectory):
         for file in files:
             accessPath = os.path.join(path, file)
             objectPath = accessPath.replace(accessDirectory, objectsDirectory, 1)
@@ -78,7 +77,7 @@ def something(
                 for objectUUID, objectPath in files.values_list(
                     "uuid", "currentlocation"
                 ):
-                    objectExtension = objectPath.replace(objectNameLike, "", 1)
+                    objectExtension = objectPath.decode().replace(objectNameLike, "", 1)
                     job.pyprint(
                         objectName[objectNameExtensionIndex + 1 :],
                         objectExtension,
@@ -173,7 +172,7 @@ def call(jobs):
                 except:
                     job.pyprint("error creating DIP directory")
 
-                exitCode = something(
+                exitCode = main(
                     job,
                     SIPDirectory,
                     accessDirectory,

@@ -759,8 +759,8 @@ class File(models.Model):
             _("File %(uuid)s:%(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
-                "originallocation": self.originallocation,
-                "currentlocation": self.currentlocation,
+                "originallocation": self.originallocation.decode(),
+                "currentlocation": self.currentlocation.decode(),
             }
         )
 
@@ -812,8 +812,8 @@ class Directory(models.Model):
             _("Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s")
             % {
                 "uuid": self.uuid,
-                "originallocation": self.originallocation,
-                "currentlocation": self.currentlocation,
+                "originallocation": self.originallocation.decode(),
+                "currentlocation": self.currentlocation.decode(),
             }
         )
 
