@@ -635,7 +635,10 @@ class SIPArrange(models.Model):
     def __str__(self):
         return str(
             _("%(original)s -> %(arrange)s")
-            % {"original": self.original_path, "arrange": self.arrange_path}
+            % {
+                "original": self.original_path.decode(),
+                "arrange": self.arrange_path.decode(),
+            }
         )
 
     @classmethod

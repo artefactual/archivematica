@@ -24,10 +24,6 @@ class TestSIPArrange(TestCase):
         self.client.login(username="test", password="test")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
-    def test_fixtures(self):
-        objs = models.SIPArrange.objects.all()
-        assert len(objs) > 0
-
     def test_arrange_contents_data_no_path(self):
         # Call endpoint
         response = self.client.get(
@@ -621,3 +617,78 @@ def test_contents_sorting(db, tmp_path, admin_client):
         b64encode_string("a"),
         b64encode_string("e"),
     ]
+
+
+@pytest.mark.django_db
+def test_copy_within_arrange(mocker, admin_client):
+    mocker.patch(
+        "storageService.get_first_location",
+        return_value={"uuid": "355d110f-b641-4b6b-b1c0-8426e63951e5"},
+    )
+    mocker.patch(
+        "storageService.get_file_metadata",
+        side_effect=[
+            [
+                {
+                    "fileuuid": "0b603cee-1f8a-4842-996a-e02a0307ccf7",
+                    "sipuuid": "99c87143-6f74-4398-84e0-14a8ca4bd05a",
+                }
+            ],
+            [
+                {
+                    "fileuuid": "03a33ef5-8714-46cc-aefe-7283186341ca",
+                    "sipuuid": "99c87143-6f74-4398-84e0-14a8ca4bd05a",
+                }
+            ],
+        ],
+    )
+    mocker.patch(
+        "storageService.browse_location",
+        return_value={
+            "directories": [],
+            "entries": ["file1.txt", "file2.txt"],
+            "properties": {
+                "file1.txt": {"size": 8},
+                "file2.txt": {"size": 6},
+            },
+        },
+    )
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Expected attributes for the new SIPArrange instances.
+    attrs = ("original_path", "arrange_path", "file_uuid", "transfer_uuid")
+    expected = {
+        (
+            b"originals/objects/file1.txt",
+            b"/arrange/file1.txt",
+            uuid.UUID("0b603cee-1f8a-4842-996a-e02a0307ccf7"),
+            uuid.UUID("99c87143-6f74-4398-84e0-14a8ca4bd05a"),
+        ),
+        (
+            b"originals/objects/file2.txt",
+            b"/arrange/file2.txt",
+            uuid.UUID("03a33ef5-8714-46cc-aefe-7283186341ca"),
+            uuid.UUID("99c87143-6f74-4398-84e0-14a8ca4bd05a"),
+        ),
+    }
+
+    # Verify there are no SIPArrange instances.
+    assert models.SIPArrange.objects.count() == 0
+
+    # Copy directory
+    response = admin_client.post(
+        reverse("filesystem_ajax:copy_to_arrange"),
+        data={
+            "filepath": b64encode_string("/originals/objects/"),
+            "destination": b64encode_string("/arrange/"),
+        },
+        follow=True,
+    )
+    assert response.status_code == 201
+    assert json.loads(response.content.decode("utf8")) == {
+        "message": "Files added to the SIP."
+    }
+
+    # Verify SIPArrange instances were created as expected.
+    assert models.SIPArrange.objects.count() == 2
+    assert set(list(models.SIPArrange.objects.values_list(*attrs))) == expected
