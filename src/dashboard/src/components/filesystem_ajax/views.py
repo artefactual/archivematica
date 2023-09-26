@@ -915,8 +915,8 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
                 for entry in entries:
                     entries_to_copy.append(
                         models.SIPArrange(
-                            original_path=entry["original_path"],
-                            arrange_path=entry["arrange_path"],
+                            original_path=entry["original_path"].encode(),
+                            arrange_path=entry["arrange_path"].encode(),
                             file_uuid=entry["file_uuid"],
                             transfer_uuid=entry["transfer_uuid"],
                         )
