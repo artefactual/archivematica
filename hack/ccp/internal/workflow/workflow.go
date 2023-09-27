@@ -195,13 +195,9 @@ func (d *Document) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type sharedLink struct {
-	Model   string `json:"@model"`
-	Manager string `json:"@manager"`
-}
-
 type LinkMicroServiceChainChoice struct {
-	sharedLink
+	Model   string      `json:"@model"`
+	Manager string      `json:"@manager"`
 	Choices []uuid.UUID `json:"chain_choices"`
 }
 
@@ -212,30 +208,33 @@ type ConfigReplacement struct {
 }
 
 type LinkMicroServiceChoiceReplacementDic struct {
-	sharedLink
+	Model        string              `json:"@model"`
+	Manager      string              `json:"@manager"`
 	Replacements []ConfigReplacement `json:"replacements"`
 }
 
 type LinkStandardTaskConfig struct {
-	sharedLink
-	Arguments          string `json:"arguments"`
-	Execute            string `json:"execute"`
-	FilterFileEnd      string `json:"filter_file_end"`
-	FilterSubdir       string `json:"filter_subdir"`
-	RequiresOutputLock bool   `json:"requires_output_lock"`
-	StderrFile         string `json:"stderr_file"`
-	StdoutFile         string `json:"stdout_file"`
+	Model         string `json:"@model"`
+	Manager       string `json:"@manager"`
+	Arguments     string `json:"arguments"`
+	Execute       string `json:"execute"`
+	FilterFileEnd string `json:"filter_file_end,omitempty"`
+	FilterSubdir  string `json:"filter_subdir,omitempty"`
+	StderrFile    string `json:"stderr_file,omitempty"`
+	StdoutFile    string `json:"stdout_file,omitempty"`
 }
 
 type LinkTaskConfigSetUnitVariable struct {
-	sharedLink
+	Model         string    `json:"@model"`
+	Manager       string    `json:"@manager"`
 	Variable      string    `json:"variable"`
 	VariableValue string    `json:"variable_value"`
 	ChainID       uuid.UUID `json:"chain_id"`
 }
 
 type LinkTaskConfigUnitVariableLinkPull struct {
-	sharedLink
+	Model         string    `json:"@model"`
+	Manager       string    `json:"@manager"`
 	Variable      string    `json:"variable"`
 	VariableValue string    `json:"variable_value"`
 	ChainID       uuid.UUID `json:"chain_id"`

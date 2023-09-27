@@ -206,8 +206,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-go.artefactual.dev/tools v0.1.0 h1:+UTyUXQbvq32X0AuIjkfoVvrEdxIvzsCyj+vWjxLGQ0=
-go.artefactual.dev/tools v0.1.0/go.mod h1:VM9uoKuK6IcDIitYuWvqyaxxLajGxJHDbqnwNfgaCpU=
+go.artefactual.dev/tools v0.6.0 h1:KmIo9eMWpRTCQ7x8h7/Lb77tA405OI4G9Da503hI9ug=
+go.artefactual.dev/tools v0.6.0/go.mod h1:qHedcExbb7sY65iV5noVImy4Jpbjoju4TLGvvoxkbeQ=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=

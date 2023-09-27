@@ -14,7 +14,7 @@ require (
 	github.com/peterbourgon/ff/v3 v3.3.0
 	github.com/rs/cors v1.9.0
 	github.com/tailscale/hujson v0.0.0-20221223112325-20486734a56a
-	go.artefactual.dev/tools v0.1.0
+	go.artefactual.dev/tools v0.6.0
 	go.uber.org/goleak v1.2.1
 	golang.org/x/net v0.9.0
 	golang.org/x/sync v0.2.0
