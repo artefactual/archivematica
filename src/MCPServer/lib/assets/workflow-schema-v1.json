@@ -138,11 +138,9 @@
           "type": "string"
         },
         "chain_choices": {
-          "items": [
-            {
-              "$ref": "#/definitions/uuid"
-            }
-          ],
+          "items": {
+            "$ref": "#/definitions/uuid"
+          },
           "minItems": 1,
           "type": "array"
         }
@@ -327,31 +325,29 @@
           "type": "string"
         },
         "replacements": {
-          "items": [
-            {
-              "additionalProperties": false,
-              "properties": {
-                "description": {
-                  "$ref": "#/definitions/translations"
-                },
-                "id": {
-                  "$ref": "#/definitions/uuid"
-                },
-                "items": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/translations"
               },
-              "required": [
-                "id",
-                "description",
-                "items"
-              ],
-              "type": "object"
-            }
-          ],
+              "id": {
+                "$ref": "#/definitions/uuid"
+              },
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "items"
+            ],
+            "type": "object"
+          },
           "minItems": 0,
           "type": "array"
         }
