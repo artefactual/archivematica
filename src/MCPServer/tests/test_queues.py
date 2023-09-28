@@ -93,11 +93,8 @@ def workflow_link(request):
                 "execute": "testLink_v0",
             },
             "description": {"en": "A Test link"},
-            "exit_codes": {
-                "0": {"job_status": "Completed successfully", "link_id": None}
-            },
+            "exit_codes": {"0": {"job_status": "Completed successfully"}},
             "fallback_job_status": "Failed",
-            "fallback_link_id": None,
             "group": {"en": "Testing"},
         },
         object(),
