@@ -41,7 +41,7 @@ class GetUnitVarLinkJob(LocalJob):
                 variable=self.link.config["variable"],
             )
         except (models.UnitVariable.DoesNotExist, ValidationError):
-            link_id = self.link.config["chain_id"]
+            link_id = self.link.config.get("chain_id")
         else:
             link_id = unitvar.microservicechainlink
 
@@ -69,8 +69,8 @@ class SetUnitVarLinkJob(LocalJob):
 
         self.package.set_variable(
             self.link.config["variable"],
-            self.link.config["variable_value"],
-            self.link.config["chain_id"],
+            self.link.config.get("variable_value"),
+            self.link.config.get("chain_id"),
         )
 
         self.mark_complete()

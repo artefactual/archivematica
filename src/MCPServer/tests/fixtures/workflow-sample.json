@@ -13,24 +13,17 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "execute": "command",
-        "arguments": "--debug",
-        "filter_file_start": null,
-        "filter_file_end": null,
-        "filter_subdir": null,
-        "stdout_file": null,
-        "stderr_file": null
+        "arguments": "--debug"
       },
       "description": {
         "en": "Go!"
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Group"
       }

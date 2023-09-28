@@ -177,11 +177,15 @@ class Link(BaseLink):
         return self._src.get("end", False)
 
     def get_next_link(self, code):
+        """Return the next link based on the exit code.
+
+        Raises KeyError which should be handled by the caller.
+        """
         code = str(code)
         try:
-            link_id = self._src["exit_codes"][code]["link_id"]
+            link_id = self._src["exit_codes"][code].get("link_id")
         except KeyError:
-            link_id = self._src["fallback_link_id"]
+            link_id = self._src.get("fallback_link_id")
         return self._workflow.get_link(link_id)
 
     def get_status_id(self, code):
