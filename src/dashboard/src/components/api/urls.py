@@ -56,7 +56,7 @@ urlpatterns = [
     re_path(r"^ingest/completed", views.completed_ingests, name="completed_ingests"),
     path("ingest/copy_metadata_files/", views.copy_metadata_files_api),
     path(
-        "administration/dips/atom/levels/",
+        "filesystem/administration/dips/atom/levels/",
         views.get_levels_of_description,
         name="get_levels_of_description",
     ),
