@@ -65,7 +65,7 @@ urlpatterns = [
         views.fetch_levels_of_description_from_atom,
         name="fetch_atom_lods",
     ),
-    path("filesystem/metadata/", views.path_metadata),
+    path("filesystem/metadata/", views.path_metadata, name="path_metadata"),
     re_path(
         r"processing-configuration/(?P<name>\w{1,16})",
         views.processing_configuration,

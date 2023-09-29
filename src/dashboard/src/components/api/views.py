@@ -722,7 +722,7 @@ def path_metadata(request):
 
     # Get current metadata, if any
     files = models.SIPArrange.objects.filter(
-        arrange_path__in=(path, path + "/"), sip_created=False
+        arrange_path__in=(path.encode(), (path + "/").encode()), sip_created=False
     )
     if not files:
         raise django.http.Http404

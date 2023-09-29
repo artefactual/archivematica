@@ -17,6 +17,7 @@ from lxml import etree
 from main.models import Job
 from main.models import LevelOfDescription
 from main.models import SIP
+from main.models import SIPArrange
 from main.models import Task
 from main.models import Transfer
 from processing import install_builtin_config
@@ -674,3 +675,27 @@ def test_reingest_approve(mocker, admin_client):
         json.loads(response.content.decode("utf8")).get("message")
         == "Approval successful."
     )
+
+
+def test_path_metadata_get(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    SIPArrange.objects.create(
+        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
+    )
+
+    response = admin_client.get(
+        reverse("api:path_metadata"), {"path": "/arrange/testsip"}
+    )
+    assert response.status_code == 200
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["level_of_description"] == "Folder"
+
+
+def test_path_metadata_raises_404_if_siparrange_does_not_exist(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    response = admin_client.get(
+        reverse("api:path_metadata"), {"path": "/arrange/testsip"}
+    )
+    assert response.status_code == 404
