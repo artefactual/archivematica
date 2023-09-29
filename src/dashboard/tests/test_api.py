@@ -699,3 +699,57 @@ def test_path_metadata_raises_404_if_siparrange_does_not_exist(admin_client):
         reverse("api:path_metadata"), {"path": "/arrange/testsip"}
     )
     assert response.status_code == 404
+
+
+def test_path_metadata_post(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    SIPArrange.objects.create(
+        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
+    )
+    level_of_description = LevelOfDescription.objects.create(
+        name="Collection", sortorder=0
+    )
+    expected = [
+        {"arrange_path": b"/arrange/testsip/", "level_of_description": "Collection"}
+    ]
+
+    response = admin_client.post(
+        reverse("api:path_metadata"),
+        data={
+            "path": "/arrange/testsip",
+            "level_of_description": level_of_description.pk,
+        },
+    )
+    assert response.status_code == 201
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["success"]
+
+    # Verify the SIPArrange instance was updated as expected.
+    assert (
+        list(SIPArrange.objects.values("arrange_path", "level_of_description"))
+        == expected
+    )
+
+
+def test_path_metadata_post_resets_level_of_description(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    SIPArrange.objects.create(
+        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
+    )
+    expected = [{"arrange_path": b"/arrange/testsip/", "level_of_description": ""}]
+
+    response = admin_client.post(
+        reverse("api:path_metadata"),
+        data={"path": "/arrange/testsip"},
+    )
+    assert response.status_code == 201
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["success"]
+
+    # Verify the level of description was reset.
+    assert (
+        list(SIPArrange.objects.values("arrange_path", "level_of_description"))
+        == expected
+    )

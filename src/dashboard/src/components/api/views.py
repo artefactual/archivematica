@@ -735,7 +735,6 @@ def path_metadata(request):
 
     # Add/update metadata, if requested
     if request.method == "POST":
-        file_lod.relative_location = path
         try:
             file_lod.level_of_description = models.LevelOfDescription.objects.get(
                 pk=request.POST["level_of_description"]
