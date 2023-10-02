@@ -31,14 +31,14 @@ def already_extracted(f):
     # Look for files in a directory that starts with the package name
     files = File.objects.filter(
         transfer=f.transfer,
-        currentlocation__startswith=f.currentlocation,
+        currentlocation__startswith=f.currentlocation.decode(),
         removedtime__isnull=True,
     ).exclude(uuid=f.uuid)
     # Check for unpacking events that reference the package
     if Event.objects.filter(
         file_uuid__in=files,
         event_type="unpacking",
-        event_detail__contains=f.currentlocation,
+        event_detail__contains=f.currentlocation.decode(),
     ).exists():
         return True
     return False
@@ -49,7 +49,8 @@ def main(job, sip_uuid):
     for f in transfer.file_set.filter(removedtime__isnull=True).iterator():
         if is_extractable(f) and not already_extracted(f):
             job.pyprint(
-                f.currentlocation, "is extractable and has not yet been extracted."
+                f.currentlocation.decode(),
+                "is extractable and has not yet been extracted.",
             )
             return 0
     job.pyprint("No extractable files found.")
