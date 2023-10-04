@@ -85,7 +85,7 @@ def delete_context(request, report_id):
 def failure_report_delete(request, report_id):
     models.Report.objects.get(pk=report_id).delete()
     messages.info(request, _("Deleted."))
-    return redirect("administration:failure_report_index")
+    return redirect("administration:reports_failures_index")
 
 
 def failure_report_detail(request):
