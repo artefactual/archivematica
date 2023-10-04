@@ -1,8 +1,10 @@
+import pytest
 from components import helpers
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from main.models import DublinCore
+from main.models import TransferMetadataFieldValue
 
 
 class TestTransferViews(TestCase):
@@ -46,3 +48,46 @@ class TestTransferViews(TestCase):
         # Verify form redirects to the metadata list after saving
         redirect_url = reverse("transfer:transfer_metadata_list", args=[transfer_uuid])
         assert response.url == redirect_url
+
+
+@pytest.mark.django_db
+def test_component_get(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    # This TransferMetadataSet is going to be created in the view.
+    transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+
+    response = admin_client.get(
+        reverse("transfer:component", args=[transfer_uuid]),
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert "Image fixity" in content
+    assert "Media number" in content
+    assert "Serial number" in content
+
+
+# @pytest.mark.django_db
+def test_component_post(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    # This TransferMetadataSet is going to be created in the view.
+    transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+
+    # Verify there are no field values for the metadata set.
+    assert TransferMetadataFieldValue.objects.filter(set=transfer_uuid).count() == 0
+
+    response = admin_client.post(
+        reverse("transfer:component", args=[transfer_uuid]),
+        data={"media_format": '3.5" floppy', "media_number": "123"},
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    assert "Metadata saved." in response.content.decode()
+    assert set(
+        list(
+            TransferMetadataFieldValue.objects.filter(
+                set=transfer_uuid, field__fieldname__in=["media_format", "media_number"]
+            ).values_list("fieldvalue")
+        )
+    ) == {('3.5" floppy',), ("123",)}
