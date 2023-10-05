@@ -12,6 +12,7 @@ from main.models import File
 from main.models import MetadataAppliesToType
 from main.models import RightsStatement
 from main.models import SIP
+from main.models import SIPArrange
 from namespaces import NSMAP
 
 
@@ -341,3 +342,95 @@ def test_xml_validation_fail_on_error(
             "Error(s) processing and/or validating XML metadata:\n\t- xml_validation_error"
             in job.get_stderr()
         )
+
+
+@pytest.fixture
+def arranged_sip(db, tmp_path):
+    # Create an arranged SIP.
+    sip_path = tmp_path / "sip"
+    sip_path.mkdir()
+    sip = SIP.objects.create(
+        sip_type="SIP",
+        currentpath=str(sip_path),
+    )
+
+    # Create the directory structure representing the new arrangement.
+    objects_path = sip_path / "objects"
+    objects_path.mkdir()
+    SIPArrange.objects.create(sip=sip, arrange_path=b".")
+
+    for path, level_of_description in [
+        ((sip_path / "objects" / "subdir"), "Series"),
+        ((sip_path / "objects" / "subdir" / "first"), "Subseries"),
+        ((sip_path / "objects" / "subdir" / "second"), "Subseries"),
+    ]:
+        path.mkdir()
+        SIPArrange.objects.create(
+            sip=sip,
+            arrange_path=bytes(path.relative_to(objects_path)),
+            level_of_description=level_of_description,
+        )
+
+    # Add files to the arrangement.
+    for path in [
+        (sip_path / "objects" / "file1"),
+        (sip_path / "objects" / "subdir" / "file2"),
+        (sip_path / "objects" / "subdir" / "first" / "file3"),
+        (sip_path / "objects" / "subdir" / "second" / "file4"),
+    ]:
+        path.touch()
+        f = File.objects.create(
+            originallocation=f"%TransferDirectory%{path.relative_to(sip_path)}".encode(),
+            currentlocation=f"%SIPDirectory%{path.relative_to(sip_path)}".encode(),
+            sip=sip,
+            filegrpuse="original",
+        )
+        SIPArrange.objects.create(
+            sip=sip,
+            arrange_path=bytes(path.relative_to(objects_path)),
+            level_of_description="File",
+            file_uuid=f.uuid,
+        )
+
+    return sip
+
+
+def test_structmap_is_created_from_sip_arrangement(job, arranged_sip):
+    mets_path = f"{arranged_sip.currentpath}/METS.{arranged_sip.uuid}.xml"
+
+    main(
+        job,
+        sipType="SIP",
+        baseDirectoryPath=arranged_sip.currentpath,
+        XMLFile=mets_path,
+        sipUUID=arranged_sip.pk,
+        includeAmdSec=False,
+        createNormativeStructmap=False,
+    )
+
+    # Verify the logical structMap for the SIP arrangement.
+    mets_xml = etree.parse(mets_path)
+    logical_structmap = mets_xml.find(
+        './/mets:structMap[@TYPE="logical"]', namespaces=NSMAP
+    )
+    assert logical_structmap.attrib["LABEL"] == "Hierarchical"
+
+    # Get the relevant elements from the logical structMap.
+    sip_div = logical_structmap.find('mets:div[@LABEL="sip"]', namespaces=NSMAP)
+    objects_div = sip_div.find('mets:div[@LABEL="objects"]', namespaces=NSMAP)
+    file1_div = objects_div.find('mets:div[@LABEL="file1"]', namespaces=NSMAP)
+    subdir_div = objects_div.find('mets:div[@LABEL="subdir"]', namespaces=NSMAP)
+    file2_div = subdir_div.find('mets:div[@LABEL="file2"]', namespaces=NSMAP)
+    subdir_first_div = subdir_div.find('mets:div[@LABEL="first"]', namespaces=NSMAP)
+    file3_div = subdir_first_div.find('mets:div[@LABEL="file3"]', namespaces=NSMAP)
+    subdir_second_div = subdir_div.find('mets:div[@LABEL="second"]', namespaces=NSMAP)
+    file4_div = subdir_second_div.find('mets:div[@LABEL="file4"]', namespaces=NSMAP)
+
+    # Verify the levels of descriptions are preserved.
+    assert file1_div.attrib["TYPE"] == "File"
+    assert subdir_div.attrib["TYPE"] == "Series"
+    assert file2_div.attrib["TYPE"] == "File"
+    assert subdir_first_div.attrib["TYPE"] == "Subseries"
+    assert file3_div.attrib["TYPE"] == "File"
+    assert subdir_second_div.attrib["TYPE"] == "Subseries"
+    assert file4_div.attrib["TYPE"] == "File"
