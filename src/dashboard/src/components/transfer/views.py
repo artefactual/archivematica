@@ -77,7 +77,7 @@ def component(request, uuid):
     for field in fields:
         if field.optiontaxonomy is not None:
             # check for newly added terms
-            new_term = request.POST.get("add_to_" + field.pk, "")
+            new_term = request.POST.get("add_to_" + str(field.pk), "")
             if new_term != "":
                 term = models.TaxonomyTerm()
                 term.taxonomy = field.optiontaxonomy
