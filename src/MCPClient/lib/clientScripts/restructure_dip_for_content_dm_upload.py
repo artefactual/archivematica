@@ -139,6 +139,27 @@ def addAipUuidToDcMetadata(dipUuid, dcMetadata):
     return dcMetadata
 
 
+def get_csv_headers(rows):
+    if not rows:
+        return []
+
+    # Use the longest header as the reference.
+    headers = rows[0]["csv_header"]
+    for row in rows[1:]:
+        if headers != row["csv_header"] and len(row["csv_header"]) > len(headers):
+            headers = row["csv_header"]
+
+    # Look for differences in the header of each row and insert them before the
+    # AIP UUID column.
+    for row in rows:
+        if row["csv_header"] != headers:
+            difference = [h for h in row["csv_header"] if h not in headers]
+            idx = headers.index("AIP UUID")
+            headers = headers[:idx] + difference + headers[idx:]
+
+    return headers
+
+
 def generate_project_client_package(
     job, output_dir, package_type, structmap, dmdsecs, dipuuid
 ):
@@ -161,75 +182,75 @@ def generate_project_client_package(
     job.pyprint("Path to the output tabfile", csv_path)
 
     divs_with_dmdsecs = structmap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
+
+    # Iterate through every div and create a row for each
+    rows = []
+    for div in divs_with_dmdsecs:
+        # Find associated dmdSecs
+        dmdids = div.get("DMDID").split()
+        # Take nonDC dmdSec, fallback to DC dmdSec
+        dmdsecpair = splitDmdSecs(job, [dmdsecs[dmdid] for dmdid in dmdids])
+        dmdsecpair["dc"] = addAipUuidToDcMetadata(dipuuid, dmdsecpair["dc"])
+        metadata = dmdsecpair["nonDc"] or dmdsecpair["dc"]
+        # Skip dmdSecs without metadata
+        if not metadata:
+            continue
+        # Create csv_header and csv_values from the dmdSec metadata
+        csv_header = []
+        csv_values = []
+        for header, value in metadata.items():
+            csv_header.append(header)
+            value = "; ".join(value).replace("\r", "").replace("\n", "")
+            csv_values.append(value)
+
+        # Add AIP UUID
+        csv_header.append("AIP UUID")
+        csv_values.append(dipuuid)
+
+        # Add file UUID
+        csv_header.append("file UUID")
+        if "dirs" in package_type:
+            # Directories have no file UUID
+            csv_values.append("")
+        else:
+            file_uuid = ""
+            fptr = div.find("mets:fptr", namespaces=ns.NSMAP)
+            # Only files have fptrs as direct children
+            if fptr is not None:
+                # File UUID is last 36 characters of FILEID
+                file_uuid = fptr.get("FILEID")[-36:]
+            csv_values.append(file_uuid)
+
+        # Add file or directory name
+        name = div.attrib["LABEL"]  # Fallback if LABEL doesn't exist?
+        if "dirs" in package_type:
+            csv_header.insert(0, "Directory name")
+            csv_values.insert(0, name)
+        else:
+            csv_header.append("Filename")
+            csv_values.append(name)
+
+        rows.append({"csv_header": csv_header, "csv_values": csv_values})
+
+    headers = get_csv_headers(rows)
+
     with open(csv_path, "w") as csv_file:
-        writer = csv.writer(csv_file, delimiter="\t")
+        writer = csv.DictWriter(
+            csv_file, headers, extrasaction="ignore", delimiter="\t"
+        )
+        writer.writerow({header: header for header in headers})
+        job.pyprint("Tabfile header:", headers)
 
-        # Iterate through every div and create a row for each
-        csv_header_ref = None
-        for div in divs_with_dmdsecs:
-            # Find associated dmdSecs
-            dmdids = div.get("DMDID").split()
-            # Take nonDC dmdSec, fallback to DC dmdSec
-            dmdsecpair = splitDmdSecs(job, [dmdsecs[dmdid] for dmdid in dmdids])
-            dmdsecpair["dc"] = addAipUuidToDcMetadata(dipuuid, dmdsecpair["dc"])
-            metadata = dmdsecpair["nonDc"] or dmdsecpair["dc"]
-            # Skip dmdSecs without metadata
-            if not metadata:
-                continue
-            # Create csv_header and csv_values from the dmdSec metadata
-            csv_header = []
-            csv_values = []
-            for header, value in metadata.items():
-                csv_header.append(header)
-                value = "; ".join(value).replace("\r", "").replace("\n", "")
-                csv_values.append(value)
-
-            # Add AIP UUID
-            csv_header.append("AIP UUID")
-            csv_values.append(dipuuid)
-
-            # Add file UUID
-            csv_header.append("file UUID")
-            if "dirs" in package_type:
-                # Directories have no file UUID
-                csv_values.append("")
-            else:
-                file_uuid = ""
-                fptr = div.find("mets:fptr", namespaces=ns.NSMAP)
-                # Only files have fptrs as direct children
-                if fptr is not None:
-                    # File UUID is last 36 characters of FILEID
-                    file_uuid = fptr.get("FILEID")[-36:]
-                csv_values.append(file_uuid)
-
-            # Add file or directory name
-            name = div.attrib["LABEL"]  # Fallback if LABEL doesn't exist?
-            if "dirs" in package_type:
-                csv_header.insert(0, "Directory name")
-                csv_values.insert(0, name)
-            else:
-                csv_header.append("Filename")
-                csv_values.append(name)
-
-            # Compare csv_header, if diff ERROR (first time set, write to file)
-            if csv_header_ref and csv_header_ref != csv_header:
-                job.pyprint(
-                    "ERROR headers differ,",
-                    csv_path,
-                    "almost certainly invalid",
-                    file=sys.stderr,
-                )
-                job.pyprint("Reference header:", csv_header_ref, file=sys.stderr)
-                job.pyprint("Differing header:", csv_header, file=sys.stderr)
-                return 1
-            # If first time through, write out header
-            if not csv_header_ref:
-                csv_header_ref = csv_header
-                writer.writerow(csv_header_ref)
-                job.pyprint("Tabfile header:", csv_header)
-            # Write csv_row
+        for row in rows:
+            csv_values = {}
+            for header in headers:
+                if header in row["csv_header"]:
+                    idx = row["csv_header"].index(header)
+                    value = row["csv_values"][idx]
+                    csv_values[header] = value
             writer.writerow(csv_values)
-            job.pyprint("Values:", csv_values)
+            job.pyprint("Values:", [csv_values.get(header, "") for header in headers])
+
     return 0
 
 
