@@ -2,8 +2,6 @@
 
 - [Audience](#audience)
 - [Requirements](#requirements)
-  - [Docker and Linux](#docker-and-linux)
-  - [Docker and Mac](#docker-and-mac)
   - [Elasticsearch container](#elasticsearch-container)
 - [Installation](#installation)
 - [Web UIs](#web-uis)
@@ -28,16 +26,15 @@
 
 ## Audience
 
-This Archivematica environment is based on Docker Compose [V3][audience-compose-v3]
-and it is specifically **designed for developers**. Compose can be used in a
-production environment but that is beyond the scope of this recipe. Please read
+This Archivematica environment is based on Docker Compose and it is
+specifically **designed for developers**. Compose can be used in a production
+environment but that is beyond the scope of this recipe. Please read
 the [documentation][audience-compose-reference].
 
 Artefactual developers use Docker Compose on Linux heavily so it's important
 that you're familiar with it, and some choices in the configuration of this
 environment break in other operative systems.
 
-[audience-compose-v3]: https://docs.docker.com/compose/compose-file/compose-file-v3/
 [audience-compose-reference]: https://docs.docker.com/compose/reference/overview/
 
 ## Requirements
@@ -63,9 +60,10 @@ am-mysql-1                           551.9MiB / 7.763GiB
 am-clamavd-1                         570MiB / 7.763GiB
 ```
 
-Software dependencies: Docker Engine, Docker Compose V3, git and make. Please
-use a version of Docker Engine greater than 23.0 which includes Buildkit as
-the default builder with support for multi-stage builds.
+Software dependencies: Docker Engine, Docker Compose, git and make. Please use
+a version of Docker Engine greater than 23.0 which includes Buildkit as the
+default builder with support for multi-stage builds and a version of Docker
+Compose greater than 2.17 which supports restarts of dependent services.
 
 It is beyond the scope of this document to explain how these dependencies are
 installed in your computer.
