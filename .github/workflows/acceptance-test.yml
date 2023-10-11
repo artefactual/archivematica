@@ -49,7 +49,7 @@ jobs:
         run: |
           docker compose up -d
         env:
-          cluster.routing.allocation.disk.threshold_enabled: false
+          ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
         working-directory: ./hack
       - name: "Bootstrap services"
         run: |
