@@ -48,6 +48,7 @@ services:
       - "network.host=0.0.0.0"
       - "bootstrap.memory_lock=true"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "cluster.routing.allocation.disk.threshold_enabled=${ELASTICSEARCH_DISK_THRESHOLD_ENABLED:-true}"
     ulimits:
       memlock:
         soft: -1
