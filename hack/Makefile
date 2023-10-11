@@ -191,6 +191,15 @@ compile-requirements-am:  ## Run pip-compile for Archivematica
 		--entrypoint bash archivematica-mcp-server \
 			-c "make pip-compile"
 
+upgrade-requirements-am:  ## Run pip-upgrade for Archivematica
+	docker compose run --workdir /src \
+		-e XDG_CACHE_HOME=/tmp/pip-cache \
+		--rm \
+		--no-deps \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--entrypoint bash archivematica-mcp-server \
+			-c "make pip-upgrade"
+
 compile-requirements-ss:  ## Run pip-compile for Storage Service
 	docker compose run --workdir /src \
 		-e XDG_CACHE_HOME=/tmp/pip-cache \
@@ -199,6 +208,15 @@ compile-requirements-ss:  ## Run pip-compile for Storage Service
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--entrypoint bash archivematica-storage-service \
 			-c "make pip-compile"
+
+upgrade-requirements-ss:  ## Run pip-upgrade for Storage Service
+	docker compose run --workdir /src \
+		-e XDG_CACHE_HOME=/tmp/pip-cache \
+		--rm \
+		--no-deps \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--entrypoint bash archivematica-storage-service \
+			-c "make pip-upgrade"
 
 db:  ## Connect to the MySQL server using the CLI.
 	docker compose exec mysql mysql -hlocalhost -uroot -p12345
