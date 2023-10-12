@@ -67,9 +67,9 @@ It is beyond the scope of this document to explain how these dependencies are
 installed in your computer. If you're using Ubuntu 16.04 the following commands
 may work:
 
-    $ sudo apt update
-    $ sudo apt install -y build-essential python-dev git
-    $ sudo pip install -U docker-compose
+    sudo apt update
+    sudo apt install -y build-essential python-dev git
+    sudo pip install -U docker-compose
 
 And install Docker CE following [these instructions][requirements-1].
 
