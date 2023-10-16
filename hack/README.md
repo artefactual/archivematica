@@ -234,13 +234,13 @@ code changes.
 Other components in the stack like the `MCPServer` don't offer this option and
 they need to be restarted manually, e.g.:
 
-    $ docker compose up -d --force-recreate --no-deps archivematica-mcp-server
+    docker compose up -d --force-recreate --no-deps archivematica-mcp-server
 
 If you've added new dependencies or changes the `Dockerfile` you should also
 add the `--build` argument to the previous command in order to ensure that the
 container is using the newest image, e.g.:
 
-    $ docker compose up -d --force-recreate --build --no-deps archivematica-mcp-server
+    docker compose up -d --force-recreate --build --no-deps archivematica-mcp-server
 
 ## Logs
 
