@@ -169,6 +169,8 @@ only the Archivematica services:
 make restart-am-services
 ```
 
+You should now be able to access Archivematica services through the [Web UIs](#web-uis).
+
 ### GNU make
 
 Make commands above, and any subsequent calls to it below can be reviewed using
