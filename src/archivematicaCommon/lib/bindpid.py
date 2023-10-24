@@ -316,12 +316,12 @@ def _render_request_body(argsdict, resolve_url, qualified_resolve_urls):
     """
     return _render_template(
         argsdict["pid_request_body_template"],
-        dict(
-            naming_authority=argsdict["naming_authority"],
-            pid=argsdict["desired_pid"],
-            base_resolve_url=resolve_url,
-            qualified_resolve_urls=qualified_resolve_urls,
-        ),
+        {
+            "naming_authority": argsdict["naming_authority"],
+            "pid": argsdict["desired_pid"],
+            "base_resolve_url": resolve_url,
+            "qualified_resolve_urls": qualified_resolve_urls,
+        },
     ).encode("utf8")
 
 

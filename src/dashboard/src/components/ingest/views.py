@@ -80,7 +80,7 @@ def _adjust_directories_draggability(nodes):
 def ingest_grid(request):
     try:
         storage_service.get_location(purpose="BL")
-    except:
+    except Exception:
         messages.warning(
             request,
             _(
@@ -175,7 +175,7 @@ def ingest_metadata_edit(request, uuid, id=None):
 def ingest_metadata_add_files(request, sip_uuid):
     try:
         source_directories = storage_service.get_location(purpose="TS")
-    except:
+    except Exception:
         messages.warning(
             request,
             _(
@@ -288,7 +288,7 @@ def ingest_metadata_delete(request, uuid, id):
         models.DublinCore.objects.get(pk=id).delete()
         messages.info(request, _("Deleted."))
         return redirect("ingest:ingest_metadata_list", uuid)
-    except:
+    except Exception:
         raise Http404
 
 
@@ -322,7 +322,7 @@ def ingest_upload(request, uuid):
         if "target" in request.POST:
             try:
                 access = models.Access.objects.get(sipuuid=uuid)
-            except:
+            except Exception:
                 access = models.Access(sipuuid=uuid)
             access.target = pickle.dumps(
                 {"target": request.POST["target"]}, protocol=0
@@ -334,7 +334,7 @@ def ingest_upload(request, uuid):
         try:
             access = models.Access.objects.get(sipuuid=uuid)
             data = pickle.loads(access.target.encode())
-        except:
+        except Exception:
             raise Http404
         return helpers.json_response(data)
 
@@ -629,7 +629,7 @@ def transfer_backlog(request, ui):
             query = advanced_search.assemble_query(
                 queries, ops, fields, types, filters=[backlog_filter]
             )
-        except:
+        except Exception:
             logger.exception("Error accessing index.")
             return HttpResponse("Error accessing index.")
 
@@ -638,7 +638,7 @@ def transfer_backlog(request, ui):
         results = elasticSearchFunctions.search_all_results(
             es_client, body=query, index="transferfiles"
         )
-    except:
+    except Exception:
         logger.exception("Error accessing index.")
         return HttpResponse("Error accessing index.")
 
@@ -693,7 +693,7 @@ def transfer_file_download(request, uuid):
     # get file basename
     try:
         file = models.File.objects.get(uuid=uuid)
-    except:
+    except Exception:
         raise Http404
 
     shared_directory_path = django_settings.SHARED_DIRECTORY

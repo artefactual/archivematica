@@ -155,7 +155,7 @@ class AvalonValidator(BaseValidator):
 
         :param row: list: metadata fields
         """
-        for i, field in enumerate(row):
+        for field in row:
             if field == "Other Identifier Type":
                 if not all(
                     f in row for f in ["Other Identifier", "Other Identifier Type"]

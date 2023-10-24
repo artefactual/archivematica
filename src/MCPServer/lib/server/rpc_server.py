@@ -218,7 +218,7 @@ class RPCServer(GearmanWorker):
         raise_exc = True
         """
         ret = etree.Element("choicesAvailableForUnits")
-        for uuid, choice in self.package_queue.jobs_awaiting_decisions().items():
+        for choice in self.package_queue.jobs_awaiting_decisions().values():
             unit_choices = etree.SubElement(ret, "choicesAvailableForUnit")
             etree.SubElement(unit_choices, "UUID").text = str(choice.uuid)
             unit = etree.SubElement(unit_choices, "unit")

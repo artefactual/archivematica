@@ -223,7 +223,7 @@ def test_get_premis_element_children_identifiers(mocker):
     "params",
     [
         {"original_name": "name", "expected_original_name": "name"},
-        {"original_name": tuple(), "expected_original_name": ""},
+        {"original_name": (), "expected_original_name": ""},
     ],
     ids=["original_name_as_string", "original_name_as_empty_string"],
 )

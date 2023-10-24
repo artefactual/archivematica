@@ -193,7 +193,7 @@ def test_gearman_multiple_batches(
     backend = GearmanTaskBackend()
 
     job_requests = []
-    for i in range(3):
+    for _ in range(3):
         mock_gearman_job = mocker.Mock()
         job_request = gearman.job.GearmanJobRequest(
             mock_gearman_job, background=True, max_attempts=0

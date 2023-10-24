@@ -88,7 +88,7 @@ def main(target, xml_file, date, event_uuid, file_uuid, file_grpuse):
 
         try:
             tree = etree.parse(temp_file)
-        except:
+        except Exception:
             logger.exception("Failed to read Fits's XML.")
             return 2
 

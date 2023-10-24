@@ -196,8 +196,7 @@ class TestElasticSearchFunctions(unittest.TestCase):
     @mock.patch("elasticSearchFunctions.bulk")
     def test_index_mets_file_metadata_with_utf8(self, dummy_helpers_bulk):
         def _bulk(client, actions, stats_only=False, *args, **kwargs):
-            for action in actions:
-                pass
+            pass
 
         dummy_helpers_bulk.side_effect = _bulk
         mets_file_path = os.path.join(

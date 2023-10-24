@@ -131,12 +131,9 @@ class DashboardSettingManager(models.Manager):
             {u'foo': u'bar'}
 
         """
-        return {
-            key: value
-            for (key, value) in self.get_queryset()
-            .filter(scope=scope)
-            .values_list("name", "value")
-        }
+        return dict(
+            self.get_queryset().filter(scope=scope).values_list("name", "value")
+        )
 
     def set_dict(self, scope, items):
         """

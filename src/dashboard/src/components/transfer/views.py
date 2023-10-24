@@ -53,7 +53,7 @@ def grid(request):
 def transfer_source_locations(request):
     try:
         return helpers.json_response(storage_service.get_location(purpose="TS"))
-    except:
+    except Exception:
         message = _("Error retrieving source directories")
         logger.exception(message)
         response = {"message": message, "status": "Failure"}

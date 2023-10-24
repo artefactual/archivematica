@@ -191,5 +191,5 @@ def delete(request, id):
             raise Http404
         user.delete()
         return redirect("accounts:accounts_index")
-    except:
+    except Exception:
         raise Http404

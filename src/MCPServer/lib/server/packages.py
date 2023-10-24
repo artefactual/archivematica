@@ -681,7 +681,7 @@ class Package(metaclass=abc.ABCMeta):
                     files_returned_already.add(file_obj_mapped.get("%inputFile%"))
                     yield file_obj_mapped
 
-            for basedir, subdirs, files in os.walk(start_path):
+            for basedir, _, files in os.walk(start_path):
                 for file_name in files:
                     if (
                         filter_filename_start
@@ -712,7 +712,7 @@ class Package(metaclass=abc.ABCMeta):
             unittype=self.UNIT_VARIABLE_TYPE,
             unituuid=self.uuid,
             variable=key,
-            defaults=dict(variablevalue=value, microservicechainlink=chain_link_id),
+            defaults={"variablevalue": value, "microservicechainlink": chain_link_id},
         )
         if created:
             message = "New UnitVariable %s created for %s: %s (MSCL: %s)"
