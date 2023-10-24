@@ -181,7 +181,7 @@ def storage(request):
     """
     try:
         response_locations = storage_service.get_location()
-    except:
+    except Exception:
         messages.warning(
             request,
             _(
@@ -326,7 +326,7 @@ def _get_shared_dirs(calculate_usage=False):
     )
 
     if calculate_usage:
-        for id, dir_spec in dirs.items():
+        for dir_spec in dirs.values():
             dir_spec["used"] = _usage_get_directory_used_bytes(dir_spec["path"])
 
     return dirs
@@ -561,7 +561,7 @@ def general(request):
     )
 
     forms = (general_form, storage_form, checksum_form)
-    if all([form.is_valid() for form in forms]):
+    if all(form.is_valid() for form in forms):
         for item in forms:
             item.save()
         messages.info(request, _("Saved."))

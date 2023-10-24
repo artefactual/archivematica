@@ -178,8 +178,10 @@ def match_dip_objects_to_resource_levels(
     parent_url,
     reset_url,
     uuid,
-    matches=[],
+    matches=None,
 ):
+    if matches is None:
+        matches = []
     # load object relative paths
     object_path_json = json.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -203,8 +205,10 @@ def match_dip_objects_to_resource_component_levels(
     parent_url,
     reset_url,
     uuid,
-    matches=[],
+    matches=None,
 ):
+    if matches is None:
+        matches = []
     # load object relative paths
     object_path_json = json.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -238,7 +242,9 @@ def remove_review_matches_prefixes(path):
     return remove_objects_prefix(remove_sip_dir_prefix(path))
 
 
-def review_matches(client, request, template, uuid, matches=[]):
+def review_matches(client, request, template, uuid, matches=None):
+    if matches is None:
+        matches = []
     object_paths = {
         file_.uuid: remove_review_matches_prefixes(file_.currentlocation.decode())
         for file_ in models.File.objects.filter(sip=uuid)
@@ -262,7 +268,7 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
     dip_upload_dir = os.path.join(watch_dir, "uploadDIP")
     try:
         sip = models.SIP.objects.get(uuid=uuid)
-    except:
+    except Exception:
         raise Http404
     directory = os.path.basename(os.path.dirname(sip.currentpath))
     metsFilePath = os.path.join(dip_upload_dir, directory, "METS." + uuid + ".xml")

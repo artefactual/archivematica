@@ -522,13 +522,11 @@ def _import_self_describing_transfer(
     """
     transfer, created = Transfer.objects.get_or_create(
         uuid=transfer_uuid,
-        defaults=dict(
-            type="Standard",
-            diruuids=False,
-            currentlocation="%sharedPath%www/AIPsStore/transferBacklog/originals/"
-            + str(transfer_dir.name)
-            + "/",
-        ),
+        defaults={
+            "type": "Standard",
+            "diruuids": False,
+            "currentlocation": f"%sharedPath%www/AIPsStore/transferBacklog/originals/{transfer_dir.name}/",
+        },
     )
 
     # The transfer did not exist, we need to populate everything else.

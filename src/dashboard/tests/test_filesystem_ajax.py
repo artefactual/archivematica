@@ -691,4 +691,4 @@ def test_copy_within_arrange(mocker, admin_client):
 
     # Verify SIPArrange instances were created as expected.
     assert models.SIPArrange.objects.count() == 2
-    assert set(list(models.SIPArrange.objects.values_list(*attrs))) == expected
+    assert set(models.SIPArrange.objects.values_list(*attrs)) == expected

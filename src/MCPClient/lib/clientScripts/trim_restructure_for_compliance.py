@@ -107,7 +107,7 @@ def restructureTRIMForComplianceFileUUIDsAssigned(
             files = fileOperations.getFileUUIDLike(
                 dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith
             )
-            for key, value in files.items():
+            for value in files.values():
                 fileUUID = value
                 fileOperations.updateFileGrpUse(fileUUID, "TRIM metadata")
 

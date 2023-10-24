@@ -185,7 +185,7 @@ def test_reload_file_list(tmp_path):
 
     # One file will be returned from the database  with a UUID, another from
     # the filesystem without a UUID.
-    for file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
         assert "%fileUUID%" in file_info
         assert "%fileGrpUse%" in file_info
         assert "%relativeLocation%" in file_info
@@ -205,7 +205,7 @@ def test_reload_file_list(tmp_path):
         }
         models.File.objects.create(**kwargs)
     assert (
-        file_count == 2
+        _file_count == 2
     ), "Database and file objects were not returned by the generator"
     assert models.File.objects.filter(transfer_id=str(transfer_uuid)).count() == 2
 
@@ -215,7 +215,7 @@ def test_reload_file_list(tmp_path):
     sub_dir.mkdir()
     new_file = sub_dir / "another_new_file.txt"
     new_file.touch()
-    for file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
         if file_info.get("%fileUUID%") != "None":
             continue
         file_path = Path(
@@ -231,20 +231,20 @@ def test_reload_file_list(tmp_path):
         }
         models.File.objects.create(**kwargs)
     assert (
-        file_count == 3
+        _file_count == 3
     ), "Database and file objects were not returned by the generator"
     assert models.File.objects.filter(transfer_id=str(transfer_uuid)).count() == 3
 
     # Now the database is updated, we will still have the same file count, but
     # all objects will be returned from the database and we will have uuids.
-    for file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
         if file_info.get("%fileUUID%") == "None":
-            assert (
-                False
-            ), "Non-database entries returned from package.files(): {}".format(
-                file_info
+            raise AssertionError(
+                "Non-database entries returned from package.files(): {}".format(
+                    file_info
+                )
             )
-    assert file_count == 3
+    assert _file_count == 3
 
     # Finally, let's just see if the scan works for a slightly larger no.
     # files, i.e. a number with an increment slightly larger than one.
@@ -253,11 +253,11 @@ def test_reload_file_list(tmp_path):
         new_file = objects_path / file_
         new_file.touch()
     new_count = 0
-    for file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
         if file_info.get("%fileUUID%") == "None":
             new_count += 1
     assert new_count == 5
-    assert file_count == 8
+    assert _file_count == 8
 
     # Clean up state and ensure test doesn't interfere with other transfers
     # expected to be in the database, e.g. in test_queues.py.

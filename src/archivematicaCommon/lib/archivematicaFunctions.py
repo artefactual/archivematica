@@ -524,4 +524,4 @@ def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
     [('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]
     """
     args = [iter(iterable)] * chunk_size
-    return zip_longest(fillvalue=fillvalue, *args)
+    return zip_longest(*args, fillvalue=fillvalue)

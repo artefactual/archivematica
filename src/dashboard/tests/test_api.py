@@ -517,10 +517,8 @@ class TestProcessingConfigurationAPI(TestCase):
             assert len(processing_configs) == 2
             expected_names = sorted(["default", "automated"])
             assert all(
-                [
-                    actual == expected
-                    for actual, expected in zip(processing_configs, expected_names)
-                ]
+                actual == expected
+                for actual, expected in zip(processing_configs, expected_names)
             )
 
     def test_get_existing_processing_config(self):
