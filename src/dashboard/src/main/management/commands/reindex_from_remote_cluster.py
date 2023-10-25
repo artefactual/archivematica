@@ -15,9 +15,11 @@ import json
 import sys
 
 import elasticsearch
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 from django.conf import settings
 from main.management.commands import DashboardCommand
+
+# import elasticSearchFunctions
 
 
 class Command(DashboardCommand):

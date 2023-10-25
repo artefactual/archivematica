@@ -5,8 +5,8 @@ import traceback
 from glob import glob
 
 import django
-import elasticSearchFunctions
 import identifier_functions
+import openSearchFunctions as elasticSearchFunctions
 import storageService as storage_service
 from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError

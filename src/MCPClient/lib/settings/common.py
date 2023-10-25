@@ -93,6 +93,16 @@ CONFIG_MAPPING = {
         "option": "elasticsearchTimeout",
         "type": "float",
     },
+    "opensearch_server": {
+        "section": "MCPClient",
+        "option": "opensearchServer",
+        "type": "string",
+    },
+    "opensearch_timeout": {
+        "section": "MCPClient",
+        "option": "opensearchTimeout",
+        "type": "float",
+    },
     "search_enabled": {
         "section": "MCPClient",
         "process_function": process_search_enabled,
@@ -203,6 +213,8 @@ clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
 clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
+opensearchServer = localhost:9200
+opensearchTimeout = 10
 search_enabled = true
 metadata_xml_validation_enabled = false
 index_aip_continue_on_error = false
@@ -344,6 +356,8 @@ REMOVABLE_FILES = config.get("removable_files")
 TEMP_DIRECTORY = config.get("temp_directory")
 ELASTICSEARCH_SERVER = config.get("elasticsearch_server")
 ELASTICSEARCH_TIMEOUT = config.get("elasticsearch_timeout")
+OPENSEARCH_SERVER = config.get("opensearch_server")
+OPENSEARCH_TIMEOUT = config.get("opensearch_timeout")
 CLAMAV_SERVER = config.get("clamav_server")
 CLAMAV_PASS_BY_STREAM = config.get("clamav_pass_by_stream")
 CLAMAV_CLIENT_TIMEOUT = config.get("clamav_client_timeout")
