@@ -13,6 +13,7 @@ services:
     security_opt:
       - "seccomp:unconfined"
     volumes:
+      - "./submodules/archivematica-acceptance-tests/:/src/"
       - "/dev/shm:/dev/shm"
       - "./submodules/archivematica-sampledata:/home/archivematica/archivematica-sampledata:ro"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
