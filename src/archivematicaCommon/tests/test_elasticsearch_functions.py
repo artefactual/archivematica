@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import elasticSearchFunctions
 import pytest
-import vcr
 from lxml import etree
 from main.models import Directory
 from main.models import Identifier
@@ -16,17 +15,57 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestElasticSearchFunctions(unittest.TestCase):
-    @vcr.use_cassette(
-        os.path.join(THIS_DIR, "fixtures", "test_elasticsearch_setup.yaml")
-    )
     def setUp(self):
-        elasticSearchFunctions.setup("elasticsearch:9200")
+        with mock.patch("elasticsearch.transport.Transport.perform_request"):
+            elasticSearchFunctions.setup("elasticsearch:9200")
         self.client = elasticSearchFunctions.get_client()
         self.aip_uuid = "b34521a3-1c63-43dd-b901-584416f36c91"
         self.file_uuid = "268421a7-a986-4fa0-95c1-54176e508210"
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, "fixtures", "test_delete_aip.yaml"))
-    def test_delete_aip(self):
+    @mock.patch(
+        "elasticsearch.transport.Transport.perform_request",
+        side_effect=[
+            {
+                "took": 2,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {
+                    "total": 1,
+                    "max_score": 0.2876821,
+                    "hits": [
+                        {
+                            "_index": "aips",
+                            "_type": "_doc",
+                            "_id": "lBsZBWgBn49OAVhMXeO8",
+                            "_score": 0.2876821,
+                            "_source": {"uuid": "b34521a3-1c63-43dd-b901-584416f36c91"},
+                        }
+                    ],
+                },
+            },
+            {
+                "took": 8,
+                "timed_out": False,
+                "total": 1,
+                "deleted": 1,
+                "batches": 1,
+                "version_conflicts": 0,
+                "noops": 0,
+                "retries": {"bulk": 0, "search": 0},
+                "throttled_millis": 0,
+                "requests_per_second": -1.0,
+                "throttled_until_millis": 0,
+                "failures": [],
+            },
+            {
+                "took": 0,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {"total": 0, "max_score": None, "hits": []},
+            },
+        ],
+    )
+    def test_delete_aip(self, perform_request):
         # Verify AIP exists
         results = self.client.search(
             index="aips",
@@ -45,8 +84,61 @@ class TestElasticSearchFunctions(unittest.TestCase):
         )
         assert results["hits"]["total"] == 0
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, "fixtures", "test_delete_aip_files.yaml"))
-    def test_delete_aip_files(self):
+    @mock.patch(
+        "elasticsearch.transport.Transport.perform_request",
+        side_effect=[
+            {
+                "took": 1,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {
+                    "total": 2,
+                    "max_score": 0.2876821,
+                    "hits": [
+                        {
+                            "_index": "aipfiles",
+                            "_type": "_doc",
+                            "_id": "lRsZBWgBn49OAVhMXuMC",
+                            "_score": 0.2876821,
+                            "_source": {
+                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"
+                            },
+                        },
+                        {
+                            "_index": "aipfiles",
+                            "_type": "_doc",
+                            "_id": "lhsZBWgBn49OAVhMXuMh",
+                            "_score": 0.2876821,
+                            "_source": {
+                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"
+                            },
+                        },
+                    ],
+                },
+            },
+            {
+                "took": 11,
+                "timed_out": False,
+                "total": 2,
+                "deleted": 2,
+                "batches": 1,
+                "version_conflicts": 0,
+                "noops": 0,
+                "retries": {"bulk": 0, "search": 0},
+                "throttled_millis": 0,
+                "requests_per_second": -1.0,
+                "throttled_until_millis": 0,
+                "failures": [],
+            },
+            {
+                "took": 0,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {"total": 0, "max_score": None, "hits": []},
+            },
+        ],
+    )
+    def test_delete_aip_files(self, perform_request):
         # Verify AIP files exist
         results = self.client.search(
             index="aipfiles", body={"query": {"term": {"AIPUUID": self.aip_uuid}}}
@@ -60,26 +152,183 @@ class TestElasticSearchFunctions(unittest.TestCase):
         )
         assert results["hits"]["total"] == 0
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, "fixtures", "test_set_get_tags.yaml"))
-    def test_set_get_tags(self):
+        assert perform_request.mock_calls == [
+            mock.call(
+                "GET",
+                "/aipfiles/_search",
+                params={},
+                body={
+                    "query": {
+                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
+                    }
+                },
+            ),
+            mock.call(
+                "POST",
+                "/aipfiles/_delete_by_query",
+                params={},
+                body={
+                    "query": {
+                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
+                    }
+                },
+            ),
+            mock.call(
+                "GET",
+                "/aipfiles/_search",
+                params={},
+                body={
+                    "query": {
+                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
+                    }
+                },
+            ),
+        ]
+
+    @mock.patch(
+        "elasticsearch.transport.Transport.perform_request",
+        side_effect=[
+            {
+                "took": 1,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {
+                    "total": 1,
+                    "max_score": 0.6931472,
+                    "hits": [
+                        {
+                            "_index": "transferfiles",
+                            "_type": "_doc",
+                            "_id": "mBsZBWgBn49OAVhMh-OV",
+                            "_score": 0.6931472,
+                            "_source": {
+                                "accessionid": "",
+                                "status": "backlog",
+                                "sipuuid": "17b168b6-cbba-4f43-8838-a53360238acb",
+                                "tags": [],
+                                "file_extension": "jpg",
+                                "relative_path": "test-17b168b6-cbba-4f43-8838-a53360238acb/objects/Landing_zone.jpg",
+                                "bulk_extractor_reports": [],
+                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b",
+                                "size": 1.2982568740844727,
+                                "modification_date": "2018-12-11",
+                                "created": 1546273029.7313669,
+                                "format": [],
+                                "ingestdate": "2018-12-31",
+                                "filename": "Landing_zone.jpg",
+                                "fileuuid": "268421a7-a986-4fa0-95c1-54176e508210",
+                            },
+                        }
+                    ],
+                },
+            },
+            {
+                "_index": "transferfiles",
+                "_type": "_doc",
+                "_id": "mBsZBWgBn49OAVhMh-OV",
+                "_version": 2,
+                "result": "updated",
+                "forced_refresh": True,
+                "_shards": {"total": 2, "successful": 1, "failed": 0},
+                "_seq_no": 2,
+                "_primary_term": 1,
+            },
+            {
+                "took": 2,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {
+                    "total": 1,
+                    "max_score": 0.47000363,
+                    "hits": [
+                        {
+                            "_index": "transferfiles",
+                            "_type": "_doc",
+                            "_id": "mBsZBWgBn49OAVhMh-OV",
+                            "_score": 0.47000363,
+                            "_source": {"tags": ["test"]},
+                        }
+                    ],
+                },
+            },
+        ],
+    )
+    def test_set_get_tags(self, perform_request):
         elasticSearchFunctions.set_file_tags(self.client, self.file_uuid, ["test"])
         assert elasticSearchFunctions.get_file_tags(self.client, self.file_uuid) == [
             "test"
         ]
 
-    @vcr.use_cassette(
-        os.path.join(THIS_DIR, "fixtures", "test_get_tags_no_matches.yaml")
+        assert perform_request.mock_calls == [
+            mock.call(
+                "GET",
+                "/transferfiles/_search",
+                params={"size": "10000"},
+                body={
+                    "query": {
+                        "term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}
+                    }
+                },
+            ),
+            mock.call(
+                "POST",
+                "/transferfiles/_doc/mBsZBWgBn49OAVhMh-OV/_update",
+                params={},
+                body={"doc": {"tags": ["test"]}},
+            ),
+            mock.call(
+                "GET",
+                "/transferfiles/_search",
+                params={"_source": b"tags"},
+                body={
+                    "query": {
+                        "term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}
+                    }
+                },
+            ),
+        ]
+
+    @mock.patch(
+        "elasticsearch.transport.Transport.perform_request",
+        side_effect=[
+            {
+                "took": 1,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {"total": 0, "max_score": None, "hits": []},
+            }
+        ],
     )
-    def test_list_tags_fails_when_file_cant_be_found(self):
+    def test_list_tags_fails_when_file_cant_be_found(self, perform_request):
         with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
             elasticSearchFunctions.get_file_tags(self.client, "no_such_file")
+        perform_request.assert_called_once_with(
+            "GET",
+            "/transferfiles/_search",
+            params={"_source": b"tags"},
+            body={"query": {"term": {"fileuuid": "no_such_file"}}},
+        )
 
-    @vcr.use_cassette(
-        os.path.join(THIS_DIR, "fixtures", "test_set_tags_no_matches.yaml")
+    @mock.patch(
+        "elasticsearch.transport.Transport.perform_request",
+        side_effect=[
+            {
+                "took": 0,
+                "timed_out": False,
+                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+                "hits": {"total": 0, "max_score": None, "hits": []},
+            }
+        ],
     )
-    def test_set_tags_fails_when_file_cant_be_found(self):
+    def test_set_tags_fails_when_file_cant_be_found(self, perform_request):
         with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
             elasticSearchFunctions.set_file_tags(self.client, "no_such_file", [])
+        perform_request.assert_called_once_with(
+            "GET",
+            "/transferfiles/_search",
+            params={"size": "10000"},
+            body={"query": {"term": {"fileuuid": "no_such_file"}}},
+        )
 
     @pytest.mark.django_db
     @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
