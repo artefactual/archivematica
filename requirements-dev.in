@@ -9,4 +9,3 @@ pytest-mock
 pytest-randomly
 requests-mock
 tox
-vcrpy
