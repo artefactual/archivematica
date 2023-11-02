@@ -8,29 +8,21 @@ also limited unit testing in create_mets_v2 (AIP METS generation).
 import os
 from itertools import chain
 
+import bind_pid
+import bind_pids
+import create_mets_v2
+import namespaces as ns
 import pytest
-import vcr
 from job import Job
 from main.models import DashboardSetting
 from main.models import Directory
 from main.models import File
 from main.models import SIP
 from main.models import Transfer
-
+from pid_declaration import DeclarePIDs
+from pid_declaration import DeclarePIDsException
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-vcr_cassettes = vcr.VCR(
-    cassette_library_dir=os.path.join(THIS_DIR, "fixtures", "vcr_cassettes"),
-    path_transformer=vcr.VCR.ensure_suffix(".yaml"),
-)
-
-import bind_pid
-import bind_pids
-import create_mets_v2
-import namespaces as ns
-from pid_declaration import DeclarePIDs, DeclarePIDsException
-
 
 PACKAGE_UUID = "cb5ebaf5-beda-40b4-8d0c-fefbd546b8de"
 INCOMPLETE_CONFIG_MSG = "A value for parameter"
@@ -257,6 +249,14 @@ def data(db, sip, settings, transfer, files, directories):
     return
 
 
+@pytest.fixture
+def pid_web_service(requests_mock):
+    requests_mock.post(
+        "https://pid.socialhistoryservices.org/secure",
+        text="",
+    )
+
+
 @pytest.mark.django_db
 def test_bind_pids_no_config(data, caplog, job):
     """Test the output of the code without any args.
@@ -275,7 +275,7 @@ def test_bind_pids_no_config(data, caplog, job):
 
 
 @pytest.mark.django_db
-def test_bind_pids(data, mocker, job):
+def test_bind_pids(data, mocker, job, pid_web_service):
     """Test the bind_pids function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -286,10 +286,10 @@ def test_bind_pids(data, mocker, job):
     # test here using the package UUID, the function's fallback position.
     mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=PACKAGE_UUID)
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
-    with vcr_cassettes.use_cassette("test_bind_pids_to_sip_and_dirs.yaml") as cassette:
-        # Primary entry-point for the bind_pids microservice job.
-        bind_pids.main(job, PACKAGE_UUID, "")
-    assert cassette.all_played
+
+    # Primary entry-point for the bind_pids microservice job.
+    bind_pids.main(job, PACKAGE_UUID, "")
+
     sip_mdl = SIP.objects.filter(uuid=PACKAGE_UUID).first()
     assert len(sip_mdl.identifiers.all()) == len(
         BOUND_IDENTIFIER_TYPES
@@ -350,7 +350,7 @@ def test_bind_pid_no_config(data, caplog, job):
 
 
 @pytest.mark.django_db
-def test_bind_pid(data, job):
+def test_bind_pid(data, job, pid_web_service):
     """Test the bind_pid function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -369,9 +369,7 @@ def test_bind_pid(data, job):
         package_files
     ), "Number of files returned from package is incorrect"
     for file_ in files:
-        with vcr_cassettes.use_cassette("test_bind_pid_to_files.yaml") as cassette:
-            bind_pid.main(job, file_.pk)
-    assert cassette.all_played
+        bind_pid.main(job, file_.pk)
     for file_mdl in files:
         bound = {idfr.type: idfr.value for idfr in file_mdl.identifiers.all()}
         assert (
@@ -421,7 +419,7 @@ def test_bind_pid_no_settings(data, caplog, job):
 
 
 @pytest.mark.django_db
-def test_pid_declaration(data, mocker, job):
+def test_pid_declaration(data, mocker, job, pid_web_service):
     """Test that the overall functionality of the PID declaration functions
     work as expected.
     """
@@ -459,13 +457,10 @@ def test_pid_declaration(data, mocker, job):
                 assert example_uri in value, "Example URI type not preserved"
             if key == PID_ULID:
                 assert len(example_ulid) == len(value)
-    # Use the previous PID binding vcr cassettes to ensure declared PIDs can
-    # co-exist with bound ones.
     mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=PACKAGE_UUID)
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
-    with vcr_cassettes.use_cassette("test_bind_pids_to_sip_and_dirs.yaml") as cassette:
-        # Primary entry-point for the bind_pids microservice job.
-        bind_pids.main(job, PACKAGE_UUID, "")
+    # Primary entry-point for the bind_pids microservice job.
+    bind_pids.main(job, PACKAGE_UUID, "")
     for mdl in chain((sip_mdl,), dir_mdl):
         dir_dmd_sec = create_mets_v2.getDirDmdSec(mdl, "")
         id_type = dir_dmd_sec.xpath(
@@ -486,9 +481,7 @@ def test_pid_declaration(data, mocker, job):
             if key == PID_ULID:
                 assert len(example_ulid) == len(value)
     for file_ in files:
-        with vcr_cassettes.use_cassette("test_bind_pid_to_files.yaml") as cassette:
-            bind_pid.main(job, file_.pk)
-        assert cassette.all_played
+        bind_pid.main(job, file_.pk)
     for file_mdl in files:
         file_level_premis = create_mets_v2.create_premis_object(file_mdl.pk)
         id_type = file_level_premis.xpath(
