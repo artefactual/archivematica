@@ -7,5 +7,4 @@ pytest-cov
 pytest-django
 pytest-mock
 pytest-randomly
-requests-mock
 tox

@@ -250,11 +250,8 @@ def data(db, sip, settings, transfer, files, directories):
 
 
 @pytest.fixture
-def pid_web_service(requests_mock):
-    requests_mock.post(
-        "https://pid.socialhistoryservices.org/secure",
-        text="",
-    )
+def pid_web_service(mocker):
+    mocker.patch("requests.post", return_value=mocker.Mock(status_code=200))
 
 
 @pytest.mark.django_db
