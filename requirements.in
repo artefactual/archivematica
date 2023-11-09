@@ -1,8 +1,8 @@
 git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@962f6f9818683ef5f6432f091d22945e54b82592#egg=django-shibboleth-remoteuser
 Django>=3.2,<4
-git+https://github.com/artefactual-labs/agentarchives.git@0093cd00c777acaba3d31b36f62608c7787ac8b9#egg=agentarchives
-git+https://github.com/artefactual-labs/amclient.git@6cd186021598b3b97c00ab033405314e9e287a42#egg=amclient
-git+https://github.com/artefactual-labs/ammcpc.git@103f8019559311eaf004e46d58f9406a8d2f694f#egg=ammcpc
+agentarchives
+amclient
+ammcpc
 bagit
 brotli
 clamd
@@ -21,7 +21,7 @@ inotify_simple
 jsonschema
 lazy-paged-sequence
 lxml
-git+https://github.com/artefactual-labs/mets-reader-writer.git@610065dd77291a675c55960044014d394899bc7a#egg=metsrw
+metsrw
 opf-fido
 pip
 pip-tools

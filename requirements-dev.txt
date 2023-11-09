@@ -4,11 +4,11 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements-dev.txt requirements-dev.in
 #
-agentarchives @ git+https://github.com/artefactual-labs/agentarchives.git@0093cd00c777acaba3d31b36f62608c7787ac8b9
+agentarchives==0.9.0
     # via -r requirements.txt
-amclient @ git+https://github.com/artefactual-labs/amclient.git@6cd186021598b3b97c00ab033405314e9e287a42
+amclient==1.3.0
     # via -r requirements.txt
-ammcpc @ git+https://github.com/artefactual-labs/ammcpc.git@103f8019559311eaf004e46d58f9406a8d2f694f
+ammcpc==0.2.0
     # via -r requirements.txt
 asgiref==3.7.2
     # via
@@ -141,7 +141,7 @@ lxml==4.9.3
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw @ git+https://github.com/artefactual-labs/mets-reader-writer.git@610065dd77291a675c55960044014d394899bc7a
+metsrw==0.5.0
     # via -r requirements.txt
 mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in
@@ -211,7 +211,7 @@ pytest==7.4.3
     #   pytest-randomly
 pytest-cov==4.1.0
     # via -r requirements-dev.in
-pytest-django==4.6.0
+pytest-django==4.7.0
     # via -r requirements-dev.in
 pytest-mock==3.12.0
     # via -r requirements-dev.in
