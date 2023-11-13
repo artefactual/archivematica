@@ -438,7 +438,7 @@ def _create_arranged_sip(staging_sip_path, files, sip_uuid):
     ):
         try:
             os.mkdir(os.path.join(staging_abs_path, directory))
-        except os.error as exception:
+        except OSError as exception:
             if exception.errno != errno.EEXIST:
                 raise
 

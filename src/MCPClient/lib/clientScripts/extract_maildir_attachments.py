@@ -132,7 +132,7 @@ def handle_job(job):
     mirrorDir = os.path.join(transferDir, "objects", "attachments")
     try:
         os.makedirs(mirrorDir)
-    except os.error:
+    except OSError:
         pass
     # print "Extracting attachments from: " + maildir
     root = etree.Element("ArchivematicaMaildirAttachmentExtractionRecord")
