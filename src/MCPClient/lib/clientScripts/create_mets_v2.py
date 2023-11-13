@@ -1001,7 +1001,7 @@ def createFileSec(
     dspaceMetsDMDID = None
     try:
         directoryContents = sorted(os.listdir(directoryPath))
-    except os.error:
+    except OSError:
         # Directory doesn't exist
         job.pyprint(directoryPath, "doesn't exist", file=sys.stderr)
         return

@@ -35,7 +35,7 @@ def removeDIP(job, SIPDirectory, SIPUUID):
         DIP = os.path.join(SIPDirectory, "DIP")
         if os.path.isdir(DIP):
             shutil.rmtree(DIP)
-    except (os.error, shutil.Error):
+    except (OSError, shutil.Error):
         job.pyprint("Error deleting DIP", file=sys.stderr)
         job.print_output(traceback.format_exc())
 
@@ -45,7 +45,7 @@ def removeThumbnails(job, SIPDirectory, SIPUUID):
         thumbnails = os.path.join(SIPDirectory, "thumbnails")
         if os.path.isdir(thumbnails):
             shutil.rmtree(thumbnails)
-    except (os.error, shutil.Error):
+    except (OSError, shutil.Error):
         job.pyprint("Error deleting thumbnails", file=sys.stderr)
         job.print_output(traceback.format_exc())
 

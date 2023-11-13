@@ -218,6 +218,26 @@ upgrade-requirements-ss:  ## Run pip-upgrade for Storage Service
 		--entrypoint bash archivematica-storage-service \
 			-c "make pip-upgrade"
 
+define amauat_make
+	docker compose \
+		-f docker-compose.yml \
+		-f docker-compose.acceptance-tests.yml \
+		run \
+			--workdir /src \
+			-e XDG_CACHE_HOME=/tmp/pip-cache \
+			--rm \
+			--no-deps \
+			--user $(CALLER_UID):$(CALLER_GID) \
+			--entrypoint bash archivematica-acceptance-tests \
+				-c "make $(1)"
+endef
+
+compile-requirements-amauat: test-at-build  ## Run pip-compile for AMAUATs
+	$(call amauat_make,pip-compile)
+
+upgrade-requirements-amauat: test-at-build  ## Run pip-upgrade for AMAUATs
+	$(call amauat_make,pip-upgrade)
+
 db:  ## Connect to the MySQL server using the CLI.
 	docker compose exec mysql mysql -hlocalhost -uroot -p12345
 
