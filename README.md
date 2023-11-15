@@ -5,6 +5,9 @@
 
 By [Artefactual](https://www.artefactual.com/)
 
+
+![Screen capture of an Archivematica instance, Administration tab.](./demo_s004.png)
+
 Archivematica is a web- and standards-based, open-source application which allows your institution to preserve long-term access to trustworthy, authentic and reliable digital content.
 Our target users are archivists, librarians, and anyone working to preserve digital objects.
 
@@ -18,20 +21,27 @@ See the [LICENSE](LICENSE) file for details.
 * [Development installation](https://github.com/artefactual/archivematica/tree/qa/1.x/hack)
 
 
-## Other resources
+## Using Archivematica
 
 * [Website](https://www.archivematica.org/): User and administrator documentation
-* [Wiki](https://www.archivematica.org/wiki/Development): Developer facing documentation, requirements analysis and community resources
-* [Issues](https://github.com/archivematica/Issues): Git repository used for tracking Archivematica issues and feature/enhancement ideas
+* [Slideshare repo](https://fr.slideshare.net/Archivematica/presentations) and [YouTube channel](https://www.youtube.com/@ArtefactualSystems) for previous trainings and talks
 * [User Google Group](https://groups.google.com/forum/#!forum/archivematica): Forum/mailing list for user questions (both technical and end-user)
 * [Paid support](https://www.artefactual.com/services/): Paid support, hosting, training, consulting and software development contracts from Artefactual
 
+## Developing Archivematica
+
+* [Archivematica API documentation](https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica): Get to know the Archivematica API
+* [Wiki](https://www.archivematica.org/wiki/Development): Developer facing documentation, requirements analysis and community resources
+* [Issues](https://github.com/archivematica/Issues): Git repository used for tracking Archivematica issues and feature/enhancement ideas
 
 ## Contributing
 
 Thank you for your interest in Archivematica!
-For more details, see the [contributing guidelines](CONTRIBUTING.md)
+For more details, see the [contributing guidelines](https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md)
 
+Read about our [merging process](https://wiki.archivematica.org/Merging), including branch naming conventions, and [make any documentation update](https://github.com/artefactual/archivematica-docs/wiki) reflecting the changes introduced by your contribution.
+
+You might have questions about the history of developement decisions: find answers in the [Architectural Decisions Record.](https://adr.archivematica.org/)
 
 ## Reporting an issue
 
