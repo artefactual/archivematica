@@ -21,8 +21,10 @@ from django.urls import re_path
 
 app_name = "api"
 urlpatterns = [
-    re_path(r"transfer/approve", views.approve_transfer),
-    re_path(r"transfer/unapproved", views.unapproved_transfers),
+    re_path(r"transfer/approve", views.approve_transfer, name="approve_transfer"),
+    re_path(
+        r"transfer/unapproved", views.unapproved_transfers, name="unapproved_transfers"
+    ),
     re_path(
         r"transfer/completed", views.completed_transfers, name="completed_transfers"
     ),
@@ -35,13 +37,20 @@ urlpatterns = [
     re_path(
         r"transfer/start_transfer/", views.start_transfer_api, name="start_transfer"
     ),
-    re_path(r"transfer/reingest", views.reingest, {"target": "transfer"}),
+    re_path(
+        r"transfer/reingest",
+        views.reingest,
+        {"target": "transfer"},
+        name="transfer_reingest",
+    ),
     re_path(
         r"ingest/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
         views.status,
         {"unit_type": "unitSIP"},
     ),
-    re_path(r"ingest/waiting", views.waiting_for_user_input),
+    re_path(
+        r"ingest/waiting", views.waiting_for_user_input, name="waiting_for_user_input"
+    ),
     re_path(
         r"^(?P<unit_type>transfer|ingest)/(?P<unit_uuid>"
         + settings.UUID_REGEX
@@ -52,7 +61,12 @@ urlpatterns = [
     re_path(
         r"^ingest/reingest/approve", views.reingest_approve, name="reingest_approve"
     ),
-    re_path(r"^ingest/reingest", views.reingest, {"target": "ingest"}),
+    re_path(
+        r"^ingest/reingest",
+        views.reingest,
+        {"target": "ingest"},
+        name="ingest_reingest",
+    ),
     re_path(r"^ingest/completed", views.completed_ingests, name="completed_ingests"),
     path("ingest/copy_metadata_files/", views.copy_metadata_files_api),
     path(
