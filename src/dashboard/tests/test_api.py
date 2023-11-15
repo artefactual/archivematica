@@ -6,6 +6,7 @@ import uuid
 
 import archivematicaFunctions
 import pytest
+import requests
 from components import helpers
 from components.api import views
 from django.core.management import call_command
@@ -14,8 +15,12 @@ from django.test.client import Client
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
+from main.models import DashboardSetting
+from main.models import DublinCore
 from main.models import Job
 from main.models import LevelOfDescription
+from main.models import MetadataAppliesToType
+from main.models import RightsStatement
 from main.models import SIP
 from main.models import SIPArrange
 from main.models import Task
@@ -751,3 +756,415 @@ def test_path_metadata_post_resets_level_of_description(admin_client):
         list(SIPArrange.objects.values("arrange_path", "level_of_description"))
         == expected
     )
+
+
+@pytest.mark.django_db
+def test_unapproved_transfers(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Create a couple of jobs with one awaiting for decision, i.e. unapproved.
+    approve_transfer_uuid = uuid.uuid4()
+    Job.objects.create(
+        jobtype="Approve standard transfer",
+        currentstep=Job.STATUS_AWAITING_DECISION,
+        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
+        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
+        unittype="unitTransfer",
+        sipuuid=approve_transfer_uuid,
+    )
+    Job.objects.create(
+        jobtype="Store AIP",
+        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
+        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
+        unittype="unitSIP",
+        sipuuid=uuid.UUID("520327f1-cd4e-47fe-9d8a-d9c02fded504"),
+    )
+
+    response = admin_client.get(reverse("api:unapproved_transfers"))
+    assert response.status_code == 200
+
+    # Verify the awaiting transfer is listed.
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched unapproved transfers successfully.",
+        "results": [
+            {
+                "directory": "test-2",
+                "type": "standard",
+                "uuid": str(approve_transfer_uuid),
+            }
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    "post_data,expected_error",
+    [
+        ({}, "Please specify a transfer directory."),
+        ({"directory": "mytransfer", "type": ""}, "Please specify a transfer type."),
+        ({"directory": "mytransfer", "type": "bogus"}, "Invalid transfer type."),
+        (
+            {"directory": "mytransfer", "type": "standard"},
+            "Unable to start the transfer.",
+        ),
+    ],
+    ids=[
+        "no_transfer_directory",
+        "no_transfer_type",
+        "invalid_transfer_type",
+        "mcpclient_error",
+    ],
+)
+def test_approve_transfer_failures(post_data, expected_error, admin_client, mocker):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Simulate an unhandled error when calling Gearman.
+    mocker.patch("contrib.mcp.client.MCPClient", side_effect=Exception())
+
+    response = admin_client.post(reverse("api:approve_transfer"), post_data)
+
+    assert response.status_code == 500
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {"error": True, "message": expected_error}
+
+
+def test_approve_transfer(admin_client, mocker):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Simulate a dashboard <-> Gearman <-> MCPServer interaction.
+    # The MCPServer approveTransferByPath RPC method returns a UUID.
+    transfer_uuid = uuid.uuid4()
+    mocker.patch("contrib.mcp.client.pickle.loads", side_effect=[transfer_uuid])
+    job_complete = mocker.patch(
+        "contrib.mcp.client.gearman.JOB_COMPLETE",
+    )
+    mocker.patch(
+        "gearman.GearmanClient",
+        return_value=mocker.Mock(
+            **{"submit_job.return_value": mocker.Mock(state=job_complete)}
+        ),
+    )
+
+    response = admin_client.post(
+        reverse("api:approve_transfer"), {"directory": "mytransfer", "type": "standard"}
+    )
+    assert response.status_code == 200
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {"message": "Approval successful.", "uuid": str(transfer_uuid)}
+
+
+@pytest.mark.django_db
+def test_waiting_for_user_input(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Create a couple of jobs with one awaiting for decision.
+    approve_transfer_uuid = uuid.uuid4()
+    Job.objects.create(
+        jobtype="Approve standard transfer",
+        currentstep=Job.STATUS_AWAITING_DECISION,
+        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
+        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
+        unittype="unitTransfer",
+        sipuuid=approve_transfer_uuid,
+    )
+    Job.objects.create(
+        jobtype="Store AIP",
+        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
+        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
+        unittype="unitSIP",
+        sipuuid=uuid.uuid4(),
+    )
+
+    response = admin_client.get(reverse("api:waiting_for_user_input"))
+    assert response.status_code == 200
+
+    # Verify the awaiting transfer is listed.
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched units successfully.",
+        "results": [
+            {
+                "microservice": "Approve standard transfer",
+                "sip_directory": "test-2",
+                "sip_name": "test-2",
+                "sip_uuid": str(approve_transfer_uuid),
+            }
+        ],
+    }
+
+
+def test_reingest_fails_with_missing_parameters(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    response = admin_client.post(
+        reverse("api:transfer_reingest", kwargs={"target": "transfer"}), {}
+    )
+
+    assert response.status_code == 400
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {"error": True, "message": '"name" and "uuid" are required.'}
+
+
+@pytest.fixture
+def sip_path(tmp_path):
+    shared_dir = tmp_path / "dir"
+    shared_dir.mkdir()
+
+    (shared_dir / "watchedDirectories" / "activeTransfers" / "standardTransfer").mkdir(
+        parents=True
+    )
+    (shared_dir / "watchedDirectories" / "system" / "reingestAIP").mkdir(parents=True)
+
+    tmp_dir = shared_dir / "tmp"
+    tmp_dir.mkdir()
+
+    sip_dir = tmp_dir / f"mytransfer-{uuid.uuid4()}"
+    sip_dir.mkdir()
+    (sip_dir / "myfile.txt").write_text("my file")
+
+    return sip_dir
+
+
+@pytest.mark.django_db
+def test_reingest_deletes_existing_models_related_to_sip(
+    sip_path, settings, admin_client
+):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+    shared_directory = sip_path.parent.parent
+    transfer_uuid = sip_path.name[-36:]
+    settings.SHARED_DIRECTORY = shared_directory.as_posix()
+
+    # Create a Transfer and related models.
+    transfer = Transfer.objects.create(uuid=transfer_uuid)
+    job = Job.objects.create(
+        sipuuid=transfer.uuid,
+        createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)),
+    )
+    Task.objects.create(
+        job=job,
+        createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)),
+    )
+    SIP.objects.create(uuid=transfer.uuid)
+    metadata_applies_to_type = MetadataAppliesToType.objects.create()
+    RightsStatement.objects.create(
+        metadataappliestoidentifier=transfer.uuid,
+        metadataappliestotype=metadata_applies_to_type,
+    )
+    DublinCore.objects.create(
+        metadataappliestoidentifier=transfer.uuid,
+        metadataappliestotype=metadata_applies_to_type,
+    )
+
+    response = admin_client.post(
+        reverse("api:transfer_reingest", kwargs={"target": "transfer"}),
+        {"name": f"mytransfer-{transfer_uuid}", "uuid": str(transfer_uuid)},
+    )
+    assert response.status_code == 200
+
+    # Verify the related models were deleted.
+    assert Job.objects.count() == 0
+    assert Task.objects.count() == 0
+    assert SIP.objects.count() == 0
+    assert RightsStatement.objects.count() == 0
+    assert DublinCore.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_reingest_full(sip_path, settings, admin_client, mocker):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Fake UUID generation from the endpoint for a new Transfer.
+    transfer_uuid = uuid.uuid4()
+    mocker.patch("uuid.uuid4", return_value=transfer_uuid)
+
+    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+    shared_directory = sip_path.parent.parent
+    settings.SHARED_DIRECTORY = shared_directory.as_posix()
+
+    # There are no existing Transfers initially.
+    assert Transfer.objects.count() == 0
+
+    response = admin_client.post(
+        reverse("api:transfer_reingest", kwargs={"target": "transfer"}),
+        {"name": sip_path.name, "uuid": sip_path.name[-36:]},
+    )
+    assert response.status_code == 200
+
+    # Verify the Transfer in the payload contains the fake UUID.
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "message": "Approval successful.",
+        "reingest_uuid": str(transfer_uuid),
+    }
+
+    # Verify a Transfer model was created.
+    assert (
+        Transfer.objects.filter(
+            currentlocation=f"%sharedPath%/watchedDirectories/activeTransfers/standardTransfer/mytransfer-{transfer_uuid}/",
+            type=Transfer.ARCHIVEMATICA_AIP,
+        ).count()
+        == 1
+    )
+
+    # Verify the original content was moved to the active transfers directory.
+    active_transfers_path = (
+        shared_directory / "watchedDirectories" / "activeTransfers" / "standardTransfer"
+    )
+    assert [e.name for e in active_transfers_path.iterdir()] == [
+        f"mytransfer-{transfer_uuid}"
+    ]
+    assert (
+        active_transfers_path / f"mytransfer-{transfer_uuid}" / "myfile.txt"
+    ).read_text() == "my file"
+
+
+@pytest.mark.django_db
+def test_reingest_full_fails_if_target_directory_already_exists(
+    sip_path, settings, admin_client, mocker
+):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Fake UUID generation from the endpoint for a new Transfer.
+    transfer_uuid = uuid.uuid4()
+    mocker.patch("uuid.uuid4", return_value=transfer_uuid)
+
+    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+    shared_directory = sip_path.parent.parent
+    settings.SHARED_DIRECTORY = shared_directory.as_posix()
+
+    # Create a directory with the same transfer name under active transfers.
+    active_transfers_path = (
+        shared_directory / "watchedDirectories" / "activeTransfers" / "standardTransfer"
+    )
+    (active_transfers_path / f"mytransfer-{transfer_uuid}").mkdir()
+
+    response = admin_client.post(
+        reverse("api:transfer_reingest", kwargs={"target": "transfer"}),
+        {"name": sip_path.name, "uuid": sip_path.name[-36:]},
+    )
+
+    assert response.status_code == 400
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "error": True,
+        "message": "There is already a transfer in standardTransfer with the same name.",
+    }
+
+
+@pytest.mark.django_db
+def test_reingest_partial(sip_path, settings, admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+    shared_directory = sip_path.parent.parent
+    settings.SHARED_DIRECTORY = shared_directory.as_posix()
+
+    # A partial reingest reuses the SIP UUID in the response.
+    reingest_uuid = sip_path.name[-36:]
+
+    response = admin_client.post(
+        reverse("api:ingest_reingest", kwargs={"target": "ingest"}),
+        {"name": sip_path.name, "uuid": reingest_uuid},
+    )
+    assert response.status_code == 200
+
+    # Verify the payload contains the reingest UUID.
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "message": "Approval successful.",
+        "reingest_uuid": reingest_uuid,
+    }
+
+    # Verify the original content was moved to the reingest directory.
+    reingests_path = shared_directory / "watchedDirectories" / "system" / "reingestAIP"
+    assert [e.name for e in reingests_path.iterdir()] == [sip_path.name]
+    assert (reingests_path / sip_path.name / "myfile.txt").read_text() == "my file"
+
+
+@pytest.mark.django_db
+def test_fetch_levels_of_description_from_atom(admin_client, mocker):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Set up the AtoM settings used on the Administration tab.
+    DashboardSetting.objects.create(
+        name="upload-qubit_v0.0",
+        value=str(
+            {
+                "url": "http://example.com",
+                "email": "demo@example.com",
+                "password": "password",
+            }
+        ),
+    )
+
+    # Simulate interaction with AtoM.
+    lods = ["Series", "Subseries", "File"]
+    mocker.patch(
+        "requests.get",
+        side_effect=[
+            mocker.Mock(
+                **{
+                    "status_code": 200,
+                    "json.return_value": [{"name": lod} for lod in lods],
+                },
+                spec=requests.Response,
+            )
+        ],
+    )
+
+    # Add existing LODs before calling the endpoint.
+    LevelOfDescription.objects.create(name="One existing", sortorder=1)
+    LevelOfDescription.objects.create(name="Another existing", sortorder=1)
+
+    response = admin_client.get(reverse("api:fetch_atom_lods"))
+    assert response.status_code == 200
+
+    # Verify the initial LODS were deleted and we only have the retrieved ones.
+    result = []
+    for lod in json.loads(response.content.decode("utf8")):
+        # LODs are represented as [{"8263fd14-2488-49f7-ac9d-fcfd02b524f0": "Series"}, ...]
+        name = list(lod.values())[0]
+        result.append(name)
+    assert result == lods
+    assert set(LevelOfDescription.objects.values_list("name")) == {
+        (lod,) for lod in lods
+    }
+
+
+@pytest.mark.django_db
+def test_fetch_levels_of_description_from_atom_communication_failure(
+    admin_client, mocker
+):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+
+    # Set up the AtoM settings used on the Administration tab.
+    DashboardSetting.objects.create(
+        name="upload-qubit_v0.0",
+        value=str(
+            {
+                "url": "http://example.com",
+                "email": "demo@example.com",
+                "password": "password",
+            }
+        ),
+    )
+
+    # Simulate failing interaction with AtoM.
+    mocker.patch(
+        "requests.get",
+        side_effect=[mocker.Mock(status_code=503, spec=requests.Response)],
+    )
+
+    response = admin_client.get(reverse("api:fetch_atom_lods"))
+
+    assert response.status_code == 500
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {
+        "success": False,
+        "error": "Unable to fetch levels of description from AtoM!",
+    }
