@@ -5,8 +5,7 @@
 
 By [Artefactual](https://www.artefactual.com/)
 
-
-![Screen capture of an Archivematica instance, Administration tab.](./demo_s004.png)
+![Screen capture of an Archivematica instance, view of the Administration tab.](./demo_s004.png)
 
 Archivematica is a web- and standards-based, open-source application which allows your institution to preserve long-term access to trustworthy, authentic and reliable digital content.
 Our target users are archivists, librarians, and anyone working to preserve digital objects.
@@ -14,12 +13,10 @@ Our target users are archivists, librarians, and anyone working to preserve digi
 You are free to copy, modify, and distribute Archivematica with attribution under the terms of the AGPLv3 license.
 See the [LICENSE](LICENSE) file for details.
 
-
 ## Installation
 
 * [Production installation](https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/)
 * [Development installation](https://github.com/artefactual/archivematica/tree/qa/1.x/hack)
-
 
 ## Using Archivematica
 
@@ -28,7 +25,7 @@ See the [LICENSE](LICENSE) file for details.
 * [User Google Group](https://groups.google.com/forum/#!forum/archivematica): Forum/mailing list for user questions (both technical and end-user)
 * [Paid support](https://www.artefactual.com/services/): Paid support, hosting, training, consulting and software development contracts from Artefactual
 
-## Developing Archivematica
+## Developing with Archivematica
 
 * [Archivematica API documentation](https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica): Get to know the Archivematica API
 * [Wiki](https://www.archivematica.org/wiki/Development): Developer facing documentation, requirements analysis and community resources
@@ -47,11 +44,9 @@ You might have questions about the history of developement decisions: find answe
 
 Issues related to Archivematica, the Storage Service, or any related repository can be filed in the [Archivematica Issues repository](https://github.com/archivematica/Issues/issues).
 
-
 ### Security
 
 If you have a security concern about Archivematica or any related repository, please see the [SECURITY file](SECURITY.md) for information about how to safely report vulnerabilities.
-
 
 ## Related projects
 
