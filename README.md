@@ -20,22 +20,24 @@ file for details.
 * [Production installation]
 * [Development installation]
 
-## Other resources
+## Using Archivematica
 
-* [Website][Archivematica]: User and administrator documentation
-* [Wiki]: Developer facing documentation, requirements analysis and
-  community resources
-* [Issues]: Git repository used for tracking Archivematica issues and
-  feature/enhancement ideas
-* [User Google Group]: Forum/mailing list for user questions (both
-  technical and end-user)
-* [Paid support]: Paid support, hosting, training, consulting and
-  software development contracts from Artefactual
+* [Website](https://www.archivematica.org/): User and administrator documentation
+* [Slideshare repo](https://fr.slideshare.net/Archivematica/presentations) and [YouTube channel](https://www.youtube.com/@ArtefactualSystems) for previous trainings and talks
+* [User Google Group](https://groups.google.com/forum/#!forum/archivematica): Forum/mailing list for user questions (both technical and end-user)
+* [Paid support](https://www.artefactual.com/services/): Paid support, hosting, training, consulting and software development contracts from Artefactual
+
+## Developing Archivematica
+
+* [Archivematica API documentation](https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica): Get to know the Archivematica API
+* [Wiki](https://www.archivematica.org/wiki/Development): Developer facing documentation, requirements analysis and community resources
+* [Issues](https://github.com/archivematica/Issues): Git repository used for tracking Archivematica issues and feature/enhancement ideas
 
 ## Contributing
 
 Thank you for your interest in Archivematica!
-For more details, see the [contributing guidelines]
+
+For more details, see the [contributing guidelines].
 
 ## Reporting an issue
 
