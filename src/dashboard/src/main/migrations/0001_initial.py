@@ -6,8 +6,7 @@ from django.db import models
 
 # HELP TEXT VALUES
 
-use_iso_8601 = "Use ISO 8601 (YYYY-MM-DD)"
-
+USE_ISO8601="Use ISO 8601 (YYYY-MM-DD)"
 
 class Migration(migrations.Migration):
     dependencies = [("fpr", "__first__")]
@@ -158,7 +157,7 @@ class Migration(migrations.Migration):
                 (
                     "date",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         db_column="date",
                         blank=True,
                     ),
@@ -790,7 +789,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightstatusdeterminationdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Copyright determination date",
                         db_column="copyrightStatusDeterminationDate",
                         blank=True,
@@ -799,7 +798,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightapplicablestartdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Copyright start date",
                         db_column="copyrightApplicableStartDate",
                         blank=True,
@@ -808,7 +807,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightapplicableenddate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Copyright end date",
                         db_column="copyrightApplicableEndDate",
                         blank=True,
@@ -946,7 +945,7 @@ class Migration(migrations.Migration):
                 (
                     "licenseapplicablestartdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="License start date",
                         db_column="licenseApplicableStartDate",
                         blank=True,
@@ -955,7 +954,7 @@ class Migration(migrations.Migration):
                 (
                     "licenseapplicableenddate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="License end date",
                         db_column="licenseApplicableEndDate",
                         blank=True,
@@ -1172,7 +1171,7 @@ class Migration(migrations.Migration):
                 (
                     "otherrightsapplicablestartdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Other rights start date",
                         db_column="otherRightsApplicableStartDate",
                         blank=True,
@@ -1181,7 +1180,7 @@ class Migration(migrations.Migration):
                 (
                     "otherrightsapplicableenddate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Other rights end date",
                         db_column="otherRightsApplicableEndDate",
                         blank=True,
@@ -1251,7 +1250,7 @@ class Migration(migrations.Migration):
                 (
                     "startdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Start",
                         db_column="startDate",
                         blank=True,
@@ -1260,7 +1259,7 @@ class Migration(migrations.Migration):
                 (
                     "enddate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="End",
                         db_column="endDate",
                         blank=True,
@@ -1416,7 +1415,7 @@ class Migration(migrations.Migration):
                 (
                     "statutedeterminationdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Statute determination date",
                         db_column="statuteInformationDeterminationDate",
                         blank=True,
@@ -1425,7 +1424,7 @@ class Migration(migrations.Migration):
                 (
                     "statuteapplicablestartdate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Statute start date",
                         db_column="statuteApplicableStartDate",
                         blank=True,
@@ -1434,7 +1433,7 @@ class Migration(migrations.Migration):
                 (
                     "statuteapplicableenddate",
                     models.TextField(
-                        help_text=use_iso_8601,
+                        help_text=USE_ISO8601,
                         verbose_name="Statute end date",
                         db_column="statuteApplicableEndDate",
                         blank=True,
