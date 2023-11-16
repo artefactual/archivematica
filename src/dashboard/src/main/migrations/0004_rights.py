@@ -1,7 +1,7 @@
 from django.db import migrations
 from django.db import models
 
-USE_ISO8601="Use ISO 8601 (YYYY-MM-DD)"
+USE_ISO8601 = "Use ISO 8601 (YYYY-MM-DD)"
 
 class Migration(migrations.Migration):
     dependencies = [("main", "0003_archivesspacedipobjectresourcepairing_data")]

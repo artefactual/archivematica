@@ -6,7 +6,7 @@ from django.db import models
 
 # HELP TEXT VALUES
 
-USE_ISO8601="Use ISO 8601 (YYYY-MM-DD)"
+USE_ISO8601 = "Use ISO 8601 (YYYY-MM-DD)"
 
 class Migration(migrations.Migration):
     dependencies = [("fpr", "__first__")]
