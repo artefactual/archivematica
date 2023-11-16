@@ -51,6 +51,10 @@ METADATA_STATUS = (
 # How many objects are created through bulk_create in a single database query
 BULK_CREATE_BATCH_SIZE = 2000
 
+# HELP TEXT VALUES
+
+use_iso_8601 = "Use ISO 8601 (YYYY-MM-DD)"
+
 # CUSTOM FIELDS
 
 
@@ -258,7 +262,7 @@ class DublinCore(models.Model):
     publisher = models.TextField(db_column="publisher", blank=True)
     contributor = models.TextField(db_column="contributor", blank=True)
     date = models.TextField(
-        help_text=_("Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
         db_column="date",
         blank=True,
     )
@@ -1196,21 +1200,21 @@ class RightsStatementCopyright(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Copyright determination date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     copyrightapplicablestartdate = models.TextField(
         db_column="copyrightApplicableStartDate",
         blank=True,
         null=True,
         verbose_name=_("Copyright start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     copyrightapplicableenddate = models.TextField(
         db_column="copyrightApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Copyright end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     copyrightenddateopen = models.BooleanField(
         default=False,
@@ -1280,14 +1284,14 @@ class RightsStatementLicense(models.Model):
         blank=True,
         null=True,
         verbose_name=_("License start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     licenseapplicableenddate = models.TextField(
         db_column="licenseApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("License end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     licenseenddateopen = models.BooleanField(
         default=False,
@@ -1353,14 +1357,14 @@ class RightsStatementRightsGranted(models.Model):
     startdate = models.TextField(
         db_column="startDate",
         verbose_name=_("Start"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
         blank=True,
         null=True,
     )
     enddate = models.TextField(
         db_column="endDate",
         verbose_name=_("End"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
         blank=True,
         null=True,
     )
@@ -1422,7 +1426,7 @@ class RightsStatementStatuteInformation(models.Model):
     statutedeterminationdate = models.TextField(
         db_column="statuteInformationDeterminationDate",
         verbose_name=_("Statute determination date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
         blank=True,
         null=True,
     )
@@ -1431,14 +1435,14 @@ class RightsStatementStatuteInformation(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Statute start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     statuteapplicableenddate = models.TextField(
         db_column="statuteApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Statute end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     statuteenddateopen = models.BooleanField(
         default=False,
@@ -1510,14 +1514,14 @@ class RightsStatementOtherRightsInformation(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Other rights start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     otherrightsapplicableenddate = models.TextField(
         db_column="otherRightsApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Other rights end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_(use_iso_8601),
     )
     otherrightsenddateopen = models.BooleanField(
         default=False,
