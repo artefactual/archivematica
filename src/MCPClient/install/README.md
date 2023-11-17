@@ -99,7 +99,7 @@ This is the full list of variables supported by MCPClient:
     - **Description:** location of the Archivematica Rejected Directory.
     - **Config file example:** `MCPClient.rejectedDirectory`
     - **Type:** `string`
-    - **Default:** `%%sharedPath%%rejected/`
+    - **Default:** `/var/archivematica/sharedDirectory/rejected/`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_WATCHDIRECTORYPATH`**:
     - **Description:** location of the Archivematica Watched Directories.
