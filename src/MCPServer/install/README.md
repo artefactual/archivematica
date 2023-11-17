@@ -114,7 +114,7 @@ This is the full list of variables supported by MCPServer:
     - **Description:** location of the rejected directory.
     - **Config file example:** `MCPServer.rejectedDirectory`
     - **Type:** `string`
-    - **Default:** `"%%sharedPath%%rejected/"`
+    - **Default:** `"/var/archivematica/sharedDirectory/rejected/"`
 
 - **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_WAITONAUTOAPPROVE`**:
     - **Description:** number of seconds that a thread will wait before attempting to approve a chain when it is pre-configured.
