@@ -168,13 +168,14 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 
 bootstrap-dashboard-frontend:  ## Build front-end assets.
 	docker compose run \
-		-e HOME=/tmp/yarn-config \
+		--workdir /src/src/dashboard/frontend \
+		-e HOME=/tmp/npm-config \
 		--rm \
 		--no-deps \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--entrypoint yarn \
+		--entrypoint npm \
 			archivematica-dashboard \
-				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
+				install --no-package-lock
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
 	docker compose restart --no-deps archivematica-mcp-server
@@ -385,13 +386,13 @@ test-frontend:  ## Run Dashboard JS tests.
 		--build-arg TARGET=archivematica-dashboard-testing \
 			../
 	docker run \
-		-e HOME=/tmp/yarn-config \
+		-e HOME=/tmp/npm-config \
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
-		--entrypoint yarn \
+		--entrypoint npm \
 			archivematica-dashboard-testing \
-				--cwd=/src/src/dashboard/frontend install --frozen-lockfile
+				install
 	docker run \
 		--rm \
 		--volume "$(SRCDIR)/dashboard/frontend:/src/src/dashboard/frontend" \
