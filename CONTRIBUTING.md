@@ -403,13 +403,13 @@ Further content comes after a blank line.
 [GitHub]: https://github.com/
 [guide]: https://help.github.com/articles/fork-a-repo
 [excellent]: https://help.github.com/articles/using-pull-requests
-[Line comment]: http://i.imgur.com/FsWppGN.png
+[Line comment]: https://i.imgur.com/FsWppGN.png
 [code review guidelines]: code_review.md
-[interactive rebase feature]: http://www.git-scm.com/book/en/Git-Tools-Rewriting-History
+[interactive rebase feature]: https://www.git-scm.com/book/en/Git-Tools-Rewriting-History
 [Contributor's Agreement]: https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf
-[Apache Foundation]: http://apache.org
-[contributor license]: http://www.apache.org/licenses/icla.txt
-[Artefactual Systems]: http://artefactual.com
+[Apache Foundation]: https://apache.org
+[contributor license]: https://www.apache.org/licenses/icla.txt
+[Artefactual Systems]: https://artefactual.com
 [PEP8]: https://www.python.org/dev/peps/pep-0008/
 [Black]: https://github.com/ambv/black
 [flake8]: https://pypi.python.org/pypi/flake8
@@ -417,11 +417,11 @@ Further content comes after a blank line.
 [pre-commit]: https://pre-commit.com/
 [docstrings]: https://en.wikipedia.org/wiki/Docstring#Python
 [PEP 257]: https://www.python.org/dev/peps/pep-0257/
-[Sphinx-compatible docstrings]: http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
-[examples]: http://sphinx-doc.org/domains.html#info-field-lists
-[attributes to use]: http://sphinx-doc.org/domains.html#the-python-domain
-[unittest]: https://docs.python.org/2/library/unittest.html
-[pytest]: http://pytest.org
+[Sphinx-compatible docstrings]: https://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
+[examples]: https://www.sphinx-doc.org/en/master/#info-field-lists
+[attributes to use]: https://www.sphinx-doc.org/en/master/#the-python-domain
+[unittest]: https://docs.python.org/3.9/library/unittest.html
+[pytest]: https://docs.pytest.org/
 [pytest-django]: https://pytest-django.readthedocs.io/en/latest/database.html
 [How to Write a Git Commit Message]: https://chris.beams.io/posts/git-commit/
 [seven rules of a great Git commit message]: https://chris.beams.io/posts/git-commit/#seven-rules
