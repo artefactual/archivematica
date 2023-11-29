@@ -52,7 +52,7 @@ It is recommended to file issues there rather than in any of the
 Archivematica-related code repositories. Artefactual staff also use GitHub 
 issues for any work they do on the Archivematica project.
 
-You can also post in our [user] mailing list. A post to the mailing list is 
+You can also post in our user [mailing list]. A post to the mailing list is
 always welcome, especially if you're unsure if it's a bug or a local problem!
 
 Useful questions to answer if you're having problems include:
@@ -87,16 +87,15 @@ outside contributors.
 
 Here's an outline of the contribution process:
 
-1. File an issue in the
-   [Archivematica Issues repo].
+1. File an issue in the [Archivematica Issues repo].
 2. Fork the Artefactual project on GitHub, and commit your changes to a branch
    in your fork.
-3. Open a pull request.
-4. Back and forth discussion with developers on the branch.
-5. Make any changes suggested by reviewers.
-6. Repeat 3 and 4 as necessary.
-7. Clean up commit history, if necessary.
-8. Sign a Contributor's Agreement, if you haven't already.
+3. Open a pull request using `qa/1.x` as the base branch.
+4. Sign a [Contributor's Agreement], if you haven't already.
+5. Back and forth discussion with developers on the branch.
+6. Make any changes suggested by reviewers.
+7. Repeat 5 and 6 as necessary.
+8. Clean up commit history, if necessary.
 9. Your branch will be merged!
 
 ### Permalinks
@@ -213,8 +212,8 @@ agreement@artefactual.com.
 Alternatively, you may send a printed, signed agreement to:
 
     Artefactual Systems Inc.
-    201 - 301 Sixth Street
-    New Westminster BC  V3L 3A7
+    #1 -10318 Whalley Blvd.
+    Surrey, BC V3T 4H4
     Canada
 
 ## Contribution standards
@@ -236,7 +235,7 @@ very good linters available that you can run to check style in your code.
 We have integrated these tools with our CI, i.e. pull requests will fail to
 build when the tools above report errors.
 
-Additionally [Pylint] is used by developers internally at Artefactual to 
+Additionally [pre-commit] is used by developers internally at Artefactual to
 highlight other potential areas of improvement during code-review.
 
 #### Some extra notes
@@ -244,10 +243,8 @@ highlight other potential areas of improvement during code-review.
 A few additional stylistic preferences might not get flagged by linters:
 
 * Don't use variable or parameter names that shadow builtin functions and
-  types. For example, don't name a variable "file". (Unfortunately, Python uses
+  types. For example, don't name a variable "id". (Unfortunately, Python uses
   many useful names for its builtin types and functions.)
-* Sort imports alphabetically within their grouping to reduce duplicate
-  imports.
 
 #### Exceptions
 
@@ -274,11 +271,6 @@ a few PEP8 rules in order to match existing code. In particular:
   it's okay to make your new function and its parameters camelCase to match.
   Try to use snake_case internally, however.
 
-You should try to write Python 2 / Python 3 compatible code where possible.
-Using `from __future__ import print_function, division, absolute_import` will
-help with this. Some libraries run in Python 2 and Python 3 already; this
-behaviour should be maintained.
-
 ### Documentation
 
 New classes and functions should generally be documented using
@@ -293,16 +285,13 @@ be found on the Sphinx website.
 ### Tests
 
 New code should also have unit tests. Tests are written in [unittest] style 
-and run with [py.test]. For tests requiring the Django ORM, we use the 
-Django-provided[TestCase], which extends `unittest.TestCase`.
+and run with [pytest]. For tests requiring the Django ORM, we use
+[pytest-django].
 
 Tests are found in the `tests` directory, a sibling of the directory containing
 the code. `test_foo.py` contains tests for `foo.py`. For clarity, group tests
 for the same function and similar tests into the same class within that file.
 This will also allow you to share setup and teardown code.
-
-If you are testing code that makes HTTP requests, using [VCR.py] is highly 
-recommended. It should already be a development dependency.
 
 ### Commit History
 
@@ -407,12 +396,10 @@ Further content comes after a blank line.
 [documentation]: https://github.com/artefactual/archivematica-docs/
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
-[user]: https://groups.google.com/forum/#!forum/archivematica
-[Archivematica Issues repo]: https://github.com/archivematica/Issues
 [Issues repo wiki]: https://github.com/archivematica/Issues/wiki 
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
-[development installation]: https://wiki.archivematica.org/Getting_started#Installation
+[development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack#archivematica-development-on-docker-compose
 [GitHub]: https://github.com/
 [guide]: https://help.github.com/articles/fork-a-repo
 [excellent]: https://help.github.com/articles/using-pull-requests
@@ -426,17 +413,16 @@ Further content comes after a blank line.
 [PEP8]: https://www.python.org/dev/peps/pep-0008/
 [Black]: https://github.com/ambv/black
 [flake8]: https://pypi.python.org/pypi/flake8
-[continuous integration system]: https://travis-ci.org/artefactual/archivematica
-[Pylint]: https://www.pylint.org/
+[continuous integration system]: https://github.com/artefactual/archivematica/actions
+[pre-commit]: https://pre-commit.com/
 [docstrings]: https://en.wikipedia.org/wiki/Docstring#Python
 [PEP 257]: https://www.python.org/dev/peps/pep-0257/
 [Sphinx-compatible docstrings]: http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
 [examples]: http://sphinx-doc.org/domains.html#info-field-lists
 [attributes to use]: http://sphinx-doc.org/domains.html#the-python-domain
 [unittest]: https://docs.python.org/2/library/unittest.html
-[py.test]: http://pytest.org
-[TestCase]: https://docs.djangoproject.com/en/1.8/topics/testing/tools/#django.test.TestCase
-[VCR.py]: https://github.com/kevin1024/vcrpy
+[pytest]: http://pytest.org
+[pytest-django]: https://pytest-django.readthedocs.io/en/latest/database.html
 [How to Write a Git Commit Message]: https://chris.beams.io/posts/git-commit/
 [seven rules of a great Git commit message]: https://chris.beams.io/posts/git-commit/#seven-rules
 [imperative mood]: https://chris.beams.io/posts/git-commit/#imperative
