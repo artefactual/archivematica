@@ -47,7 +47,7 @@ Archivematica itself.
 ## Submitting bugs
 
 If you find a security vulnerability, do NOT open an issue. Email
-info@artefactual.com instead.
+[info@artefactual.com](mailto:info@artefactual.com) instead.
 
 Issues can be filed using GitHub Issues in the [Archivematica Issues repo].
 It is recommended to file issues there rather than in any of the
@@ -182,7 +182,8 @@ The Archivematica contributor's agreement is based almost verbatim on the
 [Apache Foundation]'s individual [contributor license].
 
 If you have any questions or concerns about the Contributor's Agreement,
-please email us at agreement@artefactual.com to discuss them.
+please email us at [agreement@artefactual.com](mailto:agreement@artefactual.com)
+to discuss them.
 
 ### Why do I have to sign a Contributor's Agreement?
 
@@ -209,7 +210,7 @@ be, rather than fighting legal battles over contributions.
 ### How do I send in an agreement?
 
 Please read and sign the [Contributor's Agreement] and email it to
-agreement@artefactual.com.
+[agreement@artefactual.com](mailto:agreement@artefactual.com).
 
 Alternatively, you may send a printed, signed agreement to:
 
@@ -350,13 +351,19 @@ and b) what the change is. For example:
 
 Clear commit summary:
 
-> Replace 404 messages with a user-friendly one
+```
+Replace 404 messages with a user-friendly one
+```
 
 Unclear commit summaries:
 
-> Fixed some normalization bugs
+```
+Fixed some normalization bugs
+```
 
-> Bugfixes
+```
+Bugfixes
+```
 
 The unclear messages make it hard to tell at a glance what changed, and that
 makes browsing the commit history harder.
@@ -364,7 +371,9 @@ makes browsing the commit history harder.
 A commit message should use the [imperative mood] which should always be able to
 complete the following sentence:
 
-    If applied, this commit will <your subject line here>
+```
+If applied, this commit will <your subject line here>
+```
 
 #### Commit messages should be as detailed as they need to be (and no more)
 
@@ -395,6 +404,7 @@ two together.
 
 Further content comes after a blank line.
 ```
+
 [documentation]: https://github.com/artefactual/archivematica-docs/
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
