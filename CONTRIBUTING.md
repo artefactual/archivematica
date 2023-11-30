@@ -46,8 +46,8 @@ Archivematica itself.
 
 ## Submitting bugs
 
-If you find a security vulnerability, do NOT open an issue. Email
-[info@artefactual.com](mailto:info@artefactual.com) instead.
+If you find a security vulnerability, do NOT open an issue. See our
+[Security Policy] instead.
 
 Issues can be filed using GitHub Issues in the [Archivematica Issues repo].
 It is recommended to file issues there rather than in any of the
@@ -407,6 +407,7 @@ Further content comes after a blank line.
 
 [documentation]: https://github.com/artefactual/archivematica-docs/
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
+[Security Policy]: SECURITY.md
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
 [Issues repo wiki]: https://github.com/archivematica/Issues/wiki
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
