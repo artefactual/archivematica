@@ -16,8 +16,9 @@ Archivematica itself.
 **Table of Contents**
 
 - [Submitting bugs](#submitting-bugs)
-- [Submitting enhancement ideas](#submitting-enhancements)
+- [Submitting enhancement ideas](#submitting-enhancement-ideas)
 - [Submitting code changes](#submitting-code-changes)
+  - [Permalinks](#permalinks)
   - [Getting started](#getting-started)
   - [When to submit code for review?](#when-to-submit-code-for-review)
   - [Opening the pull request](#opening-the-pull-request)
@@ -37,6 +38,7 @@ Archivematica itself.
   - [Commit History](#commit-history)
     - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
     - [Every commit should work](#every-commit-should-work)
+  - [Commit messages](#commit-messages)
     - [Commit summaries should be concise](#commit-summaries-should-be-concise)
     - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
 
