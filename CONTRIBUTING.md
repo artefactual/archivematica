@@ -7,8 +7,8 @@ us assess your changes faster and makes it easier for us to merge your
 submission!
 
 There are many ways to contribute: writing tutorials or blog posts about your
-experience, improving the [documentation], submitting bug reports, answering 
-questions on the [mailing list], or writing code which can be incorporated into 
+experience, improving the [documentation], submitting bug reports, answering
+questions on the [mailing list], or writing code which can be incorporated into
 Archivematica itself.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -49,9 +49,9 @@ Archivematica itself.
 If you find a security vulnerability, do NOT open an issue. Email
 info@artefactual.com instead.
 
-Issues can be filed using GitHub Issues in the [Archivematica Issues repo]. 
-It is recommended to file issues there rather than in any of the 
-Archivematica-related code repositories. Artefactual staff also use GitHub 
+Issues can be filed using GitHub Issues in the [Archivematica Issues repo].
+It is recommended to file issues there rather than in any of the
+Archivematica-related code repositories. Artefactual staff also use GitHub
 issues for any work they do on the Archivematica project.
 
 You can also post in our user [mailing list]. A post to the mailing list is
@@ -72,12 +72,12 @@ Useful questions to answer if you're having problems include:
 ## Submitting enhancement ideas
 
 Similar to submitting bugs, you are welcome to submit ideas for enhancements or
-new features in the [Archivematica Issues repo]. This is  also where Artefactual 
+new features in the [Archivematica Issues repo]. This is  also where Artefactual
 staff record upcoming enhancements when they have been sponsored for inclusion
 either by Artefactual Systems or by a client.
 
-Please feel free also to use the [Issues repo wiki] as a space for gathering and 
-collaborating on ideas. If you are not already a member of the 
+Please feel free also to use the [Issues repo wiki] as a space for gathering and
+collaborating on ideas. If you are not already a member of the
 Archivematica repo (required for editing the wiki), file an issue there with
 the title "Request membership."
 
@@ -115,7 +115,7 @@ So you have something to contribute to an Artefactual project. Great!
 
 To install Archivematica, see our [development installation] instructions.
 
-Artefactual uses [GitHub]'s pull request feature for code review. Every change 
+Artefactual uses [GitHub]'s pull request feature for code review. Every change
 being submitted to an Artefactual project should be
 submitted as a pull request to the appropriate repository. A branch being
 submitted for code review should contain commits covering a related section of
@@ -187,28 +187,28 @@ please email us at agreement@artefactual.com to discuss them.
 ### Why do I have to sign a Contributor's Agreement?
 
 One of the key challenges for open source software is to support a collaborative
-development environment while protecting the rights of contributors and users 
+development environment while protecting the rights of contributors and users
 over the long-term.
 Unifying Archivematica copyrights through contributor agreements is the best way
-to protect the availability and sustainability of Archivematica over the 
+to protect the availability and sustainability of Archivematica over the
 long-term as free and open-source software.
-In all cases, contributors who sign the Contributor's Agreement retain full 
-rights to use their original contributions for any other purpose outside of 
-Archivematica, while enabling Artefactual Systems, any successor organization 
-which may eventually take over responsibility for Archivematica, and the wider 
-Archivematica community to benefit from their collaboration and contributions 
+In all cases, contributors who sign the Contributor's Agreement retain full
+rights to use their original contributions for any other purpose outside of
+Archivematica, while enabling Artefactual Systems, any successor organization
+which may eventually take over responsibility for Archivematica, and the wider
+Archivematica community to benefit from their collaboration and contributions
 in this open source project.
 
-[Artefactual Systems] has made the decision and has a proven track record of 
+[Artefactual Systems] has made the decision and has a proven track record of
 making our intellectual property available to the community at large.
-By standardizing contributions on these agreements the Archivematica 
+By standardizing contributions on these agreements the Archivematica
 intellectual property position does not become too complicated.
-This ensures our resources are devoted to making our project the best they can 
+This ensures our resources are devoted to making our project the best they can
 be, rather than fighting legal battles over contributions.
 
 ### How do I send in an agreement?
 
-Please read and sign the [Contributor's Agreement] and email it to 
+Please read and sign the [Contributor's Agreement] and email it to
 agreement@artefactual.com.
 
 Alternatively, you may send a printed, signed agreement to:
@@ -222,16 +222,16 @@ Alternatively, you may send a printed, signed agreement to:
 
 ### Style
 
-Archivematica uses the Python [PEP8] community style guidelines. Newly-written 
-code should conform to PEP-8 style. PEP8 is a daunting document, but there are 
+Archivematica uses the Python [PEP8] community style guidelines. Newly-written
+code should conform to PEP-8 style. PEP8 is a daunting document, but there are
 very good linters available that you can run to check style in your code.
 
-* The [Black] tool formats the code automatically. The output is deterministic 
+* The [Black] tool formats the code automatically. The output is deterministic
   for any given input. Editor integration is possible.
 
-* The [flake8] tool checks for style problems as well as errors and complexity. 
-  It can be used at the command line or as a plugin in your preferred text 
-  editor/IDE. The Archivematica [continuous integration system] will currently 
+* The [flake8] tool checks for style problems as well as errors and complexity.
+  It can be used at the command line or as a plugin in your preferred text
+  editor/IDE. The Archivematica [continuous integration system] will currently
   check code for compliance against flake8.
 
 We have integrated these tools with our CI, i.e. pull requests will fail to
@@ -276,17 +276,17 @@ a few PEP8 rules in order to match existing code. In particular:
 ### Documentation
 
 New classes and functions should generally be documented using
-[docstrings]; these help in providing clarity, and can also be used to generate 
-API documentation later. Generally any function which isn't obvious 
-(any function longer than a line or two) should have a docstring. 
+[docstrings]; these help in providing clarity, and can also be used to generate
+API documentation later. Generally any function which isn't obvious
+(any function longer than a line or two) should have a docstring.
 When in doubt: document! Python's [PEP 257] document provides a useful
-guideline for docstring style. Generally, prefer using 
+guideline for docstring style. Generally, prefer using
 [Sphinx-compatible docstrings]. More [examples] and [attributes to use] can
 be found on the Sphinx website.
 
 ### Tests
 
-New code should also have unit tests. Tests are written in [unittest] style 
+New code should also have unit tests. Tests are written in [unittest] style
 and run with [pytest]. For tests requiring the Django ORM, we use
 [pytest-django].
 
@@ -398,7 +398,7 @@ Further content comes after a blank line.
 [documentation]: https://github.com/artefactual/archivematica-docs/
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
-[Issues repo wiki]: https://github.com/archivematica/Issues/wiki 
+[Issues repo wiki]: https://github.com/archivematica/Issues/wiki
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
 [development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack#archivematica-development-on-docker-compose
