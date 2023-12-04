@@ -2,19 +2,22 @@
 
 ## Table of contents
 
-- [Dashboard Configuration](#dashboard-configuration)
-  - [Table of contents](#table-of-contents)
-  - [Introduction](#introduction)
-  - [Environment variables](#environment-variables)
-  - [Configuration files](#configuration-files)
-  - [Parameter list](#parameter-list)
-    - [Application variables](#application-variables)
-    - [Gunicorn variables](#gunicorn-variables)
-    - [LDAP variables](#ldap-variables)
-    - [CAS variables](#cas-variables)
-    - [OIDC variables](#oidc-variables)
-    - [CSP variables](#csp-variables)
-  - [Logging configuration](#logging-configuration)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Introduction](#introduction)
+- [Environment variables](#environment-variables)
+- [Configuration files](#configuration-files)
+- [Parameter list](#parameter-list)
+  - [Application variables](#application-variables)
+  - [Gunicorn variables](#gunicorn-variables)
+  - [LDAP variables](#ldap-variables)
+  - [CAS variables](#cas-variables)
+  - [OIDC variables](#oidc-variables)
+  - [CSP variables](#csp-variables)
+- [Logging configuration](#logging-configuration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
 

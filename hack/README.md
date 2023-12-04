@@ -1,28 +1,37 @@
 # Archivematica development on Docker Compose
 
+## Table of contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 - [Audience](#audience)
 - [Requirements](#requirements)
   - [Elasticsearch container](#elasticsearch-container)
 - [Installation](#installation)
+  - [GNU make](#gnu-make)
+- [Upgrading to the latest version of Archivematica](#upgrading-to-the-latest-version-of-archivematica)
 - [Web UIs](#web-uis)
-- [Upgrading to the latest version of Archivematica][intro-0]
 - [Source code auto-reloading](#source-code-auto-reloading)
 - [Logs](#logs)
+  - [Clearing the logs](#clearing-the-logs)
 - [Scaling](#scaling)
 - [Ports](#ports)
 - [Tests](#tests)
+  - [AMAUATs](#amauats)
+- [Resetting the environment](#resetting-the-environment)
 - [Cleaning up](#cleaning-up)
+- [Percona tuning](#percona-tuning)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
   - [Percona Monitoring and Management](#percona-monitoring-and-management)
 - [Troubleshooting](#troubleshooting)
   - [Nginx returns 502 Bad Gateway](#nginx-returns-502-bad-gateway)
-  - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down][intro-1]
+  - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down](#bootstrap-seems-to-run-but-the-dashboard-and-elasticsearch-are-still-down)
   - [PMM client service doesn't start](#pmm-client-service-doesnt-start)
   - [My environment is still broken](#my-environment-is-still-broken)
 
-[intro-0]: #upgrading-to-the-latest-version-of-archivematica
-[intro-1]: #Bootstrap-seems-to-run-but-the-Dashboard-and-Elasticsearch-are-still-down
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Audience
 
@@ -474,7 +483,7 @@ To access the PMM server interface, visit http://127.0.0.1:62007:
 
 ## Troubleshooting
 
-##### Nginx returns 502 Bad Gateway
+### Nginx returns 502 Bad Gateway
 
 We're using Nginx as a proxy. Likely the underlying issue is that
 either the Dashboard or the Storage Service died. Run `docker compose
@@ -509,7 +518,7 @@ and git is not atomically moving things around. But it's fixed now and you want
 to give it another shot so we run `docker compose up -d` to ensure that all the
 services are up again. Next run `docker compose ps` to verify that it's all up.
 
-##### Bootstrap seems to run but the Dashboard and Elasticsearch are still down
+### Bootstrap seems to run but the Dashboard and Elasticsearch are still down
 
 If after running the bootstrap processes and `docker compose ps` still shows
 that the dashboard and elasticsearch are still down then check the
@@ -538,7 +547,7 @@ above.
 
 [es-0]: #elasticsearch-container
 
-##### PMM client service doesn't start
+### PMM client service doesn't start
 
 In some cases the `pmm_client` service fails to start reporting the following
 error:
@@ -554,7 +563,7 @@ docker compose -f docker-compose.yml -f docker-compose.pmm.yml rm pmm_client
 docker compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
 ```
 
-##### My environment is still broken
+### My environment is still broken
 
 You've read this far but you haven't yet figured out why your development
 environment is not working? Here are some tips:

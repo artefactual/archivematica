@@ -1,15 +1,20 @@
 # Security Policy
 
 This document outlines security procedures and general policies for the
-Archivematica project. See https://www.archivematica.org for more information
+Archivematica project. See <https://www.archivematica.org> for more information
 about Archivematica.
 
-**Contents**
+## Table of contents
 
-* [Reporting a security vulnerability](#reporting-a-security-vulnerability)
-* [Disclosure policy](#disclosure-policy)
-* [Supported versions](#supported-versions)
-* [Reporting general bugs](#reporting-general-bugs)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Reporting a security vulnerability](#reporting-a-security-vulnerability)
+- [Disclosure policy](#disclosure-policy)
+- [Supported versions](#supported-versions)
+- [Reporting general bugs](#reporting-general-bugs)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Reporting a security vulnerability
 
