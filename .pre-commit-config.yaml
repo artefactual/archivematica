@@ -40,7 +40,6 @@ repos:
   rev: v0.37.0
   hooks:
   - id: markdownlint
-    args: ["--config", ".markdownlint.jsonc"]
     exclude: |
       (?x)^(
         ISSUE_TEMPLATE\.md|
