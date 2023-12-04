@@ -36,3 +36,23 @@ repos:
     additional_dependencies:
     - flake8-bugbear==23.9.16
     - flake8-comprehensions==3.14.0
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.37.0
+  hooks:
+  - id: markdownlint
+    args: ["--config", ".markdownlint.jsonc"]
+    exclude: |
+      (?x)^(
+        ISSUE_TEMPLATE\.md|
+        src/dashboard/(frontend/app|src/media)/vendor/.*
+      )
+- repo: https://github.com/thlorenz/doctoc
+  rev: v2.2.0
+  hooks:
+  - id: doctoc
+    files: |
+      (?x)^(
+        (CONTRIBUTING|SECURITY).*\.md|
+        hack/README\.md|
+        src/(MCPServer|MCPClient|dashboard)/install/README\.md
+      )
