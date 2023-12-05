@@ -1,28 +1,37 @@
 # Archivematica development on Docker Compose
 
+## Table of contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 - [Audience](#audience)
 - [Requirements](#requirements)
   - [Elasticsearch container](#elasticsearch-container)
 - [Installation](#installation)
+  - [GNU make](#gnu-make)
+- [Upgrading to the latest version of Archivematica](#upgrading-to-the-latest-version-of-archivematica)
 - [Web UIs](#web-uis)
-- [Upgrading to the latest version of Archivematica][intro-0]
 - [Source code auto-reloading](#source-code-auto-reloading)
 - [Logs](#logs)
+  - [Clearing the logs](#clearing-the-logs)
 - [Scaling](#scaling)
 - [Ports](#ports)
 - [Tests](#tests)
+  - [AMAUATs](#amauats)
+- [Resetting the environment](#resetting-the-environment)
 - [Cleaning up](#cleaning-up)
+- [Percona tuning](#percona-tuning)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
   - [Percona Monitoring and Management](#percona-monitoring-and-management)
 - [Troubleshooting](#troubleshooting)
   - [Nginx returns 502 Bad Gateway](#nginx-returns-502-bad-gateway)
-  - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down][intro-1]
+  - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down](#bootstrap-seems-to-run-but-the-dashboard-and-elasticsearch-are-still-down)
   - [PMM client service doesn't start](#pmm-client-service-doesnt-start)
   - [My environment is still broken](#my-environment-is-still-broken)
 
-[intro-0]: #upgrading-to-the-latest-version-of-archivematica
-[intro-1]: #Bootstrap-seems-to-run-but-the-Dashboard-and-Elasticsearch-are-still-down
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Audience
 
@@ -46,6 +55,7 @@ memory usage when the environment is initialized in a virtual machine with
 ```shell
 docker stats --all --format "table {{.Name}}\t{{.MemUsage}}"
 ```
+
 ```console
 NAME                                 MEM USAGE / LIMIT
 am-archivematica-mcp-client-1        41.3MiB / 7.763GiB
@@ -111,8 +121,8 @@ First, clone this repository this way:
 git clone https://github.com/artefactual/archivematica.git --branch qa/1.x --recurse-submodules
 ```
 
-This will set up the submodules defined in 
-https://github.com/artefactual/archivematica/tree/qa/1.x/hack/submodules which
+This will set up the submodules defined in
+<https://github.com/artefactual/archivematica/tree/qa/1.x/hack/submodules> which
 are from the `qa/1.x` branch of Archivematica and the `qa/0.x` branch of
 Archivematica Storage Service. These two branches are the focus of
 Archivematica development and pull requests are expected to target them.
@@ -218,8 +228,8 @@ Working with submodules can be a little confusing. GitHub's
 
 ## Web UIs
 
-- Archivematica Dashboard: http://127.0.0.1:62080/
-- Archivematica Storage Service: http://127.0.0.1:62081/
+- Archivematica Dashboard: <http://127.0.0.1:62080/>
+- Archivematica Storage Service: <http://127.0.0.1:62081/>
 
 The default credentials for the Archivematica Dashboard and the Storage Service
 are username: `test`, password: `test`.
@@ -234,13 +244,17 @@ code changes.
 Other components in the stack like the `MCPServer` don't offer this option and
 they need to be restarted manually, e.g.:
 
-    docker compose up -d --force-recreate --no-deps archivematica-mcp-server
+```shell
+docker compose up -d --force-recreate --no-deps archivematica-mcp-server
+```
 
 If you've added new dependencies or changes the `Dockerfile` you should also
 add the `--build` argument to the previous command in order to ensure that the
 container is using the newest image, e.g.:
 
-    docker compose up -d --force-recreate --build --no-deps archivematica-mcp-server
+```shell
+docker compose up -d --force-recreate --build --no-deps archivematica-mcp-server
+```
 
 ## Logs
 
@@ -284,6 +298,7 @@ are connected to Gearman:
 ```shell
 echo workers | socat - tcp:127.0.0.1:62004,shut-none | grep "_v0.0" | awk '{print $2}' - | sort -u
 ```
+
 ```console
 172.19.0.15
 172.19.0.16
@@ -313,7 +328,7 @@ make help | grep test-
 The following targets use [`tox`](https://tox.readthedocs.io) and
 [`pytest`](https://docs.pytest.org) to run the tests using MySQL:
 
-```
+```text
 test-all                   Run all tests.
 test-archivematica-common  Run Archivematica Common tests.
 test-dashboard             Run Dashboard tests.
@@ -465,16 +480,16 @@ two Docker Compose files:
 docker compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
 ```
 
-To access the PMM server interface, visit http://127.0.0.1:62007:
+To access the PMM server interface, visit <http://127.0.0.1:62007>:
 
-* Username: ``admin``
-* Password: ``admin``
+- Username: ``admin``
+- Password: ``admin``
 
 [instrumentation-4]: https://www.percona.com/doc/percona-monitoring-and-management
 
 ## Troubleshooting
 
-##### Nginx returns 502 Bad Gateway
+### Nginx returns 502 Bad Gateway
 
 We're using Nginx as a proxy. Likely the underlying issue is that
 either the Dashboard or the Storage Service died. Run `docker compose
@@ -483,6 +498,7 @@ ps` to confirm the state of their services like this:
 ```shell
 docker compose ps --all archivematica-dashboard archivematica-storage-service
 ```
+
 ```console
 NAME                                 IMAGE                              COMMAND                  SERVICE                         CREATED             STATUS                      PORTS
 am-archivematica-dashboard-1         am-archivematica-dashboard         "/usr/local/bin/guni…"   archivematica-dashboard         11 minutes ago      Up 27 seconds               8000/tcp
@@ -495,6 +511,7 @@ service, e.g.:
 ```shell
 docker compose logs --no-log-prefix --tail 5 archivematica-storage-service
 ```
+
 ```console
   File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
 ModuleNotFoundError: No module named 'storage_service.wsgi'
@@ -509,7 +526,7 @@ and git is not atomically moving things around. But it's fixed now and you want
 to give it another shot so we run `docker compose up -d` to ensure that all the
 services are up again. Next run `docker compose ps` to verify that it's all up.
 
-##### Bootstrap seems to run but the Dashboard and Elasticsearch are still down
+### Bootstrap seems to run but the Dashboard and Elasticsearch are still down
 
 If after running the bootstrap processes and `docker compose ps` still shows
 that the dashboard and elasticsearch are still down then check the
@@ -538,7 +555,7 @@ above.
 
 [es-0]: #elasticsearch-container
 
-##### PMM client service doesn't start
+### PMM client service doesn't start
 
 In some cases the `pmm_client` service fails to start reporting the following
 error:
@@ -554,7 +571,7 @@ docker compose -f docker-compose.yml -f docker-compose.pmm.yml rm pmm_client
 docker compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
 ```
 
-##### My environment is still broken
+### My environment is still broken
 
 You've read this far but you haven't yet figured out why your development
 environment is not working? Here are some tips:

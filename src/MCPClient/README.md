@@ -19,8 +19,8 @@ streams. You set the exit code for a job with:
     job.set_status(int)
 
 To record standard output and standard error, there are several
-methods: write_* for storing literal strings; print_* for storing
-literal strings with newlines added; pyprint for a Python
+methods: `write_*` for storing literal strings; `print_*` for storing
+literal strings with newlines added; `pyprint` for a Python
 `print`-compatible API. See the Job class for more information on
 these.
 
@@ -42,20 +42,20 @@ directory. Commonly they will follow a pattern like:
 
 Some notable features:
 
-  * Where the task will insert/update/delete rows from the database,
+* Where the task will insert/update/delete rows from the database,
     we wrap it in a transaction. Besides providing atomicity if
     something goes wrong, this also boosts performance significantly.
 
-  * Generally we iterate over each job one-by-one, although nothing
+* Generally we iterate over each job one-by-one, although nothing
     stops you from working in larger batches if that suits.
 
-  * `JobContext` is a convenience class that executes its body in a
+* `JobContext` is a convenience class that executes its body in a
     modified context:
 
-      - Any uncaught exceptions will be logged as standard error
+  * Any uncaught exceptions will be logged as standard error
         output, and the job's status will be set to 1.
 
-      - If you supply the `logger` keyword, your global logger will be
+  * If you supply the `logger` keyword, your global logger will be
         configured to send its output to the job's standard error
         stream.
 
