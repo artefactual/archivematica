@@ -92,9 +92,6 @@ DEFAULT_TIMEOUT = 10
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
 INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, TRANSFERS_INDEX, TRANSFER_FILES_INDEX]
-# A doc type is still required in ES 6.x but it's limited to one per index.
-# It will be removed in ES 7.x, so we'll use the same for all indexes.
-DOC_TYPE = "_doc"
 # Maximun ES result window. Use the scroll API for a better way to get all
 # results or change `index.max_result_window` on each index settings.
 MAX_QUERY_SIZE = 10000
@@ -230,22 +227,20 @@ def _get_aips_index_body():
     return {
         "settings": _get_index_settings(),
         "mappings": {
-            DOC_TYPE: {
-                "date_detection": False,
-                "properties": {
-                    ES_FIELD_NAME: {
-                        "type": "text",
-                        "fields": {"raw": {"type": "keyword"}},
-                        "analyzer": "file_path_and_name",
-                    },
-                    ES_FIELD_SIZE: {"type": "double"},
-                    ES_FIELD_UUID: {"type": "keyword"},
-                    ES_FIELD_ACCESSION_IDS: {"type": "keyword"},
-                    ES_FIELD_STATUS: {"type": "keyword"},
-                    ES_FIELD_FILECOUNT: {"type": "integer"},
-                    ES_FIELD_LOCATION: {"type": "keyword"},
+            "date_detection": False,
+            "properties": {
+                ES_FIELD_NAME: {
+                    "type": "text",
+                    "fields": {"raw": {"type": "keyword"}},
+                    "analyzer": "file_path_and_name",
                 },
-            }
+                ES_FIELD_SIZE: {"type": "double"},
+                ES_FIELD_UUID: {"type": "keyword"},
+                ES_FIELD_ACCESSION_IDS: {"type": "keyword"},
+                ES_FIELD_STATUS: {"type": "keyword"},
+                ES_FIELD_FILECOUNT: {"type": "integer"},
+                ES_FIELD_LOCATION: {"type": "keyword"},
+            },
         },
     }
 
@@ -260,31 +255,29 @@ def _get_aipfiles_index_body():
     return {
         "settings": _get_index_settings(),
         "mappings": {
-            DOC_TYPE: {
-                "date_detection": False,
-                "properties": {
-                    "sipName": {
-                        "type": "text",
-                        "fields": {"raw": {"type": "keyword"}},
-                        "analyzer": "file_path_and_name",
-                    },
-                    "AIPUUID": {"type": "keyword"},
-                    "FILEUUID": {"type": "keyword"},
-                    "isPartOf": {"type": "keyword"},
-                    ES_FIELD_AICID: {"type": "keyword"},
-                    "indexedAt": {"type": "double"},
-                    "filePath": {
-                        "type": "text",
-                        "fields": {"raw": {"type": "keyword"}},
-                        "analyzer": "file_path_and_name",
-                    },
-                    "fileExtension": {"type": "text"},
-                    "origin": {"type": "text"},
-                    "identifiers": {"type": "keyword"},
-                    "accessionid": {"type": "keyword"},
-                    ES_FIELD_STATUS: {"type": "keyword"},
+            "date_detection": False,
+            "properties": {
+                "sipName": {
+                    "type": "text",
+                    "fields": {"raw": {"type": "keyword"}},
+                    "analyzer": "file_path_and_name",
                 },
-            }
+                "AIPUUID": {"type": "keyword"},
+                "FILEUUID": {"type": "keyword"},
+                "isPartOf": {"type": "keyword"},
+                ES_FIELD_AICID: {"type": "keyword"},
+                "indexedAt": {"type": "double"},
+                "filePath": {
+                    "type": "text",
+                    "fields": {"raw": {"type": "keyword"}},
+                    "analyzer": "file_path_and_name",
+                },
+                "fileExtension": {"type": "text"},
+                "origin": {"type": "text"},
+                "identifiers": {"type": "keyword"},
+                "accessionid": {"type": "keyword"},
+                ES_FIELD_STATUS: {"type": "keyword"},
+            },
         },
     }
 
@@ -293,21 +286,19 @@ def _get_transfers_index_body():
     return {
         "settings": _get_index_settings(),
         "mappings": {
-            DOC_TYPE: {
-                "properties": {
-                    ES_FIELD_NAME: {
-                        "type": "text",
-                        "fields": {"raw": {"type": "keyword"}},
-                        "analyzer": "file_path_and_name",
-                    },
-                    ES_FIELD_STATUS: {"type": "text"},
-                    "ingest_date": {"type": "date", "format": "dateOptionalTime"},
-                    ES_FIELD_SIZE: {"type": "long"},
-                    ES_FIELD_FILECOUNT: {"type": "integer"},
-                    ES_FIELD_UUID: {"type": "keyword"},
-                    "accessionid": {"type": "keyword"},
-                    "pending_deletion": {"type": "boolean"},
-                }
+            "properties": {
+                ES_FIELD_NAME: {
+                    "type": "text",
+                    "fields": {"raw": {"type": "keyword"}},
+                    "analyzer": "file_path_and_name",
+                },
+                ES_FIELD_STATUS: {"type": "text"},
+                "ingest_date": {"type": "date", "format": "dateOptionalTime"},
+                ES_FIELD_SIZE: {"type": "long"},
+                ES_FIELD_FILECOUNT: {"type": "integer"},
+                ES_FIELD_UUID: {"type": "keyword"},
+                "accessionid": {"type": "keyword"},
+                "pending_deletion": {"type": "boolean"},
             }
         },
     }
@@ -317,46 +308,44 @@ def _get_transferfiles_index_body():
     return {
         "settings": _get_index_settings(),
         "mappings": {
-            DOC_TYPE: {
-                "properties": {
-                    "filename": {
-                        "type": "text",
-                        "fields": {"raw": {"type": "keyword"}},
-                        "analyzer": "file_path_and_name",
+            "properties": {
+                "filename": {
+                    "type": "text",
+                    "fields": {"raw": {"type": "keyword"}},
+                    "analyzer": "file_path_and_name",
+                },
+                "relative_path": {"type": "text", "analyzer": "file_path_and_name"},
+                "fileuuid": {"type": "keyword"},
+                "sipuuid": {"type": "keyword"},
+                "accessionid": {"type": "keyword"},
+                ES_FIELD_STATUS: {"type": "keyword"},
+                "origin": {"type": "keyword"},
+                "ingestdate": {"type": "date", "format": "dateOptionalTime"},
+                # METS.xml files in transfers sent to backlog will have ''
+                # as their modification_date value. This can cause a
+                # failure in certain cases, see:
+                # https://github.com/artefactual/archivematica/issues/719.
+                # For this reason, we specify the type and format here and
+                # ignore malformed values like ''.
+                "modification_date": {
+                    "type": "date",
+                    "format": "dateOptionalTime",
+                    "ignore_malformed": True,
+                },
+                ES_FIELD_CREATED: {"type": "double"},
+                ES_FIELD_SIZE: {"type": "double"},
+                "tags": {"type": "keyword"},
+                "file_extension": {"type": "keyword"},
+                "bulk_extractor_reports": {"type": "keyword"},
+                "format": {
+                    "type": "nested",
+                    "properties": {
+                        "puid": {"type": "keyword"},
+                        "format": {"type": "text"},
+                        "group": {"type": "text"},
                     },
-                    "relative_path": {"type": "text", "analyzer": "file_path_and_name"},
-                    "fileuuid": {"type": "keyword"},
-                    "sipuuid": {"type": "keyword"},
-                    "accessionid": {"type": "keyword"},
-                    ES_FIELD_STATUS: {"type": "keyword"},
-                    "origin": {"type": "keyword"},
-                    "ingestdate": {"type": "date", "format": "dateOptionalTime"},
-                    # METS.xml files in transfers sent to backlog will have ''
-                    # as their modification_date value. This can cause a
-                    # failure in certain cases, see:
-                    # https://github.com/artefactual/archivematica/issues/719.
-                    # For this reason, we specify the type and format here and
-                    # ignore malformed values like ''.
-                    "modification_date": {
-                        "type": "date",
-                        "format": "dateOptionalTime",
-                        "ignore_malformed": True,
-                    },
-                    ES_FIELD_CREATED: {"type": "double"},
-                    ES_FIELD_SIZE: {"type": "double"},
-                    "tags": {"type": "keyword"},
-                    "file_extension": {"type": "keyword"},
-                    "bulk_extractor_reports": {"type": "keyword"},
-                    "format": {
-                        "type": "nested",
-                        "properties": {
-                            "puid": {"type": "keyword"},
-                            "format": {"type": "text"},
-                            "group": {"type": "text"},
-                        },
-                    },
-                    "pending_deletion": {"type": "boolean"},
-                }
+                },
+                "pending_deletion": {"type": "boolean"},
             }
         },
     }
@@ -664,7 +653,6 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
             yield {
                 "_op_type": "index",
                 "_index": AIP_FILES_INDEX,
-                "_type": DOC_TYPE,
                 "_source": indexData,
             }
 
@@ -678,7 +666,6 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     # we're potentially dealing with large documents (full amdSec embedded).
     # It should be revisited once we make documents smaller.
     bulk(client, _generator(), chunk_size=50)
-    breakpoint()
     file_count = len(files)
     accession_ids_list = list(accession_ids)
 
@@ -872,7 +859,7 @@ def _try_to_index(
         raise ValueError("max_tries must be 1 or greater")
     for _ in range(0, max_tries):
         try:
-            client.index(body=data, index=index, doc_type=DOC_TYPE)
+            client.index(body=data, index=index)
             return
         except Exception as e:
             exception = e
@@ -1339,9 +1326,7 @@ def set_file_tags(client, uuid, tags):
         )
 
     body = {"doc": {"tags": tags}}
-    client.update(
-        body=body, index=TRANSFER_FILES_INDEX, doc_type=DOC_TYPE, id=document_ids[0]
-    )
+    client.update(body=body, index=TRANSFER_FILES_INDEX, id=document_ids[0])
     return True
 
 
@@ -1422,9 +1407,7 @@ def _remove_transfer_files(client, uuid, unit_type=None):
             )
             if len(files) > 0:
                 for file_id in files:
-                    client.delete(
-                        index=TRANSFER_FILES_INDEX, doc_type=DOC_TYPE, id=file_id
-                    )
+                    client.delete(index=TRANSFER_FILES_INDEX, id=file_id)
     else:
         if not unit_type:
             unit_type = "transfer or SIP"
@@ -1465,9 +1448,7 @@ def _update_field(client, index, uuid, field, value):
         logger.error(f"Unable to find document with UUID {uuid} in index {index}")
         return
 
-    client.update(
-        body={"doc": {field: value}}, index=index, doc_type=DOC_TYPE, id=document_id
-    )
+    client.update(body={"doc": {field: value}}, index=index, id=document_id)
 
 
 def mark_aip_stored(client, uuid):
@@ -1563,7 +1544,6 @@ def _update_field_for_package_and_files(
         client.update(
             body={"doc": {field: value}},
             index=files_index,
-            doc_type=DOC_TYPE,
             id=file_id,
         )
 
