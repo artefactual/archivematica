@@ -47,6 +47,7 @@ urlpatterns = [
         r"ingest/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
         views.status,
         {"unit_type": "unitSIP"},
+        name="ingest_status",
     ),
     re_path(
         r"ingest/waiting", views.waiting_for_user_input, name="waiting_for_user_input"
@@ -56,8 +57,13 @@ urlpatterns = [
         + settings.UUID_REGEX
         + ")/delete/",
         views.mark_hidden,
+        name="mark_hidden",
     ),
-    re_path(r"^(?P<unit_type>transfer|ingest)/delete/", views.mark_completed_hidden),
+    re_path(
+        r"^(?P<unit_type>transfer|ingest)/delete/",
+        views.mark_completed_hidden,
+        name="mark_completed_hidden",
+    ),
     re_path(
         r"^ingest/reingest/approve", views.reingest_approve, name="reingest_approve"
     ),

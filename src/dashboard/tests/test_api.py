@@ -1,7 +1,5 @@
 import datetime
 import json
-import os
-import tempfile
 import uuid
 
 import archivematicaFunctions
@@ -10,16 +8,16 @@ import requests
 from components import helpers
 from components.api import views
 from django.core.management import call_command
-from django.test import TestCase
-from django.test.client import Client
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
 from main.models import DashboardSetting
 from main.models import DublinCore
+from main.models import File
 from main.models import Job
 from main.models import LevelOfDescription
 from main.models import MetadataAppliesToType
+from main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
 from main.models import RightsStatement
 from main.models import SIP
 from main.models import SIPArrange
@@ -32,565 +30,774 @@ def load_fixture(fixtures):
     call_command("loaddata", *fixtures, **{"verbosity": 0})
 
 
-def e2e(fn):
-    """Use this decorator when your test uses the HTTP client."""
-
-    def _wrapper(self, *args):
-        load_fixture(["test_user"])
-        self.client = Client()
-        self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-        return fn(self, *args)
-
-    return _wrapper
+@pytest.fixture
+def dashboard_uuid(db):
+    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
-class TestAPI(TestCase):
-    """Test API endpoints."""
+@pytest.fixture
+def transfer(db):
+    return Transfer.objects.create()
 
-    fixtures = ["transfer", "sip"]
 
-    def _test_api_error(self, response, message=None, status_code=None):
-        payload = json.loads(response.content.decode("utf8"))
-        assert payload["error"] is True
-        if message is not None:
-            assert payload["message"] == message
-        else:
-            assert "message" in payload
-        if status_code is not None:
-            assert response.status_code == status_code
+@pytest.fixture
+def sip(db):
+    return SIP.objects.create()
 
-    def test_get_unit_status_processing(self):
-        """It should return PROCESSING."""
-        # Setup fixtures
-        load_fixture(["jobs-processing"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+
+@pytest.fixture
+def files(db, transfer, sip):
+    return [File.objects.create(transfer=transfer, sip=sip)]
+
+
+@pytest.fixture
+def jobs_processing(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="ee3b39f6-2d57-431d-bdd6-6d38f50de371",
+            microservicegroup="Examine contents",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T22:50:56Z",
+            unittype="unitTransfer",
+            jobtype="Examine contents?",
+        ),
+        Job.objects.create(
+            jobuuid="3ed5ec03-ee7d-4ddc-bdfc-3b1e07170c2b",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T22:50:57Z",
+            unittype="unitTransfer",
+            jobtype="Load options to create SIPs",
+        ),
+        Job.objects.create(
+            jobuuid="7bd82bc3-0694-4182-8f72-48fb13f0e8e8",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_EXECUTING_COMMANDS,
+            createdtime="2016-10-04T22:50:57Z",
+            unittype="unitTransfer",
+            jobtype="Check transfer directory for objects",
+        ),
+    ]
+
+
+@pytest.fixture
+def jobs_user_input(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="b9390fbf-8c00-434c-ab4b-eb501ed2f490",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_AWAITING_DECISION,
+            createdtime="2016-10-04T22:50:57Z",
+            unittype="unitTransfer",
+            jobtype="Create SIP(s)",
         )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "PROCESSING"
-        assert len(completed) == 0
+    ]
 
-    def test_get_unit_status_user_input(self):
-        """It should return USER_INPUT."""
-        # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-user-input"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
-        )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "USER_INPUT"
-        assert len(completed) == 0
 
-    def test_get_unit_status_failed(self):
-        """It should return FAILED."""
-        # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-failed"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+@pytest.fixture
+def jobs_failed(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="7d9ba893-08f1-4678-9fe9-294fdc729c55",
+            microservicegroup="Failed transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-05T00:10:54Z",
+            unittype="unitTransfer",
+            jobtype="Move to the failed directory",
         )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "FAILED"
-        assert len(completed) == 1
+    ]
 
-    def test_get_unit_status_rejected(self):
-        """It should return REJECTED."""
-        # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-rejected"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
-        )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "REJECTED"
-        assert len(completed) == 0
 
-    def test_get_unit_status_completed_transfer(self):
-        """It should return COMPLETE and the new SIP UUID."""
-        # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-transfer-complete", "files"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
+@pytest.fixture
+def jobs_rejected(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774",
+            microservicegroup="Reject transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:48:27Z",
+            unittype="unitTransfer",
+            jobtype="Move to the rejected directory",
         )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 3
-        assert "microservice" in status
-        assert status["status"] == "COMPLETE"
-        assert status["sip_uuid"] == "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        assert len(completed) == 1
+    ]
 
-    def test_get_unit_status_backlog(self):
-        """It should return COMPLETE and in BACKLOG."""
-        # Setup fixtures
-        load_fixture(["jobs-processing", "jobs-transfer-backlog"])
-        # Test
-        status = views.get_unit_status(
-            "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e", "unitTransfer"
-        )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 3
-        assert "microservice" in status
-        assert status["status"] == "COMPLETE"
-        assert status["sip_uuid"] == "BACKLOG"
-        assert len(completed) == 1
 
-    def test_get_unit_status_completed_sip(self):
-        """It should return COMPLETE."""
-        # Setup fixtures
-        load_fixture(
-            ["jobs-processing", "jobs-transfer-complete", "jobs-sip-complete", "files"]
+@pytest.fixture
+def jobs_transfer_complete(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="d51f6915-ae7f-4c23-8a02-fcec49941168",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:05:55Z",
+            unittype="unitTransfer",
+            jobtype="Create SIP from transfer objects",
+        ),
+        Job.objects.create(
+            jobuuid="e7775bc2-613f-4fb7-abba-738dfa799c99",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:05:56Z",
+            unittype="unitTransfer",
+            jobtype="Move to SIP creation directory for completed transfers",
+        ),
+    ]
+
+
+@pytest.fixture
+def jobs_transfer_backlog(db, transfer):
+    return [
+        Job.objects.create(
+            jobuuid="a39d74e4-c42e-404b-8c29-dde873ca48ad",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:40:12Z",
+            unittype="unitTransfer",
+            jobtype="Move transfer to backlog",
+        ),
+        Job.objects.create(
+            jobuuid="bac0675d-44fe-4047-9713-f9ba9fe46eff",
+            microservicegroup="Create SIP from Transfer",
+            sipuuid=transfer.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:40:14Z",
+            unittype="unitTransfer",
+            jobtype="Create placement in backlog PREMIS events",
+        ),
+    ]
+
+
+@pytest.fixture
+def jobs_sip_complete(db, sip):
+    return [
+        Job.objects.create(
+            jobuuid="299c727c-e72b-4070-ae0a-a78a5aa0cfd3",
+            microservicegroup="Store AIP",
+            sipuuid=sip.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:18:46Z",
+            unittype="unitSIP",
+            jobtype="Remove the processing directory",
         )
-        # Test
-        status = views.get_unit_status(
-            "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
+    ]
+
+
+@pytest.fixture
+def jobs_sip_complete_cleanup_last(db, sip):
+    return [
+        Job.objects.create(
+            jobuuid="c3e2f1de-5cd2-4543-89de-e49a75a54dc4",
+            microservicegroup="Store AIP",
+            sipuuid=sip.uuid,
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime="2016-10-04T23:18:47Z",
+            unittype="unitSIP",
+            jobtype="Clean up after storing AIP",
         )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
+    ]
+
+
+@pytest.mark.django_db
+def test_get_unit_status_processing(jobs_processing, transfer):
+    """It should return PROCESSING."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "PROCESSING"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 0
+
+
+@pytest.mark.django_db
+def test_get_unit_status_user_input(jobs_processing, jobs_user_input, transfer):
+    """It should return USER_INPUT."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "USER_INPUT"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 0
+
+
+@pytest.mark.django_db
+def test_get_unit_status_failed(jobs_processing, jobs_failed, transfer):
+    """It should return FAILED."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "FAILED"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 1
+
+
+@pytest.mark.django_db
+def test_get_unit_status_rejected(jobs_processing, jobs_rejected, transfer):
+    """It should return REJECTED."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "REJECTED"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 0
+
+
+@pytest.mark.django_db
+def test_get_unit_status_completed_transfer(
+    jobs_processing, jobs_transfer_complete, transfer, sip, files
+):
+    """It should return COMPLETE and the new SIP UUID."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 3
+    assert "microservice" in status
+    assert status["status"] == "COMPLETE"
+    assert status["sip_uuid"] == str(sip.uuid)
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 1
+
+
+@pytest.mark.django_db
+def test_get_unit_status_backlog(jobs_processing, jobs_transfer_backlog, transfer):
+    """It should return COMPLETE and in BACKLOG."""
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+    assert len(status) == 3
+    assert "microservice" in status
+    assert status["status"] == "COMPLETE"
+    assert status["sip_uuid"] == "BACKLOG"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 1
+
+
+@pytest.mark.django_db
+def test_get_unit_status_completed_sip(
+    transfer, sip, jobs_processing, jobs_transfer_complete, jobs_sip_complete, files
+):
+    """It should return COMPLETE."""
+    status = views.get_unit_status(sip.uuid, "unitSIP")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "COMPLETE"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 1
+
+
+@pytest.mark.django_db
+def test_get_unit_status_completed_sip_issue_262_workaround(
+    transfer,
+    sip,
+    jobs_processing,
+    jobs_transfer_complete,
+    jobs_sip_complete,
+    jobs_sip_complete_cleanup_last,
+    files,
+):
+    """Test get unit status for a completed SIP when the job with the latest
+    created time is not the last in the microservice chain
+    (i.e, job with jobtype 'Remove the processing directory' is not the one with
+    latest created time)
+    It should return COMPLETE."""
+    status = views.get_unit_status(sip.uuid, "unitSIP")
+    assert len(status) == 2
+    assert "microservice" in status
+    assert status["status"] == "COMPLETE"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert len(completed) == 1
+
+
+@pytest.mark.django_db
+def test_status(
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+):
+    resp = admin_client.get(
+        reverse("api:transfer_status", args=[transfer.uuid]),
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["status"] == "COMPLETE"
+    assert payload["type"] == "transfer"
+    assert payload["uuid"] == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+def test_status_transfer_not_found(admin_client, dashboard_uuid):
+    transfer_uuid = uuid.uuid4()
+    resp = admin_client.get(
+        reverse("api:transfer_status", args=[transfer_uuid]),
+    )
+
+    assert resp.status_code == 400
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": f"Cannot fetch unitTransfer with UUID {transfer_uuid}",
+        "error": True,
+        "type": "transfer",
+    }
+
+
+@pytest.mark.django_db
+def test_status_ingest_not_found(admin_client, dashboard_uuid):
+    ingest_uuid = uuid.uuid4()
+    resp = admin_client.get(
+        reverse("api:ingest_status", args=[ingest_uuid]),
+    )
+
+    assert resp.status_code == 400
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": f"Cannot fetch unitSIP with UUID {ingest_uuid}",
+        "error": True,
+        "type": "SIP",
+    }
+
+
+@pytest.mark.django_db
+def test_status_with_bogus_unit(admin_client, dashboard_uuid):
+    """It should return a 400 error as the status cannot be determined."""
+    bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
+    Transfer.objects.create(uuid=bogus_transfer_id)
+    resp = admin_client.get(reverse("api:transfer_status", args=[bogus_transfer_id]))
+    assert resp.status_code == 400
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["error"] is True
+    assert (
+        payload["message"]
+        == f"Unable to determine the status of the unit {bogus_transfer_id}"
+    )
+
+
+@pytest.mark.django_db
+def test_completed_units(transfer, sip, jobs_transfer_complete, files):
+    completed = views._completed_units()
+    assert completed == [str(transfer.uuid)]
+
+
+@pytest.mark.django_db
+def test_completed_units_with_bogus_unit(transfer, sip, jobs_transfer_complete, files):
+    """Bogus units should be excluded and handled gracefully."""
+    Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    completed = views._completed_units()
+    assert completed == [str(transfer.uuid)]
+
+
+@pytest.mark.django_db
+def test_completed_transfers(
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+):
+    resp = admin_client.get(reverse("api:completed_transfers"))
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched completed transfers successfully.",
+        "results": [str(transfer.uuid)],
+    }
+
+
+@pytest.mark.django_db
+def test_completed_transfers_with_bogus_transfer(
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+):
+    """Bogus transfers should be excluded and handled gracefully."""
+    Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    resp = admin_client.get(reverse("api:completed_transfers"))
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched completed transfers successfully.",
+        "results": [str(transfer.uuid)],
+    }
+
+
+@pytest.mark.django_db
+def test_completed_ingests(admin_client, dashboard_uuid, sip, jobs_sip_complete):
+    resp = admin_client.get(reverse("api:completed_ingests"))
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched completed ingests successfully.",
+        "results": [str(sip.uuid)],
+    }
+
+
+@pytest.mark.django_db
+def test_completed_ingests_with_bogus_sip(
+    admin_client, dashboard_uuid, sip, jobs_sip_complete
+):
+    """Bogus ingests should be excluded and handled gracefully."""
+    SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
+    resp = admin_client.get(reverse("api:completed_ingests"))
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == {
+        "message": "Fetched completed ingests successfully.",
+        "results": [str(sip.uuid)],
+    }
+
+
+@pytest.mark.django_db
+def test_unit_jobs_with_bogus_unit_uuid(admin_client, dashboard_uuid):
+    bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    resp = admin_client.get(reverse("api:v2beta_jobs", args=[bogus_unit_uuid]))
+    assert resp.status_code == 400
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["error"] is True
+    assert payload["message"] == f"No jobs found for unit: {bogus_unit_uuid}"
+
+
+@pytest.mark.django_db
+def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_backlog):
+    # Add a task to an existing job
+    task_uuid = uuid.uuid4()
+    job_index = 1
+    Task.objects.create(
+        taskuuid=task_uuid,
+        job=jobs_transfer_backlog[job_index],
+        createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+        starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+        endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
+        exitcode=0,
+    )
+    # each payload mapping has information about the job and its tasks
+    expected = []
+    for job in jobs_transfer_backlog:
+        expected.append(
+            {
+                "uuid": str(job.jobuuid),
+                "name": job.jobtype,
+                "status": "COMPLETE",
+                "microservice": job.microservicegroup,
+                "link_uuid": str(job.microservicechainlink),
+                "tasks": [
+                    {"uuid": str(task.taskuuid), "exit_code": task.exitcode}
+                    for task in job.task_set.all()
+                ],
+            }
         )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "COMPLETE"
-        assert len(completed) == 1
 
-    def test_get_unit_status_completed_sip_issue_262_workaround(self):
-        """Test get unit status for a completed SIP when the job with the latest
-        created time is not the last in the microservice chain
-        (i.e, job with jobtype 'Remove the processing directory' is not the one with
-        latest created time)
-        It should return COMPLETE."""
-        # Setup fixtures
-        load_fixture(
-            [
-                "jobs-processing",
-                "jobs-transfer-complete",
-                "jobs-sip-complete-clean-up-last",
-                "files",
-            ]
-        )
-        # Test
-        status = views.get_unit_status(
-            "4060ee97-9c3f-4822-afaf-ebdf838284c3", "unitSIP"
-        )
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        # Verify
-        assert len(status) == 2
-        assert "microservice" in status
-        assert status["status"] == "COMPLETE"
-        assert len(completed) == 1
+    resp = admin_client.get(reverse("api:v2beta_jobs", args=[transfer.uuid]))
+    assert resp.status_code == 200
 
-    @e2e
-    def test_status(self):
-        load_fixture(["jobs-transfer-complete", "files"])
-        resp = self.client.get(
-            reverse(
-                "api:transfer_status", args=["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
-            ),
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert payload["status"] == "COMPLETE"
-        assert payload["type"] == "transfer"
-        assert payload["uuid"] == "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+    # payload contains a mapping for each job
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == len(jobs_transfer_backlog)
+    assert payload == expected
+    # check the task added before is associated to the expected job
+    assert payload[job_index]["tasks"] == [{"uuid": str(task_uuid), "exit_code": 0}]
 
-    @e2e
-    def test_status_with_bogus_unit(self):
-        """It should return a 400 error as the status cannot be determined."""
-        bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
-        Transfer.objects.create(uuid=bogus_transfer_id)
-        resp = self.client.get(reverse("api:transfer_status", args=[bogus_transfer_id]))
-        self._test_api_error(
-            resp,
-            status_code=400,
-            message=(
-                "Unable to determine the status of the unit {}".format(
-                    bogus_transfer_id
-                )
-            ),
-        )
 
-    def test_completed_units(self):
-        load_fixture(["jobs-transfer-complete", "files"])
-        completed = views._completed_units()
-        assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
+@pytest.mark.django_db
+def test_unit_jobs_searching_for_microservice(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]),
+        {"microservice": "Reject transfer"},
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == 1
+    job = payload[0]
+    stored_job = jobs_rejected[0]
+    assert job["uuid"] == str(stored_job.jobuuid)
+    assert job["name"] == stored_job.jobtype
+    assert job["status"] == "COMPLETE"
+    assert job["microservice"] == stored_job.microservicegroup
+    assert job["link_uuid"] == str(stored_job.microservicechainlink)
+    assert job["tasks"] == [
+        {"uuid": str(task.taskuuid), "exit_code": task.exitcode}
+        for task in stored_job.task_set.all()
+    ]
 
-    def test_completed_units_with_bogus_unit(self):
-        """Bogus units should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete", "files"])
-        Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
-        try:
-            completed = views._completed_units()
-        except Exception as err:
-            self.fail("views._completed_units raised unexpected exception", err)
-        assert completed == ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"]
 
-    @e2e
-    def test_completed_transfers(self):
-        load_fixture(["jobs-transfer-complete", "files"])
-        resp = self.client.get(reverse("api:completed_transfers"))
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert payload == {
-            "message": "Fetched completed transfers successfully.",
-            "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
-        }
+@pytest.mark.django_db
+def test_unit_jobs_searching_for_microservice_with_prefix(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    # Test that microservice search also works with a "Microservice:" prefix
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]),
+        {"microservice": "Microservice: Reject transfer"},
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == 1
+    job = payload[0]
+    assert job["uuid"] == jobs_rejected[0].jobuuid
 
-    @e2e
-    def test_completed_transfers_with_bogus_transfer(self):
-        """Bogus transfers should be excluded and handled gracefully."""
-        load_fixture(["jobs-transfer-complete", "files"])
-        Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
-        resp = self.client.get(reverse("api:completed_transfers"))
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert payload == {
-            "message": "Fetched completed transfers successfully.",
-            "results": ["3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"],
-        }
 
-    @e2e
-    def test_completed_ingests(self):
-        load_fixture(["jobs-sip-complete"])
-        resp = self.client.get(reverse("api:completed_ingests"))
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert payload == {
-            "message": "Fetched completed ingests successfully.",
-            "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
-        }
+@pytest.mark.django_db
+def test_unit_jobs_searching_for_chain_link(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    stored_job = jobs_rejected[0]
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]),
+        {"link_uuid": stored_job.microservicechainlink},
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == 1
+    job = payload[0]
+    assert job["uuid"] == str(stored_job.jobuuid)
+    assert job["name"] == stored_job.jobtype
+    assert job["status"] == "COMPLETE"
+    assert job["microservice"] == stored_job.microservicegroup
+    assert job["link_uuid"] == str(stored_job.microservicechainlink)
+    assert job["tasks"] == [
+        {"uuid": str(task.taskuuid), "exit_code": task.exitcode}
+        for task in stored_job.task_set.all()
+    ]
 
-    @e2e
-    def test_completed_ingests_with_bogus_sip(self):
-        """Bogus ingests should be excluded and handled gracefully."""
-        load_fixture(["jobs-sip-complete"])
-        SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
-        resp = self.client.get(reverse("api:completed_ingests"))
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert payload == {
-            "message": "Fetched completed ingests successfully.",
-            "results": ["4060ee97-9c3f-4822-afaf-ebdf838284c3"],
-        }
 
-    @e2e
-    def test_unit_jobs_with_bogus_unit_uuid(self):
-        bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get(reverse("api:v2beta_jobs", args=[bogus_unit_uuid]))
-        self._test_api_error(
-            resp,
-            status_code=400,
-            message=(f"No jobs found for unit: {bogus_unit_uuid}"),
-        )
+@pytest.mark.django_db
+def test_unit_jobs_searching_for_name(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]),
+        {"name": "Move to the rejected directory"},
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == 1
+    job = payload[0]
+    stored_job = jobs_rejected[0]
+    assert job["uuid"] == str(stored_job.jobuuid)
+    assert job["name"] == stored_job.jobtype
+    assert job["status"] == "COMPLETE"
+    assert job["microservice"] == stored_job.microservicegroup
+    assert job["link_uuid"] == str(stored_job.microservicechainlink)
+    assert job["tasks"] == [
+        {"uuid": str(task.taskuuid), "exit_code": task.exitcode}
+        for task in stored_job.task_set.all()
+    ]
 
-    @e2e
-    def test_unit_jobs(self):
-        load_fixture(["jobs-transfer-backlog"])
-        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        # fixtures don't have any tasks
-        Task.objects.create(
-            taskuuid="12345678-1234-1234-1234-123456789012",
-            job=Job.objects.get(jobuuid="d2f99030-26b9-4746-b100-856779624934"),
-            createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
-            starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
-            endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
-            exitcode=0,
-        )
-        resp = self.client.get(reverse("api:v2beta_jobs", args=[sip_uuid]))
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        # payload contains a mapping for each job
-        assert len(payload) == 5
-        expected_job_uuids = [
-            "624581dc-ec01-4195-9da3-db0ab0ad1cc3",
-            "a39d74e4-c42e-404b-8c29-dde873ca48ad",
-            "bac0675d-44fe-4047-9713-f9ba9fe46eff",
-            "c763fa11-0e36-4b93-a8c8-6f008b74a96a",
-            "d2f99030-26b9-4746-b100-856779624934",
-        ]
-        # sort the payload results by job uuid
-        sorted_payload = sorted(payload, key=lambda job: job["uuid"])
-        assert [job["uuid"] for job in sorted_payload] == expected_job_uuids
-        # each payload mapping has information about the job and its tasks
-        job = sorted_payload[4]
-        assert job["uuid"] == "d2f99030-26b9-4746-b100-856779624934"
-        assert job["name"] == "Check transfer directory for objects"
-        assert job["status"] == "COMPLETE"
-        assert job["microservice"] == "Create SIP from Transfer"
-        assert job["link_uuid"] is None
-        assert job["tasks"] == [
-            {"uuid": "12345678-1234-1234-1234-123456789012", "exit_code": 0}
-        ]
 
-    @e2e
-    def test_unit_jobs_searching_for_microservice(self):
-        load_fixture(["jobs-rejected"])
-        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        resp = self.client.get(
-            reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"microservice": "Reject transfer"},
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert len(payload) == 1
-        job = payload[0]
-        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
-        assert job["name"] == "Move to the rejected directory"
-        assert job["status"] == "COMPLETE"
-        assert job["microservice"] == "Reject transfer"
-        assert job["link_uuid"] is None
-        assert job["tasks"] == []
-        # Test that microservice search also works with a "Microservice:" prefix
-        resp = self.client.get(
-            reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"microservice": "Microservice: Reject transfer"},
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert len(payload) == 1
-        job = payload[0]
-        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+@pytest.mark.django_db
+def test_unit_jobs_searching_for_name_with_prefix(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    # Test that name search also works with a "Job:" prefix
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]),
+        {"name": "Job: Move to the rejected directory"},
+    )
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert len(payload) == 1
+    job = payload[0]
+    assert job["uuid"] == jobs_rejected[0].jobuuid
 
-    @e2e
-    def test_unit_jobs_searching_for_chain_link(self):
-        load_fixture(["jobs-rejected"])
-        # add chain links to the fixture jobs
-        job = Job.objects.get(jobuuid="59ace00b-4830-4314-a7d9-38fdbef64896")
-        job.microservicechainlink = "0b8f1929-5beb-4998-a2d5-40e4873fa887"
+
+@pytest.mark.django_db
+def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
+    bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    resp = admin_client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))
+    assert resp.status_code == 400
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["error"] is True
+    assert payload["message"] == f"Task with UUID {bogus_task_uuid} does not exist"
+
+
+@pytest.mark.django_db
+def test_task(admin_client, dashboard_uuid, jobs_transfer_backlog):
+    stored_job = jobs_transfer_backlog[1]
+    # fixtures don't have any tasks
+    task_uuid = uuid.uuid4()
+    Task.objects.create(
+        taskuuid=task_uuid,
+        job=stored_job,
+        createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
+        starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
+        endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 5)),
+        exitcode=0,
+    )
+    resp = admin_client.get(reverse("api:v2beta_task", args=[task_uuid]))
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    # payload is a mapping of task attributes
+    assert payload["uuid"] == str(task_uuid)
+    assert payload["exit_code"] == 0
+    assert payload["file_uuid"] is None
+    assert payload["file_name"] == ""
+    assert payload["time_created"] == "2019-06-18T00:00:00"
+    assert payload["time_started"] == "2019-06-18T00:00:00"
+    assert payload["time_ended"] == "2019-06-18T00:00:05"
+    assert payload["duration"] == 5
+
+
+@pytest.mark.django_db
+def test_get_levels_of_description(admin_client, dashboard_uuid):
+    LevelOfDescription.objects.create(name="Item", sortorder=2)
+    LevelOfDescription.objects.create(name="Collection", sortorder=0)
+    LevelOfDescription.objects.create(name="Fonds", sortorder=1)
+    expected = ["Collection", "Fonds", "Item"]
+
+    resp = admin_client.get(reverse("api:get_levels_of_description"))
+    payload = json.loads(resp.content.decode("utf8"))
+
+    result = []
+    for level_of_description in payload:
+        name = next(iter(level_of_description.values()))
+        result.append(name)
+
+    assert result == expected
+
+
+@pytest.fixture
+def shared_dir(tmp_path, settings):
+    shared_dir = tmp_path / "shared_dir"
+    shared_dir.mkdir()
+
+    (shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs").mkdir(
+        parents=True
+    )
+
+    settings.SHARED_DIRECTORY = shared_dir.as_posix()
+    install_builtin_config("default")
+    install_builtin_config("automated")
+
+    return shared_dir
+
+
+def test_list_processing_configs(admin_client, dashboard_uuid, shared_dir):
+    expected_names = sorted(["default", "automated"])
+    response = admin_client.get(reverse("api:processing_configuration_list"))
+    assert response.status_code == 200
+    payload = json.loads(response.content.decode("utf8"))
+    shared_dir = payload["processing_configurations"]
+    assert len(shared_dir) == 2
+    assert all(
+        actual == expected for actual, expected in zip(shared_dir, expected_names)
+    )
+
+
+def test_get_existing_processing_config(admin_client, dashboard_uuid, shared_dir):
+    response = admin_client.get(
+        reverse("api:processing_configuration", args=["default"]),
+        HTTP_ACCEPT="xml",
+    )
+    assert response.status_code == 200
+    assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
+
+
+def test_delete_and_regenerate(admin_client, dashboard_uuid, shared_dir):
+    processing_configs = (
+        shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
+    )
+
+    response = admin_client.delete(
+        reverse("api:processing_configuration", args=["default"])
+    )
+    assert response.status_code == 200
+    assert not (processing_configs / "defaultProcessingMCP.xml").exists()
+
+    response = admin_client.get(
+        reverse("api:processing_configuration", args=["default"]),
+        HTTP_ACCEPT="xml",
+    )
+    assert response.status_code == 200
+    assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
+    assert (processing_configs / "defaultProcessingMCP.xml").exists()
+
+
+def test_404_for_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+    response = admin_client.get(
+        reverse("api:processing_configuration", args=["nonexistent"]),
+        HTTP_ACCEPT="xml",
+    )
+    assert response.status_code == 404
+
+
+def test_404_for_delete_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+    response = admin_client.delete(
+        reverse("api:processing_configuration", args=["nonexistent"])
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_get_unit_status_multiple(
+    jobs_failed,
+    jobs_transfer_complete,
+    jobs_rejected,
+    jobs_user_input,
+    jobs_transfer_backlog,
+):
+    """When the database contains 5 units of the following types:
+    1. a failed transfer
+    2. a completed transfer
+    3. a rejected transfer
+    4. a transfer awaiting user input
+    5. a transfer in backlog
+    then ``completed_units_efficient`` should return 3: the failed,
+    the completed, and the in-backlog transfer.
+    """
+    failed_transfer = Transfer.objects.create()
+    for job in jobs_failed:
+        job.sipuuid = failed_transfer.uuid
         job.save()
-        job = Job.objects.get(jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774")
-        job.microservicechainlink = "2208efc0-ba99-4b36-bb8d-99330fcc25da"
+
+    complete_transfer = Transfer.objects.create()
+    for job in jobs_transfer_complete:
+        job.sipuuid = complete_transfer.uuid
         job.save()
-        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        resp = self.client.get(
-            reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"link_uuid": "0b8f1929-5beb-4998-a2d5-40e4873fa887"},
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert len(payload) == 1
-        job = payload[0]
-        assert job["uuid"] == "59ace00b-4830-4314-a7d9-38fdbef64896"
-        assert job["name"] == "Create SIP(s)"
-        assert job["status"] == "COMPLETE"
-        assert job["microservice"] == "Create SIP from Transfer"
-        assert job["link_uuid"] == "0b8f1929-5beb-4998-a2d5-40e4873fa887"
-        assert job["tasks"] == []
 
-    @e2e
-    def test_unit_jobs_searching_for_name(self):
-        load_fixture(["jobs-rejected"])
-        sip_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        resp = self.client.get(
-            reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"name": "Move to the rejected directory"},
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert len(payload) == 1
-        job = payload[0]
-        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
-        assert job["name"] == "Move to the rejected directory"
-        assert job["status"] == "COMPLETE"
-        assert job["microservice"] == "Reject transfer"
-        assert job["link_uuid"] is None
-        assert job["tasks"] == []
-        # Test that name search also works with a "Job:" prefix
-        resp = self.client.get(
-            reverse("api:v2beta_jobs", args=[sip_uuid]),
-            {"name": "Job: Move to the rejected directory"},
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        assert len(payload) == 1
-        job = payload[0]
-        assert job["uuid"] == "b7902aae-ec5f-4290-a3d7-c47f844e8774"
+    rejected_transfer = Transfer.objects.create()
+    for job in jobs_rejected:
+        job.sipuuid = rejected_transfer.uuid
+        job.save()
 
-    @e2e
-    def test_task_with_bogus_task_uuid(self):
-        bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
-        resp = self.client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))
-        self._test_api_error(
-            resp,
-            status_code=400,
-            message=(f"Task with UUID {bogus_task_uuid} does not exist"),
-        )
+    awaiting_transfer = Transfer.objects.create()
+    for job in jobs_user_input:
+        job.sipuuid = awaiting_transfer.uuid
+        job.save()
 
-    @e2e
-    def test_task(self):
-        load_fixture(["jobs-transfer-backlog"])
-        # fixtures don't have any tasks
-        Task.objects.create(
-            taskuuid="12345678-1234-1234-1234-123456789012",
-            job=Job.objects.get(jobuuid="d2f99030-26b9-4746-b100-856779624934"),
-            createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
-            starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
-            endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 5)),
-            exitcode=0,
-        )
-        resp = self.client.get(
-            reverse("api:v2beta_task", args=["12345678-1234-1234-1234-123456789012"])
-        )
-        assert resp.status_code == 200
-        payload = json.loads(resp.content.decode("utf8"))
-        # payload is a mapping of task attributes
-        assert payload["uuid"] == "12345678-1234-1234-1234-123456789012"
-        assert payload["exit_code"] == 0
-        assert payload["file_uuid"] is None
-        assert payload["file_name"] == ""
-        assert payload["time_created"] == "2019-06-18T00:00:00"
-        assert payload["time_started"] == "2019-06-18T00:00:00"
-        assert payload["time_ended"] == "2019-06-18T00:00:05"
-        assert payload["duration"] == 5
+    backlog_transfer = Transfer.objects.create()
+    for job in jobs_transfer_backlog:
+        job.sipuuid = backlog_transfer.uuid
+        job.save()
 
-    @e2e
-    def test_get_levels_of_description(self):
-        LevelOfDescription.objects.create(name="Item", sortorder=2)
-        LevelOfDescription.objects.create(name="Collection", sortorder=0)
-        LevelOfDescription.objects.create(name="Fonds", sortorder=1)
-        expected = ["Collection", "Fonds", "Item"]
+    expected_uuids = [
+        str(t.uuid) for t in [failed_transfer, complete_transfer, backlog_transfer]
+    ]
 
-        resp = self.client.get(reverse("api:get_levels_of_description"))
-        payload = json.loads(resp.content.decode("utf8"))
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
 
-        result = []
-        for level_of_description in payload:
-            name = next(iter(level_of_description.values()))
-            result.append(name)
-
-        assert result == expected
-
-
-class TestProcessingConfigurationAPI(TestCase):
-    fixtures = ["test_user"]
-
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-        self.populate_shared_dir()
-
-    def populate_shared_dir(self):
-        self.shared_dir = tempfile.gettempdir()
-        self.config_path = os.path.join(
-            self.shared_dir,
-            "sharedMicroServiceTasksConfigs/processingMCPConfigs/",
-        )
-        if not os.path.exists(self.config_path):
-            os.makedirs(self.config_path)
-        with self.settings(SHARED_DIRECTORY=self.shared_dir):
-            install_builtin_config("default")
-            install_builtin_config("automated")
-
-    def test_list_processing_configs(self):
-        with self.settings(SHARED_DIRECTORY=self.shared_dir):
-            response = self.client.get(reverse("api:processing_configuration_list"))
-            assert response.status_code == 200
-            payload = json.loads(response.content.decode("utf8"))
-            processing_configs = payload["processing_configurations"]
-            assert len(processing_configs) == 2
-            expected_names = sorted(["default", "automated"])
-            assert all(
-                actual == expected
-                for actual, expected in zip(processing_configs, expected_names)
-            )
-
-    def test_get_existing_processing_config(self):
-        with self.settings(SHARED_DIRECTORY=self.shared_dir):
-            response = self.client.get(
-                reverse("api:processing_configuration", args=["default"]),
-                HTTP_ACCEPT="xml",
-            )
-            assert response.status_code == 200
-            assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
-
-    def test_delete_and_regenerate(self):
-        with self.settings(SHARED_DIRECTORY=self.shared_dir):
-            response = self.client.delete(
-                reverse("api:processing_configuration", args=["default"])
-            )
-            assert response.status_code == 200
-            assert not os.path.exists(
-                os.path.join(self.config_path, "defaultProcessingMCP.xml")
-            )
-
-            response = self.client.get(
-                reverse("api:processing_configuration", args=["default"]),
-                HTTP_ACCEPT="xml",
-            )
-            assert response.status_code == 200
-            assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
-            assert os.path.exists(
-                os.path.join(self.config_path, "defaultProcessingMCP.xml")
-            )
-
-    def test_404_for_non_existent_config(self):
-        response = self.client.get(
-            reverse("api:processing_configuration", args=["nonexistent"]),
-            HTTP_ACCEPT="xml",
-        )
-        assert response.status_code == 404
-
-    def test_404_for_delete_non_existent_config(self):
-        response = self.client.delete(
-            reverse("api:processing_configuration", args=["nonexistent"])
-        )
-        assert response.status_code == 404
-
-
-class TestAPI2(TestCase):
-    """Test API endpoints."""
-
-    fixtures = ["units", "jobs-various"]
-
-    def test_get_unit_status_multiple(self):
-        """When the database contains 5 units of the following types:
-        1. a failed transfer b949773d-7cf7-4c1e-aea5-ccbf65b70ccd
-        2. a completed transfer 85216028-1150-4321-abb3-31ea570a341b
-        3. a rejected transfer c9cce131-7bd9-41c8-82ab-483190961ae2
-        4. a transfer awaiting user input 37a07d96-6fc0-4002-b269-471a58783805
-        5. a transfer in backlog 5d0ab97f-a45b-4e0f-9cb6-90ee3a404549
-        then ``completed_units_efficient`` should return 3: the failed,
-        the completed, and the in-backlog transfer.
-        """
-        completed = helpers.completed_units_efficient(
-            unit_type="transfer", include_failed=True
-        )
-        assert len(completed) == 3
-        assert "85216028-1150-4321-abb3-31ea570a341b" in completed
-        assert "5d0ab97f-a45b-4e0f-9cb6-90ee3a404549" in completed
-        assert "b949773d-7cf7-4c1e-aea5-ccbf65b70ccd" in completed
+    assert set(completed) == set(expected_uuids)
 
 
 @pytest.mark.django_db
@@ -1168,3 +1375,40 @@ def test_fetch_levels_of_description_from_atom_communication_failure(
         "success": False,
         "error": "Unable to fetch levels of description from AtoM!",
     }
+
+
+@pytest.mark.django_db
+def test_mark_hidden(admin_client, dashboard_uuid, transfer):
+    # This endpoint considers the status attribute instead of jobs.
+    transfer.status = PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
+    transfer.save()
+
+    assert not transfer.hidden
+
+    response = admin_client.delete(
+        reverse(
+            "api:mark_hidden",
+            kwargs={"unit_type": "transfer", "unit_uuid": transfer.uuid},
+        )
+    )
+    assert response.status_code == 200
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {"removed": True}
+    assert Transfer.objects.get(pk=transfer.uuid).hidden
+
+
+@pytest.mark.django_db
+def test_mark_completed_hidden(
+    admin_client, dashboard_uuid, transfer, jobs_transfer_complete
+):
+    assert not transfer.hidden
+
+    response = admin_client.delete(
+        reverse("api:mark_completed_hidden", kwargs={"unit_type": "transfer"})
+    )
+    assert response.status_code == 200
+
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload == {"removed": [str(transfer.uuid)]}
+    assert Transfer.objects.get(pk=transfer.uuid).hidden

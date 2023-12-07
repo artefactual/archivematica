@@ -242,7 +242,6 @@ def get_unit_status(unit_uuid, unit_type):
 def status(request, unit_uuid, unit_type):
     # Example: http://127.0.0.1/api/transfer/status/?username=mike&api_key=<API key>
     response = {}
-    error = None
 
     # Get info about unit
     if unit_type == "unitTransfer":
@@ -283,12 +282,6 @@ def status(request, unit_uuid, unit_type):
         return _error_response(msg, status_code=400)
     response.update(status_info)
 
-    if error is not None:
-        response["message"] = error
-        response["error"] = True
-        return django.http.HttpResponseServerError(  # 500
-            json.dumps(response), content_type="application/json"
-        )
     response["message"] = f"Fetched status for {unit_uuid} successfully."
     return helpers.json_response(response)
 
