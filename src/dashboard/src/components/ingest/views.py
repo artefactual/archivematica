@@ -23,7 +23,7 @@ import shutil
 import uuid
 from urllib.parse import urljoin
 
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 import requests
 import storageService as storage_service
 from archivematicaFunctions import b64encode_string

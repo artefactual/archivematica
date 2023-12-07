@@ -23,7 +23,7 @@ from django.db.models import Q
 from archivematicaFunctions import get_bag_size, get_setting
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 from main.models import Agent, File, UnitVariable
 import storageService as storage_service
 

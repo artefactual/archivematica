@@ -17,7 +17,7 @@
 import json
 import logging
 
-import elasticSearchFunctions as es
+import openSearchFunctions as es
 import requests
 import storageService as storage_service
 from archivematicaFunctions import AMCLIENT_ERROR_CODES

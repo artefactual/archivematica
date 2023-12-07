@@ -16,7 +16,7 @@ from main import models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 import storageService as storage_service
 from archivematicaFunctions import find_transfer_path_from_ingest
 

@@ -27,7 +27,7 @@ import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 import databaseFunctions
 import django.http
 import django.template.defaultfilters
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 import storageService as storage_service
 from archivematicaFunctions import b64decode_string
 from archivematicaFunctions import b64encode_string

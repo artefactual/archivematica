@@ -23,7 +23,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 import databaseFunctions
-import elasticSearchFunctions as es
+import openSearchFunctions as es
 import storageService as storage_service
 from archivematicaFunctions import AMCLIENT_ERROR_CODES
 from archivematicaFunctions import setup_amclient

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-import elasticSearchFunctions
+import openSearchFunctions as elasticSearchFunctions
 import requests
 import storageService as storage_service
 from components import helpers
