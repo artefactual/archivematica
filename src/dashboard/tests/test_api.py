@@ -621,6 +621,54 @@ def test_unit_jobs_searching_for_name_with_prefix(
 
 
 @pytest.mark.django_db
+def test_unit_jobs_with_detailed_task_output(
+    admin_client, dashboard_uuid, transfer, jobs_rejected
+):
+    # Add a task to an existing job
+    task_uuid = uuid.uuid4()
+    Task.objects.create(
+        taskuuid=task_uuid,
+        job=jobs_rejected[0],
+        createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+        starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
+        endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
+        exitcode=0,
+    )
+    expected = []
+    for job in jobs_rejected:
+        expected.append(
+            {
+                "uuid": str(job.jobuuid),
+                "name": job.jobtype,
+                "status": "COMPLETE",
+                "microservice": job.microservicegroup,
+                "link_uuid": str(job.microservicechainlink),
+                "tasks": [
+                    {
+                        "uuid": str(task.taskuuid),
+                        "exit_code": task.exitcode,
+                        "file_uuid": task.fileuuid,
+                        "file_name": task.filename,
+                        "time_created": task.createdtime.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "time_started": task.starttime.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "time_ended": task.endtime.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "duration": helpers.task_duration_in_seconds(task),
+                    }
+                    for task in job.task_set.all()
+                ],
+            }
+        )
+
+    resp = admin_client.get(
+        reverse("api:v2beta_jobs", args=[transfer.uuid]), {"detailed": "true"}
+    )
+    assert resp.status_code == 200
+
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload == expected
+
+
+@pytest.mark.django_db
 def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
     bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
     resp = admin_client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))

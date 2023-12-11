@@ -927,10 +927,15 @@ def unit_jobs(request, unit_uuid):
         name = remove_prefix(name, "Job:")
         jobs = jobs.filter(jobtype=name.strip())
 
+    detailed_output = "detailed" in request.GET
+
     for job in jobs.prefetch_related("task_set"):
         job_link_uuid = job.microservicechainlink
         link_uuid = str(job_link_uuid) if job_link_uuid is not None else None
-        tasks = [format_task(task) for task in job.task_set.all()]
+        tasks = [
+            format_task(task, detailed_output=detailed_output)
+            for task in job.task_set.all()
+        ]
         result.append(
             {
                 "uuid": str(job.jobuuid),
