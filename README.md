@@ -94,7 +94,7 @@ see the [getting started] page.
 [Issues]: https://github.com/archivematica/Issues
 [User Google Group]: https://groups.google.com/forum/#!forum/archivematica
 [Paid support]: https://www.artefactual.com/services/
-[contributing guidelines]: CONTRIBUTING.md
+[contributing guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md
 [SECURITY file]: SECURITY.md
 [Archivematica GitHub]: https://github.com/artefactual/archivematica
 [Storage Service]: https://github.com/artefactual/archivematica-storage-service
