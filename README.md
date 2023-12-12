@@ -1,9 +1,9 @@
-[![GitHub CI](https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg)](https://github.com/artefactual/archivematica/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/artefactual/archivematica/branch/qa/1.x/graph/badge.svg?token=tKlfjhmrlC)](https://codecov.io/gh/artefactual/archivematica)
+# [Archivematica]
 
-# [Archivematica](https://www.archivematica.org/)
+By [Artefactual]
 
-By [Artefactual](https://www.artefactual.com/)
+[![GitHub CI]][Test workflow]
+[![codecov]][Archivematica Codecov]
 
 ![Screen capture of an Archivematica instance, view of the Administration tab.](./demo_s004.png)
 
@@ -52,8 +52,34 @@ If you have a security concern about Archivematica or any related repository, pl
 
 Archivematica consists of several projects working together, including:
 
-* [Archivematica](https://github.com/artefactual/archivematica): This repository! Main repository containing the user-facing dashboard, task manager MCPServer and clients scripts for the MCPClient
-* [Storage Service](https://github.com/artefactual/archivematica-storage-service): Responsible for moving files to Archivematica for processing, and from Archivematica into long-term storage
-* [Format Policy Registry](https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/src/fpr): Submodule shared between Archivematica and the Format Policy Registry (FPR) server that displays and updates FPR rules and commands
+* [Archivematica][Archivematica GitHub]: This repository! Main
+  repository containing the user-facing dashboard, task manager
+  MCPServer and clients scripts for the MCPClient
+* [Storage Service]: Responsible for moving files to Archivematica for
+  processing, and from Archivematica into long-term storage
+* [Format Policy Registry]: Submodule shared between Archivematica and
+  the Format Policy Registry (FPR) server that displays and updates
+  FPR rules and commands
 
-For more projects in the Archivematica ecosystem, see the [getting started](https://wiki.archivematica.org/Getting_started#Projects) page.
+For more projects in the Archivematica ecosystem, see the [getting started] page.
+
+[Archivematica]: https://www.archivematica.org/
+[Artefactual]: https://www.artefactual.com/
+[GitHub CI]: https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg
+[Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
+[codecov]: https://codecov.io/gh/artefactual/archivematica/branch/qa/1.x/graph/badge.svg?token=tKlfjhmrlC
+[Archivematica Codecov]: https://codecov.io/gh/artefactual/archivematica
+[LICENSE]: LICENSE
+[Production installation]: https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/
+[Development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack
+[Wiki]: https://www.archivematica.org/wiki/Development
+[Issues]: https://github.com/archivematica/Issues
+[User Google Group]: https://groups.google.com/forum/#!forum/archivematica
+[Paid support]: https://www.artefactual.com/services/
+[contributing guidelines]: CONTRIBUTING.md
+[Archivematica Issues repository]: https://github.com/archivematica/Issues/issues
+[SECURITY file]: SECURITY.md
+[Archivematica GitHub]: https://github.com/artefactual/archivematica
+[Storage Service]: https://github.com/artefactual/archivematica-storage-service
+[Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/src/fpr
+[getting started]: https://wiki.archivematica.org/Getting_started#Projects

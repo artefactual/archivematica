@@ -730,7 +730,7 @@ def revision_list(request, entity_name, uuid):
 
     # restrict to models that are intended to have revisions
     try:
-        getattr(model, "replaces")
+        getattr(model, "replaces")  # noqa: B009
 
         # get specific revision's data and augment with detail URL
         revision = model.objects.get(uuid=uuid)

@@ -29,7 +29,9 @@ def sorted_directory_list(path):
     return sorted(entries, key=helpers.keynat)
 
 
-def directory_to_dict(path, directory={}, entry=False):
+def directory_to_dict(path, directory=None, entry=False):
+    if directory is None:
+        directory = {}
     # if starting traversal, set entry to directory root
     if entry is False:
         entry = directory
@@ -77,7 +79,7 @@ def check_filepath_exists(filepath):
     try:
         filepath.index("..")
         error = "Illegal path."
-    except:
+    except Exception:
         pass
 
     return error

@@ -31,11 +31,13 @@ logger = logging.getLogger("archivematica.mcp.client")
 THIS_SCRIPT = "fork_runner.py"
 
 
-def call(module_name, jobs, task_count=multiprocessing.cpu_count()):
+def call(module_name, jobs, task_count=None):
     """
     Split `jobs` into `task_count` groups and fork a subprocess to run
     `module_name`.call() for each of them.
     """
+    if task_count is None:
+        task_count = multiprocessing.cpu_count()
     jobs_by_uuid = {}
     for job in jobs:
         jobs_by_uuid[job.UUID] = job

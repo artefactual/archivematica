@@ -51,24 +51,17 @@ RUN set -ex \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy multiverse" \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy-security universe" \
 	&& add-apt-repository --no-update --yes "deb http://archive.ubuntu.com/ubuntu/ jammy-updates multiverse" \
+	&& curl -sS https://deb.nodesource.com/setup_20.x | bash - \
 	&& curl -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
 	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		libyaml-dev clamav \
+		libyaml-dev clamav nodejs \
 	&& /src/hack/osdeps.py Ubuntu-22 1 | grep -v -E "nginx|postfix|python3.9-dev" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
 RUN freshclam --quiet
-
-# Install pip, Node.js and Yarn
-RUN set -ex \
-	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-	&& add-apt-repository --yes "deb https://dl.yarnpkg.com/debian/ stable main" \
-	&& apt-get install -y --no-install-recommends \
-		yarn nodejs \
-	&& rm -rf /var/lib/apt/lists/*
 
 ENV PYENV_ROOT="/pyenv/data"
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
@@ -145,8 +138,10 @@ RUN set -ex \
 
 USER archivematica
 
-RUN set -ex \
-	&& yarn --cwd=/src/src/dashboard/frontend install --frozen-lockfile
+WORKDIR /src/src/dashboard/frontend
+
+RUN set ex  \
+    && npm install --no-package-lock
 
 WORKDIR /src/src/dashboard/src
 
@@ -197,7 +192,7 @@ USER archivematica
 
 WORKDIR /src/src/dashboard/frontend
 
-ENTRYPOINT ["yarn", "run", "test-single-run"]
+ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 

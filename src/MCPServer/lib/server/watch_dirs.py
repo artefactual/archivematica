@@ -74,6 +74,7 @@ def watch_directories_inotify(
         warnings.warn(
             "inotify may not work as a watched directory method on non-linux systems.",
             RuntimeWarning,
+            stacklevel=2,
         )
 
     inotify = INotify()

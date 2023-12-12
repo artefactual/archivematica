@@ -355,7 +355,7 @@ class TestHashsum:
                 idtypes = []
                 agentnames = []
                 agenttypes = []
-                for agent_count, agent in enumerate(event.agents.all(), 1):
+                for _agent_count, agent in enumerate(event.agents.all(), 1):
                     idvalues.append(agent.identifiervalue)
                     idtypes.append(agent.identifiertype)
                     agentnames.append(agent.name)
@@ -371,9 +371,9 @@ class TestHashsum:
                 ), "agent name values returned don't match"
                 assert set(agenttypes) == set(agent_types), "agent types don't match"
                 assert (
-                    agent_count == number_of_expected_agents
+                    _agent_count == number_of_expected_agents
                 ), "Number of agents is incorrect: {} expected: {}".format(
-                    agent_count, number_of_expected_agents
+                    _agent_count, number_of_expected_agents
                 )
             # Collect the different checksum algorithms written to ensure they
             # were all written independently in the function.

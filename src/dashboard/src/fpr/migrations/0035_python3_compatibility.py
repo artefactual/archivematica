@@ -535,7 +535,7 @@ def identify(file_):
 
     try:
         results = stdout.split('\n')[0].split(',')
-    except:
+    except Exception:
         raise FidoFailed(stdout, stderr, process.returncode)
 
     if process.returncode != 0 or results[-1] == '"fail"':

@@ -7,17 +7,19 @@ us assess your changes faster and makes it easier for us to merge your
 submission!
 
 There are many ways to contribute: writing tutorials or blog posts about your
-experience, improving the [documentation], submitting bug reports, answering 
-questions on the [mailing list], or writing code which can be incorporated into 
+experience, improving the [documentation], submitting bug reports, answering
+questions on the [mailing list], or writing code which can be incorporated into
 Archivematica itself.
+
+## Table of contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
 
 - [Submitting bugs](#submitting-bugs)
-- [Submitting enhancement ideas](#submitting-enhancements)
+- [Submitting enhancement ideas](#submitting-enhancement-ideas)
 - [Submitting code changes](#submitting-code-changes)
+  - [Permalinks](#permalinks)
   - [Getting started](#getting-started)
   - [When to submit code for review?](#when-to-submit-code-for-review)
   - [Opening the pull request](#opening-the-pull-request)
@@ -37,6 +39,7 @@ Archivematica itself.
   - [Commit History](#commit-history)
     - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
     - [Every commit should work](#every-commit-should-work)
+  - [Commit messages](#commit-messages)
     - [Commit summaries should be concise](#commit-summaries-should-be-concise)
     - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
 
@@ -45,37 +48,37 @@ Archivematica itself.
 ## Submitting bugs
 
 If you find a security vulnerability, do NOT open an issue. Email
-info@artefactual.com instead.
+<info@artefactual.com> instead.
 
-Issues can be filed using GitHub Issues in the [Archivematica Issues repo]. 
-It is recommended to file issues there rather than in any of the 
-Archivematica-related code repositories. Artefactual staff also use GitHub 
+Issues can be filed using GitHub Issues in the [Archivematica Issues repo].
+It is recommended to file issues there rather than in any of the
+Archivematica-related code repositories. Artefactual staff also use GitHub
 issues for any work they do on the Archivematica project.
 
-You can also post in our [user] mailing list. A post to the mailing list is 
+You can also post in our [user] mailing list. A post to the mailing list is
 always welcome, especially if you're unsure if it's a bug or a local problem!
 
 Useful questions to answer if you're having problems include:
 
-* What version of Archivematica and the Storage Service are you using?
-* How was Archivematica installed? Package install, Ansible, etc?
-* Was this a fresh install or an upgrade?
-* What did you do to cause this bug to happen?
-* What did you expect to happen?
-* What did you see instead?
-* Can you reproduce this reliably?
-* If a specific Job is failing, what output did it produce? This is available
+- What version of Archivematica and the Storage Service are you using?
+- How was Archivematica installed? Package install, Ansible, etc?
+- Was this a fresh install or an upgrade?
+- What did you do to cause this bug to happen?
+- What did you expect to happen?
+- What did you see instead?
+- Can you reproduce this reliably?
+- If a specific Job is failing, what output did it produce? This is available
   by clicking on the gear icon.
 
 ## Submitting enhancement ideas
 
 Similar to submitting bugs, you are welcome to submit ideas for enhancements or
-new features in the [Archivematica Issues repo]. This is  also where Artefactual 
+new features in the [Archivematica Issues repo]. This is also where Artefactual
 staff record upcoming enhancements when they have been sponsored for inclusion
 either by Artefactual Systems or by a client.
 
-Please feel free also to use the [Issues repo wiki] as a space for gathering and 
-collaborating on ideas. If you are not already a member of the 
+Please feel free also to use the [Issues repo wiki] as a space for gathering and
+collaborating on ideas. If you are not already a member of the
 Archivematica repo (required for editing the wiki), file an issue there with
 the title "Request membership."
 
@@ -114,7 +117,7 @@ So you have something to contribute to an Artefactual project. Great!
 
 To install Archivematica, see our [development installation] instructions.
 
-Artefactual uses [GitHub]'s pull request feature for code review. Every change 
+Artefactual uses [GitHub]'s pull request feature for code review. Every change
 being submitted to an Artefactual project should be
 submitted as a pull request to the appropriate repository. A branch being
 submitted for code review should contain commits covering a related section of
@@ -181,72 +184,74 @@ The Archivematica contributor's agreement is based almost verbatim on the
 [Apache Foundation]'s individual [contributor license].
 
 If you have any questions or concerns about the Contributor's Agreement,
-please email us at agreement@artefactual.com to discuss them.
+please email us at <agreement@artefactual.com> to discuss them.
 
 ### Why do I have to sign a Contributor's Agreement?
 
 One of the key challenges for open source software is to support a collaborative
-development environment while protecting the rights of contributors and users 
+development environment while protecting the rights of contributors and users
 over the long-term.
 Unifying Archivematica copyrights through contributor agreements is the best way
-to protect the availability and sustainability of Archivematica over the 
+to protect the availability and sustainability of Archivematica over the
 long-term as free and open-source software.
-In all cases, contributors who sign the Contributor's Agreement retain full 
-rights to use their original contributions for any other purpose outside of 
-Archivematica, while enabling Artefactual Systems, any successor organization 
-which may eventually take over responsibility for Archivematica, and the wider 
-Archivematica community to benefit from their collaboration and contributions 
+In all cases, contributors who sign the Contributor's Agreement retain full
+rights to use their original contributions for any other purpose outside of
+Archivematica, while enabling Artefactual Systems, any successor organization
+which may eventually take over responsibility for Archivematica, and the wider
+Archivematica community to benefit from their collaboration and contributions
 in this open source project.
 
-[Artefactual Systems] has made the decision and has a proven track record of 
+[Artefactual Systems] has made the decision and has a proven track record of
 making our intellectual property available to the community at large.
-By standardizing contributions on these agreements the Archivematica 
+By standardizing contributions on these agreements the Archivematica
 intellectual property position does not become too complicated.
-This ensures our resources are devoted to making our project the best they can 
+This ensures our resources are devoted to making our project the best they can
 be, rather than fighting legal battles over contributions.
 
 ### How do I send in an agreement?
 
-Please read and sign the [Contributor's Agreement] and email it to 
-agreement@artefactual.com.
+Please read and sign the [Contributor's Agreement] and email it to
+<agreement@artefactual.com>.
 
 Alternatively, you may send a printed, signed agreement to:
 
-    Artefactual Systems Inc.
-    201 - 301 Sixth Street
-    New Westminster BC  V3L 3A7
-    Canada
+```text
+Artefactual Systems Inc.
+201 - 301 Sixth Street
+New Westminster BC  V3L 3A7
+Canada
+```
 
 ## Contribution standards
 
 ### Style
 
-Archivematica uses the Python [PEP8] community style guidelines. Newly-written 
-code should conform to PEP-8 style. PEP8 is a daunting document, but there are 
+Archivematica uses the Python [PEP8] community style guidelines. Newly-written
+code should conform to PEP-8 style. PEP8 is a daunting document, but there are
 very good linters available that you can run to check style in your code.
 
-* The [Black] tool formats the code automatically. The output is deterministic 
+- The [Black] tool formats the code automatically. The output is deterministic
   for any given input. Editor integration is possible.
 
-* The [flake8] tool checks for style problems as well as errors and complexity. 
-  It can be used at the command line or as a plugin in your preferred text 
-  editor/IDE. The Archivematica [continuous integration system] will currently 
+- The [flake8] tool checks for style problems as well as errors and complexity.
+  It can be used at the command line or as a plugin in your preferred text
+  editor/IDE. The Archivematica [continuous integration system] will currently
   check code for compliance against flake8.
 
 We have integrated these tools with our CI, i.e. pull requests will fail to
 build when the tools above report errors.
 
-Additionally [Pylint] is used by developers internally at Artefactual to 
+Additionally [Pylint] is used by developers internally at Artefactual to
 highlight other potential areas of improvement during code-review.
 
 #### Some extra notes
 
 A few additional stylistic preferences might not get flagged by linters:
 
-* Don't use variable or parameter names that shadow builtin functions and
+- Don't use variable or parameter names that shadow builtin functions and
   types. For example, don't name a variable "file". (Unfortunately, Python uses
   many useful names for its builtin types and functions.)
-* Sort imports alphabetically within their grouping to reduce duplicate
+- Sort imports alphabetically within their grouping to reduce duplicate
   imports.
 
 #### Exceptions
@@ -267,10 +272,10 @@ however, if possible, it's great if your new code does conform.
 When working in sections of code that don't conform to PEP8, it's okay to relax
 a few PEP8 rules in order to match existing code. In particular:
 
-* When modifying an existing function which uses camelCase variables or
+- When modifying an existing function which uses camelCase variables or
   parameters, it's okay to make your new variables/parameters camelCase to
   match.
-* When adding new functions to a module or class that uses camelCase naming,
+- When adding new functions to a module or class that uses camelCase naming,
   it's okay to make your new function and its parameters camelCase to match.
   Try to use snake_case internally, however.
 
@@ -282,18 +287,18 @@ behaviour should be maintained.
 ### Documentation
 
 New classes and functions should generally be documented using
-[docstrings]; these help in providing clarity, and can also be used to generate 
-API documentation later. Generally any function which isn't obvious 
-(any function longer than a line or two) should have a docstring. 
+[docstrings]; these help in providing clarity, and can also be used to generate
+API documentation later. Generally any function which isn't obvious
+(any function longer than a line or two) should have a docstring.
 When in doubt: document! Python's [PEP 257] document provides a useful
-guideline for docstring style. Generally, prefer using 
+guideline for docstring style. Generally, prefer using
 [Sphinx-compatible docstrings]. More [examples] and [attributes to use] can
 be found on the Sphinx website.
 
 ### Tests
 
-New code should also have unit tests. Tests are written in [unittest] style 
-and run with [py.test]. For tests requiring the Django ORM, we use the 
+New code should also have unit tests. Tests are written in [unittest] style
+and run with [py.test]. For tests requiring the Django ORM, we use the
 Django-provided[TestCase], which extends `unittest.TestCase`.
 
 Tests are found in the `tests` directory, a sibling of the directory containing
@@ -301,7 +306,7 @@ the code. `test_foo.py` contains tests for `foo.py`. For clarity, group tests
 for the same function and similar tests into the same class within that file.
 This will also allow you to share setup and teardown code.
 
-If you are testing code that makes HTTP requests, using [VCR.py] is highly 
+If you are testing code that makes HTTP requests, using [VCR.py] is highly
 recommended. It should already be a development dependency.
 
 ### Commit History
@@ -359,13 +364,19 @@ and b) what the change is. For example:
 
 Clear commit summary:
 
-> Replace 404 messages with a user-friendly one
+```text
+Replace 404 messages with a user-friendly one
+```
 
 Unclear commit summaries:
 
-> Fixed some normalization bugs
+```text
+Fixed some normalization bugs
+```
 
-> Bugfixes
+```text
+Bugfixes
+```
 
 The unclear messages make it hard to tell at a glance what changed, and that
 makes browsing the commit history harder.
@@ -373,7 +384,9 @@ makes browsing the commit history harder.
 A commit message should use the [imperative mood] which should always be able to
 complete the following sentence:
 
-    If applied, this commit will <your subject line here>
+```text
+If applied, this commit will <your subject line here>
+```
 
 #### Commit messages should be as detailed as they need to be (and no more)
 
@@ -392,7 +405,7 @@ Each line of a commit message should be no more than 72 characters in width.
 The following is an outline of a commit message combined with an ideal commit
 summary:
 
-```
+```text
 Capitalized, short (50 chars or less) summary
 
 More detailed explanatory text, if necessary.  Wrap it to about 80
@@ -404,12 +417,12 @@ two together.
 
 Further content comes after a blank line.
 ```
+
 [documentation]: https://github.com/artefactual/archivematica-docs/
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
 [user]: https://groups.google.com/forum/#!forum/archivematica
-[Archivematica Issues repo]: https://github.com/archivematica/Issues
-[Issues repo wiki]: https://github.com/archivematica/Issues/wiki 
+[Issues repo wiki]: https://github.com/archivematica/Issues/wiki
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
 [development installation]: https://wiki.archivematica.org/Getting_started#Installation

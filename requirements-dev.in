@@ -8,4 +8,3 @@ pytest-django
 pytest-mock
 pytest-randomly
 tox
-vcrpy

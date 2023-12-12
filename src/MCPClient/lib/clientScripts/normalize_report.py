@@ -184,7 +184,7 @@ def report(uuid):
             recipient_list=recipient_list,
             html_message=html_message,
         )
-    except:
+    except Exception:
         logger.exception("Report email was not delivered")
         return 1
     else:

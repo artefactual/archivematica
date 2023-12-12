@@ -30,7 +30,7 @@ jobs:
             browser: Firefox
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
         with:
           submodules: true
       - name: "Create external volumes"

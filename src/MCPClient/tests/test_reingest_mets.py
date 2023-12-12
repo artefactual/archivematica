@@ -1981,8 +1981,11 @@ class TestUpdateMetadataCSV(TestCase):
         dmdsec = (
             mets.get_file(label="Landing_zone", type="Directory").dmdsecs[0].serialize()
         )
-        dmdsec.findtext(".//dc:title", namespaces=NSMAP) == "The landing zone"
-        dmdsec.findtext(".//dc:description", namespaces=NSMAP) == "A zone for landing"
+        assert dmdsec.findtext(".//dc:title", namespaces=NSMAP) == "The landing zone"
+        assert (
+            dmdsec.findtext(".//dc:description", namespaces=NSMAP)
+            == "A zone for landing"
+        )
 
     def test_update_existing(self):
         """

@@ -36,11 +36,11 @@ def test_main(mocker, transfer, transfer_dir):
     include_dirs = True
 
     # Verify there are no directories.
-    models.Directory.objects.count() == 0
+    assert models.Directory.objects.count() == 0
 
     result = main(job, str(transfer_dir), transfer.uuid, include_dirs)
 
     assert result == 0
 
     # Verify two directories were created.
-    models.Directory.objects.filter(transfer=transfer).count() == 2
+    assert models.Directory.objects.filter(transfer=transfer).count() == 2

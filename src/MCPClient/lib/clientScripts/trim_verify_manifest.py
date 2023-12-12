@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import re
 import sys
@@ -121,11 +118,11 @@ def call(jobs):
                                     file=sys.stderr,
                                 )
                                 exitCode += 1
-                            for paths, fileUUID in fileID.items():
+                            for fileUUID in fileID.values():
                                 eventDetail = 'program="archivematica"; module="trimVerifyManifest"'
                                 eventOutcome = "Pass"
                                 eventOutcomeDetailNote = "Verified file exists"
-                                eventIdentifierUUID = uuid.uuid4().__str__()
+                                eventIdentifierUUID = str(uuid.uuid4())
                                 databaseFunctions.insertIntoEvents(
                                     fileUUID=fileUUID,
                                     eventIdentifierUUID=eventIdentifierUUID,
@@ -161,11 +158,11 @@ def call(jobs):
                                         file=sys.stderr,
                                     )
                                     exitCode += 1
-                                for paths, fileUUID in fileID.items():
+                                for fileUUID in fileID.values():
                                     eventDetail = 'program="archivematica"; module="trimVerifyManifest"'
                                     eventOutcome = "Pass"
                                     eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
-                                    eventIdentifierUUID = uuid.uuid4().__str__()
+                                    eventIdentifierUUID = str(uuid.uuid4())
                                     databaseFunctions.insertIntoEvents(
                                         fileUUID=fileUUID,
                                         eventIdentifierUUID=eventIdentifierUUID,

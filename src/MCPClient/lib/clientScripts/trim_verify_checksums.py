@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
 import uuid
@@ -70,7 +67,7 @@ def call(jobs):
                             root = tree.getroot()
 
                             xmlMD5 = root.find("Document/MD5").text
-                        except:
+                        except Exception:
                             job.pyprint("Error parsing: ", xmlFilePath, file=sys.stderr)
                             exitCode += 1
                             continue
@@ -91,14 +88,14 @@ def call(jobs):
                                 "transfer",
                                 "%transferDirectory%",
                             )
-                            for path, fileUUID in fileID.items():
+                            for fileUUID in fileID.values():
                                 eventDetail = 'program="python"; module="hashlib.md5()"'
                                 eventOutcome = "Pass"
                                 eventOutcomeDetailNote = "{} {}".format(
                                     xmlFile.__str__(),
                                     "verified",
                                 )
-                                eventIdentifierUUID = uuid.uuid4().__str__()
+                                eventIdentifierUUID = str(uuid.uuid4())
 
                                 databaseFunctions.insertIntoEvents(
                                     fileUUID=fileUUID,

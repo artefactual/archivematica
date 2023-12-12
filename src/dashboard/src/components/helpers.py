@@ -178,7 +178,7 @@ def get_setting(setting, default=""):
     try:
         setting = models.DashboardSetting.objects.get(name=setting)
         return setting.value
-    except:
+    except Exception:
         return default
 
 
@@ -193,7 +193,7 @@ def get_boolean_setting(setting, default=""):
 def set_setting(setting, value=""):
     try:
         setting_data = models.DashboardSetting.objects.get(name=setting)
-    except:
+    except Exception:
         setting_data = models.DashboardSetting.objects.create()
         setting_data.name = setting
     # ``DashboardSetting.value`` is a string-based field. The empty string is

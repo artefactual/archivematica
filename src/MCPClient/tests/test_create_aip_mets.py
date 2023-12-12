@@ -826,7 +826,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
         )
         self.state = create_mets_v2.MetsState()
         self.state.globalStructMapCounter = random.choice(
-            [x for x in range(arbitrary_max_structmaps)]
+            list(range(arbitrary_max_structmaps))
         )
         self.structmap_div_element = create_mets_v2.createFileSec(
             job=Job("stub", "stub", []),

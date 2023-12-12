@@ -131,7 +131,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         try:
             format_id = FileFormatVersion.objects.get(file_uuid=file_.uuid)
         # Can't do anything if the file wasn't identified in the previous step
-        except:
+        except Exception:
             job.pyprint(
                 "Not extracting contents from",
                 os.path.basename(file_.currentlocation.decode()),

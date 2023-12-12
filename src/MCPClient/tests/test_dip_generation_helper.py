@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
+from unittest import mock
 
-import vcr
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,6 @@ class TestParseArchivesSpaceIDs(TestCase):
         assert rc == 1
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
 
-    @vcr.use_cassette(os.path.join(THIS_DIR, "fixtures", "test_no_files_in_db.yaml"))
     def test_no_files_in_db(self):
         """It should do nothing if no files are found in the DB."""
         sip_path = os.path.join(THIS_DIR, "fixtures", "metadata_csv_sip", "")
@@ -41,10 +40,17 @@ class TestParseArchivesSpaceIDs(TestCase):
         assert rc == 0
         assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
 
-    @vcr.use_cassette(
-        os.path.join(THIS_DIR, "fixtures", "test_parse_archivesspace_ids.yaml")
+    @mock.patch(
+        "dip_generation_helper.create_archivesspace_client",
+        return_value=mock.Mock(
+            **{
+                "find_by_id.return_value": [
+                    {"id": "/repositories/2/archival_objects/752250"}
+                ]
+            }
+        ),
     )
-    def test_parse_to_db(self):
+    def test_parse_to_db(self, create_archivesspace_client):
         """
         It should create an entry in ArchivesSpaceDIPObjectResourcePairing for each file in archivesspaceids.csv
         It should match the reference ID to a resource ID.

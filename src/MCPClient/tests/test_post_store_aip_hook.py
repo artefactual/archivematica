@@ -1,7 +1,7 @@
 import os
+from unittest import mock
 
 import pytest
-import vcr
 from django.test import TestCase
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -9,11 +9,6 @@ import post_store_aip_hook
 from job import Job
 
 from main import models
-
-my_vcr = vcr.VCR(
-    cassette_library_dir=os.path.join(THIS_DIR, "fixtures", "vcr_cassettes"),
-    path_transformer=vcr.VCR.ensure_suffix(".yaml"),
-)
 
 
 class TestDSpaceToArchivesSpace(TestCase):
@@ -38,23 +33,53 @@ class TestDSpaceToArchivesSpace(TestCase):
         )
         assert rc == 1
 
-    def test_no_dspace(self):
+    @mock.patch(
+        "storageService.get_file_info",
+        return_value=[{"misc_attributes": {}}],
+    )
+    def test_no_dspace(self, get_file_info):
         """It should abort if no DSpace handle found."""
-        with my_vcr.use_cassette("test_no_dspace.yaml") as c:
-            rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-                Job("stub", "stub", []), self.sip_uuid
-            )
-            assert rc == 1
-            assert c.all_played
+        rc = post_store_aip_hook.dspace_handle_to_archivesspace(
+            Job("stub", "stub", []), self.sip_uuid
+        )
+        assert rc == 1
 
-    def test_dspace_handle_to_archivesspace(self):
+    @mock.patch(
+        "storageService.get_file_info",
+        return_value=[{"misc_attributes": {"handle": "123456789/41"}}],
+    )
+    @mock.patch(
+        "requests.post",
+        side_effect=[
+            mock.Mock(**{"json.return_value": {"session": "session-id"}}),
+            mock.Mock(status_code=200),
+        ],
+    )
+    @mock.patch(
+        "requests.get",
+        return_value=mock.Mock(
+            **{
+                "json.return_value": {
+                    "file_versions": [
+                        {
+                            "file_uri": "123456789/41",
+                            "use_statement": "text-data",
+                            "xlink_actuate_attribute": "none",
+                            "xlink_show_attribute": "embed",
+                        },
+                    ],
+                }
+            }
+        ),
+    )
+    def test_dspace_handle_to_archivesspace(
+        self, requests_get, requests_post, get_file_info
+    ):
         """It should send the DSpace handle to ArchivesSpace."""
-        with my_vcr.use_cassette("test_dspace_handle_to_archivesspace.yaml") as c:
-            rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-                Job("stub", "stub", []), self.sip_uuid
-            )
-            assert rc == 0
-            assert c.all_played
+        rc = post_store_aip_hook.dspace_handle_to_archivesspace(
+            Job("stub", "stub", []), self.sip_uuid
+        )
+        assert rc == 0
 
 
 @pytest.fixture

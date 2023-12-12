@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import tempfile
 
@@ -91,7 +88,7 @@ def main(target, xml_file, date, event_uuid, file_uuid, file_grpuse):
 
         try:
             tree = etree.parse(temp_file)
-        except:
+        except Exception:
             logger.exception("Failed to read Fits's XML.")
             return 2
 

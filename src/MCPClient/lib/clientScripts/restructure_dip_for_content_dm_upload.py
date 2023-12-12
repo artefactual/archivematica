@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Mark Jordan <mark2jordan@gmail.com>
 import argparse
 import collections
 import csv
@@ -85,9 +82,9 @@ def getItemCountType(structMap):
     """
     divs_with_dmdsecs = structMap.findall(".//mets:div[@DMDID]", namespaces=ns.NSMAP)
     # If any are TYPE Directory, then it is compound
-    if any([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
+    if any(e.get("TYPE") == "Directory" for e in divs_with_dmdsecs):
         # If all are TYPE Directory then it is bulk
-        if all([e.get("TYPE") == "Directory" for e in divs_with_dmdsecs]):
+        if all(e.get("TYPE") == "Directory" for e in divs_with_dmdsecs):
             return "compound-dirs"
         else:
             return "compound-files"

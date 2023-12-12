@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import argparse
 import multiprocessing
 import os
@@ -56,7 +53,7 @@ def create_directories(base_dir, dir_list):
         directory = os.path.join(base_dir, directory)
         try:
             os.makedirs(directory)
-        except os.error:
+        except OSError:
             pass
 
 

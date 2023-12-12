@@ -97,7 +97,7 @@ class Command(DashboardCommand):
                 try:
                     client.execute_unit(package_id, chain_id)
                     break
-                except:
+                except Exception:
                     self.error("There was a problem executing the selected choice")
 
     def admin_user(self):

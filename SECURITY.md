@@ -1,15 +1,20 @@
 # Security Policy
 
 This document outlines security procedures and general policies for the
-Archivematica project. See https://www.archivematica.org for more information
+Archivematica project. See <https://www.archivematica.org> for more information
 about Archivematica.
 
-**Contents**
+## Table of contents
 
-* [Reporting a security vulnerability](#reporting-a-security-vulnerability)
-* [Disclosure policy](#disclosure-policy)
-* [Supported versions](#supported-versions)
-* [Reporting general bugs](#reporting-general-bugs)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Reporting a security vulnerability](#reporting-a-security-vulnerability)
+- [Disclosure policy](#disclosure-policy)
+- [Supported versions](#supported-versions)
+- [Reporting general bugs](#reporting-general-bugs)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Reporting a security vulnerability
 
@@ -22,18 +27,18 @@ post about the issue on the user forum.** It is critical to the safety of other
 users that security issues are reported in a secure manner. Instead, please
 email a report to:
 
-* [security@artefactual.com](mailto:security@artefactual.com)
+- [security@artefactual.com](mailto:security@artefactual.com)
 
 We will be better able to evaluate and respond to your report if it includes
 all the details needed for us to reproduce the issue locally. Please include
 the following information in your email:
 
-* The version of Archivematica you are using.
-* Basic information about your installation environment, including operating
+- The version of Archivematica you are using.
+- Basic information about your installation environment, including operating
   system and dependency versions.
-* Steps to reproduce the issue.
-* The resulting error or vulnerability.
-* If there are any error logs related to the issue, please include the
+- Steps to reproduce the issue.
+- The resulting error or vulnerability.
+- If there are any error logs related to the issue, please include the
   relevant parts as well.
 
 Your report will be acknowledged within 2 business days, and we’ll follow up
@@ -43,9 +48,9 @@ within 1 week.
 If you haven’t received a reply to your submission after 5 business days of
 the original report, there are a couple steps you can take:
 
-* Email the Archivematica Program Manager directly at
+- Email the Archivematica Program Manager directly at
   [sromkey@artefactual.com](mailto:sromkey@artefactual.com)
-* Email Artefactual's info address: [info@artefactual.com](info@artefactual.com)
+- Email Artefactual's info address: [info@artefactual.com](info@artefactual.com)
 
 Any information you share with the Archivematica development team as a part of
 this process will be kept confidential within the team. If we determine that the
@@ -63,9 +68,9 @@ When the Archivematica development team receives a security bug report, we will
 assign it to a primary handler. This person will coordinate the fix and release
 process, involving the following steps:
 
-* Confirm the problem and determine the affected versions.
-* Audit code to find any similar potential problems.
-* Prepare fixes for all releases still under maintenance. These fixes will be
+- Confirm the problem and determine the affected versions.
+- Audit code to find any similar potential problems.
+- Prepare fixes for all releases still under maintenance. These fixes will be
   released as fast as possible.
 
 Once new releases and/or security patches have been prepared, tested, and made

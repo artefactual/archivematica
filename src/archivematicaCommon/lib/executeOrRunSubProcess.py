@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaCommon
-# @author Joseph Perry <joseph@artefactual.com>
 import io
 import os
 import shlex
@@ -25,15 +22,14 @@ import subprocess
 import sys
 import uuid
 
-# https://stackoverflow.com/a/36321030
-try:
-    file_types = (file, io.IOBase)
-except NameError:
-    file_types = (io.IOBase,)
-
 
 def launchSubProcess(
-    command, stdIn="", printing=True, arguments=[], env_updates={}, capture_output=False
+    command,
+    stdIn="",
+    printing=True,
+    arguments=None,
+    env_updates=None,
+    capture_output=False,
 ):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
@@ -64,6 +60,10 @@ def launchSubProcess(
                     returned IF the subprocess has failed, i.e., returned a
                     non-zero exit code.
     """
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     stdError = ""
     stdOut = ""
 
@@ -88,7 +88,7 @@ def launchSubProcess(
         elif isinstance(stdIn, bytes):
             stdin_pipe = subprocess.PIPE
             communicate_input = stdIn
-        elif isinstance(stdIn, file_types):
+        elif isinstance(stdIn, io.IOBase):
             stdin_pipe = stdIn
             communicate_input = None
         else:
@@ -139,8 +139,12 @@ def launchSubProcess(
 
 
 def createAndRunScript(
-    text, stdIn="", printing=True, arguments=[], env_updates={}, capture_output=True
+    text, stdIn="", printing=True, arguments=None, env_updates=None, capture_output=True
 ):
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
@@ -169,8 +173,8 @@ def executeOrRun(
     text,
     stdIn="",
     printing=True,
-    arguments=[],
-    env_updates={},
+    arguments=None,
+    env_updates=None,
     capture_output=True,
 ):
     """
@@ -203,6 +207,10 @@ def executeOrRun(
     capture_output: Whether or not to capture output for the executed process.
                 Default is `True`.
     """
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     if type == "command":
         return launchSubProcess(
             text,

@@ -15,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClient
 # archivematicaCommon
 from django.db.models import F
 from executeOrRunSubProcess import executeOrRun

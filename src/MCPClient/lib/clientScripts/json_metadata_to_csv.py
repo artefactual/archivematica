@@ -30,7 +30,7 @@ def fetch_keys(objects):
     # Column order is important so the output is consistent.
     # "filename" and "parts" must be column 0.
     # (They are mutually exclusive.)
-    keys = sorted(list(keys))
+    keys = sorted(keys)
     if "filename" in keys:
         keys.remove("filename")
         keys.insert(0, "filename")

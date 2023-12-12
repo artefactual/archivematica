@@ -85,9 +85,7 @@ def test_component_post(admin_client):
 
     assert "Metadata saved." in response.content.decode()
     assert set(
-        list(
-            TransferMetadataFieldValue.objects.filter(
-                set=transfer_uuid, field__fieldname__in=["media_format", "media_number"]
-            ).values_list("fieldvalue")
-        )
+        TransferMetadataFieldValue.objects.filter(
+            set=transfer_uuid, field__fieldname__in=["media_format", "media_number"]
+        ).values_list("fieldvalue")
     ) == {('3.5" floppy',), ("123",)}

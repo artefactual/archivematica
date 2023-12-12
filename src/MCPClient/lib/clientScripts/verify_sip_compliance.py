@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
 
@@ -36,7 +33,7 @@ ALLOWABLE_FILES = ("processingMCP.xml",)
 
 def checkDirectory(job, directory, ret=0):
     try:
-        for directory, subDirectories, files in os.walk(directory):
+        for _, _, files in os.walk(directory):
             for file in files:
                 os.path.join(directory, file)
     except Exception as inst:

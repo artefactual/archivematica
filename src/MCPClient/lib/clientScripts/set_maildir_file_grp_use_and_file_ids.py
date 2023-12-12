@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 
 import django
@@ -67,7 +64,7 @@ def set_maildir_files(sip_uuid, sip_path):
         maildir_path,
         sip_uuid,
     )
-    for root, dirs, files in os.walk(maildir_path):
+    for root, _, files in os.walk(maildir_path):
         for item in files:
             file_relative_path = os.path.join(root, item).replace(
                 sip_path, "%SIPDirectory%", 1
@@ -87,7 +84,7 @@ def set_archivematica_maildir_files(sip_uuid, sip_path):
         attachments_path,
         sip_uuid,
     )
-    for root, dirs, files in os.walk(attachments_path):
+    for root, _, files in os.walk(attachments_path):
         for item in files:
             if not item.endswith(".archivematicaMaildir"):
                 continue

@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
 
@@ -35,7 +32,7 @@ import databaseFunctions
 
 def recursivelyRemoveEmptyDirectories(job, dir):
     error_count = 0
-    for root, dirs, files in os.walk(dir, topdown=False):
+    for root, dirs, _ in os.walk(dir, topdown=False):
         for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))

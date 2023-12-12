@@ -59,27 +59,27 @@ def get_settings(config):
     This should be invoked from a Django settings module and the result merged
     into the globals() dict.
     """
-    settings = dict(
+    settings = {
         # Which backend to use?
-        EMAIL_BACKEND=config.get("email_backend"),
+        "EMAIL_BACKEND": config.get("email_backend"),
         # File Backend
         # See https://docs.djangoproject.com/en/dev/topics/email/#file-backend
-        EMAIL_FILE_PATH=config.get("email_file_path"),
+        "EMAIL_FILE_PATH": config.get("email_file_path"),
         # SMTP Backend
         # See https://docs.djangoproject.com/en/dev/topics/email/#smtp-backend
-        EMAIL_HOST=config.get("email_host"),
-        EMAIL_HOST_PASSWORD=config.get("email_host_password"),
-        EMAIL_HOST_USER=config.get("email_host_user"),
-        EMAIL_PORT=config.get("email_port"),
-        EMAIL_SSL_CERTFILE=config.get("email_ssl_certfile"),
-        EMAIL_SSL_KEYFILE=config.get("email_ssl_keyfile"),
-        EMAIL_USE_SSL=config.get("email_use_ssl"),
-        EMAIL_USE_TLS=config.get("email_use_tls"),
+        "EMAIL_HOST": config.get("email_host"),
+        "EMAIL_HOST_PASSWORD": config.get("email_host_password"),
+        "EMAIL_HOST_USER": config.get("email_host_user"),
+        "EMAIL_PORT": config.get("email_port"),
+        "EMAIL_SSL_CERTFILE": config.get("email_ssl_certfile"),
+        "EMAIL_SSL_KEYFILE": config.get("email_ssl_keyfile"),
+        "EMAIL_USE_SSL": config.get("email_use_ssl"),
+        "EMAIL_USE_TLS": config.get("email_use_tls"),
         # General settings, not backend-specific
-        DEFAULT_FROM_EMAIL=config.get("default_from_email"),
-        EMAIL_SUBJECT_PREFIX=config.get("email_subject_prefix"),
-        EMAIL_TIMEOUT=config.get("email_timeout", None),
-    )
+        "DEFAULT_FROM_EMAIL": config.get("default_from_email"),
+        "EMAIL_SUBJECT_PREFIX": config.get("email_subject_prefix"),
+        "EMAIL_TIMEOUT": config.get("email_timeout", None),
+    }
 
     settings["SERVER_EMAIL"] = config.get("server_email", settings["EMAIL_HOST_USER"])
     return settings

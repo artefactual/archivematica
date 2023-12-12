@@ -16,8 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
 import argparse
 import logging
 import os
@@ -258,11 +256,11 @@ class FSEntriesTree:
         )
 
         for rights in transfer_rights:
-            for path, fsentry in self.file_index.items():
+            for _, fsentry in self.file_index.items():
                 premis_rights = rights_to_premis(rights, fsentry.file_uuid)
                 fsentry.add_premis_rights(premis_rights)
 
-        for path, fsentry in self.file_index.items():
+        for _, fsentry in self.file_index.items():
             file_rights = self.rights_queryset.filter(
                 metadataappliestoidentifier=fsentry.file_uuid,
                 metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,

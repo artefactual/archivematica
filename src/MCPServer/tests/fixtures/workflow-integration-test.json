@@ -25,12 +25,7 @@
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
                 "execute": "link1_command",
-                "arguments": "\"%processingDirectory%\" \"%SIPUUID%\"",
-                "filter_file_start": null,
-                "filter_file_end": null,
-                "filter_subdir": null,
-                "stdout_file": null,
-                "stderr_file": null
+                "arguments": "\"%processingDirectory%\" \"%SIPUUID%\""
             },
             "description": {
                 "en": "Starting link"
@@ -42,7 +37,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -52,12 +46,7 @@
                 "@manager": "linkTaskManagerFiles",
                 "@model": "StandardTaskConfig",
                 "execute": "link2_command",
-                "arguments": "\"%fileUUID%\"",
-                "filter_file_start": null,
-                "filter_file_end": null,
-                "filter_subdir": null,
-                "stdout_file": null,
-                "stderr_file": null
+                "arguments": "\"%fileUUID%\""
             },
             "description": {
                 "en": "Second link"
@@ -69,7 +58,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -79,12 +67,7 @@
                 "@manager": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
                 "@model": "StandardTaskConfig",
                 "execute": "link3_command",
-                "arguments": "{\"default\": {\"description\": \"Default Location\", \"uri\": \"/api/v2/location/default/\"}}",
-                "filter_file_start": null,
-                "filter_file_end": null,
-                "filter_subdir": null,
-                "stdout_file": null,
-                "stderr_file": null
+                "arguments": "{\"default\": {\"description\": \"Default Location\", \"uri\": \"/api/v2/location/default/\"}}"
             },
             "description": {
                 "en": "Third link"
@@ -96,7 +79,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -105,13 +87,7 @@
             "config": {
                 "@manager": "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList",
                 "@model": "StandardTaskConfig",
-                "execute": "%AIPsStore%",
-                "arguments": "",
-                "filter_file_start": null,
-                "filter_file_end": null,
-                "filter_subdir": null,
-                "stdout_file": null,
-                "stderr_file": null
+                "execute": "%AIPsStore%"
             },
             "description": {
                 "en": "Fourth link"
@@ -123,7 +99,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -142,7 +117,6 @@
             },
             "exit_codes": {},
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -182,7 +156,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -192,8 +165,7 @@
                 "@manager": "linkTaskManagerSetUnitVariable",
                 "@model": "TaskConfigSetUnitVariable",
                 "chain_id": "f8e4c1ee-3e43-4caa-a664-f6b6bd8f156e",
-                "variable": "test_unit_variable",
-                "variable_value": null
+                "variable": "test_unit_variable"
             },
             "description": {
                 "en": "Chain 2 second link"
@@ -205,7 +177,6 @@
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -214,7 +185,6 @@
             "config": {
                 "@manager": "linkTaskManagerUnitVariableLinkPull",
                 "@model": "TaskConfigUnitVariableLinkPull",
-                "chain_id": null,
                 "variable": "test_unit_variable"
             },
             "description": {
@@ -222,12 +192,10 @@
             },
             "exit_codes": {
                 "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
+                    "job_status": "Completed successfully"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }
@@ -237,24 +205,17 @@
                 "@manager": "linkTaskManagerDirectories",
                 "@model": "StandardTaskConfig",
                 "execute": "final_command",
-                "arguments": "\"%processingDirectory%\" \"%SIPDirectory%\" \"%SIPName%-%SIPUUID%\"",
-                "filter_file_start": null,
-                "filter_file_end": null,
-                "filter_subdir": null,
-                "stdout_file": null,
-                "stderr_file": null
+                "arguments": "\"%processingDirectory%\" \"%SIPDirectory%\" \"%SIPName%-%SIPUUID%\""
             },
             "description": {
                 "en": "Last link"
             },
             "exit_codes": {
                 "0": {
-                    "job_status": "Completed successfully",
-                    "link_id": null
+                    "job_status": "Completed successfully"
                 }
             },
             "fallback_job_status": "Failed",
-            "fallback_link_id": null,
             "group": {
                 "en": "Group 1"
             }

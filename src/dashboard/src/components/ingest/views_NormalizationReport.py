@@ -16,10 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage Dashboard
-# @author Joseph Perry <joseph@artefactual.com>
-# @author Justin Simpson <jsimpson@artefactual.com>
 from components import helpers
 from django.db import connection
 

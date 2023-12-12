@@ -102,7 +102,9 @@ def make_mock_fsentry(mocker):
 
 @pytest.fixture
 def make_mock_mets(mocker, make_mock_fsentry):
-    def _make_mock_mets(metadata_file_uuids=[]):
+    def _make_mock_mets(metadata_file_uuids=None):
+        if metadata_file_uuids is None:
+            metadata_file_uuids = []
         sip = make_mock_fsentry(label="sip", type="Directory")
         objects = make_mock_fsentry(label="objects", type="Directory")
         directory = make_mock_fsentry(label="directory", type="Directory")

@@ -302,7 +302,7 @@ def waiting_for_user_input(request):
     # TODO should this filter based on unit type into transfer vs SIP?
     jobs = models.Job.objects.filter(currentstep=models.Job.STATUS_AWAITING_DECISION)
     for job in jobs:
-        unit_uuid = job.sipuuid
+        unit_uuid = str(job.sipuuid)
         directory = os.path.basename(os.path.normpath(job.directory))
         unit_name = directory.replace("-" + unit_uuid, "", 1)
 
@@ -468,7 +468,11 @@ def unapproved_transfers(request):
         )
 
         unapproved.append(
-            {"type": transfer_type, "directory": job_directory, "uuid": job.sipuuid}
+            {
+                "type": transfer_type,
+                "directory": job_directory,
+                "uuid": str(job.sipuuid),
+            }
         )
 
     # get list of unapproved transfers

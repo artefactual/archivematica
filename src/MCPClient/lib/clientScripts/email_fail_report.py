@@ -57,7 +57,7 @@ def send_email(subject, to, content):
             recipient_list=to,
             html_message=content,
         )
-    except:
+    except Exception:
         logger.exception("Report email was not delivered")
         raise
     else:
@@ -171,7 +171,7 @@ def get_content_for(unit_type, unit_name, unit_uuid, html=True):
         else:
             root.append(t1)
             etree.SubElement(root, "p")
-    except:
+    except Exception:
         pass
 
     html2code = get_unit_job_log_html(unit_uuid)
@@ -255,7 +255,7 @@ def call(jobs):
 
     # Generate report in plain text and store it in the database
     with transaction.atomic():
-        for arg in reports_to_store:
+        for args in reports_to_store:
             content = get_content_for(
                 args.unit_type, args.unit_name, args.unit_uuid, html=False
             )

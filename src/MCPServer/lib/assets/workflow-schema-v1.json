@@ -67,50 +67,25 @@
           "additionalProperties": {
             "properties": {
               "job_status": {
-                "oneOf": [
-                  {
-                    "$ref": "#/definitions/job_status"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "$ref": "#/definitions/job_status"
               },
               "link_id": {
-                "oneOf": [
-                  {
-                    "$ref": "#/definitions/uuid"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "$ref": "#/definitions/uuid"
               }
             },
+            "required": [
+              "job_status"
+            ],
             "type": "object"
           },
           "minProperties": 0,
           "type": "object"
         },
         "fallback_job_status": {
-          "oneOf": [
-            {
-              "$ref": "#/definitions/job_status"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/job_status"
         },
         "fallback_link_id": {
-          "oneOf": [
-            {
-              "$ref": "#/definitions/uuid"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/uuid"
         },
         "group": {
           "$ref": "#/definitions/translations"
@@ -120,7 +95,6 @@
         "config",
         "exit_codes",
         "fallback_job_status",
-        "fallback_link_id",
         "description",
         "group"
       ],
@@ -138,11 +112,9 @@
           "type": "string"
         },
         "chain_choices": {
-          "items": [
-            {
-              "$ref": "#/definitions/uuid"
-            }
-          ],
+          "items": {
+            "$ref": "#/definitions/uuid"
+          },
           "minItems": 1,
           "type": "array"
         }
@@ -166,55 +138,16 @@
           "type": "string"
         },
         "arguments": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "execute": {
           "type": "string"
-        },
-        "filter_file_end": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "filter_file_start": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "filter_subdir": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "stderr_file": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "stdout_file": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "required": [
         "@manager",
         "@model",
-        "execute",
-        "arguments",
-        "filter_file_start",
-        "filter_file_end",
-        "filter_subdir",
-        "stdout_file",
-        "stderr_file"
+        "execute"
       ],
       "type": "object"
     },
@@ -229,56 +162,14 @@
           "pattern": "StandardTaskConfig",
           "type": "string"
         },
-        "arguments": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "execute": {
           "type": "string"
-        },
-        "filter_file_end": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "filter_file_start": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "filter_subdir": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "stderr_file": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "stdout_file": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "required": [
         "@manager",
         "@model",
-        "execute",
-        "arguments",
-        "filter_file_start",
-        "filter_file_end",
-        "filter_subdir",
-        "stdout_file",
-        "stderr_file"
+        "execute"
       ],
       "type": "object"
     },
@@ -294,14 +185,7 @@
           "type": "string"
         },
         "chain_id": {
-          "oneOf": [
-            {
-              "$ref": "#/definitions/uuid"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/uuid"
         },
         "variable": {
           "type": "string"
@@ -310,7 +194,6 @@
       "required": [
         "@manager",
         "@model",
-        "chain_id",
         "variable"
       ],
       "type": "object"
@@ -327,31 +210,29 @@
           "type": "string"
         },
         "replacements": {
-          "items": [
-            {
-              "additionalProperties": false,
-              "properties": {
-                "description": {
-                  "$ref": "#/definitions/translations"
-                },
-                "id": {
-                  "$ref": "#/definitions/uuid"
-                },
-                "items": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/translations"
               },
-              "required": [
-                "id",
-                "description",
-                "items"
-              ],
-              "type": "object"
-            }
-          ],
+              "id": {
+                "$ref": "#/definitions/uuid"
+              },
+              "items": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "items"
+            ],
+            "type": "object"
+          },
           "minItems": 0,
           "type": "array"
         }
@@ -375,31 +256,19 @@
           "type": "string"
         },
         "chain_id": {
-          "oneOf": [
-            {
-              "$ref": "#/definitions/uuid"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/uuid"
         },
         "variable": {
           "type": "string"
         },
         "variable_value": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
         "@manager",
         "@model",
-        "chain_id",
-        "variable",
-        "variable_value"
+        "variable"
       ],
       "type": "object"
     },
@@ -415,55 +284,31 @@
           "type": "string"
         },
         "arguments": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "execute": {
           "type": "string"
         },
         "filter_file_end": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "filter_file_start": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "filter_subdir": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "stderr_file": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "stdout_file": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
         "@manager",
         "@model",
-        "execute",
-        "arguments",
-        "filter_file_start",
-        "filter_file_end",
-        "filter_subdir",
-        "stdout_file",
-        "stderr_file"
+        "execute"
       ],
       "type": "object"
     },
@@ -479,55 +324,31 @@
           "type": "string"
         },
         "arguments": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "execute": {
           "type": "string"
         },
         "filter_file_end": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "filter_file_start": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "filter_subdir": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "stderr_file": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "stdout_file": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
         "@manager",
         "@model",
-        "execute",
-        "arguments",
-        "filter_file_start",
-        "filter_file_end",
-        "filter_subdir",
-        "stdout_file",
-        "stderr_file"
+        "execute"
       ],
       "type": "object"
     },

@@ -46,19 +46,19 @@ def search_parameter_prep(request):
         fields = [""]
     else:
         # Make sure each query has field/ops set
-        for index, query in enumerate(queries):
+        for index, _ in enumerate(queries):
             # A blank query makes ES error
             if queries[index] == "":
                 queries[index] = "*"
 
             try:
                 fields[index]
-            except:
+            except Exception:
                 fields.insert(index, "")
 
             try:
                 ops[index]
-            except:
+            except Exception:
                 ops.insert(index, "and")
 
             if ops[index] == "":
@@ -66,7 +66,7 @@ def search_parameter_prep(request):
 
             try:
                 types[index]
-            except:
+            except Exception:
                 types.insert(index, "")
 
         # For "other" fields, the actual title of the subfield is located in a
@@ -95,18 +95,20 @@ def extract_url_search_params_from_request(request):
         search_params = request.get_full_path().split("?")[1]
         end_of_search_params = search_params.index("&page")
         search_params = search_params[:end_of_search_params]
-    except:
+    except Exception:
         pass
     return search_params
 
 
-def assemble_query(queries, ops, fields, types, filters=[]):
+def assemble_query(queries, ops, fields, types, filters=None):
+    if filters is None:
+        filters = []
     must_haves = []
     should_haves = []
     must_not_haves = []
     index = 0
 
-    for query in queries:
+    for _ in queries:
         if queries[index] != "":
             clause = _query_clause(index, queries, ops, fields, types)
             if clause:
@@ -230,5 +232,5 @@ def _query_clause(index, queries, ops, fields, types):
 def indexed_count(es_client, index, query=None):
     try:
         return es_client.count(index=index, body=query)["count"]
-    except:
+    except Exception:
         return 0

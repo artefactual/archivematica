@@ -34,7 +34,9 @@ def main(job, transfer_uuid, target_path):
     jsonified = {}
     try:
         dc = models.DublinCore.objects.get(metadataappliestoidentifier=transfer_uuid)
-    except:  # There may not be any DC metadata for this transfer, and that's fine
+    except (
+        Exception
+    ):  # There may not be any DC metadata for this transfer, and that's fine
         job.pyprint("No DC metadata found; skipping", file=sys.stderr)
         return 0
     for field in FIELDS:

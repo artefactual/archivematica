@@ -15,9 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 import os
 import string
 import sys
@@ -112,7 +109,7 @@ def call(jobs):
                     try:
                         tree = etree.parse(xmlFilePath)
                         root = tree.getroot()
-                    except:
+                    except Exception:
                         job.pyprint(
                             "Error parsing: ",
                             xmlFilePath.replace(transferPath, "%transferDirectory%", 1),
@@ -125,7 +122,7 @@ def call(jobs):
                             "Container/RetentionSchedule"
                         ).text
                         DateClosed = root.find("Container/DateClosed").text
-                    except:
+                    except Exception:
                         job.pyprint(
                             "Error retrieving values from: ",
                             xmlFilePath.replace(transferPath, "%transferDirectory%", 1),

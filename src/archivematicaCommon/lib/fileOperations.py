@@ -14,9 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage archivematicaCommon
-# @author Joseph Perry <joseph@artefactual.com>
 import csv
 import os
 import shutil
@@ -252,7 +249,7 @@ def updateFileLocation(
     eventType="",
     eventDateTime="",
     eventDetail="",
-    eventIdentifierUUID=uuid.uuid4().__str__(),
+    eventIdentifierUUID=None,
     fileUUID="None",
     sipUUID=None,
     transferUUID=None,
@@ -265,6 +262,8 @@ def updateFileLocation(
     If the file uuid is not provided, will use the SIP uuid and the old path to find the file uuid.
     To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
     """
+    if eventIdentifierUUID is None:
+        eventIdentifierUUID = str(uuid.uuid4())
     if not fileUUID or fileUUID == "None":
         kwargs = {"removedtime__isnull": True, "currentlocation": src.encode()}
 

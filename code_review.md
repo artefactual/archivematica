@@ -1,5 +1,4 @@
-Code review
-===========
+# Code review
 
 Every new feature and bugfix to a project is expected to go through code review
 before inclusion. This applies both to developers at Artefactual and to outside
@@ -10,11 +9,11 @@ The contribution process in general is outlined in the
 guidelines for what to do when doing code review. It also helps set
 expectations for contributors about what to expect.
 
-Checklist
----------
+## Checklist
 
 ### Meta
-- [  ] Have they submitted a signed contributor's agreement?
+
+- [ ] Have they submitted a signed contributor's agreement?
 - [ ] Does this meet the requirements? Does it fix the bug?
 - [ ] Is this feature useful to multiple users or potential users?
 - [ ] Have the changes been discussed with an analyst?
@@ -25,6 +24,7 @@ Checklist
 - [ ] Is the commit history clean?
 
 ### Architecture
+
 - [ ] Does this duplicate functionality found elsewhere?
 - [ ] Does it make more sense for this to be implemented elsewhere? E.g. Should
   this happen in the storage service vs. a client script, or should a helper
@@ -41,6 +41,7 @@ Checklist
   existing items?
 
 ### Style
+
 - [ ] Does it follow [PEP8](https://www.python.org/dev/peps/pep-0008/)
   (code style) and [PEP257](https://www.python.org/dev/peps/pep-0257/)
   (docstrings)?
@@ -49,12 +50,14 @@ Checklist
 - [ ] Are there massive functions, classes or files? Can they be split?
 - [ ] Are errors handled?  Is the error handling consistent with similar code?
 
-### Syntax:
+### Syntax
+
 - [ ] Is it Python 2.7 & Python 3 compatible?
 - [ ] Are all user-facing strings marked for translation?
 - [ ] Do database changes have migrations?
 
 ### Tests
+
 - [ ] Are there tests?
 - [ ] Do the tests cover all the new functionality or fixes?
 - [ ] Do the tests handle error cases?
@@ -62,11 +65,12 @@ Checklist
 - [ ] Does this work with non-ASCII?
 
 ### Doing
+
 - [ ] Do I understand what this is supposed to do?
 - [ ] Have I checked out and run this code to verify it does what it says & is
   supposed to?
 - [ ] Is someone else an expert in this area? Should I ask them to also review
   this?
 
-More advice and suggestions can be found at https://www.kevinlondon.com/2015/05/05/code-review-best-practices.html and
-https://hypothes.is/blog/code-review-in-remote-teams/
+More advice and suggestions can be found at <https://www.kevinlondon.com/2015/05/05/code-review-best-practices.html>
+and <https://hypothes.is/blog/code-review-in-remote-teams/>

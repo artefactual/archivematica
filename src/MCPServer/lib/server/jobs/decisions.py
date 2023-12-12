@@ -133,7 +133,7 @@ class OutputDecisionJob(DecisionJob):
             self.package.current_path, self.link.id
         )
         if desired_choice and self.job_chain.generated_choices:
-            for key, data in self.job_chain.generated_choices.items():
+            for _, data in self.job_chain.generated_choices.items():
                 if data["uri"] == desired_choice:
                     return data["uri"]
 

@@ -14,9 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# @package Archivematica
-# @subpackage MCPServer
-# @author Joseph Perry <joseph@artefactual.com>
 import ast
 import os
 import re
@@ -93,7 +90,7 @@ class ReplacementDict(dict):
             # sip can be a SIP or Transfer
             try:
                 sip = models.SIP.objects.get(uuid=sip)
-            except:
+            except Exception:
                 sip = models.Transfer.objects.get(uuid=sip)
 
         shared_path = config["shared_directory"]
@@ -103,7 +100,7 @@ class ReplacementDict(dict):
         if file_ and not sip:
             try:
                 sip = file_.sip
-            except:
+            except Exception:
                 sip = file_.transfer
 
         rd = ReplacementDict()
@@ -138,7 +135,7 @@ class ReplacementDict(dict):
             rd["%fileUUID%"] = str(file_.uuid)
             try:
                 base_location = file_.sip.currentpath
-            except:
+            except Exception:
                 base_location = file_.transfer.currentlocation
 
             if expand_path and sipdir is not None:
