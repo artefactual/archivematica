@@ -30,7 +30,7 @@ file for details.
 ## Developing with Archivematica
 
 * [Archivematica API documentation](https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica): Get to know the Archivematica API
-* [Developer guide](https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md): Developer facing documentation, requirements analysis and community resources
+* [Developer guide](https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md): Developer facing documentation, requirements analysis and community resources
 * [Issues](https://github.com/archivematica/Issues): Git repository used for tracking Archivematica issues and feature/enhancement ideas
 
 ## Contributing
