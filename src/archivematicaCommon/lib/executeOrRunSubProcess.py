@@ -141,8 +141,9 @@ def launchSubProcess(
 def createAndRunScript(
     text, stdIn="", printing=True, arguments=[], env_updates={}, capture_output=True
 ):
-    # Output the text to a /tmp/ file
-    scriptPath = "/tmp/" + uuid.uuid4().__str__()
+    # Output the text to a temporary file
+    tmpdir_path = os.environ.get('TMPDIR', '/tmp')
+    scriptPath =  tmpdir_path + '/' + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
     os.write(FILE, text.encode("utf8"))
     os.close(FILE)
