@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import wraps
-
+from tempfile import mkstemp
 from agentarchives.archivesspace import ArchivesSpaceClient
 from agentarchives.archivesspace import ArchivesSpaceError
 from agentarchives.archivesspace import AuthenticationError
@@ -268,7 +268,8 @@ def ingest_upload_as_match(request, uuid):
         rows = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
             dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid
         )
-        with open("/tmp/delete.log", "a") as log:
+        fd, name = mkstemp(suffix="delete", prefix=".log")
+        with open(fd, "a") as log:
             print(
                 "Resource",
                 resource_id,
