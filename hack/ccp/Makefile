@@ -1,89 +1,79 @@
-# See https://tech.davis-hansson.com/p/make/
-SHELL := bash
-.DELETE_ON_ERROR:
-.SHELLFLAGS := -eu -o pipefail -c
-.DEFAULT_GOAL := all
-MAKEFLAGS += --warn-undefined-variables
-MAKEFLAGS += --no-builtin-rules
-MAKEFLAGS += --no-print-directory
-BIN=$(abspath .tmp/bin)
-COPYRIGHT_YEARS := 2022
-LICENSE_IGNORE := -e /testdata/
-# Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
-GO ?= go
+PROJECT := ccp
+MAKEDIR := hack/make
+SHELL   := /bin/bash
+
+.DEFAULT_GOAL := help
+.PHONY: *
+
+DBG_MAKEFILE ?=
+ifeq ($(DBG_MAKEFILE),1)
+    $(warning ***** starting Makefile for goal(s) "$(MAKECMDGOALS)")
+    $(warning ***** $(shell date))
+else
+    # If we're not debugging the Makefile, don't echo recipes.
+    MAKEFLAGS += -s
+endif
+
+include hack/make/bootstrap.mk
+include hack/make/dep_golangci_lint.mk
+include hack/make/dep_gotestsum.mk
+include hack/make/dep_mockgen.mk
+include hack/make/dep_tparse.mk
 
 define NEWLINE
 
 
 endef
 
-.PHONY: help
-help: ## Describe useful make targets
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-30s %s\n", $$1, $$2}'
+IGNORED_PACKAGES := \
+	github.com/artefactual/archivematica/hack/ccp/internal/gen/% \
+	github.com/artefactual/archivematica/hack/ccp/%/fake
+PACKAGES := $(shell go list ./...)
+TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
+TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 
-.PHONY: all
-all: ## Build, test, and lint (default)
-	$(MAKE) test
-	$(MAKE) lint
+export PATH:=$(GOBIN):$(PATH)
 
-.PHONY: clean
-clean: ## Delete intermediate build artifacts
-	@# -X only removes untracked files, -d recurses into directories, -f actually removes files/dirs
-	git clean -Xdf
+env: # @HELP Print Go env variables.
+env:
+	go env
 
-.PHONY: test
-test: build ## Run unit tests
-	$(GO) test -vet=off -race -cover ./...
+tparse: # @HELP Run all tests and output a coverage report using tparse.
+tparse: $(TPARSE)
+	go test -count=1 -json -cover $(TEST_PACKAGES) | tparse -follow -all -notests
 
-.PHONY: build
-build: generate ## Build all packages
-	$(GO) build ./...
+test: # @HELP Run all tests and output a summary using gotestsum.
+test: TFORMAT ?= short
+test: GOTEST_FLAGS ?=
+test: COMBINED_FLAGS ?= $(GOTEST_FLAGS) $(TEST_PACKAGES)
+test: $(GOTESTSUM)
+	gotestsum --format=$(TFORMAT) -- $(COMBINED_FLAGS)
 
-.PHONY: lint
-lint: $(BIN)/golangci-lint $(BIN)/buf ## Lint Go and protobuf
-	test -z "$$($(BIN)/buf format -d . | tee /dev/stderr)"
-	$(GO) vet ./...
-	$(BIN)/golangci-lint run
-	$(BIN)/buf lint
+test-race: # @HELP Run all tests with the race detector.
+test-race:
+	$(MAKE) test GOTEST_FLAGS="-race"
 
-.PHONY: lintfix
-lintfix: $(BIN)/golangci-lint $(BIN)/buf ## Automatically fix some lint errors
-	$(BIN)/golangci-lint run --fix
-	$(BIN)/buf format -w .
+test-ci: # @HELP Run all tests in CI with coverage and the race detector.
+test-ci:
+	$(MAKE) test GOTEST_FLAGS="-race -coverprofile=covreport -covermode=atomic"
 
-.PHONY: generate
-generate: $(BIN)/buf $(BIN)/protoc-gen-go $(BIN)/protoc-gen-connect-go ## Regenerate code
-	rm -rf internal/gen
-	PATH=$(BIN) $(BIN)/buf generate
+list-tested-packages: # @HELP Print a list of packages being tested.
+list-tested-packages:
+	$(foreach PACKAGE,$(TEST_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
-.PHONY: upgrade
-upgrade: ## Upgrade dependencies
-	go get -u -t ./... && go mod tidy -v
+list-ignored-packages: # @HELP Print a list of packages ignored in testing.
+list-ignored-packages:
+	$(foreach PACKAGE,$(TEST_IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
-.PHONY: checkgenerate
-checkgenerate:
-	@# Used in CI to verify that `make generate` doesn't produce a diff.
-	test -z "$$(git status --porcelain | tee /dev/stderr)"
+lint: # @HELP Lint the project Go files with golangci-lint.
+lint: OUT_FORMAT ?= colored-line-number
+lint: LINT_FLAGS ?= --timeout=5m --fix
+lint: $(GOLANGCI_LINT)
+	golangci-lint run --out-format $(OUT_FORMAT) $(LINT_FLAGS)
 
-$(BIN)/buf: Makefile
-	@mkdir -p $(@D)
-	GOBIN=$(abspath $(@D)) $(GO) install github.com/bufbuild/buf/cmd/buf@v1.17.0
-
-$(BIN)/golangci-lint: Makefile
-	@mkdir -p $(@D)
-	GOBIN=$(abspath $(@D)) $(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
-
-$(BIN)/protoc-gen-go: Makefile
-	@mkdir -p $(@D)
-	GOBIN=$(abspath $(@D)) $(GO) install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0
-
-$(BIN)/protoc-gen-connect-go: Makefile go.mod
-	@mkdir -p $(@D)
-	GOBIN=$(abspath $(@D)) $(GO) install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go
-
-confirm_deps:
+.PHONY: confirm-deps
+confirm-deps:
 	@echo -n "Do you want to update? [y/N] " && read ans && [ $${ans:-N} = y ]
-
 
 .PHONY: deps
 deps: DIRECT_DEPENDENCIES := $(shell go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -m all)
@@ -95,6 +85,15 @@ deps:
 	@echo Available updates:
 	@go list -u -f '{{if (and (not (or .Main .Indirect)) .Update)}}» {{.Path}}: {{.Version}} -> {{.Update.Version}}{{end}}' -m all 2> /dev/null
 	@echo
-	@$(MAKE) confirm_deps
+	@$(MAKE) confirm-deps
 	$(foreach DEP,$(DIRECT_DEPENDENCIES),@go get $(DEP)$(NEWLINE))
 	@go mod tidy
+
+help: # @HELP Print this message.
+help:
+	echo "TARGETS:"
+	grep -E '^.*: *# *@HELP' Makefile             \
+	    | awk '                                   \
+	        BEGIN {FS = ": *# *@HELP"};           \
+	        { printf "  %-30s %s\n", $$1, $$2 };  \
+	    '
