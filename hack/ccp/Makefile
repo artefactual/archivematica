@@ -18,6 +18,7 @@ include hack/make/bootstrap.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_gotestsum.mk
 include hack/make/dep_mockgen.mk
+include hack/make/dep_sqlc.mk
 include hack/make/dep_tparse.mk
 
 define NEWLINE
@@ -88,6 +89,10 @@ deps:
 	@$(MAKE) confirm-deps
 	$(foreach DEP,$(DIRECT_DEPENDENCIES),@go get $(DEP)$(NEWLINE))
 	@go mod tidy
+
+sqlc: # @HELP SQLC
+sqlc: $(SQLC)
+	sqlc -help
 
 help: # @HELP Print this message.
 help:
