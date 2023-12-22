@@ -12,6 +12,11 @@ LICENSE_IGNORE := -e /testdata/
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
 
+define NEWLINE
+
+
+endef
+
 .PHONY: help
 help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-30s %s\n", $$1, $$2}'
@@ -75,3 +80,21 @@ $(BIN)/protoc-gen-go: Makefile
 $(BIN)/protoc-gen-connect-go: Makefile go.mod
 	@mkdir -p $(@D)
 	GOBIN=$(abspath $(@D)) $(GO) install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go
+
+confirm_deps:
+	@echo -n "Do you want to update? [y/N] " && read ans && [ $${ans:-N} = y ]
+
+
+.PHONY: deps
+deps: DIRECT_DEPENDENCIES := $(shell go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -m all)
+deps:
+	@clear
+	@echo Direct dependencies:
+	$(foreach DEP,$(DIRECT_DEPENDENCIES),@echo » $(DEP)$(NEWLINE))
+	@echo
+	@echo Available updates:
+	@go list -u -f '{{if (and (not (or .Main .Indirect)) .Update)}}» {{.Path}}: {{.Version}} -> {{.Update.Version}}{{end}}' -m all 2> /dev/null
+	@echo
+	@$(MAKE) confirm_deps
+	$(foreach DEP,$(DIRECT_DEPENDENCIES),@go get $(DEP)$(NEWLINE))
+	@go mod tidy
