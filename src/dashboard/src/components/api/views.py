@@ -242,7 +242,6 @@ def get_unit_status(unit_uuid, unit_type):
 def status(request, unit_uuid, unit_type):
     # Example: http://127.0.0.1/api/transfer/status/?username=mike&api_key=<API key>
     response = {}
-    error = None
 
     # Get info about unit
     if unit_type == "unitTransfer":
@@ -283,12 +282,6 @@ def status(request, unit_uuid, unit_type):
         return _error_response(msg, status_code=400)
     response.update(status_info)
 
-    if error is not None:
-        response["message"] = error
-        response["error"] = True
-        return django.http.HttpResponseServerError(  # 500
-            json.dumps(response), content_type="application/json"
-        )
     response["message"] = f"Fetched status for {unit_uuid} successfully."
     return helpers.json_response(response)
 
@@ -934,10 +927,15 @@ def unit_jobs(request, unit_uuid):
         name = remove_prefix(name, "Job:")
         jobs = jobs.filter(jobtype=name.strip())
 
+    detailed_output = "detailed" in request.GET
+
     for job in jobs.prefetch_related("task_set"):
         job_link_uuid = job.microservicechainlink
         link_uuid = str(job_link_uuid) if job_link_uuid is not None else None
-        tasks = [format_task(task) for task in job.task_set.all()]
+        tasks = [
+            format_task(task, detailed_output=detailed_output)
+            for task in job.task_set.all()
+        ]
         result.append(
             {
                 "uuid": str(job.jobuuid),
