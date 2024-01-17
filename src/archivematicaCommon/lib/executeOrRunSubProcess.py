@@ -147,7 +147,7 @@ def createAndRunScript(
         env_updates = {}
     # Output the text to a temporary file
     tmpdir_path = os.environ.get('TMPDIR', '/tmp')
-    script_path =  tmpdir_path + '/' + uuid.uuid4().__str__()
+    script_path = tmpdir_path + '/' + uuid.uuid4().__str__()
     FILE = os.open(script_path, os.O_WRONLY | os.O_CREAT, 0o770)
     os.write(FILE, text.encode("utf8"))
     os.close(FILE)
