@@ -20,8 +20,7 @@ import os
 import shlex
 import subprocess
 import sys
-import uuid
-
+import tempfile
 
 def launchSubProcess(
     command,
@@ -146,26 +145,24 @@ def createAndRunScript(
     if env_updates is None:
         env_updates = {}
     # Output the text to a temporary file
-    tmpdir_path = os.environ.get("TMPDIR", "/tmp")
-    script_path = tmpdir_path + "/" + uuid.uuid4().__str__()
-    FILE = os.open(script_path, os.O_WRONLY | os.O_CREAT, 0o770)
-    os.write(FILE, text.encode("utf8"))
-    os.close(FILE)
-    cmd = [script_path]
-    cmd.extend(arguments)
+    with tempfile.NamedTemporaryFile(
+        encoding="utf-8", mode="wt", delete=False
+    ) as tmpfile:
+        os.chmod(tmpfile.name, 0o770)
+        tmpfile.write(text)
+        tmpfile.close()
+        cmd = [tmpfile.name]
+        cmd.extend(arguments)
 
-    # Run it
-    ret = launchSubProcess(
-        cmd,
-        stdIn="",
-        printing=printing,
-        env_updates=env_updates,
-        capture_output=capture_output,
-    )
-
-    # Remove the temp file
-    os.remove(script_path)
-
+        # Run it
+        ret = launchSubProcess(
+            cmd,
+            stdIn="",
+            printing=printing,
+            env_updates=env_updates,
+            capture_output=capture_output,
+        )
+        os.unlink(tmpfile.name)
     return ret
 
 
