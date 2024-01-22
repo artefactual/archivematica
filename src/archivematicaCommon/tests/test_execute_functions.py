@@ -1,4 +1,6 @@
+import os
 import shlex
+import tempfile
 
 import executeOrRunSubProcess as execsub
 
@@ -54,3 +56,33 @@ def test_capture_output():
     )
     assert std_out.strip() == "out"
     assert std_err.strip() == "error"
+
+
+def test_tmpfile_execution():
+    """Tests behaviour of createAndRunScript funciton."""
+    script_content = """
+    #!/bin/bash
+    echo "Script output"
+    exit 0
+    """
+
+    with tempfile.NamedTemporaryFile(
+        encoding="utf-8", mode="wt", delete=False
+    ) as tmpfile:
+        tmpfile.write(script_content)
+        tmpfile.close()
+
+        try:
+            # Run the script and capture output
+            ret, std_out, std_err = execsub.createAndRunScript(
+                script_content,
+                stdIn="",
+                printing=False,
+                capture_output=True,
+            )
+            assert std_out.strip() == "Script output"
+            assert std_err == ""
+
+        finally:
+            # Clean up temporary file
+            os.unlink(tmpfile.name)
