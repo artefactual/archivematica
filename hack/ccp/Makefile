@@ -92,7 +92,7 @@ deps:
 
 sqlc: # @HELP SQLC
 sqlc: $(SQLC)
-	sqlc -help
+	sqlc
 
 help: # @HELP Print this message.
 help:

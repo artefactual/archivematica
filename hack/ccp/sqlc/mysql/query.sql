@@ -1,6 +1,9 @@
 -- name: CreateJob :exec
 INSERT INTO Jobs (jobUUID, jobType) VALUES (?, ?);
 
+-- name: CleanUpTasksWithAwaitingJobs :exec
+DELETE FROM Tasks WHERE jobuuid IN (SELECT jobUUID FROM Jobs WHERE currentStep = 1);
+
 -- name: CleanUpAwaitingJobs :exec
 DELETE FROM Jobs WHERE currentStep = 1;
 

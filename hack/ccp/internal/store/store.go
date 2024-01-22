@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	sqlc "github.com/artefactual/archivematica/hack/ccp/sqlc/mysql"
+	sqlc "github.com/artefactual/archivematica/hack/ccp/sqlc/mysql/sqlcmysql"
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
 )
@@ -43,6 +43,11 @@ func (s *StoreImpl) CleanUpActiveJobs(ctx context.Context) error {
 func (s *StoreImpl) CleanUpActiveSIPs(ctx context.Context) error {
 	s.logger.V(2).Info("Running query.", "method", "CleanUpActiveSIPs")
 	return s.querier.CleanUpActiveSIPs(ctx)
+}
+
+func (s *StoreImpl) CleanUpTasksWithAwaitingJobs(ctx context.Context) error {
+	s.logger.V(2).Info("Running query.", "method", "CleanUpTasksWithAwaitingJobs")
+	return s.querier.CleanUpActiveTasks(ctx)
 }
 
 func (s *StoreImpl) CleanUpActiveTasks(ctx context.Context) error {

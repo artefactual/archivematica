@@ -1,15 +1,27 @@
 version: 2
 
+cloud:
+  project: "01HECEDJYX2P7ZW9DJ34T9AB0Y"
+
+plugins:
+- name: golang
+  wasm:
+    url: https://downloads.sqlc.dev/plugin/sqlc-gen-go_1.2.0.wasm
+    sha256: 965d73d22711eee3a210565e66f918b8cb831c5f5b612e680642a4a785dd1ca1
+
 sql:
   - schema: mysql/schema.sql
     queries: mysql/query.sql
     engine: mysql
-    gen:
-      go:
-        package: mysql
-        out: mysql
-        emit_prepared_queries: true
+    database:
+      managed: true
+    codegen:
+    - plugin: golang
+      out: mysql/sqlcmysql
+      options:
+        package: sqlcmysql
         emit_interface: true
+        emit_prepared_queries: true
         emit_empty_slices: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
@@ -21,10 +33,8 @@ sql:
           "sipuuid": "SIPID"
           "createdtime": "CreatedAt"
           "updatedtime": "UpdatedAt"
-
           # table todo
           # left: name of table, lowercase, also singualrized otherwise it doesn't match
-
         overrides:
           - column: "*.*uuid"
             go_type:

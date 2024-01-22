@@ -1,7 +1,17 @@
+CleanUpActiveTransfers
 MainThread 2023-05-26 11:02:22 utils:execute:90:  (0.000) UPDATE `Transfers` SET `status` = 4, `completed_at` = '2023-05-26 11:02:22.269325' WHERE `Transfers`.`status` IN (0, 1); args=(4, '2023-05-26 11:02:22.269325', 0, 1)
+
+CleanUpActiveSIPs
 MainThread 2023-05-26 11:02:22 utils:execute:90:  (0.000) UPDATE `SIPs` SET `status` = 4, `completed_at` = '2023-05-26 11:02:22.269325' WHERE `SIPs`.`status` IN (0, 1); args=(4, '2023-05-26 11:02:22.269325', 0, 1)
+
+CleanUpTasksWithAwaitingJobs
+CleanUpAwaitingJobs
 MainThread 2023-05-26 11:02:22 utils:execute:90:  (0.000) SELECT `Jobs`.`jobUUID`, `Jobs`.`jobType`, `Jobs`.`createdTime`, `Jobs`.`createdTimeDec`, `Jobs`.`directory`, `Jobs`.`SIPUUID`, `Jobs`.`unitType`, `Jobs`.`currentStep`, `Jobs`.`microserviceGroup`, `Jobs`.`hidden`, `Jobs`.`MicroServiceChainLinksPK`, `Jobs`.`subJobOf` FROM `Jobs` WHERE `Jobs`.`currentStep` = 1; args=(1,)
+
+CleanUpActiveJobs
 MainThread 2023-05-26 11:02:22 utils:execute:90:  (0.000) UPDATE `Jobs` SET `currentStep` = 4 WHERE `Jobs`.`currentStep` = 3; args=(4, 3)
+
+CleanUpActiveTasks
 MainThread 2023-05-26 11:02:22 utils:execute:90:  (0.000) UPDATE `Tasks` SET `exitCode` = -1, `stdError` = 'MCP shut down while processing.' WHERE `Tasks`.`exitCode` IS NULL; args=(-1, 'MCP shut down while processing.')
 
 WatchDirs 2023-05-26 11:02:43 utils:execute:90:  (0.001) SELECT `Transfers`.`transferUUID`, `Transfers`.`currentLocation`, `Transfers`.`type`, `Transfers`.`accessionID`, `Transfers`.`sourceOfAcquisition`, `Transfers`.`typeOfTransfer`, `Transfers`.`description`, `Transfers`.`notes`, `Transfers`.`access_system_id`, `Transfers`.`hidden`, `Transfers`.`transferMetadataSetRowUUID`, `Transfers`.`dirUUIDs`, `Transfers`.`status`, `Transfers`.`completed_at` FROM `Transfers` WHERE `Transfers`.`transferUUID` = '1fa48af6-8ec0-4ce5-b282-3150fa5f0cbe'; args=('1fa48af6-8ec0-4ce5-b282-3150fa5f0cbe',)
