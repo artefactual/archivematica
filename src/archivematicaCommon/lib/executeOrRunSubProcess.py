@@ -22,12 +22,13 @@ import subprocess
 import sys
 import tempfile
 
+
 def launchSubProcess(
     command,
     stdIn="",
     printing=True,
-    arguments=[],
-    env_updates={},
+    arguments=None,
+    env_updates=None,
     capture_output=False,
 ):
     """
@@ -59,6 +60,10 @@ def launchSubProcess(
                     returned IF the subprocess has failed, i.e., returned a
                     non-zero exit code.
     """
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     stdError = ""
     stdOut = ""
 
@@ -134,8 +139,12 @@ def launchSubProcess(
 
 
 def createAndRunScript(
-    text, stdIn="", printing=True, arguments=[], env_updates={}, capture_output=True
+    text, stdIn="", printing=True, arguments=None, env_updates=None, capture_output=True
 ):
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     # Output the text to a temporary file
     with tempfile.NamedTemporaryFile(
         encoding="utf-8", mode="wt", delete=False
@@ -163,8 +172,8 @@ def executeOrRun(
     text,
     stdIn="",
     printing=True,
-    arguments=[],
-    env_updates={},
+    arguments=None,
+    env_updates=None,
     capture_output=True,
 ):
     """
@@ -197,6 +206,10 @@ def executeOrRun(
     capture_output: Whether or not to capture output for the executed process.
                 Default is `True`.
     """
+    if arguments is None:
+        arguments = []
+    if env_updates is None:
+        env_updates = {}
     if type == "command":
         return launchSubProcess(
             text,
