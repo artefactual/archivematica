@@ -1,6 +1,5 @@
-import os
 import shlex
-import tempfile
+from unittest.mock import patch
 
 import executeOrRunSubProcess as execsub
 
@@ -58,31 +57,20 @@ def test_capture_output():
     assert std_err.strip() == "error"
 
 
-def test_tmpfile_execution():
-    """Tests behaviour of createAndRunScript funciton."""
-    script_content = """
-    #!/bin/bash
-    echo "Script output"
-    exit 0
-    """
+@patch("executeOrRunSubProcess.launchSubProcess")
+def test_tmpfile_creation(launchSubProcess, tmp_path, monkeypatch):
+    script_content = "#!/bin/bash\necho 'Script output'\nexit 0"
 
-    with tempfile.NamedTemporaryFile(
-        encoding="utf-8", mode="wt", delete=False
-    ) as tmpfile:
-        tmpfile.write(script_content)
-        tmpfile.close()
+    print(tmp_path)
+    tmp_p = tmp_path / "somename"
+    tmp_p.mkdir()
 
-        try:
-            # Run the script and capture output
-            ret, std_out, std_err = execsub.createAndRunScript(
-                script_content,
-                stdIn="",
-                printing=False,
-                capture_output=True,
-            )
-            assert std_out.strip() == "Script output"
-            assert std_err == ""
+    monkeypatch.setenv("TMPDIR", tmp_p.as_posix())
+    execsub.createAndRunScript(script_content)
 
-        finally:
-            # Clean up temporary file
-            os.unlink(tmpfile.name)
+    args, _ = launchSubProcess.call_args
+
+    print(args[0][0])
+
+    # Ensure temp file is created in specified location
+    assert args[0][0].startswith(str(tmp_p))
