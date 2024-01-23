@@ -187,7 +187,7 @@ def test_parse_datetime_with_valid_datetime_and_timezone():
     result = load_premis_events_from_xml.parse_datetime("2019-09-24T16:54:21+04:00")
     assert (2019, 9, 24) == (result.year, result.month, result.day)
     assert (16, 54, 21) == (result.hour, result.minute, result.second)
-    assert "+0400" == result.tzname()
+    assert "UTC+04:00" == result.tzname()
 
 
 def test_parse_datetime_with_empty_string():
