@@ -6,9 +6,6 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
-    paths:
-      - CITATION.cff
-  workflow_dispatch:
   
 jobs:
   test:
@@ -115,6 +112,3 @@ jobs:
       - name: "Run tox"
         run: |
           tox -e linting
-  citing:
-    name: "validating the citation file"
-
