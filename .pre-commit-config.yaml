@@ -55,6 +55,7 @@ repos:
         hack/README\.md|
         src/(MCPServer|MCPClient|dashboard)/install/README\.md
       )
+# https://github.com/citation-file-format/cffconvert/issues/375 : rev is not working for 2.0.0 will fix in future issues TODO
 - repo: https://github.com/citation-file-format/cffconvert
   rev: 054bda51dbe278b3e86f27c890e3f3ac877d616c
   hooks:
