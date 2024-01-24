@@ -145,7 +145,7 @@ def createAndRunScript(
         arguments = []
     if env_updates is None:
         env_updates = {}
-    # Output the text to a temporary file
+    # Write script to temporary file and execute it
     with tempfile.NamedTemporaryFile(
         encoding="utf-8", mode="wt", delete=False
     ) as tmpfile:
