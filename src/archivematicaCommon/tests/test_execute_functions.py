@@ -1,6 +1,10 @@
 import shlex
+import tempfile
+from unittest.mock import ANY
+from unittest.mock import patch
 
 import executeOrRunSubProcess as execsub
+import pytest
 
 
 def test_capture_output():
@@ -54,3 +58,34 @@ def test_capture_output():
     )
     assert std_out.strip() == "out"
     assert std_err.strip() == "error"
+
+
+@pytest.fixture
+def temp_path(tmp_path):
+    """Creates custom temp path, yields the value, and resets to original value."""
+
+    original_tempdir = tempfile.tempdir
+    tempfile.tempdir = tmp_path.as_posix()
+
+    yield tmp_path.as_posix()
+
+    tempfile.tempdir = original_tempdir
+
+
+@patch("executeOrRunSubProcess.launchSubProcess")
+def test_createAndRunScript_creates_tmpfile_in_custom_dir(launchSubProcess, temp_path):
+    """Tests execution of launchSubProcess when executing createAndRunScript."""
+
+    script_content = "#!/bin/bash\necho 'Script output'\nexit 0"
+
+    execsub.createAndRunScript(script_content)
+
+    launchSubProcess.assert_called_once_with(
+        ANY,
+        stdIn="",
+        printing=True,
+        env_updates={},
+        capture_output=True,
+    )
+    args, _ = launchSubProcess.call_args
+    assert args[0][0].startswith(temp_path)
