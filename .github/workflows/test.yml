@@ -6,7 +6,7 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
-  
+ 
 jobs:
   test:
     name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
