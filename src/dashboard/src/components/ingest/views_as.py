@@ -273,7 +273,7 @@ def ingest_upload_as_match(request, uuid):
                 "Resource",
                 resource_id,
                 "File",
-                "file_uuid",
+                file_uuid,
                 "matches",
                 rows.count(),
                 file=log,

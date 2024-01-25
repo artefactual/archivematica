@@ -401,7 +401,7 @@ def test_ingest_upload_as_match_shows_deleted_rows(
         "Resource",
         "/repositories/2/archival_objects/1",
         "File",
-        "file_uuid",
+        str(file_uuid),
         "matches",
         1,
         file=mock.ANY,
