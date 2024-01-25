@@ -268,16 +268,12 @@ def ingest_upload_as_match(request, uuid):
         rows = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
             dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid
         )
-        with open("/tmp/delete.log", "a") as log:
-            print(
-                "Resource",
-                resource_id,
-                "File",
-                file_uuid,
-                "matches",
-                rows.count(),
-                file=log,
-            )
+        logger.debug(
+            "Resource %s File %s matches %d",
+            resource_id,
+            file_uuid,
+            rows.count(),
+        )
         models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
             dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid
         ).delete()

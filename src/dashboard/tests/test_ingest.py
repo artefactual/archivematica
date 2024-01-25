@@ -366,17 +366,16 @@ def dashboard_uuid(db):
     helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
-@mock.patch("builtins.open")
-@mock.patch("builtins.print")
 def test_ingest_upload_as_match_shows_deleted_rows(
-    print_mock, open_mock, admin_client, dashboard_uuid
+    admin_client, dashboard_uuid, caplog
 ):
     dip_uuid = uuid.uuid4()
     file_uuid = uuid.uuid4()
+    resource_id = "/repositories/2/archival_objects/1"
     ArchivesSpaceDIPObjectResourcePairing.objects.create(
         dipuuid=dip_uuid,
         fileuuid=file_uuid,
-        resourceid="/repositories/2/archival_objects/1",
+        resourceid=resource_id,
     )
     ArchivesSpaceDIPObjectResourcePairing.objects.create(
         dipuuid=dip_uuid,
@@ -386,23 +385,10 @@ def test_ingest_upload_as_match_shows_deleted_rows(
 
     response = admin_client.delete(
         reverse("ingest:ingest_upload_as_match", kwargs={"uuid": dip_uuid}),
-        data=json.dumps(
-            {
-                "resource_id": "/repositories/2/archival_objects/1",
-                "file_uuid": str(file_uuid),
-            }
-        ),
+        data=json.dumps({"resource_id": resource_id, "file_uuid": str(file_uuid)}),
         content_type="application/json",
     )
     assert response.status_code == 204
 
-    open_mock.assert_called_once_with("/tmp/delete.log", "a")
-    print_mock.assert_called_once_with(
-        "Resource",
-        "/repositories/2/archival_objects/1",
-        "File",
-        str(file_uuid),
-        "matches",
-        1,
-        file=mock.ANY,
-    )
+    log_record = caplog.records[0]
+    assert log_record.message == f"Resource {resource_id} File {file_uuid} matches 1"
