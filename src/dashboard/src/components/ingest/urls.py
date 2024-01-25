@@ -128,6 +128,7 @@ urlpatterns += [
     re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/match/$",
         views_as.ingest_upload_as_match,
+        name="ingest_upload_as_match",
     ),
     re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/reset/$",
