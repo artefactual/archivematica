@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import uuid
 from unittest import mock
 
 import pytest
@@ -14,6 +15,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from main.models import Access
+from main.models import ArchivesSpaceDIPObjectResourcePairing
 from main.models import DashboardSetting
 
 
@@ -357,3 +359,36 @@ def test_adjust_directories_draggability():
 
     # small turtles has some draggable children so it's draggable
     assert not small_turtles["not_draggable"]
+
+
+@pytest.fixture
+def dashboard_uuid(db):
+    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
+
+
+def test_ingest_upload_as_match_shows_deleted_rows(
+    admin_client, dashboard_uuid, caplog
+):
+    dip_uuid = uuid.uuid4()
+    file_uuid = uuid.uuid4()
+    resource_id = "/repositories/2/archival_objects/1"
+    ArchivesSpaceDIPObjectResourcePairing.objects.create(
+        dipuuid=dip_uuid,
+        fileuuid=file_uuid,
+        resourceid=resource_id,
+    )
+    ArchivesSpaceDIPObjectResourcePairing.objects.create(
+        dipuuid=dip_uuid,
+        fileuuid=file_uuid,
+        resourceid="/repositories/2/archival_objects/2",
+    )
+
+    response = admin_client.delete(
+        reverse("ingest:ingest_upload_as_match", kwargs={"uuid": dip_uuid}),
+        data=json.dumps({"resource_id": resource_id, "file_uuid": str(file_uuid)}),
+        content_type="application/json",
+    )
+    assert response.status_code == 204
+
+    log_record = caplog.records[0]
+    assert log_record.message == f"Resource {resource_id} File {file_uuid} matches 1"
