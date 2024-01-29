@@ -13,7 +13,7 @@ import bind_pids
 import create_mets_v2
 import namespaces as ns
 import pytest
-from job import Job
+from client.job import Job
 from main.models import DashboardSetting
 from main.models import Directory
 from main.models import File

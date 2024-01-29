@@ -1,6 +1,6 @@
 import pytest
 from assign_uuids_to_directories import main
-from job import Job
+from client.job import Job
 from main import models
 
 

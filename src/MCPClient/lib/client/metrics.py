@@ -4,26 +4,33 @@ Exposes various metrics via Prometheus.
 import configparser
 import datetime
 import functools
-import os
 
-from common_metrics import PACKAGE_FILE_COUNT_BUCKETS
-from common_metrics import PACKAGE_SIZE_BUCKETS
-from common_metrics import PROCESSING_TIME_BUCKETS
-from common_metrics import TASK_DURATION_BUCKETS
+import django
+
+django.setup()
+
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils import timezone
+from prometheus_client import (
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
+    multiprocess,
+    start_http_server,
+)
+
 from fpr.models import FormatVersion
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import Transfer
-from prometheus_client import Counter
-from prometheus_client import Gauge
-from prometheus_client import Histogram
-from prometheus_client import Info
-from prometheus_client import start_http_server
-from version import get_full_version
+from main.models import File, FileFormatVersion, Transfer
+
+from common_metrics import (
+    PACKAGE_FILE_COUNT_BUCKETS,
+    PACKAGE_SIZE_BUCKETS,
+    PROCESSING_TIME_BUCKETS,
+    TASK_DURATION_BUCKETS,
+)
+
 
 job_counter = Counter(
     "mcpclient_job_total",
@@ -34,6 +41,7 @@ job_processed_timestamp = Gauge(
     "mcpclient_job_success_timestamp",
     "Timestamp of most recent job processed, labeled by script",
     ["script_name"],
+    multiprocess_mode="livesum",
 )
 job_error_counter = Counter(
     "mcpclient_job_error_total",
@@ -44,6 +52,7 @@ job_error_timestamp = Gauge(
     "mcpclient_job_error_timestamp",
     "Timestamp of most recent job failure, labeled by script",
     ["script_name"],
+    multiprocess_mode="livesum",
 )
 
 task_execution_time_histogram = Histogram(
@@ -51,10 +60,6 @@ task_execution_time_histogram = Histogram(
     "Histogram of worker task execution times in seconds, labeled by script",
     ["script_name"],
     buckets=TASK_DURATION_BUCKETS,
-)
-waiting_for_gearman_time_counter = Counter(
-    "mcpclient_gearman_sleep_time_seconds",
-    "Total worker sleep after gearman error times in seconds",
 )
 
 transfer_started_counter = Counter(
@@ -66,6 +71,7 @@ transfer_started_timestamp = Gauge(
     "mcpclient_transfer_started_timestamp",
     "Timestamp of most recent transfer started, by transfer type",
     ["transfer_type"],
+    multiprocess_mode="livesum",
 )
 transfer_completed_counter = Counter(
     "mcpclient_transfer_completed_total",
@@ -76,6 +82,7 @@ transfer_completed_timestamp = Gauge(
     "mcpclient_transfer_completed_timestamp",
     "Timestamp of most recent transfer completed, by transfer type",
     ["transfer_type"],
+    multiprocess_mode="livesum",
 )
 transfer_error_counter = Counter(
     "mcpclient_transfer_error_total",
@@ -86,6 +93,7 @@ transfer_error_timestamp = Gauge(
     "mcpclient_transfer_error_timestamp",
     "Timestamp of most recent transfer failure, by transfer type, error type",
     ["transfer_type", "failure_type"],
+    multiprocess_mode="livesum",
 )
 transfer_files_histogram = Histogram(
     "mcpclient_transfer_files",
@@ -102,7 +110,9 @@ transfer_size_histogram = Histogram(
 
 sip_started_counter = Counter("mcpclient_sip_started_total", "Number of SIPs started")
 sip_started_timestamp = Gauge(
-    "mcpclient_sip_started_timestamp", "Timestamp of most recent SIP started"
+    "mcpclient_sip_started_timestamp",
+    "Timestamp of most recent SIP started",
+    multiprocess_mode="livesum",
 )
 sip_error_counter = Counter(
     "mcpclient_sip_error_total",
@@ -113,15 +123,20 @@ sip_error_timestamp = Gauge(
     "mcpclient_sip_error_timestamp",
     "Timestamp of most recent SIP failure, by error type",
     ["failure_type"],
+    multiprocess_mode="livesum",
 )
 
 aips_stored_counter = Counter("mcpclient_aips_stored_total", "Number of AIPs stored")
 dips_stored_counter = Counter("mcpclient_dips_stored_total", "Number of DIPs stored")
 aips_stored_timestamp = Gauge(
-    "mcpclient_aips_stored_timestamp", "Timestamp of most recent AIP stored"
+    "mcpclient_aips_stored_timestamp",
+    "Timestamp of most recent AIP stored",
+    multiprocess_mode="livesum",
 )
 dips_stored_timestamp = Gauge(
-    "mcpclient_dips_stored_timestamp", "Timestamp of most recent DIP stored"
+    "mcpclient_dips_stored_timestamp",
+    "Timestamp of most recent DIP stored",
+    multiprocess_mode="livesum",
 )
 aip_processing_time_histogram = Histogram(
     "mcpclient_aip_processing_seconds",
@@ -170,9 +185,6 @@ aip_original_file_timestamps_histogram = Histogram(
     + [float("inf")],
 )
 
-archivematica_info = Info("archivematica_version", "Archivematica version info")
-environment_info = Info("environment_variables", "Environment Variables")
-
 
 # There's no central place to pull these constants from currently
 FILE_GROUPS = ("original", "derivative", "metadata")
@@ -196,11 +208,11 @@ def init_counter_labels():
     modules_config = configparser.RawConfigParser()
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
+        task_execution_time_histogram.labels(script_name=script_name)
         job_counter.labels(script_name=script_name)
         job_processed_timestamp.labels(script_name=script_name)
         job_error_counter.labels(script_name=script_name)
         job_error_timestamp.labels(script_name=script_name)
-        task_execution_time_histogram.labels(script_name=script_name)
 
     for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
@@ -222,22 +234,30 @@ def init_counter_labels():
         sip_error_counter.labels(failure_type=failure_type)
         sip_error_timestamp.labels(failure_type=failure_type)
 
-    for format_name in FormatVersion.objects.values_list("description", flat=True):
-        for file_group in FILE_GROUPS:
-            aip_files_stored_by_file_group_and_format_counter.labels(
-                file_group=file_group, format_name=format_name
-            )
+    if settings.PROMETHEUS_DETAILED_METRICS:
+        for format_name in FormatVersion.objects.values_list("description", flat=True):
+            for file_group in FILE_GROUPS:
+                aip_files_stored_by_file_group_and_format_counter.labels(
+                    file_group=file_group, format_name=format_name
+                )
+
+
+@skip_if_prometheus_disabled
+def worker_exit(process_id):
+    multiprocess.mark_process_dead(process_id)
 
 
 @skip_if_prometheus_disabled
 def start_prometheus_server():
+    registry = CollectorRegistry()
+    multiprocess.MultiProcessCollector(registry)
+
     init_counter_labels()
 
-    archivematica_info.info({"version": get_full_version()})
-    environment_info.info(os.environ)
-
     return start_http_server(
-        settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
+        settings.PROMETHEUS_BIND_PORT,
+        addr=settings.PROMETHEUS_BIND_ADDRESS,
+        registry=registry,
     )
 
 
@@ -283,7 +303,7 @@ def aip_stored(sip_uuid, size):
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
-    except (File.DoesNotExist, ValidationError):
+    except File.DoesNotExist:
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
@@ -293,36 +313,37 @@ def aip_stored(sip_uuid, size):
     total_file_count = File.objects.filter(sip_id=sip_uuid).count()
     aip_files_stored_histogram.observe(total_file_count)
 
-    # TODO: This could probably benefit from batching with prefetches. Using just
-    # prefetches will likely break down with very large numbers of files.
-    for file_obj in (
-        File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
-    ):
-        if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
-            aip_original_file_timestamps_histogram.observe(
-                file_obj.modificationtime.year
-            )
-
-        file_group = _get_file_group(file_obj.filegrpuse)
-        format_name = "Unknown"
-
-        format_version_m2m = (
-            FileFormatVersion.objects.select_related(
-                "format_version", "format_version__format"
-            )
-            .filter(file_uuid=file_obj.uuid)
-            .first()
-        )
-        if (
-            format_version_m2m
-            and format_version_m2m.format_version
-            and format_version_m2m.format_version.format
+    if settings.PROMETHEUS_DETAILED_METRICS:
+        # TODO: This could probably benefit from batching with prefetches. Using just
+        # prefetches will likely break down with very large numbers of files.
+        for file_obj in (
+            File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
         ):
-            format_name = format_version_m2m.format_version.format.description
+            if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
+                aip_original_file_timestamps_histogram.observe(
+                    file_obj.modificationtime.year
+                )
 
-        aip_files_stored_by_file_group_and_format_counter.labels(
-            file_group=file_group, format_name=format_name
-        ).inc()
+            file_group = _get_file_group(file_obj.filegrpuse)
+            format_name = "Unknown"
+
+            format_version_m2m = (
+                FileFormatVersion.objects.select_related(
+                    "format_version", "format_version__format"
+                )
+                .filter(file_uuid=file_obj.uuid)
+                .first()
+            )
+            if (
+                format_version_m2m
+                and format_version_m2m.format_version
+                and format_version_m2m.format_version.format
+            ):
+                format_name = format_version_m2m.format_version.format.description
+
+            aip_files_stored_by_file_group_and_format_counter.labels(
+                file_group=file_group, format_name=format_name
+            ).inc()
 
 
 @skip_if_prometheus_disabled
@@ -333,7 +354,7 @@ def dip_stored(sip_uuid, size):
 
     try:
         earliest_file = File.objects.filter(sip_id=sip_uuid).earliest("enteredsystem")
-    except (File.DoesNotExist, ValidationError):
+    except File.DoesNotExist:
         pass
     else:
         duration = (timezone.now() - earliest_file.enteredsystem).total_seconds()
@@ -355,7 +376,7 @@ def transfer_started(transfer_type):
 def transfer_completed(transfer_uuid):
     try:
         transfer = Transfer.objects.get(uuid=transfer_uuid)
-    except (Transfer.DoesNotExist, ValidationError):
+    except Transfer.DoesNotExist:
         return
 
     transfer_type = transfer.type or "Unknown"

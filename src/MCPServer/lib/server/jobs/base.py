@@ -5,9 +5,9 @@ import abc
 import logging
 import uuid
 
+from dbconns import auto_close_old_connections
 from django.utils import timezone
 from main import models
-from server.db import auto_close_old_connections
 
 
 logger = logging.getLogger("archivematica.mcp.server.jobs")

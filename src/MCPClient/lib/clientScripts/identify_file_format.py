@@ -10,10 +10,11 @@ django.setup()
 from fpr.models import IDCommand, IDRule, FormatVersion
 from main.models import FileFormatVersion, File, FileID, UnitVariable
 from django.db import transaction
+from django.utils import timezone
 
 # archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import getUTCDate, insertIntoEvents
+from databaseFunctions import insertIntoEvents
 
 
 def concurrent_instances():
@@ -56,7 +57,7 @@ def write_identification_event(file_uuid, command, format=None, success=True):
     if not format:
         format = "No Matching Format"
 
-    date = getUTCDate()
+    date = timezone.now()
 
     insertIntoEvents(
         fileUUID=file_uuid,

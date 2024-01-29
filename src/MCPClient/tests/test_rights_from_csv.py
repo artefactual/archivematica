@@ -6,7 +6,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from main import models
 
-from job import Job
+from client.job import Job
 import rights_from_csv
 
 

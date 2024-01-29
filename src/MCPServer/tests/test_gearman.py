@@ -80,7 +80,7 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
         pytest.fail("Expected unique to be a valid UUID.")
     assert submit_job_kwargs["wait_until_complete"] is False
     assert submit_job_kwargs["background"] is False
-    assert submit_job_kwargs["max_retries"] == 0
+    assert submit_job_kwargs["max_retries"] == GearmanTaskBackend.MAX_RETRIES
 
 
 def test_gearman_task_result_success(simple_job, simple_task, mocker):

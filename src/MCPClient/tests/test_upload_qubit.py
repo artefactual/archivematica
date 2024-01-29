@@ -3,7 +3,7 @@ import pickle as pickle
 import uuid
 
 import pytest
-from job import Job
+from client.job import Job
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -4,9 +4,9 @@ Jobs executed locally in MCP server.
 import abc
 import logging
 
+from dbconns import auto_close_old_connections
 from django.core.exceptions import ValidationError
 from main import models
-from server.db import auto_close_old_connections
 from server.jobs.base import Job
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.local")

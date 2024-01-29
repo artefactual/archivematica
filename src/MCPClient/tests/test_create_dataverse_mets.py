@@ -6,7 +6,7 @@ from collections import namedtuple
 import convert_dataverse_structure
 import metsrw
 import pytest
-from job import Job
+from client.job import Job
 
 # List of Dataverse metadata fixtures. We use a named-tuple to provide some
 # structure to this index so that we can keep track of information regarding

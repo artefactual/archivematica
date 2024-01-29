@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 
 import metsrw
+from client.job import Job
 from django.core.management import call_command
 from django.test import TestCase
-from job import Job
 from lxml import etree
 from main import models
 from namespaces import NSMAP

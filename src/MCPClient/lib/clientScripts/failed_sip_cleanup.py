@@ -11,7 +11,7 @@ from main import models
 # archivematicaCommon
 import storageService as storage_service
 
-import metrics
+from client import metrics
 
 
 REJECTED = "reject"

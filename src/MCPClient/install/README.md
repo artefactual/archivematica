@@ -87,6 +87,20 @@ This is the full list of variables supported by MCPClient:
   - **Type:** `string`
   - :red_circle: **Mandatory!**
 
+- **`ARCHIVEMATICA_MCPCLIENT_WORKERS`**:
+  - **Description:** number of workers. If undefined, it defaults to the
+    number of CPUs available on the machine. Only client modules that define
+    `concurrent_instances` will perform concurrent execution of tasks.
+  - **Config file example:** `MCPClient.workers`
+  - **Type:** `int`
+
+- **`ARCHIVEMATICA_MCPCLIENT_MAX_TASKS_PER_CHILD`**:
+  - **Description:** maximum number of tasks a worker can execute before it's
+    replaced by a new process in order to free resources.
+  - **Config file example:** `MCPClient.max_tasks_per_child`
+  - **Type:** `int`
+  - **Default:** `10`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SHAREDDIRECTORYMOUNTED`**:
   - **Description:** location of the Archivematica Shared Directory.
   - **Config file example:** `MCPClient.sharedDirectoryMounted`
@@ -226,6 +240,14 @@ This is the full list of variables supported by MCPClient:
   - **Config file example:** `MCPClient.prometheus_bind_port`
   - **Type:** `int`
   - **Default:** `""`
+
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_DETAILED_METRICS`**:
+  - **Description:** Send detailed metrics to Prometheus. With large transfers
+    this might affect performance of the local storage in Prometheus and slow
+    down its threads in Archivematica.
+  - **Config file example:** `MCPClient.prometheus_detailed_metrics`
+  - **Type:** `boolean`
+  - **Default:** `false`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED`**:
   - **Description:** (**Experimental**) Determines if the XML files in the

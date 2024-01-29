@@ -10,11 +10,11 @@ from uuid import UUID
 from uuid import uuid4
 
 import storageService as storage_service
+from dbconns import auto_close_old_connections
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from main import models
-from server.db import auto_close_old_connections
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
