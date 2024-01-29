@@ -241,6 +241,14 @@ This is the full list of variables supported by MCPClient:
   - **Type:** `int`
   - **Default:** `""`
 
+- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_DETAILED_METRICS`**:
+  - **Description:** Send detailed metrics to Prometheus. With large transfers
+    this might affect performance of the local storage in Prometheus and slow
+    down its threads in Archivematica.
+  - **Config file example:** `MCPClient.prometheus_detailed_metrics`
+  - **Type:** `boolean`
+  - **Default:** `false`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED`**:
   - **Description:** (**Experimental**) Determines if the XML files in the
     `metadata` directory of a SIP should be validated against a set of XML

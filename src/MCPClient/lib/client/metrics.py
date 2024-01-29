@@ -208,11 +208,11 @@ def init_counter_labels():
     modules_config = configparser.RawConfigParser()
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
+        task_execution_time_histogram.labels(script_name=script_name)
         job_counter.labels(script_name=script_name)
         job_processed_timestamp.labels(script_name=script_name)
         job_error_counter.labels(script_name=script_name)
         job_error_timestamp.labels(script_name=script_name)
-        task_execution_time_histogram.labels(script_name=script_name)
 
     for transfer_type in TRANSFER_TYPES:
         transfer_started_counter.labels(transfer_type=transfer_type)
@@ -234,11 +234,12 @@ def init_counter_labels():
         sip_error_counter.labels(failure_type=failure_type)
         sip_error_timestamp.labels(failure_type=failure_type)
 
-    for format_name in FormatVersion.objects.values_list("description", flat=True):
-        for file_group in FILE_GROUPS:
-            aip_files_stored_by_file_group_and_format_counter.labels(
-                file_group=file_group, format_name=format_name
-            )
+    if settings.PROMETHEUS_DETAILED_METRICS:
+        for format_name in FormatVersion.objects.values_list("description", flat=True):
+            for file_group in FILE_GROUPS:
+                aip_files_stored_by_file_group_and_format_counter.labels(
+                    file_group=file_group, format_name=format_name
+                )
 
 
 @skip_if_prometheus_disabled
@@ -312,36 +313,37 @@ def aip_stored(sip_uuid, size):
     total_file_count = File.objects.filter(sip_id=sip_uuid).count()
     aip_files_stored_histogram.observe(total_file_count)
 
-    # TODO: This could probably benefit from batching with prefetches. Using just
-    # prefetches will likely break down with very large numbers of files.
-    for file_obj in (
-        File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
-    ):
-        if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
-            aip_original_file_timestamps_histogram.observe(
-                file_obj.modificationtime.year
-            )
-
-        file_group = _get_file_group(file_obj.filegrpuse)
-        format_name = "Unknown"
-
-        format_version_m2m = (
-            FileFormatVersion.objects.select_related(
-                "format_version", "format_version__format"
-            )
-            .filter(file_uuid=file_obj.uuid)
-            .first()
-        )
-        if (
-            format_version_m2m
-            and format_version_m2m.format_version
-            and format_version_m2m.format_version.format
+    if settings.PROMETHEUS_DETAILED_METRICS:
+        # TODO: This could probably benefit from batching with prefetches. Using just
+        # prefetches will likely break down with very large numbers of files.
+        for file_obj in (
+            File.objects.filter(sip_id=sip_uuid).exclude(filegrpuse="aip").iterator()
         ):
-            format_name = format_version_m2m.format_version.format.description
+            if file_obj.filegrpuse.lower() == "original" and file_obj.modificationtime:
+                aip_original_file_timestamps_histogram.observe(
+                    file_obj.modificationtime.year
+                )
 
-        aip_files_stored_by_file_group_and_format_counter.labels(
-            file_group=file_group, format_name=format_name
-        ).inc()
+            file_group = _get_file_group(file_obj.filegrpuse)
+            format_name = "Unknown"
+
+            format_version_m2m = (
+                FileFormatVersion.objects.select_related(
+                    "format_version", "format_version__format"
+                )
+                .filter(file_uuid=file_obj.uuid)
+                .first()
+            )
+            if (
+                format_version_m2m
+                and format_version_m2m.format_version
+                and format_version_m2m.format_version.format
+            ):
+                format_name = format_version_m2m.format_version.format.description
+
+            aip_files_stored_by_file_group_and_format_counter.labels(
+                file_group=file_group, format_name=format_name
+            ).inc()
 
 
 @skip_if_prometheus_disabled

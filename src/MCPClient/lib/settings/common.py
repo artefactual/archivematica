@@ -162,6 +162,11 @@ CONFIG_MAPPING = {
         "option": "prometheus_bind_port",
         "type": "string",
     },
+    "prometheus_detailed_metrics": {
+        "section": "MCPClient",
+        "option": "prometheus_detailed_metrics",
+        "type": "boolean",
+    },
     "metadata_xml_validation_enabled": {
         "section": "MCPClient",
         "option": "metadata_xml_validation_enabled",
@@ -235,6 +240,7 @@ storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
 prometheus_bind_address =
 prometheus_bind_port =
+prometheus_detailed_metrics = false
 time_zone = UTC
 workers =
 max_tasks_per_child = 10
@@ -378,6 +384,7 @@ SEARCH_ENABLED = config.get("search_enabled")
 INDEX_AIP_CONTINUE_ON_ERROR = config.get("index_aip_continue_on_error")
 CAPTURE_CLIENT_SCRIPT_OUTPUT = config.get("capture_client_script_output")
 DEFAULT_CHECKSUM_ALGORITHM = "sha256"
+PROMETHEUS_DETAILED_METRICS = config.get("prometheus_detailed_metrics")
 PROMETHEUS_BIND_ADDRESS = config.get("prometheus_bind_address")
 try:
     PROMETHEUS_BIND_PORT = int(config.get("prometheus_bind_port"))
