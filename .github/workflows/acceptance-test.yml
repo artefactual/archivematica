@@ -60,3 +60,18 @@ jobs:
       - name: "Run AMAUAT tag"
         run: |
           make -C hack/ test-at-behave TAGS="${{ matrix.tag }}" BROWSER=${{ matrix.browser }}
+      - name: "Save docker logs on failure"
+        if: failure()
+        run: |
+          mkdir docker-logs
+          docker compose logs --no-log-prefix --no-color archivematica-mcp-server > docker-logs/mcp-server.log
+          docker compose logs --no-log-prefix --no-color archivematica-mcp-client > docker-logs/mcp-client.log
+          docker compose logs --no-log-prefix --no-color archivematica-dashboard > docker-logs/dashboard.log
+          docker compose logs --no-log-prefix --no-color archivematica-storage-service > docker-logs/storage-service.log
+        working-directory: ./hack
+      - name: "Upload docker logs on failure"
+        if: failure()
+        uses: "actions/upload-artifact@v4"
+        with:
+          name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}"
+          path: "./hack/docker-logs"
