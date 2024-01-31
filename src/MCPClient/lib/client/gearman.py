@@ -93,7 +93,9 @@ class MCPGearmanWorker(gearman.GearmanWorker):
         task_name = str(task_name)
         job_module = self.job_modules[task_name]
         logger.debug(
-            "Gearman job request %s received for %s", gearman_job.unique, task_name
+            "Gearman job request %s received for %s",
+            gearman_job.unique.decode(),
+            task_name,
         )
 
         with metrics.task_execution_time_histogram.labels(script_name=task_name).time():

@@ -460,7 +460,9 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     for f in new_files:
         # Create amdSecs
-        job.pyprint("Adding amdSec for", f.currentlocation, "(", str(f.uuid), ")")
+        job.pyprint(
+            "Adding amdSec for", f.currentlocation.decode(), "(", str(f.uuid), ")"
+        )
         amdsec, amdid = createmets2.getAMDSec(
             job,
             fileUUID=str(f.uuid),
