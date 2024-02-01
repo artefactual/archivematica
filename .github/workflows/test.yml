@@ -64,7 +64,7 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
       - name: "Upload coverage report"
         if: matrix.rule != 'storage-service' && matrix.rule != 'migrations' && github.repository == 'artefactual/archivematica'
-        uses: "codecov/codecov-action@v3"
+        uses: "codecov/codecov-action@v4"
         with:
           files: ./coverage.xml
           fail_ci_if_error: false
@@ -78,7 +78,7 @@ jobs:
         working-directory: "./src/dashboard/frontend/"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
       - name: "Set up Node JS"
         uses: "actions/setup-node@v4"
         with:
@@ -97,9 +97,9 @@ jobs:
     runs-on: "ubuntu-22.04"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
       - name: "Set up Python 3.9"
-        uses: "actions/setup-python@v4"
+        uses: "actions/setup-python@v5"
         with:
           python-version: "3.9"
           cache: "pip"
