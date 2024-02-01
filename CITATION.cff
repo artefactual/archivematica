@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Archivematica
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: Artefactual
+    country: CA
+    email: info@artefactual.com
+identifiers:
+  - type: swh
+    value: 'swh:1:dir:58f29939b1d3947eb1551930dec41dd6dd3398d3'
+repository-code: 'https://github.com/artefactual/archivematica'
+url: 'https://www.archivematica.org'
+repository: 'https://github.com/archivematica'
+abstract: >-
+  Archivematica is a web- and standards-based, open-source
+  application which allows your institution to preserve
+  long-term access to trustworthy, authentic and reliable
+  digital content.
+keywords:
+  - digital-preservation
+  - python
