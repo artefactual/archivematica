@@ -154,7 +154,7 @@ class Migration(migrations.Migration):
                 (
                     "date",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)",
                         db_column="date",
                         blank=True,
                     ),
@@ -786,7 +786,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightstatusdeterminationdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Copyright determination date",
                         db_column="copyrightStatusDeterminationDate",
                         blank=True,
@@ -795,7 +795,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightapplicablestartdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Copyright start date",
                         db_column="copyrightApplicableStartDate",
                         blank=True,
@@ -804,7 +804,7 @@ class Migration(migrations.Migration):
                 (
                     "copyrightapplicableenddate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Copyright end date",
                         db_column="copyrightApplicableEndDate",
                         blank=True,
@@ -942,7 +942,7 @@ class Migration(migrations.Migration):
                 (
                     "licenseapplicablestartdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="License start date",
                         db_column="licenseApplicableStartDate",
                         blank=True,
@@ -951,7 +951,7 @@ class Migration(migrations.Migration):
                 (
                     "licenseapplicableenddate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="License end date",
                         db_column="licenseApplicableEndDate",
                         blank=True,
@@ -1168,7 +1168,7 @@ class Migration(migrations.Migration):
                 (
                     "otherrightsapplicablestartdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Other rights start date",
                         db_column="otherRightsApplicableStartDate",
                         blank=True,
@@ -1177,7 +1177,7 @@ class Migration(migrations.Migration):
                 (
                     "otherrightsapplicableenddate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Other rights end date",
                         db_column="otherRightsApplicableEndDate",
                         blank=True,
@@ -1247,7 +1247,7 @@ class Migration(migrations.Migration):
                 (
                     "startdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Start",
                         db_column="startDate",
                         blank=True,
@@ -1256,7 +1256,7 @@ class Migration(migrations.Migration):
                 (
                     "enddate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="End",
                         db_column="endDate",
                         blank=True,
@@ -1412,7 +1412,7 @@ class Migration(migrations.Migration):
                 (
                     "statutedeterminationdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Statute determination date",
                         db_column="statuteInformationDeterminationDate",
                         blank=True,
@@ -1421,7 +1421,7 @@ class Migration(migrations.Migration):
                 (
                     "statuteapplicablestartdate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Statute start date",
                         db_column="statuteApplicableStartDate",
                         blank=True,
@@ -1430,7 +1430,7 @@ class Migration(migrations.Migration):
                 (
                     "statuteapplicableenddate",
                     models.TextField(
-                        help_text="Use ISO 8061 (YYYY-MM-DD)",
+                        help_text="Use ISO 8601 (YYYY-MM-DD)",
                         verbose_name="Statute end date",
                         db_column="statuteApplicableEndDate",
                         blank=True,
