@@ -1193,21 +1193,21 @@ class RightsStatementCopyright(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Copyright determination date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     copyrightapplicablestartdate = models.TextField(
         db_column="copyrightApplicableStartDate",
         blank=True,
         null=True,
         verbose_name=_("Copyright start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     copyrightapplicableenddate = models.TextField(
         db_column="copyrightApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Copyright end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     copyrightenddateopen = models.BooleanField(
         default=False,
@@ -1277,14 +1277,14 @@ class RightsStatementLicense(models.Model):
         blank=True,
         null=True,
         verbose_name=_("License start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     licenseapplicableenddate = models.TextField(
         db_column="licenseApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("License end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     licenseenddateopen = models.BooleanField(
         default=False,
@@ -1350,14 +1350,14 @@ class RightsStatementRightsGranted(models.Model):
     startdate = models.TextField(
         db_column="startDate",
         verbose_name=_("Start"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
         blank=True,
         null=True,
     )
     enddate = models.TextField(
         db_column="endDate",
         verbose_name=_("End"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
         blank=True,
         null=True,
     )
@@ -1419,7 +1419,7 @@ class RightsStatementStatuteInformation(models.Model):
     statutedeterminationdate = models.TextField(
         db_column="statuteInformationDeterminationDate",
         verbose_name=_("Statute determination date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
         blank=True,
         null=True,
     )
@@ -1428,14 +1428,14 @@ class RightsStatementStatuteInformation(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Statute start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     statuteapplicableenddate = models.TextField(
         db_column="statuteApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Statute end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     statuteenddateopen = models.BooleanField(
         default=False,
@@ -1507,14 +1507,14 @@ class RightsStatementOtherRightsInformation(models.Model):
         blank=True,
         null=True,
         verbose_name=_("Other rights start date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     otherrightsapplicableenddate = models.TextField(
         db_column="otherRightsApplicableEndDate",
         blank=True,
         null=True,
         verbose_name=_("Other rights end date"),
-        help_text=_("Use ISO 8061 (YYYY-MM-DD)"),
+        help_text=_("Use ISO 8601 (YYYY-MM-DD)"),
     )
     otherrightsenddateopen = models.BooleanField(
         default=False,
