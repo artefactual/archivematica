@@ -20,7 +20,7 @@ import json
 import sys
 from pathlib import Path
 
-OSDEPS_DIRS = ("dashboard/osdeps", "MCPServer/osdeps", "MCPClient/osdeps")
+OSDEPS_DIRS = ("dashboard/osdeps", "mcpserver/osdeps", "mcpclient/osdeps")
 
 try:
     distro = sys.argv[1]

@@ -3,7 +3,7 @@
 module.exports = {
   context:  __dirname + '/app',
   output: {
-    path:  __dirname + '/../src/media/js/build',
+    path:  __dirname + '/../media/js/build',
     filename: 'dashboard.js',
   },
   module: {

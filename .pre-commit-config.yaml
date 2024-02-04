@@ -6,8 +6,8 @@ repos:
     args: [--no-ensure-ascii, --autofix]
     files: |
       (?x)^(
-        src/MCPServer/lib/assets/.*\.json|
-        src/(MCPClient/MCPServer|dashboard)/osdeps/.*\.json
+        src/mcpserver/lib/assets/.*\.json|
+        src/(mcpclient/mcpserver|dashboard)/osdeps/.*\.json
       )
 - repo: https://github.com/asottile/pyupgrade
   rev: v3.15.0
@@ -43,7 +43,7 @@ repos:
     exclude: |
       (?x)^(
         ISSUE_TEMPLATE\.md|
-        src/dashboard/(frontend/app|src/media)/vendor/.*
+        src/dashboard/(frontend/app|media)/vendor/.*
       )
 - repo: https://github.com/thlorenz/doctoc
   rev: v2.2.0
@@ -53,7 +53,7 @@ repos:
       (?x)^(
         (CONTRIBUTING|SECURITY).*\.md|
         hack/README\.md|
-        src/(MCPServer|MCPClient|dashboard)/install/README\.md
+        src/(mcpserver|mcpclient|dashboard)/install/README\.md
       )
 - repo: https://github.com/citation-file-format/cffconvert
   # Current "2.0.0" git tag does not work because of

@@ -128,7 +128,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				$(ARG)
 
@@ -146,13 +146,13 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				install \
 					--username="test" \
@@ -263,7 +263,7 @@ flush-logs:  ## Delete container logs - requires root privileges.
 # tox when running in parallel mode
 __TEST_DBS_MCPCLIENT = MCPCLIENTTEST test_MCPCLIENTTEST test_MCPCLIENTTEST_mcp-client
 __TEST_DBS_MIGRATIONS = DASHBOARDTEST SSTEST
-__TEST_DBS_DASHBOARD = DASHBOARDTEST test_DASHBOARDTEST test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_archivematica-common
+__TEST_DBS_DASHBOARD = DASHBOARDTEST test_DASHBOARDTEST test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_common
 __TEST_DBS_MCPSERVER = MCPSERVERTEST test_MCPSERVERTEST test_MCPSERVERTEST_mcp-server
 __TEST_DBS_STORAGE_SERVICE = test_SSTEST test_SSTEST_storage-service
 __TEST_DBS := $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_MIGRATIONS) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_MCPSERVER) $(__TEST_DBS_STORAGE_SERVICE) test_MCP test_SS
@@ -301,10 +301,10 @@ test-storage-service: start-mysql  ## Run Storage Service tests.
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
 
-__TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
-test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
+__TOXENVS_COMMON = common
+test-common: start-mysql  ## Run Common tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_DASHBOARD))
-	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
+	$(call run_toxenvs,$(__TOXENVS_COMMON))
 
 __TOXENVS_MIGRATIONS = migrations-dashboard migrations-storage-service
 test-migrations: start-mysql  ## Check there are no pending migrations.
@@ -315,9 +315,9 @@ __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.
 	$(call run_toxenvs,$(__TOXENVS_LINTING))
 
-__TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
+__TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_COMMON)
 test-all: start-mysql  ## Run all tests.
-	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
+	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_COMMON))
 	$(call run_toxenvs,$(__TOXENVS_ALL))
 
 test-at-build:  ## AMAUAT: build image.
