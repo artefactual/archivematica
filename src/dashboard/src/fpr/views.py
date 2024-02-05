@@ -91,8 +91,14 @@ def format_edit(request, slug=None):
         format = None
         group = None
     form = fprforms.FormatForm(request.POST or None, instance=format, prefix="f")
+    # When a format is about to be created there is no format group instance,
+    # so the required fields of the FormatGroupForm class should be optional.
+    is_group_edit_form = group is not None
     format_group_form = fprforms.FormatGroupForm(
-        request.POST or None, instance=group, prefix="fg"
+        request.POST or None,
+        instance=group,
+        prefix="fg",
+        use_required_attribute=is_group_edit_form,
     )
     if form.is_valid():
         if form.cleaned_data["group"] == "new" and format_group_form.is_valid():
