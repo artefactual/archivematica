@@ -1,7 +1,10 @@
+import pytest
 from components import helpers
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from fpr.models import Format
+from fpr.models import FormatGroup
 from fpr.models import FPCommand
 from fpr.models import FPTool
 from fpr.models import IDTool
@@ -104,3 +107,71 @@ class TestViews(TestCase):
         # Assert that the revision list shows multiple instances.
         self.assertContains(resp, fpcommand.uuid)
         self.assertContains(resp, fpcommand.replaces_id)
+
+
+@pytest.mark.django_db
+def test_format_create_creates_format(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    # Add a new format to the Unknown group.
+    unknown_group = FormatGroup.objects.get(description="Unknown")
+    format_description = "My test format"
+
+    assert Format.objects.filter(description=format_description).count() == 0
+
+    response = admin_client.post(
+        reverse("fpr:format_create"),
+        data={"f-group": unknown_group.uuid, "f-description": format_description},
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert "Saved" in content
+    assert "Format My test format" in content
+    assert (
+        Format.objects.filter(
+            description=format_description, group=unknown_group
+        ).count()
+        == 1
+    )
+
+
+@pytest.mark.django_db
+def test_format_edit_updates_format(admin_client):
+    helpers.set_setting("dashboard_uuid", "test-uuid")
+    # Get details of the Matroska format from the Video group.
+    video_group = FormatGroup.objects.get(description="Video")
+    format = Format.objects.get(description="Matroska", group=video_group)
+    format_uuid = format.uuid
+    format_slug = format.slug
+
+    # Update the group and description of the Matroska format.
+    unknown_group = FormatGroup.objects.get(description="Unknown")
+    new_format_description = "My matroska format"
+
+    assert (
+        Format.objects.filter(
+            description=new_format_description, group=unknown_group
+        ).count()
+        == 0
+    )
+
+    response = admin_client.post(
+        reverse("fpr:format_edit", kwargs={"slug": format_slug}),
+        data={"f-group": unknown_group.uuid, "f-description": new_format_description},
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert "Saved" in content
+    assert "Format My matroska format" in content
+    assert (
+        Format.objects.filter(
+            uuid=format_uuid,
+            slug=format_slug,
+            description=new_format_description,
+            group=unknown_group,
+        ).count()
+        == 1
+    )
