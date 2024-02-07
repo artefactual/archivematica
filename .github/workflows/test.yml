@@ -70,6 +70,8 @@ jobs:
           fail_ci_if_error: false
           verbose: true
           name: ${{ matrix.rule }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   frontend:
     name: "Test frontend"
     runs-on: "ubuntu-22.04"
