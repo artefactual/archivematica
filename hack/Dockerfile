@@ -20,16 +20,22 @@ RUN set -ex \
 		gpg-agent \
 		libbz2-dev \
 		libffi-dev \
+		libldap2-dev \
 		liblzma-dev \
+		libmysqlclient-dev \
 		libncursesw5-dev \
 		libreadline-dev \
+		libsasl2-dev \
 		libsqlite3-dev \
 		libssl-dev \
 		libxml2-dev \
 		libxmlsec1-dev \
 		locales \
+		p7zip-full \
+		rsync \
 		software-properties-common \
 		tk-dev \
+		unar \
 		xz-utils \
 		zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
@@ -40,11 +46,6 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# OS dependencies
-COPY hack/osdeps.py /src/hack/osdeps.py
-COPY src/dashboard/osdeps /src/src/dashboard/osdeps
-COPY src/MCPServer/osdeps /src/src/MCPServer/osdeps
-COPY src/MCPClient/osdeps /src/src/MCPClient/osdeps
 RUN set -ex \
 	&& curl -s https://packages.archivematica.org/GPG-KEY-archivematica | apt-key add - \
 	&& add-apt-repository --no-update --yes "deb [arch=amd64] http://packages.archivematica.org/1.15.x/ubuntu-externals jammy main" \
@@ -57,7 +58,6 @@ RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		libyaml-dev clamav nodejs \
-	&& /src/hack/osdeps.py Ubuntu-22 1 | grep -v -E "nginx|postfix|python3.9-dev" | xargs apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
