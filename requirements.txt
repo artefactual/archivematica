@@ -20,9 +20,7 @@ bagit==1.8.1
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-build==1.0.3
-    # via pip-tools
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -30,14 +28,12 @@ charset-normalizer==3.3.2
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-click==8.1.7
-    # via pip-tools
 cryptography==42.0.2
     # via
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==4.2.9
+django==4.2.10
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -73,9 +69,7 @@ gunicorn==21.2.0
 idna==3.6
     # via requests
 importlib-metadata==7.0.1
-    # via
-    #   -r requirements.in
-    #   build
+    # via -r requirements.in
 importlib-resources==6.1.1
     # via opf-fido
 inotify-simple==1.3.5
@@ -98,18 +92,14 @@ metsrw==0.5.1
     # via -r requirements.in
 mozilla-django-oidc==4.0.0
     # via -r requirements.in
-mysqlclient==2.2.1
+mysqlclient==2.2.3
     # via agentarchives
 olefile==0.47
     # via opf-fido
 opf-fido==1.6.1
     # via -r requirements.in
 packaging==23.2
-    # via
-    #   build
-    #   gunicorn
-pip-tools==7.3.0
-    # via -r requirements.in
+    # via gunicorn
 prometheus-client==0.19.0
     # via
     #   -r requirements.in
@@ -124,8 +114,6 @@ pycparser==2.21
     # via cffi
 pyopenssl==24.0.0
     # via josepy
-pyproject-hooks==1.0.0
-    # via build
 python-cas==1.6.0
     # via django-cas-ng
 python-dateutil==2.8.2
@@ -161,11 +149,6 @@ six==1.16.0
     #   python-dateutil
 sqlparse==0.4.4
     # via django
-tomli==2.0.1
-    # via
-    #   build
-    #   pip-tools
-    #   pyproject-hooks
 typing-extensions==4.9.0
     # via asgiref
 unidecode==1.3.8
@@ -175,8 +158,6 @@ urllib3==2.2.0
     #   amclient
     #   elasticsearch
     #   requests
-wheel==0.42.0
-    # via pip-tools
 whitenoise==6.6.0
     # via -r requirements.in
 zipp==3.17.0
@@ -189,12 +170,7 @@ zope-interface==6.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==23.3.2
-    # via
-    #   -r requirements.in
-    #   pip-tools
 setuptools==69.0.3
     # via
-    #   pip-tools
     #   zope-event
     #   zope-interface

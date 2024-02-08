@@ -22,8 +22,6 @@ lazy-paged-sequence
 lxml
 metsrw
 opf-fido
-pip
-pip-tools
 prometheus_client
 python-dateutil
 requests
