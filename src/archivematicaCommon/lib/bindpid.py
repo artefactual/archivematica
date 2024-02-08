@@ -528,10 +528,7 @@ def _parse_config(args):
         return {}
     config = configparser.RawConfigParser()
     with open(cf) as filei:
-        try:
-            config.read_file(filei)
-        except AttributeError:
-            config.readfp(filei)
+        config.read_file(filei)
     return {key: _get_config_val(config, key) for key in CFGABLE_PARAMS}
 
 

@@ -21,7 +21,7 @@ class TestConfigReader(TestCase):
     def read_test_config(self, test_config, prefix=""):
         buf = StringIO(test_config)
         config = EnvConfigParser(env=self.environ, prefix=prefix)
-        config.readfp(buf)
+        config.read_file(buf)
         return config
 
     def test_env_lookup_int(self):

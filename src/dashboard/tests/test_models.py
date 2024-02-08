@@ -99,8 +99,8 @@ def test_sip_arrange_create_many_with_integrity_error(mocker):
     arrange2_mock = mocker.Mock()
     models.SIPArrange.create_many([arrange1_mock, arrange2_mock])
     # If bulk creation fails each SIPArrange is saved individually
-    assert arrange1_mock.save.called_once()
-    assert arrange2_mock.save.called_once()
+    arrange1_mock.save.assert_called_once()
+    arrange2_mock.save.assert_called_once()
 
 
 class TestJobModel:
