@@ -24,12 +24,10 @@ bagit==1.8.1
 brotli==1.1.0
     # via -r requirements.txt
 build==1.0.3
-    # via
-    #   -r requirements.txt
-    #   pip-tools
+    # via pip-tools
 cachetools==5.3.2
     # via tox
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   -r requirements.txt
     #   requests
@@ -46,9 +44,7 @@ charset-normalizer==3.3.2
 clamd==1.0.2
     # via -r requirements.txt
 click==8.1.7
-    # via
-    #   -r requirements.txt
-    #   pip-tools
+    # via pip-tools
 colorama==0.4.6
     # via tox
 coverage[toml]==7.4.1
@@ -63,7 +59,7 @@ cryptography==42.0.2
     #   pyopenssl
 distlib==0.3.8
     # via virtualenv
-django==4.2.9
+django==4.2.10
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -147,7 +143,7 @@ mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in
 mozilla-django-oidc==4.0.0
     # via -r requirements.txt
-mysqlclient==2.2.1
+mysqlclient==2.2.3
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -166,7 +162,7 @@ packaging==23.2
     #   pytest
     #   tox
 pip-tools==7.3.0
-    # via -r requirements.txt
+    # via -r requirements-dev.in
 platformdirs==4.2.0
     # via
     #   tox
@@ -199,9 +195,7 @@ pyopenssl==24.0.0
 pyproject-api==1.6.1
     # via tox
 pyproject-hooks==1.0.0
-    # via
-    #   -r requirements.txt
-    #   build
+    # via build
 pytest==8.0.0
     # via
     #   -r requirements-dev.in
@@ -264,7 +258,6 @@ sqlparse==0.4.4
     #   django
 tomli==2.0.1
     # via
-    #   -r requirements.txt
     #   build
     #   coverage
     #   pip-tools
@@ -289,9 +282,7 @@ urllib3==2.2.0
 virtualenv==20.25.0
     # via tox
 wheel==0.42.0
-    # via
-    #   -r requirements.txt
-    #   pip-tools
+    # via pip-tools
 whitenoise==6.6.0
     # via -r requirements.txt
 zipp==3.17.0
@@ -309,10 +300,8 @@ zope-interface==6.1
     #   gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==23.3.2
-    # via
-    #   -r requirements.txt
-    #   pip-tools
+pip==24.0
+    # via pip-tools
 setuptools==69.0.3
     # via
     #   -r requirements.txt
