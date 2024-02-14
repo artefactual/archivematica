@@ -12,55 +12,24 @@ ENV PYTHONUNBUFFERED 1
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		atool \
 		apt-transport-https \
 		build-essential \
-		coreutils \
 		curl \
-		gcc \
 		gettext \
-		ghostscript \
 		git \
-		g++ \
 		gpg-agent \
-		hashdeep \
-		imagemagick \
-		inkscape \
 		libbz2-dev \
 		libffi-dev \
-		libldap2-dev \
 		liblzma-dev \
-		libimage-exiftool-perl \
-		libmysqlclient-dev \
 		libncursesw5-dev \
 		libreadline-dev \
-		libsasl2-dev \
 		libsqlite3-dev \
 		libssl-dev \
 		libxml2-dev \
 		libxmlsec1-dev \
-		libxslt1-dev \
 		locales \
-		logapp \
-		md5deep \
-		mediaconch \
-		mediainfo \
-		nfs-common \
-		nginx \
-		openjdk-8-jre-headless \
-		p7zip-full \
-		pbzip2 \
-		postfix \
-		pst-utils \
-		rsync \
-		sleuthkit \
 		software-properties-common \
-		tesseract-ocr \
 		tk-dev \
-		tree \
-		unar \
-		unrar-free \
-		uuid \
 		xz-utils \
 		zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
@@ -82,7 +51,45 @@ RUN set -ex \
 	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		bulk-extractor siegfried fits ffmpeg jhove nailgun clamav nodejs \
+		atool \
+		bulk-extractor \
+		clamav \
+		coreutils \
+		ffmpeg \
+		fits \
+		g++ \
+		gcc \
+		gearman \
+		ghostscript \
+		hashdeep \
+		imagemagick \
+		inkscape \
+		jhove \
+		libimage-exiftool-perl \
+		libldap2-dev \
+		libmysqlclient-dev \
+		libsasl2-dev \
+		libxslt1-dev \
+		libyaml-dev \
+		logapp \
+		md5deep \
+		mediaconch \
+		mediainfo \
+		nailgun \
+		nfs-common \
+		nodejs \
+		openjdk-8-jre-headless \
+		p7zip-full \
+		pbzip2 \
+		pst-utils \
+		rsync \
+		siegfried \
+		sleuthkit \
+		tesseract-ocr \
+		tree \
+		unar \
+		unrar-free \
+		uuid \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download ClamAV virus signatures
