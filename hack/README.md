@@ -347,7 +347,7 @@ line options to each.
 [pytest-cli]: https://docs.pytest.org/en/stable/example/simple.html#how-to-change-command-line-options-defaults
 
 For example you can run all the tests in `tox` [parallel
-mode](https://tox.wiki/en/4.11.4/user_guide.html#parallel-mode)
+mode](https://tox.wiki/en/latest/user_guide.html#parallel-mode)
 and make it extra verbose like this:
 
 ```shell
