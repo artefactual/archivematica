@@ -3386,8 +3386,8 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%uploadedDIPs/.\" -R",
-        "execute": "copy_v0.0"
+        "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
+        "execute": "move_v0.0"
       },
       "description": {
         "en": "Move to the uploadedDIPs directory",
@@ -3397,8 +3397,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
