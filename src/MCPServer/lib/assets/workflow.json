@@ -372,6 +372,18 @@
       },
       "link_id": "f12ece2c-fb7e-44de-ba87-7e3c5b6feb74"
     },
+    "54f94986-5300-4116-9b6c-d362fe7ab49b": {
+      "description": {
+        "en": "storeDIP",
+        "es": "Almacenar DIP",
+        "fr": "Stocker le DIP",
+        "ja": "DIPを蓄える",
+        "no": "Lagre DIP",
+        "pt_BR": "armazenarDIP",
+        "sv": "Lagra DIP"
+      },
+      "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
+    },
     "55fa7084-3b64-48ca-be64-08949227f85d": {
       "description": {
         "en": "DSpace Transfers In progress",
@@ -11879,6 +11891,12 @@
       "chain_id": "28a4322d-b8a5-4bae-b2dd-71cc9ff99e73",
       "only_dirs": true,
       "path": "/uploadDIP/",
+      "unit_type": "DIP"
+    },
+    {
+      "chain_id": "54f94986-5300-4116-9b6c-d362fe7ab49b",
+      "only_dirs": true,
+      "path": "/uploadedDIPs/",
       "unit_type": "DIP"
     },
     {
