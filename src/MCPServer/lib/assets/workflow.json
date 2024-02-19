@@ -341,12 +341,13 @@
     },
     "4500f34e-f004-4ccf-8720-5c38d0be2254": {
       "description": {
-        "en": "Do not store",
-        "es": "No almacenar",
-        "fr": "Ne pas stocker",
-        "no": "Ikke lagre",
-        "pt_BR": "Não armazene",
-        "sv": "Lagra inte"
+        "en": "Reject DIP",
+        "es": "Rechazar DIP",
+        "fr": "Rejeter le DIP",
+        "ja": "DIPを拒否",
+        "no": "Avvis DIP",
+        "pt_BR": "Rejeitar DIP",
+        "sv": "Förkasta DIP"
       },
       "link_id": "f8ee488b-5667-4417-ae15-bed9e42ee97d"
     },
@@ -11653,14 +11654,14 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
-        "execute": "handleUnstoredDIP_v0.0"
+        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%DIP-%SIPDirectoryBasename%\"",
+        "execute": "move_v0.0"
       },
       "description": {
-        "en": "Handle unstored DIP",
-        "no": "Håndter av-lagret DIP",
-        "pt_BR": "Controlar DIP não armazenado",
-        "sv": "Hantera icke lagrade DIP:ar"
+        "en": "Move to the rejected directory",
+        "no": "Flytt til den avviste mappen",
+        "pt_BR": "Mover para o diretório rejeitado",
+        "sv": "Flytta till den avslagna mappen"
       },
       "end": true,
       "exit_codes": {
