@@ -17,7 +17,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import argparse
 import os
-import shutil
 from pprint import pformat
 from uuid import uuid4
 
@@ -86,34 +85,6 @@ def _create_file(
     return new_file
 
 
-def get_upload_dip_path(aip_path):
-    """Replace uploadedDIPs/ dirname in ``aip_path`` with uploadDIP/."""
-    new_aip_path = []
-    aip_path_parts = os.path.normpath(aip_path).split(os.path.sep)
-    uploaded_dips_found = False
-    for part in aip_path_parts:
-        if not uploaded_dips_found and part == "uploadedDIPs":
-            uploaded_dips_found = True
-            new_aip_path.append("uploadDIP")
-        else:
-            new_aip_path.append(part)
-    return os.path.sep + os.path.join(*new_aip_path)
-
-
-def rmtree_upload_dip_transitory_loc(package_type, unit_path):
-    """If a DIP has been stored but still exists in the DIP Upload watched
-    directory then it needs to be deleted.
-    """
-    if package_type != "DIP":
-        return
-    unit_path = get_upload_dip_path(unit_path)
-    logger.info("DIP stored. Removing duplicates in watched directory: %s", unit_path)
-    try:
-        shutil.rmtree(unit_path)
-    except OSError as e:
-        logger.error("Directory removal failed with: %s", e)
-
-
 def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     """Stores an AIP with the storage service.
 
@@ -135,12 +106,6 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_first_location(purpose="CP")
-
-    # If ``aip_path`` does not exist, this may be a DIP that was not uploaded.
-    # In that case, it will be in the uploadDIP/ directory instead of the
-    # uploadedDIPs/ directory.
-    if not os.path.exists(aip_path):
-        aip_path = get_upload_dip_path(aip_path)
 
     # Make aip_path relative to the Location
     shared_path = os.path.join(current_location["path"], "")  # Ensure ends with /
@@ -245,11 +210,6 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     message = f"Storage Service created {sip_type}:\n{pformat(new_file)}"
     logger.info(message)
     job.pyprint(message)
-
-    # Once the DIP is stored, remove it from the uploadDIP watched directory as
-    # it will no longer need to be referenced from there by the user or the
-    # system.
-    rmtree_upload_dip_transitory_loc(package_type, aip_path)
 
     if "AIP" in package_type:
         metrics.aip_stored(sip_uuid, size)
