@@ -47,11 +47,11 @@ click==8.1.7
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.4.1
+coverage[toml]==7.4.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==42.0.2
+cryptography==42.0.4
     # via
     #   -r requirements.txt
     #   josepy
@@ -94,7 +94,7 @@ funcparserlib==2.0.0a0
     # via mockldap
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via -r requirements.txt
-gevent==23.9.1
+gevent==24.2.1
     # via -r requirements.txt
 greenlet==3.0.3
     # via
@@ -143,7 +143,7 @@ mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in
 mozilla-django-oidc==4.0.0
     # via -r requirements.txt
-mysqlclient==2.2.3
+mysqlclient==2.2.4
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -161,7 +161,7 @@ packaging==23.2
     #   pyproject-api
     #   pytest
     #   tox
-pip-tools==7.3.0
+pip-tools==7.4.0
     # via -r requirements-dev.in
 platformdirs==4.2.0
     # via
@@ -171,7 +171,7 @@ pluggy==1.4.0
     # via
     #   pytest
     #   tox
-prometheus-client==0.19.0
+prometheus-client==0.20.0
     # via
     #   -r requirements.txt
     #   django-prometheus
@@ -195,8 +195,10 @@ pyopenssl==24.0.0
 pyproject-api==1.6.1
     # via tox
 pyproject-hooks==1.0.0
-    # via build
-pytest==8.0.0
+    # via
+    #   build
+    #   pip-tools
+pytest==8.0.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -241,7 +243,7 @@ requests==2.31.0
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.17.1
+rpds-py==0.18.0
     # via
     #   -r requirements.txt
     #   jsonschema
@@ -265,7 +267,7 @@ tomli==2.0.1
     #   pyproject-hooks
     #   pytest
     #   tox
-tox==4.12.1
+tox==4.13.0
     # via -r requirements-dev.in
 typing-extensions==4.9.0
     # via
@@ -273,7 +275,7 @@ typing-extensions==4.9.0
     #   asgiref
 unidecode==1.3.8
     # via -r requirements.txt
-urllib3==2.2.0
+urllib3==2.2.1
     # via
     #   -r requirements.txt
     #   amclient
@@ -294,7 +296,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==6.1
+zope-interface==6.2
     # via
     #   -r requirements.txt
     #   gevent
@@ -302,7 +304,7 @@ zope-interface==6.1
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.0
     # via pip-tools
-setuptools==69.0.3
+setuptools==69.1.0
     # via
     #   -r requirements.txt
     #   pip-tools
