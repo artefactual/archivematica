@@ -118,6 +118,11 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         package_type = "AIC"
     elif "DIP" in sip_type:
         package_type = "DIP"
+        # FIXME: This script assumes the DIP path doesn't end with a trailing
+        # slash, but the mcp.watched_dir_handler of the MCPServer appends it to
+        # the %SIPDirectory% replacement variable which populates the
+        # aip_filename of this script.
+        aip_path = aip_path.rstrip(os.path.sep)
 
     # Uncompressed directory AIPs must be terminated in a /,
     # otherwise the storage service will place the directory
