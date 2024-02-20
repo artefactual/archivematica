@@ -341,12 +341,13 @@
     },
     "4500f34e-f004-4ccf-8720-5c38d0be2254": {
       "description": {
-        "en": "Do not store",
-        "es": "No almacenar",
-        "fr": "Ne pas stocker",
-        "no": "Ikke lagre",
-        "pt_BR": "Não armazene",
-        "sv": "Lagra inte"
+        "en": "Reject DIP",
+        "es": "Rechazar DIP",
+        "fr": "Rejeter le DIP",
+        "ja": "DIPを拒否",
+        "no": "Avvis DIP",
+        "pt_BR": "Rejeitar DIP",
+        "sv": "Förkasta DIP"
       },
       "link_id": "f8ee488b-5667-4417-ae15-bed9e42ee97d"
     },
@@ -371,6 +372,18 @@
         "sv": "Ladda upp DIP till CONTENTdm"
       },
       "link_id": "f12ece2c-fb7e-44de-ba87-7e3c5b6feb74"
+    },
+    "54f94986-5300-4116-9b6c-d362fe7ab49b": {
+      "description": {
+        "en": "storeDIP",
+        "es": "Almacenar DIP",
+        "fr": "Stocker le DIP",
+        "ja": "DIPを蓄える",
+        "no": "Lagre DIP",
+        "pt_BR": "armazenarDIP",
+        "sv": "Lagra DIP"
+      },
+      "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
     },
     "55fa7084-3b64-48ca-be64-08949227f85d": {
       "description": {
@@ -3374,8 +3387,8 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%uploadedDIPs/.\" -R",
-        "execute": "copy_v0.0"
+        "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
+        "execute": "move_v0.0"
       },
       "description": {
         "en": "Move to the uploadedDIPs directory",
@@ -3385,8 +3398,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -3962,6 +3974,36 @@
         "fr": "Préparer le DIP",
         "no": "Forbered DIP",
         "sv": "Förbered DIP"
+      }
+    },
+    "379a4cba-b43c-45fb-88e9-7e0322107080": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"%SIPDirectory%\"",
+        "execute": "removeDirectories_v0.0"
+      },
+      "description": {
+        "en": "Remove the processing directory",
+        "no": "Fjern prosesseringsmappen",
+        "pt_BR": "Remova o diretório de processamento",
+        "sv": "Radera bearbetningsmappen"
+      },
+      "end": true,
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "group": {
+        "en": "Upload DIP",
+        "es": "Subir DIP",
+        "fr": "Télécharger le DIP",
+        "ja": "DIPをアップロード",
+        "no": "Last opp DIP",
+        "pt_BR": "Carregar DIP",
+        "sv": "Ladda upp DIP"
       }
     },
     "390d6507-5029-4dae-bcd4-ce7178c9b560": {
@@ -5754,7 +5796,7 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%DIPsStore%\" \"%watchDirectoryPath%uploadedDIPs/%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%SIPName%\" \"DIP\"",
+        "arguments": "\"%DIPsStore%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%SIPName%\" \"DIP\"",
         "execute": "storeAIP_v0.0"
       },
       "description": {
@@ -5766,10 +5808,10 @@
         "pt_BR": "Armazenar DIP",
         "sv": "Lagra DIP"
       },
-      "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully"
+          "job_status": "Completed successfully",
+          "link_id": "379a4cba-b43c-45fb-88e9-7e0322107080"
         }
       },
       "fallback_job_status": "Failed",
@@ -11612,14 +11654,14 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
-        "execute": "handleUnstoredDIP_v0.0"
+        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%DIP-%SIPDirectoryBasename%\"",
+        "execute": "move_v0.0"
       },
       "description": {
-        "en": "Handle unstored DIP",
-        "no": "Håndter av-lagret DIP",
-        "pt_BR": "Controlar DIP não armazenado",
-        "sv": "Hantera icke lagrade DIP:ar"
+        "en": "Move to the rejected directory",
+        "no": "Flytt til den avviste mappen",
+        "pt_BR": "Mover para o diretório rejeitado",
+        "sv": "Flytta till den avslagna mappen"
       },
       "end": true,
       "exit_codes": {
@@ -11879,6 +11921,12 @@
       "chain_id": "28a4322d-b8a5-4bae-b2dd-71cc9ff99e73",
       "only_dirs": true,
       "path": "/uploadDIP/",
+      "unit_type": "DIP"
+    },
+    {
+      "chain_id": "54f94986-5300-4116-9b6c-d362fe7ab49b",
+      "only_dirs": true,
+      "path": "/uploadedDIPs/",
       "unit_type": "DIP"
     },
     {
