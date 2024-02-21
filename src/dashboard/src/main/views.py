@@ -30,7 +30,6 @@ from django.views.decorators.http import last_modified
 from django.views.i18n import JavaScriptCatalog
 from lxml import etree
 from main import models
-from shibboleth.views import ShibbolethLogoutView
 
 
 @cache_page(86400, key_prefix="js18n-%s" % get_language())
@@ -318,7 +317,3 @@ def formdata(request, type, parent_id, delete_id=None):
         response["message"] = _("Incorrect type.")
 
     return helpers.json_response(response)
-
-
-class CustomShibbolethLogoutView(ShibbolethLogoutView):
-    pass
