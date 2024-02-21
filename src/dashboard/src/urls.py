@@ -51,7 +51,10 @@ urlpatterns = [
 
 if settings.PROMETHEUS_ENABLED:
     # Include prometheus metrics at /metrics
-    urlpatterns.append(path("", include("django_prometheus.urls")))
+    urlpatterns += [path("", include("django_prometheus.urls"))]
 
 if settings.OIDC_AUTHENTICATION:
-    urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))
+    urlpatterns += [path("oidc/", include("mozilla_django_oidc.urls"))]
+
+if "shibboleth" in settings.INSTALLED_APPS:
+    urlpatterns += [path("shib/", include("shibboleth.urls"))]

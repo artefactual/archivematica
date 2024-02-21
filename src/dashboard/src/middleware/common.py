@@ -32,7 +32,10 @@ logger = logging.getLogger("archivematica.dashboard")
 
 class AJAXSimpleExceptionResponseMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
-        if not settings.DEBUG or not request.is_ajax():
+        if (
+            not settings.DEBUG
+            or not request.headers.get("x-requested-with") == "XMLHttpRequest"
+        ):
             return
         (exc_type, exc_info, tb) = sys.exc_info()
         tracebacks = traceback.format_tb(tb)

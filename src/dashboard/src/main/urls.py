@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django.conf import settings
-from django.urls import include
 from django.urls import path
 from django.urls import re_path
 from main import views
@@ -48,14 +47,3 @@ urlpatterns = [
     ),
     re_path(r"formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$", views.formdata),
 ]
-
-if "shibboleth" in settings.INSTALLED_APPS:
-    # Simulate a shibboleth urls module (so our custom Shibboleth logout view
-    # matches the same namespaced URL name as the standard logout view from
-    # the shibboleth lib)
-    class shibboleth_urls:
-        urlpatterns = [
-            path("logout/", views.CustomShibbolethLogoutView.as_view(), name="logout")
-        ]
-
-    urlpatterns += [path("shib/", include(shibboleth_urls, namespace="shibboleth"))]

@@ -1,4 +1,4 @@
-git+https://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@962f6f9818683ef5f6432f091d22945e54b82592#egg=django-shibboleth-remoteuser
+git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58#egg=django-shibboleth-remoteuser
 Django>=4.2,<5
 agentarchives
 amclient
