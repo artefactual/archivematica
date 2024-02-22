@@ -91,7 +91,7 @@ build:  # Build Compose services.
 
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
-bootstrap-storage-service:  ## Boostrap Storage Service (new database).
+bootstrap-storage-service:  ## Bootstrap Storage Service (new database).
 	$(call create_db,SS)
 	docker compose run \
 		--rm \
@@ -167,14 +167,18 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 					--site-url="http://archivematica-dashboard:8000"
 
 bootstrap-dashboard-frontend:  ## Build front-end assets.
-	docker compose run \
-		--workdir /src/src/dashboard/frontend \
+	docker build \
+		-t archivematica-dashboard-frontend-builder \
+		-f $(CURDIR)/Dockerfile \
+		--build-arg TARGET=archivematica-dashboard-frontend-builder \
+			../
+	docker run \
 		-e HOME=/tmp/npm-config \
 		--rm \
-		--no-deps \
 		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
 		--entrypoint npm \
-			archivematica-dashboard \
+			archivematica-dashboard-frontend-builder \
 				install --no-package-lock
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
@@ -275,6 +279,7 @@ test-build:  ## Build archivematica-tests image.
 		-t archivematica-tests \
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-tests \
+		--build-arg UBUNTU_VERSION \
 		--build-arg PYTHON_VERSION \
 			../
 
