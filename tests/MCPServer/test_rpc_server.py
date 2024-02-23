@@ -9,7 +9,9 @@ from server import rpc_server
 from server import workflow
 
 
-ASSETS_DIR = pathlib.Path(__file__).parent.parent / "lib" / "assets"
+ASSETS_DIR = (
+    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "lib" / "assets"
+)
 
 
 @pytest.mark.django_db

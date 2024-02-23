@@ -1,4 +1,5 @@
 import os
+import pathlib
 from io import StringIO
 
 import pytest
@@ -6,12 +7,10 @@ from django.utils.translation import gettext_lazy
 from server import translation
 from server import workflow
 
-
-ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))), "lib", "assets"
+ASSETS_DIR = (
+    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "lib" / "assets"
 )
-
-FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
 def test_invert_job_statuses(mocker):

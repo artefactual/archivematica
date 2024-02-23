@@ -1,12 +1,13 @@
 import os
+import pathlib
 
 import pytest
 from server import workflow
 from server.workflow_abilities import choice_is_available
 
 
-ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))), "lib", "assets"
+ASSETS_DIR = (
+    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "lib" / "assets"
 )
 
 
