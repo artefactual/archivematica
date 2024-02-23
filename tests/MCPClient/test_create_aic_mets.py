@@ -1,12 +1,11 @@
 import os
 import uuid
 
+import create_aic_mets
 import namespaces as ns
 from lxml import etree
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-import create_aic_mets
 
 
 def extract_file_mock(aip_uuid, mets_in_aip, mets_path):

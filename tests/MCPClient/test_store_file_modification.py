@@ -2,13 +2,11 @@ import os
 import shutil
 import tempfile
 
+import store_file_modification_dates
 from django.test import TestCase
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 from main import models
 
-import store_file_modification_dates
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestStoreFileModification(TestCase):

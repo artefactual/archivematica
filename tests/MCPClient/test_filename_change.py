@@ -2,6 +2,8 @@ import os
 import shutil
 import uuid
 
+import change_names
+import change_object_names
 import pytest
 from client.job import Job
 from django.test import TestCase
@@ -16,9 +18,6 @@ from pytest_django.asserts import assertQuerysetEqual
 from . import TempDirMixin
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-import change_names
-import change_object_names
 
 
 @pytest.fixture()

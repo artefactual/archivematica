@@ -1,9 +1,9 @@
 import os
 from uuid import uuid4
 
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 from client.job import Job
 
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 TEXT = "‘你好‘"
 

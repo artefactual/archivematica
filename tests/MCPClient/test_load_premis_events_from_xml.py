@@ -3,6 +3,7 @@ import pathlib
 import sys
 import uuid
 
+import load_premis_events_from_xml
 import pytest
 from lxml import etree
 from main.models import Agent
@@ -11,7 +12,6 @@ from main.models import File
 from main.models import Transfer
 
 THIS_DIR = pathlib.Path(__file__).parent
-import load_premis_events_from_xml
 
 
 @pytest.fixture()

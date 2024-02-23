@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import archivematicaCreateMETSReingest
 import metsrw
 from client.job import Job
 from django.core.management import call_command
@@ -16,7 +17,6 @@ from version import get_preservation_system_identifier
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
-import archivematicaCreateMETSReingest
 
 REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
 

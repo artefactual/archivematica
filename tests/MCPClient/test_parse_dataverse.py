@@ -3,13 +3,12 @@
 import os
 
 import metsrw
+import parse_dataverse_mets as parse_dataverse
 from client.job import Job
 from django.test import TestCase
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-import parse_dataverse_mets as parse_dataverse
 
 
 class TestParseDataverse(TestCase):

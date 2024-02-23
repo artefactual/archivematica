@@ -1,13 +1,11 @@
 import os
 
+import rights_from_csv
+from client.job import Job
 from django.test import TestCase
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 from main import models
 
-from client.job import Job
-import rights_from_csv
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestRightsImportFromCsvBase(TestCase):

@@ -3,12 +3,11 @@ import os
 import pathlib
 from unittest import mock
 
+import dip_generation_helper
 from django.test import TestCase
+from main.models import ArchivesSpaceDIPObjectResourcePairing
 
 THIS_DIR = pathlib.Path(__file__).parent
-import dip_generation_helper
-
-from main.models import ArchivesSpaceDIPObjectResourcePairing
 
 
 class TestParseArchivesSpaceIDs(TestCase):

@@ -1,14 +1,13 @@
 import os
 from unittest import mock
 
+import post_store_aip_hook
 import pytest
+from client.job import Job
 from django.test import TestCase
+from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-import post_store_aip_hook
-from client.job import Job
-
-from main import models
 
 
 class TestDSpaceToArchivesSpace(TestCase):

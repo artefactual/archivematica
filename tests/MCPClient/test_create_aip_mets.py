@@ -8,21 +8,19 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from django.test import TestCase
-from lxml import etree
-
-THIS_DIR = pathlib.Path(__file__).parent
-
-from client.job import Job
-import create_mets_v2
 import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights
-
+import create_mets_v2
+import namespaces as ns
+from client.job import Job
+from django.test import TestCase
+from lxml import etree
 from main.models import RightsStatement
+from version import get_preservation_system_identifier
+
 from . import TempDirMixin
 
-import namespaces as ns
-from version import get_preservation_system_identifier
+THIS_DIR = pathlib.Path(__file__).parent
 
 
 class TestNormativeStructMap(TempDirMixin, TestCase):

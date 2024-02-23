@@ -1,17 +1,15 @@
 import os
 import uuid
 
+import fpr
+import parse_mets_to_db
 import pytest
+from client.job import Job
 from django.test import TestCase
 from lxml import etree
+from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-import parse_mets_to_db
-
-from client.job import Job
-
-import fpr
-from main import models
 
 
 class TestParseDublinCore(TestCase):
