@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sys
 import uuid
 
@@ -9,13 +10,15 @@ from main.models import Event
 from main.models import File
 from main.models import Transfer
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = pathlib.Path(__file__).parent
 import load_premis_events_from_xml
 
 
 @pytest.fixture()
 def xsd_path():
-    return os.path.abspath(os.path.join(THIS_DIR, "../lib/assets/premis/premis.xsd"))
+    return os.path.abspath(
+        os.path.join(THIS_DIR, "../../src/MCPClient/lib/assets/premis/premis.xsd")
+    )
 
 
 @pytest.fixture()

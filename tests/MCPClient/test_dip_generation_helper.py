@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import os
+import pathlib
 from unittest import mock
 
 from django.test import TestCase
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = pathlib.Path(__file__).parent
 import dip_generation_helper
 
 from main.models import ArchivesSpaceDIPObjectResourcePairing

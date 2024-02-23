@@ -1,6 +1,7 @@
 import collections
 import csv
 import os
+import pathlib
 import random
 import shutil
 import tempfile
@@ -10,7 +11,7 @@ from pathlib import Path
 from django.test import TestCase
 from lxml import etree
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = pathlib.Path(__file__).parent
 
 from client.job import Job
 import create_mets_v2
@@ -22,15 +23,6 @@ from . import TempDirMixin
 
 import namespaces as ns
 from version import get_preservation_system_identifier
-
-
-# XXX we can probably replace this given the am common import...
-NSMAP = {
-    "dc": "http://purl.org/dc/elements/1.1/",
-    "dcterms": "http://purl.org/dc/terms/",
-    "mets": "http://www.loc.gov/METS/",
-    "premis": "http://www.loc.gov/premis/v3",
-}
 
 
 class TestNormativeStructMap(TempDirMixin, TestCase):
@@ -716,7 +708,7 @@ class TestRights(TestCase):
         # Setup
         elem = etree.Element(
             "{http://www.loc.gov/premis/v3}rightsStatement",
-            nsmap={"premis": NSMAP["premis"]},
+            nsmap={"premis": ns.NSMAP["premis"]},
         )
         statement = RightsStatement.objects.get(id=1)
         # Test
@@ -760,7 +752,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
     mets_xsd_path = os.path.abspath(
-        os.path.join(THIS_DIR, "../lib/assets/mets/mets.xsd")
+        os.path.join(THIS_DIR, "../../src/MCPClient/lib/assets/mets/mets.xsd")
     )
 
     @staticmethod
