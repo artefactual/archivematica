@@ -1,4 +1,5 @@
 import json
+import pathlib
 from unittest import mock
 
 from archivematicaFunctions import b64encode_string
@@ -8,6 +9,8 @@ from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 from version import get_full_version
+
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
 
 class MCPClientMock:
@@ -31,7 +34,7 @@ class MCPClientMock:
 
 
 class TestAPIv2(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     # This is valid path value that we're going to pass to the API server.
     path = b64encode_string(
@@ -104,7 +107,7 @@ class TestAPIv2(TestCase):
 
 
 class TestValidate(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     VALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Label,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note

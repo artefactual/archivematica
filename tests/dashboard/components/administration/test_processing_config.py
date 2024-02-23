@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 import tempfile
 from unittest import mock
@@ -9,6 +10,10 @@ from django.http import HttpResponse
 from django.test import TestCase
 from processing import AUTOMATED_PROCESSING_CONFIG
 from processing import DEFAULT_PROCESSING_CONFIG
+
+TEST_USER_FIXTURE = (
+    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+)
 
 
 @pytest.fixture
@@ -24,7 +29,7 @@ def shared_directory(settings):
 
 
 class TestProcessingConfig(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client.login(username="test", password="test")

@@ -1,3 +1,5 @@
+import pathlib
+
 from components import helpers
 from components.administration.views_dip_upload import _AS_DICTNAME
 from components.administration.views_dip_upload import _ATOM_DICTNAME
@@ -5,9 +7,13 @@ from django.test import TestCase
 from django.urls import reverse
 from main.models import DashboardSetting
 
+TEST_USER_FIXTURE = (
+    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+)
+
 
 class TestDipUploadAsConfig(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client.login(username="test", password="test")
@@ -83,7 +89,7 @@ class TestDipUploadAsConfig(TestCase):
 
 
 class TestDipUploadAtomConfig(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client.login(username="test", password="test")

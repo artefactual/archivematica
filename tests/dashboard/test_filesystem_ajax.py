@@ -15,9 +15,12 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 from main import models
 
+TEST_USER_FIXTURE = Path(__file__).parent / "fixtures" / "test_user.json"
+SIP_ARRANGE_FIXTURE = Path(__file__).parent / "fixtures" / "sip_arrange.json"
+
 
 class TestSIPArrange(TestCase):
-    fixtures = ["test_user", "sip_arrange"]
+    fixtures = [TEST_USER_FIXTURE, SIP_ARRANGE_FIXTURE]
 
     def setUp(self):
         self.client = Client()

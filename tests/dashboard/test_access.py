@@ -1,4 +1,5 @@
 import json
+import pathlib
 
 import archivematicaFunctions
 from components import helpers
@@ -7,9 +8,12 @@ from django.test.client import Client
 from django.urls import reverse
 from main import models
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+ACCESS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "access.json"
+
 
 class TestAccessAPI(TestCase):
-    fixtures = ["test_user", "access"]
+    fixtures = [TEST_USER_FIXTURE, ACCESS_FIXTURE]
 
     def setUp(self):
         self.client = Client()

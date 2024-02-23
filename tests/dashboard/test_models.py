@@ -1,3 +1,4 @@
+import pathlib
 import uuid
 from unittest import mock
 
@@ -6,9 +7,11 @@ from django.db import IntegrityError
 from django.test import TestCase
 from main import models
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+
 
 class TestActiveAgent(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def test_transfer_update_active_agent(self):
         user = models.User.objects.get(id=1)

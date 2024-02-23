@@ -1,4 +1,5 @@
 import json
+import pathlib
 
 from components import helpers
 from components.helpers import generate_api_key
@@ -9,11 +10,13 @@ from django.test.client import Client
 from django.urls import reverse
 from tastypie.models import ApiKey
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+
 
 class TestAuth(TestCase):
     """Authentication sanity checks."""
 
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     API_URLS = (
         reverse("api:completed_transfers"),

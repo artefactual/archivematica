@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import os
+import pathlib
 import uuid
 from io import StringIO
 from urllib.parse import urlencode
@@ -39,6 +40,10 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
 JSON_MIME = "application/json"
+
+TEST_USER_FIXTURE = (
+    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+)
 
 
 @pytest.fixture
@@ -324,7 +329,7 @@ def test_search_as_csv_invalid_route(mocker, amsetup, admin_client, tmp_path):
 
 
 class TestArchivalStorageDataTableState(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client = Client()

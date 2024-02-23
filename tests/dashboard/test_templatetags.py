@@ -1,12 +1,16 @@
+import pathlib
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from main.templatetags.user import api_key
 from main.templatetags.user import logout_link
 from tastypie.models import ApiKey
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+
 
 class TestAPIKeyTemplateTag(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.user = User.objects.get(username="test")

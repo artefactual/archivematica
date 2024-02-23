@@ -1,3 +1,4 @@
+import pathlib
 import subprocess
 from unittest import mock
 
@@ -6,8 +7,13 @@ from django.conf import settings
 from django.test import TestCase
 
 
+TEST_USER_FIXTURE = (
+    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+)
+
+
 class TestUsage(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client.login(username="test", password="test")

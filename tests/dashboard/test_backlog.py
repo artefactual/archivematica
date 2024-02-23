@@ -1,13 +1,16 @@
 import json
+import pathlib
 
 from components import helpers
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+
 
 class TestBacklogAPI(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client = Client()

@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 from components import helpers
 from django.test import TestCase
@@ -6,9 +8,12 @@ from django.urls import reverse
 from main.models import DublinCore
 from main.models import TransferMetadataFieldValue
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+TRANSFER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "transfer.json"
+
 
 class TestTransferViews(TestCase):
-    fixtures = ["test_user", "transfer"]
+    fixtures = [TEST_USER_FIXTURE, TRANSFER_FIXTURE]
 
     def setUp(self):
         self.client = Client()

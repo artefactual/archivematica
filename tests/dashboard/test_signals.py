@@ -1,9 +1,16 @@
+import pathlib
+
 from django.test import TestCase
 from main import models
 
+METADATA_TYPE_FIXTURE = (
+    pathlib.Path(__file__).parent / "fixtures" / "metadata_type.json"
+)
+RIGHTS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "rights.json"
+
 
 class TestSignals(TestCase):
-    fixtures = ["metadata_type", "rights"]
+    fixtures = [METADATA_TYPE_FIXTURE, RIGHTS_FIXTURE]
 
     def test_delete_rights_statement(self):
         """It should delete all children."""

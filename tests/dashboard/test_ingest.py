@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 import pickle
 import uuid
 from unittest import mock
@@ -18,9 +19,15 @@ from main.models import Access
 from main.models import ArchivesSpaceDIPObjectResourcePairing
 from main.models import DashboardSetting
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+SIP_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "sip.json"
+JOBS_SIP_COMPLETE_FIXTURE = (
+    pathlib.Path(__file__).parent / "fixtures" / "jobs-sip-complete.json"
+)
+
 
 class TestIngest(TestCase):
-    fixtures = ["test_user", "sip", "jobs-sip-complete"]
+    fixtures = [TEST_USER_FIXTURE, SIP_FIXTURE, JOBS_SIP_COMPLETE_FIXTURE]
 
     def setUp(self):
         self.client = Client()

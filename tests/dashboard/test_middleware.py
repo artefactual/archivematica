@@ -1,3 +1,5 @@
+import pathlib
+
 from components import helpers
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -6,9 +8,11 @@ from django.test.client import Client
 from django.urls import reverse
 from installer.middleware import _load_exempt_urls
 
+TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+
 
 class ConfigurationCheckMiddlewareTestCase(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client = Client()

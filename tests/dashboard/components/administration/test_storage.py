@@ -1,11 +1,16 @@
+import pathlib
 from unittest import mock
 
 from components import helpers
 from django.test import TestCase
 
+TEST_USER_FIXTURE = (
+    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+)
+
 
 class TestStorage(TestCase):
-    fixtures = ["test_user"]
+    fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
         self.client.login(username="test", password="test")
