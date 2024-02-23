@@ -1,4 +1,4 @@
-import os
+import pathlib
 import uuid
 
 import databaseFunctions
@@ -7,12 +7,15 @@ from django.test import TestCase
 from main.models import Event
 from main.models import File
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+AGENTS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "agents.json"
+TEST_DATABASE_FUNCTIONS_FIXTURE = (
+    pathlib.Path(__file__).parent / "fixtures" / "test_database_functions.json"
+)
 
 
 class TestDatabaseFunctions(TestCase):
-    fixture_files = ["agents.json", "test_database_functions.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    fixtures = [AGENTS_FIXTURE, TEST_DATABASE_FUNCTIONS_FIXTURE]
 
     # insertIntoFiles
     def test_insert_into_files_with_sip(self):
