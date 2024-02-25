@@ -19,7 +19,7 @@ attrs==23.2.0
     #   -r requirements.txt
     #   jsonschema
     #   referencing
-bagit==1.8.1
+bagit @ git+https://github.com/artefactual-labs/bagit-python.git@4b8fde73b4e631461bfd7add87e200500d40ca21
     # via -r requirements.txt
 brotli==1.1.0
     # via -r requirements.txt
