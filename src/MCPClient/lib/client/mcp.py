@@ -2,6 +2,8 @@
 Main MCPClient entrypoint.
 """
 import logging
+import os
+import pathlib
 import signal
 
 from client import metrics
@@ -13,6 +15,11 @@ logger = logging.getLogger("archivematica.mcp.client")
 
 def main():
     metrics.start_prometheus_server()
+
+    # Use local XML schemas for validation.
+    os.environ["XML_CATALOG_FILES"] = str(
+        pathlib.Path(__file__).parent.parent / "assets" / "catalog" / "catalog.xml"
+    )
 
     pool = WorkerPool()
     pool.start()
