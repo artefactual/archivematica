@@ -9,7 +9,9 @@ def set_xml_catalog_files(monkeypatch):
     monkeypatch.setenv(
         "XML_CATALOG_FILES",
         str(
-            pathlib.Path(__file__).parent.parent
+            pathlib.Path(__file__).parent.parent.parent
+            / "src"
+            / "MCPClient"
             / "lib"
             / "assets"
             / "catalog"
