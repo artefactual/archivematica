@@ -66,8 +66,8 @@ jobs:
           tags: archivematica-tests:latest
           push: false
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: "type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }}"
+          cache-to: "type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }},mode=max"
       - name: "Create external volumes"
         run: |
           make -C hack/ create-volumes
