@@ -299,7 +299,7 @@ test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
-	$(CURDIR)/submodules/archivematica-storage-service/integration/run.sh
+	$(CURDIR)/submodules/archivematica-storage-service/tests/integration/run.sh
 
 __TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
