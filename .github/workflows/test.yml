@@ -19,6 +19,9 @@ jobs:
           "dashboard",
           "archivematica-common",
         ]
+        ubuntu-version: [
+          "22.04",
+        ]
         python-version: [
           "3.8",
           "3.9",
@@ -28,8 +31,10 @@ jobs:
         ]
         include:
           - rule: "storage-service"
+            ubuntu-version: "22.04"
             python-version: "3.9"
           - rule: "migrations"
+            ubuntu-version: "22.04"
             python-version: "3.9"
     steps:
       - name: "Check out repository"
@@ -37,6 +42,14 @@ jobs:
       - name: "Check out the archivematica-storage-service submodule"
         run: |
           git submodule update --init hack/submodules/archivematica-storage-service/
+      - name: "Save user id"
+        id: user_id
+        run: |
+          echo "user_id=$(id -u)" >> $GITHUB_OUTPUT
+      - name: "Save group id"
+        id: group_id
+        run: |
+          echo "group_id=$(id -g)" >> $GITHUB_OUTPUT
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@v3"
       - name: "Build archivematica-tests image"
@@ -46,6 +59,9 @@ jobs:
           file: ./hack/Dockerfile
           target: archivematica-tests
           build-args: |
+            USER_ID=${{ steps.user_id.outputs.user_id }}
+            GROUP_ID=${{ steps.group_id.outputs.group_id }}
+            UBUNTU_VERSION=${{ matrix.ubuntu-version }}
             PYTHON_VERSION=${{ matrix.python-version }}
           tags: archivematica-tests:latest
           push: false
