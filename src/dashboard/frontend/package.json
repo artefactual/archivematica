@@ -51,15 +51,10 @@
     "angular-ui-validate": "^1.2.2",
     "archivematica-browse-helpers": "git+https://github.com/artefactual-labs/archivematica-browse-helpers.git",
     "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git",
-    "d3": "^3.5.12",
-    "font-awesome": "^4.3.0",
-    "lodash": "^4.17.12",
-    "moment": "^2.21.0",
-    "restangular": "^1.5.1"
-  },
-  "overrides": {
-    "fsevents": "1.2.13",
-    "js-yaml": "3.13.1",
-    "json5": "1.0.2"
+    "d3": "^3.5.17",
+    "font-awesome": "^4.7.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "restangular": "^1.6.1"
   }
 }
