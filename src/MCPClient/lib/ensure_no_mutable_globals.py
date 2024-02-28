@@ -17,16 +17,16 @@ import os
 import pprint
 import sys
 import types
-from dis import HAVE_ARGUMENT
+from dis import get_instructions
 from dis import opmap
 
 import django
-
-django.setup()
-
 import prometheus_client
 from client.loader import get_supported_modules
 
+django.setup()
+
+GLOBAL_OPS = opmap["LOAD_GLOBAL"], opmap["STORE_GLOBAL"]
 
 # These are the global types that should not be potentially dangerous to use.
 # Note, we are explicitly watching out for ``types.NoneType`` as a possible bad
@@ -39,7 +39,9 @@ GOOD_GLOBAL_TYPES = (
     int,
     str,
     tuple,
+    type,
     django.conf.LazySettings,
+    django.utils.connection.ConnectionProxy,
     prometheus_client.Counter,
     prometheus_client.Gauge,
     prometheus_client.Histogram,
@@ -49,40 +51,26 @@ GOOD_GLOBAL_TYPES = (
 
 def get_globals(func, module):
     """Scan the bytecode of a function and return a set of the global
-    variables it uses.
-
-    Taken, with modification, from
-    https://stackoverflow.com/questions/33160744/detect-all-global-variables-within-a-python-function/33160791#33160791
+    variables it uses that are not expected types.
     """
-    GLOBAL_OPS = opmap["LOAD_GLOBAL"], opmap["STORE_GLOBAL"]
-    EXTENDED_ARG = opmap["EXTENDED_ARG"]
-    func = getattr(func, "im_func", func)
+    func = getattr(func, "__func__", func)
     try:
-        code = func.func_code
+        code = func.__code__
     except AttributeError:
         return []
-    names = code.co_names
-    op = (ord(c) for c in code.co_code)
-    globs = set()
-    extarg = 0
-    for c in op:
-        if c in GLOBAL_OPS:
-            fg_attr = names[next(op) + next(op) * 256 + extarg]
-            try:
-                fg_val = getattr(module, fg_attr)
-            except AttributeError:  # global is a Python builtin
-                pass
-            else:
-                if not isinstance(fg_val, GOOD_GLOBAL_TYPES):
-                    globs.add(fg_attr)
-        elif c == EXTENDED_ARG:
-            extarg = (next(op) + next(op) * 256) * 65536
-            continue
-        elif c >= HAVE_ARGUMENT:
-            next(op)
-            next(op)
-        extarg = 0
-    return sorted(globs)
+    func_global_vars = (
+        i.argval for i in get_instructions(code) if i.opcode in GLOBAL_OPS
+    )
+    bad_types = set()
+    for func_global_var in func_global_vars:
+        try:
+            func_global_var_value = getattr(module, func_global_var)
+        except AttributeError:
+            pass
+        else:
+            if not isinstance(func_global_var_value, GOOD_GLOBAL_TYPES):
+                bad_types.add(func_global_var)
+    return sorted(bad_types)
 
 
 def collect_globals(attr, val, module, module_name, global2modules_funcs_3):
@@ -146,7 +134,7 @@ def print_mutable_globals_usage(supported_modules):
         k: v
         for k, v in global2modules_funcs.items()
         if k.split(",")[0] == k.split(",")[0].upper()
-        and k.split(",")[1].strip() == "<type 'dict'>"
+        and k.split(",")[1].strip() == "<class 'dict'>"
     }
     unacceptable = {k: v for k, v in global2modules_funcs.items() if k not in worrisome}
     if worrisome:
