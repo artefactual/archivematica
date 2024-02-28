@@ -45,10 +45,29 @@ module.exports = function(config){
       devtool: 'inline-source-map',
       module: {
         rules: [
-          { test: /\.js$/, loader: 'babel-loader?presets[]=es2015' },
+          {
+            test: /\.js$/,
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', { targets: "defaults" }]
+                ],
+                plugins: [
+                  '@babel/plugin-transform-object-assign',
+                  '@babel/plugin-transform-runtime',
+                  '@babel/plugin-transform-modules-commonjs',
+                ],
+              },
+            },
+          },
         ],
       },
+      resolve: {
+        fallback: {
+          'path': require.resolve("path-browserify"),
+        },
+      },
     },
-
   });
 };

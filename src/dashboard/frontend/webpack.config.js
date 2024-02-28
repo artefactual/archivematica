@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   context:  __dirname + '/app',
   output: {
     path:  __dirname + '/../src/media/js/build',
@@ -11,21 +11,34 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015'],
-          plugins: ['transform-object-assign', 'transform-runtime'],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              ['@babel/preset-env', { targets: "defaults" }]
+            ],
+            plugins: [
+              '@babel/plugin-transform-object-assign',
+              '@babel/plugin-transform-runtime',
+              '@babel/plugin-transform-modules-commonjs',
+            ],
+          },
         },
         exclude: /node_modules/,
       },
       {
         test: /\.css/,
-        loader: 'style-loader!css-loader',
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+          },
+        ],
       },
       {
         test: /\.png$/,
         loader: 'url-loader',
-        query: {
+        options: {
           mimetype: 'image/png',
         },
       },
@@ -34,5 +47,10 @@ module.exports = {
         loader: 'url-loader',
       },
     ],
+  },
+  resolve: {
+    fallback: {
+      'path': require.resolve("path-browserify"),
+    },
   },
 };
