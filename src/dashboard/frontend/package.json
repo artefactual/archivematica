@@ -46,7 +46,7 @@
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
     "angular-route-segment": "~1.5.0",
-    "angular-tree-control": "git+https://github.com/wix/angular-tree-control.git#273a0422d28e667784135b347c0aa06eaa1b2cd2",
+    "angular-tree-control": "^0.2.0",
     "angular-ui-bootstrap": "^0.14.3",
     "angular-ui-validate": "^1.2.2",
     "archivematica-browse-helpers": "git+https://github.com/artefactual-labs/archivematica-browse-helpers.git",

@@ -2,8 +2,8 @@
 import './app.css';
 import './browser.css';
 import 'font-awesome/css/font-awesome.min.css';
-import './vendor/angular-tree-control/css/tree-control.css';
-import './vendor/angular-tree-control/css/tree-control-attribute.css';
+import 'angular-tree-control/css/tree-control.css';
+import 'angular-tree-control/css/tree-control-attribute.css';
 
 // Angular must be available to cache the partials
 import 'angular';
@@ -31,8 +31,10 @@ import './vendor/angular-charts/angular-charts.js';
 import 'angular-gettext';
 import 'angular-route';
 import 'angular-route-segment';
-import './vendor/angular-tree-control/angular-tree-control.js';
+import 'angular-tree-control/angular-tree-control.js';
+import 'angular-tree-control/context-menu.js';
 import 'angular-ui-validate';
+import 'angular-ui-bootstrap';
 import 'd3';
 import 'moment';
 import 'restangular';
