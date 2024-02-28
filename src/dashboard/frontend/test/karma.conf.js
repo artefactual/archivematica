@@ -41,9 +41,10 @@ module.exports = function(config){
     },
 
     webpack: {
+      mode: 'development',
       devtool: 'inline-source-map',
       module: {
-        loaders: [
+        rules: [
           { test: /\.js$/, loader: 'babel-loader?presets[]=es2015' },
         ],
       },

@@ -105,6 +105,8 @@ RUN set -ex \
 
 FROM node:${NODE_VERSION} AS archivematica-dashboard-frontend-builder
 
+ENV NODE_OPTIONS --openssl-legacy-provider
+
 COPY --link src/dashboard/frontend /src/src/dashboard/frontend
 
 WORKDIR /src/src/dashboard/frontend
@@ -118,6 +120,7 @@ FROM node:${NODE_VERSION} AS archivematica-dashboard-testing
 
 ARG SELENIUM_DIR=/selenium
 ENV PATH=${SELENIUM_DIR}/bin:$PATH
+ENV NODE_OPTIONS --openssl-legacy-provider
 
 RUN set -ex \
 	&& apt-get update \

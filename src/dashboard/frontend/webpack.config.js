@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
+  mode: 'production',
   context:  __dirname + '/app',
   output: {
     path:  __dirname + '/../src/media/js/build',

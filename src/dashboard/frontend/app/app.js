@@ -135,7 +135,7 @@ run(function ($window, gettextCatalog) {
     gettextCatalog.setCurrentLanguage(currentLanguage);
 
     // Load translations
-    for (let [langCode, translations] of Object.entries(require('json-loader!./locale/translations.json'))) {
+    for (let [langCode, translations] of Object.entries(require('./locale/translations.json'))) {
       gettextCatalog.setStrings(langCode, translations);
     }
 }).
