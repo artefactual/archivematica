@@ -36,15 +36,8 @@ module.exports = {
         ],
       },
       {
-        test: /\.png$/,
-        loader: 'url-loader',
-        options: {
-          mimetype: 'image/png',
-        },
-      },
-      {
-        test: /\.(eot|woff|woff2|ttf|svg)(\?v=\d\.\d\.\d)?$/,
-        loader: 'url-loader',
+        test: /\.(png|eot|woff|woff2|ttf|svg)(\?v=\d\.\d\.\d)?$/,
+        type: 'asset/inline',
       },
     ],
   },
