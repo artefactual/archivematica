@@ -7,7 +7,7 @@ module.exports = {
     filename: 'dashboard.js',
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         loader: 'babel-loader',
@@ -19,18 +19,18 @@ module.exports = {
       },
       {
         test: /\.css/,
-        loader: 'style!css',
+        loader: 'style-loader!css-loader',
       },
       {
-          test: /\.png$/,
-          loader: 'url-loader',
-          query: {
-            mimetype: 'image/png',
-          },
+        test: /\.png$/,
+        loader: 'url-loader',
+        query: {
+          mimetype: 'image/png',
+        },
       },
       {
-          test: /\.(eot|woff|woff2|ttf|svg)(\?v=\d\.\d\.\d)?$/,
-          loader: 'url-loader',
+        test: /\.(eot|woff|woff2|ttf|svg)(\?v=\d\.\d\.\d)?$/,
+        loader: 'url-loader',
       },
     ],
   },

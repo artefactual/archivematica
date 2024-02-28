@@ -44,7 +44,7 @@ module.exports = function(config){
       devtool: 'inline-source-map',
       module: {
         loaders: [
-          { test: /\.js$/, loader: 'babel?presets[]=es2015' },
+          { test: /\.js$/, loader: 'babel-loader?presets[]=es2015' },
         ],
       },
     },

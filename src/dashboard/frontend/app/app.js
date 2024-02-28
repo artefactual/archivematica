@@ -9,21 +9,21 @@ import './vendor/angular-tree-control/css/tree-control-attribute.css';
 import 'angular';
 
 // Partials
-import 'ng-cache?prefix=[dir]!./analysis/analysis.html';
-import 'ng-cache?prefix=[dir]!./archivesspace/form.html';
-import 'ng-cache?prefix=[dir]!./arrangement/edit_metadata_form.html';
-import 'ng-cache?prefix=[dir]!./examine_contents/examine_contents.html';
-import 'ng-cache?prefix=[dir]!./examine_contents/file_info.html';
-import 'ng-cache?prefix=[dir]!./front_page/appraisal_tab.html';
-import 'ng-cache?prefix=[dir]!./front_page/transfer_browser.html';
-import 'ng-cache?prefix=[dir]!./preview/preview.html';
-import 'ng-cache?prefix=[dir]!./report/format.html';
-import 'ng-cache?prefix=[dir]!./report/tags.html';
-import 'ng-cache?prefix=[dir]!./ui/minimize-bar.html';
-import 'ng-cache?prefix=[dir]!./ui/minimize-panel.html';
-import 'ng-cache?prefix=[dir]!./visualizations/formats_by_files.html';
-import 'ng-cache?prefix=[dir]!./visualizations/formats_by_size.html';
-import 'ng-cache?prefix=[dir]!./visualizations/visualizations.html';
+import 'ng-cache-loader?prefix=[dir]!./analysis/analysis.html';
+import 'ng-cache-loader?prefix=[dir]!./archivesspace/form.html';
+import 'ng-cache-loader?prefix=[dir]!./arrangement/edit_metadata_form.html';
+import 'ng-cache-loader?prefix=[dir]!./examine_contents/examine_contents.html';
+import 'ng-cache-loader?prefix=[dir]!./examine_contents/file_info.html';
+import 'ng-cache-loader?prefix=[dir]!./front_page/appraisal_tab.html';
+import 'ng-cache-loader?prefix=[dir]!./front_page/transfer_browser.html';
+import 'ng-cache-loader?prefix=[dir]!./preview/preview.html';
+import 'ng-cache-loader?prefix=[dir]!./report/format.html';
+import 'ng-cache-loader?prefix=[dir]!./report/tags.html';
+import 'ng-cache-loader?prefix=[dir]!./ui/minimize-bar.html';
+import 'ng-cache-loader?prefix=[dir]!./ui/minimize-panel.html';
+import 'ng-cache-loader?prefix=[dir]!./visualizations/formats_by_files.html';
+import 'ng-cache-loader?prefix=[dir]!./visualizations/formats_by_size.html';
+import 'ng-cache-loader?prefix=[dir]!./visualizations/visualizations.html';
 
 // Third-party modules
 import angular from 'angular';
@@ -135,7 +135,7 @@ run(function ($window, gettextCatalog) {
     gettextCatalog.setCurrentLanguage(currentLanguage);
 
     // Load translations
-    for (let [langCode, translations] of Object.entries(require('json!./locale/translations.json'))) {
+    for (let [langCode, translations] of Object.entries(require('json-loader!./locale/translations.json'))) {
       gettextCatalog.setStrings(langCode, translations);
     }
 }).
