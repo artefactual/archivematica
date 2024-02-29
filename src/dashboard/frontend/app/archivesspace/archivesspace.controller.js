@@ -1,6 +1,6 @@
 import angular from 'angular';
 import moment from 'moment';
-import '../vendor/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.14.3.min.js';
+import 'angular-ui-bootstrap';
 
 angular.module('archivesSpaceController', ['alertService', 'sipArrangeService', 'transferService', 'ui.bootstrap']).
 

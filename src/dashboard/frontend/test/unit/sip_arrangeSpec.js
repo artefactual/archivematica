@@ -1,7 +1,7 @@
 'use strict';
 
 import '../../app/services/sip_arrange.service.js';
-import '../../app/vendor/angular-tree-control/demo/jquery.2.0.3.js';
+import './vendor/jquery.js';
 
 describe('SipArrange', function() {
   beforeEach(angular.mock.module('sipArrangeService'));

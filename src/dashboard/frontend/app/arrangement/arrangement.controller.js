@@ -1,6 +1,6 @@
 var path = require('path');
 import angular from 'angular';
-import '../vendor/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.14.3.min.js';
+import 'angular-ui-bootstrap';
 
 angular.module('arrangementController', ['sipArrangeService', 'ui.bootstrap', require('angular-cookies')]).
 

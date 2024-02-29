@@ -41,13 +41,33 @@ module.exports = function(config){
     },
 
     webpack: {
+      mode: 'development',
       devtool: 'inline-source-map',
       module: {
-        loaders: [
-          { test: /\.js$/, loader: 'babel?presets[]=es2015' },
+        rules: [
+          {
+            test: /\.js$/,
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', { targets: "defaults" }]
+                ],
+                plugins: [
+                  '@babel/plugin-transform-object-assign',
+                  '@babel/plugin-transform-runtime',
+                  '@babel/plugin-transform-modules-commonjs',
+                ],
+              },
+            },
+          },
         ],
       },
+      resolve: {
+        fallback: {
+          'path': require.resolve("path-browserify"),
+        },
+      },
     },
-
   });
 };
