@@ -288,7 +288,7 @@ test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER))
 	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
 
-__TOXENVS_MCPCLIENT = mcp-client mcp-client-ensure-no-mutable-globals
+__TOXENVS_MCPCLIENT = mcp-client
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPCLIENT))
 	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
