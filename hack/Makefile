@@ -87,7 +87,9 @@ create-volumes:  ## Create external data volumes.
 			ss-location-data
 
 build:  # Build Compose services.
-	docker compose build
+	docker compose build \
+		--build-arg USER_ID=$(CALLER_UID) \
+		--build-arg GROUP_ID=$(CALLER_GID)
 
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
