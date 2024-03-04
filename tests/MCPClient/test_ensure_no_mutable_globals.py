@@ -13,9 +13,8 @@ returned. Otherwise a happy message is printed and 0 is returned.
 """
 import importlib
 import logging
-import os
+import pathlib
 import pprint
-import sys
 import types
 from dis import get_instructions
 from dis import opmap
@@ -149,8 +148,15 @@ def print_mutable_globals_usage(supported_modules):
     return 0
 
 
-if __name__ == "__main__":
-    config_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "archivematicaClientModules"
+def test_ensure_no_mutable_globals():
+    config_path = (
+        pathlib.Path(__file__).parent.parent.parent
+        / "src"
+        / "MCPClient"
+        / "lib"
+        / "archivematicaClientModules"
     )
-    sys.exit(print_mutable_globals_usage(get_supported_modules(config_path)))
+
+    result = print_mutable_globals_usage(get_supported_modules(config_path))
+
+    assert result == 0
