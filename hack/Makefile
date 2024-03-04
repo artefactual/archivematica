@@ -85,6 +85,10 @@ create-volumes:  ## Create external data volumes.
 		--opt o=bind \
 		--opt device=$(SS_LOCATION_DATA) \
 			ss-location-data
+	# This workaround prevents Docker from creating this directory structure
+	# inside the external SS_LOCATION_DATA volume directory assigning root as
+	# the owner of some parts of it.
+	mkdir -p $(SS_LOCATION_DATA)/archivematica/archivematica-sampledata
 
 build:  # Build Compose services.
 	docker compose build \
