@@ -23,9 +23,9 @@ bagit @ git+https://github.com/artefactual-labs/bagit-python.git@4b8fde73b4e6314
     # via -r requirements.txt
 brotli==1.1.0
     # via -r requirements.txt
-build==1.0.3
+build==1.1.1
     # via pip-tools
-cachetools==5.3.2
+cachetools==5.3.3
     # via tox
 certifi==2024.2.2
     # via
@@ -47,11 +47,11 @@ click==8.1.7
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.4.2
+coverage[toml]==7.4.3
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==42.0.4
+cryptography==42.0.5
     # via
     #   -r requirements.txt
     #   josepy
@@ -59,7 +59,7 @@ cryptography==42.0.4
     #   pyopenssl
 distlib==0.3.8
     # via virtualenv
-django==4.2.10
+django==4.2.11
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -72,7 +72,7 @@ django-autoslug==1.9.9
     # via -r requirements.txt
 django-cas-ng==5.0.1
     # via -r requirements.txt
-django-csp==3.7
+django-csp==3.8
     # via -r requirements.txt
 django-forms-bootstrap==3.1.0
     # via -r requirements.txt
@@ -111,7 +111,7 @@ importlib-metadata==7.0.1
     #   -r requirements.txt
     #   build
     #   pytest-randomly
-importlib-resources==6.1.1
+importlib-resources==6.1.2
     # via
     #   -r requirements.txt
     #   opf-fido
@@ -198,7 +198,7 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-pytest==8.0.1
+pytest==8.0.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -217,7 +217,7 @@ python-cas==1.6.0
     # via
     #   -r requirements.txt
     #   django-cas-ng
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -r requirements.txt
     #   django-tastypie
@@ -269,7 +269,7 @@ tomli==2.0.1
     #   tox
 tox==4.13.0
     # via -r requirements-dev.in
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   -r requirements.txt
     #   asgiref
@@ -281,7 +281,7 @@ urllib3==2.2.1
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.25.0
+virtualenv==20.25.1
     # via tox
 wheel==0.42.0
     # via pip-tools
@@ -304,7 +304,7 @@ zope-interface==6.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.0
     # via pip-tools
-setuptools==69.1.0
+setuptools==69.1.1
     # via
     #   -r requirements.txt
     #   pip-tools
