@@ -1,0 +1,23 @@
+name: "Push to registry"
+on:
+  push:
+    branches:
+      - 'ops/publish-docker-images-to-registry'
+jobs:
+  build:
+    name: "Builds images and push them to Docker Hub"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4"
+      - name: "Set up buildx"
+        uses: "docker/setup-buildx-action@v3"
+      - name: "Just build images"
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          file: ./hack/Dockerfile
+          target: "archivematica-dashboard"
+          tags: artefactual/archivematica-dashboard:latest,artefactual/archivematica-dashboard:qa/1.x
