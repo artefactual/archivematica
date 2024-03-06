@@ -20,4 +20,4 @@ jobs:
           load: true
           file: ./hack/Dockerfile
           target: "archivematica-dashboard"
-          tags: artefactual/archivematica-dashboard:latest,artefactual/archivematica-dashboard:qa/1.x
+          tags: artefactual/archivematica-dashboard:latest,artefactual/archivematica-dashboard:qa-1.x
