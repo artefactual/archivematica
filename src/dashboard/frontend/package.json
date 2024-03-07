@@ -50,7 +50,7 @@
     "angular-ui-bootstrap": "^0.14.3",
     "angular-ui-validate": "^1.2.2",
     "archivematica-browse-helpers": "git+https://github.com/artefactual-labs/archivematica-browse-helpers.git",
-    "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git",
+    "base64-helpers": "github:artefactual-labs/base64-helpers#dev/update",
     "d3": "^3.5.17",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.21",
