@@ -333,7 +333,7 @@ test-all: start-mysql  ## Run all tests.
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
-		build archivematica-acceptance-tests)
+		build --build-arg USER_ID=$(CALLER_UID) --build-arg GROUP_ID=$(CALLER_GID) archivematica-acceptance-tests)
 
 test-at-check: test-at-build  ## AMAUAT: test browsers.
 	$(call compose_amauat, \
