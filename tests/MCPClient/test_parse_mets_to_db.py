@@ -1,5 +1,6 @@
 import os
 import uuid
+from unittest import mock
 
 import fpr
 import parse_mets_to_db
@@ -68,6 +69,27 @@ class TestParseDublinCore(TestCase):
         assert dc.language == "en"
         assert dc.rights == "Public Domain"
         assert dc.is_part_of == "AIC#43"
+
+    def test_dublin_core_non_core_properties(self):
+        """It should parse a SIP-level DC if contains non-core properties."""
+        sip_uuid = "dbe62094-17af-427b-b6e7-0ac5799ee4e9"
+        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_non_core_dc.xml"))
+        job = mock.Mock(spec=Job)
+
+        dc = parse_mets_to_db.parse_dc(job, sip_uuid, root)
+
+        # Verify the Dublin Core core properties were populated.
+        assert dc
+        assert models.DublinCore.objects.filter(
+            metadataappliestoidentifier=sip_uuid
+        ).exists()
+        assert dc.title == "Objects dir"
+
+        # Verify the job prints the parsed Dublin Core core properties.
+        assert job.pyprint.mock_calls == [
+            mock.call("Dublin Core:"),
+            mock.call("title", "Objects dir"),
+        ]
 
     def test_get_sip_dc_ignore_file_dc(self):
         """It should parse a SIP-level DC even if file-level DC is also present."""

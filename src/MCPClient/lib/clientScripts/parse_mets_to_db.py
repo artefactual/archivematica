@@ -243,6 +243,8 @@ def parse_dc(job, sip_uuid, root):
         job.pyprint("Dublin Core:")
         for elem in dc_xml:
             tag = elem.tag.replace(ns.dctermsBNS, "", 1).replace(ns.dcBNS, "", 1)
+            if tag not in DC_TERMS_MATCHING:
+                continue
             job.pyprint(tag, elem.text)
             if elem.text is not None:
                 setattr(dc_model, DC_TERMS_MATCHING[tag], elem.text)
