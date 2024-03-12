@@ -56,8 +56,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         select
             f.fileUUID,
             f.sipUUID,
-            f.originalLocation as location,
-            f.currentLocation,
+            CONVERT(f.originalLocation USING utf8mb4) as location,
+            CONVERT(f.currentLocation USING utf8mb4) as currentLocation,
             fid.uuid as 'fileID',
             fid.description,
             f.fileGrpUse,
