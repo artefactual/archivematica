@@ -56,5 +56,10 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "restangular": "^1.6.1"
+  },
+  "overrides": {
+    "angular-gettext-tools": {
+      "cheerio": "^1.0.0-rc.12"
+    }
   }
 }
